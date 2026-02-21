@@ -1,0 +1,479 @@
+import React, { useState, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import api from '../../services/api';
+import {
+    MessageSquare, CheckCircle, ArrowLeft, Target, AlertCircle, BarChart3,
+    CloudLightning, FileText, Camera, Phone, UserCheck, HeartPulse, Brain,
+    Clock, Activity, BookOpen, Smile, Frown, Meh, MoreHorizontal
+} from 'lucide-react';
+import toast from 'react-hot-toast';
+import Modal from '../../components/Modal';
+
+const StudentInteractionLog = () => {
+    const location = useLocation();
+    const navigate = useNavigate();
+
+    // Check if a student was passed via state (e.g. from My Students list)
+    const studentFromState = location.state?.student;
+
+    const [loading, setLoading] = useState(false);
+    const [submitted, setSubmitted] = useState(false);
+    const [students, setStudents] = useState([]);
+    const [selectedStudent, setSelectedStudent] = useState(studentFromState || null);
+    const [logs, setLogs] = useState([]);
+    // State for viewing details
+    const [viewLog, setViewLog] = useState(null);
+
+    const [formData, setFormData] = useState({
+        date: new Date().toISOString().split('T')[0],
+        connection_method: 'Call',
+
+        // Section 2: Learning Evaluation
+        self_clarity: '',
+        confusing_topic: '',
+        can_solve_independently: 'Yes',
+
+        // Section 3: Homework & Revision
+        homework_status: 'Done',
+        homework_difficulty: 'Medium',
+        revision_quality: 'Good',
+
+        // Section 4: Emotional & Performance
+        confidence: 3,
+        motivation_level: 'Medium',
+        exam_anxiety: 'No',
+        focus_level: 'Average',
+
+        // Section 5: Requests & Actions
+        student_requests: '',
+        parent_update_priority: 'Low',
+        mentor_action_needed: 'No',
+        mentor_notes: '',
+        connected_today: true
+    });
+
+    useEffect(() => {
+        if (!selectedStudent) {
+            fetchStudents();
+        } else {
+            fetchStudentLogs(selectedStudent.id);
+        }
+    }, [selectedStudent]);
+
+    const fetchStudents = async () => {
+        try {
+            const res = await api.get('/mentor/students');
+            setStudents(res.data.data);
+        } catch (error) {
+            toast.error("Failed to load students list");
+        }
+    };
+
+    const fetchStudentLogs = async (studentId) => {
+        try {
+            const res = await api.get('/mentor/student-logs');
+            const studentLogs = res.data.data.filter(log => log.student_id === studentId);
+            setLogs(studentLogs);
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+
+        // Validate Self Clarity (0-100)
+        if (name === 'self_clarity') {
+            const num = parseInt(value);
+            if (value !== '' && (isNaN(num) || num < 0 || num > 100)) return;
+        }
+
+        setFormData(prev => ({
+            ...prev,
+            [name]: value
+        }));
+    };
+
+    const handleCheckboxChange = (e) => {
+        const { name, checked } = e.target;
+        setFormData(prev => ({ ...prev, [name]: checked }));
+    };
+
+    const handleStudentSelect = (student) => {
+        setSelectedStudent(student);
+        setSubmitted(false); // Reset submission state
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        if (!formData.self_clarity) {
+            toast.error("Please enter Self Clarity %");
+            return;
+        }
+
+        setLoading(true);
+        try {
+            await api.post('/mentor/student-log', {
+                ...formData,
+                student_id: selectedStudent.id,
+                // session_number is calculated by backend
+            });
+            toast.success("Interaction Log Saved Successfully");
+            setSubmitted(true);
+            fetchStudentLogs(selectedStudent.id); // Refresh logs
+        } catch (error) {
+            toast.error(error.response?.data?.message || "Logging failed");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Helper to render label-value pair
+    const DetailRow = ({ label, value, highlight = false }) => (
+        <div className="flex flex-col gap-1">
+            <span className="text-[10px] uppercase font-black text-slate-400 tracking-widest">{label}</span>
+            <span className={`text-sm font-bold ${highlight ? 'text-blue-600' : 'text-slate-800'}`}>{value || '-'}</span>
+        </div>
+    );
+
+    if (!selectedStudent) {
+        return (
+            <div className="max-w-5xl mx-auto p-8 pb-20 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <header className="flex flex-col md:flex-row justify-between items-center bg-white p-10 rounded-[3rem] shadow-xl shadow-slate-100 border border-slate-50 relative overflow-hidden text-center md:text-left">
+                    <div className="relative z-10">
+                        <h1 className="text-3xl font-black text-slate-900 tracking-tight">Student Interaction Log</h1>
+                        <p className="text-sm font-bold text-slate-400 mt-2">Select a student to start logging a new interaction.</p>
+                    </div>
+                    <div className="w-20 h-20 bg-blue-600 rounded-[2rem] flex items-center justify-center text-white shadow-xl shadow-blue-200 mt-6 md:mt-0">
+                        <UserCheck size={32} />
+                    </div>
+                </header>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {students.map(student => (
+                        <button
+                            key={student.id}
+                            onClick={() => handleStudentSelect(student)}
+                            className="bg-white p-8 rounded-[2.5rem] border border-slate-100 hover:shadow-xl hover:scale-[1.02] transition-all cursor-pointer group text-left relative overflow-hidden"
+                        >
+                            <div className="absolute top-0 right-0 w-24 h-24 bg-slate-50 rounded-full -mr-12 -mt-12 group-hover:bg-blue-600 group-hover:scale-150 transition-all duration-500 opacity-10"></div>
+                            <h3 className="text-lg font-black text-slate-900 mb-1 relative z-10">{student.name}</h3>
+                            <p className="text-xs font-bold text-slate-500 mb-4 relative z-10">{student.course} • {student.grade}</p>
+                            <div className="flex items-center gap-2 text-blue-600 text-[10px] font-black uppercase tracking-widest relative z-10">
+                                <span>Start Logging</span> <ArrowLeft size={12} className="rotate-180" />
+                            </div>
+                        </button>
+                    ))}
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <div className="max-w-4xl mx-auto space-y-10 p-6 pb-20 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <button
+                onClick={() => { setSelectedStudent(null); setSubmitted(false); }}
+                className="flex items-center gap-2 text-slate-400 hover:text-blue-600 font-black text-[10px] uppercase tracking-widest transition-colors mb-4"
+            >
+                <ArrowLeft size={16} /> Select Different Student
+            </button>
+
+            <header className="bg-slate-900 border border-slate-800 p-10 rounded-[3rem] shadow-2xl relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-80 h-80 bg-blue-600 rounded-full -mr-40 -mt-40 opacity-10"></div>
+                <div className="relative z-10 flex items-center gap-6">
+                    <div className="w-16 h-16 bg-blue-600 rounded-[1.5rem] flex items-center justify-center text-white shadow-xl shadow-blue-200/50">
+                        <MessageSquare size={32} />
+                    </div>
+                    <div>
+                        <h1 className="text-3xl font-black text-white tracking-tight">Log Interaction</h1>
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mt-1">Student: {selectedStudent.name} | Date: {formData.date}</p>
+                    </div>
+                </div>
+            </header>
+
+            {!submitted ? (
+                <form onSubmit={handleSubmit} className="bg-white p-6 md:p-12 rounded-[3.5rem] shadow-xl shadow-slate-100 border border-slate-50 space-y-12">
+
+                    {/* Section 1: Session Information */}
+                    <div className="space-y-6">
+                        <h3 className="text-xs font-black text-slate-900 uppercase tracking-[0.2em] border-l-4 border-blue-600 pl-4 flex items-center gap-2">
+                            <Clock size={16} className="text-blue-600" /> Section 1: Session Information
+                        </h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-slate-50/50 p-6 rounded-3xl border border-slate-100">
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Date</label>
+                                <input
+                                    type="date"
+                                    name="date"
+                                    value={formData.date}
+                                    onChange={handleChange}
+                                    className="w-full p-4 bg-white border border-slate-200 rounded-2xl text-sm font-bold text-slate-700 focus:ring-4 focus:ring-blue-50 outline-none"
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Connection Method</label>
+                                <select name="connection_method" value={formData.connection_method} onChange={handleChange} className="w-full p-4 bg-white border border-slate-200 rounded-2xl text-sm font-bold text-slate-700 focus:ring-4 focus:ring-blue-50 outline-none">
+                                    {['Call', 'WhatsApp Chat', 'Zoom', 'Direct', 'Other'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Section 2: Learning Evaluation */}
+                    <div className="space-y-6">
+                        <h3 className="text-xs font-black text-slate-900 uppercase tracking-[0.2em] border-l-4 border-emerald-600 pl-4 flex items-center gap-2">
+                            <Brain size={16} className="text-emerald-600" /> Section 2: Learning Evaluation
+                        </h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Self Clarity (0-100)</label>
+                                <input type="number" min="0" max="100" name="self_clarity" value={formData.self_clarity} onChange={handleChange} placeholder="e.g. 85" className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-700 outline-none" required />
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Can Solve Independently?</label>
+                                <select name="can_solve_independently" value={formData.can_solve_independently} onChange={handleChange} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-700 outline-none">
+                                    {['Yes', 'Partially', 'No'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                                </select>
+                            </div>
+                            <div className="space-y-2 md:col-span-2">
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Confusing Topic</label>
+                                <input type="text" name="confusing_topic" value={formData.confusing_topic} onChange={handleChange} placeholder="Any specific topic?" className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-700 outline-none" />
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Section 3: Homework & Revision */}
+                    <div className="space-y-6">
+                        <h3 className="text-xs font-black text-slate-900 uppercase tracking-[0.2em] border-l-4 border-amber-500 pl-4 flex items-center gap-2">
+                            <BookOpen size={16} className="text-amber-500" /> Section 3: Homework & Revision
+                        </h3>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Homework Status</label>
+                                <select name="homework_status" value={formData.homework_status} onChange={handleChange} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-700 outline-none">
+                                    {['Done', 'Partial', 'Not Done'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                                </select>
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Difficulty</label>
+                                <select name="homework_difficulty" value={formData.homework_difficulty} onChange={handleChange} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-700 outline-none">
+                                    {['Easy', 'Medium', 'Hard'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                                </select>
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Revision Quality</label>
+                                <select name="revision_quality" value={formData.revision_quality} onChange={handleChange} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-700 outline-none">
+                                    {['Good', 'Rushed', 'Not Done'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Section 4: Emotional & Performance */}
+                    <div className="space-y-6">
+                        <h3 className="text-xs font-black text-slate-900 uppercase tracking-[0.2em] border-l-4 border-rose-500 pl-4 flex items-center gap-2">
+                            <HeartPulse size={16} className="text-rose-500" /> Section 4: Emotional & Performance
+                        </h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Confidence (1-5)</label>
+                                <div className="flex gap-2">
+                                    {[1, 2, 3, 4, 5].map(num => (
+                                        <button
+                                            key={num}
+                                            type="button"
+                                            onClick={() => setFormData({ ...formData, confidence: num })}
+                                            className={`flex-1 p-3 rounded-xl font-black text-sm transition-all ${formData.confidence === num ? 'bg-rose-500 text-white shadow-lg shadow-rose-200' : 'bg-slate-50 text-slate-400 hover:bg-slate-100'}`}
+                                        >
+                                            {num}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Focus Level</label>
+                                <select name="focus_level" value={formData.focus_level} onChange={handleChange} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-700 outline-none">
+                                    {['Good', 'Average', 'Poor'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                                </select>
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Motivation</label>
+                                <select name="motivation_level" value={formData.motivation_level} onChange={handleChange} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-700 outline-none">
+                                    {['High', 'Medium', 'Low'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                                </select>
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Exam Anxiety?</label>
+                                <select name="exam_anxiety" value={formData.exam_anxiety} onChange={handleChange} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-700 outline-none">
+                                    {['No', 'Yes'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Section 5: Requests & Actions */}
+                    <div className="space-y-6">
+                        <h3 className="text-xs font-black text-slate-900 uppercase tracking-[0.2em] border-l-4 border-purple-500 pl-4 flex items-center gap-2">
+                            <Activity size={16} className="text-purple-500" /> Section 5: Requests & Actions
+                        </h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="space-y-2 md:col-span-2">
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Student Requests</label>
+                                <textarea name="student_requests" rows="2" value={formData.student_requests} onChange={handleChange} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-700 outline-none"></textarea>
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Parent Update Priority</label>
+                                <select name="parent_update_priority" value={formData.parent_update_priority} onChange={handleChange} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-700 outline-none">
+                                    {['Low', 'Medium', 'High'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                                </select>
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Mentor Action Needed?</label>
+                                <select name="mentor_action_needed" value={formData.mentor_action_needed} onChange={handleChange} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-700 outline-none">
+                                    {['Yes', 'No'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                                </select>
+                            </div>
+                            <div className="space-y-2 md:col-span-2">
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Mentor Notes</label>
+                                <textarea name="mentor_notes" rows="4" value={formData.mentor_notes} onChange={handleChange} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-700 outline-none"></textarea>
+                            </div>
+
+                            <div className="md:col-span-2 pt-4 flex items-center gap-4">
+                                <input
+                                    type="checkbox"
+                                    id="connected_today"
+                                    name="connected_today"
+                                    checked={formData.connected_today}
+                                    onChange={handleCheckboxChange}
+                                    className="w-6 h-6 rounded-lg text-blue-600 border-slate-300 focus:ring-blue-500"
+                                />
+                                <label htmlFor="connected_today" className="text-sm font-black text-slate-900 uppercase tracking-widest cursor-pointer">
+                                    [✓] Connected Today
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="pt-8">
+                        <button
+                            type="submit"
+                            disabled={loading}
+                            className="w-full bg-blue-600 text-white p-5 rounded-[2rem] font-black text-sm uppercase tracking-[0.3em] shadow-2xl shadow-blue-200/50 hover:bg-blue-700 hover:-translate-y-1 transition-all disabled:opacity-50 flex items-center justify-center gap-4 italic active:scale-[0.98]"
+                        >
+                            {loading ? 'Submitting...' : 'Submit Log'}
+                            {!loading && <CheckCircle size={20} />}
+                        </button>
+                    </div>
+
+                </form>
+            ) : (
+                <div className="space-y-8 animate-in fade-in zoom-in duration-300">
+                    <div className="bg-emerald-50 border border-emerald-100 p-8 rounded-[3rem] text-center">
+                        <div className="w-16 h-16 bg-emerald-500 text-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg shadow-emerald-200">
+                            <CheckCircle size={32} />
+                        </div>
+                        <h2 className="text-2xl font-black text-emerald-900 mb-2">Log Submitted!</h2>
+                        <button
+                            onClick={() => setSubmitted(false)}
+                            className="text-xs font-bold text-emerald-600 hover:text-emerald-800 underline uppercase tracking-widest"
+                        >
+                            Add Another Log
+                        </button>
+                    </div>
+
+                    {/* Compact Table View */}
+                    <div className="bg-white p-6 rounded-[2.5rem] shadow-xl shadow-slate-100 border border-slate-50">
+                        <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest mb-6 ml-2">Recent Logs for {selectedStudent.name}</h3>
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left border-collapse">
+                                <thead>
+                                    <tr className="border-b border-slate-100">
+                                        <th className="p-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Date</th>
+                                        <th className="p-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Sess #</th>
+                                        <th className="p-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Method</th>
+                                        <th className="p-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Clarity</th>
+                                        <th className="p-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Show More</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {logs.slice(0, 5).map(log => (
+                                        <tr
+                                            key={log.id}
+                                            onClick={() => setViewLog(log)}
+                                            className="border-b border-slate-50 hover:bg-slate-50 transition-colors cursor-pointer group"
+                                        >
+                                            <td className="p-4 text-xs font-bold text-slate-700">{new Date(log.date).toLocaleDateString()}</td>
+                                            <td className="p-4 text-xs font-black text-slate-400">#{log.session_number}</td>
+                                            <td className="p-4 text-xs font-bold text-slate-600">{log.connection_method}</td>
+                                            <td className="p-4 text-xs font-bold text-blue-600">{log.self_clarity}%</td>
+                                            <td className="p-4 text-xs font-bold text-slate-400 group-hover:text-blue-600 transition-colors">
+                                                <MoreHorizontal size={16} />
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    {/* View Log Modal */}
+                    <Modal isOpen={!!viewLog} onClose={() => setViewLog(null)} title={`Interaction Log #${viewLog?.session_number}`} size="lg">
+                        {viewLog && (
+                            <div className="space-y-8 p-2">
+                                <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+                                    <DetailRow label="Date" value={new Date(viewLog.date).toLocaleDateString()} />
+                                    <DetailRow label="Method" value={viewLog.connection_method} />
+                                    <DetailRow label="Student" value={selectedStudent.name} />
+                                    <DetailRow label="Status" value="Completed" highlight />
+                                </div>
+
+                                <div className="space-y-4">
+                                    <h4 className="text-xs font-black text-slate-900 uppercase tracking-[0.1em] border-l-4 border-blue-600 pl-3">Learning & Comprehension</h4>
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 bg-slate-50 p-6 rounded-3xl">
+                                        <DetailRow label="Self Clarity" value={`${viewLog.self_clarity}%`} highlight />
+                                        <DetailRow label="Can Solve Independently?" value={viewLog.can_solve_independently} />
+                                        <DetailRow label="Confusing Topic" value={viewLog.confusing_topic || 'None'} />
+                                    </div>
+                                </div>
+
+                                <div className="space-y-4">
+                                    <h4 className="text-xs font-black text-slate-900 uppercase tracking-[0.1em] border-l-4 border-amber-500 pl-3">Homework & Revision</h4>
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 bg-slate-50 p-6 rounded-3xl">
+                                        <DetailRow label="Homework Status" value={viewLog.homework_status} />
+                                        <DetailRow label="Difficulty" value={viewLog.homework_difficulty} />
+                                        <DetailRow label="Revision Quality" value={viewLog.revision_quality} />
+                                    </div>
+                                </div>
+
+                                <div className="space-y-4">
+                                    <h4 className="text-xs font-black text-slate-900 uppercase tracking-[0.1em] border-l-4 border-purple-500 pl-3">Performance & Emotion</h4>
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 bg-slate-50 p-6 rounded-3xl">
+                                        <DetailRow label="Confidence" value={`${viewLog.confidence}/5`} />
+                                        <DetailRow label="Motivation" value={viewLog.motivation_level} />
+                                        <DetailRow label="Anxiety" value={viewLog.exam_anxiety} />
+                                        <DetailRow label="Focus Level" value={viewLog.focus_level} />
+                                    </div>
+                                </div>
+
+                                <div className="space-y-4">
+                                    <h4 className="text-xs font-black text-slate-900 uppercase tracking-[0.1em] border-l-4 border-rose-500 pl-3">Requests & Actions</h4>
+                                    <div className="bg-slate-50 p-6 rounded-3xl space-y-6">
+                                        <DetailRow label="Student Requests" value={viewLog.student_requests || 'None'} />
+                                        <DetailRow label="Mentor Notes" value={viewLog.mentor_notes || 'None'} />
+                                        <div className="grid grid-cols-2 gap-6">
+                                            <DetailRow label="Parent Priority" value={viewLog.parent_update_priority} />
+                                            <DetailRow label="Action Needed" value={viewLog.mentor_action_needed} />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </Modal>
+                </div>
+            )}
+        </div>
+    );
+};
+
+export default StudentInteractionLog;
