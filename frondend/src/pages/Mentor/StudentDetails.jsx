@@ -47,11 +47,16 @@ const StudentDetails = () => {
                     <User size={80} />
                 </div>
                 <div className="flex-1 text-center md:text-left relative z-10">
-                    <h1 className="text-4xl font-black text-slate-900 tracking-tight mb-2 flex flex-col md:flex-row items-center gap-3 justify-center md:justify-start">
+                    <h1 className="text-4xl font-black text-slate-900 tracking-tighter uppercase italic mb-2 flex flex-col md:flex-row items-center gap-3 justify-center md:justify-start">
                         {student.name}
                         {student.onboarding_status === 'pending' && (
-                            <span className="px-3 py-1 bg-rose-50 text-rose-600 rounded-xl text-xs font-black uppercase tracking-widest border border-rose-100 shadow-sm">
+                            <span className="px-3 py-1 bg-rose-50 text-rose-600 rounded-xl text-xs font-black uppercase tracking-widest border border-rose-100 shadow-sm not-italic">
                                 Onboarding Pending
+                            </span>
+                        )}
+                        {student.is_shifted && (
+                            <span className="px-3 py-1 bg-amber-50 text-amber-600 rounded-xl text-xs font-black uppercase tracking-widest border border-amber-100 shadow-sm flex items-center gap-2 not-italic">
+                                <History size={12} /> Shifted: {student.shifted_from}
                             </span>
                         )}
                     </h1>

@@ -3,6 +3,8 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const pool = require('./config/db');
 
+const path = require('path');
+
 dotenv.config();
 
 const authRoutes = require('./routes/authRoutes');
@@ -13,19 +15,23 @@ const app = express();
 // Middleware
 app.use(cors());
 app.use(express.json());
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/upload', require('./routes/uploadRoutes'));
 app.use('/api/tasks', require('./routes/taskRoutes'));
 app.use('/api/register', require('./routes/registrationRoutes'));
 app.use('/api/mentor', require('./routes/mentorRoutes'));
 app.use('/api/mentor-head', require('./routes/mentorHeadRoutes'));
 app.use('/api/academic-head', require('./routes/academicHeadRoutes'));
+app.use('/api/faculty', require('./routes/facultyRoutes'));
+app.use('/api/bdm', require('./routes/academicCounselorRoutes'));
 
 // Basic Route
 app.get('/', (req, res) => {
-    res.json({ message: "Welcome to MashMagic Edu Tech API" });
+    res.json({ message: "Welcome to MashMagic Edu Tech API v2 - Permissions Fixed" });
 });
 
 // Test Connection and Start Server

@@ -23,8 +23,8 @@ const Reports = () => {
     return (
         <div className="flex flex-col gap-8">
             <div className="flex flex-col gap-1">
-                <h2 className="text-2xl font-black text-slate-900 tracking-tight">Enterprise Analytics</h2>
-                <p className="text-slate-500 text-sm font-medium">Configure filters and generate master data exports</p>
+                <h2 className="text-3xl font-black text-slate-900 tracking-tighter uppercase italic">Enterprise Analytics</h2>
+                <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest mt-1 text-slate-500">Configure filters and generate master data exports</p>
             </div>
 
             <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm">
@@ -73,8 +73,8 @@ const Reports = () => {
                 ].map(({ type, color }) => (
                     <div className="bg-white p-8 rounded-[2.5rem] border border-slate-200 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group flex flex-col items-center text-center" key={type}>
                         <div className={`w-20 h-20 mb-8 rounded-3xl flex items-center justify-center transition-all group-hover:rotate-12 ${color === 'blue' ? 'bg-blue-50 text-blue-600 shadow-lg shadow-blue-50' :
-                                color === 'emerald' ? 'bg-emerald-50 text-emerald-600 shadow-lg shadow-emerald-50' :
-                                    'bg-amber-50 text-amber-600 shadow-lg shadow-amber-50'
+                            color === 'emerald' ? 'bg-emerald-50 text-emerald-600 shadow-lg shadow-emerald-50' :
+                                'bg-amber-50 text-amber-600 shadow-lg shadow-amber-50'
                             }`}>
                             <FileText size={36} />
                         </div>
@@ -82,8 +82,8 @@ const Reports = () => {
                         <p className="text-sm text-slate-500 font-medium mb-8">Export all current {type.toLowerCase()} records including meta-properties.</p>
                         <button
                             className={`w-full py-4 rounded-2xl flex items-center justify-center gap-3 font-bold text-sm transition-all shadow-lg hover:brightness-110 ${color === 'blue' ? 'bg-blue-600 text-white shadow-blue-100' :
-                                    color === 'emerald' ? 'bg-emerald-600 text-white shadow-emerald-100' :
-                                        'bg-amber-600 text-white shadow-amber-100'
+                                color === 'emerald' ? 'bg-emerald-600 text-white shadow-emerald-100' :
+                                    'bg-amber-600 text-white shadow-amber-100'
                                 }`}
                             onClick={() => handleDownload(type)}
                         >

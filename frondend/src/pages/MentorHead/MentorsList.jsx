@@ -12,7 +12,9 @@ import {
     ArrowUpDown,
     Edit2,
     Trash2,
-    X
+    X,
+    GraduationCap,
+    BookOpen
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
@@ -102,17 +104,22 @@ const MentorsList = () => {
 
     return (
         <div className="space-y-8">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+            {/* Page Title */}
+            <div className="bg-white p-10 rounded-[3rem] border border-slate-100 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                 <div>
-                    <h1 className="text-3xl font-black text-slate-900 tracking-tight">Active Faculty</h1>
-                    <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mt-1">Personnel Directory</p>
+                    <h2 className="text-3xl font-black text-slate-900 tracking-tighter uppercase italic">Mentor Registry</h2>
+                    <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest mt-2 flex items-center gap-2">
+                        <Users size={14} className="text-indigo-500" />
+                        Comprehensive database of all active mentors, their assigned students, and daily connection progress
+                    </p>
                 </div>
+
                 <div className="relative group">
                     <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-colors" size={18} />
                     <input
                         type="text"
                         placeholder="FILTER BY NAME, PHONE, OR LOCATION..."
-                        className="pl-14 pr-8 py-4 bg-white border border-slate-100 rounded-3xl text-xs font-bold uppercase tracking-[0.1em] focus:ring-4 ring-indigo-500/10 w-full md:w-96 shadow-sm transition-all outline-none"
+                        className="pl-14 pr-8 py-4 bg-slate-50 border border-slate-100 rounded-3xl text-xs font-bold uppercase tracking-[0.1em] focus:ring-4 ring-indigo-500/10 w-full md:w-96 shadow-sm transition-all outline-none focus:bg-white"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
@@ -138,64 +145,77 @@ const MentorsList = () => {
                                 const progress = total > 0 ? (connected / total) * 100 : 0;
 
                                 return (
-                                    <tr key={mentor.mentor_id} className="hover:bg-slate-50/50 transition-colors group">
-                                        <td className="p-6">
-                                            <div className="flex items-center gap-4">
-                                                <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 via-indigo-600 to-purple-700 rounded-xl flex items-center justify-center text-white font-black shadow-lg shadow-indigo-200 group-hover:scale-110 transition-transform">
-                                                    {mentor.mentor_name.charAt(0)}
+                                    <React.Fragment key={mentor.mentor_id}>
+                                        <tr className="hover:bg-slate-50/50 transition-colors group">
+                                            <td className="p-6">
+                                                <div className="flex items-center gap-4">
+                                                    <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 via-indigo-600 to-purple-700 rounded-xl flex items-center justify-center text-white font-black shadow-lg shadow-indigo-200 group-hover:scale-110 transition-transform">
+                                                        {mentor.mentor_name.charAt(0)}
+                                                    </div>
+                                                    <div className="flex flex-col">
+                                                        <span className="text-sm font-black text-slate-900 group-hover:text-indigo-600 transition-colors">{mentor.mentor_name}</span>
+                                                    </div>
                                                 </div>
-                                                <span className="text-sm font-black text-slate-900">{mentor.mentor_name}</span>
-                                            </div>
-                                        </td>
-                                        <td className="p-6 text-center">
-                                            <span className="text-sm font-black text-slate-600 bg-slate-100 px-3 py-1 rounded-lg border border-slate-200">
-                                                {total}
-                                            </span>
-                                        </td>
-                                        <td className="p-6 text-center">
-                                            <span className="text-sm font-black text-emerald-600 bg-emerald-50 px-3 py-1 rounded-lg border border-emerald-100">
-                                                {connected}
-                                            </span>
-                                        </td>
-                                        <td className="p-6">
-                                            <div className="flex items-center gap-4">
-                                                <div className="flex-1 h-3 bg-slate-100 rounded-full overflow-hidden border border-slate-200 shadow-inner">
-                                                    <div
-                                                        className="h-full bg-gradient-to-r from-emerald-400 to-indigo-500 transition-all duration-1000"
-                                                        style={{ width: `${progress}%` }}
-                                                    ></div>
-                                                </div>
-                                                <span className="text-[10px] font-black text-slate-500 w-10 text-right">
-                                                    {progress.toFixed(0)}%
+                                            </td>
+                                            <td className="p-6 text-center">
+                                                <span className="text-sm font-black text-slate-600 bg-slate-100 px-3 py-1 rounded-lg border border-slate-200">
+                                                    {total}
                                                 </span>
-                                            </div>
-                                        </td>
-                                        <td className="p-6 text-right">
-                                            <div className="flex items-center justify-end gap-2">
-                                                <button
-                                                    onClick={() => navigate(`/mentor-head/mentors/${mentor.mentor_id}`)}
-                                                    className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-widest text-indigo-600 hover:bg-indigo-50 hover:border-indigo-200 transition-all shadow-sm"
-                                                    title="View Profile"
-                                                >
-                                                    View
-                                                </button>
-                                                <button
-                                                    onClick={() => handleEdit(mentor)}
-                                                    className="p-2 border border-slate-200 bg-white rounded-xl text-blue-600 hover:bg-blue-50 transition-colors shadow-sm"
-                                                    title="Edit Mentor"
-                                                >
-                                                    <Edit2 size={16} />
-                                                </button>
-                                                <button
-                                                    onClick={() => handleDelete(mentor.mentor_id)}
-                                                    className="p-2 border border-slate-200 bg-white rounded-xl text-rose-600 hover:bg-rose-50 transition-colors shadow-sm"
-                                                    title="Delete Mentor"
-                                                >
-                                                    <Trash2 size={16} />
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
+                                            </td>
+                                            <td className="p-6 text-center">
+                                                <span className="text-sm font-black text-emerald-600 bg-emerald-50 px-3 py-1 rounded-lg border border-emerald-100">
+                                                    {connected}
+                                                </span>
+                                            </td>
+                                            <td className="p-6">
+                                                <div className="flex items-center gap-4">
+                                                    <div className="flex-1 h-3 bg-slate-100 rounded-full overflow-hidden border border-slate-200 shadow-inner">
+                                                        <div
+                                                            className="h-full bg-gradient-to-r from-emerald-400 to-indigo-500 transition-all duration-1000"
+                                                            style={{ width: `${progress}%` }}
+                                                        ></div>
+                                                    </div>
+                                                    <span className="text-[10px] font-black text-slate-500 w-10 text-right">
+                                                        {progress.toFixed(0)}%
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            <td className="p-6 text-right">
+                                                <div className="flex items-center justify-end gap-2">
+                                                    <button
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            navigate(`/mentor-head/mentors/${mentor.mentor_id}`);
+                                                        }}
+                                                        className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-widest text-indigo-600 hover:bg-indigo-50 hover:border-indigo-200 transition-all shadow-sm"
+                                                        title="View Profile"
+                                                    >
+                                                        View
+                                                    </button>
+                                                    <button
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            handleEdit(mentor);
+                                                        }}
+                                                        className="p-2 border border-slate-200 bg-white rounded-xl text-blue-600 hover:bg-blue-50 transition-colors shadow-sm"
+                                                        title="Edit Mentor"
+                                                    >
+                                                        <Edit2 size={16} />
+                                                    </button>
+                                                    <button
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            handleDelete(mentor.mentor_id);
+                                                        }}
+                                                        className="p-2 border border-slate-200 bg-white rounded-xl text-rose-600 hover:bg-rose-50 transition-colors shadow-sm"
+                                                        title="Delete Mentor"
+                                                    >
+                                                        <Trash2 size={16} />
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </React.Fragment>
                                 );
                             })}
                         </tbody>

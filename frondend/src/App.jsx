@@ -18,11 +18,12 @@ import Reports from './pages/admin/Reports';
 import InteractionLogs from './pages/admin/InteractionLogs';
 import Approvals from './pages/Admin/Approvals';
 import DailyMentorHeadReport from './pages/Admin/DailyMentorHeadReport';
+import AdminManagement from './pages/admin/AdminManagement';
+import StaffManagement from './pages/admin/StaffManagement';
 
 // Auth Pages
 import Login from './pages/Login';
 import Signup from './pages/Signup';
-// Removed separate Mentor Signup/Login pages as requested
 
 // Mentor Panel Pages
 import MentorDashboard from './pages/Mentor/MentorDashboard';
@@ -32,10 +33,21 @@ import MyTasks from './pages/Mentor/MyTasks';
 import Timetable from './pages/Mentor/Timetable';
 import StudentInteractionLog from './pages/Mentor/StudentInteractionLog';
 import FacultyInteractionLog from './pages/Mentor/FacultyInteractionLog';
+import Exams from './pages/Mentor/Exams';
 
-// Placeholders
-import StudentDashboard from './pages/StudentDashboard';
-import FacultyDashboard from './pages/FacultyDashboard';
+// Faculty Panel Pages
+import FacultyLayout from './components/Faculty/FacultyLayout';
+import FacultyDashboard from './pages/Faculty/FacultyDashboard';
+import FacultyStudents from './pages/Faculty/MyStudents';
+import FacultySessions from './pages/Faculty/FacultySessions';
+import FacultyReports from './pages/Faculty/FacultyReports';
+import FacultyExams from './pages/Faculty/FacultyExams';
+import StudentLogs from './pages/Faculty/StudentLogs';
+import FacultyTasks from './pages/Faculty/FacultyTasks';
+import FacultyDocuments from './pages/Faculty/FacultyDocuments';
+import FacultyNotifications from './pages/Faculty/FacultyNotifications';
+import FacultyProfile from './pages/Faculty/FacultyProfile';
+import FacultyStudentDetails from './pages/Faculty/StudentDetails';
 
 // Mentor Head Pages
 import MentorHeadLayout from './components/MentorHead/MentorHeadLayout';
@@ -45,11 +57,29 @@ import MentorsList from './pages/MentorHead/MentorsList';
 import MentorDetails from './pages/MentorHead/MentorDetails';
 import StudentCheckTracker from './pages/MentorHead/StudentCheckTracker';
 import StudentShift from './pages/MentorHead/StudentShift';
+import MentorHeadInteractions from './pages/MentorHead/MentorHeadInteractions';
+import MentorHeadTasks from './pages/MentorHead/MentorHeadTasks';
 
 // Academic Head Pages
 import AcademicHeadLayout from './components/AcademicHead/AcademicHeadLayout';
 import AcademicHeadDashboard from './pages/AcademicHead/AcademicHeadDashboard';
 import Registrations from './pages/AcademicHead/Registrations';
+import AcademicHeadTasks from './pages/AcademicHead/AcademicHeadTasks';
+import AcademicHeadFacultyActivity from './pages/AcademicHead/AcademicHeadFacultyActivity';
+import AcademicActions from './pages/AcademicHead/AcademicActions';
+import FacultyDirectory from './pages/AcademicHead/FacultyDirectory';
+import Documents from './pages/AcademicHead/Documents';
+import FacultyAudit from './pages/AcademicHead/FacultyAudit';
+import StudentLogsAcademic from './pages/AcademicHead/StudentLogs';
+import FacultyLogsAcademic from './pages/AcademicHead/FacultyLogs';
+import CheckingSection from './pages/AcademicHead/CheckingSection';
+
+// Academic Counselor Pages
+import AcademicCounselorLayout from './components/AcademicCounselor/AcademicCounselorLayout';
+import AcademicCounselorDashboard from './pages/AcademicCounselor/AcademicCounselorDashboard';
+
+// Student Placeholder
+import StudentDashboard from './pages/StudentDashboard';
 
 function App() {
   return (
@@ -78,11 +108,13 @@ function App() {
             <Route path="students" element={<Students />} />
             <Route path="mentors" element={<Mentors />} />
             <Route path="faculties" element={<Faculties />} />
+            <Route path="staff" element={<StaffManagement />} />
             <Route path="tasks" element={<Tasks />} />
             <Route path="reports" element={<Reports />} />
             <Route path="mentor-head-report" element={<DailyMentorHeadReport />} />
             <Route path="logs" element={<InteractionLogs />} />
             <Route path="approvals" element={<Approvals />} />
+            <Route path="admin-management" element={<AdminManagement />} />
           </Route>
 
           {/* Mentor Head System */}
@@ -98,6 +130,8 @@ function App() {
             <Route path="register-mentor" element={<MentorRegistration />} />
             <Route path="mentors" element={<MentorsList />} />
             <Route path="mentors/:id" element={<MentorDetails />} />
+            <Route path="tasks" element={<MentorHeadTasks />} />
+            <Route path="interactions" element={<MentorHeadInteractions />} />
           </Route>
 
           {/* Academic Head System */}
@@ -108,7 +142,45 @@ function App() {
           }>
             <Route index element={<Navigate to="/academic-head/dashboard" replace />} />
             <Route path="dashboard" element={<AcademicHeadDashboard />} />
+            <Route path="actions" element={<AcademicActions />} />
+            <Route path="faculties" element={<FacultyDirectory />} />
+            <Route path="documents" element={<Documents />} />
+            <Route path="faculty-audit" element={<FacultyAudit />} />
             <Route path="registrations" element={<Registrations />} />
+            <Route path="tasks" element={<AcademicHeadTasks />} />
+            <Route path="faculty-activity" element={<AcademicHeadFacultyActivity />} />
+            <Route path="student-logs" element={<StudentLogsAcademic />} />
+            <Route path="faculty-logs" element={<FacultyLogsAcademic />} />
+            <Route path="checking" element={<CheckingSection />} />
+          </Route>
+
+          {/* BDM System */}
+          <Route path="/bdm" element={
+            <ProtectedRoute allowedRoles={['academic_counsellor']}>
+              <AcademicCounselorLayout />
+            </ProtectedRoute>
+          }>
+            <Route index element={<Navigate to="/bdm/dashboard" replace />} />
+            <Route path="dashboard" element={<AcademicCounselorDashboard />} />
+          </Route>
+
+          {/* Faculty System */}
+          <Route path="/faculty" element={
+            <ProtectedRoute allowedRoles={['faculty']}>
+              <FacultyLayout />
+            </ProtectedRoute>
+          }>
+            <Route index element={<Navigate to="/faculty/dashboard" replace />} />
+            <Route path="dashboard" element={<FacultyDashboard />} />
+            <Route path="students" element={<FacultyStudents />} />
+            <Route path="students/:id" element={<FacultyStudentDetails />} />
+            <Route path="sessions" element={<FacultySessions />} />
+            <Route path="reports" element={<FacultyReports />} />
+            <Route path="exam-scores" element={<FacultyExams />} />
+            <Route path="student-logs" element={<StudentLogs />} />
+            <Route path="tasks" element={<FacultyTasks />} />
+            <Route path="notifications" element={<FacultyNotifications />} />
+            <Route path="profile" element={<FacultyProfile />} />
           </Route>
 
           {/* Mentor System Built for MashMagic */}
@@ -125,27 +197,17 @@ function App() {
             <Route path="timetable" element={<Timetable />} />
             <Route path="student-log" element={<StudentInteractionLog />} />
             <Route path="faculty-log" element={<FacultyInteractionLog />} />
+            <Route path="exams" element={<Exams />} />
           </Route>
 
-          {/* Student Routes */}
+          {/* Student Routes (Minimal Placeholder) */}
           <Route path="/student" element={
             <ProtectedRoute allowedRoles={['student', 'user']}>
-              {/* Reusing AdminLayout for now as minimal placeholder */}
               <AdminLayout />
             </ProtectedRoute>
           }>
             <Route index element={<Navigate to="/student/dashboard" replace />} />
             <Route path="dashboard" element={<StudentDashboard />} />
-          </Route>
-
-          {/* Faculty Routes */}
-          <Route path="/faculty" element={
-            <ProtectedRoute allowedRoles={['faculty']}>
-              <AdminLayout />
-            </ProtectedRoute>
-          }>
-            <Route index element={<Navigate to="/faculty/dashboard" replace />} />
-            <Route path="dashboard" element={<FacultyDashboard />} />
           </Route>
 
           {/* Root Redirection Logic */}

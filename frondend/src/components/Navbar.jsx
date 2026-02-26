@@ -28,7 +28,6 @@ const Navbar = () => {
                 setNotifications(res.data.data);
             }
         } catch (e) {
-            console.error('Error fetching notifications:', e);
         }
     };
 
@@ -40,7 +39,8 @@ const Navbar = () => {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setNotifications(notifications.map(n => n.id === id ? { ...n, is_read: 1 } : n));
-        } catch (e) { }
+        } catch (error) {
+        }
     };
 
     const unreadCount = notifications.filter(n => !n.is_read).length;

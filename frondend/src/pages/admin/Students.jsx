@@ -10,6 +10,16 @@ const Students = () => {
     const [loading, setLoading] = useState(true);
     const [selectedStudent, setSelectedStudent] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [editFormData, setEditFormData] = useState({
+        name: '',
+        grade: '',
+        subject: '',
+        timetable: '',
+        nextInstallment: '',
+        status: ''
+    });
+    const [dailyHours, setDailyHours] = useState([]);
 
     useEffect(() => {
         fetchStudents();
@@ -40,9 +50,45 @@ const Students = () => {
         setFilteredStudents(filtered);
     };
 
-    const handleView = (student) => {
+    const handleView = async (student) => {
         setSelectedStudent(student);
+        setDailyHours([]);
         setIsModalOpen(true);
+        try {
+            const res = await api.get(`/admin/daily-hours/${student.id}`);
+            if (res.data.success) {
+                setDailyHours(res.data.data);
+            }
+        } catch (error) {
+            console.error("Failed to fetch daily hours");
+        }
+    };
+
+    const handleEdit = (student) => {
+        setSelectedStudent(student);
+        setEditFormData({
+            name: student.name,
+            grade: student.grade,
+            subject: student.subject,
+            timetable: student.timetable,
+            nextInstallment: student.nextInstallment ? student.nextInstallment.split('T')[0] : '',
+            status: student.status
+        });
+        setIsEditModalOpen(true);
+    };
+
+    const handleUpdate = async (e) => {
+        e.preventDefault();
+        try {
+            const res = await api.put(`/admin/students/${selectedStudent.id}`, editFormData);
+            if (res.data.success) {
+                toast.success("Student updated successfully");
+                setIsEditModalOpen(false);
+                fetchStudents();
+            }
+        } catch (error) {
+            toast.error(error.response?.data?.message || "Failed to update student");
+        }
     };
 
     const handleApprove = async (student) => {
@@ -94,9 +140,9 @@ const Students = () => {
 
     return (
         <div className="flex flex-col gap-8">
-            <div className="flex flex-col gap-1">
-                <h2 className="text-2xl font-bold text-slate-900 tracking-tight text-shadow-sm">Student Enrollment</h2>
-                <p className="text-slate-500 text-sm font-medium">Monitoring academic progress and enrollment details</p>
+            <div className="flex flex-col mb-6">
+                <h2 className="text-3xl font-black text-slate-900 tracking-tighter uppercase italic">Student Enrollment</h2>
+                <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em] mt-2">Monitoring academic progress and enrollment details</p>
             </div>
 
             <DataTable
@@ -108,8 +154,84 @@ const Students = () => {
                 onApprove={handleApprove}
                 onBlock={handleBlock}
                 onDelete={handleDelete}
+                onEdit={handleEdit}
                 searchPlaceholder="Search students by name or email..."
             />
+
+            {/* Edit Student Modal */}
+            <Modal
+                isOpen={isEditModalOpen}
+                onClose={() => setIsEditModalOpen(false)}
+                title="Edit Student Information"
+                size="lg"
+            >
+                <form onSubmit={handleUpdate} className="grid grid-cols-2 gap-6">
+                    <div className="flex flex-col gap-2">
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2">Full Name</label>
+                        <input
+                            type="text"
+                            className="p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-blue-50 transition-all"
+                            value={editFormData.name}
+                            onChange={(e) => setEditFormData({ ...editFormData, name: e.target.value })}
+                            required
+                        />
+                    </div>
+                    <div className="flex flex-col gap-2">
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2">Grade</label>
+                        <input
+                            type="text"
+                            className="p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-blue-50 transition-all"
+                            value={editFormData.grade}
+                            onChange={(e) => setEditFormData({ ...editFormData, grade: e.target.value })}
+                            required
+                        />
+                    </div>
+                    <div className="flex flex-col gap-2">
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2">Subject</label>
+                        <input
+                            type="text"
+                            className="p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-blue-50 transition-all"
+                            value={editFormData.subject}
+                            onChange={(e) => setEditFormData({ ...editFormData, subject: e.target.value })}
+                            required
+                        />
+                    </div>
+                    <div className="flex flex-col gap-2">
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2">Next Installment</label>
+                        <input
+                            type="date"
+                            className="p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-blue-50 transition-all"
+                            value={editFormData.nextInstallment}
+                            onChange={(e) => setEditFormData({ ...editFormData, nextInstallment: e.target.value })}
+                        />
+                    </div>
+                    <div className="col-span-2 flex flex-col gap-2">
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2">Status</label>
+                        <select
+                            className="p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-blue-50 transition-all"
+                            value={editFormData.status}
+                            onChange={(e) => setEditFormData({ ...editFormData, status: e.target.value })}
+                        >
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                            <option value="pending">Pending</option>
+                            <option value="rejected">Rejected</option>
+                        </select>
+                    </div>
+                    <div className="col-span-2 flex flex-col gap-2">
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2">Timetable Summary</label>
+                        <textarea
+                            className="p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-blue-50 transition-all min-h-[100px]"
+                            value={editFormData.timetable}
+                            onChange={(e) => setEditFormData({ ...editFormData, timetable: e.target.value })}
+                        />
+                    </div>
+                    <div className="col-span-2 flex justify-end gap-3 pt-4">
+                        <button type="button" className="px-6 py-3 rounded-xl border border-slate-200 text-sm font-bold text-slate-600 hover:bg-slate-50 transition-all" onClick={() => setIsEditModalOpen(false)}>Cancel</button>
+                        <button type="submit" className="px-6 py-3 rounded-xl bg-indigo-600 text-white text-sm font-bold hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100">Update Student Data</button>
+                    </div>
+                </form>
+            </Modal>
 
             <Modal
                 isOpen={isModalOpen}
@@ -141,6 +263,20 @@ const Students = () => {
                             <InfoGroup label="Lead Faculty" value={selectedStudent.faculty} />
                             <InfoGroup label="Learning Timetable" value={selectedStudent.timetable} />
                             <InfoGroup label="Next Payment Due" value={selectedStudent.nextInstallment} highlight />
+                        </div>
+
+                        <div className="mt-2 border-t border-slate-100 pt-6">
+                            <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4">Daily Logged Hours (Mentor)</h4>
+                            <div className="max-h-40 overflow-y-auto space-y-2 pr-2">
+                                {dailyHours.length > 0 ? dailyHours.map((log) => (
+                                    <div key={log.id} className="flex justify-between items-center bg-slate-50 p-3 rounded-xl border border-slate-100">
+                                        <span className="text-sm font-bold text-slate-700">{new Date(log.date).toLocaleDateString()}</span>
+                                        <span className="text-sm font-black text-blue-600">{log.hours} Hrs</span>
+                                    </div>
+                                )) : (
+                                    <p className="text-sm text-slate-400 font-medium italic">No hours logged yet.</p>
+                                )}
+                            </div>
                         </div>
 
                         <div className="flex justify-end gap-3 pt-6 border-t border-slate-100">

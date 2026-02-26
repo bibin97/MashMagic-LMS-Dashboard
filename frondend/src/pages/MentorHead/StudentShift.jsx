@@ -30,7 +30,7 @@ const StudentShift = () => {
             if (mentorsRes.data.success) {
                 setMentors(mentorsRes.data.data);
             }
-        } catch (error) {
+        } catch {
             toast.error("Failed to load data");
         } finally {
             setLoading(false);
@@ -61,7 +61,7 @@ const StudentShift = () => {
                 setSelectedMentor('');
                 fetchData(); // Refresh lists
             }
-        } catch (error) {
+        } catch {
             toast.error("Failed to shift student");
         } finally {
             setShifting(false);
@@ -77,13 +77,19 @@ const StudentShift = () => {
 
     return (
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <header className="mb-8">
-                <h2 className="text-2xl font-black text-slate-900 flex items-center gap-3">
-                    <RefreshCw className="text-indigo-600" />
-                    Student Shift System
+            {/* Page Title */}
+            <div className="bg-white p-10 rounded-[4rem] border border-slate-100 shadow-sm mb-10">
+                <h2 className="text-3xl font-black text-slate-900 tracking-tighter uppercase italic flex items-center gap-4">
+                    <div className="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-indigo-200 rotate-3">
+                        <RefreshCw size={28} />
+                    </div>
+                    Student Reassignment
                 </h2>
-                <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Reassign students while preserving interaction history</p>
-            </header>
+                <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest mt-3 flex items-center gap-2">
+                    <ArrowRight size={14} className="text-emerald-500" />
+                    Manage student roster distributions and reallocate assignments between mentors
+                </p>
+            </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* Step 1: Select Student */}

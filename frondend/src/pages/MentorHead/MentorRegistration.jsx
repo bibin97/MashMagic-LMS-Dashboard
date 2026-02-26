@@ -102,7 +102,7 @@ const MentorRegistration = () => {
                                         type="text"
                                         name="name"
                                         placeholder="MENTOR NAME"
-                                        className="w-full pl-14 pr-6 py-5 bg-slate-50 border-none rounded-[1.5rem] text-sm font-bold uppercase tracking-widest focus:ring-2 ring-indigo-500/20 transition-all outline-none"
+                                        className="w-full pl-14 pr-6 py-5 bg-slate-50 border-none rounded-[1.5rem] text-sm font-bold tracking-wide focus:ring-2 ring-indigo-500/20 transition-all outline-none"
                                         value={formData.name}
                                         onChange={handleChange}
                                         required
@@ -121,7 +121,7 @@ const MentorRegistration = () => {
                                         type="email"
                                         name="email"
                                         placeholder="EMAIL ADDRESS"
-                                        className="w-full pl-14 pr-6 py-5 bg-slate-50 border-none rounded-[1.5rem] text-sm font-bold uppercase tracking-widest focus:ring-2 ring-indigo-500/20 transition-all outline-none"
+                                        className="w-full pl-14 pr-6 py-5 bg-slate-50 border-none rounded-[1.5rem] text-sm font-bold tracking-wide focus:ring-2 ring-indigo-500/20 transition-all outline-none"
                                         value={formData.email}
                                         onChange={handleChange}
                                         required
@@ -140,7 +140,7 @@ const MentorRegistration = () => {
                                         type="tel"
                                         name="phone_number"
                                         placeholder="PHONE NUMBER"
-                                        className="w-full pl-14 pr-6 py-5 bg-slate-50 border-none rounded-[1.5rem] text-sm font-bold uppercase tracking-widest focus:ring-2 ring-indigo-500/20 transition-all outline-none"
+                                        className="w-full pl-14 pr-6 py-5 bg-slate-50 border-none rounded-[1.5rem] text-sm font-bold tracking-wide focus:ring-2 ring-indigo-500/20 transition-all outline-none"
                                         value={formData.phone_number}
                                         onChange={handleChange}
                                         required
@@ -159,7 +159,7 @@ const MentorRegistration = () => {
                                         type="text"
                                         name="place"
                                         placeholder="LOCATION"
-                                        className="w-full pl-14 pr-6 py-5 bg-slate-50 border-none rounded-[1.5rem] text-sm font-bold uppercase tracking-widest focus:ring-2 ring-indigo-500/20 transition-all outline-none"
+                                        className="w-full pl-14 pr-6 py-5 bg-slate-50 border-none rounded-[1.5rem] text-sm font-bold tracking-wide focus:ring-2 ring-indigo-500/20 transition-all outline-none"
                                         value={formData.place}
                                         onChange={handleChange}
                                         required
@@ -178,7 +178,7 @@ const MentorRegistration = () => {
                                         type="password"
                                         name="password"
                                         placeholder="PASSWORD"
-                                        className="w-full pl-14 pr-6 py-5 bg-slate-50 border-none rounded-[1.5rem] text-sm font-bold uppercase tracking-widest focus:ring-2 ring-indigo-500/20 transition-all outline-none"
+                                        className="w-full pl-14 pr-6 py-5 bg-slate-50 border-none rounded-[1.5rem] text-sm font-bold tracking-wide focus:ring-2 ring-indigo-500/20 transition-all outline-none"
                                         value={formData.password}
                                         onChange={handleChange}
                                         required

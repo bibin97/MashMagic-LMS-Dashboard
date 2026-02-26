@@ -12,10 +12,15 @@ const User = {
 
     // Create a new user
     create: async (userData) => {
-        const { name, phone_number = null, place = null, email = null, password, role = 'user', status = 'active' } = userData;
+        const {
+            name, phone_number = null, place = null, email = null,
+            password, role = 'user', status = 'pending',
+            registeredBy = null, isApproved = 0
+        } = userData;
+
         const [result] = await db.query(
-            'INSERT INTO users (name, phone_number, place, email, password, role, status) VALUES (?, ?, ?, ?, ?, ?, ?)',
-            [name, phone_number, place, email, password, role, status]
+            'INSERT INTO users (name, phone_number, place, email, password, role, status, registeredBy, isApproved, isActive) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+            [name, phone_number, place, email, password, role, status, registeredBy, isApproved, status === 'active' ? 1 : 0]
         );
         return result.insertId;
     },

@@ -11,7 +11,25 @@ const Signup = () => {
         password: ''
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [checkingSuper, setCheckingSuper] = useState(true);
     const navigate = useNavigate();
+
+    React.useEffect(() => {
+        const checkSuperAdmin = async () => {
+            try {
+                const res = await api.get('/auth/check-super-admin');
+                if (res.data.success && res.data.exists) {
+                    toast.error("Super Admin already exists. Public registration is disabled.");
+                    navigate('/login');
+                }
+            } catch (error) {
+                console.error("Check failed:", error);
+            } finally {
+                setCheckingSuper(false);
+            }
+        };
+        checkSuperAdmin();
+    }, [navigate]);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -30,6 +48,8 @@ const Signup = () => {
             setIsSubmitting(false);
         }
     };
+
+    if (checkingSuper) return <div className="min-h-screen bg-slate-50 flex items-center justify-center font-bold text-slate-400 animate-pulse">Verifying System State...</div>;
 
     return (
         <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] bg-fixed">

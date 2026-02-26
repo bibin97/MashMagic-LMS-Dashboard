@@ -5,15 +5,31 @@ const db = require('../config/db');
 // @access  Private (super_admin)
 const getTasks = async (req, res) => {
     try {
-        const sql = `
+        let sql = `
             SELECT t.*, u.name as mentor_name, u.email as mentor_email 
             FROM tasks t 
-            LEFT JOIN users u ON t.mentor_id = u.id 
-            ORDER BY t.created_at DESC
+            LEFT JOIN users u ON t.assigned_to = u.id 
         `;
-        const [rows] = await db.query(sql);
+        let params = [];
+
+        // Role-based filtering
+        if (req.user.role === 'academic_head') {
+            sql += ' WHERE t.assigned_by = ?';
+            params.push(req.user.id);
+        } else if (req.user.role === 'mentor' || req.user.role === 'faculty' || req.user.role === 'mentor_head') {
+            sql += ' WHERE t.assigned_to = ?';
+            params.push(req.user.id);
+        } else if (req.user.role !== 'super_admin' && req.user.role !== 'admin') {
+            // Other roles see nothing by default
+            return res.status(200).json({ success: true, count: 0, data: [] });
+        }
+
+        sql += ' ORDER BY t.created_at DESC';
+
+        const [rows] = await db.query(sql, params);
         res.status(200).json({ success: true, count: rows.length, data: rows });
     } catch (error) {
+        console.error("GET_TASKS_ERROR:", error);
         res.status(500).json({ success: false, message: "Server Error", error: error.message });
     }
 };
@@ -24,8 +40,8 @@ const getTasks = async (req, res) => {
 const createTask = async (req, res) => {
     const { title, description, mentor_id, deadline, priority } = req.body;
     try {
-        const sql = 'INSERT INTO tasks (title, description, mentor_id, deadline, priority) VALUES (?, ?, ?, ?, ?)';
-        const [result] = await db.query(sql, [title, description, mentor_id, deadline, priority]);
+        const sql = 'INSERT INTO tasks (title, description, assigned_to, assigned_by, deadline, priority) VALUES (?, ?, ?, ?, ?, ?)';
+        const [result] = await db.query(sql, [title, description, mentor_id, req.user.id, deadline, priority]);
 
         res.status(201).json({
             success: true,
@@ -33,6 +49,7 @@ const createTask = async (req, res) => {
             taskId: result.insertId
         });
     } catch (error) {
+        console.error("CREATE_TASK_ERROR:", error);
         res.status(500).json({ success: false, message: "Server Error", error: error.message });
     }
 };

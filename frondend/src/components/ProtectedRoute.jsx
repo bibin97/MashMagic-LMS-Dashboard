@@ -41,6 +41,7 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
             if (userRole === 'mentor_head') return <Navigate to="/mentor-head/dashboard" replace />;
             if (userRole === 'mentor') return <Navigate to="/mentor/dashboard" replace />;
             if (userRole === 'faculty') return <Navigate to="/faculty/dashboard" replace />;
+            if (userRole === 'academic_counsellor') return <Navigate to="/bdm/dashboard" replace />;
             if (userRole === 'student') return <Navigate to="/student/dashboard" replace />;
 
             return <Navigate to="/login" replace />;

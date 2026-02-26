@@ -3,11 +3,12 @@ import { Calendar, X } from 'lucide-react';
 
 const PostponeModal = ({ session, onClose, onConfirm }) => {
     const [newDate, setNewDate] = useState('');
+    const [facultyCancelled, setFacultyCancelled] = useState(false);
 
     const handleSubmit = (e) => {
         e.preventDefault();
         if (!newDate) return;
-        onConfirm(session.id, newDate);
+        onConfirm(session.id, newDate, facultyCancelled);
     };
 
     return (
@@ -40,6 +41,16 @@ const PostponeModal = ({ session, onClose, onConfirm }) => {
                             />
                         </div>
                     </div>
+
+                    <label className="flex items-center gap-3 p-4 bg-rose-50 rounded-2xl border border-rose-100 cursor-pointer hover:bg-white hover:border-rose-200 transition-all">
+                        <input
+                            type="checkbox"
+                            className="w-5 h-5 rounded border-2 border-slate-300 text-rose-500 focus:ring-0 transition-all cursor-pointer"
+                            checked={facultyCancelled}
+                            onChange={(e) => setFacultyCancelled(e.target.checked)}
+                        />
+                        <span className="text-xs font-black text-rose-700 uppercase tracking-widest">Cancelled by Faculty?</span>
+                    </label>
 
                     <button
                         type="submit"

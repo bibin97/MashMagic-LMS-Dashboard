@@ -7,7 +7,12 @@ import {
     Bell,
     User,
     BookOpen,
-    UserPlus
+    UserPlus,
+    ShieldAlert,
+    Activity,
+    ClipboardList,
+    MessageSquare,
+    Briefcase
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -17,12 +22,18 @@ const AcademicHeadLayout = () => {
 
     const navItems = [
         { path: '/academic-head/dashboard', icon: <LayoutDashboard size={18} />, label: 'Dashboard' },
+        { path: '/academic-head/actions', icon: <Activity size={18} />, label: 'Actions Center' },
         { path: '/academic-head/registrations', icon: <UserPlus size={18} />, label: 'Registrations' },
+        { path: '/academic-head/tasks', icon: <Briefcase size={18} />, label: 'Workforce Tasks' },
+        { path: '/academic-head/faculty-activity', icon: <ClipboardList size={18} />, label: 'Academic Reports' },
+        { path: '/academic-head/student-logs', icon: <MessageSquare size={18} />, label: 'Student Interactions' },
+        { path: '/academic-head/faculty-logs', icon: <Briefcase size={18} />, label: 'Staff Intake Logs' },
+        { path: '/academic-head/checking', icon: <ShieldAlert size={18} />, label: 'Institutional Audit' },
     ];
 
     const handleLogout = () => {
         logout();
-        toast.success("Academic Head Session Ended");
+        toast.success("Logout Successful");
         navigate('/login');
     };
 
@@ -39,7 +50,11 @@ const AcademicHeadLayout = () => {
                     </h1>
                 </div>
 
-                <nav className="flex-1 p-4 flex flex-col gap-1.5 overflow-y-auto mt-4">
+                <nav className="flex-1 p-4 flex flex-col gap-1.5 overflow-y-auto mt-4 scrollbar-hide">
+                    <style>{`
+                        .scrollbar-hide::-webkit-scrollbar { display: none; }
+                        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+                    `}</style>
                     {navItems.map((item) => (
                         <NavLink
                             key={item.path}
@@ -72,7 +87,7 @@ const AcademicHeadLayout = () => {
                         className="w-full flex items-center gap-3 px-4 py-4 text-rose-400 hover:bg-rose-500/10 rounded-2xl transition-all duration-300 text-[10px] font-black uppercase tracking-widest"
                     >
                         <LogOut size={16} />
-                        <span>Terminate Session</span>
+                        <span>Logout</span>
                     </button>
                 </div>
             </aside>

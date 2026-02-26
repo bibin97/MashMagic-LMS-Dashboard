@@ -40,6 +40,7 @@ const Dashboard = () => {
         checkedToday: 0,
         remaining: 0
     });
+    const [examData, setExamData] = useState([]);
     const [loading, setLoading] = useState(true);
     const [isMounted, setIsMounted] = useState(false);
 
@@ -79,9 +80,10 @@ const Dashboard = () => {
     useEffect(() => {
         const fetchStats = async () => {
             try {
-                const [userRes, reportRes] = await Promise.all([
+                const [userRes, reportRes, examRes] = await Promise.all([
                     api.get('/admin/users'),
-                    api.get('/admin/mentor-head-report')
+                    api.get('/admin/mentor-head-report'),
+                    api.get('/admin/exam-analytics')
                 ]);
 
                 const users = userRes.data.data;
@@ -97,6 +99,10 @@ const Dashboard = () => {
 
                 if (reportRes.data.success) {
                     setMentorHeadReport(reportRes.data.data);
+                }
+
+                if (examRes.data.success) {
+                    setExamData(examRes.data.data);
                 }
 
                 setLoading(false);
@@ -127,9 +133,9 @@ const Dashboard = () => {
 
     return (
         <div className="flex flex-col gap-8">
-            <div className="flex flex-col gap-1">
-                <h2 className="text-2xl font-bold text-slate-900 tracking-tight">System Overview</h2>
-                <p className="text-slate-500 text-sm font-medium">Monitoring platform-wide performance and engagement</p>
+            <div className="flex flex-col mb-6">
+                <h2 className="text-3xl font-black text-slate-900 tracking-tighter uppercase italic">System Overview</h2>
+                <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em] mt-2">Monitoring platform-wide performance and engagement</p>
             </div>
 
             {/* Stats Grid */}
@@ -317,17 +323,17 @@ const Dashboard = () => {
                         <div className="p-2.5 bg-emerald-50 text-emerald-600 rounded-xl">
                             <TrendingUp size={20} />
                         </div>
-                        <h4 className="text-lg font-bold text-slate-800">Student Performance Index</h4>
+                        <h4 className="text-lg font-bold text-slate-800 italic uppercase">Academic Performance Analytics</h4>
                     </div>
                 </div>
 
                 <div className="w-full h-[350px] relative">
                     {isMounted && (
                         <ResponsiveContainer width="100%" height="100%">
-                            <LineChart data={performanceData} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
+                            <LineChart data={examData.length > 0 ? examData : performanceData} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
                                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                                 <XAxis
-                                    dataKey="month"
+                                    dataKey={examData.length > 0 ? "subject" : "month"}
                                     fontSize={11}
                                     fontWeight={600}
                                     tick={{ fill: '#94a3b8' }}
@@ -351,8 +357,9 @@ const Dashboard = () => {
                                     }}
                                 />
                                 <Line
+                                    name="Success %"
                                     type="monotone"
-                                    dataKey="score"
+                                    dataKey={examData.length > 0 ? "percentage" : "score"}
                                     stroke="#10b981"
                                     strokeWidth={4}
                                     dot={{ fill: '#10b981', r: 6, strokeWidth: 2, stroke: '#fff' }}

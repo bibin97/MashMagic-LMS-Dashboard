@@ -53,9 +53,13 @@ const registerStudent = async (req, res) => {
                 // Insert a placeholder "Scheduled" session
                 await db.query(`
                     INSERT INTO mentor_timetable (
-                        mentor_id, student_id, session_number, date, status, chapter_topic
-                    ) VALUES (?, ?, ?, CURDATE(), ?, ?)
-                `, [mentorUserId, studentId, 1, 'Scheduled', 'Initial Introduction Session']);
+                        mentor_id, student_id, session_number, date, status, 
+                        chapter, start_time, end_time, duration, session_type
+                    ) VALUES (?, ?, ?, CURDATE(), ?, ?, ?, ?, ?, ?)
+                `, [
+                    mentorUserId, studentId, 1, 'Scheduled',
+                    'Initial Introduction Session', '10:00', '11:00', '1h 0m', 'Regular Class'
+                ]);
             }
         }
 

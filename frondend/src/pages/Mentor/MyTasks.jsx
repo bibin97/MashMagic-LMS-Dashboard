@@ -32,10 +32,10 @@ const MyTasks = () => {
         }
     };
 
-    const getStatusStyles = (status, dueDate) => {
+    const getStatusStyles = (status, deadline) => {
         if (status === 'Completed') return { bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-100', icon: <CheckCircle size={16} /> };
 
-        const isOverdue = new Date(dueDate) < new Date() && status !== 'Completed';
+        const isOverdue = new Date(deadline) < new Date() && status !== 'Completed';
         if (isOverdue) return { bg: 'bg-rose-50', text: 'text-rose-700', border: 'border-rose-100', icon: <AlertCircle size={16} /> };
 
         return { bg: 'bg-amber-50', text: 'text-amber-700', border: 'border-amber-100', icon: <Clock size={16} /> };
@@ -49,8 +49,8 @@ const MyTasks = () => {
                         <ListTodo size={24} />
                     </div>
                     <div>
-                        <h1 className="text-xl font-black text-slate-900">Task Protocol</h1>
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Operational Directives & Action Items</p>
+                        <h1 className="text-2xl font-black text-slate-900 tracking-tight uppercase italic">Task Protocol</h1>
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mt-1">Operational Directives & Action Items assigned by superiors</p>
                     </div>
                 </div>
             </header>
@@ -60,13 +60,13 @@ const MyTasks = () => {
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {tasks.map((task) => {
-                        const style = getStatusStyles(task.status, task.due_date);
+                        const style = getStatusStyles(task.status, task.deadline);
                         return (
                             <div key={task.id} className={`p-8 rounded-[2.5rem] border ${style.border} ${style.bg} transition-all duration-500 relative overflow-hidden group`}>
                                 <div className="flex flex-col gap-6">
                                     <div className="flex justify-between items-start">
                                         <div className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 border ${style.border} bg-white shadow-sm shadow-slate-200/50`}>
-                                            {style.icon} {task.status === 'Completed' ? 'System Completed' : (new Date(task.due_date) < new Date() ? 'Overdue Deadline' : 'Action Pending')}
+                                            {style.icon} {task.status === 'Completed' ? 'System Completed' : (new Date(task.deadline) < new Date() ? 'Overdue Deadline' : 'Action Pending')}
                                         </div>
                                         <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
                                             {task.priority || 'Standard'} Priority
@@ -81,7 +81,7 @@ const MyTasks = () => {
                                     <div className="flex items-center justify-between pt-6 border-t border-white/50">
                                         <div className="flex flex-col">
                                             <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Deadline</p>
-                                            <p className="text-xs font-bold text-slate-700">{new Date(task.due_date).toLocaleDateString()}</p>
+                                            <p className="text-xs font-bold text-slate-700">{new Date(task.deadline).toLocaleDateString()}</p>
                                         </div>
 
                                         {task.status !== 'Completed' && (

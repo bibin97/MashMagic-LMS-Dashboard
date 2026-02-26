@@ -11,10 +11,14 @@ const {
     shiftStudent,
     getDailyStudentChecks,
     checkStudentToday,
+    uncheckStudent,
     getDailySummary,
     getAllStudents,
     editMentor,
-    deleteMentor
+    deleteMentor,
+    getMentorInteractionLogs,
+    getFacultyIntelligenceLogs,
+    getExamAnalytics
 } = require('../controllers/mentorHeadController');
 const { requireAuth } = require('../middleware/authMiddleware');
 const { requireRole } = require('../middleware/roleMiddleware');
@@ -35,8 +39,14 @@ router.get('/mentors/:mentorId/monitoring', getMentorMonitoringDetails);
 router.put('/students/:studentId/shift', shiftStudent);
 router.get('/daily-student-checks', getDailyStudentChecks);
 router.post('/students/:studentId/check', checkStudentToday);
+router.delete('/students/:studentId/uncheck', uncheckStudent);
 router.get('/daily-summary', getDailySummary);
 router.get('/all-students', getAllStudents);
+router.get('/exam-analytics', getExamAnalytics);
+
+// Intelligence Hub Routes
+router.get('/mentor-logs', getMentorInteractionLogs);
+router.get('/faculty-intelligence', getFacultyIntelligenceLogs);
 
 // Edit & Delete Mentor
 router.put('/mentors/:mentorId', editMentor);

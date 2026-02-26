@@ -1,0 +1,74 @@
+[
+  {
+    "name": "mashmagic",
+    "email": "mashmagic@gmail.com",
+    "role": "super_admin",
+    "status": "active"
+  },
+  {
+    "name": "mentorhead",
+    "email": "mentorhead@gmail.com",
+    "role": "mentor_head",
+    "status": "active"
+  },
+  {
+    "name": "mentor 1",
+    "email": "mentor1@gmail.com",
+    "role": "mentor",
+    "status": "active"
+  },
+  {
+    "name": "mentor 2",
+    "email": "mentor2@gmail.com",
+    "role": "mentor",
+    "status": "active"
+  },
+  {
+    "name": "mentor 3",
+    "email": "mentor3@gmail.com",
+    "role": "mentor",
+    "status": "active"
+  },
+  {
+    "name": "mentor 4",
+    "email": "mentor4@gmail.com",
+    "role": "mentor",
+    "status": "active"
+  },
+  {
+    "name": "accadamichead",
+    "email": "accadamichead@gmail.com",
+    "role": "academic_head",
+    "status": "active"
+  },
+  {
+    "name": "faculty 1",
+    "email": "faculty1@gmail.com",
+    "role": "faculty",
+    "status": "active"
+  },
+  {
+    "name": "faculty 2",
+    "email": "faculty2@gmail.com",
+    "role": "faculty",
+    "status": "active"
+  },
+  {
+    "name": "faculty 3",
+    "email": "faculty3@gmail.com",
+    "role": "faculty",
+    "status": "active"
+  },
+  {
+    "name": "faculty 4",
+    "email": "faculty4@gmail.com",
+    "role": "faculty",
+    "status": "active"
+  },
+  {
+    "name": "bibin thankachan",
+    "email": "bibinmt28@gmail.com",
+    "role": "academic_counsellor",
+    "status": "active"
+  }
+]

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { NavLink, useNavigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import {
@@ -10,26 +10,63 @@ import {
     CalendarClock,
     LogOut,
     Bell,
-    User
+    User,
+    GraduationCap
 } from 'lucide-react';
+import api from '../../services/api';
 import toast from 'react-hot-toast';
 
 const MentorLayout = () => {
     const { logout, user } = useAuth();
     const navigate = useNavigate();
 
+    const [pendingTasksCount, setPendingTasksCount] = useState(0);
+    const [pendingExamsCount, setPendingExamsCount] = useState(0);
+
+    const fetchPendingTasks = async () => {
+        try {
+            const res = await api.get('/mentor/tasks');
+            const pending = res.data.data.filter(t => t.status !== 'Completed').length;
+            setPendingTasksCount(pending);
+        } catch (error) {
+            // Silent fail
+        }
+    };
+
+    const fetchPendingExams = async () => {
+        try {
+            const res = await api.get('/mentor/exams/pending');
+            setPendingExamsCount(res.data.data.length);
+        } catch (error) {
+            // Silent fail
+        }
+    };
+
+    React.useEffect(() => {
+        if (user) {
+            fetchPendingTasks();
+            fetchPendingExams();
+            const interval = setInterval(() => {
+                fetchPendingTasks();
+                fetchPendingExams();
+            }, 30000); // 30s
+            return () => clearInterval(interval);
+        }
+    }, [user]);
+
     const navItems = [
         { path: '/mentor/dashboard', icon: <LayoutDashboard size={18} />, label: 'Dashboard' },
         { path: '/mentor/students', icon: <Users size={18} />, label: 'My Students' },
-        { path: '/mentor/tasks', icon: <ListTodo size={18} />, label: 'My Tasks' },
-        { path: '/mentor/student-log', icon: <MessageSquare size={18} />, label: 'Student Log' },
-        { path: '/mentor/faculty-log', icon: <Contact size={18} />, label: 'Faculty Log' },
+        { path: '/mentor/tasks', icon: <ListTodo size={18} />, label: 'Tasks', badge: pendingTasksCount },
+        { path: '/mentor/student-log', icon: <MessageSquare size={18} />, label: 'Student Logs' },
+        { path: '/mentor/faculty-log', icon: <Contact size={18} />, label: 'Faculty Logs' },
         { path: '/mentor/timetable', icon: <CalendarClock size={18} />, label: 'Timetable' },
+        { path: '/mentor/exams', icon: <GraduationCap size={18} />, label: 'Exams', badge: pendingExamsCount },
     ];
 
     const handleLogout = () => {
         logout();
-        toast.success("Session Terminated");
+        toast.success("Logout Successful");
         navigate('/login');
     };
 
@@ -59,7 +96,12 @@ const MentorLayout = () => {
                             `}
                         >
                             <span className="transition-transform group-hover:scale-110">{item.icon}</span>
-                            <span className="text-xs font-black uppercase tracking-wider">{item.label}</span>
+                            <span className="text-xs font-black uppercase tracking-wider flex-1">{item.label}</span>
+                            {item.badge > 0 && (
+                                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-rose-500 text-[10px] font-black text-white shadow-lg shadow-rose-100 animate-pulse">
+                                    {item.badge}
+                                </span>
+                            )}
                         </NavLink>
                     ))}
                 </nav>
@@ -79,7 +121,7 @@ const MentorLayout = () => {
                         className="w-full flex items-center gap-3 px-4 py-4 text-rose-500 hover:bg-rose-50 rounded-2xl transition-all duration-300 text-[10px] font-black uppercase tracking-widest"
                     >
                         <LogOut size={16} />
-                        <span>Logout Panel</span>
+                        <span>Logout</span>
                     </button>
                 </div>
             </aside>

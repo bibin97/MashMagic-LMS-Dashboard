@@ -45,31 +45,44 @@ const MentorDashboard = () => {
     if (loading) return <div className="p-8 text-center text-slate-400 font-bold animate-pulse">Initializing Dashboard Data...</div>;
 
     return (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <StatCard
-                title="Assigned Students"
-                value={stats.totalStudents}
-                icon={Users}
-                color="bg-blue-600"
-            />
-            <StatCard
-                title="Scheduled Sessions"
-                value={stats.totalSessions}
-                icon={CalendarClock}
-                color="bg-purple-600"
-            />
-            <StatCard
-                title="Pending Actions"
-                value={stats.pendingTasks}
-                icon={ListTodo}
-                color="bg-amber-600"
-            />
-            <StatCard
-                title="Goal Achievements"
-                value={stats.completedTasks}
-                icon={CheckCircle2}
-                color="bg-emerald-600"
-            />
+        <div className="space-y-12 pb-20">
+            {/* Header Section */}
+            <div className="bg-white p-10 rounded-[3rem] border border-slate-100 shadow-sm flex justify-between items-center">
+                <div>
+                    <h2 className="text-3xl font-black text-slate-900 tracking-tighter uppercase italic">Mentor Oversight</h2>
+                    <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest mt-2 flex items-center gap-2">
+                        <CheckCircle2 size={14} className="text-blue-500" />
+                        Real-time tracking of student progress, academic milestones, and session schedules
+                    </p>
+                </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <StatCard
+                    title="Assigned Students"
+                    value={stats.totalStudents}
+                    icon={Users}
+                    color="bg-blue-600"
+                />
+                <StatCard
+                    title="Scheduled Sessions"
+                    value={stats.totalSessions}
+                    icon={CalendarClock}
+                    color="bg-purple-600"
+                />
+                <StatCard
+                    title="Pending Actions"
+                    value={stats.pendingTasks}
+                    icon={ListTodo}
+                    color="bg-amber-600"
+                />
+                <StatCard
+                    title="Goal Achievements"
+                    value={stats.completedTasks}
+                    icon={CheckCircle2}
+                    color="bg-emerald-600"
+                />
+            </div>
         </div>
     );
 };

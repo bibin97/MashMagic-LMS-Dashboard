@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { UserPlus, User, GraduationCap, MapPin, Mail, Phone, Lock, BookOpen, Clock, Calendar, CheckCircle } from 'lucide-react';
+import { UserPlus, User, GraduationCap, MapPin, Mail, Phone, Lock, BookOpen, Clock, Calendar, CheckCircle, ShieldCheck } from 'lucide-react';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
 
@@ -17,7 +17,7 @@ const Registrations = () => {
     });
 
     const [facultyForm, setFacultyForm] = useState({
-        name: '', email: '', phone_number: '', place: ''
+        name: '', email: '', phone_number: '', place: '', password: '', confirmPassword: ''
     });
 
     const [counselorForm, setCounselorForm] = useState({
@@ -57,7 +57,6 @@ const Registrations = () => {
             const res = await api.post('/academic-head/register-student', studentForm);
             if (res.data.success) {
                 toast.success('Student Registered Successfully!');
-                // Reset form, but maybe keep some static values
                 setStudentForm({ name: '', grade: '', subject: '', facultyId: '', mentorId: '', course: '', hour: '', nextInstallmentDate: '', admissionType: 'new' });
             }
         } catch (error) {
@@ -69,12 +68,15 @@ const Registrations = () => {
 
     const submitFaculty = async (e) => {
         e.preventDefault();
+        if (facultyForm.password && facultyForm.password !== facultyForm.confirmPassword) {
+            return toast.error("Passwords do not match!");
+        }
         setLoading(true);
         try {
             const res = await api.post('/academic-head/register-faculty', facultyForm);
             if (res.data.success) {
-                toast.success('Faculty Registered Successfully!');
-                setFacultyForm({ name: '', email: '', phone_number: '', place: '' });
+                toast.success('Faculty Account Created Successfully!');
+                setFacultyForm({ name: '', email: '', phone_number: '', place: '', password: '', confirmPassword: '' });
             }
         } catch (error) {
             toast.error(error.response?.data?.message || 'Failed to register faculty');
@@ -96,11 +98,11 @@ const Registrations = () => {
                 password: counselorForm.password
             });
             if (res.data.success) {
-                toast.success('Counselor Account Created Successfully!');
+                toast.success('BDM Account Created Successfully!');
                 setCounselorForm({ name: '', email: '', password: '', confirmPassword: '' });
             }
         } catch (error) {
-            toast.error(error.response?.data?.message || 'Failed to create counselor account');
+            toast.error(error.response?.data?.message || 'Failed to create BDM account');
         } finally {
             setLoading(false);
         }
@@ -111,8 +113,8 @@ const Registrations = () => {
             {/* Header */}
             <div className="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100 mb-8 flex items-center justify-between">
                 <div>
-                    <h1 className="text-2xl font-black text-slate-900 tracking-tight">Onboarding Gateway</h1>
-                    <p className="text-slate-500 font-bold text-xs uppercase tracking-widest mt-1">Personnel Registration Hub</p>
+                    <h1 className="text-2xl font-black text-slate-900 tracking-tight uppercase italic">Onboarding Gateway</h1>
+                    <p className="text-slate-500 font-bold text-[10px] uppercase tracking-widest mt-1">Unified registration portal for students, faculty, and business associates</p>
                 </div>
                 <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600 rotate-3">
                     <UserPlus size={24} />
@@ -123,8 +125,8 @@ const Registrations = () => {
             <div className="flex gap-2 mb-8 bg-slate-200/50 p-1.5 rounded-2xl w-fit mx-auto shadow-inner">
                 {[
                     { id: 'student', label: 'Student' },
-                    { id: 'faculty', label: 'Faculty' },
-                    { id: 'counselor', label: 'Counselor Signup' }
+                    { id: 'faculty', label: 'Faculty Signup' },
+                    { id: 'counselor', label: 'BDM Signup' }
                 ].map((tab) => (
                     <button
                         key={tab.id}
@@ -222,7 +224,7 @@ const Registrations = () => {
                             </div>
                         </div>
 
-                        <button disabled={loading} type="submit" className="w-full mt-8 bg-slate-900 text-white p-4 rounded-xl font-black text-xs uppercase tracking-[0.2em] hover:bg-indigo-600 transition-all shadow-xl hover:shadow-indigo-200 flex items-center justify-center gap-3">
+                        <button disabled={loading} type="submit" className="w-full mt-8 bg-slate-900 text-white p-4 rounded-xl font-black text-xs uppercase tracking-[0.2em] hover:bg-emerald-600 transition-all shadow-xl hover:shadow-indigo-200 flex items-center justify-center gap-3">
                             {loading ? 'Processing...' : 'Register Student'}
                             {!loading && <CheckCircle size={16} />}
                         </button>
@@ -233,44 +235,58 @@ const Registrations = () => {
                     <form onSubmit={submitFaculty} className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
                         <div className="flex items-center gap-3 mb-6">
                             <div className="w-8 h-8 bg-emerald-100 text-emerald-600 rounded-lg flex items-center justify-center">
-                                <BookOpen size={18} />
+                                <ShieldCheck size={18} />
                             </div>
-                            <h2 className="text-lg font-black text-slate-800 uppercase tracking-widest">Faculty Registration</h2>
+                            <h2 className="text-lg font-black text-slate-800 uppercase tracking-widest">Faculty Onboarding System</h2>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="flex flex-col gap-2">
                                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Full Name</label>
                                 <div className="relative group">
-                                    <User size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-colors" />
-                                    <input type="text" name="name" required value={facultyForm.name} onChange={handleFacultyChange} className="w-full p-3 pl-12 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-indigo-100 font-bold" placeholder="Faculty Name" />
+                                    <User size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-emerald-600 transition-colors" />
+                                    <input type="text" name="name" required value={facultyForm.name} onChange={handleFacultyChange} className="w-full p-3 pl-12 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-emerald-100 font-bold" placeholder="Faculty Name" />
                                 </div>
                             </div>
                             <div className="flex flex-col gap-2">
                                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Email Address</label>
                                 <div className="relative group">
-                                    <Mail size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-colors" />
-                                    <input type="email" name="email" required value={facultyForm.email} onChange={handleFacultyChange} className="w-full p-3 pl-12 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-indigo-100 font-bold" placeholder="Email Address" />
+                                    <Mail size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-emerald-600 transition-colors" />
+                                    <input type="email" name="email" required value={facultyForm.email} onChange={handleFacultyChange} className="w-full p-3 pl-12 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-emerald-100 font-bold" placeholder="Email Address" />
                                 </div>
                             </div>
                             <div className="flex flex-col gap-2">
                                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Phone Number</label>
                                 <div className="relative group">
-                                    <Phone size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-colors" />
-                                    <input type="tel" name="phone_number" required value={facultyForm.phone_number} onChange={handleFacultyChange} className="w-full p-3 pl-12 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-indigo-100 font-bold" placeholder="Phone Number" />
+                                    <Phone size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-emerald-600 transition-colors" />
+                                    <input type="tel" name="phone_number" required value={facultyForm.phone_number} onChange={handleFacultyChange} className="w-full p-3 pl-12 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-emerald-100 font-bold" placeholder="Phone Number" />
                                 </div>
                             </div>
                             <div className="flex flex-col gap-2">
                                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Place / City</label>
                                 <div className="relative group">
-                                    <MapPin size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-colors" />
-                                    <input type="text" name="place" required value={facultyForm.place} onChange={handleFacultyChange} className="w-full p-3 pl-12 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-indigo-100 font-bold" placeholder="Location" />
+                                    <MapPin size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-emerald-600 transition-colors" />
+                                    <input type="text" name="place" required value={facultyForm.place} onChange={handleFacultyChange} className="w-full p-3 pl-12 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-emerald-100 font-bold" placeholder="Location" />
+                                </div>
+                            </div>
+                            <div className="flex flex-col gap-2">
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Assign Login Password</label>
+                                <div className="relative group">
+                                    <Lock size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-emerald-600 transition-colors" />
+                                    <input type="password" name="password" required value={facultyForm.password} onChange={handleFacultyChange} className="w-full p-3 pl-12 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-emerald-100 font-bold" placeholder="••••••••" />
+                                </div>
+                            </div>
+                            <div className="flex flex-col gap-2">
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Confirm Password</label>
+                                <div className="relative group">
+                                    <Lock size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-emerald-600 transition-colors" />
+                                    <input type="password" name="confirmPassword" required value={facultyForm.confirmPassword} onChange={handleFacultyChange} className="w-full p-3 pl-12 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-emerald-100 font-bold" placeholder="••••••••" />
                                 </div>
                             </div>
                         </div>
 
-                        <button disabled={loading} type="submit" className="w-full mt-8 bg-slate-900 text-white p-4 rounded-xl font-black text-xs uppercase tracking-[0.2em] hover:bg-indigo-600 transition-all shadow-xl hover:shadow-indigo-200 flex items-center justify-center gap-3">
-                            {loading ? 'Processing...' : 'Register Faculty'}
+                        <button disabled={loading} type="submit" className="w-full mt-8 bg-slate-900 text-white p-4 rounded-xl font-black text-xs uppercase tracking-[0.2em] hover:bg-emerald-600 transition-all shadow-xl hover:shadow-emerald-100 flex items-center justify-center gap-3">
+                            {loading ? 'Processing...' : 'Securely Onboard Faculty'}
                             {!loading && <CheckCircle size={16} />}
                         </button>
                     </form>
@@ -282,8 +298,8 @@ const Registrations = () => {
                             <div className="w-12 h-12 bg-rose-100 text-rose-600 rounded-2xl flex items-center justify-center rotate-3 mb-2 shadow-inner">
                                 <Lock size={20} />
                             </div>
-                            <h2 className="text-lg font-black text-slate-800 uppercase tracking-widest">Counselor Signup Setup</h2>
-                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Create Secured Credentials for Academic Counselor</p>
+                            <h2 className="text-lg font-black text-slate-800 uppercase tracking-widest">BDM Signup Setup</h2>
+                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Create Secured Credentials for BDM</p>
                         </div>
 
                         <div className="flex flex-col gap-5">
@@ -291,7 +307,7 @@ const Registrations = () => {
                                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Full Name</label>
                                 <div className="relative group">
                                     <User size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-colors" />
-                                    <input type="text" name="name" required value={counselorForm.name} onChange={handleCounselorChange} className="w-full p-4 pl-12 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-indigo-100 font-bold" placeholder="Counselor Name" />
+                                    <input type="text" name="name" required value={counselorForm.name} onChange={handleCounselorChange} className="w-full p-4 pl-12 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-indigo-100 font-bold" placeholder="BDM Name" />
                                 </div>
                             </div>
                             <div className="flex flex-col gap-2">
@@ -320,7 +336,7 @@ const Registrations = () => {
                         </div>
 
                         <button disabled={loading} type="submit" className="w-full mt-6 bg-indigo-600 text-white p-4 rounded-xl font-black text-xs uppercase tracking-[0.2em] hover:bg-indigo-700 transition-all shadow-xl hover:shadow-indigo-200 flex items-center justify-center gap-3">
-                            {loading ? 'Validating...' : 'Authorize Counselor'}
+                            {loading ? 'Validating...' : 'Authorize BDM'}
                             {!loading && <CheckCircle size={16} />}
                         </button>
                     </form>

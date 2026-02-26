@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useLocation as useLoc, useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import {
     MessageSquare, CheckCircle, ArrowLeft, Target, AlertCircle, BarChart3,
     CloudLightning, FileText, Camera, Phone, UserCheck, HeartPulse, Brain,
-    Clock, Activity, BookOpen, Smile, Frown, Meh, MoreHorizontal
+    Clock, Activity, BookOpen, Smile, Frown, Meh, MoreHorizontal, Upload, ImageIcon, Loader2
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Modal from '../../components/Modal';
@@ -21,8 +21,10 @@ const StudentInteractionLog = () => {
     const [students, setStudents] = useState([]);
     const [selectedStudent, setSelectedStudent] = useState(studentFromState || null);
     const [logs, setLogs] = useState([]);
+    const [allLogs, setAllLogs] = useState([]);
     // State for viewing details
     const [viewLog, setViewLog] = useState(null);
+    const [uploading, setUploading] = useState(false);
 
     const [formData, setFormData] = useState({
         date: new Date().toISOString().split('T')[0],
@@ -49,12 +51,14 @@ const StudentInteractionLog = () => {
         parent_update_priority: 'Low',
         mentor_action_needed: 'No',
         mentor_notes: '',
-        connected_today: true
+        connected_today: true,
+        screenshot_url: ''
     });
 
     useEffect(() => {
         if (!selectedStudent) {
             fetchStudents();
+            fetchAllLogs();
         } else {
             fetchStudentLogs(selectedStudent.id);
         }
@@ -65,17 +69,56 @@ const StudentInteractionLog = () => {
             const res = await api.get('/mentor/students');
             setStudents(res.data.data);
         } catch (error) {
-            toast.error("Failed to load students list");
+            toast.error("Failed to load students");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const fetchAllLogs = async () => {
+        try {
+            const res = await api.get('/mentor/student-logs');
+            setAllLogs(res.data.data);
+        } catch (error) {
+            toast.error("Failed to load interaction history");
         }
     };
 
     const fetchStudentLogs = async (studentId) => {
         try {
-            const res = await api.get('/mentor/student-logs');
-            const studentLogs = res.data.data.filter(log => log.student_id === studentId);
-            setLogs(studentLogs);
+            const res = await api.get(`/mentor/students/${studentId}`);
+            setLogs(res.data.data.studentLogs);
         } catch (error) {
-            console.error(error);
+            toast.error("Failed to load student logs");
+        }
+    };
+
+    const handleFileUpload = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        // Check file size (5MB limit)
+        if (file.size > 5 * 1024 * 1024) {
+            toast.error("File size must be less than 5MB");
+            return;
+        }
+
+        const uploadData = new FormData();
+        uploadData.append('file', file);
+
+        setUploading(true);
+        try {
+            const res = await api.post('/media', uploadData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+            if (res.data.success) {
+                setFormData({ ...formData, screenshot_url: res.data.url });
+                toast.success("File uploaded successfully");
+            }
+        } catch (error) {
+            toast.error(error.response?.data?.message || "File upload failed");
+        } finally {
+            setUploading(false);
         }
     };
 
@@ -106,20 +149,16 @@ const StudentInteractionLog = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
-        if (!formData.self_clarity) {
-            toast.error("Please enter Self Clarity %");
-            return;
-        }
-
         setLoading(true);
+
         try {
             await api.post('/mentor/student-log', {
                 ...formData,
                 student_id: selectedStudent.id,
-                // session_number is calculated by backend
+                student_name: selectedStudent.name
             });
-            toast.success("Interaction Log Saved Successfully");
+
+            toast.success("Interaction log submitted!");
             setSubmitted(true);
             fetchStudentLogs(selectedStudent.id); // Refresh logs
         } catch (error) {
@@ -140,13 +179,16 @@ const StudentInteractionLog = () => {
     if (!selectedStudent) {
         return (
             <div className="max-w-5xl mx-auto p-8 pb-20 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <header className="flex flex-col md:flex-row justify-between items-center bg-white p-10 rounded-[3rem] shadow-xl shadow-slate-100 border border-slate-50 relative overflow-hidden text-center md:text-left">
-                    <div className="relative z-10">
-                        <h1 className="text-3xl font-black text-slate-900 tracking-tight">Student Interaction Log</h1>
-                        <p className="text-sm font-bold text-slate-400 mt-2">Select a student to start logging a new interaction.</p>
+                <header className="bg-white p-10 rounded-[4rem] border border-slate-100 shadow-sm flex flex-col md:flex-row justify-between items-center gap-6 mb-10">
+                    <div className="text-center md:text-left">
+                        <h1 className="text-3xl font-black text-slate-900 tracking-tighter uppercase italic">Student Interaction Log</h1>
+                        <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest mt-2 flex items-center gap-2 justify-center md:justify-start">
+                            <Phone size={14} className="text-blue-500" />
+                            Documenting student performance and parent interactions
+                        </p>
                     </div>
-                    <div className="w-20 h-20 bg-blue-600 rounded-[2rem] flex items-center justify-center text-white shadow-xl shadow-blue-200 mt-6 md:mt-0">
-                        <UserCheck size={32} />
+                    <div className="w-16 h-16 bg-blue-600 rounded-3xl flex items-center justify-center text-white shadow-xl shadow-blue-100 rotate-6">
+                        <UserCheck size={28} />
                     </div>
                 </header>
 
@@ -165,6 +207,57 @@ const StudentInteractionLog = () => {
                             </div>
                         </button>
                     ))}
+                </div>
+
+                {/* History Table for all students */}
+                <div className="mt-12 bg-white p-8 rounded-[2.5rem] shadow-xl shadow-slate-100 border border-slate-50">
+                    <h3 className="text-xl font-black text-slate-900 mb-6 flex items-center gap-2">
+                        <Activity className="text-blue-600" />
+                        Recent Student Interactions
+                    </h3>
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left border-collapse">
+                            <thead>
+                                <tr className="border-b border-slate-100 bg-slate-50">
+                                    <th className="p-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Date</th>
+                                    <th className="p-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Student</th>
+                                    <th className="p-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Method</th>
+                                    <th className="p-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Mentor Notes</th>
+                                    <th className="p-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Details</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {allLogs.slice(0, 10).map(log => (
+                                    <tr key={log.id} className="border-b border-slate-50 hover:bg-slate-50 transition-colors">
+                                        <td className="p-4 text-xs font-bold text-slate-700">{new Date(log.date).toLocaleDateString()}</td>
+                                        <td className="p-4 text-xs font-black text-blue-600">{log.student_name}</td>
+                                        <td className="p-4 text-xs font-bold text-slate-600">{log.connection_method}</td>
+                                        <td className="p-4 text-xs font-bold text-slate-500 max-w-[200px] truncate">{log.mentor_notes || '-'}</td>
+                                        <td className="p-4">
+                                            <button
+                                                onClick={() => {
+                                                    const stu = students.find(s => s.id === log.student_id);
+                                                    setSelectedStudent(stu || { id: log.student_id, name: log.student_name });
+                                                    setTimeout(() => {
+                                                        setViewLog(log);
+                                                        setSubmitted(true);
+                                                    }, 100);
+                                                }}
+                                                className="text-[10px] font-black text-blue-600 uppercase tracking-widest hover:underline"
+                                            >
+                                                View
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))}
+                                {allLogs.length === 0 && (
+                                    <tr>
+                                        <td colSpan="5" className="p-8 text-center text-sm font-bold text-slate-400">No interaction logs found.</td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         );
@@ -355,6 +448,64 @@ const StudentInteractionLog = () => {
                         </div>
                     </div>
 
+                    {/* Section 6: Attachments */}
+                    <div className="space-y-6">
+                        <h3 className="text-xs font-black text-slate-900 uppercase tracking-[0.2em] border-l-4 border-blue-400 pl-4 flex items-center gap-2">
+                            <Camera size={16} className="text-blue-400" /> Section 6: Attachments
+                        </h3>
+
+                        <div className="space-y-4 bg-slate-50 p-8 rounded-[2rem] border border-slate-100">
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 flex items-center gap-2">
+                                <Upload size={14} className="text-blue-600" /> Interaction Proof (Image/PDF)
+                            </label>
+
+                            <div className="flex flex-col md:flex-row items-center gap-6">
+                                <div className="relative group w-full md:w-auto">
+                                    <input
+                                        type="file"
+                                        id="proof-upload"
+                                        className="hidden"
+                                        onChange={handleFileUpload}
+                                        accept=".jpg,.jpeg,.png,.pdf"
+                                    />
+                                    <label
+                                        htmlFor="proof-upload"
+                                        className={`flex items-center justify-center gap-3 px-8 py-4 bg-white border-2 border-dashed border-slate-200 rounded-2xl cursor-pointer hover:border-blue-400 hover:bg-blue-50/50 transition-all group ${uploading ? 'opacity-50 pointer-events-none' : ''}`}
+                                    >
+                                        {uploading ? (
+                                            <Loader2 className="animate-spin text-blue-600" size={20} />
+                                        ) : (
+                                            <ImageIcon className="text-slate-400 group-hover:text-blue-600" size={20} />
+                                        )}
+                                        <span className="text-xs font-black text-slate-600 uppercase tracking-widest">
+                                            {uploading ? 'Uploading...' : 'Choose File'}
+                                        </span>
+                                    </label>
+                                </div>
+
+                                {formData.screenshot_url && (
+                                    <div className="flex items-center gap-4 bg-white px-6 py-3 rounded-2xl border border-slate-200 animate-in zoom-in duration-300">
+                                        <div className="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center">
+                                            <CheckCircle size={18} />
+                                        </div>
+                                        <div className="flex flex-col">
+                                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">File Attached</span>
+                                            <a href={formData.screenshot_url} target="_blank" rel="noreferrer" className="text-xs font-bold text-blue-600 hover:underline truncate max-w-[150px]">View Document</a>
+                                        </div>
+                                        <button
+                                            type="button"
+                                            onClick={() => setFormData({ ...formData, screenshot_url: '' })}
+                                            className="text-slate-300 hover:text-rose-500 transition-colors"
+                                        >
+                                            <MoreHorizontal size={16} />
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                            <p className="text-[9px] font-bold text-slate-400 italic">Max size: 5MB. Supports JPG, PNG, PDF</p>
+                        </div>
+                    </div>
+
                     <div className="pt-8">
                         <button
                             type="submit"
@@ -465,6 +616,18 @@ const StudentInteractionLog = () => {
                                             <DetailRow label="Parent Priority" value={viewLog.parent_update_priority} />
                                             <DetailRow label="Action Needed" value={viewLog.mentor_action_needed} />
                                         </div>
+                                        {viewLog.screenshot_url && (
+                                            <div className="pt-4 border-t border-slate-200">
+                                                <DetailRow
+                                                    label="Interaction Proof"
+                                                    value={
+                                                        <a href={viewLog.screenshot_url} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline flex items-center gap-2">
+                                                            <ImageIcon size={14} /> View Document
+                                                        </a>
+                                                    }
+                                                />
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             </div>

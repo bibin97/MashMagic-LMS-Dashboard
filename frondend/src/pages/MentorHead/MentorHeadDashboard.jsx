@@ -9,7 +9,8 @@ import {
     User,
     Loader2,
     Target,
-    ShieldAlert
+    ShieldAlert,
+    RefreshCw
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
@@ -25,8 +26,10 @@ const MentorHeadDashboard = () => {
         checkedToday: 0,
         remaining: 0
     });
+    const [examData, setExamData] = useState([]);
     const [activities, setActivities] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [lastSynced, setLastSynced] = useState('');
 
     useEffect(() => {
         fetchDashboardData();
@@ -37,10 +40,11 @@ const MentorHeadDashboard = () => {
             const token = localStorage.getItem('token');
 
             // Parallel fetch for stats and activities
-            const [statsRes, activitiesRes, summaryRes] = await Promise.all([
+            const [statsRes, activitiesRes, summaryRes, examRes] = await Promise.all([
                 axios.get('http://localhost:5000/api/mentor-head/dashboard', { headers: { Authorization: `Bearer ${token}` } }),
                 axios.get('http://localhost:5000/api/mentor-head/activities', { headers: { Authorization: `Bearer ${token}` } }),
-                axios.get('http://localhost:5000/api/mentor-head/daily-summary', { headers: { Authorization: `Bearer ${token}` } })
+                axios.get('http://localhost:5000/api/mentor-head/daily-summary', { headers: { Authorization: `Bearer ${token}` } }),
+                axios.get('http://localhost:5000/api/mentor-head/exam-analytics', { headers: { Authorization: `Bearer ${token}` } })
             ]);
 
             if (statsRes.data.success) {
@@ -61,11 +65,16 @@ const MentorHeadDashboard = () => {
                 setDailySummary(summaryRes.data.data);
             }
 
+            if (examRes.data.success) {
+                setExamData(examRes.data.data);
+            }
+
         } catch (error) {
             console.error('Error fetching dashboard:', error);
             toast.error("Failed to load dashboard data");
         } finally {
             setLoading(false);
+            setLastSynced(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }));
         }
     };
 
@@ -78,7 +87,18 @@ const MentorHeadDashboard = () => {
     }
 
     return (
-        <div className="space-y-8">
+        <div className="space-y-12">
+            {/* Page Title */}
+            <div className="bg-white p-10 rounded-[3rem] border border-slate-100 shadow-sm flex justify-between items-center">
+                <div>
+                    <h2 className="text-3xl font-black text-slate-900 tracking-tighter uppercase italic">Operations Dashboard</h2>
+                    <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest mt-2 flex items-center gap-2">
+                        <TrendingUp size={14} className="text-indigo-500" />
+                        Centralized oversight of mentor network performance and daily student engagement tracking
+                    </p>
+                </div>
+            </div>
+
             {/* Stats Overview */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-500 group">
@@ -169,6 +189,52 @@ const MentorHeadDashboard = () => {
                 </div>
             </div>
 
+            {/* Exam Score Analytics Section */}
+            <div className="bg-white p-10 rounded-[2.5rem] border border-slate-100 shadow-sm relative overflow-hidden group">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/5 rounded-full -mr-32 -mt-32 blur-3xl transition-transform duration-1000 group-hover:scale-150"></div>
+                <div className="flex justify-between items-center mb-10 relative z-10">
+                    <div>
+                        <h3 className="text-xl font-black text-slate-900 tracking-tight italic uppercase">Academic Performance Overview</h3>
+                        <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mt-1">Cross-cohort success rate analytics</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <div className="w-10 h-10 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600">
+                            <Target size={20} />
+                        </div>
+                    </div>
+                </div>
+
+                <div className="h-[300px] w-full relative z-10">
+                    {examData.length > 0 ? (
+                        <ResponsiveContainer width="100%" height="100%">
+                            <PieChart>
+                                <Pie
+                                    data={examData}
+                                    cx="50%"
+                                    cy="50%"
+                                    innerRadius={60}
+                                    outerRadius={100}
+                                    paddingAngle={5}
+                                    dataKey="percentage"
+                                    nameKey="subject"
+                                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                                >
+                                    {examData.map((entry, index) => (
+                                        <Cell key={`cell-${index}`} fill={['#6366f1', '#10b981', '#f59e0b', '#f43f5e', '#8b5cf6'][index % 5]} />
+                                    ))}
+                                </Pie>
+                                <Tooltip />
+                            </PieChart>
+                        </ResponsiveContainer>
+                    ) : (
+                        <div className="h-full flex flex-col items-center justify-center text-slate-200">
+                            <Activity size={48} />
+                            <p className="text-[10px] font-black uppercase tracking-widest mt-4">Analytic data pending synchronization</p>
+                        </div>
+                    )}
+                </div>
+            </div>
+
             {/* Live Feed Section */}
             <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden flex flex-col min-h-[500px]">
                 <div className="p-8 border-b border-slate-50 flex items-center justify-between">
@@ -179,15 +245,20 @@ const MentorHeadDashboard = () => {
                         </h3>
                         <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mt-1">Real-time updates from mentor panels</p>
                     </div>
-                    <div className="text-xs font-bold text-slate-400 uppercase tracking-widest bg-slate-50 px-4 py-2 rounded-xl">
-                        Last synced: Just now
+                    <div className="flex items-center gap-3">
+                        <div className="text-xs font-bold text-slate-400 uppercase tracking-widest bg-slate-50 px-4 py-2 rounded-xl">
+                            Last synced: {lastSynced || 'Just now'}
+                        </div>
+                        <button onClick={fetchDashboardData} disabled={loading} title="Refresh Data" className="p-2 bg-indigo-50 text-indigo-600 rounded-xl hover:bg-indigo-100 transition-all active:scale-95">
+                            <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
+                        </button>
                     </div>
                 </div>
 
                 <div className="p-8">
                     {activities.length > 0 ? (
                         <div className="space-y-6 relative before:absolute before:inset-0 before:ml-8 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-slate-200 before:to-transparent">
-                            {activities.map((activity, idx) => (
+                            {activities.map((activity) => (
                                 <div key={activity.log_id} className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
                                     <div className="flex items-center justify-center w-16 h-16 rounded-full border border-white bg-slate-50 shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10">
                                         <div className="w-3 h-3 bg-indigo-600 rounded-full animate-pulse"></div>

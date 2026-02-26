@@ -10,7 +10,8 @@ import {
     User,
     ShieldCheck,
     Activity,
-    Target
+    Target,
+    ListTodo
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -21,14 +22,16 @@ const MentorHeadLayout = () => {
     const navItems = [
         { path: '/mentor-head/dashboard', icon: <LayoutDashboard size={18} />, label: 'Dashboard' },
         { path: '/mentor-head/checks', icon: <Target className="w-[18px] h-[18px]" />, label: 'Student Checks' },
-        { path: '/mentor-head/shift', icon: <ShieldCheck className="w-[18px] h-[18px]" />, label: 'Shift Student' },
+        { path: '/mentor-head/shift', icon: <ShieldCheck className="w-[18px] h-[18px]" />, label: 'Student Shift' },
         { path: '/mentor-head/register-mentor', icon: <UserPlus size={18} />, label: 'Register Mentor' },
         { path: '/mentor-head/mentors', icon: <Users size={18} />, label: 'Mentors List' },
+        { path: '/mentor-head/tasks', icon: <ListTodo size={18} />, label: 'Tasks' },
+        { path: '/mentor-head/interactions', icon: <Activity size={18} />, label: 'Logs' },
     ];
 
     const handleLogout = () => {
         logout();
-        toast.success("Mentor Head Session Ended");
+        toast.success("Logout Successful");
         navigate('/login');
     };
 
@@ -78,7 +81,7 @@ const MentorHeadLayout = () => {
                         className="w-full flex items-center gap-3 px-4 py-4 text-rose-400 hover:bg-rose-500/10 rounded-2xl transition-all duration-300 text-[10px] font-black uppercase tracking-widest"
                     >
                         <LogOut size={16} />
-                        <span>Terminate Session</span>
+                        <span>Logout</span>
                     </button>
                 </div>
             </aside>

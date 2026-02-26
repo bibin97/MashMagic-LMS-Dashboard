@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Target, CheckCircle2, ShieldAlert } from 'lucide-react';
+import { Target, CheckCircle2, ShieldAlert, RotateCcw } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const StudentCheckTracker = () => {
@@ -49,22 +49,44 @@ const StudentCheckTracker = () => {
         }
     };
 
-    const totalStudents = students.length;
+    const handleRemoveCheck = async (studentId) => {
+        try {
+            const token = localStorage.getItem('token');
+            await axios.delete(`http://localhost:5000/api/mentor-head/students/${studentId}/uncheck`,
+                { headers: { Authorization: `Bearer ${token}` } });
+
+            setStudents(prev => prev.map(s => {
+                if (s.student_id === studentId && s.total_check_count > 0) {
+                    return {
+                        ...s,
+                        total_check_count: s.total_check_count - 1
+                    };
+                }
+                return s;
+            }));
+            toast.success('Check removed');
+        } catch (error) {
+            toast.error("Failed to remove check");
+        }
+    };
 
     if (loading) return <div className="p-8 text-center text-slate-400 font-bold">Loading tracker...</div>;
 
     return (
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <header className="mb-8 flex flex-col md:flex-row justify-between md:items-center gap-4">
-                <div>
-                    <h2 className="text-2xl font-black text-slate-900 flex items-center gap-3">
-                        <Target className="text-indigo-600" />
-                        Student Check Tracker
-                    </h2>
-                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Daily monitoring by Mentor Head</p>
-                </div>
-
-            </header>
+            {/* Page Title */}
+            <div className="bg-white p-10 rounded-[4rem] border border-slate-100 shadow-sm mb-10">
+                <h2 className="text-3xl font-black text-slate-900 tracking-tighter uppercase italic flex items-center gap-4">
+                    <div className="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-indigo-200 rotate-3">
+                        <Target size={28} />
+                    </div>
+                    Verification Registry
+                </h2>
+                <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest mt-3 flex items-center gap-2">
+                    <CheckCircle2 size={14} className="text-emerald-500" />
+                    Internal audit of daily mentor-student interaction verification and accountability tracking
+                </p>
+            </div>
 
             <div className="bg-white rounded-[2.5rem] p-6 shadow-sm border border-slate-100">
                 <div className="overflow-x-auto">
@@ -121,13 +143,25 @@ const StudentCheckTracker = () => {
                                             {checkCount}
                                         </td>
                                         <td className="p-4 text-center">
-                                            <button
-                                                onClick={() => handleAddCheck(student.student_id)}
-                                                className="flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black mx-auto transition-all bg-white border border-slate-200 text-slate-600 shadow-sm hover:scale-105 active:scale-95 uppercase tracking-widest"
-                                            >
-                                                <CheckCircle2 size={14} className={checkCount > 0 ? 'text-emerald-500' : 'text-slate-400'} />
-                                                Checked
-                                            </button>
+                                            <div className="flex items-center justify-center gap-2">
+                                                <button
+                                                    onClick={() => handleAddCheck(student.student_id)}
+                                                    className="flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black transition-all bg-white border border-slate-200 text-slate-600 shadow-sm hover:scale-105 active:scale-95 uppercase tracking-widest"
+                                                >
+                                                    <CheckCircle2 size={14} className={checkCount > 0 ? 'text-emerald-500' : 'text-slate-400'} />
+                                                    Checked
+                                                </button>
+                                                {checkCount > 0 && (
+                                                    <button
+                                                        onClick={() => handleRemoveCheck(student.student_id)}
+                                                        className="flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black transition-all bg-white border border-slate-200 text-slate-600 shadow-sm hover:scale-105 active:scale-95 uppercase tracking-widest text-rose-500 hover:text-rose-600 hover:border-rose-200 hover:bg-rose-50"
+                                                        title="Undo Check"
+                                                    >
+                                                        <RotateCcw size={14} />
+                                                        Undo
+                                                    </button>
+                                                )}
+                                            </div>
                                         </td>
                                     </tr>
                                 );

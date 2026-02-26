@@ -40,7 +40,9 @@ exports.registerMentor = async (req, res) => {
             place,
             password: hashedPassword,
             role: 'mentor',
-            status: 'active' // Making them active directly to save time
+            status: 'pending',
+            isApproved: 0,
+            registeredBy: req.user.id
         });
 
         res.status(201).json({
@@ -164,6 +166,62 @@ exports.getMentorStudents = async (req, res) => {
         res.status(500).json({ success: false, message: "Server Error", error: error.message });
     }
 };
+// @desc    Get all mentor interaction logs (Student & Faculty calls)
+// @route   GET /api/mentor-head/mentor-logs
+// @access  Private (Mentor Head)
+exports.getMentorInteractionLogs = async (req, res) => {
+    try {
+        const [studentLogs] = await db.query(`
+            SELECT sil.*, s.name as student_name, m.name as mentor_name, 'Student' as type
+            FROM student_interaction_logs sil
+            JOIN students s ON sil.student_id = s.id
+            JOIN users m ON sil.mentor_id = m.id
+            ORDER BY sil.date DESC
+        `);
+
+        const [facultyLogs] = await db.query(`
+            SELECT fil.*, s.name as student_name, m.name as mentor_name, 'Faculty' as type
+            FROM faculty_interaction_logs fil
+            JOIN students s ON fil.student_id = s.id
+            JOIN users m ON fil.mentor_id = m.id
+            ORDER BY fil.date DESC
+        `);
+
+        res.status(200).json({
+            success: true,
+            data: {
+                studentLogs,
+                facultyLogs
+            }
+        });
+    } catch (error) {
+        console.error('Error in getMentorInteractionLogs:', error);
+        res.status(500).json({ success: false, message: "Server Error", error: error.message });
+    }
+};
+
+// @desc    Get all intelligence reports submitted by faculties
+// @route   GET /api/mentor-head/faculty-intelligence
+// @access  Private (Mentor Head)
+exports.getFacultyIntelligenceLogs = async (req, res) => {
+    try {
+        const [reports] = await db.query(`
+            SELECT r.*, s.name as student_name, u.name as faculty_name
+            FROM student_reports r
+            JOIN students s ON r.student_id = s.id
+            JOIN users u ON r.faculty_id = u.id
+            ORDER BY r.created_at DESC
+        `);
+
+        res.status(200).json({
+            success: true,
+            data: reports
+        });
+    } catch (error) {
+        console.error('Error in getFacultyIntelligenceLogs:', error);
+        res.status(500).json({ success: false, message: "Server Error", error: error.message });
+    }
+};
 // @desc    Get all recent activities (interaction logs) from all mentors
 // @route   GET /api/mentor-head/activities
 // @access  Private (Mentor Head)
@@ -213,7 +271,7 @@ exports.getMentorDetails = async (req, res) => {
         }
 
         const [assignedStudents] = await db.query(
-            'SELECT id, name, grade, course, subject, onboarding_status FROM students WHERE mentor_id = ?',
+            'SELECT id, name, grade, course, subject, onboarding_status, faculty_name, is_shifted, shifted_from FROM students WHERE mentor_id = ?',
             [mentorId]
         );
 
@@ -254,6 +312,7 @@ exports.getMentorDetails = async (req, res) => {
 // @route   GET /api/mentor-head/mentor-activity
 exports.getMentorActivityDashboard = async (req, res) => {
     try {
+        // Fetch mentors with their basic counts first
         const query = `
             SELECT 
                 u.id as mentor_id,
@@ -268,8 +327,27 @@ exports.getMentorActivityDashboard = async (req, res) => {
             WHERE u.role IN ('mentor', 'Mentor')
         `;
         const [mentors] = await db.query(query);
-        res.status(200).json({ success: true, data: mentors });
+
+        // For each mentor, fetch their student list separately
+        const mentorsWithStudents = await Promise.all(mentors.map(async (mentor) => {
+            try {
+                const [students] = await db.query(
+                    'SELECT id, name, grade, course, faculty_name, is_shifted, shifted_from FROM students WHERE mentor_id = ?',
+                    [mentor.mentor_id]
+                );
+                return {
+                    ...mentor,
+                    students_list: students
+                };
+            } catch (err) {
+                console.error(`Error fetching students for mentor ${mentor.mentor_id}:`, err);
+                return { ...mentor, students_list: [] };
+            }
+        }));
+
+        res.status(200).json({ success: true, data: mentorsWithStudents });
     } catch (error) {
+        console.error("Dashboard Global Error:", error);
         res.status(500).json({ success: false, message: error.message });
     }
 };
@@ -283,7 +361,7 @@ exports.getMentorMonitoringDetails = async (req, res) => {
         if (mentorProfile.length === 0) return res.status(404).json({ success: false, message: 'Mentor not found' });
 
         const [assignedStudents] = await db.query(`
-            SELECT s.id, s.name, s.course, s.grade, s.onboarding_status,
+            SELECT s.id, s.name, s.course, s.grade, s.onboarding_status, s.faculty_name, s.is_shifted, s.shifted_from,
                    CASE WHEN EXISTS(SELECT 1 FROM student_interaction_logs sil WHERE sil.student_id = s.id AND sil.date = CURDATE() AND sil.connected_today = TRUE) THEN 1 ELSE 0 END AS connected_today
             FROM students s
             WHERE s.mentor_id = ?
@@ -327,10 +405,25 @@ exports.shiftStudent = async (req, res) => {
         const { studentId } = req.params;
         const { newMentorId } = req.body;
 
-        if (!newMentorId) return res.status(400).json({ success: false, message: 'New mentor ID required' });
+        const [oldMentorRes] = await db.query('SELECT mentor_name FROM students WHERE id = ?', [studentId]);
+        const oldMentorName = oldMentorRes.length > 0 ? oldMentorRes[0].mentor_name : 'Unknown';
 
-        await db.query('UPDATE students SET mentor_id = ? WHERE id = ?', [newMentorId, studentId]);
+        const [mentor] = await db.query('SELECT name FROM users WHERE id = ?', [newMentorId]);
+        if (mentor.length === 0) return res.status(404).json({ success: false, message: 'Mentor not found' });
+        const mentorName = mentor[0].name;
+
+        // Shift student, mark as shifted, and CLEAR faculty assignment
+        await db.query(
+            'UPDATE students SET mentor_id = ?, mentor_name = ?, faculty_id = NULL, faculty_name = "Not Assigned", is_shifted = 1, shifted_from = ? WHERE id = ?',
+            [newMentorId, mentorName, oldMentorName, studentId]
+        );
+
+        // Preserve history but link to new mentor panel
         await db.query('UPDATE student_interaction_logs SET mentor_id = ? WHERE student_id = ?', [newMentorId, studentId]);
+
+        // Notify
+        await db.query('INSERT INTO admin_notifications (message) VALUES (?)', [`Student shifted from ${oldMentorName} to ${mentorName}`]);
+
         res.status(200).json({ success: true, message: 'Student and history shifted successfully' });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
@@ -375,6 +468,29 @@ exports.checkStudentToday = async (req, res) => {
         );
 
         res.status(200).json({ success: true, message: 'Student verification check added' });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+// @desc    Remove the latest manual check marker
+// @route   DELETE /api/mentor-head/students/:studentId/uncheck
+exports.uncheckStudent = async (req, res) => {
+    try {
+        const { studentId } = req.params;
+
+        await db.query(`
+            DELETE FROM student_verification 
+            WHERE id = (
+                SELECT id FROM (
+                    SELECT id FROM student_verification 
+                    WHERE student_id = ? 
+                    ORDER BY id DESC LIMIT 1
+                ) as t
+            )
+        `, [studentId]);
+
+        res.status(200).json({ success: true, message: 'Latest student verification check removed' });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
@@ -456,6 +572,27 @@ exports.deleteMentor = async (req, res) => {
 
         res.status(200).json({ success: true, message: 'Mentor deleted successfully' });
     } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+// @desc    Get exam analytics for graphs
+exports.getExamAnalytics = async (req, res) => {
+    try {
+        const [rows] = await db.query(`
+            SELECT 
+                subject, 
+                term, 
+                AVG(marks) as avg_marks, 
+                AVG(total) as avg_total,
+                (AVG(marks) / AVG(total)) * 100 as percentage
+            FROM student_marks
+            GROUP BY subject, term
+            ORDER BY term DESC
+        `);
+        res.status(200).json({ success: true, data: rows });
+    } catch (error) {
+        console.error('Error fetching exam analytics:', error);
         res.status(500).json({ success: false, message: error.message });
     }
 };

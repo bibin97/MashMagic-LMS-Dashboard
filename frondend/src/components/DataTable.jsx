@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, Filter, ChevronLeft, ChevronRight, Eye, CheckCircle, Ban, Trash2 } from 'lucide-react';
+import { Search, Filter, ChevronLeft, ChevronRight, Eye, CheckCircle, Ban, Trash2, Pencil } from 'lucide-react';
 
 const DataTable = ({
     columns,
@@ -7,10 +7,12 @@ const DataTable = ({
     loading,
     onSearch,
     onFilter,
+    onExport,
     onView,
     onApprove,
     onBlock,
     onDelete,
+    onEdit,
     searchPlaceholder = "Search..."
 }) => {
     return (
@@ -27,11 +29,17 @@ const DataTable = ({
                 </div>
 
                 <div className="flex gap-2 w-full sm:w-auto">
-                    <button className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-all shadow-sm">
+                    <button
+                        onClick={onFilter}
+                        className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-all shadow-sm active:scale-95"
+                    >
                         <Filter size={18} className="text-slate-400" />
                         <span>Filter</span>
                     </button>
-                    <button className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600 border border-blue-700 rounded-xl text-sm font-semibold text-white hover:bg-blue-700 transition-all shadow-sm">
+                    <button
+                        onClick={onExport}
+                        className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600 border border-blue-700 rounded-xl text-sm font-semibold text-white hover:bg-blue-700 transition-all shadow-sm active:scale-95"
+                    >
                         <span>Export</span>
                     </button>
                 </div>
@@ -87,6 +95,16 @@ const DataTable = ({
                                             >
                                                 <Eye size={16} />
                                             </button>
+
+                                            {onEdit && (
+                                                <button
+                                                    className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all"
+                                                    onClick={() => onEdit(row)}
+                                                    title="Edit Details"
+                                                >
+                                                    <Pencil size={16} />
+                                                </button>
+                                            )}
 
                                             {onApprove && row.status !== 'active' && (
                                                 <button

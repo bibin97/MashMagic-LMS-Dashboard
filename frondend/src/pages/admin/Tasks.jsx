@@ -7,9 +7,11 @@ import { Plus, Calendar, Clock, AlertTriangle } from 'lucide-react';
 
 const Tasks = () => {
     const [tasks, setTasks] = useState([]);
+    const [filteredTasks, setFilteredTasks] = useState([]);
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [mentors, setMentors] = useState([]);
+    const [assignees, setAssignees] = useState([]);
+    const [filterPriority, setFilterPriority] = useState('All');
     const [formData, setFormData] = useState({
         title: '',
         description: '',
@@ -20,7 +22,7 @@ const Tasks = () => {
 
     useEffect(() => {
         fetchTasks();
-        fetchMentors();
+        fetchAssignees();
     }, []);
 
     const fetchTasks = async () => {
@@ -28,6 +30,7 @@ const Tasks = () => {
             setLoading(true);
             const response = await api.get('/tasks');
             setTasks(response.data.data);
+            setFilteredTasks(response.data.data);
             setLoading(false);
         } catch (error) {
             toast.error("Failed to load tasks");
@@ -35,13 +38,78 @@ const Tasks = () => {
         }
     };
 
-    const fetchMentors = async () => {
+    const handleSearch = (query) => {
+        const filtered = tasks.filter(t =>
+            t.title?.toLowerCase().includes(query.toLowerCase()) ||
+            t.description?.toLowerCase().includes(query.toLowerCase()) ||
+            t.mentor_name?.toLowerCase().includes(query.toLowerCase())
+        );
+        setFilteredTasks(filtered);
+    };
+
+    const handleFilter = () => {
+        const priorities = ['All', 'High', 'Medium', 'Low'];
+        const currentIndex = priorities.indexOf(filterPriority);
+        const nextIndex = (currentIndex + 1) % priorities.length;
+        const nextPriority = priorities[nextIndex];
+
+        setFilterPriority(nextPriority);
+
+        if (nextPriority === 'All') {
+            setFilteredTasks(tasks);
+        } else {
+            setFilteredTasks(tasks.filter(t => t.priority === nextPriority));
+        }
+
+        toast(`Filtering by: ${nextPriority} Priority`, {
+            icon: '🔍',
+            style: {
+                borderRadius: '10px',
+                background: '#333',
+                color: '#fff',
+            },
+        });
+    };
+
+    const handleExport = () => {
+        if (filteredTasks.length === 0) {
+            toast.error("No data to export");
+            return;
+        }
+
+        const headers = ['Objective', 'Description', 'Mentor', 'Deadline', 'Priority', 'Status'];
+        const csvContent = [
+            headers.join(','),
+            ...filteredTasks.map(t => [
+                `"${t.title}"`,
+                `"${t.description}"`,
+                `"${t.mentor_name || 'Unassigned'}"`,
+                t.deadline,
+                t.priority,
+                t.status
+            ].join(','))
+        ].join('\n');
+
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        link.setAttribute('href', url);
+        link.setAttribute('download', `tasks_export_${new Date().toISOString().split('T')[0]}.csv`);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        toast.success("Tasks exported as CSV");
+    };
+
+    const fetchAssignees = async () => {
         try {
             const response = await api.get('/admin/users');
-            const mentorUsers = response.data.data.filter(u => u.role === 'mentor');
-            setMentors(mentorUsers);
+            const targetRoles = ['mentor', 'faculty', 'mentor_head'];
+            const filteredUsers = response.data.data.filter(u => targetRoles.includes(u.role));
+            setAssignees(filteredUsers);
         } catch (error) {
-            console.error("Failed to fetch mentors for assignment");
+            console.error("Failed to fetch users for task assignment");
         }
     };
 
@@ -79,7 +147,7 @@ const Tasks = () => {
             )
         },
         {
-            header: 'Assigned Mentor', accessor: 'mentor_name', render: (row) => (
+            header: 'Assigned To', accessor: 'mentor_name', render: (row) => (
                 <div className="flex items-center gap-2">
                     <div className="w-6 h-6 bg-slate-100 rounded-full flex items-center justify-center text-[10px] font-bold text-slate-500 border border-slate-200 uppercase">
                         {row.mentor_name?.charAt(0) || 'U'}
@@ -122,35 +190,38 @@ const Tasks = () => {
         <div className="flex flex-col gap-8">
             <div className="flex justify-between items-end">
                 <div className="flex flex-col gap-1">
-                    <h2 className="text-2xl font-bold text-slate-900 tracking-tight">System Directives</h2>
-                    <p className="text-slate-500 text-sm font-medium">Coordinate and track educational tasks for the mentor network</p>
+                    <h2 className="text-3xl font-black text-slate-900 tracking-tighter uppercase italic">Task Management</h2>
+                    <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest mt-1 text-slate-500">Coordinate and track educational tasks for the mentor network</p>
                 </div>
                 <button
                     onClick={() => setIsModalOpen(true)}
                     className="flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-2xl font-bold text-sm hover:bg-blue-700 transition-all shadow-xl shadow-blue-100 hover:-translate-y-0.5"
                 >
                     <Plus size={20} />
-                    <span>Issue New Directive</span>
+                    <span>Create New Task</span>
                 </button>
             </div>
 
             <DataTable
                 columns={columns}
-                data={tasks}
+                data={filteredTasks}
                 loading={loading}
+                onSearch={handleSearch}
+                onFilter={handleFilter}
+                onExport={handleExport}
                 onDelete={handleDelete}
-                searchPlaceholder="Filter directives by title..."
+                searchPlaceholder="Filter tasks by objective or mentor..."
             />
 
             <Modal
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
-                title="Create New System Directive"
+                title="Create New Task"
                 size="md"
             >
                 <form onSubmit={handleSubmit} className="flex flex-col gap-6">
                     <div className="flex flex-col gap-2">
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Directive Title</label>
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Task Title</label>
                         <input
                             type="text"
                             required
@@ -175,17 +246,29 @@ const Tasks = () => {
 
                     <div className="grid grid-cols-2 gap-4">
                         <div className="flex flex-col gap-2">
-                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Operational Mentor</label>
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Assign User</label>
                             <select
                                 required
                                 className="p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-blue-100 focus:border-blue-300 transition-all font-semibold appearance-none"
                                 value={formData.mentor_id}
                                 onChange={(e) => setFormData({ ...formData, mentor_id: e.target.value })}
                             >
-                                <option value="">Select Target Mentor</option>
-                                {mentors.map(m => (
-                                    <option key={m.id} value={m.id}>{m.name}</option>
-                                ))}
+                                <option value="">Select Target User</option>
+                                <optgroup label="Mentors">
+                                    {assignees.filter(a => a.role === 'mentor').map(m => (
+                                        <option key={m.id} value={m.id}>{m.name}</option>
+                                    ))}
+                                </optgroup>
+                                <optgroup label="Faculties">
+                                    {assignees.filter(a => a.role === 'faculty').map(f => (
+                                        <option key={f.id} value={f.id}>{f.name}</option>
+                                    ))}
+                                </optgroup>
+                                <optgroup label="Mentor Heads">
+                                    {assignees.filter(a => a.role === 'mentor_head').map(mh => (
+                                        <option key={mh.id} value={mh.id}>{mh.name}</option>
+                                    ))}
+                                </optgroup>
                             </select>
                         </div>
                         <div className="flex flex-col gap-2">
@@ -228,7 +311,7 @@ const Tasks = () => {
                         type="submit"
                         className="w-full bg-blue-600 text-white p-4 rounded-2xl font-black text-sm hover:bg-blue-700 transition-all shadow-xl shadow-blue-100 mt-2 flex items-center justify-center gap-2 group"
                     >
-                        <span>Authorize and Issue Directive</span>
+                        <span>Authorize and Issue Task</span>
                         <AlertTriangle size={18} className="transition-transform group-hover:scale-110" />
                     </button>
                 </form>

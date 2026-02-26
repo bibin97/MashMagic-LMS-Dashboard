@@ -15,8 +15,17 @@ const {
     markNotificationRead,
     getAllStudentsForAdmin,
     getAllMentorsForAdmin,
-    getAllFacultiesForAdmin
+    getAllFacultiesForAdmin,
+    getStaffMembers,
+    getSubAdmins,
+    createSubAdmin,
+    updateSubAdmin,
+    deleteSubAdmin,
+    updateStudentForAdmin,
+    updateUserForAdmin,
+    getExamAnalytics
 } = require('../controllers/adminController');
+const { getDailyHours } = require('../controllers/mentorController');
 const { requireAuth } = require('../middleware/authMiddleware');
 const { requireRole } = require('../middleware/roleMiddleware');
 
@@ -35,17 +44,28 @@ router.get('/users', getUsers);
 router.get('/students', getAllStudentsForAdmin);
 router.get('/mentors', getAllMentorsForAdmin);
 router.get('/faculties', getAllFacultiesForAdmin);
+router.get('/staff', getStaffMembers);
 router.get('/users/:id', getUserById);
 router.put('/approve/:id', approveUser);
 router.put('/block/:id', blockUser);
 router.delete('/delete/:id', deleteUser);
+router.put('/users/:id', updateUserForAdmin);
+router.put('/students/:id', updateStudentForAdmin);
+
+// Admin Management (Super Admin only)
+router.get('/sub-admins', getSubAdmins);
+router.post('/sub-admins', createSubAdmin);
+router.put('/sub-admins/:id', updateSubAdmin);
+router.delete('/sub-admins/:id', deleteSubAdmin);
 
 // Log Routes
 router.get('/student-logs', getAllStudentLogs);
 router.get('/faculty-logs', getAllFacultyLogs);
+router.get('/daily-hours/:studentId', getDailyHours);
 
 // Mentor Head Report
 router.get('/mentor-head-report', getDailyMentorHeadReport);
+router.get('/exam-analytics', getExamAnalytics);
 
 // Notifications
 router.get('/notifications', getAdminNotifications);

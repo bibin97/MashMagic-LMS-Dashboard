@@ -9,8 +9,8 @@ router.use(requireAuth);
 
 // Admin only routes for creating/deleting
 router.get('/', getTasks);
-router.post('/', requireRole('super_admin'), createTask);
-router.delete('/:id', requireRole('super_admin'), deleteTask);
+router.post('/', requireRole('super_admin', 'admin', 'academic_head'), createTask);
+router.delete('/:id', requireRole('super_admin', 'admin', 'academic_head'), deleteTask);
 
 // Status update can be done by mentor or admin
 router.put('/:id/status', updateTaskStatus);

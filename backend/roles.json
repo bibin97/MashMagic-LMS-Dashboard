@@ -1,0 +1,20 @@
+[
+  {
+    "role": "super_admin"
+  },
+  {
+    "role": "mentor_head"
+  },
+  {
+    "role": "mentor"
+  },
+  {
+    "role": "academic_head"
+  },
+  {
+    "role": "faculty"
+  },
+  {
+    "role": "academic_counsellor"
+  }
+]

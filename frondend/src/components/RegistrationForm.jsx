@@ -63,6 +63,8 @@ const RegistrationForm = ({ onSuccess, preSelectedRole }) => {
                 payload = {
                     name: formData.name,
                     email: formData.email,
+                    phone_number: formData.phone_number,
+                    place: formData.place,
                     password: formData.password,
                     role: role // 'admin', 'mentor_head', or 'academic_head'
                 };
@@ -159,6 +161,40 @@ const RegistrationForm = ({ onSuccess, preSelectedRole }) => {
                                 />
                             </div>
                         </div>
+
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="flex flex-col gap-2">
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Phone Number</label>
+                                <div className="relative group">
+                                    <Phone size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-600 transition-colors" />
+                                    <input
+                                        type="text"
+                                        name="phone_number"
+                                        required
+                                        className="w-full p-3 pl-12 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-blue-100 font-semibold"
+                                        placeholder="Phone"
+                                        value={formData.phone_number}
+                                        onChange={handleInputChange}
+                                    />
+                                </div>
+                            </div>
+                            <div className="flex flex-col gap-2">
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Place</label>
+                                <div className="relative group">
+                                    <MapPin size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-600 transition-colors" />
+                                    <input
+                                        type="text"
+                                        name="place"
+                                        required
+                                        className="w-full p-3 pl-12 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-blue-100 font-semibold"
+                                        placeholder="Place"
+                                        value={formData.place}
+                                        onChange={handleInputChange}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
                         <div className="flex flex-col gap-2">
                             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Password</label>
                             <div className="relative group">
@@ -307,7 +343,7 @@ const RegistrationForm = ({ onSuccess, preSelectedRole }) => {
                         ${loading ? 'opacity-70 cursor-not-allowed' : 'hover:bg-blue-700'}
                     `}
                 >
-                    {loading ? 'Submitting...' : `Register as ${role}`}
+                    {loading ? 'Submitting...' : `Register as ${role === 'academic_counselor' ? 'BDM' : role.replace('_', ' ')}`}
                     {!loading && <CheckCircle size={16} />}
                 </button>
             </form>

@@ -53,12 +53,12 @@ const DailyMentorHeadReport = () => {
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
             <header className="flex flex-col md:flex-row justify-between md:items-center gap-6 mb-8">
                 <div>
-                    <h2 className="text-2xl font-black text-slate-900 flex items-center gap-3 tracking-tight">
+                    <h2 className="text-3xl font-black text-slate-900 tracking-tighter uppercase italic flex items-center gap-3">
                         <Target className="text-indigo-600" />
-                        Daily Mentor Head Report
+                        Daily Verification Report
                     </h2>
-                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">
-                        Monitor daily student verifications across mentor heads
+                    <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-1 text-slate-500">
+                        Monitor daily student verifications and accountability across mentor heads
                     </p>
                 </div>
                 <div className="flex flex-col md:flex-row gap-4">

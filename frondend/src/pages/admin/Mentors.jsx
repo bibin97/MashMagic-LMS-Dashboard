@@ -11,6 +11,14 @@ const Mentors = () => {
     const [loading, setLoading] = useState(true);
     const [selectedMentor, setSelectedMentor] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [editFormData, setEditFormData] = useState({
+        name: '',
+        email: '',
+        phone_number: '',
+        status: '',
+        role: 'mentor'
+    });
 
     useEffect(() => {
         fetchMentors();
@@ -43,6 +51,30 @@ const Mentors = () => {
     const handleView = (mentor) => {
         setSelectedMentor(mentor);
         setIsModalOpen(true);
+    };
+
+    const handleEdit = (mentor) => {
+        setSelectedMentor(mentor);
+        setEditFormData({
+            name: mentor.name,
+            email: mentor.email,
+            phone_number: mentor.phone || '',
+            status: mentor.status,
+            role: 'mentor'
+        });
+        setIsEditModalOpen(true);
+    };
+
+    const handleUpdate = async (e) => {
+        e.preventDefault();
+        try {
+            await api.put(`/admin/users/${selectedMentor.id}`, editFormData);
+            toast.success("Mentor updated successfully");
+            setIsEditModalOpen(false);
+            fetchMentors();
+        } catch (error) {
+            toast.error(error.response?.data?.message || "Failed to update mentor");
+        }
     };
 
     const handleApprove = async (mentor) => {
@@ -109,9 +141,9 @@ const Mentors = () => {
 
     return (
         <div className="flex flex-col gap-8">
-            <div className="flex flex-col gap-1">
-                <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Mentor Network</h2>
-                <p className="text-slate-500 text-sm font-medium">Analyzing performance metrics and assignment distribution</p>
+            <div className="flex flex-col mb-6">
+                <h2 className="text-3xl font-black text-slate-900 tracking-tighter uppercase italic">Mentor Network</h2>
+                <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em] mt-2">Analyzing performance metrics and assignment distribution</p>
             </div>
 
             <DataTable
@@ -123,8 +155,65 @@ const Mentors = () => {
                 onApprove={handleApprove}
                 onBlock={handleBlock}
                 onDelete={handleDelete}
+                onEdit={handleEdit}
                 searchPlaceholder="Filter mentors by name or email..."
             />
+
+            {/* Edit Mentor Modal */}
+            <Modal
+                isOpen={isEditModalOpen}
+                onClose={() => setIsEditModalOpen(false)}
+                title="Edit Mentor Profile"
+                size="md"
+            >
+                <form onSubmit={handleUpdate} className="flex flex-col gap-5">
+                    <div className="flex flex-col gap-1.5">
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Full Name</label>
+                        <input
+                            type="text"
+                            className="p-3.5 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-blue-50 transition-all"
+                            value={editFormData.name}
+                            onChange={(e) => setEditFormData({ ...editFormData, name: e.target.value })}
+                            required
+                        />
+                    </div>
+                    <div className="flex flex-col gap-1.5">
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Email Address</label>
+                        <input
+                            type="email"
+                            className="p-3.5 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-blue-50 transition-all"
+                            value={editFormData.email}
+                            onChange={(e) => setEditFormData({ ...editFormData, email: e.target.value })}
+                            required
+                        />
+                    </div>
+                    <div className="flex flex-col gap-1.5">
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Phone Number</label>
+                        <input
+                            type="text"
+                            className="p-3.5 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-blue-50 transition-all"
+                            value={editFormData.phone_number}
+                            onChange={(e) => setEditFormData({ ...editFormData, phone_number: e.target.value })}
+                        />
+                    </div>
+                    <div className="flex flex-col gap-1.5">
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Account Status</label>
+                        <select
+                            className="p-3.5 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-blue-50 transition-all"
+                            value={editFormData.status}
+                            onChange={(e) => setEditFormData({ ...editFormData, status: e.target.value })}
+                        >
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                            <option value="pending">Pending</option>
+                        </select>
+                    </div>
+                    <div className="flex justify-end gap-3 mt-4">
+                        <button type="button" className="px-5 py-2.5 rounded-xl border border-slate-200 text-sm font-bold text-slate-600 hover:bg-slate-50 transition-all" onClick={() => setIsEditModalOpen(false)}>Cancel</button>
+                        <button type="submit" className="px-5 py-2.5 rounded-xl bg-slate-900 text-white text-sm font-bold hover:bg-slate-800 transition-all shadow-lg">Save Changes</button>
+                    </div>
+                </form>
+            </Modal>
 
             <Modal
                 isOpen={isModalOpen}

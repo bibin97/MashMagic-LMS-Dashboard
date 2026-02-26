@@ -7,15 +7,22 @@ const {
     getMentorTasks,
     completeMentorTask,
     getMentorTimetable,
-    completeSession,
-    cancelSession,
-    postponeSession,
+    createSession,
+    updateSession,
+    deleteSession,
     createStudentLog,
     createFacultyLog,
+    updateFacultyLog,
+    deleteFacultyLog,
     getStudentLogs,
     getFacultyLogs,
     toggleStudentConnection,
-    completeOnboarding
+    completeOnboarding,
+    createBatchTimetable,
+    getPendingExams,
+    submitExamResult,
+    logDailyHours,
+    getDailyHours
 } = require('../controllers/mentorController');
 const { requireAuth } = require('../middleware/authMiddleware');
 const { requireRole } = require('../middleware/roleMiddleware');
@@ -30,17 +37,28 @@ router.get('/students/:id', getStudentDetails);
 router.get('/tasks', getMentorTasks);
 router.put('/tasks/:id/complete', completeMentorTask);
 router.get('/timetable', getMentorTimetable);
-router.put('/timetable/:id/complete', completeSession);
-router.put('/timetable/:id/cancel', cancelSession);
-router.put('/timetable/:id/postpone', postponeSession);
+router.post('/timetable', createSession);
+router.put('/timetable/:id', updateSession);
+router.delete('/timetable/:id', deleteSession);
 router.post('/student-log', createStudentLog);
 router.post('/faculty-log', createFacultyLog);
 // New log retrieval routes
 router.get('/student-logs', getStudentLogs);
 router.get('/faculty-logs', getFacultyLogs);
+router.put('/faculty-log/:id', updateFacultyLog);
+router.delete('/faculty-log/:id', deleteFacultyLog);
+
+// Daily Hours
+router.post('/daily-hours', logDailyHours);
+router.get('/daily-hours/:studentId', getDailyHours);
 
 // Monitoring
 router.put('/students/:studentId/connection', toggleStudentConnection);
 router.put('/students/:studentId/onboard', completeOnboarding);
+router.post('/timetable/batch', createBatchTimetable);
+
+// Exams
+router.get('/exams/pending', getPendingExams);
+router.post('/exams/submit', submitExamResult);
 
 module.exports = router;

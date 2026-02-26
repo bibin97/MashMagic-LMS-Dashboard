@@ -36,10 +36,10 @@ const InteractionLogs = () => {
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
             <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                    <h1 className="text-3xl font-black text-slate-900 tracking-tight flex items-center gap-3">
+                    <h1 className="text-3xl font-black text-slate-900 tracking-tight uppercase italic flex items-center gap-3">
                         <ScrollText size={32} className="text-blue-600" /> Interaction Logs
                     </h1>
-                    <p className="text-slate-500 font-bold mt-2">Comprehensive archive of all session interactions.</p>
+                    <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest mt-2">Comprehensive archive of all session interactions and reports.</p>
                 </div>
 
                 <div className="flex bg-slate-100 p-1.5 rounded-2xl">
