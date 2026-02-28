@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Search, Filter, ChevronLeft, ChevronRight, Eye, CheckCircle, Ban, Trash2, Pencil } from 'lucide-react';
+import StudentListFilterDropdown from './StudentListFilterDropdown';
 
 const DataTable = ({
     columns,
@@ -13,8 +14,11 @@ const DataTable = ({
     onBlock,
     onDelete,
     onEdit,
-    searchPlaceholder = "Search..."
+    searchPlaceholder = "Search...",
+    filterValue,
+    onFilterChange,
 }) => {
+    const useFilterDropdown = filterValue !== undefined && onFilterChange;
     return (
         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
             <div className="flex flex-col sm:flex-row justify-between items-center p-6 border-b border-slate-100 gap-4">
@@ -29,13 +33,20 @@ const DataTable = ({
                 </div>
 
                 <div className="flex gap-2 w-full sm:w-auto">
-                    <button
-                        onClick={onFilter}
-                        className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-all shadow-sm active:scale-95"
-                    >
-                        <Filter size={18} className="text-slate-400" />
-                        <span>Filter</span>
-                    </button>
+                    {useFilterDropdown ? (
+                        <StudentListFilterDropdown
+                            value={filterValue}
+                            onChange={onFilterChange}
+                        />
+                    ) : (
+                        <button
+                            onClick={onFilter}
+                            className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-all shadow-sm active:scale-95"
+                        >
+                            <Filter size={18} className="text-slate-400" />
+                            <span>Filter</span>
+                        </button>
+                    )}
                     <button
                         onClick={onExport}
                         className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600 border border-blue-700 rounded-xl text-sm font-semibold text-white hover:bg-blue-700 transition-all shadow-sm active:scale-95"

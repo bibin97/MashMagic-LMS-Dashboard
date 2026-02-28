@@ -70,8 +70,6 @@ const Login = () => {
                 navigate('/faculty/dashboard');
             } else if (role === 'academic_head') {
                 navigate('/academic-head/dashboard');
-            } else if (role === 'academic_counsellor') {
-                navigate('/bdm/dashboard');
             } else if (role === 'student' || role === 'user') {
                 navigate('/student/dashboard');
             } else {
@@ -154,8 +152,7 @@ const Login = () => {
                                 <div className="bg-slate-100 p-1 rounded-xl flex gap-1">
                                     {[
                                         { id: 'academic_head', label: 'Academic Head' },
-                                        { id: 'faculty', label: 'Faculty' },
-                                        { id: 'academic_counselor', label: 'BDM' }
+                                        { id: 'faculty', label: 'Faculty' }
                                     ].map((role) => (
                                         <button
                                             key={role.id}
@@ -200,7 +197,7 @@ const Login = () => {
                             <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
                                 <div className="mb-8 text-center">
                                     <h2 className="text-2xl font-black text-slate-900 tracking-tight capitalize">
-                                        {subRole === 'academic_counselor' ? 'BDM' : subRole.replace('_', ' ')} Access
+                                        {subRole.replace('_', ' ')} Access
                                     </h2>
                                     <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mt-1">
                                         Identify Verified Credential

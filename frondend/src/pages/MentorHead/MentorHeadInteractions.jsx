@@ -84,7 +84,7 @@ const MentorHeadInteractions = () => {
                     <h2 className="text-3xl font-black text-slate-900 tracking-tight uppercase italic">Interaction Log Archive</h2>
                     <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-1 flex items-center gap-2">
                         <Activity size={14} className="text-indigo-500" />
-                        Complete repository of mentor-parent calls and faculty intelligence reports
+                        Complete repository of mentor-student calls and mentor-faculty interaction reports
                     </p>
                 </div>
 
@@ -96,7 +96,7 @@ const MentorHeadInteractions = () => {
                             : 'text-slate-500 hover:text-slate-900'
                             }`}
                     >
-                        Mentor Interactions
+                        Mentor - Student Interactions
                     </button>
                     <button
                         onClick={() => setActiveTab('faculties')}
@@ -105,7 +105,7 @@ const MentorHeadInteractions = () => {
                             : 'text-slate-500 hover:text-slate-900'
                             }`}
                     >
-                        Faculty Reports
+                        Mentor - Faculty Interactions
                     </button>
                 </div>
             </div>
@@ -129,7 +129,7 @@ const MentorHeadInteractions = () => {
                 <div className="grid grid-cols-1 gap-6">
                     {filteredMentorLogs.length === 0 ? (
                         <div className="bg-white rounded-[3rem] p-20 text-center border border-slate-100 italic font-bold text-slate-400">
-                            No mentor interaction logs found.
+                            No mentor - student interaction logs found.
                         </div>
                     ) : (
                         filteredMentorLogs.map((log, idx) => (
@@ -186,7 +186,7 @@ const MentorHeadInteractions = () => {
                 <div className="grid grid-cols-1 gap-6">
                     {filteredFacultyLogs.length === 0 ? (
                         <div className="bg-white rounded-[3rem] p-20 text-center border border-slate-100 italic font-bold text-slate-400">
-                            No faculty intelligence reports found.
+                            No mentor - faculty interaction logs found.
                         </div>
                     ) : (
                         filteredFacultyLogs.map((log, idx) => (

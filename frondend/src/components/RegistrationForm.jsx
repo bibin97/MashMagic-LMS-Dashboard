@@ -213,7 +213,7 @@ const RegistrationForm = ({ onSuccess, preSelectedRole }) => {
                     </>
                 )}
 
-                {(role === 'mentor' || role === 'faculty' || role === 'academic_counselor') && (
+                {(role === 'mentor' || role === 'faculty') && (
                     <div className="p-4 bg-amber-50 rounded-xl border border-amber-100">
                         <p className="text-[10px] font-black text-amber-600 uppercase tracking-widest text-center">
                             Registration for this role is restricted to head panels.
@@ -343,7 +343,7 @@ const RegistrationForm = ({ onSuccess, preSelectedRole }) => {
                         ${loading ? 'opacity-70 cursor-not-allowed' : 'hover:bg-blue-700'}
                     `}
                 >
-                    {loading ? 'Submitting...' : `Register as ${role === 'academic_counselor' ? 'BDM' : role.replace('_', ' ')}`}
+                    {loading ? 'Submitting...' : `Register as ${role.replace('_', ' ')}`}
                     {!loading && <CheckCircle size={16} />}
                 </button>
             </form>

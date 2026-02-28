@@ -100,67 +100,89 @@ const FacultyDirectory = () => {
             </div>
 
             {/* List */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {filteredFaculties.length > 0 ? filteredFaculties.map((faculty) => (
-                    <div key={faculty.id} className="bg-white group rounded-[3rem] border border-slate-100 shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-500 overflow-hidden">
-                        <div className="p-8">
-                            <div className="flex justify-between items-start mb-6">
-                                <div className="w-16 h-16 bg-gradient-to-br from-emerald-500 to-indigo-600 rounded-3xl flex items-center justify-center text-white text-2xl font-black shadow-lg shadow-emerald-100 group-hover:scale-110 transition-transform">
-                                    {faculty.name.charAt(0)}
-                                </div>
-                                <div className="flex gap-2">
-                                    <button
-                                        onClick={() => handleEdit(faculty)}
-                                        className="p-3 bg-slate-50 text-blue-600 rounded-2xl hover:bg-blue-600 hover:text-white transition-all shadow-sm"
-                                    >
-                                        <Edit2 size={16} />
-                                    </button>
-                                    <button
-                                        onClick={() => handleDelete(faculty.id)}
-                                        className="p-3 bg-slate-50 text-rose-600 rounded-2xl hover:bg-rose-600 hover:text-white transition-all shadow-sm"
-                                    >
-                                        <Trash2 size={16} />
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div className="space-y-4">
-                                <div>
-                                    <h3 className="text-xl font-black text-slate-900 group-hover:text-indigo-600 transition-colors uppercase italic">{faculty.name}</h3>
-                                    <div className="flex items-center gap-2 mt-1">
-                                        <Activity size={12} className="text-emerald-500" />
-                                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{faculty.status || 'Active Faculty'}</span>
-                                    </div>
-                                </div>
-
-                                <div className="pt-4 border-t border-slate-50 space-y-3">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-8 h-8 bg-slate-50 border border-slate-100 rounded-xl flex items-center justify-center text-slate-400">
-                                            <Mail size={14} />
+            <div className="bg-white rounded-[3rem] border border-slate-100 shadow-sm overflow-hidden">
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse">
+                        <thead>
+                            <tr className="bg-slate-50/50 border-b border-slate-100">
+                                <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Faculty</th>
+                                <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Email</th>
+                                <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Phone</th>
+                                <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Place</th>
+                                <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</th>
+                                <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-50">
+                            {filteredFaculties.length > 0 ? filteredFaculties.map((faculty) => (
+                                <tr key={faculty.id} className="hover:bg-emerald-50/20 transition-all group">
+                                    <td className="px-8 py-6">
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-indigo-600 rounded-2xl flex items-center justify-center text-white text-lg font-black shadow-lg shadow-emerald-100">
+                                                {faculty.name?.charAt(0)}
+                                            </div>
+                                            <div className="min-w-0">
+                                                <div className="text-sm font-black text-slate-900 group-hover:text-indigo-600 transition-colors uppercase italic truncate">{faculty.name}</div>
+                                                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">ID {faculty.id}</div>
+                                            </div>
                                         </div>
-                                        <span className="text-[10px] font-bold text-slate-600 break-all">{faculty.email}</span>
-                                    </div>
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-8 h-8 bg-slate-50 border border-slate-100 rounded-xl flex items-center justify-center text-slate-400">
-                                            <Phone size={14} />
+                                    </td>
+                                    <td className="px-8 py-6">
+                                        <div className="flex items-center gap-2 text-xs font-bold text-slate-600 break-all">
+                                            <Mail size={14} className="text-slate-300" />
+                                            {faculty.email || 'N/A'}
                                         </div>
-                                        <span className="text-[10px] font-bold text-slate-600">{faculty.phone_number}</span>
-                                    </div>
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-8 h-8 bg-slate-50 border border-slate-100 rounded-xl flex items-center justify-center text-slate-400">
-                                            <MapPin size={14} />
+                                    </td>
+                                    <td className="px-8 py-6">
+                                        <div className="flex items-center gap-2 text-xs font-bold text-slate-600">
+                                            <Phone size={14} className="text-slate-300" />
+                                            {faculty.phone_number || 'N/A'}
                                         </div>
-                                        <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">{faculty.place || 'N/A'}</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                )) : (
-                    <div className="col-span-full py-20 text-center bg-white rounded-[3rem] border border-slate-100 shadow-sm">
-                        <p className="text-slate-400 font-black text-[10px] uppercase tracking-[0.3em]">System empty or no faculty found</p>
-                    </div>
-                )}
+                                    </td>
+                                    <td className="px-8 py-6">
+                                        <div className="flex items-center gap-2 text-xs font-bold text-slate-600 uppercase tracking-wider">
+                                            <MapPin size={14} className="text-slate-300" />
+                                            {faculty.place || 'N/A'}
+                                        </div>
+                                    </td>
+                                    <td className="px-8 py-6">
+                                        <span className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${String(faculty.status || 'active').toLowerCase() === 'active'
+                                            ? 'bg-emerald-50 text-emerald-600 border-emerald-100'
+                                            : 'bg-rose-50 text-rose-600 border-rose-100'
+                                            }`}>
+                                            <Activity size={12} className={String(faculty.status || 'active').toLowerCase() === 'active' ? 'text-emerald-500' : 'text-rose-500'} />
+                                            {faculty.status || 'active'}
+                                        </span>
+                                    </td>
+                                    <td className="px-8 py-6 text-right">
+                                        <div className="flex items-center justify-end gap-2">
+                                            <button
+                                                onClick={() => handleEdit(faculty)}
+                                                className="p-2.5 bg-white border border-slate-200 rounded-xl text-blue-600 hover:bg-blue-50 transition-all shadow-sm"
+                                                title="Edit"
+                                            >
+                                                <Edit2 size={16} />
+                                            </button>
+                                            <button
+                                                onClick={() => handleDelete(faculty.id)}
+                                                className="p-2.5 bg-white border border-slate-200 rounded-xl text-rose-600 hover:bg-rose-50 transition-all shadow-sm"
+                                                title="Delete"
+                                            >
+                                                <Trash2 size={16} />
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            )) : (
+                                <tr>
+                                    <td colSpan={6} className="px-8 py-20 text-center">
+                                        <p className="text-slate-400 font-black text-[10px] uppercase tracking-[0.3em]">System empty or no faculty found</p>
+                                    </td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
             {/* Edit Modal */}

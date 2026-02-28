@@ -1,15 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import DataTable from '../../components/DataTable';
 import Modal from '../../components/Modal';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
 import { useAuth } from '../../context/AuthContext';
+import { sortStudentsByOption } from '../../components/StudentListFilterDropdown';
 
 const Students = () => {
     const { user } = useAuth();
     const isSuperAdmin = user?.role === 'super_admin';
     const [students, setStudents] = useState([]);
     const [filteredStudents, setFilteredStudents] = useState([]);
+    const [sortBy, setSortBy] = useState('');
     const [loading, setLoading] = useState(true);
     const [selectedStudent, setSelectedStudent] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -150,7 +152,7 @@ const Students = () => {
 
             <DataTable
                 columns={columns}
-                data={filteredStudents}
+                data={useMemo(() => sortStudentsByOption(filteredStudents, sortBy), [filteredStudents, sortBy])}
                 loading={loading}
                 onSearch={handleSearch}
                 onView={handleView}
@@ -159,6 +161,8 @@ const Students = () => {
                 onDelete={isSuperAdmin ? handleDelete : undefined}
                 onEdit={isSuperAdmin ? handleEdit : undefined}
                 searchPlaceholder="Search students by name or email..."
+                filterValue={sortBy}
+                onFilterChange={setSortBy}
             />
 
             {/* Edit Student Modal */}

@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import { User, Users, ChevronRight, Search, CheckCircle2, Calendar, Clock, Plus, Trash2, XCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
+import StudentListFilterDropdown, { sortStudentsByOption } from '../../components/StudentListFilterDropdown';
 
 const StudentCard = ({ student, navigate, viewMode, handleToggleConnection, handleCompleteOnboarding, handleLogHoursClick }) => (
     <div
@@ -99,6 +100,7 @@ const MyStudents = () => {
     const [students, setStudents] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
+    const [sortBy, setSortBy] = useState('');
     const [viewMode, setViewMode] = useState('active'); // 'active' or 'new'
     const [isTimetableModalOpen, setIsTimetableModalOpen] = useState(false);
     const [isHoursModalOpen, setIsHoursModalOpen] = useState(false);
@@ -198,15 +200,16 @@ const MyStudents = () => {
         }
     };
 
-    const filteredStudents = students.filter(s => {
-        // Assume 'pending' means new, anything else means active / completed
-        const isNew = s.onboarding_status === 'pending';
-        if (viewMode === 'new' && !isNew) return false;
-        if (viewMode === 'active' && isNew) return false;
-
-        return s.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            s.subject.toLowerCase().includes(searchTerm.toLowerCase());
-    });
+    const filteredStudents = useMemo(() => {
+        const filtered = students.filter(s => {
+            const isNew = s.onboarding_status === 'pending';
+            if (viewMode === 'new' && !isNew) return false;
+            if (viewMode === 'active' && isNew) return false;
+            return s.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                (s.subject || '').toLowerCase().includes(searchTerm.toLowerCase());
+        });
+        return sortStudentsByOption(filtered, sortBy);
+    }, [students, viewMode, searchTerm, sortBy]);
 
     return (
         <div className="space-y-12 pb-20">
@@ -232,26 +235,29 @@ const MyStudents = () => {
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
                 </div>
-                <div className="flex items-center gap-2 bg-slate-50 p-1 rounded-2xl border border-slate-100">
-                    <button
-                        onClick={() => setViewMode('active')}
-                        className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${viewMode === 'active' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'
-                            }`}
-                    >
-                        Active Students
-                    </button>
-                    <button
-                        onClick={() => setViewMode('new')}
-                        className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${viewMode === 'new' ? 'bg-white text-emerald-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'
-                            }`}
-                    >
-                        New (Onboarding)
-                        {students.filter(s => s.onboarding_status === 'pending').length > 0 && (
-                            <span className="ml-2 px-1.5 py-0.5 bg-rose-500 text-white rounded-full text-[10px]">
-                                {students.filter(s => s.onboarding_status === 'pending').length}
-                            </span>
-                        )}
-                    </button>
+                <div className="flex flex-wrap items-center gap-2">
+                    <StudentListFilterDropdown value={sortBy} onChange={setSortBy} />
+                    <div className="flex items-center gap-2 bg-slate-50 p-1 rounded-2xl border border-slate-100">
+                        <button
+                            onClick={() => setViewMode('active')}
+                            className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${viewMode === 'active' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'
+                                }`}
+                        >
+                            Active Students
+                        </button>
+                        <button
+                            onClick={() => setViewMode('new')}
+                            className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${viewMode === 'new' ? 'bg-white text-emerald-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'
+                                }`}
+                        >
+                            New (Onboarding)
+                            {students.filter(s => s.onboarding_status === 'pending').length > 0 && (
+                                <span className="ml-2 px-1.5 py-0.5 bg-rose-500 text-white rounded-full text-[10px]">
+                                    {students.filter(s => s.onboarding_status === 'pending').length}
+                                </span>
+                            )}
+                        </button>
+                    </div>
                 </div>
             </div>
 

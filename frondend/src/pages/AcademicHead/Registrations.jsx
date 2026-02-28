@@ -20,9 +20,6 @@ const Registrations = () => {
         name: '', email: '', phone_number: '', place: '', password: '', confirmPassword: ''
     });
 
-    const [counselorForm, setCounselorForm] = useState({
-        name: '', email: '', password: '', confirmPassword: ''
-    });
 
     // Courses allowed
     const coursesList = ["Mission X", "Classmate", "Crash 45", "Bright Bridge", "Magic Revision"];
@@ -48,7 +45,6 @@ const Registrations = () => {
 
     const handleStudentChange = (e) => setStudentForm({ ...studentForm, [e.target.name]: e.target.value });
     const handleFacultyChange = (e) => setFacultyForm({ ...facultyForm, [e.target.name]: e.target.value });
-    const handleCounselorChange = (e) => setCounselorForm({ ...counselorForm, [e.target.name]: e.target.value });
 
     const submitStudent = async (e) => {
         e.preventDefault();
@@ -85,28 +81,6 @@ const Registrations = () => {
         }
     };
 
-    const submitCounselor = async (e) => {
-        e.preventDefault();
-        if (counselorForm.password !== counselorForm.confirmPassword) {
-            return toast.error("Passwords do not match!");
-        }
-        setLoading(true);
-        try {
-            const res = await api.post('/academic-head/register-counselor', {
-                name: counselorForm.name,
-                email: counselorForm.email,
-                password: counselorForm.password
-            });
-            if (res.data.success) {
-                toast.success('BDM Account Created Successfully!');
-                setCounselorForm({ name: '', email: '', password: '', confirmPassword: '' });
-            }
-        } catch (error) {
-            toast.error(error.response?.data?.message || 'Failed to create BDM account');
-        } finally {
-            setLoading(false);
-        }
-    };
 
     return (
         <div className="max-w-4xl mx-auto">
@@ -125,8 +99,7 @@ const Registrations = () => {
             <div className="flex gap-2 mb-8 bg-slate-200/50 p-1.5 rounded-2xl w-fit mx-auto shadow-inner">
                 {[
                     { id: 'student', label: 'Student' },
-                    { id: 'faculty', label: 'Faculty Signup' },
-                    { id: 'counselor', label: 'BDM Signup' }
+                    { id: 'faculty', label: 'Faculty Signup' }
                 ].map((tab) => (
                     <button
                         key={tab.id}
@@ -292,55 +265,6 @@ const Registrations = () => {
                     </form>
                 )}
 
-                {activeTab === 'counselor' && (
-                    <form onSubmit={submitCounselor} className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-xl mx-auto">
-                        <div className="flex flex-col items-center justify-center gap-2 mb-8 text-center pt-4">
-                            <div className="w-12 h-12 bg-rose-100 text-rose-600 rounded-2xl flex items-center justify-center rotate-3 mb-2 shadow-inner">
-                                <Lock size={20} />
-                            </div>
-                            <h2 className="text-lg font-black text-slate-800 uppercase tracking-widest">BDM Signup Setup</h2>
-                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Create Secured Credentials for BDM</p>
-                        </div>
-
-                        <div className="flex flex-col gap-5">
-                            <div className="flex flex-col gap-2">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Full Name</label>
-                                <div className="relative group">
-                                    <User size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-colors" />
-                                    <input type="text" name="name" required value={counselorForm.name} onChange={handleCounselorChange} className="w-full p-4 pl-12 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-indigo-100 font-bold" placeholder="BDM Name" />
-                                </div>
-                            </div>
-                            <div className="flex flex-col gap-2">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Email Address (Login ID)</label>
-                                <div className="relative group">
-                                    <Mail size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-colors" />
-                                    <input type="email" name="email" required value={counselorForm.email} onChange={handleCounselorChange} className="w-full p-4 pl-12 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-indigo-100 font-bold" placeholder="Login Email" />
-                                </div>
-                            </div>
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="flex flex-col gap-2">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Access Password</label>
-                                    <div className="relative group">
-                                        <Lock size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-colors" />
-                                        <input type="password" name="password" required minLength="6" value={counselorForm.password} onChange={handleCounselorChange} className="w-full p-4 pl-12 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-indigo-100 font-bold" placeholder="••••••••" />
-                                    </div>
-                                </div>
-                                <div className="flex flex-col gap-2">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Confirm Password</label>
-                                    <div className="relative group">
-                                        <Lock size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-colors" />
-                                        <input type="password" name="confirmPassword" required minLength="6" value={counselorForm.confirmPassword} onChange={handleCounselorChange} className="w-full p-4 pl-12 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-indigo-100 font-bold" placeholder="••••••••" />
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <button disabled={loading} type="submit" className="w-full mt-6 bg-indigo-600 text-white p-4 rounded-xl font-black text-xs uppercase tracking-[0.2em] hover:bg-indigo-700 transition-all shadow-xl hover:shadow-indigo-200 flex items-center justify-center gap-3">
-                            {loading ? 'Validating...' : 'Authorize BDM'}
-                            {!loading && <CheckCircle size={16} />}
-                        </button>
-                    </form>
-                )}
             </div>
         </div>
     );

@@ -65,9 +65,6 @@ const Approvals = () => {
                 return 'bg-blue-50 text-blue-700 border-blue-200';
             case 'faculty':
                 return 'bg-green-50 text-green-700 border-green-200';
-            case 'academic_counselor':
-            case 'academic_counsellor':
-                return 'bg-orange-50 text-orange-700 border-orange-200';
             case 'mentor':
                 return 'bg-teal-50 text-teal-700 border-teal-200';
             case 'student':
@@ -146,7 +143,7 @@ const Approvals = () => {
                                         <td className="p-6">
                                             <span className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-2xl text-[10px] font-black uppercase tracking-widest border shadow-sm transition-transform group-hover:scale-105 ${getRoleBadgeStyle(user.role)}`}>
                                                 <div className={`w-1.5 h-1.5 rounded-full animate-pulse ${user.role === 'student' ? 'bg-slate-400' : 'bg-current'}`} />
-                                                {user.role === 'academic_counsellor' || user.role === 'academic_counselor' ? 'BDM' : user.role.replace('_', ' ')}
+                                                {user.role.replace('_', ' ')}
                                             </span>
                                         </td>
                                         <td className="p-6">

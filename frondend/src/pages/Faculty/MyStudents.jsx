@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from '../../services/api';
 import {
     Search,
-    Filter,
     User,
     ChevronRight,
     MoreHorizontal,
@@ -12,11 +11,13 @@ import {
     Hash
 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import StudentListFilterDropdown, { sortStudentsByOption } from '../../components/StudentListFilterDropdown';
 
 const FacultyStudents = () => {
     const [students, setStudents] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
+    const [sortBy, setSortBy] = useState('');
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -49,10 +50,13 @@ const FacultyStudents = () => {
         );
     };
 
-    const filteredStudents = students.filter(s =>
-        s.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        s.roll_number?.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filteredStudents = useMemo(() => {
+        const filtered = students.filter(s =>
+            s.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            (s.roll_number || '').toLowerCase().includes(searchTerm.toLowerCase())
+        );
+        return sortStudentsByOption(filtered, sortBy);
+    }, [students, searchTerm, sortBy]);
 
     return (
         <div className="space-y-8">
@@ -75,10 +79,7 @@ const FacultyStudents = () => {
                     />
                 </div>
                 <div className="flex gap-4">
-                    <button className="flex items-center gap-3 px-6 py-4 bg-white border border-slate-200 rounded-[1.5rem] font-black text-[10px] uppercase tracking-widest text-slate-600 hover:bg-slate-50 transition-all">
-                        <Filter size={16} />
-                        Filter
-                    </button>
+                    <StudentListFilterDropdown value={sortBy} onChange={setSortBy} />
                     <button className="flex items-center gap-3 px-8 py-4 bg-indigo-600 text-white rounded-[1.5rem] font-black text-[10px] uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-200">
                         Export Roster
                     </button>

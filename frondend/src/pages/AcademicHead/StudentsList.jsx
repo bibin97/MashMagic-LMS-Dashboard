@@ -1,16 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
     Users, Search, Filter, Edit2, Trash2, X, Save,
     GraduationCap, BookOpen, Clock, Activity, Calendar
 } from 'lucide-react';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
+import StudentListFilterDropdown, { sortStudentsByOption } from '../../components/StudentListFilterDropdown';
 
 const StudentsList = ({ role = 'academic_head' }) => {
     const [students, setStudents] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [filterCourse, setFilterCourse] = useState('all');
+    const [sortBy, setSortBy] = useState('');
 
     // Base API path based on role
     const apiPath = role === 'mentor_head' ? '/mentor-head' : '/academic-head';
@@ -69,12 +71,15 @@ const StudentsList = ({ role = 'academic_head' }) => {
         }
     };
 
-    const filteredStudents = students.filter(s => {
-        const matchesSearch = s.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            s.grade.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesCourse = filterCourse === 'all' || s.course === filterCourse;
-        return matchesSearch && matchesCourse;
-    });
+    const filteredStudents = useMemo(() => {
+        const filtered = students.filter(s => {
+            const matchesSearch = s.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                s.grade.toLowerCase().includes(searchTerm.toLowerCase());
+            const matchesCourse = filterCourse === 'all' || s.course === filterCourse;
+            return matchesSearch && matchesCourse;
+        });
+        return sortStudentsByOption(filtered, sortBy);
+    }, [students, searchTerm, filterCourse, sortBy]);
 
     if (loading) return <div className="p-20 text-center font-black text-slate-400 animate-pulse">SYNCING STUDENT RECORDS...</div>;
 
@@ -109,6 +114,7 @@ const StudentsList = ({ role = 'academic_head' }) => {
                         <option value="all">All Courses</option>
                         {coursesList.map(c => <option key={c} value={c}>{c}</option>)}
                     </select>
+                    <StudentListFilterDropdown value={sortBy} onChange={setSortBy} />
                 </div>
             </div>
 

@@ -80,10 +80,6 @@ import CheckingSection from './pages/AcademicHead/CheckingSection';
 import FacultyDirectoryMentorHead from './pages/MentorHead/FacultyDirectory';
 import StudentsListMentorHead from './pages/AcademicHead/StudentsList'; // Reusing StudentsList logic for AH/MH if compatible, or I'll create a dedicated one if needed. Actually I created StudentsList.jsx in AH, I should check if it's reusable.
 
-// Academic Counselor Pages
-import AcademicCounselorLayout from './components/AcademicCounselor/AcademicCounselorLayout';
-import AcademicCounselorDashboard from './pages/AcademicCounselor/AcademicCounselorDashboard';
-
 // Student Placeholder
 import StudentDashboard from './pages/StudentDashboard';
 
@@ -162,16 +158,6 @@ function App() {
             <Route path="student-logs" element={<StudentLogsAcademic />} />
             <Route path="faculty-logs" element={<FacultyLogsAcademic />} />
             <Route path="checking" element={<CheckingSection />} />
-          </Route>
-
-          {/* BDM System */}
-          <Route path="/bdm" element={
-            <ProtectedRoute allowedRoles={['academic_counsellor']}>
-              <AcademicCounselorLayout />
-            </ProtectedRoute>
-          }>
-            <Route index element={<Navigate to="/bdm/dashboard" replace />} />
-            <Route path="dashboard" element={<AcademicCounselorDashboard />} />
           </Route>
 
           {/* Faculty System */}

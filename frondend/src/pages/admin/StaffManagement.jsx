@@ -184,7 +184,6 @@ const StaffManagement = () => {
                                     <option value="faculty">Faculty</option>
                                     <option value="mentor_head">Mentor Head</option>
                                     <option value="academic_head">Academic Head</option>
-                                    <option value="academic_counsellor">Academic Counselor (BDM)</option>
                                 </select>
                             </div>
                         </div>

@@ -71,13 +71,13 @@ const Dashboard = () => {
     ];
 
     const performanceData = [
-        { month: 'Jan', score: 65 },
-        { month: 'Feb', score: 72 },
-        { month: 'Mar', score: 68 },
-        { month: 'Apr', score: 85 },
-        { month: 'May', score: 78 },
-        { month: 'Jun', score: 90 },
-        { month: 'Jul', score: 88 },
+        { month: 'Jan', score: 0 },
+        { month: 'Feb', score: 0 },
+        { month: 'Mar', score: 0 },
+        { month: 'Apr', score: 0 },
+        { month: 'May', score: 0 },
+        { month: 'Jun', score: 0 },
+        { month: 'Jul', score: 0 },
     ];
 
     useEffect(() => {

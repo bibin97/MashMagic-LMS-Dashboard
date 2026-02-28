@@ -236,40 +236,6 @@ const registerFaculty = async (req, res) => {
     }
 };
 
-// @desc    Register a new counselor
-// @route   POST /api/academic-head/register-counselor
-const registerCounselor = async (req, res) => {
-    try {
-        const { name, email, password } = req.body;
-
-        if (!req.user || !req.user.id) {
-            return res.status(401).json({ success: false, message: "User session invalid. Please re-login." });
-        }
-
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(password, salt);
-
-        // Using model for consistency
-        const userId = await User.create({
-            name,
-            email,
-            password: hashedPassword,
-            role: 'academic_counsellor',
-            status: 'pending',
-            isApproved: 0,
-            registeredBy: req.user.id
-        });
-
-        res.status(201).json({ success: true, message: "BDM account created successfully. Pending Admin approval.", userId });
-    } catch (error) {
-        console.error('Error in registerCounselor:', error);
-        if (error.code === 'ER_DUP_ENTRY') {
-            return res.status(400).json({ success: false, message: "Email already exists." });
-        }
-        res.status(500).json({ success: false, message: "Server Error", error: error.message });
-    }
-};
-
 // @desc    Get all student interaction logs (Mentor logs)
 // @route   GET /api/academic-head/student-interaction-logs
 const getStudentInteractionLogs = async (req, res) => {
@@ -673,7 +639,6 @@ module.exports = {
     getDropdownData,
     registerStudent,
     registerFaculty,
-    registerCounselor,
     getDashboardStats,
     getAllFacultyActivity,
     getStudentInteractionLogs,

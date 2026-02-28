@@ -4,7 +4,6 @@ const {
     getDropdownData,
     registerStudent,
     registerFaculty,
-    registerCounselor,
     getDashboardStats,
     getAllFacultyActivity,
     getStudentInteractionLogs,
@@ -54,7 +53,6 @@ router.delete('/sessions/:sessionId/uncheck', uncheckFacultySession);
 router.get('/dropdowns', getDropdownData);
 router.post('/register-student', registerStudent);
 router.post('/register-faculty', registerFaculty);
-router.post('/register-counselor', registerCounselor);
 
 // Checking Section
 router.get('/live-class-evaluations', getLiveClassEvaluations);

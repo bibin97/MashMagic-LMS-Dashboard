@@ -27,7 +27,6 @@ app.use('/api/mentor-head', require('./routes/mentorHeadRoutes'));
 app.use('/api/mentor', require('./routes/mentorRoutes'));
 app.use('/api/academic-head', require('./routes/academicHeadRoutes'));
 app.use('/api/faculty', require('./routes/facultyRoutes'));
-app.use('/api/bdm', require('./routes/academicCounselorRoutes'));
 
 // Basic Route
 app.get('/', (req, res) => {
