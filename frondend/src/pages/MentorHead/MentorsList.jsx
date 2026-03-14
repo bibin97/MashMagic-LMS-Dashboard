@@ -26,6 +26,12 @@ const MentorsList = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [editingMentor, setEditingMentor] = useState({ id: '', name: '', email: '', phone_number: '', place: '', password: '' });
+    
+    // Student View Modal States
+    const [isStudentModalOpen, setIsStudentModalOpen] = useState(false);
+    const [selectedMentorForView, setSelectedMentorForView] = useState(null);
+    const [mentorStudents, setMentorStudents] = useState([]);
+    const [loadingStudents, setLoadingStudents] = useState(false);
 
     useEffect(() => {
         const fetchMentors = async () => {
@@ -94,6 +100,25 @@ const MentorsList = () => {
         }
     };
 
+    const handleViewStudents = async (mentor) => {
+        setSelectedMentorForView(mentor);
+        setIsStudentModalOpen(true);
+        setLoadingStudents(true);
+        try {
+            const token = localStorage.getItem('token');
+            const res = await axios.get(`http://localhost:5000/api/mentor-head/students-all?mentor_id=${mentor.mentor_id}`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            if (res.data.success) {
+                setMentorStudents(res.data.data);
+            }
+        } catch (error) {
+            toast.error("Failed to load assigned students");
+        } finally {
+            setLoadingStudents(false);
+        }
+    };
+
     if (loading) {
         return (
             <div className="flex items-center justify-center h-64">
@@ -158,9 +183,12 @@ const MentorsList = () => {
                                                 </div>
                                             </td>
                                             <td className="p-6 text-center">
-                                                <span className="text-sm font-black text-slate-600 bg-slate-100 px-3 py-1 rounded-lg border border-slate-200">
+                                                <button 
+                                                    onClick={() => handleViewStudents(mentor)}
+                                                    className="text-sm font-black text-slate-600 bg-slate-100 px-3 py-1 rounded-lg border border-slate-200 hover:bg-slate-200 hover:border-slate-300 transition-all cursor-pointer"
+                                                >
                                                     {total}
-                                                </span>
+                                                </button>
                                             </td>
                                             <td className="p-6 text-center">
                                                 <span className="text-sm font-black text-emerald-600 bg-emerald-50 px-3 py-1 rounded-lg border border-emerald-100">
@@ -236,77 +264,53 @@ const MentorsList = () => {
             )}
 
             {/* Edit Modal */}
-            {isEditModalOpen && (
+            {/* ... already there ... */}
+
+            {/* Student View Modal */}
+            {isStudentModalOpen && selectedMentorForView && (
                 <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
-                    <div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-md overflow-hidden animate-in slide-in-from-bottom-4 duration-300">
+                    <div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-2xl overflow-hidden animate-in slide-in-from-bottom-4 duration-300">
                         <div className="px-8 py-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
-                            <h2 className="text-lg font-black text-slate-900 flex items-center gap-2">
-                                <Edit2 size={20} className="text-indigo-600" /> Edit Mentor Details
+                            <h2 className="text-lg font-black text-slate-900 flex items-center gap-3 italic">
+                                <Users size={20} className="text-indigo-600" /> Students: {selectedMentorForView.mentor_name.toUpperCase()}
                             </h2>
-                            <button onClick={() => setIsEditModalOpen(false)} className="text-slate-400 hover:text-slate-600 transition-colors">
+                            <button onClick={() => setIsStudentModalOpen(false)} className="text-slate-400 hover:text-slate-600 transition-colors">
                                 <X size={20} />
                             </button>
                         </div>
-                        <div className="p-8 space-y-6">
-                            <div>
-                                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Mentor Name</label>
-                                <input
-                                    type="text"
-                                    value={editingMentor.name}
-                                    onChange={(e) => setEditingMentor(prev => ({ ...prev, name: e.target.value }))}
-                                    className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-sm rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Email Address</label>
-                                <input
-                                    type="email"
-                                    value={editingMentor.email}
-                                    onChange={(e) => setEditingMentor(prev => ({ ...prev, email: e.target.value }))}
-                                    className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-sm rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Phone Number</label>
-                                <input
-                                    type="text"
-                                    value={editingMentor.phone_number}
-                                    onChange={(e) => setEditingMentor(prev => ({ ...prev, phone_number: e.target.value }))}
-                                    className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-sm rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Location / Place</label>
-                                <input
-                                    type="text"
-                                    value={editingMentor.place}
-                                    onChange={(e) => setEditingMentor(prev => ({ ...prev, place: e.target.value }))}
-                                    className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-sm rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 text-rose-500">New Password (Leave blank to keep current)</label>
-                                <input
-                                    type="password"
-                                    placeholder="Enter new password to assign to new mentor"
-                                    value={editingMentor.password}
-                                    onChange={(e) => setEditingMentor(prev => ({ ...prev, password: e.target.value }))}
-                                    className="w-full bg-rose-50 border border-rose-200 text-slate-900 text-sm rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all"
-                                />
-                            </div>
+                        <div className="p-8 max-h-[60vh] overflow-y-auto">
+                            {loadingStudents ? (
+                                <div className="text-center py-10 font-black text-slate-400 animate-pulse uppercase tracking-widest">Loading Mentor Registry...</div>
+                            ) : mentorStudents.length > 0 ? (
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    {mentorStudents.map((student) => (
+                                        <div key={student.id} className="p-4 bg-slate-50 border border-slate-100 rounded-2xl flex flex-col gap-3 group hover:bg-white hover:border-indigo-100 hover:shadow-lg transition-all">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-8 h-8 bg-indigo-600 text-white rounded-lg flex items-center justify-center text-xs font-black shadow-md uppercase">
+                                                    {student.name.charAt(0)}
+                                                </div>
+                                                <div className="flex flex-col">
+                                                    <span className="text-xs font-black text-slate-900 uppercase italic">{student.name}</span>
+                                                    <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">{student.registration_number || 'REG-PENDING'}</span>
+                                                </div>
+                                            </div>
+                                            <div className="flex flex-wrap gap-2">
+                                                <span className="text-[8px] font-black bg-white border border-slate-200 px-2 py-0.5 rounded-md text-slate-600 uppercase italic">{student.course}</span>
+                                                <span className="text-[8px] font-black bg-white border border-slate-200 px-2 py-0.5 rounded-md text-slate-600 uppercase">Grade {student.grade}</span>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="text-center py-10 text-slate-400 font-black text-[10px] uppercase tracking-widest">No students found</div>
+                            )}
                         </div>
-                        <div className="px-8 py-6 border-t border-slate-100 bg-slate-50 flex justify-end gap-3">
+                        <div className="px-8 py-6 border-t border-slate-100 bg-slate-50 flex justify-end">
                             <button
-                                onClick={() => setIsEditModalOpen(false)}
-                                className="px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest text-slate-500 hover:bg-slate-200 transition-colors"
+                                onClick={() => setIsStudentModalOpen(false)}
+                                className="px-10 py-3 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all shadow-lg"
                             >
-                                Cancel
-                            </button>
-                            <button
-                                onClick={handleUpdateMentor}
-                                className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-black uppercase tracking-widest shadow-lg shadow-indigo-200 transition-all"
-                            >
-                                Save Changes
+                                Close Registry
                             </button>
                         </div>
                     </div>

@@ -29,6 +29,7 @@ const Sidebar = () => {
         { path: '/admin/staff', icon: <UserSquare2 size={20} />, label: 'Staff Management' },
         { path: '/admin/tasks', icon: <ListTodo size={20} />, label: 'Tasks' },
         { path: '/admin/reports', icon: <FileText size={20} />, label: 'Reports' },
+        { path: '/admin/live-monitoring', icon: <Target size={20} />, label: 'Live Classes' },
         { path: '/admin/mentor-head-report', icon: <Target size={20} />, label: 'Mentor Head Report' },
         { path: '/admin/logs', icon: <ScrollText size={20} />, label: 'Logs' },
     ];

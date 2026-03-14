@@ -131,13 +131,23 @@ const AcademicHeadTasks = () => {
         },
         {
             header: 'Assigned To', accessor: 'mentor_name', render: (row) => (
-                <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 bg-indigo-50 rounded-xl flex items-center justify-center text-[10px] font-black text-indigo-500 border border-indigo-100 uppercase">
-                        {row.mentor_name?.charAt(0) || 'U'}
+                <div className="flex flex-col gap-1">
+                    <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 bg-indigo-50 rounded-xl flex items-center justify-center text-[10px] font-black text-indigo-500 border border-indigo-100 uppercase shrink-0">
+                            {row.mentor_name?.charAt(0) || 'U'}
+                        </div>
+                        <div className="flex flex-col">
+                            <span className="text-slate-700 font-bold text-xs truncate max-w-[120px]">{row.mentor_name || 'Unassigned'}</span>
+                        </div>
                     </div>
-                    <div className="flex flex-col">
-                        <span className="text-slate-700 font-bold text-xs">{row.mentor_name || 'Unassigned'}</span>
-                    </div>
+                </div>
+            )
+        },
+        {
+            header: 'Assigned By', accessor: 'assigner_name', render: (row) => (
+                <div className="flex flex-col">
+                    <span className="text-xs font-bold text-slate-700">{row.assigner_name || 'System Admin'}</span>
+                    <span className="text-[9px] text-slate-400 font-black uppercase tracking-widest">{row.assigner_role?.replace('_', ' ') || 'admin'}</span>
                 </div>
             )
         },

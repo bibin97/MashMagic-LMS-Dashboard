@@ -79,9 +79,17 @@ const MyTasks = () => {
                                     </div>
 
                                     <div className="flex items-center justify-between pt-6 border-t border-white/50">
-                                        <div className="flex flex-col">
-                                            <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Deadline</p>
-                                            <p className="text-xs font-bold text-slate-700">{new Date(task.deadline).toLocaleDateString()}</p>
+                                        <div className="flex flex-col gap-3">
+                                            <div className="flex flex-col">
+                                                <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Assigned By</p>
+                                                <p className="text-xs font-bold text-slate-700 uppercase">
+                                                    {task.assigner_name || 'Admin'} <span className="opacity-50 text-[10px] lowercase">({task.assigner_role?.replace('_', ' ') || 'admin'})</span>
+                                                </p>
+                                            </div>
+                                            <div className="flex flex-col">
+                                                <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Deadline</p>
+                                                <p className="text-xs font-bold text-slate-700">{new Date(task.deadline).toLocaleDateString()}</p>
+                                            </div>
                                         </div>
 
                                         {task.status !== 'Completed' && (

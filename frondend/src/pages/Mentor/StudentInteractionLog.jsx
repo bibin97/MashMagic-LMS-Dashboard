@@ -108,7 +108,7 @@ const StudentInteractionLog = () => {
 
         setUploading(true);
         try {
-            const res = await api.post('/media', uploadData, {
+            const res = await api.post('/upload', uploadData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
             if (res.data.success) {

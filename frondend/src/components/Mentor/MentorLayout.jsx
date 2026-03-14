@@ -8,6 +8,7 @@ import {
     MessageSquare,
     Contact,
     CalendarClock,
+    Calendar,
     LogOut,
     Bell,
     User,
@@ -54,6 +55,17 @@ const MentorLayout = () => {
         }
     }, [user]);
 
+    // Show persistent notification toast if exams are pending
+    React.useEffect(() => {
+        if (pendingExamsCount > 0) {
+            toast(`Attention: ${pendingExamsCount} Exam Milestones are pending!`, {
+                icon: '📝',
+                duration: 6000,
+                id: 'exam-alert' // Prevent duplicates
+            });
+        }
+    }, [pendingExamsCount]);
+
     const navItems = [
         { path: '/mentor/dashboard', icon: <LayoutDashboard size={18} />, label: 'Dashboard' },
         { path: '/mentor/students', icon: <Users size={18} />, label: 'My Students' },
@@ -61,6 +73,7 @@ const MentorLayout = () => {
         { path: '/mentor/student-log', icon: <MessageSquare size={18} />, label: 'Student Logs' },
         { path: '/mentor/faculty-log', icon: <Contact size={18} />, label: 'Faculty Logs' },
         { path: '/mentor/timetable', icon: <CalendarClock size={18} />, label: 'Timetable' },
+        { path: '/mentor/academic-schedule', icon: <Calendar size={18} />, label: 'Academic Schedule' },
         { path: '/mentor/exams', icon: <GraduationCap size={18} />, label: 'Exams', badge: pendingExamsCount },
     ];
 

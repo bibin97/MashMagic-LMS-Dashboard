@@ -20,6 +20,7 @@ import Approvals from './pages/Admin/Approvals';
 import DailyMentorHeadReport from './pages/Admin/DailyMentorHeadReport';
 import AdminManagement from './pages/admin/AdminManagement';
 import StaffManagement from './pages/admin/StaffManagement';
+import AdminLiveMonitoring from './pages/admin/LiveMonitoring';
 
 // Auth Pages
 import Login from './pages/Login';
@@ -34,6 +35,7 @@ import Timetable from './pages/Mentor/Timetable';
 import StudentInteractionLog from './pages/Mentor/StudentInteractionLog';
 import FacultyInteractionLog from './pages/Mentor/FacultyInteractionLog';
 import Exams from './pages/Mentor/Exams';
+import AcademicSchedule from './pages/Mentor/AcademicSchedule';
 
 // Faculty Panel Pages
 import FacultyLayout from './components/Faculty/FacultyLayout';
@@ -54,6 +56,7 @@ import MentorHeadLayout from './components/MentorHead/MentorHeadLayout';
 import MentorHeadDashboard from './pages/MentorHead/MentorHeadDashboard';
 import MentorRegistration from './pages/MentorHead/MentorRegistration';
 import MentorsList from './pages/MentorHead/MentorsList';
+import CourseCompletedTracker from './pages/MentorHead/CourseCompletedTracker';
 import MentorDetails from './pages/MentorHead/MentorDetails';
 import StudentCheckTracker from './pages/MentorHead/StudentCheckTracker';
 import StudentShift from './pages/MentorHead/StudentShift';
@@ -75,6 +78,7 @@ import FacultyAudit from './pages/AcademicHead/FacultyAudit';
 import StudentLogsAcademic from './pages/AcademicHead/StudentLogs';
 import FacultyLogsAcademic from './pages/AcademicHead/FacultyLogs';
 import CheckingSection from './pages/AcademicHead/CheckingSection';
+import AcademicLiveMonitoring from './pages/AcademicHead/LiveMonitoring';
 
 // Mentor Head Additional Pages
 import FacultyDirectoryMentorHead from './pages/MentorHead/FacultyDirectory';
@@ -117,6 +121,7 @@ function App() {
             <Route path="logs" element={<InteractionLogs />} />
             <Route path="approvals" element={<Approvals />} />
             <Route path="admin-management" element={<AdminManagement />} />
+            <Route path="live-monitoring" element={<AdminLiveMonitoring />} />
           </Route>
 
           {/* Mentor Head System */}
@@ -134,6 +139,7 @@ function App() {
             <Route path="mentors/:id" element={<MentorDetails />} />
             <Route path="students" element={<StudentsListAcademic role="mentor_head" />} /> {/* Route for student management */}
             <Route path="faculties" element={<FacultyDirectoryMentorHead />} />
+            <Route path="course-completed" element={<CourseCompletedTracker />} />
             <Route path="tasks" element={<MentorHeadTasks />} />
             <Route path="interactions" element={<MentorHeadInteractions />} />
           </Route>
@@ -158,6 +164,7 @@ function App() {
             <Route path="student-logs" element={<StudentLogsAcademic />} />
             <Route path="faculty-logs" element={<FacultyLogsAcademic />} />
             <Route path="checking" element={<CheckingSection />} />
+            <Route path="live-monitoring" element={<AcademicLiveMonitoring />} />
           </Route>
 
           {/* Faculty System */}
@@ -194,6 +201,7 @@ function App() {
             <Route path="student-log" element={<StudentInteractionLog />} />
             <Route path="faculty-log" element={<FacultyInteractionLog />} />
             <Route path="exams" element={<Exams />} />
+            <Route path="academic-schedule" element={<AcademicSchedule />} />
           </Route>
 
           {/* Student Routes (Minimal Placeholder) */}

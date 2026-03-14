@@ -11,8 +11,10 @@ const Students = () => {
     const isSuperAdmin = user?.role === 'super_admin';
     const [students, setStudents] = useState([]);
     const [filteredStudents, setFilteredStudents] = useState([]);
-    const [sortBy, setSortBy] = useState('');
     const [loading, setLoading] = useState(true);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [sortBy, setSortBy] = useState('newest'); // 'newest' or 'oldest'
+
     const [selectedStudent, setSelectedStudent] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -28,12 +30,12 @@ const Students = () => {
 
     useEffect(() => {
         fetchStudents();
-    }, []);
+    }, [searchTerm, sortBy]);
 
     const fetchStudents = async () => {
         try {
             setLoading(true);
-            const response = await api.get('/admin/students');
+            const response = await api.get(`/admin/students?search=${searchTerm}&sortBy=${sortBy}`);
             const realStudents = response.data.data;
 
             setStudents(realStudents);
@@ -46,13 +48,7 @@ const Students = () => {
     };
 
     const handleSearch = (query) => {
-        const filtered = students.filter(s =>
-            s.name?.toLowerCase().includes(query.toLowerCase()) ||
-            s.email?.toLowerCase().includes(query.toLowerCase()) ||
-            s.mentor?.toLowerCase().includes(query.toLowerCase()) ||
-            s.subject?.toLowerCase().includes(query.toLowerCase())
-        );
-        setFilteredStudents(filtered);
+        setSearchTerm(query);
     };
 
     const handleView = async (student) => {
@@ -129,7 +125,26 @@ const Students = () => {
     };
 
     const columns = [
-        { header: 'Name', accessor: 'name' },
+        {
+            header: 'Reg #',
+            accessor: 'registration_number',
+            render: (row) => <span className="font-mono text-[10px] font-black">{row.registration_number || '---'}</span>
+        },
+        {
+            header: 'Name',
+            accessor: 'name',
+            render: (row) => (
+                <div className="flex items-center gap-2">
+                    <span className="font-bold">{row.name}</span>
+                    {row.course_completed === 1 && (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-600 border border-emerald-200 text-[9px] font-black uppercase tracking-widest whitespace-nowrap">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>
+                            Course Completed
+                        </span>
+                    )}
+                </div>
+            )
+        },
         { header: 'Email', accessor: 'email' },
         { header: 'Grade', accessor: 'grade' },
         { header: 'Mentor', accessor: 'mentor' },
@@ -145,9 +160,23 @@ const Students = () => {
 
     return (
         <div className="flex flex-col gap-8">
-            <div className="flex flex-col mb-6">
-                <h2 className="text-3xl font-black text-slate-900 tracking-tighter uppercase italic">Student Enrollment</h2>
-                <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em] mt-2">Monitoring academic progress and enrollment details</p>
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+                <div>
+                    <h2 className="text-3xl font-black text-slate-900 tracking-tighter uppercase italic">Student Enrollment</h2>
+                    <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em] mt-2">Monitoring academic progress and enrollment details</p>
+                </div>
+                
+                <div className="flex items-center gap-3 bg-white p-2 rounded-2xl border border-slate-100 shadow-sm">
+                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2">Sort By:</span>
+                    <select 
+                        value={sortBy} 
+                        onChange={(e) => setSortBy(e.target.value)}
+                        className="bg-slate-50 border-none text-xs font-black uppercase tracking-wider py-2 px-4 rounded-xl outline-none focus:ring-2 focus:ring-indigo-100 transition-all cursor-pointer"
+                    >
+                        <option value="newest">Newest First</option>
+                        <option value="oldest">Oldest First</option>
+                    </select>
+                </div>
             </div>
 
             <DataTable
@@ -160,9 +189,7 @@ const Students = () => {
                 onBlock={isSuperAdmin ? handleBlock : undefined}
                 onDelete={isSuperAdmin ? handleDelete : undefined}
                 onEdit={isSuperAdmin ? handleEdit : undefined}
-                searchPlaceholder="Search students by name or email..."
-                filterValue={sortBy}
-                onFilterChange={setSortBy}
+                searchPlaceholder="Search by name, email or reg #"
             />
 
             {/* Edit Student Modal */}

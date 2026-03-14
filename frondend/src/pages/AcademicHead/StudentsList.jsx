@@ -12,7 +12,7 @@ const StudentsList = ({ role = 'academic_head' }) => {
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [filterCourse, setFilterCourse] = useState('all');
-    const [sortBy, setSortBy] = useState('');
+    const [sortBy, setSortBy] = useState('newest');
 
     // Base API path based on role
     const apiPath = role === 'mentor_head' ? '/mentor-head' : '/academic-head';
@@ -25,11 +25,11 @@ const StudentsList = ({ role = 'academic_head' }) => {
 
     useEffect(() => {
         fetchStudents();
-    }, [role]);
+    }, [role, searchTerm, sortBy]);
 
     const fetchStudents = async () => {
         try {
-            const res = await api.get(`${apiPath}/students-all`);
+            const res = await api.get(`${apiPath}/students-all?search=${searchTerm}&sortBy=${sortBy}`);
             if (res.data.success) {
                 setStudents(res.data.data);
             }
@@ -74,6 +74,7 @@ const StudentsList = ({ role = 'academic_head' }) => {
     const filteredStudents = useMemo(() => {
         const filtered = students.filter(s => {
             const matchesSearch = s.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                (s.registration_number && s.registration_number.toLowerCase().includes(searchTerm.toLowerCase())) ||
                 s.grade.toLowerCase().includes(searchTerm.toLowerCase());
             const matchesCourse = filterCourse === 'all' || s.course === filterCourse;
             return matchesSearch && matchesCourse;
@@ -86,7 +87,7 @@ const StudentsList = ({ role = 'academic_head' }) => {
     return (
         <div className="space-y-8 animate-in fade-in duration-700">
             {/* Header */}
-            <div className="bg-white p-10 rounded-[3rem] border border-slate-100 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+            <div className="bg-white p-10 rounded-[3rem] border border-slate-100 shadow-sm flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
                 <div>
                     <h2 className="text-3xl font-black text-slate-900 tracking-tighter uppercase italic">Student Directory</h2>
                     <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest mt-2 flex items-center gap-2">
@@ -95,12 +96,12 @@ const StudentsList = ({ role = 'academic_head' }) => {
                     </p>
                 </div>
 
-                <div className="flex flex-col md:flex-row gap-4 w-full md:w-auto">
-                    <div className="relative group">
+                <div className="flex flex-col md:flex-row gap-4 w-full lg:w-auto">
+                    <div className="relative group flex-1 md:flex-none">
                         <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-colors" size={18} />
                         <input
                             type="text"
-                            placeholder="SEARCH BY NAME OR GRADE..."
+                            placeholder="SEARCH BY NAME OR REG #..."
                             className="pl-14 pr-8 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold uppercase tracking-[0.1em] focus:ring-4 ring-indigo-500/10 w-full md:w-80 shadow-sm transition-all outline-none focus:bg-white"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
@@ -139,8 +140,19 @@ const StudentsList = ({ role = 'academic_head' }) => {
                                                 {student.name.charAt(0)}
                                             </div>
                                             <div>
-                                                <div className="text-sm font-black text-slate-900 group-hover:text-indigo-600 transition-colors uppercase italic">{student.name}</div>
-                                                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Joined {new Date(student.created_at).toLocaleDateString()}</div>
+                                                <div className="flex items-center gap-2">
+                                                    <div className="text-sm font-black text-slate-900 group-hover:text-indigo-600 transition-colors uppercase italic flex-shrink-0">{student.name}</div>
+                                                    {student.course_completed === 1 && (
+                                                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-600 border border-emerald-200 text-[9px] font-black uppercase tracking-widest whitespace-nowrap">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>
+                                                            Course Completed
+                                                        </span>
+                                                    )}
+                                                </div>
+                                                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">
+                                                    Joined {new Date(student.created_at).toLocaleDateString()}
+                                                    {student.registration_number && <span className="ml-2 pl-2 border-l border-slate-200">Reg: <span className="text-slate-900 font-black">{student.registration_number}</span></span>}
+                                                </div>
                                             </div>
                                         </div>
                                     </td>

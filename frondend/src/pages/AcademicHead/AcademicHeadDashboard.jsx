@@ -34,6 +34,8 @@ const StatCard = ({ title, value, icon: Icon, color, subtitle }) => (
 
 const AcademicHeadDashboard = () => {
     const [loading, setLoading] = useState(true);
+    const [students, setStudents] = useState([]);
+    const [selectedStudent, setSelectedStudent] = useState('');
     const [data, setData] = useState({
         stats: {
             totalStudents: 0,
@@ -52,9 +54,10 @@ const AcademicHeadDashboard = () => {
 
     const fetchDashboardData = async () => {
         try {
-            const [dashRes, examRes] = await Promise.all([
+            const [dashRes, examRes, studentsRes] = await Promise.all([
                 api.get('/academic-head/dashboard'),
-                api.get('/academic-head/exam-analytics')
+                api.get('/academic-head/exam-analytics'),
+                api.get('/academic-head/students')
             ]);
 
             if (dashRes.data.success) {
@@ -64,11 +67,28 @@ const AcademicHeadDashboard = () => {
                     examAnalytics: examRes.data.success ? examRes.data.data : []
                 }));
             }
+            if (studentsRes.data.success) {
+                setStudents(studentsRes.data.data);
+            }
         } catch (error) {
             console.error("Error fetching dashboard:", error);
             toast.error("Failed to load dashboard data");
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleStudentChange = async (e) => {
+        const studentId = e.target.value;
+        setSelectedStudent(studentId);
+        try {
+            const params = studentId ? { student_id: studentId } : {};
+            const res = await api.get('/academic-head/exam-analytics', { params });
+            if (res.data.success) {
+                setData(prev => ({ ...prev, examAnalytics: res.data.data }));
+            }
+        } catch (error) {
+            toast.error("Failed to load student exam analytics");
         }
     };
 
@@ -118,7 +138,7 @@ const AcademicHeadDashboard = () => {
                     color="bg-emerald-500"
                 />
                 <StatCard
-                    title="Sessions Today"
+                    title="Faculties Name"
                     subtitle="Live interactions"
                     value={data.stats.todaySessions}
                     icon={Clock}
@@ -157,7 +177,7 @@ const AcademicHeadDashboard = () => {
                                     <tr>
                                         <th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Timeline</th>
                                         <th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Student & Subject</th>
-                                        <th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Mentor In-Charge</th>
+                                        <th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Faculty In-Charge</th>
                                         <th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</th>
                                         <th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Actions</th>
                                     </tr>
@@ -185,9 +205,9 @@ const AcademicHeadDashboard = () => {
                                             <td className="px-8 py-6">
                                                 <div className="flex items-center gap-3">
                                                     <div className="w-8 h-8 bg-slate-100 rounded-xl flex items-center justify-center text-[10px] font-black text-slate-500 border border-slate-200">
-                                                        {session.mentor_name?.charAt(0)}
+                                                        {session.faculty_name?.charAt(0) || '?'}
                                                     </div>
-                                                    <span className="text-sm font-bold text-slate-600">{session.mentor_name}</span>
+                                                    <span className="text-sm font-bold text-slate-600">{session.faculty_name || 'Unassigned'}</span>
                                                 </div>
                                             </td>
                                             <td className="px-8 py-6">
@@ -218,11 +238,23 @@ const AcademicHeadDashboard = () => {
             <section className="bg-white rounded-[3rem] border border-slate-100 shadow-sm p-10 animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-300">
                 <div className="flex justify-between items-center mb-10">
                     <div>
-                        <h3 className="text-xl font-black text-slate-900 tracking-tight italic uppercase">Academic Yield Analysis</h3>
-                        <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mt-1">Average performance metrics across subjects & terms</p>
+                        <h3 className="text-xl font-black text-slate-900 tracking-tight italic uppercase">Individual Performance Analysis</h3>
+                        <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mt-1">Select a student to view their marks</p>
                     </div>
-                    <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600">
-                        <TrendingUp size={24} />
+                    <div className="flex items-center gap-4">
+                        <select 
+                            value={selectedStudent} 
+                            onChange={handleStudentChange}
+                            className="bg-slate-50 border border-slate-200 text-slate-700 text-sm rounded-xl px-4 py-3 font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer min-w-[200px]"
+                        >
+                            <option value="">Overview (Class Average)</option>
+                            {students.map(student => (
+                                <option key={student.id} value={student.id}>{student.name}</option>
+                            ))}
+                        </select>
+                        <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600 shrink-0">
+                            <TrendingUp size={24} />
+                        </div>
                     </div>
                 </div>
 
@@ -275,8 +307,8 @@ const AcademicHeadDashboard = () => {
                 <div className="xl:col-span-2 bg-white rounded-[3rem] border border-slate-100 shadow-sm p-10">
                     <div className="flex justify-between items-center mb-8">
                         <div>
-                            <h3 className="text-xl font-black text-slate-900 tracking-tight">Recent Intelligence Feed</h3>
-                            <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mt-1">Daily interaction logs from faculty leads</p>
+                            <h3 className="text-xl font-black text-slate-900 tracking-tight">Recent Activity Logs</h3>
+                            <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mt-1">Daily interaction logs from Mentors and Faculties</p>
                         </div>
                         <button className="p-3 bg-slate-50 rounded-2xl text-slate-400 hover:text-indigo-600 transition-all">
                             <Activity size={18} />
@@ -285,7 +317,7 @@ const AcademicHeadDashboard = () => {
 
                     <div className="space-y-6">
                         {!data.activityFeed || data.activityFeed.length === 0 ? (
-                            <p className="text-center py-10 text-slate-400 font-bold italic">No intelligence activity recorded yet today.</p>
+                            <p className="text-center py-10 text-slate-400 font-bold italic">No activity recorded yet today.</p>
                         ) : (
                             data.activityFeed.map((activity, i) => (
                                 <div key={i} className="flex gap-6 p-6 rounded-[2rem] bg-slate-50/50 border border-slate-50 hover:border-indigo-100 hover:bg-white hover:shadow-xl transition-all duration-500 group">
@@ -317,7 +349,7 @@ const AcademicHeadDashboard = () => {
                         <div className="relative z-10">
                             <div className="flex items-center gap-3 mb-4">
                                 <TrendingUp size={20} className="text-emerald-400" />
-                                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Yield Analysis</span>
+                                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Performance Overview</span>
                             </div>
                             <h4 className="text-2xl font-black leading-tight">Academic performance <br /><span className="text-indigo-400">trending up</span> by 12.4%</h4>
                         </div>
@@ -331,7 +363,7 @@ const AcademicHeadDashboard = () => {
                         <div className="absolute left-0 bottom-0 w-48 h-48 bg-black/10 rounded-full -ml-10 -mb-10 blur-2xl group-hover:bg-black/20 transition-all duration-700"></div>
                         <div className="relative z-10 flex items-center justify-between">
                             <div>
-                                <h4 className="text-2xl font-black mb-2 tracking-tight italic text-shadow-sm">MashMagic Engine</h4>
+                                <h4 className="text-2xl font-black mb-2 tracking-tight italic text-shadow-sm">System Status</h4>
                                 <p className="text-indigo-100/60 text-[10px] font-black uppercase tracking-widest max-w-[150px]">Advanced tracking systems fully operational.</p>
                             </div>
                             <div className="w-16 h-16 bg-white/10 rounded-[1.5rem] border border-white/20 flex items-center justify-center backdrop-blur-md">

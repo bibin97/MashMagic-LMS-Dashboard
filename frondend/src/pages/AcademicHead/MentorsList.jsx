@@ -15,6 +15,11 @@ const MentorsList = () => {
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [editingMentor, setEditingMentor] = useState(null);
 
+    // Inline Student View States
+    const [expandedMentorId, setExpandedMentorId] = useState(null);
+    const [mentorStudents, setMentorStudents] = useState([]);
+    const [loadingStudents, setLoadingStudents] = useState(false);
+
     useEffect(() => {
         fetchMentors();
     }, []);
@@ -63,6 +68,27 @@ const MentorsList = () => {
         }
     };
 
+    const handleViewStudents = async (mentor) => {
+        if (expandedMentorId === mentor.id) {
+            setExpandedMentorId(null);
+            setMentorStudents([]);
+            return;
+        }
+
+        setExpandedMentorId(mentor.id);
+        setLoadingStudents(true);
+        try {
+            const res = await api.get(`/academic-head/students?mentor_id=${mentor.id}`);
+            if (res.data.success) {
+                setMentorStudents(res.data.data);
+            }
+        } catch (error) {
+            toast.error("Failed to fetch assigned students");
+        } finally {
+            setLoadingStudents(false);
+        }
+    };
+
     const filteredMentors = mentors.filter(m =>
         m.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         m.place?.toLowerCase().includes(searchTerm.toLowerCase())
@@ -94,70 +120,155 @@ const MentorsList = () => {
                 </div>
             </div>
 
-            {/* Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {/* List Layout */}
+            <div className="flex flex-col gap-4">
                 {filteredMentors.length > 0 ? filteredMentors.map((mentor) => (
-                    <div key={mentor.id} className="bg-white group rounded-[3rem] border border-slate-100 shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-500 overflow-hidden">
-                        <div className="p-8">
-                            <div className="flex justify-between items-start mb-6">
-                                <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-3xl flex items-center justify-center text-white text-2xl font-black shadow-lg shadow-indigo-100 group-hover:scale-110 transition-transform">
-                                    {mentor.name.charAt(0)}
+                    <div key={mentor.id} className="bg-white group rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden">
+                        <div className="p-6">
+                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                                <div className="flex items-center gap-6 flex-1">
+                                    <div className="w-14 h-14 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center text-white text-xl font-black shadow-lg shadow-indigo-100 shrink-0 group-hover:scale-105 transition-transform">
+                                        {mentor.name.charAt(0)}
+                                    </div>
+                                    <div className="flex flex-col min-w-0">
+                                        <div className="flex items-center gap-3">
+                                            <h3 className="text-lg font-black text-slate-900 group-hover:text-indigo-600 transition-colors uppercase italic truncate">{mentor.name}</h3>
+                                            <div className={`px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest ${mentor.status === 'active' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-amber-50 text-amber-600 border border-amber-100'}`}>
+                                                {mentor.status}
+                                            </div>
+                                        </div>
+                                        
+                                        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1">
+                                            <div className="flex items-center gap-1.5">
+                                                <MapPin size={10} className="text-slate-400" />
+                                                <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{mentor.place || 'Unknown'}</span>
+                                            </div>
+                                            <div className="flex items-center gap-1.5">
+                                                <Mail size={10} className="text-slate-400" />
+                                                <span className="text-[9px] font-bold text-slate-400">{mentor.email}</span>
+                                            </div>
+                                            <div className="flex items-center gap-1.5">
+                                                <Phone size={10} className="text-slate-400" />
+                                                <span className="text-[9px] font-bold text-slate-400">{mentor.phone_number}</span>
+                                            </div>
+                                        </div>
+
+                                        {/* Expand Option Below Name Section */}
+                                        <button 
+                                            onClick={() => handleViewStudents(mentor)}
+                                            className="flex items-center gap-2 mt-3 w-fit group/btn"
+                                        >
+                                            <div className="flex flex-col items-start">
+                                                <span className="text-[10px] font-black text-indigo-600 uppercase tracking-widest flex items-center gap-2">
+                                                    View {mentor.studentCount} Assigned Students
+                                                    <ShieldCheck size={12} className={`transition-all duration-300 ${expandedMentorId === mentor.id ? 'rotate-180 text-purple-600' : 'text-indigo-600'}`} />
+                                                </span>
+                                                <div className="h-0.5 w-0 group-hover/btn:w-full bg-indigo-600 transition-all duration-300"></div>
+                                            </div>
+                                        </button>
+                                    </div>
                                 </div>
-                                <div className="flex gap-2">
+
+                                <div className="flex items-center gap-3 shrink-0 self-end md:self-center">
                                     <button
                                         onClick={() => handleEdit(mentor)}
-                                        className="p-3 bg-slate-50 text-blue-600 rounded-2xl hover:bg-blue-600 hover:text-white transition-all shadow-sm"
+                                        className="p-3 bg-slate-50 text-blue-600 rounded-xl hover:bg-blue-600 hover:text-white transition-all shadow-sm flex items-center gap-2"
                                     >
-                                        <Edit2 size={16} />
+                                        <Edit2 size={14} />
+                                        <span className="text-[10px] font-black uppercase tracking-widest md:hidden">Edit</span>
                                     </button>
                                     <button
                                         onClick={() => handleDelete(mentor.id)}
-                                        className="p-3 bg-slate-50 text-rose-600 rounded-2xl hover:bg-rose-600 hover:text-white transition-all shadow-sm"
+                                        className="p-3 bg-slate-50 text-rose-600 rounded-xl hover:bg-rose-600 hover:text-white transition-all shadow-sm flex items-center gap-2"
                                     >
-                                        <Trash2 size={16} />
+                                        <Trash2 size={14} />
+                                        <span className="text-[10px] font-black uppercase tracking-widest md:hidden">Delete</span>
                                     </button>
                                 </div>
                             </div>
 
-                            <div className="space-y-4">
-                                <div>
-                                    <h3 className="text-xl font-black text-slate-900 group-hover:text-indigo-600 transition-colors uppercase italic">{mentor.name}</h3>
-                                    <div className="flex items-center gap-2 mt-1">
-                                        <MapPin size={12} className="text-slate-400" />
-                                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{mentor.place || 'Unknown Location'}</span>
-                                    </div>
-                                </div>
-
-                                <div className="pt-4 border-t border-slate-50 space-y-3">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-8 h-8 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-500">
-                                            <Mail size={14} />
+                            {/* Inline Student List Section */}
+                            {expandedMentorId === mentor.id && (
+                                <div className="mt-8 pt-6 border-t border-slate-50 animate-in slide-in-from-top-4 duration-500">
+                                    <div className="flex items-center justify-between mb-4 pl-1">
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-1.5 h-4 bg-indigo-600 rounded-full"></div>
+                                            <h5 className="text-[11px] font-black text-slate-900 uppercase italic tracking-wider">Assigned Students Registry</h5>
                                         </div>
-                                        <span className="text-[10px] font-bold text-slate-600 break-all">{mentor.email}</span>
                                     </div>
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-8 h-8 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-500">
-                                            <Phone size={14} />
+                                    
+                                    {loadingStudents ? (
+                                        <div className="py-10 text-center">
+                                            <div className="inline-block w-5 h-5 border-2 border-indigo-600/30 border-t-indigo-600 rounded-full animate-spin mb-2"></div>
+                                            <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest italic animate-pulse">Synchronizing student records...</div>
                                         </div>
-                                        <span className="text-[10px] font-bold text-slate-600">{mentor.phone_number}</span>
-                                    </div>
-                                </div>
+                                    ) : mentorStudents.length > 0 ? (
+                                        <div className="space-y-3">
+                                            {/* Table Header for the inline list */}
+                                            <div className="hidden lg:grid grid-cols-5 gap-4 px-6 mb-2">
+                                                <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Student / ID</span>
+                                                <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest text-center">Faculty</span>
+                                                <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest text-center">Mentor</span>
+                                                <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest text-center invisible">Metadata</span>
+                                                <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest text-right">Performance Status</span>
+                                            </div>
+                                            {mentorStudents.map((student) => (
+                                                <div key={student.id} className="p-4 bg-slate-50 border border-slate-100 rounded-[2rem] hover:bg-white hover:border-indigo-200 hover:shadow-xl transition-all duration-300 group/student">
+                                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 items-center gap-6">
+                                                        <div className="flex items-center gap-4">
+                                                            <div className="w-10 h-10 bg-white rounded-2xl flex items-center justify-center text-slate-500 font-black shadow-sm group-hover/student:bg-indigo-600 group-hover/student:text-white transition-all shrink-0">
+                                                                {student.name.charAt(0)}
+                                                            </div>
+                                                            <div className="flex-1 min-w-0">
+                                                                <h4 className="text-[12px] font-black text-slate-900 uppercase italic truncate">{student.name}</h4>
+                                                                <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">{student.registration_number || 'REG-PENDING'}</span>
+                                                            </div>
+                                                        </div>
+                                                        
+                                                        <div className="flex flex-col lg:items-center">
+                                                            <span className="text-[10px] font-black text-slate-900 uppercase truncate">{student.faculty_name || 'Unassigned'}</span>
+                                                            <span className="text-[7px] font-bold text-slate-400 uppercase tracking-tighter">Academic Faculty</span>
+                                                        </div>
 
-                                <div className="pt-4 flex justify-between items-center">
-                                    <div className="flex flex-col">
-                                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Assigned Students</span>
-                                        <span className="text-lg font-black text-indigo-600">{mentor.studentCount}</span>
-                                    </div>
-                                    <div className={`px-4 py-1.5 rounded-full text-[8px] font-black uppercase tracking-widest ${mentor.status === 'active' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-amber-50 text-amber-600 border border-amber-100'}`}>
-                                        {mentor.status}
-                                    </div>
+                                                        <div className="flex flex-col lg:items-center">
+                                                            <span className="text-[10px] font-black text-slate-900 uppercase truncate">{student.mentor_name || mentor.name}</span>
+                                                            <span className="text-[7px] font-bold text-slate-400 uppercase tracking-tighter">Assigned Mentor</span>
+                                                        </div>
+
+                                                        <div className="flex flex-col lg:items-center">
+                                                            <span className="text-[10px] font-black text-indigo-500 uppercase">{student.course}</span>
+                                                            <span className="text-[7px] font-bold text-slate-400 uppercase">{student.grade}</span>
+                                                        </div>
+
+                                                        <div className="flex flex-col items-end">
+                                                            <div className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest shadow-sm 
+                                                                ${student.performance === 'Excellent' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 
+                                                                  student.performance === 'Very Good' ? 'bg-blue-50 text-blue-600 border border-blue-100' :
+                                                                  student.performance === 'Good' ? 'bg-indigo-50 text-indigo-600 border border-indigo-100' :
+                                                                  student.performance === 'Average' ? 'bg-amber-50 text-amber-600 border border-amber-100' :
+                                                                  student.performance === 'Needs Improvement' ? 'bg-rose-50 text-rose-600 border border-rose-100' :
+                                                                  'bg-slate-100 text-slate-500 border border-slate-200'}`}>
+                                                                {student.performance}
+                                                            </div>
+                                                            <span className="text-[7px] font-bold text-slate-400 uppercase mt-1 tracking-[0.2em]">Live Analytics: {student.avg_score}%</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <div className="py-10 bg-slate-50/50 rounded-2xl text-center border border-dashed border-slate-200">
+                                            <p className="text-slate-400 font-black text-[10px] uppercase tracking-[0.2em] italic">No students currently assigned to this mentor</p>
+                                        </div>
+                                    )}
                                 </div>
-                            </div>
+                            )}
                         </div>
                     </div>
                 )) : (
-                    <div className="col-span-full py-20 text-center">
-                        <p className="text-slate-400 font-black text-[10px] uppercase tracking-[0.3em]">No mentors found matching your search</p>
+                    <div className="py-20 bg-white rounded-[3rem] border border-slate-100 text-center shadow-sm">
+                        <Users size={40} className="mx-auto text-slate-200 mb-4" />
+                        <p className="text-slate-400 font-black text-[10px] uppercase tracking-[0.3em]">No mentors matching your search parameters</p>
                     </div>
                 )}
             </div>
@@ -231,6 +342,7 @@ const MentorsList = () => {
                     </div>
                 </div>
             )}
+
         </div>
     );
 };

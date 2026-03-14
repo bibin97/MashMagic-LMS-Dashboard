@@ -3,14 +3,24 @@ import api from '../../services/api';
 import {
     AlertCircle, CheckCircle2, Clock, Calendar,
     User, BookOpen, ChevronRight, Activity,
-    ShieldAlert, GraduationCap, ArrowRight, Filter
+    ShieldAlert, GraduationCap, ArrowRight, Filter,
+    FileText, X
 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import Modal from '../../components/Modal';
 
 const AcademicActions = () => {
     const [milestones, setMilestones] = useState([]);
     const [dailyLogs, setDailyLogs] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [selectedMilestone, setSelectedMilestone] = useState(null);
+    const [isExamModalOpen, setIsExamModalOpen] = useState(false);
+    const [planData, setPlanData] = useState({
+        chapter: '',
+        portions: '',
+        exam_type: 'MCQ',
+        scheduled_date: ''
+    });
 
     useEffect(() => {
         fetchActions();
@@ -25,6 +35,36 @@ const AcademicActions = () => {
             toast.error("Failed to load actions dashboard");
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleOpenExamModal = (milestone) => {
+        setSelectedMilestone(milestone);
+        setPlanData({
+            chapter: milestone.chapter || '',
+            portions: milestone.portions || '',
+            exam_type: milestone.exam_type || 'MCQ',
+            scheduled_date: milestone.scheduled_date ? new Date(milestone.scheduled_date).toISOString().split('T')[0] : ''
+        });
+        setIsExamModalOpen(true);
+    };
+
+    const handleSaveExamPlan = async (e) => {
+        e.preventDefault();
+        try {
+            await api.post('/academic-head/exams/plan', {
+                student_id: selectedMilestone.student_id,
+                milestone_session: selectedMilestone.milestone,
+                chapter: planData.chapter,
+                portions: planData.portions,
+                exam_type: planData.exam_type,
+                scheduled_date: planData.scheduled_date
+            });
+            toast.success("Exam plan saved successfully");
+            setIsExamModalOpen(false);
+            fetchActions();
+        } catch (error) {
+            toast.error(error.response?.data?.message || "Failed to save exam plan");
         }
     };
 
@@ -66,7 +106,7 @@ const AcademicActions = () => {
                             <GraduationCap size={16} className="text-rose-500" /> Exam Milestones
                         </h3>
                         {milestones.length > 0 && (
-                            <span className="bg-rose-100 text-rose-600 text-[9px] font-black px-3 py-1 rounded-full uppercase tracking-widest">Action Needed</span>
+                            <span className="bg-rose-100 text-rose-600 text-[9px] font-black px-3 py-1 rounded-full uppercase tracking-widest">Plan Required</span>
                         )}
                     </div>
 
@@ -82,17 +122,40 @@ const AcademicActions = () => {
                     ) : (
                         <div className="space-y-4">
                             {milestones.map((milestone, idx) => (
-                                <div key={idx} className="bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-md transition-all group overflow-hidden relative">
+                                <div key={idx} 
+                                    onClick={() => handleOpenExamModal(milestone)}
+                                    className="bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-xl hover:border-rose-200 transition-all group overflow-hidden relative cursor-pointer"
+                                >
                                     <div className="absolute top-0 right-0 w-16 h-16 bg-rose-50 rounded-full -mr-8 -mt-8 opacity-40"></div>
                                     <div className="flex justify-between items-start mb-4">
                                         <div>
                                             <h4 className="text-lg font-black text-slate-900 italic uppercase leading-none">{milestone.student_name}</h4>
                                             <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">Session Milestone: {milestone.milestone}</p>
                                         </div>
-                                        <div className="bg-rose-50 text-rose-500 px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest">
-                                            {milestone.status}
+                                        <div className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest ${milestone.portions ? 'bg-emerald-50 text-emerald-500' : 'bg-rose-50 text-rose-500'}`}>
+                                            {milestone.portions ? 'Planned' : 'Set Portions'}
                                         </div>
                                     </div>
+
+                                    {milestone.chapter && (
+                                        <div className="mt-2 text-[10px] text-slate-900 font-black border-l-2 border-rose-500 pl-3 uppercase italic">
+                                            Chapter: {milestone.chapter}
+                                        </div>
+                                    )}
+
+                                    {milestone.portions && (
+                                        <div className="mt-2 text-[10px] text-slate-500 font-bold border-l-2 border-slate-200 pl-3">
+                                            Portions: {milestone.portions}
+                                        </div>
+                                    )}
+
+                                    {milestone.exam_type && (
+                                        <div className="mt-3 flex items-center gap-2">
+                                            <span className="text-[8px] font-black px-2 py-0.5 bg-slate-900 text-white rounded-md uppercase tracking-tighter">
+                                                {milestone.exam_type}
+                                            </span>
+                                        </div>
+                                    )}
 
                                     <div className="flex items-center justify-between mt-6 pt-6 border-t border-slate-50">
                                         <div className="flex items-center gap-2">
@@ -104,9 +167,9 @@ const AcademicActions = () => {
                                                 <p className="text-[10px] font-bold text-slate-700 line-clamp-1">{milestone.mentor_name}</p>
                                             </div>
                                         </div>
-                                        <button className="w-9 h-9 bg-slate-900 text-white rounded-xl flex items-center justify-center group-hover:bg-rose-500 transition-colors">
-                                            <ArrowRight size={16} />
-                                        </button>
+                                        <div className="w-9 h-9 bg-slate-900 text-white rounded-xl flex items-center justify-center group-hover:bg-rose-500 transition-colors">
+                                            <FileText size={16} />
+                                        </div>
                                     </div>
                                 </div>
                             ))}
@@ -193,6 +256,94 @@ const AcademicActions = () => {
                     )}
                 </div>
             </div>
+
+            {/* Exam Planning Modal */}
+            <Modal
+                isOpen={isExamModalOpen}
+                onClose={() => setIsExamModalOpen(false)}
+                title="Schedule student Assessment"
+                size="md"
+            >
+                <div className="p-2">
+                    {selectedMilestone && (
+                        <div className="mb-6 p-4 bg-slate-50 rounded-3xl border border-slate-100">
+                            <h4 className="text-sm font-black text-slate-900 uppercase tracking-tight italic">
+                                Setting exam plan for {selectedMilestone.student_name}
+                            </h4>
+                            <p className="text-[10px] font-bold text-slate-500 mt-1 uppercase tracking-widest">
+                                Target Milestone: Session {selectedMilestone.milestone}
+                            </p>
+                        </div>
+                    )}
+
+                    <form onSubmit={handleSaveExamPlan} className="space-y-6">
+                        <div className="flex flex-col gap-2">
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Chapter</label>
+                            <input
+                                type="text"
+                                required
+                                className="p-4 bg-slate-50 border border-slate-100 rounded-3xl text-sm outline-none focus:bg-white focus:ring-4 focus:ring-rose-50 focus:border-rose-300 transition-all font-bold text-slate-700"
+                                placeholder="E.g. Polynomials, Optics..."
+                                value={planData.chapter}
+                                onChange={(e) => setPlanData({ ...planData, chapter: e.target.value })}
+                            />
+                        </div>
+
+                        <div className="flex flex-col gap-2">
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Exam Portions / Details</label>
+                            <textarea
+                                rows="3"
+                                required
+                                className="p-4 bg-slate-50 border border-slate-100 rounded-3xl text-sm outline-none focus:bg-white focus:ring-4 focus:ring-rose-50 focus:border-rose-300 transition-all font-bold text-slate-700 resize-none"
+                                placeholder="Specify topics or pages to be covered..."
+                                value={planData.portions}
+                                onChange={(e) => setPlanData({ ...planData, portions: e.target.value })}
+                            />
+                        </div>
+
+                        <div className="flex flex-col gap-2">
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Exam Type</label>
+                            <select
+                                required
+                                className="p-4 bg-slate-50 border border-slate-100 rounded-3xl text-sm outline-none focus:bg-white focus:ring-4 focus:ring-rose-50 focus:border-rose-300 transition-all font-bold text-slate-700 cursor-pointer"
+                                value={planData.exam_type}
+                                onChange={(e) => setPlanData({ ...planData, exam_type: e.target.value })}
+                            >
+                                <option value="MCQ">MCQ (Multiple Choice Questions)</option>
+                                <option value="Descriptive">Descriptive Test</option>
+                            </select>
+                        </div>
+
+                        <div className="flex flex-col gap-2">
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Target Scheduled Date</label>
+                            <input
+                                type="date"
+                                required
+                                className="p-4 bg-slate-50 border border-slate-100 rounded-3xl text-sm outline-none focus:bg-white focus:ring-4 focus:ring-rose-50 focus:border-rose-300 transition-all font-bold text-slate-700"
+                                value={planData.scheduled_date}
+                                onChange={(e) => setPlanData({ ...planData, scheduled_date: e.target.value })}
+                            />
+                        </div>
+
+                        <div className="pt-4 flex gap-3">
+                            <button
+                                type="button"
+                                onClick={() => setIsExamModalOpen(false)}
+                                className="flex-1 bg-slate-100 text-slate-600 p-4 rounded-[2rem] font-black text-[10px] uppercase tracking-widest hover:bg-slate-200 transition-all"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="submit"
+                                className="flex-1 bg-slate-900 text-white p-4 rounded-[2rem] font-black text-[10px] uppercase tracking-widest hover:bg-rose-600 transition-all shadow-xl shadow-rose-100 flex items-center justify-center gap-2 group"
+                            >
+                                <span>Save Plan</span>
+                                <GraduationCap size={18} />
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </Modal>
         </div>
     );
 };

@@ -10,8 +10,6 @@ const FacultyDirectory = () => {
     const [faculties, setFaculties] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
-
-    // Edit Modal States
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [editingFaculty, setEditingFaculty] = useState(null);
 
@@ -51,7 +49,7 @@ const FacultyDirectory = () => {
     };
 
     const handleDelete = async (id) => {
-        if (!window.confirm("PERMANENT ACTION: Remove this faculty member from system?")) return;
+        if (!window.confirm("PERMANENT ACTION: Delete this faculty record?")) return;
         try {
             const res = await api.delete(`/mentor-head/faculties/${id}`);
             if (res.data.success) {

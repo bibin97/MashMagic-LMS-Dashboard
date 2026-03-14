@@ -30,6 +30,12 @@ const StudentCard = ({ student, navigate, viewMode, handleToggleConnection, hand
                             Shifted: {student.shifted_from}
                         </span>
                     ) : null}
+                    {student.course_completed === 1 && (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-600 border border-emerald-200 text-[9px] font-black uppercase tracking-widest whitespace-nowrap">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>
+                            Course Completed
+                        </span>
+                    )}
                 </h3>
                 <div className="flex flex-wrap gap-2">
                     <span className="px-3 py-1 bg-blue-50 text-blue-700 text-[10px] font-black uppercase tracking-wider rounded-lg border border-blue-100">
@@ -305,7 +311,7 @@ const MyStudents = () => {
 
             {/* Batch Timetable Modal */}
             {isTimetableModalOpen && (
-                <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[110] flex items-center justify-center p-4">
+                <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[9999] flex items-center justify-center p-4">
                     <div className="bg-white rounded-[3rem] shadow-2xl w-full max-w-6xl max-h-[90vh] overflow-hidden flex flex-col">
                         <div className="px-10 py-8 border-b border-slate-100 flex justify-between items-center bg-white">
                             <div>
@@ -412,7 +418,7 @@ const MyStudents = () => {
             )}
             {/* Log Hours Modal */}
             {isHoursModalOpen && selectedStudent && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+                <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
                     <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => setIsHoursModalOpen(false)}></div>
                     <div className="bg-white rounded-[3rem] w-full max-w-md shadow-2xl overflow-hidden relative z-10 animate-in zoom-in duration-300">
                         <div className="px-10 py-8 bg-slate-900 text-white relative">

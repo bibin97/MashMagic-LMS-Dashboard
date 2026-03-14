@@ -11,15 +11,20 @@ const CheckingSection = () => {
     const [sessions, setSessions] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    // Form states
     const [isEvalModalOpen, setIsEvalModalOpen] = useState(false);
     const [evalForm, setEvalForm] = useState({
         faculty_id: '',
+        student_id: '',
         joined_class: false,
         faculty_active: false,
         interactive: false,
         faculty_camera_on: false,
         student_camera_on: false,
+        energy_level: 3,
+        screen_sharing: false,
+        faculty_background: false,
+        student_interaction_level: 3,
+        check_method: 'Link',
         remarks: '',
         proof_url: '',
         class_date: new Date().toISOString().split('T')[0]
@@ -166,6 +171,7 @@ const CheckingSection = () => {
                                         <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Faculty Member</th>
                                         <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Session Date</th>
                                         <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Chapter / Topic</th>
+                                        <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Audit Track</th>
                                         <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Audit Status</th>
                                         <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Verification</th>
                                     </tr>
@@ -174,7 +180,7 @@ const CheckingSection = () => {
                                     {sessions.map(session => {
                                         const isChecked = session.check_count > 0;
                                         return (
-                                            <tr key={session.session_id} className={`group transition-all ${isChecked ? 'bg-emerald-50/30' : 'hover:bg-slate-50/50'}`}>
+                                            <tr key={`${session.session_id}-${session.student_id}`} className={`group transition-all ${isChecked ? 'bg-emerald-50/30' : 'hover:bg-slate-50/50'}`}>
                                                 <td className="px-8 py-6">
                                                     <div className="flex items-center gap-3">
                                                         <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xs font-black uppercase ${isChecked ? 'bg-emerald-100 text-emerald-600' : 'bg-slate-100 text-slate-500'}`}>
@@ -189,6 +195,18 @@ const CheckingSection = () => {
                                                 <td className="px-8 py-6">
                                                     <p className="text-xs font-black text-slate-900 uppercase tracking-tight">{session.chapter}</p>
                                                     <p className="text-[10px] text-slate-400 font-bold max-w-[200px] truncate">{session.topics_covered}</p>
+                                                </td>
+                                                <td className="px-8 py-6">
+                                                    <p className="text-xs font-black text-slate-800 uppercase tracking-tight">{session.student_name}</p>
+                                                    <div className="flex items-center gap-2 mt-1">
+                                                        <div className="w-20 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                                                            <div 
+                                                                className="h-full bg-indigo-500 rounded-full" 
+                                                                style={{ width: `${Math.min((session.total_verified_for_student / 30) * 100, 100)}%` }}
+                                                            ></div>
+                                                        </div>
+                                                        <span className="text-[9px] font-black text-indigo-600 uppercase italic">{session.total_verified_for_student}/30 Audited</span>
+                                                    </div>
                                                 </td>
                                                 <td className="px-8 py-6 text-center">
                                                     {isChecked ? (
@@ -224,7 +242,7 @@ const CheckingSection = () => {
                                         );
                                     })}
                                     {sessions.length === 0 && (
-                                        <tr><td colSpan="5" className="px-8 py-20 text-center text-slate-400 font-bold uppercase tracking-widest text-[10px]">No sessions found for audit.</td></tr>
+                                        <tr><td colSpan="6" className="px-8 py-20 text-center text-slate-400 font-bold uppercase tracking-widest text-[10px]">No sessions found for audit.</td></tr>
                                     )}
                                 </tbody>
                             </table>
@@ -253,18 +271,37 @@ const CheckingSection = () => {
                                                     {new Date(ev.class_date).toLocaleDateString()}
                                                 </div>
                                             </div>
-                                            <div className="space-y-3 mb-6">
+                                            <div className="grid grid-cols-2 gap-x-6 gap-y-3 mb-6">
                                                 <MetricItem label="Joined Class" value={ev.joined_class} />
                                                 <MetricItem label="Faculty Active" value={ev.faculty_active} />
                                                 <MetricItem label="Interactive" value={ev.interactive} />
-                                                <MetricItem label="Faculty Cam On" value={ev.faculty_camera_on} />
-                                                <MetricItem label="Student Cam On" value={ev.student_camera_on} />
+                                                <MetricItem label="Faculty Camera" value={ev.faculty_camera_on} />
+                                                <MetricItem label="Student Camera" value={ev.student_camera_on} />
+                                                <MetricItem label="Screen Sharing" value={ev.screen_sharing} />
+                                                <MetricItem label="Pro Background" value={ev.faculty_background} />
+                                                <div className="flex items-center justify-between border-b border-slate-50 pb-2">
+                                                    <span className="text-[10px] font-bold text-slate-500 uppercase">Energy</span>
+                                                    <span className="text-[10px] font-black text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md">{ev.energy_level}/5</span>
+                                                </div>
+                                                <div className="flex items-center justify-between border-b border-slate-50 pb-2">
+                                                    <span className="text-[10px] font-bold text-slate-500 uppercase">Interaction</span>
+                                                    <span className="text-[10px] font-black text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">{ev.student_interaction_level}/5</span>
+                                                </div>
+                                                <div className="flex items-center justify-between border-b border-slate-50 pb-2">
+                                                    <span className="text-[10px] font-bold text-slate-500 uppercase">Check Via</span>
+                                                    <span className="text-[10px] font-black text-slate-900 italic">{ev.check_method}</span>
+                                                </div>
                                             </div>
                                             {ev.remarks && (
-                                                <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                                                <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 mb-4">
                                                     <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 block">Remarks</span>
                                                     <p className="text-xs font-bold text-slate-700 italic">"{ev.remarks}"</p>
                                                 </div>
+                                            )}
+                                            {ev.proof_url && (
+                                                <a href={ev.proof_url} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-[10px] font-black text-indigo-600 uppercase hover:underline">
+                                                    <Eye size={12} /> View Screenshot Proof
+                                                </a>
                                             )}
                                         </div>
                                     ))}
@@ -349,21 +386,19 @@ const CheckingSection = () => {
                         </div>
                         <form onSubmit={handleEvalSubmit} className="p-10 space-y-6">
                             <div className="grid grid-cols-2 gap-6">
-                                <div className="col-span-2">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2 mb-2 block">Select Faculty</label>
+                                <div className="col-span-2 md:col-span-1">
+                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2 mb-2 block">Check Method</label>
                                     <select
-                                        required
                                         className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold shadow-sm outline-none focus:ring-4 focus:ring-indigo-50"
-                                        value={evalForm.faculty_id}
-                                        onChange={(e) => setEvalForm({ ...evalForm, faculty_id: e.target.value })}
+                                        value={evalForm.check_method}
+                                        onChange={(e) => setEvalForm({ ...evalForm, check_method: e.target.value })}
                                     >
-                                        <option value="">-- Choose Faculty --</option>
-                                        {faculties.map(f => (
-                                            <option key={f.id} value={f.user_id}>{f.name}</option>
-                                        ))}
+                                        <option value="Link">Joined via Meet Link</option>
+                                        <option value="Direct">Physical/Direct Room Check</option>
+                                        <option value="CCTV">Monitoring via CCTV</option>
                                     </select>
                                 </div>
-                                <div className="col-span-2">
+                                <div className="col-span-2 md:col-span-1">
                                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2 mb-2 block">Class Date</label>
                                     <input
                                         type="date" required
@@ -372,14 +407,50 @@ const CheckingSection = () => {
                                         onChange={(e) => setEvalForm({ ...evalForm, class_date: e.target.value })}
                                     />
                                 </div>
+                                <div className="col-span-2">
+                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2 mb-2 block">Target Faculty</label>
+                                    <select
+                                        required
+                                        className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold shadow-sm outline-none focus:ring-4 focus:ring-indigo-50"
+                                        value={evalForm.faculty_id}
+                                        onChange={(e) => setEvalForm({ ...evalForm, faculty_id: e.target.value })}
+                                    >
+                                        <option value="">-- Choose Faculty Member --</option>
+                                        {faculties.map(f => (
+                                            <option key={f.id} value={f.id || f.user_id}>{f.name}</option>
+                                        ))}
+                                    </select>
+                                </div>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-4">
-                                <CheckboxItem label="Did you join?" checked={evalForm.joined_class} onChange={(v) => setEvalForm({ ...evalForm, joined_class: v })} />
-                                <CheckboxItem label="Faculty Active?" checked={evalForm.faculty_active} onChange={(v) => setEvalForm({ ...evalForm, faculty_active: v })} />
-                                <CheckboxItem label="Interactive?" checked={evalForm.interactive} onChange={(v) => setEvalForm({ ...evalForm, interactive: v })} />
-                                <CheckboxItem label="Faculty Cam On?" checked={evalForm.faculty_camera_on} onChange={(v) => setEvalForm({ ...evalForm, faculty_camera_on: v })} />
-                                <CheckboxItem label="Student Cam On?" checked={evalForm.student_camera_on} onChange={(v) => setEvalForm({ ...evalForm, student_camera_on: v })} />
+                            <div className="bg-slate-50 p-6 rounded-[2rem] border border-slate-100 grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <CheckboxItem label="Student Camera ON" checked={evalForm.student_camera_on} onChange={(v) => setEvalForm({ ...evalForm, student_camera_on: v })} />
+                                <CheckboxItem label="Faculty Camera ON" checked={evalForm.faculty_camera_on} onChange={(v) => setEvalForm({ ...evalForm, faculty_camera_on: v })} />
+                                <CheckboxItem label="Screen Sharing ON" checked={evalForm.screen_sharing} onChange={(v) => setEvalForm({ ...evalForm, screen_sharing: v })} />
+                                <CheckboxItem label="Professional BG" checked={evalForm.faculty_background} onChange={(v) => setEvalForm({ ...evalForm, faculty_background: v })} />
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-6">
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2 block">Faculty Energy (1-5)</label>
+                                    <input 
+                                        type="range" min="1" max="5" step="1"
+                                        className="w-full h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-indigo-600"
+                                        value={evalForm.energy_level}
+                                        onChange={(e) => setEvalForm({...evalForm, energy_level: parseInt(e.target.value)})}
+                                    />
+                                    <div className="flex justify-between px-1"><span className="text-[9px] font-bold text-slate-400">Low</span><span className="text-[10px] font-black text-indigo-600">{evalForm.energy_level}</span><span className="text-[9px] font-bold text-slate-400">High</span></div>
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2 block">Student Interaction (1-5)</label>
+                                    <input 
+                                        type="range" min="1" max="5" step="1"
+                                        className="w-full h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-emerald-500"
+                                        value={evalForm.student_interaction_level}
+                                        onChange={(e) => setEvalForm({...evalForm, student_interaction_level: parseInt(e.target.value)})}
+                                    />
+                                    <div className="flex justify-between px-1"><span className="text-[9px] font-bold text-slate-400">Bored</span><span className="text-[10px] font-black text-emerald-600">{evalForm.student_interaction_level}</span><span className="text-[9px] font-bold text-slate-400">Active</span></div>
+                                </div>
                             </div>
 
                             <div>

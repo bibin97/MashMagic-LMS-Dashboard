@@ -6,6 +6,7 @@ import toast from 'react-hot-toast';
 const StudentCheckTracker = () => {
     const [students, setStudents] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [sortBy, setSortBy] = useState('least_checked');
 
     useEffect(() => {
         fetchStudentChecks();
@@ -70,22 +71,48 @@ const StudentCheckTracker = () => {
         }
     };
 
+    const getSortedStudents = () => {
+        return [...students].sort((a, b) => {
+            const countA = a.total_check_count || 0;
+            const countB = b.total_check_count || 0;
+            if (sortBy === 'least_checked') return countA - countB;
+            if (sortBy === 'most_checked') return countB - countA;
+            if (sortBy === 'name') return (a.student_name || '').localeCompare(b.student_name || '');
+            return 0;
+        });
+    };
+
     if (loading) return <div className="p-8 text-center text-slate-400 font-bold">Loading tracker...</div>;
 
     return (
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
             {/* Page Title */}
-            <div className="bg-white p-10 rounded-[4rem] border border-slate-100 shadow-sm mb-10">
-                <h2 className="text-3xl font-black text-slate-900 tracking-tighter uppercase italic flex items-center gap-4">
-                    <div className="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-indigo-200 rotate-3">
-                        <Target size={28} />
-                    </div>
-                    Verification Registry
-                </h2>
-                <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest mt-3 flex items-center gap-2">
-                    <CheckCircle2 size={14} className="text-emerald-500" />
-                    Internal audit of daily mentor-student interaction verification and accountability tracking
-                </p>
+            <div className="bg-white p-10 rounded-[4rem] border border-slate-100 shadow-sm mb-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div>
+                    <h2 className="text-3xl font-black text-slate-900 tracking-tighter uppercase italic flex items-center gap-4">
+                        <div className="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-indigo-200 rotate-3">
+                            <Target size={28} />
+                        </div>
+                        Verification Registry
+                    </h2>
+                    <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest mt-3 flex items-center gap-2">
+                        <CheckCircle2 size={14} className="text-emerald-500" />
+                        Internal audit of daily mentor-student interaction verification and accountability tracking
+                    </p>
+                </div>
+
+                <div className="flex items-center gap-3 bg-slate-50 p-2 rounded-2xl border border-slate-100 shrink-0">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-2">Sort By:</span>
+                    <select
+                        value={sortBy}
+                        onChange={(e) => setSortBy(e.target.value)}
+                        className="bg-white border-none rounded-xl px-4 py-2 text-xs font-bold text-slate-700 outline-none cursor-pointer focus:ring-2 focus:ring-indigo-500/20 shadow-sm"
+                    >
+                        <option value="least_checked">Least Checked First</option>
+                        <option value="most_checked">Most Checked First</option>
+                        <option value="name">Student Name (A-Z)</option>
+                    </select>
+                </div>
             </div>
 
             <div className="bg-white rounded-[2.5rem] p-6 shadow-sm border border-slate-100">
@@ -102,7 +129,7 @@ const StudentCheckTracker = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {students.map(student => {
+                            {getSortedStudents().map(student => {
                                 const checkCount = student.total_check_count || 0;
 
                                 let rowClass = "border-b border-slate-50 transition-colors group bg-white hover:bg-slate-50/50";

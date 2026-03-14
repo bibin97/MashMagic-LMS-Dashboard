@@ -13,8 +13,45 @@ const Registrations = () => {
 
     // Forms data
     const [studentForm, setStudentForm] = useState({
-        name: '', grade: '', subject: '', facultyId: '', mentorId: '', course: '', hour: '', nextInstallmentDate: '', admissionType: 'new'
+        name: '', 
+        grade: '', 
+        mentorId: '', 
+        course: '', 
+        hour: '', 
+        nextInstallmentDate: '', 
+        admissionType: 'new',
+        registrationNumber: '',
+        meetingLink: '',
+        facultyHourlyRate: ''
     });
+
+    const [selectedSubjects, setSelectedSubjects] = useState([
+        { subject: '', facultyId: '', facultyName: '' }
+    ]);
+
+    const addSubjectRow = () => {
+        setSelectedSubjects([...selectedSubjects, { subject: '', facultyId: '', facultyName: '' }]);
+    };
+
+    const removeSubjectRow = (index) => {
+        if (selectedSubjects.length > 1) {
+            const newSubjects = [...selectedSubjects];
+            newSubjects.splice(index, 1);
+            setSelectedSubjects(newSubjects);
+        }
+    };
+
+    const handleSubjectChange = (index, field, value) => {
+        const newSubjects = [...selectedSubjects];
+        if (field === 'facultyId') {
+            const faculty = faculties.find(f => f.id.toString() === value);
+            newSubjects[index].facultyId = value;
+            newSubjects[index].facultyName = faculty ? faculty.name : '';
+        } else {
+            newSubjects[index][field] = value;
+        }
+        setSelectedSubjects(newSubjects);
+    };
 
     const [facultyForm, setFacultyForm] = useState({
         name: '', email: '', phone_number: '', place: '', password: '', confirmPassword: ''
@@ -50,10 +87,18 @@ const Registrations = () => {
         e.preventDefault();
         setLoading(true);
         try {
-            const res = await api.post('/academic-head/register-student', studentForm);
+            const res = await api.post('/academic-head/register-student', {
+                ...studentForm,
+                selectedSubjects
+            });
             if (res.data.success) {
                 toast.success('Student Registered Successfully!');
-                setStudentForm({ name: '', grade: '', subject: '', facultyId: '', mentorId: '', course: '', hour: '', nextInstallmentDate: '', admissionType: 'new' });
+                setStudentForm({ 
+                    name: '', grade: '', mentorId: '', course: '', hour: '', 
+                    nextInstallmentDate: '', admissionType: 'new',
+                    registrationNumber: '', meetingLink: '', facultyHourlyRate: ''
+                });
+                setSelectedSubjects([{ subject: '', facultyId: '', facultyName: '' }]);
             }
         } catch (error) {
             toast.error(error.response?.data?.message || 'Failed to register student');
@@ -138,47 +183,39 @@ const Registrations = () => {
                                         <option key={i + 1} value={`Class ${i + 1}`}>Class {i + 1}</option>
                                     ))}
                                 </select>
+                             </div>
+                             <div className="flex flex-col gap-2">
+                                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Admission Type</label>
+                                 <select name="admissionType" required value={studentForm.admissionType} onChange={handleStudentChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-indigo-100 font-bold appearance-none">
+                                     <option value="new">New Student (Requires Onboarding)</option>
+                                     <option value="existing">Existing Student</option>
+                                 </select>
+                             </div>
+                             <div className="flex flex-col gap-2">
+                                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Course</label>
+                                 <select name="course" required value={studentForm.course} onChange={handleStudentChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-indigo-100 font-bold appearance-none">
+                                     <option value="" disabled>Select Course</option>
+                                     {coursesList.map(c => <option key={c} value={c}>{c}</option>)}
+                                 </select>
+                             </div>
+                             <div className="flex flex-col gap-2">
+                                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Assigned Mentor</label>
+                                 <select name="mentorId" required value={studentForm.mentorId} onChange={handleStudentChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-indigo-100 font-bold appearance-none">
+                                     <option value="" disabled>Select Mentor</option>
+                                     {mentors.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
+                                 </select>
+                             </div>
+                             <div className="flex flex-col gap-2">
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Reg Number</label>
+                                <input type="text" name="registrationNumber" value={studentForm.registrationNumber} onChange={handleStudentChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-indigo-100 font-bold" placeholder="E.g. REG-001" />
                             </div>
                             <div className="flex flex-col gap-2">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Admission Type</label>
-                                <select name="admissionType" required value={studentForm.admissionType} onChange={handleStudentChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-indigo-100 font-bold appearance-none">
-                                    <option value="new">New Student (Requires Onboarding)</option>
-                                    <option value="existing">Existing Student</option>
-                                </select>
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Meeting Link</label>
+                                <input type="text" name="meetingLink" value={studentForm.meetingLink} onChange={handleStudentChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-indigo-100 font-bold" placeholder="Google Meet Link" />
                             </div>
                             <div className="flex flex-col gap-2">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Subject</label>
-                                <select name="subject" required value={studentForm.subject} onChange={handleStudentChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-indigo-100 font-bold appearance-none">
-                                    <option value="" disabled>Select Subject</option>
-                                    <option value="Mathematics">Mathematics</option>
-                                    <option value="Physics">Physics</option>
-                                    <option value="Chemistry">Chemistry</option>
-                                    <option value="Biology">Biology</option>
-                                    <option value="Science">Science</option>
-                                    <option value="English">English</option>
-                                    <option value="All Subjects">All Subjects</option>
-                                </select>
-                            </div>
-                            <div className="flex flex-col gap-2">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Course</label>
-                                <select name="course" required value={studentForm.course} onChange={handleStudentChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-indigo-100 font-bold appearance-none">
-                                    <option value="" disabled>Select Course</option>
-                                    {coursesList.map(c => <option key={c} value={c}>{c}</option>)}
-                                </select>
-                            </div>
-                            <div className="flex flex-col gap-2">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Assigned Faculty</label>
-                                <select name="facultyId" required value={studentForm.facultyId} onChange={handleStudentChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-indigo-100 font-bold appearance-none">
-                                    <option value="" disabled>Select Faculty</option>
-                                    {faculties.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
-                                </select>
-                            </div>
-                            <div className="flex flex-col gap-2">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Assigned Mentor</label>
-                                <select name="mentorId" required value={studentForm.mentorId} onChange={handleStudentChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-indigo-100 font-bold appearance-none">
-                                    <option value="" disabled>Select Mentor</option>
-                                    {mentors.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
-                                </select>
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Faculty Payment (Per Hour)</label>
+                                <input type="number" name="facultyHourlyRate" value={studentForm.facultyHourlyRate} onChange={handleStudentChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-indigo-100 font-bold" placeholder="Rate in ₹" />
                             </div>
                             <div className="flex flex-col gap-2">
                                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Session Hour</label>
@@ -187,6 +224,54 @@ const Registrations = () => {
                             <div className="flex flex-col gap-2">
                                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Next Installment Date</label>
                                 <input type="date" name="nextInstallmentDate" value={studentForm.nextInstallmentDate} onChange={handleStudentChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-indigo-100 font-bold" />
+                            </div>
+
+                            {/* Multiple Subjects & Faculties */}
+                            <div className="md:col-span-2 space-y-4">
+                                <div className="flex items-center justify-between">
+                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Subjects & Assigned Faculties</label>
+                                    <button type="button" onClick={addSubjectRow} className="text-[10px] font-black text-indigo-600 uppercase tracking-widest hover:text-indigo-800 transition-colors bg-indigo-50 px-3 py-1.5 rounded-lg border border-indigo-100">
+                                        + Add Subject
+                                    </button>
+                                </div>
+                                
+                                {selectedSubjects.map((row, idx) => (
+                                    <div key={idx} className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50/50 p-4 rounded-2xl border border-slate-100 relative group animate-in slide-in-from-right-2 duration-300">
+                                        {selectedSubjects.length > 1 && (
+                                            <button type="button" onClick={() => removeSubjectRow(idx)} className="absolute -top-2 -right-2 w-6 h-6 bg-rose-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-sm">
+                                                ×
+                                            </button>
+                                        )}
+                                        <div className="flex flex-col gap-1.5">
+                                            <select 
+                                                required 
+                                                value={row.subject} 
+                                                onChange={(e) => handleSubjectChange(idx, 'subject', e.target.value)} 
+                                                className="w-full p-3 bg-white border border-slate-100 rounded-xl text-xs outline-none focus:ring-2 focus:ring-indigo-100 font-bold appearance-none"
+                                            >
+                                                <option value="" disabled>Subject</option>
+                                                <option value="Mathematics">Mathematics</option>
+                                                <option value="Physics">Physics</option>
+                                                <option value="Chemistry">Chemistry</option>
+                                                <option value="Biology">Biology</option>
+                                                <option value="Science">Science</option>
+                                                <option value="English">English</option>
+                                                <option value="All Subjects">All Subjects</option>
+                                            </select>
+                                        </div>
+                                        <div className="flex flex-col gap-1.5">
+                                            <select 
+                                                required 
+                                                value={row.facultyId} 
+                                                onChange={(e) => handleSubjectChange(idx, 'facultyId', e.target.value)} 
+                                                className="w-full p-3 bg-white border border-slate-100 rounded-xl text-xs outline-none focus:ring-2 focus:ring-indigo-100 font-bold appearance-none"
+                                            >
+                                                <option value="" disabled>Assign Faculty</option>
+                                                {faculties.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
+                                            </select>
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
                             <div className="md:col-span-2 bg-indigo-50/50 p-4 rounded-xl border border-indigo-100 flex items-start gap-4">
                                 <Clock className="text-indigo-400 flex-shrink-0 mt-0.5" size={20} />

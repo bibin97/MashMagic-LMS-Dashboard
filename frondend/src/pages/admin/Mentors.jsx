@@ -13,6 +13,8 @@ const Mentors = () => {
     const [filteredMentors, setFilteredMentors] = useState([]);
     const [loading, setLoading] = useState(true);
     const [selectedMentor, setSelectedMentor] = useState(null);
+    const [mentorStudents, setMentorStudents] = useState([]);
+    const [loadingStudents, setLoadingStudents] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [editFormData, setEditFormData] = useState({
@@ -51,9 +53,20 @@ const Mentors = () => {
         setFilteredMentors(filtered);
     };
 
-    const handleView = (mentor) => {
+    const handleView = async (mentor) => {
         setSelectedMentor(mentor);
         setIsModalOpen(true);
+        setLoadingStudents(true);
+        try {
+            const res = await api.get(`/admin/students?mentor_id=${mentor.id}`);
+            if (res.data.success) {
+                setMentorStudents(res.data.data);
+            }
+        } catch (error) {
+            console.error("Failed to fetch mentor students");
+        } finally {
+            setLoadingStudents(false);
+        }
     };
 
     const handleEdit = (mentor) => {
@@ -250,13 +263,23 @@ const Mentors = () => {
                         <div className="grid grid-cols-2 gap-6">
                             <div className="bg-white border border-slate-100 rounded-2xl p-6">
                                 <h5 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Assigned Students</h5>
-                                <div className="space-y-3">
-                                    {[...Array(5)].map((_, i) => (
-                                        <div key={i} className="flex justify-between items-center p-3 rounded-xl border border-slate-50 hover:bg-slate-50 transition-all cursor-default group">
-                                            <span className="text-sm font-semibold text-slate-700 group-hover:text-blue-600 transition-colors">Student {i + 1}</span>
-                                            <span className="text-xs font-bold text-slate-400">Grade {10 - i}</span>
+                                <div className="space-y-3 max-h-[300px] overflow-y-auto pr-2">
+                                    {loadingStudents ? (
+                                        <div className="text-center py-4 text-[10px] font-black text-slate-400 animate-pulse">FETCHING STUDENTS...</div>
+                                    ) : mentorStudents.length > 0 ? mentorStudents.map((student) => (
+                                        <div key={student.id} className="flex justify-between items-center p-4 rounded-2xl border border-slate-50 hover:bg-slate-50 transition-all cursor-default group">
+                                            <div className="flex flex-col">
+                                                <span className="text-sm font-bold text-slate-700 group-hover:text-blue-600 transition-colors uppercase italic">{student.name}</span>
+                                                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{student.registration_number || 'NO_REG'}</span>
+                                            </div>
+                                            <div className="flex flex-col items-end">
+                                                <span className="text-[10px] font-black text-blue-500 uppercase">{student.course}</span>
+                                                <span className="text-[8px] font-bold text-slate-400 uppercase">{student.grade}</span>
+                                            </div>
                                         </div>
-                                    ))}
+                                    )) : (
+                                        <div className="text-center py-4 text-[10px] font-black text-slate-300 uppercase tracking-widest">No students assigned</div>
+                                    )}
                                 </div>
                             </div>
                             <div className="bg-white border border-slate-100 rounded-2xl p-6">
