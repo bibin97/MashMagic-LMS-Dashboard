@@ -31,8 +31,11 @@ const register = async (req, res) => {
             });
         }
 
+        const trimmedPassword = password.trim();
+        const normalizedEmail = email ? email.toLowerCase().trim() : null;
+
         const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(password, salt);
+        const hashedPassword = await bcrypt.hash(trimmedPassword, salt);
 
         // If no super_admin exists and targetRole is super_admin, make it active
         // Otherwise, if any other role, make it pending
@@ -50,8 +53,8 @@ const register = async (req, res) => {
 
         const userPayload = {
             name,
-            email: email || null,
-            phone_number: req.body.phone_number || null,
+            email: normalizedEmail,
+            phone_number: req.body.phone_number ? req.body.phone_number.trim() : null,
             place: req.body.place || null,
             password: hashedPassword,
             role: finalRole,
@@ -119,12 +122,13 @@ const mentorSignup = async (req, res) => {
             return res.status(400).json({ success: false, message: "Phone number already registered" });
         }
 
+        const trimmedPassword = password.trim();
         const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(password, salt);
+        const hashedPassword = await bcrypt.hash(trimmedPassword, salt);
 
         const userId = await User.create({
             name,
-            phone_number,
+            phone_number: phone_number.trim(),
             place,
             password: hashedPassword,
             role: 'mentor',
@@ -156,12 +160,13 @@ const facultySignup = async (req, res) => {
             return res.status(400).json({ success: false, message: "Phone number already registered" });
         }
 
+        const trimmedPassword = password.trim();
         const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(password, salt);
+        const hashedPassword = await bcrypt.hash(trimmedPassword, salt);
 
         const userId = await User.create({
             name,
-            phone_number,
+            phone_number: phone_number.trim(),
             place,
             password: hashedPassword,
             role: 'faculty',
@@ -189,20 +194,20 @@ const login = async (req, res) => {
             return res.status(400).json({ success: false, message: "Please provide credentials" });
         }
 
-        const user = await User.findByIdentifier(identifier);
+        // Try lookup with normalized identifier
+        const normalizedIdentifier = identifier.includes('@') ? identifier.toLowerCase() : identifier;
+        const user = await User.findByIdentifier(normalizedIdentifier);
 
         if (!user) {
-            console.log(`[LOGIN FAILED] Identifier NOT FOUND: ${identifier}`);
+            console.log(`[LOGIN FAILED] Identifier NOT FOUND: ${normalizedIdentifier}`);
             return res.status(401).json({ success: false, message: "Invalid credentials" });
         }
 
-        // We trim password here because non-technical users often copy-paste from WhatsApp 
-        // with hidden trailing spaces/newlines which breaks bcrypt.
         const trimmedPassword = password.trim();
         const isMatch = await bcrypt.compare(trimmedPassword, user.password);
 
         if (!isMatch) {
-            console.log(`[LOGIN FAILED] Password mismatch for: ${identifier} (Attempted: ${trimmedPassword})`);
+            console.log(`[LOGIN FAILED] Password mismatch for: ${normalizedIdentifier}`);
             return res.status(401).json({ success: false, message: "Invalid credentials" });
         }
 

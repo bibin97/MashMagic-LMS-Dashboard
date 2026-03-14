@@ -323,19 +323,26 @@ const updateUserForAdmin = async (req, res) => {
 // @route   GET /api/admin/students
 const getAllStudentsForAdmin = async (req, res) => {
     try {
-        const { startDate, endDate, category } = req.query;
+        const { startDate, endDate, category, search, sortBy, mentor_id } = req.query;
         let sql = `
             SELECT 
-                id, roll_number, name, grade, course, hour, 
+                id, roll_number, registration_number, name, grade, course, hour, 
                 mentor_name as mentor, faculty_name as faculty, 
                 subject, time_table as timetable, 
                 next_installment_date as nextInstallment, 
                 status, onboarding_status, 
                 attendance_percentage, performance_status,
-                created_at 
+                course_completed,
+                created_at,
+                mentor_id
             FROM students WHERE 1=1
         `;
         let params = [];
+
+        if (mentor_id) {
+            sql += ' AND mentor_id = ?';
+            params.push(mentor_id);
+        }
 
         if (startDate) {
             sql += ' AND created_at >= ?';
@@ -352,7 +359,16 @@ const getAllStudentsForAdmin = async (req, res) => {
             sql += ' AND status IN ("inactive", "rejected", "completed")';
         }
 
-        sql += ' ORDER BY created_at DESC';
+        if (search) {
+            sql += ' AND (name LIKE ? OR registration_number LIKE ?)';
+            params.push(`%${search}%`, `%${search}%`);
+        }
+
+        if (sortBy === 'oldest') {
+            sql += ' ORDER BY created_at ASC';
+        } else {
+            sql += ' ORDER BY created_at DESC';
+        }
 
         const [rows] = await db.query(sql, params);
         res.status(200).json({ success: true, count: rows.length, data: rows });
@@ -703,6 +719,32 @@ module.exports = {
             res.status(200).json({ success: true, data: fullRangeData });
         } catch (error) {
             console.error("TASK_ANALYTICS_ERROR:", error);
+            res.status(500).json({ success: false, message: error.message });
+        }
+    },
+    // @desc    Get currently running sessions across the platform
+    // @route   GET /api/admin/live-monitoring
+    getLiveMonitoring: async (req, res) => {
+        try {
+            const [rows] = await db.query(`
+                SELECT 
+                    fs.id, fs.topic, fs.date, fs.start_time, fs.end_time, fs.status,
+                    u.name as faculty_name,
+                    s.name as student_name,
+                    s.meeting_link,
+                    s.registration_number,
+                    m.name as mentor_name
+                FROM faculty_sessions fs
+                JOIN users u ON fs.faculty_id = u.id
+                JOIN session_attendance sa ON fs.id = sa.session_id
+                JOIN students s ON sa.student_id = s.id
+                LEFT JOIN users m ON s.mentor_id = m.id
+                WHERE fs.date = CURDATE()
+                ORDER BY fs.start_time ASC
+            `);
+            res.status(200).json({ success: true, count: rows.length, data: rows });
+        } catch (error) {
+            console.error("LIVE_MONITORING_ERROR:", error);
             res.status(500).json({ success: false, message: error.message });
         }
     }

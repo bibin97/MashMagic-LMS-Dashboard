@@ -7,10 +7,10 @@ const { requireRole } = require('../middleware/roleMiddleware');
 // All task routes require authentication
 router.use(requireAuth);
 
-// Admin only routes for creating/deleting
+// Admin and Mentor Head routes for creating/deleting
 router.get('/', getTasks);
-router.post('/', requireRole('super_admin', 'admin', 'academic_head'), createTask);
-router.delete('/:id', requireRole('super_admin', 'admin', 'academic_head'), deleteTask);
+router.post('/', requireRole('super_admin', 'admin', 'academic_head', 'mentor_head'), createTask);
+router.delete('/:id', requireRole('super_admin', 'admin', 'academic_head', 'mentor_head'), deleteTask);
 
 // Status update can be done by mentor or admin
 router.put('/:id/status', updateTaskStatus);

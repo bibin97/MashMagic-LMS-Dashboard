@@ -7,9 +7,11 @@ const getTasks = async (req, res) => {
     try {
         const { startDate, endDate, category } = req.query;
         let sql = `
-            SELECT t.*, u.name as mentor_name, u.email as mentor_email 
+            SELECT t.*, u.name as mentor_name, u.email as mentor_email, 
+                   creator.name as assigner_name, creator.role as assigner_role
             FROM tasks t 
             LEFT JOIN users u ON t.assigned_to = u.id 
+            LEFT JOIN users creator ON t.assigned_by = creator.id
             WHERE 1=1
         `;
         let params = [];
@@ -35,9 +37,13 @@ const getTasks = async (req, res) => {
         if (req.user.role === 'academic_head') {
             sql += ' AND t.assigned_by = ?';
             params.push(req.user.id);
-        } else if (req.user.role === 'mentor' || req.user.role === 'faculty' || req.user.role === 'mentor_head') {
+        } else if (req.user.role === 'mentor' || req.user.role === 'faculty') {
             sql += ' AND t.assigned_to = ?';
             params.push(req.user.id);
+        } else if (req.user.role === 'mentor_head') {
+            // Mentor head can see tasks they created, tasks assigned to them, AND tasks assigned to any mentor
+            sql += ' AND (t.assigned_by = ? OR t.assigned_to = ? OR u.role = "mentor")';
+            params.push(req.user.id, req.user.id);
         } else if (req.user.role !== 'super_admin' && req.user.role !== 'admin') {
             return res.status(200).json({ success: true, count: 0, data: [] });
         }

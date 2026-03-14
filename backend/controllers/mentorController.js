@@ -6,37 +6,97 @@ const getMentorDashboard = async (req, res) => {
     try {
         const mentorId = req.user.id;
 
-        // Stats queries
-        let studentCount, sessionCount, pendingTasks, completedTasks;
+        // Helper to run query safely
+        const safeQuery = async (query, params, label) => {
+            try {
+                const [result] = await db.query(query, params);
+                return result;
+            } catch (err) {
+                console.error(`[Dashboard Error] ${label}:`, err.message);
+                return [];
+            }
+        };
 
-        try {
-            [studentCount] = await db.query('SELECT COUNT(*) as count FROM students WHERE mentor_id = ?', [mentorId]);
-        } catch (err) { console.error("Error fetching students count:", err); throw err; }
+        const studentCount = await safeQuery('SELECT COUNT(*) as count FROM students WHERE mentor_id = ?', [mentorId], 'studentCount');
+        const sessionCount = await safeQuery('SELECT COUNT(*) as count FROM mentor_timetable WHERE mentor_id = ?', [mentorId], 'sessionCount');
+        const pendingTasks = await safeQuery('SELECT COUNT(*) as count FROM tasks WHERE assigned_to = ? AND status != "Completed"', [mentorId], 'pendingTasks');
+        const completedTasks = await safeQuery('SELECT COUNT(*) as count FROM tasks WHERE assigned_to = ? AND status = "Completed"', [mentorId], 'completedTasks');
+        const studentLogsCount = await safeQuery('SELECT COUNT(*) as count FROM student_interaction_logs WHERE mentor_id = ?', [mentorId], 'studentLogsCount');
+        const facultyLogsCount = await safeQuery('SELECT COUNT(*) as count FROM faculty_interaction_logs WHERE mentor_id = ?', [mentorId], 'facultyLogsCount');
 
-        try {
-            [sessionCount] = await db.query('SELECT COUNT(*) as count FROM mentor_timetable WHERE mentor_id = ?', [mentorId]);
-        } catch (err) { console.error("Error fetching timetable count:", err); throw err; }
+        const sessionStats = await safeQuery(`
+            SELECT 
+                (SELECT COUNT(*) FROM mentor_timetable WHERE mentor_id = ? AND status = 'Completed') as completed_sessions,
+                (SELECT COUNT(*) FROM student_interaction_logs WHERE mentor_id = ?) as student_verified_sessions,
+                (SELECT COUNT(*) FROM faculty_interaction_logs WHERE mentor_id = ?) as faculty_verified_sessions
+        `, [mentorId, mentorId, mentorId], 'sessionStats');
 
-        try {
-            [pendingTasks] = await db.query('SELECT COUNT(*) as count FROM tasks WHERE assigned_to = ? AND status != "Completed"', [mentorId]);
-        } catch (err) { console.error("Error fetching pending tasks:", err); throw err; }
+        const recentInteractions = await safeQuery(`
+            SELECT * FROM (
+                (SELECT sil.date as created_at, s.name as student_name, 'Student' as type, sil.mentor_notes as remarks, sil.self_clarity, sil.confidence, NULL as start_time, NULL as end_time
+                 FROM student_interaction_logs sil
+                 JOIN students s ON sil.student_id = s.id
+                 WHERE sil.mentor_id = ?)
+                UNION ALL
+                (SELECT fil.date as created_at, s.name as student_name, 'Faculty' as type, fil.notes as remarks, NULL as self_clarity, NULL as confidence, NULL as start_time, NULL as end_time
+                 FROM faculty_interaction_logs fil
+                 JOIN students s ON fil.student_id = s.id
+                 WHERE fil.mentor_id = ?)
+            ) as interactions
+            ORDER BY created_at DESC LIMIT 10
+        `, [mentorId, mentorId], 'recentInteractions');
 
-        try {
-            [completedTasks] = await db.query('SELECT COUNT(*) as count FROM tasks WHERE assigned_to = ? AND status = "Completed"', [mentorId]);
-        } catch (err) { console.error("Error fetching completed tasks:", err); throw err; }
+        const liveSessions = await safeQuery(`
+            SELECT DISTINCT fs.id, fs.faculty_id, fs.topic, fs.date, fs.start_time, fs.end_time, fs.status, u.name as faculty_name, 1 as is_live, s.meeting_link, s.registration_number, s.name as student_name
+            FROM faculty_sessions fs
+            JOIN users u ON fs.faculty_id = u.id
+            JOIN session_attendance sa ON fs.id = sa.session_id
+            JOIN students s ON sa.student_id = s.id
+            WHERE s.mentor_id = ? AND fs.date = CURDATE() AND CURTIME() BETWEEN fs.start_time AND fs.end_time
+            ORDER BY fs.start_time ASC
+        `, [mentorId], 'liveSessions');
+
+        const upcomingSessions = await safeQuery(`
+            SELECT DISTINCT fs.id, fs.faculty_id, fs.topic, fs.date, fs.start_time, fs.end_time, fs.status, u.name as faculty_name, 0 as is_live
+            FROM faculty_sessions fs
+            JOIN users u ON fs.faculty_id = u.id
+            JOIN session_attendance sa ON fs.id = sa.session_id
+            JOIN students s ON sa.student_id = s.id
+            WHERE s.mentor_id = ? AND ((fs.date = CURDATE() AND fs.start_time > CURTIME()) OR fs.date > CURDATE())
+            ORDER BY fs.date ASC, fs.start_time ASC
+            LIMIT 10
+        `, [mentorId], 'upcomingSessions');
+
+        const pastSessions = await safeQuery(`
+            SELECT DISTINCT fs.id, fs.faculty_id, fs.topic, fs.date, fs.start_time, fs.end_time, fs.status, u.name as faculty_name, 0 as is_live
+            FROM faculty_sessions fs
+            JOIN users u ON fs.faculty_id = u.id
+            JOIN session_attendance sa ON fs.id = sa.session_id
+            JOIN students s ON sa.student_id = s.id
+            WHERE s.mentor_id = ? AND ((fs.date = CURDATE() AND fs.end_time < CURTIME()) OR fs.date < CURDATE())
+            ORDER BY fs.date DESC, fs.end_time DESC
+            LIMIT 10
+        `, [mentorId], 'pastSessions');
 
         res.status(200).json({
             success: true,
             data: {
-                totalStudents: studentCount[0].count,
-                totalSessions: sessionCount[0].count,
-                pendingTasks: pendingTasks[0].count,
-                completedTasks: completedTasks[0].count
+                totalStudents: studentCount[0]?.count || 0,
+                totalSessions: sessionCount[0]?.count || 0,
+                pendingTasks: pendingTasks[0]?.count || 0,
+                completedTasks: completedTasks[0]?.count || 0,
+                totalStudentInteractions: studentLogsCount[0]?.count || 0,
+                totalFacultyInteractions: facultyLogsCount[0]?.count || 0,
+                audit: sessionStats[0] || { completed_sessions: 0, student_verified_sessions: 0, faculty_verified_sessions: 0 },
+                recentInteractions,
+                liveSessions,
+                upcomingSessions,
+                pastSessions
             }
         });
     } catch (error) {
-        console.error("Dashboard Error:", error);
-        res.status(500).json({ success: false, message: error.message });
+        console.error("FATAL DASHBOARD ERROR:", error);
+        res.status(500).json({ success: false, message: "Internal Dashboard Error" });
     }
 };
 
@@ -47,6 +107,7 @@ const getMentorStudents = async (req, res) => {
         const mentorId = req.user.id;
         const [rows] = await db.query(`
             SELECT s.*, 
+            (SELECT COUNT(*) FROM mentor_timetable mt WHERE mt.student_id = s.id AND mt.status != 'Cancelled') as session_count,
             CASE WHEN EXISTS (
                 SELECT 1 FROM student_interaction_logs sil 
                 WHERE sil.student_id = s.id AND sil.date = CURDATE() AND sil.connected_today = TRUE
@@ -102,7 +163,13 @@ const getStudentDetails = async (req, res) => {
 const getMentorTasks = async (req, res) => {
     try {
         const mentorId = req.user.id;
-        const [rows] = await db.query('SELECT * FROM tasks WHERE assigned_to = ? ORDER BY created_at DESC', [mentorId]);
+        const [rows] = await db.query(`
+            SELECT t.*, u.name as assigner_name, u.role as assigner_role 
+            FROM tasks t 
+            LEFT JOIN users u ON t.assigned_by = u.id 
+            WHERE t.assigned_to = ? 
+            ORDER BY t.created_at DESC
+        `, [mentorId]);
         res.status(200).json({ success: true, data: rows });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
@@ -111,13 +178,13 @@ const getMentorTasks = async (req, res) => {
 
 // @desc    Complete mentor task
 // @route   PUT /api/mentor/tasks/:id/complete
-const completeMentorTask = async (req, res) => {
+const processMentorTaskCompletion = async (req, res) => {
     try {
         const mentorId = req.user.id;
         const taskId = req.params.id;
 
         const [result] = await db.query(
-            'UPDATE tasks SET status = "Completed", completed_at = CURRENT_TIMESTAMP WHERE id = ? AND assigned_to = ?',
+            'UPDATE tasks SET status = "Completed" WHERE id = ? AND assigned_to = ?',
             [taskId, mentorId]
         );
 
@@ -142,9 +209,14 @@ const getMentorTimetable = async (req, res) => {
             SELECT t.*, s.name as student_name 
             FROM mentor_timetable t
             JOIN students s ON t.student_id = s.id
-            WHERE t.mentor_id = ?
+            WHERE 1=1
         `;
-        const params = [mentorId];
+        const params = [];
+
+        if (req.user.role === 'mentor') {
+            query += ' AND t.mentor_id = ?';
+            params.push(mentorId);
+        }
 
         if (student_id) {
             query += ' AND t.student_id = ?';
@@ -157,6 +229,12 @@ const getMentorTimetable = async (req, res) => {
         if (start_date && end_date) {
             query += ' AND t.date BETWEEN ? AND ?';
             params.push(start_date, end_date);
+        } else if (start_date) {
+            query += ' AND t.date >= ?';
+            params.push(start_date);
+        } else if (end_date) {
+            query += ' AND t.date <= ?';
+            params.push(end_date);
         }
 
         query += ' ORDER BY t.date DESC, t.start_time DESC';
@@ -640,59 +718,45 @@ const createBatchTimetable = async (req, res) => {
 const getPendingExams = async (req, res) => {
     try {
         const mentorId = req.user.id;
-
-        // 1. Get all active students for this mentor
         const [students] = await db.query('SELECT id, name FROM students WHERE mentor_id = ? AND status = "active"', [mentorId]);
-
         let pendingExams = [];
-
         for (const student of students) {
-            // 2. Get current session number milestone for this student
-            const [rows] = await db.query(
-                'SELECT MAX(session_number) as current_max FROM mentor_timetable WHERE student_id = ? AND status != "Cancelled"',
-                [student.id]
-            );
-
+            const [rows] = await db.query('SELECT MAX(session_number) as current_max FROM mentor_timetable WHERE student_id = ? AND status != "Cancelled"', [student.id]);
             const currentMax = rows[0].current_max || 0;
-
-            // 3. For every 5 sessions (5, 10, 15...), check if an exam record exists
             for (let milestone = 5; milestone <= currentMax; milestone += 5) {
-                const [existing] = await db.query(
-                    'SELECT id, status, score, postponed_date FROM student_exams WHERE student_id = ? AND milestone_session = ?',
-                    [student.id, milestone]
-                );
-
-                if (existing.length === 0) {
+                const [existing] = await db.query('SELECT id, status, score, chapter, portions, exam_type, scheduled_date FROM student_exams WHERE student_id = ? AND milestone_session = ?', [student.id, milestone]);
+                if (existing.length === 0 || existing[0].status !== 'Completed') {
                     pendingExams.push({
+                        id: existing.length > 0 ? existing[0].id : null,
                         student_id: student.id,
                         student_name: student.name,
                         milestone: milestone,
-                        status: 'Required',
-                        session_count: currentMax
+                        status: existing.length > 0 ? existing[0].status : 'Pending',
+                        session_count: currentMax,
+                        chapter: existing.length > 0 ? existing[0].chapter : null,
+                        portions: existing.length > 0 ? existing[0].portions : null,
+                        exam_type: existing.length > 0 ? existing[0].exam_type : 'MCQ',
+                        scheduled_date: existing.length > 0 ? existing[0].scheduled_date : null
                     });
-                } else if (existing[0].status === 'Postponed') {
-                    const postponedDate = new Date(existing[0].postponed_date);
-                    const today = new Date();
-                    today.setHours(0, 0, 0, 0);
-
-                    if (today >= postponedDate) {
-                        pendingExams.push({
-                            id: existing[0].id,
-                            student_id: student.id,
-                            student_name: student.name,
-                            milestone: milestone,
-                            status: 'Postponed (Due)',
-                            session_count: currentMax,
-                            postponed_date: existing[0].postponed_date
-                        });
-                    }
                 }
             }
         }
-
         res.status(200).json({ success: true, data: pendingExams });
     } catch (error) {
         console.error("Get Pending Exams Error:", error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+// @desc    Get completed exam history for mentor's students
+// @route   GET /api/mentor/exams/history
+const getExamHistory = async (req, res) => {
+    try {
+        const mentorId = req.user.id;
+        const [history] = await db.query(`SELECT se.*, s.name as student_name FROM student_exams se JOIN students s ON se.student_id = s.id WHERE se.mentor_id = ? ORDER BY se.created_at DESC`, [mentorId]);
+        res.status(200).json({ success: true, data: history });
+    } catch (error) {
+        console.error("Get Exam History Error:", error);
         res.status(500).json({ success: false, message: error.message });
     }
 };
@@ -710,25 +774,19 @@ const submitExamResult = async (req, res) => {
 
         if (type === 'Complete') {
             if (!score) return res.status(400).json({ success: false, message: "Score is required for completion" });
-
             await db.query(`
                 INSERT INTO student_exams (student_id, mentor_id, milestone_session, score, status)
                 VALUES (?, ?, ?, ?, 'Completed')
                 ON DUPLICATE KEY UPDATE score = VALUES(score), status = 'Completed', postponed_date = NULL, reason = NULL
             `, [student_id, mentorId, milestone, score]);
-
             res.status(200).json({ success: true, message: "Exam score submitted successfully" });
         } else if (type === 'Postpone') {
-            if (!postponed_date || !reason) {
-                return res.status(400).json({ success: false, message: "Postponed date and reason are required" });
-            }
-
+            if (!postponed_date || !reason) return res.status(400).json({ success: false, message: "Postponed date and reason are required" });
             await db.query(`
                 INSERT INTO student_exams (student_id, mentor_id, milestone_session, status, postponed_date, reason)
                 VALUES (?, ?, ?, 'Postponed', ?, ?)
                 ON DUPLICATE KEY UPDATE status = 'Postponed', postponed_date = VALUES(postponed_date), reason = VALUES(reason)
             `, [student_id, mentorId, milestone, postponed_date, reason]);
-
             res.status(200).json({ success: true, message: "Exam postponed successfully" });
         } else {
             res.status(400).json({ success: false, message: "Invalid submission type" });
@@ -739,25 +797,13 @@ const submitExamResult = async (req, res) => {
     }
 };
 
-// --- Daily Hours Log ---
 const logDailyHours = async (req, res) => {
     try {
         const mentorId = req.user.id;
         const { student_id, hours, date } = req.body;
-
-        if (!student_id || !hours || !date) {
-            return res.status(400).json({ success: false, message: 'Student ID, hours, and date are required' });
-        }
-
+        if (!student_id || !hours || !date) return res.status(400).json({ success: false, message: 'Student ID, hours, and date are required' });
         const formattedDate = new Date(date).toISOString().split('T')[0];
-
-        // Upsert daily log
-        await db.query(`
-            INSERT INTO daily_hours_log (student_id, mentor_id, hours, date)
-            VALUES (?, ?, ?, ?)
-            ON DUPLICATE KEY UPDATE hours = VALUES(hours)
-        `, [student_id, mentorId, hours, formattedDate]);
-
+        await db.query(`INSERT INTO daily_hours_log (student_id, mentor_id, hours, date) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE hours = VALUES(hours)`, [student_id, mentorId, hours, formattedDate]);
         res.status(200).json({ success: true, message: 'Daily hours logged successfully' });
     } catch (error) {
         console.error("Error logging daily hours:", error);
@@ -776,12 +822,35 @@ const getDailyHours = async (req, res) => {
     }
 };
 
+// @desc    Get full academic schedule for mentor's students
+// @route   GET /api/mentor/academic-schedule
+const getAcademicSchedule = async (req, res) => {
+    try {
+        const mentorId = req.user.id;
+        console.log(`[AcademicSchedule] Fetching for Mentor ID: ${mentorId}`);
+
+        const [rows] = await db.query(`
+            SELECT DISTINCT fs.id, fs.faculty_id, fs.topic, fs.date, fs.status, u.name as faculty_name
+            FROM faculty_sessions fs
+            JOIN users u ON fs.faculty_id = u.id
+            JOIN session_attendance sa ON fs.id = sa.session_id
+            JOIN students s ON sa.student_id = s.id
+            WHERE s.mentor_id = ?
+            ORDER BY fs.date DESC
+        `, [mentorId]);
+        res.status(200).json({ success: true, data: rows });
+    } catch (error) {
+        console.error("Academic Schedule Error Detail:", error);
+        res.status(500).json({ success: false, message: "Academic Schedule retrieval failed", error: error.message });
+    }
+};
+
 module.exports = {
     getMentorDashboard,
     getMentorStudents,
     getStudentDetails,
     getMentorTasks,
-    completeMentorTask,
+    completeMentorTask: processMentorTaskCompletion,
     getMentorTimetable,
     createSession,
     updateSession,
@@ -793,12 +862,12 @@ module.exports = {
     getStudentLogs,
     getFacultyLogs,
     toggleStudentConnection,
-
+    getAcademicSchedule,
     completeOnboarding,
     createBatchTimetable,
     getPendingExams,
+    getExamHistory,
     submitExamResult,
     logDailyHours,
     getDailyHours
 };
-

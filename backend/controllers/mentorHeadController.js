@@ -165,19 +165,19 @@ exports.getMentorStudents = async (req, res) => {
 exports.getMentorInteractionLogs = async (req, res) => {
     try {
         const [studentLogs] = await db.query(`
-            SELECT sil.*, s.name as student_name, m.name as mentor_name, 'Student' as type
+            SELECT sil.*, sil.created_at, s.name as student_name, m.name as mentor_name, 'Student' as type
             FROM student_interaction_logs sil
             JOIN students s ON sil.student_id = s.id
             JOIN users m ON sil.mentor_id = m.id
-            ORDER BY sil.date DESC
+            ORDER BY sil.created_at DESC
         `);
 
         const [facultyLogs] = await db.query(`
-            SELECT fil.*, s.name as student_name, m.name as mentor_name, 'Faculty' as type
+            SELECT fil.*, fil.created_at, s.name as student_name, m.name as mentor_name, 'Faculty' as type
             FROM faculty_interaction_logs fil
             JOIN students s ON fil.student_id = s.id
             JOIN users m ON fil.mentor_id = m.id
-            ORDER BY fil.date DESC
+            ORDER BY fil.created_at DESC
         `);
 
         res.status(200).json({
@@ -629,7 +629,17 @@ exports.getFaculties = async (req, res) => {
 
 exports.getStudents = async (req, res) => {
     try {
-        const [rows] = await db.query('SELECT s.*, m.name as mentor_name, f.name as faculty_name FROM students s LEFT JOIN users m ON s.mentor_id = m.id LEFT JOIN users f ON s.faculty_id = f.id ORDER BY s.created_at DESC');
+        const { mentor_id } = req.query;
+        let query = 'SELECT s.*, m.name as mentor_name, f.name as faculty_name FROM students s LEFT JOIN users m ON s.mentor_id = m.id LEFT JOIN users f ON s.faculty_id = f.id';
+        let params = [];
+        
+        if (mentor_id) {
+            query += ' WHERE s.mentor_id = ?';
+            params.push(mentor_id);
+        }
+        
+        query += ' ORDER BY s.created_at DESC';
+        const [rows] = await db.query(query, params);
         res.status(200).json({ success: true, data: rows });
     } catch (error) { res.status(500).json({ success: false, message: error.message }); }
 };
@@ -664,6 +674,26 @@ exports.getMentors = async (req, res) => {
         `);
         res.status(200).json({ success: true, data: rows });
     } catch (error) { res.status(500).json({ success: false, message: error.message }); }
+};
+
+// @desc    Toggle Course Completed status for a student
+// @route   PUT /api/mentor-head/students/:studentId/course-complete
+exports.toggleCourseCompleted = async (req, res) => {
+    try {
+        const { studentId } = req.params;
+        const { isCompleted } = req.body;
+
+        await db.query('UPDATE students SET course_completed = ? WHERE id = ?', [isCompleted ? 1 : 0, studentId]);
+
+        const [[student]] = await db.query('SELECT name FROM students WHERE id = ?', [studentId]);
+        const statusMsg = isCompleted ? 'marked as Course Completed' : 'unmarked from Course Completed';
+        await db.query('INSERT INTO admin_notifications (message) VALUES (?)', [`Mentor Head (${req.user.name}) ${statusMsg} for student: ${student.name}`]);
+
+        res.status(200).json({ success: true, message: `Student ${statusMsg}` });
+    } catch (error) {
+        console.error('Error in toggleCourseCompleted:', error);
+        res.status(500).json({ success: false, message: error.message });
+    }
 };
 
 // End of file cleanup

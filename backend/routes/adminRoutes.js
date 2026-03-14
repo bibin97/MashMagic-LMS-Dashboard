@@ -25,7 +25,8 @@ const {
     updateUserForAdmin,
     getExamAnalytics,
     getMentorDistribution,
-    getTaskAnalytics
+    getTaskAnalytics,
+    getLiveMonitoring
 } = require('../controllers/adminController');
 const { getDailyHours } = require('../controllers/mentorController');
 const { requireAuth } = require('../middleware/authMiddleware');
@@ -53,6 +54,7 @@ router.get('/mentor-head-report', requireRole('super_admin', 'admin'), getDailyM
 router.get('/exam-analytics', requireRole('super_admin', 'admin'), getExamAnalytics);
 router.get('/mentor-distribution', requireRole('super_admin', 'admin'), getMentorDistribution);
 router.get('/task-analytics', requireRole('super_admin', 'admin'), getTaskAnalytics);
+router.get('/live-monitoring', requireRole('super_admin', 'admin'), getLiveMonitoring);
 
 // Management & Destructive actions restricted to Super Admin only
 router.use(requireRole('super_admin'));

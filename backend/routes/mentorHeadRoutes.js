@@ -25,7 +25,8 @@ const {
     getMentors,
     getStudents,
     editMentor,
-    deleteMentor
+    deleteMentor,
+    toggleCourseCompleted
 } = require('../controllers/mentorHeadController');
 const { requireAuth } = require('../middleware/authMiddleware');
 const { requireRole } = require('../middleware/roleMiddleware');
@@ -50,6 +51,12 @@ router.delete('/students/:studentId/uncheck', uncheckStudent);
 router.get('/daily-summary', getDailySummary);
 router.get('/all-students', getAllStudents);
 router.get('/exam-analytics', getExamAnalytics);
+
+// Student Management for Mentor Head (Unified)
+router.get('/students-all', getStudents);
+router.put('/students/:id', editStudent);
+router.delete('/students/:id', deleteStudent);
+router.put('/students/:studentId/course-complete', toggleCourseCompleted);
 
 // Intelligence Hub Routes
 router.get('/mentor-logs', getMentorInteractionLogs);

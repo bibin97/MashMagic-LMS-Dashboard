@@ -4,6 +4,39 @@ const User = require('../models/userModel');
 
 // @desc    Get dashboard metrics and today's schedule
 // @route   GET /api/academic-head/dashboard
+const getExamAnalytics = async (req, res) => {
+    try {
+        const { student_id } = req.query;
+        let query = '';
+        let params = [];
+
+        if (student_id) {
+            query = `
+                SELECT 
+                    milestone_session as subject,
+                    CAST(score AS DECIMAL(10,2)) as percentage
+                FROM student_exams 
+                WHERE status = 'Completed' AND student_id = ?
+            `;
+            params.push(student_id);
+        } else {
+            query = `
+                SELECT 
+                    milestone_session as subject,
+                    AVG(CAST(score AS DECIMAL(10,2))) as percentage
+                FROM student_exams 
+                WHERE status = 'Completed'
+                GROUP BY milestone_session
+            `;
+        }
+
+        const [stats] = await db.query(query, params);
+        res.status(200).json({ success: true, data: stats });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
 const getDashboardStats = async (req, res) => {
     try {
         const today = new Date().toISOString().split('T')[0];
@@ -18,10 +51,10 @@ const getDashboardStats = async (req, res) => {
             SELECT 
                 tt.id, tt.start_time, tt.end_time, tt.chapter, tt.status,
                 s.name as student_name, s.subject,
-                u.name as mentor_name
+                u.name as faculty_name
             FROM mentor_timetable tt
             JOIN students s ON tt.student_id = s.id
-            JOIN users u ON tt.mentor_id = u.id
+            LEFT JOIN users u ON s.faculty_id = u.id
             WHERE tt.date = ?
             ORDER BY tt.start_time ASC
         `, [today]);
@@ -125,7 +158,8 @@ const getDropdownData = async (req, res) => {
 const registerStudent = async (req, res) => {
     try {
         const {
-            name, grade, subject, facultyId, mentorId, course, hour, nextInstallmentDate, admissionType
+            name, grade, mentorId, course, hour, nextInstallmentDate, admissionType,
+            registrationNumber, meetingLink, facultyHourlyRate, selectedSubjects
         } = req.body;
 
         if (!req.user || !req.user.id) {
@@ -134,16 +168,19 @@ const registerStudent = async (req, res) => {
 
         // Fetch names for legacy columns if needed
         let mentorName = null;
-        let facultyName = null;
+        let primaryFacultyId = null;
+        let primaryFacultyName = null;
+        let primarySubject = null;
 
         if (mentorId) {
             const [mRows] = await db.query('SELECT name FROM users WHERE id = ?', [mentorId]);
             if (mRows.length) mentorName = mRows[0].name;
         }
 
-        if (facultyId) {
-            const [fRows] = await db.query('SELECT name FROM users WHERE id = ?', [facultyId]);
-            if (fRows.length) facultyName = fRows[0].name;
+        if (selectedSubjects && selectedSubjects.length > 0) {
+            primaryFacultyId = selectedSubjects[0].facultyId;
+            primaryFacultyName = selectedSubjects[0].facultyName;
+            primarySubject = selectedSubjects[0].subject;
         }
 
         const onboardingStatus = admissionType === 'existing' ? 'completed' : 'pending';
@@ -152,32 +189,39 @@ const registerStudent = async (req, res) => {
             INSERT INTO students (
                 name, grade, subject, course, hour, 
                 mentor_id, mentor_name, faculty_id, faculty_name, next_installment_date,
-                time_table, status, onboarding_status, isApproved, registeredBy
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?)
+                time_table, status, onboarding_status, isApproved, registeredBy,
+                registration_number, meeting_link, faculty_hourly_rate, subjects_json
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, ?, ?)
         `;
 
         const [studentResult] = await db.query(query, [
-            name, grade, subject, course, hour,
-            mentorId || null, mentorName, facultyId || null, facultyName, nextInstallmentDate || null,
+            name, grade, primarySubject, course, hour,
+            mentorId || null, mentorName, primaryFacultyId || null, primaryFacultyName, nextInstallmentDate || null,
             JSON.stringify({}), // Empty timetable initially
             'pending', // This is global status (approval status)
             onboardingStatus,
-            req.user.id // Registering user ID
+            req.user.id, // Registering user ID
+            registrationNumber || null,
+            meetingLink || null,
+            facultyHourlyRate || 0,
+            JSON.stringify(selectedSubjects || [])
         ]);
 
         const studentId = studentResult.insertId;
 
-        // Schedule first session if mentor exists
-        if (mentorId) {
-            await db.query(`
-                INSERT INTO mentor_timetable (
-                    mentor_id, student_id, session_number, date, status, 
-                    chapter, start_time, end_time, duration, session_type
-                ) VALUES (?, ?, ?, CURDATE(), ?, ?, ?, ?, ?, ?)
-            `, [
-                mentorId, studentId, 1, 'Scheduled',
-                'Initial Introduction Session', '10:00', '11:00', '1h 0m', 'Regular Class'
-            ]);
+        // Schedule first session for each faculty if mentor exists
+        if (mentorId && selectedSubjects && selectedSubjects.length > 0) {
+            for (const sub of selectedSubjects) {
+                await db.query(`
+                    INSERT INTO mentor_timetable (
+                        mentor_id, student_id, session_number, date, status, 
+                        chapter, start_time, end_time, duration, session_type
+                    ) VALUES (?, ?, ?, CURDATE(), ?, ?, ?, ?, ?, ?)
+                `, [
+                    mentorId, studentId, 1, 'Scheduled',
+                    `Initial Session: ${sub.subject}`, '10:00', '11:00', '1h 0m', 'Regular Class'
+                ]);
+            }
         }
 
         res.status(201).json({ success: true, message: "Student registered successfully. Pending Admin approval." });
@@ -312,7 +356,7 @@ const getAcademicActions = async (req, res) => {
 
             for (let milestone = 5; milestone <= currentMax; milestone += 5) {
                 const [existing] = await db.query(
-                    'SELECT status, score FROM student_exams WHERE student_id = ? AND milestone_session = ?',
+                    'SELECT status, score, chapter, portions, exam_type, scheduled_date FROM student_exams WHERE student_id = ? AND milestone_session = ?',
                     [student.id, milestone]
                 );
 
@@ -323,6 +367,10 @@ const getAcademicActions = async (req, res) => {
                         milestone: milestone,
                         current_sessions: currentMax,
                         status: existing.length > 0 ? existing[0].status : 'Pending',
+                        chapter: existing.length > 0 ? existing[0].chapter : null,
+                        portions: existing.length > 0 ? existing[0].portions : null,
+                        exam_type: existing.length > 0 ? existing[0].exam_type : 'MCQ',
+                        scheduled_date: existing.length > 0 ? existing[0].scheduled_date : null,
                         mentor_id: student.mentor_id
                     });
                 }
@@ -377,9 +425,17 @@ const getDailyFacultyChecks = async (req, res) => {
                 fs.topic as topics_covered,
                 u.name as faculty_name,
                 u.id as faculty_id,
-                (SELECT COUNT(*) FROM faculty_verification WHERE session_id = fs.id) AS check_count
+                s.name as student_name,
+                s.id as student_id,
+                (SELECT COUNT(*) FROM faculty_verification WHERE session_id = fs.id) AS check_count,
+                (SELECT COUNT(DISTINCT fv.session_id) 
+                 FROM faculty_verification fv
+                 JOIN session_attendance sa2 ON fv.session_id = sa2.session_id
+                 WHERE sa2.student_id = s.id) as total_verified_for_student
             FROM faculty_sessions fs
             JOIN users u ON fs.faculty_id = u.id
+            JOIN session_attendance sa ON fs.id = sa.session_id
+            JOIN students s ON sa.student_id = s.id
             WHERE fs.status = 'Completed'
             ORDER BY fs.date DESC
         `;
@@ -439,16 +495,30 @@ const uncheckFacultySession = async (req, res) => {
 // @route   GET /api/academic-head/faculties
 const getFacultyDirectory = async (req, res) => {
     try {
-        const [faculties] = await db.query(`
-            SELECT id, name, email, phone_number, status, createdAt 
+        const { sortBy, startDate, endDate } = req.query;
+        
+        let query = `
+            SELECT id, name, email, phone_number, status, place, createdAt as created_at 
             FROM users 
             WHERE role = "faculty" 
-            ORDER BY name ASC
-        `);
+        `;
+
+        if (sortBy === 'newest') {
+            query += ' ORDER BY createdAt DESC';
+        } else if (sortBy === 'oldest') {
+            query += ' ORDER BY createdAt ASC';
+        } else {
+            query += ' ORDER BY name ASC';
+        }
+
+        const [faculties] = await db.query(query);
 
         const today = new Date().toISOString().split('T')[0];
+        const rangeStart = startDate || new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0]; // Default: Month start
+        const rangeEnd = endDate || today;
 
         const enrichedFaculties = await Promise.all(faculties.map(async (faculty) => {
+            // Student stats
             const [[{ studentCount }]] = await db.query(
                 'SELECT COUNT(*) as studentCount FROM students WHERE faculty_id = ? AND status = "active"',
                 [faculty.id]
@@ -458,6 +528,26 @@ const getFacultyDirectory = async (req, res) => {
                 'SELECT id, name, grade, subject FROM students WHERE faculty_id = ? AND status = "active"',
                 [faculty.id]
             );
+
+            // Time analytics (Total hours taken in range)
+            const [sessionsInRange] = await db.query(`
+                SELECT duration FROM faculty_sessions 
+                WHERE faculty_id = ? AND date BETWEEN ? AND ? AND status = 'Completed'
+            `, [faculty.id, rangeStart, rangeEnd]);
+
+            let totalMinutes = 0;
+            sessionsInRange.forEach(s => {
+                const match = s.duration.match(/(\d+)h\s*(\d+)m/);
+                if (match) {
+                    totalMinutes += (parseInt(match[1]) * 60) + parseInt(match[2]);
+                } else {
+                    const hMatch = s.duration.match(/(\d+)h/);
+                    if (hMatch) totalMinutes += parseInt(hMatch[1]) * 60;
+                    const mMatch = s.duration.match(/(\d+)m/);
+                    if (mMatch) totalMinutes += parseInt(mMatch[1]);
+                }
+            });
+            const totalHours = (totalMinutes / 60).toFixed(1);
 
             const [todaySchedule] = await db.query(`
                 SELECT fs.*, 
@@ -473,12 +563,26 @@ const getFacultyDirectory = async (req, res) => {
             return {
                 ...faculty,
                 studentCount,
+                totalHours: parseFloat(totalHours),
                 assignedStudents,
                 todaySchedule
             };
         }));
 
-        res.status(200).json({ success: true, count: faculties.length, data: enrichedFaculties });
+        // Secondary sorting for performance labels
+        let finalData = enrichedFaculties;
+        if (sortBy === 'most_students') {
+            finalData = [...enrichedFaculties].sort((a, b) => b.studentCount - a.studentCount);
+        } else if (sortBy === 'most_hours') {
+            finalData = [...enrichedFaculties].sort((a, b) => b.totalHours - a.totalHours);
+        }
+
+        res.status(200).json({ 
+            success: true, 
+            count: finalData.length, 
+            data: finalData,
+            range: { start: rangeStart, end: rangeEnd }
+        });
     } catch (error) {
         console.error('Error in getFacultyDirectory:', error);
         res.status(500).json({ success: false, message: "Server Error", error: error.message });
@@ -559,13 +663,27 @@ const getLiveClassEvaluations = async (req, res) => {
 // @route   POST /api/academic-head/live-class-evaluations
 const submitLiveClassEvaluation = async (req, res) => {
     try {
-        const { faculty_id, student_id, joined_class, faculty_active, interactive, faculty_camera_on, student_camera_on, remarks, proof_url, class_date } = req.body;
+        const { 
+            faculty_id, student_id, joined_class, faculty_active, interactive, 
+            faculty_camera_on, student_camera_on, remarks, proof_url, class_date,
+            energy_level, screen_sharing, faculty_background, student_interaction_level, check_method
+        } = req.body;
         const academic_head_id = req.user.id;
 
         await db.query(`
-            INSERT INTO live_class_feedbacks (academic_head_id, faculty_id, student_id, joined_class, faculty_active, interactive, faculty_camera_on, student_camera_on, remarks, proof_url, class_date)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        `, [academic_head_id, faculty_id, student_id || null, joined_class, faculty_active, interactive, faculty_camera_on, student_camera_on, remarks, proof_url, class_date]);
+            INSERT INTO live_class_feedbacks (
+                academic_head_id, faculty_id, student_id, joined_class, faculty_active, 
+                interactive, faculty_camera_on, student_camera_on, remarks, proof_url, 
+                class_date, energy_level, screen_sharing, faculty_background, 
+                student_interaction_level, check_method
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `, [
+            academic_head_id, faculty_id, student_id || null, joined_class || false, faculty_active || false,
+            interactive || false, faculty_camera_on || false, student_camera_on || false, remarks, proof_url,
+            class_date, energy_level || 0, screen_sharing || false, faculty_background || false,
+            student_interaction_level || 0, check_method || 'Direct'
+        ]);
 
         res.status(201).json({ success: true, message: 'Live class evaluation submitted successfully' });
     } catch (error) {
@@ -613,29 +731,37 @@ const verifyFacultyLog = async (req, res) => {
     }
 };
 
-// @desc    Get exam analytics for graphs
-const getExamAnalytics = async (req, res) => {
+// @desc    Set exam portions and date (Academic Head)
+// @route   POST /api/academic-head/exams/plan
+const saveExamPlan = async (req, res) => {
     try {
-        const [rows] = await db.query(`
-            SELECT 
-                subject, 
-                term, 
-                AVG(marks) as avg_marks, 
-                AVG(total) as avg_total,
-                (AVG(marks) / AVG(total)) * 100 as percentage
-            FROM student_marks
-            GROUP BY subject, term
-            ORDER BY term DESC
-        `);
-        res.status(200).json({ success: true, data: rows });
+        const { student_id, milestone, chapter, portions, exam_type, scheduled_date, mentor_id } = req.body;
+
+        if (!student_id || !milestone || !portions || !scheduled_date) {
+            return res.status(400).json({ success: false, message: "Portions and Scheduled Date are required" });
+        }
+
+        await db.query(`
+            INSERT INTO student_exams (student_id, mentor_id, milestone_session, chapter, portions, exam_type, scheduled_date, status)
+            VALUES (?, ?, ?, ?, ?, ?, ?, 'Pending')
+            ON DUPLICATE KEY UPDATE 
+                chapter = VALUES(chapter),
+                portions = VALUES(portions), 
+                exam_type = VALUES(exam_type),
+                scheduled_date = VALUES(scheduled_date),
+                mentor_id = VALUES(mentor_id)
+        `, [student_id, mentor_id, milestone, chapter, portions, exam_type, scheduled_date]);
+
+        res.status(200).json({ success: true, message: "Exam plan saved and synced with Mentor" });
     } catch (error) {
-        console.error('Error fetching exam analytics:', error);
+        console.error('Error in saveExamPlan:', error);
         res.status(500).json({ success: false, message: error.message });
     }
 };
 
 module.exports = {
     getExamAnalytics,
+    saveExamPlan,
     getDropdownData,
     registerStudent,
     registerFaculty,
@@ -696,14 +822,49 @@ module.exports = {
     },
     getStudents: async (req, res) => {
         try {
-            const [rows] = await db.query(`
-                SELECT s.*, u_m.name as mentor_name, u_f.name as faculty_name 
+            const { mentor_id, search, sortBy } = req.query;
+            let query = `
+                SELECT s.*, u_m.name as mentor_name, u_f.name as faculty_name,
+                (SELECT AVG(CAST(score AS DECIMAL(10,2))) FROM student_exams WHERE student_id = s.id AND status = 'Completed') as avg_score
                 FROM students s
                 LEFT JOIN users u_m ON s.mentor_id = u_m.id
                 LEFT JOIN users u_f ON s.faculty_id = u_f.id
-                ORDER BY s.created_at DESC
-            `);
-            res.status(200).json({ success: true, data: rows });
+                WHERE 1=1
+            `;
+            const params = [];
+
+            if (mentor_id) {
+                query += ' AND s.mentor_id = ?';
+                params.push(mentor_id);
+            }
+
+            if (search) {
+                query += ' AND (s.name LIKE ? OR s.registration_number LIKE ?)';
+                params.push(`%${search}%`, `%${search}%`);
+            }
+
+            if (sortBy === 'oldest') {
+                query += ' ORDER BY s.created_at ASC';
+            } else {
+                query += ' ORDER BY s.created_at DESC';
+            }
+
+            const [rows] = await db.query(query, params);
+
+            // Add performance label logic
+            const enrichedRows = rows.map(student => {
+                const score = parseFloat(student.avg_score) || 0;
+                let performance = 'N/A';
+                if (score >= 90) performance = 'Excellent';
+                else if (score >= 75) performance = 'Very Good';
+                else if (score >= 60) performance = 'Good';
+                else if (score >= 45) performance = 'Average';
+                else if (score > 0) performance = 'Needs Improvement';
+
+                return { ...student, performance, avg_score: score.toFixed(2) };
+            });
+
+            res.status(200).json({ success: true, data: enrichedRows });
         } catch (error) { res.status(500).json({ success: false, message: error.message }); }
     },
     getMentors: async (req, res) => {
@@ -736,6 +897,30 @@ module.exports = {
             await db.query('INSERT INTO admin_notifications (message) VALUES (?)', [`Academic Head (${req.user.name}) deleted mentor: ${user.name}`]);
             res.status(200).json({ success: true, message: 'Mentor profile purged' });
         } catch (error) { res.status(500).json({ success: false, message: error.message }); }
+    },
+    getLiveMonitoring: async (req, res) => {
+        try {
+            const [rows] = await db.query(`
+                SELECT 
+                    fs.id, fs.topic, fs.date, fs.start_time, fs.end_time, fs.status,
+                    u.name as faculty_name,
+                    s.name as student_name,
+                    s.meeting_link,
+                    s.registration_number,
+                    m.name as mentor_name
+                FROM faculty_sessions fs
+                JOIN users u ON fs.faculty_id = u.id
+                JOIN session_attendance sa ON fs.id = sa.session_id
+                JOIN students s ON sa.student_id = s.id
+                LEFT JOIN users m ON s.mentor_id = m.id
+                WHERE fs.date = CURDATE()
+                ORDER BY fs.start_time ASC
+            `);
+            res.status(200).json({ success: true, count: rows.length, data: rows });
+        } catch (error) {
+            console.error("LIVE_MONITORING_ERROR:", error);
+            res.status(500).json({ success: false, message: error.message });
+        }
     }
 };
 

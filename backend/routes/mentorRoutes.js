@@ -20,9 +20,11 @@ const {
     completeOnboarding,
     createBatchTimetable,
     getPendingExams,
+    getExamHistory,
     submitExamResult,
     logDailyHours,
-    getDailyHours
+    getDailyHours,
+    getAcademicSchedule
 } = require('../controllers/mentorController');
 const { requireAuth } = require('../middleware/authMiddleware');
 const { requireRole } = require('../middleware/roleMiddleware');
@@ -59,6 +61,8 @@ router.post('/timetable/batch', createBatchTimetable);
 
 // Exams
 router.get('/exams/pending', getPendingExams);
+router.get('/exams/history', getExamHistory);
+router.get('/academic-schedule', getAcademicSchedule);
 router.post('/exams/submit', submitExamResult);
 
 module.exports = router;

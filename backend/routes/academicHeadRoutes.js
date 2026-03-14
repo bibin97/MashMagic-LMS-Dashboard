@@ -28,7 +28,9 @@ const {
     getStudents,
     getMentors,
     editMentor,
-    deleteMentor
+    deleteMentor,
+    saveExamPlan,
+    getLiveMonitoring
 } = require('../controllers/academicHeadController');
 const { requireAuth } = require('../middleware/authMiddleware');
 const { requireRole } = require('../middleware/roleMiddleware');
@@ -57,6 +59,7 @@ router.post('/register-faculty', registerFaculty);
 // Checking Section
 router.get('/live-class-evaluations', getLiveClassEvaluations);
 router.post('/live-class-evaluations', submitLiveClassEvaluation);
+router.post('/exams/plan', saveExamPlan);
 router.get('/faculty-logs-pending', getPendingFacultyLogs);
 router.put('/faculty-logs/:id/verify', verifyFacultyLog);
 
@@ -68,7 +71,9 @@ router.delete('/students/:id', deleteStudent);
 
 // Management Lists
 router.get('/students-all', getStudents);
+router.get('/students', getStudents);
 router.get('/mentors-all', getMentors);
+router.get('/live-monitoring', getLiveMonitoring);
 router.put('/mentors/:id', editMentor);
 router.delete('/mentors/:id', deleteMentor);
 
