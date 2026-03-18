@@ -129,7 +129,7 @@ const MentorsList = () => {
     if (loading) {
         return (
             <div className="flex items-center justify-center h-64">
-                <Loader2 className="w-8 h-8 text-indigo-500 animate-spin" />
+                <Loader2 className="w-8 h-8 text-[#008080] animate-spin" />
             </div>
         );
     }
@@ -141,17 +141,17 @@ const MentorsList = () => {
                 <div>
                     <h2 className="text-3xl font-black text-slate-900 tracking-tighter uppercase italic">Mentor Registry</h2>
                     <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest mt-2 flex items-center gap-2">
-                        <Users size={14} className="text-indigo-500" />
+                        <Users size={14} className="text-[#008080]" />
                         Comprehensive database of all active mentors, their assigned students, and daily connection progress
                     </p>
                 </div>
 
                 <div className="relative group">
-                    <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-colors" size={18} />
+                    <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#008080] transition-colors" size={18} />
                     <input
                         type="text"
                         placeholder="FILTER BY NAME, PHONE, OR LOCATION..."
-                        className="pl-14 pr-8 py-4 bg-slate-50 border border-slate-100 rounded-3xl text-xs font-bold uppercase tracking-[0.1em] focus:ring-4 ring-indigo-500/10 w-full md:w-96 shadow-sm transition-all outline-none focus:bg-white"
+                        className="pl-14 pr-8 py-4 bg-slate-50 border border-slate-100 rounded-3xl text-xs font-bold uppercase tracking-[0.1em] focus:ring-4 ring-[#f8ba2b]/10 w-full md:w-96 shadow-sm transition-all outline-none focus:bg-white"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
@@ -181,11 +181,11 @@ const MentorsList = () => {
                                         <tr className="hover:bg-slate-50/50 transition-colors group">
                                             <td className="p-6">
                                                 <div className="flex items-center gap-4">
-                                                    <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 via-indigo-600 to-purple-700 rounded-xl flex items-center justify-center text-white font-black shadow-lg shadow-indigo-200 group-hover:scale-110 transition-transform">
+                                                    <div className="w-10 h-10 bg-gradient-to-br from-[#f8ba2b] via-[#f8ba2b] to-purple-700 rounded-xl flex items-center justify-center text-white font-black shadow-lg shadow-[#f8ba2b] group-hover:scale-110 transition-transform">
                                                         {mentor.mentor_name.charAt(0)}
                                                     </div>
                                                     <div className="flex flex-col">
-                                                        <span className="text-sm font-black text-slate-900 group-hover:text-indigo-600 transition-colors">{mentor.mentor_name}</span>
+                                                        <span className="text-sm font-black text-slate-900 group-hover:text-[#008080] transition-colors">{mentor.mentor_name}</span>
                                                     </div>
                                                 </div>
                                             </td>
@@ -206,7 +206,7 @@ const MentorsList = () => {
                                                 <div className="flex items-center gap-4">
                                                     <div className="flex-1 h-3 bg-slate-100 rounded-full overflow-hidden border border-slate-200 shadow-inner">
                                                         <div
-                                                            className="h-full bg-gradient-to-r from-emerald-400 to-indigo-500 transition-all duration-1000"
+                                                            className="h-full bg-gradient-to-r from-emerald-400 to-[#f8ba2b] transition-all duration-1000"
                                                             style={{ width: `${progress}%` }}
                                                         ></div>
                                                     </div>
@@ -222,7 +222,7 @@ const MentorsList = () => {
                                                             e.stopPropagation();
                                                             navigate(`/mentor-head/mentors/${mentor.mentor_id}`);
                                                         }}
-                                                        className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-widest text-indigo-600 hover:bg-indigo-50 hover:border-indigo-200 transition-all shadow-sm"
+                                                        className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-widest text-[#008080] hover:bg-[#008080]/10 hover:border-[#f8ba2b] transition-all shadow-sm"
                                                         title="View Profile"
                                                     >
                                                         View
@@ -232,7 +232,7 @@ const MentorsList = () => {
                                                             e.stopPropagation();
                                                             handleEdit(mentor);
                                                         }}
-                                                        className="p-2 border border-slate-200 bg-white rounded-xl text-blue-600 hover:bg-blue-50 transition-colors shadow-sm"
+                                                        className="p-2 border border-slate-200 bg-white rounded-xl text-[#008080] hover:bg-[#008080]/10 transition-colors shadow-sm"
                                                         title="Edit Mentor"
                                                     >
                                                         <Edit2 size={16} />
@@ -279,7 +279,7 @@ const MentorsList = () => {
                     <div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-2xl overflow-hidden animate-in slide-in-from-bottom-4 duration-300">
                         <div className="px-8 py-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
                             <h2 className="text-lg font-black text-slate-900 flex items-center gap-3 italic">
-                                <Users size={20} className="text-indigo-600" /> Students: {selectedMentorForView.mentor_name.toUpperCase()}
+                                <Users size={20} className="text-[#008080]" /> Students: {selectedMentorForView.mentor_name.toUpperCase()}
                             </h2>
                             <button onClick={() => setIsStudentModalOpen(false)} className="text-slate-400 hover:text-slate-600 transition-colors">
                                 <X size={20} />
@@ -291,9 +291,9 @@ const MentorsList = () => {
                             ) : mentorStudents.length > 0 ? (
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     {mentorStudents.map((student) => (
-                                        <div key={student.id} className="p-4 bg-slate-50 border border-slate-100 rounded-2xl flex flex-col gap-3 group hover:bg-white hover:border-indigo-100 hover:shadow-lg transition-all">
+                                        <div key={student.id} className="p-4 bg-slate-50 border border-slate-100 rounded-2xl flex flex-col gap-3 group hover:bg-white hover:border-[#f8ba2b] hover:shadow-lg transition-all">
                                             <div className="flex items-center gap-3">
-                                                <div className="w-8 h-8 bg-indigo-600 text-white rounded-lg flex items-center justify-center text-xs font-black shadow-md uppercase">
+                                                <div className="w-8 h-8 bg-[#f8ba2b] text-slate-900 rounded-lg flex items-center justify-center text-xs font-black shadow-md uppercase">
                                                     {student.name.charAt(0)}
                                                 </div>
                                                 <div className="flex flex-col">

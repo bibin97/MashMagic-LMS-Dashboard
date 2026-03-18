@@ -101,18 +101,18 @@ const StudentsList = ({ role = 'academic_head' }) => {
                 <div>
                     <h2 className="text-3xl font-black text-slate-900 tracking-tighter uppercase italic">Student Directory</h2>
                     <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest mt-2 flex items-center gap-2">
-                        <GraduationCap size={14} className="text-indigo-500" />
+                        <GraduationCap size={14} className="text-[#008080]" />
                         Comprehensive database of all enrolled students across all courses and mentors
                     </p>
                 </div>
 
                 <div className="flex flex-col md:flex-row gap-4 w-full lg:w-auto">
                     <div className="relative group flex-1 md:flex-none">
-                        <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-colors" size={18} />
+                        <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#008080] transition-colors" size={18} />
                         <input
                             type="text"
                             placeholder="SEARCH BY NAME OR REG #..."
-                            className="pl-14 pr-8 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold uppercase tracking-[0.1em] focus:ring-4 ring-indigo-500/10 w-full md:w-80 shadow-sm transition-all outline-none focus:bg-white"
+                            className="pl-14 pr-8 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold uppercase tracking-[0.1em] focus:ring-4 ring-[#f8ba2b]/10 w-full md:w-80 shadow-sm transition-all outline-none focus:bg-white"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
@@ -120,7 +120,7 @@ const StudentsList = ({ role = 'academic_head' }) => {
                     <select
                         value={filterCourse}
                         onChange={(e) => setFilterCourse(e.target.value)}
-                        className="px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-black uppercase tracking-widest text-slate-600 outline-none focus:ring-4 ring-indigo-500/10 transition-all cursor-pointer shadow-sm"
+                        className="px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-black uppercase tracking-widest text-slate-600 outline-none focus:ring-4 ring-[#f8ba2b]/10 transition-all cursor-pointer shadow-sm"
                     >
                         <option value="all">All Courses</option>
                         {coursesList.map(c => <option key={c} value={c}>{c}</option>)}
@@ -143,15 +143,15 @@ const StudentsList = ({ role = 'academic_head' }) => {
                         </thead>
                         <tbody className="divide-y divide-slate-50">
                             {filteredStudents.length > 0 ? filteredStudents.map((student) => (
-                                <tr key={student.id} className="hover:bg-indigo-50/20 transition-all group">
+                                <tr key={student.id} className="hover:bg-[#008080]/10/20 transition-all group">
                                     <td className="px-8 py-6">
                                         <div className="flex items-center gap-4">
-                                            <div className="w-12 h-12 bg-gradient-to-br from-slate-100 to-slate-200 rounded-2xl flex items-center justify-center text-slate-600 font-black shadow-inner group-hover:from-indigo-500 group-hover:to-indigo-600 group-hover:text-white transition-all transform group-hover:scale-110">
+                                            <div className="w-12 h-12 bg-gradient-to-br from-slate-100 to-slate-200 rounded-2xl flex items-center justify-center text-slate-600 font-black shadow-inner group-hover:from-[#f8ba2b] group-hover:to-[#f8ba2b] group-hover:text-white transition-all transform group-hover:scale-110">
                                                 {student.name.charAt(0)}
                                             </div>
                                             <div>
                                                 <div className="flex items-center gap-2">
-                                                    <div className="text-sm font-black text-slate-900 group-hover:text-indigo-600 transition-colors uppercase italic flex-shrink-0">{student.name}</div>
+                                                    <div className="text-sm font-black text-slate-900 group-hover:text-[#008080] transition-colors uppercase italic flex-shrink-0">{student.name}</div>
                                                     {student.course_completed === 1 && (
                                                         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-600 border border-emerald-200 text-[9px] font-black uppercase tracking-widest whitespace-nowrap">
                                                             <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>
@@ -169,13 +169,13 @@ const StudentsList = ({ role = 'academic_head' }) => {
                                     <td className="px-8 py-6">
                                         <div className="flex flex-col">
                                             <span className="text-xs font-black text-slate-700 uppercase tracking-widest">{student.course}</span>
-                                            <span className="text-[10px] font-bold text-indigo-500 uppercase mt-0.5">{student.grade}</span>
+                                            <span className="text-[10px] font-bold text-[#008080] uppercase mt-0.5">{student.grade}</span>
                                         </div>
                                     </td>
                                     <td className="px-8 py-6">
                                         <div className="space-y-1.5">
                                             <div className="flex items-center gap-2">
-                                                <div className="w-1.5 h-1.5 rounded-full bg-blue-500"></div>
+                                                <div className="w-1.5 h-1.5 rounded-full bg-[#f8ba2b]"></div>
                                                 <span className="text-[10px] font-black text-slate-500 uppercase">Mentor: {student.mentor_name || 'N/A'}</span>
                                             </div>
                                             <div className="flex items-center gap-2">
@@ -188,7 +188,7 @@ const StudentsList = ({ role = 'academic_head' }) => {
                                         <div className="flex items-center justify-end gap-2">
                                             <button
                                                 onClick={() => handleEdit(student)}
-                                                className="p-2.5 bg-white border border-slate-200 rounded-xl text-blue-600 hover:bg-blue-50 transition-all shadow-sm"
+                                                className="p-2.5 bg-white border border-slate-200 rounded-xl text-[#008080] hover:bg-[#008080]/10 transition-all shadow-sm"
                                             >
                                                 <Edit2 size={16} />
                                             </button>
@@ -219,7 +219,7 @@ const StudentsList = ({ role = 'academic_head' }) => {
                     <div className="bg-white rounded-[3rem] shadow-2xl w-full max-w-lg overflow-hidden animate-in slide-in-from-bottom-4 duration-300">
                         <div className="px-8 py-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
                             <h2 className="text-lg font-black text-slate-900 flex items-center gap-3 italic">
-                                <Edit2 size={20} className="text-indigo-600" /> Edit Student Record
+                                <Edit2 size={20} className="text-[#008080]" /> Edit Student Record
                             </h2>
                             <button onClick={() => setIsEditModalOpen(false)} className="w-10 h-10 flex items-center justify-center bg-white rounded-xl text-slate-400 hover:text-slate-600 hover:shadow-md transition-all">
                                 <X size={20} />
@@ -232,7 +232,7 @@ const StudentsList = ({ role = 'academic_head' }) => {
                                     type="text"
                                     value={editingStudent.name}
                                     onChange={(e) => setEditingStudent(prev => ({ ...prev, name: e.target.value }))}
-                                    className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-xs font-bold rounded-2xl px-5 py-4 focus:outline-none focus:ring-4 focus:ring-indigo-50 focus:border-indigo-300 transition-all"
+                                    className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-xs font-bold rounded-2xl px-5 py-4 focus:outline-none focus:ring-4 focus:ring-[#f8ba2b] focus:border-[#f8ba2b] transition-all"
                                 />
                             </div>
                             <div className="grid grid-cols-2 gap-6">
@@ -242,7 +242,7 @@ const StudentsList = ({ role = 'academic_head' }) => {
                                         type="text"
                                         value={editingStudent.grade}
                                         onChange={(e) => setEditingStudent(prev => ({ ...prev, grade: e.target.value }))}
-                                        className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-xs font-bold rounded-2xl px-5 py-4 focus:outline-none focus:ring-4 focus:ring-indigo-50 focus:border-indigo-300 transition-all"
+                                        className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-xs font-bold rounded-2xl px-5 py-4 focus:outline-none focus:ring-4 focus:ring-[#f8ba2b] focus:border-[#f8ba2b] transition-all"
                                     />
                                 </div>
                                 <div>
@@ -250,7 +250,7 @@ const StudentsList = ({ role = 'academic_head' }) => {
                                     <select
                                         value={editingStudent.course}
                                         onChange={(e) => setEditingStudent(prev => ({ ...prev, course: e.target.value }))}
-                                        className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-xs font-bold rounded-2xl px-5 py-4 focus:outline-none focus:ring-4 focus:ring-indigo-50 focus:border-indigo-300 transition-all appearance-none"
+                                        className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-xs font-bold rounded-2xl px-5 py-4 focus:outline-none focus:ring-4 focus:ring-[#f8ba2b] focus:border-[#f8ba2b] transition-all appearance-none"
                                     >
                                         {coursesList.map(c => <option key={c} value={c}>{c}</option>)}
                                     </select>
@@ -262,7 +262,7 @@ const StudentsList = ({ role = 'academic_head' }) => {
                                     type="text"
                                     value={editingStudent.subject || ''}
                                     onChange={(e) => setEditingStudent(prev => ({ ...prev, subject: e.target.value }))}
-                                    className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-xs font-bold rounded-2xl px-5 py-4 focus:outline-none focus:ring-4 focus:ring-indigo-50 focus:border-indigo-300 transition-all"
+                                    className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-xs font-bold rounded-2xl px-5 py-4 focus:outline-none focus:ring-4 focus:ring-[#f8ba2b] focus:border-[#f8ba2b] transition-all"
                                 />
                             </div>
                         </div>
@@ -275,7 +275,7 @@ const StudentsList = ({ role = 'academic_head' }) => {
                             </button>
                             <button
                                 onClick={handleUpdate}
-                                className="px-8 py-3.5 bg-indigo-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-indigo-100 hover:bg-indigo-700 hover:-translate-y-0.5 active:scale-95 transition-all flex items-center gap-2"
+                                className="px-8 py-3.5 bg-[#f8ba2b] text-slate-900 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-[#f8ba2b] hover:bg-[#f8ba2b] hover:-translate-y-0.5 active:scale-95 transition-all flex items-center gap-2"
                             >
                                 <Save size={16} /> Save Changes
                             </button>

@@ -94,11 +94,11 @@ const FacultyProfile = () => {
                 {/* Left: Identity Card */}
                 <div className="lg:col-span-1 space-y-8">
                     <div className="bg-slate-900 rounded-[3.5rem] p-10 text-white relative overflow-hidden group">
-                        <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 rounded-full -mr-32 -mt-32 blur-3xl"></div>
+                        <div className="absolute top-0 right-0 w-64 h-64 bg-[#f8ba2b]/10 rounded-full -mr-32 -mt-32 blur-3xl"></div>
 
                         <div className="relative z-10 flex flex-col items-center">
                             <div className="relative group/avatar cursor-pointer mb-8">
-                                <div className="w-40 h-40 bg-white/10 backdrop-blur-xl rounded-[3rem] border-2 border-white/20 flex items-center justify-center overflow-hidden transition-all duration-700 group-hover/avatar:scale-105 group-hover/avatar:border-indigo-500">
+                                <div className="w-40 h-40 bg-white/10 backdrop-blur-xl rounded-[3rem] border-2 border-white/20 flex items-center justify-center overflow-hidden transition-all duration-700 group-hover/avatar:scale-105 group-hover/avatar:border-[#f8ba2b]">
                                     {imagePreview ? (
                                         <img src={imagePreview} alt="Avatar" className="w-full h-full object-cover" />
                                     ) : (
@@ -107,7 +107,7 @@ const FacultyProfile = () => {
                                 </div>
                                 <label
                                     htmlFor="avatar-upload"
-                                    className="absolute bottom-2 right-2 w-12 h-12 bg-indigo-600 text-white rounded-2xl flex items-center justify-center shadow-2xl cursor-pointer hover:bg-indigo-500 transition-all hover:scale-110 active:scale-90"
+                                    className="absolute bottom-2 right-2 w-12 h-12 bg-[#f8ba2b] text-slate-900 rounded-2xl flex items-center justify-center shadow-2xl cursor-pointer hover:bg-[#f8ba2b] transition-all hover:scale-110 active:scale-90"
                                 >
                                     <Camera size={20} />
                                     <input type="file" id="avatar-upload" className="hidden" onChange={handleImageChange} />
@@ -115,7 +115,7 @@ const FacultyProfile = () => {
                             </div>
 
                             <h3 className="text-2xl font-black tracking-tight mb-2 italic">{user?.name}</h3>
-                            <p className="text-[10px] font-black text-indigo-400 uppercase tracking-[0.3em] mb-8">Authorized Faculty</p>
+                            <p className="text-[10px] font-black text-[#008080] uppercase tracking-[0.3em] mb-8">Authorized Faculty</p>
 
                             <div className="w-full space-y-4 pt-10 border-t border-white/10">
                                 <div className="flex items-center gap-4 text-slate-400">
@@ -153,7 +153,7 @@ const FacultyProfile = () => {
                     {/* Basic Info */}
                     <div className="bg-white p-12 rounded-[3.5rem] border border-slate-100 shadow-sm">
                         <div className="flex items-center gap-4 mb-10">
-                            <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600">
+                            <div className="w-12 h-12 bg-[#008080]/10 rounded-2xl flex items-center justify-center text-[#008080]">
                                 <Info size={24} />
                             </div>
                             <div>
@@ -166,10 +166,10 @@ const FacultyProfile = () => {
                             <div className="space-y-3">
                                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-6">Global Phone Number</label>
                                 <div className="relative group">
-                                    <Phone className="absolute left-8 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" size={18} />
+                                    <Phone className="absolute left-8 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#008080] transition-colors" size={18} />
                                     <input
                                         type="text"
-                                        className="w-full pl-18 pr-8 py-5 bg-slate-50 border border-slate-100 rounded-[2rem] text-sm font-bold focus:outline-none focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 transition-all shadow-sm"
+                                        className="w-full pl-18 pr-8 py-5 bg-slate-50 border border-slate-100 rounded-[2rem] text-sm font-bold focus:outline-none focus:ring-4 focus:ring-[#f8ba2b]/5 focus:border-[#f8ba2b] transition-all shadow-sm"
                                         placeholder="+91 XXXXX XXXXX"
                                         value={formData.phone_number}
                                         onChange={(e) => setFormData({ ...formData, phone_number: e.target.value })}

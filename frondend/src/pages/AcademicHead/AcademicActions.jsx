@@ -93,7 +93,7 @@ const AcademicActions = () => {
                     </div>
                     <div className="bg-slate-50 px-6 py-4 rounded-2xl border border-slate-100">
                         <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Today's Intake</span>
-                        <span className="text-xl font-black text-indigo-600 italic">{dailyLogs.length}</span>
+                        <span className="text-xl font-black text-[#008080] italic">{dailyLogs.length}</span>
                     </div>
                 </div>
             </div>
@@ -159,7 +159,7 @@ const AcademicActions = () => {
 
                                     <div className="flex items-center justify-between mt-6 pt-6 border-t border-slate-50">
                                         <div className="flex items-center gap-2">
-                                            <div className="w-8 h-8 bg-slate-50 rounded-xl flex items-center justify-center text-indigo-500">
+                                            <div className="w-8 h-8 bg-slate-50 rounded-xl flex items-center justify-center text-[#008080]">
                                                 <User size={14} />
                                             </div>
                                             <div>
@@ -181,7 +181,7 @@ const AcademicActions = () => {
                 <div className="xl:col-span-2 space-y-6">
                     <div className="flex items-center justify-between px-4">
                         <h3 className="text-[11px] font-black text-slate-900 uppercase tracking-[0.3em] flex items-center gap-2">
-                            <BookOpen size={16} className="text-indigo-500" /> Today's Registry Update
+                            <BookOpen size={16} className="text-[#008080]" /> Today's Registry Update
                         </h3>
                         <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1">
                             <Clock size={10} /> Live Stream
@@ -190,7 +190,7 @@ const AcademicActions = () => {
 
                     {loading ? (
                         <div className="bg-white p-20 rounded-[4rem] border border-slate-100 flex items-center justify-center flex-col gap-4">
-                            <div className="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+                            <div className="w-12 h-12 border-4 border-[#f8ba2b] border-t-transparent rounded-full animate-spin"></div>
                             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Synchronizing Intra-Day Logs...</p>
                         </div>
                     ) : dailyLogs.length === 0 ? (
@@ -218,7 +218,7 @@ const AcademicActions = () => {
                                         <tr key={log.id} className="hover:bg-slate-50/50 transition-colors group">
                                             <td className="px-8 py-6">
                                                 <div className="flex items-center gap-3">
-                                                    <div className="w-10 h-10 bg-white rounded-xl shadow-sm border border-slate-100 flex items-center justify-center text-indigo-500">
+                                                    <div className="w-10 h-10 bg-white rounded-xl shadow-sm border border-slate-100 flex items-center justify-center text-[#008080]">
                                                         <User size={18} />
                                                     </div>
                                                     <div>
@@ -228,8 +228,8 @@ const AcademicActions = () => {
                                                 </div>
                                             </td>
                                             <td className="px-8 py-6">
-                                                <div className="bg-indigo-50 px-4 py-2 rounded-xl inline-block border border-indigo-100">
-                                                    <span className="text-xs font-black text-indigo-600 uppercase italic tracking-tighter line-clamp-1">{log.chapter}</span>
+                                                <div className="bg-[#008080]/10 px-4 py-2 rounded-xl inline-block border border-[#f8ba2b]">
+                                                    <span className="text-xs font-black text-[#008080] uppercase italic tracking-tighter line-clamp-1">{log.chapter}</span>
                                                 </div>
                                             </td>
                                             <td className="px-8 py-6">
@@ -244,7 +244,7 @@ const AcademicActions = () => {
                                                 </span>
                                             </td>
                                             <td className="px-8 py-6 text-right">
-                                                <button className="w-10 h-10 bg-slate-900 text-white rounded-xl flex items-center justify-center hover:bg-indigo-600 transition-all opacity-0 group-hover:opacity-100">
+                                                <button className="w-10 h-10 bg-slate-900 text-slate-900 rounded-xl flex items-center justify-center hover:bg-[#f8ba2b] transition-all opacity-0 group-hover:opacity-100">
                                                     <ChevronRight size={18} />
                                                 </button>
                                             </td>

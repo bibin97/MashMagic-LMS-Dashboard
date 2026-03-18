@@ -103,14 +103,14 @@ const StudentDetails = () => {
 
             {/* Profile Overview Card */}
             <div className="bg-slate-900 rounded-[3.5rem] p-12 text-white relative overflow-hidden group">
-                <div className="absolute top-0 right-0 w-80 h-80 bg-indigo-500/10 rounded-full -mr-40 -mt-40 blur-[80px]"></div>
+                <div className="absolute top-0 right-0 w-80 h-80 bg-[#f8ba2b]/10 rounded-full -mr-40 -mt-40 blur-[80px]"></div>
                 <div className="relative z-10 flex flex-col md:flex-row items-center gap-10">
                     <div className="w-32 h-32 bg-white/10 backdrop-blur-xl rounded-[2.5rem] flex items-center justify-center border border-white/20 shadow-2xl overflow-hidden group-hover:scale-105 transition-transform duration-700">
                         <span className="text-5xl font-black text-white">{data?.profile?.name?.charAt(0)}</span>
                     </div>
                     <div className="text-center md:text-left flex-1">
                         <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 mb-4">
-                            <span className="bg-indigo-500 text-[10px] font-black uppercase tracking-[0.2em] px-3 py-1 rounded-full">Active Member</span>
+                            <span className="bg-[#f8ba2b] text-[10px] font-black uppercase tracking-[0.2em] px-3 py-1 rounded-full">Active Member</span>
                             <span className="bg-white/10 text-[10px] font-black uppercase tracking-[0.2em] px-3 py-1 rounded-full border border-white/10">ID: {data?.profile?.roll_number}</span>
                         </div>
                         <h1 className="text-5xl font-black tracking-tighter mb-4 italic">{data?.profile?.name}</h1>
@@ -149,13 +149,13 @@ const StudentDetails = () => {
                             key={tab.id}
                             onClick={() => setActiveTab(tab.id)}
                             className={`pb-8 flex items-center gap-3 transition-all duration-500 relative group
-                                ${activeTab === tab.id ? 'text-indigo-600 font-black' : 'text-slate-400 font-bold hover:text-slate-600'}
+                                ${activeTab === tab.id ? 'text-[#008080] font-black' : 'text-slate-400 font-bold hover:text-slate-600'}
                             `}
                         >
                             <tab.icon size={18} className={activeTab === tab.id ? 'animate-bounce-slow' : ''} />
                             <span className="text-xs uppercase tracking-widest">{tab.label}</span>
                             {activeTab === tab.id && (
-                                <div className="absolute bottom-0 left-0 w-full h-1 bg-indigo-600 rounded-full animate-in zoom-in duration-300"></div>
+                                <div className="absolute bottom-0 left-0 w-full h-1 bg-[#f8ba2b] rounded-full animate-in zoom-in duration-300"></div>
                             )}
                         </button>
                     ))}
@@ -167,19 +167,19 @@ const StudentDetails = () => {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                             <div className="space-y-6">
                                 <h3 className="text-lg font-black text-slate-900 tracking-tight flex items-center gap-3">
-                                    <TrendingUp className="text-indigo-500" size={20} />
+                                    <TrendingUp className="text-[#008080]" size={20} />
                                     Subject Performance
                                 </h3>
                                 {data?.marks?.length > 0 ? (
                                     <div className="space-y-4">
                                         {data.marks.map((mark, i) => (
-                                            <div key={i} className="flex justify-between items-center bg-slate-50 p-6 rounded-3xl border border-slate-100/50 hover:bg-indigo-50/30 transition-all duration-500">
+                                            <div key={i} className="flex justify-between items-center bg-slate-50 p-6 rounded-3xl border border-slate-100/50 hover:bg-[#008080]/10/30 transition-all duration-500">
                                                 <div>
                                                     <p className="font-black text-slate-900 leading-none mb-1">{mark.subject}</p>
                                                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{mark.term || 'Term 1'}</p>
                                                 </div>
                                                 <div className="text-right">
-                                                    <p className="text-xl font-black text-indigo-600">{mark.marks}/{mark.total}</p>
+                                                    <p className="text-xl font-black text-[#008080]">{mark.marks}/{mark.total}</p>
                                                     <p className="text-[10px] font-black uppercase text-emerald-500 tracking-widest">Grade: {mark.grade}</p>
                                                 </div>
                                             </div>
@@ -193,16 +193,16 @@ const StudentDetails = () => {
                             </div>
 
                             {/* Academic Summary Placeholder */}
-                            <div className="bg-indigo-50 overflow-hidden rounded-[2.5rem] p-10 relative">
+                            <div className="bg-[#008080]/10 overflow-hidden rounded-[2.5rem] p-10 relative">
                                 <div className="absolute top-0 right-0 p-8 opacity-10 rotate-12">
                                     <BookOpen size={120} />
                                 </div>
-                                <h4 className="text-indigo-900 font-black text-xl mb-4 tracking-tight">Faculty Remarks</h4>
-                                <p className="text-indigo-700/80 text-sm font-medium leading-relaxed italic">
+                                <h4 className="text-[#008080] font-black text-xl mb-4 tracking-tight">Faculty Remarks</h4>
+                                <p className="text-[#008080]/80 text-sm font-medium leading-relaxed italic">
                                     "Student shows strong analytical skills in Core subjects. Continued attention to attendance in practical labs is recommended for overall performance consistency."
                                 </p>
-                                <div className="mt-8 pt-8 border-t border-indigo-200/50">
-                                    <button className="text-indigo-600 font-black text-[10px] uppercase tracking-widest hover:underline">
+                                <div className="mt-8 pt-8 border-t border-[#f8ba2b]/50">
+                                    <button className="text-[#008080] font-black text-[10px] uppercase tracking-widest hover:underline">
                                         Update Faculty Note
                                     </button>
                                 </div>
@@ -222,9 +222,9 @@ const StudentDetails = () => {
                                     <p className="text-[10px] font-black text-rose-600 uppercase tracking-widest mb-1">Total Absents</p>
                                     <p className="text-3xl font-black text-rose-700">{data?.attendance?.filter(a => a.status === 'Absent').length || 0}</p>
                                 </div>
-                                <div className="bg-indigo-50 p-8 rounded-[2rem] border border-indigo-100">
-                                    <p className="text-[10px] font-black text-indigo-600 uppercase tracking-widest mb-1">Status Grade</p>
-                                    <p className="text-3xl font-black text-indigo-700">Excellent</p>
+                                <div className="bg-[#008080]/10 p-8 rounded-[2rem] border border-[#f8ba2b]">
+                                    <p className="text-[10px] font-black text-[#008080] uppercase tracking-widest mb-1">Status Grade</p>
+                                    <p className="text-3xl font-black text-[#008080]">Excellent</p>
                                 </div>
                             </div>
                             <div className="bg-slate-50 rounded-[2.5rem] border border-slate-100">
@@ -262,13 +262,13 @@ const StudentDetails = () => {
                                 data.reports.map((report, idx) => (
                                     <div key={idx} className="bg-slate-50 p-10 rounded-[2.5rem] border border-slate-100 relative group hover:bg-white transition-all duration-500 shadow-sm hover:shadow-xl">
                                         <div className="absolute top-8 right-8">
-                                            <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm ${report.status === 'Open' ? 'bg-indigo-600 text-white' : 'bg-slate-900 text-white'
+                                            <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm ${report.status === 'Open' ? 'bg-[#f8ba2b] text-slate-900' : 'bg-slate-900 text-white'
                                                 }`}>
                                                 {report.status}
                                             </span>
                                         </div>
                                         <div className="flex gap-6 items-start">
-                                            <div className="w-14 h-14 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600">
+                                            <div className="w-14 h-14 bg-[#008080]/10 rounded-2xl flex items-center justify-center text-[#008080]">
                                                 <ShieldAlert size={28} />
                                             </div>
                                             <div className="flex-1">
@@ -298,7 +298,7 @@ const StudentDetails = () => {
                     {activeTab === 'hours' && (
                         <div className="space-y-6">
                             <h3 className="text-lg font-black text-slate-900 tracking-tight flex items-center gap-3 mb-6">
-                                <Clock className="text-indigo-500" size={20} />
+                                <Clock className="text-[#008080]" size={20} />
                                 Daily Logged Hours (By Mentor)
                             </h3>
                             {dailyHours.length > 0 ? (
@@ -311,7 +311,7 @@ const StudentDetails = () => {
                                             </div>
                                             <div className="flex flex-col gap-1 text-right">
                                                 <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Hours Logged</span>
-                                                <span className="text-xl font-black text-indigo-600">{log.hours} Hrs</span>
+                                                <span className="text-xl font-black text-[#008080]">{log.hours} Hrs</span>
                                             </div>
                                         </div>
                                     ))}
@@ -332,7 +332,7 @@ const StudentDetails = () => {
                 <div className="fixed inset-0 z-[2000] flex items-center justify-center p-6 backdrop-blur-3xl bg-slate-900/10 animate-in fade-in duration-300">
                     <div className="bg-white w-full max-w-2xl rounded-[3.5rem] border border-slate-100 shadow-2xl overflow-hidden animate-in zoom-in slide-in-from-bottom-10 duration-500">
                         <div className="p-10 border-b border-slate-50 flex justify-between items-center text-white bg-slate-900 relative">
-                            <div className="absolute top-0 right-0 w-40 h-40 bg-indigo-500/10 rounded-full -mr-20 -mt-20 blur-3xl"></div>
+                            <div className="absolute top-0 right-0 w-40 h-40 bg-[#f8ba2b]/10 rounded-full -mr-20 -mt-20 blur-3xl"></div>
                             <div className="relative">
                                 <h3 className="text-2xl font-black tracking-tight italic">Submit Report</h3>
                                 <p className="text-[10px] font-black uppercase tracking-[0.2em] opacity-60">MashMagic Academic Engine</p>
@@ -346,7 +346,7 @@ const StudentDetails = () => {
                                 <div className="space-y-3">
                                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4">Interaction Type</label>
                                     <select
-                                        className="w-full px-8 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:outline-none focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 transition-all cursor-pointer"
+                                        className="w-full px-8 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:outline-none focus:ring-4 focus:ring-[#f8ba2b]/5 focus:border-[#f8ba2b] transition-all cursor-pointer"
                                         value={reportForm.type}
                                         onChange={(e) => setReportForm({ ...reportForm, type: e.target.value })}
                                     >
@@ -360,7 +360,7 @@ const StudentDetails = () => {
                                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4">Follow-up Date</label>
                                     <input
                                         type="date"
-                                        className="w-full px-8 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:outline-none focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 transition-all"
+                                        className="w-full px-8 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:outline-none focus:ring-4 focus:ring-[#f8ba2b]/5 focus:border-[#f8ba2b] transition-all"
                                         value={reportForm.follow_up_date}
                                         onChange={(e) => setReportForm({ ...reportForm, follow_up_date: e.target.value })}
                                     />
@@ -372,7 +372,7 @@ const StudentDetails = () => {
                                 <textarea
                                     placeholder="Enter detailed observation notes..."
                                     rows="3"
-                                    className="w-full px-8 py-6 bg-slate-50 border border-slate-100 rounded-[2rem] text-xs font-bold focus:outline-none focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 transition-all resize-none"
+                                    className="w-full px-8 py-6 bg-slate-50 border border-slate-100 rounded-[2rem] text-xs font-bold focus:outline-none focus:ring-4 focus:ring-[#f8ba2b]/5 focus:border-[#f8ba2b] transition-all resize-none"
                                     value={reportForm.remarks}
                                     onChange={(e) => setReportForm({ ...reportForm, remarks: e.target.value })}
                                     required
@@ -384,7 +384,7 @@ const StudentDetails = () => {
                                 <textarea
                                     placeholder="Planned corrective actions..."
                                     rows="2"
-                                    className="w-full px-8 py-6 bg-slate-50 border border-slate-100 rounded-[2rem] text-xs font-bold focus:outline-none focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 transition-all resize-none"
+                                    className="w-full px-8 py-6 bg-slate-50 border border-slate-100 rounded-[2rem] text-xs font-bold focus:outline-none focus:ring-4 focus:ring-[#f8ba2b]/5 focus:border-[#f8ba2b] transition-all resize-none"
                                     value={reportForm.action_taken}
                                     onChange={(e) => setReportForm({ ...reportForm, action_taken: e.target.value })}
                                 />
@@ -400,7 +400,7 @@ const StudentDetails = () => {
                                 </button>
                                 <button
                                     type="submit"
-                                    className="flex-[2] py-5 bg-indigo-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-100"
+                                    className="flex-[2] py-5 bg-[#f8ba2b] text-slate-900 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-[#f8ba2b] transition-all shadow-xl shadow-[#f8ba2b]"
                                 >
                                     Push to System
                                 </button>

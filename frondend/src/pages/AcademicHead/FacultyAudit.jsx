@@ -65,7 +65,7 @@ const FacultyAudit = () => {
 
     if (loading) return (
         <div className="p-20 text-center">
-            <div className="w-16 h-16 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <div className="w-16 h-16 border-4 border-[#f8ba2b] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
             <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">Synchronizing Audit Data...</p>
         </div>
     );
@@ -75,7 +75,7 @@ const FacultyAudit = () => {
             {/* Header Section */}
             <div className="bg-white p-10 rounded-[4rem] border border-slate-100 shadow-sm mb-10">
                 <h2 className="text-3xl font-black text-slate-900 tracking-tighter uppercase italic flex items-center gap-4">
-                    <div className="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-indigo-200 rotate-3">
+                    <div className="w-12 h-12 bg-[#f8ba2b] rounded-2xl flex items-center justify-center text-slate-900 shadow-lg shadow-[#f8ba2b] rotate-3">
                         <ShieldAlert size={28} />
                     </div>
                     Compliance & Audit Center
@@ -150,7 +150,7 @@ const FacultyAudit = () => {
                                                             flex items-center gap-2 px-6 py-2.5 rounded-2xl text-[10px] font-black transition-all uppercase tracking-widest border
                                                             ${isChecked
                                                                 ? 'bg-emerald-600 border-emerald-600 text-white hover:bg-emerald-700 shadow-lg shadow-emerald-100'
-                                                                : 'bg-white border-slate-200 text-slate-600 hover:border-indigo-600 hover:text-indigo-600 shadow-sm'}
+                                                                : 'bg-white border-slate-200 text-slate-600 hover:border-[#f8ba2b] hover:text-[#008080] shadow-sm'}
                                                             hover:scale-105 active:scale-95
                                                         `}
                                                     >

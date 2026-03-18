@@ -96,7 +96,7 @@ const AcademicHeadDashboard = () => {
         return (
             <div className="flex items-center justify-center h-[60vh]">
                 <div className="flex flex-col items-center gap-4">
-                    <div className="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+                    <div className="w-12 h-12 border-4 border-[#f8ba2b] border-t-transparent rounded-full animate-spin"></div>
                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Compiling academic metrics...</p>
                 </div>
             </div>
@@ -109,7 +109,7 @@ const AcademicHeadDashboard = () => {
             <div className="bg-white p-10 rounded-[3rem] border border-slate-100 shadow-sm">
                 <h2 className="text-3xl font-black text-slate-900 tracking-tighter uppercase italic">Academic Dashboard</h2>
                 <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest mt-2 flex items-center gap-2">
-                    <TrendingUp size={14} className="text-indigo-500" />
+                    <TrendingUp size={14} className="text-[#008080]" />
                     Central monitoring of academic performance, student enrollment, and daily educational schedules
                 </p>
             </div>
@@ -128,7 +128,7 @@ const AcademicHeadDashboard = () => {
                     subtitle="Academic staff"
                     value={data.stats.totalFaculties}
                     icon={ShieldCheck}
-                    color="bg-indigo-500"
+                    color="bg-[#f8ba2b]"
                 />
                 <StatCard
                     title="Mentor Network"
@@ -157,14 +157,14 @@ const AcademicHeadDashboard = () => {
                         <select 
                             value={selectedStudent} 
                             onChange={handleStudentChange}
-                            className="bg-slate-50 border border-slate-200 text-slate-700 text-sm rounded-xl px-4 py-3 font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer min-w-[200px]"
+                            className="bg-slate-50 border border-slate-200 text-slate-700 text-sm rounded-xl px-4 py-3 font-bold focus:outline-none focus:ring-2 focus:ring-[#f8ba2b] cursor-pointer min-w-[200px]"
                         >
                             <option value="">Overview (Class Average)</option>
                             {students.map(student => (
                                 <option key={student.id} value={student.id}>{student.name}</option>
                             ))}
                         </select>
-                        <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600 shrink-0">
+                        <div className="w-12 h-12 bg-[#008080]/10 rounded-2xl flex items-center justify-center text-[#008080] shrink-0">
                             <TrendingUp size={24} />
                         </div>
                     </div>
@@ -200,7 +200,7 @@ const AcademicHeadDashboard = () => {
                                     barSize={60}
                                 >
                                     {data.examAnalytics.map((entry, index) => (
-                                        <Cell key={`cell-${index}`} fill={entry.percentage > 80 ? '#10b981' : entry.percentage > 50 ? '#6366f1' : '#f43f5e'} />
+                                        <Cell key={`cell-${index}`} fill={entry.percentage > 50 ? '#008080' : '#f8ba2b'} />
                                     ))}
                                 </Bar>
                             </BarChart>
@@ -255,7 +255,7 @@ const AcademicHeadDashboard = () => {
                                         <tr key={session.id} className="group hover:bg-slate-50/80 transition-all duration-300">
                                             <td className="px-8 py-6 first:rounded-l-[2rem]">
                                                 <div className="flex items-center gap-3">
-                                                    <div className="w-10 h-10 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600 border border-indigo-100">
+                                                    <div className="w-10 h-10 bg-[#008080]/10 rounded-2xl flex items-center justify-center text-[#008080] border border-[#f8ba2b]">
                                                         <Clock size={16} />
                                                     </div>
                                                     <div className="flex flex-col">
@@ -267,7 +267,7 @@ const AcademicHeadDashboard = () => {
                                             <td className="px-8 py-6">
                                                 <div className="flex flex-col">
                                                     <span className="text-sm font-black text-slate-900">{session.student_name}</span>
-                                                    <span className="text-[10px] font-bold text-indigo-500 uppercase tracking-widest mt-0.5">{session.subject || 'Academic Session'}</span>
+                                                    <span className="text-[10px] font-bold text-[#008080] uppercase tracking-widest mt-0.5">{session.subject || 'Academic Session'}</span>
                                                 </div>
                                             </td>
                                             <td className="px-8 py-6">
@@ -289,7 +289,7 @@ const AcademicHeadDashboard = () => {
                                                 </span>
                                             </td>
                                             <td className="px-8 py-6 text-right last:rounded-r-[2rem]">
-                                                <button className="w-10 h-10 bg-white border border-slate-200 rounded-xl flex items-center justify-center text-slate-400 hover:text-indigo-600 hover:border-indigo-300 transition-all hover:shadow-lg shadow-slate-100 group-hover:-translate-x-1">
+                                                <button className="w-10 h-10 bg-white border border-slate-200 rounded-xl flex items-center justify-center text-slate-400 hover:text-[#008080] hover:border-[#f8ba2b] transition-all hover:shadow-lg shadow-slate-100 group-hover:-translate-x-1">
                                                     <ChevronRight size={18} />
                                                 </button>
                                             </td>
@@ -310,7 +310,7 @@ const AcademicHeadDashboard = () => {
                             <h3 className="text-xl font-black text-slate-900 tracking-tight">Recent Activity Logs</h3>
                             <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mt-1">Daily interaction logs from Mentors and Faculties</p>
                         </div>
-                        <button className="p-3 bg-slate-50 rounded-2xl text-slate-400 hover:text-indigo-600 transition-all">
+                        <button className="p-3 bg-slate-50 rounded-2xl text-slate-400 hover:text-[#008080] transition-all">
                             <Activity size={18} />
                         </button>
                     </div>
@@ -320,8 +320,8 @@ const AcademicHeadDashboard = () => {
                             <p className="text-center py-10 text-slate-400 font-bold italic">No activity recorded yet today.</p>
                         ) : (
                             data.activityFeed.map((activity, i) => (
-                                <div key={i} className="flex gap-6 p-6 rounded-[2rem] bg-slate-50/50 border border-slate-50 hover:border-indigo-100 hover:bg-white hover:shadow-xl transition-all duration-500 group">
-                                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 shadow-sm ${activity.type === 'Student Report' ? 'bg-indigo-600 text-white' :
+                                <div key={i} className="flex gap-6 p-6 rounded-[2rem] bg-slate-50/50 border border-slate-50 hover:border-[#f8ba2b] hover:bg-white hover:shadow-xl transition-all duration-500 group">
+                                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 shadow-sm ${activity.type === 'Student Report' ? 'bg-[#f8ba2b] text-slate-900' :
                                         activity.type === 'Student Interaction' ? 'bg-emerald-500 text-white' :
                                             'bg-purple-600 text-white'
                                         }`}>
@@ -334,7 +334,7 @@ const AcademicHeadDashboard = () => {
                                         </div>
                                         <p className="text-sm font-medium text-slate-600 line-clamp-1 italic mb-2">"{activity.details || 'No details'}"</p>
                                         <div className="flex items-center gap-3">
-                                            <span className="text-[9px] font-black text-indigo-500 uppercase tracking-widest">By: {activity.origin_name}</span>
+                                            <span className="text-[9px] font-black text-[#008080] uppercase tracking-widest">By: {activity.origin_name}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -351,7 +351,7 @@ const AcademicHeadDashboard = () => {
                                 <TrendingUp size={20} className="text-emerald-400" />
                                 <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Performance Overview</span>
                             </div>
-                            <h4 className="text-2xl font-black leading-tight">Academic performance <br /><span className="text-indigo-400">trending up</span> by 12.4%</h4>
+                            <h4 className="text-2xl font-black leading-tight">Academic performance <br /><span className="text-[#008080]">trending up</span> by 12.4%</h4>
                         </div>
                         <div className="relative z-10 mt-10">
                             <p className="text-4xl font-black text-emerald-400 tracking-tighter">Gold</p>
@@ -359,12 +359,12 @@ const AcademicHeadDashboard = () => {
                         </div>
                     </div>
 
-                    <div className="bg-indigo-600 p-10 rounded-[3rem] text-white flex flex-col justify-center relative overflow-hidden group shadow-2xl shadow-indigo-200">
+                    <div className="bg-[#f8ba2b] p-10 rounded-[3rem] text-slate-900 flex flex-col justify-center relative overflow-hidden group shadow-2xl shadow-[#f8ba2b]">
                         <div className="absolute left-0 bottom-0 w-48 h-48 bg-black/10 rounded-full -ml-10 -mb-10 blur-2xl group-hover:bg-black/20 transition-all duration-700"></div>
                         <div className="relative z-10 flex items-center justify-between">
                             <div>
                                 <h4 className="text-2xl font-black mb-2 tracking-tight italic text-shadow-sm">System Status</h4>
-                                <p className="text-indigo-100/60 text-[10px] font-black uppercase tracking-widest max-w-[150px]">Advanced tracking systems fully operational.</p>
+                                <p className="text-[#008080]/60 text-[10px] font-black uppercase tracking-widest max-w-[150px]">Advanced tracking systems fully operational.</p>
                             </div>
                             <div className="w-16 h-16 bg-white/10 rounded-[1.5rem] border border-white/20 flex items-center justify-center backdrop-blur-md">
                                 <ShieldCheck size={32} className="text-white" />

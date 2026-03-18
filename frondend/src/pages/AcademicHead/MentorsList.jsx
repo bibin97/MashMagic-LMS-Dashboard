@@ -110,17 +110,17 @@ const MentorsList = () => {
                 <div>
                     <h2 className="text-3xl font-black text-slate-900 tracking-tighter uppercase italic">Mentor Faculty</h2>
                     <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest mt-2 flex items-center gap-2">
-                        <Users size={14} className="text-indigo-500" />
+                        <Users size={14} className="text-[#008080]" />
                         Academic Head level management of all mentor profiles and assignments
                     </p>
                 </div>
 
                 <div className="relative group">
-                    <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-colors" size={18} />
+                    <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#008080] transition-colors" size={18} />
                     <input
                         type="text"
                         placeholder="FILTER BY NAME OR LOCATION..."
-                        className="pl-14 pr-8 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold uppercase tracking-[0.1em] focus:ring-4 ring-indigo-500/10 w-full md:w-96 shadow-sm transition-all outline-none focus:bg-white"
+                        className="pl-14 pr-8 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold uppercase tracking-[0.1em] focus:ring-4 ring-[#f8ba2b]/10 w-full md:w-96 shadow-sm transition-all outline-none focus:bg-white"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
@@ -134,12 +134,12 @@ const MentorsList = () => {
                         <div className="p-6">
                             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                                 <div className="flex items-center gap-6 flex-1">
-                                    <div className="w-14 h-14 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center text-white text-xl font-black shadow-lg shadow-indigo-100 shrink-0 group-hover:scale-105 transition-transform">
+                                    <div className="w-14 h-14 bg-gradient-to-br from-[#f8ba2b] to-purple-600 rounded-2xl flex items-center justify-center text-white text-xl font-black shadow-lg shadow-[#f8ba2b] shrink-0 group-hover:scale-105 transition-transform">
                                         {mentor.name.charAt(0)}
                                     </div>
                                     <div className="flex flex-col min-w-0">
                                         <div className="flex items-center gap-3">
-                                            <h3 className="text-lg font-black text-slate-900 group-hover:text-indigo-600 transition-colors uppercase italic truncate">{mentor.name}</h3>
+                                            <h3 className="text-lg font-black text-slate-900 group-hover:text-[#008080] transition-colors uppercase italic truncate">{mentor.name}</h3>
                                             <div className={`px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest ${mentor.status === 'active' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-amber-50 text-amber-600 border border-amber-100'}`}>
                                                 {mentor.status}
                                             </div>
@@ -166,11 +166,11 @@ const MentorsList = () => {
                                             className="flex items-center gap-2 mt-3 w-fit group/btn"
                                         >
                                             <div className="flex flex-col items-start">
-                                                <span className="text-[10px] font-black text-indigo-600 uppercase tracking-widest flex items-center gap-2">
+                                                <span className="text-[10px] font-black text-[#008080] uppercase tracking-widest flex items-center gap-2">
                                                     View {mentor.studentCount} Assigned Students
-                                                    <ShieldCheck size={12} className={`transition-all duration-300 ${expandedMentorId === mentor.id ? 'rotate-180 text-purple-600' : 'text-indigo-600'}`} />
+                                                    <ShieldCheck size={12} className={`transition-all duration-300 ${expandedMentorId === mentor.id ? 'rotate-180 text-purple-600' : 'text-[#008080]'}`} />
                                                 </span>
-                                                <div className="h-0.5 w-0 group-hover/btn:w-full bg-indigo-600 transition-all duration-300"></div>
+                                                <div className="h-0.5 w-0 group-hover/btn:w-full bg-[#f8ba2b] transition-all duration-300"></div>
                                             </div>
                                         </button>
                                     </div>
@@ -179,7 +179,7 @@ const MentorsList = () => {
                                 <div className="flex items-center gap-3 shrink-0 self-end md:self-center">
                                     <button
                                         onClick={() => handleEdit(mentor)}
-                                        className="p-3 bg-slate-50 text-blue-600 rounded-xl hover:bg-blue-600 hover:text-white transition-all shadow-sm flex items-center gap-2"
+                                        className="p-3 bg-slate-50 text-slate-900 rounded-xl hover:bg-[#f8ba2b] hover:text-slate-900 transition-all shadow-sm flex items-center gap-2"
                                     >
                                         <Edit2 size={14} />
                                         <span className="text-[10px] font-black uppercase tracking-widest md:hidden">Edit</span>
@@ -199,14 +199,14 @@ const MentorsList = () => {
                                 <div className="mt-8 pt-6 border-t border-slate-50 animate-in slide-in-from-top-4 duration-500">
                                     <div className="flex items-center justify-between mb-4 pl-1">
                                         <div className="flex items-center gap-2">
-                                            <div className="w-1.5 h-4 bg-indigo-600 rounded-full"></div>
+                                            <div className="w-1.5 h-4 bg-[#f8ba2b] rounded-full"></div>
                                             <h5 className="text-[11px] font-black text-slate-900 uppercase italic tracking-wider">Assigned Students Registry</h5>
                                         </div>
                                     </div>
                                     
                                     {loadingStudents ? (
                                         <div className="py-10 text-center">
-                                            <div className="inline-block w-5 h-5 border-2 border-indigo-600/30 border-t-indigo-600 rounded-full animate-spin mb-2"></div>
+                                            <div className="inline-block w-5 h-5 border-2 border-[#f8ba2b]/30 border-t-[#f8ba2b] rounded-full animate-spin mb-2"></div>
                                             <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest italic animate-pulse">Synchronizing student records...</div>
                                         </div>
                                     ) : mentorStudents.length > 0 ? (
@@ -220,10 +220,10 @@ const MentorsList = () => {
                                                 <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest text-right">Performance Status</span>
                                             </div>
                                             {mentorStudents.map((student) => (
-                                                <div key={student.id} className="p-4 bg-slate-50 border border-slate-100 rounded-[2rem] hover:bg-white hover:border-indigo-200 hover:shadow-xl transition-all duration-300 group/student">
+                                                <div key={student.id} className="p-4 bg-slate-50 border border-slate-100 rounded-[2rem] hover:bg-white hover:border-[#f8ba2b] hover:shadow-xl transition-all duration-300 group/student">
                                                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 items-center gap-6">
                                                         <div className="flex items-center gap-4">
-                                                            <div className="w-10 h-10 bg-white rounded-2xl flex items-center justify-center text-slate-500 font-black shadow-sm group-hover/student:bg-indigo-600 group-hover/student:text-white transition-all shrink-0">
+                                                            <div className="w-10 h-10 bg-white rounded-2xl flex items-center justify-center text-slate-500 font-black shadow-sm group-hover/student:bg-[#f8ba2b] group-hover/student:text-slate-900 transition-all shrink-0">
                                                                 {student.name.charAt(0)}
                                                             </div>
                                                             <div className="flex-1 min-w-0">
@@ -243,15 +243,15 @@ const MentorsList = () => {
                                                         </div>
 
                                                         <div className="flex flex-col lg:items-center">
-                                                            <span className="text-[10px] font-black text-indigo-500 uppercase">{student.course}</span>
+                                                            <span className="text-[10px] font-black text-[#008080] uppercase">{student.course}</span>
                                                             <span className="text-[7px] font-bold text-slate-400 uppercase">{student.grade}</span>
                                                         </div>
 
                                                         <div className="flex flex-col items-end">
                                                             <div className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest shadow-sm 
                                                                 ${student.performance === 'Excellent' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 
-                                                                  student.performance === 'Very Good' ? 'bg-blue-50 text-blue-600 border border-blue-100' :
-                                                                  student.performance === 'Good' ? 'bg-indigo-50 text-indigo-600 border border-indigo-100' :
+                                                                  student.performance === 'Very Good' ? 'bg-[#008080]/10 text-[#008080] border border-[#f8ba2b]' :
+                                                                  student.performance === 'Good' ? 'bg-[#008080]/10 text-[#008080] border border-[#f8ba2b]' :
                                                                   student.performance === 'Average' ? 'bg-amber-50 text-amber-600 border border-amber-100' :
                                                                   student.performance === 'Needs Improvement' ? 'bg-rose-50 text-rose-600 border border-rose-100' :
                                                                   'bg-slate-100 text-slate-500 border border-slate-200'}`}>
@@ -286,7 +286,7 @@ const MentorsList = () => {
                     <div className="bg-white rounded-[3rem] shadow-2xl w-full max-w-lg overflow-hidden animate-in slide-in-from-bottom-4 duration-300">
                         <div className="px-8 py-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
                             <h2 className="text-lg font-black text-slate-900 flex items-center gap-3 italic">
-                                <Edit2 size={20} className="text-indigo-600" /> Edit Mentor Profile
+                                <Edit2 size={20} className="text-[#008080]" /> Edit Mentor Profile
                             </h2>
                             <button onClick={() => setIsEditModalOpen(false)} className="w-10 h-10 flex items-center justify-center bg-white rounded-xl text-slate-400 hover:text-slate-600 hover:shadow-md transition-all">
                                 <X size={20} />
@@ -299,7 +299,7 @@ const MentorsList = () => {
                                     type="text"
                                     value={editingMentor.name}
                                     onChange={(e) => setEditingMentor(prev => ({ ...prev, name: e.target.value }))}
-                                    className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-xs font-bold rounded-2xl px-5 py-4 focus:outline-none focus:ring-4 focus:ring-indigo-50 focus:border-indigo-300 transition-all"
+                                    className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-xs font-bold rounded-2xl px-5 py-4 focus:outline-none focus:ring-4 focus:ring-[#f8ba2b] focus:border-[#f8ba2b] transition-all"
                                 />
                             </div>
                             <div>
@@ -308,7 +308,7 @@ const MentorsList = () => {
                                     type="email"
                                     value={editingMentor.email}
                                     onChange={(e) => setEditingMentor(prev => ({ ...prev, email: e.target.value }))}
-                                    className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-xs font-bold rounded-2xl px-5 py-4 focus:outline-none focus:ring-4 focus:ring-indigo-50 focus:border-indigo-300 transition-all"
+                                    className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-xs font-bold rounded-2xl px-5 py-4 focus:outline-none focus:ring-4 focus:ring-[#f8ba2b] focus:border-[#f8ba2b] transition-all"
                                 />
                             </div>
                             <div className="grid grid-cols-2 gap-6">
@@ -318,7 +318,7 @@ const MentorsList = () => {
                                         type="text"
                                         value={editingMentor.phone_number}
                                         onChange={(e) => setEditingMentor(prev => ({ ...prev, phone_number: e.target.value }))}
-                                        className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-xs font-bold rounded-2xl px-5 py-4 focus:outline-none focus:ring-4 focus:ring-indigo-50 focus:border-indigo-300 transition-all"
+                                        className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-xs font-bold rounded-2xl px-5 py-4 focus:outline-none focus:ring-4 focus:ring-[#f8ba2b] focus:border-[#f8ba2b] transition-all"
                                     />
                                 </div>
                                 <div>
@@ -327,7 +327,7 @@ const MentorsList = () => {
                                         type="text"
                                         value={editingMentor.place || ''}
                                         onChange={(e) => setEditingMentor(prev => ({ ...prev, place: e.target.value }))}
-                                        className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-xs font-bold rounded-2xl px-5 py-4 focus:outline-none focus:ring-4 focus:ring-indigo-50 focus:border-indigo-300 transition-all"
+                                        className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-xs font-bold rounded-2xl px-5 py-4 focus:outline-none focus:ring-4 focus:ring-[#f8ba2b] focus:border-[#f8ba2b] transition-all"
                                     />
                                 </div>
                             </div>
@@ -341,7 +341,7 @@ const MentorsList = () => {
                             </button>
                             <button
                                 onClick={handleUpdate}
-                                className="px-8 py-3.5 bg-indigo-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-indigo-100 hover:bg-indigo-700 hover:-translate-y-0.5 active:scale-95 transition-all flex items-center gap-2"
+                                className="px-8 py-3.5 bg-[#f8ba2b] text-slate-900 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-[#f8ba2b] hover:bg-[#f8ba2b] hover:-translate-y-0.5 active:scale-95 transition-all flex items-center gap-2"
                             >
                                 <Save size={16} /> Update Profile
                             </button>

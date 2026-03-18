@@ -11,9 +11,9 @@ export const premiumConfirm = (callback, { name = '', title = '', message = '', 
   const Icon = isDanger ? AlertCircle : ShieldAlert;
   
   // Custom theme colors matching MashMagic Premium Branding
-  const colorClass = isDanger ? 'bg-rose-600 shadow-rose-100 hover:bg-rose-700' : 'bg-slate-900 shadow-slate-100 hover:bg-blue-600';
-  const iconBg = isDanger ? 'bg-rose-50' : 'bg-blue-50';
-  const iconColor = isDanger ? 'text-rose-500' : 'text-blue-500';
+  const colorClass = isDanger ? 'bg-rose-600 shadow-rose-100 hover:bg-rose-700' : 'bg-slate-900 shadow-slate-100 hover:bg-[#f8ba2b]';
+  const iconBg = isDanger ? 'bg-rose-50' : 'bg-[#008080]/10';
+  const iconColor = isDanger ? 'text-rose-500' : 'text-[#008080]';
 
   toast.custom((t) => (
     <div

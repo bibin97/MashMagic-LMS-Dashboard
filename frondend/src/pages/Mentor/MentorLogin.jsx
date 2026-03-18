@@ -44,11 +44,11 @@ const MentorLogin = () => {
     return (
         <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] bg-fixed">
             <div className="max-w-md w-full bg-white p-10 rounded-[2.5rem] shadow-2xl border border-slate-100 relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-blue-50 rounded-full -mr-16 -mt-16 opacity-50"></div>
+                <div className="absolute top-0 right-0 w-32 h-32 bg-[#008080]/10 rounded-full -mr-16 -mt-16 opacity-50"></div>
 
                 <div className="text-center mb-10 relative z-10">
-                    <div className="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center text-white mx-auto mb-4 shadow-lg shadow-blue-200">
-                        <LogIn size={32} />
+                    <div className="w-28 h-28 flex items-center justify-center mx-auto mb-6 transition-transform hover:scale-110 duration-500">
+                        <img src="/mashmagic logo.jpg" alt="Logo" className="w-full h-full object-contain" />
                     </div>
                     <h1 className="text-3xl font-black text-slate-900 tracking-tight">Mentor Login</h1>
                     <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px] mt-2">Secure Access Portal</p>
@@ -58,12 +58,12 @@ const MentorLogin = () => {
                     <div className="space-y-2">
                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Phone Number</label>
                         <div className="relative group">
-                            <Phone size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-600 transition-colors" />
+                            <Phone size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#008080] transition-colors" />
                             <input
                                 name="phone_number"
                                 type="tel"
                                 required
-                                className="w-full p-4 pl-12 bg-slate-50 border border-slate-100 rounded-2xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-blue-100 focus:border-blue-300 transition-all font-bold text-slate-700"
+                                className="w-full p-4 pl-12 bg-slate-50 border border-slate-100 rounded-2xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] focus:border-[#f8ba2b] transition-all font-bold text-slate-700"
                                 placeholder="+91 9876543210"
                                 value={formData.phone_number}
                                 onChange={handleChange}
@@ -74,12 +74,12 @@ const MentorLogin = () => {
                     <div className="space-y-2">
                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Password</label>
                         <div className="relative group">
-                            <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-600 transition-colors" />
+                            <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#008080] transition-colors" />
                             <input
                                 name="password"
                                 type="password"
                                 required
-                                className="w-full p-4 pl-12 bg-slate-50 border border-slate-100 rounded-2xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-blue-100 focus:border-blue-300 transition-all font-bold text-slate-700"
+                                className="w-full p-4 pl-12 bg-slate-50 border border-slate-100 rounded-2xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] focus:border-[#f8ba2b] transition-all font-bold text-slate-700"
                                 placeholder="••••••••"
                                 value={formData.password}
                                 onChange={handleChange}
@@ -90,7 +90,7 @@ const MentorLogin = () => {
                     <button
                         type="submit"
                         disabled={isSubmitting}
-                        className="w-full bg-blue-600 text-white p-4 rounded-2xl font-black text-sm uppercase tracking-widest shadow-lg shadow-blue-200 hover:bg-blue-700 hover:-translate-y-1 transition-all flex items-center justify-center gap-2 mt-4"
+                        className="w-full bg-[#f8ba2b] text-slate-900 p-4 rounded-2xl font-black text-sm uppercase tracking-widest shadow-lg shadow-[#f8ba2b] hover:bg-[#f8ba2b] hover:-translate-y-1 transition-all flex items-center justify-center gap-2 mt-4"
                     >
                         {isSubmitting ? <Loader2 size={20} className="animate-spin" /> : <>Login <ChevronRight size={18} /></>}
                     </button>
@@ -98,7 +98,7 @@ const MentorLogin = () => {
                     <div className="text-center mt-6">
                         <p className="text-slate-400 text-xs font-bold uppercase tracking-widest">
                             New Mentor?{' '}
-                            <Link to="/mentor/signup" className="text-blue-600 hover:text-blue-800 transition-colors">Register Here</Link>
+                            <Link to="/mentor/signup" className="text-[#008080] hover:text-[#008080] transition-colors">Register Here</Link>
                         </p>
                     </div>
                 </form>

@@ -56,7 +56,7 @@ const AcademicHeadFacultyActivity = () => {
                 <div>
                     <h2 className="text-3xl font-black text-slate-900 tracking-tighter">Faculty Activity</h2>
                     <p className="text-slate-500 text-xs font-bold uppercase tracking-widest mt-2 flex items-center gap-2">
-                        <Activity size={14} className="text-indigo-500" />
+                        <Activity size={14} className="text-[#008080]" />
                         Monitoring of faculty sessions and academic reports
                     </p>
                 </div>
@@ -80,16 +80,16 @@ const AcademicHeadFacultyActivity = () => {
             {/* Filter Bar */}
             <div className="flex flex-col md:flex-row gap-4 items-center">
                 <div className="relative flex-1 group w-full">
-                    <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-indigo-500 transition-colors" size={18} />
+                    <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#008080] transition-colors" size={18} />
                     <input
                         type="text"
                         placeholder={activeTab === 'sessions' ? "Filter by faculty or topic..." : "Filter by faculty, student or remarks..."}
-                        className="w-full pl-16 pr-8 py-5 bg-white border border-slate-100 rounded-[2rem] text-sm font-bold text-slate-700 outline-none focus:ring-4 focus:ring-indigo-50 transition-all shadow-sm"
+                        className="w-full pl-16 pr-8 py-5 bg-white border border-slate-100 rounded-[2rem] text-sm font-bold text-slate-700 outline-none focus:ring-4 focus:ring-[#f8ba2b] transition-all shadow-sm"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
                 </div>
-                <button className="p-5 bg-white border border-slate-100 rounded-2xl text-slate-400 hover:text-indigo-600 transition-all shadow-sm">
+                <button className="p-5 bg-white border border-slate-100 rounded-2xl text-slate-400 hover:text-[#008080] transition-all shadow-sm">
                     <Filter size={20} />
                 </button>
             </div>
@@ -110,7 +110,7 @@ const AcademicHeadFacultyActivity = () => {
                             <div className="absolute top-0 right-0 w-80 h-80 bg-slate-50 rounded-full -mr-40 -mt-40 transition-transform duration-700 group-hover:scale-110"></div>
 
                             {/* Icon Section */}
-                            <div className={`w-20 h-20 rounded-[2rem] flex items-center justify-center relative z-10 shrink-0 ${activeTab === 'sessions' ? 'bg-indigo-50 text-indigo-500' : 'bg-emerald-50 text-emerald-500'}`}>
+                            <div className={`w-20 h-20 rounded-[2rem] flex items-center justify-center relative z-10 shrink-0 ${activeTab === 'sessions' ? 'bg-[#008080]/10 text-[#008080]' : 'bg-emerald-50 text-emerald-500'}`}>
                                 {activeTab === 'sessions' ? <Clock size={32} /> : <ClipboardList size={32} />}
                             </div>
 
@@ -131,8 +131,8 @@ const AcademicHeadFacultyActivity = () => {
                                         {activeTab === 'sessions' ? item.topic : `Report on ${item.student_name}`}
                                     </h3>
                                     <p className="text-slate-500 text-sm font-bold flex items-center gap-2 mt-1">
-                                        <User size={14} className="text-indigo-400" />
-                                        Lead: <span className="text-indigo-600">{item.faculty_name}</span>
+                                        <User size={14} className="text-[#008080]" />
+                                        Lead: <span className="text-[#008080]">{item.faculty_name}</span>
                                     </p>
                                 </div>
 
@@ -161,14 +161,14 @@ const AcademicHeadFacultyActivity = () => {
                                             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Audit Status</p>
                                             <p className="text-lg font-black text-slate-900 tracking-tight capitalize">{item.status}</p>
                                         </div>
-                                        <div className={`px-4 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest inline-block ${item.type === 'Academic' ? 'bg-indigo-100 text-indigo-700' : 'bg-rose-100 text-rose-700'
+                                        <div className={`px-4 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest inline-block ${item.type === 'Academic' ? 'bg-[#f8ba2b] text-slate-900' : 'bg-rose-100 text-rose-700'
                                             }`}>
                                             {item.type} Issue
                                         </div>
                                     </div>
                                 )}
 
-                                <button className="mt-2 flex items-center justify-center lg:justify-end gap-2 text-[10px] font-black text-indigo-500 uppercase tracking-widest hover:text-indigo-700 transition-all group">
+                                <button className="mt-2 flex items-center justify-center lg:justify-end gap-2 text-[10px] font-black text-[#008080] uppercase tracking-widest hover:text-[#008080] transition-all group">
                                     Deep Dive Analysis
                                     <ArrowUpRight size={14} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
                                 </button>

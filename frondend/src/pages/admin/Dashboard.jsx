@@ -65,9 +65,9 @@ const Dashboard = () => {
     ];
 
     const pieData = [
-        { name: 'Students', value: stats.students, color: '#3b82f6' },
-        { name: 'Mentors', value: stats.mentors, color: '#10b981' },
-        { name: 'Faculties', value: stats.faculties, color: '#f59e0b' },
+        { name: 'Students', value: stats.students, color: '#008080' },
+        { name: 'Mentors', value: stats.mentors, color: '#f8ba2b' },
+        { name: 'Faculties', value: stats.faculties, color: '#006666' },
     ];
 
     const performanceData = [
@@ -131,7 +131,7 @@ const Dashboard = () => {
                 }
 
                 if (distRes.data.success) {
-                    const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4', '#f97316'];
+                    const colors = ['#008080', '#f8ba2b', '#006666', '#e5a91f', '#004d4d', '#cca014'];
                     const mappedDist = distRes.data.data.map((item, idx) => ({
                         name: item.mentor_name,
                         value: Number(item.student_count || 0),
@@ -228,7 +228,7 @@ const Dashboard = () => {
                 <div className="w-full bg-white p-4 sm:p-8 rounded-2xl border border-slate-200 shadow-sm">
                     <div className="flex justify-between items-center mb-10">
                         <div className="flex items-center gap-3">
-                            <div className="p-2.5 bg-blue-50 text-blue-600 rounded-xl">
+                            <div className="p-2.5 bg-[#008080]/10 text-[#008080] rounded-xl">
                                 <BarChart3 size={20} />
                             </div>
                             <h4 className="text-lg font-bold text-slate-800">Task Performance Trend</h4>
@@ -236,7 +236,7 @@ const Dashboard = () => {
                         <select
                             value={taskFilter}
                             onChange={(e) => setTaskFilter(e.target.value)}
-                            className="bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-xs font-bold text-slate-500 outline-none hover:border-blue-400 transition-colors"
+                            className="bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-xs font-bold text-slate-500 outline-none hover:border-[#f8ba2b] transition-colors"
                         >
                             <option value="today">Today</option>
                             <option value="yesterday">Yesterday</option>
@@ -310,7 +310,7 @@ const Dashboard = () => {
                                         <Bar
                                             name="Tasks"
                                             dataKey="tasks"
-                                            fill="#475569"
+                                            fill="#008080"
                                             radius={[4, 4, 0, 0]}
                                             barSize={45}
                                             minPointSize={taskPerformance.length > 30 ? 2 : 5}
@@ -318,7 +318,7 @@ const Dashboard = () => {
                                         <Bar
                                             name="Task Completed"
                                             dataKey="completed"
-                                            fill="#3b82f6"
+                                            fill="#f8ba2b"
                                             radius={[4, 4, 0, 0]}
                                             barSize={45}
                                             minPointSize={taskPerformance.length > 30 ? 2 : 5}
@@ -334,7 +334,7 @@ const Dashboard = () => {
                     {/* Pie Chart Card */}
                     <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm flex flex-col">
                         <div className="flex items-center gap-3 mb-10">
-                            <div className="p-2.5 bg-indigo-50 text-indigo-600 rounded-xl">
+                            <div className="p-2.5 bg-[#008080]/10 text-[#008080] rounded-xl">
                                 <Users size={20} />
                             </div>
                             <h4 className="text-lg font-bold text-slate-800">Mentor Distribution</h4>
@@ -364,7 +364,7 @@ const Dashboard = () => {
                                                     return (
                                                         <div className="bg-white p-3 rounded-lg shadow-xl border border-slate-100 font-bold text-xs">
                                                             <p className="text-slate-500 mb-1">{payload[0].name}</p>
-                                                            <p className="text-blue-600">{payload[0].value} Students</p>
+                                                            <p className="text-[#008080]">{payload[0].value} Students</p>
                                                         </div>
                                                     );
                                                 }
@@ -420,8 +420,8 @@ const Dashboard = () => {
                                     <PieChart>
                                         <Pie
                                             data={[
-                                                { name: 'Checked Today', value: mentorHeadReport.checkedToday, color: '#10b981' },
-                                                { name: 'Remaining', value: mentorHeadReport.remaining, color: '#f43f5e' }
+                                                { name: 'Checked Today', value: mentorHeadReport.checkedToday, color: '#008080' },
+                                                { name: 'Remaining', value: mentorHeadReport.remaining, color: '#f8ba2b' }
                                             ]}
                                             cx="50%"
                                             cy="50%"
@@ -431,8 +431,8 @@ const Dashboard = () => {
                                             dataKey="value"
                                         >
                                             {[
-                                                { name: 'Checked Today', value: mentorHeadReport.checkedToday, color: '#10b981' },
-                                                { name: 'Remaining', value: mentorHeadReport.remaining, color: '#f43f5e' }
+                                                { name: 'Checked Today', value: mentorHeadReport.checkedToday, color: '#008080' },
+                                                { name: 'Remaining', value: mentorHeadReport.remaining, color: '#f8ba2b' }
                                             ].map((entry, index) => (
                                                 <Cell key={`cell-${index}`} fill={entry.color} />
                                             ))}
@@ -510,9 +510,9 @@ const Dashboard = () => {
                                     name="Success %"
                                     type="monotone"
                                     dataKey={examData.length > 0 ? "percentage" : "score"}
-                                    stroke="#10b981"
+                                    stroke="#008080"
                                     strokeWidth={4}
-                                    dot={{ fill: '#10b981', r: 6, strokeWidth: 2, stroke: '#fff' }}
+                                    dot={{ fill: '#008080', r: 6, strokeWidth: 2, stroke: '#fff' }}
                                     activeDot={{ r: 8, strokeWidth: 0 }}
                                 />
                             </LineChart>

@@ -109,7 +109,7 @@ const StudentLogs = () => {
                                     </div>
                                 </div>
                                 <div className="text-right">
-                                    <div className="inline-flex items-center gap-2 bg-indigo-50 px-4 py-2 rounded-xl text-indigo-600 border border-indigo-100">
+                                    <div className="inline-flex items-center gap-2 bg-[#008080]/10 px-4 py-2 rounded-xl text-[#008080] border border-[#f8ba2b]">
                                         <User size={12} />
                                         <span className="text-[9px] font-black uppercase tracking-widest">{log.mentor_name}</span>
                                     </div>
@@ -145,7 +145,7 @@ const StudentLogs = () => {
 
                             <div className="relative group/notes">
                                 <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-2 italic">
-                                    <MessageSquare size={10} className="text-indigo-400" /> Mentor Intel Registry
+                                    <MessageSquare size={10} className="text-[#008080]" /> Mentor Intel Registry
                                 </p>
                                 <p className="text-xs text-slate-600 font-bold leading-relaxed line-clamp-3 group-hover/notes:line-clamp-none transition-all duration-500 italic">
                                     {log.mentor_notes}
@@ -156,7 +156,7 @@ const StudentLogs = () => {
                                 <div className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[8px] font-black uppercase tracking-widest shadow-sm ${log.parent_update_priority === 'High' ? 'bg-rose-50 text-rose-500 border border-rose-100 animate-pulse' : 'bg-slate-50 text-slate-500 border border-slate-100'}`}>
                                     {log.parent_update_priority} Priority Alert
                                 </div>
-                                <button className="text-[9px] font-black text-indigo-500 uppercase tracking-widest flex items-center gap-2 hover:gap-3 transition-all duration-300 italic group-hover:translate-x-1">
+                                <button className="text-[9px] font-black text-[#008080] uppercase tracking-widest flex items-center gap-2 hover:gap-3 transition-all duration-300 italic group-hover:translate-x-1">
                                     Full Investigation <ChevronDown size={14} />
                                 </button>
                             </div>
@@ -216,7 +216,7 @@ const StudentLogs = () => {
                                             <ShieldAlert size={14} className="text-rose-500" /> Barriers Identified
                                         </h4>
                                         <div className="bg-slate-50 p-8 rounded-[3rem] border border-slate-100/50 min-h-[150px]">
-                                            <p className="text-xs font-black text-indigo-500 uppercase tracking-widest mb-2 italic">Confusing Topics:</p>
+                                            <p className="text-xs font-black text-[#008080] uppercase tracking-widest mb-2 italic">Confusing Topics:</p>
                                             <p className="text-sm font-bold text-slate-700 leading-relaxed italic">
                                                 {selectedLog.confusing_topic || "No specific roadblocks claimed."}
                                             </p>
@@ -238,11 +238,11 @@ const StudentLogs = () => {
                                 <div className="space-y-10">
                                     <div className="space-y-4">
                                         <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2 h-10 border-b border-slate-50 italic">
-                                            <Activity size={14} className="text-indigo-500" /> Operational Action Plan
+                                            <Activity size={14} className="text-[#008080]" /> Operational Action Plan
                                         </h4>
                                         <div className="space-y-6">
                                             <div className="flex items-start gap-4 p-6 bg-slate-50 rounded-3xl border border-slate-100">
-                                                <div className="w-10 h-10 bg-white rounded-2xl shadow-sm flex items-center justify-center text-indigo-500">
+                                                <div className="w-10 h-10 bg-white rounded-2xl shadow-sm flex items-center justify-center text-[#008080]">
                                                     <BarChart3 size={20} />
                                                 </div>
                                                 <div>

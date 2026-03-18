@@ -41,16 +41,16 @@ const FacultyLayout = () => {
     return (
         <div className="min-h-screen bg-slate-50 flex font-sans">
             {/* Sidebar */}
-            <aside className="fixed left-0 top-0 h-full w-72 bg-slate-900 flex flex-col z-[1000] shadow-2xl overflow-hidden">
+            <aside className="fixed left-0 top-0 h-full w-72 bg-[#008080] flex flex-col z-[1000] shadow-2xl overflow-hidden">
                 {/* Branding */}
                 <div className="p-8 border-b border-slate-800/50">
                     <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 bg-indigo-500 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-indigo-500/20 rotate-6 transform transition-transform hover:rotate-0 duration-500">
-                            <span className="text-2xl font-black">M</span>
+                        <div className="w-14 h-14 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center shadow-lg shadow-black/10 rotate-6 transform transition-transform hover:rotate-0 duration-500 overflow-hidden p-2">
+                            <img src="/mashmagic logo.jpg" alt="Logo" className="w-full h-full object-contain" />
                         </div>
                         <div>
                             <h1 className="text-xl font-black text-white tracking-tighter italic">MashMagic</h1>
-                            <p className="text-[10px] font-black text-indigo-400 uppercase tracking-[0.2em]">Faculty Panel</p>
+                            <p className="text-[10px] font-black text-[#008080] uppercase tracking-[0.2em]">Faculty Panel</p>
                         </div>
                     </div>
                 </div>
@@ -64,7 +64,7 @@ const FacultyLayout = () => {
                             className={({ isActive }) => `
                                 flex items-center justify-between px-5 py-4 rounded-2xl transition-all duration-500 group
                                 ${isActive
-                                    ? 'bg-gradient-to-r from-indigo-600 to-indigo-500 text-white font-bold shadow-xl shadow-indigo-600/20 -translate-y-0.5'
+                                    ? 'bg-gradient-to-r from-[#f8ba2b] to-[#f8ba2b] text-white font-bold shadow-xl shadow-[#f8ba2b]/20 -translate-y-0.5'
                                     : 'text-slate-400 hover:bg-slate-800/50 hover:text-white'}
                             `}
                         >
@@ -85,10 +85,10 @@ const FacultyLayout = () => {
 
                 {/* Footer User Profile */}
                 <div className="p-6 mt-auto">
-                    <div className="bg-slate-800/40 backdrop-blur-md rounded-[2.5rem] p-5 border border-slate-700/50 hover:border-indigo-500/50 transition-all duration-500 group">
+                    <div className="bg-slate-800/40 backdrop-blur-md rounded-[2.5rem] p-5 border border-slate-700/50 hover:border-[#f8ba2b]/50 transition-all duration-500 group">
                         <div className="flex items-center gap-4">
                             <div className="relative">
-                                <div className="w-12 h-12 bg-slate-700 rounded-2xl border-2 border-slate-600 flex items-center justify-center text-indigo-400 group-hover:border-indigo-500 transition-colors duration-500 overflow-hidden">
+                                <div className="w-12 h-12 bg-slate-700 rounded-2xl border-2 border-slate-600 flex items-center justify-center text-[#008080] group-hover:border-[#f8ba2b] transition-colors duration-500 overflow-hidden">
                                     {user?.profile_image ? (
                                         <img src={user.profile_image} alt="Profile" className="w-full h-full object-cover" />
                                     ) : (
@@ -104,7 +104,7 @@ const FacultyLayout = () => {
                         </div>
                         <button
                             onClick={handleLogout}
-                            className="mt-4 w-full flex items-center justify-center gap-3 px-4 py-3 bg-rose-500/10 hover:bg-rose-500 text-rose-500 hover:text-white rounded-2xl transition-all duration-500 text-[10px] font-black uppercase tracking-widest shadow-sm"
+                            className="mt-4 w-full flex items-center justify-center gap-3 px-4 py-3 rounded-2xl transition-all duration-500 text-[10px] font-black uppercase tracking-widest shadow-sm bg-[#f8ba2b] text-slate-900 hover:brightness-110 shadow-lg"
                         >
                             <LogOut size={14} />
                             <span>Logout</span>
@@ -117,14 +117,14 @@ const FacultyLayout = () => {
             <main className="flex-1 ml-72 min-h-screen relative overflow-x-hidden">
                 {/* Dynamic Background Elements */}
                 <div className="fixed inset-0 pointer-events-none overflow-hidden">
-                    <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-indigo-500/5 rounded-full blur-[100px]"></div>
+                    <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-[#f8ba2b]/5 rounded-full blur-[100px]"></div>
                     <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-rose-500/5 rounded-full blur-[100px]"></div>
                 </div>
 
                 {/* Navbar */}
                 <header className="sticky top-0 z-[900] bg-slate-50/80 backdrop-blur-xl border-b border-slate-200/50 px-8 py-6 flex justify-between items-center transition-all duration-500">
                     <div className="flex items-center gap-4">
-                        <div className="w-1 h-8 bg-indigo-500 rounded-full"></div>
+                        <div className="w-1 h-8 bg-[#f8ba2b] rounded-full"></div>
                         <div>
                             <h2 className="text-2xl font-black text-slate-900 tracking-tight leading-none">Control Center</h2>
                             <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em] mt-2">MashMagic University Management</p>
@@ -145,13 +145,13 @@ const FacultyLayout = () => {
                         </div>
 
                         <div className="flex items-center gap-3">
-                            <button className="relative w-12 h-12 bg-white border border-slate-200 rounded-2xl flex items-center justify-center text-slate-400 hover:text-indigo-600 hover:border-indigo-200 transition-all duration-500 hover:shadow-xl hover:shadow-indigo-500/10 group">
+                            <button className="relative w-12 h-12 bg-white border border-slate-200 rounded-2xl flex items-center justify-center text-slate-400 hover:text-[#008080] hover:border-[#f8ba2b] transition-all duration-500 hover:shadow-xl hover:shadow-[#f8ba2b]/10 group">
                                 <Bell size={20} className="group-hover:rotate-12 transition-transform" />
                                 <span className="absolute top-3 right-3 w-2.5 h-2.5 bg-rose-500 border-2 border-white rounded-full"></span>
                             </button>
                             <button
                                 onClick={() => navigate('/faculty/profile')}
-                                className="w-12 h-12 bg-white border border-slate-200 rounded-2xl flex items-center justify-center text-slate-400 hover:text-indigo-600 hover:border-indigo-200 transition-all duration-500 hover:shadow-xl hover:shadow-indigo-500/10 group overflow-hidden"
+                                className="w-12 h-12 bg-white border border-slate-200 rounded-2xl flex items-center justify-center text-slate-400 hover:text-[#008080] hover:border-[#f8ba2b] transition-all duration-500 hover:shadow-xl hover:shadow-[#f8ba2b]/10 group overflow-hidden"
                             >
                                 {user?.profile_image ? (
                                     <img src={user.profile_image} alt="Profile" className="w-full h-full object-cover" />

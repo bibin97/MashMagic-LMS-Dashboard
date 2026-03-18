@@ -86,11 +86,11 @@ const MentorLayout = () => {
     return (
         <div className="min-h-screen bg-slate-50 flex">
             {/* Sidebar */}
-            <aside className="fixed left-0 top-0 h-full w-64 bg-white border-r border-slate-200 flex flex-col z-[1000] shadow-sm">
+            <aside className="fixed left-0 top-0 h-full w-64 bg-[#008080] flex flex-col z-[1000] shadow-2xl text-white">
                 <div className="p-8 border-b border-slate-50">
-                    <h1 className="text-xl font-black text-slate-900 tracking-tighter flex items-center gap-2">
-                        <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white shadow-lg shadow-blue-100 rotate-3">
-                            M
+                    <h1 className="text-xl font-black text-white tracking-tighter flex items-center gap-3">
+                        <div className="w-12 h-12 flex items-center justify-center rotate-3 transform transition-transform hover:rotate-0 duration-500">
+                            <img src="/mashmagic logo.jpg" alt="Logo" className="w-full h-full object-contain" />
                         </div>
                         Mentor Hub
                     </h1>
@@ -104,8 +104,8 @@ const MentorLayout = () => {
                             className={({ isActive }) => `
                                 flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-300 group
                                 ${isActive
-                                    ? 'bg-blue-600 text-white font-bold shadow-xl shadow-blue-100 -translate-y-0.5'
-                                    : 'text-slate-500 hover:bg-slate-50 hover:text-blue-600'}
+                                    ? 'bg-[#f8ba2b] text-white font-bold shadow-xl shadow-[#f8ba2b] -translate-y-0.5'
+                                    : 'text-white/70 hover:bg-white/10 hover:text-white'}
                             `}
                         >
                             <span className="transition-transform group-hover:scale-110">{item.icon}</span>
@@ -120,18 +120,18 @@ const MentorLayout = () => {
                 </nav>
 
                 <div className="p-4 border-t border-slate-50">
-                    <div className="bg-slate-50 p-4 rounded-3xl mb-4 border border-slate-100 flex items-center gap-3">
-                        <div className="w-10 h-10 bg-white rounded-2xl shadow-sm border border-slate-100 flex items-center justify-center text-blue-600">
+                    <div className="bg-white/10 backdrop-blur-sm p-4 rounded-3xl mb-4 border border-white/10 flex items-center gap-3">
+                        <div className="w-10 h-10 bg-white rounded-2xl shadow-sm border border-slate-100 flex items-center justify-center text-[#008080]">
                             <User size={20} />
                         </div>
                         <div className="flex flex-col overflow-hidden">
-                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Authenticated As</span>
-                            <span className="text-xs font-bold text-slate-700 truncate">{user?.name}</span>
+                            <span className="text-[10px] font-black text-white/50 uppercase tracking-widest leading-none mb-1">Authenticated As</span>
+                            <span className="text-xs font-bold text-white truncate">{user?.name}</span>
                         </div>
                     </div>
                     <button
                         onClick={handleLogout}
-                        className="w-full flex items-center gap-3 px-4 py-4 text-rose-500 hover:bg-rose-50 rounded-2xl transition-all duration-300 text-[10px] font-black uppercase tracking-widest"
+                        className="w-full flex items-center gap-3 px-4 py-4 rounded-2xl transition-all duration-300 text-[10px] font-black uppercase tracking-widest bg-[#f8ba2b] text-slate-900 hover:brightness-110 shadow-lg"
                     >
                         <LogOut size={16} />
                         <span>Logout</span>
@@ -147,7 +147,7 @@ const MentorLayout = () => {
                         <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mt-1">MashMagic Mentor Operational Dashboard</p>
                     </div>
                     <div className="flex items-center gap-4">
-                        <button className="w-10 h-10 bg-white border border-slate-100 rounded-2xl flex items-center justify-center text-slate-400 hover:text-blue-600 transition-all hover:shadow-lg shadow-slate-200">
+                        <button className="w-10 h-10 bg-white border border-slate-100 rounded-2xl flex items-center justify-center text-slate-400 hover:text-[#008080] transition-all hover:shadow-lg shadow-slate-200">
                             <Bell size={18} />
                         </button>
                     </div>

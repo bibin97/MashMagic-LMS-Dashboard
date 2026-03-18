@@ -144,7 +144,7 @@ const StaffManagement = () => {
                             <UserCog size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
                             <input
                                 type="text"
-                                className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-blue-50 transition-all shadow-sm"
+                                className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-[#008080] transition-all shadow-sm"
                                 value={editFormData.name}
                                 onChange={(e) => setEditFormData({ ...editFormData, name: e.target.value })}
                                 required
@@ -159,7 +159,7 @@ const StaffManagement = () => {
                                 <Mail size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
                                 <input
                                     type="email"
-                                    className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-[13px] font-bold outline-none focus:bg-white focus:ring-4 focus:ring-blue-50 transition-all shadow-sm"
+                                    className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-[13px] font-bold outline-none focus:bg-white focus:ring-4 focus:ring-[#008080] transition-all shadow-sm"
                                     value={editFormData.email}
                                     onChange={(e) => setEditFormData({ ...editFormData, email: e.target.value })}
                                     required
@@ -172,7 +172,7 @@ const StaffManagement = () => {
                                 <Phone size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
                                 <input
                                     type="text"
-                                    className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-[13px] font-bold outline-none focus:bg-white focus:ring-4 focus:ring-blue-50 transition-all shadow-sm"
+                                    className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-[13px] font-bold outline-none focus:bg-white focus:ring-4 focus:ring-[#008080] transition-all shadow-sm"
                                     value={editFormData.phone_number}
                                     onChange={(e) => setEditFormData({ ...editFormData, phone_number: e.target.value })}
                                 />
@@ -186,7 +186,7 @@ const StaffManagement = () => {
                             <div className="relative">
                                 <Briefcase size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
                                 <select
-                                    className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-blue-50 transition-all shadow-sm appearance-none"
+                                    className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-[#008080] transition-all shadow-sm appearance-none"
                                     value={editFormData.role}
                                     onChange={(e) => setEditFormData({ ...editFormData, role: e.target.value })}
                                 >
@@ -202,7 +202,7 @@ const StaffManagement = () => {
                             <div className="relative">
                                 <ShieldCheck size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
                                 <select
-                                    className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-blue-50 transition-all shadow-sm appearance-none"
+                                    className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-[#008080] transition-all shadow-sm appearance-none"
                                     value={editFormData.status}
                                     onChange={(e) => setEditFormData({ ...editFormData, status: e.target.value })}
                                 >
@@ -224,7 +224,7 @@ const StaffManagement = () => {
                         </button>
                         <button
                             type="submit"
-                            className="px-8 py-3 rounded-2xl bg-indigo-600 text-white text-sm font-bold hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100 active:scale-95"
+                            className="px-8 py-3 rounded-2xl bg-[#f8ba2b] text-slate-900 text-sm font-bold hover:bg-[#f8ba2b] transition-all shadow-lg shadow-[#f8ba2b] active:scale-95"
                         >
                             Commit Changes
                         </button>

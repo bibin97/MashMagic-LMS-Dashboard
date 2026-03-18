@@ -185,7 +185,7 @@ const Students = () => {
                     <select 
                         value={sortBy} 
                         onChange={(e) => setSortBy(e.target.value)}
-                        className="bg-slate-50 border-none text-xs font-black uppercase tracking-wider py-2 px-4 rounded-xl outline-none focus:ring-2 focus:ring-indigo-100 transition-all cursor-pointer"
+                        className="bg-slate-50 border-none text-xs font-black uppercase tracking-wider py-2 px-4 rounded-xl outline-none focus:ring-2 focus:ring-[#f8ba2b] transition-all cursor-pointer"
                     >
                         <option value="newest">Newest First</option>
                         <option value="oldest">Oldest First</option>
@@ -218,7 +218,7 @@ const Students = () => {
                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2">Full Name</label>
                         <input
                             type="text"
-                            className="p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-blue-50 transition-all"
+                            className="p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-[#008080] transition-all"
                             value={editFormData.name}
                             onChange={(e) => setEditFormData({ ...editFormData, name: e.target.value })}
                             required
@@ -228,7 +228,7 @@ const Students = () => {
                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2">Grade</label>
                         <input
                             type="text"
-                            className="p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-blue-50 transition-all"
+                            className="p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-[#008080] transition-all"
                             value={editFormData.grade}
                             onChange={(e) => setEditFormData({ ...editFormData, grade: e.target.value })}
                             required
@@ -238,7 +238,7 @@ const Students = () => {
                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2">Subject</label>
                         <input
                             type="text"
-                            className="p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-blue-50 transition-all"
+                            className="p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-[#008080] transition-all"
                             value={editFormData.subject}
                             onChange={(e) => setEditFormData({ ...editFormData, subject: e.target.value })}
                             required
@@ -248,7 +248,7 @@ const Students = () => {
                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2">Next Installment</label>
                         <input
                             type="date"
-                            className="p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-blue-50 transition-all"
+                            className="p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-[#008080] transition-all"
                             value={editFormData.nextInstallment}
                             onChange={(e) => setEditFormData({ ...editFormData, nextInstallment: e.target.value })}
                         />
@@ -256,7 +256,7 @@ const Students = () => {
                     <div className="col-span-2 flex flex-col gap-2">
                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2">Status</label>
                         <select
-                            className="p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-blue-50 transition-all"
+                            className="p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-[#008080] transition-all"
                             value={editFormData.status}
                             onChange={(e) => setEditFormData({ ...editFormData, status: e.target.value })}
                         >
@@ -269,14 +269,14 @@ const Students = () => {
                     <div className="col-span-2 flex flex-col gap-2">
                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2">Timetable Summary</label>
                         <textarea
-                            className="p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-blue-50 transition-all min-h-[100px]"
+                            className="p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-[#008080] transition-all min-h-[100px]"
                             value={editFormData.timetable}
                             onChange={(e) => setEditFormData({ ...editFormData, timetable: e.target.value })}
                         />
                     </div>
                     <div className="col-span-2 flex justify-end gap-3 pt-4">
                         <button type="button" className="px-6 py-3 rounded-xl border border-slate-200 text-sm font-bold text-slate-600 hover:bg-slate-50 transition-all" onClick={() => setIsEditModalOpen(false)}>Cancel</button>
-                        <button type="submit" className="px-6 py-3 rounded-xl bg-indigo-600 text-white text-sm font-bold hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100">Update Student Data</button>
+                        <button type="submit" className="px-6 py-3 rounded-xl bg-[#f8ba2b] text-slate-900 text-sm font-bold hover:bg-[#f8ba2b] transition-all shadow-lg shadow-[#f8ba2b]">Update Student Data</button>
                     </div>
                 </form>
             </Modal>
@@ -290,7 +290,7 @@ const Students = () => {
                 {selectedStudent && (
                     <div className="flex flex-col gap-10">
                         <div className="flex items-center gap-6 p-6 bg-slate-50/50 rounded-3xl border border-slate-100">
-                            <div className="w-20 h-20 bg-blue-600 text-white rounded-3xl flex items-center justify-center text-3xl font-bold shadow-lg shadow-blue-200">
+                            <div className="w-20 h-20 bg-[#f8ba2b] text-slate-900 rounded-3xl flex items-center justify-center text-3xl font-bold shadow-lg shadow-[#f8ba2b]">
                                 {selectedStudent.name.charAt(0)}
                             </div>
                             <div className="flex flex-col gap-1">
@@ -319,7 +319,7 @@ const Students = () => {
                                 {dailyHours.length > 0 ? dailyHours.map((log) => (
                                     <div key={log.id} className="flex justify-between items-center bg-slate-50 p-3 rounded-xl border border-slate-100">
                                         <span className="text-sm font-bold text-slate-700">{new Date(log.date).toLocaleDateString()}</span>
-                                        <span className="text-sm font-black text-blue-600">{log.hours} Hrs</span>
+                                        <span className="text-sm font-black text-[#008080]">{log.hours} Hrs</span>
                                     </div>
                                 )) : (
                                     <p className="text-sm text-slate-400 font-medium italic">No hours logged yet.</p>
@@ -329,7 +329,7 @@ const Students = () => {
 
                         <div className="flex justify-end gap-3 pt-6 border-t border-slate-100">
                             <button className="px-6 py-2.5 rounded-xl border border-slate-200 text-sm font-bold text-slate-600 hover:bg-slate-50 transition-all" onClick={() => setIsModalOpen(false)}>Close</button>
-                            <button className="px-6 py-2.5 rounded-xl bg-blue-600 text-white text-sm font-bold hover:bg-blue-700 transition-all shadow-md shadow-blue-100">Edit Academic Info</button>
+                            <button className="px-6 py-2.5 rounded-xl bg-[#f8ba2b] text-slate-900 text-sm font-bold hover:bg-[#f8ba2b] transition-all shadow-md shadow-[#f8ba2b]">Edit Academic Info</button>
                         </div>
                     </div>
                 )}
@@ -339,9 +339,9 @@ const Students = () => {
 };
 
 const InfoGroup = ({ label, value, highlight }) => (
-    <div className="flex flex-col gap-1.5 p-4 bg-white rounded-2xl border border-slate-100 hover:border-blue-200 transition-all group">
-        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest group-hover:text-blue-400 transition-colors">{label}</label>
-        <p className={`text-base font-semibold ${highlight ? 'text-blue-600' : 'text-slate-700'}`}>{value}</p>
+    <div className="flex flex-col gap-1.5 p-4 bg-white rounded-2xl border border-slate-100 hover:border-[#f8ba2b] transition-all group">
+        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest group-hover:text-[#008080] transition-colors">{label}</label>
+        <p className={`text-base font-semibold ${highlight ? 'text-[#008080]' : 'text-slate-700'}`}>{value}</p>
     </div>
 );
 

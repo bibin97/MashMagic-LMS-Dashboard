@@ -93,11 +93,11 @@ const FacultyDirectory = () => {
                 </div>
 
                 <div className="relative group">
-                    <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-colors" size={18} />
+                    <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#008080] transition-colors" size={18} />
                     <input
                         type="text"
                         placeholder="FILTER BY NAME OR EMAIL..."
-                        className="pl-14 pr-8 py-4 bg-slate-50 border border-slate-100 rounded-3xl text-xs font-bold uppercase tracking-[0.1em] focus:ring-4 ring-indigo-500/10 w-full md:w-96 shadow-sm transition-all outline-none focus:bg-white"
+                        className="pl-14 pr-8 py-4 bg-slate-50 border border-slate-100 rounded-3xl text-xs font-bold uppercase tracking-[0.1em] focus:ring-4 ring-[#f8ba2b]/10 w-full md:w-96 shadow-sm transition-all outline-none focus:bg-white"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
@@ -123,11 +123,11 @@ const FacultyDirectory = () => {
                                 <tr key={faculty.id} className="hover:bg-emerald-50/20 transition-all group">
                                     <td className="px-8 py-6">
                                         <div className="flex items-center gap-4">
-                                            <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-indigo-600 rounded-2xl flex items-center justify-center text-white text-lg font-black shadow-lg shadow-emerald-100">
+                                            <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-[#f8ba2b] rounded-2xl flex items-center justify-center text-white text-lg font-black shadow-lg shadow-emerald-100">
                                                 {faculty.name?.charAt(0)}
                                             </div>
                                             <div className="min-w-0">
-                                                <div className="text-sm font-black text-slate-900 group-hover:text-indigo-600 transition-colors uppercase italic truncate">{faculty.name}</div>
+                                                <div className="text-sm font-black text-slate-900 group-hover:text-[#008080] transition-colors uppercase italic truncate">{faculty.name}</div>
                                                 <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">ID {faculty.id}</div>
                                             </div>
                                         </div>
@@ -163,7 +163,7 @@ const FacultyDirectory = () => {
                                         <div className="flex items-center justify-end gap-2">
                                             <button
                                                 onClick={() => handleEdit(faculty)}
-                                                className="p-2.5 bg-white border border-slate-200 rounded-xl text-blue-600 hover:bg-blue-50 transition-all shadow-sm"
+                                                className="p-2.5 bg-white border border-slate-200 rounded-xl text-[#008080] hover:bg-[#008080]/10 transition-all shadow-sm"
                                                 title="Edit"
                                             >
                                                 <Edit2 size={16} />

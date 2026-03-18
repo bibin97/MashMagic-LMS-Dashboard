@@ -23,12 +23,12 @@ const DataTable = ({
         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
             <div className="flex flex-col sm:flex-row justify-between items-center p-6 border-b border-slate-100 gap-4">
                 <div className="relative w-full sm:w-80 group">
-                    <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
+                    <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#008080] transition-colors" />
                     <input
                         type="text"
                         placeholder={searchPlaceholder}
                         onChange={(e) => onSearch && onSearch(e.target.value)}
-                        className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 pl-10 pr-4 text-sm outline-none focus:bg-white focus:ring-2 focus:ring-blue-100 focus:border-blue-300 transition-all shadow-sm"
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 pl-10 pr-4 text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] focus:border-[#f8ba2b] transition-all shadow-sm"
                     />
                 </div>
 
@@ -49,7 +49,7 @@ const DataTable = ({
                     )}
                     <button
                         onClick={onExport}
-                        className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600 border border-blue-700 rounded-xl text-sm font-semibold text-white hover:bg-blue-700 transition-all shadow-sm active:scale-95"
+                        className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 bg-[#f8ba2b] border border-[#f8ba2b] rounded-xl text-sm font-semibold text-slate-900 hover:bg-[#f8ba2b] transition-all shadow-sm active:scale-95"
                     >
                         <span>Export</span>
                     </button>
@@ -100,7 +100,7 @@ const DataTable = ({
                                     <td className="px-6 py-4">
                                         <div className="flex justify-center items-center gap-1">
                                             <button
-                                                className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
+                                                className="p-1.5 text-slate-400 hover:text-[#008080] hover:bg-[#008080]/10 rounded-lg transition-all"
                                                 onClick={() => onView && onView(row)}
                                                 title="View Details"
                                             >
@@ -109,7 +109,7 @@ const DataTable = ({
 
                                             {onEdit && (
                                                 <button
-                                                    className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all"
+                                                    className="p-1.5 text-slate-400 hover:text-[#008080] hover:bg-[#008080]/10 rounded-lg transition-all"
                                                     onClick={() => onEdit(row)}
                                                     title="Edit Details"
                                                 >
@@ -161,7 +161,7 @@ const DataTable = ({
                     <button className="p-1.5 rounded-lg border border-slate-200 bg-white text-slate-400 hover:text-slate-600 hover:bg-slate-50 transition-all disabled:opacity-40" disabled>
                         <ChevronLeft size={16} />
                     </button>
-                    <button className="px-3 py-1 rounded-lg bg-blue-600 text-white text-xs font-bold shadow-sm shadow-blue-100">1</button>
+                    <button className="px-3 py-1 rounded-lg bg-[#f8ba2b] text-slate-900 text-xs font-bold shadow-sm shadow-[#f8ba2b]">1</button>
                     <button className="p-1.5 rounded-lg border border-slate-200 bg-white text-slate-400 hover:text-slate-600 hover:bg-slate-50 transition-all">
                         <ChevronRight size={16} />
                     </button>

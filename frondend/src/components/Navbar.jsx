@@ -47,8 +47,8 @@ const Navbar = () => {
 
     return (
         <header className="h-16 bg-white/80 backdrop-blur-md border-b border-slate-200 flex items-center justify-between px-8 sticky top-0 z-[900]">
-            <div className="flex items-center gap-3 bg-slate-100 px-4 py-2 rounded-xl w-80 group focus-within:bg-white focus-within:ring-2 focus-within:ring-blue-100 transition-all border border-transparent focus-within:border-blue-200">
-                <Search size={18} className="text-slate-400 group-focus-within:text-blue-500" />
+            <div className="flex items-center gap-3 bg-slate-100 px-4 py-2 rounded-xl w-80 group focus-within:bg-white focus-within:ring-2 focus-within:ring-[#008080] transition-all border border-transparent focus-within:border-[#f8ba2b]">
+                <Search size={18} className="text-slate-400 group-focus-within:text-[#008080]" />
                 <input
                     type="text"
                     placeholder="Global search students, mentors..."
@@ -79,7 +79,7 @@ const Navbar = () => {
                                     <p className="text-xs text-center text-slate-400 py-6 font-semibold">No recent notifications</p>
                                 ) : (
                                     notifications.map(notif => (
-                                        <div key={notif.id} className={`p-4 rounded-2xl mb-2 flex items-start gap-3 transition-all ${notif.is_read ? 'bg-white border border-slate-100 opacity-60' : 'bg-blue-50/50 border border-blue-100/50 shadow-sm'}`}>
+                                        <div key={notif.id} className={`p-4 rounded-2xl mb-2 flex items-start gap-3 transition-all ${notif.is_read ? 'bg-white border border-slate-100 opacity-60' : 'bg-[#008080]/10/50 border border-[#f8ba2b]/50 shadow-sm'}`}>
                                             <div className="flex-1">
                                                 <div 
                                                     className={`text-[11px] leading-relaxed ${notif.is_read ? 'text-slate-600 font-medium' : 'text-slate-900 font-semibold'}`}
@@ -98,7 +98,7 @@ const Navbar = () => {
                                             {!notif.is_read && (
                                                 <button 
                                                     onClick={(e) => markRead(notif.id, e)} 
-                                                    className="shrink-0 p-2 text-blue-600 bg-white border border-blue-200 hover:bg-blue-600 hover:text-white rounded-xl shadow-sm transition-all" 
+                                                    className="shrink-0 p-2 text-slate-900 bg-white border border-[#f8ba2b] hover:bg-[#f8ba2b] hover:text-slate-900 rounded-xl shadow-sm transition-all" 
                                                     title="Mark as read"
                                                 >
                                                     <CheckCheck size={14} />
@@ -116,8 +116,8 @@ const Navbar = () => {
                     <div className="text-right hidden sm:flex flex-col items-end">
                         <p className="text-sm font-black text-slate-900 leading-tight">{adminName}</p>
                         <div className="flex items-center gap-1 mt-0.5">
-                            <ShieldCheck size={10} className="text-blue-500" />
-                            <p className="text-[10px] text-blue-600 font-black uppercase tracking-widest">Authorized Lead</p>
+                            <ShieldCheck size={10} className="text-[#008080]" />
+                            <p className="text-[10px] text-[#008080] font-black uppercase tracking-widest">Authorized Lead</p>
                         </div>
                     </div>
                     <div className="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center text-white border border-slate-800 shadow-lg shadow-slate-200 overflow-hidden hover:scale-105 transition-transform cursor-pointer">

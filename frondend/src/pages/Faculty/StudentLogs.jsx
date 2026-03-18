@@ -67,11 +67,11 @@ const StudentLogs = () => {
 
                 <div className="w-full md:w-auto flex flex-col sm:flex-row gap-4">
                     <div className="relative group">
-                        <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" size={18} />
+                        <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#008080] transition-colors" size={18} />
                         <input
                             type="text"
                             placeholder="Search by student, chapter or mentor..."
-                            className="bg-white border border-slate-200 pl-14 pr-8 py-4 rounded-[1.5rem] text-sm font-medium focus:outline-none focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 transition-all shadow-sm min-w-[350px]"
+                            className="bg-white border border-slate-200 pl-14 pr-8 py-4 rounded-[1.5rem] text-sm font-medium focus:outline-none focus:ring-4 focus:ring-[#f8ba2b]/5 focus:border-[#f8ba2b] transition-all shadow-sm min-w-[350px]"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
@@ -102,7 +102,7 @@ const StudentLogs = () => {
                                 ))
                             ) : filteredLogs.length > 0 ? (
                                 filteredLogs.map((log) => (
-                                    <tr key={log.id} className="hover:bg-indigo-50/20 transition-all group">
+                                    <tr key={log.id} className="hover:bg-[#008080]/10/20 transition-all group">
                                         <td className="px-8 py-6">
                                             <div className="flex flex-col">
                                                 <span className="font-black text-slate-900 text-sm whitespace-nowrap">{new Date(log.date).toLocaleDateString()}</span>
@@ -114,7 +114,7 @@ const StudentLogs = () => {
                                         <td className="px-8 py-6">
                                             <div className="flex flex-col">
                                                 <span className="font-black text-slate-800 text-sm italic">{log.student_name}</span>
-                                                <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mt-1 flex items-center gap-1">
+                                                <span className="text-[10px] font-black text-[#008080] uppercase tracking-widest mt-1 flex items-center gap-1">
                                                     <User size={10} /> {log.mentor_name || 'System'}
                                                 </span>
                                             </div>
@@ -135,7 +135,7 @@ const StudentLogs = () => {
                                         </td>
                                         <td className="px-8 py-6 text-center">
                                             {log.test_score ? (
-                                                <span className="px-4 py-1.5 bg-indigo-600 text-white rounded-full text-[10px] font-black tracking-widest shadow-lg shadow-indigo-100">
+                                                <span className="px-4 py-1.5 bg-[#f8ba2b] text-slate-900 rounded-full text-[10px] font-black tracking-widest shadow-lg shadow-[#f8ba2b]">
                                                     {log.test_score}
                                                 </span>
                                             ) : (
@@ -145,7 +145,7 @@ const StudentLogs = () => {
                                         <td className="px-8 py-6 text-right">
                                             <button
                                                 onClick={() => setViewingLog(log)}
-                                                className="p-3 bg-white border border-slate-200 rounded-xl text-slate-400 hover:text-indigo-600 hover:border-indigo-200 transition-all shadow-sm hover:shadow-md active:scale-95"
+                                                className="p-3 bg-white border border-slate-200 rounded-xl text-slate-400 hover:text-[#008080] hover:border-[#f8ba2b] transition-all shadow-sm hover:shadow-md active:scale-95"
                                             >
                                                 <Eye size={18} />
                                             </button>
@@ -174,7 +174,7 @@ const StudentLogs = () => {
                     <div className="bg-white rounded-[3.5rem] shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto animate-in zoom-in slide-in-from-bottom-10 duration-500">
                         <div className="sticky top-0 bg-white/80 backdrop-blur-xl px-10 py-8 border-b border-slate-100 flex justify-between items-center z-10">
                             <div className="flex items-center gap-6">
-                                <div className="w-16 h-16 bg-indigo-50 rounded-[2rem] flex items-center justify-center text-indigo-600">
+                                <div className="w-16 h-16 bg-[#008080]/10 rounded-[2rem] flex items-center justify-center text-[#008080]">
                                     <BookOpen size={32} />
                                 </div>
                                 <div>
@@ -211,9 +211,9 @@ const StudentLogs = () => {
                                         </span>
                                     </div>
                                 </div>
-                                <div className="bg-indigo-50 p-6 rounded-3xl border border-indigo-100/50">
-                                    <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-1">Test Result</p>
-                                    <p className="text-sm font-black text-indigo-600 italic">{viewingLog.test_score || 'Not Conducted'}</p>
+                                <div className="bg-[#008080]/10 p-6 rounded-3xl border border-[#f8ba2b]/50">
+                                    <p className="text-[10px] font-black text-[#008080] uppercase tracking-widest mb-1">Test Result</p>
+                                    <p className="text-sm font-black text-[#008080] italic">{viewingLog.test_score || 'Not Conducted'}</p>
                                 </div>
                             </div>
 
@@ -221,7 +221,7 @@ const StudentLogs = () => {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
                                 <div className="space-y-8">
                                     <div className="relative pl-8 border-l-2 border-slate-100">
-                                        <div className="absolute -left-2 top-0 w-4 h-4 bg-indigo-500 rounded-full border-4 border-white shadow-sm"></div>
+                                        <div className="absolute -left-2 top-0 w-4 h-4 bg-[#f8ba2b] rounded-full border-4 border-white shadow-sm"></div>
                                         <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Subject Context</h4>
                                         <h3 className="text-lg font-black text-slate-900 tracking-tight italic mb-2">{viewingLog.chapter}</h3>
                                         <p className="text-sm text-slate-600 font-medium leading-relaxed">{viewingLog.topics_covered}</p>
@@ -267,7 +267,7 @@ const StudentLogs = () => {
                                 <div className="relative flex flex-wrap gap-8 items-center">
                                     <div className="text-center md:text-left">
                                         <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Parent Notification</p>
-                                        <span className={`px-4 py-2 rounded-xl text-[10px] font-black tracking-widest uppercase transition-all ${viewingLog.parent_update_needed === 'Yes' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20' : 'bg-slate-800 text-slate-400'}`}>
+                                        <span className={`px-4 py-2 rounded-xl text-[10px] font-black tracking-widest uppercase transition-all ${viewingLog.parent_update_needed === 'Yes' ? 'bg-[#f8ba2b] text-slate-900 shadow-lg shadow-[#f8ba2b]/20' : 'bg-slate-800 text-slate-400'}`}>
                                             {viewingLog.parent_update_needed === 'Yes' ? 'Urgent Required' : 'Not Needed'}
                                         </span>
                                     </div>

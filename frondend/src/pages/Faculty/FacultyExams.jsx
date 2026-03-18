@@ -101,18 +101,18 @@ const FacultyExams = () => {
         <div className="space-y-12 pb-20">
             {/* Page Header */}
             <div className="bg-white p-10 rounded-[3.5rem] border border-slate-100 shadow-sm flex flex-col md:flex-row justify-between items-center gap-8 relative overflow-hidden group">
-                <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/5 rounded-full -mr-32 -mt-32 blur-3xl transition-transform duration-1000 group-hover:scale-150"></div>
+                <div className="absolute top-0 right-0 w-64 h-64 bg-[#f8ba2b]/5 rounded-full -mr-32 -mt-32 blur-3xl transition-transform duration-1000 group-hover:scale-150"></div>
                 <div className="text-center md:text-left relative z-10">
                     <h1 className="text-3xl font-black text-slate-900 tracking-tighter uppercase italic">Exam Score Center</h1>
                     <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest mt-2 flex items-center gap-2 justify-center md:justify-start">
-                        <TrendingUp size={14} className="text-indigo-500" />
+                        <TrendingUp size={14} className="text-[#008080]" />
                         Manage and track academic performance metrics
                     </p>
                 </div>
                 <div className="flex items-center gap-4 relative z-10">
                     <button
                         onClick={() => setShowAddModal(true)}
-                        className="bg-indigo-600 text-white px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-indigo-100 hover:bg-slate-900 transition-all flex items-center gap-3 active:scale-95"
+                        className="bg-[#f8ba2b] text-slate-900 px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-[#f8ba2b] hover:bg-slate-900 transition-all flex items-center gap-3 active:scale-95"
                     >
                         <Plus size={18} />
                         Add New Score
@@ -126,11 +126,11 @@ const FacultyExams = () => {
             {/* Filters Section */}
             <div className="flex flex-col md:flex-row gap-6">
                 <div className="flex-1 relative group">
-                    <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" size={20} />
+                    <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#008080] transition-colors" size={20} />
                     <input
                         type="text"
                         placeholder="Search by student, subject or term..."
-                        className="w-full bg-white border border-slate-200 pl-16 pr-8 py-5 rounded-[1.8rem] text-sm font-bold focus:outline-none focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 transition-all shadow-sm"
+                        className="w-full bg-white border border-slate-200 pl-16 pr-8 py-5 rounded-[1.8rem] text-sm font-bold focus:outline-none focus:ring-4 focus:ring-[#f8ba2b]/5 focus:border-[#f8ba2b] transition-all shadow-sm"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
@@ -151,10 +151,10 @@ const FacultyExams = () => {
                             <div className="absolute top-0 right-0 w-80 h-80 bg-slate-50/50 rounded-full -mr-40 -mt-40 transition-transform duration-1000 group-hover:scale-110"></div>
 
                             {/* Score Circle */}
-                            <div className="w-24 h-24 rounded-[2.2rem] bg-indigo-50 flex flex-col items-center justify-center relative z-10 transition-transform group-hover:rotate-6 duration-500">
-                                <span className="text-2xl font-black text-indigo-600 leading-none">{score.marks}</span>
-                                <div className="w-10 h-[2px] bg-indigo-200 my-1"></div>
-                                <span className="text-[10px] font-black text-indigo-400 uppercase tracking-tighter">{score.total}</span>
+                            <div className="w-24 h-24 rounded-[2.2rem] bg-[#008080]/10 flex flex-col items-center justify-center relative z-10 transition-transform group-hover:rotate-6 duration-500">
+                                <span className="text-2xl font-black text-[#008080] leading-none">{score.marks}</span>
+                                <div className="w-10 h-[2px] bg-[#f8ba2b] my-1"></div>
+                                <span className="text-[10px] font-black text-[#008080] uppercase tracking-tighter">{score.total}</span>
                             </div>
 
                             <div className="flex-1 relative z-10">
@@ -162,7 +162,7 @@ const FacultyExams = () => {
                                     <span className="px-5 py-2 bg-slate-900 text-white rounded-full text-[9px] font-black uppercase tracking-[0.2em] shadow-lg shadow-slate-200">
                                         {score.subject}
                                     </span>
-                                    <span className="px-5 py-2 bg-indigo-100 text-indigo-700 rounded-full text-[9px] font-black uppercase tracking-[0.2em]">
+                                    <span className="px-5 py-2 bg-[#f8ba2b] text-slate-900 rounded-full text-[9px] font-black uppercase tracking-[0.2em]">
                                         {score.term}
                                     </span>
                                     <span className="flex items-center gap-1.5 text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">
@@ -182,10 +182,10 @@ const FacultyExams = () => {
                             <div className="flex flex-col sm:flex-row items-center gap-4 w-full xl:w-auto relative z-10 pt-6 xl:pt-0 border-t xl:border-t-0 border-slate-50">
                                 <div className="flex gap-2">
                                     {[1, 2, 3].map(i => (
-                                        <div key={i} className={`w-2 h-2 rounded-full ${i === 1 ? 'bg-indigo-500' : 'bg-slate-200'}`}></div>
+                                        <div key={i} className={`w-2 h-2 rounded-full ${i === 1 ? 'bg-[#f8ba2b]' : 'bg-slate-200'}`}></div>
                                     ))}
                                 </div>
-                                <button className="px-8 py-4 bg-slate-50 text-slate-900 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-indigo-600 hover:text-white transition-all flex items-center gap-3 group/btn">
+                                <button className="px-8 py-4 bg-slate-50 text-slate-900 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-[#f8ba2b] hover:text-slate-900 transition-all flex items-center gap-3 group/btn">
                                     View Analytics
                                     <ArrowUpRight size={14} className="group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform" />
                                 </button>
@@ -223,10 +223,10 @@ const FacultyExams = () => {
                                 <div className="space-y-2">
                                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Student</label>
                                     <div className="relative group">
-                                        <User className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-colors" size={18} />
+                                        <User className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#008080] transition-colors" size={18} />
                                         <select
                                             required
-                                            className="w-full bg-slate-50 border border-slate-100 pl-14 pr-8 py-4 rounded-2xl text-sm font-bold focus:bg-white focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 transition-all outline-none appearance-none"
+                                            className="w-full bg-slate-50 border border-slate-100 pl-14 pr-8 py-4 rounded-2xl text-sm font-bold focus:bg-white focus:ring-4 focus:ring-[#f8ba2b]/5 focus:border-[#f8ba2b] transition-all outline-none appearance-none"
                                             value={formData.student_id}
                                             onChange={(e) => setFormData({ ...formData, student_id: e.target.value })}
                                         >
@@ -241,12 +241,12 @@ const FacultyExams = () => {
                                 <div className="space-y-2">
                                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Subject</label>
                                     <div className="relative group">
-                                        <BookOpen className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-colors" size={18} />
+                                        <BookOpen className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#008080] transition-colors" size={18} />
                                         <input
                                             type="text"
                                             required
                                             placeholder="Mathematics, Science, etc."
-                                            className="w-full bg-slate-50 border border-slate-100 pl-14 pr-8 py-4 rounded-2xl text-sm font-bold focus:bg-white focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 transition-all outline-none"
+                                            className="w-full bg-slate-50 border border-slate-100 pl-14 pr-8 py-4 rounded-2xl text-sm font-bold focus:bg-white focus:ring-4 focus:ring-[#f8ba2b]/5 focus:border-[#f8ba2b] transition-all outline-none"
                                             value={formData.subject}
                                             onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
                                         />
@@ -256,12 +256,12 @@ const FacultyExams = () => {
                                 <div className="space-y-2">
                                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Marks Obtained</label>
                                     <div className="relative group">
-                                        <Trophy className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-colors" size={18} />
+                                        <Trophy className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#008080] transition-colors" size={18} />
                                         <input
                                             type="number"
                                             required
                                             placeholder="Score"
-                                            className="w-full bg-slate-50 border border-slate-100 pl-14 pr-8 py-4 rounded-2xl text-sm font-bold focus:bg-white focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 transition-all outline-none"
+                                            className="w-full bg-slate-50 border border-slate-100 pl-14 pr-8 py-4 rounded-2xl text-sm font-bold focus:bg-white focus:ring-4 focus:ring-[#f8ba2b]/5 focus:border-[#f8ba2b] transition-all outline-none"
                                             value={formData.marks}
                                             onChange={(e) => setFormData({ ...formData, marks: e.target.value })}
                                         />
@@ -271,12 +271,12 @@ const FacultyExams = () => {
                                 <div className="space-y-2">
                                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Total Marks</label>
                                     <div className="relative group">
-                                        <BookOpen className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-colors" size={18} />
+                                        <BookOpen className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#008080] transition-colors" size={18} />
                                         <input
                                             type="number"
                                             required
                                             placeholder="Out of"
-                                            className="w-full bg-slate-50 border border-slate-100 pl-14 pr-8 py-4 rounded-2xl text-sm font-bold focus:bg-white focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 transition-all outline-none"
+                                            className="w-full bg-slate-50 border border-slate-100 pl-14 pr-8 py-4 rounded-2xl text-sm font-bold focus:bg-white focus:ring-4 focus:ring-[#f8ba2b]/5 focus:border-[#f8ba2b] transition-all outline-none"
                                             value={formData.total}
                                             onChange={(e) => setFormData({ ...formData, total: e.target.value })}
                                         />
@@ -286,12 +286,12 @@ const FacultyExams = () => {
                                 <div className="space-y-2">
                                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Grade</label>
                                     <div className="relative group">
-                                        <GraduationCap className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-colors" size={18} />
+                                        <GraduationCap className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#008080] transition-colors" size={18} />
                                         <input
                                             type="text"
                                             required
                                             placeholder="A+, B, etc."
-                                            className="w-full bg-slate-50 border border-slate-100 pl-14 pr-8 py-4 rounded-2xl text-sm font-bold focus:bg-white focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 transition-all outline-none"
+                                            className="w-full bg-slate-50 border border-slate-100 pl-14 pr-8 py-4 rounded-2xl text-sm font-bold focus:bg-white focus:ring-4 focus:ring-[#f8ba2b]/5 focus:border-[#f8ba2b] transition-all outline-none"
                                             value={formData.grade}
                                             onChange={(e) => setFormData({ ...formData, grade: e.target.value })}
                                         />
@@ -301,12 +301,12 @@ const FacultyExams = () => {
                                 <div className="space-y-2">
                                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Exam / Term</label>
                                     <div className="relative group">
-                                        <Calendar className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-colors" size={18} />
+                                        <Calendar className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#008080] transition-colors" size={18} />
                                         <input
                                             type="text"
                                             required
                                             placeholder="Unit Test, Mid Term, etc."
-                                            className="w-full bg-slate-50 border border-slate-100 pl-14 pr-8 py-4 rounded-2xl text-sm font-bold focus:bg-white focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 transition-all outline-none"
+                                            className="w-full bg-slate-50 border border-slate-100 pl-14 pr-8 py-4 rounded-2xl text-sm font-bold focus:bg-white focus:ring-4 focus:ring-[#f8ba2b]/5 focus:border-[#f8ba2b] transition-all outline-none"
                                             value={formData.term}
                                             onChange={(e) => setFormData({ ...formData, term: e.target.value })}
                                         />
@@ -317,11 +317,11 @@ const FacultyExams = () => {
                             <div className="space-y-2">
                                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Exam Date</label>
                                 <div className="relative group">
-                                    <Calendar className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-colors" size={18} />
+                                    <Calendar className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#008080] transition-colors" size={18} />
                                     <input
                                         type="date"
                                         required
-                                        className="w-full bg-slate-50 border border-slate-100 pl-14 pr-8 py-4 rounded-2xl text-sm font-bold focus:bg-white focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 transition-all outline-none"
+                                        className="w-full bg-slate-50 border border-slate-100 pl-14 pr-8 py-4 rounded-2xl text-sm font-bold focus:bg-white focus:ring-4 focus:ring-[#f8ba2b]/5 focus:border-[#f8ba2b] transition-all outline-none"
                                         value={formData.exam_date}
                                         onChange={(e) => setFormData({ ...formData, exam_date: e.target.value })}
                                     />
@@ -331,7 +331,7 @@ const FacultyExams = () => {
                             <button
                                 disabled={submitting}
                                 type="submit"
-                                className="w-full bg-indigo-600 text-white p-5 rounded-2xl font-black text-xs uppercase tracking-[0.3em] hover:bg-slate-900 transition-all shadow-2xl shadow-indigo-100 flex items-center justify-center gap-3 mt-4 disabled:opacity-50"
+                                className="w-full bg-[#f8ba2b] text-slate-900 p-5 rounded-2xl font-black text-xs uppercase tracking-[0.3em] hover:bg-slate-900 transition-all shadow-2xl shadow-[#f8ba2b] flex items-center justify-center gap-3 mt-4 disabled:opacity-50"
                             >
                                 {submitting ? 'Broadcasting score...' : 'Register Exam Score'}
                                 {!submitting && <CheckCircle size={18} />}

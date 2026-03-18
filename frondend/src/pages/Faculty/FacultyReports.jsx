@@ -47,22 +47,22 @@ const FacultyReports = () => {
                 <div className="text-center md:text-left">
                     <h1 className="text-3xl font-black text-slate-900 tracking-tighter uppercase italic">Faculty Reports</h1>
                     <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest mt-2 flex items-center gap-2 justify-center md:justify-start">
-                        <FileText size={14} className="text-indigo-500" />
+                        <FileText size={14} className="text-[#008080]" />
                         Comprehensive archive of student performance reports
                     </p>
                 </div>
-                <div className="w-16 h-16 bg-indigo-600 rounded-3xl flex items-center justify-center text-white shadow-xl shadow-indigo-100 rotate-6">
+                <div className="w-16 h-16 bg-[#f8ba2b] rounded-3xl flex items-center justify-center text-slate-900 shadow-xl shadow-[#f8ba2b] rotate-6">
                     <ClipboardList size={28} />
                 </div>
             </div>
 
             <div className="w-full md:w-auto flex flex-col sm:flex-row gap-4">
                 <div className="relative group">
-                    <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" size={18} />
+                    <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#008080] transition-colors" size={18} />
                     <input
                         type="text"
                         placeholder="Search reports..."
-                        className="bg-white border border-slate-200 pl-14 pr-8 py-4 rounded-[1.5rem] text-sm font-medium focus:outline-none focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 transition-all shadow-sm min-w-[300px]"
+                        className="bg-white border border-slate-200 pl-14 pr-8 py-4 rounded-[1.5rem] text-sm font-medium focus:outline-none focus:ring-4 focus:ring-[#f8ba2b]/5 focus:border-[#f8ba2b] transition-all shadow-sm min-w-[300px]"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
@@ -79,7 +79,7 @@ const FacultyReports = () => {
                         <div key={report.id} className="bg-white p-10 rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-2xl transition-all duration-700 group flex flex-col lg:flex-row gap-8 items-start lg:items-center relative overflow-hidden">
                             <div className="absolute top-0 right-0 w-64 h-64 bg-slate-50 rounded-full -mr-32 -mt-32 transition-transform duration-700 group-hover:scale-125"></div>
 
-                            <div className={`w-20 h-20 rounded-[2rem] flex items-center justify-center relative z-10 ${report.type === 'Academic' ? 'bg-indigo-50 text-indigo-600' :
+                            <div className={`w-20 h-20 rounded-[2rem] flex items-center justify-center relative z-10 ${report.type === 'Academic' ? 'bg-[#008080]/10 text-[#008080]' :
                                 report.type === 'Behaviour' ? 'bg-rose-50 text-rose-600' : 'bg-amber-50 text-amber-600'
                                 }`}>
                                 <ClipboardList size={32} />
@@ -87,7 +87,7 @@ const FacultyReports = () => {
 
                             <div className="flex-1 relative z-10">
                                 <div className="flex flex-wrap items-center gap-3 mb-3">
-                                    <span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest shadow-sm ${report.type === 'Academic' ? 'bg-indigo-600 text-white' :
+                                    <span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest shadow-sm ${report.type === 'Academic' ? 'bg-[#f8ba2b] text-slate-900' :
                                         report.type === 'Behaviour' ? 'bg-rose-600 text-white' : 'bg-amber-500 text-white'
                                         }`}>
                                         {report.type}

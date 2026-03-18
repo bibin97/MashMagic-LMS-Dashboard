@@ -44,7 +44,7 @@ const StudentListFilterDropdown = ({ value, onChange, options = STUDENT_SORT_OPT
                                 onChange(opt.value);
                                 setOpen(false);
                             }}
-                            className={`w-full text-left px-4 py-2.5 text-sm font-medium transition-colors ${opt.value === value ? 'bg-blue-50 text-blue-700' : 'text-slate-700 hover:bg-slate-50'}`}
+                            className={`w-full text-left px-4 py-2.5 text-sm font-medium transition-colors ${opt.value === value ? 'bg-[#008080]/10 text-[#008080]' : 'text-slate-700 hover:bg-slate-50'}`}
                         >
                             {opt.label}
                         </button>

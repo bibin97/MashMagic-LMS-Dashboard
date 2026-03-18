@@ -115,7 +115,7 @@ const AdminManagement = () => {
     if (loading) {
         return (
             <div className="flex items-center justify-center h-64">
-                <Loader2 className="w-8 h-8 text-indigo-500 animate-spin" />
+                <Loader2 className="w-8 h-8 text-[#008080] animate-spin" />
             </div>
         );
     }
@@ -125,7 +125,7 @@ const AdminManagement = () => {
             <div className="flex items-center justify-between">
                 <div>
                     <h2 className="text-3xl font-black text-slate-900 tracking-tight uppercase italic flex items-center gap-3">
-                        <ShieldCheck className="text-indigo-600" size={32} />
+                        <ShieldCheck className="text-[#008080]" size={32} />
                         Admin Management
                     </h2>
                     <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-2 ml-1">
@@ -134,7 +134,7 @@ const AdminManagement = () => {
                 </div>
                 <button
                     onClick={handleOpenCreate}
-                    className="bg-indigo-600 text-white px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center gap-2 hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-100 active:scale-95"
+                    className="bg-[#f8ba2b] text-slate-900 px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center gap-2 hover:bg-[#f8ba2b] transition-all shadow-xl shadow-[#f8ba2b] active:scale-95"
                 >
                     <UserPlus size={18} />
                     <span>Create Sub Admin</span>
@@ -158,7 +158,7 @@ const AdminManagement = () => {
                                 <tr key={admin.id} className="hover:bg-slate-50/50 transition-colors group">
                                     <td className="p-6">
                                         <div className="flex items-center gap-4">
-                                            <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center text-white font-black shadow-lg shadow-indigo-100">
+                                            <div className="w-10 h-10 bg-gradient-to-br from-[#f8ba2b] to-purple-600 rounded-xl flex items-center justify-center text-white font-black shadow-lg shadow-[#f8ba2b]">
                                                 {admin.name.charAt(0).toUpperCase()}
                                             </div>
                                             <div>
@@ -190,7 +190,7 @@ const AdminManagement = () => {
                                         <div className="flex items-center justify-end gap-2">
                                             <button
                                                 onClick={() => handleOpenEdit(admin)}
-                                                className="w-10 h-10 rounded-xl flex items-center justify-center text-indigo-400 hover:text-indigo-600 hover:bg-indigo-50 transition-all border border-transparent hover:border-indigo-100"
+                                                className="w-10 h-10 rounded-xl flex items-center justify-center text-[#008080] hover:text-[#008080] hover:bg-[#008080]/10 transition-all border border-transparent hover:border-[#f8ba2b]"
                                             >
                                                 <Edit size={18} />
                                             </button>
@@ -233,11 +233,11 @@ const AdminManagement = () => {
                         <div className="space-y-2">
                             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Full Name</label>
                             <div className="relative group">
-                                <User size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-colors" />
+                                <User size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#008080] transition-colors" />
                                 <input
                                     type="text"
                                     required
-                                    className="w-full p-4 pl-12 bg-slate-50 border border-slate-100 rounded-2xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-indigo-100 focus:border-indigo-300 transition-all font-bold tracking-wide"
+                                    className="w-full p-4 pl-12 bg-slate-50 border border-slate-100 rounded-2xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#f8ba2b] focus:border-[#f8ba2b] transition-all font-bold tracking-wide"
                                     placeholder="Enter full name"
                                     value={formData.name}
                                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
@@ -249,12 +249,12 @@ const AdminManagement = () => {
                         <div className="space-y-2">
                             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Email Address</label>
                             <div className="relative group">
-                                <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-colors" />
+                                <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#008080] transition-colors" />
                                 <input
                                     type="email"
                                     required
                                     disabled={!!editingAdmin}
-                                    className="w-full p-4 pl-12 bg-slate-50 border border-slate-100 rounded-2xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-indigo-100 focus:border-indigo-300 transition-all font-bold tracking-wide disabled:opacity-50"
+                                    className="w-full p-4 pl-12 bg-slate-50 border border-slate-100 rounded-2xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#f8ba2b] focus:border-[#f8ba2b] transition-all font-bold tracking-wide disabled:opacity-50"
                                     placeholder="email@mashmagic.com"
                                     value={formData.email}
                                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
@@ -266,10 +266,10 @@ const AdminManagement = () => {
                         <div className="space-y-2">
                             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Phone Number</label>
                             <div className="relative group">
-                                <Phone size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-colors" />
+                                <Phone size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#008080] transition-colors" />
                                 <input
                                     type="tel"
-                                    className="w-full p-4 pl-12 bg-slate-50 border border-slate-100 rounded-2xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-indigo-100 focus:border-indigo-300 transition-all font-bold tracking-wide"
+                                    className="w-full p-4 pl-12 bg-slate-50 border border-slate-100 rounded-2xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#f8ba2b] focus:border-[#f8ba2b] transition-all font-bold tracking-wide"
                                     placeholder="Enter mobile number"
                                     value={formData.phone_number}
                                     onChange={(e) => setFormData({ ...formData, phone_number: e.target.value })}
@@ -312,11 +312,11 @@ const AdminManagement = () => {
                                 {editingAdmin ? "Reset Password (Leave blank to keep)" : "Password"}
                             </label>
                             <div className="relative group">
-                                <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-colors" />
+                                <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#008080] transition-colors" />
                                 <input
                                     type="password"
                                     required={!editingAdmin}
-                                    className="w-full p-4 pl-12 bg-slate-50 border border-slate-100 rounded-2xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-indigo-100 focus:border-indigo-300 transition-all font-bold tracking-wide"
+                                    className="w-full p-4 pl-12 bg-slate-50 border border-slate-100 rounded-2xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#f8ba2b] focus:border-[#f8ba2b] transition-all font-bold tracking-wide"
                                     placeholder="••••••••"
                                     value={formData.password}
                                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
@@ -336,7 +336,7 @@ const AdminManagement = () => {
                         <button
                             type="submit"
                             disabled={isSubmitting}
-                            className="flex-[2] p-5 bg-indigo-600 text-white rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-100 flex items-center justify-center gap-2 disabled:opacity-50"
+                            className="flex-[2] p-5 bg-[#f8ba2b] text-slate-900 rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-[#f8ba2b] transition-all shadow-xl shadow-[#f8ba2b] flex items-center justify-center gap-2 disabled:opacity-50"
                         >
                             {isSubmitting ? (
                                 <Loader2 className="animate-spin" size={18} />

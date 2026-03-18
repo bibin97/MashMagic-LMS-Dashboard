@@ -200,7 +200,7 @@ const Mentors = () => {
                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Full Name</label>
                         <input
                             type="text"
-                            className="p-3.5 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-blue-50 transition-all"
+                            className="p-3.5 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-[#008080] transition-all"
                             value={editFormData.name}
                             onChange={(e) => setEditFormData({ ...editFormData, name: e.target.value })}
                             required
@@ -210,7 +210,7 @@ const Mentors = () => {
                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Email Address</label>
                         <input
                             type="email"
-                            className="p-3.5 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-blue-50 transition-all"
+                            className="p-3.5 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-[#008080] transition-all"
                             value={editFormData.email}
                             onChange={(e) => setEditFormData({ ...editFormData, email: e.target.value })}
                             required
@@ -220,7 +220,7 @@ const Mentors = () => {
                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Phone Number</label>
                         <input
                             type="text"
-                            className="p-3.5 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-blue-50 transition-all"
+                            className="p-3.5 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-[#008080] transition-all"
                             value={editFormData.phone_number}
                             onChange={(e) => setEditFormData({ ...editFormData, phone_number: e.target.value })}
                         />
@@ -228,7 +228,7 @@ const Mentors = () => {
                     <div className="flex flex-col gap-1.5">
                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Account Status</label>
                         <select
-                            className="p-3.5 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-blue-50 transition-all"
+                            className="p-3.5 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-[#008080] transition-all"
                             value={editFormData.status}
                             onChange={(e) => setEditFormData({ ...editFormData, status: e.target.value })}
                         >
@@ -268,8 +268,8 @@ const Mentors = () => {
                         </div>
 
                         <div className="grid grid-cols-3 gap-6">
-                            <MentorStat label="Active Students" value={selectedMentor.studentsCount} icon={<Users size={18} />} color="blue" />
-                            <MentorStat label="Total Tasks" value={selectedMentor.tasksAssigned} icon={<ListTodo size={18} />} color="indigo" />
+                            <MentorStat label="Active Students" value={selectedMentor.studentsCount} icon={<Users size={18} />} color="teal" />
+                            <MentorStat label="Total Tasks" value={selectedMentor.tasksAssigned} icon={<ListTodo size={18} />} color="yellow" />
                             <MentorStat label="Success Rate" value={`${selectedMentor.completionRate}%`} icon={<TrendingUp size={18} />} color="emerald" />
                         </div>
 
@@ -282,11 +282,11 @@ const Mentors = () => {
                                     ) : mentorStudents.length > 0 ? mentorStudents.map((student) => (
                                         <div key={student.id} className="flex justify-between items-center p-4 rounded-2xl border border-slate-50 hover:bg-slate-50 transition-all cursor-default group">
                                             <div className="flex flex-col">
-                                                <span className="text-sm font-bold text-slate-700 group-hover:text-blue-600 transition-colors uppercase italic">{student.name}</span>
+                                                <span className="text-sm font-bold text-slate-700 group-hover:text-[#008080] transition-colors uppercase italic">{student.name}</span>
                                                 <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{student.registration_number || 'NO_REG'}</span>
                                             </div>
                                             <div className="flex flex-col items-end">
-                                                <span className="text-[10px] font-black text-blue-500 uppercase">{student.course}</span>
+                                                <span className="text-[10px] font-black text-[#008080] uppercase">{student.course}</span>
                                                 <span className="text-[8px] font-bold text-slate-400 uppercase">{student.grade}</span>
                                             </div>
                                         </div>
@@ -323,8 +323,8 @@ const Mentors = () => {
 
 const MentorStat = ({ label, value, icon, color }) => {
     const colors = {
-        blue: 'bg-blue-50 text-blue-600 border-blue-100',
-        indigo: 'bg-indigo-50 text-indigo-600 border-indigo-100',
+        teal: 'bg-[#008080]/10 text-white border-[#008080]',
+        yellow: 'bg-[#f8ba2b]/10 text-slate-900 border-[#f8ba2b]',
         emerald: 'bg-emerald-50 text-emerald-600 border-emerald-100'
     };
     return (

@@ -55,7 +55,7 @@ const FacultyNotifications = () => {
     const getIcon = (type) => {
         switch (type) {
             case 'Task': return <AlertCircle className="text-rose-500" size={24} />;
-            case 'Session': return <Calendar className="text-indigo-500" size={24} />;
+            case 'Session': return <Calendar className="text-[#008080]" size={24} />;
             default: return <Bell className="text-slate-400" size={24} />;
         }
     };
@@ -74,7 +74,7 @@ const FacultyNotifications = () => {
                         <button
                             key={f}
                             onClick={() => setFilter(f)}
-                            className={`px-8 py-3 rounded-[1.2rem] text-[10px] font-black uppercase tracking-widest transition-all duration-500 ${filter === f ? 'bg-indigo-600 text-white shadow-xl shadow-indigo-100' : 'text-slate-400 hover:text-slate-900'
+                            className={`px-8 py-3 rounded-[1.2rem] text-[10px] font-black uppercase tracking-widest transition-all duration-500 ${filter === f ? 'bg-[#f8ba2b] text-slate-900 shadow-xl shadow-[#f8ba2b]' : 'text-slate-400 hover:text-slate-900'
                                 }`}
                         >
                             {f}
@@ -94,14 +94,14 @@ const FacultyNotifications = () => {
                             onClick={() => !notif.is_read && markAsRead(notif.id)}
                             className={`group relative bg-white p-10 rounded-[3rem] border transition-all duration-700 cursor-pointer overflow-hidden ${notif.is_read
                                 ? 'border-slate-100 opacity-70 grayscale'
-                                : 'border-indigo-100 shadow-2xl shadow-indigo-500/5 hover:-translate-y-1'
+                                : 'border-[#f8ba2b] shadow-2xl shadow-[#f8ba2b]/5 hover:-translate-y-1'
                                 }`}
                         >
                             {!notif.is_read && (
-                                <div className="absolute top-0 left-0 w-2 h-full bg-indigo-600"></div>
+                                <div className="absolute top-0 left-0 w-2 h-full bg-[#f8ba2b]"></div>
                             )}
                             <div className="flex items-start gap-8">
-                                <div className={`w-16 h-16 rounded-2xl flex items-center justify-center transition-transform duration-500 group-hover:scale-110 ${notif.is_read ? 'bg-slate-50' : 'bg-indigo-50'
+                                <div className={`w-16 h-16 rounded-2xl flex items-center justify-center transition-transform duration-500 group-hover:scale-110 ${notif.is_read ? 'bg-slate-50' : 'bg-[#008080]/10'
                                     }`}>
                                     {getIcon(notif.type)}
                                 </div>
@@ -116,7 +116,7 @@ const FacultyNotifications = () => {
                                                 {new Date(notif.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                             </span>
                                             {!notif.is_read && (
-                                                <span className="w-2.5 h-2.5 bg-indigo-600 rounded-full animate-ping"></span>
+                                                <span className="w-2.5 h-2.5 bg-[#f8ba2b] rounded-full animate-ping"></span>
                                             )}
                                         </div>
                                     </div>
@@ -124,7 +124,7 @@ const FacultyNotifications = () => {
                                         "{notif.message}"
                                     </p>
                                     <div className="mt-6 flex items-center gap-4">
-                                        <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest px-4 py-1.5 bg-indigo-50 rounded-full">
+                                        <span className="text-[10px] font-black text-[#008080] uppercase tracking-widest px-4 py-1.5 bg-[#008080]/10 rounded-full">
                                             Source: Platform Engine
                                         </span>
                                         {notif.is_read && (
@@ -136,7 +136,7 @@ const FacultyNotifications = () => {
                                     </div>
                                 </div>
                                 <div className="hidden md:flex items-center justify-center translate-x-12 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-500 pr-4">
-                                    <ChevronRight className="text-indigo-600" size={32} />
+                                    <ChevronRight className="text-[#008080]" size={32} />
                                 </div>
                             </div>
                         </div>

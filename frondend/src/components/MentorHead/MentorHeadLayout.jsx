@@ -44,11 +44,11 @@ const MentorHeadLayout = () => {
     return (
         <div className="min-h-screen bg-slate-50 flex font-sans">
             {/* Sidebar */}
-            <aside className="fixed left-0 top-0 h-full w-64 bg-slate-900 flex flex-col z-[1000] shadow-2xl">
+            <aside className="fixed left-0 top-0 h-full w-64 bg-[#008080] flex flex-col z-[1000] shadow-2xl">
                 <div className="p-8 border-b border-slate-800">
-                    <h1 className="text-xl font-black text-white tracking-tighter flex items-center gap-2">
-                        <div className="w-8 h-8 bg-indigo-500 rounded-lg flex items-center justify-center text-white shadow-lg shadow-indigo-500/20 rotate-3">
-                            <ShieldCheck size={20} />
+                    <h1 className="text-xl font-black text-white tracking-tighter flex items-center gap-3">
+                        <div className="w-12 h-12 flex items-center justify-center rotate-3 transform transition-transform hover:rotate-0 duration-500">
+                            <img src="/mashmagic logo.jpg" alt="Logo" className="w-full h-full object-contain" />
                         </div>
                         Mentor Head
                     </h1>
@@ -62,7 +62,7 @@ const MentorHeadLayout = () => {
                             className={({ isActive }) => `
                                 flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-300 group
                                 ${isActive
-                                    ? 'bg-indigo-600 text-white font-bold shadow-xl shadow-indigo-600/20 -translate-y-0.5'
+                                    ? 'bg-[#f8ba2b] text-white font-bold shadow-xl shadow-[#f8ba2b]/20 -translate-y-0.5'
                                     : 'text-slate-400 hover:bg-slate-800 hover:text-white'}
                             `}
                         >
@@ -74,7 +74,7 @@ const MentorHeadLayout = () => {
 
                 <div className="p-4 border-t border-slate-800">
                     <div className="bg-slate-800/50 p-4 rounded-3xl mb-4 border border-slate-700/50 flex items-center gap-3">
-                        <div className="w-10 h-10 bg-indigo-500/10 rounded-2xl border border-indigo-500/20 flex items-center justify-center text-indigo-400">
+                        <div className="w-10 h-10 bg-[#f8ba2b]/10 rounded-2xl border border-[#f8ba2b]/20 flex items-center justify-center text-slate-900">
                             <User size={20} />
                         </div>
                         <div className="flex flex-col overflow-hidden">
@@ -84,7 +84,7 @@ const MentorHeadLayout = () => {
                     </div>
                     <button
                         onClick={handleLogout}
-                        className="w-full flex items-center gap-3 px-4 py-4 text-rose-400 hover:bg-rose-500/10 rounded-2xl transition-all duration-300 text-[10px] font-black uppercase tracking-widest"
+                        className="w-full flex items-center gap-3 px-4 py-4 rounded-2xl transition-all duration-300 text-[10px] font-black uppercase tracking-widest bg-[#f8ba2b] text-slate-900 hover:brightness-110 shadow-lg"
                     >
                         <LogOut size={16} />
                         <span>Logout</span>
@@ -104,7 +104,7 @@ const MentorHeadLayout = () => {
                             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">Status</p>
                             <p className="text-xs font-bold text-emerald-500">System Online</p>
                         </div>
-                        <button className="w-10 h-10 bg-white border border-slate-100 rounded-2xl flex items-center justify-center text-slate-400 hover:text-indigo-600 transition-all hover:shadow-lg shadow-slate-200">
+                        <button className="w-10 h-10 bg-white border border-slate-100 rounded-2xl flex items-center justify-center text-slate-400 hover:text-[#008080] transition-all hover:shadow-lg shadow-slate-200">
                             <Bell size={18} />
                         </button>
                     </div>

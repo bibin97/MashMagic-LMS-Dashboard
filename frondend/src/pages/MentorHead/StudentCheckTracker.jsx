@@ -90,7 +90,7 @@ const StudentCheckTracker = () => {
             <div className="bg-white p-10 rounded-[4rem] border border-slate-100 shadow-sm mb-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div>
                     <h2 className="text-3xl font-black text-slate-900 tracking-tighter uppercase italic flex items-center gap-4">
-                        <div className="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-indigo-200 rotate-3">
+                        <div className="w-12 h-12 bg-[#f8ba2b] rounded-2xl flex items-center justify-center text-slate-900 shadow-lg shadow-[#f8ba2b] rotate-3">
                             <Target size={28} />
                         </div>
                         Verification Registry
@@ -106,7 +106,7 @@ const StudentCheckTracker = () => {
                     <select
                         value={sortBy}
                         onChange={(e) => setSortBy(e.target.value)}
-                        className="bg-white border-none rounded-xl px-4 py-2 text-xs font-bold text-slate-700 outline-none cursor-pointer focus:ring-2 focus:ring-indigo-500/20 shadow-sm"
+                        className="bg-white border-none rounded-xl px-4 py-2 text-xs font-bold text-slate-700 outline-none cursor-pointer focus:ring-2 focus:ring-[#f8ba2b]/20 shadow-sm"
                     >
                         <option value="least_checked">Least Checked First</option>
                         <option value="most_checked">Most Checked First</option>

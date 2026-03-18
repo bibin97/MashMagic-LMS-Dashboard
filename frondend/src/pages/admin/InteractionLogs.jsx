@@ -37,7 +37,7 @@ const InteractionLogs = () => {
             <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
                     <h1 className="text-3xl font-black text-slate-900 tracking-tight uppercase italic flex items-center gap-3">
-                        <ScrollText size={32} className="text-blue-600" /> Interaction Logs
+                        <ScrollText size={32} className="text-[#008080]" /> Interaction Logs
                     </h1>
                     <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest mt-2">Comprehensive archive of all session interactions and reports.</p>
                 </div>
@@ -45,7 +45,7 @@ const InteractionLogs = () => {
                 <div className="flex bg-slate-100 p-1.5 rounded-2xl">
                     <button
                         onClick={() => setActiveTab('student')}
-                        className={`px-6 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${activeTab === 'student' ? 'bg-white text-blue-600 shadow-md' : 'text-slate-400 hover:text-slate-600'}`}
+                        className={`px-6 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${activeTab === 'student' ? 'bg-white text-[#008080] shadow-md' : 'text-slate-400 hover:text-slate-600'}`}
                     >
                         Student Logs
                     </button>
@@ -75,12 +75,12 @@ const InteractionLogs = () => {
                 <div className="grid gap-6">
                     {filteredLogs.map((log) => (
                         <div key={log.id} className="bg-white p-8 rounded-[2.5rem] shadow-xl shadow-slate-100 border border-slate-50 hover:shadow-2xl transition-all relative overflow-hidden group">
-                            <div className={`absolute top-0 left-0 w-2 h-full ${activeTab === 'student' ? 'bg-blue-500' : 'bg-purple-500'}`}></div>
+                            <div className={`absolute top-0 left-0 w-2 h-full ${activeTab === 'student' ? 'bg-[#f8ba2b]' : 'bg-purple-500'}`}></div>
 
                             <div className="flex flex-col md:flex-row justify-between gap-6 relative z-10">
                                 <div className="space-y-4 flex-1">
                                     <div className="flex items-center gap-4">
-                                        <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest text-white ${activeTab === 'student' ? 'bg-blue-600' : 'bg-purple-600'}`}>
+                                        <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${activeTab === 'student' ? 'bg-[#f8ba2b] text-slate-900' : 'bg-purple-600 text-white'}`}>
                                             {activeTab === 'student' ? `Session #${log.session_number}` : log.session_type}
                                         </span>
                                         <span className="text-xs font-black text-slate-400 uppercase tracking-wide flex items-center gap-2">
@@ -114,14 +114,14 @@ const InteractionLogs = () => {
                                 <div className="flex flex-col gap-3 min-w-[200px]">
                                     {activeTab === 'student' ? (
                                         <>
-                                            <Metric label="Understanding" value={log.understanding_level} color="emerald" />
-                                            <Metric label="Confidence" value={log.student_confidence} color="blue" />
-                                            <Metric label="Stress Level" value={log.stress_level} color="rose" />
+                                            <Metric label="Understanding" value={log.understanding_level} color="emerald-600" />
+                                            <Metric label="Confidence" value={log.student_confidence} color="[#008080]" />
+                                            <Metric label="Stress Level" value={log.stress_level} color="rose-600" />
                                         </>
                                     ) : (
                                         <>
-                                            <Metric label="Performance" value={log.student_performance} color="emerald" />
-                                            <Metric label="Homework" value={log.homework_status} color="purple" />
+                                            <Metric label="Performance" value={log.student_performance} color="emerald-600" />
+                                            <Metric label="Homework" value={log.homework_status} color="purple-600" />
                                             <div className="mt-2">
                                                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Chapter</p>
                                                 <p className="text-xs font-bold text-slate-800">{log.chapter}</p>
@@ -157,7 +157,7 @@ const InteractionLogs = () => {
 const Metric = ({ label, value, color }) => (
     <div className="flex justify-between items-center bg-white p-3 rounded-xl border border-slate-100 shadow-sm">
         <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{label}</span>
-        <span className={`text-xs font-black text-${color}-600`}>{value}</span>
+        <span className={`text-xs font-black text-${color}`}>{value}</span>
     </div>
 );
 

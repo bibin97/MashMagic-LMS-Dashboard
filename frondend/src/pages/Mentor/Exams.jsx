@@ -84,12 +84,12 @@ const Exams = () => {
     return (
         <div className="space-y-8 pb-20 max-w-[1200px] mx-auto">
             {/* Header Area */}
-            <div className="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 border-b-4 border-b-indigo-500 overflow-hidden relative">
-                <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-50 rounded-full -mr-32 -mt-32 opacity-50"></div>
+            <div className="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 border-b-4 border-b-[#f8ba2b] overflow-hidden relative">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-[#008080]/10 rounded-full -mr-32 -mt-32 opacity-50"></div>
 
                 <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
                     <div className="flex items-center gap-5">
-                        <div className="w-14 h-14 bg-indigo-500 rounded-2xl flex items-center justify-center text-white shadow-xl shadow-indigo-100 rotate-3 transition-all duration-500">
+                        <div className="w-14 h-14 bg-[#f8ba2b] rounded-2xl flex items-center justify-center text-slate-900 shadow-xl shadow-[#f8ba2b] rotate-3 transition-all duration-500">
                             <GraduationCap size={28} />
                         </div>
                         <div>
@@ -99,7 +99,7 @@ const Exams = () => {
                     </div>
 
                     <div className="flex items-center gap-3 bg-slate-50 px-5 py-3 rounded-2xl border border-slate-100">
-                        <AlertCircle className="text-indigo-500" size={18} />
+                        <AlertCircle className="text-[#008080]" size={18} />
                         <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">
                             {pendingExams.length} Actions Required
                         </span>
@@ -118,12 +118,12 @@ const Exams = () => {
                             key={tab.id}
                             onClick={() => setActiveTab(tab.id)}
                             className={`px-8 py-4 rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-3
-                                ${activeTab === tab.id ? 'bg-white text-indigo-600 shadow-lg' : 'text-slate-500 hover:text-slate-800'}
+                                ${activeTab === tab.id ? 'bg-white text-[#008080] shadow-lg' : 'text-slate-500 hover:text-slate-800'}
                             `}
                         >
                             {tab.label}
                             {tab.count > 0 && (
-                                <span className={`px-2 py-0.5 rounded-full text-[8px] ${activeTab === tab.id ? 'bg-indigo-600 text-white' : 'bg-slate-200 text-slate-500'}`}>
+                                <span className={`px-2 py-0.5 rounded-full text-[8px] ${activeTab === tab.id ? 'bg-[#f8ba2b] text-slate-900' : 'bg-slate-200 text-slate-500'}`}>
                                     {tab.count}
                                 </span>
                             )}
@@ -133,13 +133,13 @@ const Exams = () => {
 
                 {activeTab === 'history' && (
                     <div className="relative group w-full md:w-80">
-                        <FileText className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-indigo-500 transition-colors" size={16} />
+                        <FileText className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#008080] transition-colors" size={16} />
                         <input
                             type="text"
                             placeholder="Search history..."
                             value={historySearch}
                             onChange={(e) => setHistorySearch(e.target.value)}
-                            className="w-full pl-12 pr-4 py-3 bg-white border border-slate-100 rounded-2xl text-xs font-bold outline-none focus:ring-4 ring-indigo-500/5 transition-all"
+                            className="w-full pl-12 pr-4 py-3 bg-white border border-slate-100 rounded-2xl text-xs font-bold outline-none focus:ring-4 ring-[#f8ba2b]/5 transition-all"
                         />
                     </div>
                 )}
@@ -148,7 +148,7 @@ const Exams = () => {
             {/* List Section */}
             {loading ? (
                 <div className="flex flex-col items-center justify-center p-20 space-y-4">
-                    <div className="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+                    <div className="w-12 h-12 border-4 border-[#f8ba2b] border-t-transparent rounded-full animate-spin"></div>
                     <p className="text-xs font-black text-slate-400 uppercase tracking-widest animate-pulse">Syncing Milestone Data...</p>
                 </div>
             ) : activeTab === 'pending' ? (
@@ -166,16 +166,16 @@ const Exams = () => {
                     <div className="grid gap-6">
                         {pendingExams.map((exam, idx) => (
                             <div key={idx} className="bg-white rounded-[3.5rem] p-10 border border-slate-100 shadow-sm hover:shadow-2xl transition-all group flex flex-col xl:flex-row items-center gap-10 animate-in slide-in-from-bottom-2 duration-300 relative overflow-hidden">
-                                <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-50 rounded-full -mr-16 -mt-16 opacity-30"></div>
+                                <div className="absolute top-0 right-0 w-32 h-32 bg-[#008080]/10 rounded-full -mr-16 -mt-16 opacity-30"></div>
                                 
-                                <div className="w-28 h-28 bg-slate-50 rounded-[2.5rem] flex flex-col items-center justify-center border border-slate-100 group-hover:bg-indigo-600 group-hover:text-white group-hover:border-indigo-600 transition-all duration-700 shrink-0 rotate-3 group-hover:rotate-0">
+                                <div className="w-28 h-28 bg-slate-50 rounded-[2.5rem] flex flex-col items-center justify-center border border-slate-100 group-hover:bg-[#f8ba2b] group-hover:text-slate-900 group-hover:border-[#f8ba2b] transition-all duration-700 shrink-0 rotate-3 group-hover:rotate-0">
                                     <span className="text-[10px] font-black uppercase tracking-tighter opacity-60">Session</span>
                                     <span className="text-4xl font-black tracking-tighter italic">{exam.milestone}</span>
                                 </div>
 
                                 <div className="flex-1 space-y-4">
                                     <div className="flex items-center gap-4">
-                                        <h3 className="text-3xl font-black text-slate-900 italic tracking-tight group-hover:text-indigo-600 transition-colors uppercase">{exam.student_name}</h3>
+                                        <h3 className="text-3xl font-black text-slate-900 italic tracking-tight group-hover:text-[#008080] transition-colors uppercase">{exam.student_name}</h3>
                                         <span className={`px-4 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest border ${exam.status.includes('Postponed')
                                             ? 'bg-amber-50 text-amber-600 border-amber-100'
                                             : 'bg-rose-50 text-rose-600 border-rose-100 animate-pulse'
@@ -209,11 +209,11 @@ const Exams = () => {
                                         <div className="bg-slate-50 p-5 rounded-2xl border border-slate-100 flex items-center justify-between">
                                             <div>
                                                 <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest block">Target Timeline</span>
-                                                <p className="text-sm font-black text-indigo-600 italic">
+                                                <p className="text-sm font-black text-[#008080] italic">
                                                     {exam.scheduled_date ? new Date(exam.scheduled_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' }) : 'Date TBD'}
                                                 </p>
                                             </div>
-                                            <Calendar className="text-indigo-300" size={24} />
+                                            <Calendar className="text-[#008080]" size={24} />
                                         </div>
                                     </div>
 
@@ -227,7 +227,7 @@ const Exams = () => {
 
                                 <button
                                     onClick={() => handleOpenSubmit(exam)}
-                                    className="px-10 py-6 bg-slate-900 text-white rounded-[2rem] text-[11px] font-black uppercase tracking-[0.2em] shadow-2xl shadow-indigo-100 hover:bg-rose-600 hover:-translate-y-1 transition-all active:scale-95 flex items-center justify-center gap-3 italic w-full xl:w-fit group-hover:scale-105"
+                                    className="px-10 py-6 bg-slate-900 text-white rounded-[2rem] text-[11px] font-black uppercase tracking-[0.2em] shadow-2xl shadow-[#f8ba2b] hover:bg-rose-600 hover:-translate-y-1 transition-all active:scale-95 flex items-center justify-center gap-3 italic w-full xl:w-fit group-hover:scale-105"
                                 >
                                     Record Protocol Result <ArrowRight size={20} />
                                 </button>
@@ -263,7 +263,7 @@ const Exams = () => {
                                         {filteredHistory.map((h, i) => (
                                             <tr key={i} className="hover:bg-slate-50/50 transition-colors group">
                                                 <td className="px-8 py-6">
-                                                    <div className="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center font-black italic">
+                                                    <div className="w-12 h-12 bg-[#008080]/10 text-[#008080] rounded-xl flex items-center justify-center font-black italic">
                                                         #{h.milestone_session}
                                                     </div>
                                                 </td>
@@ -273,7 +273,7 @@ const Exams = () => {
                                                 </td>
                                                 <td className="px-8 py-6">
                                                     {h.status === 'Completed' ? (
-                                                        <span className="text-lg font-black text-indigo-600 tracking-tighter italic">{h.score}</span>
+                                                        <span className="text-lg font-black text-[#008080] tracking-tighter italic">{h.score}</span>
                                                     ) : (
                                                         <span className="text-[10px] font-black text-amber-600 uppercase italic">Rescheduled to {new Date(h.postponed_date).toLocaleDateString()}</span>
                                                     )}
@@ -305,7 +305,7 @@ const Exams = () => {
                 <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[1100] flex items-center justify-center p-4 animate-in fade-in duration-300">
                     <div className="bg-white rounded-[3.5rem] shadow-2xl w-full max-w-xl overflow-hidden animate-in zoom-in duration-500 border border-white/20">
                         {/* Modal Header */}
-                        <div className="p-10 border-b border-slate-50 flex justify-between items-center bg-indigo-500 text-white relative h-32">
+                        <div className="p-10 border-b border-slate-50 flex justify-between items-center bg-[#f8ba2b] text-slate-900 relative h-32">
                             <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16"></div>
                             <div className="relative z-10">
                                 <h2 className="text-2xl font-black tracking-tight italic uppercase">Assessment Protocol</h2>
@@ -328,7 +328,7 @@ const Exams = () => {
                                     type="button"
                                     onClick={() => setFormData({ ...formData, type: 'Complete' })}
                                     className={`flex-1 py-4 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all duration-500 flex items-center justify-center gap-2 ${formData.type === 'Complete'
-                                        ? 'bg-white text-indigo-600 shadow-xl shadow-slate-200/50'
+                                        ? 'bg-white text-[#008080] shadow-xl shadow-slate-200/50'
                                         : 'text-slate-400 hover:text-slate-600'
                                         }`}
                                 >
@@ -352,7 +352,7 @@ const Exams = () => {
                                     <div className="space-y-3">
                                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 italic">Exam Performance Insight *</label>
                                         <div className="relative group">
-                                            <div className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-indigo-500 transition-colors">
+                                            <div className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#008080] transition-colors">
                                                 <Target size={20} />
                                             </div>
                                             <input
@@ -360,7 +360,7 @@ const Exams = () => {
                                                 required
                                                 autoFocus
                                                 placeholder="e.g. 92% | Tier A++"
-                                                className="w-full p-5 pl-14 bg-slate-50 border border-slate-100 rounded-3xl text-sm font-black focus:bg-white focus:ring-8 ring-indigo-500/5 transition-all outline-none italic placeholder:font-bold placeholder:opacity-30"
+                                                className="w-full p-5 pl-14 bg-slate-50 border border-slate-100 rounded-3xl text-sm font-black focus:bg-white focus:ring-8 ring-[#f8ba2b]/5 transition-all outline-none italic placeholder:font-bold placeholder:opacity-30"
                                                 value={formData.score}
                                                 onChange={(e) => setFormData({ ...formData, score: e.target.value })}
                                             />
@@ -406,7 +406,7 @@ const Exams = () => {
                             <button
                                 type="submit"
                                 className={`w-full py-6 rounded-[2rem] text-[11px] font-black uppercase tracking-[0.3em] shadow-2xl transition-all active:scale-95 italic flex items-center justify-center gap-4 ${formData.type === 'Complete'
-                                    ? 'bg-indigo-600 text-white shadow-indigo-200/50 hover:bg-indigo-700'
+                                    ? 'bg-[#f8ba2b] text-slate-900 shadow-[#f8ba2b]/50 hover:bg-[#f8ba2b]'
                                     : 'bg-amber-600 text-white shadow-amber-200/50 hover:bg-amber-700'
                                     }`}
                             >

@@ -191,7 +191,7 @@ const FacultyInteractionLog = () => {
 
     if (loading) return (
         <div className="flex flex-col items-center justify-center h-64 gap-4">
-            <Loader2 className="animate-spin text-blue-600" size={40} />
+            <Loader2 className="animate-spin text-[#008080]" size={40} />
             <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">Loading Intelligence...</p>
         </div>
     );
@@ -211,29 +211,29 @@ const FacultyInteractionLog = () => {
                 <div className="text-center md:text-left">
                     <h1 className="text-3xl font-black text-slate-900 tracking-tighter uppercase italic">Faculty Interaction Log</h1>
                     <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest mt-2 flex items-center gap-2 justify-center md:justify-start">
-                        <Layers size={14} className="text-blue-500" />
+                        <Layers size={14} className="text-[#008080]" />
                         Audit of daily faculty reporting and session registry
                     </p>
                 </div>
-                <div className="w-16 h-16 bg-blue-600 rounded-3xl flex items-center justify-center text-white shadow-xl shadow-blue-100 rotate-6">
+                <div className="w-16 h-16 bg-[#f8ba2b] rounded-3xl flex items-center justify-center text-slate-900 shadow-xl shadow-[#f8ba2b] rotate-6">
                     <BookOpen size={28} />
                 </div>
             </div>
 
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
                 <div className="relative group flex-1 sm:flex-none">
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-600 transition-colors" size={16} />
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#008080] transition-colors" size={16} />
                     <input
                         type="text"
                         placeholder="Search logs..."
-                        className="w-full sm:w-64 pl-12 pr-6 py-3 bg-white border border-slate-100 rounded-2xl text-xs font-bold uppercase tracking-widest focus:ring-4 ring-blue-500/10 shadow-sm outline-none transition-all"
+                        className="w-full sm:w-64 pl-12 pr-6 py-3 bg-white border border-slate-100 rounded-2xl text-xs font-bold uppercase tracking-widest focus:ring-4 ring-[#008080]/10 shadow-sm outline-none transition-all"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
                 </div>
                 <button
                     onClick={() => handleOpenModal()}
-                    className="bg-blue-600 text-white px-8 py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-xl shadow-blue-200 hover:bg-blue-700 active:scale-95 transition-all flex items-center justify-center gap-2 group italic"
+                    className="bg-[#f8ba2b] text-slate-900 px-8 py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-xl shadow-[#f8ba2b] hover:bg-[#f8ba2b] active:scale-95 transition-all flex items-center justify-center gap-2 group italic"
                 >
                     <Plus size={16} className="group-hover:rotate-90 transition-transform" /> Add New Entry
                 </button>
@@ -242,10 +242,10 @@ const FacultyInteractionLog = () => {
 
             <div className="bg-white rounded-[2rem] md:rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-200/40 overflow-hidden relative">
                 {/* Mobile scroll indicator */}
-                <div className="md:hidden flex items-center justify-center gap-2 p-3 bg-blue-50/50 border-b border-slate-100 italic">
-                    <Filter size={12} className="text-blue-500 animate-pulse" />
+                <div className="md:hidden flex items-center justify-center gap-2 p-3 bg-[#008080]/10/50 border-b border-slate-100 italic">
+                    <Filter size={12} className="text-[#008080] animate-pulse" />
                     <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Swipe left to view full table</span>
-                    <ChevronRight size={12} className="text-blue-500 animate-bounce-x" />
+                    <ChevronRight size={12} className="text-[#008080] animate-bounce-x" />
                 </div>
                 <div className="overflow-x-auto scrollbar-hide md:scrollbar-default">
                     <table className="w-full text-left border-collapse">
@@ -261,8 +261,8 @@ const FacultyInteractionLog = () => {
                         </thead>
                         <tbody className="divide-y divide-slate-50">
                             {filteredLogs.map(log => (
-                                <tr key={log.id} className="group hover:bg-blue-50/30 transition-colors text-center">
-                                    <td className="p-5 border-r border-slate-50 sticky left-0 bg-white group-hover:bg-blue-50/30 transition-colors z-10 text-xs font-black text-slate-900 text-left">{log.student_name}</td>
+                                <tr key={log.id} className="group hover:bg-[#008080]/10/30 transition-colors text-center">
+                                    <td className="p-5 border-r border-slate-50 sticky left-0 bg-white group-hover:bg-[#008080]/10/30 transition-colors z-10 text-xs font-black text-slate-900 text-left">{log.student_name}</td>
                                     <td className="p-5 border-r border-slate-50 text-xs font-bold text-slate-500">{new Date(log.date).toLocaleDateString()}</td>
                                     <td className="p-5 border-r border-slate-50 text-xs font-black text-slate-400">#{log.session_number}</td>
                                     <td className="p-5 border-r border-slate-50 text-xs font-bold text-slate-700">{log.chapter}</td>
@@ -273,10 +273,10 @@ const FacultyInteractionLog = () => {
                                             ))}
                                         </div>
                                     </td>
-                                    <td className="p-5 sticky right-0 bg-white group-hover:bg-blue-50/30 transition-colors shadow-[-10px_0_15px_-3px_rgba(0,0,0,0.05)]">
+                                    <td className="p-5 sticky right-0 bg-white group-hover:bg-[#008080]/10/30 transition-colors shadow-[-10px_0_15px_-3px_rgba(0,0,0,0.05)]">
                                         <div className="flex items-center justify-center gap-2">
-                                            <button onClick={() => setViewingLog(log)} className="p-2 text-slate-400 hover:bg-slate-50 hover:text-blue-600 rounded-lg transition-all active:scale-90"><Eye size={14} /></button>
-                                            <button onClick={() => handleOpenModal(log)} className="p-2 text-blue-500 hover:bg-blue-50 rounded-lg transition-colors"><Edit2 size={14} /></button>
+                                            <button onClick={() => setViewingLog(log)} className="p-2 text-slate-400 hover:bg-slate-50 hover:text-[#008080] rounded-lg transition-all active:scale-90"><Eye size={14} /></button>
+                                            <button onClick={() => handleOpenModal(log)} className="p-2 text-[#008080] hover:bg-[#008080]/10 rounded-lg transition-colors"><Edit2 size={14} /></button>
                                             <button onClick={() => handleDelete(log)} className="p-2 text-rose-500 hover:bg-rose-50 rounded-lg transition-colors"><Trash2 size={14} /></button>
                                         </div>
                                     </td>
@@ -289,7 +289,7 @@ const FacultyInteractionLog = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex items-center gap-6 group hover:shadow-xl transition-all duration-500">
-                    <div className="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-600 group-hover:scale-110 transition-transform">
+                    <div className="w-16 h-16 bg-[#008080]/10 rounded-2xl flex items-center justify-center text-[#008080] group-hover:scale-110 transition-transform">
                         <TrendingUp size={28} />
                     </div>
                     <div>
@@ -337,7 +337,7 @@ const FacultyInteractionLog = () => {
                                         <select
                                             name="student_id"
                                             required
-                                            className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-blue-500/10 transition-all outline-none"
+                                            className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
                                             value={formData.student_id}
                                             onChange={(e) => setFormData({ ...formData, student_id: e.target.value })}
                                         >
@@ -347,12 +347,12 @@ const FacultyInteractionLog = () => {
                                     </div>
                                     <div className="space-y-2">
                                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 flex items-center gap-1">
-                                            Date * <span className="text-[8px] font-bold text-blue-400 normal-case italic">(Supports multiple classes/day)</span>
+                                            Date * <span className="text-[8px] font-bold text-[#008080] normal-case italic">(Supports multiple classes/day)</span>
                                         </label>
                                         <input
                                             type="date"
                                             required
-                                            className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-blue-500/10 transition-all outline-none"
+                                            className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
                                             value={formData.date}
                                             onChange={(e) => setFormData({ ...formData, date: e.target.value })}
                                         />
@@ -360,7 +360,7 @@ const FacultyInteractionLog = () => {
                                     <div className="space-y-2">
                                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Session Type</label>
                                         <select
-                                            className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-blue-500/10 transition-all outline-none"
+                                            className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
                                             value={formData.session_type}
                                             onChange={(e) => setFormData({ ...formData, session_type: e.target.value })}
                                         >
@@ -378,7 +378,7 @@ const FacultyInteractionLog = () => {
                                             type="text"
                                             required
                                             placeholder="e.g. Integration, Photosynthesis..."
-                                            className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-blue-500/10 transition-all outline-none"
+                                            className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
                                             value={formData.chapter}
                                             onChange={(e) => setFormData({ ...formData, chapter: e.target.value })}
                                         />
@@ -387,7 +387,7 @@ const FacultyInteractionLog = () => {
                                         <div className="space-y-2">
                                             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Performance (1-5)</label>
                                             <select
-                                                className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-blue-500/10 transition-all outline-none"
+                                                className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
                                                 value={formData.student_performance}
                                                 onChange={(e) => setFormData({ ...formData, student_performance: e.target.value })}
                                             >
@@ -401,7 +401,7 @@ const FacultyInteractionLog = () => {
                                         <div className="space-y-2">
                                             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Engagement</label>
                                             <select
-                                                className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-blue-500/10 transition-all outline-none"
+                                                className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
                                                 value={formData.engagement_level}
                                                 onChange={(e) => setFormData({ ...formData, engagement_level: e.target.value })}
                                             >
@@ -418,7 +418,7 @@ const FacultyInteractionLog = () => {
                                     <textarea
                                         required
                                         rows="2"
-                                        className="w-full p-6 bg-slate-50 border border-slate-100 rounded-[2rem] text-xs font-semibold focus:bg-white focus:ring-8 focus:ring-blue-500/5 transition-all outline-none"
+                                        className="w-full p-6 bg-slate-50 border border-slate-100 rounded-[2rem] text-xs font-semibold focus:bg-white focus:ring-8 focus:ring-[#008080]/5 transition-all outline-none"
                                         value={formData.topics_covered}
                                         onChange={(e) => setFormData({ ...formData, topics_covered: e.target.value })}
                                     ></textarea>
@@ -528,7 +528,7 @@ const FacultyInteractionLog = () => {
 
                                 <div className="space-y-4 bg-slate-50 p-8 rounded-[2rem] border border-slate-100">
                                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 flex items-center gap-2">
-                                        <Upload size={14} className="text-blue-600" /> Session Proof (Image/PDF/Docs)
+                                        <Upload size={14} className="text-[#008080]" /> Session Proof (Image/PDF/Docs)
                                     </label>
 
                                     <div className="flex flex-col md:flex-row items-center gap-6">
@@ -542,12 +542,12 @@ const FacultyInteractionLog = () => {
                                             />
                                             <label
                                                 htmlFor="proof-upload"
-                                                className={`flex items-center justify-center gap-3 px-8 py-4 bg-white border-2 border-dashed border-slate-200 rounded-2xl cursor-pointer hover:border-blue-400 hover:bg-blue-50/50 transition-all group ${uploading ? 'opacity-50 pointer-events-none' : ''}`}
+                                                className={`flex items-center justify-center gap-3 px-8 py-4 bg-white border-2 border-dashed border-slate-200 rounded-2xl cursor-pointer hover:border-[#f8ba2b] hover:bg-[#008080]/10/50 transition-all group ${uploading ? 'opacity-50 pointer-events-none' : ''}`}
                                             >
                                                 {uploading ? (
-                                                    <Loader2 className="animate-spin text-blue-600" size={20} />
+                                                    <Loader2 className="animate-spin text-[#008080]" size={20} />
                                                 ) : (
-                                                    <ImageIcon className="text-slate-400 group-hover:text-blue-600" size={20} />
+                                                    <ImageIcon className="text-slate-400 group-hover:text-[#008080]" size={20} />
                                                 )}
                                                 <span className="text-xs font-black text-slate-600 uppercase tracking-widest">
                                                     {uploading ? 'Uploading...' : 'Choose File'}
@@ -562,7 +562,7 @@ const FacultyInteractionLog = () => {
                                                 </div>
                                                 <div className="flex flex-col">
                                                     <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">File Attached</span>
-                                                    <a href={formData.screenshot_url} target="_blank" rel="noreferrer" className="text-xs font-bold text-blue-600 hover:underline truncate max-w-[150px]">View Document</a>
+                                                    <a href={formData.screenshot_url} target="_blank" rel="noreferrer" className="text-xs font-bold text-[#008080] hover:underline truncate max-w-[150px]">View Document</a>
                                                 </div>
                                                 <button
                                                     type="button"
@@ -588,7 +588,7 @@ const FacultyInteractionLog = () => {
                                     <button
                                         type="submit"
                                         disabled={uploading}
-                                        className={`w-full sm:w-auto px-10 py-4 bg-blue-600 text-white rounded-2xl text-xs font-black uppercase tracking-widest shadow-xl shadow-blue-200 hover:bg-blue-700 active:scale-95 transition-all flex items-center justify-center gap-2 italic ${uploading ? 'opacity-50' : ''}`}
+                                        className={`w-full sm:w-auto px-10 py-4 bg-[#f8ba2b] text-slate-900 rounded-2xl text-xs font-black uppercase tracking-widest shadow-xl shadow-[#f8ba2b] hover:bg-[#f8ba2b] active:scale-95 transition-all flex items-center justify-center gap-2 italic ${uploading ? 'opacity-50' : ''}`}
                                     >
                                         {editingLogId ? 'Update Report' : 'Submit Log'} <ChevronRight size={16} />
                                     </button>
@@ -606,7 +606,7 @@ const FacultyInteractionLog = () => {
                         <div className="bg-white rounded-t-[2.5rem] sm:rounded-[3rem] shadow-2xl w-full max-w-4xl h-[95vh] sm:h-auto sm:max-h-[90vh] overflow-y-auto animate-in slide-in-from-bottom-8 duration-500">
                             <div className="sticky top-0 bg-white/80 backdrop-blur-xl px-6 sm:px-10 py-5 sm:py-6 border-b border-slate-100 flex justify-between items-center z-10">
                                 <div className="flex items-center gap-4">
-                                    <div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-600">
+                                    <div className="w-12 h-12 bg-[#008080]/10 rounded-2xl flex items-center justify-center text-[#008080]">
                                         <BookOpen size={24} />
                                     </div>
                                     <div>
@@ -644,9 +644,9 @@ const FacultyInteractionLog = () => {
                                         <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Date</p>
                                         <p className="text-xs font-black text-slate-900 italic">{new Date(viewingLog.date).toLocaleDateString()}</p>
                                     </div>
-                                    <div className="bg-blue-50 p-5 rounded-3xl border border-blue-100">
-                                        <p className="text-[9px] font-black text-blue-400 uppercase tracking-widest mb-1">Test Score</p>
-                                        <p className="text-xs font-black text-blue-700 italic">{viewingLog.test_score || 'N/A'}</p>
+                                    <div className="bg-[#008080]/10 p-5 rounded-3xl border border-[#f8ba2b]">
+                                        <p className="text-[9px] font-black text-[#008080] uppercase tracking-widest mb-1">Test Score</p>
+                                        <p className="text-xs font-black text-[#008080] italic">{viewingLog.test_score || 'N/A'}</p>
                                     </div>
                                 </div>
 
@@ -654,7 +654,7 @@ const FacultyInteractionLog = () => {
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                                     <div className="space-y-6">
                                         <div className="flex items-start gap-4">
-                                            <div className="w-10 h-10 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-600 shrink-0">
+                                            <div className="w-10 h-10 bg-[#008080]/10 rounded-2xl flex items-center justify-center text-[#008080] shrink-0">
                                                 <BookOpen size={18} />
                                             </div>
                                             <div>
@@ -704,7 +704,7 @@ const FacultyInteractionLog = () => {
                                     <div className="flex items-center gap-6">
                                         <div className="text-center">
                                             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Parent Update</p>
-                                            <span className={`text-[10px] font-black uppercase px-3 py-1.5 rounded-full ${viewingLog.parent_update_needed === 'Yes' ? 'bg-blue-600 text-white shadow-lg shadow-blue-200' : 'bg-slate-200 text-slate-500'}`}>
+                                            <span className={`text-[10px] font-black uppercase px-3 py-1.5 rounded-full ${viewingLog.parent_update_needed === 'Yes' ? 'bg-[#f8ba2b] text-slate-900 shadow-lg shadow-[#f8ba2b]' : 'bg-slate-200 text-slate-500'}`}>
                                                 {viewingLog.parent_update_needed}
                                             </span>
                                         </div>
@@ -726,7 +726,7 @@ const FacultyInteractionLog = () => {
                                             href={viewingLog.screenshot_url}
                                             target="_blank"
                                             rel="noreferrer"
-                                            className="flex items-center gap-2 bg-white px-5 py-3 rounded-2xl border border-slate-200 text-[10px] font-black uppercase tracking-widest text-blue-600 hover:shadow-lg transition-all active:scale-95"
+                                            className="flex items-center gap-2 bg-white px-5 py-3 rounded-2xl border border-slate-200 text-[10px] font-black uppercase tracking-widest text-[#008080] hover:shadow-lg transition-all active:scale-95"
                                         >
                                             <ImageIcon size={14} /> View Proof
                                         </a>

@@ -143,7 +143,7 @@ const AcademicHeadTasks = () => {
             header: 'Assigned To', accessor: 'mentor_name', render: (row) => (
                 <div className="flex flex-col gap-1">
                     <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 bg-indigo-50 rounded-xl flex items-center justify-center text-[10px] font-black text-indigo-500 border border-indigo-100 uppercase shrink-0">
+                        <div className="w-8 h-8 bg-[#008080]/10 rounded-xl flex items-center justify-center text-[10px] font-black text-[#008080] border border-[#f8ba2b] uppercase shrink-0">
                             {row.mentor_name?.charAt(0) || 'U'}
                         </div>
                         <div className="flex flex-col">
@@ -200,7 +200,7 @@ const AcademicHeadTasks = () => {
                 </div>
                 <button
                     onClick={() => setIsModalOpen(true)}
-                    className="flex items-center gap-3 bg-indigo-600 text-white px-6 py-4 rounded-[2rem] font-black text-[10px] uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-100 hover:-translate-y-1 active:scale-95"
+                    className="flex items-center gap-3 bg-[#f8ba2b] text-slate-900 px-6 py-4 rounded-[2rem] font-black text-[10px] uppercase tracking-widest hover:bg-[#f8ba2b] transition-all shadow-xl shadow-[#f8ba2b] hover:-translate-y-1 active:scale-95"
                 >
                     <Plus size={18} />
                     <span>Initiate New Task</span>
@@ -231,7 +231,7 @@ const AcademicHeadTasks = () => {
                                 const preset = academicPresets.find(p => p.title === e.target.value);
                                 if (preset) applyPreset(preset);
                             }}
-                            className="p-4 bg-slate-50 border border-slate-100 rounded-3xl text-sm outline-none focus:bg-white focus:ring-4 focus:ring-indigo-50 focus:border-indigo-300 transition-all font-bold text-slate-700 appearance-none"
+                            className="p-4 bg-slate-50 border border-slate-100 rounded-3xl text-sm outline-none focus:bg-white focus:ring-4 focus:ring-[#f8ba2b] focus:border-[#f8ba2b] transition-all font-bold text-slate-700 appearance-none"
                             defaultValue=""
                         >
                             <option value="" disabled>Select a preset action...</option>
@@ -247,7 +247,7 @@ const AcademicHeadTasks = () => {
                         <input
                             type="text"
                             required
-                            className="p-4 bg-slate-50 border border-slate-100 rounded-3xl text-sm outline-none focus:bg-white focus:ring-4 focus:ring-indigo-50 focus:border-indigo-300 transition-all font-bold text-slate-700"
+                            className="p-4 bg-slate-50 border border-slate-100 rounded-3xl text-sm outline-none focus:bg-white focus:ring-4 focus:ring-[#f8ba2b] focus:border-[#f8ba2b] transition-all font-bold text-slate-700"
                             placeholder="e.g., Weekly Class Report Review"
                             value={formData.title}
                             onChange={(e) => setFormData({ ...formData, title: e.target.value })}
@@ -259,7 +259,7 @@ const AcademicHeadTasks = () => {
                         <textarea
                             rows="4"
                             required
-                            className="p-4 bg-slate-50 border border-slate-100 rounded-3xl text-sm outline-none focus:bg-white focus:ring-4 focus:ring-indigo-50 focus:border-indigo-300 transition-all font-bold text-slate-700 resize-none"
+                            className="p-4 bg-slate-50 border border-slate-100 rounded-3xl text-sm outline-none focus:bg-white focus:ring-4 focus:ring-[#f8ba2b] focus:border-[#f8ba2b] transition-all font-bold text-slate-700 resize-none"
                             placeholder="Detail out the specific requirements for this faculty member..."
                             value={formData.description}
                             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
@@ -271,7 +271,7 @@ const AcademicHeadTasks = () => {
                             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Assign User</label>
                             <select
                                 required
-                                className="p-4 bg-slate-50 border border-slate-100 rounded-3xl text-sm outline-none focus:bg-white focus:ring-4 focus:ring-indigo-50 focus:border-indigo-300 transition-all font-bold text-slate-700 appearance-none"
+                                className="p-4 bg-slate-50 border border-slate-100 rounded-3xl text-sm outline-none focus:bg-white focus:ring-4 focus:ring-[#f8ba2b] focus:border-[#f8ba2b] transition-all font-bold text-slate-700 appearance-none"
                                 value={formData.mentor_id}
                                 onChange={(e) => setFormData({ ...formData, mentor_id: e.target.value })}
                             >
@@ -298,7 +298,7 @@ const AcademicHeadTasks = () => {
                             <input
                                 type="date"
                                 required
-                                className="p-4 bg-slate-50 border border-slate-100 rounded-3xl text-sm outline-none focus:bg-white focus:ring-4 focus:ring-indigo-50 focus:border-indigo-300 transition-all font-bold text-slate-700"
+                                className="p-4 bg-slate-50 border border-slate-100 rounded-3xl text-sm outline-none focus:bg-white focus:ring-4 focus:ring-[#f8ba2b] focus:border-[#f8ba2b] transition-all font-bold text-slate-700"
                                 value={formData.deadline}
                                 onChange={(e) => setFormData({ ...formData, deadline: e.target.value })}
                             />
@@ -328,7 +328,7 @@ const AcademicHeadTasks = () => {
 
                     <button
                         type="submit"
-                        className="w-full bg-indigo-600 text-white p-5 rounded-[2rem] font-black text-xs uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-100 mt-4 flex items-center justify-center gap-3 group"
+                        className="w-full bg-[#f8ba2b] text-slate-900 p-5 rounded-[2rem] font-black text-xs uppercase tracking-widest hover:bg-[#f8ba2b] transition-all shadow-xl shadow-[#f8ba2b] mt-4 flex items-center justify-center gap-3 group"
                     >
                         <span>Submit Task</span>
                         <Layers size={20} className="transition-transform group-hover:rotate-12" />

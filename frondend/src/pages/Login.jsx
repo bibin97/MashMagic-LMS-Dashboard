@@ -91,8 +91,8 @@ const Login = () => {
             <div className="w-full max-w-2xl transition-all duration-500">
                 {/* Logo / Brand */}
                 <div className="text-center mb-10 flex flex-col items-center">
-                    <div className="w-20 h-20 bg-indigo-600 rounded-[2rem] flex items-center justify-center text-white mb-6 shadow-2xl shadow-indigo-200 rotate-6 transition-transform hover:rotate-0">
-                        <ShieldCheck size={40} />
+                    <div className="w-32 h-32 flex items-center justify-center mb-4 transition-transform hover:scale-105 duration-500">
+                        <img src="/mashmagic logo.jpg" alt="Logo" className="w-full h-full object-contain" />
                     </div>
                     <h1 className="text-4xl font-black text-slate-900 tracking-tighter">MashMagic Hub</h1>
                     <p className="text-slate-500 font-bold mt-2 uppercase tracking-[0.3em] text-xs">Unified Personnel Gateway</p>
@@ -112,12 +112,12 @@ const Login = () => {
                                 key={dept.id}
                                 onClick={() => handleDepartmentChange(dept.id)}
                                 className={`flex-1 py-5 text-[10px] font-black uppercase tracking-widest transition-all relative
-                                    ${activeDepartment === dept.id ? 'text-indigo-600 bg-white shadow-sm z-10' : 'text-slate-400 hover:text-slate-600'}
+                                    ${activeDepartment === dept.id ? 'text-[#008080] bg-white shadow-sm z-10' : 'text-slate-400 hover:text-slate-600'}
                                 `}
                             >
                                 {dept.label}
                                 {activeDepartment === dept.id && (
-                                    <div className="absolute top-0 left-0 w-full h-1 bg-indigo-600"></div>
+                                    <div className="absolute top-0 left-0 w-full h-1 bg-[#f8ba2b]"></div>
                                 )}
                             </button>
                         ))}
@@ -137,7 +137,7 @@ const Login = () => {
                                             key={role.id}
                                             onClick={() => handleSubRoleChange(role.id)}
                                             className={`px-6 py-2 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all
-                                                ${subRole === role.id ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'}
+                                                ${subRole === role.id ? 'bg-white text-[#008080] shadow-sm' : 'text-slate-400 hover:text-slate-600'}
                                             `}
                                         >
                                             {role.label}
@@ -158,7 +158,7 @@ const Login = () => {
                                             key={role.id}
                                             onClick={() => handleSubRoleChange(role.id)}
                                             className={`px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all
-                                                ${subRole === role.id ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'}
+                                                ${subRole === role.id ? 'bg-white text-[#008080] shadow-sm' : 'text-slate-400 hover:text-slate-600'}
                                             `}
                                         >
                                             {role.label}
@@ -175,7 +175,7 @@ const Login = () => {
                                     <h2 className="text-2xl font-black text-slate-900 tracking-tight capitalize">New {subRole.replace('_', ' ')}</h2>
                                     <button
                                         onClick={() => setIsRegistering(false)}
-                                        className="text-slate-400 hover:text-indigo-600 transition-colors"
+                                        className="text-slate-400 hover:text-[#008080] transition-colors"
                                     >
                                         <LogIn size={20} />
                                     </button>
@@ -187,7 +187,7 @@ const Login = () => {
                                 <div className="mt-6 text-center">
                                     <button
                                         onClick={() => setIsRegistering(false)}
-                                        className="text-xs font-bold text-slate-400 uppercase tracking-widest hover:text-indigo-600 transition-colors"
+                                        className="text-xs font-bold text-slate-400 uppercase tracking-widest hover:text-[#008080] transition-colors"
                                     >
                                         Back to Login
                                     </button>
@@ -210,14 +210,14 @@ const Login = () => {
                                             {canSignup ? 'Email Address' : 'Email or Phone Number'}
                                         </label>
                                         <div className="relative group">
-                                            <div className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-colors">
+                                            <div className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#008080] transition-colors">
                                                 <Mail size={18} />
                                             </div>
                                             <input
                                                 name="identifier"
                                                 type="text"
                                                 required
-                                                className="w-full p-4 pl-14 bg-slate-50 border-none rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-indigo-500/10 transition-all font-sans"
+                                                className="w-full p-4 pl-14 bg-slate-50 border-none rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-[#f8ba2b]/10 transition-all font-sans"
                                                 placeholder={canSignup ? "Head Access Email" : "Registered Phone / Email"}
                                                 value={formData.identifier}
                                                 onChange={handleChange}
@@ -230,14 +230,14 @@ const Login = () => {
                                             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Passcode</label>
                                         </div>
                                         <div className="relative group">
-                                            <div className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-colors">
+                                            <div className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#008080] transition-colors">
                                                 <Lock size={18} />
                                             </div>
                                             <input
                                                 name="password"
                                                 type="password"
                                                 required
-                                                className="w-full p-4 pl-14 bg-slate-50 border-none rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-indigo-500/10 transition-all font-sans"
+                                                className="w-full p-4 pl-14 bg-slate-50 border-none rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-[#f8ba2b]/10 transition-all font-sans"
                                                 placeholder="••••••••"
                                                 value={formData.password}
                                                 onChange={handleChange}
@@ -248,7 +248,7 @@ const Login = () => {
                                     <button
                                         type="submit"
                                         disabled={isSubmitting}
-                                        className="w-full bg-slate-900 text-white p-5 rounded-2xl font-black text-xs uppercase tracking-[0.2em] hover:bg-indigo-600 transition-all shadow-xl hover:shadow-indigo-200 flex items-center justify-center gap-3 group mt-2 active:scale-[0.98] disabled:opacity-50"
+                                        className="w-full bg-[#008080] text-white p-5 rounded-2xl font-black text-xs uppercase tracking-[0.2em] hover:bg-[#f8ba2b] hover:text-black transition-all shadow-xl shadow-[#008080]/30 hover:shadow-[#f8ba2b]/50 flex items-center justify-center gap-3 group mt-2 active:scale-[0.98] disabled:opacity-50"
                                     >
                                         {isSubmitting ? (
                                             <Loader2 size={20} className="animate-spin" />
@@ -268,7 +268,7 @@ const Login = () => {
                                                 <button
                                                     type="button"
                                                     onClick={() => setIsRegistering(true)}
-                                                    className="text-indigo-600 hover:text-indigo-800 transition-colors font-black underline underline-offset-4"
+                                                    className="text-[#008080] hover:text-[#008080] transition-colors font-black underline underline-offset-4"
                                                 >
                                                     Create {subRole === 'admin' ? 'Account' : 'Head Profile'}
                                                 </button>

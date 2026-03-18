@@ -46,10 +46,12 @@ const Sidebar = () => {
     };
 
     return (
-        <aside className="fixed left-0 top-0 h-full w-64 bg-white border-r border-slate-200 flex flex-col z-[1000]">
+        <aside className="fixed left-0 top-0 h-full w-64 bg-[#008080] flex flex-col z-[1000] shadow-2xl">
             <div className="p-6 border-b border-slate-100">
-                <h1 className="text-xl font-bold text-blue-600 flex items-center gap-2">
-                    <span className="w-8 h-8 bg-blue-600 text-white rounded-lg flex items-center justify-center font-black">M</span>
+                <h1 className="text-xl font-bold text-white flex items-center gap-2">
+                    <div className="w-12 h-12 flex items-center justify-center">
+                        <img src="/mashmagic logo.jpg" alt="Logo" className="w-full h-full object-contain" />
+                    </div>
                     MashMagic
                 </h1>
             </div>
@@ -62,8 +64,8 @@ const Sidebar = () => {
                         className={({ isActive }) => `
                             flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200
                             ${isActive
-                                ? 'bg-blue-600 text-white font-semibold shadow-lg shadow-blue-100'
-                                : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'}
+                                ? 'bg-[#f8ba2b] text-white font-semibold shadow-lg shadow-[#f8ba2b]/30 backdrop-blur-md'
+                                : 'text-white/60 hover:bg-white/10 hover:text-white'}
                         `}
                     >
                         {item.icon}
@@ -75,7 +77,7 @@ const Sidebar = () => {
             <div className="p-4 border-t border-slate-100">
                 <button
                     onClick={handleLogout}
-                    className="w-full flex items-center gap-3 px-4 py-3 text-rose-500 hover:bg-rose-50 rounded-xl transition-all duration-200 text-sm font-black uppercase tracking-wider"
+                    className="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 font-black uppercase tracking-wider bg-[#f8ba2b] text-slate-900 hover:brightness-110 shadow-lg"
                 >
                     <LogOut size={18} />
                     <span>Logout</span>

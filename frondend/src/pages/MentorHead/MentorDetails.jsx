@@ -121,8 +121,8 @@ const MentorDetails = () => {
         return (
             <div className="flex flex-col items-center justify-center h-screen gap-4">
                 <div className="relative">
-                    <div className="w-16 h-16 border-4 border-indigo-100 border-t-indigo-600 rounded-full animate-spin"></div>
-                    <Activity className="absolute inset-0 m-auto text-indigo-600 animate-pulse" size={20} />
+                    <div className="w-16 h-16 border-4 border-[#f8ba2b] border-t-[#f8ba2b] rounded-full animate-spin"></div>
+                    <Activity className="absolute inset-0 m-auto text-[#008080] animate-pulse" size={20} />
                 </div>
                 <p className="text-slate-400 font-black text-[10px] uppercase tracking-widest animate-pulse">Syncing Dashboard...</p>
             </div>
@@ -141,7 +141,7 @@ const MentorDetails = () => {
                 </div>
                 <button
                     onClick={() => navigate(-1)}
-                    className="px-8 py-3 bg-indigo-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-indigo-200 hover:scale-105 transition-transform"
+                    className="px-8 py-3 bg-[#f8ba2b] text-slate-900 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-[#f8ba2b] hover:scale-105 transition-transform"
                 >
                     Return to Directory
                 </button>
@@ -160,14 +160,14 @@ const MentorDetails = () => {
             <div className="flex items-center justify-between px-4">
                 <button
                     onClick={() => navigate(-1)}
-                    className="group flex items-center gap-2 text-slate-400 hover:text-indigo-600 transition-all font-bold uppercase tracking-widest text-[10px]"
+                    className="group flex items-center gap-2 text-slate-400 hover:text-[#008080] transition-all font-bold uppercase tracking-widest text-[10px]"
                 >
-                    <div className="p-2 bg-white rounded-xl shadow-sm border border-slate-100 group-hover:bg-indigo-50 group-hover:border-indigo-100 transition-all">
+                    <div className="p-2 bg-white rounded-xl shadow-sm border border-slate-100 group-hover:bg-[#008080]/10 group-hover:border-[#f8ba2b] transition-all">
                         <ArrowLeft size={14} />
                     </div>
                     Back to List
                 </button>
-                <div className="flex items-center gap-2 px-5 py-2.5 bg-indigo-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-lg shadow-indigo-100">
+                <div className="flex items-center gap-2 px-5 py-2.5 bg-[#f8ba2b] text-slate-900 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-lg shadow-[#f8ba2b]">
                     <User size={14} className="opacity-70" />
                     Mentor Profile
                 </div>
@@ -177,12 +177,12 @@ const MentorDetails = () => {
             <div className="flex flex-col xl:flex-row gap-8">
                 {/* Profile Card */}
                 <div className="flex-grow bg-white p-10 rounded-[3.5rem] border border-slate-100 shadow-xl shadow-slate-200/40 relative overflow-hidden">
-                    <div className="absolute top-0 right-0 w-80 h-80 bg-gradient-to-br from-indigo-50/50 to-purple-50/50 rounded-full -mr-40 -mt-40 blur-3xl opacity-60"></div>
+                    <div className="absolute top-0 right-0 w-80 h-80 bg-gradient-to-br from-[#f8ba2b]/50 to-purple-50/50 rounded-full -mr-40 -mt-40 blur-3xl opacity-60"></div>
 
                     <div className="relative z-10 flex flex-col md:flex-row items-center gap-10">
                         <div className="relative group">
-                            <div className="absolute inset-0 bg-indigo-500 rounded-[2.5rem] blur-2xl opacity-20 group-hover:opacity-40 transition-opacity"></div>
-                            <div className="w-40 h-40 bg-gradient-to-br from-indigo-500 via-indigo-600 to-purple-700 rounded-[2.5rem] flex items-center justify-center text-white text-5xl font-black shadow-2xl relative z-10">
+                            <div className="absolute inset-0 bg-[#f8ba2b] rounded-[2.5rem] blur-2xl opacity-20 group-hover:opacity-40 transition-opacity"></div>
+                            <div className="w-40 h-40 bg-gradient-to-br from-[#f8ba2b] via-[#f8ba2b] to-purple-700 rounded-[2.5rem] flex items-center justify-center text-white text-5xl font-black shadow-2xl relative z-10">
                                 {profile.name.charAt(0)}
                             </div>
                         </div>
@@ -197,16 +197,16 @@ const MentorDetails = () => {
                             </h1>
 
                             <div className="flex flex-wrap justify-center md:justify-start gap-3">
-                                <div className="flex items-center gap-3 text-slate-600 bg-white px-5 py-3 rounded-2xl border border-slate-100 shadow-sm hover:border-indigo-200 transition-colors">
-                                    <Phone size={14} className="text-indigo-500" />
+                                <div className="flex items-center gap-3 text-slate-600 bg-white px-5 py-3 rounded-2xl border border-slate-100 shadow-sm hover:border-[#f8ba2b] transition-colors">
+                                    <Phone size={14} className="text-[#008080]" />
                                     <span className="text-xs font-bold font-mono tracking-wider">{profile.phone_number || 'N/A'}</span>
                                 </div>
-                                <div className="flex items-center gap-3 text-slate-600 bg-white px-5 py-3 rounded-2xl border border-slate-100 shadow-sm hover:border-indigo-200 transition-colors">
-                                    <MapPin size={14} className="text-indigo-500" />
+                                <div className="flex items-center gap-3 text-slate-600 bg-white px-5 py-3 rounded-2xl border border-slate-100 shadow-sm hover:border-[#f8ba2b] transition-colors">
+                                    <MapPin size={14} className="text-[#008080]" />
                                     <span className="text-xs font-bold uppercase tracking-widest">{profile.place || 'N/A'}</span>
                                 </div>
-                                <div className="flex items-center gap-3 text-slate-600 bg-white px-5 py-3 rounded-2xl border border-slate-100 shadow-sm hover:border-indigo-200 transition-colors">
-                                    <Calendar size={14} className="text-indigo-500" />
+                                <div className="flex items-center gap-3 text-slate-600 bg-white px-5 py-3 rounded-2xl border border-slate-100 shadow-sm hover:border-[#f8ba2b] transition-colors">
+                                    <Calendar size={14} className="text-[#008080]" />
                                     <span className="text-xs font-bold uppercase tracking-widest">Joined {new Date(profile.created_at).toLocaleDateString()}</span>
                                 </div>
                             </div>
@@ -215,8 +215,8 @@ const MentorDetails = () => {
                 </div>
 
                 {/* Activity Score Card */}
-                <div className="w-full xl:w-[450px] bg-slate-900 p-10 rounded-[3.5rem] text-white shadow-2xl shadow-indigo-900/10 relative overflow-hidden group">
-                    <div className="absolute top-0 right-0 w-48 h-48 bg-indigo-500/20 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
+                <div className="w-full xl:w-[450px] bg-slate-900 p-10 rounded-[3.5rem] text-white shadow-2xl shadow-[#f8ba2b]/10 relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 w-48 h-48 bg-[#f8ba2b]/20 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
 
                     <div className="relative z-10 space-y-10">
                         <div className="flex justify-between items-start">
@@ -225,7 +225,7 @@ const MentorDetails = () => {
                                 <h3 className="text-2xl font-black text-white">Activity Score</h3>
                             </div>
                             <div className="p-3 bg-white/5 rounded-2xl backdrop-blur-md">
-                                <Activity size={20} className="text-indigo-400" />
+                                <Activity size={20} className="text-[#008080]" />
                             </div>
                         </div>
 
@@ -233,7 +233,7 @@ const MentorDetails = () => {
                             <div>
                                 <p className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-500 mb-2">Total Connections</p>
                                 <div className="flex items-baseline gap-1">
-                                    <span className="text-4xl font-black text-indigo-400">{monitoring?.monthlyConnections || 0}</span>
+                                    <span className="text-4xl font-black text-[#008080]">{monitoring?.monthlyConnections || 0}</span>
                                     <span className="text-[10px] font-bold text-slate-600 uppercase">/ Month</span>
                                 </div>
                             </div>
@@ -249,11 +249,11 @@ const MentorDetails = () => {
                         <div className="space-y-4">
                             <div className="flex justify-between items-end">
                                 <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Marking Progress</span>
-                                <span className="text-lg font-black text-indigo-400">{progressPercent.toFixed(0)}%</span>
+                                <span className="text-lg font-black text-[#008080]">{progressPercent.toFixed(0)}%</span>
                             </div>
                             <div className="h-3 w-full bg-slate-800 rounded-full overflow-hidden border border-slate-700 shadow-inner">
                                 <div
-                                    className="h-full bg-gradient-to-r from-emerald-400 via-indigo-500 to-purple-600 transition-all duration-1000 shadow-[0_0_15px_rgba(79,70,229,0.3)]"
+                                    className="h-full bg-gradient-to-r from-emerald-400 via-[#f8ba2b] to-purple-600 transition-all duration-1000 shadow-[0_0_15px_rgba(79,70,229,0.3)]"
                                     style={{ width: `${progressPercent}%` }}
                                 ></div>
                             </div>
@@ -265,9 +265,9 @@ const MentorDetails = () => {
             {/* SECTION 2: KPI SUMMARY ROW */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 {[
-                    { label: 'Total Students', value: totalStudentsCount, icon: Users, color: 'text-indigo-600', bg: 'bg-indigo-50', unit: 'Members' },
+                    { label: 'Total Students', value: totalStudentsCount, icon: Users, color: 'text-[#008080]', bg: 'bg-[#008080]/10', unit: 'Members' },
                     { label: 'Connected Today', value: connectedToday, icon: Activity, color: 'text-emerald-600', bg: 'bg-emerald-50', unit: 'Sessions' },
-                    { label: 'Total Interactions', value: logs.length, icon: GraduationCap, color: 'text-blue-600', bg: 'bg-blue-50', unit: 'Logs' },
+                    { label: 'Total Interactions', value: logs.length, icon: GraduationCap, color: 'text-[#008080]', bg: 'bg-[#008080]/10', unit: 'Logs' },
                     { label: 'Total Verifications', value: facultyLogs?.length || 0, icon: ShieldCheck, color: 'text-purple-600', bg: 'bg-purple-50', unit: 'Checks' }
                 ].map((kpi, idx) => (
                     <div key={idx} className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group">
@@ -275,7 +275,7 @@ const MentorDetails = () => {
                             <div className={`w-14 h-14 ${kpi.bg} rounded-2xl flex items-center justify-center ${kpi.color} group-hover:scale-110 transition-transform`}>
                                 <kpi.icon size={26} />
                             </div>
-                            <ChevronRight size={18} className="text-slate-200 group-hover:text-indigo-300 transition-colors" />
+                            <ChevronRight size={18} className="text-slate-200 group-hover:text-[#008080] transition-colors" />
                         </div>
                         <div className="flex justify-between items-baseline mb-1">
                             <span className="text-4xl font-black text-slate-900">{kpi.value}</span>
@@ -290,7 +290,7 @@ const MentorDetails = () => {
             <div className="bg-white rounded-[3.5rem] border border-slate-100 shadow-xl shadow-slate-200/20 overflow-hidden">
                 <div className="p-10 border-b border-slate-100 flex flex-col md:flex-row justify-between items-center gap-8 bg-slate-50/20">
                     <div className="flex items-center gap-6">
-                        <div className="w-16 h-16 bg-white rounded-3xl flex items-center justify-center text-indigo-600 shadow-xl shadow-slate-200/50">
+                        <div className="w-16 h-16 bg-white rounded-3xl flex items-center justify-center text-[#008080] shadow-xl shadow-slate-200/50">
                             <GraduationCap size={32} />
                         </div>
                         <div>
@@ -307,15 +307,15 @@ const MentorDetails = () => {
                                 placeholder="Search by student or faculty identity..."
                                 value={studentSearch}
                                 onChange={(e) => setStudentSearch(e.target.value)}
-                                className="w-full bg-white border border-slate-200 rounded-[1.5rem] py-4 pl-14 pr-6 text-sm font-bold focus:shadow-2xl focus:shadow-indigo-100 focus:border-indigo-300 transition-all outline-none"
+                                className="w-full bg-white border border-slate-200 rounded-[1.5rem] py-4 pl-14 pr-6 text-sm font-bold focus:shadow-2xl focus:shadow-[#f8ba2b] focus:border-[#f8ba2b] transition-all outline-none"
                             />
                         </div>
                         <div className="relative">
-                            <Filter size={16} className="absolute left-5 top-1/2 -translate-y-1/2 text-indigo-500" />
+                            <Filter size={16} className="absolute left-5 top-1/2 -translate-y-1/2 text-[#008080]" />
                             <select
                                 value={studentFilter}
                                 onChange={(e) => setStudentFilter(e.target.value)}
-                                className="bg-white border border-slate-200 text-indigo-600 rounded-[1.5rem] py-4 pl-12 pr-10 text-[11px] font-black uppercase tracking-widest appearance-none focus:ring-4 focus:ring-indigo-100 outline-none cursor-pointer"
+                                className="bg-white border border-slate-200 text-[#008080] rounded-[1.5rem] py-4 pl-12 pr-10 text-[11px] font-black uppercase tracking-widest appearance-none focus:ring-4 focus:ring-[#f8ba2b] outline-none cursor-pointer"
                             >
                                 <option value="all">All Status</option>
                                 <option value="pending">Onboarding</option>
@@ -323,11 +323,11 @@ const MentorDetails = () => {
                             </select>
                         </div>
                         <div className="relative">
-                            <Clock size={16} className="absolute left-5 top-1/2 -translate-y-1/2 text-indigo-500" />
+                            <Clock size={16} className="absolute left-5 top-1/2 -translate-y-1/2 text-[#008080]" />
                             <select
                                 value={studentSort}
                                 onChange={(e) => setStudentSort(e.target.value)}
-                                className="bg-white border border-slate-200 text-indigo-600 rounded-[1.5rem] py-4 pl-12 pr-10 text-[11px] font-black uppercase tracking-widest appearance-none focus:ring-4 focus:ring-indigo-100 outline-none cursor-pointer"
+                                className="bg-white border border-slate-200 text-[#008080] rounded-[1.5rem] py-4 pl-12 pr-10 text-[11px] font-black uppercase tracking-widest appearance-none focus:ring-4 focus:ring-[#f8ba2b] outline-none cursor-pointer"
                             >
                                 <option value="desc">Newest First</option>
                                 <option value="asc">Oldest First</option>
@@ -351,10 +351,10 @@ const MentorDetails = () => {
                         </thead>
                         <tbody className="divide-y divide-slate-100">
                             {filteredStudents.length > 0 ? filteredStudents.map((s) => (
-                                <tr key={s.id} className="hover:bg-indigo-50/20 transition-all group">
+                                <tr key={s.id} className="hover:bg-[#008080]/10/20 transition-all group">
                                     <td className="px-10 py-8">
                                         <div className="flex flex-col">
-                                            <span className="text-base font-black text-slate-900 group-hover:text-indigo-600 transition-colors">{s.name}</span>
+                                            <span className="text-base font-black text-slate-900 group-hover:text-[#008080] transition-colors">{s.name}</span>
                                             <div className="flex items-center gap-2 mt-1">
                                                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{s.grade} • {s.course}</span>
                                                 {s.is_shifted && (
@@ -382,7 +382,7 @@ const MentorDetails = () => {
                                         )}
                                     </td>
                                     <td className="px-10 py-8 text-center">
-                                        <div className="inline-flex items-center justify-center w-10 h-10 rounded-2xl bg-indigo-50 text-indigo-600 text-xs font-black border border-indigo-100 shadow-sm">
+                                        <div className="inline-flex items-center justify-center w-10 h-10 rounded-2xl bg-[#008080]/10 text-[#008080] text-xs font-black border border-[#f8ba2b] shadow-sm">
                                             {s.totalInteractions}
                                         </div>
                                     </td>
@@ -400,7 +400,7 @@ const MentorDetails = () => {
                                         <div className="flex items-center justify-end gap-3">
                                             <button
                                                 onClick={() => handleEditStudent(s)}
-                                                className="p-2.5 bg-white border border-slate-200 rounded-xl text-blue-600 hover:bg-blue-50 transition-all shadow-sm"
+                                                className="p-2.5 bg-white border border-slate-200 rounded-xl text-[#008080] hover:bg-[#008080]/10 transition-all shadow-sm"
                                                 title="Edit Student"
                                             >
                                                 <Edit2 size={16} />
@@ -437,7 +437,7 @@ const MentorDetails = () => {
                     <div className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-lg overflow-hidden animate-in slide-in-from-bottom-4 duration-300 border border-white/20">
                         <div className="px-8 py-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
                             <h2 className="text-lg font-black text-slate-900 flex items-center gap-3 italic">
-                                <Edit2 size={20} className="text-indigo-600" /> Edit Student Registry
+                                <Edit2 size={20} className="text-[#008080]" /> Edit Student Registry
                             </h2>
                             <button onClick={() => setIsEditModalOpen(false)} className="w-10 h-10 flex items-center justify-center bg-white rounded-xl text-slate-400 hover:text-slate-600 hover:shadow-md transition-all">
                                 <X size={20} />
@@ -451,7 +451,7 @@ const MentorDetails = () => {
                                         type="text"
                                         value={editingStudent.name}
                                         onChange={(e) => setEditingStudent(prev => ({ ...prev, name: e.target.value }))}
-                                        className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-xs font-bold rounded-2xl px-5 py-4 focus:outline-none focus:ring-4 focus:ring-indigo-50 focus:border-indigo-300 transition-all"
+                                        className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-xs font-bold rounded-2xl px-5 py-4 focus:outline-none focus:ring-4 focus:ring-[#f8ba2b] focus:border-[#f8ba2b] transition-all"
                                     />
                                 </div>
                                 <div>
@@ -460,7 +460,7 @@ const MentorDetails = () => {
                                         type="text"
                                         value={editingStudent.grade}
                                         onChange={(e) => setEditingStudent(prev => ({ ...prev, grade: e.target.value }))}
-                                        className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-xs font-bold rounded-2xl px-5 py-4 focus:outline-none focus:ring-4 focus:ring-indigo-50 focus:border-indigo-300 transition-all"
+                                        className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-xs font-bold rounded-2xl px-5 py-4 focus:outline-none focus:ring-4 focus:ring-[#f8ba2b] focus:border-[#f8ba2b] transition-all"
                                     />
                                 </div>
                             </div>
@@ -471,7 +471,7 @@ const MentorDetails = () => {
                                         type="email"
                                         value={editingStudent.email}
                                         onChange={(e) => setEditingStudent(prev => ({ ...prev, email: e.target.value }))}
-                                        className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-xs font-bold rounded-2xl px-5 py-4 focus:outline-none focus:ring-4 focus:ring-indigo-50 focus:border-indigo-300 transition-all"
+                                        className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-xs font-bold rounded-2xl px-5 py-4 focus:outline-none focus:ring-4 focus:ring-[#f8ba2b] focus:border-[#f8ba2b] transition-all"
                                     />
                                 </div>
                                 <div>
@@ -480,7 +480,7 @@ const MentorDetails = () => {
                                         type="text"
                                         value={editingStudent.phone_number}
                                         onChange={(e) => setEditingStudent(prev => ({ ...prev, phone_number: e.target.value }))}
-                                        className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-xs font-bold rounded-2xl px-5 py-4 focus:outline-none focus:ring-4 focus:ring-indigo-50 focus:border-indigo-300 transition-all"
+                                        className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-xs font-bold rounded-2xl px-5 py-4 focus:outline-none focus:ring-4 focus:ring-[#f8ba2b] focus:border-[#f8ba2b] transition-all"
                                     />
                                 </div>
                             </div>
@@ -490,7 +490,7 @@ const MentorDetails = () => {
                                     type="text"
                                     value={editingStudent.course}
                                     onChange={(e) => setEditingStudent(prev => ({ ...prev, course: e.target.value }))}
-                                    className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-xs font-bold rounded-2xl px-5 py-4 focus:outline-none focus:ring-4 focus:ring-indigo-50 focus:border-indigo-300 transition-all"
+                                    className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-xs font-bold rounded-2xl px-5 py-4 focus:outline-none focus:ring-4 focus:ring-[#f8ba2b] focus:border-[#f8ba2b] transition-all"
                                 />
                             </div>
                         </div>
@@ -503,7 +503,7 @@ const MentorDetails = () => {
                             </button>
                             <button
                                 onClick={handleUpdateStudent}
-                                className="px-8 py-3.5 bg-indigo-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-indigo-100 hover:bg-indigo-700 hover:-translate-y-0.5 active:scale-95 transition-all flex items-center gap-2"
+                                className="px-8 py-3.5 bg-[#f8ba2b] text-slate-900 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-[#f8ba2b] hover:bg-[#f8ba2b] hover:-translate-y-0.5 active:scale-95 transition-all flex items-center gap-2"
                             >
                                 <Save size={16} /> Secure Updates
                             </button>

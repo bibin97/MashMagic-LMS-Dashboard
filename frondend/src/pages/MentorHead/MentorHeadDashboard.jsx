@@ -81,7 +81,7 @@ const MentorHeadDashboard = () => {
     if (loading) {
         return (
             <div className="flex items-center justify-center h-64">
-                <Loader2 className="w-8 h-8 text-indigo-500 animate-spin" />
+                <Loader2 className="w-8 h-8 text-[#008080] animate-spin" />
             </div>
         );
     }
@@ -93,7 +93,7 @@ const MentorHeadDashboard = () => {
                 <div>
                     <h2 className="text-3xl font-black text-slate-900 tracking-tighter uppercase italic">Operations Dashboard</h2>
                     <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest mt-2 flex items-center gap-2">
-                        <TrendingUp size={14} className="text-indigo-500" />
+                        <TrendingUp size={14} className="text-[#008080]" />
                         Centralized oversight of mentor network performance and daily student engagement tracking
                     </p>
                 </div>
@@ -103,10 +103,10 @@ const MentorHeadDashboard = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-500 group">
                     <div className="flex items-center justify-between mb-4">
-                        <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600 group-hover:scale-110 transition-transform">
+                        <div className="w-12 h-12 bg-[#008080]/10 rounded-2xl flex items-center justify-center text-[#008080] group-hover:scale-110 transition-transform">
                             <Users size={24} />
                         </div>
-                        <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest bg-indigo-50 px-3 py-1 rounded-full">Active</span>
+                        <span className="text-[10px] font-black text-[#008080] uppercase tracking-widest bg-[#008080]/10 px-3 py-1 rounded-full">Active</span>
                     </div>
                     <h3 className="text-3xl font-black text-slate-900">{stats.totalMentors}</h3>
                     <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mt-1">Total Mentors</p>
@@ -173,8 +173,8 @@ const MentorHeadDashboard = () => {
                                         dataKey="value"
                                         stroke="none"
                                     >
-                                        <Cell fill="#10b981" />
-                                        <Cell fill="#f43f5e" />
+                                        <Cell fill="#008080" />
+                                        <Cell fill="#f8ba2b" />
                                     </Pie>
                                     <Tooltip
                                         formatter={(value, name) => [`${value} Students`, name]}
@@ -191,7 +191,7 @@ const MentorHeadDashboard = () => {
 
             {/* Exam Score Analytics Section */}
             <div className="bg-white p-10 rounded-[2.5rem] border border-slate-100 shadow-sm relative overflow-hidden group">
-                <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/5 rounded-full -mr-32 -mt-32 blur-3xl transition-transform duration-1000 group-hover:scale-150"></div>
+                <div className="absolute top-0 right-0 w-64 h-64 bg-[#f8ba2b]/5 rounded-full -mr-32 -mt-32 blur-3xl transition-transform duration-1000 group-hover:scale-150"></div>
                 <div className="flex justify-between items-center mb-10 relative z-10">
                     <div>
                         <h3 className="text-xl font-black text-slate-900 tracking-tight italic uppercase">Academic Performance Overview</h3>
@@ -220,7 +220,7 @@ const MentorHeadDashboard = () => {
                                     label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
                                 >
                                     {examData.map((entry, index) => (
-                                        <Cell key={`cell-${index}`} fill={['#6366f1', '#10b981', '#f59e0b', '#f43f5e', '#8b5cf6'][index % 5]} />
+                                        <Cell key={`cell-${index}`} fill={index % 2 === 0 ? '#008080' : '#f8ba2b'} />
                                     ))}
                                 </Pie>
                                 <Tooltip />
@@ -240,7 +240,7 @@ const MentorHeadDashboard = () => {
                 <div className="p-8 border-b border-slate-50 flex items-center justify-between">
                     <div>
                         <h3 className="text-xl font-black text-slate-900 tracking-tight flex items-center gap-3">
-                            <Activity className="text-indigo-600" size={24} />
+                            <Activity className="text-[#008080]" size={24} />
                             Live Activity Feed
                         </h3>
                         <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mt-1">Real-time updates from mentor panels</p>
@@ -249,7 +249,7 @@ const MentorHeadDashboard = () => {
                         <div className="text-xs font-bold text-slate-400 uppercase tracking-widest bg-slate-50 px-4 py-2 rounded-xl">
                             Last synced: {lastSynced || 'Just now'}
                         </div>
-                        <button onClick={fetchDashboardData} disabled={loading} title="Refresh Data" className="p-2 bg-indigo-50 text-indigo-600 rounded-xl hover:bg-indigo-100 transition-all active:scale-95">
+                        <button onClick={fetchDashboardData} disabled={loading} title="Refresh Data" className="p-2 bg-[#008080]/10 text-slate-900 rounded-xl hover:bg-[#f8ba2b] transition-all active:scale-95">
                             <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
                         </button>
                     </div>
@@ -261,21 +261,21 @@ const MentorHeadDashboard = () => {
                             {activities.map((activity) => (
                                 <div key={activity.log_id} className="relative flex items-center gap-6 md:gap-10 group">
                                     <div className="flex items-center justify-center w-16 h-16 rounded-full border-4 border-white bg-slate-50 shadow-sm shrink-0 z-10 group-hover:scale-110 transition-transform duration-500">
-                                        <div className="w-2.5 h-2.5 bg-indigo-600 rounded-full animate-pulse"></div>
+                                        <div className="w-2.5 h-2.5 bg-[#f8ba2b] rounded-full animate-pulse"></div>
                                     </div>
 
                                     <div className="flex-1 p-8 bg-white rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-500">
                                         <div className="flex items-center justify-between mb-4">
                                             <div className="flex items-center gap-3">
                                                 <div>
-                                                    <span className="text-[10px] font-black uppercase tracking-widest text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md">
+                                                    <span className="text-[10px] font-black uppercase tracking-widest text-[#008080] bg-[#008080]/10 px-2 py-0.5 rounded-md">
                                                         {activity.type || 'Mentor Update'}
                                                     </span>
                                                     <h4 className="font-bold text-slate-900 text-sm mt-1">{activity.mentor_name}</h4>
                                                 </div>
                                             </div>
                                             <div className="text-right">
-                                                <div className="flex items-center gap-1.5 text-indigo-600 mb-0.5">
+                                                <div className="flex items-center gap-1.5 text-[#008080] mb-0.5">
                                                     <Clock size={12} />
                                                     <span className="text-xs font-black uppercase tracking-widest">
                                                         {new Date(activity.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}

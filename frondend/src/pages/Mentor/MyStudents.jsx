@@ -12,18 +12,18 @@ const StudentCard = ({ student, navigate, viewMode, handleToggleConnection, hand
         className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-200/50 group cursor-pointer hover:-translate-y-2 transition-all duration-500 relative overflow-hidden flex flex-col justify-between"
     >
         <div className="absolute top-0 right-0 p-8 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-            <div className="w-10 h-10 bg-blue-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-blue-200">
+            <div className="w-10 h-10 bg-[#f8ba2b] rounded-2xl flex items-center justify-center text-slate-900 shadow-lg shadow-[#f8ba2b]">
                 <ChevronRight size={20} />
             </div>
         </div>
 
         <div className="flex flex-col gap-6">
-            <div className="w-16 h-16 bg-slate-50 rounded-[1.5rem] flex items-center justify-center text-slate-400 group-hover:text-blue-600 transition-colors">
+            <div className="w-16 h-16 bg-slate-50 rounded-[1.5rem] flex items-center justify-center text-slate-400 group-hover:text-[#008080] transition-colors">
                 <User size={32} />
             </div>
 
             <div>
-                <h3 className="text-xl font-black text-slate-900 leading-tight mb-2 group-hover:text-blue-600 transition-colors flex flex-wrap items-center gap-2">
+                <h3 className="text-xl font-black text-slate-900 leading-tight mb-2 group-hover:text-[#008080] transition-colors flex flex-wrap items-center gap-2">
                     {student.name}
                     {student.is_shifted ? (
                         <span className="px-2 py-0.5 bg-rose-50 text-rose-500 text-[8px] font-black uppercase tracking-widest border border-rose-100 rounded-lg">
@@ -38,7 +38,7 @@ const StudentCard = ({ student, navigate, viewMode, handleToggleConnection, hand
                     )}
                 </h3>
                 <div className="flex flex-wrap gap-2">
-                    <span className="px-3 py-1 bg-blue-50 text-blue-700 text-[10px] font-black uppercase tracking-wider rounded-lg border border-blue-100">
+                    <span className="px-3 py-1 bg-[#008080]/10 text-[#008080] text-[10px] font-black uppercase tracking-wider rounded-lg border border-[#f8ba2b]">
                         {student.grade}
                     </span>
                     <span className="px-3 py-1 bg-slate-50 text-slate-600 text-[10px] font-black uppercase tracking-wider rounded-lg border border-slate-100">
@@ -54,7 +54,7 @@ const StudentCard = ({ student, navigate, viewMode, handleToggleConnection, hand
                 </div>
                 <div>
                     <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Next Payment</p>
-                    <p className="text-sm font-bold text-blue-600">{student.next_installment_date ? new Date(student.next_installment_date).toLocaleDateString() : 'N/A'}</p>
+                    <p className="text-sm font-bold text-[#008080]">{student.next_installment_date ? new Date(student.next_installment_date).toLocaleDateString() : 'N/A'}</p>
                 </div>
             </div>
         </div>
@@ -79,7 +79,7 @@ const StudentCard = ({ student, navigate, viewMode, handleToggleConnection, hand
                     {/* Log Hours Button */}
                     <button
                         onClick={(e) => handleLogHoursClick(student, e)}
-                        className="w-full flex items-center justify-center gap-2 px-3 py-2 mt-2 bg-blue-50/50 hover:bg-blue-100 text-blue-600 rounded-xl text-xs font-black transition-all border border-blue-100"
+                        className="w-full flex items-center justify-center gap-2 px-3 py-2 mt-2 bg-[#008080]/10/50 hover:bg-[#f8ba2b] text-slate-900 rounded-xl text-xs font-black transition-all border border-[#f8ba2b]"
                     >
                         <Clock size={16} />
                         Log Daily Hours
@@ -224,7 +224,7 @@ const MyStudents = () => {
                 <div>
                     <h2 className="text-3xl font-black text-slate-900 tracking-tighter uppercase italic">My Students</h2>
                     <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest mt-2 flex items-center gap-2">
-                        <Users size={14} className="text-blue-500" />
+                        <Users size={14} className="text-[#008080]" />
                         Manage assigned student profiles, track progress, and complete onboarding processes
                     </p>
                 </div>
@@ -236,7 +236,7 @@ const MyStudents = () => {
                     <input
                         type="text"
                         placeholder="Search student or subject..."
-                        className="w-full p-4 pl-12 bg-slate-50 border border-slate-100 rounded-2xl text-sm outline-none focus:bg-white focus:ring-4 focus:ring-blue-50 transition-all font-semibold"
+                        className="w-full p-4 pl-12 bg-slate-50 border border-slate-100 rounded-2xl text-sm outline-none focus:bg-white focus:ring-4 focus:ring-[#008080] transition-all font-semibold"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
@@ -246,7 +246,7 @@ const MyStudents = () => {
                     <div className="flex items-center gap-2 bg-slate-50 p-1 rounded-2xl border border-slate-100">
                         <button
                             onClick={() => setViewMode('active')}
-                            className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${viewMode === 'active' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'
+                            className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${viewMode === 'active' ? 'bg-white text-[#008080] shadow-sm' : 'text-slate-400 hover:text-slate-600'
                                 }`}
                         >
                             Active Students
@@ -275,7 +275,7 @@ const MyStudents = () => {
                     {filteredStudents.filter(s => !s.is_shifted).length > 0 && (
                         <div>
                             <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6 flex items-center gap-3">
-                                <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                                <div className="w-2 h-2 rounded-full bg-[#f8ba2b]"></div>
                                 Direct Assignments
                             </h4>
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -394,7 +394,7 @@ const MyStudents = () => {
                                 <button
                                     type="button"
                                     onClick={addBatchRow}
-                                    className="w-full py-4 border-2 border-dashed border-slate-200 rounded-2xl text-slate-400 font-black text-[10px] uppercase tracking-[0.2em] hover:bg-slate-50 hover:border-blue-200 hover:text-blue-500 transition-all flex items-center justify-center gap-2"
+                                    className="w-full py-4 border-2 border-dashed border-slate-200 rounded-2xl text-slate-400 font-black text-[10px] uppercase tracking-[0.2em] hover:bg-slate-50 hover:border-[#f8ba2b] hover:text-[#008080] transition-all flex items-center justify-center gap-2"
                                 >
                                     <Plus size={16} /> Add Session To Schedule
                                 </button>
@@ -405,7 +405,7 @@ const MyStudents = () => {
                             <button
                                 type="submit"
                                 onClick={handleBatchSubmit}
-                                className="flex-1 bg-slate-900 text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl hover:bg-blue-600 transition-all flex items-center justify-center gap-3 italic"
+                                className="flex-1 bg-slate-900 text-slate-900 py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl hover:bg-[#f8ba2b] transition-all flex items-center justify-center gap-3 italic"
                             >
                                 <CheckCircle2 size={18} /> Initialize Activation
                             </button>
@@ -434,7 +434,7 @@ const MyStudents = () => {
                                 <input
                                     type="date"
                                     required
-                                    className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold shadow-sm outline-none focus:ring-4 focus:ring-blue-50"
+                                    className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold shadow-sm outline-none focus:ring-4 focus:ring-[#008080]"
                                     value={hoursFormData.date}
                                     onChange={(e) => setHoursFormData({ ...hoursFormData, date: e.target.value })}
                                 />
@@ -447,7 +447,7 @@ const MyStudents = () => {
                                     min="0.5"
                                     required
                                     placeholder="e.g. 2.5"
-                                    className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold shadow-sm outline-none focus:ring-4 focus:ring-blue-50"
+                                    className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold shadow-sm outline-none focus:ring-4 focus:ring-[#008080]"
                                     value={hoursFormData.hours}
                                     onChange={(e) => setHoursFormData({ ...hoursFormData, hours: e.target.value })}
                                 />
@@ -455,7 +455,7 @@ const MyStudents = () => {
                             <div className="flex gap-4 pt-4 border-t border-slate-50">
                                 <button
                                     type="submit"
-                                    className="flex-[2] bg-blue-600 text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-blue-200 hover:bg-blue-700 transition-all"
+                                    className="flex-[2] bg-[#f8ba2b] text-slate-900 py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-[#f8ba2b] hover:bg-[#f8ba2b] transition-all"
                                 >
                                     Log Hours
                                 </button>

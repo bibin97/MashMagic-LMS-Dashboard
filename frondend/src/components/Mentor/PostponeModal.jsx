@@ -35,7 +35,7 @@ const PostponeModal = ({ session, onClose, onConfirm }) => {
                             <input
                                 type="date"
                                 required
-                                className="w-full p-4 pl-12 bg-slate-50 border border-slate-100 rounded-2xl text-sm outline-none focus:bg-white focus:ring-4 focus:ring-blue-50 focus:border-blue-200 transition-all font-semibold"
+                                className="w-full p-4 pl-12 bg-slate-50 border border-slate-100 rounded-2xl text-sm outline-none focus:bg-white focus:ring-4 focus:ring-[#008080] focus:border-[#f8ba2b] transition-all font-semibold"
                                 value={newDate}
                                 onChange={(e) => setNewDate(e.target.value)}
                             />
@@ -54,7 +54,7 @@ const PostponeModal = ({ session, onClose, onConfirm }) => {
 
                     <button
                         type="submit"
-                        className="w-full bg-blue-600 text-white p-4 rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-blue-700 transition-all shadow-lg shadow-blue-100"
+                        className="w-full bg-[#f8ba2b] text-slate-900 p-4 rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-[#f8ba2b] transition-all shadow-lg shadow-[#f8ba2b]"
                     >
                         Confirm Postpone
                     </button>

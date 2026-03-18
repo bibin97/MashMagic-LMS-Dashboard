@@ -97,13 +97,13 @@ const FacultySessions = () => {
                 <div>
                     <h2 className="text-3xl font-black text-slate-900 tracking-tighter uppercase italic">Faculty Sessions</h2>
                     <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest mt-2 flex items-center gap-2">
-                        <Calendar size={14} className="text-indigo-500" />
+                        <Calendar size={14} className="text-[#008080]" />
                         Schedule and manage academic sessions with assigned students
                     </p>
                 </div>
                 <button
                     onClick={() => setIsModalOpen(true)}
-                    className="flex items-center gap-3 px-10 py-5 bg-indigo-600 text-white rounded-[2rem] font-black text-[10px] uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-2xl shadow-indigo-200"
+                    className="flex items-center gap-3 px-10 py-5 bg-[#f8ba2b] text-slate-900 rounded-[2rem] font-black text-[10px] uppercase tracking-widest hover:bg-[#f8ba2b] transition-all shadow-2xl shadow-[#f8ba2b]"
                 >
                     <Plus size={18} />
                     Schedule New Class
@@ -118,25 +118,25 @@ const FacultySessions = () => {
                     sessions.map((session) => (
                         <div key={session.id} className="bg-white p-10 rounded-[3rem] border border-slate-100 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-700 group relative">
                             <div className="flex justify-between items-start mb-8">
-                                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center ${session.status === 'Completed' ? 'bg-emerald-50 text-emerald-500' : 'bg-indigo-50 text-indigo-500'
+                                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center ${session.status === 'Completed' ? 'bg-emerald-50 text-emerald-500' : 'bg-[#008080]/10 text-[#008080]'
                                     }`}>
                                     {session.status === 'Completed' ? <CheckCircle size={28} /> : <Clock size={28} />}
                                 </div>
-                                <span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest ${session.status === 'Completed' ? 'bg-emerald-500 text-white' : 'bg-indigo-600 text-white'
-                                    } shadow-xl shadow-indigo-100/20`}>
+                                <span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest ${session.status === 'Completed' ? 'bg-emerald-500 text-white' : 'bg-[#f8ba2b] text-slate-900'
+                                    } shadow-xl shadow-[#f8ba2b]/20`}>
                                     {session.status}
                                 </span>
                             </div>
 
-                            <h3 className="text-xl font-black text-slate-900 tracking-tight mb-4 group-hover:text-indigo-600 transition-colors uppercase">{session.topic}</h3>
+                            <h3 className="text-xl font-black text-slate-900 tracking-tight mb-4 group-hover:text-[#008080] transition-colors uppercase">{session.topic}</h3>
 
                             <div className="space-y-4 mb-8">
                                 <div className="flex items-center gap-3 text-slate-500">
-                                    <Calendar size={16} className="text-indigo-500" />
+                                    <Calendar size={16} className="text-[#008080]" />
                                     <span className="text-xs font-bold">{new Date(session.date).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
                                 </div>
                                 <div className="flex items-center gap-3 text-slate-500">
-                                    <Users size={16} className="text-indigo-500" />
+                                    <Users size={16} className="text-[#008080]" />
                                     <span className="text-xs font-bold">{session.student_count || 0} Students Enrolled</span>
                                 </div>
                             </div>
@@ -177,7 +177,7 @@ const FacultySessions = () => {
                 <div className="fixed inset-0 z-[2000] flex items-center justify-center p-6 backdrop-blur-3xl bg-slate-900/10 animate-in fade-in duration-300">
                     <div className="bg-white w-full max-w-3xl rounded-[3.5rem] border border-slate-100 shadow-2xl overflow-hidden animate-in zoom-in slide-in-from-bottom-10 duration-500">
                         <div className="p-10 border-b border-slate-50 flex justify-between items-center text-white bg-slate-900 relative">
-                            <div className="absolute top-0 right-0 w-40 h-40 bg-indigo-500/10 rounded-full -mr-20 -mt-20 blur-3xl"></div>
+                            <div className="absolute top-0 right-0 w-40 h-40 bg-[#f8ba2b]/10 rounded-full -mr-20 -mt-20 blur-3xl"></div>
                             <div className="relative">
                                 <h3 className="text-2xl font-black tracking-tight italic">Plan Session</h3>
                                 <p className="text-[10px] font-black uppercase tracking-[0.2em] opacity-60">Academic Planning Engine</p>
@@ -193,7 +193,7 @@ const FacultySessions = () => {
                                     <input
                                         type="text"
                                         placeholder="e.g. Advanced Mathematics"
-                                        className="w-full px-10 py-5 bg-slate-50 border border-slate-100 rounded-[2rem] text-xs font-bold focus:outline-none focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 transition-all shadow-sm"
+                                        className="w-full px-10 py-5 bg-slate-50 border border-slate-100 rounded-[2rem] text-xs font-bold focus:outline-none focus:ring-4 focus:ring-[#f8ba2b]/5 focus:border-[#f8ba2b] transition-all shadow-sm"
                                         value={formData.topic}
                                         onChange={(e) => setFormData({ ...formData, topic: e.target.value })}
                                         required
@@ -203,7 +203,7 @@ const FacultySessions = () => {
                                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4">Schedule Date</label>
                                     <input
                                         type="date"
-                                        className="w-full px-10 py-5 bg-slate-50 border border-slate-100 rounded-[2rem] text-xs font-bold focus:outline-none focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 transition-all shadow-sm"
+                                        className="w-full px-10 py-5 bg-slate-50 border border-slate-100 rounded-[2rem] text-xs font-bold focus:outline-none focus:ring-4 focus:ring-[#f8ba2b]/5 focus:border-[#f8ba2b] transition-all shadow-sm"
                                         value={formData.date}
                                         onChange={(e) => setFormData({ ...formData, date: e.target.value })}
                                         required
@@ -217,7 +217,7 @@ const FacultySessions = () => {
                                     <button
                                         type="button"
                                         onClick={() => setFormData({ ...formData, studentIds: students.map(s => s.id) })}
-                                        className="text-[9px] font-black text-indigo-500 uppercase tracking-widest hover:underline"
+                                        className="text-[9px] font-black text-[#008080] uppercase tracking-widest hover:underline"
                                     >
                                         Select All Assigned
                                     </button>
@@ -229,8 +229,8 @@ const FacultySessions = () => {
                                             type="button"
                                             onClick={() => toggleStudent(student.id)}
                                             className={`flex items-center gap-4 px-6 py-4 rounded-2xl transition-all duration-300 text-left border ${formData.studentIds.includes(student.id)
-                                                ? 'bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-100'
-                                                : 'bg-white border-slate-100 text-slate-600 hover:border-indigo-300'
+                                                ? 'bg-[#f8ba2b] border-[#f8ba2b] text-slate-900 shadow-lg shadow-[#f8ba2b]'
+                                                : 'bg-white border-slate-100 text-slate-600 hover:border-[#f8ba2b]'
                                                 }`}
                                         >
                                             <div className={`w-8 h-8 rounded-lg flex items-center justify-center font-black ${formData.studentIds.includes(student.id) ? 'bg-white/20' : 'bg-slate-100'
@@ -239,7 +239,7 @@ const FacultySessions = () => {
                                             </div>
                                             <div className="flex-1 min-w-0">
                                                 <p className="text-xs font-bold truncate">{student.name}</p>
-                                                <p className={`text-[9px] font-black uppercase tracking-tighter ${formData.studentIds.includes(student.id) ? 'text-indigo-200' : 'text-slate-400'
+                                                <p className={`text-[9px] font-black uppercase tracking-tighter ${formData.studentIds.includes(student.id) ? 'text-[#008080]' : 'text-slate-400'
                                                     }`}>{student.roll_number || 'ID UNKNOWN'}</p>
                                             </div>
                                             {formData.studentIds.includes(student.id) && <CheckCircle size={14} className="animate-in zoom-in" />}

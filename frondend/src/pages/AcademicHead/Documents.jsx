@@ -210,7 +210,7 @@ const Documents = () => {
                                     <input
                                         required
                                         type="text"
-                                        className="w-full px-8 py-5 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-8 ring-indigo-500/5 outline-none transition-all italic"
+                                        className="w-full px-8 py-5 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-8 ring-[#f8ba2b]/5 outline-none transition-all italic"
                                         placeholder="Eg: Q3 Mathematics Syllabus"
                                         value={newDoc.title}
                                         onChange={(e) => setNewDoc({ ...newDoc, title: e.target.value })}
@@ -236,7 +236,7 @@ const Documents = () => {
                                         <input
                                             required
                                             type="text"
-                                            className="w-full px-8 py-5 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-8 ring-indigo-500/5 outline-none transition-all italic"
+                                            className="w-full px-8 py-5 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-8 ring-[#f8ba2b]/5 outline-none transition-all italic"
                                             placeholder="https://drive.google.com/..."
                                             value={newDoc.file_url}
                                             onChange={(e) => setNewDoc({ ...newDoc, file_url: e.target.value })}

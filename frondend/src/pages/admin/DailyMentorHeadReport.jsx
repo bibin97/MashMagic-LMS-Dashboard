@@ -51,7 +51,7 @@ const DailyMentorHeadReport = () => {
             <header className="flex flex-col md:flex-row justify-between md:items-center gap-6 mb-8">
                 <div>
                     <h2 className="text-3xl font-black text-slate-900 tracking-tighter uppercase italic flex items-center gap-3">
-                        <Target className="text-indigo-600" />
+                        <Target className="text-[#008080]" />
                         Daily Verification Report
                     </h2>
                     <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-1 text-slate-500">
@@ -66,12 +66,12 @@ const DailyMentorHeadReport = () => {
                             value={filterDate}
                             onChange={(e) => setFilterDate(e.target.value)}
                             max={new Date().toISOString().split('T')[0]}
-                            className="bg-white border border-slate-200 text-slate-700 text-sm font-bold rounded-2xl pl-12 pr-4 py-3 outline-none focus:ring-4 focus:ring-indigo-50 transition-all hover:border-indigo-200"
+                            className="bg-white border border-slate-200 text-slate-700 text-sm font-bold rounded-2xl pl-12 pr-4 py-3 outline-none focus:ring-4 focus:ring-[#f8ba2b] transition-all hover:border-[#f8ba2b]"
                         />
                     </div>
                     <button
                         onClick={handleDownload}
-                        className="flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white rounded-2xl font-black text-sm uppercase tracking-widest shadow-lg shadow-indigo-200 hover:bg-indigo-700 hover:-translate-y-0.5 transition-all"
+                        className="flex items-center gap-2 px-6 py-3 bg-[#f8ba2b] text-slate-900 rounded-2xl font-black text-sm uppercase tracking-widest shadow-lg shadow-[#f8ba2b] hover:bg-[#f8ba2b] hover:-translate-y-0.5 transition-all"
                     >
                         <DownloadCloud size={18} />
                         Export
@@ -112,7 +112,7 @@ const DailyMentorHeadReport = () => {
                                         </td>
                                         <td className="p-4">
                                             <div className="flex items-center gap-3">
-                                                <div className="w-8 h-8 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center font-black text-xs">
+                                                <div className="w-8 h-8 rounded-full bg-[#008080]/10 text-[#008080] flex items-center justify-center font-black text-xs">
                                                     {row.mentorHeadName.charAt(0)}
                                                 </div>
                                                 <span className="text-sm font-bold text-slate-700">{row.mentorHeadName}</span>

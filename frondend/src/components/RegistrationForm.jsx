@@ -118,7 +118,7 @@ const RegistrationForm = ({ onSuccess, preSelectedRole }) => {
                             onClick={() => handleRoleChange(r)}
                             className={`
                                 py-2 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all
-                                ${role === r ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-400'}
+                                ${role === r ? 'bg-white text-[#008080] shadow-sm' : 'text-slate-400'}
                             `}
                         >
                             {r}
@@ -131,12 +131,12 @@ const RegistrationForm = ({ onSuccess, preSelectedRole }) => {
                 <div className="flex flex-col gap-2">
                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Full Name</label>
                     <div className="relative group">
-                        <User size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-600 transition-colors" />
+                        <User size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#008080] transition-colors" />
                         <input
                             type="text"
                             name="name"
                             required
-                            className="w-full p-3 pl-12 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-blue-100 font-semibold"
+                            className="w-full p-3 pl-12 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-semibold"
                             placeholder="Name"
                             value={formData.name}
                             onChange={handleInputChange}
@@ -149,12 +149,12 @@ const RegistrationForm = ({ onSuccess, preSelectedRole }) => {
                         <div className="flex flex-col gap-2">
                             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Email Address</label>
                             <div className="relative group">
-                                <Mail size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-600 transition-colors" />
+                                <Mail size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#008080] transition-colors" />
                                 <input
                                     type="email"
                                     name="email"
                                     required
-                                    className="w-full p-3 pl-12 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-blue-100 font-semibold"
+                                    className="w-full p-3 pl-12 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-semibold"
                                     placeholder={`${role.replace('_', ' ')} Email`}
                                     value={formData.email}
                                     onChange={handleInputChange}
@@ -166,12 +166,12 @@ const RegistrationForm = ({ onSuccess, preSelectedRole }) => {
                             <div className="flex flex-col gap-2">
                                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Phone Number</label>
                                 <div className="relative group">
-                                    <Phone size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-600 transition-colors" />
+                                    <Phone size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#008080] transition-colors" />
                                     <input
                                         type="text"
                                         name="phone_number"
                                         required
-                                        className="w-full p-3 pl-12 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-blue-100 font-semibold"
+                                        className="w-full p-3 pl-12 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-semibold"
                                         placeholder="Phone"
                                         value={formData.phone_number}
                                         onChange={handleInputChange}
@@ -181,12 +181,12 @@ const RegistrationForm = ({ onSuccess, preSelectedRole }) => {
                             <div className="flex flex-col gap-2">
                                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Place</label>
                                 <div className="relative group">
-                                    <MapPin size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-600 transition-colors" />
+                                    <MapPin size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#008080] transition-colors" />
                                     <input
                                         type="text"
                                         name="place"
                                         required
-                                        className="w-full p-3 pl-12 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-blue-100 font-semibold"
+                                        className="w-full p-3 pl-12 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-semibold"
                                         placeholder="Place"
                                         value={formData.place}
                                         onChange={handleInputChange}
@@ -198,12 +198,12 @@ const RegistrationForm = ({ onSuccess, preSelectedRole }) => {
                         <div className="flex flex-col gap-2">
                             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Password</label>
                             <div className="relative group">
-                                <Lock size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-600 transition-colors" />
+                                <Lock size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#008080] transition-colors" />
                                 <input
                                     type="password"
                                     name="password"
                                     required
-                                    className="w-full p-3 pl-12 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-blue-100 font-semibold"
+                                    className="w-full p-3 pl-12 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-semibold"
                                     placeholder="******"
                                     value={formData.password}
                                     onChange={handleInputChange}
@@ -229,7 +229,7 @@ const RegistrationForm = ({ onSuccess, preSelectedRole }) => {
                                 type="text"
                                 name="grade"
                                 required
-                                className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-blue-100 font-semibold"
+                                className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-semibold"
                                 placeholder="Grade"
                                 value={formData.grade}
                                 onChange={handleInputChange}
@@ -241,7 +241,7 @@ const RegistrationForm = ({ onSuccess, preSelectedRole }) => {
                                 type="text"
                                 name="subject"
                                 required
-                                className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-blue-100 font-semibold"
+                                className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-semibold"
                                 placeholder="Subject"
                                 value={formData.subject}
                                 onChange={handleInputChange}
@@ -259,7 +259,7 @@ const RegistrationForm = ({ onSuccess, preSelectedRole }) => {
                                     type="text"
                                     name="course"
                                     required
-                                    className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-blue-100 font-semibold"
+                                    className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-semibold"
                                     placeholder="Course"
                                     value={formData.course}
                                     onChange={handleInputChange}
@@ -271,7 +271,7 @@ const RegistrationForm = ({ onSuccess, preSelectedRole }) => {
                                     type="text"
                                     name="hour"
                                     required
-                                    className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-blue-100 font-semibold"
+                                    className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-semibold"
                                     placeholder="Hour"
                                     value={formData.hour}
                                     onChange={handleInputChange}
@@ -284,7 +284,7 @@ const RegistrationForm = ({ onSuccess, preSelectedRole }) => {
                                 <input
                                     type="text"
                                     name="mentor_name"
-                                    className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-blue-100 font-semibold"
+                                    className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-semibold"
                                     placeholder="Mentor Name"
                                     value={formData.mentor_name}
                                     onChange={handleInputChange}
@@ -295,7 +295,7 @@ const RegistrationForm = ({ onSuccess, preSelectedRole }) => {
                                 <input
                                     type="text"
                                     name="faculty_name"
-                                    className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-blue-100 font-semibold"
+                                    className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-semibold"
                                     placeholder="Faculty Name"
                                     value={formData.faculty_name}
                                     onChange={handleInputChange}
@@ -307,7 +307,7 @@ const RegistrationForm = ({ onSuccess, preSelectedRole }) => {
                             <input
                                 type="date"
                                 name="next_installment_date"
-                                className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-blue-100 font-semibold"
+                                className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-semibold"
                                 value={formData.next_installment_date}
                                 onChange={handleInputChange}
                             />
@@ -338,9 +338,9 @@ const RegistrationForm = ({ onSuccess, preSelectedRole }) => {
                     type="submit"
                     disabled={loading}
                     className={`
-                        w-full bg-blue-600 text-white p-4 rounded-xl font-black text-xs uppercase tracking-widest 
-                        transition-all flex items-center justify-center gap-2
-                        ${loading ? 'opacity-70 cursor-not-allowed' : 'hover:bg-blue-700'}
+                        w-full bg-[#008080] text-white p-4 rounded-xl font-black text-xs uppercase tracking-widest 
+                        transition-all flex items-center justify-center gap-2 shadow-sm
+                        ${loading ? 'opacity-70 cursor-not-allowed' : 'hover:bg-[#f8ba2b] hover:text-black shadow-lg shadow-[#008080]/30 hover:shadow-[#f8ba2b]/50'}
                     `}
                 >
                     {loading ? 'Submitting...' : `Register as ${role.replace('_', ' ')}`}

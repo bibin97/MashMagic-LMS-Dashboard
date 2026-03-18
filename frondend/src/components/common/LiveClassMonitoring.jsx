@@ -39,7 +39,7 @@ const LiveClassMonitoring = ({ role }) => {
             {/* Control Header */}
             <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm flex flex-col md:flex-row justify-between items-center gap-6">
                 <div className="flex items-center gap-6">
-                    <div className="w-14 h-14 bg-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-xl shadow-indigo-100">
+                    <div className="w-14 h-14 bg-[#f8ba2b] rounded-2xl flex items-center justify-center text-slate-900 shadow-xl shadow-[#f8ba2b]">
                         <Video size={28} />
                     </div>
                     <div>
@@ -56,7 +56,7 @@ const LiveClassMonitoring = ({ role }) => {
                             placeholder="Search Student, Faculty or Topic..." 
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-indigo-100 transition-all shadow-inner"
+                            className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-[#f8ba2b] transition-all shadow-inner"
                         />
                     </div>
                     <button onClick={fetchLiveSessions} className="p-4 bg-slate-900 text-white rounded-2xl hover:bg-slate-800 transition-all shadow-xl active:scale-95">
@@ -67,9 +67,9 @@ const LiveClassMonitoring = ({ role }) => {
 
             {/* Live Counter Info */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="bg-indigo-50 border border-indigo-100 p-6 rounded-3xl">
-                    <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-1">Total Running Classes</p>
-                    <h4 className="text-3xl font-black text-indigo-700 leading-none">{filteredSessions.length}</h4>
+                <div className="bg-[#008080]/10 border border-[#f8ba2b] p-6 rounded-3xl">
+                    <p className="text-[10px] font-black text-[#008080] uppercase tracking-widest mb-1">Total Running Classes</p>
+                    <h4 className="text-3xl font-black text-[#008080] leading-none">{filteredSessions.length}</h4>
                 </div>
                 <div className="bg-emerald-50 border border-emerald-100 p-6 rounded-3xl">
                     <p className="text-[10px] font-black text-emerald-400 uppercase tracking-widest mb-1">Primary Subjects</p>
@@ -89,7 +89,7 @@ const LiveClassMonitoring = ({ role }) => {
             {filteredSessions.length > 0 && (
                 <div className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm overflow-hidden">
                     <div className="flex items-center gap-2 mb-6 ml-2">
-                        <User className="text-indigo-600" size={16} />
+                        <User className="text-[#008080]" size={16} />
                         <h3 className="text-xs font-black text-slate-900 uppercase tracking-wider">Active Classes per Mentor</h3>
                     </div>
                     <div className="flex flex-wrap gap-4">
@@ -101,7 +101,7 @@ const LiveClassMonitoring = ({ role }) => {
                         ).map(([name, count]) => (
                             <div key={name} className="flex items-center gap-3 bg-slate-50 px-4 py-2 rounded-2xl border border-slate-100 group hover:bg-slate-900 hover:text-white transition-all cursor-default animate-in zoom-in-95 duration-500">
                                 <span className="text-xs font-bold">{name}</span>
-                                <span className="w-6 h-6 bg-white group-hover:bg-indigo-600 group-hover:text-white text-indigo-600 rounded-lg flex items-center justify-center text-[10px] font-black shadow-sm transition-colors">
+                                <span className="w-6 h-6 bg-white group-hover:bg-[#f8ba2b] group-hover:text-slate-900 text-slate-900 rounded-lg flex items-center justify-center text-[10px] font-black shadow-sm transition-colors">
                                     {count}
                                 </span>
                             </div>
@@ -143,7 +143,7 @@ const LiveClassMonitoring = ({ role }) => {
                             <div className="space-y-4 mb-8">
                                 <div className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100">
                                     <div className="flex items-center gap-3">
-                                        <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center text-indigo-600 font-black shadow-sm">
+                                        <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center text-[#008080] font-black shadow-sm">
                                             {session.student_name[0]}
                                         </div>
                                         <div>

@@ -1,5 +1,29 @@
 @import "tailwindcss";
 
+@theme {
+  --font-sans: "Poppins", ui-sans-serif, system-ui, sans-serif;
+  --font-inter: "Inter", sans-serif;
+}
+
+:root {
+  font-family: 'Poppins', sans-serif;
+}
+
+/* Global Poppins for main UI */
+body, h1, h2, h3, h4, h5, h6, .font-black, .font-bold {
+  font-family: 'Poppins', sans-serif !important;
+}
+
+/* Inter for sub-texts and dashboard data for better readability */
+p, span, label, input, select, textarea, small, .italic {
+  font-family: 'Inter', sans-serif !important;
+}
+
+/* Specific subtext classes */
+.text-slate-500, .text-slate-400, .text-slate-300 {
+  font-family: 'Inter', sans-serif !important;
+}
+
 /* Hide scrollbars globally (keep scrolling enabled) */
 html,
 body,

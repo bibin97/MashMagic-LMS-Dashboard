@@ -72,7 +72,7 @@ const Approvals = () => {
             case 'academic_head':
                 return 'bg-purple-50 text-purple-700 border-purple-200';
             case 'mentor_head':
-                return 'bg-blue-50 text-blue-700 border-blue-200';
+                return 'bg-[#008080]/10 text-[#008080] border-[#f8ba2b]';
             case 'faculty':
                 return 'bg-green-50 text-green-700 border-green-200';
             case 'mentor':
@@ -87,7 +87,7 @@ const Approvals = () => {
     if (loading) {
         return (
             <div className="flex items-center justify-center h-64">
-                <Loader2 className="w-8 h-8 text-indigo-500 animate-spin" />
+                <Loader2 className="w-8 h-8 text-[#008080] animate-spin" />
             </div>
         );
     }
@@ -97,7 +97,7 @@ const Approvals = () => {
             <div className="flex items-center justify-between">
                 <div>
                     <div className="flex items-center gap-3">
-                        <div className="p-3 bg-indigo-600 rounded-2xl shadow-lg shadow-indigo-200">
+                        <div className="p-3 bg-[#f8ba2b] rounded-2xl shadow-lg shadow-[#f8ba2b]">
                             <Shield className="text-white" size={24} />
                         </div>
                         <div>
@@ -114,7 +114,7 @@ const Approvals = () => {
                         <span className="text-lg font-black text-slate-900 leading-tight">{pendingUsers.length}</span>
                     </div>
                     <div className="w-px h-8 bg-slate-100"></div>
-                    <Activity className="text-indigo-500 animate-pulse" size={20} />
+                    <Activity className="text-[#008080] animate-pulse" size={20} />
                 </div>
             </div>
 
@@ -136,11 +136,11 @@ const Approvals = () => {
                                     <tr key={`${user.role}-${user.id}`} className="hover:bg-slate-50/50 transition-all group">
                                         <td className="p-6">
                                             <div className="flex items-center gap-4">
-                                                <div className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-400 font-black border border-slate-100 group-hover:bg-white group-hover:border-indigo-100 group-hover:text-indigo-600 transition-all">
+                                                <div className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-400 font-black border border-slate-100 group-hover:bg-white group-hover:border-[#f8ba2b] group-hover:text-[#008080] transition-all">
                                                     {user.name.charAt(0).toUpperCase()}
                                                 </div>
                                                 <div>
-                                                    <span className="text-sm font-black text-slate-900 block group-hover:text-indigo-600 transition-colors">{user.name}</span>
+                                                    <span className="text-sm font-black text-slate-900 block group-hover:text-[#008080] transition-colors">{user.name}</span>
                                                     <div className="flex items-center gap-1.5 mt-0.5">
                                                         <Calendar size={10} className="text-slate-300" />
                                                         <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
@@ -186,7 +186,7 @@ const Approvals = () => {
                                                 </button>
                                                 <button
                                                     onClick={() => handleApprove(user.id, user.role)}
-                                                    className="w-10 h-10 rounded-xl flex items-center justify-center bg-indigo-50 text-indigo-400 hover:bg-indigo-600 hover:text-white transition-all shadow-sm shadow-indigo-100 group-hover:shadow-indigo-200"
+                                                    className="w-10 h-10 rounded-xl flex items-center justify-center bg-[#008080]/10 text-slate-900 hover:bg-[#f8ba2b] hover:text-slate-900 transition-all shadow-sm shadow-[#f8ba2b] group-hover:shadow-[#f8ba2b]"
                                                     title="Approve & Activate"
                                                 >
                                                     <CheckCircle size={20} />
@@ -211,18 +211,18 @@ const Approvals = () => {
                 )}
             </div>
 
-            <div className="bg-indigo-900 rounded-[2.5rem] p-10 text-white relative overflow-hidden">
+            <div className="bg-[#f8ba2b] rounded-[2.5rem] p-10 text-slate-900 relative overflow-hidden">
                 <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
                     <div className="max-w-md">
                         <h3 className="text-2xl font-black mb-2 tracking-tight">Security Protocol Enforcement</h3>
-                        <p className="text-indigo-200 text-sm font-medium leading-relaxed">
+                        <p className="text-[#008080] text-sm font-medium leading-relaxed">
                             Every account activated here gains immediate access to their designated tools.
                             Rejected records are permanently archived in the system to prevent spam.
                         </p>
                     </div>
                     <div className="flex gap-4">
                         <div className="bg-white/10 backdrop-blur-md p-6 rounded-3xl border border-white/10 w-40">
-                            <span className="text-xs font-bold text-indigo-300 uppercase tracking-widest block mb-1">Approved Today</span>
+                            <span className="text-xs font-bold text-[#008080] uppercase tracking-widest block mb-1">Approved Today</span>
                             <span className="text-3xl font-black">0</span>
                         </div>
                         <div className="bg-white/10 backdrop-blur-md p-6 rounded-3xl border border-white/10 w-40">
@@ -232,7 +232,7 @@ const Approvals = () => {
                     </div>
                 </div>
                 <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-32 -mt-32 blur-3xl"></div>
-                <div className="absolute bottom-0 left-0 w-64 h-64 bg-indigo-500/10 rounded-full -ml-32 -mb-32 blur-3xl"></div>
+                <div className="absolute bottom-0 left-0 w-64 h-64 bg-[#f8ba2b]/10 rounded-full -ml-32 -mb-32 blur-3xl"></div>
             </div>
         </div>
     );

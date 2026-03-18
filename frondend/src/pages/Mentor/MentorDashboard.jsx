@@ -21,7 +21,7 @@ const StatCard = ({ title, value, icon: Icon, color }) => (
 
 const SessionCard = ({ session, isLive, isPast }) => (
     <div className={`p-6 rounded-[2rem] border transition-all duration-500 relative group overflow-hidden ${isLive
-        ? 'bg-indigo-600 border-indigo-700 shadow-xl shadow-indigo-100'
+        ? 'bg-[#f8ba2b] border-[#f8ba2b] shadow-xl shadow-[#f8ba2b]'
         : isPast ? 'bg-slate-50 border-slate-100 opacity-80' : 'bg-slate-50/50 border-slate-100 hover:bg-white hover:shadow-xl'
         }`}>
         {isLive && (
@@ -35,23 +35,23 @@ const SessionCard = ({ session, isLive, isPast }) => (
 
         <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
-                <CalendarClock className={isLive ? 'text-indigo-200' : 'text-indigo-500'} size={12} />
-                <span className={`text-[10px] font-black uppercase tracking-widest ${isLive ? 'text-indigo-100' : 'text-slate-400'}`}>
+                <CalendarClock className={isLive ? 'text-[#008080]' : 'text-[#008080]'} size={12} />
+                <span className={`text-[10px] font-black uppercase tracking-widest ${isLive ? 'text-[#008080]' : 'text-slate-400'}`}>
                     {new Date(session.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })}
                 </span>
             </div>
-            <div className={`flex items-center gap-2 px-3 py-1 rounded-full ${isLive ? 'bg-white/10' : 'bg-indigo-50'}`}>
-                <Clock className={isLive ? 'text-white' : 'text-indigo-600'} size={10} />
-                <span className={`text-[10px] font-black italic ${isLive ? 'text-white' : 'text-indigo-700'}`}>
+            <div className={`flex items-center gap-2 px-3 py-1 rounded-full ${isLive ? 'bg-white/10' : 'bg-[#008080]/10'}`}>
+                <Clock className={isLive ? 'text-white' : 'text-[#008080]'} size={10} />
+                <span className={`text-[10px] font-black italic ${isLive ? 'text-white' : 'text-[#008080]'}`}>
                     {session.start_time ? session.start_time.substring(0, 5) : 'TBD'}
                 </span>
             </div>
         </div>
         <div className="mb-4">
-            <h4 className={`font-black text-base mb-1 transition-colors uppercase italic leading-tight ${isLive ? 'text-white' : 'text-slate-900 group-hover:text-indigo-600'}`}>
+            <h4 className={`font-black text-base mb-1 transition-colors uppercase italic leading-tight ${isLive ? 'text-white' : 'text-slate-900 group-hover:text-[#008080]'}`}>
                 {session.topic || 'General Session'}
             </h4>
-            <p className={`text-[10px] font-black uppercase tracking-widest ${isLive ? 'text-indigo-100' : 'text-slate-500'}`}>
+            <p className={`text-[10px] font-black uppercase tracking-widest ${isLive ? 'text-[#008080]' : 'text-slate-500'}`}>
                 Student: <span className={isLive ? 'text-white' : 'text-slate-900'}>{session.student_name || 'N/A'}</span>
             </p>
         </div>
@@ -61,18 +61,18 @@ const SessionCard = ({ session, isLive, isPast }) => (
                 href={session.meeting_link.startsWith('http') ? session.meeting_link : `https://${session.meeting_link}`}
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="block w-full text-center bg-white text-indigo-600 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest mb-4 hover:bg-opacity-90 transition-all shadow-lg active:scale-95"
+                className="block w-full text-center bg-white text-[#008080] py-3 rounded-xl font-black text-[10px] uppercase tracking-widest mb-4 hover:bg-opacity-90 transition-all shadow-lg active:scale-95"
             >
                 Join Google Meet
             </a>
         )}
 
         <div className="flex items-center gap-3 mt-auto pt-4 border-t border-white/10">
-            <div className={`w-8 h-8 rounded-xl flex items-center justify-center text-xs font-black ${isLive ? 'bg-white/20 text-white' : 'bg-indigo-100 text-indigo-600'}`}>
+            <div className={`w-8 h-8 rounded-xl flex items-center justify-center text-xs font-black ${isLive ? 'bg-white/20 text-white' : 'bg-[#f8ba2b] text-slate-900'}`}>
                 {session.faculty_name?.charAt(0)}
             </div>
             <div>
-                <p className={`text-[10px] font-black uppercase tracking-tight ${isLive ? 'text-indigo-100' : 'text-slate-400'}`}>Faculty</p>
+                <p className={`text-[10px] font-black uppercase tracking-tight ${isLive ? 'text-[#008080]' : 'text-slate-400'}`}>Faculty</p>
                 <p className={`text-xs font-black ${isLive ? 'text-white' : 'text-slate-700'}`}>{session.faculty_name}</p>
             </div>
         </div>
@@ -141,7 +141,7 @@ const MentorDashboard = () => {
                 <div>
                     <h2 className="text-3xl font-black text-slate-900 tracking-tighter uppercase italic">Mentor Oversight</h2>
                     <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest mt-2 flex items-center gap-2">
-                        <CheckCircle2 size={14} className="text-blue-500" />
+                        <CheckCircle2 size={14} className="text-[#008080]" />
                         Real-time tracking of student progress, academic milestones, and session schedules
                     </p>
                 </div>
@@ -161,7 +161,7 @@ const MentorDashboard = () => {
                     title="Assigned Students"
                     value={stats.totalStudents}
                     icon={Users}
-                    color="bg-blue-600"
+                    color="bg-[#f8ba2b]"
                 />
                 <StatCard
                     title="Scheduled Sessions"
@@ -173,7 +173,7 @@ const MentorDashboard = () => {
                     title="Student Interactions"
                     value={stats.totalStudentInteractions}
                     icon={Users}
-                    color="bg-indigo-600"
+                    color="bg-[#f8ba2b]"
                 />
                 <StatCard
                     title="Faculty Interactions"
@@ -206,11 +206,11 @@ const MentorDashboard = () => {
                     {/* 1. Live Sessions Section - Always visible to confirm the area exists */}
                     <div className="space-y-8">
                         <div className="flex items-center gap-4">
-                            <div className="w-2 h-8 bg-indigo-600 rounded-full animate-pulse shadow-[0_0_15px_rgba(79,70,229,0.5)]"></div>
+                            <div className="w-2 h-8 bg-[#f8ba2b] rounded-full animate-pulse shadow-[0_0_15px_rgba(79,70,229,0.5)]"></div>
                             <h3 className="text-lg font-black text-slate-900 uppercase italic flex items-center gap-3">
                                 Live Now
                                 {stats.liveSessions?.length > 0 && (
-                                    <span className="flex h-2 w-2 rounded-full bg-indigo-600 animate-ping"></span>
+                                    <span className="flex h-2 w-2 rounded-full bg-[#f8ba2b] animate-ping"></span>
                                 )}
                             </h3>
                             <div className="h-[1px] flex-1 bg-slate-100 italic"></div>
@@ -221,9 +221,9 @@ const MentorDashboard = () => {
                                     <SessionCard key={`live-${idx}`} session={session} isLive={true} />
                                 ))
                             ) : (
-                                <div className="col-span-full py-10 text-center bg-indigo-50/30 rounded-[2rem] border border-dashed border-indigo-100 group transition-all duration-700">
-                                    <Activity className="mx-auto text-indigo-300 mb-3 animate-pulse" size={32} />
-                                    <p className="text-indigo-400 text-[10px] font-black uppercase tracking-[0.2em] italic">Waiting for active sessions...</p>
+                                <div className="col-span-full py-10 text-center bg-[#008080]/10/30 rounded-[2rem] border border-dashed border-[#f8ba2b] group transition-all duration-700">
+                                    <Activity className="mx-auto text-[#008080] mb-3 animate-pulse" size={32} />
+                                    <p className="text-[#008080] text-[10px] font-black uppercase tracking-[0.2em] italic">Waiting for active sessions...</p>
                                 </div>
                             )}
                         </div>
@@ -232,7 +232,7 @@ const MentorDashboard = () => {
                     {/* 2. Upcoming Sessions Section */}
                     <div className="space-y-8">
                         <div className="flex items-center gap-4">
-                            <div className="w-2 h-8 bg-blue-500 rounded-full"></div>
+                            <div className="w-2 h-8 bg-[#f8ba2b] rounded-full"></div>
                             <h3 className="text-lg font-black text-slate-900 uppercase italic">Upcoming Schedules</h3>
                             <div className="h-[1px] flex-1 bg-slate-100"></div>
                         </div>

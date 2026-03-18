@@ -72,7 +72,7 @@ const MentorHeadInteractions = () => {
         return (
             <div className="flex items-center justify-center h-[60vh]">
                 <div className="flex flex-col items-center gap-4">
-                    <Loader2 className="w-10 h-10 text-indigo-500 animate-spin" />
+                    <Loader2 className="w-10 h-10 text-[#008080] animate-spin" />
                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Compiling interaction matrix...</p>
                 </div>
             </div>
@@ -86,7 +86,7 @@ const MentorHeadInteractions = () => {
                 <div>
                     <h2 className="text-3xl font-black text-slate-900 tracking-tight uppercase italic">Interaction Log Archive</h2>
                     <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-1 flex items-center gap-2">
-                        <Activity size={14} className="text-indigo-500" />
+                        <Activity size={14} className="text-[#008080]" />
                         Complete repository of mentor-student calls and mentor-faculty interaction reports
                     </p>
                 </div>
@@ -115,13 +115,13 @@ const MentorHeadInteractions = () => {
 
             {/* Search and Filters */}
             <div className="relative group max-w-2xl">
-                <div className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors">
+                <div className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#008080] transition-colors">
                     <Search size={20} />
                 </div>
                 <input
                     type="text"
                     placeholder={`Search by ${activeTab === 'mentors' ? 'mentor, student or call type' : 'faculty, student or remarks'}...`}
-                    className="w-full p-6 pl-16 bg-white border border-slate-100 rounded-[2.5rem] shadow-sm outline-none focus:ring-4 focus:ring-indigo-50 transition-all font-bold text-slate-800 placeholder:text-slate-300"
+                    className="w-full p-6 pl-16 bg-white border border-slate-100 rounded-[2.5rem] shadow-sm outline-none focus:ring-4 focus:ring-[#f8ba2b] transition-all font-bold text-slate-800 placeholder:text-slate-300"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                 />
@@ -137,10 +137,10 @@ const MentorHeadInteractions = () => {
                     ) : (
                         filteredMentorLogs.map((log, idx) => (
                             <div key={idx} className="bg-white p-8 rounded-[3rem] border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-500 group relative overflow-hidden">
-                                <div className="absolute right-0 top-0 w-32 h-32 bg-slate-50 rounded-full -mr-10 -mt-10 group-hover:bg-indigo-50 transition-colors"></div>
+                                <div className="absolute right-0 top-0 w-32 h-32 bg-slate-50 rounded-full -mr-10 -mt-10 group-hover:bg-[#008080]/10 transition-colors"></div>
 
                                 <div className="flex flex-col md:flex-row gap-8 items-start md:items-center relative z-10">
-                                    <div className={`w-16 h-16 rounded-[2rem] flex items-center justify-center shadow-lg shrink-0 ${log.category === 'Student Call' ? 'bg-indigo-600' : 'bg-emerald-500'
+                                    <div className={`w-16 h-16 rounded-[2rem] flex items-center justify-center shadow-lg shrink-0 ${log.category === 'Student Call' ? 'bg-[#f8ba2b]' : 'bg-emerald-500'
                                         } text-white`}>
                                         {log.category === 'Student Call' ? <Phone size={24} /> : <MessageSquare size={24} />}
                                     </div>
@@ -148,13 +148,13 @@ const MentorHeadInteractions = () => {
                                     <div className="flex-1 min-w-0">
                                         <div className="flex items-center gap-3 mb-2">
                                             <span className={`px-4 py-1 rounded-full text-[8px] font-black uppercase tracking-widest ${log.category === 'Student Call'
-                                                ? 'bg-indigo-50 text-indigo-600 border border-indigo-100'
+                                                ? 'bg-[#008080]/10 text-[#008080] border border-[#f8ba2b]'
                                                 : 'bg-emerald-50 text-emerald-600 border border-emerald-100'
                                                 }`}>
                                                 {log.category}
                                             </span>
                                             <span className="text-[11px] font-black text-slate-700 bg-slate-100 px-3 py-1.5 rounded-xl border border-slate-200 flex items-center gap-1.5 shadow-sm">
-                                                <Calendar size={13} className="text-indigo-500" />
+                                                <Calendar size={13} className="text-[#008080]" />
                                                 {new Date(log.created_at || log.date).toLocaleString('en-US', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true })}
                                             </span>
                                         </div>
@@ -176,7 +176,7 @@ const MentorHeadInteractions = () => {
                                                 Call Missed/Rejected
                                             </span>
                                         ) : null}
-                                        <button onClick={() => setViewingLog(log)} className="p-4 bg-slate-50 rounded-2xl text-slate-400 group-hover:bg-indigo-600 group-hover:text-white transition-all shadow-sm">
+                                        <button onClick={() => setViewingLog(log)} className="p-4 bg-slate-50 rounded-2xl text-slate-400 group-hover:bg-[#f8ba2b] group-hover:text-slate-900 transition-all shadow-sm">
                                             <ChevronRight size={18} />
                                         </button>
                                     </div>
@@ -194,10 +194,10 @@ const MentorHeadInteractions = () => {
                     ) : (
                         filteredFacultyLogs.map((log, idx) => (
                             <div key={idx} className="bg-white p-8 rounded-[3rem] border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-500 group relative overflow-hidden">
-                                <div className="absolute right-0 bottom-0 w-32 h-32 bg-rose-50 rounded-full -mr-10 -mb-10 group-hover:bg-indigo-50 transition-colors"></div>
+                                <div className="absolute right-0 bottom-0 w-32 h-32 bg-rose-50 rounded-full -mr-10 -mb-10 group-hover:bg-[#008080]/10 transition-colors"></div>
 
                                 <div className="flex flex-col md:flex-row gap-8 items-start md:items-center relative z-10">
-                                    <div className={`w-16 h-16 rounded-[2rem] flex items-center justify-center shadow-lg shrink-0 ${log.type === 'Academic' ? 'bg-indigo-600' : 'bg-rose-500'
+                                    <div className={`w-16 h-16 rounded-[2rem] flex items-center justify-center shadow-lg shrink-0 ${log.type === 'Academic' ? 'bg-[#f8ba2b]' : 'bg-rose-500'
                                         } text-white`}>
                                         <ClipboardList size={24} />
                                     </div>
@@ -205,7 +205,7 @@ const MentorHeadInteractions = () => {
                                     <div className="flex-1 min-w-0">
                                         <div className="flex items-center gap-3 mb-2">
                                             <span className={`px-4 py-1 rounded-full text-[8px] font-black uppercase tracking-widest ${log.type === 'Academic'
-                                                ? 'bg-indigo-50 text-indigo-600 border border-indigo-100'
+                                                ? 'bg-[#008080]/10 text-[#008080] border border-[#f8ba2b]'
                                                 : 'bg-rose-50 text-rose-600 border border-rose-100'
                                                 }`}>
                                                 {log.type} Issue
@@ -237,7 +237,7 @@ const MentorHeadInteractions = () => {
                                                 }`}>
                                                 {log.status} Phase
                                             </span>
-                                            <button onClick={() => setViewingLog({ ...log, category: 'Intelligence' })} className="p-2 bg-slate-50 rounded-xl text-slate-400 hover:bg-indigo-600 hover:text-white transition-all shadow-sm">
+                                            <button onClick={() => setViewingLog({ ...log, category: 'Intelligence' })} className="p-2 bg-slate-50 rounded-xl text-slate-400 hover:bg-[#f8ba2b] hover:text-slate-900 transition-all shadow-sm">
                                                 <ChevronRight size={16} />
                                             </button>
                                         </div>
@@ -254,7 +254,7 @@ const MentorHeadInteractions = () => {
                     <div className="bg-white rounded-t-[2.5rem] sm:rounded-[3rem] shadow-2xl w-full max-w-3xl h-[95vh] sm:h-auto sm:max-h-[90vh] overflow-y-auto animate-in slide-in-from-bottom-8 duration-500">
                         <div className="sticky top-0 bg-white/80 backdrop-blur-xl px-6 sm:px-10 py-5 sm:py-6 border-b border-slate-100 flex justify-between items-center z-10">
                             <div className="flex items-center gap-4">
-                                <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600">
+                                <div className="w-12 h-12 bg-[#008080]/10 rounded-2xl flex items-center justify-center text-[#008080]">
                                     <Activity size={24} />
                                 </div>
                                 <div>
@@ -277,9 +277,9 @@ const MentorHeadInteractions = () => {
                                     <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Student</p>
                                     <p className="text-xs font-black text-slate-900">{viewingLog.student_name}</p>
                                 </div>
-                                <div className="bg-indigo-50 p-4 rounded-3xl border border-indigo-100">
-                                    <p className="text-[9px] font-black text-indigo-400 uppercase tracking-widest mb-1">{viewingLog.category === 'Intelligence' ? 'Faculty' : 'Mentor'}</p>
-                                    <p className="text-xs font-black text-indigo-700">{viewingLog.mentor_name || viewingLog.faculty_name}</p>
+                                <div className="bg-[#008080]/10 p-4 rounded-3xl border border-[#f8ba2b]">
+                                    <p className="text-[9px] font-black text-[#008080] uppercase tracking-widest mb-1">{viewingLog.category === 'Intelligence' ? 'Faculty' : 'Mentor'}</p>
+                                    <p className="text-xs font-black text-[#008080]">{viewingLog.mentor_name || viewingLog.faculty_name}</p>
                                 </div>
                                 <div className="bg-slate-50 p-4 rounded-3xl border border-slate-100">
                                     <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Status</p>
