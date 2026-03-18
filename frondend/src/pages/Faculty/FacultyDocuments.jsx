@@ -14,6 +14,7 @@ import {
     FolderOpen
 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { premiumConfirm } from '../../utils/premiumConfirm';
 
 const FacultyDocuments = () => {
     const [documents, setDocuments] = useState([]);
@@ -63,17 +64,26 @@ const FacultyDocuments = () => {
         }
     };
 
-    const handleDelete = async (id) => {
-        if (!window.confirm("Delete this document forever?")) return;
-        try {
-            const res = await axios.delete(`/faculty/documents/${id}`);
-            if (res.data.success) {
-                toast.success("Document purged");
-                fetchDocuments();
+    const handleDelete = async (docParam) => {
+        const id = typeof docParam === 'object' ? docParam.id : docParam;
+        const title = typeof docParam === 'object' ? docParam.title : 'this document';
+
+        premiumConfirm(async () => {
+            try {
+                const res = await axios.delete(`/faculty/documents/${id}`);
+                if (res.data.success) {
+                    toast.success("Document purged");
+                    fetchDocuments();
+                }
+            } catch (error) {
+                toast.error("Deletion failed");
             }
-        } catch (error) {
-            toast.error("Deletion failed");
-        }
+        }, {
+            name: title,
+            title: 'Delete Asset',
+            message: `Are you sure you want to permanently delete the document "${title}"?`,
+            type: 'danger'
+        });
     };
 
     const filteredDocs = documents.filter(doc =>
@@ -172,7 +182,7 @@ const FacultyDocuments = () => {
                                     <Download size={18} className="group-hover/btn:translate-y-0.5 transition-transform" />
                                 </a>
                                 <button
-                                    onClick={() => handleDelete(doc.id)}
+                                    onClick={() => handleDelete(doc)}
                                     className="p-4 bg-slate-50 text-rose-300 hover:bg-rose-500 hover:text-white rounded-2xl transition-all duration-500"
                                 >
                                     <Trash2 size={18} />

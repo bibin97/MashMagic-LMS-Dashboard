@@ -7,6 +7,7 @@ import {
     Filter, Activity, Edit2, Trash2, X, Save
 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { premiumConfirm } from '../../utils/premiumConfirm';
 
 const FacultyDirectory = () => {
     const [faculties, setFaculties] = useState([]);
@@ -106,17 +107,26 @@ const FacultyDirectory = () => {
         }
     };
 
-    const handleDeleteFaculty = async (id) => {
-        if (!window.confirm("PERMANENT ACTION: Delete this faculty registry? This cannot be undone.")) return;
-        try {
-            const res = await api.delete(`/academic-head/faculties/${id}`);
-            if (res.data.success) {
-                toast.success("Faculty record purged from system");
-                fetchFaculties();
+    const handleDeleteFaculty = async (facultyParam) => {
+        const id = typeof facultyParam === 'object' ? facultyParam.id : facultyParam;
+        const name = typeof facultyParam === 'object' ? facultyParam.name : 'this faculty';
+
+        premiumConfirm(async () => {
+            try {
+                const res = await api.delete(`/academic-head/faculties/${id}`);
+                if (res.data.success) {
+                    toast.success("Faculty record purged from system");
+                    fetchFaculties();
+                }
+            } catch (error) {
+                toast.error(error.response?.data?.message || "Failed to delete faculty");
             }
-        } catch (error) {
-            toast.error(error.response?.data?.message || "Failed to delete faculty");
-        }
+        }, {
+            name: name,
+            title: 'Delete Faculty Record',
+            message: `Are you sure you want to permanently delete the faculty record for ${name}?`,
+            type: 'danger'
+        });
     };
 
     const filteredFaculties = faculties.filter(f =>
@@ -220,146 +230,155 @@ const FacultyDirectory = () => {
                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">No matching faculty profiles found</p>
                 </div>
             ) : (
-                <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
-                    {filteredFaculties.map((faculty) => (
-                        <div key={faculty.id} className="bg-white rounded-[3rem] border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-500 group overflow-hidden">
-                            <div className="p-8">
-                                <div className="flex justify-between items-start mb-8">
-                                    <div className="flex items-center gap-5">
-                                        <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center border border-slate-100 group-hover:bg-indigo-50 transition-colors">
-                                            <User size={30} className="text-indigo-600" />
-                                        </div>
-                                        <div>
-                                            <h3 className="text-2xl font-black text-slate-900 italic uppercase tracking-tighter">{faculty.name}</h3>
-                                            <div className="flex items-center gap-4 mt-1">
-                                                <span className="text-[9px] font-black text-emerald-500 bg-emerald-50 px-3 py-1 rounded-full uppercase tracking-widest border border-emerald-100">
-                                                    {faculty.status}
-                                                </span>
-                                                <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1 italic">
-                                                    Joined: {new Date(faculty.created_at).toLocaleDateString()}
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="text-right flex flex-col items-end gap-3">
-                                        <div className="flex gap-2">
-                                            <div className="bg-indigo-50 px-4 py-3 rounded-2xl border border-indigo-100 text-center min-w-[100px]">
-                                                <p className="text-[8px] font-black text-indigo-400 uppercase tracking-widest mb-0.5">Students</p>
-                                                <p className="text-sm font-black text-indigo-700 italic">{faculty.studentCount}</p>
-                                            </div>
-                                            <div className="bg-emerald-50 px-4 py-3 rounded-2xl border border-emerald-100 text-center min-w-[100px]">
-                                                <p className="text-[8px] font-black text-emerald-400 uppercase tracking-widest mb-0.5">Total Hours</p>
-                                                <p className="text-sm font-black text-emerald-700 italic">{faculty.totalHours}h</p>
-                                            </div>
-                                        </div>
-                                        <div className="flex gap-2">
-                                            <button
-                                                onClick={() => handleEditFaculty(faculty)}
-                                                className="p-2.5 bg-white border border-slate-200 rounded-xl text-blue-600 hover:bg-blue-50 transition-all shadow-sm"
-                                                title="Edit Faculty"
-                                            >
-                                                <Edit2 size={16} />
-                                            </button>
-                                            <button
-                                                onClick={() => handleDeleteFaculty(faculty.id)}
-                                                className="p-2.5 bg-white border border-slate-200 rounded-xl text-rose-600 hover:bg-rose-50 transition-all shadow-sm"
-                                                title="Delete Faculty"
-                                            >
-                                                <Trash2 size={16} />
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="grid grid-cols-2 gap-6 mb-8">
-                                    <div className="flex items-center gap-3 p-4 bg-slate-50 rounded-2xl border border-slate-100/50">
-                                        <Mail size={14} className="text-slate-400" />
-                                        <span className="text-xs font-bold text-slate-600 truncate">{faculty.email}</span>
-                                    </div>
-                                    <div className="flex items-center gap-3 p-4 bg-slate-50 rounded-2xl border border-slate-100/50">
-                                        <Phone size={14} className="text-slate-400" />
-                                        <span className="text-xs font-bold text-slate-600">{faculty.phone_number || "N/A"}</span>
-                                    </div>
-                                </div>
-
-                                <div className="flex gap-4">
-                                    <button
-                                        onClick={() => setExpandedFaculty(expandedFaculty === faculty.id ? null : faculty.id)}
-                                        className="flex-1 py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-indigo-600 transition-all italic active:scale-95"
-                                    >
-                                        {expandedFaculty === faculty.id ? <><ChevronUp size={16} /> Close Schedule</> : <><Calendar size={16} /> View Today's Schedule</>}
-                                    </button>
-                                </div>
-                            </div>
-
-                            {/* Schedule / Students Expandable Area */}
-                            {expandedFaculty === faculty.id && (
-                                <div className="border-t border-slate-50 bg-slate-50/50 p-10 animate-in slide-in-from-top-4 duration-500">
-                                    <div className="space-y-10">
-                                        {/* Assigned Students */}
-                                        <div className="space-y-4">
-                                            <h4 className="text-[9px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2 italic">
-                                                <GraduationCap size={14} className="text-indigo-500" /> Student Cohort
-                                            </h4>
-                                            <div className="flex flex-wrap gap-3">
-                                                {faculty.assignedStudents.map(student => (
-                                                    <div key={student.id} className="bg-white px-5 py-3 rounded-xl border border-slate-100 shadow-sm flex items-center gap-3">
-                                                        <div className="w-6 h-6 bg-indigo-50 rounded text-[9px] font-black text-indigo-600 flex items-center justify-center">
-                                                            {student.grade}
-                                                        </div>
-                                                        <span className="text-xs font-black text-slate-700 uppercase italic">{student.name}</span>
+                <div className="bg-white rounded-[3rem] border border-slate-100 shadow-sm overflow-hidden">
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left border-collapse">
+                            <thead>
+                                <tr className="bg-slate-50/50 border-b border-slate-100">
+                                    <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Faculty Expert</th>
+                                    <th className="px-6 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Contact Details</th>
+                                    <th className="px-6 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Metrics</th>
+                                    <th className="px-6 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Timeline</th>
+                                    <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-50">
+                                {filteredFaculties.map((faculty) => (
+                                    <React.Fragment key={faculty.id}>
+                                        <tr className="hover:bg-slate-50/50 transition-colors group">
+                                            <td className="px-8 py-6">
+                                                <div className="flex items-center gap-4">
+                                                    <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600 font-black shadow-sm group-hover:scale-110 transition-transform">
+                                                        {faculty.name[0]}
                                                     </div>
-                                                ))}
-                                                {faculty.assignedStudents.length === 0 && (
-                                                    <p className="text-[10px] font-bold text-slate-400 italic">No students assigned yet.</p>
-                                                )}
-                                            </div>
-                                        </div>
-
-                                        {/* Today's Timeline */}
-                                        <div className="space-y-4">
-                                            <h4 className="text-[9px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2 italic">
-                                                <Clock size={14} className="text-emerald-500" /> Daily Timeline
-                                            </h4>
-                                            {faculty.todaySchedule.length === 0 ? (
-                                                <p className="text-[10px] font-bold text-slate-400 italic bg-white p-6 rounded-3xl border border-slate-100 text-center">
-                                                    No sessions recorded for today.
-                                                </p>
-                                            ) : (
-                                                <div className="space-y-3">
-                                                    {faculty.todaySchedule.map((session, idx) => (
-                                                        <div key={idx} className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between group/item">
-                                                            <div className="flex items-center gap-6">
-                                                                <div className="bg-emerald-50 text-emerald-600 px-4 py-2 rounded-xl text-[10px] font-black italic border border-emerald-100">
-                                                                    {session.start_time} - {session.end_time}
+                                                    <div>
+                                                        <h4 className="text-sm font-black text-slate-900 uppercase italic tracking-tight">{faculty.name}</h4>
+                                                        <div className="flex items-center gap-2 mt-1">
+                                                            <span className="text-[8px] font-black text-emerald-500 bg-emerald-50 px-2 py-0.5 rounded-md uppercase tracking-widest border border-emerald-100">
+                                                                {faculty.status}
+                                                            </span>
+                                                            <span className="text-[8px] font-black text-slate-300 uppercase tracking-widest">
+                                                                ID:#{faculty.id.toString().padStart(4, '0')}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-6">
+                                                <div className="space-y-1">
+                                                    <div className="flex items-center gap-2 text-slate-500">
+                                                        <Mail size={12} className="text-slate-300" />
+                                                        <span className="text-[10px] font-bold lowercase">{faculty.email}</span>
+                                                    </div>
+                                                    <div className="flex items-center gap-2 text-slate-500">
+                                                        <Phone size={12} className="text-slate-300" />
+                                                        <span className="text-[10px] font-bold">{faculty.phone_number || "N/A"}</span>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-6">
+                                                <div className="flex gap-2">
+                                                    <div className="text-center bg-indigo-50/50 px-3 py-1.5 rounded-xl border border-indigo-100/50">
+                                                        <p className="text-[7px] font-black text-indigo-400 uppercase tracking-tighter">Students</p>
+                                                        <p className="text-xs font-black text-indigo-700">{faculty.studentCount}</p>
+                                                    </div>
+                                                    <div className="text-center bg-emerald-50/50 px-3 py-1.5 rounded-xl border border-emerald-100/50">
+                                                        <p className="text-[7px] font-black text-emerald-400 uppercase tracking-tighter">Hours</p>
+                                                        <p className="text-xs font-black text-emerald-700">{faculty.totalHours}h</p>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-6">
+                                                <div className="flex flex-col">
+                                                    <span className="text-[10px] font-black text-slate-600 uppercase italic tracking-tight">Active Duty</span>
+                                                    <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">
+                                                        Joined {new Date(faculty.created_at).toLocaleDateString(undefined, { month: 'short', year: 'numeric' })}
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            <td className="px-8 py-6 text-right">
+                                                <div className="flex items-center justify-end gap-2">
+                                                    <button 
+                                                        onClick={() => setExpandedFaculty(expandedFaculty === faculty.id ? null : faculty.id)}
+                                                        className={`p-2 rounded-xl transition-all ${expandedFaculty === faculty.id ? 'bg-slate-900 text-white shadow-xl' : 'bg-slate-100 text-slate-400 hover:text-slate-600'}`}
+                                                        title="Schedule View"
+                                                    >
+                                                        <Calendar size={16} />
+                                                    </button>
+                                                    <button 
+                                                        onClick={() => handleEditFaculty(faculty)}
+                                                        className="p-2 bg-indigo-50 text-indigo-600 rounded-xl hover:bg-indigo-600 hover:text-white transition-all shadow-sm"
+                                                        title="Edit Profile"
+                                                    >
+                                                        <Edit2 size={16} />
+                                                    </button>
+                                                    <button 
+                                                        onClick={() => handleDeleteFaculty(faculty)}
+                                                        className="p-2 bg-rose-50 text-rose-600 rounded-xl hover:bg-rose-600 hover:text-white transition-all shadow-sm"
+                                                        title="Delete Faculty"
+                                                    >
+                                                        <Trash2 size={16} />
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        {expandedFaculty === faculty.id && (
+                                            <tr>
+                                                <td colSpan="5" className="px-8 py-0">
+                                                    <div className="bg-slate-50 p-8 rounded-b-[2.5rem] mb-6 animate-in slide-in-from-top-2 duration-300">
+                                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                                            {/* Student Cohort */}
+                                                            <div className="space-y-4">
+                                                                <div className="flex items-center gap-2">
+                                                                    <GraduationCap size={16} className="text-indigo-600" />
+                                                                    <span className="text-[10px] font-black text-slate-900 uppercase tracking-widest italic">Assigned Student Cohort</span>
                                                                 </div>
-                                                                <div>
-                                                                    <p className="text-xs font-black text-slate-900 uppercase italic tracking-tight">{session.chapter}</p>
-                                                                    <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5 line-clamp-1">
-                                                                        Attendees: {session.students_present || "N/A"}
-                                                                    </p>
+                                                                <div className="flex flex-wrap gap-2">
+                                                                    {faculty.assignedStudents.map(student => (
+                                                                        <div key={student.id} className="bg-white px-4 py-2 rounded-xl border border-slate-200 shadow-sm flex items-center gap-3 group/student cursor-default">
+                                                                            <span className="w-5 h-5 bg-indigo-50 text-indigo-600 rounded text-[8px] font-black flex items-center justify-center">
+                                                                                {student.grade}
+                                                                            </span>
+                                                                            <span className="text-[10px] font-black text-slate-600 uppercase italic transition-colors group-hover/student:text-indigo-600">{student.name}</span>
+                                                                        </div>
+                                                                    ))}
+                                                                    {faculty.assignedStudents.length === 0 && <span className="text-[10px] font-bold text-slate-400 italic">No assigned students.</span>}
                                                                 </div>
                                                             </div>
-                                                            <div className="flex items-center gap-4">
-                                                                <span className="text-[8px] font-black bg-slate-50 text-slate-400 px-3 py-1 rounded-lg uppercase italic border border-slate-100">
-                                                                    {session.duration}
-                                                                </span>
-                                                                <button className="w-8 h-8 bg-slate-900 text-white rounded-lg flex items-center justify-center opacity-0 group-hover/item:opacity-100 transition-all">
-                                                                    <ArrowRight size={14} />
-                                                                </button>
+                                                            {/* Daily Timeline */}
+                                                            <div className="space-y-4">
+                                                                <div className="flex items-center gap-2">
+                                                                    <Clock size={16} className="text-emerald-600" />
+                                                                    <span className="text-[10px] font-black text-slate-900 uppercase tracking-widest italic">Today's Academic Timeline</span>
+                                                                </div>
+                                                                <div className="space-y-2">
+                                                                    {faculty.todaySchedule.map((session, idx) => (
+                                                                        <div key={idx} className="bg-white px-4 py-3 rounded-xl border border-slate-200 flex justify-between items-center group/session">
+                                                                            <div className="flex items-center gap-4">
+                                                                                <span className="text-[9px] font-black text-emerald-600 italic bg-emerald-50 px-2 py-1 rounded-lg">
+                                                                                    {session.start_time} - {session.end_time}
+                                                                                </span>
+                                                                                <span className="text-[10px] font-black text-slate-800 uppercase italic tracking-tight">{session.chapter}</span>
+                                                                            </div>
+                                                                            <ArrowRight size={14} className="text-slate-200 group-hover/session:text-indigo-500 transition-colors" />
+                                                                        </div>
+                                                                    ))}
+                                                                    {faculty.todaySchedule.length === 0 && <div className="bg-white p-4 rounded-xl border border-dashed border-slate-200 text-center text-[10px] font-bold text-slate-400 italic">No scheduled sessions for today.</div>}
+                                                                </div>
                                                             </div>
                                                         </div>
-                                                    ))}
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-                    ))}
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        )}
+                                    </React.Fragment>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             )}
+
 
             {/* Faculty Edit Modal */}
             {isEditModalOpen && editingFaculty && (

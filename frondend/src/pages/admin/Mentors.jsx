@@ -3,7 +3,8 @@ import DataTable from '../../components/DataTable';
 import Modal from '../../components/Modal';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
-import { Users, ListTodo, TrendingUp } from 'lucide-react';
+import { premiumConfirm } from '../../utils/premiumConfirm';
+import { Eye, Edit2, Ban, Trash2, Filter, Download, UserPlus, Search, ArrowUpRight } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 const Mentors = () => {
@@ -104,25 +105,37 @@ const Mentors = () => {
     };
 
     const handleBlock = async (mentor) => {
-        if (!window.confirm(`Block access for ${mentor.name}?`)) return;
-        try {
-            await api.put(`/admin/block/${mentor.id}`);
-            toast.success(`${mentor.name} blocked successfully`);
-            fetchMentors();
-        } catch (error) {
-            toast.error("Failed to block mentor");
-        }
+        premiumConfirm(async () => {
+            try {
+                await api.put(`/admin/block/${mentor.id}`);
+                toast.success(`${mentor.name} blocked successfully`);
+                fetchMentors();
+            } catch (error) {
+                toast.error("Failed to block mentor");
+            }
+        }, { 
+            name: mentor.name, 
+            title: 'Block Access', 
+            message: `Suspending access for ${mentor.name} will prevent them from logging in. Continue?`,
+            type: 'standard'
+        });
     };
 
     const handleDelete = async (mentor) => {
-        if (!window.confirm(`Delete mentor ${mentor.name} permanently?`)) return;
-        try {
-            await api.delete(`/admin/delete/${mentor.id}`);
-            toast.success(`${mentor.name} deleted successfully`);
-            fetchMentors();
-        } catch (error) {
-            toast.error("Failed to delete mentor");
-        }
+        premiumConfirm(async () => {
+            try {
+                await api.delete(`/admin/delete/${mentor.id}`);
+                toast.success(`${mentor.name} deleted successfully`);
+                fetchMentors();
+            } catch (error) {
+                toast.error("Failed to delete mentor");
+            }
+        }, { 
+            name: mentor.name, 
+            title: 'Permanent Deletion', 
+            message: `Are you sure you want to delete ${mentor.name}? Their personal profile will be removed forever.`,
+            type: 'danger'
+        });
     };
 
     const columns = [

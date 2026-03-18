@@ -3,6 +3,8 @@ import DataTable from '../../components/DataTable';
 import Modal from '../../components/Modal';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
+import { premiumConfirm } from '../../utils/premiumConfirm';
+import { Eye, Edit2, Ban, Trash2, Filter, Download, Search, UserPlus } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { sortStudentsByOption } from '../../components/StudentListFilterDropdown';
 
@@ -103,25 +105,37 @@ const Students = () => {
     };
 
     const handleBlock = async (student) => {
-        if (!window.confirm(`Are you sure you want to block ${student.name}?`)) return;
-        try {
-            await api.put(`/admin/block/${student.id}`, { role: 'student' });
-            toast.success(`${student.name} blocked successfully`);
-            fetchStudents(); // Refresh list
-        } catch (error) {
-            toast.error("Failed to block student");
-        }
+        premiumConfirm(async () => {
+            try {
+                await api.put(`/admin/block/${student.id}`, { role: 'student' });
+                toast.success(`${student.name} blocked successfully`);
+                fetchStudents();
+            } catch (error) {
+                toast.error("Failed to block student");
+            }
+        }, { 
+            name: student.name, 
+            title: 'Block Access', 
+            message: `Suspending ${student.name} will restrict their dashboard access. Continue?`,
+            type: 'standard'
+        });
     };
 
     const handleDelete = async (student) => {
-        if (!window.confirm(`PERMANENT ACTION: Delete ${student.name}? This cannot be undone.`)) return;
-        try {
-            await api.delete(`/admin/delete/${student.id}?role=student`);
-            toast.success(`${student.name} deleted successfully`);
-            fetchStudents(); // Refresh list
-        } catch (error) {
-            toast.error("Failed to delete student");
-        }
+        premiumConfirm(async () => {
+            try {
+                await api.delete(`/admin/delete/${student.id}?role=student`);
+                toast.success(`${student.name} deleted successfully`);
+                fetchStudents();
+            } catch (error) {
+                toast.error("Failed to delete student");
+            }
+        }, { 
+            name: student.name, 
+            title: 'Permanent Deletion', 
+            message: `Deleting student ${student.name} is a permanent action. All profile data will legacy.`,
+            type: 'danger'
+        });
     };
 
     const columns = [

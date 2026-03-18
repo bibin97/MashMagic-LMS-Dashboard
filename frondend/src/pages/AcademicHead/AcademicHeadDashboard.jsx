@@ -146,8 +146,76 @@ const AcademicHeadDashboard = () => {
                 />
             </div>
 
+            {/* Exam Analytics Graph Section */}
+            <section className="bg-white rounded-[3rem] border border-slate-100 shadow-sm p-10 animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-200">
+                <div className="flex justify-between items-center mb-10">
+                    <div>
+                        <h3 className="text-xl font-black text-slate-900 tracking-tight italic uppercase">Individual Performance Analysis</h3>
+                        <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mt-1">Select a student to view their marks</p>
+                    </div>
+                    <div className="flex items-center gap-4">
+                        <select 
+                            value={selectedStudent} 
+                            onChange={handleStudentChange}
+                            className="bg-slate-50 border border-slate-200 text-slate-700 text-sm rounded-xl px-4 py-3 font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer min-w-[200px]"
+                        >
+                            <option value="">Overview (Class Average)</option>
+                            {students.map(student => (
+                                <option key={student.id} value={student.id}>{student.name}</option>
+                            ))}
+                        </select>
+                        <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600 shrink-0">
+                            <TrendingUp size={24} />
+                        </div>
+                    </div>
+                </div>
+
+                <div className="h-[400px] w-full relative">
+                    {data.examAnalytics.length > 0 ? (
+                        <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
+                            <BarChart data={data.examAnalytics} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
+                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                                <XAxis
+                                    dataKey="subject"
+                                    axisLine={false}
+                                    tickLine={false}
+                                    tick={{ fill: '#94a3b8', fontSize: 10, fontWeight: 900 }}
+                                    dy={10}
+                                />
+                                <YAxis
+                                    axisLine={false}
+                                    tickLine={false}
+                                    tick={{ fill: '#94a3b8', fontSize: 10, fontWeight: 900 }}
+                                    domain={[0, 100]}
+                                />
+                                <Tooltip
+                                    cursor={{ fill: '#f8fafc' }}
+                                    contentStyle={{ borderRadius: '20px', border: 'none', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)', fontWeight: 'bold' }}
+                                />
+                                <Legend wrapperStyle={{ paddingTop: '20px', fontSize: '10px', fontWeight: 'bold', textTransform: 'uppercase' }} />
+                                <Bar
+                                    name="Success Percentage (%)"
+                                    dataKey="percentage"
+                                    radius={[15, 15, 0, 0]}
+                                    barSize={60}
+                                >
+                                    {data.examAnalytics.map((entry, index) => (
+                                        <Cell key={`cell-${index}`} fill={entry.percentage > 80 ? '#10b981' : entry.percentage > 50 ? '#6366f1' : '#f43f5e'} />
+                                    ))}
+                                </Bar>
+                            </BarChart>
+                        </ResponsiveContainer>
+                    ) : (
+                        <div className="h-full flex flex-col items-center justify-center text-slate-200">
+                            <Activity size={60} strokeWidth={1} />
+                            <p className="text-[10px] font-black uppercase tracking-widest mt-4">No exam data compiled for this session</p>
+                        </div>
+                    )}
+                </div>
+            </section>
+
             {/* Today's Schedule Section */}
-            <section className="bg-white rounded-[3rem] border border-slate-100 shadow-sm overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-200">
+            <section className="bg-white rounded-[3rem] border border-slate-100 shadow-sm overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-300">
                 <div className="p-10 border-b border-slate-50 flex justify-between items-center">
                     <div>
                         <h3 className="text-xl font-black text-slate-900 tracking-tight">Today's Academic Schedule</h3>
@@ -229,74 +297,6 @@ const AcademicHeadDashboard = () => {
                                     ))}
                                 </tbody>
                             </table>
-                        </div>
-                    )}
-                </div>
-            </section>
-
-            {/* Exam Analytics Graph Section */}
-            <section className="bg-white rounded-[3rem] border border-slate-100 shadow-sm p-10 animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-300">
-                <div className="flex justify-between items-center mb-10">
-                    <div>
-                        <h3 className="text-xl font-black text-slate-900 tracking-tight italic uppercase">Individual Performance Analysis</h3>
-                        <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mt-1">Select a student to view their marks</p>
-                    </div>
-                    <div className="flex items-center gap-4">
-                        <select 
-                            value={selectedStudent} 
-                            onChange={handleStudentChange}
-                            className="bg-slate-50 border border-slate-200 text-slate-700 text-sm rounded-xl px-4 py-3 font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer min-w-[200px]"
-                        >
-                            <option value="">Overview (Class Average)</option>
-                            {students.map(student => (
-                                <option key={student.id} value={student.id}>{student.name}</option>
-                            ))}
-                        </select>
-                        <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600 shrink-0">
-                            <TrendingUp size={24} />
-                        </div>
-                    </div>
-                </div>
-
-                <div className="h-[400px] w-full relative">
-                    {data.examAnalytics.length > 0 ? (
-                        <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
-                            <BarChart data={data.examAnalytics} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
-                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                                <XAxis
-                                    dataKey="subject"
-                                    axisLine={false}
-                                    tickLine={false}
-                                    tick={{ fill: '#94a3b8', fontSize: 10, fontWeight: 900 }}
-                                    dy={10}
-                                />
-                                <YAxis
-                                    axisLine={false}
-                                    tickLine={false}
-                                    tick={{ fill: '#94a3b8', fontSize: 10, fontWeight: 900 }}
-                                    domain={[0, 100]}
-                                />
-                                <Tooltip
-                                    cursor={{ fill: '#f8fafc' }}
-                                    contentStyle={{ borderRadius: '20px', border: 'none', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)', fontWeight: 'bold' }}
-                                />
-                                <Legend wrapperStyle={{ paddingTop: '20px', fontSize: '10px', fontWeight: 'bold', textTransform: 'uppercase' }} />
-                                <Bar
-                                    name="Success Percentage (%)"
-                                    dataKey="percentage"
-                                    radius={[15, 15, 0, 0]}
-                                    barSize={60}
-                                >
-                                    {data.examAnalytics.map((entry, index) => (
-                                        <Cell key={`cell-${index}`} fill={entry.percentage > 80 ? '#10b981' : entry.percentage > 50 ? '#6366f1' : '#f43f5e'} />
-                                    ))}
-                                </Bar>
-                            </BarChart>
-                        </ResponsiveContainer>
-                    ) : (
-                        <div className="h-full flex flex-col items-center justify-center text-slate-200">
-                            <Activity size={60} strokeWidth={1} />
-                            <p className="text-[10px] font-black uppercase tracking-widest mt-4">No exam data compiled for this session</p>
                         </div>
                     )}
                 </div>

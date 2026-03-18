@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
+import { premiumConfirm } from '../../utils/premiumConfirm';
 
 const MentorsList = () => {
     const navigate = useNavigate();
@@ -84,20 +85,26 @@ const MentorsList = () => {
         }
     };
 
-    const handleDelete = async (mentorId) => {
-        if (!window.confirm("Are you sure you want to delete this mentor? This action cannot be undone.")) return;
-        try {
-            const token = localStorage.getItem('token');
-            const res = await axios.delete(`http://localhost:5000/api/mentor-head/mentors/${mentorId}`, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-            if (res.data.success) {
-                toast.success('Mentor deleted successfully');
-                setMentors(mentors.filter(m => m.mentor_id !== mentorId));
+    const handleDelete = async (mentorId, mentorName) => {
+        premiumConfirm(async () => {
+            try {
+                const token = localStorage.getItem('token');
+                const res = await axios.delete(`http://localhost:5000/api/mentor-head/mentors/${mentorId}`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                if (res.data.success) {
+                    toast.success('Mentor deleted successfully');
+                    setMentors(mentors.filter(m => m.mentor_id !== mentorId));
+                }
+            } catch (error) {
+                toast.error(error.response?.data?.message || 'Failed to delete mentor');
             }
-        } catch (error) {
-            toast.error(error.response?.data?.message || 'Failed to delete mentor');
-        }
+        }, { 
+            name: mentorName, 
+            title: 'Delete Mentor Account', 
+            message: `You are permanently removing ${mentorName}. This will unassign their students and archive records.`,
+            type: 'danger'
+        });
     };
 
     const handleViewStudents = async (mentor) => {
@@ -233,7 +240,7 @@ const MentorsList = () => {
                                                     <button
                                                         onClick={(e) => {
                                                             e.stopPropagation();
-                                                            handleDelete(mentor.mentor_id);
+                                                            handleDelete(mentor.mentor_id, mentor.mentor_name);
                                                         }}
                                                         className="p-2 border border-slate-200 bg-white rounded-xl text-rose-600 hover:bg-rose-50 transition-colors shadow-sm"
                                                         title="Delete Mentor"

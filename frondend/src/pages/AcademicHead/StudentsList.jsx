@@ -6,6 +6,7 @@ import {
 import api from '../../services/api';
 import toast from 'react-hot-toast';
 import StudentListFilterDropdown, { sortStudentsByOption } from '../../components/StudentListFilterDropdown';
+import { premiumConfirm } from '../../utils/premiumConfirm';
 
 const StudentsList = ({ role = 'academic_head' }) => {
     const [students, setStudents] = useState([]);
@@ -58,17 +59,26 @@ const StudentsList = ({ role = 'academic_head' }) => {
         }
     };
 
-    const handleDelete = async (id) => {
-        if (!window.confirm("PERMANENT ACTION: Purge this student from system?")) return;
-        try {
-            const res = await api.delete(`${apiPath}/students/${id}`);
-            if (res.data.success) {
-                toast.success("Student record deleted");
-                fetchStudents();
+    const handleDelete = async (studentParam) => {
+        const id = typeof studentParam === 'object' ? studentParam.id : studentParam;
+        const name = typeof studentParam === 'object' ? studentParam.name : 'this student';
+
+        premiumConfirm(async () => {
+            try {
+                const res = await api.delete(`${apiPath}/students/${id}`);
+                if (res.data.success) {
+                    toast.success("Student record deleted");
+                    fetchStudents();
+                }
+            } catch (error) {
+                toast.error(error.response?.data?.message || "Delete failed");
             }
-        } catch (error) {
-            toast.error(error.response?.data?.message || "Delete failed");
-        }
+        }, {
+            name: name,
+            title: 'Delete Student Record',
+            message: `Are you sure you want to permanently purge ${name}'s record from the system?`,
+            type: 'danger'
+        });
     };
 
     const filteredStudents = useMemo(() => {
@@ -183,7 +193,7 @@ const StudentsList = ({ role = 'academic_head' }) => {
                                                 <Edit2 size={16} />
                                             </button>
                                             <button
-                                                onClick={() => handleDelete(student.id)}
+                                                onClick={() => handleDelete(student)}
                                                 className="p-2.5 bg-white border border-slate-200 rounded-xl text-rose-600 hover:bg-rose-50 transition-all shadow-sm"
                                             >
                                                 <Trash2 size={16} />

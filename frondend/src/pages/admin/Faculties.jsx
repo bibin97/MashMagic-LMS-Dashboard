@@ -3,7 +3,8 @@ import DataTable from '../../components/DataTable';
 import Modal from '../../components/Modal';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
-import { UserSquare2, GraduationCap } from 'lucide-react';
+import { premiumConfirm } from '../../utils/premiumConfirm';
+import { Eye, Edit2, Ban, Trash2, Filter, Download, UserPlus, Search } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 const Faculties = () => {
@@ -91,25 +92,37 @@ const Faculties = () => {
     };
 
     const handleBlock = async (faculty) => {
-        if (!window.confirm(`Suspend access for faculty lead ${faculty.name}?`)) return;
-        try {
-            await api.put(`/admin/block/${faculty.id}`);
-            toast.success(`Faculty ${faculty.name} blocked`);
-            fetchFaculties();
-        } catch (error) {
-            toast.error("Failed to block faculty");
-        }
+        premiumConfirm(async () => {
+            try {
+                await api.put(`/admin/block/${faculty.id}`);
+                toast.success(`${faculty.name} blocked successfully`);
+                fetchFaculties();
+            } catch (error) {
+                toast.error("Failed to block faculty");
+            }
+        }, { 
+            name: faculty.name, 
+            title: 'Block Faculty', 
+            message: `Suspending faculty ${faculty.name} will disable their access to students and logs.`,
+            type: 'standard'
+        });
     };
 
     const handleDelete = async (faculty) => {
-        if (!window.confirm(`Delete faculty lead ${faculty.name} permanently?`)) return;
-        try {
-            await api.delete(`/admin/delete/${faculty.id}`);
-            toast.success(`Faculty ${faculty.name} deleted`);
-            fetchFaculties();
-        } catch (error) {
-            toast.error("Failed to delete faculty");
-        }
+        premiumConfirm(async () => {
+            try {
+                await api.delete(`/admin/delete/${faculty.id}`);
+                toast.success(`Faculty ${faculty.name} deleted`);
+                fetchFaculties();
+            } catch (error) {
+                toast.error("Failed to delete faculty");
+            }
+        }, { 
+            name: faculty.name, 
+            title: 'Permanent Deletion', 
+            message: `Permanently deleting ${faculty.name}. This will clear their assignment profile.`,
+            type: 'danger'
+        });
     };
 
     const columns = [

@@ -56,7 +56,7 @@ router.get('/mentor-distribution', requireRole('super_admin', 'admin'), getMento
 router.get('/task-analytics', requireRole('super_admin', 'admin'), getTaskAnalytics);
 router.get('/live-monitoring', requireRole('super_admin', 'admin'), getLiveMonitoring);
 
-// Management & Destructive actions restricted to Super Admin only
+// Management & Action routes (Restricted to Super Admin ONLY)
 router.use(requireRole('super_admin'));
 
 router.put('/reject/:id', rejectUser);
@@ -66,7 +66,7 @@ router.delete('/delete/:id', deleteUser);
 router.put('/users/:id', updateUserForAdmin);
 router.put('/students/:id', updateStudentForAdmin);
 
-// Admin Management (Super Admin only)
+// Sub Admin management (also Super Admin only)
 router.get('/sub-admins', getSubAdmins);
 router.post('/sub-admins', createSubAdmin);
 router.put('/sub-admins/:id', updateSubAdmin);

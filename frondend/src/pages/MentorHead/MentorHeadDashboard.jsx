@@ -257,14 +257,14 @@ const MentorHeadDashboard = () => {
 
                 <div className="p-8">
                     {activities.length > 0 ? (
-                        <div className="space-y-6 relative before:absolute before:inset-0 before:ml-8 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-slate-200 before:to-transparent">
+                        <div className="space-y-8 relative before:absolute before:inset-0 before:ml-8 before:-translate-x-px before:h-full before:w-0.5 before:bg-slate-100">
                             {activities.map((activity) => (
-                                <div key={activity.log_id} className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
-                                    <div className="flex items-center justify-center w-16 h-16 rounded-full border border-white bg-slate-50 shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10">
-                                        <div className="w-3 h-3 bg-indigo-600 rounded-full animate-pulse"></div>
+                                <div key={activity.log_id} className="relative flex items-center gap-6 md:gap-10 group">
+                                    <div className="flex items-center justify-center w-16 h-16 rounded-full border-4 border-white bg-slate-50 shadow-sm shrink-0 z-10 group-hover:scale-110 transition-transform duration-500">
+                                        <div className="w-2.5 h-2.5 bg-indigo-600 rounded-full animate-pulse"></div>
                                     </div>
 
-                                    <div className="w-[calc(100%-5rem)] md:w-[calc(50%-4rem)] p-6 bg-white rounded-3xl border border-slate-100 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
+                                    <div className="flex-1 p-8 bg-white rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-500">
                                         <div className="flex items-center justify-between mb-4">
                                             <div className="flex items-center gap-3">
                                                 <div>
@@ -275,10 +275,10 @@ const MentorHeadDashboard = () => {
                                                 </div>
                                             </div>
                                             <div className="text-right">
-                                                <div className="flex items-center gap-1 text-slate-400">
+                                                <div className="flex items-center gap-1.5 text-indigo-600 mb-0.5">
                                                     <Clock size={12} />
-                                                    <span className="text-[10px] font-bold uppercase tracking-widest">
-                                                        {new Date(activity.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                    <span className="text-xs font-black uppercase tracking-widest">
+                                                        {new Date(activity.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}
                                                     </span>
                                                 </div>
                                                 <span className="text-[10px] font-bold text-slate-300 uppercase tracking-widest">

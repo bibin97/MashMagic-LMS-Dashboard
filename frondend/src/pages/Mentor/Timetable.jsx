@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
+import { premiumConfirm } from '../../utils/premiumConfirm';
 import { useAuth } from '../../context/AuthContext';
 
 const Timetable = () => {
@@ -142,15 +143,25 @@ const Timetable = () => {
         setIsModalOpen(true);
     };
 
-    const handleDelete = async (id) => {
-        if (!window.confirm("Are you sure you want to delete this session?")) return;
-        try {
-            await api.delete(`/mentor/timetable/${id}`);
-            toast.success("Session deleted");
-            fetchTimetable();
-        } catch (error) {
-            toast.error(error.response?.data?.message || "Delete failed");
-        }
+    const handleDelete = async (sessionParam) => {
+        // If it's just an ID being passed from older calls, we'll try to handle it. Best to pass the full object.
+        const id = typeof sessionParam === 'object' ? sessionParam.id : sessionParam;
+        const name = typeof sessionParam === 'object' ? sessionParam.student_name : 'the selected';
+        
+        premiumConfirm(async () => {
+            try {
+                await api.delete(`/mentor/timetable/${id}`);
+                toast.success("Session deleted");
+                fetchTimetable();
+            } catch (error) {
+                toast.error(error.response?.data?.message || "Delete failed");
+            }
+        }, {
+            name: `${name}'s Session`,
+            title: 'Delete Scheduled Session',
+            message: `Are you sure you want to permanently remove this session from the timeline?`,
+            type: 'danger'
+        });
     };
 
     const handleSubmit = async (e) => {
@@ -425,7 +436,7 @@ const Timetable = () => {
                                                 <Edit2 size={16} />
                                             </button>
                                             <button
-                                                onClick={() => handleDelete(session.id)}
+                                                onClick={() => handleDelete(session)}
                                                 className="w-11 h-11 bg-slate-50 text-rose-600 rounded-[1rem] flex items-center justify-center hover:bg-rose-600 hover:text-white transition-all duration-500 active:scale-90 shadow-sm"
                                             >
                                                 <Trash2 size={16} />

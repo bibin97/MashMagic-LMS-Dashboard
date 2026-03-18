@@ -157,9 +157,41 @@ const deleteUser = async (req, res) => {
 
         if (role === 'student') {
             [[nameRow]] = await db.query('SELECT name FROM students WHERE id = ?', [id]);
+            if (!nameRow) return res.status(404).json({ success: false, message: "Student not found" });
+
+            // Handle student-specific logs/entries if any (usually cascade in DB but explicit is safer if no cascade)
+            await db.query('DELETE FROM student_interaction_logs WHERE student_id = ?', [id]);
+            await db.query('DELETE FROM faculty_interaction_logs WHERE student_id = ?', [id]);
+            await db.query('DELETE FROM student_verification WHERE student_id = ?', [id]);
+            await db.query('DELETE FROM daily_hours_log WHERE student_id = ?', [id]); // or similar student hours table
+
             [result] = await db.query('DELETE FROM students WHERE id = ?', [id]);
         } else {
-            [[nameRow]] = await db.query('SELECT name FROM users WHERE id = ?', [id]);
+            [[nameRow]] = await db.query('SELECT name, role FROM users WHERE id = ?', [id]);
+            if (!nameRow) return res.status(404).json({ success: false, message: "User not found" });
+
+            const userRole = nameRow.role;
+
+            // Handle cross-table dependencies based on role
+            if (userRole === 'mentor') {
+                // Remove assignments from students but keep student records
+                await db.query('UPDATE students SET mentor_id = NULL, mentor_name = NULL WHERE mentor_id = ?', [id]);
+                
+                // PRESERVE HISTORY: Nullify mentor_id instead of deleting logs
+                await db.query('UPDATE student_interaction_logs SET mentor_id = NULL WHERE mentor_id = ?', [id]);
+                await db.query('UPDATE faculty_interaction_logs SET mentor_id = NULL WHERE mentor_id = ?', [id]);
+                await db.query('UPDATE daily_hours_log SET mentor_id = NULL WHERE mentor_id = ?', [id]);
+                await db.query('UPDATE mentor_timetable SET mentor_id = NULL WHERE mentor_id = ?', [id]);
+                
+                // Tasks are better kept for audit. Let's keep them with NULL assigned_to.
+                await db.query('UPDATE tasks SET assigned_to = NULL WHERE assigned_to = ?', [id]);
+            } else if (userRole === 'faculty') {
+                await db.query('UPDATE students SET faculty_id = NULL, faculty_name = NULL WHERE faculty_id = ?', [id]);
+                await db.query('UPDATE faculty_interaction_logs SET faculty_id = NULL WHERE faculty_id = ?', [id]);
+            } else if (userRole === 'mentor_head') {
+                await db.query('UPDATE student_verification SET mentor_head_id = NULL WHERE mentor_head_id = ?', [id]);
+            }
+
             [result] = await db.query('DELETE FROM users WHERE id = ?', [id]);
         }
 
@@ -167,10 +199,17 @@ const deleteUser = async (req, res) => {
             return res.status(404).json({ success: false, message: "User not found" });
         }
 
-        await db.query('INSERT INTO admin_notifications (message) VALUES (?)', [`Admin (${req.user.name}) deleted ${role}: ${nameRow?.name || id}`]);
+        const adminName = req.user?.name || 'Admin';
+        await db.query('INSERT INTO admin_notifications (message) VALUES (?)', [`Admin (${adminName}) deleted ${role || 'user'}: ${nameRow?.name || id}`]);
+        
         res.status(200).json({ success: true, message: "User deleted successfully" });
     } catch (error) {
-        res.status(500).json({ success: false, message: "Server Error", error: error.message });
+        console.error("DELETE_USER_ERROR LOG:", error);
+        res.status(500).json({ 
+            success: false, 
+            message: "Server Error: Dependency conflict. Deletion failed.", 
+            error: error.message 
+        });
     }
 };
 
@@ -182,7 +221,7 @@ const getAllStudentLogs = async (req, res) => {
         const [rows] = await db.query(`
             SELECT logs.*, m.name as mentor_name, s.name as student_name
             FROM student_interaction_logs logs
-            JOIN users m ON logs.mentor_id = m.id
+            LEFT JOIN users m ON logs.mentor_id = m.id
             JOIN students s ON logs.student_id = s.id
             ORDER BY logs.created_at DESC
         `);
@@ -199,7 +238,7 @@ const getAllFacultyLogs = async (req, res) => {
         const [rows] = await db.query(`
             SELECT logs.*, m.name as mentor_name, s.name as student_name
             FROM faculty_interaction_logs logs
-            JOIN users m ON logs.mentor_id = m.id
+            LEFT JOIN users m ON logs.mentor_id = m.id
             JOIN students s ON logs.student_id = s.id
             ORDER BY logs.created_at DESC
         `);
@@ -538,7 +577,7 @@ const getAllMentorsForAdmin = async (req, res) => {
     }
 };
 
-// @desc    Get All Staff Members (Mentors, Heads, BDM, etc.)
+// @desc    Get All Staff Members (Mentors, Heads, etc.)
 // @route   GET /api/admin/staff
 const getStaffMembers = async (req, res) => {
     try {

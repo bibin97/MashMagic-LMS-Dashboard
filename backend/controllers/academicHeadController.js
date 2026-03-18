@@ -224,6 +224,10 @@ const registerStudent = async (req, res) => {
             }
         }
 
+        // Notify Admin
+        const msg = `<span class="font-bold text-teal-600">${req.user.name}</span> <span class="text-xs bg-teal-100 text-teal-800 px-1 rounded">(Academic Head)</span> added <span class="font-bold text-orange-600">${name}</span> <span class="text-xs bg-orange-100 text-orange-800 px-1 rounded">(Student)</span>`;
+        await db.query('INSERT INTO admin_notifications (message) VALUES (?)', [msg]);
+
         res.status(201).json({ success: true, message: "Student registered successfully. Pending Admin approval." });
     } catch (error) {
         console.error('Error in registerStudent:', error);
@@ -251,8 +255,8 @@ const registerFaculty = async (req, res) => {
 
         console.log(`[FACULTY REG] Password source applied. Identifier to use for login: ${email || phone_number}`);
 
-        // Faculty registration starts as PENDING. 
-        // Admin must approve via Admin Panel before they can log in.
+        // Faculty registration starts as ACTIVE when created by Academic Head
+        // They are auto-approved to allow immediate assignment to students.
         const userId = await User.create({
             name,
             email: email?.trim() || null,
@@ -260,15 +264,19 @@ const registerFaculty = async (req, res) => {
             place,
             password: hashedPassword,
             role: 'faculty',
-            status: 'pending',
-            isApproved: 0,
+            status: 'active',
+            isApproved: 1,
             registeredBy: requesterId
         });
 
-        console.log(`[FACULTY REG] SUCCESS! New Faculty ID: ${userId} | Status: PENDING`);
+        // Notify Admin
+        const msg = `<span class="font-bold text-teal-600">${req.user.name}</span> <span class="text-xs bg-teal-100 text-teal-800 px-1 rounded">(Academic Head)</span> added and auto-approved <span class="font-bold text-amber-600">${name}</span> <span class="text-xs bg-amber-100 text-amber-800 px-1 rounded">(Faculty)</span>`;
+        await db.query('INSERT INTO admin_notifications (message) VALUES (?)', [msg]);
+
+        console.log(`[FACULTY REG] SUCCESS! New Faculty ID: ${userId} | Status: ACTIVE`);
         res.status(201).json({
             success: true,
-            message: "Faculty account created successfully. Please wait for Admin approval.",
+            message: "Faculty account created and activated successfully.",
             userId
         });
     } catch (error) {

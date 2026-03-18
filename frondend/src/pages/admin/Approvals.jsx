@@ -7,10 +7,14 @@ import {
     Shield,
     User,
     Calendar,
-    ArrowUpRight
+    ArrowUpRight,
+    Mail,
+    MapPin,
+    Phone
 } from 'lucide-react';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
+import { premiumConfirm } from '../../utils/premiumConfirm';
 
 const Approvals = () => {
     const [pendingUsers, setPendingUsers] = useState([]);
@@ -45,16 +49,22 @@ const Approvals = () => {
         }
     };
 
-    const handleReject = async (id, role) => {
-        if (!window.confirm(`Are you sure you want to reject this ${role === 'student' ? 'student' : 'user'}?`)) return;
-        try {
-            await api.put(`/admin/reject/${id}`, { role });
-            toast.success(`${role === 'student' ? 'Student' : 'User'} rejected successfully`);
-            setPendingUsers(prev => prev.filter(user => !(user.id === id && user.role === role)));
-        } catch (error) {
-            console.error('Reject error:', error);
-            toast.error("Failed to reject user");
-        }
+    const handleReject = async (id, role, name = 'this user') => {
+        premiumConfirm(async () => {
+            try {
+                await api.put(`/admin/reject/${id}`, { role });
+                toast.success(`${role === 'student' ? 'Student' : 'User'} rejected successfully`);
+                setPendingUsers(prev => prev.filter(user => !(user.id === id && user.role === role)));
+            } catch (error) {
+                console.error('Reject error:', error);
+                toast.error("Failed to reject user");
+            }
+        }, { 
+            name: name,
+            title: 'Reject Registration', 
+            message: `Are you sure you want to reject this ${role === 'student' ? 'student' : 'user'}? They will not be able to access the platform.`,
+            type: 'danger'
+        });
     };
 
     const getRoleBadgeStyle = (role) => {
@@ -168,7 +178,7 @@ const Approvals = () => {
                                         <td className="p-6 text-right">
                                             <div className="flex items-center justify-end gap-2 opactiy-0 group-hover:opacity-100 transition-opacity">
                                                 <button
-                                                    onClick={() => handleReject(user.id, user.role)}
+                                                    onClick={() => handleReject(user.id, user.role, user.name)}
                                                     className="w-10 h-10 rounded-xl flex items-center justify-center text-slate-300 hover:text-rose-600 hover:bg-rose-50 transition-all border border-transparent hover:border-rose-100"
                                                     title="Reject Application"
                                                 >

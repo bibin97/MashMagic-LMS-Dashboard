@@ -6,6 +6,7 @@ import {
     ShieldCheck, ExternalLink, Calendar, User
 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { premiumConfirm } from '../../utils/premiumConfirm';
 
 const Documents = () => {
     const [documents, setDocuments] = useState([]);
@@ -47,15 +48,24 @@ const Documents = () => {
         }
     };
 
-    const handleDelete = async (id) => {
-        if (!window.confirm("Terminate this document registry entry?")) return;
-        try {
-            await api.delete(`/academic-head/documents/${id}`);
-            toast.success("Document removed");
-            setDocuments(documents.filter(d => d.id !== id));
-        } catch (error) {
-            toast.error("Deletion failed");
-        }
+    const handleDelete = async (docParam) => {
+        const id = typeof docParam === 'object' ? docParam.id : docParam;
+        const title = typeof docParam === 'object' ? docParam.title : 'this document';
+
+        premiumConfirm(async () => {
+            try {
+                await api.delete(`/academic-head/documents/${id}`);
+                toast.success("Document removed");
+                setDocuments(prev => prev.filter(d => d.id !== id));
+            } catch (error) {
+                toast.error("Deletion failed");
+            }
+        }, {
+            name: title,
+            title: 'Terminate Document Entry',
+            message: `Are you sure you want to permanently remove the document "${title}"?`,
+            type: 'danger'
+        });
     };
 
     const filteredDocs = documents.filter(doc =>
@@ -162,7 +172,7 @@ const Documents = () => {
                                     Access <ExternalLink size={14} />
                                 </a>
                                 <button
-                                    onClick={() => handleDelete(doc.id)}
+                                    onClick={() => handleDelete(doc)}
                                     className="w-12 h-12 bg-rose-50 text-rose-500 rounded-2xl flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all group/del border border-rose-100"
                                 >
                                     <Trash2 size={18} />

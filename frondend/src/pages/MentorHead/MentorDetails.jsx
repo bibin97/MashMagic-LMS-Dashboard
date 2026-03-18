@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
+import { premiumConfirm } from '../../utils/premiumConfirm';
 
 const MentorDetails = () => {
     const { id } = useParams();
@@ -95,17 +96,23 @@ const MentorDetails = () => {
         }
     };
 
-    const handleDeleteStudent = async (studentId) => {
-        if (!window.confirm("Permanently delete this student record?")) return;
-        try {
-            const res = await api.delete(`/mentor-head/students/${studentId}`);
-            if (res.data.success) {
-                toast.success('Student removed');
-                fetchMentorDetails(); // Refresh
+    const handleDeleteStudent = async (studentId, studentName) => {
+        premiumConfirm(async () => {
+            try {
+                const res = await api.delete(`/mentor-head/students/${studentId}`);
+                if (res.data.success) {
+                    toast.success('Student removed');
+                    fetchMentorDetails(); // Refresh
+                }
+            } catch (error) {
+                toast.error(error.response?.data?.message || 'Delete failed');
             }
-        } catch (error) {
-            toast.error(error.response?.data?.message || 'Delete failed');
-        }
+        }, { 
+            name: studentName,
+            title: 'Delete Student Record', 
+            message: `Are you sure you want to permanently remove ${studentName} from the registry?`,
+            type: 'danger'
+        });
     };
 
 
@@ -399,7 +406,7 @@ const MentorDetails = () => {
                                                 <Edit2 size={16} />
                                             </button>
                                             <button
-                                                onClick={() => handleDeleteStudent(s.id)}
+                                                onClick={() => handleDeleteStudent(s.id, s.name)}
                                                 className="p-2.5 bg-white border border-slate-200 rounded-xl text-rose-600 hover:bg-rose-50 transition-all shadow-sm"
                                                 title="Delete Student"
                                             >

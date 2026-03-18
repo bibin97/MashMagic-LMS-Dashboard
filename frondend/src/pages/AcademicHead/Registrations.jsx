@@ -118,6 +118,7 @@ const Registrations = () => {
             if (res.data.success) {
                 toast.success('Faculty Account Created Successfully!');
                 setFacultyForm({ name: '', email: '', phone_number: '', place: '', password: '', confirmPassword: '' });
+                fetchDropdowns();
             }
         } catch (error) {
             toast.error(error.response?.data?.message || 'Failed to register faculty');

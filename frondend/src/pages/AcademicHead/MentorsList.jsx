@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
+import { premiumConfirm } from '../../utils/premiumConfirm';
 
 const MentorsList = () => {
     const [mentors, setMentors] = useState([]);
@@ -55,17 +56,23 @@ const MentorsList = () => {
         }
     };
 
-    const handleDelete = async (id) => {
-        if (!window.confirm("PERMANENT ACTION: Purge this mentor and unassign their students?")) return;
-        try {
-            const res = await api.delete(`/academic-head/mentors/${id}`);
-            if (res.data.success) {
-                toast.success("Mentor profile deleted");
-                fetchMentors();
+    const handleDelete = async (id, name) => {
+        premiumConfirm(async () => {
+            try {
+                const res = await api.delete(`/academic-head/mentors/${id}`);
+                if (res.data.success) {
+                    toast.success("Mentor profile deleted");
+                    fetchMentors();
+                }
+            } catch (error) {
+                toast.error(error.response?.data?.message || "Delete failed");
             }
-        } catch (error) {
-            toast.error(error.response?.data?.message || "Delete failed");
-        }
+        }, { 
+            name: name,
+            title: 'Delete Mentor Faculty', 
+            message: `You are about to purge ${name} from the academic faculty records. This action is irreversible.`,
+            type: 'danger'
+        });
     };
 
     const handleViewStudents = async (mentor) => {
@@ -178,7 +185,7 @@ const MentorsList = () => {
                                         <span className="text-[10px] font-black uppercase tracking-widest md:hidden">Edit</span>
                                     </button>
                                     <button
-                                        onClick={() => handleDelete(mentor.id)}
+                                        onClick={() => handleDelete(mentor.id, mentor.name)}
                                         className="p-3 bg-slate-50 text-rose-600 rounded-xl hover:bg-rose-600 hover:text-white transition-all shadow-sm flex items-center gap-2"
                                     >
                                         <Trash2 size={14} />

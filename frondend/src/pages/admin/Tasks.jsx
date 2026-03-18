@@ -3,9 +3,13 @@ import DataTable from '../../components/DataTable';
 import Modal from '../../components/Modal';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
+import { premiumConfirm } from '../../utils/premiumConfirm';
+import { useAuth } from '../../context/AuthContext';
 import { Plus, Calendar, Clock, AlertTriangle } from 'lucide-react';
 
 const Tasks = () => {
+    const { user } = useAuth();
+    const isSuperAdmin = user?.role === 'super_admin';
     const [tasks, setTasks] = useState([]);
     const [filteredTasks, setFilteredTasks] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -127,14 +131,20 @@ const Tasks = () => {
     };
 
     const handleDelete = async (task) => {
-        if (!window.confirm("Delete this task?")) return;
-        try {
-            await api.delete(`/tasks/${task.id}`);
-            toast.success("Task removed");
-            fetchTasks();
-        } catch (error) {
-            toast.error("Failed to delete task");
-        }
+        premiumConfirm(async () => {
+            try {
+                await api.delete(`/tasks/${task.id}`);
+                toast.success("Task removed");
+                fetchTasks();
+            } catch (error) {
+                toast.error("Failed to delete task");
+            }
+        }, { 
+            name: task.title, 
+            title: 'Delete Task', 
+            message: `Are you sure you want to remove the task: "${task.title}"?`,
+            type: 'danger'
+        });
     };
 
     const columns = [
@@ -203,13 +213,15 @@ const Tasks = () => {
                     <h2 className="text-3xl font-black text-slate-900 tracking-tighter uppercase italic">Task Management</h2>
                     <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest mt-1 text-slate-500">Coordinate and track educational tasks for the mentor network</p>
                 </div>
-                <button
-                    onClick={() => setIsModalOpen(true)}
-                    className="flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-2xl font-bold text-sm hover:bg-blue-700 transition-all shadow-xl shadow-blue-100 hover:-translate-y-0.5"
-                >
-                    <Plus size={20} />
-                    <span>Create New Task</span>
-                </button>
+                {isSuperAdmin && (
+                    <button
+                        onClick={() => setIsModalOpen(true)}
+                        className="flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-2xl font-bold text-sm hover:bg-blue-700 transition-all shadow-xl shadow-blue-100 hover:-translate-y-0.5"
+                    >
+                        <Plus size={20} />
+                        <span>Create New Task</span>
+                    </button>
+                )}
             </div>
 
             <DataTable
@@ -219,7 +231,7 @@ const Tasks = () => {
                 onSearch={handleSearch}
                 onFilter={handleFilter}
                 onExport={handleExport}
-                onDelete={handleDelete}
+                onDelete={isSuperAdmin ? handleDelete : undefined}
                 searchPlaceholder="Filter tasks by objective or mentor..."
             />
 

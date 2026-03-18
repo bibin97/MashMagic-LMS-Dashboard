@@ -4,7 +4,7 @@ import api from '../../services/api';
 import {
     MessageSquare, CheckCircle, ArrowLeft, Target, AlertCircle, BarChart3,
     CloudLightning, FileText, Camera, Phone, UserCheck, HeartPulse, Brain,
-    Clock, Activity, BookOpen, Smile, Frown, Meh, MoreHorizontal, Upload, ImageIcon, Loader2
+    Clock, Activity, BookOpen, Smile, Plus, Frown, Meh, MoreHorizontal, Upload, ImageIcon, Loader2
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Modal from '../../components/Modal';
@@ -191,6 +191,50 @@ const StudentInteractionLog = () => {
                         <UserCheck size={28} />
                     </div>
                 </header>
+
+                {/* Explicit Start Logging Action Bar */}
+                <div className="bg-white p-8 rounded-[2.5rem] border border-blue-100 shadow-xl shadow-blue-50 flex flex-col md:flex-row items-center justify-between gap-6 mb-8 relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-blue-50 rounded-full -mr-16 -mt-16 opacity-50"></div>
+                    <div className="relative z-10 w-full md:w-auto text-center md:text-left">
+                        <h3 className="text-xl font-black text-slate-900 mb-1 flex items-center gap-2 justify-center md:justify-start">
+                            <Plus size={20} className="text-blue-600" /> Log New Interaction
+                        </h3>
+                        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Select a student from your assigned list</p>
+                    </div>
+                    
+                    <div className="relative w-full md:w-[350px] z-10">
+                        {students.length > 0 ? (
+                            <select
+                                onChange={(e) => {
+                                    const student = students.find(s => s.id.toString() === e.target.value);
+                                    if(student) handleStudentSelect(student);
+                                }}
+                                className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold text-slate-700 outline-none focus:ring-4 focus:ring-blue-50 appearance-none cursor-pointer"
+                                defaultValue=""
+                            >
+                                <option value="" disabled>Select a student to start logging...</option>
+                                {students.map(s => (
+                                    <option key={s.id} value={s.id}>{s.name} ({s.course})</option>
+                                ))}
+                            </select>
+                        ) : (
+                            <div className="w-full p-4 bg-rose-50 border border-rose-100 rounded-2xl text-xs font-bold text-rose-600 text-center">
+                                No assigned students available.
+                            </div>
+                        )}
+                        {students.length > 0 && (
+                            <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                                <ArrowLeft size={16} className="rotate-[-90deg]" />
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                <div className="mb-4">
+                    <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest pl-2 flex items-center gap-2">
+                        <UserCheck size={16} className="text-blue-600" /> Or select from cards
+                    </h3>
+                </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {students.map(student => (

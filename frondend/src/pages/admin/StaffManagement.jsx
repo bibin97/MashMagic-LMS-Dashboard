@@ -3,9 +3,13 @@ import DataTable from '../../components/DataTable';
 import Modal from '../../components/Modal';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
+import { premiumConfirm } from '../../utils/premiumConfirm';
+import { useAuth } from '../../context/AuthContext';
 import { ShieldCheck, UserCog, Mail, Phone, Briefcase } from 'lucide-react';
 
 const StaffManagement = () => {
+    const { user } = useAuth();
+    const isSuperAdmin = user?.role === 'super_admin';
     const [staff, setStaff] = useState([]);
     const [filteredStaff, setFilteredStaff] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -70,14 +74,20 @@ const StaffManagement = () => {
     };
 
     const handleDelete = async (member) => {
-        if (!window.confirm(`Are you absolutely sure? This will permanently delete ${member.name} (${member.role.replace('_', ' ')}) from the system.`)) return;
-        try {
-            await api.delete(`/admin/delete/${member.id}`);
-            toast.success("Staff member removed from system");
-            fetchStaff();
-        } catch (error) {
-            toast.error("Failed to delete member");
-        }
+        premiumConfirm(async () => {
+            try {
+                await api.delete(`/admin/delete/${member.id}`);
+                toast.success("Staff member removed from system");
+                fetchStaff();
+            } catch (error) {
+                toast.error("Failed to delete member");
+            }
+        }, { 
+            name: member.name, 
+            title: 'Remove Staff Member', 
+            message: `Permanently deleting ${member.name} (${member.role.replace('_', ' ')}). This action cannot be undone.`,
+            type: 'danger'
+        });
     };
 
     const columns = [
@@ -115,8 +125,8 @@ const StaffManagement = () => {
                 data={filteredStaff}
                 loading={loading}
                 onSearch={handleSearch}
-                onDelete={handleDelete}
-                onEdit={handleEdit}
+                onDelete={isSuperAdmin ? handleDelete : undefined}
+                onEdit={isSuperAdmin ? handleEdit : undefined}
                 searchPlaceholder="Search by name, email or role..."
             />
 

@@ -17,6 +17,7 @@ import {
 import api from '../../services/api';
 import toast from 'react-hot-toast';
 import Modal from '../../components/Modal';
+import { premiumConfirm } from '../../utils/premiumConfirm';
 
 const AdminManagement = () => {
     const [subAdmins, setSubAdmins] = useState([]);
@@ -94,15 +95,21 @@ const AdminManagement = () => {
         }
     };
 
-    const handleDelete = async (id) => {
-        if (!window.confirm("Are you sure you want to delete this Sub Admin? This cannot be undone.")) return;
-        try {
-            await api.delete(`/admin/sub-admins/${id}`);
-            toast.success("Sub Admin deleted successfully");
-            fetchSubAdmins();
-        } catch (error) {
-            toast.error("Failed to delete account");
-        }
+    const handleDelete = async (id, name) => {
+        premiumConfirm(async () => {
+            try {
+                await api.delete(`/admin/sub-admins/${id}`);
+                toast.success("Sub Admin deleted successfully");
+                fetchSubAdmins();
+            } catch (error) {
+                toast.error("Failed to delete account");
+            }
+        }, { 
+            name: name,
+            title: 'Delete Admin Account', 
+            message: `You are about to permanently delete the admin account for ${name}. This will revoke all their management privileges.`,
+            type: 'danger'
+        });
     };
 
     if (loading) {
@@ -188,7 +195,7 @@ const AdminManagement = () => {
                                                 <Edit size={18} />
                                             </button>
                                             <button
-                                                onClick={() => handleDelete(admin.id)}
+                                                onClick={() => handleDelete(admin.id, admin.name)}
                                                 className="w-10 h-10 rounded-xl flex items-center justify-center text-rose-400 hover:text-rose-600 hover:bg-rose-50 transition-all border border-transparent hover:border-rose-100"
                                             >
                                                 <Trash2 size={18} />

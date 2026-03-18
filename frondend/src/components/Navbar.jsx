@@ -79,15 +79,28 @@ const Navbar = () => {
                                     <p className="text-xs text-center text-slate-400 py-6 font-semibold">No recent notifications</p>
                                 ) : (
                                     notifications.map(notif => (
-                                        <div key={notif.id} className={`p-3 rounded-xl mb-1 flex items-start justify-between gap-3 ${notif.is_read ? 'bg-white opacity-60' : 'bg-blue-50/50'}`}>
-                                            <div>
-                                                <p className={`text-xs ${notif.is_read ? 'text-slate-600' : 'text-slate-900 font-bold'}`}>
-                                                    {notif.message}
-                                                </p>
-                                                <p className="text-[10px] text-slate-400 mt-1 font-semibold">{new Date(notif.created_at).toLocaleString()}</p>
+                                        <div key={notif.id} className={`p-4 rounded-2xl mb-2 flex items-start gap-3 transition-all ${notif.is_read ? 'bg-white border border-slate-100 opacity-60' : 'bg-blue-50/50 border border-blue-100/50 shadow-sm'}`}>
+                                            <div className="flex-1">
+                                                <div 
+                                                    className={`text-[11px] leading-relaxed ${notif.is_read ? 'text-slate-600 font-medium' : 'text-slate-900 font-semibold'}`}
+                                                    dangerouslySetInnerHTML={{ __html: notif.message }}
+                                                />
+                                                <div className="flex items-center gap-2 mt-2">
+                                                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-tighter bg-slate-100 px-1.5 py-0.5 rounded">
+                                                        {new Date(notif.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                    </span>
+                                                    <span className="text-[9px] text-slate-300 font-black">•</span>
+                                                    <span className="text-[10px] text-slate-400 font-bold">
+                                                        {new Date(notif.created_at).toLocaleDateString([], { month: 'short', day: 'numeric' })}
+                                                    </span>
+                                                </div>
                                             </div>
                                             {!notif.is_read && (
-                                                <button onClick={(e) => markRead(notif.id, e)} className="p-1.5 text-blue-500 bg-blue-100 hover:bg-blue-200 rounded-lg transition-colors" title="Mark as read">
+                                                <button 
+                                                    onClick={(e) => markRead(notif.id, e)} 
+                                                    className="shrink-0 p-2 text-blue-600 bg-white border border-blue-200 hover:bg-blue-600 hover:text-white rounded-xl shadow-sm transition-all" 
+                                                    title="Mark as read"
+                                                >
                                                     <CheckCheck size={14} />
                                                 </button>
                                             )}

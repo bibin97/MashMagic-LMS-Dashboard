@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
+import { premiumConfirm } from '../../utils/premiumConfirm';
 
 const FacultyDirectory = () => {
     const [faculties, setFaculties] = useState([]);
@@ -48,17 +49,23 @@ const FacultyDirectory = () => {
         }
     };
 
-    const handleDelete = async (id) => {
-        if (!window.confirm("PERMANENT ACTION: Delete this faculty record?")) return;
-        try {
-            const res = await api.delete(`/mentor-head/faculties/${id}`);
-            if (res.data.success) {
-                toast.success("Faculty record deleted");
-                fetchFaculties();
+    const handleDelete = async (id, name) => {
+        premiumConfirm(async () => {
+            try {
+                const res = await api.delete(`/mentor-head/faculties/${id}`);
+                if (res.data.success) {
+                    toast.success("Faculty record deleted");
+                    fetchFaculties();
+                }
+            } catch (error) {
+                toast.error(error.response?.data?.message || "Delete failed");
             }
-        } catch (error) {
-            toast.error(error.response?.data?.message || "Delete failed");
-        }
+        }, {
+            name: name,
+            title: 'Delete Faculty Record',
+            message: `Are you sure you want to permanently delete the faculty record for ${name}?`,
+            type: 'danger'
+        });
     };
 
     const filteredFaculties = faculties.filter(f =>
@@ -162,7 +169,7 @@ const FacultyDirectory = () => {
                                                 <Edit2 size={16} />
                                             </button>
                                             <button
-                                                onClick={() => handleDelete(faculty.id)}
+                                                onClick={() => handleDelete(faculty.id, faculty.name)}
                                                 className="p-2.5 bg-white border border-slate-200 rounded-xl text-rose-600 hover:bg-rose-50 transition-all shadow-sm"
                                                 title="Delete"
                                             >

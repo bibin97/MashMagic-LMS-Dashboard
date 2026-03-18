@@ -10,6 +10,7 @@ import {
     Upload, FileText, Image as ImageIcon, Link as LinkIcon, Eye
 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { premiumConfirm } from '../../utils/premiumConfirm';
 
 const FacultyInteractionLog = () => {
     const location = useLocation();
@@ -157,15 +158,24 @@ const FacultyInteractionLog = () => {
         }
     };
 
-    const handleDelete = async (id) => {
-        if (!window.confirm("Are you sure you want to delete this log?")) return;
-        try {
-            await api.delete(`/mentor/faculty-log/${id}`);
-            toast.success("Log deleted successfully");
-            fetchData();
-        } catch (error) {
-            toast.error("Failed to delete log");
-        }
+    const handleDelete = async (logParam) => {
+        const id = typeof logParam === 'object' ? logParam.id : logParam;
+        const name = typeof logParam === 'object' ? logParam.student_name : 'this student';
+        
+        premiumConfirm(async () => {
+            try {
+                await api.delete(`/mentor/faculty-log/${id}`);
+                toast.success("Log deleted successfully");
+                fetchData();
+            } catch (error) {
+                toast.error("Failed to delete log");
+            }
+        }, {
+            name: `${name}'s Log`,
+            title: 'Delete Faculty Interaction Log',
+            message: `Are you sure you want to permanently delete this interaction log?`,
+            type: 'danger'
+        });
     };
 
     const filteredLogs = logs.filter(log =>
@@ -267,7 +277,7 @@ const FacultyInteractionLog = () => {
                                         <div className="flex items-center justify-center gap-2">
                                             <button onClick={() => setViewingLog(log)} className="p-2 text-slate-400 hover:bg-slate-50 hover:text-blue-600 rounded-lg transition-all active:scale-90"><Eye size={14} /></button>
                                             <button onClick={() => handleOpenModal(log)} className="p-2 text-blue-500 hover:bg-blue-50 rounded-lg transition-colors"><Edit2 size={14} /></button>
-                                            <button onClick={() => handleDelete(log.id)} className="p-2 text-rose-500 hover:bg-rose-50 rounded-lg transition-colors"><Trash2 size={14} /></button>
+                                            <button onClick={() => handleDelete(log)} className="p-2 text-rose-500 hover:bg-rose-50 rounded-lg transition-colors"><Trash2 size={14} /></button>
                                         </div>
                                     </td>
                                 </tr>

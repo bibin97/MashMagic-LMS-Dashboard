@@ -4,6 +4,7 @@ import Modal from '../../components/Modal';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
 import { Plus, Calendar, Clock, AlertTriangle, Layers } from 'lucide-react';
+import { premiumConfirm } from '../../utils/premiumConfirm';
 
 const AcademicHeadTasks = () => {
     const [tasks, setTasks] = useState([]);
@@ -94,14 +95,23 @@ const AcademicHeadTasks = () => {
     };
 
     const handleDelete = async (task) => {
-        if (!window.confirm("Delete this task?")) return;
-        try {
-            await api.delete(`/tasks/${task.id}`);
-            toast.success("Task removed");
-            fetchTasks();
-        } catch (error) {
-            toast.error("Failed to delete task");
-        }
+        const id = task.id;
+        const title = task.title || 'this task';
+
+        premiumConfirm(async () => {
+            try {
+                await api.delete(`/tasks/${id}`);
+                toast.success("Task removed");
+                fetchTasks();
+            } catch (error) {
+                toast.error("Failed to delete task");
+            }
+        }, {
+            name: title,
+            title: 'Delete Task',
+            message: `Are you sure you want to permanently delete the task "${title}"?`,
+            type: 'danger'
+        });
     };
 
     const academicPresets = [

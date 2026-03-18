@@ -515,7 +515,7 @@ const getStudentLogs = async (req, res) => {
             SELECT logs.*, s.name as student_name 
             FROM student_interaction_logs logs
             JOIN students s ON logs.student_id = s.id
-            WHERE logs.mentor_id = ? 
+            WHERE s.mentor_id = ? 
             ORDER BY logs.created_at DESC
         `, [mentorId]);
         res.status(200).json({ success: true, data: rows });
@@ -533,7 +533,7 @@ const getFacultyLogs = async (req, res) => {
             IF(logs.parent_update_needed = 1, 'Yes', 'No') as parent_update_needed
             FROM faculty_interaction_logs logs
             JOIN students s ON logs.student_id = s.id
-            WHERE logs.mentor_id = ?
+            WHERE s.mentor_id = ?
             ORDER BY logs.date DESC, logs.session_number DESC
         `, [mentorId]);
         res.status(200).json({ success: true, data: rows });

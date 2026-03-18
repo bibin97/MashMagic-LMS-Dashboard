@@ -45,9 +45,13 @@ exports.registerMentor = async (req, res) => {
             registeredBy: req.user.id
         });
 
+        // Notify Admin
+        const msg = `<span class="font-bold text-blue-600">${req.user.name}</span> <span class="text-xs bg-blue-100 text-blue-800 px-1 rounded">(Mentor Head)</span> added <span class="font-bold text-indigo-600">${name}</span> <span class="text-xs bg-indigo-100 text-indigo-800 px-1 rounded">(Mentor)</span>`;
+        await db.query('INSERT INTO admin_notifications (message) VALUES (?)', [msg]);
+
         res.status(201).json({
             success: true,
-            message: "Mentor registration successful.",
+            message: "Mentor registration successful. Pending Admin approval.",
             mentorId
         });
     } catch (error) {
@@ -223,7 +227,7 @@ exports.getAllActivities = async (req, res) => {
         const query = `
             (SELECT 
                 sil.id as log_id,
-                sil.date,
+                sil.created_at as date,
                 sil.mentor_notes as details,
                 s.name as student_name,
                 m.name as mentor_name,
@@ -235,7 +239,7 @@ exports.getAllActivities = async (req, res) => {
             UNION ALL
             (SELECT 
                 fil.id as log_id,
-                fil.date,
+                fil.created_at as date,
                 fil.notes as details,
                 s.name as student_name,
                 m.name as mentor_name,
@@ -424,11 +428,16 @@ exports.shiftStudent = async (req, res) => {
             [newMentorId, mentorName, oldMentorName, studentId]
         );
 
-        // Preserve history but link to new mentor panel
+        // Preserve history and ensure it appears in the new mentor's activity/panel
+        // We update the mentor_id to the new mentor so it shows up in their dashboard/lists
+        // while the student_id keeps it tied to the student's history.
         await db.query('UPDATE student_interaction_logs SET mentor_id = ? WHERE student_id = ?', [newMentorId, studentId]);
+        await db.query('UPDATE faculty_interaction_logs SET mentor_id = ? WHERE student_id = ?', [newMentorId, studentId]);
+        await db.query('UPDATE mentor_timetable SET mentor_id = ? WHERE student_id = ?', [newMentorId, studentId]);
+        await db.query('UPDATE daily_hours_log SET mentor_id = ? WHERE student_id = ?', [newMentorId, studentId]);
 
         // Notify
-        await db.query('INSERT INTO admin_notifications (message) VALUES (?)', [`Student shifted from ${oldMentorName} to ${mentorName}`]);
+        await db.query('INSERT INTO admin_notifications (message) VALUES (?)', [`Student shifted from ${oldMentorName} to ${mentorName}. All history transferred.`]);
 
         res.status(200).json({ success: true, message: 'Student and history shifted successfully' });
     } catch (error) {
