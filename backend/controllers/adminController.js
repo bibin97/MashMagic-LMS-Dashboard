@@ -721,8 +721,8 @@ module.exports = {
                     SUM(CASE WHEN (status = 'Completed' OR status = 'Success') THEN 1 ELSE 0 END) as completed_tasks
                 FROM tasks
                 WHERE created_at >= ?
-                GROUP BY DATE(created_at)
-                ORDER BY DATE(created_at) ASC
+                GROUP BY DATE_FORMAT(created_at, '%Y-%m-%d')
+                ORDER BY DATE_FORMAT(created_at, '%Y-%m-%d') ASC
             `, [startDate]);
 
             // Create a lookup map

@@ -213,7 +213,7 @@ const Students = () => {
                 title="Edit Student Information"
                 size="lg"
             >
-                <form onSubmit={handleUpdate} className="grid grid-cols-2 gap-6">
+                <form onSubmit={handleUpdate} className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                     <div className="flex flex-col gap-2">
                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2">Full Name</label>
                         <input
@@ -304,7 +304,7 @@ const Students = () => {
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-8">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                             <InfoGroup label="Current Grade" value={selectedStudent.grade} />
                             <InfoGroup label="Subject Focus" value={selectedStudent.subject} />
                             <InfoGroup label="Academic Mentor" value={selectedStudent.mentor} />

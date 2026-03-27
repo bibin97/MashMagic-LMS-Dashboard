@@ -121,8 +121,8 @@ const AdminManagement = () => {
     }
 
     return (
-        <div className="space-y-8">
-            <div className="flex items-center justify-between">
+        <div className="space-y-4 md:space-y-8 w-full max-w-full">
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 w-full">
                 <div>
                     <h2 className="text-3xl font-black text-slate-900 tracking-tight uppercase italic flex items-center gap-3">
                         <ShieldCheck className="text-[#008080]" size={32} />
@@ -227,8 +227,8 @@ const AdminManagement = () => {
                 onClose={() => setIsModalOpen(false)}
                 title={editingAdmin ? "Edit Sub Admin" : "Create New Sub Admin"}
             >
-                <form onSubmit={handleSubmit} className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6 w-full max-w-full">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                         {/* Name */}
                         <div className="space-y-2">
                             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Full Name</label>

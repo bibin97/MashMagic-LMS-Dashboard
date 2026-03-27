@@ -226,7 +226,7 @@ const Dashboard = () => {
             <div className="flex flex-col gap-6">
                 {/* Bar Chart Card */}
                 <div className="w-full bg-white p-4 sm:p-8 rounded-2xl border border-slate-200 shadow-sm">
-                    <div className="flex justify-between items-center mb-10">
+                    <div className="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center gap-4 mb-6 sm:mb-10 w-full">
                         <div className="flex items-center gap-3">
                             <div className="p-2.5 bg-[#008080]/10 text-[#008080] rounded-xl">
                                 <BarChart3 size={20} />
@@ -405,7 +405,7 @@ const Dashboard = () => {
 
                     {/* Mentor Head Report Section */}
                     <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm flex flex-col">
-                        <div className="flex justify-between items-center mb-10">
+                        <div className="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center gap-4 mb-6 sm:mb-10 w-full">
                             <div className="flex items-center gap-3">
                                 <div className="p-2.5 bg-rose-50 text-rose-600 rounded-xl">
                                     <ListTodo size={20} />
@@ -468,7 +468,7 @@ const Dashboard = () => {
 
             {/* Performance Line Chart Section */}
             <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm">
-                <div className="flex justify-between items-center mb-10">
+                <div className="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center gap-4 mb-6 sm:mb-10 w-full">
                     <div className="flex items-center gap-3">
                         <div className="p-2.5 bg-emerald-50 text-emerald-600 rounded-xl">
                             <TrendingUp size={20} />

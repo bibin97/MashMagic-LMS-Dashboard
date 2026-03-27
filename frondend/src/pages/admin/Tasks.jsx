@@ -266,7 +266,7 @@ const Tasks = () => {
                         />
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="flex flex-col gap-2">
                             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Assign User</label>
                             <select
@@ -310,7 +310,7 @@ const Tasks = () => {
 
                     <div className="flex flex-col gap-3">
                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Priority Categorization</label>
-                        <div className="grid grid-cols-3 gap-3">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                             {['Low', 'Medium', 'High'].map((p) => (
                                 <button
                                     key={p}

@@ -32,7 +32,7 @@ const MentorRegistration = () => {
 
         try {
             const token = localStorage.getItem('token');
-            const res = await axios.post('http://localhost:5000/api/mentor-head/register-mentor', formData, {
+            const res = await axios.post('http://142.93.215.36:5000/api/mentor-head/register-mentor', formData, {
                 headers: { Authorization: `Bearer ${token}` }
             });
 

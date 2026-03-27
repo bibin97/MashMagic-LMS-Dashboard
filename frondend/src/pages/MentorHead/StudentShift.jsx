@@ -20,8 +20,8 @@ const StudentShift = () => {
         try {
             const token = localStorage.getItem('token');
             const [studentsRes, mentorsRes] = await Promise.all([
-                axios.get('http://localhost:5000/api/mentor-head/all-students', { headers: { Authorization: `Bearer ${token}` } }),
-                axios.get('http://localhost:5000/api/mentor-head/dashboard', { headers: { Authorization: `Bearer ${token}` } })
+                axios.get('http://142.93.215.36:5000/api/mentor-head/all-students', { headers: { Authorization: `Bearer ${token}` } }),
+                axios.get('http://142.93.215.36:5000/api/mentor-head/dashboard', { headers: { Authorization: `Bearer ${token}` } })
             ]);
 
             if (studentsRes.data.success) {
@@ -51,7 +51,7 @@ const StudentShift = () => {
         setShifting(true);
         try {
             const token = localStorage.getItem('token');
-            const res = await axios.put(`http://localhost:5000/api/mentor-head/students/${selectedStudent.id}/shift`,
+            const res = await axios.put(`http://142.93.215.36:5000/api/mentor-head/students/${selectedStudent.id}/shift`,
                 { newMentorId: selectedMentor },
                 { headers: { Authorization: `Bearer ${token}` } });
 

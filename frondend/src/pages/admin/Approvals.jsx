@@ -93,8 +93,8 @@ const Approvals = () => {
     }
 
     return (
-        <div className="space-y-8">
-            <div className="flex items-center justify-between">
+        <div className="space-y-4 md:space-y-8 w-full max-w-full">
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 w-full">
                 <div>
                     <div className="flex items-center gap-3">
                         <div className="p-3 bg-[#f8ba2b] rounded-2xl shadow-lg shadow-[#f8ba2b]">
@@ -220,7 +220,7 @@ const Approvals = () => {
                             Rejected records are permanently archived in the system to prevent spam.
                         </p>
                     </div>
-                    <div className="flex gap-4">
+                    <div className="flex flex-col sm:flex-row gap-4 w-full">
                         <div className="bg-white/10 backdrop-blur-md p-6 rounded-3xl border border-white/10 w-40">
                             <span className="text-xs font-bold text-[#008080] uppercase tracking-widest block mb-1">Approved Today</span>
                             <span className="text-3xl font-black">0</span>

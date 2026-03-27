@@ -21,7 +21,7 @@ const DataTable = ({
     const useFilterDropdown = filterValue !== undefined && onFilterChange;
     return (
         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-            <div className="flex flex-col sm:flex-row justify-between items-center p-6 border-b border-slate-100 gap-4">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center p-4 md:p-6 border-b border-slate-100 gap-4 w-full">
                 <div className="relative w-full sm:w-80 group">
                     <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#008080] transition-colors" />
                     <input
@@ -32,7 +32,7 @@ const DataTable = ({
                     />
                 </div>
 
-                <div className="flex gap-2 w-full sm:w-auto">
+                <div className="flex flex-wrap gap-2 w-full md:w-auto">
                     {useFilterDropdown ? (
                         <StudentListFilterDropdown
                             value={filterValue}

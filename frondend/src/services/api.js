@@ -1,11 +1,10 @@
 import axios from 'axios';
-
 const api = axios.create({
-    baseURL: 'http://localhost:5000/api',
+    baseURL: 'http://142.93.215.36:5000/api',
     headers: {
         'Content-Type': 'application/json'
     }
-});
+})
 
 // Request interceptor to add token
 api.interceptors.request.use(
@@ -35,5 +34,4 @@ api.interceptors.response.use(
         return Promise.reject(error);
     }
 );
-
 export default api;

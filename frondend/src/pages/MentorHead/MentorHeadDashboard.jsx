@@ -41,10 +41,10 @@ const MentorHeadDashboard = () => {
 
             // Parallel fetch for stats and activities
             const [statsRes, activitiesRes, summaryRes, examRes] = await Promise.all([
-                axios.get('http://localhost:5000/api/mentor-head/dashboard', { headers: { Authorization: `Bearer ${token}` } }),
-                axios.get('http://localhost:5000/api/mentor-head/activities', { headers: { Authorization: `Bearer ${token}` } }),
-                axios.get('http://localhost:5000/api/mentor-head/daily-summary', { headers: { Authorization: `Bearer ${token}` } }),
-                axios.get('http://localhost:5000/api/mentor-head/exam-analytics', { headers: { Authorization: `Bearer ${token}` } })
+                axios.get('http://142.93.215.36:5000/api/mentor-head/dashboard', { headers: { Authorization: `Bearer ${token}` } }),
+                axios.get('http://142.93.215.36:5000/api/mentor-head/activities', { headers: { Authorization: `Bearer ${token}` } }),
+                axios.get('http://142.93.215.36:5000/api/mentor-head/daily-summary', { headers: { Authorization: `Bearer ${token}` } }),
+                axios.get('http://142.93.215.36:5000/api/mentor-head/exam-analytics', { headers: { Authorization: `Bearer ${token}` } })
             ]);
 
             if (statsRes.data.success) {

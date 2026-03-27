@@ -244,7 +244,7 @@ const Faculties = () => {
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                             <div className="p-6 bg-[#008080]/10/50 border border-[#f8ba2b] rounded-3xl flex items-center gap-5 hover:bg-[#008080]/10 transition-colors">
                                 <div className="p-3 bg-white text-[#008080] rounded-2xl shadow-sm">
                                     <UserSquare2 size={24} />
@@ -267,7 +267,7 @@ const Faculties = () => {
 
                         <div className="space-y-4">
                             <h5 className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Assignment Roster</h5>
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 {[...Array(selectedFaculty.mentorsUnder)].map((_, i) => (
                                     <div key={i} className="flex justify-between items-center p-4 bg-white border border-slate-100 rounded-2xl hover:border-[#f8ba2b] transition-all group">
                                         <span className="text-sm font-bold text-slate-700 group-hover:text-[#008080]">Mentor {String.fromCharCode(65 + i)}</span>

@@ -39,7 +39,7 @@ const MentorsList = () => {
             try {
                 const token = localStorage.getItem('token');
                 // Fetching from the new activity dashboard endpoint which has progress logic
-                const res = await axios.get('http://localhost:5000/api/mentor-head/mentor-activity', {
+                const res = await axios.get('http://142.93.215.36:5000/api/mentor-head/mentor-activity', {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 if (res.data.success) {
@@ -72,7 +72,7 @@ const MentorsList = () => {
             const payload = { ...editingMentor };
             if (!payload.password) delete payload.password; // Don't send empty password
 
-            const res = await axios.put(`http://localhost:5000/api/mentor-head/mentors/${editingMentor.id}`, payload, {
+            const res = await axios.put(`http://142.93.215.36:5000/api/mentor-head/mentors/${editingMentor.id}`, payload, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             if (res.data.success) {
@@ -89,7 +89,7 @@ const MentorsList = () => {
         premiumConfirm(async () => {
             try {
                 const token = localStorage.getItem('token');
-                const res = await axios.delete(`http://localhost:5000/api/mentor-head/mentors/${mentorId}`, {
+                const res = await axios.delete(`http://142.93.215.36:5000/api/mentor-head/mentors/${mentorId}`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 if (res.data.success) {
@@ -113,7 +113,7 @@ const MentorsList = () => {
         setLoadingStudents(true);
         try {
             const token = localStorage.getItem('token');
-            const res = await axios.get(`http://localhost:5000/api/mentor-head/students-all?mentor_id=${mentor.mentor_id}`, {
+            const res = await axios.get(`http://142.93.215.36:5000/api/mentor-head/students-all?mentor_id=${mentor.mentor_id}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             if (res.data.success) {
