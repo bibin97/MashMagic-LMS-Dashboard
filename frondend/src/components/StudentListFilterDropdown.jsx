@@ -28,7 +28,7 @@ const StudentListFilterDropdown = ({ value, onChange, options = STUDENT_SORT_OPT
             <button
                 type="button"
                 onClick={() => setOpen((o) => !o)}
-                className="flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-all shadow-sm active:scale-95"
+                className="w-full sm:w-auto flex items-center justify-between sm:justify-center gap-2 px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-all shadow-sm active:scale-95"
             >
                 <Filter size={18} className="text-slate-400" />
                 <span>{value ? currentLabel : 'Filter'}</span>

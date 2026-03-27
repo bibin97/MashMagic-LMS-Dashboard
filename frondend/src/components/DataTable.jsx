@@ -32,16 +32,17 @@ const DataTable = ({
                     />
                 </div>
 
-                <div className="flex flex-wrap gap-2 w-full md:w-auto">
+                <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
                     {useFilterDropdown ? (
                         <StudentListFilterDropdown
                             value={filterValue}
                             onChange={onFilterChange}
+                            className="flex-1 sm:flex-none w-full sm:w-auto"
                         />
                     ) : (
                         <button
                             onClick={onFilter}
-                            className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-all shadow-sm active:scale-95"
+                            className="w-full sm:w-auto flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-all shadow-sm active:scale-95"
                         >
                             <Filter size={18} className="text-slate-400" />
                             <span>Filter</span>
@@ -49,7 +50,7 @@ const DataTable = ({
                     )}
                     <button
                         onClick={onExport}
-                        className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 bg-[#f8ba2b] border border-[#f8ba2b] rounded-xl text-sm font-semibold text-slate-900 hover:bg-[#f8ba2b] transition-all shadow-sm active:scale-95"
+                        className="w-full sm:w-auto flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 bg-[#f8ba2b] border border-[#f8ba2b] rounded-xl text-sm font-semibold text-slate-900 hover:bg-[#f8ba2b] transition-all shadow-sm active:scale-95"
                     >
                         <span>Export</span>
                     </button>
