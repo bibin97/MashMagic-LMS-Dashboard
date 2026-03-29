@@ -12,13 +12,17 @@ import {
     User,
     LogOut,
     Settings,
-    ChevronRight
+    ChevronRight,
+    Menu,
+    X
 } from 'lucide-react';
+import Navbar from '../Navbar';
 import toast from 'react-hot-toast';
 
 const FacultyLayout = () => {
     const { logout, user } = useAuth();
     const navigate = useNavigate();
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
     const navItems = [
         { path: '/faculty/dashboard', icon: <LayoutDashboard size={18} />, label: 'Dashboard' },
@@ -39,11 +43,19 @@ const FacultyLayout = () => {
     };
 
     return (
-        <div className="min-h-screen bg-slate-50 flex font-sans">
+        <div className="min-h-screen bg-slate-50 flex font-sans overflow-hidden relative">
+             {/* Mobile Overlay */}
+             {isSidebarOpen && (
+                <div 
+                    className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[990] md:hidden cursor-pointer"
+                    onClick={() => setIsSidebarOpen(false)}
+                />
+            )}
+
             {/* Sidebar */}
-            <aside className="fixed left-0 top-0 h-full w-72 bg-[#008080] flex flex-col z-[1000] shadow-2xl overflow-hidden">
+            <aside className={`fixed left-0 top-0 h-full w-72 bg-[#008080] flex flex-col z-[1000] shadow-2xl overflow-hidden transition-transform duration-300 transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
                 {/* Branding */}
-                <div className="p-8 border-b border-slate-800/50">
+                <div className="p-8 border-b border-slate-800/50 flex justify-between items-center">
                     <div className="flex items-center gap-4">
                         <div className="w-14 h-14 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center shadow-lg shadow-black/10 rotate-6 transform transition-transform hover:rotate-0 duration-500 overflow-hidden p-2">
                             <img src="/mashmagic logo.jpg" alt="Logo" className="w-full h-full object-contain" />
@@ -53,6 +65,9 @@ const FacultyLayout = () => {
                             <p className="text-[10px] font-black text-[#008080] uppercase tracking-[0.2em]">Faculty Panel</p>
                         </div>
                     </div>
+                    <button onClick={() => setIsSidebarOpen(false)} className="md:hidden text-white/70 hover:text-white">
+                        <X size={24} />
+                    </button>
                 </div>
 
                 {/* Navigation */}
@@ -61,6 +76,7 @@ const FacultyLayout = () => {
                         <NavLink
                             key={item.path}
                             to={item.path}
+                            onClick={() => setIsSidebarOpen(false)}
                             className={({ isActive }) => `
                                 flex items-center justify-between px-5 py-4 rounded-2xl transition-all duration-500 group
                                 ${isActive
@@ -114,60 +130,12 @@ const FacultyLayout = () => {
             </aside>
 
             {/* Main Content Area */}
-            <main className="flex-1 ml-72 min-h-screen relative overflow-x-hidden">
-                {/* Dynamic Background Elements */}
-                <div className="fixed inset-0 pointer-events-none overflow-hidden">
-                    <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-[#f8ba2b]/5 rounded-full blur-[100px]"></div>
-                    <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-rose-500/5 rounded-full blur-[100px]"></div>
-                </div>
-
-                {/* Navbar */}
-                <header className="sticky top-0 z-[900] bg-slate-50/80 backdrop-blur-xl border-b border-slate-200/50 px-8 py-6 flex justify-between items-center transition-all duration-500">
-                    <div className="flex items-center gap-4">
-                        <div className="w-1 h-8 bg-[#f8ba2b] rounded-full"></div>
-                        <div>
-                            <h2 className="text-2xl font-black text-slate-900 tracking-tight leading-none">Control Center</h2>
-                            <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em] mt-2">MashMagic University Management</p>
-                        </div>
-                    </div>
-
-                    <div className="flex items-center gap-6">
-                        {/* Search or Quick Info could go here */}
-                        <div className="hidden lg:flex items-center gap-8 px-8 border-x border-slate-200/50">
-                            <div className="text-right">
-                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">Role Access</p>
-                                <p className="text-xs font-bold text-slate-700 mt-1">Authorized Faculty</p>
-                            </div>
-                            <div className="text-right">
-                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">System Status</p>
-                                <p className="text-xs font-bold text-emerald-500 mt-1">Operational</p>
-                            </div>
-                        </div>
-
-                        <div className="flex items-center gap-3">
-                            <button className="relative w-12 h-12 bg-white border border-slate-200 rounded-2xl flex items-center justify-center text-slate-400 hover:text-[#008080] hover:border-[#f8ba2b] transition-all duration-500 hover:shadow-xl hover:shadow-[#f8ba2b]/10 group">
-                                <Bell size={20} className="group-hover:rotate-12 transition-transform" />
-                                <span className="absolute top-3 right-3 w-2.5 h-2.5 bg-rose-500 border-2 border-white rounded-full"></span>
-                            </button>
-                            <button
-                                onClick={() => navigate('/faculty/profile')}
-                                className="w-12 h-12 bg-white border border-slate-200 rounded-2xl flex items-center justify-center text-slate-400 hover:text-[#008080] hover:border-[#f8ba2b] transition-all duration-500 hover:shadow-xl hover:shadow-[#f8ba2b]/10 group overflow-hidden"
-                            >
-                                {user?.profile_image ? (
-                                    <img src={user.profile_image} alt="Profile" className="w-full h-full object-cover" />
-                                ) : (
-                                    <User size={20} className="group-hover:scale-110 transition-transform" />
-                                )}
-                            </button>
-                        </div>
-                    </div>
-                </header>
-
-                {/* Page Content */}
-                <div className="p-8 pb-12 animate-in fade-in slide-in-from-bottom-6 duration-1000">
+            <div className="flex-1 md:ml-72 flex flex-col min-w-0 w-full">
+                <Navbar onMenuClick={() => setIsSidebarOpen(true)} />
+                <main className="p-4 md:p-8 min-h-screen animate-in fade-in slide-in-from-bottom-6 duration-1000 overflow-x-hidden w-full max-w-[100vw]">
                     <Outlet />
-                </div>
-            </main>
+                </main>
+            </div>
         </div>
     );
 };

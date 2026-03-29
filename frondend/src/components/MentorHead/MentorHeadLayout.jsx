@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { NavLink, useNavigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import {
@@ -6,7 +6,6 @@ import {
     UserPlus,
     Users,
     LogOut,
-    Bell,
     User,
     ShieldCheck,
     Activity,
@@ -14,13 +13,17 @@ import {
     ListTodo,
     GraduationCap,
     Briefcase,
-    CheckCircle2
+    CheckCircle2,
+    Menu,
+    X
 } from 'lucide-react';
+import Navbar from '../Navbar';
 import toast from 'react-hot-toast';
 
 const MentorHeadLayout = () => {
     const { logout, user } = useAuth();
     const navigate = useNavigate();
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
     const navItems = [
         { path: '/mentor-head/dashboard', icon: <LayoutDashboard size={18} />, label: 'Dashboard' },
@@ -42,16 +45,27 @@ const MentorHeadLayout = () => {
     };
 
     return (
-        <div className="min-h-screen bg-slate-50 flex font-sans">
+        <div className="min-h-screen bg-slate-50 flex font-sans overflow-hidden relative">
+            {/* Mobile Overlay */}
+            {isSidebarOpen && (
+                <div 
+                    className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[990] md:hidden cursor-pointer"
+                    onClick={() => setIsSidebarOpen(false)}
+                />
+            )}
+
             {/* Sidebar */}
-            <aside className="fixed left-0 top-0 h-full w-64 bg-[#008080] flex flex-col z-[1000] shadow-2xl">
-                <div className="p-8 border-b border-slate-800">
+            <aside className={`fixed left-0 top-0 h-full w-64 bg-[#008080] flex flex-col z-[1000] shadow-2xl transition-transform duration-300 transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
+                <div className="p-8 border-b border-slate-800 flex justify-between items-center">
                     <h1 className="text-xl font-black text-white tracking-tighter flex items-center gap-3">
                         <div className="w-12 h-12 flex items-center justify-center rotate-3 transform transition-transform hover:rotate-0 duration-500">
                             <img src="/mashmagic logo.jpg" alt="Logo" className="w-full h-full object-contain" />
                         </div>
                         Mentor Head
                     </h1>
+                    <button onClick={() => setIsSidebarOpen(false)} className="md:hidden text-white/70 hover:text-white">
+                        <X size={24} />
+                    </button>
                 </div>
 
                 <nav className="flex-1 p-4 flex flex-col gap-1.5 overflow-y-auto mt-4">
@@ -59,6 +73,7 @@ const MentorHeadLayout = () => {
                         <NavLink
                             key={item.path}
                             to={item.path}
+                            onClick={() => setIsSidebarOpen(false)}
                             className={({ isActive }) => `
                                 flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-300 group
                                 ${isActive
@@ -93,27 +108,12 @@ const MentorHeadLayout = () => {
             </aside>
 
             {/* Main Content */}
-            <main className="flex-1 ml-64 p-8 min-h-screen">
-                <header className="flex justify-between items-center mb-10">
-                    <div>
-                        <h2 className="text-2xl font-black text-slate-900 tracking-tight">Monitoring Engine</h2>
-                        <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mt-1">MashMagic Mentor Performance Tracking</p>
-                    </div>
-                    <div className="flex items-center gap-4">
-                        <div className="text-right mr-4 hidden md:block">
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">Status</p>
-                            <p className="text-xs font-bold text-emerald-500">System Online</p>
-                        </div>
-                        <button className="w-10 h-10 bg-white border border-slate-100 rounded-2xl flex items-center justify-center text-slate-400 hover:text-[#008080] transition-all hover:shadow-lg shadow-slate-200">
-                            <Bell size={18} />
-                        </button>
-                    </div>
-                </header>
-
-                <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
+            <div className="flex-1 md:ml-64 flex flex-col min-w-0 w-full">
+                <Navbar onMenuClick={() => setIsSidebarOpen(true)} />
+                <main className="p-4 md:p-8 min-h-screen animate-in fade-in slide-in-from-bottom-4 duration-700 overflow-x-hidden w-full max-w-[100vw]">
                     <Outlet />
-                </div>
-            </main>
+                </main>
+            </div>
         </div>
     );
 };

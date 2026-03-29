@@ -10,8 +10,8 @@ const Navbar = ({ onMenuClick }) => {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
     useEffect(() => {
-        // Only fetch if admin
-        if (user?.role === 'super_admin' || user?.role === 'admin') {
+        // Fetch notifications for the logged in user
+        if (user) {
             fetchNotifications();
             const interval = setInterval(fetchNotifications, 10000); // Poll every 10s
             return () => clearInterval(interval);
@@ -77,7 +77,7 @@ const Navbar = ({ onMenuClick }) => {
                     </button>
 
                     {isDropdownOpen && (
-                        <div className="absolute right-0 mt-2 w-80 bg-white border border-slate-100 rounded-2xl shadow-xl shadow-slate-200 overflow-hidden z-[1000] max-h-96 flex flex-col">
+                        <div className="fixed inset-x-4 top-20 md:absolute md:inset-auto md:right-0 md:top-full md:mt-2 md:w-80 bg-white border border-slate-100 rounded-2xl shadow-xl shadow-slate-200 overflow-hidden z-[1000] max-h-[calc(100vh-120px)] md:max-h-96 flex flex-col">
                             <div className="p-4 bg-slate-50 border-b border-slate-100 flex justify-between items-center">
                                 <h3 className="text-xs font-black uppercase tracking-widest text-slate-800">Notifications</h3>
                                 <span className="text-[10px] font-bold text-slate-500 bg-slate-200 px-2 py-0.5 rounded-md">{unreadCount} New</span>
