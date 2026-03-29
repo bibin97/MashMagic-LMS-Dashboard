@@ -174,7 +174,7 @@ const MentorHeadDashboard = () => {
                                         stroke="none"
                                     >
                                         <Cell fill="#008080" />
-                                        <Cell fill="#f8ba2b" />
+                                        <Cell fill="#008080" />
                                     </Pie>
                                     <Tooltip
                                         formatter={(value, name) => [`${value} Students`, name]}
@@ -191,7 +191,7 @@ const MentorHeadDashboard = () => {
 
             {/* Exam Score Analytics Section */}
             <div className="bg-white p-10 rounded-[2.5rem] border border-slate-100 shadow-sm relative overflow-hidden group">
-                <div className="absolute top-0 right-0 w-64 h-64 bg-[#f8ba2b]/5 rounded-full -mr-32 -mt-32 blur-3xl transition-transform duration-1000 group-hover:scale-150"></div>
+                <div className="absolute top-0 right-0 w-64 h-64 bg-[#008080]/5 rounded-full -mr-32 -mt-32 blur-3xl transition-transform duration-1000 group-hover:scale-150"></div>
                 <div className="flex justify-between items-center mb-10 relative z-10">
                     <div>
                         <h3 className="text-xl font-black text-slate-900 tracking-tight italic uppercase">Academic Performance Overview</h3>
@@ -220,7 +220,7 @@ const MentorHeadDashboard = () => {
                                     label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
                                 >
                                     {examData.map((entry, index) => (
-                                        <Cell key={`cell-${index}`} fill={index % 2 === 0 ? '#008080' : '#f8ba2b'} />
+                                        <Cell key={`cell-${index}`} fill={index % 2 === 0 ? '#008080' : '#008080'} />
                                     ))}
                                 </Pie>
                                 <Tooltip />
@@ -249,7 +249,7 @@ const MentorHeadDashboard = () => {
                         <div className="text-xs font-bold text-slate-400 uppercase tracking-widest bg-slate-50 px-4 py-2 rounded-xl">
                             Last synced: {lastSynced || 'Just now'}
                         </div>
-                        <button onClick={fetchDashboardData} disabled={loading} title="Refresh Data" className="p-2 bg-[#008080]/10 text-slate-900 rounded-xl hover:bg-[#f8ba2b] transition-all active:scale-95">
+                        <button onClick={fetchDashboardData} disabled={loading} title="Refresh Data" className="p-2 bg-[#008080]/10 text-white rounded-xl hover:bg-[#008080] transition-all active:scale-95">
                             <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
                         </button>
                     </div>
@@ -261,7 +261,7 @@ const MentorHeadDashboard = () => {
                             {activities.map((activity) => (
                                 <div key={activity.log_id} className="relative flex items-center gap-6 md:gap-10 group">
                                     <div className="flex items-center justify-center w-16 h-16 rounded-full border-4 border-white bg-slate-50 shadow-sm shrink-0 z-10 group-hover:scale-110 transition-transform duration-500">
-                                        <div className="w-2.5 h-2.5 bg-[#f8ba2b] rounded-full animate-pulse"></div>
+                                        <div className="w-2.5 h-2.5 bg-[#008080] rounded-full animate-pulse"></div>
                                     </div>
 
                                     <div className="flex-1 p-8 bg-white rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-500">

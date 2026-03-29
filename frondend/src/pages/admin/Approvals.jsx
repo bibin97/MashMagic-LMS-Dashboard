@@ -72,7 +72,7 @@ const Approvals = () => {
             case 'academic_head':
                 return 'bg-purple-50 text-purple-700 border-purple-200';
             case 'mentor_head':
-                return 'bg-[#008080]/10 text-[#008080] border-[#f8ba2b]';
+                return 'bg-[#008080]/10 text-[#008080] border-[#008080]';
             case 'faculty':
                 return 'bg-green-50 text-green-700 border-green-200';
             case 'mentor':

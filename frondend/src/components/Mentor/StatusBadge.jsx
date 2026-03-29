@@ -2,7 +2,7 @@ import React from 'react';
 
 const StatusBadge = ({ status }) => {
     const styles = {
-        Scheduled: 'bg-[#f8ba2b] text-slate-900 border-[#f8ba2b]',
+        Scheduled: 'bg-[#008080] text-white border-[#008080]',
         Completed: 'bg-green-100 text-green-700 border-green-200',
         Cancelled: 'bg-red-100 text-red-700 border-red-200',
         Postponed: 'bg-yellow-100 text-yellow-700 border-yellow-200'

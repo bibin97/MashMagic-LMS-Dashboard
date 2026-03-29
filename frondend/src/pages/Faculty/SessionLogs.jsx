@@ -93,7 +93,7 @@ const SessionLogs = () => {
                                         </td>
                                         <td className="px-8 py-6 text-center whitespace-nowrap">
                                             <span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest border ${log.student_performance === 'Excellent' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
-                                                log.student_performance === 'Good' ? 'bg-[#008080]/10 text-[#008080] border-[#f8ba2b]' :
+                                                log.student_performance === 'Good' ? 'bg-[#008080]/10 text-[#008080] border-[#008080]' :
                                                     log.student_performance === 'Average' ? 'bg-amber-50 text-amber-600 border-amber-100' :
                                                         'bg-rose-50 text-rose-600 border-rose-100'
                                                 }`}>

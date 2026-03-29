@@ -68,8 +68,8 @@ const FacultyTasks = () => {
                 </div>
 
                 <div className="flex gap-4">
-                    <div className="bg-[#008080]/10 px-8 py-5 rounded-[2rem] border border-[#f8ba2b] flex items-center gap-4">
-                        <div className="w-10 h-10 bg-[#f8ba2b] rounded-2xl flex items-center justify-center text-slate-900">
+                    <div className="bg-[#008080]/10 px-8 py-5 rounded-[2rem] border border-[#008080] flex items-center gap-4">
+                        <div className="w-10 h-10 bg-[#008080] rounded-2xl flex items-center justify-center text-white">
                             <CheckSquare size={20} />
                         </div>
                         <div>
@@ -133,7 +133,7 @@ const FacultyTasks = () => {
                                             />
                                             <label
                                                 htmlFor={`proof-${task.id}`}
-                                                className={`flex items-center gap-3 px-8 py-4 bg-slate-900 text-slate-900 rounded-2xl font-black text-[10px] uppercase tracking-widest cursor-pointer hover:bg-[#f8ba2b] transition-all shadow-xl shadow-slate-200 ${uploadingId === task.id ? 'opacity-50 cursor-wait' : ''
+                                                className={`flex items-center gap-3 px-8 py-4 bg-slate-900 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest cursor-pointer hover:bg-[#008080] transition-all shadow-xl shadow-slate-200 ${uploadingId === task.id ? 'opacity-50 cursor-wait' : ''
                                                     }`}
                                             >
                                                 <Upload size={14} />

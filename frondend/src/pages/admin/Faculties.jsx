@@ -227,7 +227,7 @@ const Faculties = () => {
                 {selectedFaculty && (
                     <div className="flex flex-col gap-10">
                         <div className="flex items-center gap-6 p-8 bg-gradient-to-br from-slate-50 to-white border border-slate-100 rounded-3xl">
-                            <div className="w-20 h-20 bg-[#f8ba2b] text-slate-900 rounded-3xl flex items-center justify-center text-3xl font-bold shadow-lg shadow-[#f8ba2b]">
+                            <div className="w-20 h-20 bg-[#008080] text-white rounded-3xl flex items-center justify-center text-3xl font-bold shadow-lg shadow-[#008080]/30">
                                 {selectedFaculty.name.charAt(0)}
                             </div>
                             <div className="flex flex-col gap-1">
@@ -245,7 +245,7 @@ const Faculties = () => {
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-                            <div className="p-6 bg-[#008080]/10/50 border border-[#f8ba2b] rounded-3xl flex items-center gap-5 hover:bg-[#008080]/10 transition-colors">
+                            <div className="p-6 bg-[#008080]/10/50 border border-[#008080] rounded-3xl flex items-center gap-5 hover:bg-[#008080]/10 transition-colors">
                                 <div className="p-3 bg-white text-[#008080] rounded-2xl shadow-sm">
                                     <UserSquare2 size={24} />
                                 </div>
@@ -254,7 +254,7 @@ const Faculties = () => {
                                     <h4 className="text-2xl font-black text-[#008080]">{selectedFaculty.mentorsUnder}</h4>
                                 </div>
                             </div>
-                            <div className="p-6 bg-[#008080]/10/50 border border-[#f8ba2b] rounded-3xl flex items-center gap-5 hover:bg-[#008080]/10 transition-colors">
+                            <div className="p-6 bg-[#008080]/10/50 border border-[#008080] rounded-3xl flex items-center gap-5 hover:bg-[#008080]/10 transition-colors">
                                 <div className="p-3 bg-white text-[#008080] rounded-2xl shadow-sm">
                                     <GraduationCap size={24} />
                                 </div>
@@ -269,7 +269,7 @@ const Faculties = () => {
                             <h5 className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Assignment Roster</h5>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 {[...Array(selectedFaculty.mentorsUnder)].map((_, i) => (
-                                    <div key={i} className="flex justify-between items-center p-4 bg-white border border-slate-100 rounded-2xl hover:border-[#f8ba2b] transition-all group">
+                                    <div key={i} className="flex justify-between items-center p-4 bg-white border border-slate-100 rounded-2xl hover:border-[#008080] transition-all group">
                                         <span className="text-sm font-bold text-slate-700 group-hover:text-[#008080]">Mentor {String.fromCharCode(65 + i)}</span>
                                         <span className="text-[10px] font-black text-slate-400 bg-slate-50 px-2 py-1 rounded-md">Assigned</span>
                                     </div>
@@ -279,7 +279,7 @@ const Faculties = () => {
 
                         <div className="flex justify-end gap-3 pt-6 border-t border-slate-100">
                             <button className="px-6 py-2.5 rounded-xl border border-slate-200 text-sm font-bold text-slate-600 hover:bg-slate-50 transition-all" onClick={() => setIsModalOpen(false)}>Close</button>
-                            <button className="px-6 py-2.5 rounded-xl bg-[#f8ba2b] text-slate-900 text-sm font-bold hover:bg-[#f8ba2b] transition-all shadow-xl shadow-[#f8ba2b]">Resource Allocation</button>
+                            <button className="px-6 py-2.5 rounded-xl bg-[#008080] text-white text-sm font-bold hover:bg-[#008080] transition-all shadow-xl shadow-[#008080]/30">Resource Allocation</button>
                         </div>
                     </div>
                 )}

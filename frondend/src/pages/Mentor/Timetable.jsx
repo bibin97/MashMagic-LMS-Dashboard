@@ -188,7 +188,7 @@ const Timetable = () => {
 
     const getStatusColor = (status) => {
         switch (status) {
-            case 'Scheduled': return 'bg-[#f8ba2b] text-slate-900 border-[#f8ba2b]';
+            case 'Scheduled': return 'bg-[#008080] text-white border-[#008080]';
             case 'Completed': return 'bg-emerald-100 text-emerald-600 border-emerald-200';
             case 'Postponed': return 'bg-amber-100 text-amber-600 border-amber-200';
             case 'Cancelled': return 'bg-rose-100 text-rose-600 border-rose-200';
@@ -252,7 +252,7 @@ const Timetable = () => {
                     </button>
                     <button
                         onClick={handleCreateOpen}
-                        className="flex items-center justify-center gap-3 bg-[#f8ba2b] text-slate-900 px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-[#f8ba2b] hover:bg-[#f8ba2b] hover:-translate-y-1 transition-all active:scale-95 italic"
+                        className="flex items-center justify-center gap-3 bg-[#008080] text-white px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-[#008080]/30 hover:bg-[#008080] hover:-translate-y-1 transition-all active:scale-95 italic"
                     >
                         <Plus size={18} /> Create Session
                     </button>
@@ -264,7 +264,7 @@ const Timetable = () => {
                 {[
                     { label: 'Total Logs', value: summary.total, icon: Calendar, color: 'text-slate-900', bg: 'bg-white border-slate-100' },
                     { label: 'Concluded', value: summary.completed, icon: CheckCircle, color: 'text-emerald-600', bg: 'bg-emerald-50/50 border-emerald-100/50' },
-                    { label: 'Outstanding', value: summary.upcoming, icon: Clock, color: 'text-[#008080]', bg: 'bg-[#008080]/10/50 border-[#f8ba2b]/50' },
+                    { label: 'Outstanding', value: summary.upcoming, icon: Clock, color: 'text-[#008080]', bg: 'bg-[#008080]/10 border-[#008080]/50' },
                     { label: 'Reconfigured', value: summary.postponed, icon: AlertTriangle, color: 'text-amber-600', bg: 'bg-amber-50/50 border-amber-100/50' },
                     { label: 'Aborted', value: summary.cancelled, icon: XCircle, color: 'text-rose-600', bg: 'bg-rose-50/50 border-rose-100/50' },
                 ].map((stat, i) => (
@@ -291,7 +291,7 @@ const Timetable = () => {
                             <select
                                 value={filters.student_id}
                                 onChange={(e) => setFilters({ ...filters, student_id: e.target.value })}
-                                className="w-full pl-12 pr-4 py-4 bg-slate-50 border-none rounded-2xl text-[11px] font-black text-slate-700 focus:bg-white focus:ring-4 ring-[#f8ba2b]/10 outline-none appearance-none transition-all cursor-pointer"
+                                className="w-full pl-12 pr-4 py-4 bg-slate-50 border-none rounded-2xl text-[11px] font-black text-slate-700 focus:bg-white focus:ring-4 ring-[#008080]/10 outline-none appearance-none transition-all cursor-pointer"
                             >
                                 <option value="">Global Student View (All)</option>
                                 {students.map(s => (
@@ -323,7 +323,7 @@ const Timetable = () => {
                                         end_date: formatDate(end)
                                     });
                                 }}
-                                className="w-full pl-12 pr-4 py-4 bg-slate-50 border-none rounded-2xl text-[11px] font-black text-slate-700 focus:bg-white focus:ring-4 ring-[#f8ba2b]/10 outline-none appearance-none transition-all cursor-pointer"
+                                className="w-full pl-12 pr-4 py-4 bg-slate-50 border-none rounded-2xl text-[11px] font-black text-slate-700 focus:bg-white focus:ring-4 ring-[#008080]/10 outline-none appearance-none transition-all cursor-pointer"
                             >
                                 <option value="">Select Target Month</option>
                                 <option value="full">Full Academic Timeline</option>
@@ -345,7 +345,7 @@ const Timetable = () => {
                         <select
                             value={filters.status}
                             onChange={(e) => setFilters({ ...filters, status: e.target.value })}
-                            className="w-full px-5 py-4 bg-slate-50 border-none rounded-2xl text-[11px] font-black text-slate-700 focus:bg-white focus:ring-4 ring-[#f8ba2b]/10 outline-none cursor-pointer"
+                            className="w-full px-5 py-4 bg-slate-50 border-none rounded-2xl text-[11px] font-black text-slate-700 focus:bg-white focus:ring-4 ring-[#008080]/10 outline-none cursor-pointer"
                         >
                             <option value="">Global Operations</option>
                             {['Scheduled', 'Completed', 'Postponed', 'Cancelled', 'No Show'].map(s => <option key={s} value={s}>{s}</option>)}
@@ -354,7 +354,7 @@ const Timetable = () => {
 
                     <button
                         onClick={() => setFilters({ ...filters, student_id: '', status: '', start_date: formatDate(new Date(new Date().getFullYear(), new Date().getMonth(), 1)), end_date: formatDate(new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0)) })}
-                        className="px-8 py-4 bg-slate-900 text-slate-900 text-[10px] font-black uppercase tracking-widest rounded-2xl hover:bg-[#f8ba2b] shadow-xl shadow-slate-100 transition-all active:scale-95 italic"
+                        className="px-8 py-4 bg-slate-900 text-white text-[10px] font-black uppercase tracking-widest rounded-2xl hover:bg-[#008080] shadow-xl shadow-slate-100 transition-all active:scale-95 italic"
                     >
                         Reset Timeline
                     </button>
@@ -385,7 +385,7 @@ const Timetable = () => {
                 {/* Session Stream */}
                 {loading ? (
                     <div className="flex flex-col items-center justify-center p-32 space-y-4 bg-white rounded-[3rem] border border-slate-100 shadow-sm">
-                        <div className="w-16 h-16 border-4 border-[#f8ba2b] border-t-transparent rounded-full animate-spin"></div>
+                        <div className="w-16 h-16 border-4 border-[#008080] border-t-transparent rounded-full animate-spin"></div>
                         <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] animate-pulse">Syncing session stream...</p>
                     </div>
                 ) : (
@@ -396,7 +396,7 @@ const Timetable = () => {
 
                                 <div className="flex-grow p-8 flex flex-col md:flex-row md:items-center justify-between gap-8">
                                     <div className="flex items-center gap-6 min-w-[250px]">
-                                        <div className="w-16 h-16 bg-slate-50 rounded-[1.5rem] flex items-center justify-center text-slate-400 group-hover:bg-[#f8ba2b] group-hover:text-slate-900 transition-all duration-700 -rotate-3 group-hover:rotate-0">
+                                        <div className="w-16 h-16 bg-slate-50 rounded-[1.5rem] flex items-center justify-center text-slate-400 group-hover:bg-[#008080] group-hover:text-white transition-all duration-700 -rotate-3 group-hover:rotate-0">
                                             <Users size={24} />
                                         </div>
                                         <div>
@@ -406,12 +406,12 @@ const Timetable = () => {
                                     </div>
 
                                     <div className="flex flex-wrap items-center gap-8 flex-grow">
-                                        <div className="flex items-center gap-3 bg-slate-50/50 px-5 py-3 rounded-2xl border border-slate-100 transition-colors group-hover:bg-[#008080]/10/30">
+                                        <div className="flex items-center gap-3 bg-slate-50/50 px-5 py-3 rounded-2xl border border-slate-100 transition-colors group-hover:bg-[#008080]/10">
                                             <Calendar className="text-[#008080]" size={16} />
                                             <span className="text-xs font-black text-slate-700 italic">{new Date(session.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })}</span>
                                         </div>
 
-                                        <div className="flex items-center gap-3 bg-slate-50/50 px-5 py-3 rounded-2xl border border-slate-100 transition-colors group-hover:bg-[#008080]/10/30">
+                                        <div className="flex items-center gap-3 bg-slate-50/50 px-5 py-3 rounded-2xl border border-slate-100 transition-colors group-hover:bg-[#008080]/10">
                                             <Clock className="text-[#008080]" size={16} />
                                             <span className="text-xs font-black text-slate-700 italic tracking-tighter">
                                                 {(session.start_time || '00:00').substring(0, 5)} - {(session.end_time || '00:00').substring(0, 5)}
@@ -431,7 +431,7 @@ const Timetable = () => {
                                         <div className="flex gap-3">
                                             <button
                                                 onClick={() => handleEditOpen(session)}
-                                                className="w-11 h-11 bg-slate-50 text-slate-900 rounded-[1rem] flex items-center justify-center hover:bg-[#f8ba2b] hover:text-slate-900 transition-all duration-500 active:scale-90 shadow-sm"
+                                                className="w-11 h-11 bg-slate-50 text-white rounded-[1rem] flex items-center justify-center hover:bg-[#008080] hover:text-white transition-all duration-500 active:scale-90 shadow-sm"
                                             >
                                                 <Edit2 size={16} />
                                             </button>

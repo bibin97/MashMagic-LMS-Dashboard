@@ -340,7 +340,7 @@ const RegistrationForm = ({ onSuccess, preSelectedRole }) => {
                     className={`
                         w-full bg-[#008080] text-white p-4 rounded-xl font-black text-xs uppercase tracking-widest 
                         transition-all flex items-center justify-center gap-2 shadow-sm
-                        ${loading ? 'opacity-70 cursor-not-allowed' : 'hover:bg-[#f8ba2b] hover:text-black shadow-lg shadow-[#008080]/30 hover:shadow-[#f8ba2b]/50'}
+                        ${loading ? 'opacity-70 cursor-not-allowed' : 'hover:bg-[#008080] hover:text-white shadow-lg shadow-[#008080]/30 hover:shadow-[#008080]/30/50'}
                     `}
                 >
                     {loading ? 'Submitting...' : `Register as ${role.replace('_', ' ')}`}

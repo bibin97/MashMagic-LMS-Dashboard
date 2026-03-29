@@ -97,7 +97,7 @@ const FacultyDirectory = () => {
                     <input
                         type="text"
                         placeholder="FILTER BY NAME OR EMAIL..."
-                        className="pl-14 pr-8 py-4 bg-slate-50 border border-slate-100 rounded-3xl text-xs font-bold uppercase tracking-[0.1em] focus:ring-4 ring-[#f8ba2b]/10 w-full md:w-96 shadow-sm transition-all outline-none focus:bg-white"
+                        className="pl-14 pr-8 py-4 bg-slate-50 border border-slate-100 rounded-3xl text-xs font-bold uppercase tracking-[0.1em] focus:ring-4 ring-[#008080]/10 w-full md:w-96 shadow-sm transition-all outline-none focus:bg-white"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
@@ -123,7 +123,7 @@ const FacultyDirectory = () => {
                                 <tr key={faculty.id} className="hover:bg-emerald-50/20 transition-all group">
                                     <td className="px-8 py-6">
                                         <div className="flex items-center gap-4">
-                                            <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-[#f8ba2b] rounded-2xl flex items-center justify-center text-white text-lg font-black shadow-lg shadow-emerald-100">
+                                            <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-[#008080] rounded-2xl flex items-center justify-center text-white text-lg font-black shadow-lg shadow-emerald-100">
                                                 {faculty.name?.charAt(0)}
                                             </div>
                                             <div className="min-w-0">

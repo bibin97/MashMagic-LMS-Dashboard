@@ -75,12 +75,12 @@ const InteractionLogs = () => {
                 <div className="grid gap-6">
                     {filteredLogs.map((log) => (
                         <div key={log.id} className="bg-white p-8 rounded-[2.5rem] shadow-xl shadow-slate-100 border border-slate-50 hover:shadow-2xl transition-all relative overflow-hidden group">
-                            <div className={`absolute top-0 left-0 w-2 h-full ${activeTab === 'student' ? 'bg-[#f8ba2b]' : 'bg-purple-500'}`}></div>
+                            <div className={`absolute top-0 left-0 w-2 h-full ${activeTab === 'student' ? 'bg-[#008080]' : 'bg-purple-500'}`}></div>
 
                             <div className="flex flex-col md:flex-row justify-between gap-6 relative z-10">
                                 <div className="space-y-4 flex-1">
                                     <div className="flex items-center gap-4">
-                                        <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${activeTab === 'student' ? 'bg-[#f8ba2b] text-slate-900' : 'bg-purple-600 text-white'}`}>
+                                        <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${activeTab === 'student' ? 'bg-[#008080] text-white' : 'bg-purple-600 text-white'}`}>
                                             {activeTab === 'student' ? `Session #${log.session_number}` : log.session_type}
                                         </span>
                                         <span className="text-xs font-black text-slate-400 uppercase tracking-wide flex items-center gap-2">

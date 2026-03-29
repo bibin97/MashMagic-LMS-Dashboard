@@ -54,7 +54,7 @@ const Navbar = ({ onMenuClick }) => {
                 >
                     <Menu size={20} />
                 </button>
-                <div className="flex-1 md:flex-none flex items-center gap-3 bg-slate-100 px-3 py-2 md:px-4 md:py-2 rounded-xl max-w-full md:w-80 group focus-within:bg-white focus-within:ring-2 focus-within:ring-[#008080] transition-all border border-transparent focus-within:border-[#f8ba2b]">
+                <div className="flex-1 md:flex-none flex items-center gap-3 bg-slate-100 px-3 py-2 md:px-4 md:py-2 rounded-xl max-w-full md:w-80 group focus-within:bg-white focus-within:ring-2 focus-within:ring-[#008080] transition-all border border-transparent focus-within:border-[#008080]">
                     <Search size={18} className="text-slate-400 group-focus-within:text-[#008080] shrink-0" />
                     <input
                         type="text"
@@ -87,7 +87,7 @@ const Navbar = ({ onMenuClick }) => {
                                     <p className="text-xs text-center text-slate-400 py-6 font-semibold">No recent notifications</p>
                                 ) : (
                                     notifications.map(notif => (
-                                        <div key={notif.id} className={`p-4 rounded-2xl mb-2 flex items-start gap-3 transition-all ${notif.is_read ? 'bg-white border border-slate-100 opacity-60' : 'bg-[#008080]/10/50 border border-[#f8ba2b]/50 shadow-sm'}`}>
+                                        <div key={notif.id} className={`p-4 rounded-2xl mb-2 flex items-start gap-3 transition-all ${notif.is_read ? 'bg-white border border-slate-100 opacity-60' : 'bg-[#008080]/10 border border-[#008080]/50 shadow-sm'}`}>
                                             <div className="flex-1">
                                                 <div 
                                                     className={`text-[11px] leading-relaxed ${notif.is_read ? 'text-slate-600 font-medium' : 'text-slate-900 font-semibold'}`}
@@ -106,7 +106,7 @@ const Navbar = ({ onMenuClick }) => {
                                             {!notif.is_read && (
                                                 <button 
                                                     onClick={(e) => markRead(notif.id, e)} 
-                                                    className="shrink-0 p-2 text-slate-900 bg-white border border-[#f8ba2b] hover:bg-[#f8ba2b] hover:text-slate-900 rounded-xl shadow-sm transition-all" 
+                                                    className="shrink-0 p-2 text-white bg-white border border-[#008080] hover:bg-[#008080] hover:text-white rounded-xl shadow-sm transition-all" 
                                                     title="Mark as read"
                                                 >
                                                     <CheckCheck size={14} />

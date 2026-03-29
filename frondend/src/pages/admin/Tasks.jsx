@@ -216,7 +216,7 @@ const Tasks = () => {
                 {isSuperAdmin && (
                     <button
                         onClick={() => setIsModalOpen(true)}
-                        className="flex items-center gap-2 bg-[#f8ba2b] text-slate-900 px-6 py-3 rounded-2xl font-bold text-sm hover:bg-[#f8ba2b] transition-all shadow-xl shadow-[#f8ba2b] hover:-translate-y-0.5"
+                        className="flex items-center gap-2 bg-[#008080] text-white px-6 py-3 rounded-2xl font-bold text-sm hover:bg-[#008080] transition-all shadow-xl shadow-[#008080]/30 hover:-translate-y-0.5"
                     >
                         <Plus size={20} />
                         <span>Create New Task</span>
@@ -247,7 +247,7 @@ const Tasks = () => {
                         <input
                             type="text"
                             required
-                            className="p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] focus:border-[#f8ba2b] transition-all font-semibold"
+                            className="p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] focus:border-[#008080] transition-all font-semibold"
                             placeholder="e.g., Q1 Performance Review"
                             value={formData.title}
                             onChange={(e) => setFormData({ ...formData, title: e.target.value })}
@@ -259,7 +259,7 @@ const Tasks = () => {
                         <textarea
                             rows="4"
                             required
-                            className="p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] focus:border-[#f8ba2b] transition-all font-semibold resize-none"
+                            className="p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] focus:border-[#008080] transition-all font-semibold resize-none"
                             placeholder="Provide specific instructions for the mentor..."
                             value={formData.description}
                             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
@@ -271,7 +271,7 @@ const Tasks = () => {
                             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Assign User</label>
                             <select
                                 required
-                                className="p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] focus:border-[#f8ba2b] transition-all font-semibold appearance-none"
+                                className="p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] focus:border-[#008080] transition-all font-semibold appearance-none"
                                 value={formData.mentor_id}
                                 onChange={(e) => setFormData({ ...formData, mentor_id: e.target.value })}
                             >
@@ -300,7 +300,7 @@ const Tasks = () => {
                                 <input
                                     type="date"
                                     required
-                                    className="w-full p-4 pl-12 bg-slate-50 border border-slate-100 rounded-2xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] focus:border-[#f8ba2b] transition-all font-semibold"
+                                    className="w-full p-4 pl-12 bg-slate-50 border border-slate-100 rounded-2xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] focus:border-[#008080] transition-all font-semibold"
                                     value={formData.deadline}
                                     onChange={(e) => setFormData({ ...formData, deadline: e.target.value })}
                                 />
@@ -331,7 +331,7 @@ const Tasks = () => {
 
                     <button
                         type="submit"
-                        className="w-full bg-[#f8ba2b] text-slate-900 p-4 rounded-2xl font-black text-sm hover:bg-[#f8ba2b] transition-all shadow-xl shadow-[#f8ba2b] mt-2 flex items-center justify-center gap-2 group"
+                        className="w-full bg-[#008080] text-white p-4 rounded-2xl font-black text-sm hover:bg-[#008080] transition-all shadow-xl shadow-[#008080]/30 mt-2 flex items-center justify-center gap-2 group"
                     >
                         <span>Authorize and Issue Task</span>
                         <AlertTriangle size={18} className="transition-transform group-hover:scale-110" />

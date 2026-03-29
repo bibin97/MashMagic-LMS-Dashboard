@@ -84,12 +84,12 @@ const Exams = () => {
     return (
         <div className="space-y-8 pb-20 max-w-[1200px] mx-auto">
             {/* Header Area */}
-            <div className="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 border-b-4 border-b-[#f8ba2b] overflow-hidden relative">
+            <div className="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 border-b-4 border-b-[#008080] overflow-hidden relative">
                 <div className="absolute top-0 right-0 w-64 h-64 bg-[#008080]/10 rounded-full -mr-32 -mt-32 opacity-50"></div>
 
                 <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
                     <div className="flex items-center gap-5">
-                        <div className="w-14 h-14 bg-[#f8ba2b] rounded-2xl flex items-center justify-center text-slate-900 shadow-xl shadow-[#f8ba2b] rotate-3 transition-all duration-500">
+                        <div className="w-14 h-14 bg-[#008080] rounded-2xl flex items-center justify-center text-white shadow-xl shadow-[#008080]/30 rotate-3 transition-all duration-500">
                             <GraduationCap size={28} />
                         </div>
                         <div>
@@ -123,7 +123,7 @@ const Exams = () => {
                         >
                             {tab.label}
                             {tab.count > 0 && (
-                                <span className={`px-2 py-0.5 rounded-full text-[8px] ${activeTab === tab.id ? 'bg-[#f8ba2b] text-slate-900' : 'bg-slate-200 text-slate-500'}`}>
+                                <span className={`px-2 py-0.5 rounded-full text-[8px] ${activeTab === tab.id ? 'bg-[#008080] text-white' : 'bg-slate-200 text-slate-500'}`}>
                                     {tab.count}
                                 </span>
                             )}
@@ -139,7 +139,7 @@ const Exams = () => {
                             placeholder="Search history..."
                             value={historySearch}
                             onChange={(e) => setHistorySearch(e.target.value)}
-                            className="w-full pl-12 pr-4 py-3 bg-white border border-slate-100 rounded-2xl text-xs font-bold outline-none focus:ring-4 ring-[#f8ba2b]/5 transition-all"
+                            className="w-full pl-12 pr-4 py-3 bg-white border border-slate-100 rounded-2xl text-xs font-bold outline-none focus:ring-4 ring-[#008080]/5 transition-all"
                         />
                     </div>
                 )}
@@ -148,7 +148,7 @@ const Exams = () => {
             {/* List Section */}
             {loading ? (
                 <div className="flex flex-col items-center justify-center p-20 space-y-4">
-                    <div className="w-12 h-12 border-4 border-[#f8ba2b] border-t-transparent rounded-full animate-spin"></div>
+                    <div className="w-12 h-12 border-4 border-[#008080] border-t-transparent rounded-full animate-spin"></div>
                     <p className="text-xs font-black text-slate-400 uppercase tracking-widest animate-pulse">Syncing Milestone Data...</p>
                 </div>
             ) : activeTab === 'pending' ? (
@@ -168,7 +168,7 @@ const Exams = () => {
                             <div key={idx} className="bg-white rounded-[3.5rem] p-10 border border-slate-100 shadow-sm hover:shadow-2xl transition-all group flex flex-col xl:flex-row items-center gap-10 animate-in slide-in-from-bottom-2 duration-300 relative overflow-hidden">
                                 <div className="absolute top-0 right-0 w-32 h-32 bg-[#008080]/10 rounded-full -mr-16 -mt-16 opacity-30"></div>
                                 
-                                <div className="w-28 h-28 bg-slate-50 rounded-[2.5rem] flex flex-col items-center justify-center border border-slate-100 group-hover:bg-[#f8ba2b] group-hover:text-slate-900 group-hover:border-[#f8ba2b] transition-all duration-700 shrink-0 rotate-3 group-hover:rotate-0">
+                                <div className="w-28 h-28 bg-slate-50 rounded-[2.5rem] flex flex-col items-center justify-center border border-slate-100 group-hover:bg-[#008080] group-hover:text-white group-hover:border-[#008080] transition-all duration-700 shrink-0 rotate-3 group-hover:rotate-0">
                                     <span className="text-[10px] font-black uppercase tracking-tighter opacity-60">Session</span>
                                     <span className="text-4xl font-black tracking-tighter italic">{exam.milestone}</span>
                                 </div>
@@ -227,7 +227,7 @@ const Exams = () => {
 
                                 <button
                                     onClick={() => handleOpenSubmit(exam)}
-                                    className="px-10 py-6 bg-slate-900 text-white rounded-[2rem] text-[11px] font-black uppercase tracking-[0.2em] shadow-2xl shadow-[#f8ba2b] hover:bg-rose-600 hover:-translate-y-1 transition-all active:scale-95 flex items-center justify-center gap-3 italic w-full xl:w-fit group-hover:scale-105"
+                                    className="px-10 py-6 bg-slate-900 text-white rounded-[2rem] text-[11px] font-black uppercase tracking-[0.2em] shadow-2xl shadow-[#008080] hover:bg-rose-600 hover:-translate-y-1 transition-all active:scale-95 flex items-center justify-center gap-3 italic w-full xl:w-fit group-hover:scale-105"
                                 >
                                     Record Protocol Result <ArrowRight size={20} />
                                 </button>
@@ -305,7 +305,7 @@ const Exams = () => {
                 <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[1100] flex items-center justify-center p-4 animate-in fade-in duration-300">
                     <div className="bg-white rounded-[3.5rem] shadow-2xl w-full max-w-xl overflow-hidden animate-in zoom-in duration-500 border border-white/20">
                         {/* Modal Header */}
-                        <div className="p-10 border-b border-slate-50 flex justify-between items-center bg-[#f8ba2b] text-slate-900 relative h-32">
+                        <div className="p-10 border-b border-slate-50 flex justify-between items-center bg-[#008080] text-white relative h-32">
                             <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16"></div>
                             <div className="relative z-10">
                                 <h2 className="text-2xl font-black tracking-tight italic uppercase">Assessment Protocol</h2>
@@ -360,7 +360,7 @@ const Exams = () => {
                                                 required
                                                 autoFocus
                                                 placeholder="e.g. 92% | Tier A++"
-                                                className="w-full p-5 pl-14 bg-slate-50 border border-slate-100 rounded-3xl text-sm font-black focus:bg-white focus:ring-8 ring-[#f8ba2b]/5 transition-all outline-none italic placeholder:font-bold placeholder:opacity-30"
+                                                className="w-full p-5 pl-14 bg-slate-50 border border-slate-100 rounded-3xl text-sm font-black focus:bg-white focus:ring-8 ring-[#008080]/5 transition-all outline-none italic placeholder:font-bold placeholder:opacity-30"
                                                 value={formData.score}
                                                 onChange={(e) => setFormData({ ...formData, score: e.target.value })}
                                             />
@@ -406,7 +406,7 @@ const Exams = () => {
                             <button
                                 type="submit"
                                 className={`w-full py-6 rounded-[2rem] text-[11px] font-black uppercase tracking-[0.3em] shadow-2xl transition-all active:scale-95 italic flex items-center justify-center gap-4 ${formData.type === 'Complete'
-                                    ? 'bg-[#f8ba2b] text-slate-900 shadow-[#f8ba2b]/50 hover:bg-[#f8ba2b]'
+                                    ? 'bg-[#008080] text-white shadow-[#008080]/30/50 hover:bg-[#008080]'
                                     : 'bg-amber-600 text-white shadow-amber-200/50 hover:bg-amber-700'
                                     }`}
                             >

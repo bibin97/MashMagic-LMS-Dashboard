@@ -121,7 +121,7 @@ const MentorHeadInteractions = () => {
                 <input
                     type="text"
                     placeholder={`Search by ${activeTab === 'mentors' ? 'mentor, student or call type' : 'faculty, student or remarks'}...`}
-                    className="w-full p-6 pl-16 bg-white border border-slate-100 rounded-[2.5rem] shadow-sm outline-none focus:ring-4 focus:ring-[#f8ba2b] transition-all font-bold text-slate-800 placeholder:text-slate-300"
+                    className="w-full p-6 pl-16 bg-white border border-slate-100 rounded-[2.5rem] shadow-sm outline-none focus:ring-4 focus:ring-[#008080] transition-all font-bold text-slate-800 placeholder:text-slate-300"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                 />
@@ -140,7 +140,7 @@ const MentorHeadInteractions = () => {
                                 <div className="absolute right-0 top-0 w-32 h-32 bg-slate-50 rounded-full -mr-10 -mt-10 group-hover:bg-[#008080]/10 transition-colors"></div>
 
                                 <div className="flex flex-col md:flex-row gap-8 items-start md:items-center relative z-10">
-                                    <div className={`w-16 h-16 rounded-[2rem] flex items-center justify-center shadow-lg shrink-0 ${log.category === 'Student Call' ? 'bg-[#f8ba2b]' : 'bg-emerald-500'
+                                    <div className={`w-16 h-16 rounded-[2rem] flex items-center justify-center shadow-lg shrink-0 ${log.category === 'Student Call' ? 'bg-[#008080]' : 'bg-emerald-500'
                                         } text-white`}>
                                         {log.category === 'Student Call' ? <Phone size={24} /> : <MessageSquare size={24} />}
                                     </div>
@@ -148,7 +148,7 @@ const MentorHeadInteractions = () => {
                                     <div className="flex-1 min-w-0">
                                         <div className="flex items-center gap-3 mb-2">
                                             <span className={`px-4 py-1 rounded-full text-[8px] font-black uppercase tracking-widest ${log.category === 'Student Call'
-                                                ? 'bg-[#008080]/10 text-[#008080] border border-[#f8ba2b]'
+                                                ? 'bg-[#008080]/10 text-[#008080] border border-[#008080]'
                                                 : 'bg-emerald-50 text-emerald-600 border border-emerald-100'
                                                 }`}>
                                                 {log.category}
@@ -176,7 +176,7 @@ const MentorHeadInteractions = () => {
                                                 Call Missed/Rejected
                                             </span>
                                         ) : null}
-                                        <button onClick={() => setViewingLog(log)} className="p-4 bg-slate-50 rounded-2xl text-slate-400 group-hover:bg-[#f8ba2b] group-hover:text-slate-900 transition-all shadow-sm">
+                                        <button onClick={() => setViewingLog(log)} className="p-4 bg-slate-50 rounded-2xl text-slate-400 group-hover:bg-[#008080] group-hover:text-white transition-all shadow-sm">
                                             <ChevronRight size={18} />
                                         </button>
                                     </div>
@@ -197,7 +197,7 @@ const MentorHeadInteractions = () => {
                                 <div className="absolute right-0 bottom-0 w-32 h-32 bg-rose-50 rounded-full -mr-10 -mb-10 group-hover:bg-[#008080]/10 transition-colors"></div>
 
                                 <div className="flex flex-col md:flex-row gap-8 items-start md:items-center relative z-10">
-                                    <div className={`w-16 h-16 rounded-[2rem] flex items-center justify-center shadow-lg shrink-0 ${log.type === 'Academic' ? 'bg-[#f8ba2b]' : 'bg-rose-500'
+                                    <div className={`w-16 h-16 rounded-[2rem] flex items-center justify-center shadow-lg shrink-0 ${log.type === 'Academic' ? 'bg-[#008080]' : 'bg-rose-500'
                                         } text-white`}>
                                         <ClipboardList size={24} />
                                     </div>
@@ -205,7 +205,7 @@ const MentorHeadInteractions = () => {
                                     <div className="flex-1 min-w-0">
                                         <div className="flex items-center gap-3 mb-2">
                                             <span className={`px-4 py-1 rounded-full text-[8px] font-black uppercase tracking-widest ${log.type === 'Academic'
-                                                ? 'bg-[#008080]/10 text-[#008080] border border-[#f8ba2b]'
+                                                ? 'bg-[#008080]/10 text-[#008080] border border-[#008080]'
                                                 : 'bg-rose-50 text-rose-600 border border-rose-100'
                                                 }`}>
                                                 {log.type} Issue
@@ -237,7 +237,7 @@ const MentorHeadInteractions = () => {
                                                 }`}>
                                                 {log.status} Phase
                                             </span>
-                                            <button onClick={() => setViewingLog({ ...log, category: 'Intelligence' })} className="p-2 bg-slate-50 rounded-xl text-slate-400 hover:bg-[#f8ba2b] hover:text-slate-900 transition-all shadow-sm">
+                                            <button onClick={() => setViewingLog({ ...log, category: 'Intelligence' })} className="p-2 bg-slate-50 rounded-xl text-slate-400 hover:bg-[#008080] hover:text-white transition-all shadow-sm">
                                                 <ChevronRight size={16} />
                                             </button>
                                         </div>
@@ -277,7 +277,7 @@ const MentorHeadInteractions = () => {
                                     <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Student</p>
                                     <p className="text-xs font-black text-slate-900">{viewingLog.student_name}</p>
                                 </div>
-                                <div className="bg-[#008080]/10 p-4 rounded-3xl border border-[#f8ba2b]">
+                                <div className="bg-[#008080]/10 p-4 rounded-3xl border border-[#008080]">
                                     <p className="text-[9px] font-black text-[#008080] uppercase tracking-widest mb-1">{viewingLog.category === 'Intelligence' ? 'Faculty' : 'Mentor'}</p>
                                     <p className="text-xs font-black text-[#008080]">{viewingLog.mentor_name || viewingLog.faculty_name}</p>
                                 </div>

@@ -324,7 +324,7 @@ const Mentors = () => {
 const MentorStat = ({ label, value, icon, color }) => {
     const colors = {
         teal: 'bg-[#008080]/10 text-white border-[#008080]',
-        yellow: 'bg-[#f8ba2b]/10 text-slate-900 border-[#f8ba2b]',
+        yellow: 'bg-[#008080]/10 text-[#008080] border-[#008080]',
         emerald: 'bg-emerald-50 text-emerald-600 border-emerald-100'
     };
     return (

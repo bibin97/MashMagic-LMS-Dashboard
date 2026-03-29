@@ -96,7 +96,7 @@ const AcademicHeadDashboard = () => {
         return (
             <div className="flex items-center justify-center h-[60vh]">
                 <div className="flex flex-col items-center gap-4">
-                    <div className="w-12 h-12 border-4 border-[#f8ba2b] border-t-transparent rounded-full animate-spin"></div>
+                    <div className="w-12 h-12 border-4 border-[#008080] border-t-transparent rounded-full animate-spin"></div>
                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Compiling academic metrics...</p>
                 </div>
             </div>
@@ -128,7 +128,7 @@ const AcademicHeadDashboard = () => {
                     subtitle="Academic staff"
                     value={data.stats.totalFaculties}
                     icon={ShieldCheck}
-                    color="bg-[#f8ba2b]"
+                    color="bg-[#008080]"
                 />
                 <StatCard
                     title="Mentor Network"
@@ -157,7 +157,7 @@ const AcademicHeadDashboard = () => {
                         <select 
                             value={selectedStudent} 
                             onChange={handleStudentChange}
-                            className="bg-slate-50 border border-slate-200 text-slate-700 text-sm rounded-xl px-4 py-3 font-bold focus:outline-none focus:ring-2 focus:ring-[#f8ba2b] cursor-pointer min-w-[200px]"
+                            className="bg-slate-50 border border-slate-200 text-slate-700 text-sm rounded-xl px-4 py-3 font-bold focus:outline-none focus:ring-2 focus:ring-[#008080] cursor-pointer min-w-[200px]"
                         >
                             <option value="">Overview (Class Average)</option>
                             {students.map(student => (
@@ -200,7 +200,7 @@ const AcademicHeadDashboard = () => {
                                     barSize={60}
                                 >
                                     {data.examAnalytics.map((entry, index) => (
-                                        <Cell key={`cell-${index}`} fill={entry.percentage > 50 ? '#008080' : '#f8ba2b'} />
+                                        <Cell key={`cell-${index}`} fill={entry.percentage > 50 ? '#008080' : '#00b3b3'} />
                                     ))}
                                 </Bar>
                             </BarChart>
@@ -255,7 +255,7 @@ const AcademicHeadDashboard = () => {
                                         <tr key={session.id} className="group hover:bg-slate-50/80 transition-all duration-300">
                                             <td className="px-8 py-6 first:rounded-l-[2rem]">
                                                 <div className="flex items-center gap-3">
-                                                    <div className="w-10 h-10 bg-[#008080]/10 rounded-2xl flex items-center justify-center text-[#008080] border border-[#f8ba2b]">
+                                                    <div className="w-10 h-10 bg-[#008080]/10 rounded-2xl flex items-center justify-center text-[#008080] border border-[#008080]/50">
                                                         <Clock size={16} />
                                                     </div>
                                                     <div className="flex flex-col">
@@ -289,7 +289,7 @@ const AcademicHeadDashboard = () => {
                                                 </span>
                                             </td>
                                             <td className="px-8 py-6 text-right last:rounded-r-[2rem]">
-                                                <button className="w-10 h-10 bg-white border border-slate-200 rounded-xl flex items-center justify-center text-slate-400 hover:text-[#008080] hover:border-[#f8ba2b] transition-all hover:shadow-lg shadow-slate-100 group-hover:-translate-x-1">
+                                                <button className="w-10 h-10 bg-white border border-slate-200 rounded-xl flex items-center justify-center text-slate-400 hover:text-[#008080] hover:border-[#008080]/50 transition-all hover:shadow-lg shadow-slate-100 group-hover:-translate-x-1">
                                                     <ChevronRight size={18} />
                                                 </button>
                                             </td>
@@ -320,8 +320,8 @@ const AcademicHeadDashboard = () => {
                             <p className="text-center py-10 text-slate-400 font-bold italic">No activity recorded yet today.</p>
                         ) : (
                             data.activityFeed.map((activity, i) => (
-                                <div key={i} className="flex gap-6 p-6 rounded-[2rem] bg-slate-50/50 border border-slate-50 hover:border-[#f8ba2b] hover:bg-white hover:shadow-xl transition-all duration-500 group">
-                                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 shadow-sm ${activity.type === 'Student Report' ? 'bg-[#f8ba2b] text-slate-900' :
+                                <div key={i} className="flex gap-6 p-6 rounded-[2rem] bg-slate-50/50 border border-slate-50 hover:border-[#008080]/50 hover:bg-white hover:shadow-xl transition-all duration-500 group">
+                                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 shadow-sm ${activity.type === 'Student Report' ? 'bg-[#008080] text-white' :
                                         activity.type === 'Student Interaction' ? 'bg-emerald-500 text-white' :
                                             'bg-purple-600 text-white'
                                         }`}>
@@ -359,7 +359,7 @@ const AcademicHeadDashboard = () => {
                         </div>
                     </div>
 
-                    <div className="bg-[#f8ba2b] p-10 rounded-[3rem] text-slate-900 flex flex-col justify-center relative overflow-hidden group shadow-2xl shadow-[#f8ba2b]">
+                    <div className="bg-[#008080] p-10 rounded-[3rem] text-white flex flex-col justify-center relative overflow-hidden group shadow-2xl shadow-[#008080]/30">
                         <div className="absolute left-0 bottom-0 w-48 h-48 bg-black/10 rounded-full -ml-10 -mb-10 blur-2xl group-hover:bg-black/20 transition-all duration-700"></div>
                         <div className="relative z-10 flex items-center justify-between">
                             <div>

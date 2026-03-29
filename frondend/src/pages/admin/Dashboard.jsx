@@ -66,7 +66,7 @@ const Dashboard = () => {
 
     const pieData = [
         { name: 'Students', value: stats.students, color: '#008080' },
-        { name: 'Mentors', value: stats.mentors, color: '#f8ba2b' },
+        { name: 'Mentors', value: stats.mentors, color: '#008080' },
         { name: 'Faculties', value: stats.faculties, color: '#006666' },
     ];
 
@@ -131,7 +131,7 @@ const Dashboard = () => {
                 }
 
                 if (distRes.data.success) {
-                    const colors = ['#008080', '#f8ba2b', '#006666', '#e5a91f', '#004d4d', '#cca014'];
+                    const colors = ['#008080', '#008080', '#006666', '#e5a91f', '#004d4d', '#cca014'];
                     const mappedDist = distRes.data.data.map((item, idx) => ({
                         name: item.mentor_name,
                         value: Number(item.student_count || 0),
@@ -236,7 +236,7 @@ const Dashboard = () => {
                         <select
                             value={taskFilter}
                             onChange={(e) => setTaskFilter(e.target.value)}
-                            className="bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-xs font-bold text-slate-500 outline-none hover:border-[#f8ba2b] transition-colors"
+                            className="bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-xs font-bold text-slate-500 outline-none hover:border-[#008080] transition-colors"
                         >
                             <option value="today">Today</option>
                             <option value="yesterday">Yesterday</option>
@@ -318,7 +318,7 @@ const Dashboard = () => {
                                         <Bar
                                             name="Task Completed"
                                             dataKey="completed"
-                                            fill="#f8ba2b"
+                                            fill="#008080"
                                             radius={[4, 4, 0, 0]}
                                             barSize={45}
                                             minPointSize={taskPerformance.length > 30 ? 2 : 5}
@@ -421,7 +421,7 @@ const Dashboard = () => {
                                         <Pie
                                             data={[
                                                 { name: 'Checked Today', value: mentorHeadReport.checkedToday, color: '#008080' },
-                                                { name: 'Remaining', value: mentorHeadReport.remaining, color: '#f8ba2b' }
+                                                { name: 'Remaining', value: mentorHeadReport.remaining, color: '#008080' }
                                             ]}
                                             cx="50%"
                                             cy="50%"
@@ -432,7 +432,7 @@ const Dashboard = () => {
                                         >
                                             {[
                                                 { name: 'Checked Today', value: mentorHeadReport.checkedToday, color: '#008080' },
-                                                { name: 'Remaining', value: mentorHeadReport.remaining, color: '#f8ba2b' }
+                                                { name: 'Remaining', value: mentorHeadReport.remaining, color: '#008080' }
                                             ].map((entry, index) => (
                                                 <Cell key={`cell-${index}`} fill={entry.color} />
                                             ))}

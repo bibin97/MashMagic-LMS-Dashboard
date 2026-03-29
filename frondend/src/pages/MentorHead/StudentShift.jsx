@@ -80,7 +80,7 @@ const StudentShift = () => {
             {/* Page Title */}
             <div className="bg-white p-10 rounded-[4rem] border border-slate-100 shadow-sm mb-10">
                 <h2 className="text-3xl font-black text-slate-900 tracking-tighter uppercase italic flex items-center gap-4">
-                    <div className="w-12 h-12 bg-[#f8ba2b] rounded-2xl flex items-center justify-center text-slate-900 shadow-lg shadow-[#f8ba2b] rotate-3">
+                    <div className="w-12 h-12 bg-[#008080] rounded-2xl flex items-center justify-center text-white shadow-lg shadow-[#008080]/30 rotate-3">
                         <RefreshCw size={28} />
                     </div>
                     Student Reassignment
@@ -95,7 +95,7 @@ const StudentShift = () => {
                 {/* Step 1: Select Student */}
                 <div className="bg-white p-6 rounded-[2.5rem] shadow-sm border border-slate-100 flex flex-col h-[600px]">
                     <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest mb-4 flex items-center gap-2">
-                        <span className="w-6 h-6 rounded-full bg-[#f8ba2b] flex items-center justify-center text-slate-900">1</span>
+                        <span className="w-6 h-6 rounded-full bg-[#008080] flex items-center justify-center text-white">1</span>
                         Select Student
                     </h3>
 
@@ -104,7 +104,7 @@ const StudentShift = () => {
                         <input
                             type="text"
                             placeholder="Search by name or course..."
-                            className="w-full p-4 pl-12 bg-slate-50 border border-slate-100 rounded-2xl text-sm outline-none focus:bg-white focus:ring-4 focus:ring-[#f8ba2b] transition-all font-semibold"
+                            className="w-full p-4 pl-12 bg-slate-50 border border-slate-100 rounded-2xl text-sm outline-none focus:bg-white focus:ring-4 focus:ring-[#008080] transition-all font-semibold"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
@@ -115,10 +115,10 @@ const StudentShift = () => {
                             <div
                                 key={student.id}
                                 onClick={() => setSelectedStudent(student)}
-                                className={`p-4 rounded-2xl cursor-pointer border transition-all ${selectedStudent?.id === student.id ? 'bg-[#008080]/10 border-[#f8ba2b] shadow-md shadow-[#f8ba2b]' : 'bg-slate-50 border-slate-100 hover:bg-slate-100/50 hover:border-slate-200'}`}
+                                className={`p-4 rounded-2xl cursor-pointer border transition-all ${selectedStudent?.id === student.id ? 'bg-[#008080]/10 border-[#008080] shadow-md shadow-[#008080]' : 'bg-slate-50 border-slate-100 hover:bg-slate-100/50 hover:border-slate-200'}`}
                             >
                                 <div className="flex items-center gap-4">
-                                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${selectedStudent?.id === student.id ? 'bg-[#f8ba2b] text-slate-900' : 'bg-slate-200 text-slate-500'}`}>
+                                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${selectedStudent?.id === student.id ? 'bg-[#008080] text-white' : 'bg-slate-200 text-slate-500'}`}>
                                         <User size={20} />
                                     </div>
                                     <div>
@@ -177,7 +177,7 @@ const StudentShift = () => {
                             <select
                                 value={selectedMentor}
                                 onChange={(e) => setSelectedMentor(e.target.value)}
-                                className="w-full p-4 bg-white border border-slate-200 rounded-2xl text-sm font-bold text-slate-700 outline-none focus:ring-4 ring-[#f8ba2b] shadow-sm"
+                                className="w-full p-4 bg-white border border-slate-200 rounded-2xl text-sm font-bold text-slate-700 outline-none focus:ring-4 ring-[#008080] shadow-sm"
                             >
                                 <option value="" disabled>-- Choose a Mentor --</option>
                                 {mentors.filter(m => m.mentor_id !== selectedStudent?.mentor_id).map(m => (
@@ -190,7 +190,7 @@ const StudentShift = () => {
                             <button
                                 onClick={handleShift}
                                 disabled={!selectedStudent || !selectedMentor || shifting}
-                                className="w-full flex items-center justify-center gap-3 bg-[#f8ba2b] hover:bg-[#f8ba2b] text-slate-900 p-5 rounded-2xl font-black uppercase tracking-widest text-xs transition-all disabled:opacity-50 disabled:hover:translate-y-0 hover:-translate-y-1 shadow-lg shadow-[#f8ba2b]"
+                                className="w-full flex items-center justify-center gap-3 bg-[#008080] hover:bg-[#008080] text-white p-5 rounded-2xl font-black uppercase tracking-widest text-xs transition-all disabled:opacity-50 disabled:hover:translate-y-0 hover:-translate-y-1 shadow-lg shadow-[#008080]/30"
                             >
                                 {shifting ? 'Shifting Data...' : 'Confirm Reassignment'}
                                 <ArrowRight size={16} />

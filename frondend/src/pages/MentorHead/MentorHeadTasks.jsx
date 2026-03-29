@@ -118,7 +118,7 @@ const MentorHeadTasks = () => {
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
             <header className="flex flex-col md:flex-row justify-between items-start md:items-center bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 gap-6">
                 <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-[#f8ba2b] rounded-2xl flex items-center justify-center text-slate-900 shadow-lg shadow-[#f8ba2b] rotate-3">
+                    <div className="w-12 h-12 bg-[#008080] rounded-2xl flex items-center justify-center text-white shadow-lg shadow-[#008080]/30 rotate-3">
                         <ListTodo size={24} />
                     </div>
                     <div>
@@ -130,7 +130,7 @@ const MentorHeadTasks = () => {
                 <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
                     {availableMentors.length > 0 && (
                         <select
-                            className="bg-slate-50 border border-slate-100 rounded-2xl px-5 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 outline-none focus:ring-2 focus:ring-[#f8ba2b]"
+                            className="bg-slate-50 border border-slate-100 rounded-2xl px-5 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 outline-none focus:ring-2 focus:ring-[#008080]"
                             value={filterMentor}
                             onChange={(e) => setFilterMentor(e.target.value)}
                         >
@@ -143,7 +143,7 @@ const MentorHeadTasks = () => {
 
                     <button
                         onClick={() => setIsModalOpen(true)}
-                        className="flex items-center justify-center gap-2 bg-[#f8ba2b] text-slate-900 px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-900 transition-all shadow-xl shadow-[#f8ba2b] hover:-translate-y-0.5"
+                        className="flex items-center justify-center gap-2 bg-[#008080] text-white px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-900 transition-all shadow-xl shadow-[#008080]/30 hover:-translate-y-0.5"
                     >
                         <Plus size={16} />
                         Assign Task
@@ -161,7 +161,7 @@ const MentorHeadTasks = () => {
                         <input
                             type="text"
                             placeholder="Scan protocols by title..."
-                            className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-3 pl-12 pr-4 text-xs font-bold outline-none focus:bg-white focus:ring-4 focus:ring-[#f8ba2b]/50 focus:border-[#f8ba2b] transition-all placeholder:text-slate-400"
+                            className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-3 pl-12 pr-4 text-xs font-bold outline-none focus:bg-white focus:ring-4 focus:ring-[#008080]/50 focus:border-[#008080] transition-all placeholder:text-slate-400"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                         />
@@ -267,7 +267,7 @@ const MentorHeadTasks = () => {
                                                     {task.status !== 'Completed' && (
                                                         <button
                                                             onClick={() => handleComplete(task.id)}
-                                                            className="h-10 px-4 rounded-xl flex items-center justify-center gap-2 bg-[#008080]/10 text-slate-900 hover:bg-[#f8ba2b] hover:text-slate-900 transition-all shadow-sm shadow-[#f8ba2b] active:scale-95 font-black text-[10px] uppercase tracking-widest"
+                                                            className="h-10 px-4 rounded-xl flex items-center justify-center gap-2 bg-[#008080]/10 text-white hover:bg-[#008080] hover:text-white transition-all shadow-sm shadow-[#008080]/30 active:scale-95 font-black text-[10px] uppercase tracking-widest"
                                                         >
                                                             <CheckCircle size={14} />
                                                             Identify Solved
@@ -286,7 +286,7 @@ const MentorHeadTasks = () => {
                     <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Sector Logged: {filteredTasks.length} Protocols Active</span>
                     <div className="flex gap-2">
                         <button className="px-4 py-2 bg-white border border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-400 cursor-not-allowed">Previous</button>
-                        <button className="px-4 py-2 bg-[#f8ba2b] text-slate-900 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-[#f8ba2b] italic">Page 01</button>
+                        <button className="px-4 py-2 bg-[#008080] text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-[#008080]/30 italic">Page 01</button>
                         <button className="px-4 py-2 bg-white border border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-900 shadow-sm hover:bg-slate-50">Next</button>
                     </div>
                 </div>
@@ -305,7 +305,7 @@ const MentorHeadTasks = () => {
                         <input
                             type="text"
                             required
-                            className="p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#f8ba2b] focus:border-[#f8ba2b] transition-all font-semibold"
+                            className="p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] focus:border-[#008080] transition-all font-semibold"
                             placeholder="e.g., Weekly Student Review"
                             value={formData.title}
                             onChange={(e) => setFormData({ ...formData, title: e.target.value })}
@@ -317,7 +317,7 @@ const MentorHeadTasks = () => {
                         <textarea
                             rows="4"
                             required
-                            className="p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#f8ba2b] focus:border-[#f8ba2b] transition-all font-semibold resize-none"
+                            className="p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] focus:border-[#008080] transition-all font-semibold resize-none"
                             placeholder="Provide specific instructions for the mentor..."
                             value={formData.description}
                             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
@@ -329,7 +329,7 @@ const MentorHeadTasks = () => {
                             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Assign User</label>
                             <select
                                 required
-                                className="p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#f8ba2b] focus:border-[#f8ba2b] transition-all font-semibold appearance-none"
+                                className="p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] focus:border-[#008080] transition-all font-semibold appearance-none"
                                 value={formData.mentor_id}
                                 onChange={(e) => setFormData({ ...formData, mentor_id: e.target.value })}
                             >
@@ -346,7 +346,7 @@ const MentorHeadTasks = () => {
                                 <input
                                     type="date"
                                     required
-                                    className="w-full p-4 pl-12 bg-slate-50 border border-slate-100 rounded-2xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#f8ba2b] focus:border-[#f8ba2b] transition-all font-semibold"
+                                    className="w-full p-4 pl-12 bg-slate-50 border border-slate-100 rounded-2xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] focus:border-[#008080] transition-all font-semibold"
                                     value={formData.deadline}
                                     onChange={(e) => setFormData({ ...formData, deadline: e.target.value })}
                                 />
@@ -377,7 +377,7 @@ const MentorHeadTasks = () => {
 
                     <button
                         type="submit"
-                        className="w-full bg-[#f8ba2b] text-slate-900 p-4 rounded-2xl font-black text-sm hover:bg-slate-900 transition-all shadow-xl shadow-[#f8ba2b] mt-2 flex items-center justify-center gap-2 group"
+                        className="w-full bg-[#008080] text-white p-4 rounded-2xl font-black text-sm hover:bg-slate-900 transition-all shadow-xl shadow-[#008080]/30 mt-2 flex items-center justify-center gap-2 group"
                     >
                         <span>Authorize and Issue Task</span>
                         <AlertTriangle size={18} className="transition-transform group-hover:scale-110" />

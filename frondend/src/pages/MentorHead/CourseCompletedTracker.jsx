@@ -103,7 +103,7 @@ const CourseCompletedTracker = () => {
                         placeholder="Search student or course..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full bg-white border border-slate-200 rounded-2xl pl-12 pr-4 py-3 text-sm font-bold text-slate-700 focus:outline-none focus:border-[#f8ba2b] focus:ring-4 focus:ring-[#f8ba2b]/10 transition-all placeholder:text-slate-400 placeholder:font-medium"
+                        className="w-full bg-white border border-slate-200 rounded-2xl pl-12 pr-4 py-3 text-sm font-bold text-slate-700 focus:outline-none focus:border-[#008080] focus:ring-4 focus:ring-[#008080]/10 transition-all placeholder:text-slate-400 placeholder:font-medium"
                     />
                 </div>
                 <div className="flex gap-2">
@@ -112,7 +112,7 @@ const CourseCompletedTracker = () => {
                             key={f}
                             onClick={() => setFilter(f)}
                             className={`px-6 py-3 rounded-2xl text-xs font-black uppercase tracking-widest transition-all ${filter === f
-                                    ? 'bg-[#f8ba2b] text-slate-900 shadow-lg shadow-[#f8ba2b] -translate-y-0.5'
+                                    ? 'bg-[#008080] text-white shadow-lg shadow-[#008080]/30 -translate-y-0.5'
                                     : 'bg-white text-slate-500 border border-slate-200 hover:bg-slate-50'
                                 }`}
                         >
@@ -150,7 +150,7 @@ const CourseCompletedTracker = () => {
                                             <p className="text-[10px] font-black text-[#008080] uppercase tracking-widest mt-0.5">{student.grade || 'N/A'}</p>
                                         </td>
                                         <td className="p-4">
-                                            <p className="text-xs font-bold text-slate-700 flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-[#f8ba2b]"></span> {student.mentor_name || 'Unassigned Mentor'}</p>
+                                            <p className="text-xs font-bold text-slate-700 flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-[#008080]"></span> {student.mentor_name || 'Unassigned Mentor'}</p>
                                             <p className="text-[10px] font-bold text-slate-500 flex items-center gap-1 mt-1"><span className="w-1.5 h-1.5 rounded-full bg-purple-500"></span> {student.faculty_name || 'Unassigned Faculty'}</p>
                                         </td>
                                         <td className="p-4">

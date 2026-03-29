@@ -190,7 +190,7 @@ const AcademicActions = () => {
 
                     {loading ? (
                         <div className="bg-white p-20 rounded-[4rem] border border-slate-100 flex items-center justify-center flex-col gap-4">
-                            <div className="w-12 h-12 border-4 border-[#f8ba2b] border-t-transparent rounded-full animate-spin"></div>
+                            <div className="w-12 h-12 border-4 border-[#008080] border-t-transparent rounded-full animate-spin"></div>
                             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Synchronizing Intra-Day Logs...</p>
                         </div>
                     ) : dailyLogs.length === 0 ? (
@@ -228,7 +228,7 @@ const AcademicActions = () => {
                                                 </div>
                                             </td>
                                             <td className="px-8 py-6">
-                                                <div className="bg-[#008080]/10 px-4 py-2 rounded-xl inline-block border border-[#f8ba2b]">
+                                                <div className="bg-[#008080]/10 px-4 py-2 rounded-xl inline-block border border-[#008080]">
                                                     <span className="text-xs font-black text-[#008080] uppercase italic tracking-tighter line-clamp-1">{log.chapter}</span>
                                                 </div>
                                             </td>
@@ -244,7 +244,7 @@ const AcademicActions = () => {
                                                 </span>
                                             </td>
                                             <td className="px-8 py-6 text-right">
-                                                <button className="w-10 h-10 bg-slate-900 text-slate-900 rounded-xl flex items-center justify-center hover:bg-[#f8ba2b] transition-all opacity-0 group-hover:opacity-100">
+                                                <button className="w-10 h-10 bg-slate-900 text-white rounded-xl flex items-center justify-center hover:bg-[#008080] transition-all opacity-0 group-hover:opacity-100">
                                                     <ChevronRight size={18} />
                                                 </button>
                                             </td>

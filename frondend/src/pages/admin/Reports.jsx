@@ -101,7 +101,7 @@ const Reports = () => {
                     <FilterGroup label="Start Capture Date">
                         <input
                             type="date"
-                            className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#f8ba2b] transition-all font-medium"
+                            className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] transition-all font-medium"
                             value={filters.startDate}
                             onChange={e => setFilters({ ...filters, startDate: e.target.value })}
                         />
@@ -109,14 +109,14 @@ const Reports = () => {
                     <FilterGroup label="End Capture Date">
                         <input
                             type="date"
-                            className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#f8ba2b] transition-all font-medium"
+                            className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] transition-all font-medium"
                             value={filters.endDate}
                             onChange={e => setFilters({ ...filters, endDate: e.target.value })}
                         />
                     </FilterGroup>
                     <FilterGroup label="Data Sensitivity">
                         <select
-                            className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-600 outline-none focus:bg-white focus:ring-2 focus:ring-[#f8ba2b] transition-all"
+                            className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-600 outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] transition-all"
                             value={filters.category}
                             onChange={e => setFilters({ ...filters, category: e.target.value })}
                         >
@@ -146,7 +146,7 @@ const Reports = () => {
 
                         <div className="flex flex-col gap-2 w-full">
                             <button
-                                className={`w-full py-4 rounded-2xl flex items-center justify-center gap-3 font-bold text-sm transition-all shadow-lg hover:brightness-110 active:scale-95 ${color === 'teal' ? 'bg-[#f8ba2b] text-slate-900 shadow-[#f8ba2b]' :
+                                className={`w-full py-4 rounded-2xl flex items-center justify-center gap-3 font-bold text-sm transition-all shadow-lg hover:brightness-110 active:scale-95 ${color === 'teal' ? 'bg-[#008080] text-white shadow-[#008080]/30' :
                                     color === 'emerald' ? 'bg-emerald-600 text-white shadow-emerald-100' :
                                         'bg-amber-600 text-white shadow-amber-100'
                                     }`}
@@ -156,7 +156,7 @@ const Reports = () => {
                                 <span>Download CSV</span>
                             </button>
                             <button
-                                className={`w-full py-4 rounded-2xl flex items-center justify-center gap-3 font-bold text-sm transition-all border-2 group-hover:bg-slate-50 active:scale-95 ${color === 'teal' ? 'border-[#f8ba2b] text-[#008080]' :
+                                className={`w-full py-4 rounded-2xl flex items-center justify-center gap-3 font-bold text-sm transition-all border-2 group-hover:bg-slate-50 active:scale-95 ${color === 'teal' ? 'border-[#008080] text-[#008080]' :
                                     color === 'emerald' ? 'border-emerald-100 text-emerald-600' :
                                         'border-amber-100 text-amber-600'
                                     }`}

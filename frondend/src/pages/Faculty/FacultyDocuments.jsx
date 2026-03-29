@@ -115,7 +115,7 @@ const FacultyDocuments = () => {
                     />
                     <label
                         htmlFor="doc-upload"
-                        className={`flex items-center gap-4 px-10 py-5 bg-[#f8ba2b] text-slate-900 rounded-[2rem] font-black text-[10px] uppercase tracking-widest cursor-pointer hover:bg-[#f8ba2b] transition-all shadow-2xl shadow-[#f8ba2b] ${isUploading ? 'opacity-50 cursor-wait' : ''
+                        className={`flex items-center gap-4 px-10 py-5 bg-[#008080] text-white rounded-[2rem] font-black text-[10px] uppercase tracking-widest cursor-pointer hover:bg-[#008080] transition-all shadow-2xl shadow-[#008080]/30 ${isUploading ? 'opacity-50 cursor-wait' : ''
                             }`}
                     >
                         {isUploading ? <Clock className="animate-spin" size={18} /> : <Upload size={18} />}
@@ -131,7 +131,7 @@ const FacultyDocuments = () => {
                     <input
                         type="text"
                         placeholder="Search assets by title..."
-                        className="w-full pl-14 pr-8 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:outline-none focus:ring-4 focus:ring-[#f8ba2b]/5 focus:border-[#f8ba2b] transition-all"
+                        className="w-full pl-14 pr-8 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:outline-none focus:ring-4 focus:ring-[#008080]/5 focus:border-[#008080] transition-all"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
@@ -148,9 +148,9 @@ const FacultyDocuments = () => {
                     [1, 2, 3].map(i => <div key={i} className="h-24 bg-slate-100 rounded-[2rem] animate-pulse"></div>)
                 ) : filteredDocs.length > 0 ? (
                     filteredDocs.map((doc) => (
-                        <div key={doc.id} className="bg-white p-4 pl-8 rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-xl hover:border-[#f8ba2b] transition-all duration-500 group flex items-center justify-between">
+                        <div key={doc.id} className="bg-white p-4 pl-8 rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-xl hover:border-[#008080] transition-all duration-500 group flex items-center justify-between">
                             <div className="flex items-center gap-8">
-                                <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center border border-slate-100 group-hover:bg-[#008080]/10 group-hover:border-[#f8ba2b] transition-colors overflow-hidden">
+                                <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center border border-slate-100 group-hover:bg-[#008080]/10 group-hover:border-[#008080] transition-colors overflow-hidden">
                                     <div className="text-[8px] flex flex-col items-center">
                                         <FileText size={20} className="text-slate-400 group-hover:text-[#008080] transition-colors mb-1" />
                                         {getFileIcon(doc.file_type)}
@@ -177,7 +177,7 @@ const FacultyDocuments = () => {
                                 <a
                                     href={doc.file_url}
                                     download
-                                    className="p-4 bg-slate-50 text-slate-400 hover:bg-[#f8ba2b] hover:text-slate-900 rounded-2xl transition-all duration-500 group/btn"
+                                    className="p-4 bg-slate-50 text-slate-400 hover:bg-[#008080] hover:text-white rounded-2xl transition-all duration-500 group/btn"
                                 >
                                     <Download size={18} className="group-hover/btn:translate-y-0.5 transition-transform" />
                                 </a>

@@ -112,7 +112,7 @@ const StudentsList = ({ role = 'academic_head' }) => {
                         <input
                             type="text"
                             placeholder="SEARCH BY NAME OR REG #..."
-                            className="pl-14 pr-8 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold uppercase tracking-[0.1em] focus:ring-4 ring-[#f8ba2b]/10 w-full md:w-80 shadow-sm transition-all outline-none focus:bg-white"
+                            className="pl-14 pr-8 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold uppercase tracking-[0.1em] focus:ring-4 ring-[#008080]/10 w-full md:w-80 shadow-sm transition-all outline-none focus:bg-white"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
@@ -120,7 +120,7 @@ const StudentsList = ({ role = 'academic_head' }) => {
                     <select
                         value={filterCourse}
                         onChange={(e) => setFilterCourse(e.target.value)}
-                        className="px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-black uppercase tracking-widest text-slate-600 outline-none focus:ring-4 ring-[#f8ba2b]/10 transition-all cursor-pointer shadow-sm"
+                        className="px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-black uppercase tracking-widest text-slate-600 outline-none focus:ring-4 ring-[#008080]/10 transition-all cursor-pointer shadow-sm"
                     >
                         <option value="all">All Courses</option>
                         {coursesList.map(c => <option key={c} value={c}>{c}</option>)}
@@ -146,7 +146,7 @@ const StudentsList = ({ role = 'academic_head' }) => {
                                 <tr key={student.id} className="hover:bg-[#008080]/10/20 transition-all group">
                                     <td className="px-8 py-6">
                                         <div className="flex items-center gap-4">
-                                            <div className="w-12 h-12 bg-gradient-to-br from-slate-100 to-slate-200 rounded-2xl flex items-center justify-center text-slate-600 font-black shadow-inner group-hover:from-[#f8ba2b] group-hover:to-[#f8ba2b] group-hover:text-white transition-all transform group-hover:scale-110">
+                                            <div className="w-12 h-12 bg-gradient-to-br from-slate-100 to-slate-200 rounded-2xl flex items-center justify-center text-slate-600 font-black shadow-inner group-hover:from-[#008080] group-hover:to-[#008080] group-hover:text-white transition-all transform group-hover:scale-110">
                                                 {student.name.charAt(0)}
                                             </div>
                                             <div>
@@ -175,7 +175,7 @@ const StudentsList = ({ role = 'academic_head' }) => {
                                     <td className="px-8 py-6">
                                         <div className="space-y-1.5">
                                             <div className="flex items-center gap-2">
-                                                <div className="w-1.5 h-1.5 rounded-full bg-[#f8ba2b]"></div>
+                                                <div className="w-1.5 h-1.5 rounded-full bg-[#008080]"></div>
                                                 <span className="text-[10px] font-black text-slate-500 uppercase">Mentor: {student.mentor_name || 'N/A'}</span>
                                             </div>
                                             <div className="flex items-center gap-2">
@@ -232,7 +232,7 @@ const StudentsList = ({ role = 'academic_head' }) => {
                                     type="text"
                                     value={editingStudent.name}
                                     onChange={(e) => setEditingStudent(prev => ({ ...prev, name: e.target.value }))}
-                                    className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-xs font-bold rounded-2xl px-5 py-4 focus:outline-none focus:ring-4 focus:ring-[#f8ba2b] focus:border-[#f8ba2b] transition-all"
+                                    className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-xs font-bold rounded-2xl px-5 py-4 focus:outline-none focus:ring-4 focus:ring-[#008080] focus:border-[#008080] transition-all"
                                 />
                             </div>
                             <div className="grid grid-cols-2 gap-6">
@@ -242,7 +242,7 @@ const StudentsList = ({ role = 'academic_head' }) => {
                                         type="text"
                                         value={editingStudent.grade}
                                         onChange={(e) => setEditingStudent(prev => ({ ...prev, grade: e.target.value }))}
-                                        className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-xs font-bold rounded-2xl px-5 py-4 focus:outline-none focus:ring-4 focus:ring-[#f8ba2b] focus:border-[#f8ba2b] transition-all"
+                                        className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-xs font-bold rounded-2xl px-5 py-4 focus:outline-none focus:ring-4 focus:ring-[#008080] focus:border-[#008080] transition-all"
                                     />
                                 </div>
                                 <div>
@@ -250,7 +250,7 @@ const StudentsList = ({ role = 'academic_head' }) => {
                                     <select
                                         value={editingStudent.course}
                                         onChange={(e) => setEditingStudent(prev => ({ ...prev, course: e.target.value }))}
-                                        className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-xs font-bold rounded-2xl px-5 py-4 focus:outline-none focus:ring-4 focus:ring-[#f8ba2b] focus:border-[#f8ba2b] transition-all appearance-none"
+                                        className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-xs font-bold rounded-2xl px-5 py-4 focus:outline-none focus:ring-4 focus:ring-[#008080] focus:border-[#008080] transition-all appearance-none"
                                     >
                                         {coursesList.map(c => <option key={c} value={c}>{c}</option>)}
                                     </select>
@@ -262,7 +262,7 @@ const StudentsList = ({ role = 'academic_head' }) => {
                                     type="text"
                                     value={editingStudent.subject || ''}
                                     onChange={(e) => setEditingStudent(prev => ({ ...prev, subject: e.target.value }))}
-                                    className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-xs font-bold rounded-2xl px-5 py-4 focus:outline-none focus:ring-4 focus:ring-[#f8ba2b] focus:border-[#f8ba2b] transition-all"
+                                    className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-xs font-bold rounded-2xl px-5 py-4 focus:outline-none focus:ring-4 focus:ring-[#008080] focus:border-[#008080] transition-all"
                                 />
                             </div>
                         </div>
@@ -275,7 +275,7 @@ const StudentsList = ({ role = 'academic_head' }) => {
                             </button>
                             <button
                                 onClick={handleUpdate}
-                                className="px-8 py-3.5 bg-[#f8ba2b] text-slate-900 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-[#f8ba2b] hover:bg-[#f8ba2b] hover:-translate-y-0.5 active:scale-95 transition-all flex items-center gap-2"
+                                className="px-8 py-3.5 bg-[#008080] text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-[#008080]/30 hover:bg-[#008080] hover:-translate-y-0.5 active:scale-95 transition-all flex items-center gap-2"
                             >
                                 <Save size={16} /> Save Changes
                             </button>

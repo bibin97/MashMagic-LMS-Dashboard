@@ -45,7 +45,7 @@ const MyTasks = () => {
         <div className="space-y-8">
             <header className="flex justify-between items-center bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100">
                 <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-[#f8ba2b] rounded-2xl flex items-center justify-center text-slate-900 shadow-lg shadow-[#f8ba2b]">
+                    <div className="w-12 h-12 bg-[#008080] rounded-2xl flex items-center justify-center text-white shadow-lg shadow-[#008080]/30">
                         <ListTodo size={24} />
                     </div>
                     <div>

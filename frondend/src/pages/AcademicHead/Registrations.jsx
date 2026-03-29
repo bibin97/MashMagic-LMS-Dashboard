@@ -165,7 +165,7 @@ const Registrations = () => {
                 {activeTab === 'student' && (
                     <form onSubmit={submitStudent} className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
                         <div className="flex items-center gap-3 mb-6">
-                            <div className="w-8 h-8 bg-[#f8ba2b] text-slate-900 rounded-lg flex items-center justify-center">
+                            <div className="w-8 h-8 bg-[#008080] text-white rounded-lg flex items-center justify-center">
                                 <GraduationCap size={18} />
                             </div>
                             <h2 className="text-lg font-black text-slate-800 uppercase tracking-widest">Normal Registration</h2>
@@ -174,11 +174,11 @@ const Registrations = () => {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="flex flex-col gap-2">
                                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Student Name</label>
-                                <input type="text" name="name" required value={studentForm.name} onChange={handleStudentChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#f8ba2b] font-bold" placeholder="Full Name" />
+                                <input type="text" name="name" required value={studentForm.name} onChange={handleStudentChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-bold" placeholder="Full Name" />
                             </div>
                             <div className="flex flex-col gap-2">
                                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Grade (1-12)</label>
-                                <select name="grade" required value={studentForm.grade} onChange={handleStudentChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#f8ba2b] font-bold appearance-none">
+                                <select name="grade" required value={studentForm.grade} onChange={handleStudentChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-bold appearance-none">
                                     <option value="" disabled>Select Grade</option>
                                     {[...Array(12)].map((_, i) => (
                                         <option key={i + 1} value={`Class ${i + 1}`}>Class {i + 1}</option>
@@ -187,51 +187,51 @@ const Registrations = () => {
                              </div>
                              <div className="flex flex-col gap-2">
                                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Admission Type</label>
-                                 <select name="admissionType" required value={studentForm.admissionType} onChange={handleStudentChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#f8ba2b] font-bold appearance-none">
+                                 <select name="admissionType" required value={studentForm.admissionType} onChange={handleStudentChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-bold appearance-none">
                                      <option value="new">New Student (Requires Onboarding)</option>
                                      <option value="existing">Existing Student</option>
                                  </select>
                              </div>
                              <div className="flex flex-col gap-2">
                                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Course</label>
-                                 <select name="course" required value={studentForm.course} onChange={handleStudentChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#f8ba2b] font-bold appearance-none">
+                                 <select name="course" required value={studentForm.course} onChange={handleStudentChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-bold appearance-none">
                                      <option value="" disabled>Select Course</option>
                                      {coursesList.map(c => <option key={c} value={c}>{c}</option>)}
                                  </select>
                              </div>
                              <div className="flex flex-col gap-2">
                                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Assigned Mentor</label>
-                                 <select name="mentorId" required value={studentForm.mentorId} onChange={handleStudentChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#f8ba2b] font-bold appearance-none">
+                                 <select name="mentorId" required value={studentForm.mentorId} onChange={handleStudentChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-bold appearance-none">
                                      <option value="" disabled>Select Mentor</option>
                                      {mentors.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
                                  </select>
                              </div>
                              <div className="flex flex-col gap-2">
                                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Reg Number</label>
-                                <input type="text" name="registrationNumber" value={studentForm.registrationNumber} onChange={handleStudentChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#f8ba2b] font-bold" placeholder="E.g. REG-001" />
+                                <input type="text" name="registrationNumber" value={studentForm.registrationNumber} onChange={handleStudentChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-bold" placeholder="E.g. REG-001" />
                             </div>
                             <div className="flex flex-col gap-2">
                                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Meeting Link</label>
-                                <input type="text" name="meetingLink" value={studentForm.meetingLink} onChange={handleStudentChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#f8ba2b] font-bold" placeholder="Google Meet Link" />
+                                <input type="text" name="meetingLink" value={studentForm.meetingLink} onChange={handleStudentChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-bold" placeholder="Google Meet Link" />
                             </div>
                             <div className="flex flex-col gap-2">
                                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Faculty Payment (Per Hour)</label>
-                                <input type="number" name="facultyHourlyRate" value={studentForm.facultyHourlyRate} onChange={handleStudentChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#f8ba2b] font-bold" placeholder="Rate in ₹" />
+                                <input type="number" name="facultyHourlyRate" value={studentForm.facultyHourlyRate} onChange={handleStudentChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-bold" placeholder="Rate in ₹" />
                             </div>
                             <div className="flex flex-col gap-2">
                                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Session Hour</label>
-                                <input type="text" name="hour" required value={studentForm.hour} onChange={handleStudentChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#f8ba2b] font-bold" placeholder="e.g. 10:00 AM - 11:00 AM" />
+                                <input type="text" name="hour" required value={studentForm.hour} onChange={handleStudentChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-bold" placeholder="e.g. 10:00 AM - 11:00 AM" />
                             </div>
                             <div className="flex flex-col gap-2">
                                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Next Installment Date</label>
-                                <input type="date" name="nextInstallmentDate" value={studentForm.nextInstallmentDate} onChange={handleStudentChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#f8ba2b] font-bold" />
+                                <input type="date" name="nextInstallmentDate" value={studentForm.nextInstallmentDate} onChange={handleStudentChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-bold" />
                             </div>
 
                             {/* Multiple Subjects & Faculties */}
                             <div className="md:col-span-2 space-y-4">
                                 <div className="flex items-center justify-between">
                                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Subjects & Assigned Faculties</label>
-                                    <button type="button" onClick={addSubjectRow} className="text-[10px] font-black text-[#008080] uppercase tracking-widest hover:text-[#008080] transition-colors bg-[#008080]/10 px-3 py-1.5 rounded-lg border border-[#f8ba2b]">
+                                    <button type="button" onClick={addSubjectRow} className="text-[10px] font-black text-[#008080] uppercase tracking-widest hover:text-[#008080] transition-colors bg-[#008080]/10 px-3 py-1.5 rounded-lg border border-[#008080]">
                                         + Add Subject
                                     </button>
                                 </div>
@@ -248,7 +248,7 @@ const Registrations = () => {
                                                 required 
                                                 value={row.subject} 
                                                 onChange={(e) => handleSubjectChange(idx, 'subject', e.target.value)} 
-                                                className="w-full p-3 bg-white border border-slate-100 rounded-xl text-xs outline-none focus:ring-2 focus:ring-[#f8ba2b] font-bold appearance-none"
+                                                className="w-full p-3 bg-white border border-slate-100 rounded-xl text-xs outline-none focus:ring-2 focus:ring-[#008080] font-bold appearance-none"
                                             >
                                                 <option value="" disabled>Subject</option>
                                                 <option value="Mathematics">Mathematics</option>
@@ -265,7 +265,7 @@ const Registrations = () => {
                                                 required 
                                                 value={row.facultyId} 
                                                 onChange={(e) => handleSubjectChange(idx, 'facultyId', e.target.value)} 
-                                                className="w-full p-3 bg-white border border-slate-100 rounded-xl text-xs outline-none focus:ring-2 focus:ring-[#f8ba2b] font-bold appearance-none"
+                                                className="w-full p-3 bg-white border border-slate-100 rounded-xl text-xs outline-none focus:ring-2 focus:ring-[#008080] font-bold appearance-none"
                                             >
                                                 <option value="" disabled>Assign Faculty</option>
                                                 {faculties.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
@@ -274,7 +274,7 @@ const Registrations = () => {
                                     </div>
                                 ))}
                             </div>
-                            <div className="md:col-span-2 bg-[#008080]/10/50 p-4 rounded-xl border border-[#f8ba2b] flex items-start gap-4">
+                            <div className="md:col-span-2 bg-[#008080]/10/50 p-4 rounded-xl border border-[#008080] flex items-start gap-4">
                                 <Clock className="text-[#008080] flex-shrink-0 mt-0.5" size={20} />
                                 <div>
                                     <h3 className="text-xs font-black text-[#008080] uppercase tracking-widest mb-1">Weekly Time Table</h3>
@@ -283,7 +283,7 @@ const Registrations = () => {
                             </div>
                         </div>
 
-                        <button disabled={loading} type="submit" className="w-full mt-8 bg-slate-900 text-white p-4 rounded-xl font-black text-xs uppercase tracking-[0.2em] hover:bg-emerald-600 transition-all shadow-xl hover:shadow-[#f8ba2b] flex items-center justify-center gap-3">
+                        <button disabled={loading} type="submit" className="w-full mt-8 bg-slate-900 text-white p-4 rounded-xl font-black text-xs uppercase tracking-[0.2em] hover:bg-emerald-600 transition-all shadow-xl hover:shadow-[#008080] flex items-center justify-center gap-3">
                             {loading ? 'Processing...' : 'Register Student'}
                             {!loading && <CheckCircle size={16} />}
                         </button>

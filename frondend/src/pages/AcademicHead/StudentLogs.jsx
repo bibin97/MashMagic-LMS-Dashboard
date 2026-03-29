@@ -109,7 +109,7 @@ const StudentLogs = () => {
                                     </div>
                                 </div>
                                 <div className="text-right">
-                                    <div className="inline-flex items-center gap-2 bg-[#008080]/10 px-4 py-2 rounded-xl text-[#008080] border border-[#f8ba2b]">
+                                    <div className="inline-flex items-center gap-2 bg-[#008080]/10 px-4 py-2 rounded-xl text-[#008080] border border-[#008080]">
                                         <User size={12} />
                                         <span className="text-[9px] font-black uppercase tracking-widest">{log.mentor_name}</span>
                                     </div>

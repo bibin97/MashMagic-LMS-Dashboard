@@ -159,7 +159,7 @@ const CheckingSection = () => {
             </div>
 
             {loading ? (
-                <div className="flex justify-center py-20"><div className="w-8 h-8 border-4 border-[#f8ba2b] border-t-transparent rounded-full animate-spin"></div></div>
+                <div className="flex justify-center py-20"><div className="w-8 h-8 border-4 border-[#008080] border-t-transparent rounded-full animate-spin"></div></div>
             ) : (
                 <>
                     {/* Session Audit Content */}
@@ -201,7 +201,7 @@ const CheckingSection = () => {
                                                     <div className="flex items-center gap-2 mt-1">
                                                         <div className="w-20 h-1.5 bg-slate-100 rounded-full overflow-hidden">
                                                             <div 
-                                                                className="h-full bg-[#f8ba2b] rounded-full" 
+                                                                className="h-full bg-[#008080] rounded-full" 
                                                                 style={{ width: `${Math.min((session.total_verified_for_student / 30) * 100, 100)}%` }}
                                                             ></div>
                                                         </div>
@@ -223,7 +223,7 @@ const CheckingSection = () => {
                                                     <div className="flex items-center justify-end gap-2">
                                                         <button
                                                             onClick={() => handleAddCheck(session.session_id)}
-                                                            className={`p-2.5 rounded-xl border transition-all ${isChecked ? 'bg-emerald-600 border-emerald-600 text-white shadow-lg shadow-emerald-100' : 'bg-white border-slate-200 text-slate-400 hover:text-[#008080] hover:border-[#f8ba2b] shadow-sm'}`}
+                                                            className={`p-2.5 rounded-xl border transition-all ${isChecked ? 'bg-emerald-600 border-emerald-600 text-white shadow-lg shadow-emerald-100' : 'bg-white border-slate-200 text-slate-400 hover:text-[#008080] hover:border-[#008080] shadow-sm'}`}
                                                         >
                                                             <Check size={18} />
                                                         </button>
@@ -359,7 +359,7 @@ const CheckingSection = () => {
                                                         setVerifyForm({ id: log.id, verification_status: log.verification_status === 'Pending' ? 'Verified' : log.verification_status, verification_remarks: log.verification_remarks || '' });
                                                         setIsVerifyModalOpen(true);
                                                     }}
-                                                    className="inline-flex items-center justify-center w-10 h-10 bg-white border border-slate-200 rounded-xl text-slate-400 hover:text-[#008080] hover:border-[#f8ba2b] hover:bg-[#008080]/10 shadow-sm transition-all"
+                                                    className="inline-flex items-center justify-center w-10 h-10 bg-white border border-slate-200 rounded-xl text-slate-400 hover:text-[#008080] hover:border-[#008080] hover:bg-[#008080]/10 shadow-sm transition-all"
                                                 >
                                                     <CheckCircle size={18} />
                                                 </button>
@@ -389,7 +389,7 @@ const CheckingSection = () => {
                                 <div className="col-span-2 md:col-span-1">
                                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2 mb-2 block">Check Method</label>
                                     <select
-                                        className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold shadow-sm outline-none focus:ring-4 focus:ring-[#f8ba2b]"
+                                        className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold shadow-sm outline-none focus:ring-4 focus:ring-[#008080]"
                                         value={evalForm.check_method}
                                         onChange={(e) => setEvalForm({ ...evalForm, check_method: e.target.value })}
                                     >
@@ -402,7 +402,7 @@ const CheckingSection = () => {
                                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2 mb-2 block">Class Date</label>
                                     <input
                                         type="date" required
-                                        className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold shadow-sm outline-none focus:ring-4 focus:ring-[#f8ba2b]"
+                                        className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold shadow-sm outline-none focus:ring-4 focus:ring-[#008080]"
                                         value={evalForm.class_date}
                                         onChange={(e) => setEvalForm({ ...evalForm, class_date: e.target.value })}
                                     />
@@ -411,7 +411,7 @@ const CheckingSection = () => {
                                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2 mb-2 block">Target Faculty</label>
                                     <select
                                         required
-                                        className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold shadow-sm outline-none focus:ring-4 focus:ring-[#f8ba2b]"
+                                        className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold shadow-sm outline-none focus:ring-4 focus:ring-[#008080]"
                                         value={evalForm.faculty_id}
                                         onChange={(e) => setEvalForm({ ...evalForm, faculty_id: e.target.value })}
                                     >
@@ -435,7 +435,7 @@ const CheckingSection = () => {
                                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2 block">Faculty Energy (1-5)</label>
                                     <input 
                                         type="range" min="1" max="5" step="1"
-                                        className="w-full h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-[#f8ba2b]"
+                                        className="w-full h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-[#008080]"
                                         value={evalForm.energy_level}
                                         onChange={(e) => setEvalForm({...evalForm, energy_level: parseInt(e.target.value)})}
                                     />
@@ -457,7 +457,7 @@ const CheckingSection = () => {
                                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2 mb-2 block">Proof / Screenshot URL (Optional)</label>
                                 <input
                                     type="text" placeholder="https://..."
-                                    className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold shadow-sm outline-none focus:ring-4 focus:ring-[#f8ba2b]"
+                                    className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold shadow-sm outline-none focus:ring-4 focus:ring-[#008080]"
                                     value={evalForm.proof_url}
                                     onChange={(e) => setEvalForm({ ...evalForm, proof_url: e.target.value })}
                                 />
@@ -465,14 +465,14 @@ const CheckingSection = () => {
                             <div>
                                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2 mb-2 block">Remarks</label>
                                 <textarea
-                                    className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold shadow-sm outline-none focus:ring-4 focus:ring-[#f8ba2b] min-h-[100px]"
+                                    className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold shadow-sm outline-none focus:ring-4 focus:ring-[#008080] min-h-[100px]"
                                     value={evalForm.remarks}
                                     placeholder="Add notes..."
                                     onChange={(e) => setEvalForm({ ...evalForm, remarks: e.target.value })}
                                 ></textarea>
                             </div>
                             <div className="flex gap-4 pt-4">
-                                <button type="submit" className="flex-1 bg-[#f8ba2b] text-slate-900 py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-[#f8ba2b] hover:bg-[#f8ba2b] transition-all">Save Evaluation</button>
+                                <button type="submit" className="flex-1 bg-[#008080] text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-[#008080]/30 hover:bg-[#008080] transition-all">Save Evaluation</button>
                                 <button type="button" onClick={() => setIsEvalModalOpen(false)} className="flex-1 bg-white text-slate-600 py-4 rounded-2xl border border-slate-200 font-black text-xs uppercase tracking-widest hover:bg-slate-50 transition-all">Cancel</button>
                             </div>
                         </form>
@@ -538,7 +538,7 @@ const MetricItem = ({ label, value }) => (
 const CheckboxItem = ({ label, checked, onChange }) => (
     <div className="flex justify-between items-center p-3 bg-slate-50 rounded-xl border border-slate-100 cursor-pointer hover:bg-[#008080]/10/50 transition-all" onClick={() => onChange(!checked)}>
         <span className="text-xs font-bold text-slate-700">{label}</span>
-        <div className={`w-5 h-5 rounded flex items-center justify-center transition-all ${checked ? 'bg-[#f8ba2b] text-slate-900' : 'bg-slate-200'}`}>
+        <div className={`w-5 h-5 rounded flex items-center justify-center transition-all ${checked ? 'bg-[#008080] text-white' : 'bg-slate-200'}`}>
             {checked && <Check size={14} />}
         </div>
     </div>

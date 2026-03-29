@@ -71,7 +71,7 @@ const StudentLogs = () => {
                         <input
                             type="text"
                             placeholder="Search by student, chapter or mentor..."
-                            className="bg-white border border-slate-200 pl-14 pr-8 py-4 rounded-[1.5rem] text-sm font-medium focus:outline-none focus:ring-4 focus:ring-[#f8ba2b]/5 focus:border-[#f8ba2b] transition-all shadow-sm min-w-[350px]"
+                            className="bg-white border border-slate-200 pl-14 pr-8 py-4 rounded-[1.5rem] text-sm font-medium focus:outline-none focus:ring-4 focus:ring-[#008080]/5 focus:border-[#008080] transition-all shadow-sm min-w-[350px]"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
@@ -135,7 +135,7 @@ const StudentLogs = () => {
                                         </td>
                                         <td className="px-8 py-6 text-center">
                                             {log.test_score ? (
-                                                <span className="px-4 py-1.5 bg-[#f8ba2b] text-slate-900 rounded-full text-[10px] font-black tracking-widest shadow-lg shadow-[#f8ba2b]">
+                                                <span className="px-4 py-1.5 bg-[#008080] text-white rounded-full text-[10px] font-black tracking-widest shadow-lg shadow-[#008080]/30">
                                                     {log.test_score}
                                                 </span>
                                             ) : (
@@ -145,7 +145,7 @@ const StudentLogs = () => {
                                         <td className="px-8 py-6 text-right">
                                             <button
                                                 onClick={() => setViewingLog(log)}
-                                                className="p-3 bg-white border border-slate-200 rounded-xl text-slate-400 hover:text-[#008080] hover:border-[#f8ba2b] transition-all shadow-sm hover:shadow-md active:scale-95"
+                                                className="p-3 bg-white border border-slate-200 rounded-xl text-slate-400 hover:text-[#008080] hover:border-[#008080] transition-all shadow-sm hover:shadow-md active:scale-95"
                                             >
                                                 <Eye size={18} />
                                             </button>
@@ -211,7 +211,7 @@ const StudentLogs = () => {
                                         </span>
                                     </div>
                                 </div>
-                                <div className="bg-[#008080]/10 p-6 rounded-3xl border border-[#f8ba2b]/50">
+                                <div className="bg-[#008080]/10 p-6 rounded-3xl border border-[#008080]/50">
                                     <p className="text-[10px] font-black text-[#008080] uppercase tracking-widest mb-1">Test Result</p>
                                     <p className="text-sm font-black text-[#008080] italic">{viewingLog.test_score || 'Not Conducted'}</p>
                                 </div>
@@ -221,7 +221,7 @@ const StudentLogs = () => {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
                                 <div className="space-y-8">
                                     <div className="relative pl-8 border-l-2 border-slate-100">
-                                        <div className="absolute -left-2 top-0 w-4 h-4 bg-[#f8ba2b] rounded-full border-4 border-white shadow-sm"></div>
+                                        <div className="absolute -left-2 top-0 w-4 h-4 bg-[#008080] rounded-full border-4 border-white shadow-sm"></div>
                                         <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Subject Context</h4>
                                         <h3 className="text-lg font-black text-slate-900 tracking-tight italic mb-2">{viewingLog.chapter}</h3>
                                         <p className="text-sm text-slate-600 font-medium leading-relaxed">{viewingLog.topics_covered}</p>
@@ -267,7 +267,7 @@ const StudentLogs = () => {
                                 <div className="relative flex flex-wrap gap-8 items-center">
                                     <div className="text-center md:text-left">
                                         <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Parent Notification</p>
-                                        <span className={`px-4 py-2 rounded-xl text-[10px] font-black tracking-widest uppercase transition-all ${viewingLog.parent_update_needed === 'Yes' ? 'bg-[#f8ba2b] text-slate-900 shadow-lg shadow-[#f8ba2b]/20' : 'bg-slate-800 text-slate-400'}`}>
+                                        <span className={`px-4 py-2 rounded-xl text-[10px] font-black tracking-widest uppercase transition-all ${viewingLog.parent_update_needed === 'Yes' ? 'bg-[#008080] text-white shadow-lg shadow-[#008080]/30/20' : 'bg-slate-800 text-slate-400'}`}>
                                             {viewingLog.parent_update_needed === 'Yes' ? 'Urgent Required' : 'Not Needed'}
                                         </span>
                                     </div>

@@ -61,7 +61,7 @@ const StudentDetails = () => {
                         )}
                     </h1>
                     <div className="flex flex-wrap justify-center md:justify-start gap-4 mb-8">
-                        <span className="px-5 py-2 bg-[#f8ba2b] text-slate-900 rounded-2xl text-xs font-black uppercase tracking-widest shadow-lg shadow-[#f8ba2b] italic">
+                        <span className="px-5 py-2 bg-[#008080] text-white rounded-2xl text-xs font-black uppercase tracking-widest shadow-lg shadow-[#008080]/30 italic">
                             {student.course}
                         </span>
                         <span className="px-5 py-2 bg-slate-900 text-white rounded-2xl text-xs font-black uppercase tracking-widest">
@@ -119,15 +119,15 @@ const StudentDetails = () => {
                                 <CheckSquare size={20} className="text-[#008080]" /> Academic Context
                             </h3>
                             <div className="space-y-4">
-                                <div className="p-5 bg-slate-50 rounded-2xl border border-slate-100 group hover:border-[#f8ba2b] transition-colors">
+                                <div className="p-5 bg-slate-50 rounded-2xl border border-slate-100 group hover:border-[#008080] transition-colors">
                                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Enrolled Course</p>
                                     <p className="text-sm font-bold text-slate-700">{student.course}</p>
                                 </div>
-                                <div className="p-5 bg-slate-50 rounded-2xl border border-slate-100 group hover:border-[#f8ba2b] transition-colors">
+                                <div className="p-5 bg-slate-50 rounded-2xl border border-slate-100 group hover:border-[#008080] transition-colors">
                                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Assigned Faculty Name</p>
                                     <p className="text-sm font-bold text-slate-700">{student.faculty_name || 'Not Specified'}</p>
                                 </div>
-                                <div className="p-5 bg-slate-50 rounded-2xl border border-slate-100 group hover:border-[#f8ba2b] transition-colors">
+                                <div className="p-5 bg-slate-50 rounded-2xl border border-slate-100 group hover:border-[#008080] transition-colors">
                                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Mentor Name (Ref)</p>
                                     <p className="text-sm font-bold text-slate-700">{student.mentor_name || 'You'}</p>
                                 </div>
@@ -196,9 +196,9 @@ const StudentDetails = () => {
                             <div className="space-y-4">
                                 {student.studentLogs.map((log) => (
                                     <div key={log.id} className="p-6 bg-slate-50 rounded-[2rem] border border-slate-100 hover:shadow-lg transition-all relative overflow-hidden group">
-                                        <div className="absolute top-0 right-0 w-20 h-20 bg-[#f8ba2b] rounded-full -mr-10 -mt-10 opacity-20 group-hover:scale-150 transition-transform"></div>
+                                        <div className="absolute top-0 right-0 w-20 h-20 bg-[#008080] rounded-full -mr-10 -mt-10 opacity-20 group-hover:scale-150 transition-transform"></div>
                                         <div className="flex justify-between items-start mb-4 relative z-10">
-                                            <span className="text-[10px] font-black bg-[#f8ba2b] text-slate-900 px-3 py-1 rounded-full uppercase">Session #{log.session_number}</span>
+                                            <span className="text-[10px] font-black bg-[#008080] text-white px-3 py-1 rounded-full uppercase">Session #{log.session_number}</span>
                                             <span className="text-[10px] font-black text-slate-400 uppercase">{new Date(log.created_at || log.date).toLocaleDateString()}</span>
                                         </div>
 

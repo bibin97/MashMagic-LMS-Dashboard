@@ -185,7 +185,7 @@ const Students = () => {
                     <select 
                         value={sortBy} 
                         onChange={(e) => setSortBy(e.target.value)}
-                        className="bg-slate-50 border-none text-xs font-black uppercase tracking-wider py-2 px-4 rounded-xl outline-none focus:ring-2 focus:ring-[#f8ba2b] transition-all cursor-pointer"
+                        className="bg-slate-50 border-none text-xs font-black uppercase tracking-wider py-2 px-4 rounded-xl outline-none focus:ring-2 focus:ring-[#008080] transition-all cursor-pointer"
                     >
                         <option value="newest">Newest First</option>
                         <option value="oldest">Oldest First</option>
@@ -276,7 +276,7 @@ const Students = () => {
                     </div>
                     <div className="col-span-2 flex justify-end gap-3 pt-4">
                         <button type="button" className="px-6 py-3 rounded-xl border border-slate-200 text-sm font-bold text-slate-600 hover:bg-slate-50 transition-all" onClick={() => setIsEditModalOpen(false)}>Cancel</button>
-                        <button type="submit" className="px-6 py-3 rounded-xl bg-[#f8ba2b] text-slate-900 text-sm font-bold hover:bg-[#f8ba2b] transition-all shadow-lg shadow-[#f8ba2b]">Update Student Data</button>
+                        <button type="submit" className="px-6 py-3 rounded-xl bg-[#008080] text-white text-sm font-bold hover:bg-[#008080] transition-all shadow-lg shadow-[#008080]/30">Update Student Data</button>
                     </div>
                 </form>
             </Modal>
@@ -290,7 +290,7 @@ const Students = () => {
                 {selectedStudent && (
                     <div className="flex flex-col gap-10">
                         <div className="flex items-center gap-6 p-6 bg-slate-50/50 rounded-3xl border border-slate-100">
-                            <div className="w-20 h-20 bg-[#f8ba2b] text-slate-900 rounded-3xl flex items-center justify-center text-3xl font-bold shadow-lg shadow-[#f8ba2b]">
+                            <div className="w-20 h-20 bg-[#008080] text-white rounded-3xl flex items-center justify-center text-3xl font-bold shadow-lg shadow-[#008080]/30">
                                 {selectedStudent.name.charAt(0)}
                             </div>
                             <div className="flex flex-col gap-1">
@@ -329,7 +329,7 @@ const Students = () => {
 
                         <div className="flex justify-end gap-3 pt-6 border-t border-slate-100">
                             <button className="px-6 py-2.5 rounded-xl border border-slate-200 text-sm font-bold text-slate-600 hover:bg-slate-50 transition-all" onClick={() => setIsModalOpen(false)}>Close</button>
-                            <button className="px-6 py-2.5 rounded-xl bg-[#f8ba2b] text-slate-900 text-sm font-bold hover:bg-[#f8ba2b] transition-all shadow-md shadow-[#f8ba2b]">Edit Academic Info</button>
+                            <button className="px-6 py-2.5 rounded-xl bg-[#008080] text-white text-sm font-bold hover:bg-[#008080] transition-all shadow-md shadow-[#008080]/30">Edit Academic Info</button>
                         </div>
                     </div>
                 )}
@@ -339,7 +339,7 @@ const Students = () => {
 };
 
 const InfoGroup = ({ label, value, highlight }) => (
-    <div className="flex flex-col gap-1.5 p-4 bg-white rounded-2xl border border-slate-100 hover:border-[#f8ba2b] transition-all group">
+    <div className="flex flex-col gap-1.5 p-4 bg-white rounded-2xl border border-slate-100 hover:border-[#008080] transition-all group">
         <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest group-hover:text-[#008080] transition-colors">{label}</label>
         <p className={`text-base font-semibold ${highlight ? 'text-[#008080]' : 'text-slate-700'}`}>{value}</p>
     </div>

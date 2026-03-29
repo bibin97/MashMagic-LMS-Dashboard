@@ -73,14 +73,14 @@ const FacultyStudents = () => {
                     <input
                         type="text"
                         placeholder="Search students by name or roll number..."
-                        className="w-full pl-14 pr-6 py-4 bg-white border border-slate-200 rounded-[1.5rem] text-sm font-medium focus:outline-none focus:ring-4 focus:ring-[#f8ba2b]/5 focus:border-[#f8ba2b] transition-all shadow-sm"
+                        className="w-full pl-14 pr-6 py-4 bg-white border border-slate-200 rounded-[1.5rem] text-sm font-medium focus:outline-none focus:ring-4 focus:ring-[#008080]/5 focus:border-[#008080] transition-all shadow-sm"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
                 </div>
                 <div className="flex gap-4">
                     <StudentListFilterDropdown value={sortBy} onChange={setSortBy} />
-                    <button className="flex items-center gap-3 px-8 py-4 bg-[#f8ba2b] text-slate-900 rounded-[1.5rem] font-black text-[10px] uppercase tracking-widest hover:bg-[#f8ba2b] transition-all shadow-xl shadow-[#f8ba2b]">
+                    <button className="flex items-center gap-3 px-8 py-4 bg-[#008080] text-white rounded-[1.5rem] font-black text-[10px] uppercase tracking-widest hover:bg-[#008080] transition-all shadow-xl shadow-[#008080]/30">
                         Export Roster
                     </button>
                 </div>
@@ -112,7 +112,7 @@ const FacultyStudents = () => {
                                     <tr key={student.id} className="hover:bg-slate-50/80 transition-all group">
                                         <td className="px-8 py-6">
                                             <div className="flex items-center gap-4">
-                                                <div className="w-12 h-12 bg-[#008080]/10 rounded-2xl flex items-center justify-center text-slate-900 font-black text-xl group-hover:bg-[#f8ba2b] group-hover:text-slate-900 transition-all duration-500">
+                                                <div className="w-12 h-12 bg-[#008080]/10 rounded-2xl flex items-center justify-center text-white font-black text-xl group-hover:bg-[#008080] group-hover:text-white transition-all duration-500">
                                                     {student.name.charAt(0)}
                                                 </div>
                                                 <div>
@@ -126,7 +126,7 @@ const FacultyStudents = () => {
                                         </td>
                                         <td className="px-8 py-6">
                                             <div className="flex items-center gap-2">
-                                                <div className="w-1.5 h-1.5 bg-[#f8ba2b] rounded-full"></div>
+                                                <div className="w-1.5 h-1.5 bg-[#008080] rounded-full"></div>
                                                 <span className="text-xs font-bold text-slate-700 tracking-tight uppercase">{student.department || 'General'}</span>
                                             </div>
                                         </td>
@@ -150,7 +150,7 @@ const FacultyStudents = () => {
                                             <div className="flex items-center justify-end gap-2">
                                                 <button
                                                     onClick={() => navigate(`/faculty/students/${student.id}`)}
-                                                    className="px-6 py-2.5 bg-white border border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-600 hover:bg-[#f8ba2b] hover:text-slate-900 hover:border-[#f8ba2b] transition-all duration-500 shadow-sm"
+                                                    className="px-6 py-2.5 bg-white border border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-600 hover:bg-[#008080] hover:text-white hover:border-[#008080] transition-all duration-500 shadow-sm"
                                                 >
                                                     View Profile
                                                 </button>

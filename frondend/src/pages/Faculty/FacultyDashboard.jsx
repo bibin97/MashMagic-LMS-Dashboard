@@ -19,7 +19,7 @@ const StatCard = ({ title, value, icon: Icon, color, trend }) => (
     <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 group relative overflow-hidden">
         <div className={`absolute top-0 right-0 w-32 h-32 ${color.replace('bg-', 'bg-')}/5 rounded-full -mr-16 -mt-16 transition-transform duration-700 group-hover:scale-150`}></div>
         <div className="flex flex-col gap-6 relative z-10">
-            <div className={`w-14 h-14 ${color} rounded-2xl flex items-center justify-center text-white shadow-lg shadow-[#f8ba2b] group-hover:rotate-6 transition-transform duration-500`}>
+            <div className={`w-14 h-14 ${color} rounded-2xl flex items-center justify-center text-white shadow-lg shadow-[#008080]/30 group-hover:rotate-6 transition-transform duration-500`}>
                 <Icon size={28} />
             </div>
             <div>
@@ -83,7 +83,7 @@ const FacultyDashboard = () => {
                     title="Assigned Students"
                     value={stats?.badges?.totalStudents || 0}
                     icon={Users}
-                    color="bg-[#f8ba2b]"
+                    color="bg-[#008080]"
                     trend="+2 this month"
                 />
                 <StatCard
@@ -108,7 +108,7 @@ const FacultyDashboard = () => {
                     title="Tasks Pending"
                     value={stats?.badges?.pendingTasks || 0}
                     icon={AlertCircle}
-                    color="bg-[#f8ba2b]"
+                    color="bg-[#008080]"
                 />
             </div>
 
@@ -148,7 +148,7 @@ const FacultyDashboard = () => {
                                     />
                                     <Bar dataKey="count" radius={[10, 10, 0, 0]} barSize={40}>
                                         {stats?.charts?.performance?.map((entry, index) => (
-                                            <Cell key={`cell-${index}`} fill={entry.status === 'Green' ? '#008080' : '#f8ba2b'} />
+                                            <Cell key={`cell-${index}`} fill={entry.status === 'Green' ? '#008080' : '#00b3b3'} />
                                         ))}
                                     </Bar>
                                 </BarChart>
@@ -193,7 +193,7 @@ const FacultyDashboard = () => {
                                     <Line
                                         type="monotone"
                                         dataKey="percentage"
-                                        stroke="#f8ba2b"
+                                        stroke="#008080"
                                         strokeWidth={4}
                                         dot={{ r: 6, fill: '#008080', strokeWidth: 3, stroke: '#fff' }}
                                         activeDot={{ r: 8, strokeWidth: 0 }}
@@ -207,14 +207,14 @@ const FacultyDashboard = () => {
 
             {/* Bottom Section - Recent Activity or Upcoming */}
             <div className="bg-slate-900 p-12 rounded-[3.5rem] relative overflow-hidden group">
-                <div className="absolute top-0 right-0 w-96 h-96 bg-[#f8ba2b]/10 rounded-full -mr-48 -mt-48 blur-[100px] transition-all duration-1000 group-hover:scale-150"></div>
+                <div className="absolute top-0 right-0 w-96 h-96 bg-[#008080]/10 rounded-full -mr-48 -mt-48 blur-[100px] transition-all duration-1000 group-hover:scale-150"></div>
                 <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
                     <div className="text-center md:text-left">
                         <h2 className="text-3xl font-black text-white tracking-tight leading-tight">Academic Engine Status</h2>
                         <p className="text-slate-400 font-bold uppercase tracking-[0.3em] text-[10px] mt-4">Unified Management Interface</p>
                     </div>
                     <div className="flex gap-4">
-                        <button className="bg-white text-slate-900 px-8 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-[#f8ba2b] hover:text-slate-900 transition-all duration-500 shadow-xl shadow-white/5 hover:shadow-[#f8ba2b]/20">
+                        <button className="bg-[#008080] text-white px-8 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-[#006666] hover:text-white transition-all duration-500 shadow-xl shadow-[#008080]/30">
                             Generate Report
                         </button>
                         <button className="bg-slate-800 text-white px-8 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-700 transition-all duration-500">

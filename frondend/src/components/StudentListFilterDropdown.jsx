@@ -9,7 +9,7 @@ export const STUDENT_SORT_OPTIONS = [
     { value: 'inactive_first', label: 'Inactive students first' },
 ];
 
-const StudentListFilterDropdown = ({ value, onChange, options = STUDENT_SORT_OPTIONS, className = '' }) => {
+const StudentListFilterDropdown = ({ value, onChange, options = STUDENT_SORT_OPTIONS, className='' }) => {
     const [open, setOpen] = useState(false);
     const ref = useRef(null);
 

@@ -21,7 +21,7 @@ const StatCard = ({ title, value, icon: Icon, color }) => (
 
 const SessionCard = ({ session, isLive, isPast }) => (
     <div className={`p-6 rounded-[2rem] border transition-all duration-500 relative group overflow-hidden ${isLive
-        ? 'bg-[#f8ba2b] border-[#f8ba2b] shadow-xl shadow-[#f8ba2b]'
+        ? 'bg-[#008080] border-[#008080] shadow-xl shadow-[#008080]/30'
         : isPast ? 'bg-slate-50 border-slate-100 opacity-80' : 'bg-slate-50/50 border-slate-100 hover:bg-white hover:shadow-xl'
         }`}>
         {isLive && (
@@ -68,7 +68,7 @@ const SessionCard = ({ session, isLive, isPast }) => (
         )}
 
         <div className="flex items-center gap-3 mt-auto pt-4 border-t border-white/10">
-            <div className={`w-8 h-8 rounded-xl flex items-center justify-center text-xs font-black ${isLive ? 'bg-white/20 text-white' : 'bg-[#f8ba2b] text-slate-900'}`}>
+            <div className={`w-8 h-8 rounded-xl flex items-center justify-center text-xs font-black ${isLive ? 'bg-white/20 text-white' : 'bg-[#008080] text-white'}`}>
                 {session.faculty_name?.charAt(0)}
             </div>
             <div>
@@ -161,7 +161,7 @@ const MentorDashboard = () => {
                     title="Assigned Students"
                     value={stats.totalStudents}
                     icon={Users}
-                    color="bg-[#f8ba2b]"
+                    color="bg-[#008080]"
                 />
                 <StatCard
                     title="Scheduled Sessions"
@@ -173,7 +173,7 @@ const MentorDashboard = () => {
                     title="Student Interactions"
                     value={stats.totalStudentInteractions}
                     icon={Users}
-                    color="bg-[#f8ba2b]"
+                    color="bg-[#008080]"
                 />
                 <StatCard
                     title="Faculty Interactions"
@@ -206,11 +206,11 @@ const MentorDashboard = () => {
                     {/* 1. Live Sessions Section - Always visible to confirm the area exists */}
                     <div className="space-y-8">
                         <div className="flex items-center gap-4">
-                            <div className="w-2 h-8 bg-[#f8ba2b] rounded-full animate-pulse shadow-[0_0_15px_rgba(79,70,229,0.5)]"></div>
+                            <div className="w-2 h-8 bg-[#008080] rounded-full animate-pulse shadow-[0_0_15px_rgba(79,70,229,0.5)]"></div>
                             <h3 className="text-lg font-black text-slate-900 uppercase italic flex items-center gap-3">
                                 Live Now
                                 {stats.liveSessions?.length > 0 && (
-                                    <span className="flex h-2 w-2 rounded-full bg-[#f8ba2b] animate-ping"></span>
+                                    <span className="flex h-2 w-2 rounded-full bg-[#008080] animate-ping"></span>
                                 )}
                             </h3>
                             <div className="h-[1px] flex-1 bg-slate-100 italic"></div>
@@ -221,7 +221,7 @@ const MentorDashboard = () => {
                                     <SessionCard key={`live-${idx}`} session={session} isLive={true} />
                                 ))
                             ) : (
-                                <div className="col-span-full py-10 text-center bg-[#008080]/10/30 rounded-[2rem] border border-dashed border-[#f8ba2b] group transition-all duration-700">
+                                <div className="col-span-full py-10 text-center bg-[#008080]/10 rounded-[2rem] border border-dashed border-[#008080]/50 group transition-all duration-700">
                                     <Activity className="mx-auto text-[#008080] mb-3 animate-pulse" size={32} />
                                     <p className="text-[#008080] text-[10px] font-black uppercase tracking-[0.2em] italic">Waiting for active sessions...</p>
                                 </div>
@@ -232,7 +232,7 @@ const MentorDashboard = () => {
                     {/* 2. Upcoming Sessions Section */}
                     <div className="space-y-8">
                         <div className="flex items-center gap-4">
-                            <div className="w-2 h-8 bg-[#f8ba2b] rounded-full"></div>
+                            <div className="w-2 h-8 bg-[#008080] rounded-full"></div>
                             <h3 className="text-lg font-black text-slate-900 uppercase italic">Upcoming Schedules</h3>
                             <div className="h-[1px] flex-1 bg-slate-100"></div>
                         </div>

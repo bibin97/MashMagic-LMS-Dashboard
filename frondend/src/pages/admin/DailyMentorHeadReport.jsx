@@ -66,12 +66,12 @@ const DailyMentorHeadReport = () => {
                             value={filterDate}
                             onChange={(e) => setFilterDate(e.target.value)}
                             max={new Date().toISOString().split('T')[0]}
-                            className="bg-white border border-slate-200 text-slate-700 text-sm font-bold rounded-2xl pl-12 pr-4 py-3 outline-none focus:ring-4 focus:ring-[#f8ba2b] transition-all hover:border-[#f8ba2b]"
+                            className="bg-white border border-slate-200 text-slate-700 text-sm font-bold rounded-2xl pl-12 pr-4 py-3 outline-none focus:ring-4 focus:ring-[#008080] transition-all hover:border-[#008080]"
                         />
                     </div>
                     <button
                         onClick={handleDownload}
-                        className="flex items-center gap-2 px-6 py-3 bg-[#f8ba2b] text-slate-900 rounded-2xl font-black text-sm uppercase tracking-widest shadow-lg shadow-[#f8ba2b] hover:bg-[#f8ba2b] hover:-translate-y-0.5 transition-all"
+                        className="flex items-center gap-2 px-6 py-3 bg-[#008080] text-white rounded-2xl font-black text-sm uppercase tracking-widest shadow-lg shadow-[#008080]/30 hover:bg-[#008080] hover:-translate-y-0.5 transition-all"
                     >
                         <DownloadCloud size={18} />
                         Export

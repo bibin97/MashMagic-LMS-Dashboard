@@ -28,7 +28,7 @@ const DataTable = ({
                         type="text"
                         placeholder={searchPlaceholder}
                         onChange={(e) => onSearch && onSearch(e.target.value)}
-                        className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 pl-10 pr-4 text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] focus:border-[#f8ba2b] transition-all shadow-sm"
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 pl-10 pr-4 text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] focus:border-[#008080] transition-all shadow-sm"
                     />
                 </div>
 
@@ -50,7 +50,7 @@ const DataTable = ({
                     )}
                     <button
                         onClick={onExport}
-                        className="w-full sm:w-auto flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 bg-[#f8ba2b] border border-[#f8ba2b] rounded-xl text-sm font-semibold text-slate-900 hover:bg-[#f8ba2b] transition-all shadow-sm active:scale-95"
+                        className="w-full sm:w-auto flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 bg-[#008080] border border-[#008080] rounded-xl text-sm font-semibold text-white hover:bg-[#008080] transition-all shadow-sm active:scale-95"
                     >
                         <span>Export</span>
                     </button>
@@ -162,7 +162,7 @@ const DataTable = ({
                     <button className="p-1.5 rounded-lg border border-slate-200 bg-white text-slate-400 hover:text-slate-600 hover:bg-slate-50 transition-all disabled:opacity-40" disabled>
                         <ChevronLeft size={16} />
                     </button>
-                    <button className="px-3 py-1 rounded-lg bg-[#f8ba2b] text-slate-900 text-xs font-bold shadow-sm shadow-[#f8ba2b]">1</button>
+                    <button className="px-3 py-1 rounded-lg bg-[#008080] text-white text-xs font-bold shadow-sm shadow-[#008080]/30">1</button>
                     <button className="p-1.5 rounded-lg border border-slate-200 bg-white text-slate-400 hover:text-slate-600 hover:bg-slate-50 transition-all">
                         <ChevronRight size={16} />
                     </button>

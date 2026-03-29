@@ -151,7 +151,7 @@ const MentorsList = () => {
                     <input
                         type="text"
                         placeholder="FILTER BY NAME, PHONE, OR LOCATION..."
-                        className="pl-14 pr-8 py-4 bg-slate-50 border border-slate-100 rounded-3xl text-xs font-bold uppercase tracking-[0.1em] focus:ring-4 ring-[#f8ba2b]/10 w-full md:w-96 shadow-sm transition-all outline-none focus:bg-white"
+                        className="pl-14 pr-8 py-4 bg-slate-50 border border-slate-100 rounded-3xl text-xs font-bold uppercase tracking-[0.1em] focus:ring-4 ring-[#008080]/10 w-full md:w-96 shadow-sm transition-all outline-none focus:bg-white"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
@@ -181,7 +181,7 @@ const MentorsList = () => {
                                         <tr className="hover:bg-slate-50/50 transition-colors group">
                                             <td className="p-6">
                                                 <div className="flex items-center gap-4">
-                                                    <div className="w-10 h-10 bg-gradient-to-br from-[#f8ba2b] via-[#f8ba2b] to-purple-700 rounded-xl flex items-center justify-center text-white font-black shadow-lg shadow-[#f8ba2b] group-hover:scale-110 transition-transform">
+                                                    <div className="w-10 h-10 bg-gradient-to-br from-[#008080] via-[#008080] to-purple-700 rounded-xl flex items-center justify-center text-white font-black shadow-lg shadow-[#008080] group-hover:scale-110 transition-transform">
                                                         {mentor.mentor_name.charAt(0)}
                                                     </div>
                                                     <div className="flex flex-col">
@@ -206,7 +206,7 @@ const MentorsList = () => {
                                                 <div className="flex items-center gap-4">
                                                     <div className="flex-1 h-3 bg-slate-100 rounded-full overflow-hidden border border-slate-200 shadow-inner">
                                                         <div
-                                                            className="h-full bg-gradient-to-r from-emerald-400 to-[#f8ba2b] transition-all duration-1000"
+                                                            className="h-full bg-gradient-to-r from-emerald-400 to-[#008080] transition-all duration-1000"
                                                             style={{ width: `${progress}%` }}
                                                         ></div>
                                                     </div>
@@ -222,7 +222,7 @@ const MentorsList = () => {
                                                             e.stopPropagation();
                                                             navigate(`/mentor-head/mentors/${mentor.mentor_id}`);
                                                         }}
-                                                        className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-widest text-[#008080] hover:bg-[#008080]/10 hover:border-[#f8ba2b] transition-all shadow-sm"
+                                                        className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-widest text-[#008080] hover:bg-[#008080]/10 hover:border-[#008080] transition-all shadow-sm"
                                                         title="View Profile"
                                                     >
                                                         View
@@ -291,9 +291,9 @@ const MentorsList = () => {
                             ) : mentorStudents.length > 0 ? (
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     {mentorStudents.map((student) => (
-                                        <div key={student.id} className="p-4 bg-slate-50 border border-slate-100 rounded-2xl flex flex-col gap-3 group hover:bg-white hover:border-[#f8ba2b] hover:shadow-lg transition-all">
+                                        <div key={student.id} className="p-4 bg-slate-50 border border-slate-100 rounded-2xl flex flex-col gap-3 group hover:bg-white hover:border-[#008080] hover:shadow-lg transition-all">
                                             <div className="flex items-center gap-3">
-                                                <div className="w-8 h-8 bg-[#f8ba2b] text-slate-900 rounded-lg flex items-center justify-center text-xs font-black shadow-md uppercase">
+                                                <div className="w-8 h-8 bg-[#008080] text-white rounded-lg flex items-center justify-center text-xs font-black shadow-md uppercase">
                                                     {student.name.charAt(0)}
                                                 </div>
                                                 <div className="flex flex-col">

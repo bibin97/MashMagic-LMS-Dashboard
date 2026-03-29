@@ -103,7 +103,7 @@ const FacultySessions = () => {
                 </div>
                 <button
                     onClick={() => setIsModalOpen(true)}
-                    className="flex items-center gap-3 px-10 py-5 bg-[#f8ba2b] text-slate-900 rounded-[2rem] font-black text-[10px] uppercase tracking-widest hover:bg-[#f8ba2b] transition-all shadow-2xl shadow-[#f8ba2b]"
+                    className="flex items-center gap-3 px-10 py-5 bg-[#008080] text-white rounded-[2rem] font-black text-[10px] uppercase tracking-widest hover:bg-[#008080] transition-all shadow-2xl shadow-[#008080]/30"
                 >
                     <Plus size={18} />
                     Schedule New Class
@@ -122,8 +122,8 @@ const FacultySessions = () => {
                                     }`}>
                                     {session.status === 'Completed' ? <CheckCircle size={28} /> : <Clock size={28} />}
                                 </div>
-                                <span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest ${session.status === 'Completed' ? 'bg-emerald-500 text-white' : 'bg-[#f8ba2b] text-slate-900'
-                                    } shadow-xl shadow-[#f8ba2b]/20`}>
+                                <span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest ${session.status === 'Completed' ? 'bg-emerald-500 text-white' : 'bg-[#008080] text-white'
+                                    } shadow-xl shadow-[#008080]/20`}>
                                     {session.status}
                                 </span>
                             </div>
@@ -177,7 +177,7 @@ const FacultySessions = () => {
                 <div className="fixed inset-0 z-[2000] flex items-center justify-center p-6 backdrop-blur-3xl bg-slate-900/10 animate-in fade-in duration-300">
                     <div className="bg-white w-full max-w-3xl rounded-[3.5rem] border border-slate-100 shadow-2xl overflow-hidden animate-in zoom-in slide-in-from-bottom-10 duration-500">
                         <div className="p-10 border-b border-slate-50 flex justify-between items-center text-white bg-slate-900 relative">
-                            <div className="absolute top-0 right-0 w-40 h-40 bg-[#f8ba2b]/10 rounded-full -mr-20 -mt-20 blur-3xl"></div>
+                            <div className="absolute top-0 right-0 w-40 h-40 bg-[#008080]/10 rounded-full -mr-20 -mt-20 blur-3xl"></div>
                             <div className="relative">
                                 <h3 className="text-2xl font-black tracking-tight italic">Plan Session</h3>
                                 <p className="text-[10px] font-black uppercase tracking-[0.2em] opacity-60">Academic Planning Engine</p>
@@ -193,7 +193,7 @@ const FacultySessions = () => {
                                     <input
                                         type="text"
                                         placeholder="e.g. Advanced Mathematics"
-                                        className="w-full px-10 py-5 bg-slate-50 border border-slate-100 rounded-[2rem] text-xs font-bold focus:outline-none focus:ring-4 focus:ring-[#f8ba2b]/5 focus:border-[#f8ba2b] transition-all shadow-sm"
+                                        className="w-full px-10 py-5 bg-slate-50 border border-slate-100 rounded-[2rem] text-xs font-bold focus:outline-none focus:ring-4 focus:ring-[#008080]/5 focus:border-[#008080] transition-all shadow-sm"
                                         value={formData.topic}
                                         onChange={(e) => setFormData({ ...formData, topic: e.target.value })}
                                         required
@@ -203,7 +203,7 @@ const FacultySessions = () => {
                                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4">Schedule Date</label>
                                     <input
                                         type="date"
-                                        className="w-full px-10 py-5 bg-slate-50 border border-slate-100 rounded-[2rem] text-xs font-bold focus:outline-none focus:ring-4 focus:ring-[#f8ba2b]/5 focus:border-[#f8ba2b] transition-all shadow-sm"
+                                        className="w-full px-10 py-5 bg-slate-50 border border-slate-100 rounded-[2rem] text-xs font-bold focus:outline-none focus:ring-4 focus:ring-[#008080]/5 focus:border-[#008080] transition-all shadow-sm"
                                         value={formData.date}
                                         onChange={(e) => setFormData({ ...formData, date: e.target.value })}
                                         required
@@ -229,8 +229,8 @@ const FacultySessions = () => {
                                             type="button"
                                             onClick={() => toggleStudent(student.id)}
                                             className={`flex items-center gap-4 px-6 py-4 rounded-2xl transition-all duration-300 text-left border ${formData.studentIds.includes(student.id)
-                                                ? 'bg-[#f8ba2b] border-[#f8ba2b] text-slate-900 shadow-lg shadow-[#f8ba2b]'
-                                                : 'bg-white border-slate-100 text-slate-600 hover:border-[#f8ba2b]'
+                                                ? 'bg-[#008080] border-[#008080] text-white shadow-lg shadow-[#008080]/30'
+                                                : 'bg-white border-slate-100 text-slate-600 hover:border-[#008080]'
                                                 }`}
                                         >
                                             <div className={`w-8 h-8 rounded-lg flex items-center justify-center font-black ${formData.studentIds.includes(student.id) ? 'bg-white/20' : 'bg-slate-100'

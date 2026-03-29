@@ -215,7 +215,7 @@ const FacultyInteractionLog = () => {
                         Audit of daily faculty reporting and session registry
                     </p>
                 </div>
-                <div className="w-16 h-16 bg-[#f8ba2b] rounded-3xl flex items-center justify-center text-slate-900 shadow-xl shadow-[#f8ba2b] rotate-6">
+                <div className="w-16 h-16 bg-[#008080] rounded-3xl flex items-center justify-center text-white shadow-xl shadow-[#008080]/30 rotate-6">
                     <BookOpen size={28} />
                 </div>
             </div>
@@ -233,7 +233,7 @@ const FacultyInteractionLog = () => {
                 </div>
                 <button
                     onClick={() => handleOpenModal()}
-                    className="bg-[#f8ba2b] text-slate-900 px-8 py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-xl shadow-[#f8ba2b] hover:bg-[#f8ba2b] active:scale-95 transition-all flex items-center justify-center gap-2 group italic"
+                    className="bg-[#008080] text-white px-8 py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-xl shadow-[#008080]/30 hover:bg-[#008080] active:scale-95 transition-all flex items-center justify-center gap-2 group italic"
                 >
                     <Plus size={16} className="group-hover:rotate-90 transition-transform" /> Add New Entry
                 </button>
@@ -542,7 +542,7 @@ const FacultyInteractionLog = () => {
                                             />
                                             <label
                                                 htmlFor="proof-upload"
-                                                className={`flex items-center justify-center gap-3 px-8 py-4 bg-white border-2 border-dashed border-slate-200 rounded-2xl cursor-pointer hover:border-[#f8ba2b] hover:bg-[#008080]/10/50 transition-all group ${uploading ? 'opacity-50 pointer-events-none' : ''}`}
+                                                className={`flex items-center justify-center gap-3 px-8 py-4 bg-white border-2 border-dashed border-slate-200 rounded-2xl cursor-pointer hover:border-[#008080] hover:bg-[#008080]/10/50 transition-all group ${uploading ? 'opacity-50 pointer-events-none' : ''}`}
                                             >
                                                 {uploading ? (
                                                     <Loader2 className="animate-spin text-[#008080]" size={20} />
@@ -588,7 +588,7 @@ const FacultyInteractionLog = () => {
                                     <button
                                         type="submit"
                                         disabled={uploading}
-                                        className={`w-full sm:w-auto px-10 py-4 bg-[#f8ba2b] text-slate-900 rounded-2xl text-xs font-black uppercase tracking-widest shadow-xl shadow-[#f8ba2b] hover:bg-[#f8ba2b] active:scale-95 transition-all flex items-center justify-center gap-2 italic ${uploading ? 'opacity-50' : ''}`}
+                                        className={`w-full sm:w-auto px-10 py-4 bg-[#008080] text-white rounded-2xl text-xs font-black uppercase tracking-widest shadow-xl shadow-[#008080]/30 hover:bg-[#008080] active:scale-95 transition-all flex items-center justify-center gap-2 italic ${uploading ? 'opacity-50' : ''}`}
                                     >
                                         {editingLogId ? 'Update Report' : 'Submit Log'} <ChevronRight size={16} />
                                     </button>
@@ -644,7 +644,7 @@ const FacultyInteractionLog = () => {
                                         <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Date</p>
                                         <p className="text-xs font-black text-slate-900 italic">{new Date(viewingLog.date).toLocaleDateString()}</p>
                                     </div>
-                                    <div className="bg-[#008080]/10 p-5 rounded-3xl border border-[#f8ba2b]">
+                                    <div className="bg-[#008080]/10 p-5 rounded-3xl border border-[#008080]">
                                         <p className="text-[9px] font-black text-[#008080] uppercase tracking-widest mb-1">Test Score</p>
                                         <p className="text-xs font-black text-[#008080] italic">{viewingLog.test_score || 'N/A'}</p>
                                     </div>
@@ -704,7 +704,7 @@ const FacultyInteractionLog = () => {
                                     <div className="flex items-center gap-6">
                                         <div className="text-center">
                                             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Parent Update</p>
-                                            <span className={`text-[10px] font-black uppercase px-3 py-1.5 rounded-full ${viewingLog.parent_update_needed === 'Yes' ? 'bg-[#f8ba2b] text-slate-900 shadow-lg shadow-[#f8ba2b]' : 'bg-slate-200 text-slate-500'}`}>
+                                            <span className={`text-[10px] font-black uppercase px-3 py-1.5 rounded-full ${viewingLog.parent_update_needed === 'Yes' ? 'bg-[#008080] text-white shadow-lg shadow-[#008080]/30' : 'bg-slate-200 text-slate-500'}`}>
                                                 {viewingLog.parent_update_needed}
                                             </span>
                                         </div>

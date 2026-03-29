@@ -134,7 +134,7 @@ const AdminManagement = () => {
                 </div>
                 <button
                     onClick={handleOpenCreate}
-                    className="bg-[#f8ba2b] text-slate-900 px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center gap-2 hover:bg-[#f8ba2b] transition-all shadow-xl shadow-[#f8ba2b] active:scale-95"
+                    className="bg-[#008080] text-white px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center gap-2 hover:bg-[#008080] transition-all shadow-xl shadow-[#008080]/30 active:scale-95"
                 >
                     <UserPlus size={18} />
                     <span>Create Sub Admin</span>
@@ -158,7 +158,7 @@ const AdminManagement = () => {
                                 <tr key={admin.id} className="hover:bg-slate-50/50 transition-colors group">
                                     <td className="p-6">
                                         <div className="flex items-center gap-4">
-                                            <div className="w-10 h-10 bg-gradient-to-br from-[#f8ba2b] to-purple-600 rounded-xl flex items-center justify-center text-white font-black shadow-lg shadow-[#f8ba2b]">
+                                            <div className="w-10 h-10 bg-gradient-to-br from-[#008080] to-purple-600 rounded-xl flex items-center justify-center text-white font-black shadow-lg shadow-[#008080]">
                                                 {admin.name.charAt(0).toUpperCase()}
                                             </div>
                                             <div>
@@ -190,7 +190,7 @@ const AdminManagement = () => {
                                         <div className="flex items-center justify-end gap-2">
                                             <button
                                                 onClick={() => handleOpenEdit(admin)}
-                                                className="w-10 h-10 rounded-xl flex items-center justify-center text-[#008080] hover:text-[#008080] hover:bg-[#008080]/10 transition-all border border-transparent hover:border-[#f8ba2b]"
+                                                className="w-10 h-10 rounded-xl flex items-center justify-center text-[#008080] hover:text-[#008080] hover:bg-[#008080]/10 transition-all border border-transparent hover:border-[#008080]"
                                             >
                                                 <Edit size={18} />
                                             </button>
@@ -237,7 +237,7 @@ const AdminManagement = () => {
                                 <input
                                     type="text"
                                     required
-                                    className="w-full p-4 pl-12 bg-slate-50 border border-slate-100 rounded-2xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#f8ba2b] focus:border-[#f8ba2b] transition-all font-bold tracking-wide"
+                                    className="w-full p-4 pl-12 bg-slate-50 border border-slate-100 rounded-2xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] focus:border-[#008080] transition-all font-bold tracking-wide"
                                     placeholder="Enter full name"
                                     value={formData.name}
                                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
@@ -254,7 +254,7 @@ const AdminManagement = () => {
                                     type="email"
                                     required
                                     disabled={!!editingAdmin}
-                                    className="w-full p-4 pl-12 bg-slate-50 border border-slate-100 rounded-2xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#f8ba2b] focus:border-[#f8ba2b] transition-all font-bold tracking-wide disabled:opacity-50"
+                                    className="w-full p-4 pl-12 bg-slate-50 border border-slate-100 rounded-2xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] focus:border-[#008080] transition-all font-bold tracking-wide disabled:opacity-50"
                                     placeholder="email@mashmagic.com"
                                     value={formData.email}
                                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
@@ -269,7 +269,7 @@ const AdminManagement = () => {
                                 <Phone size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#008080] transition-colors" />
                                 <input
                                     type="tel"
-                                    className="w-full p-4 pl-12 bg-slate-50 border border-slate-100 rounded-2xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#f8ba2b] focus:border-[#f8ba2b] transition-all font-bold tracking-wide"
+                                    className="w-full p-4 pl-12 bg-slate-50 border border-slate-100 rounded-2xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] focus:border-[#008080] transition-all font-bold tracking-wide"
                                     placeholder="Enter mobile number"
                                     value={formData.phone_number}
                                     onChange={(e) => setFormData({ ...formData, phone_number: e.target.value })}
@@ -316,7 +316,7 @@ const AdminManagement = () => {
                                 <input
                                     type="password"
                                     required={!editingAdmin}
-                                    className="w-full p-4 pl-12 bg-slate-50 border border-slate-100 rounded-2xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#f8ba2b] focus:border-[#f8ba2b] transition-all font-bold tracking-wide"
+                                    className="w-full p-4 pl-12 bg-slate-50 border border-slate-100 rounded-2xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] focus:border-[#008080] transition-all font-bold tracking-wide"
                                     placeholder="••••••••"
                                     value={formData.password}
                                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
@@ -336,7 +336,7 @@ const AdminManagement = () => {
                         <button
                             type="submit"
                             disabled={isSubmitting}
-                            className="flex-[2] p-5 bg-[#f8ba2b] text-slate-900 rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-[#f8ba2b] transition-all shadow-xl shadow-[#f8ba2b] flex items-center justify-center gap-2 disabled:opacity-50"
+                            className="flex-[2] p-5 bg-[#008080] text-white rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-[#008080] transition-all shadow-xl shadow-[#008080]/30 flex items-center justify-center gap-2 disabled:opacity-50"
                         >
                             {isSubmitting ? (
                                 <Loader2 className="animate-spin" size={18} />

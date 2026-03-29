@@ -140,7 +140,7 @@ const FacultyDirectory = () => {
             <div className="bg-white p-10 rounded-[3.5rem] shadow-sm border border-slate-100 flex flex-col md:flex-row justify-between items-center gap-6 relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-64 h-64 bg-[#008080]/10 rounded-full -mr-32 -mt-32 opacity-40"></div>
                 <div className="relative z-10 flex items-center gap-6">
-                    <div className="w-16 h-16 bg-[#f8ba2b] rounded-3xl flex items-center justify-center text-slate-900 shadow-xl shadow-[#f8ba2b] rotate-6 group hover:rotate-0 transition-all duration-500">
+                    <div className="w-16 h-16 bg-[#008080] rounded-3xl flex items-center justify-center text-white shadow-xl shadow-[#008080]/30 rotate-6 group hover:rotate-0 transition-all duration-500">
                         <Users size={32} />
                     </div>
                     <div>
@@ -158,7 +158,7 @@ const FacultyDirectory = () => {
                         <input
                             type="text"
                             placeholder="Find by Name or Email..."
-                            className="w-full pl-12 pr-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-[10px] font-black uppercase tracking-widest focus:bg-white focus:ring-8 ring-[#f8ba2b]/5 outline-none transition-all"
+                            className="w-full pl-12 pr-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-[10px] font-black uppercase tracking-widest focus:bg-white focus:ring-8 ring-[#008080]/5 outline-none transition-all"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
@@ -172,19 +172,19 @@ const FacultyDirectory = () => {
                     <div className="flex items-center gap-2 bg-white p-2 border border-slate-100 rounded-2xl shadow-sm">
                         <button 
                             onClick={() => setSortBy('newest')}
-                            className={`px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${sortBy === 'newest' ? 'bg-[#f8ba2b] text-slate-900 shadow-lg shadow-[#f8ba2b]' : 'text-slate-400 hover:bg-slate-50'}`}
+                            className={`px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${sortBy === 'newest' ? 'bg-[#008080] text-white shadow-lg shadow-[#008080]/30' : 'text-slate-400 hover:bg-slate-50'}`}
                         >Newest First</button>
                         <button 
                             onClick={() => setSortBy('oldest')}
-                            className={`px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${sortBy === 'oldest' ? 'bg-[#f8ba2b] text-slate-900 shadow-lg shadow-[#f8ba2b]' : 'text-slate-400 hover:bg-slate-50'}`}
+                            className={`px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${sortBy === 'oldest' ? 'bg-[#008080] text-white shadow-lg shadow-[#008080]/30' : 'text-slate-400 hover:bg-slate-50'}`}
                         >Oldest First</button>
                         <button 
                             onClick={() => setSortBy('most_students')}
-                            className={`px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${sortBy === 'most_students' ? 'bg-[#f8ba2b] text-slate-900 shadow-lg shadow-[#f8ba2b]' : 'text-slate-400 hover:bg-slate-50'}`}
+                            className={`px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${sortBy === 'most_students' ? 'bg-[#008080] text-white shadow-lg shadow-[#008080]/30' : 'text-slate-400 hover:bg-slate-50'}`}
                         >Top Load</button>
                         <button 
                             onClick={() => setSortBy('most_hours')}
-                            className={`px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${sortBy === 'most_hours' ? 'bg-[#f8ba2b] text-slate-900 shadow-lg shadow-[#f8ba2b]' : 'text-slate-400 hover:bg-slate-50'}`}
+                            className={`px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${sortBy === 'most_hours' ? 'bg-[#008080] text-white shadow-lg shadow-[#008080]/30' : 'text-slate-400 hover:bg-slate-50'}`}
                         >Most Hours</button>
                     </div>
 
@@ -213,7 +213,7 @@ const FacultyDirectory = () => {
 
                 <button 
                     onClick={handlePrint}
-                    className="flex items-center gap-3 px-8 py-4 bg-slate-900 text-slate-900 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-[#f8ba2b] transition-all shadow-xl shadow-slate-100 active:scale-95"
+                    className="flex items-center gap-3 px-8 py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-[#008080] transition-all shadow-xl shadow-slate-100 active:scale-95"
                 >
                     <Activity size={16} /> Print Analytics Registry
                 </button>
@@ -221,7 +221,7 @@ const FacultyDirectory = () => {
 
             {loading ? (
                 <div className="flex flex-col items-center justify-center p-32 space-y-4">
-                    <div className="w-14 h-14 border-4 border-[#f8ba2b] border-t-transparent rounded-full animate-spin"></div>
+                    <div className="w-14 h-14 border-4 border-[#008080] border-t-transparent rounded-full animate-spin"></div>
                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest animate-pulse">Syncing Faculty Database...</p>
                 </div>
             ) : filteredFaculties.length === 0 ? (
@@ -278,7 +278,7 @@ const FacultyDirectory = () => {
                                             </td>
                                             <td className="px-6 py-6">
                                                 <div className="flex gap-2">
-                                                    <div className="text-center bg-[#008080]/10/50 px-3 py-1.5 rounded-xl border border-[#f8ba2b]/50">
+                                                    <div className="text-center bg-[#008080]/10/50 px-3 py-1.5 rounded-xl border border-[#008080]/50">
                                                         <p className="text-[7px] font-black text-[#008080] uppercase tracking-tighter">Students</p>
                                                         <p className="text-xs font-black text-[#008080]">{faculty.studentCount}</p>
                                                     </div>
@@ -307,7 +307,7 @@ const FacultyDirectory = () => {
                                                     </button>
                                                     <button 
                                                         onClick={() => handleEditFaculty(faculty)}
-                                                        className="p-2 bg-[#008080]/10 text-slate-900 rounded-xl hover:bg-[#f8ba2b] hover:text-slate-900 transition-all shadow-sm"
+                                                        className="p-2 bg-[#008080]/10 text-white rounded-xl hover:bg-[#008080] hover:text-white transition-all shadow-sm"
                                                         title="Edit Profile"
                                                     >
                                                         <Edit2 size={16} />
@@ -399,7 +399,7 @@ const FacultyDirectory = () => {
                                     type="text"
                                     value={editingFaculty.name}
                                     onChange={(e) => setEditingFaculty(prev => ({ ...prev, name: e.target.value }))}
-                                    className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-xs font-bold rounded-2xl px-5 py-4 focus:outline-none focus:ring-4 focus:ring-[#f8ba2b] focus:border-[#f8ba2b] transition-all"
+                                    className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-xs font-bold rounded-2xl px-5 py-4 focus:outline-none focus:ring-4 focus:ring-[#008080] focus:border-[#008080] transition-all"
                                 />
                             </div>
                             <div>
@@ -408,7 +408,7 @@ const FacultyDirectory = () => {
                                     type="email"
                                     value={editingFaculty.email}
                                     onChange={(e) => setEditingFaculty(prev => ({ ...prev, email: e.target.value }))}
-                                    className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-xs font-bold rounded-2xl px-5 py-4 focus:outline-none focus:ring-4 focus:ring-[#f8ba2b] focus:border-[#f8ba2b] transition-all"
+                                    className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-xs font-bold rounded-2xl px-5 py-4 focus:outline-none focus:ring-4 focus:ring-[#008080] focus:border-[#008080] transition-all"
                                 />
                             </div>
                             <div className="grid grid-cols-2 gap-6">
@@ -418,7 +418,7 @@ const FacultyDirectory = () => {
                                         type="text"
                                         value={editingFaculty.phone_number || ''}
                                         onChange={(e) => setEditingFaculty(prev => ({ ...prev, phone_number: e.target.value }))}
-                                        className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-xs font-bold rounded-2xl px-5 py-4 focus:outline-none focus:ring-4 focus:ring-[#f8ba2b] focus:border-[#f8ba2b] transition-all"
+                                        className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-xs font-bold rounded-2xl px-5 py-4 focus:outline-none focus:ring-4 focus:ring-[#008080] focus:border-[#008080] transition-all"
                                     />
                                 </div>
                                 <div>
@@ -427,7 +427,7 @@ const FacultyDirectory = () => {
                                         type="text"
                                         value={editingFaculty.place || ''}
                                         onChange={(e) => setEditingFaculty(prev => ({ ...prev, place: e.target.value }))}
-                                        className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-xs font-bold rounded-2xl px-5 py-4 focus:outline-none focus:ring-4 focus:ring-[#f8ba2b] focus:border-[#f8ba2b] transition-all"
+                                        className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-xs font-bold rounded-2xl px-5 py-4 focus:outline-none focus:ring-4 focus:ring-[#008080] focus:border-[#008080] transition-all"
                                     />
                                 </div>
                             </div>
@@ -441,7 +441,7 @@ const FacultyDirectory = () => {
                             </button>
                             <button
                                 onClick={handleUpdateFaculty}
-                                className="px-8 py-3.5 bg-[#f8ba2b] text-slate-900 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-[#f8ba2b] hover:bg-[#f8ba2b] hover:-translate-y-0.5 active:scale-95 transition-all flex items-center gap-2"
+                                className="px-8 py-3.5 bg-[#008080] text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-[#008080]/30 hover:bg-[#008080] hover:-translate-y-0.5 active:scale-95 transition-all flex items-center gap-2"
                             >
                                 <Save size={16} /> Update Faculty
                             </button>

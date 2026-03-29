@@ -84,7 +84,7 @@ const AcademicHeadFacultyActivity = () => {
                     <input
                         type="text"
                         placeholder={activeTab === 'sessions' ? "Filter by faculty or topic..." : "Filter by faculty, student or remarks..."}
-                        className="w-full pl-16 pr-8 py-5 bg-white border border-slate-100 rounded-[2rem] text-sm font-bold text-slate-700 outline-none focus:ring-4 focus:ring-[#f8ba2b] transition-all shadow-sm"
+                        className="w-full pl-16 pr-8 py-5 bg-white border border-slate-100 rounded-[2rem] text-sm font-bold text-slate-700 outline-none focus:ring-4 focus:ring-[#008080] transition-all shadow-sm"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
@@ -161,7 +161,7 @@ const AcademicHeadFacultyActivity = () => {
                                             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Audit Status</p>
                                             <p className="text-lg font-black text-slate-900 tracking-tight capitalize">{item.status}</p>
                                         </div>
-                                        <div className={`px-4 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest inline-block ${item.type === 'Academic' ? 'bg-[#f8ba2b] text-slate-900' : 'bg-rose-100 text-rose-700'
+                                        <div className={`px-4 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest inline-block ${item.type === 'Academic' ? 'bg-[#008080] text-white' : 'bg-rose-100 text-rose-700'
                                             }`}>
                                             {item.type} Issue
                                         </div>

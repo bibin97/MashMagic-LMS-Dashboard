@@ -117,7 +117,7 @@ const PublicRegistration = () => {
         <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6 bg-[radial-gradient(#e2e8f0_1px,transparent_1px)] [background-size:20px_20px]">
             <div className="w-full max-w-2xl bg-white rounded-[2.5rem] shadow-2xl border border-slate-100 p-8 md:p-12">
                 <div className="flex flex-col items-center text-center mb-10">
-                    <div className="w-16 h-16 bg-[#f8ba2b] text-slate-900 rounded-2xl flex items-center justify-center shadow-lg shadow-[#f8ba2b] mb-6 group transition-transform hover:scale-105">
+                    <div className="w-16 h-16 bg-[#008080] text-white rounded-2xl flex items-center justify-center shadow-lg shadow-[#008080]/30 mb-6 group transition-transform hover:scale-105">
                         <User size={32} className="group-hover:rotate-12 transition-transform" />
                     </div>
                     <h1 className="text-3xl font-black text-slate-900 tracking-tight mb-2">Platform Enrollment</h1>
@@ -153,7 +153,7 @@ const PublicRegistration = () => {
                                     type="text"
                                     name="name"
                                     required
-                                    className="w-full p-4 pl-12 bg-slate-50 border border-slate-100 rounded-2xl text-sm outline-none focus:bg-white focus:ring-4 focus:ring-[#008080] focus:border-[#f8ba2b] transition-all font-semibold"
+                                    className="w-full p-4 pl-12 bg-slate-50 border border-slate-100 rounded-2xl text-sm outline-none focus:bg-white focus:ring-4 focus:ring-[#008080] focus:border-[#008080] transition-all font-semibold"
                                     placeholder="Enter full name"
                                     value={formData.name}
                                     onChange={handleInputChange}
@@ -170,7 +170,7 @@ const PublicRegistration = () => {
                                         type="text"
                                         name="phone_number"
                                         required
-                                        className="w-full p-4 pl-12 bg-slate-50 border border-slate-100 rounded-2xl text-sm outline-none focus:bg-white focus:ring-4 focus:ring-[#008080] focus:border-[#f8ba2b] transition-all font-semibold"
+                                        className="w-full p-4 pl-12 bg-slate-50 border border-slate-100 rounded-2xl text-sm outline-none focus:bg-white focus:ring-4 focus:ring-[#008080] focus:border-[#008080] transition-all font-semibold"
                                         placeholder="Enter contact number"
                                         value={formData.phone_number}
                                         onChange={handleInputChange}
@@ -190,7 +190,7 @@ const PublicRegistration = () => {
                                         type="text"
                                         name="grade"
                                         required
-                                        className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm outline-none focus:bg-white focus:ring-4 focus:ring-[#008080] focus:border-[#f8ba2b] transition-all font-semibold"
+                                        className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm outline-none focus:bg-white focus:ring-4 focus:ring-[#008080] focus:border-[#008080] transition-all font-semibold"
                                         placeholder="e.g. 10th Grade"
                                         value={formData.grade}
                                         onChange={handleInputChange}
@@ -202,7 +202,7 @@ const PublicRegistration = () => {
                                         type="text"
                                         name="subject"
                                         required
-                                        className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm outline-none focus:bg-white focus:ring-4 focus:ring-[#008080] focus:border-[#f8ba2b] transition-all font-semibold"
+                                        className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm outline-none focus:bg-white focus:ring-4 focus:ring-[#008080] focus:border-[#008080] transition-all font-semibold"
                                         placeholder="e.g. Mathematics"
                                         value={formData.subject}
                                         onChange={handleInputChange}
@@ -217,7 +217,7 @@ const PublicRegistration = () => {
                                         type="text"
                                         name="course"
                                         required
-                                        className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm outline-none focus:bg-white focus:ring-4 focus:ring-[#008080] focus:border-[#f8ba2b] transition-all font-semibold"
+                                        className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm outline-none focus:bg-white focus:ring-4 focus:ring-[#008080] focus:border-[#008080] transition-all font-semibold"
                                         placeholder="e.g. JEE Main"
                                         value={formData.course}
                                         onChange={handleInputChange}
@@ -231,7 +231,7 @@ const PublicRegistration = () => {
                                             type="text"
                                             name="hour"
                                             required
-                                            className="w-full p-4 pl-12 bg-slate-50 border border-slate-100 rounded-2xl text-sm outline-none focus:bg-white focus:ring-4 focus:ring-[#008080] focus:border-[#f8ba2b] transition-all font-semibold"
+                                            className="w-full p-4 pl-12 bg-slate-50 border border-slate-100 rounded-2xl text-sm outline-none focus:bg-white focus:ring-4 focus:ring-[#008080] focus:border-[#008080] transition-all font-semibold"
                                             placeholder="e.g. 40 Hours"
                                             value={formData.hour}
                                             onChange={handleInputChange}
@@ -245,7 +245,7 @@ const PublicRegistration = () => {
                                         <input
                                             type="date"
                                             name="next_installment_date"
-                                            className="w-full p-4 pl-12 bg-slate-50 border border-slate-100 rounded-2xl text-sm outline-none focus:bg-white focus:ring-4 focus:ring-[#008080] focus:border-[#f8ba2b] transition-all font-semibold"
+                                            className="w-full p-4 pl-12 bg-slate-50 border border-slate-100 rounded-2xl text-sm outline-none focus:bg-white focus:ring-4 focus:ring-[#008080] focus:border-[#008080] transition-all font-semibold"
                                             value={formData.next_installment_date}
                                             onChange={handleInputChange}
                                         />
@@ -258,7 +258,7 @@ const PublicRegistration = () => {
                                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Assigned Mentor</label>
                                     <select
                                         name="mentor_id"
-                                        className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm outline-none focus:bg-white focus:ring-4 focus:ring-[#008080] focus:border-[#f8ba2b] transition-all font-semibold"
+                                        className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm outline-none focus:bg-white focus:ring-4 focus:ring-[#008080] focus:border-[#008080] transition-all font-semibold"
                                         value={formData.mentor_id}
                                         onChange={handleInputChange}
                                     >
@@ -270,7 +270,7 @@ const PublicRegistration = () => {
                                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Assigned Faculty</label>
                                     <select
                                         name="faculty_id"
-                                        className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm outline-none focus:bg-white focus:ring-4 focus:ring-[#008080] focus:border-[#f8ba2b] transition-all font-semibold"
+                                        className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm outline-none focus:bg-white focus:ring-4 focus:ring-[#008080] focus:border-[#008080] transition-all font-semibold"
                                         value={formData.faculty_id}
                                         onChange={handleInputChange}
                                     >
@@ -292,7 +292,7 @@ const PublicRegistration = () => {
                                             <input
                                                 type="text"
                                                 placeholder="Time"
-                                                className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-xs outline-none focus:bg-white focus:border-[#f8ba2b] font-bold"
+                                                className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-xs outline-none focus:bg-white focus:border-[#008080] font-bold"
                                                 value={formData.time_table[day]}
                                                 onChange={(e) => handleTimetableChange(day, e.target.value)}
                                             />
@@ -307,9 +307,9 @@ const PublicRegistration = () => {
                         type="submit"
                         disabled={loading}
                         className={`
-                            w-full bg-[#f8ba2b] text-slate-900 p-5 rounded-[1.5rem] font-black text-sm uppercase tracking-widest 
-                            transition-all shadow-xl shadow-[#f8ba2b] flex items-center justify-center gap-3
-                            ${loading ? 'opacity-70 cursor-not-allowed' : 'hover:bg-[#f8ba2b] hover:-translate-y-1 active:scale-95'}
+                            w-full bg-[#008080] text-white p-5 rounded-[1.5rem] font-black text-sm uppercase tracking-widest 
+                            transition-all shadow-xl shadow-[#008080]/30 flex items-center justify-center gap-3
+                            ${loading ? 'opacity-70 cursor-not-allowed' : 'hover:bg-[#008080] hover:-translate-y-1 active:scale-95'}
                         `}
                     >
                         {loading ? 'Processing...' : `Submit ${role} Registration`}

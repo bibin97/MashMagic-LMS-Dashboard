@@ -51,7 +51,7 @@ const FacultyReports = () => {
                         Comprehensive archive of student performance reports
                     </p>
                 </div>
-                <div className="w-16 h-16 bg-[#f8ba2b] rounded-3xl flex items-center justify-center text-slate-900 shadow-xl shadow-[#f8ba2b] rotate-6">
+                <div className="w-16 h-16 bg-[#008080] rounded-3xl flex items-center justify-center text-white shadow-xl shadow-[#008080]/30 rotate-6">
                     <ClipboardList size={28} />
                 </div>
             </div>
@@ -62,7 +62,7 @@ const FacultyReports = () => {
                     <input
                         type="text"
                         placeholder="Search reports..."
-                        className="bg-white border border-slate-200 pl-14 pr-8 py-4 rounded-[1.5rem] text-sm font-medium focus:outline-none focus:ring-4 focus:ring-[#f8ba2b]/5 focus:border-[#f8ba2b] transition-all shadow-sm min-w-[300px]"
+                        className="bg-white border border-slate-200 pl-14 pr-8 py-4 rounded-[1.5rem] text-sm font-medium focus:outline-none focus:ring-4 focus:ring-[#008080]/5 focus:border-[#008080] transition-all shadow-sm min-w-[300px]"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
@@ -87,7 +87,7 @@ const FacultyReports = () => {
 
                             <div className="flex-1 relative z-10">
                                 <div className="flex flex-wrap items-center gap-3 mb-3">
-                                    <span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest shadow-sm ${report.type === 'Academic' ? 'bg-[#f8ba2b] text-slate-900' :
+                                    <span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest shadow-sm ${report.type === 'Academic' ? 'bg-[#008080] text-white' :
                                         report.type === 'Behaviour' ? 'bg-rose-600 text-white' : 'bg-amber-500 text-white'
                                         }`}>
                                         {report.type}

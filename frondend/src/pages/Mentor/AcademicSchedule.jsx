@@ -38,7 +38,7 @@ const AcademicSchedule = () => {
 
     if (loading) return (
         <div className="flex flex-col items-center justify-center p-20 space-y-4">
-            <div className="w-12 h-12 border-4 border-[#f8ba2b] border-t-transparent rounded-full animate-spin"></div>
+            <div className="w-12 h-12 border-4 border-[#008080] border-t-transparent rounded-full animate-spin"></div>
             <p className="text-xs font-black text-slate-400 uppercase tracking-widest animate-pulse">Syncing Academic Timetable...</p>
         </div>
     );
@@ -46,9 +46,9 @@ const AcademicSchedule = () => {
     return (
         <div className="space-y-8 pb-20">
             {/* Header Area */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 border-b-4 border-b-[#f8ba2b]">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 border-b-4 border-b-[#008080]">
                 <div className="flex items-center gap-5">
-                    <div className="w-14 h-14 bg-[#f8ba2b] rounded-2xl flex items-center justify-center text-slate-900 shadow-xl rotate-3">
+                    <div className="w-14 h-14 bg-[#008080] rounded-2xl flex items-center justify-center text-white shadow-xl rotate-3">
                         <CalendarClock size={28} />
                     </div>
                     <div>
@@ -77,7 +77,7 @@ const AcademicSchedule = () => {
                         placeholder="Search by topic or faculty name..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full pl-12 pr-4 py-4 bg-slate-50 border-none rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#f8ba2b]/10 transition-all outline-none"
+                        className="w-full pl-12 pr-4 py-4 bg-slate-50 border-none rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
                     />
                 </div>
 
@@ -122,7 +122,7 @@ const AcademicSchedule = () => {
 
                             <div className="space-y-6">
                                 <div className="flex items-start gap-4">
-                                    <div className="w-10 h-10 rounded-xl bg-[#008080]/10 flex items-center justify-center text-[#008080] shrink-0 shadow-sm border border-[#f8ba2b]">
+                                    <div className="w-10 h-10 rounded-xl bg-[#008080]/10 flex items-center justify-center text-[#008080] shrink-0 shadow-sm border border-[#008080]">
                                         <BookOpen size={20} />
                                     </div>
                                     <div>

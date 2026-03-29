@@ -90,7 +90,7 @@ const MentorLogin = () => {
                     <button
                         type="submit"
                         disabled={isSubmitting}
-                        className="w-full bg-[#f8ba2b] text-slate-900 p-4 rounded-2xl font-black text-sm uppercase tracking-widest shadow-lg shadow-[#f8ba2b] hover:bg-[#f8ba2b] hover:-translate-y-1 transition-all flex items-center justify-center gap-2 mt-4"
+                        className="w-full bg-[#008080] text-white p-4 rounded-2xl font-black text-sm uppercase tracking-widest shadow-lg shadow-[#008080]/30 hover:bg-[#008080] hover:-translate-y-1 transition-all flex items-center justify-center gap-2 mt-4"
                     >
                         {isSubmitting ? <Loader2 size={20} className="animate-spin" /> : <>Login <ChevronRight size={18} /></>}
                     </button>

@@ -187,13 +187,13 @@ const StudentInteractionLog = () => {
                             Documenting student performance and parent interactions
                         </p>
                     </div>
-                    <div className="w-16 h-16 bg-[#f8ba2b] rounded-3xl flex items-center justify-center text-slate-900 shadow-xl shadow-[#f8ba2b] rotate-6">
+                    <div className="w-16 h-16 bg-[#008080] rounded-3xl flex items-center justify-center text-white shadow-xl shadow-[#008080]/30 rotate-6">
                         <UserCheck size={28} />
                     </div>
                 </header>
 
                 {/* Explicit Start Logging Action Bar */}
-                <div className="bg-white p-8 rounded-[2.5rem] border border-[#f8ba2b] shadow-xl shadow-[#008080] flex flex-col md:flex-row items-center justify-between gap-6 mb-8 relative overflow-hidden">
+                <div className="bg-white p-8 rounded-[2.5rem] border border-[#008080] shadow-xl shadow-[#008080] flex flex-col md:flex-row items-center justify-between gap-6 mb-8 relative overflow-hidden">
                     <div className="absolute top-0 right-0 w-32 h-32 bg-[#008080]/10 rounded-full -mr-16 -mt-16 opacity-50"></div>
                     <div className="relative z-10 w-full md:w-auto text-center md:text-left">
                         <h3 className="text-xl font-black text-slate-900 mb-1 flex items-center gap-2 justify-center md:justify-start">
@@ -243,7 +243,7 @@ const StudentInteractionLog = () => {
                             onClick={() => handleStudentSelect(student)}
                             className="bg-white p-8 rounded-[2.5rem] border border-slate-100 hover:shadow-xl hover:scale-[1.02] transition-all cursor-pointer group text-left relative overflow-hidden"
                         >
-                            <div className="absolute top-0 right-0 w-24 h-24 bg-slate-50 rounded-full -mr-12 -mt-12 group-hover:bg-[#f8ba2b] group-hover:scale-150 transition-all duration-500 opacity-10"></div>
+                            <div className="absolute top-0 right-0 w-24 h-24 bg-slate-50 rounded-full -mr-12 -mt-12 group-hover:bg-[#008080] group-hover:scale-150 transition-all duration-500 opacity-10"></div>
                             <h3 className="text-lg font-black text-slate-900 mb-1 relative z-10">{student.name}</h3>
                             <p className="text-xs font-bold text-slate-500 mb-4 relative z-10">{student.course} • {student.grade}</p>
                             <div className="flex items-center gap-2 text-[#008080] text-[10px] font-black uppercase tracking-widest relative z-10">
@@ -317,9 +317,9 @@ const StudentInteractionLog = () => {
             </button>
 
             <header className="bg-slate-900 border border-slate-800 p-10 rounded-[3rem] shadow-2xl relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-80 h-80 bg-[#f8ba2b] rounded-full -mr-40 -mt-40 opacity-10"></div>
+                <div className="absolute top-0 right-0 w-80 h-80 bg-[#008080] rounded-full -mr-40 -mt-40 opacity-10"></div>
                 <div className="relative z-10 flex items-center gap-6">
-                    <div className="w-16 h-16 bg-[#f8ba2b] rounded-[1.5rem] flex items-center justify-center text-slate-900 shadow-xl shadow-[#f8ba2b]/50">
+                    <div className="w-16 h-16 bg-[#008080] rounded-[1.5rem] flex items-center justify-center text-white shadow-xl shadow-[#008080]/30/50">
                         <MessageSquare size={32} />
                     </div>
                     <div>
@@ -334,7 +334,7 @@ const StudentInteractionLog = () => {
 
                     {/* Section 1: Session Information */}
                     <div className="space-y-6">
-                        <h3 className="text-xs font-black text-slate-900 uppercase tracking-[0.2em] border-l-4 border-[#f8ba2b] pl-4 flex items-center gap-2">
+                        <h3 className="text-xs font-black text-slate-900 uppercase tracking-[0.2em] border-l-4 border-[#008080] pl-4 flex items-center gap-2">
                             <Clock size={16} className="text-[#008080]" /> Section 1: Session Information
                         </h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-slate-50/50 p-6 rounded-3xl border border-slate-100">
@@ -494,7 +494,7 @@ const StudentInteractionLog = () => {
 
                     {/* Section 6: Attachments */}
                     <div className="space-y-6">
-                        <h3 className="text-xs font-black text-slate-900 uppercase tracking-[0.2em] border-l-4 border-[#f8ba2b] pl-4 flex items-center gap-2">
+                        <h3 className="text-xs font-black text-slate-900 uppercase tracking-[0.2em] border-l-4 border-[#008080] pl-4 flex items-center gap-2">
                             <Camera size={16} className="text-[#008080]" /> Section 6: Attachments
                         </h3>
 
@@ -514,7 +514,7 @@ const StudentInteractionLog = () => {
                                     />
                                     <label
                                         htmlFor="proof-upload"
-                                        className={`flex items-center justify-center gap-3 px-8 py-4 bg-white border-2 border-dashed border-slate-200 rounded-2xl cursor-pointer hover:border-[#f8ba2b] hover:bg-[#008080]/10/50 transition-all group ${uploading ? 'opacity-50 pointer-events-none' : ''}`}
+                                        className={`flex items-center justify-center gap-3 px-8 py-4 bg-white border-2 border-dashed border-slate-200 rounded-2xl cursor-pointer hover:border-[#008080] hover:bg-[#008080]/10/50 transition-all group ${uploading ? 'opacity-50 pointer-events-none' : ''}`}
                                     >
                                         {uploading ? (
                                             <Loader2 className="animate-spin text-[#008080]" size={20} />
@@ -554,7 +554,7 @@ const StudentInteractionLog = () => {
                         <button
                             type="submit"
                             disabled={loading}
-                            className="w-full bg-[#f8ba2b] text-slate-900 p-5 rounded-[2rem] font-black text-sm uppercase tracking-[0.3em] shadow-2xl shadow-[#f8ba2b]/50 hover:bg-[#f8ba2b] hover:-translate-y-1 transition-all disabled:opacity-50 flex items-center justify-center gap-4 italic active:scale-[0.98]"
+                            className="w-full bg-[#008080] text-white p-5 rounded-[2rem] font-black text-sm uppercase tracking-[0.3em] shadow-2xl shadow-[#008080]/30/50 hover:bg-[#008080] hover:-translate-y-1 transition-all disabled:opacity-50 flex items-center justify-center gap-4 italic active:scale-[0.98]"
                         >
                             {loading ? 'Submitting...' : 'Submit Log'}
                             {!loading && <CheckCircle size={20} />}
@@ -624,7 +624,7 @@ const StudentInteractionLog = () => {
                                 </div>
 
                                 <div className="space-y-4">
-                                    <h4 className="text-xs font-black text-slate-900 uppercase tracking-[0.1em] border-l-4 border-[#f8ba2b] pl-3">Learning & Comprehension</h4>
+                                    <h4 className="text-xs font-black text-slate-900 uppercase tracking-[0.1em] border-l-4 border-[#008080] pl-3">Learning & Comprehension</h4>
                                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 bg-slate-50 p-6 rounded-3xl">
                                         <DetailRow label="Self Clarity" value={`${viewLog.self_clarity}%`} highlight />
                                         <DetailRow label="Can Solve Independently?" value={viewLog.can_solve_independently} />

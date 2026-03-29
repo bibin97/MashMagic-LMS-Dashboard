@@ -48,7 +48,7 @@ const FacultyLogs = () => {
             <div className="bg-white p-10 rounded-[3.5rem] shadow-sm border border-slate-100 flex flex-col md:flex-row justify-between items-center gap-6 relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-64 h-64 bg-[#008080]/10 rounded-full -mr-32 -mt-32 opacity-40"></div>
                 <div className="relative z-10 flex items-center gap-6">
-                    <div className="w-16 h-16 bg-[#f8ba2b] rounded-3xl flex items-center justify-center text-slate-900 shadow-xl shadow-[#f8ba2b] rotate-6 group hover:rotate-0 transition-all duration-500">
+                    <div className="w-16 h-16 bg-[#008080] rounded-3xl flex items-center justify-center text-white shadow-xl shadow-[#008080]/30 rotate-6 group hover:rotate-0 transition-all duration-500">
                         <Briefcase size={32} />
                     </div>
                     <div>
@@ -82,7 +82,7 @@ const FacultyLogs = () => {
                         <input
                             type="text"
                             placeholder="Search Sessions..."
-                            className="w-full pl-12 pr-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-[10px] font-black uppercase tracking-widest focus:bg-white focus:ring-8 ring-[#f8ba2b]/5 outline-none transition-all"
+                            className="w-full pl-12 pr-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-[10px] font-black uppercase tracking-widest focus:bg-white focus:ring-8 ring-[#008080]/5 outline-none transition-all"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
@@ -93,7 +93,7 @@ const FacultyLogs = () => {
             {/* Logs Area */}
             {loading ? (
                 <div className="flex flex-col items-center justify-center p-32 space-y-4">
-                    <div className="w-14 h-14 border-4 border-[#f8ba2b] border-t-transparent rounded-full animate-spin"></div>
+                    <div className="w-14 h-14 border-4 border-[#008080] border-t-transparent rounded-full animate-spin"></div>
                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest animate-pulse">Ingesting Session Intel...</p>
                 </div>
             ) : isMentorTab ? (
@@ -105,11 +105,11 @@ const FacultyLogs = () => {
                             onClick={() => setSelectedLog(log)}
                             className="bg-white rounded-[3rem] p-8 border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-500 group cursor-pointer relative overflow-hidden"
                         >
-                            <div className="absolute top-0 right-0 w-2 h-full bg-[#f8ba2b]"></div>
+                            <div className="absolute top-0 right-0 w-2 h-full bg-[#008080]"></div>
 
                             <div className="flex justify-between items-start mb-8">
                                 <div className="flex items-center gap-4">
-                                    <div className="w-14 h-14 bg-[#008080]/10 rounded-2xl flex items-center justify-center text-[#008080] border border-[#f8ba2b]">
+                                    <div className="w-14 h-14 bg-[#008080]/10 rounded-2xl flex items-center justify-center text-[#008080] border border-[#008080]">
                                         <BookOpen size={24} />
                                     </div>
                                     <div>
@@ -120,7 +120,7 @@ const FacultyLogs = () => {
                                     </div>
                                 </div>
                                 <div className="text-right flex flex-col items-end gap-2">
-                                    <div className="bg-[#f8ba2b] text-slate-900 px-4 py-1.5 rounded-xl text-[8px] font-black uppercase tracking-widest shadow-lg shadow-[#f8ba2b] italic">
+                                    <div className="bg-[#008080] text-white px-4 py-1.5 rounded-xl text-[8px] font-black uppercase tracking-widest shadow-lg shadow-[#008080]/30 italic">
                                         Audit By {log.mentor_name}
                                     </div>
                                     <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1 italic">
@@ -146,7 +146,7 @@ const FacultyLogs = () => {
                                         <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1 italic">Performance</p>
                                         <div className="flex justify-end gap-1">
                                             {[1, 2, 3, 4, 5].map(s => (
-                                                <div key={s} className={`w-2 h-2 rounded-full ${s <= log.student_performance ? 'bg-[#f8ba2b]' : 'bg-slate-200'}`}></div>
+                                                <div key={s} className={`w-2 h-2 rounded-full ${s <= log.student_performance ? 'bg-[#008080]' : 'bg-slate-200'}`}></div>
                                             ))}
                                         </div>
                                     </div>
@@ -214,7 +214,7 @@ const FacultyLogs = () => {
                                         </div>
                                     </td>
                                     <td className="px-8 py-6">
-                                        <div className="bg-[#008080]/10/50 px-4 py-2 rounded-xl border border-[#f8ba2b]/50 inline-block">
+                                        <div className="bg-[#008080]/10/50 px-4 py-2 rounded-xl border border-[#008080]/50 inline-block">
                                             <span className="text-xs font-black text-[#008080] italic uppercase tracking-tighter">{log.chapter}</span>
                                         </div>
                                     </td>
@@ -228,7 +228,7 @@ const FacultyLogs = () => {
                                         <span className="text-[10px] font-black text-slate-900 italic">{log.duration}</span>
                                     </td>
                                     <td className="px-8 py-6 text-right">
-                                        <button className="px-6 py-2.5 bg-slate-900 text-slate-900 rounded-xl text-[9px] font-black uppercase tracking-widest shadow-xl shadow-slate-200/50 hover:bg-[#f8ba2b] transition-all italic opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0">
+                                        <button className="px-6 py-2.5 bg-slate-900 text-white rounded-xl text-[9px] font-black uppercase tracking-widest shadow-xl shadow-slate-200/50 hover:bg-[#008080] transition-all italic opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0">
                                             Manifest
                                         </button>
                                     </td>
@@ -248,7 +248,7 @@ const FacultyLogs = () => {
             {selectedLog && isMentorTab && (
                 <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[1100] flex items-center justify-center p-4 animate-in fade-in duration-300">
                     <div className="bg-white rounded-[4rem] shadow-2xl w-full max-w-5xl h-[90vh] overflow-hidden animate-in zoom-in duration-500 border border-white/20 flex flex-col">
-                        <div className="p-10 border-b border-slate-50 flex justify-between items-center bg-[#f8ba2b] text-slate-900 relative h-32 overflow-hidden">
+                        <div className="p-10 border-b border-slate-50 flex justify-between items-center bg-[#008080] text-white relative h-32 overflow-hidden">
                             <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-32 -mt-32"></div>
                             <div className="relative z-10 flex items-center gap-6">
                                 <div className="w-16 h-16 bg-white/20 rounded-3xl flex items-center justify-center backdrop-blur-md border border-white/20">
@@ -305,7 +305,7 @@ const FacultyLogs = () => {
                                                 <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2 italic">Issues Reported By Mentor</p>
                                                 <p className="text-xs font-bold text-slate-600 italic leading-loose">{selectedLog.issues_reported || "Routine Compliance."}</p>
                                             </div>
-                                            <div className="p-6 bg-[#008080]/10 rounded-3xl border border-[#f8ba2b]">
+                                            <div className="p-6 bg-[#008080]/10 rounded-3xl border border-[#008080]">
                                                 <p className="text-[9px] font-black text-[#008080] uppercase tracking-widest mb-2 italic">Suggested Remedial Plan</p>
                                                 <p className="text-xs font-bold text-[#008080] italic leading-loose">{selectedLog.remedial_plan || "Standard Path Sustained."}</p>
                                             </div>
@@ -323,7 +323,7 @@ const FacultyLogs = () => {
                                                     <p className="text-xs font-bold text-slate-900 italic">Audit Proof Attachment</p>
                                                 </div>
                                             </div>
-                                            <a href={selectedLog.screenshot_url} target="_blank" rel="noreferrer" className="bg-slate-900 text-slate-900 p-4 rounded-2xl hover:bg-[#f8ba2b] transition-all active:scale-90">
+                                            <a href={selectedLog.screenshot_url} target="_blank" rel="noreferrer" className="bg-slate-900 text-white p-4 rounded-2xl hover:bg-[#008080] transition-all active:scale-90">
                                                 <ExternalLink size={20} />
                                             </a>
                                         </div>

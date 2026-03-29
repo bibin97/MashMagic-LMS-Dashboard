@@ -224,7 +224,7 @@ const StaffManagement = () => {
                         </button>
                         <button
                             type="submit"
-                            className="px-8 py-3 rounded-2xl bg-[#f8ba2b] text-slate-900 text-sm font-bold hover:bg-[#f8ba2b] transition-all shadow-lg shadow-[#f8ba2b] active:scale-95"
+                            className="px-8 py-3 rounded-2xl bg-[#008080] text-white text-sm font-bold hover:bg-[#008080] transition-all shadow-lg shadow-[#008080]/30 active:scale-95"
                         >
                             Commit Changes
                         </button>
