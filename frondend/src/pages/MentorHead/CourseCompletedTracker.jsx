@@ -16,7 +16,7 @@ const CourseCompletedTracker = () => {
     const fetchStudents = async () => {
         try {
             const token = localStorage.getItem('token');
-            const res = await axios.get('http://142.93.215.36:5000/api/mentor-head/students-all', {
+            const res = await axios.get('/api/mentor-head/students-all', {
                 headers: { Authorization: `Bearer ${token}` }
             });
             if (res.data.success) {
@@ -34,7 +34,7 @@ const CourseCompletedTracker = () => {
             const token = localStorage.getItem('token');
             const newStatus = !currentStatus;
 
-            await axios.put(`http://142.93.215.36:5000/api/mentor-head/students/${studentId}/course-complete`,
+            await axios.put(`/api/mentor-head/students/${studentId}/course-complete`,
                 { isCompleted: newStatus },
                 { headers: { Authorization: `Bearer ${token}` } }
             );

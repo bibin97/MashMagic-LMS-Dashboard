@@ -15,7 +15,7 @@ const StudentCheckTracker = () => {
     const fetchStudentChecks = async () => {
         try {
             const token = localStorage.getItem('token');
-            const res = await axios.get('http://142.93.215.36:5000/api/mentor-head/daily-student-checks', {
+            const res = await axios.get('/api/mentor-head/daily-student-checks', {
                 headers: { Authorization: `Bearer ${token}` }
             });
             if (res.data.success) {
@@ -31,7 +31,7 @@ const StudentCheckTracker = () => {
     const handleAddCheck = async (studentId) => {
         try {
             const token = localStorage.getItem('token');
-            await axios.post(`http://142.93.215.36:5000/api/mentor-head/students/${studentId}/check`,
+            await axios.post(`/api/mentor-head/students/${studentId}/check`,
                 {},
                 { headers: { Authorization: `Bearer ${token}` } });
 
@@ -53,7 +53,7 @@ const StudentCheckTracker = () => {
     const handleRemoveCheck = async (studentId) => {
         try {
             const token = localStorage.getItem('token');
-            await axios.delete(`http://142.93.215.36:5000/api/mentor-head/students/${studentId}/uncheck`,
+            await axios.delete(`/api/mentor-head/students/${studentId}/uncheck`,
                 { headers: { Authorization: `Bearer ${token}` } });
 
             setStudents(prev => prev.map(s => {

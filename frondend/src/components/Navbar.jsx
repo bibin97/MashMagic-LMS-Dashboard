@@ -21,7 +21,7 @@ const Navbar = ({ onMenuClick }) => {
     const fetchNotifications = async () => {
         try {
             const token = localStorage.getItem('token');
-            const res = await axios.get('http://142.93.215.36:5000/api/admin/notifications', {
+            const res = await axios.get('/api/admin/notifications', {
                 headers: { Authorization: `Bearer ${token}` }
             });
             if (res.data.success) {
@@ -35,7 +35,7 @@ const Navbar = ({ onMenuClick }) => {
         e.stopPropagation();
         try {
             const token = localStorage.getItem('token');
-            await axios.put(`http://142.93.215.36:5000/api/admin/notifications/${id}/read`, {}, {
+            await axios.put(`/api/admin/notifications/${id}/read`, {}, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setNotifications(notifications.map(n => n.id === id ? { ...n, is_read: 1 } : n));
