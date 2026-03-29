@@ -1,5 +1,29 @@
 const db = require('../config/db');
 
+// @desc    Get dashboard counts (robust summary)
+// @route   GET /api/admin/dashboard-summary
+const getAdminDashboardSummary = async (req, res) => {
+    try {
+        const [[{count: students}]] = await db.query('SELECT COUNT(*) as count FROM students');
+        const [[{count: mentors}]] = await db.query('SELECT COUNT(*) as count FROM users WHERE role = "mentor"');
+        const [[{count: faculties}]] = await db.query('SELECT COUNT(*) as count FROM users WHERE role = "faculty"');
+        const [[{count: pending}]] = await db.query('SELECT COUNT(*) as count FROM users WHERE (status = "pending" OR isApproved = 0)');
+
+        res.status(200).json({
+            success: true,
+            data: {
+                students,
+                mentors,
+                faculties,
+                pendingApprovals: pending
+            }
+        });
+    } catch (error) {
+        console.error("DASHBOARD_SUMMARY_ERROR:", error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
 // @desc    Get all users
 // @route   GET /api/admin/users
 // @access  Private (super_admin, admin)
@@ -615,6 +639,7 @@ const getAllFacultiesForAdmin = async (req, res) => {
 };
 
 module.exports = {
+    getAdminDashboardSummary,
     getUsers,
     getUserById,
     approveUser,
@@ -716,19 +741,19 @@ module.exports = {
             // Query DB
             const [rows] = await db.query(`
                 SELECT 
-                    DATE_FORMAT(created_at, '%Y-%m-%d') as date,
+                    DATE_FORMAT(created_at, '%Y-%m-%d') as date_label,
                     COUNT(*) as total_tasks,
                     SUM(CASE WHEN (status = 'Completed' OR status = 'Success') THEN 1 ELSE 0 END) as completed_tasks
                 FROM tasks
                 WHERE created_at >= ?
-                GROUP BY DATE_FORMAT(created_at, '%Y-%m-%d')
-                ORDER BY DATE_FORMAT(created_at, '%Y-%m-%d') ASC
+                GROUP BY date_label
+                ORDER BY date_label ASC
             `, [startDate]);
 
             // Create a lookup map
             const dbDataMap = {};
             rows.forEach(row => {
-                dbDataMap[row.date] = {
+                dbDataMap[row.date_label] = {
                     total_tasks: parseInt(row.total_tasks) || 0,
                     completed_tasks: parseInt(row.completed_tasks) || 0
                 };

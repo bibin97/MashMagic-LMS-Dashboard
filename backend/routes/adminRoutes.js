@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const {
+    getAdminDashboardSummary,
     getUsers,
     getUserById,
     approveUser,
@@ -40,6 +41,7 @@ const { requireRole } = require('../middleware/roleMiddleware');
 
 router.use(requireAuth);
 // General view access for admin and super_admin
+router.get('/dashboard-summary', requireRole('super_admin', 'admin'), getAdminDashboardSummary);
 router.get('/pending-users', requireRole('super_admin', 'admin'), getPendingUsers);
 router.get('/users', requireRole('super_admin', 'admin'), getUsers);
 router.get('/students', requireRole('super_admin', 'admin'), getAllStudentsForAdmin);
