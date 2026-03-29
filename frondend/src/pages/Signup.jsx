@@ -56,7 +56,7 @@ const Signup = () => {
             <div className="w-full max-w-md animate-in fade-in zoom-in duration-500">
                 {/* Brand / Header */}
                 <div className="text-center mb-10 flex flex-col items-center">
-                    <div className="w-16 h-16 bg-[#f8ba2b] rounded-3xl flex items-center justify-center text-slate-900 mb-4 shadow-xl shadow-[#f8ba2b] rotate-3 transition-transform hover:rotate-0">
+                    <div className="w-16 h-16 bg-[#008080] rounded-3xl flex items-center justify-center text-white mb-4 shadow-xl shadow-[#008080]/20 rotate-3 transition-transform hover:rotate-0">
                         <UserPlus size={36} />
                     </div>
                     <h1 className="text-3xl font-black text-slate-900 tracking-tight">Join Network</h1>
@@ -119,7 +119,7 @@ const Signup = () => {
                         <button
                             type="submit"
                             disabled={isSubmitting}
-                            className="w-full bg-[#f8ba2b] text-slate-900 p-4 rounded-2xl font-black text-sm hover:bg-[#f8ba2b] transition-all shadow-lg shadow-[#f8ba2b] flex items-center justify-center gap-2 group mt-2"
+                            className="w-full bg-[#008080] text-white p-4 rounded-2xl font-black text-sm hover:bg-[#006666] transition-all shadow-lg shadow-[#008080]/20 flex items-center justify-center gap-2 group mt-2"
                         >
                             {isSubmitting ? (
                                 <Loader2 size={20} className="animate-spin" />

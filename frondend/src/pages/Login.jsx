@@ -117,7 +117,7 @@ const Login = () => {
                             >
                                 {dept.label}
                                 {activeDepartment === dept.id && (
-                                    <div className="absolute top-0 left-0 w-full h-1 bg-[#f8ba2b]"></div>
+                                    <div className="absolute top-0 left-0 w-full h-1 bg-[#008080]"></div>
                                 )}
                             </button>
                         ))}
@@ -217,7 +217,7 @@ const Login = () => {
                                                 name="identifier"
                                                 type="text"
                                                 required
-                                                className="w-full p-4 pl-14 bg-slate-50 border-none rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-[#f8ba2b]/10 transition-all font-sans"
+                                                className="w-full p-4 pl-14 bg-slate-50 border-none rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-[#008080]/10 transition-all font-sans"
                                                 placeholder={canSignup ? "Head Access Email" : "Registered Phone / Email"}
                                                 value={formData.identifier}
                                                 onChange={handleChange}
@@ -237,7 +237,7 @@ const Login = () => {
                                                 name="password"
                                                 type="password"
                                                 required
-                                                className="w-full p-4 pl-14 bg-slate-50 border-none rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-[#f8ba2b]/10 transition-all font-sans"
+                                                className="w-full p-4 pl-14 bg-slate-50 border-none rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-[#008080]/10 transition-all font-sans"
                                                 placeholder="••••••••"
                                                 value={formData.password}
                                                 onChange={handleChange}
@@ -248,7 +248,7 @@ const Login = () => {
                                     <button
                                         type="submit"
                                         disabled={isSubmitting}
-                                        className="w-full bg-[#008080] text-white p-5 rounded-2xl font-black text-xs uppercase tracking-[0.2em] hover:bg-[#f8ba2b] hover:text-black transition-all shadow-xl shadow-[#008080]/30 hover:shadow-[#f8ba2b]/50 flex items-center justify-center gap-3 group mt-2 active:scale-[0.98] disabled:opacity-50"
+                                        className="w-full bg-[#008080] text-white p-5 rounded-2xl font-black text-xs uppercase tracking-[0.2em] hover:bg-[#006666] transition-all shadow-xl shadow-[#008080]/20 flex items-center justify-center gap-3 group mt-2 active:scale-[0.98] disabled:opacity-50"
                                     >
                                         {isSubmitting ? (
                                             <Loader2 size={20} className="animate-spin" />

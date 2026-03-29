@@ -80,7 +80,7 @@ const FacultyLayout = () => {
                             className={({ isActive }) => `
                                 flex items-center justify-between px-5 py-4 rounded-2xl transition-all duration-500 group
                                 ${isActive
-                                    ? 'bg-gradient-to-r from-[#f8ba2b] to-[#f8ba2b] text-white font-bold shadow-xl shadow-[#f8ba2b]/20 -translate-y-0.5'
+                                    ? 'bg-white/20 text-white font-bold shadow-xl -translate-y-0.5'
                                     : 'text-slate-400 hover:bg-slate-800/50 hover:text-white'}
                             `}
                         >
@@ -120,7 +120,7 @@ const FacultyLayout = () => {
                         </div>
                         <button
                             onClick={handleLogout}
-                            className="mt-4 w-full flex items-center justify-center gap-3 px-4 py-3 rounded-2xl transition-all duration-500 text-[10px] font-black uppercase tracking-widest shadow-sm bg-[#f8ba2b] text-slate-900 hover:brightness-110 shadow-lg"
+                            className="mt-4 w-full flex items-center justify-center gap-3 px-4 py-3 rounded-2xl transition-all duration-500 text-[10px] font-black uppercase tracking-widest shadow-sm bg-white/10 text-white hover:bg-white/20 border border-white/20 shadow-lg"
                         >
                             <LogOut size={14} />
                             <span>Logout</span>

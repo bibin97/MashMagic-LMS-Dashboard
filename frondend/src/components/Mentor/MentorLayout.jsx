@@ -119,7 +119,7 @@ const MentorLayout = () => {
                             className={({ isActive }) => `
                                 flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-300 group
                                 ${isActive
-                                    ? 'bg-[#f8ba2b] text-white font-bold shadow-xl shadow-[#f8ba2b] -translate-y-0.5'
+                                    ? 'bg-white/20 text-white font-bold shadow-xl -translate-y-0.5'
                                     : 'text-white/70 hover:bg-white/10 hover:text-white'}
                             `}
                         >
@@ -146,7 +146,7 @@ const MentorLayout = () => {
                     </div>
                     <button
                         onClick={handleLogout}
-                        className="w-full flex items-center gap-3 px-4 py-4 rounded-2xl transition-all duration-300 text-[10px] font-black uppercase tracking-widest bg-[#f8ba2b] text-slate-900 hover:brightness-110 shadow-lg"
+                        className="w-full flex items-center gap-3 px-4 py-4 rounded-2xl transition-all duration-300 text-[10px] font-black uppercase tracking-widest bg-white/10 text-white hover:bg-white/20 border border-white/20 shadow-lg"
                     >
                         <LogOut size={16} />
                         <span>Logout</span>

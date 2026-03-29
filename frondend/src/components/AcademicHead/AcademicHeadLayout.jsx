@@ -80,8 +80,8 @@ const AcademicHeadLayout = () => {
                             className={({ isActive }) => `
                                 flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-300 group
                                 ${isActive
-                                    ? 'bg-[#f8ba2b] text-white font-bold shadow-xl shadow-[#f8ba2b]/20 -translate-y-0.5'
-                                    : 'text-slate-400 hover:bg-slate-800 hover:text-white'}
+                                    ? 'bg-white/20 text-white font-bold shadow-xl -translate-y-0.5'
+                                    : 'text-slate-400 hover:bg-slate-800/50 hover:text-white'}
                             `}
                         >
                             <span className="transition-transform group-hover:scale-110">{item.icon}</span>
@@ -102,7 +102,7 @@ const AcademicHeadLayout = () => {
                     </div>
                     <button
                         onClick={handleLogout}
-                        className="w-full flex items-center gap-3 px-4 py-4 rounded-2xl transition-all duration-300 text-[10px] font-black uppercase tracking-widest bg-[#f8ba2b] text-slate-900 hover:brightness-110 shadow-lg"
+                        className="w-full flex items-center gap-3 px-4 py-4 rounded-2xl transition-all duration-300 text-[10px] font-black uppercase tracking-widest bg-white/10 text-white hover:bg-white/20 border border-white/20 shadow-lg"
                     >
                         <LogOut size={16} />
                         <span>Logout</span>

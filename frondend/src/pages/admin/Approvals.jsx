@@ -97,7 +97,7 @@ const Approvals = () => {
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 w-full">
                 <div>
                     <div className="flex items-center gap-3">
-                        <div className="p-3 bg-[#f8ba2b] rounded-2xl shadow-lg shadow-[#f8ba2b]">
+                        <div className="p-3 bg-[#008080] rounded-2xl shadow-lg shadow-[#008080]/20">
                             <Shield className="text-white" size={24} />
                         </div>
                         <div>
@@ -136,7 +136,7 @@ const Approvals = () => {
                                     <tr key={`${user.role}-${user.id}`} className="hover:bg-slate-50/50 transition-all group">
                                         <td className="p-6">
                                             <div className="flex items-center gap-4">
-                                                <div className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-400 font-black border border-slate-100 group-hover:bg-white group-hover:border-[#f8ba2b] group-hover:text-[#008080] transition-all">
+                                                <div className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-400 font-black border border-slate-100 group-hover:bg-white group-hover:border-[#008080] group-hover:text-[#008080] transition-all">
                                                     {user.name.charAt(0).toUpperCase()}
                                                 </div>
                                                 <div>
@@ -185,12 +185,12 @@ const Approvals = () => {
                                                     <XCircle size={20} />
                                                 </button>
                                                 <button
-                                                    onClick={() => handleApprove(user.id, user.role)}
-                                                    className="w-10 h-10 rounded-xl flex items-center justify-center bg-[#008080]/10 text-slate-900 hover:bg-[#f8ba2b] hover:text-slate-900 transition-all shadow-sm shadow-[#f8ba2b] group-hover:shadow-[#f8ba2b]"
-                                                    title="Approve & Activate"
-                                                >
-                                                    <CheckCircle size={20} />
-                                                </button>
+                                                     onClick={() => handleApprove(user.id, user.role)}
+                                                     className="w-10 h-10 rounded-xl flex items-center justify-center bg-[#008080]/10 text-[#008080] hover:bg-[#008080] hover:text-white transition-all shadow-sm shadow-[#008080]/10"
+                                                     title="Approve & Activate"
+                                                 >
+                                                     <CheckCircle size={20} />
+                                                 </button>
                                             </div>
                                         </td>
                                     </tr>
@@ -211,28 +211,28 @@ const Approvals = () => {
                 )}
             </div>
 
-            <div className="bg-[#f8ba2b] rounded-[2.5rem] p-10 text-slate-900 relative overflow-hidden">
+            <div className="bg-[#008080] rounded-[2.5rem] p-10 text-white relative overflow-hidden">
                 <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
                     <div className="max-w-md">
                         <h3 className="text-2xl font-black mb-2 tracking-tight">Security Protocol Enforcement</h3>
-                        <p className="text-[#008080] text-sm font-medium leading-relaxed">
+                        <p className="text-white/80 text-sm font-medium leading-relaxed">
                             Every account activated here gains immediate access to their designated tools.
                             Rejected records are permanently archived in the system to prevent spam.
                         </p>
                     </div>
-                    <div className="flex flex-col sm:flex-row gap-4 w-full">
-                        <div className="bg-white/10 backdrop-blur-md p-6 rounded-3xl border border-white/10 w-40">
-                            <span className="text-xs font-bold text-[#008080] uppercase tracking-widest block mb-1">Approved Today</span>
-                            <span className="text-3xl font-black">0</span>
+                    <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
+                        <div className="bg-white/10 backdrop-blur-md p-6 rounded-3xl border border-white/10 w-full md:w-44 text-center">
+                            <span className="text-xs font-bold text-white/70 uppercase tracking-widest block mb-1">Approved Today</span>
+                            <span className="text-3xl font-black text-white">0</span>
                         </div>
-                        <div className="bg-white/10 backdrop-blur-md p-6 rounded-3xl border border-white/10 w-40">
+                        <div className="bg-white/10 backdrop-blur-md p-6 rounded-3xl border border-white/10 w-full md:w-44 text-center">
                             <span className="text-xs font-bold text-rose-300 uppercase tracking-widest block mb-1">Rejected Today</span>
-                            <span className="text-3xl font-black">0</span>
+                            <span className="text-3xl font-black text-white">0</span>
                         </div>
                     </div>
                 </div>
                 <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-32 -mt-32 blur-3xl"></div>
-                <div className="absolute bottom-0 left-0 w-64 h-64 bg-[#f8ba2b]/10 rounded-full -ml-32 -mb-32 blur-3xl"></div>
+                <div className="absolute bottom-0 left-0 w-64 h-64 bg-white/10 rounded-full -ml-32 -mb-32 blur-3xl"></div>
             </div>
         </div>
     );

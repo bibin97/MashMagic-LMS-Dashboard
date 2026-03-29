@@ -73,7 +73,7 @@ const approveUser = async (req, res) => {
             return res.status(404).json({ success: false, message: "User/Student not found" });
         }
 
-        await db.query('INSERT INTO admin_notifications (message) VALUES (?)', [`Admin (${req.user.name}) approved ${role}: ${nameRow?.name || id}`]);
+        await db.query('INSERT INTO admin_notifications (message) VALUES (?)', [`Approved: ${nameRow?.name || id}`]);
         res.status(200).json({ success: true, message: "Approved successfully" });
     } catch (error) {
         res.status(500).json({ success: false, message: "Server Error", error: error.message });

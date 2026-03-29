@@ -72,7 +72,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                         className={({ isActive }) => `
                             flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200
                             ${isActive
-                                ? 'bg-[#f8ba2b] text-white font-semibold shadow-lg shadow-[#f8ba2b]/30 backdrop-blur-md'
+                                ? 'bg-white/20 text-white font-semibold shadow-lg backdrop-blur-md'
                                 : 'text-white/60 hover:bg-white/10 hover:text-white'}
                         `}
                     >
@@ -85,7 +85,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
             <div className="p-4 border-t border-slate-100">
                 <button
                     onClick={handleLogout}
-                    className="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 font-black uppercase tracking-wider bg-[#f8ba2b] text-slate-900 hover:brightness-110 shadow-lg"
+                    className="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 font-black uppercase tracking-wider bg-white/10 text-white hover:bg-white/20 border border-white/20 shadow-lg"
                 >
                     <LogOut size={18} />
                     <span>Logout</span>
