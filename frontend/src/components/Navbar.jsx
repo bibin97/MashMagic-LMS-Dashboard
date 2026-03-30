@@ -1,14 +1,31 @@
 import React, { useState, useEffect } from 'react';
 import { Bell, Search, User, ShieldCheck, CheckCheck, Menu, LogOut, Settings, HelpCircle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
 
 const Navbar = ({ onMenuClick }) => {
     const { user, logout } = useAuth();
+    const navigate = useNavigate();
     const adminName = user?.name || "Super Admin";
     const [notifications, setNotifications] = useState([]);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+
+    // Auto-close on click outside
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (isDropdownOpen || isUserMenuOpen) {
+                // If the click is not on a dropdown or a button that opens a dropdown
+                if (!event.target.closest('.dropdown-container')) {
+                    setIsDropdownOpen(false);
+                    setIsUserMenuOpen(false);
+                }
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, [isDropdownOpen, isUserMenuOpen]);
 
     useEffect(() => {
         // Fetch notifications for the logged in user
@@ -76,7 +93,19 @@ const Navbar = ({ onMenuClick }) => {
 
     const handleLogout = () => {
         logout();
-        window.location.href = '/login';
+        navigate('/login');
+    };
+
+    const handleProfileClick = () => {
+        setIsUserMenuOpen(false);
+        if (user?.role === 'super_admin' || user?.role === 'admin') {
+            navigate('/admin/profile');
+        } else if (user?.role === 'faculty') {
+            navigate('/faculty/profile');
+        } else {
+            // Placeholder for other roles
+            toast.error('Profile page coming soon for your role');
+        }
     };
 
     const unreadCount = notifications.filter(n => !n.is_read).length;
@@ -101,9 +130,12 @@ const Navbar = ({ onMenuClick }) => {
             </div>
 
             <div className="flex items-center gap-3 md:gap-6 ml-4">
-                <div className="relative">
+                <div className="relative dropdown-container">
                     <button
-                        onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                        onClick={() => {
+                            setIsDropdownOpen(!isDropdownOpen);
+                            setIsUserMenuOpen(false);
+                        }}
                         className="relative p-2.5 rounded-xl hover:bg-slate-100 text-slate-500 transition-all group"
                     >
                         <Bell size={20} className="group-hover:rotate-12 transition-transform" />
@@ -200,7 +232,7 @@ const Navbar = ({ onMenuClick }) => {
                     )}
                 </div>
 
-                <div className="flex items-center gap-3 md:gap-4 md:pl-6 md:border-l border-slate-200 relative">
+                <div className="flex items-center gap-3 md:gap-4 md:pl-6 md:border-l border-slate-200 relative dropdown-container">
                     <div className="text-right hidden sm:flex flex-col items-end">
                         <p className="text-sm font-black text-slate-900 leading-tight tracking-tight">{adminName}</p>
                         <div className="flex items-center gap-1 mt-0.5">
@@ -209,7 +241,10 @@ const Navbar = ({ onMenuClick }) => {
                         </div>
                     </div>
                     <button 
-                        onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                        onClick={() => {
+                            setIsUserMenuOpen(!isUserMenuOpen);
+                            setIsDropdownOpen(false);
+                        }}
                         className="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center text-white border border-slate-800 shadow-xl shadow-slate-200 overflow-hidden hover:scale-105 active:scale-95 transition-all cursor-pointer ring-2 ring-transparent hover:ring-[#008080]/20"
                     >
                         <User size={20} />
@@ -222,13 +257,19 @@ const Navbar = ({ onMenuClick }) => {
                                 <p className="text-sm font-bold text-slate-900 truncate">{user?.email}</p>
                             </div>
                             <div className="p-2">
-                                <button className="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-50 hover:text-[#008080] rounded-xl transition-all group">
+                                <button 
+                                    onClick={handleProfileClick}
+                                    className="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-50 hover:text-[#008080] rounded-xl transition-all group"
+                                >
                                     <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center group-hover:bg-[#008080]/10 transition-colors">
                                         <User size={16} />
                                     </div>
                                     Profile Settings
                                 </button>
-                                <button className="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-50 hover:text-[#008080] rounded-xl transition-all group">
+                                <button 
+                                    onClick={handleProfileClick}
+                                    className="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-50 hover:text-[#008080] rounded-xl transition-all group"
+                                >
                                     <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center group-hover:bg-[#008080]/10 transition-colors">
                                         <Settings size={16} />
                                     </div>

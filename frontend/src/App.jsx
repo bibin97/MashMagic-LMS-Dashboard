@@ -21,6 +21,7 @@ import DailyMentorHeadReport from './pages/admin/DailyMentorHeadReport';
 import AdminManagement from './pages/admin/AdminManagement';
 import StaffManagement from './pages/admin/StaffManagement';
 import AdminLiveMonitoring from './pages/admin/LiveMonitoring';
+import AdminProfile from './pages/admin/Profile';
 
 // Auth Pages
 import Login from './pages/Login';
@@ -122,6 +123,7 @@ function App() {
             <Route path="approvals" element={<Approvals />} />
             <Route path="admin-management" element={<AdminManagement />} />
             <Route path="live-monitoring" element={<AdminLiveMonitoring />} />
+            <Route path="profile" element={<AdminProfile />} />
           </Route>
 
           {/* Mentor Head System */}
