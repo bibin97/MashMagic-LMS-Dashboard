@@ -294,9 +294,9 @@ const Navbar = ({ onMenuClick }) => {
                                 <div className="my-2 border-t border-slate-100"></div>
                                 <button 
                                     onClick={handleLogout}
-                                    className="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-bold text-rose-500 hover:bg-rose-50 rounded-xl transition-all group"
+                                    className="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-black text-black bg-[#008080] hover:bg-[#008080]/90 rounded-xl transition-all group shadow-lg shadow-[#008080]/10"
                                 >
-                                    <div className="w-8 h-8 rounded-lg bg-rose-50 flex items-center justify-center group-hover:bg-rose-100 transition-colors">
+                                    <div className="w-8 h-8 rounded-lg bg-[#f8ba2b] flex items-center justify-center transition-colors text-black">
                                         <LogOut size={16} />
                                     </div>
                                     Sign Out
