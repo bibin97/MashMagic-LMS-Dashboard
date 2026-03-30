@@ -73,7 +73,9 @@ const approveUser = async (req, res) => {
             return res.status(404).json({ success: false, message: "User/Student not found" });
         }
 
-        await db.query('INSERT INTO admin_notifications (message) VALUES (?)', [`Approved: ${nameRow?.name || id}`]);
+        await db.query('INSERT INTO admin_notifications (message) VALUES (?)', [
+            `<b>Approval Success:</b> ${nameRow?.name || id} is now <span style="color:#008080">Active</span>.`
+        ]);
         res.status(200).json({ success: true, message: "Approved successfully" });
     } catch (error) {
         res.status(500).json({ success: false, message: "Server Error", error: error.message });
@@ -102,7 +104,9 @@ const blockUser = async (req, res) => {
             return res.status(404).json({ success: false, message: "User not found" });
         }
 
-        await db.query('INSERT INTO admin_notifications (message) VALUES (?)', [`Admin (${req.user.name}) blocked ${role}: ${nameRow?.name || id}`]);
+        await db.query('INSERT INTO admin_notifications (message) VALUES (?)', [
+            `<b>Security Alert:</b> ${role} <b>${nameRow?.name || id}</b> has been <span style="color:#e11d48">Blocked</span> by Admin.`
+        ]);
         res.status(200).json({ success: true, message: "User blocked successfully" });
     } catch (error) {
         res.status(500).json({ success: false, message: "Server Error", error: error.message });
@@ -224,7 +228,9 @@ const deleteUser = async (req, res) => {
         }
 
         const adminName = req.user?.name || 'Admin';
-        await db.query('INSERT INTO admin_notifications (message) VALUES (?)', [`Admin (${adminName}) deleted ${role || 'user'}: ${nameRow?.name || id}`]);
+        await db.query('INSERT INTO admin_notifications (message) VALUES (?)', [
+            `<b>System Action:</b> ${role || 'user'} <b>${nameRow?.name || id}</b> was <span style="color:#e11d48">Removed</span> from the system.`
+        ]);
         
         res.status(200).json({ success: true, message: "User deleted successfully" });
     } catch (error) {
@@ -332,6 +338,28 @@ const markNotificationRead = async (req, res) => {
     }
 };
 
+// @desc    Delete Single Notification
+// @route   DELETE /api/admin/notifications/:id
+const deleteNotification = async (req, res) => {
+    try {
+        await db.query('DELETE FROM admin_notifications WHERE id = ?', [req.params.id]);
+        res.status(200).json({ success: true, message: "Notification deleted" });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+// @desc    Clear All Notifications
+// @route   DELETE /api/admin/notifications/clear-all
+const clearAllNotifications = async (req, res) => {
+    try {
+        await db.query('DELETE FROM admin_notifications');
+        res.status(200).json({ success: true, message: "All notifications cleared" });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
 // @desc    Update Student
 // @route   PUT /api/admin/students/:id
 const updateStudentForAdmin = async (req, res) => {
@@ -350,7 +378,9 @@ const updateStudentForAdmin = async (req, res) => {
             return res.status(404).json({ success: false, message: "Student not found" });
         }
 
-        await db.query('INSERT INTO admin_notifications (message) VALUES (?)', [`Admin (${req.user.name}) updated student: ${oldStudent?.name || id}`]);
+        await db.query('INSERT INTO admin_notifications (message) VALUES (?)', [
+            `<b>Student Updated:</b> Profile of <b>${oldStudent?.name || id}</b> has been modified.`
+        ]);
         res.status(200).json({ success: true, message: "Student updated successfully" });
     } catch (error) {
         res.status(500).json({ success: false, message: "Server Error", error: error.message });
@@ -375,7 +405,9 @@ const updateUserForAdmin = async (req, res) => {
             return res.status(404).json({ success: false, message: "User not found" });
         }
 
-        await db.query('INSERT INTO admin_notifications (message) VALUES (?)', [`Admin (${req.user.name}) updated ${role}: ${oldUser?.name || id}`]);
+        await db.query('INSERT INTO admin_notifications (message) VALUES (?)', [
+            `<b>Staff Updated:</b> ${role} <b>${oldUser?.name || id}</b> details were updated.`
+        ]);
         res.status(200).json({ success: true, message: "User updated successfully" });
     } catch (error) {
         res.status(500).json({ success: false, message: "Server Error", error: error.message });
@@ -652,6 +684,8 @@ module.exports = {
     getDailyMentorHeadReport,
     getAdminNotifications,
     markNotificationRead,
+    deleteNotification,
+    clearAllNotifications,
     getAllStudentsForAdmin,
     getAllMentorsForAdmin,
     getAllFacultiesForAdmin,

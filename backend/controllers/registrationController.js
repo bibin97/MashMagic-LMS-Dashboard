@@ -39,6 +39,11 @@ const registerStudent = async (req, res) => {
 
         const studentId = studentResult.insertId;
 
+        // Notify Admin
+        await db.query('INSERT INTO admin_notifications (message) VALUES (?)', [
+            `<b>New Student Registration:</b> ${name} registered for <b>${course}</b> (${grade}).`
+        ]);
+
         // Automatically insert initial session into mentor_timetable if mentor exists
         if (mentor_name) {
             // Attempt to find user id for this mentor name
@@ -100,6 +105,11 @@ const registerMentor = async (req, res) => {
             [name, phone_number, hashedPassword, 'mentor', 'active']
         );
 
+        // Notify Admin
+        await db.query('INSERT INTO admin_notifications (message) VALUES (?)', [
+            `<b>New Mentor Joined:</b> ${name} has been successfully registered.`
+        ]);
+
         const userId = userResult.insertId;
 
         // 3. Generate Token
@@ -151,6 +161,11 @@ const registerFaculty = async (req, res) => {
             'INSERT INTO users (name, email, password, role, status) VALUES (?, ?, ?, ?, ?)',
             [name, phone_number, hashedPassword, 'faculty', 'active']
         );
+
+        // Notify Admin
+        await db.query('INSERT INTO admin_notifications (message) VALUES (?)', [
+            `<b>New Faculty Joined:</b> ${name} has been successfully registered.`
+        ]);
 
         const userId = userResult.insertId;
 

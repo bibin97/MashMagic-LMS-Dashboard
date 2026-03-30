@@ -43,6 +43,8 @@ const Approvals = () => {
             await api.put(`/admin/approve/${id}`, { role });
             toast.success(`${role === 'student' ? 'Student' : 'User'} approved successfully`);
             setPendingUsers(prev => prev.filter(user => !(user.id === id && user.role === role)));
+            // Trigger notification refresh for 'at the spot' feel
+            if (window.refetchNotifications) window.refetchNotifications();
         } catch (error) {
             console.error('Approve error:', error);
             toast.error("Failed to approve user");
@@ -55,6 +57,8 @@ const Approvals = () => {
                 await api.put(`/admin/reject/${id}`, { role });
                 toast.success(`${role === 'student' ? 'Student' : 'User'} rejected successfully`);
                 setPendingUsers(prev => prev.filter(user => !(user.id === id && user.role === role)));
+                // Trigger notification refresh
+                if (window.refetchNotifications) window.refetchNotifications();
             } catch (error) {
                 console.error('Reject error:', error);
                 toast.error("Failed to reject user");

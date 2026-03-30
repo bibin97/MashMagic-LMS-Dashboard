@@ -13,10 +13,17 @@ const Navbar = ({ onMenuClick }) => {
         // Fetch notifications for the logged in user
         if (user) {
             fetchNotifications();
-            const interval = setInterval(fetchNotifications, 10000); // Poll every 10s
+            // Faster polling for 'at the spot' feel (3s)
+            const interval = setInterval(fetchNotifications, 3000);
             return () => clearInterval(interval);
         }
     }, [user]);
+
+    // Cleanup: Export refetch function to window for 'spot' updates from other components
+    useEffect(() => {
+        window.refetchNotifications = fetchNotifications;
+        return () => { delete window.refetchNotifications; };
+    }, []);
 
     const fetchNotifications = async () => {
         try {
@@ -39,6 +46,29 @@ const Navbar = ({ onMenuClick }) => {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setNotifications(notifications.map(n => n.id === id ? { ...n, is_read: 1 } : n));
+        } catch (error) {
+        }
+    };
+
+    const deleteNotification = async (id, e) => {
+        if (e) e.stopPropagation();
+        try {
+            const token = localStorage.getItem('token');
+            await axios.delete(`/api/admin/notifications/${id}`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            setNotifications(notifications.filter(n => n.id !== id));
+        } catch (error) {
+        }
+    };
+
+    const clearAllNotifications = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            await axios.delete('/api/admin/notifications/clear-all', {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            setNotifications([]);
         } catch (error) {
         }
     };
@@ -77,44 +107,88 @@ const Navbar = ({ onMenuClick }) => {
                     </button>
 
                     {isDropdownOpen && (
-                        <div className="fixed inset-x-4 top-20 md:absolute md:inset-auto md:right-0 md:top-full md:mt-2 md:w-80 bg-white border border-slate-100 rounded-2xl shadow-xl shadow-slate-200 overflow-hidden z-[1000] max-h-[calc(100vh-120px)] md:max-h-96 flex flex-col">
-                            <div className="p-4 bg-slate-50 border-b border-slate-100 flex justify-between items-center">
-                                <h3 className="text-xs font-black uppercase tracking-widest text-slate-800">Notifications</h3>
-                                <span className="text-[10px] font-bold text-slate-500 bg-slate-200 px-2 py-0.5 rounded-md">{unreadCount} New</span>
+                        <div className="fixed inset-x-4 top-20 md:absolute md:inset-auto md:right-0 md:top-full md:mt-4 md:w-[400px] bg-white/95 backdrop-blur-xl border border-slate-200/60 rounded-3xl shadow-2xl shadow-[#008080]/10 overflow-hidden z-[1000] max-h-[calc(100vh-120px)] md:max-h-[500px] flex flex-col transition-all duration-300 animate-in fade-in slide-in-from-top-2">
+                            <div className="p-5 bg-gradient-to-r from-slate-50 to-white border-b border-slate-100 flex justify-between items-center shrink-0">
+                                <div>
+                                    <h3 className="text-sm font-black text-slate-800 tracking-tight">Activity Feed</h3>
+                                    <p className="text-[10px] text-slate-500 font-medium">Real-time platform updates</p>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    {notifications.length > 0 && (
+                                        <button 
+                                            onClick={clearAllNotifications}
+                                            className="text-[10px] font-black text-rose-500 hover:bg-rose-50 px-2 py-1 rounded-lg transition-colors uppercase tracking-tight"
+                                        >
+                                            Clear All
+                                        </button>
+                                    )}
+                                    <span className="text-[10px] font-bold text-[#008080] bg-[#008080]/10 px-2.5 py-1 rounded-full">{unreadCount} New</span>
+                                </div>
                             </div>
-                            <div className="overflow-y-auto p-2">
+                            
+                            <div className="overflow-y-auto p-3 space-y-2 max-h-[400px] flex-grow custom-scrollbar overscroll-contain">
                                 {notifications.length === 0 ? (
-                                    <p className="text-xs text-center text-slate-400 py-6 font-semibold">No recent notifications</p>
+                                    <div className="py-20 flex flex-col items-center justify-center opacity-40">
+                                        <Bell size={40} className="text-slate-300 mb-4" />
+                                        <p className="text-xs text-slate-400 font-semibold tracking-widest uppercase">Pipeline Clean</p>
+                                    </div>
                                 ) : (
-                                    notifications.map(notif => (
-                                        <div key={notif.id} className={`p-4 rounded-2xl mb-2 flex items-start gap-3 transition-all ${notif.is_read ? 'bg-white border border-slate-100 opacity-60' : 'bg-[#008080]/10 border border-[#008080]/50 shadow-sm'}`}>
-                                            <div className="flex-1">
-                                                <div 
-                                                    className={`text-[11px] leading-relaxed ${notif.is_read ? 'text-slate-600 font-medium' : 'text-slate-900 font-semibold'}`}
-                                                    dangerouslySetInnerHTML={{ __html: notif.message }}
-                                                />
-                                                <div className="flex items-center gap-2 mt-2">
-                                                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-tighter bg-slate-100 px-1.5 py-0.5 rounded">
-                                                        {new Date(notif.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                                    </span>
-                                                    <span className="text-[9px] text-slate-300 font-black">•</span>
-                                                    <span className="text-[10px] text-slate-400 font-bold">
-                                                        {new Date(notif.created_at).toLocaleDateString([], { month: 'short', day: 'numeric' })}
-                                                    </span>
+                                    notifications.map((notif, idx) => (
+                                        <div 
+                                            key={notif.id} 
+                                            className={`group relative p-4 rounded-2xl transition-all duration-300 border ${
+                                                notif.is_read 
+                                                    ? 'bg-white/50 border-slate-100 opacity-60 hover:opacity-100' 
+                                                    : 'bg-gradient-to-br from-[#008080]/10 to-[#008080]/5 border-[#008080]/20 shadow-sm hover:shadow-md hover:border-[#008080]/40'
+                                            }`}
+                                            style={{ animationDelay: `${idx * 50}ms` }}
+                                        >
+                                            <div className="flex gap-4">
+                                                <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
+                                                    notif.is_read ? 'bg-slate-100 text-slate-400' : 'bg-white text-[#008080] shadow-sm'
+                                                }`}>
+                                                    <Bell size={18} />
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <div 
+                                                        className={`text-[12px] leading-relaxed break-words ${notif.is_read ? 'text-slate-600 font-medium' : 'text-slate-900 font-bold'}`}
+                                                        dangerouslySetInnerHTML={{ __html: notif.message }}
+                                                    />
+                                                    <div className="flex items-center gap-2 mt-2.5">
+                                                        <div className="flex items-center gap-1 text-[10px] text-slate-400 font-bold bg-slate-50 px-2 py-0.5 rounded-lg border border-slate-100">
+                                                            <span>{new Date(notif.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                                                        </div>
+                                                        <span className="w-1 h-1 bg-slate-200 rounded-full"></span>
+                                                        <span className="text-[10px] text-slate-400 font-bold uppercase tracking-tight">
+                                                            {new Date(notif.created_at).toLocaleDateString([], { month: 'short', day: 'numeric' })}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                <div className="flex flex-col gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                    {!notif.is_read && (
+                                                        <button 
+                                                            onClick={(e) => markRead(notif.id, e)} 
+                                                            className="p-1.5 bg-white text-[#008080] border border-[#008080]/20 hover:bg-[#008080] hover:text-white rounded-lg shadow-sm transition-all duration-300"
+                                                            title="Mark read"
+                                                        >
+                                                            <CheckCheck size={14} />
+                                                        </button>
+                                                    )}
+                                                    <button 
+                                                        onClick={(e) => deleteNotification(notif.id, e)}
+                                                        className="p-1.5 bg-white text-rose-500 border border-rose-100 hover:bg-rose-500 hover:text-white rounded-lg shadow-sm transition-all duration-300"
+                                                        title="Delete"
+                                                    >
+                                                        <ShieldCheck className="rotate-45" size={14} />
+                                                    </button>
                                                 </div>
                                             </div>
-                                            {!notif.is_read && (
-                                                <button 
-                                                    onClick={(e) => markRead(notif.id, e)} 
-                                                    className="shrink-0 p-2 text-white bg-white border border-[#008080] hover:bg-[#008080] hover:text-white rounded-xl shadow-sm transition-all" 
-                                                    title="Mark as read"
-                                                >
-                                                    <CheckCheck size={14} />
-                                                </button>
-                                            )}
                                         </div>
                                     ))
                                 )}
+                            </div>
+                            <div className="p-3 bg-slate-50 border-t border-slate-100 text-center shrink-0">
+                                <button className="text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-[#008080] transition-all">Audit Archive</button>
                             </div>
                         </div>
                     )}
@@ -122,13 +196,13 @@ const Navbar = ({ onMenuClick }) => {
 
                 <div className="flex items-center gap-3 md:gap-4 md:pl-6 md:border-l border-slate-200">
                     <div className="text-right hidden sm:flex flex-col items-end">
-                        <p className="text-sm font-black text-slate-900 leading-tight">{adminName}</p>
+                        <p className="text-sm font-black text-slate-900 leading-tight tracking-tight">{adminName}</p>
                         <div className="flex items-center gap-1 mt-0.5">
                             <ShieldCheck size={10} className="text-[#008080]" />
                             <p className="text-[10px] text-[#008080] font-black uppercase tracking-widest">Authorized Lead</p>
                         </div>
                     </div>
-                    <div className="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center text-white border border-slate-800 shadow-lg shadow-slate-200 overflow-hidden hover:scale-105 transition-transform cursor-pointer">
+                    <div className="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center text-white border border-slate-800 shadow-xl shadow-slate-200 overflow-hidden hover:scale-105 active:scale-95 transition-all cursor-pointer ring-2 ring-transparent hover:ring-[#008080]/20">
                         <User size={20} />
                     </div>
                 </div>

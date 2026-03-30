@@ -225,7 +225,7 @@ const registerStudent = async (req, res) => {
         }
 
         // Notify Admin
-        const msg = `<span class="font-bold text-teal-600">${req.user.name}</span> <span class="text-xs bg-teal-100 text-teal-800 px-1 rounded">(Academic Head)</span> added <span class="font-bold text-orange-600">${name}</span> <span class="text-xs bg-orange-100 text-orange-800 px-1 rounded">(Student)</span>`;
+        const msg = `<b>Academic Update:</b> <span style="color:#008080">${req.user.name}</span> registered a new student <b>${name}</b> for ${course}. <span style="color:#f59e0b">(Pending Approval)</span>`;
         await db.query('INSERT INTO admin_notifications (message) VALUES (?)', [msg]);
 
         res.status(201).json({ success: true, message: "Student registered successfully. Pending Admin approval." });
@@ -270,7 +270,7 @@ const registerFaculty = async (req, res) => {
         });
 
         // Notify Admin
-        const msg = `<span class="font-bold text-teal-600">${req.user.name}</span> <span class="text-xs bg-teal-100 text-teal-800 px-1 rounded">(Academic Head)</span> added and auto-approved <span class="font-bold text-amber-600">${name}</span> <span class="text-xs bg-amber-100 text-amber-800 px-1 rounded">(Faculty)</span>`;
+        const msg = `<b>Staff Onboarding:</b> <span style="color:#008080">${req.user.name}</span> added and activated new faculty <b>${name}</b>.`;
         await db.query('INSERT INTO admin_notifications (message) VALUES (?)', [msg]);
 
         console.log(`[FACULTY REG] SUCCESS! New Faculty ID: ${userId} | Status: ACTIVE`);

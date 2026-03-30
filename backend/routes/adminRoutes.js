@@ -86,5 +86,7 @@ router.get('/daily-hours/:studentId', getDailyHours);
 // Notifications
 router.get('/notifications', getAdminNotifications);
 router.put('/notifications/:id/read', markNotificationRead);
+router.delete('/notifications/clear-all', clearAllNotifications);
+router.delete('/notifications/:id', deleteNotification);
 
 module.exports = router;
