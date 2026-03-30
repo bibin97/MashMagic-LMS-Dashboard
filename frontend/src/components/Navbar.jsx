@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { Bell, Search, User, ShieldCheck, CheckCheck, Menu } from 'lucide-react';
+import { Bell, Search, User, ShieldCheck, CheckCheck, Menu, LogOut, Settings, HelpCircle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
 
 const Navbar = ({ onMenuClick }) => {
-    const { user } = useAuth();
+    const { user, logout } = useAuth();
     const adminName = user?.name || "Super Admin";
     const [notifications, setNotifications] = useState([]);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
 
     useEffect(() => {
         // Fetch notifications for the logged in user
@@ -71,6 +72,11 @@ const Navbar = ({ onMenuClick }) => {
             setNotifications([]);
         } catch (error) {
         }
+    };
+
+    const handleLogout = () => {
+        logout();
+        window.location.href = '/login';
     };
 
     const unreadCount = notifications.filter(n => !n.is_read).length;
@@ -194,7 +200,7 @@ const Navbar = ({ onMenuClick }) => {
                     )}
                 </div>
 
-                <div className="flex items-center gap-3 md:gap-4 md:pl-6 md:border-l border-slate-200">
+                <div className="flex items-center gap-3 md:gap-4 md:pl-6 md:border-l border-slate-200 relative">
                     <div className="text-right hidden sm:flex flex-col items-end">
                         <p className="text-sm font-black text-slate-900 leading-tight tracking-tight">{adminName}</p>
                         <div className="flex items-center gap-1 mt-0.5">
@@ -202,9 +208,51 @@ const Navbar = ({ onMenuClick }) => {
                             <p className="text-[10px] text-[#008080] font-black uppercase tracking-widest">Authorized Lead</p>
                         </div>
                     </div>
-                    <div className="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center text-white border border-slate-800 shadow-xl shadow-slate-200 overflow-hidden hover:scale-105 active:scale-95 transition-all cursor-pointer ring-2 ring-transparent hover:ring-[#008080]/20">
+                    <button 
+                        onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                        className="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center text-white border border-slate-800 shadow-xl shadow-slate-200 overflow-hidden hover:scale-105 active:scale-95 transition-all cursor-pointer ring-2 ring-transparent hover:ring-[#008080]/20"
+                    >
                         <User size={20} />
-                    </div>
+                    </button>
+
+                    {isUserMenuOpen && (
+                        <div className="absolute right-0 top-full mt-4 w-56 bg-white/95 backdrop-blur-xl border border-slate-200/60 rounded-2xl shadow-2xl shadow-slate-900/10 overflow-hidden z-[1000] animate-in fade-in slide-in-from-top-2">
+                            <div className="p-4 border-b border-slate-100 bg-slate-50/50">
+                                <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Active Session</p>
+                                <p className="text-sm font-bold text-slate-900 truncate">{user?.email}</p>
+                            </div>
+                            <div className="p-2">
+                                <button className="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-50 hover:text-[#008080] rounded-xl transition-all group">
+                                    <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center group-hover:bg-[#008080]/10 transition-colors">
+                                        <User size={16} />
+                                    </div>
+                                    Profile Settings
+                                </button>
+                                <button className="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-50 hover:text-[#008080] rounded-xl transition-all group">
+                                    <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center group-hover:bg-[#008080]/10 transition-colors">
+                                        <Settings size={16} />
+                                    </div>
+                                    Security
+                                </button>
+                                <button className="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-50 hover:text-[#008080] rounded-xl transition-all group">
+                                    <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center group-hover:bg-[#008080]/10 transition-colors">
+                                        <HelpCircle size={16} />
+                                    </div>
+                                    Support
+                                </button>
+                                <div className="my-2 border-t border-slate-100"></div>
+                                <button 
+                                    onClick={handleLogout}
+                                    className="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-bold text-rose-500 hover:bg-rose-50 rounded-xl transition-all group"
+                                >
+                                    <div className="w-8 h-8 rounded-lg bg-rose-50 flex items-center justify-center group-hover:bg-rose-100 transition-colors">
+                                        <LogOut size={16} />
+                                    </div>
+                                    Sign Out
+                                </button>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
         </header>
