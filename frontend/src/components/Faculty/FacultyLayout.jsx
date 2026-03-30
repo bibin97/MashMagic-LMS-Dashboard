@@ -80,7 +80,7 @@ const FacultyLayout = () => {
                             className={({ isActive }) => `
                                 flex items-center justify-between px-5 py-4 rounded-2xl transition-all duration-500 group
                                 ${isActive
-                                    ? 'bg-white/20 text-white font-bold shadow-xl -translate-y-0.5'
+                                    ? 'bg-[#f8ba2b] text-black font-black shadow-xl shadow-black/10 -translate-y-0.5'
                                     : 'text-slate-400 hover:bg-slate-800/50 hover:text-white'}
                             `}
                         >
@@ -101,26 +101,26 @@ const FacultyLayout = () => {
 
                 {/* Footer User Profile */}
                 <div className="p-6 mt-auto">
-                    <div className="bg-slate-800/40 backdrop-blur-md rounded-[2.5rem] p-5 border border-slate-700/50 hover:border-[#f8ba2b]/50 transition-all duration-500 group">
+                    <div className="bg-[#f8ba2b] rounded-[2.5rem] p-5 border border-[#f8ba2b]/20 shadow-lg shadow-black/10 transition-all duration-500 group">
                         <div className="flex items-center gap-4">
                             <div className="relative">
-                                <div className="w-12 h-12 bg-slate-700 rounded-2xl border-2 border-slate-600 flex items-center justify-center text-[#008080] group-hover:border-[#f8ba2b] transition-colors duration-500 overflow-hidden">
+                                <div className="w-12 h-12 bg-[#008080] rounded-2xl shadow-inner flex items-center justify-center text-white overflow-hidden">
                                     {user?.profile_image ? (
                                         <img src={user.profile_image} alt="Profile" className="w-full h-full object-cover" />
                                     ) : (
                                         <User size={24} />
                                     )}
                                 </div>
-                                <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-500 border-2 border-slate-800 rounded-full shadow-sm"></div>
+                                <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-500 border-2 border-[#f8ba2b] rounded-full shadow-sm"></div>
                             </div>
                             <div className="flex flex-col min-w-0 pr-2">
-                                <span className="text-xs font-black text-white truncate">{user?.name}</span>
-                                <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest truncate">Faculty Member</span>
+                                <span className="text-[10px] font-black text-black/40 uppercase tracking-widest truncate leading-none mb-1">Chief Admin</span>
+                                <span className="text-xs font-black text-black truncate italic">{user?.name}</span>
                             </div>
                         </div>
                         <button
                             onClick={handleLogout}
-                            className="mt-4 w-full flex items-center justify-center gap-3 px-4 py-3 rounded-2xl transition-all duration-500 text-[10px] font-black uppercase tracking-widest shadow-sm bg-white/10 text-white hover:bg-white/20 border border-white/20 shadow-lg"
+                            className="mt-4 w-full flex items-center justify-center gap-3 px-4 py-3 rounded-2xl transition-all duration-500 text-[10px] font-black uppercase tracking-[0.2em] bg-[#f8ba2b] text-black hover:bg-yellow-500 border border-yellow-300 shadow-xl shadow-black/10"
                         >
                             <LogOut size={14} />
                             <span>Logout</span>

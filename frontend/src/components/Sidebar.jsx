@@ -70,9 +70,9 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                         to={item.path}
                         onClick={() => setIsOpen(false)}
                         className={({ isActive }) => `
-                            flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200
+                            flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300
                             ${isActive
-                                ? 'bg-white/20 text-white font-semibold shadow-lg backdrop-blur-md'
+                                ? 'bg-[#f8ba2b] text-black font-black shadow-xl shadow-black/10 -translate-y-0.5'
                                 : 'text-white/60 hover:bg-white/10 hover:text-white'}
                         `}
                     >
@@ -82,12 +82,21 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                 ))}
             </nav>
 
-            <div className="p-4 border-t border-slate-100">
+            <div className="p-4 border-t border-slate-700/50">
+                <div className="bg-[#f8ba2b] p-4 rounded-3xl mb-4 border border-[#f8ba2b]/20 shadow-lg shadow-black/10 flex items-center gap-3">
+                    <div className="w-10 h-10 bg-[#008080] rounded-2xl flex items-center justify-center text-white shadow-inner">
+                        <User size={20} />
+                    </div>
+                    <div className="flex flex-col overflow-hidden">
+                        <span className="text-[10px] font-black text-black/40 uppercase tracking-widest leading-none mb-1">Chief Admin</span>
+                        <span className="text-xs font-black text-black truncate italic">{user?.name}</span>
+                    </div>
+                </div>
                 <button
                     onClick={handleLogout}
-                    className="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 font-black uppercase tracking-wider bg-white/10 text-white hover:bg-white/20 border border-white/20 shadow-lg"
+                    className="w-full flex items-center gap-3 px-4 py-4 rounded-2xl transition-all duration-300 text-[10px] font-black uppercase tracking-[0.2em] bg-[#f8ba2b] text-black hover:bg-yellow-500 shadow-xl shadow-black/10 border border-yellow-300"
                 >
-                    <LogOut size={18} />
+                    <LogOut size={16} />
                     <span>Logout</span>
                 </button>
             </div>
