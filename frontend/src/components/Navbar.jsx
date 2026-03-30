@@ -3,6 +3,7 @@ import { Bell, Search, User, ShieldCheck, CheckCheck, Menu, LogOut, Settings, He
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
+import { toast } from 'react-hot-toast';
 
 const Navbar = ({ onMenuClick }) => {
     const { user, logout } = useAuth();
@@ -28,8 +29,10 @@ const Navbar = ({ onMenuClick }) => {
     }, [isDropdownOpen, isUserMenuOpen]);
 
     useEffect(() => {
-        // Fetch notifications for the logged in user
-        if (user) {
+        // Only fetch admin notifications if user is admin or super_admin
+        const isAdmin = user?.role === 'admin' || user?.role === 'super_admin';
+        
+        if (user && isAdmin) {
             fetchNotifications();
             // Faster polling for 'at the spot' feel (3s)
             const interval = setInterval(fetchNotifications, 3000);
@@ -98,13 +101,20 @@ const Navbar = ({ onMenuClick }) => {
 
     const handleProfileClick = () => {
         setIsUserMenuOpen(false);
-        if (user?.role === 'super_admin' || user?.role === 'admin') {
-            navigate('/admin/profile');
-        } else if (user?.role === 'faculty') {
-            navigate('/faculty/profile');
+        const rolePaths = {
+            'super_admin': '/admin/profile',
+            'admin': '/admin/profile',
+            'mentor_head': '/mentor-head/profile',
+            'academic_head': '/academic-head/profile',
+            'mentor': '/mentor/profile',
+            'faculty': '/faculty/profile'
+        };
+
+        const path = rolePaths[user?.role];
+        if (path) {
+            navigate(path);
         } else {
-            // Placeholder for other roles
-            toast.error('Profile page coming soon for your role');
+            toast.error('Profile route not defined for this role');
         }
     };
 

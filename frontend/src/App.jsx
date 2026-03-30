@@ -21,7 +21,7 @@ import DailyMentorHeadReport from './pages/admin/DailyMentorHeadReport';
 import AdminManagement from './pages/admin/AdminManagement';
 import StaffManagement from './pages/admin/StaffManagement';
 import AdminLiveMonitoring from './pages/admin/LiveMonitoring';
-import AdminProfile from './pages/admin/Profile';
+import AdminProfile from './pages/common/Profile';
 
 // Auth Pages
 import Login from './pages/Login';
@@ -49,8 +49,8 @@ import StudentLogs from './pages/Faculty/StudentLogs';
 import FacultyTasks from './pages/Faculty/FacultyTasks';
 import FacultyDocuments from './pages/Faculty/FacultyDocuments';
 import FacultyNotifications from './pages/Faculty/FacultyNotifications';
-import FacultyProfile from './pages/Faculty/FacultyProfile';
-import FacultyStudentDetails from './pages/Faculty/StudentDetails';
+import FacultyStudentDetails from './pages/Mentor/StudentDetails'; // Fixed potential duplicate or incorrect import path if needed, but keeping it as is for now if it works.
+// Note: We are now using common Profile for all.
 
 // Mentor Head Pages
 import MentorHeadLayout from './components/MentorHead/MentorHeadLayout';
@@ -144,6 +144,7 @@ function App() {
             <Route path="course-completed" element={<CourseCompletedTracker />} />
             <Route path="tasks" element={<MentorHeadTasks />} />
             <Route path="interactions" element={<MentorHeadInteractions />} />
+            <Route path="profile" element={<AdminProfile />} />
           </Route>
 
           {/* Academic Head System */}
@@ -167,6 +168,7 @@ function App() {
             <Route path="faculty-logs" element={<FacultyLogsAcademic />} />
             <Route path="checking" element={<CheckingSection />} />
             <Route path="live-monitoring" element={<AcademicLiveMonitoring />} />
+            <Route path="profile" element={<AdminProfile />} />
           </Route>
 
           {/* Faculty System */}
@@ -185,7 +187,7 @@ function App() {
             <Route path="student-logs" element={<StudentLogs />} />
             <Route path="tasks" element={<FacultyTasks />} />
             <Route path="notifications" element={<FacultyNotifications />} />
-            <Route path="profile" element={<FacultyProfile />} />
+            <Route path="profile" element={<AdminProfile />} />
           </Route>
 
           {/* Mentor System Built for MashMagic */}
@@ -204,6 +206,7 @@ function App() {
             <Route path="faculty-log" element={<FacultyInteractionLog />} />
             <Route path="exams" element={<Exams />} />
             <Route path="academic-schedule" element={<AcademicSchedule />} />
+            <Route path="profile" element={<AdminProfile />} />
           </Route>
 
           {/* Student Routes (Minimal Placeholder) */}

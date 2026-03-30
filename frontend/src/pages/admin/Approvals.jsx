@@ -225,13 +225,13 @@ const Approvals = () => {
                         </p>
                     </div>
                     <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
-                        <div className="bg-white/10 backdrop-blur-md p-6 rounded-3xl border border-white/10 w-full md:w-44 text-center">
-                            <span className="text-xs font-bold text-white/70 uppercase tracking-widest block mb-1">Approved Today</span>
-                            <span className="text-3xl font-black text-white">0</span>
+                        <div className="bg-yellow-400 p-6 rounded-3xl w-full md:w-44 text-center shadow-lg shadow-yellow-400/20">
+                            <span className="text-[10px] font-black text-black/50 uppercase tracking-widest block mb-1">Approved Today</span>
+                            <span className="text-3xl font-black text-black tracking-tighter">0</span>
                         </div>
-                        <div className="bg-white/10 backdrop-blur-md p-6 rounded-3xl border border-white/10 w-full md:w-44 text-center">
-                            <span className="text-xs font-bold text-rose-300 uppercase tracking-widest block mb-1">Rejected Today</span>
-                            <span className="text-3xl font-black text-white">0</span>
+                        <div className="bg-yellow-400 p-6 rounded-3xl w-full md:w-44 text-center shadow-lg shadow-yellow-400/20">
+                            <span className="text-[10px] font-black text-black/50 uppercase tracking-widest block mb-1 text-rose-800">Rejected Today</span>
+                            <span className="text-3xl font-black text-black tracking-tighter">0</span>
                         </div>
                     </div>
                 </div>
