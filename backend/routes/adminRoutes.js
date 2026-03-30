@@ -14,6 +14,8 @@ const {
     getDailyMentorHeadReport,
     getAdminNotifications,
     markNotificationRead,
+    deleteNotification,
+    clearAllNotifications,
     getAllStudentsForAdmin,
     getAllMentorsForAdmin,
     getAllFacultiesForAdmin,
