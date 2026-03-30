@@ -255,7 +255,7 @@ const Navbar = ({ onMenuClick }) => {
                             setIsUserMenuOpen(!isUserMenuOpen);
                             setIsDropdownOpen(false);
                         }}
-                        className="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center text-white border border-slate-800 shadow-xl shadow-slate-200 overflow-hidden hover:scale-105 active:scale-95 transition-all cursor-pointer ring-2 ring-transparent hover:ring-[#008080]/20"
+                        className="w-10 h-10 bg-[#008080] rounded-xl flex items-center justify-center text-white border border-[#008080]/30 shadow-xl shadow-[#008080]/10 overflow-hidden hover:scale-105 active:scale-95 transition-all cursor-pointer ring-2 ring-transparent hover:ring-[#008080]/20"
                     >
                         <User size={20} />
                     </button>
