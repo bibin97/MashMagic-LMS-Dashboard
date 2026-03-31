@@ -187,11 +187,17 @@ const deleteUser = async (req, res) => {
             [[nameRow]] = await db.query('SELECT name FROM students WHERE id = ?', [id]);
             if (!nameRow) return res.status(404).json({ success: false, message: "Student not found" });
 
-            // Handle student-specific logs/entries if any (usually cascade in DB but explicit is safer if no cascade)
+            // Handle student-specific dependencies before deletion
             await db.query('DELETE FROM student_interaction_logs WHERE student_id = ?', [id]);
             await db.query('DELETE FROM faculty_interaction_logs WHERE student_id = ?', [id]);
             await db.query('DELETE FROM student_verification WHERE student_id = ?', [id]);
-            await db.query('DELETE FROM daily_hours_log WHERE student_id = ?', [id]); // or similar student hours table
+            await db.query('DELETE FROM daily_hours_log WHERE student_id = ?', [id]);
+            await db.query('DELETE FROM student_marks WHERE student_id = ?', [id]);
+            await db.query('DELETE FROM student_exams WHERE student_id = ?', [id]);
+            await db.query('DELETE FROM session_attendance WHERE student_id = ?', [id]);
+            await db.query('DELETE FROM student_reports WHERE student_id = ?', [id]);
+            await db.query('DELETE FROM live_class_feedbacks WHERE student_id = ?', [id]);
+            await db.query('DELETE FROM mentor_timetable WHERE student_id = ?', [id]);
 
             [result] = await db.query('DELETE FROM students WHERE id = ?', [id]);
         } else {
@@ -200,44 +206,62 @@ const deleteUser = async (req, res) => {
 
             const userRole = nameRow.role;
 
-            // Handle cross-table dependencies based on role
+            // 1. UNIVERSAL NULLIFICATION (Apply to any user being removed)
+            // Handle registration tracking dependencies
+            await db.query('UPDATE users SET registeredBy = NULL WHERE registeredBy = ?', [id]);
+            await db.query('UPDATE students SET registeredBy = NULL WHERE registeredBy = ?', [id]);
+            
+            // Handle Task System dependencies
+            await db.query('UPDATE tasks SET assigned_by = NULL WHERE assigned_by = ?', [id]);
+            await db.query('UPDATE tasks SET assigned_to = NULL WHERE assigned_to = ?', [id]);
+
+            // 2. ROLE-SPECIFIC DEPENDENCY CLEANUP
             if (userRole === 'mentor') {
-                // Remove assignments from students but keep student records
+                // Unlink from students but preserve student records
                 await db.query('UPDATE students SET mentor_id = NULL, mentor_name = NULL WHERE mentor_id = ?', [id]);
                 
-                // PRESERVE HISTORY: Nullify mentor_id instead of deleting logs
+                // Nullify logs to preserve historical data without strict FK conflict
                 await db.query('UPDATE student_interaction_logs SET mentor_id = NULL WHERE mentor_id = ?', [id]);
                 await db.query('UPDATE faculty_interaction_logs SET mentor_id = NULL WHERE mentor_id = ?', [id]);
                 await db.query('UPDATE daily_hours_log SET mentor_id = NULL WHERE mentor_id = ?', [id]);
                 await db.query('UPDATE mentor_timetable SET mentor_id = NULL WHERE mentor_id = ?', [id]);
-                
-                // Tasks are better kept for audit. Let's keep them with NULL assigned_to.
-                await db.query('UPDATE tasks SET assigned_to = NULL WHERE assigned_to = ?', [id]);
-            } else if (userRole === 'faculty') {
+                await db.query('UPDATE student_exams SET mentor_id = NULL WHERE mentor_id = ?', [id]);
+            } 
+            else if (userRole === 'faculty') {
                 await db.query('UPDATE students SET faculty_id = NULL, faculty_name = NULL WHERE faculty_id = ?', [id]);
                 await db.query('UPDATE faculty_interaction_logs SET faculty_id = NULL WHERE faculty_id = ?', [id]);
-            } else if (userRole === 'mentor_head') {
+                await db.query('UPDATE student_reports SET faculty_id = NULL WHERE faculty_id = ?', [id]);
+                await db.query('UPDATE faculty_sessions SET faculty_id = NULL WHERE faculty_id = ?', [id]);
+                await db.query('UPDATE live_class_feedbacks SET faculty_id = NULL WHERE faculty_id = ?', [id]);
+            } 
+            else if (userRole === 'mentor_head') {
                 await db.query('UPDATE student_verification SET mentor_head_id = NULL WHERE mentor_head_id = ?', [id]);
+            }
+            else if (userRole === 'academic_head') {
+                // Handling Academic Head specific audits and uploads
+                await db.query('UPDATE faculty_verification SET academic_head_id = NULL WHERE academic_head_id = ?', [id]);
+                await db.query('UPDATE academic_documents SET uploaded_by = NULL WHERE uploaded_by = ?', [id]);
+                await db.query('UPDATE live_class_feedbacks SET academic_head_id = NULL WHERE academic_head_id = ?', [id]);
+                await db.query('UPDATE faculty_interaction_logs SET verified_by = NULL WHERE verified_by = ?', [id]);
             }
 
             [result] = await db.query('DELETE FROM users WHERE id = ?', [id]);
         }
 
         if (result.affectedRows === 0) {
-            return res.status(404).json({ success: false, message: "User not found" });
+            return res.status(404).json({ success: false, message: "Target not found" });
         }
 
-        const adminName = req.user?.name || 'Admin';
         await db.query('INSERT INTO admin_notifications (message) VALUES (?)', [
-            `<b>System Action:</b> ${role || 'user'} <b>${nameRow?.name || id}</b> was <span style="color:#e11d48">Removed</span> from the system.`
+            `<b>System Action:</b> ${role || userRow.role} <b>${nameRow?.name || id}</b> was permanently <span style="color:#e11d48">Removed</span> after clearing dependencies.`
         ]);
         
-        res.status(200).json({ success: true, message: "User deleted successfully" });
+        res.status(200).json({ success: true, message: "Deleted successfully and integrity maintained." });
     } catch (error) {
         console.error("DELETE_USER_ERROR LOG:", error);
         res.status(500).json({ 
             success: false, 
-            message: "Server Error: Dependency conflict. Deletion failed.", 
+            message: "Conflict detected: This member is linked to other critical records.", 
             error: error.message 
         });
     }
@@ -576,16 +600,23 @@ const deleteSubAdmin = async (req, res) => {
         const { id } = req.params;
 
         // Protection: System must not allow deleting super_admin via this route
-        const [target] = await db.query('SELECT role FROM users WHERE id = ?', [id]);
+        const [target] = await db.query('SELECT name, role FROM users WHERE id = ?', [id]);
         if (!target.length) return res.status(404).json({ success: false, message: "User not found" });
         if (target[0].role === 'super_admin') {
             return res.status(403).json({ success: false, message: "Fatal Error: Super Admin cannot be deleted." });
         }
 
+        // Handle sub-admin dependencies (they might have registered users or created tasks)
+        await db.query('UPDATE users SET registeredBy = NULL WHERE registeredBy = ?', [id]);
+        await db.query('UPDATE students SET registeredBy = NULL WHERE registeredBy = ?', [id]);
+        await db.query('UPDATE tasks SET assigned_by = NULL WHERE assigned_by = ?', [id]);
+        await db.query('UPDATE tasks SET assigned_to = NULL WHERE assigned_to = ?', [id]);
+
         await db.query('DELETE FROM users WHERE id = ?', [id]);
         res.status(200).json({ success: true, message: "Sub Admin deleted successfully. Integrity maintained." });
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        console.error("DELETE_SUBADMIN_ERROR:", error);
+        res.status(500).json({ success: false, message: "Failed to delete sub-admin due to data dependency.", error: error.message });
     }
 };
 
