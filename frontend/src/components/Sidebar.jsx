@@ -9,6 +9,7 @@ import {
     ListTodo,
     FileText,
     LogOut,
+    User,
     ScrollText,
     UserCheck,
     Target,
