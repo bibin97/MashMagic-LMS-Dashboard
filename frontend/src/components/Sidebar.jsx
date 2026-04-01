@@ -89,7 +89,9 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                         <User size={20} />
                     </div>
                     <div className="flex flex-col overflow-hidden">
-                        <span className="text-[10px] font-black text-black/40 uppercase tracking-widest leading-none mb-1">Chief Admin</span>
+                        <span className="text-[10px] font-black text-black/40 uppercase tracking-widest leading-none mb-1">
+                            {user?.role?.split('_').join(' ')}
+                        </span>
                         <span className="text-xs font-black text-black truncate italic">{user?.name}</span>
                     </div>
                 </div>

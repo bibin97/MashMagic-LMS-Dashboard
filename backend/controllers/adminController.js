@@ -220,12 +220,16 @@ const deleteUser = async (req, res) => {
                 // Unlink from students but preserve student records
                 await db.query('UPDATE students SET mentor_id = NULL, mentor_name = NULL WHERE mentor_id = ?', [id]);
                 
-                // Nullify logs to preserve historical data without strict FK conflict
+                // Handle interaction logs (Optional: set to NULL or delete. Usually NULL is better for history)
                 await db.query('UPDATE student_interaction_logs SET mentor_id = NULL WHERE mentor_id = ?', [id]);
                 await db.query('UPDATE faculty_interaction_logs SET mentor_id = NULL WHERE mentor_id = ?', [id]);
                 await db.query('UPDATE daily_hours_log SET mentor_id = NULL WHERE mentor_id = ?', [id]);
-                await db.query('UPDATE mentor_timetable SET mentor_id = NULL WHERE mentor_id = ?', [id]);
-                await db.query('UPDATE student_exams SET mentor_id = NULL WHERE mentor_id = ?', [id]);
+                
+                // Fixed: student_exams mentor_id is often NOT NULL in many schemas
+                await db.query('DELETE FROM student_exams WHERE mentor_id = ?', [id]);
+                
+                // Fixed: Clear timetable records to avoid data noise and FK conflicts
+                await db.query('DELETE FROM mentor_timetable WHERE mentor_id = ?', [id]);
             } 
             else if (userRole === 'faculty') {
                 await db.query('UPDATE students SET faculty_id = NULL, faculty_name = NULL WHERE faculty_id = ?', [id]);
@@ -233,17 +237,25 @@ const deleteUser = async (req, res) => {
                 await db.query('UPDATE student_reports SET faculty_id = NULL WHERE faculty_id = ?', [id]);
                 await db.query('UPDATE faculty_sessions SET faculty_id = NULL WHERE faculty_id = ?', [id]);
                 await db.query('UPDATE live_class_feedbacks SET faculty_id = NULL WHERE faculty_id = ?', [id]);
+                
+                // Added: Missing faculty-linked tables found in facultyController
+                await db.query('DELETE FROM student_marks WHERE faculty_id = ?', [id]);
+                await db.query('DELETE FROM faculty_documents WHERE faculty_id = ?', [id]);
             } 
             else if (userRole === 'mentor_head') {
                 await db.query('UPDATE student_verification SET mentor_head_id = NULL WHERE mentor_head_id = ?', [id]);
             }
             else if (userRole === 'academic_head') {
-                // Handling Academic Head specific audits and uploads
-                await db.query('UPDATE faculty_verification SET academic_head_id = NULL WHERE academic_head_id = ?', [id]);
+                // Fixed: faculty_verification academic_head_id is NOT NULL in migrations, handled by CASCADE but manual nulling would fail
+                // await db.query('UPDATE faculty_verification SET academic_head_id = NULL WHERE academic_head_id = ?', [id]);
+                
                 await db.query('UPDATE academic_documents SET uploaded_by = NULL WHERE uploaded_by = ?', [id]);
                 await db.query('UPDATE live_class_feedbacks SET academic_head_id = NULL WHERE academic_head_id = ?', [id]);
                 await db.query('UPDATE faculty_interaction_logs SET verified_by = NULL WHERE verified_by = ?', [id]);
             }
+
+            // Universal cleanup: Notifications and audit logs
+            await db.query('DELETE FROM notifications WHERE user_id = ?', [id]);
 
             [result] = await db.query('DELETE FROM users WHERE id = ?', [id]);
         }
@@ -253,7 +265,7 @@ const deleteUser = async (req, res) => {
         }
 
         await db.query('INSERT INTO admin_notifications (message) VALUES (?)', [
-            `<b>System Action:</b> ${role || userRow.role} <b>${nameRow?.name || id}</b> was permanently <span style="color:#e11d48">Removed</span> after clearing dependencies.`
+            `<b>System Action:</b> ${userRole || role} <b>${nameRow?.name || id}</b> was permanently <span style="color:#e11d48">Removed</span> after clearing dependencies.`
         ]);
         
         res.status(200).json({ success: true, message: "Deleted successfully and integrity maintained." });

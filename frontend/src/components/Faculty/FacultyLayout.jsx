@@ -114,7 +114,9 @@ const FacultyLayout = () => {
                                 <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-500 border-2 border-[#f8ba2b] rounded-full shadow-sm"></div>
                             </div>
                             <div className="flex flex-col min-w-0 pr-2">
-                                <span className="text-[10px] font-black text-black/40 uppercase tracking-widest truncate leading-none mb-1">Chief Admin</span>
+                                <span className="text-[10px] font-black text-black/40 uppercase tracking-widest truncate leading-none mb-1">
+                                    {user?.role?.split('_').join(' ')}
+                                </span>
                                 <span className="text-xs font-black text-black truncate italic">{user?.name}</span>
                             </div>
                         </div>
