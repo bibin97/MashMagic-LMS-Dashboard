@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Lock, Mail, Loader2, ShieldCheck, ChevronRight, LogIn } from 'lucide-react';
+import { Lock, Mail, Loader2, ShieldCheck, ChevronRight, LogIn, ArrowRight } from 'lucide-react';
 import toast from 'react-hot-toast';
 import RegistrationForm from '../components/RegistrationForm';
 
@@ -54,7 +54,7 @@ const Login = () => {
         e.preventDefault();
         setIsSubmitting(true);
         try {
-            const user = await login(formData.identifier, formData.password);
+            const user = await login(formData.identifier, formData.password, activeDepartment);
             const role = user.role?.toLowerCase().trim();
 
             toast.success(`Welcome back, ${user.name}!`);
@@ -87,48 +87,61 @@ const Login = () => {
     const canSignup = ['admin', 'mentor_head', 'academic_head'].includes(subRole);
 
     return (
-        <div className="min-h-screen bg-slate-100 flex items-center justify-center p-6 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] bg-fixed">
-            <div className="w-full max-w-2xl transition-all duration-500">
-                {/* Logo / Brand */}
+        <div className="min-h-screen flex items-center justify-center p-6 relative overflow-hidden font-sans"
+             style={{ background: 'linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 100%)' }}>
+            
+            {/* Soft Glow Effects */}
+            <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full blur-[120px] pointer-events-none"
+                 style={{ background: 'rgba(20,184,166,0.12)' }}></div>
+            <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full blur-[120px] pointer-events-none"
+                 style={{ background: 'rgba(245,158,11,0.12)' }}></div>
+            
+            {/* Subtle Geometric Pattern Overlay */}
+            <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] bg-fixed"></div>
+
+            <div className="w-full max-w-[540px] relative z-10 animate-in fade-in zoom-in duration-700">
+                {/* Brand Identity */}
                 <div className="text-center mb-10 flex flex-col items-center">
-                    <div className="w-32 h-32 flex items-center justify-center mb-4 transition-transform hover:scale-105 duration-500">
-                        <img src="/mashmagic logo.jpg" alt="Logo" className="w-full h-full object-contain" />
+                    <div className="w-24 h-24 mb-6 transition-transform hover:scale-110 duration-700 cursor-pointer drop-shadow-2xl">
+                        <img src="/mashmagic logo.jpg" alt="Logo" className="w-full h-full object-contain rounded-3xl" />
                     </div>
-                    <h1 className="text-4xl font-black text-slate-900 tracking-tighter">MashMagic Hub</h1>
-                    <p className="text-slate-500 font-bold mt-2 uppercase tracking-[0.3em] text-xs">Unified Personnel Gateway</p>
+                    <h1 className="text-4xl font-black text-[#0F172A] tracking-tighter italic">MashMagic Hub</h1>
+                    <p className="text-[#64748B] font-bold mt-2 uppercase tracking-[0.4em] text-[10px]">Unified Personnel Gateway</p>
                 </div>
 
-                {/* Main Card */}
-                <div className="bg-white rounded-[3rem] shadow-2xl shadow-slate-200 border border-slate-100 relative overflow-hidden">
-
-                    {/* Level 1: Department Tabs */}
-                    <div className="flex border-b border-slate-100 bg-slate-50/50">
+                {/* Login Card (Glassmorphism) */}
+                <div className="bg-white/95 backdrop-blur-2xl rounded-[32px] shadow-[0_20px_50px_rgba(0,0,0,0.06)] border border-white/50 overflow-hidden transform transition-transform hover:scale-[1.005]">
+                    
+                    {/* Level 1: Premium Department Tabs */}
+                    <div className="p-2 bg-[#F1F5F9] m-4 rounded-[20px] flex gap-1">
                         {[
-                            { id: 'admin', label: 'Admin Panel' },
+                            { id: 'admin', label: 'Admin' },
                             { id: 'mentor_dept', label: 'Mentor Dept' },
                             { id: 'academic_dept', label: 'Academic Dept' }
                         ].map((dept) => (
                             <button
                                 key={dept.id}
                                 onClick={() => handleDepartmentChange(dept.id)}
-                                className={`flex-1 py-5 text-[10px] font-black uppercase tracking-widest transition-all relative
-                                    ${activeDepartment === dept.id ? 'text-[#008080] bg-white shadow-sm z-10' : 'text-slate-400 hover:text-slate-600'}
+                                className={`flex-1 py-3.5 text-[10px] font-black uppercase tracking-widest transition-all rounded-[14px] relative group
+                                    ${activeDepartment === dept.id 
+                                        ? 'bg-white text-[#0F766E] shadow-sm' 
+                                        : 'text-[#64748B] hover:text-[#0F172A]'}
                                 `}
                             >
                                 {dept.label}
                                 {activeDepartment === dept.id && (
-                                    <div className="absolute top-0 left-0 w-full h-1 bg-[#008080]"></div>
+                                    <div className="absolute bottom-1 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-[#F59E0B] rounded-full"></div>
                                 )}
                             </button>
                         ))}
                     </div>
 
-                    <div className="p-10 md:p-14 relative z-10 min-h-[500px]">
+                    <div className="px-10 pb-12 pt-4 relative z-10 min-h-[480px]">
 
-                        {/* Level 2: Sub-Role Switcher (Only for Mentor/Academic Depts) */}
-                        {activeDepartment === 'mentor_dept' && (
-                            <div className="flex justify-center mb-8">
-                                <div className="bg-slate-100 p-1 rounded-xl flex gap-1">
+                        {/* Level 2: Sub-Role Toggle */}
+                        <div className="flex justify-center mb-10">
+                            {activeDepartment === 'mentor_dept' && (
+                                <div className="bg-[#F1F5F9] p-1 rounded-xl flex gap-1 border border-slate-200/50">
                                     {[
                                         { id: 'mentor_head', label: 'Mentor Head' },
                                         { id: 'mentor', label: 'Mentor' }
@@ -136,20 +149,18 @@ const Login = () => {
                                         <button
                                             key={role.id}
                                             onClick={() => handleSubRoleChange(role.id)}
-                                            className={`px-6 py-2 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all
-                                                ${subRole === role.id ? 'bg-white text-[#008080] shadow-sm' : 'text-slate-400 hover:text-slate-600'}
+                                            className={`px-6 py-2.5 rounded-[10px] text-[10px] font-black uppercase tracking-wider transition-all
+                                                ${subRole === role.id ? 'bg-white text-[#0F766E] shadow-sm ring-1 ring-slate-100' : 'text-[#64748B] hover:text-[#0F172A]'}
                                             `}
                                         >
                                             {role.label}
                                         </button>
                                     ))}
                                 </div>
-                            </div>
-                        )}
+                            )}
 
-                        {activeDepartment === 'academic_dept' && (
-                            <div className="flex justify-center mb-8">
-                                <div className="bg-slate-100 p-1 rounded-xl flex gap-1">
+                            {activeDepartment === 'academic_dept' && (
+                                <div className="bg-[#F1F5F9] p-1 rounded-xl flex gap-1 border border-slate-200/50">
                                     {[
                                         { id: 'academic_head', label: 'Academic Head' },
                                         { id: 'faculty', label: 'Faculty' }
@@ -157,87 +168,86 @@ const Login = () => {
                                         <button
                                             key={role.id}
                                             onClick={() => handleSubRoleChange(role.id)}
-                                            className={`px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all
-                                                ${subRole === role.id ? 'bg-white text-[#008080] shadow-sm' : 'text-slate-400 hover:text-slate-600'}
+                                            className={`px-6 py-2.5 rounded-[10px] text-[10px] font-black uppercase tracking-wider transition-all
+                                                ${subRole === role.id ? 'bg-white text-[#0F766E] shadow-sm ring-1 ring-slate-100' : 'text-[#64748B] hover:text-[#0F172A]'}
                                             `}
                                         >
                                             {role.label}
                                         </button>
                                     ))}
                                 </div>
-                            </div>
-                        )}
+                            )}
+                        </div>
 
-                        {/* Content Area */}
+                        {/* Login/Register Content */}
                         {isRegistering ? (
                             <div className="animate-in fade-in slide-in-from-right-4 duration-500">
-                                <div className="mb-6 flex items-center justify-between">
-                                    <h2 className="text-2xl font-black text-slate-900 tracking-tight capitalize">New {subRole.replace('_', ' ')}</h2>
+                                <div className="mb-8 flex items-center justify-between">
+                                    <h2 className="text-2xl font-black text-[#0F172A] tracking-tighter italic uppercase">Create {subRole.replace('_', ' ')} Profile</h2>
                                     <button
                                         onClick={() => setIsRegistering(false)}
-                                        className="text-slate-400 hover:text-[#008080] transition-colors"
+                                        className="w-10 h-10 flex items-center justify-center rounded-full bg-slate-50 text-slate-400 hover:text-[#0F766E] transition-all hover:rotate-90 active:scale-90"
                                     >
-                                        <LogIn size={20} />
+                                        <LogIn size={18} />
                                     </button>
                                 </div>
                                 <RegistrationForm
                                     preSelectedRole={subRole}
                                     onSuccess={handleRegistrationSuccess}
                                 />
-                                <div className="mt-6 text-center">
+                                <div className="mt-8 text-center">
                                     <button
                                         onClick={() => setIsRegistering(false)}
-                                        className="text-xs font-bold text-slate-400 uppercase tracking-widest hover:text-[#008080] transition-colors"
+                                        className="text-[10px] font-black text-[#64748B] uppercase tracking-[0.2em] hover:text-[#0F766E] transition-colors border-b border-slate-200 hover:border-[#0F766E] leading-loose"
                                     >
-                                        Back to Login
+                                        Return to Login Interface
                                     </button>
                                 </div>
                             </div>
                         ) : (
                             <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                                <div className="mb-8 text-center">
-                                    <h2 className="text-2xl font-black text-slate-900 tracking-tight capitalize">
+                                <div className="mb-10 text-center">
+                                    <h2 className="text-3xl font-black text-[#0F172A] tracking-tighter italic uppercase">
                                         {subRole.replace('_', ' ')} Access
                                     </h2>
-                                    <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mt-1">
-                                        Identify Verified Credential
+                                    <p className="text-[#64748B] text-[10px] font-black uppercase tracking-[0.2em] mt-2 flex items-center justify-center gap-2">
+                                        <ShieldCheck size={14} className="text-[#F59E0B]" />
+                                        Provide Authorized Credentials
                                     </p>
                                 </div>
 
-                                <form onSubmit={handleSubmit} className="flex flex-col gap-6 max-w-sm mx-auto">
-                                    <div className="space-y-2">
-                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">
-                                            {canSignup ? 'Email Address' : 'Email or Phone Number'}
+                                <form onSubmit={handleSubmit} className="flex flex-col gap-6 max-w-[380px] mx-auto">
+                                    <div className="space-y-2.5">
+                                        <label className="text-[10px] font-black text-[#64748B] uppercase tracking-[0.15em] ml-1">
+                                            {canSignup ? 'Email Address' : 'Identification'}
                                         </label>
                                         <div className="relative group">
-                                            <div className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#008080] transition-colors">
-                                                <Mail size={18} />
+                                            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#F59E0B] transition-colors">
+                                                <Mail size={18} strokeWidth={2.5} />
                                             </div>
                                             <input
                                                 name="identifier"
                                                 type="text"
                                                 required
-                                                className="w-full p-4 pl-14 bg-slate-50 border-none rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-[#008080]/10 transition-all font-sans"
-                                                placeholder={canSignup ? "Head Access Email" : "Registered Phone / Email"}
+                                                className="w-full p-4.5 pl-12 bg-[#F1F5F9] border-2 border-transparent rounded-[16px] text-sm font-bold text-slate-700 outline-none focus:bg-white focus:border-[#F59E0B] focus:ring-4 focus:ring-[#F59E0B]/10 transition-all font-sans"
+                                                placeholder={canSignup ? "head@mashmagicedu.com" : "Email or Phone Number"}
                                                 value={formData.identifier}
                                                 onChange={handleChange}
                                             />
                                         </div>
                                     </div>
 
-                                    <div className="space-y-2">
-                                        <div className="flex justify-between items-center ml-1">
-                                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Passcode</label>
-                                        </div>
+                                    <div className="space-y-2.5">
+                                        <label className="text-[10px] font-black text-[#64748B] uppercase tracking-[0.15em] ml-1">Passcode</label>
                                         <div className="relative group">
-                                            <div className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#008080] transition-colors">
-                                                <Lock size={18} />
+                                            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#F59E0B] transition-colors">
+                                                <Lock size={18} strokeWidth={2.5} />
                                             </div>
                                             <input
                                                 name="password"
                                                 type="password"
                                                 required
-                                                className="w-full p-4 pl-14 bg-slate-50 border-none rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-[#008080]/10 transition-all font-sans"
+                                                className="w-full p-4.5 pl-12 bg-[#F1F5F9] border-2 border-transparent rounded-[16px] text-sm font-bold text-slate-700 outline-none focus:bg-white focus:border-[#F59E0B] focus:ring-4 focus:ring-[#F59E0B]/10 transition-all font-sans"
                                                 placeholder="••••••••"
                                                 value={formData.password}
                                                 onChange={handleChange}
@@ -248,29 +258,29 @@ const Login = () => {
                                     <button
                                         type="submit"
                                         disabled={isSubmitting}
-                                        className="w-full bg-[#008080] text-white p-5 rounded-2xl font-black text-xs uppercase tracking-[0.2em] hover:bg-[#006666] transition-all shadow-xl shadow-[#008080]/20 flex items-center justify-center gap-3 group mt-2 active:scale-[0.98] disabled:opacity-50"
+                                        className="w-full bg-[#F59E0B] text-black p-5 rounded-[16px] font-black text-[12px] uppercase tracking-[0.2em] hover:bg-[#FBBF24] transition-all shadow-[0_10px_30px_rgba(245,158,11,0.2)] flex items-center justify-center gap-3 group mt-4 active:scale-[0.98] disabled:opacity-50 italic"
                                     >
                                         {isSubmitting ? (
                                             <Loader2 size={20} className="animate-spin" />
                                         ) : (
                                             <>
-                                                <span>Login</span>
-                                                <ChevronRight size={18} className="transition-transform group-hover:translate-x-1" />
+                                                <span>Authorize Login</span>
+                                                <ArrowRight size={18} className="transition-transform group-hover:translate-x-1.5" strokeWidth={3} />
                                             </>
                                         )}
                                     </button>
 
                                     {/* Signup Option for Heads Only */}
                                     {canSignup && (
-                                        <div className="mt-4 text-center">
-                                            <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest">
-                                                New {subRole.replace('_', ' ')}? {' '}
+                                        <div className="mt-6 text-center">
+                                            <p className="text-[#64748B] text-[10px] font-bold uppercase tracking-widest">
+                                                New to {subRole.replace('_', ' ')}? {' '}
                                                 <button
                                                     type="button"
                                                     onClick={() => setIsRegistering(true)}
-                                                    className="text-[#008080] hover:text-[#008080] transition-colors font-black underline underline-offset-4"
+                                                    className="text-[#0F766E] hover:text-[#0F172A] transition-colors font-black underline underline-offset-8 decoration-2 decoration-[#F59E0B]/30"
                                                 >
-                                                    Create {subRole === 'admin' ? 'Account' : 'Head Profile'}
+                                                    CREATE {subRole === 'admin' ? 'ACCOUNT' : 'HEAD PROFILE'}
                                                 </button>
                                             </p>
                                         </div>
@@ -281,13 +291,15 @@ const Login = () => {
                     </div>
                 </div>
 
-                <div className="mt-12 text-center text-slate-400">
-                    <p className="text-[10px] font-black uppercase tracking-[0.3em]">
-                        MashMagic Secured Authorization v3.0
+                <div className="mt-12 text-center">
+                    <p className="text-[10px] font-black uppercase tracking-[0.5em] text-[#64748B]">
+                        MashMagic Secured Access v4.0
                     </p>
                 </div>
             </div>
         </div>
     );
 };
+
 export default Login;
+

@@ -34,9 +34,9 @@ export const AuthProvider = ({ children }) => {
         initializeAuth();
     }, []);
 
-    const login = async (identifier, password) => {
+    const login = async (identifier, password, department) => {
         try {
-            const response = await api.post('/auth/login', { identifier, password });
+            const response = await api.post('/auth/login', { identifier, password, department });
             const data = response.data;
 
             // Safe validation: success and token are absolutely required

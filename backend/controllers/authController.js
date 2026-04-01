@@ -215,6 +215,22 @@ const login = async (req, res) => {
             return res.status(401).json({ success: false, message: "Invalid credentials" });
         }
 
+        // Department Role Validation
+        const { department } = req.body;
+        if (department === 'admin') {
+            if (user.role !== 'admin' && user.role !== 'super_admin') {
+                return res.status(403).json({ success: false, message: "Unauthorized: Only Admin personnel can login here." });
+            }
+        } else if (department === 'mentor_dept') {
+            if (user.role !== 'mentor' && user.role !== 'mentor_head') {
+                return res.status(403).json({ success: false, message: "Unauthorized: Only Mentor Department staff can login here." });
+            }
+        } else if (department === 'academic_dept') {
+            if (user.role !== 'faculty' && user.role !== 'academic_head') {
+                return res.status(403).json({ success: false, message: "Unauthorized: Only Academic Department staff can login here." });
+            }
+        }
+
         console.log(`[LOGIN SUCCESS] User: ${identifier} | Role: ${user.role}`);
 
         // Approval Check - must be first

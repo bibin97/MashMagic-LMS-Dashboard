@@ -22,7 +22,8 @@ const Registrations = () => {
         admissionType: 'new',
         registrationNumber: '',
         meetingLink: '',
-        facultyHourlyRate: ''
+        facultyHourlyRate: '',
+        enrollmentType: 'mentorship'
     });
 
     const [selectedSubjects, setSelectedSubjects] = useState([
@@ -96,7 +97,8 @@ const Registrations = () => {
                 setStudentForm({ 
                     name: '', grade: '', mentorId: '', course: '', hour: '', 
                     nextInstallmentDate: '', admissionType: 'new',
-                    registrationNumber: '', meetingLink: '', facultyHourlyRate: ''
+                    registrationNumber: '', meetingLink: '', facultyHourlyRate: '', 
+                    enrollmentType: 'mentorship'
                 });
                 setSelectedSubjects([{ subject: '', facultyId: '', facultyName: '' }]);
             }
@@ -225,6 +227,33 @@ const Registrations = () => {
                             <div className="flex flex-col gap-2">
                                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Next Installment Date</label>
                                 <input type="date" name="nextInstallmentDate" value={studentForm.nextInstallmentDate} onChange={handleStudentChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-bold" />
+                            </div>
+
+                            {/* Enrollment Type Selection */}
+                            <div className="md:col-span-2 space-y-4">
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Enrollment Plan</label>
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    {[
+                                        { id: 'mentorship', label: 'Mentorship only', icon: '🥇' },
+                                        { id: 'tuition', label: 'Tuition only', icon: '🥈' },
+                                        { id: 'both', label: 'Mentorship and Tuition', icon: '💎' }
+                                    ].map((plan) => (
+                                        <button
+                                            key={plan.id}
+                                            type="button"
+                                            onClick={() => setStudentForm(prev => ({ ...prev, enrollmentType: plan.id }))}
+                                            className={`p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 group ${studentForm.enrollmentType === plan.id
+                                                ? 'border-[#008080] bg-[#008080]/5 shadow-lg scale-[1.02]'
+                                                : 'border-slate-100 bg-slate-50/50 hover:border-slate-200'
+                                                }`}
+                                        >
+                                            <span className="text-2xl group-hover:scale-110 transition-transform">{plan.icon}</span>
+                                            <span className={`text-[10px] font-black uppercase tracking-widest ${studentForm.enrollmentType === plan.id ? 'text-[#008080]' : 'text-slate-500'}`}>
+                                                {plan.label}
+                                            </span>
+                                        </button>
+                                    ))}
+                                </div>
                             </div>
 
                             {/* Multiple Subjects & Faculties */}
