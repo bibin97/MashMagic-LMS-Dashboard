@@ -86,9 +86,10 @@ const FacultyStudents = () => {
                 </div>
             </div>
 
-            {/* Students Table */}
-            <div className="bg-white rounded-[3rem] border border-slate-100 shadow-sm overflow-hidden">
-                <div className="overflow-x-auto">
+            {/* Students List - Responsive (Table for Desktop, Cards for Mobile) */}
+            <div className="bg-white md:rounded-[3rem] rounded-[2rem] border border-slate-100 shadow-sm overflow-hidden">
+                {/* Desktop View (Table) */}
+                <div className="hidden md:block overflow-x-auto">
                     <table className="w-full text-left border-collapse">
                         <thead>
                             <tr className="bg-slate-50/50">
@@ -119,7 +120,7 @@ const FacultyStudents = () => {
                                                     <div className="flex items-center gap-2">
                                                         <p className="font-black text-slate-900 leading-none mb-0.5">{student.name}</p>
                                                         {student.badge === 'Gold' && <span title="Mentorship Plan" className="cursor-help text-base">🥇</span>}
-                                                        {student.badge === 'Silver' && <span title="Tuition Plan" className="cursor-help text-base">🥈</span>}
+                                                        {student.badge === 'Tuition' && <span title="Tuition Plan" className="cursor-help text-base">🥈</span>}
                                                         {student.badge === 'Diamond' && <span title="Mentorship & Tuition Plan" className="cursor-help text-base">💎</span>}
                                                     </div>
                                                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Undergraduate</p>
@@ -149,7 +150,7 @@ const FacultyStudents = () => {
                                             </div>
                                         </td>
                                         <td className="px-8 py-6">
-                                            <StatusBadge status={student.performance_status} />
+                                            <StatusBadge status={student.performance_status || 'Green'} />
                                         </td>
                                         <td className="px-8 py-6 text-right">
                                             <div className="flex items-center justify-end gap-2">

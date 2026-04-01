@@ -174,22 +174,22 @@ const StudentInteractionLog = () => {
 
     if (!selectedStudent) {
         return (
-        <div className="max-w-6xl mx-auto p-10 pb-20 space-y-12 animate-in fade-in slide-in-from-bottom-6 duration-700">
-            <header className="bg-white/70 backdrop-blur-xl p-14 rounded-[48px] border border-white/60 shadow-[0_20px_50px_rgba(0,0,0,0.06)] flex flex-col md:flex-row justify-between items-center gap-10">
+        <div className="max-w-6xl mx-auto p-4 md:p-10 pb-20 space-y-12 animate-in fade-in slide-in-from-bottom-6 duration-700">
+            <header className="bg-white/70 backdrop-blur-xl p-8 md:p-14 rounded-[40px] md:rounded-[48px] border border-white/60 shadow-[0_20px_50px_rgba(0,0,0,0.06)] flex flex-col md:flex-row justify-between items-center gap-10">
                 <div className="text-center md:text-left">
-                    <h1 className="text-5xl font-black text-slate-900 tracking-tighter uppercase italic leading-none mb-4">Engagement Hub</h1>
+                    <h1 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tighter uppercase italic leading-none mb-4">Engagement Hub</h1>
                     <p className="text-slate-400 text-[11px] font-black uppercase tracking-[0.3em] mt-3 flex items-center gap-3 justify-center md:justify-start">
                         <div className="w-2 h-2 rounded-full bg-[#14B8A6] animate-ping"></div>
-                        Student Performance Matrix & Interaction Protocol
+                        Student Performance Protocol
                     </p>
                 </div>
-                <div className="w-24 h-24 bg-gradient-to-br from-slate-800 to-slate-900 rounded-[32px] flex items-center justify-center text-[#14B8A6] shadow-2xl shadow-slate-900/20 group hover:rotate-12 transition-transform duration-500">
+                <div className="w-20 h-20 md:w-24 md:h-24 bg-gradient-to-br from-slate-800 to-slate-900 rounded-[32px] flex items-center justify-center text-[#14B8A6] shadow-2xl shadow-slate-900/20 group hover:rotate-12 transition-transform duration-500">
                     <UserCheck size={40} strokeWidth={2.5} className="group-hover:scale-110 transition-transform" />
                 </div>
             </header>
 
                 {/* Explicit Start Logging Action Bar */}
-                <div className="bg-slate-900/95 backdrop-blur-2xl p-12 rounded-[40px] border border-slate-800 shadow-[0_30px_60px_rgba(0,0,0,0.15)] flex flex-col md:flex-row items-center justify-between gap-10 relative overflow-hidden group">
+                <div className="bg-slate-900/95 backdrop-blur-2xl p-8 md:p-12 rounded-[40px] border border-slate-800 shadow-[0_30px_60px_rgba(0,0,0,0.15)] flex flex-col md:flex-row items-center justify-between gap-10 relative overflow-hidden group">
                     <div className="absolute top-0 right-0 w-64 h-64 bg-[#14B8A6]/5 rounded-full -mr-32 -mt-32 blur-3xl group-hover:bg-[#14B8A6]/10 transition-colors duration-1000"></div>
                     <div className="relative z-10 w-full md:w-auto text-center md:text-left">
                         <h3 className="text-2xl font-black text-white mb-2 flex items-center gap-4 justify-center md:justify-start italic tracking-tight">
@@ -241,7 +241,7 @@ const StudentInteractionLog = () => {
                                 <button
                                     key={student.id}
                                     onClick={() => handleStudentSelect(student)}
-                                    className="bg-white p-8 rounded-[2.5rem] border border-slate-100 hover:shadow-xl hover:scale-[1.02] transition-all cursor-pointer group text-left relative overflow-hidden"
+                                    className="bg-white p-6 md:p-8 rounded-[2.5rem] border border-slate-100 hover:shadow-xl hover:scale-[1.02] transition-all cursor-pointer group text-left relative overflow-hidden"
                                 >
                                     <div className="absolute top-0 right-0 w-24 h-24 bg-amber-50 rounded-full -mr-12 -mt-12 group-hover:bg-amber-400 group-hover:scale-150 transition-all duration-500 opacity-20"></div>
                                     <div className="flex items-center gap-2 mb-1 relative z-10">
