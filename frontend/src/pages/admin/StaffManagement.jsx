@@ -61,19 +61,6 @@ const StaffManagement = () => {
         setIsEditModalOpen(true);
     };
 
-    const handleView = (member) => {
-        setSelectedMember(member);
-        setEditFormData({
-            name: member.name,
-            email: member.email,
-            phone_number: member.phone || '',
-            role: member.role,
-            status: member.status
-        });
-        // For now, we use the same edit modal for viewing, but we could add a dedicated ViewModal
-        setIsEditModalOpen(true);
-    };
-
     const handleUpdate = async (e) => {
         e.preventDefault();
         try {
@@ -152,7 +139,6 @@ const StaffManagement = () => {
                 data={filteredStaff}
                 loading={loading}
                 onSearch={handleSearch}
-                onView={handleView}
                 onDelete={isSuperAdmin ? handleDelete : undefined}
                 onEdit={isSuperAdmin ? handleEdit : undefined}
                 searchPlaceholder="Search by name, email or role..."
