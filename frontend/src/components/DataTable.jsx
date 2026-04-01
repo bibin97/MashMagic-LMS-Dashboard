@@ -104,13 +104,15 @@ const DataTable = ({
                                     ))}
                                     <td className="px-8 py-6 text-center">
                                         <div className="flex justify-center items-center gap-2">
-                                            <button
-                                                className="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-[#14B8A6] hover:bg-[#14B8A6]/10 rounded-[12px] transition-all hover:scale-110 active:scale-95"
-                                                onClick={() => onView && onView(row)}
-                                                title="View profile"
-                                            >
-                                                <Eye size={18} />
-                                            </button>
+                                            {onView && (
+                                                <button
+                                                    className="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-[#14B8A6] hover:bg-[#14B8A6]/10 rounded-[12px] transition-all hover:scale-110 active:scale-95"
+                                                    onClick={() => onView(row)}
+                                                    title="View profile"
+                                                >
+                                                    <Eye size={18} />
+                                                </button>
+                                            )}
 
                                             {onEdit && (
                                                 <button
@@ -186,14 +188,16 @@ const DataTable = ({
                                         {columns[0].render ? columns[0].render(row) : row[columns[0].accessor]}
                                     </div>
                                 </div>
-                                <div className="pl-4">
-                                    <button 
-                                        className="w-10 h-10 flex items-center justify-center bg-[#14B8A6]/10 text-[#14B8A6] rounded-xl"
-                                        onClick={() => onView && onView(row)}
-                                    >
-                                        <Eye size={18} strokeWidth={2.5} />
-                                    </button>
-                                </div>
+                                {onView && (
+                                    <div className="pl-4">
+                                        <button 
+                                            className="w-10 h-10 flex items-center justify-center bg-[#14B8A6]/10 text-[#14B8A6] rounded-xl"
+                                            onClick={() => onView(row)}
+                                        >
+                                            <Eye size={18} strokeWidth={2.5} />
+                                        </button>
+                                    </div>
+                                )}
                             </div>
 
                             {/* Secondary Details Grid */}
