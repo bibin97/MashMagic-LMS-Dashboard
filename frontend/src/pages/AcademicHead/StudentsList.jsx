@@ -152,6 +152,12 @@ const StudentsList = ({ role = 'academic_head' }) => {
                                             <div>
                                                 <div className="flex items-center gap-2">
                                                     <div className="text-sm font-black text-slate-900 group-hover:text-[#008080] transition-colors uppercase italic flex-shrink-0">{student.name}</div>
+                                                    
+                                                    {/* Student Badge System */}
+                                                    {student.badge === 'Gold' && <span title="Mentorship Plan" className="text-lg cursor-help">🥇</span>}
+                                                    {student.badge === 'Silver' && <span title="Tuition Plan" className="text-lg cursor-help">🥈</span>}
+                                                    {student.badge === 'Diamond' && <span title="Mentorship & Tuition Plan" className="text-lg cursor-help">💎</span>}
+                                                    
                                                     {student.course_completed === 1 && (
                                                         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-600 border border-emerald-200 text-[9px] font-black uppercase tracking-widest whitespace-nowrap">
                                                             <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>

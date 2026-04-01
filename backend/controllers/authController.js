@@ -73,7 +73,11 @@ const register = async (req, res) => {
                 mentor_name: req.body.mentor_name || null,
                 faculty_name: req.body.faculty_name || null,
                 next_installment_date: req.body.next_installment_date || null,
-                time_table: req.body.time_table ? JSON.stringify(req.body.time_table) : null
+                time_table: req.body.time_table ? JSON.stringify(req.body.time_table) : null,
+                enrollment_type: req.body.enrollment_type || null,
+                badge: req.body.enrollment_type === 'Mentorship' ? 'Gold' : 
+                       req.body.enrollment_type === 'Tuition' ? 'Silver' : 
+                       req.body.enrollment_type === 'Mentorship and Tuition' ? 'Diamond' : null
             });
         }
 

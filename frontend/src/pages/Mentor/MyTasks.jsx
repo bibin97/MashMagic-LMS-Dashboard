@@ -42,15 +42,18 @@ const MyTasks = () => {
     };
 
     return (
-        <div className="space-y-8">
-            <header className="flex justify-between items-center bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100">
-                <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-[#008080] rounded-2xl flex items-center justify-center text-white shadow-lg shadow-[#008080]/30">
-                        <ListTodo size={24} />
+        <div className="flex flex-col gap-10 pb-10">
+            <header className="bg-white/70 backdrop-blur-xl p-12 rounded-[40px] border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.04)] flex flex-col md:flex-row justify-between items-center gap-10">
+                <div className="flex items-center gap-8">
+                    <div className="w-20 h-20 bg-[#14B8A6] rounded-[28px] shadow-2xl shadow-[#14B8A6]/30 flex items-center justify-center text-white group hover:rotate-12 transition-transform duration-700">
+                        <ListTodo size={36} strokeWidth={2.5} />
                     </div>
                     <div>
-                        <h1 className="text-2xl font-black text-slate-900 tracking-tight uppercase italic">Task Protocol</h1>
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mt-1">Operational Directives & Action Items assigned by superiors</p>
+                        <h1 className="text-5xl font-black text-slate-900 tracking-tighter uppercase italic leading-none mb-3">Task Protocol</h1>
+                        <p className="text-slate-400 text-[11px] font-black uppercase tracking-[0.3em] flex items-center gap-3 mt-1">
+                            <div className="w-2 h-2 rounded-full bg-[#14B8A6] animate-pulse"></div>
+                            Operational Directives & Action Items
+                        </p>
                     </div>
                 </div>
             </header>
@@ -97,17 +100,17 @@ const MyTasks = () => {
                                         </div>
                                     </div>
 
-                                    <div className="w-[120px] flex justify-end">
+                                    <div className="w-[150px] flex justify-end">
                                         {task.status !== 'Completed' ? (
                                             <button
                                                 onClick={() => handleComplete(task.id)}
-                                                className="bg-white text-slate-900 px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-sm hover:shadow-md hover:bg-emerald-600 hover:text-white transition-all active:scale-95 border border-slate-200 whitespace-nowrap"
+                                                className="bg-slate-900 text-[#14B8A6] px-8 py-3.5 rounded-[18px] text-[10px] font-black uppercase tracking-[0.2em] shadow-xl hover:shadow-slate-900/20 hover:-translate-y-0.5 transition-all active:scale-95 border border-slate-800"
                                             >
                                                 Mark Done
                                             </button>
                                         ) : (
-                                            <div className="text-[9px] text-right font-black text-emerald-600 uppercase italic">
-                                                Verified: <br />{new Date(task.completed_at).toLocaleDateString()}
+                                            <div className="text-[10px] text-right font-black text-[#14B8A6] uppercase italic tracking-[0.1em] opacity-80">
+                                                Verified: <br />{new Date(task.completed_at).toLocaleDateString('en-GB')}
                                             </div>
                                         )}
                                     </div>

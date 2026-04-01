@@ -207,19 +207,22 @@ const Tasks = () => {
     ];
 
     return (
-        <div className="flex flex-col gap-8">
-            <div className="flex justify-between items-end">
-                <div className="flex flex-col gap-1">
-                    <h2 className="text-3xl font-black text-slate-900 tracking-tighter uppercase italic">Task Management</h2>
-                    <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest mt-1 text-slate-500">Coordinate and track educational tasks for the mentor network</p>
+        <div className="flex flex-col gap-10 pb-10">
+            <div className="bg-white/70 backdrop-blur-xl p-10 rounded-[32px] border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.04)] flex flex-col md:flex-row justify-between items-center gap-8">
+                <div className="text-center md:text-left">
+                    <h2 className="text-4xl font-black text-slate-900 tracking-tighter leading-none mb-3 italic">Operations Hub</h2>
+                    <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em] flex items-center justify-center md:justify-start gap-2">
+                        <div className="w-1.5 h-1.5 rounded-full bg-[#14B8A6] animate-pulse"></div>
+                        Coordinate and track educational tasks for the mentor network
+                    </p>
                 </div>
                 {isSuperAdmin && (
                     <button
                         onClick={() => setIsModalOpen(true)}
-                        className="flex items-center gap-2 bg-[#008080] text-white px-6 py-3 rounded-2xl font-bold text-sm hover:bg-[#008080] transition-all shadow-xl shadow-[#008080]/30 hover:-translate-y-0.5"
+                        className="bg-gradient-to-br from-[#0F766E] to-[#14B8A6] text-white px-8 py-5 rounded-[20px] font-black text-[10px] uppercase tracking-[0.2em] hover:shadow-xl hover:shadow-[#14B8A6]/40 hover:-translate-y-1 transition-all flex items-center gap-3"
                     >
-                        <Plus size={20} />
-                        <span>Create New Task</span>
+                        <Plus size={18} strokeWidth={3} />
+                        <span>Issue New Mission</span>
                     </button>
                 )}
             </div>
@@ -243,50 +246,50 @@ const Tasks = () => {
             >
                 <form onSubmit={handleSubmit} className="flex flex-col gap-6">
                     <div className="flex flex-col gap-2">
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Task Title</label>
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Mission Objective</label>
                         <input
                             type="text"
                             required
-                            className="p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] focus:border-[#008080] transition-all font-semibold"
-                            placeholder="e.g., Q1 Performance Review"
+                            className="p-5 bg-slate-50/50 border border-slate-100/50 rounded-2xl text-[13px] outline-none focus:bg-white focus:ring-4 focus:ring-[#14B8A6]/5 focus:border-[#14B8A6] transition-all font-black uppercase tracking-widest text-slate-700 placeholder:text-slate-300 shadow-inner"
+                            placeholder="OBJECTIVE IDENTIFIER..."
                             value={formData.title}
                             onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                         />
                     </div>
 
                     <div className="flex flex-col gap-2">
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Detailed Description</label>
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Strategic Parameters</label>
                         <textarea
                             rows="4"
                             required
-                            className="p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] focus:border-[#008080] transition-all font-semibold resize-none"
-                            placeholder="Provide specific instructions for the mentor..."
+                            className="p-5 bg-slate-50/50 border border-slate-100/50 rounded-2xl text-[13px] outline-none focus:bg-white focus:ring-4 focus:ring-[#14B8A6]/5 focus:border-[#14B8A6] transition-all font-bold text-slate-600 placeholder:text-slate-300 shadow-inner resize-none italic"
+                            placeholder="Specify detailed engagement protocols..."
                             value={formData.description}
                             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                         />
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="flex flex-col gap-2">
-                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Assign User</label>
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Designated Personnel</label>
                             <select
                                 required
-                                className="p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] focus:border-[#008080] transition-all font-semibold appearance-none"
+                                className="p-5 bg-slate-50/50 border border-slate-100/50 rounded-2xl text-[10px] outline-none focus:bg-white focus:ring-4 focus:ring-[#14B8A6]/5 focus:border-[#14B8A6] transition-all font-black uppercase tracking-[0.1em] appearance-none cursor-pointer shadow-inner"
                                 value={formData.mentor_id}
                                 onChange={(e) => setFormData({ ...formData, mentor_id: e.target.value })}
                             >
-                                <option value="">Select Target User</option>
-                                <optgroup label="Mentors">
+                                <option value="">SELECT TARGET ANALYST</option>
+                                <optgroup label="MENTORS">
                                     {assignees.filter(a => a.role === 'mentor').map(m => (
                                         <option key={m.id} value={m.id}>{m.name}</option>
                                     ))}
                                 </optgroup>
-                                <optgroup label="Faculties">
+                                <optgroup label="FACULTIES">
                                     {assignees.filter(a => a.role === 'faculty').map(f => (
                                         <option key={f.id} value={f.id}>{f.name}</option>
                                     ))}
                                 </optgroup>
-                                <optgroup label="Mentor Heads">
+                                <optgroup label="OPERATIONAL HEADS">
                                     {assignees.filter(a => a.role === 'mentor_head').map(mh => (
                                         <option key={mh.id} value={mh.id}>{mh.name}</option>
                                     ))}
@@ -294,13 +297,13 @@ const Tasks = () => {
                             </select>
                         </div>
                         <div className="flex flex-col gap-2">
-                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Fulfillment Deadline</label>
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Temporal Deadline</label>
                             <div className="relative">
-                                <Calendar size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+                                <Calendar size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-[#14B8A6] opacity-50" />
                                 <input
                                     type="date"
                                     required
-                                    className="w-full p-4 pl-12 bg-slate-50 border border-slate-100 rounded-2xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] focus:border-[#008080] transition-all font-semibold"
+                                    className="w-full p-5 pl-14 bg-slate-50/50 border border-slate-100/50 rounded-2xl text-[11px] outline-none focus:bg-white focus:ring-4 focus:ring-[#14B8A6]/5 focus:border-[#14B8A6] transition-all font-black uppercase tracking-[0.2em] shadow-inner"
                                     value={formData.deadline}
                                     onChange={(e) => setFormData({ ...formData, deadline: e.target.value })}
                                 />
@@ -308,19 +311,19 @@ const Tasks = () => {
                         </div>
                     </div>
 
-                    <div className="flex flex-col gap-3">
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Priority Categorization</label>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                    <div className="flex flex-col gap-4">
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Priority Categorization</label>
+                        <div className="grid grid-cols-3 gap-4">
                             {['Low', 'Medium', 'High'].map((p) => (
                                 <button
                                     key={p}
                                     type="button"
                                     onClick={() => setFormData({ ...formData, priority: p })}
                                     className={`
-                                        p-3 rounded-2xl border-2 text-[10px] font-black uppercase tracking-widest transition-all
+                                        p-4 rounded-2xl border-2 text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-500
                                         ${formData.priority === p
-                                            ? 'bg-slate-900 border-slate-900 text-white shadow-lg shadow-slate-200'
-                                            : 'bg-white border-slate-100 text-slate-400 hover:border-slate-200'}
+                                            ? 'bg-slate-900 border-slate-900 text-[#14B8A6] shadow-2xl scale-[1.02]'
+                                            : 'bg-white border-slate-100 text-slate-300 hover:border-slate-200'}
                                     `}
                                 >
                                     {p}
@@ -331,10 +334,10 @@ const Tasks = () => {
 
                     <button
                         type="submit"
-                        className="w-full bg-[#008080] text-white p-4 rounded-2xl font-black text-sm hover:bg-[#008080] transition-all shadow-xl shadow-[#008080]/30 mt-2 flex items-center justify-center gap-2 group"
+                        className="w-full bg-slate-900 text-white p-6 rounded-[24px] font-black text-[11px] uppercase tracking-[0.3em] hover:bg-slate-800 transition-all shadow-2xl shadow-slate-900/10 mt-4 flex items-center justify-center gap-4 group italic"
                     >
-                        <span>Authorize and Issue Task</span>
-                        <AlertTriangle size={18} className="transition-transform group-hover:scale-110" />
+                        <span>Authorize and Issue Mission Protocol</span>
+                        <div className="w-1.5 h-1.5 rounded-full bg-[#14B8A6] group-hover:animate-ping"></div>
                     </button>
                 </form>
             </Modal>

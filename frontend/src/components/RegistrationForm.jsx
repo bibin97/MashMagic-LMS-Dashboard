@@ -23,6 +23,7 @@ const RegistrationForm = ({ onSuccess, preSelectedRole }) => {
         hour: '',
         mentor_name: '',
         faculty_name: '',
+        enrollment_type: '', // Mentorship, Tuition, etc.
         next_installment_date: '',
         time_table: {
             mon: '', tue: '', wed: '', thu: '', fri: '', sat: '', sun: ''
@@ -93,6 +94,7 @@ const RegistrationForm = ({ onSuccess, preSelectedRole }) => {
                     hour: '',
                     mentor_name: '',
                     faculty_name: '',
+                    enrollment_type: '',
                     next_installment_date: '',
                     time_table: {
                         mon: '', tue: '', wed: '', thu: '', fri: '', sat: '', sun: ''
@@ -311,6 +313,35 @@ const RegistrationForm = ({ onSuccess, preSelectedRole }) => {
                                 value={formData.next_installment_date}
                                 onChange={handleInputChange}
                             />
+                        </div>
+
+                        {/* NEW: Enrollment Type (Badge System) */}
+                        <div className="flex flex-col gap-4 p-4 bg-[#008080]/5 rounded-2xl border border-[#008080]/10">
+                            <label className="text-[10px] font-black text-[#008080] uppercase tracking-widest ml-1 flex items-center gap-2">
+                                <span className="bg-[#008080] text-white p-1 rounded">?</span> Enrollment Type Selection
+                            </label>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                {[
+                                    { label: 'Mentorship only', type: 'Mentorship', badge: 'Gold 🥇' },
+                                    { label: 'Tuition only', type: 'Tuition', badge: 'Silver 🥈' },
+                                    { label: 'Both Plan', type: 'Mentorship and Tuition', badge: 'Diamond 💎' }
+                                ].map((item) => (
+                                    <button
+                                        key={item.type}
+                                        type="button"
+                                        onClick={() => setFormData(prev => ({ ...prev, enrollment_type: item.type }))}
+                                        className={`
+                                            flex flex-col items-center justify-center p-3 rounded-xl border-2 transition-all gap-1
+                                            ${formData.enrollment_type === item.type 
+                                                ? 'bg-[#008080]/10 border-[#008080] shadow-sm' 
+                                                : 'bg-white border-slate-100 hover:border-slate-200'}
+                                        `}
+                                    >
+                                        <span className="text-[10px] font-black text-slate-900 leading-none">{item.label}</span>
+                                        <span className="text-[9px] font-bold text-[#008080] uppercase tracking-tighter">{item.badge}</span>
+                                    </button>
+                                ))}
+                            </div>
                         </div>
 
                         {/* Weekly Time Table */}

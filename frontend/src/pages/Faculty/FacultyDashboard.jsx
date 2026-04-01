@@ -15,23 +15,33 @@ import {
 } from 'recharts';
 import toast from 'react-hot-toast';
 
-const StatCard = ({ title, value, icon: Icon, color, trend }) => (
-    <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 group relative overflow-hidden">
-        <div className={`absolute top-0 right-0 w-32 h-32 ${color.replace('bg-', 'bg-')}/5 rounded-full -mr-16 -mt-16 transition-transform duration-700 group-hover:scale-150`}></div>
-        <div className="flex flex-col gap-6 relative z-10">
-            <div className={`w-14 h-14 ${color} rounded-2xl flex items-center justify-center text-white shadow-lg shadow-[#008080]/30 group-hover:rotate-6 transition-transform duration-500`}>
-                <Icon size={28} />
-            </div>
-            <div>
-                <div className="flex items-center justify-between mb-2">
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{title}</p>
-                    {trend && <span className="text-[10px] font-bold text-emerald-500 bg-emerald-50 px-2 py-0.5 rounded-full">{trend}</span>}
+const StatCard = ({ title, value, icon: Icon, color, trend }) => {
+    const isTeal = color.includes('008080') || color.includes('14B8A6');
+    const displayColor = isTeal ? 'bg-[#14B8A6]' : color;
+    
+    return (
+        <div className="bg-white/80 backdrop-blur-xl p-8 rounded-[32px] border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgba(0,0,0,0.08)] hover:-translate-y-2 transition-all duration-500 group relative overflow-hidden">
+            <div className={`absolute -right-4 -top-4 w-24 h-24 ${displayColor} opacity-[0.05] rounded-full blur-2xl group-hover:opacity-10 transition-opacity duration-500`}></div>
+            
+            <div className="flex flex-col gap-8 relative z-10">
+                <div className="flex items-center justify-between">
+                    <div className={`w-14 h-14 ${displayColor.replace('bg-', 'text-')} bg-slate-50/50 rounded-[20px] flex items-center justify-center border border-white transition-transform duration-500 group-hover:scale-110 group-hover:rotate-12`}>
+                        <Icon size={28} strokeWidth={2.5} />
+                    </div>
+                    {trend && (
+                        <div className="bg-emerald-50/50 border border-emerald-100 px-3 py-1 rounded-full backdrop-blur-sm">
+                            <span className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">{trend}</span>
+                        </div>
+                    )}
                 </div>
-                <h3 className="text-4xl font-black text-slate-900 leading-none tabular-nums">{value}</h3>
+                <div>
+                    <h3 className="text-4xl font-black text-slate-800 tabular-nums tracking-tighter leading-none mb-3">{value}</h3>
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] leading-none">{title}</p>
+                </div>
             </div>
         </div>
-    </div>
-);
+    );
+};
 
 const FacultyDashboard = () => {
     const [stats, setStats] = useState(null);
@@ -57,23 +67,27 @@ const FacultyDashboard = () => {
     }, []);
 
     if (loading) return (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 animate-pulse">
-            {[1, 2, 3, 4, 5].map(i => <div key={i} className="h-44 bg-slate-100 rounded-[2.5rem]"></div>)}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
+            {[1, 2, 3, 4, 5].map(i => <div key={i} className="h-48 bg-white/50 rounded-[32px] border border-white/50 animate-pulse"></div>)}
         </div>
     );
 
     const COLORS = ['#10b981', '#f59e0b', '#ef4444'];
 
     return (
-        <div className="space-y-12">
+        <div className="flex flex-col gap-10 pb-10">
             {/* Header Section */}
-            <div className="bg-white p-10 rounded-[3rem] border border-slate-100 shadow-sm flex justify-between items-center">
-                <div>
-                    <h2 className="text-3xl font-black text-slate-900 tracking-tighter uppercase italic">Faculty Dashboard</h2>
-                    <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest mt-2 flex items-center gap-2">
-                        <CheckCircle size={14} className="text-[#008080]" />
-                        Monitoring of assigned students and upcoming sessions
+            <div className="bg-white/70 backdrop-blur-xl p-10 rounded-[32px] border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.04)] flex flex-col md:flex-row justify-between items-center gap-8">
+                <div className="text-center md:text-left">
+                    <h2 className="text-4xl font-black text-slate-900 tracking-tighter leading-none mb-3 italic">Faculty Oversight</h2>
+                    <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em] flex items-center justify-center md:justify-start gap-2">
+                        <div className="w-1.5 h-1.5 rounded-full bg-[#14B8A6] animate-pulse"></div>
+                        Real-time trajectory tracking & academic resource management
                     </p>
+                </div>
+                <div className="flex items-center gap-4 bg-slate-50/50 px-6 py-4 rounded-[20px] border border-slate-100/50 shadow-inner">
+                    <CalendarDays size={16} strokeWidth={3} className="text-[#14B8A6]" />
+                    <span className="text-[11px] font-black text-slate-600 uppercase tracking-[0.2em] italic leading-none">{new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}</span>
                 </div>
             </div>
 
@@ -83,8 +97,8 @@ const FacultyDashboard = () => {
                     title="Assigned Students"
                     value={stats?.badges?.totalStudents || 0}
                     icon={Users}
-                    color="bg-[#008080]"
-                    trend="+2 this month"
+                    color="bg-[#14B8A6]"
+                    trend="+2 Network Growth"
                 />
                 <StatCard
                     title="Pending Reports"
@@ -93,29 +107,29 @@ const FacultyDashboard = () => {
                     color="bg-rose-500"
                 />
                 <StatCard
-                    title="Upcoming Sessions"
+                    title="Upcoming Schedules"
                     value={stats?.badges?.upcomingSessions || 0}
                     icon={CalendarDays}
-                    color="bg-orange-500"
+                    color="bg-[#6366F1]"
                 />
                 <StatCard
-                    title="Today's Completed"
+                    title="Session Success"
                     value={stats?.badges?.completedSessions || 0}
                     icon={CheckCircle}
-                    color="bg-emerald-500"
+                    color="bg-[#10B981]"
                 />
                 <StatCard
-                    title="Tasks Pending"
+                    title="Protocol Pendency"
                     value={stats?.badges?.pendingTasks || 0}
                     icon={AlertCircle}
-                    color="bg-[#008080]"
+                    color="bg-[#F59E0B]"
                 />
             </div>
 
             {/* Charts Section */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
                 {/* Performance Bar Chart */}
-                <div className="bg-white p-10 rounded-[3rem] border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-700">
+                <div className="bg-white/80 backdrop-blur-xl p-10 md:p-12 rounded-[40px] border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.04)] hover:shadow-xl transition-all duration-700">
                     <div className="flex items-center justify-between mb-10">
                         <div>
                             <h3 className="text-xl font-black text-slate-900 tracking-tight">Performance Distribution</h3>
@@ -148,7 +162,7 @@ const FacultyDashboard = () => {
                                     />
                                     <Bar dataKey="count" radius={[10, 10, 0, 0]} barSize={40}>
                                         {stats?.charts?.performance?.map((entry, index) => (
-                                            <Cell key={`cell-${index}`} fill={entry.status === 'Green' ? '#008080' : '#00b3b3'} />
+                                            <Cell key={`cell-${index}`} fill={entry.status === 'Green' ? '#14B8A6' : '#94a3b8'} fillOpacity={entry.status === 'Green' ? 1 : 0.3} />
                                         ))}
                                     </Bar>
                                 </BarChart>
@@ -158,7 +172,7 @@ const FacultyDashboard = () => {
                 </div>
 
                 {/* Attendance Line Chart */}
-                <div className="bg-white p-10 rounded-[3rem] border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-700">
+                <div className="bg-white/80 backdrop-blur-xl p-10 md:p-12 rounded-[40px] border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.04)] hover:shadow-xl transition-all duration-700">
                     <div className="flex items-center justify-between mb-10">
                         <div>
                             <h3 className="text-xl font-black text-slate-900 tracking-tight">Attendance Pipeline</h3>
@@ -193,9 +207,9 @@ const FacultyDashboard = () => {
                                     <Line
                                         type="monotone"
                                         dataKey="percentage"
-                                        stroke="#008080"
+                                        stroke="#14B8A6"
                                         strokeWidth={4}
-                                        dot={{ r: 6, fill: '#008080', strokeWidth: 3, stroke: '#fff' }}
+                                        dot={{ r: 6, fill: '#14B8A6', strokeWidth: 3, stroke: '#fff' }}
                                         activeDot={{ r: 8, strokeWidth: 0 }}
                                     />
                                 </LineChart>
@@ -205,20 +219,20 @@ const FacultyDashboard = () => {
                 </div>
             </div>
 
-            {/* Bottom Section - Recent Activity or Upcoming */}
-            <div className="bg-slate-900 p-12 rounded-[3.5rem] relative overflow-hidden group">
-                <div className="absolute top-0 right-0 w-96 h-96 bg-[#008080]/10 rounded-full -mr-48 -mt-48 blur-[100px] transition-all duration-1000 group-hover:scale-150"></div>
-                <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
-                    <div className="text-center md:text-left">
-                        <h2 className="text-3xl font-black text-white tracking-tight leading-tight">Academic Engine Status</h2>
-                        <p className="text-slate-400 font-bold uppercase tracking-[0.3em] text-[10px] mt-4">Unified Management Interface</p>
+            {/* Bottom Section - Engine Status */}
+            <div className="bg-slate-900 p-12 rounded-[40px] relative overflow-hidden group shadow-2xl shadow-slate-900/20">
+                <div className="absolute top-0 right-0 w-96 h-96 bg-[#14B8A6]/20 rounded-full -mr-48 -mt-48 blur-[100px] transition-all duration-1000 group-hover:scale-150"></div>
+                <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-10">
+                    <div className="text-center lg:text-left">
+                        <h2 className="text-4xl font-black text-white tracking-tighter italic uppercase leading-none mb-4">Academic Engine Pulse</h2>
+                        <p className="text-slate-500 font-black uppercase tracking-[0.4em] text-[10px]">Unified Operations Protocol Integrated</p>
                     </div>
-                    <div className="flex gap-4">
-                        <button className="bg-[#008080] text-white px-8 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-[#006666] hover:text-white transition-all duration-500 shadow-xl shadow-[#008080]/30">
-                            Generate Report
+                    <div className="flex flex-col sm:flex-row gap-5 w-full lg:w-auto">
+                        <button className="bg-gradient-to-br from-[#0F766E] to-[#14B8A6] text-white px-10 py-5 rounded-[20px] font-black text-[10px] uppercase tracking-[0.2em] hover:shadow-xl hover:shadow-[#14B8A6]/40 hover:-translate-y-1 transition-all">
+                            Generate Audit Report
                         </button>
-                        <button className="bg-slate-800 text-white px-8 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-700 transition-all duration-500">
-                            Download Sync Log
+                        <button className="bg-slate-800 text-white px-10 py-5 rounded-[20px] font-black text-[10px] uppercase tracking-[0.2em] hover:bg-slate-700 transition-all">
+                            Sync Compliance Log
                         </button>
                     </div>
                 </div>

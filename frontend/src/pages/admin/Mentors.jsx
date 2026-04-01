@@ -169,10 +169,10 @@ const Mentors = () => {
     ];
 
     return (
-        <div className="flex flex-col gap-8">
-            <div className="flex flex-col mb-6">
-                <h2 className="text-3xl font-black text-slate-900 tracking-tighter uppercase italic">Mentor Network</h2>
-                <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em] mt-2">Analyzing performance metrics and assignment distribution</p>
+        <div className="flex flex-col gap-10">
+            <div className="flex flex-col mb-4">
+                <h2 className="text-4xl font-black text-slate-900 tracking-tighter leading-none mb-3 italic">Mentor Network</h2>
+                <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em]">Operational lead directory & performance audit</p>
             </div>
 
             <DataTable
@@ -200,7 +200,7 @@ const Mentors = () => {
                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Full Name</label>
                         <input
                             type="text"
-                            className="p-3.5 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-[#008080] transition-all"
+                            className="p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-[#14B8A6]/5 transition-all"
                             value={editFormData.name}
                             onChange={(e) => setEditFormData({ ...editFormData, name: e.target.value })}
                             required
@@ -228,7 +228,7 @@ const Mentors = () => {
                     <div className="flex flex-col gap-1.5">
                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Account Status</label>
                         <select
-                            className="p-3.5 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-[#008080] transition-all"
+                            className="p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-[#14B8A6]/5 transition-all"
                             value={editFormData.status}
                             onChange={(e) => setEditFormData({ ...editFormData, status: e.target.value })}
                         >
@@ -237,9 +237,9 @@ const Mentors = () => {
                             <option value="pending">Pending</option>
                         </select>
                     </div>
-                    <div className="flex justify-end gap-3 mt-4">
-                        <button type="button" className="px-5 py-2.5 rounded-xl border border-slate-200 text-sm font-bold text-slate-600 hover:bg-slate-50 transition-all" onClick={() => setIsEditModalOpen(false)}>Cancel</button>
-                        <button type="submit" className="px-5 py-2.5 rounded-xl bg-slate-900 text-white text-sm font-bold hover:bg-slate-800 transition-all shadow-lg">Save Changes</button>
+                    <div className="flex justify-end gap-3 mt-8">
+                        <button type="button" className="px-8 py-3.5 rounded-2xl border border-slate-100 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-600 hover:bg-slate-50 transition-all" onClick={() => setIsEditModalOpen(false)}>Dismiss</button>
+                        <button type="submit" className="px-10 py-3.5 rounded-2xl bg-gradient-to-br from-[#0F766E] to-[#14B8A6] text-white text-[10px] font-black uppercase tracking-[0.2em] hover:shadow-lg hover:shadow-[#14B8A6]/30 hover:-translate-y-1 transition-all shadow-md shadow-[#14B8A6]/20">Update Network Profile</button>
                     </div>
                 </form>
             </Modal>
@@ -252,16 +252,16 @@ const Mentors = () => {
             >
                 {selectedMentor && (
                     <div className="flex flex-col gap-10">
-                        <div className="flex items-center gap-6 p-6 bg-slate-50 border border-slate-100 rounded-3xl">
-                            <div className="w-20 h-20 bg-emerald-600 text-white rounded-3xl flex items-center justify-center text-3xl font-bold shadow-lg shadow-emerald-100">
+                        <div className="flex items-center gap-8 p-8 bg-[#14B8A6]/5 rounded-[32px] border border-[#14B8A6]/10 shadow-[0_10px_30px_rgba(20,184,166,0.05)]">
+                            <div className="w-24 h-24 bg-gradient-to-br from-[#0F766E] to-[#14B8A6] text-white rounded-[28px] flex items-center justify-center text-4xl font-black shadow-xl shadow-[#14B8A6]/20">
                                 {selectedMentor.name.charAt(0)}
                             </div>
-                            <div className="flex flex-col gap-1">
-                                <h3 className="text-2xl font-bold text-slate-900">{selectedMentor.name}</h3>
-                                <p className="text-slate-500 font-medium">{selectedMentor.email}</p>
-                                <div className="mt-2">
-                                    <span className="px-3 py-1 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-600 shadow-sm">
-                                        ID: MNT-{selectedMentor.id.toString().padStart(4, '0')}
+                            <div className="flex flex-col gap-2">
+                                <h3 className="text-3xl font-black text-slate-900 tracking-tight">{selectedMentor.name}</h3>
+                                <p className="text-slate-400 font-bold text-[10px] uppercase tracking-widest leading-none">{selectedMentor.email}</p>
+                                <div className="mt-3">
+                                    <span className="px-4 py-1.5 bg-white/70 border border-[#14B8A6]/20 rounded-xl text-[10px] font-black text-[#14B8A6] shadow-sm uppercase tracking-widest">
+                                        NETWORK_ID: {selectedMentor.id.toString().padStart(4, '0')}
                                     </span>
                                 </div>
                             </div>
@@ -280,14 +280,14 @@ const Mentors = () => {
                                     {loadingStudents ? (
                                         <div className="text-center py-4 text-[10px] font-black text-slate-400 animate-pulse">FETCHING STUDENTS...</div>
                                     ) : mentorStudents.length > 0 ? mentorStudents.map((student) => (
-                                        <div key={student.id} className="flex justify-between items-center p-4 rounded-2xl border border-slate-50 hover:bg-slate-50 transition-all cursor-default group">
-                                            <div className="flex flex-col">
-                                                <span className="text-sm font-bold text-slate-700 group-hover:text-[#008080] transition-colors uppercase italic">{student.name}</span>
-                                                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{student.registration_number || 'NO_REG'}</span>
+                                        <div key={student.id} className="flex justify-between items-center p-5 rounded-[24px] bg-slate-50/50 border border-slate-100/50 hover:bg-white hover:border-[#14B8A6]/30 hover:shadow-lg hover:shadow-[#14B8A6]/5 transition-all cursor-default group">
+                                            <div className="flex flex-col gap-1">
+                                                <span className="text-sm font-black text-slate-700 group-hover:text-[#14B8A6] transition-colors italic leading-none">{student.name}</span>
+                                                <span className="text-[9px] font-bold text-slate-300 uppercase tracking-widest leading-none">REG: {student.registration_number || 'UNKNOWN'}</span>
                                             </div>
-                                            <div className="flex flex-col items-end">
-                                                <span className="text-[10px] font-black text-[#008080] uppercase">{student.course}</span>
-                                                <span className="text-[8px] font-bold text-slate-400 uppercase">{student.grade}</span>
+                                            <div className="flex flex-col items-end gap-1">
+                                                <span className="text-[10px] font-black text-[#14B8A6] bg-[#14B8A6]/5 px-2.5 py-1 rounded-lg uppercase leading-none">{student.course}</span>
+                                                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest opacity-60 leading-none">{student.grade} GRADE</span>
                                             </div>
                                         </div>
                                     )) : (
@@ -310,9 +310,9 @@ const Mentors = () => {
                             </div>
                         </div>
 
-                        <div className="flex justify-end gap-3 pt-6 border-t border-slate-100">
-                            <button className="px-6 py-2.5 rounded-xl border border-slate-200 text-sm font-bold text-slate-600 hover:bg-slate-50 transition-all" onClick={() => setIsModalOpen(false)}>Close</button>
-                            <button className="px-6 py-2.5 rounded-xl bg-slate-900 text-white text-sm font-bold hover:bg-slate-800 transition-all shadow-lg shadow-slate-200">Broadcast Announcement</button>
+                        <div className="flex justify-end gap-3 pt-10 border-t border-slate-100/50">
+                            <button className="px-8 py-4 rounded-[20px] border border-slate-100 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-all" onClick={() => setIsModalOpen(false)}>Exit Analysis</button>
+                            <button className="px-10 py-4 rounded-[20px] bg-gradient-to-br from-[#0F766E] to-[#14B8A6] text-white text-[10px] font-black uppercase tracking-[0.2em] hover:shadow-lg hover:shadow-[#14B8A6]/30 transition-all shadow-md shadow-[#14B8A6]/20">Broadcast Protocol</button>
                         </div>
                     </div>
                 )}
@@ -323,18 +323,18 @@ const Mentors = () => {
 
 const MentorStat = ({ label, value, icon, color }) => {
     const colors = {
-        teal: 'bg-[#008080]/10 text-white border-[#008080]',
-        yellow: 'bg-[#008080]/10 text-[#008080] border-[#008080]',
-        emerald: 'bg-emerald-50 text-emerald-600 border-emerald-100'
+        teal: 'bg-[#14B8A6]/5 text-[#14B8A6] border-[#14B8A6]/20',
+        yellow: 'bg-[#F59E0B]/5 text-[#F59E0B] border-[#F59E0B]/20',
+        emerald: 'bg-emerald-50/50 text-emerald-600 border-emerald-100/50'
     };
     return (
-        <div className={`p-4 border rounded-2xl flex items-center gap-4 hover:shadow-sm transition-all ${colors[color]}`}>
-            <div className="w-10 h-10 bg-white/80 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-sm">
+        <div className={`p-6 border rounded-[28px] flex items-center gap-5 hover:shadow-lg transition-all duration-500 hover:-translate-y-1 ${colors[color]}`}>
+            <div className="w-14 h-14 bg-white/90 backdrop-blur-sm rounded-[20px] flex items-center justify-center shadow-sm border border-white/50">
                 {icon}
             </div>
-            <div className="flex flex-col">
-                <p className="text-[10px] font-bold uppercase tracking-widest opacity-70">{label}</p>
-                <h4 className="text-xl font-black">{value}</h4>
+            <div className="flex flex-col gap-1">
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] opacity-60 leading-none">{label}</p>
+                <h4 className="text-2xl font-black tracking-tighter leading-none">{value}</h4>
             </div>
         </div>
     );

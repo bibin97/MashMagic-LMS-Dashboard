@@ -121,113 +121,118 @@ const Navbar = ({ onMenuClick }) => {
     const unreadCount = notifications.filter(n => !n.is_read).length;
 
     return (
-        <header className="h-16 bg-white/80 backdrop-blur-md border-b border-slate-200 flex items-center justify-between px-4 md:px-8 sticky top-0 z-[900]">
-            <div className="flex items-center gap-3 w-full md:w-auto">
+        <header className="h-20 bg-white/70 backdrop-blur-xl border-b border-slate-200/50 flex items-center justify-between px-8 sticky top-0 z-[900] shadow-sm shadow-[#0F172A]/5">
+            <div className="flex items-center gap-6 w-full md:w-auto">
                 <button 
                     onClick={onMenuClick}
-                    className="md:hidden p-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors mr-1"
+                    className="md:hidden p-2.5 text-slate-600 hover:bg-slate-100/50 rounded-[14px] transition-all active:scale-95"
                 >
-                    <Menu size={20} />
+                    <Menu size={22} />
                 </button>
-                <div className="flex-1 md:flex-none flex items-center gap-3 bg-slate-100 px-3 py-2 md:px-4 md:py-2 rounded-xl max-w-full md:w-80 group focus-within:bg-white focus-within:ring-2 focus-within:ring-[#008080] transition-all border border-transparent focus-within:border-[#008080]">
-                    <Search size={18} className="text-slate-400 group-focus-within:text-[#008080] shrink-0" />
+                <div className="flex-1 md:flex-none flex items-center gap-3 bg-[#F1F5F9] px-5 py-3 rounded-[16px] max-w-full md:w-96 group focus-within:bg-white focus-within:ring-2 focus-within:ring-[#14B8A6]/20 transition-all border border-transparent focus-within:border-[#14B8A6]/30 shadow-inner">
+                    <Search size={20} className="text-slate-400 group-focus-within:text-[#14B8A6] shrink-0 transition-colors" />
                     <input
                         type="text"
-                        placeholder="Search..."
-                        className="bg-transparent border-none text-sm outline-none w-full placeholder:text-slate-400 font-medium"
+                        placeholder="Search workspace..."
+                        className="bg-transparent border-none text-sm outline-none w-full placeholder:text-slate-400 font-semibold tracking-tight"
                     />
                 </div>
             </div>
 
-            <div className="flex items-center gap-3 md:gap-6 ml-4">
+            <div className="flex items-center gap-4 md:gap-8 ml-4">
                 <div className="relative dropdown-container">
                     <button
                         onClick={() => {
                             setIsDropdownOpen(!isDropdownOpen);
                             setIsUserMenuOpen(false);
                         }}
-                        className="relative p-2.5 rounded-xl hover:bg-slate-100 text-slate-500 transition-all group"
+                        className="relative p-3 rounded-[16px] hover:bg-white hover:shadow-lg hover:shadow-[#0F172A]/5 text-slate-500 transition-all group border border-transparent hover:border-slate-100 active:scale-95"
                     >
-                        <Bell size={20} className="group-hover:rotate-12 transition-transform" />
+                        <Bell size={22} className="group-hover:rotate-12 transition-transform" />
                         {unreadCount > 0 && (
-                            <span className="absolute top-2.5 right-2 w-2.5 h-2.5 bg-rose-500 border-2 border-white rounded-full animate-pulse"></span>
+                            <span className="absolute top-3 right-3 w-3 h-3 bg-rose-500 border-[2.5px] border-white rounded-full animate-pulse shadow-sm"></span>
                         )}
                     </button>
 
                     {isDropdownOpen && (
-                        <div className="fixed inset-x-4 top-20 md:absolute md:inset-auto md:right-0 md:top-full md:mt-4 md:w-[400px] bg-white/95 backdrop-blur-xl border border-slate-200/60 rounded-3xl shadow-2xl shadow-[#008080]/10 overflow-hidden z-[1000] max-h-[calc(100vh-120px)] md:max-h-[500px] flex flex-col transition-all duration-300 animate-in fade-in slide-in-from-top-2">
-                            <div className="p-5 bg-gradient-to-r from-slate-50 to-white border-b border-slate-100 flex justify-between items-center shrink-0">
+                        <div className="fixed inset-x-4 top-24 md:absolute md:inset-auto md:right-0 md:top-full md:mt-4 md:w-[420px] bg-white/95 backdrop-blur-2xl border border-slate-200/60 rounded-[28px] shadow-2xl shadow-[#0F172A]/15 overflow-hidden z-[1000] max-h-[calc(100vh-140px)] md:max-h-[550px] flex flex-col transition-all duration-300 animate-in fade-in slide-in-from-top-4">
+                            <div className="p-6 bg-gradient-to-br from-slate-50/50 to-white border-b border-slate-100/50 flex justify-between items-center shrink-0">
                                 <div>
-                                    <h3 className="text-sm font-black text-slate-800 tracking-tight">Activity Feed</h3>
-                                    <p className="text-[10px] text-slate-500 font-medium">Real-time platform updates</p>
+                                    <h3 className="text-sm font-black text-slate-900 tracking-tight flex items-center gap-2">
+                                        <Activity size={16} className="text-[#F59E0B]" />
+                                        Activity Feed
+                                    </h3>
+                                    <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1">Platform Pulse</p>
                                 </div>
                                 <div className="flex items-center gap-2">
                                     {notifications.length > 0 && (
                                         <button 
                                             onClick={clearAllNotifications}
-                                            className="text-[10px] font-black text-rose-500 hover:bg-rose-50 px-2 py-1 rounded-lg transition-colors uppercase tracking-tight"
+                                            className="text-[10px] font-black text-rose-500 hover:bg-rose-50 px-3 py-1.5 rounded-xl transition-colors uppercase tracking-widest"
                                         >
-                                            Clear All
+                                            Clear Stack
                                         </button>
                                     )}
-                                    <span className="text-[10px] font-bold text-[#008080] bg-[#008080]/10 px-2.5 py-1 rounded-full">{unreadCount} New</span>
+                                    <span className="text-[10px] font-black text-white bg-gradient-to-r from-[#0F766E] to-[#14B8A6] px-3.5 py-1.5 rounded-full shadow-lg shadow-[#14B8A6]/20">{unreadCount} New</span>
                                 </div>
                             </div>
                             
-                            <div className="overflow-y-auto p-3 space-y-2 max-h-[400px] flex-grow custom-scrollbar overscroll-contain">
+                            <div className="overflow-y-auto p-4 space-y-3 max-h-[420px] flex-grow custom-scrollbar overscroll-contain">
                                 {notifications.length === 0 ? (
-                                    <div className="py-20 flex flex-col items-center justify-center opacity-40">
-                                        <Bell size={40} className="text-slate-300 mb-4" />
-                                        <p className="text-xs text-slate-400 font-semibold tracking-widest uppercase">Pipeline Clean</p>
+                                    <div className="py-24 flex flex-col items-center justify-center opacity-30">
+                                        <div className="w-16 h-16 bg-slate-100 rounded-[22px] flex items-center justify-center mb-6">
+                                            <Bell size={28} className="text-slate-400" />
+                                        </div>
+                                        <p className="text-[11px] text-slate-500 font-black tracking-[0.3em] uppercase">Status: Nominal</p>
                                     </div>
                                 ) : (
                                     notifications.map((notif, idx) => (
                                         <div 
                                             key={notif.id} 
-                                            className={`group relative p-4 rounded-2xl transition-all duration-300 border ${
+                                            className={`group relative p-5 rounded-[22px] transition-all duration-300 border ${
                                                 notif.is_read 
-                                                    ? 'bg-white/50 border-slate-100 opacity-60 hover:opacity-100' 
-                                                    : 'bg-gradient-to-br from-[#008080]/10 to-[#008080]/5 border-[#008080]/20 shadow-sm hover:shadow-md hover:border-[#008080]/40'
+                                                    ? 'bg-white/40 border-slate-100/50 opacity-70 hover:opacity-100 hover:bg-white hover:border-slate-200' 
+                                                    : 'bg-gradient-to-br from-[#14B8A6]/5 to-transparent border-[#14B8A6]/20 shadow-sm hover:shadow-xl hover:shadow-[#14B8A6]/5 hover:border-[#14B8A6]/40'
                                             }`}
                                             style={{ animationDelay: `${idx * 50}ms` }}
                                         >
-                                            <div className="flex gap-4">
-                                                <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
-                                                    notif.is_read ? 'bg-slate-100 text-slate-400' : 'bg-white text-[#008080] shadow-sm'
+                                            <div className="flex gap-5">
+                                                <div className={`w-12 h-12 rounded-[18px] flex items-center justify-center shrink-0 transition-transform group-hover:scale-105 ${
+                                                    notif.is_read ? 'bg-slate-100 text-slate-400' : 'bg-white text-[#14B8A6] shadow-md border border-[#14B8A6]/10'
                                                 }`}>
-                                                    <Bell size={18} />
+                                                    <Bell size={20} />
                                                 </div>
-                                                <div className="flex-1 min-w-0">
+                                                <div className="flex-1 min-w-0 pr-8">
                                                     <div 
-                                                        className={`text-[12px] leading-relaxed break-words ${notif.is_read ? 'text-slate-600 font-medium' : 'text-slate-900 font-bold'}`}
+                                                        className={`text-[13px] leading-relaxed break-words ${notif.is_read ? 'text-slate-600 font-semibold' : 'text-slate-900 font-black tracking-tight'}`}
                                                         dangerouslySetInnerHTML={{ __html: notif.message }}
                                                     />
-                                                    <div className="flex items-center gap-2 mt-2.5">
-                                                        <div className="flex items-center gap-1 text-[10px] text-slate-400 font-bold bg-slate-50 px-2 py-0.5 rounded-lg border border-slate-100">
+                                                    <div className="flex items-center gap-3 mt-3">
+                                                        <div className="flex items-center gap-1.5 text-[10px] text-slate-400 font-black bg-slate-100/50 px-2.5 py-1 rounded-lg">
+                                                            <span className="w-1 h-1 bg-[#14B8A6] rounded-full animate-pulse"></span>
                                                             <span>{new Date(notif.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                                                         </div>
-                                                        <span className="w-1 h-1 bg-slate-200 rounded-full"></span>
-                                                        <span className="text-[10px] text-slate-400 font-bold uppercase tracking-tight">
+                                                        <span className="text-[10px] text-slate-400 font-black uppercase tracking-widest">
                                                             {new Date(notif.created_at).toLocaleDateString([], { month: 'short', day: 'numeric' })}
                                                         </span>
                                                     </div>
                                                 </div>
-                                                <div className="flex flex-col gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <div className="absolute right-4 top-4 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-all translate-x-2 group-hover:translate-x-0">
                                                     {!notif.is_read && (
                                                         <button 
                                                             onClick={(e) => markRead(notif.id, e)} 
-                                                            className="p-1.5 bg-white text-[#008080] border border-[#008080]/20 hover:bg-[#008080] hover:text-white rounded-lg shadow-sm transition-all duration-300"
+                                                            className="p-2 bg-white text-[#14B8A6] border border-[#14B8A6]/20 hover:bg-[#14B8A6] hover:text-white rounded-[12px] shadow-sm transition-all duration-300"
                                                             title="Mark read"
                                                         >
-                                                            <CheckCheck size={14} />
+                                                            <CheckCheck size={16} />
                                                         </button>
                                                     )}
                                                     <button 
                                                         onClick={(e) => deleteNotification(notif.id, e)}
-                                                        className="p-1.5 bg-white text-rose-500 border border-rose-100 hover:bg-rose-500 hover:text-white rounded-lg shadow-sm transition-all duration-300"
+                                                        className="p-2 bg-white text-rose-500 border border-rose-100 hover:bg-rose-500 hover:text-white rounded-[12px] shadow-sm transition-all duration-300"
                                                         title="Delete"
                                                     >
-                                                        <ShieldCheck className="rotate-45" size={14} />
+                                                        <ShieldCheck className="rotate-45" size={16} />
                                                     </button>
                                                 </div>
                                             </div>
@@ -235,19 +240,19 @@ const Navbar = ({ onMenuClick }) => {
                                     ))
                                 )}
                             </div>
-                            <div className="p-3 bg-slate-50 border-t border-slate-100 text-center shrink-0">
-                                <button className="text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-[#008080] transition-all">Audit Archive</button>
+                            <div className="p-4 bg-slate-50/50 border-t border-slate-100 text-center shrink-0">
+                                <button className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] hover:text-[#14B8A6] transition-all active:scale-95">Archived Records</button>
                             </div>
                         </div>
                     )}
                 </div>
 
-                <div className="flex items-center gap-3 md:gap-4 md:pl-6 md:border-l border-slate-200 relative dropdown-container">
+                <div className="flex items-center gap-4 md:gap-8 md:pl-8 md:border-l border-slate-200/60 relative dropdown-container">
                     <div className="text-right hidden sm:flex flex-col items-end">
-                        <p className="text-sm font-black text-slate-900 leading-tight tracking-tight">{adminName}</p>
-                        <div className="flex items-center gap-1 mt-0.5">
-                            <ShieldCheck size={10} className="text-[#008080]" />
-                            <p className="text-[10px] text-[#008080] font-black uppercase tracking-widest">Authorized Lead</p>
+                        <p className="text-sm font-black text-slate-900 leading-none tracking-tight mb-1">{adminName}</p>
+                        <div className="flex items-center gap-1.5 px-2 py-1 bg-[#F59E0B]/10 rounded-lg group hover:bg-[#F59E0B]/20 transition-colors">
+                            <ShieldCheck size={11} className="text-[#F59E0B]" />
+                            <p className="text-[9px] text-[#F59E0B] font-black uppercase tracking-[0.2em]">Verified Hub</p>
                         </div>
                     </div>
                     <button 
@@ -255,51 +260,51 @@ const Navbar = ({ onMenuClick }) => {
                             setIsUserMenuOpen(!isUserMenuOpen);
                             setIsDropdownOpen(false);
                         }}
-                        className="w-10 h-10 bg-[#008080] rounded-xl flex items-center justify-center text-white border border-[#008080]/30 shadow-xl shadow-[#008080]/10 overflow-hidden hover:scale-105 active:scale-95 transition-all cursor-pointer ring-2 ring-transparent hover:ring-[#008080]/20"
+                        className="w-12 h-12 bg-gradient-to-br from-[#0F766E] to-[#14B8A6] rounded-[18px] flex items-center justify-center text-white border-2 border-white shadow-[0_10px_20px_rgba(20,184,166,0.25)] overflow-hidden hover:scale-105 active:scale-95 transition-all cursor-pointer ring-4 ring-[#14B8A6]/10"
                     >
-                        <User size={20} />
+                        <User size={24} />
                     </button>
 
                     {isUserMenuOpen && (
-                        <div className="absolute right-0 top-full mt-4 w-56 bg-white/95 backdrop-blur-xl border border-slate-200/60 rounded-2xl shadow-2xl shadow-slate-900/10 overflow-hidden z-[1000] animate-in fade-in slide-in-from-top-2">
-                            <div className="p-4 border-b border-slate-100 bg-slate-50/50">
-                                <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Active Session</p>
-                                <p className="text-sm font-bold text-slate-900 truncate">{user?.email}</p>
+                        <div className="absolute right-0 top-full mt-4 w-64 bg-white/95 backdrop-blur-2xl border border-slate-200/60 rounded-[28px] shadow-2xl shadow-[#0F172A]/15 overflow-hidden z-[1000] animate-in fade-in slide-in-from-top-4 p-2">
+                            <div className="p-5 border-b border-slate-100/50 bg-slate-50/50 rounded-[24px] mb-2">
+                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 leading-none">Session Context</p>
+                                <p className="text-sm font-black text-slate-900 truncate tracking-tight">{user?.email}</p>
                             </div>
-                            <div className="p-2">
+                            <div className="space-y-1">
                                 <button 
                                     onClick={handleProfileClick}
-                                    className="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-50 hover:text-[#008080] rounded-xl transition-all group"
+                                    className="w-full flex items-center gap-3.5 px-4 py-3.5 text-sm font-bold text-slate-600 hover:bg-slate-50 hover:text-[#14B8A6] rounded-[18px] transition-all group"
                                 >
-                                    <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center group-hover:bg-[#008080]/10 transition-colors">
-                                        <User size={16} />
+                                    <div className="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center group-hover:bg-[#14B8A6]/10 transition-all group-hover:scale-105">
+                                        <User size={18} />
                                     </div>
-                                    Profile Settings
+                                    Profile Console
                                 </button>
                                 <button 
                                     onClick={handleProfileClick}
-                                    className="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-50 hover:text-[#008080] rounded-xl transition-all group"
+                                    className="w-full flex items-center gap-3.5 px-4 py-3.5 text-sm font-bold text-slate-600 hover:bg-slate-50 hover:text-[#14B8A6] rounded-[18px] transition-all group"
                                 >
-                                    <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center group-hover:bg-[#008080]/10 transition-colors">
-                                        <Settings size={16} />
+                                    <div className="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center group-hover:bg-[#14B8A6]/10 transition-all group-hover:rotate-45">
+                                        <Settings size={18} />
                                     </div>
-                                    Security
+                                    Protocol Matrix
                                 </button>
-                                <button className="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-50 hover:text-[#008080] rounded-xl transition-all group">
-                                    <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center group-hover:bg-[#008080]/10 transition-colors">
-                                        <HelpCircle size={16} />
+                                <button className="w-full flex items-center gap-3.5 px-4 py-3.5 text-sm font-bold text-slate-600 hover:bg-slate-50 hover:text-[#14B8A6] rounded-[18px] transition-all group">
+                                    <div className="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center group-hover:bg-[#14B8A6]/10 transition-all group-hover:rotate-12">
+                                        <HelpCircle size={18} />
                                     </div>
-                                    Support
+                                    Support Node
                                 </button>
-                                <div className="my-2 border-t border-slate-100"></div>
+                                <div className="my-3 mx-4 border-t border-slate-100/50"></div>
                                 <button 
                                     onClick={handleLogout}
-                                    className="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-black text-white bg-[#008080] hover:bg-[#008080]/90 rounded-xl transition-all group shadow-lg shadow-[#008080]/10"
+                                    className="w-full flex items-center gap-3.5 px-4 py-4 text-sm font-black text-white bg-slate-900 hover:bg-[#EF4444] rounded-[20px] transition-all group shadow-xl shadow-slate-900/10 hover:shadow-rose-500/20"
                                 >
-                                    <div className="w-8 h-8 rounded-lg bg-[#f8ba2b] flex items-center justify-center transition-colors text-black">
-                                        <LogOut size={16} />
+                                    <div className="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center transition-all group-hover:bg-white/20">
+                                        <LogOut size={18} />
                                     </div>
-                                    Sign Out
+                                    Terminate
                                 </button>
                             </div>
                         </div>

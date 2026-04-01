@@ -148,14 +148,21 @@ const Students = () => {
             header: 'Name',
             accessor: 'name',
             render: (row) => (
-                <div className="flex items-center gap-2">
-                    <span className="font-bold">{row.name}</span>
-                    {row.course_completed === 1 && (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-600 border border-emerald-200 text-[9px] font-black uppercase tracking-widest whitespace-nowrap">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>
-                            Course Completed
-                        </span>
-                    )}
+                <div className="flex flex-col gap-1">
+                    <div className="flex items-center gap-2">
+                        <span className="font-bold">{row.name}</span>
+                        {/* Student Badge Display */}
+                        {row.badge === 'Gold' && <span title="Mentorship Plan" className="cursor-help">🥇</span>}
+                        {row.badge === 'Silver' && <span title="Tuition Plan" className="cursor-help">🥈</span>}
+                        {row.badge === 'Diamond' && <span title="Mentorship & Tuition Plan" className="cursor-help">💎</span>}
+                        
+                        {row.course_completed === 1 && (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-600 border border-emerald-200 text-[9px] font-black uppercase tracking-widest whitespace-nowrap">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>
+                                Course Completed
+                            </span>
+                        )}
+                    </div>
                 </div>
             )
         },
@@ -164,8 +171,10 @@ const Students = () => {
         { header: 'Mentor', accessor: 'mentor' },
         { header: 'Faculty', accessor: 'faculty' },
         {
-            header: 'Status', accessor: 'status', render: (row) => (
-                <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${row.status === 'active' ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'}`}>
+            header: 'Status Pulse', accessor: 'status', render: (row) => (
+                <span className={`px-6 py-2.5 rounded-[20px] text-[10px] font-black uppercase tracking-[0.2em] shadow-sm border transition-all hover:scale-105 active:scale-95 ${row.status === 'active' 
+                    ? 'bg-[#10B981]/10 text-[#10B981] border-[#10B981]/20' 
+                    : 'bg-[#EF4444]/10 text-[#EF4444] border-[#EF4444]/20 animate-pulse'}`}>
                     {row.status}
                 </span>
             )
@@ -173,24 +182,30 @@ const Students = () => {
     ];
 
     return (
-        <div className="flex flex-col gap-8">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-                <div>
-                    <h2 className="text-3xl font-black text-slate-900 tracking-tighter uppercase italic">Student Enrollment</h2>
-                    <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em] mt-2">Monitoring academic progress and enrollment details</p>
+        <div className="flex flex-col gap-10 pb-10">
+            <div className="bg-white/70 backdrop-blur-xl p-12 rounded-[40px] border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.04)] flex flex-col md:flex-row justify-between items-center gap-10">
+                <div className="text-center md:text-left">
+                    <h2 className="text-5xl font-black text-slate-900 tracking-tighter leading-none mb-3 italic">Student Enrollment</h2>
+                    <p className="text-slate-400 text-[11px] font-black uppercase tracking-[0.25em] flex items-center justify-center md:justify-start gap-3 mt-1">
+                        <span className="w-2 h-2 rounded-full bg-[#14B8A6] animate-pulse shadow-[0_0_10px_rgba(20,184,166,0.5)]"></span>
+                        Cross-functional Academic Database Nexus
+                    </p>
                 </div>
                 
-                <div className="flex items-center gap-3 bg-white p-2 rounded-2xl border border-slate-100 shadow-sm">
-                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2">Sort By:</span>
-                    <select 
-                        value={sortBy} 
-                        onChange={(e) => setSortBy(e.target.value)}
-                        className="bg-slate-50 border-none text-xs font-black uppercase tracking-wider py-2 px-4 rounded-xl outline-none focus:ring-2 focus:ring-[#008080] transition-all cursor-pointer"
-                    >
-                        <option value="newest">Newest First</option>
-                        <option value="oldest">Oldest First</option>
-                    </select>
-                </div>
+                <div className="flex flex-col sm:flex-row items-center gap-5">
+                    <div className="flex items-center gap-4 bg-slate-50/50 px-8 py-5 rounded-[24px] border border-slate-100/50 shadow-inner group">
+                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] italic leading-none whitespace-nowrap">Sort Engine</span>
+                        <div className="w-px h-10 bg-slate-200"></div>
+                        <select 
+                            value={sortBy} 
+                            onChange={(e) => setSortBy(e.target.value)}
+                            className="bg-transparent border-none text-xs font-black uppercase tracking-[0.1em] text-slate-800 outline-none focus:ring-0 cursor-pointer italic"
+                        >
+                            <option value="newest">Latest Optimized</option>
+                            <option value="oldest">Legacy Priority</option>
+                        </select>
+                    </div>
+            </div>
             </div>
 
             <DataTable
@@ -218,7 +233,7 @@ const Students = () => {
                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2">Full Name</label>
                         <input
                             type="text"
-                            className="p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-[#008080] transition-all"
+                            className="p-5 bg-slate-50/50 border border-slate-100 rounded-[20px] text-sm font-bold text-slate-700 outline-none focus:bg-white focus:ring-4 focus:ring-[#14B8A6]/5 focus:border-[#14B8A6]/20 transition-all"
                             value={editFormData.name}
                             onChange={(e) => setEditFormData({ ...editFormData, name: e.target.value })}
                             required
@@ -274,9 +289,9 @@ const Students = () => {
                             onChange={(e) => setEditFormData({ ...editFormData, timetable: e.target.value })}
                         />
                     </div>
-                    <div className="col-span-2 flex justify-end gap-3 pt-4">
-                        <button type="button" className="px-6 py-3 rounded-xl border border-slate-200 text-sm font-bold text-slate-600 hover:bg-slate-50 transition-all" onClick={() => setIsEditModalOpen(false)}>Cancel</button>
-                        <button type="submit" className="px-6 py-3 rounded-xl bg-[#008080] text-white text-sm font-bold hover:bg-[#008080] transition-all shadow-lg shadow-[#008080]/30">Update Student Data</button>
+                    <div className="col-span-2 flex justify-end gap-3 pt-8 pb-4">
+                        <button type="button" className="px-8 py-4 rounded-[18px] border border-slate-100 text-[11px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-600 hover:bg-slate-50 transition-all font-sans" onClick={() => setIsEditModalOpen(false)}>Abort Change</button>
+                        <button type="submit" className="px-10 py-4 rounded-[18px] bg-gradient-to-br from-[#0F766E] to-[#14B8A6] text-white text-[11px] font-black uppercase tracking-[0.2em] hover:shadow-lg hover:shadow-[#14B8A6]/30 hover:-translate-y-1 transition-all shadow-md shadow-[#14B8A6]/20 font-sans">Commit Data Refresh</button>
                     </div>
                 </form>
             </Modal>
@@ -289,17 +304,20 @@ const Students = () => {
             >
                 {selectedStudent && (
                     <div className="flex flex-col gap-10">
-                        <div className="flex items-center gap-6 p-6 bg-slate-50/50 rounded-3xl border border-slate-100">
-                            <div className="w-20 h-20 bg-[#008080] text-white rounded-3xl flex items-center justify-center text-3xl font-bold shadow-lg shadow-[#008080]/30">
-                                {selectedStudent.name.charAt(0)}
+                        <div className="flex items-center gap-8 p-8 bg-[#14B8A6]/5 rounded-[32px] border border-[#14B8A6]/10 shadow-[0_10px_30px_rgba(20,184,166,0.05)]">
+                            <div className="w-24 h-24 bg-gradient-to-br from-[#0F766E] to-[#14B8A6] text-white rounded-[28px] flex items-center justify-center text-4xl font-black shadow-xl shadow-[#14B8A6]/20 relative overflow-hidden group">
+                                <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-500"></div>
+                                <span className="relative z-10">{selectedStudent.name.charAt(0)}</span>
                             </div>
-                            <div className="flex flex-col gap-1">
-                                <h3 className="text-2xl font-bold text-slate-900">{selectedStudent.name}</h3>
-                                <p className="text-slate-500 font-medium">{selectedStudent.email || 'No email provided'}</p>
-                                <div className="mt-2">
-                                    <span className={`px-3 py-1 rounded-full text-xs font-bold border-2 ${selectedStudent.status === 'active' ? 'border-emerald-100 bg-emerald-50 text-emerald-600' : 'border-rose-100 bg-rose-50 text-rose-600'}`}>
-                                        {selectedStudent.status.toUpperCase()} ACCOUNT
+                            <div className="flex flex-col gap-2">
+                                <h3 className="text-3xl font-black text-slate-900 tracking-tight">{selectedStudent.name}</h3>
+                                <p className="text-slate-400 font-bold text-xs uppercase tracking-widest">{selectedStudent.email || 'System user without email'}</p>
+                                <div className="mt-3 flex items-center gap-3">
+                                    <span className={`px-4 py-1.5 rounded-full text-[10px] font-black tracking-widest border-2 ${selectedStudent.status === 'active' ? 'border-emerald-100/50 bg-emerald-100/30 text-emerald-600' : 'border-rose-100/50 bg-rose-100/30 text-rose-600'}`}>
+                                        PROTOCOL: {selectedStudent.status.toUpperCase()}
                                     </span>
+                                    <span className="w-2 h-2 rounded-full bg-slate-200"></span>
+                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{selectedStudent.registration_number}</span>
                                 </div>
                             </div>
                         </div>
@@ -317,9 +335,12 @@ const Students = () => {
                             <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4">Daily Logged Hours (Mentor)</h4>
                             <div className="max-h-40 overflow-y-auto space-y-2 pr-2">
                                 {dailyHours.length > 0 ? dailyHours.map((log) => (
-                                    <div key={log.id} className="flex justify-between items-center bg-slate-50 p-3 rounded-xl border border-slate-100">
-                                        <span className="text-sm font-bold text-slate-700">{new Date(log.date).toLocaleDateString()}</span>
-                                        <span className="text-sm font-black text-[#008080]">{log.hours} Hrs</span>
+                                    <div key={log.id} className="flex justify-between items-center bg-white p-4 rounded-[18px] border border-slate-100/50 shadow-sm hover:border-[#14B8A6]/20 transition-all group">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-1.5 h-1.5 rounded-full bg-[#14B8A6]"></div>
+                                            <span className="text-[11px] font-black text-slate-500 uppercase tracking-widest">{new Date(log.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                                        </div>
+                                        <span className="text-sm font-black text-[#14B8A6] bg-[#14B8A6]/5 px-3 py-1 rounded-full">{log.hours} <span className="text-[10px] uppercase ml-0.5">Hrs</span></span>
                                     </div>
                                 )) : (
                                     <p className="text-sm text-slate-400 font-medium italic">No hours logged yet.</p>
@@ -327,9 +348,14 @@ const Students = () => {
                             </div>
                         </div>
 
-                        <div className="flex justify-end gap-3 pt-6 border-t border-slate-100">
-                            <button className="px-6 py-2.5 rounded-xl border border-slate-200 text-sm font-bold text-slate-600 hover:bg-slate-50 transition-all" onClick={() => setIsModalOpen(false)}>Close</button>
-                            <button className="px-6 py-2.5 rounded-xl bg-[#008080] text-white text-sm font-bold hover:bg-[#008080] transition-all shadow-md shadow-[#008080]/30">Edit Academic Info</button>
+                        <div className="flex justify-end gap-3 pt-10 border-t border-slate-100/50">
+                            <button className="px-8 py-4 rounded-[18px] border border-slate-100 text-[11px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-600 hover:bg-slate-50 transition-all" onClick={() => setIsModalOpen(false)}>Exit Dashboard</button>
+                            <button 
+                                className="px-10 py-4 rounded-[18px] bg-gradient-to-br from-[#0F766E] to-[#14B8A6] text-white text-[11px] font-black uppercase tracking-[0.2em] hover:shadow-lg hover:shadow-[#14B8A6]/30 hover:-translate-y-1 transition-all shadow-md shadow-[#14B8A6]/20"
+                                onClick={() => handleEdit(selectedStudent)}
+                            >
+                                Reconfigure Profile
+                            </button>
                         </div>
                     </div>
                 )}
@@ -339,9 +365,10 @@ const Students = () => {
 };
 
 const InfoGroup = ({ label, value, highlight }) => (
-    <div className="flex flex-col gap-1.5 p-4 bg-white rounded-2xl border border-slate-100 hover:border-[#008080] transition-all group">
-        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest group-hover:text-[#008080] transition-colors">{label}</label>
-        <p className={`text-base font-semibold ${highlight ? 'text-[#008080]' : 'text-slate-700'}`}>{value}</p>
+    <div className="flex flex-col gap-2 p-6 bg-slate-50/50 rounded-[24px] border border-slate-100 hover:border-[#14B8A6]/30 hover:bg-white hover:shadow-[0_10px_20px_rgba(0,0,0,0.03)] transition-all group overflow-hidden relative">
+        <div className={`absolute top-0 right-0 w-12 h-12 bg-[#14B8A6]/5 rounded-bl-[24px] transition-all duration-500 scale-0 group-hover:scale-100`}></div>
+        <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] group-hover:text-[#14B8A6] transition-colors">{label}</label>
+        <p className={`text-sm font-bold leading-relaxed ${highlight ? 'text-[#14B8A6]' : 'text-slate-800'}`}>{value || '---'}</p>
     </div>
 );
 

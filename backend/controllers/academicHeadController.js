@@ -185,13 +185,18 @@ const registerStudent = async (req, res) => {
 
         const onboardingStatus = admissionType === 'existing' ? 'completed' : 'pending';
 
+        const enrollmentType = req.body.enrollmentType || null;
+        const badge = enrollmentType === 'Mentorship' ? 'Gold' : 
+                      enrollmentType === 'Tuition' ? 'Silver' : 
+                      enrollmentType === 'Mentorship and Tuition' ? 'Diamond' : null;
+
         const query = `
             INSERT INTO students (
                 name, grade, subject, course, hour, 
                 mentor_id, mentor_name, faculty_id, faculty_name, next_installment_date,
                 time_table, status, onboarding_status, isApproved, registeredBy,
-                registration_number, meeting_link, faculty_hourly_rate, subjects_json
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, ?, ?)
+                registration_number, meeting_link, faculty_hourly_rate, subjects_json, enrollment_type, badge
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, ?, ?, ?, ?)
         `;
 
         const [studentResult] = await db.query(query, [
@@ -204,7 +209,9 @@ const registerStudent = async (req, res) => {
             registrationNumber || null,
             meetingLink || null,
             facultyHourlyRate || 0,
-            JSON.stringify(selectedSubjects || [])
+            JSON.stringify(selectedSubjects || []),
+            enrollmentType,
+            badge
         ]);
 
         const studentId = studentResult.insertId;

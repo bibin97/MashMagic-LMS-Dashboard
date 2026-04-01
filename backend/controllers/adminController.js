@@ -465,7 +465,8 @@ const getAllStudentsForAdmin = async (req, res) => {
                 attendance_percentage, performance_status,
                 course_completed,
                 created_at,
-                mentor_id
+                mentor_id,
+                badge
             FROM students WHERE 1=1
         `;
         let params = [];

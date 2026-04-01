@@ -107,19 +107,21 @@ const StaffManagement = () => {
         { header: 'Full Name', accessor: 'name' },
         { header: 'Email', accessor: 'email' },
         {
-            header: 'Role',
+            header: 'Operational Role',
             accessor: 'role',
             render: (row) => (
-                <span className="px-3 py-1 bg-slate-100 text-slate-700 rounded-lg text-[10px] font-black uppercase tracking-wider">
+                <span className="px-5 py-2.5 bg-slate-50 border border-slate-100 rounded-[18px] text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 shadow-sm group-hover:bg-white group-hover:border-[#14B8A6]/20 transition-all">
                     {row.role.replace('_', ' ')}
                 </span>
             )
         },
         {
-            header: 'Status',
+            header: 'Access State',
             accessor: 'status',
             render: (row) => (
-                <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${row.status === 'active' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-rose-50 text-rose-600 border-rose-100'}`}>
+                <span className={`px-6 py-2.5 rounded-[20px] text-[10px] font-black uppercase tracking-[0.2em] border shadow-sm transition-all hover:scale-105 active:scale-95 ${row.status === 'active' 
+                    ? 'bg-[#10B981]/10 text-[#10B981] border-[#10B981]/20' 
+                    : 'bg-[#EF4444]/10 text-[#EF4444] border-[#EF4444]/20 animate-pulse'}`}>
                     {row.status}
                 </span>
             )
@@ -127,10 +129,22 @@ const StaffManagement = () => {
     ];
 
     return (
-        <div className="flex flex-col gap-8">
-            <div className="flex flex-col mb-6">
-                <h2 className="text-3xl font-black text-slate-900 tracking-tighter uppercase italic">Institutional Staff</h2>
-                <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em] mt-2">Managing core operational roles and team hierarchy</p>
+        <div className="flex flex-col gap-10 pb-10">
+            <div className="bg-white/70 backdrop-blur-xl p-12 rounded-[40px] border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.04)] flex flex-col md:flex-row justify-between items-center gap-10">
+                <div className="text-center md:text-left">
+                    <h2 className="text-5xl font-black text-slate-900 tracking-tighter leading-none mb-3 italic">Institutional Authority</h2>
+                    <p className="text-slate-400 text-[11px] font-black uppercase tracking-[0.25em] flex items-center justify-center md:justify-start gap-3 mt-1">
+                        <div className="w-2 h-2 rounded-full bg-[#14B8A6] animate-pulse"></div>
+                        Managing Core Operational Nodes & Team Architecture
+                    </p>
+                </div>
+                <div className="bg-slate-900 px-8 py-5 rounded-[24px] border border-slate-800 shadow-2xl flex items-center gap-5 group hover:translate-x-1 transition-all">
+                    <ShieldCheck className="text-[#14B8A6]" size={20} strokeWidth={2.5} />
+                    <div className="flex flex-col">
+                        <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] leading-none mb-1">Total Personnel</span>
+                        <span className="text-2xl font-black text-white leading-none tabular-nums tracking-tighter">{staff.length}</span>
+                    </div>
+                </div>
             </div>
 
             <DataTable
@@ -144,7 +158,6 @@ const StaffManagement = () => {
                 searchPlaceholder="Search by name, email or role..."
             />
 
-            {/* Edit Staff Modal */}
             <Modal
                 isOpen={isEditModalOpen}
                 onClose={() => setIsEditModalOpen(false)}

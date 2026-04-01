@@ -14,137 +14,140 @@ const DataTable = ({
     onBlock,
     onDelete,
     onEdit,
-    searchPlaceholder = "Search...",
+    searchPlaceholder = "Search records...",
     filterValue,
     onFilterChange,
 }) => {
     const useFilterDropdown = filterValue !== undefined && onFilterChange;
     return (
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center p-4 md:p-6 border-b border-slate-100 gap-4 w-full">
-                <div className="relative w-full sm:w-80 group">
-                    <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#008080] transition-colors" />
+        <div className="bg-white/70 backdrop-blur-xl rounded-[28px] border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.04)] overflow-hidden transition-all duration-500">
+            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center p-6 md:p-8 border-b border-slate-100/50 gap-6 w-full">
+                <div className="relative w-full lg:w-96 group">
+                    <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#14B8A6] transition-all duration-300" />
                     <input
                         type="text"
                         placeholder={searchPlaceholder}
                         onChange={(e) => onSearch && onSearch(e.target.value)}
-                        className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 pl-10 pr-4 text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] focus:border-[#008080] transition-all shadow-sm"
+                        className="w-full bg-white/50 border border-slate-100 rounded-[18px] py-3.5 pl-12 pr-5 text-sm font-bold text-slate-600 outline-none focus:bg-white focus:ring-4 focus:ring-[#14B8A6]/5 focus:border-[#14B8A6]/20 transition-all shadow-sm placeholder:text-slate-300"
                     />
                 </div>
 
-                <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
+                <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
                     {useFilterDropdown ? (
                         <StudentListFilterDropdown
                             value={filterValue}
                             onChange={onFilterChange}
-                            className="flex-1 sm:flex-none w-full sm:w-auto"
+                            className="flex-1 lg:flex-none w-full lg:w-auto min-w-[160px]"
                         />
                     ) : (
                         <button
                             onClick={onFilter}
-                            className="w-full sm:w-auto flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-all shadow-sm active:scale-95"
+                            className="flex-1 lg:flex-none flex items-center justify-center gap-2.5 px-6 py-3.5 bg-white border border-slate-100 rounded-[18px] text-[11px] font-black uppercase tracking-widest text-slate-500 hover:bg-slate-50 hover:text-slate-900 transition-all shadow-sm active:scale-95 group"
                         >
-                            <Filter size={18} className="text-slate-400" />
-                            <span>Filter</span>
+                            <Filter size={16} className="text-slate-400 group-hover:rotate-12 transition-transform" />
+                            <span>Filters</span>
                         </button>
                     )}
                     <button
                         onClick={onExport}
-                        className="w-full sm:w-auto flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 bg-[#008080] border border-[#008080] rounded-xl text-sm font-semibold text-white hover:bg-[#008080] transition-all shadow-sm active:scale-95"
+                        className="flex-1 lg:flex-none flex items-center justify-center gap-2.5 px-8 py-3.5 bg-gradient-to-br from-[#0F766E] to-[#14B8A6] rounded-[18px] text-[11px] font-black uppercase tracking-[0.2em] text-white hover:shadow-lg hover:shadow-[#14B8A6]/30 hover:-translate-y-0.5 transition-all active:scale-95"
                     >
-                        <span>Export</span>
+                        <span>Export CSV</span>
                     </button>
                 </div>
             </div>
 
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto custom-scrollbar">
                 <table className="w-full text-left border-collapse">
-                    <thead className="bg-slate-50/50">
-                        <tr>
+                    <thead>
+                        <tr className="bg-slate-50/40">
                             {columns.map((col, index) => (
-                                <th key={index} className="px-6 py-4 text-[11px] font-bold uppercase tracking-wider text-slate-500 border-b border-slate-100" style={{ width: col.width }}>
+                                <th key={index} className="px-8 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 border-b border-slate-100/50" style={{ width: col.width }}>
                                     {col.header}
                                 </th>
                             ))}
-                            <th className="px-6 py-4 text-[11px] font-bold uppercase tracking-wider text-slate-500 border-b border-slate-100 w-40 text-center">Actions</th>
+                            <th className="px-8 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 border-b border-slate-100/50 text-center">Actions</th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-50">
+                    <tbody className="divide-y divide-slate-100/50">
                         {loading ? (
-                            [...Array(5)].map((_, i) => (
+                            [...Array(6)].map((_, i) => (
                                 <tr key={i} className="animate-pulse">
                                     {columns.map((_, j) => (
-                                        <td key={j} className="px-6 py-4"><div className="h-4 bg-slate-100 rounded w-full"></div></td>
+                                        <td key={j} className="px-8 py-6"><div className="h-4 bg-slate-100 rounded-[6px] w-full"></div></td>
                                     ))}
-                                    <td className="px-6 py-4"><div className="h-8 bg-slate-100 rounded w-full"></div></td>
+                                    <td className="px-8 py-6"><div className="h-8 bg-slate-100 rounded-[10px] w-full"></div></td>
                                 </tr>
                             ))
                         ) : data.length === 0 ? (
                             <tr>
-                                <td colSpan={columns.length + 1} className="px-6 py-20 text-center text-slate-400 font-medium">
-                                    <div className="flex flex-col items-center gap-2">
-                                        <div className="w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center border border-slate-100">
-                                            <Search size={24} />
+                                <td colSpan={columns.length + 1} className="px-8 py-24 text-center">
+                                    <div className="flex flex-col items-center gap-4 animate-in fade-in zoom-in duration-500">
+                                        <div className="w-20 h-20 bg-slate-50 rounded-[28px] flex items-center justify-center border border-slate-100 shadow-inner">
+                                            <Search size={32} className="text-slate-200" />
                                         </div>
-                                        <span>No records found</span>
+                                        <div>
+                                            <p className="text-sm font-black text-slate-900 tracking-tight">No match found</p>
+                                            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">Try adjusting your filters</p>
+                                        </div>
                                     </div>
                                 </td>
                             </tr>
                         ) : (
                             data.map((row, rowIndex) => (
-                                <tr key={rowIndex} className="group hover:bg-slate-50/80 transition-colors">
+                                <tr key={rowIndex} className="group hover:bg-[#F8FAFC]/80 transition-all duration-300">
                                     {columns.map((col, colIndex) => (
-                                        <td key={colIndex} className="px-6 py-4 whitespace-nowrap text-sm text-slate-600 font-medium">
+                                        <td key={colIndex} className="px-8 py-6 whitespace-nowrap text-sm text-slate-600 font-bold">
                                             {col.render ? col.render(row) : row[col.accessor]}
                                         </td>
                                     ))}
-                                    <td className="px-6 py-4">
-                                        <div className="flex justify-center items-center gap-1">
+                                    <td className="px-8 py-6">
+                                        <div className="flex justify-center items-center gap-2">
                                             <button
-                                                className="p-1.5 text-slate-400 hover:text-[#008080] hover:bg-[#008080]/10 rounded-lg transition-all"
+                                                className="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-[#14B8A6] hover:bg-[#14B8A6]/10 rounded-[12px] transition-all hover:scale-110 active:scale-95"
                                                 onClick={() => onView && onView(row)}
-                                                title="View Details"
+                                                title="View profile"
                                             >
-                                                <Eye size={16} />
+                                                <Eye size={18} />
                                             </button>
 
                                             {onEdit && (
                                                 <button
-                                                    className="p-1.5 text-slate-400 hover:text-[#008080] hover:bg-[#008080]/10 rounded-lg transition-all"
+                                                    className="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-[#14B8A6] hover:bg-[#14B8A6]/10 rounded-[12px] transition-all hover:scale-110 active:scale-95"
                                                     onClick={() => onEdit(row)}
-                                                    title="Edit Details"
+                                                    title="Modify data"
                                                 >
-                                                    <Pencil size={16} />
+                                                    <Pencil size={18} />
                                                 </button>
                                             )}
 
                                             {onApprove && row.status !== 'active' && (
                                                 <button
-                                                    className="p-1.5 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-all"
+                                                    className="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-[12px] transition-all hover:scale-110 active:scale-95"
                                                     onClick={() => onApprove(row)}
-                                                    title="Approve User"
+                                                    title="Authorize access"
                                                 >
-                                                    <CheckCircle size={16} />
+                                                    <CheckCircle size={18} />
                                                 </button>
                                             )}
 
                                             {onBlock && row.status !== 'blocked' && (
                                                 <button
-                                                    className="p-1.5 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-all"
+                                                    className="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-[#F59E0B] hover:bg-[#F59E0B]/10 rounded-[12px] transition-all hover:scale-110 active:scale-95"
                                                     onClick={() => onBlock(row)}
-                                                    title="Block User"
+                                                    title="Restrict access"
                                                 >
-                                                    <Ban size={16} />
+                                                    <Ban size={18} />
                                                 </button>
                                             )}
 
                                             {onDelete && (
                                                 <button
-                                                    className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all"
+                                                    className="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-[12px] transition-all hover:scale-110 active:scale-95"
                                                     onClick={() => onDelete(row)}
-                                                    title="Delete User"
+                                                    title="Terminate account"
                                                 >
-                                                    <Trash2 size={16} />
+                                                    <Trash2 size={18} />
                                                 </button>
                                             )}
                                         </div>
@@ -156,15 +159,18 @@ const DataTable = ({
                 </table>
             </div>
 
-            <div className="flex items-center justify-between px-6 py-4 bg-slate-50/30 border-t border-slate-100">
-                <span className="text-xs font-semibold text-slate-400">Total {data.length} records</span>
-                <div className="flex gap-1.5">
-                    <button className="p-1.5 rounded-lg border border-slate-200 bg-white text-slate-400 hover:text-slate-600 hover:bg-slate-50 transition-all disabled:opacity-40" disabled>
-                        <ChevronLeft size={16} />
+            <div className="flex items-center justify-between px-8 py-6 bg-slate-50/20 border-t border-slate-100/50">
+                <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-[#14B8A6] animate-pulse"></div>
+                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">Record cluster: {data.length} units detected</span>
+                </div>
+                <div className="flex items-center gap-3">
+                    <button className="w-10 h-10 flex items-center justify-center rounded-[12px] bg-white border border-slate-100 text-slate-400 hover:text-slate-600 hover:bg-slate-50 transition-all disabled:opacity-30 disabled:cursor-not-allowed group shadow-sm" disabled>
+                        <ChevronLeft size={18} className="group-active:-translate-x-0.5 transition-transform" />
                     </button>
-                    <button className="px-3 py-1 rounded-lg bg-[#008080] text-white text-xs font-bold shadow-sm shadow-[#008080]/30">1</button>
-                    <button className="p-1.5 rounded-lg border border-slate-200 bg-white text-slate-400 hover:text-slate-600 hover:bg-slate-50 transition-all">
-                        <ChevronRight size={16} />
+                    <div className="px-5 py-2 rounded-[12px] bg-gradient-to-br from-[#0F766E] to-[#14B8A6] text-white text-xs font-black shadow-lg shadow-[#14B8A6]/20">1</div>
+                    <button className="w-10 h-10 flex items-center justify-center rounded-[12px] bg-white border border-slate-100 text-slate-400 hover:text-slate-600 hover:bg-slate-50 transition-all group shadow-sm">
+                        <ChevronRight size={18} className="group-active:translate-x-0.5 transition-transform" />
                     </button>
                 </div>
             </div>

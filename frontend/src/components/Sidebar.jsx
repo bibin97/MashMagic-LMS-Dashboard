@@ -48,17 +48,18 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
     };
 
     return (
-        <aside className={`fixed left-0 top-0 h-full w-64 bg-[#008080] flex flex-col z-[1000] shadow-2xl transition-transform duration-300 ease-in-out md:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-            <div className="p-4 md:p-6 border-b border-slate-100/20 flex items-center justify-between">
-                <h1 className="text-xl font-bold text-white flex items-center gap-2">
-                    <div className="w-10 h-10 md:w-12 md:h-12 flex items-center justify-center">
+        <aside className={`fixed left-0 top-0 h-full w-64 flex flex-col z-[1000] shadow-2xl transition-transform duration-300 ease-in-out md:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}
+               style={{ background: 'linear-gradient(180deg, #0F172A, #020617)' }}>
+            <div className="p-6 border-b border-white/5 flex items-center justify-between">
+                <h1 className="text-xl font-black text-white flex items-center gap-3 tracking-tighter italic">
+                    <div className="w-10 h-10 flex items-center justify-center p-1 bg-white/5 rounded-xl border border-white/10">
                         <img src="/mashmagic logo.jpg" alt="Logo" className="w-full h-full object-contain" />
                     </div>
                     MashMagic
                 </h1>
                 <button 
                     onClick={() => setIsOpen(false)}
-                    className="md:hidden text-white/80 hover:text-white p-1 hover:bg-white/10 rounded-lg transition-colors"
+                    className="md:hidden text-white/50 hover:text-white p-2 hover:bg-white/5 rounded-xl transition-colors"
                 >
                     <X size={24} />
                 </button>
@@ -71,36 +72,36 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                         to={item.path}
                         onClick={() => setIsOpen(false)}
                         className={({ isActive }) => `
-                            flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300
+                            flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 group
                             ${isActive
-                                ? 'bg-[#f8ba2b] text-black font-black shadow-xl shadow-black/10 -translate-y-0.5'
-                                : 'text-white/60 hover:bg-white/10 hover:text-white'}
+                                ? 'bg-[#14B8A6]/10 text-white font-bold border-l-[3px] border-[#14B8A6] shadow-[0_0_20px_rgba(20,184,166,0.1)]'
+                                : 'text-slate-400 hover:bg-white/5 hover:text-white hover:translate-x-1'}
                         `}
                     >
-                        {item.icon}
-                        <span className="text-sm">{item.label}</span>
+                        <span className="transition-opacity group-hover:opacity-100 opacity-70">{item.icon}</span>
+                        <span className="text-sm tracking-tight">{item.label}</span>
                     </NavLink>
                 ))}
             </nav>
 
-            <div className="p-4 border-t border-slate-700/50">
-                <div className="bg-[#f8ba2b] p-4 rounded-3xl mb-4 border border-[#f8ba2b]/20 shadow-lg shadow-black/10 flex items-center gap-3">
-                    <div className="w-10 h-10 bg-[#008080] rounded-2xl flex items-center justify-center text-white shadow-inner">
+            <div className="p-4 border-t border-white/5 space-y-4">
+                <div className="bg-white/5 border border-white/10 p-4 rounded-[20px] flex items-center gap-3 group hover:bg-white/10 transition-all cursor-pointer">
+                    <div className="w-10 h-10 bg-gradient-to-br from-[#0F766E] to-[#14B8A6] rounded-[14px] flex items-center justify-center text-white shadow-lg shadow-[#14B8A6]/20">
                         <User size={20} />
                     </div>
                     <div className="flex flex-col overflow-hidden">
-                        <span className="text-[10px] font-black text-black/40 uppercase tracking-widest leading-none mb-1">
+                        <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none mb-1">
                             {user?.role?.split('_').join(' ')}
                         </span>
-                        <span className="text-xs font-black text-black truncate italic">{user?.name}</span>
+                        <span className="text-xs font-bold text-slate-200 truncate">{user?.name}</span>
                     </div>
                 </div>
                 <button
                     onClick={handleLogout}
-                    className="w-full flex items-center gap-3 px-4 py-4 rounded-2xl transition-all duration-300 text-[10px] font-black uppercase tracking-[0.2em] bg-[#f8ba2b] text-black hover:bg-yellow-500 shadow-xl shadow-black/10 border border-yellow-300"
+                    className="w-full flex items-center justify-center gap-3 px-4 py-3.5 rounded-[16px] transition-all duration-300 text-[10px] font-black uppercase tracking-[0.2em] bg-white/5 text-slate-400 hover:bg-[#EF4444] hover:text-white border border-white/10 hover:border-transparent group"
                 >
-                    <LogOut size={16} />
-                    <span>Logout</span>
+                    <LogOut size={16} className="group-hover:-translate-x-1 transition-transform" />
+                    <span>Sign Out</span>
                 </button>
             </div>
         </aside>

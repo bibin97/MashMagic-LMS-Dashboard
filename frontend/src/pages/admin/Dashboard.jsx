@@ -65,9 +65,9 @@ const Dashboard = () => {
     ];
 
     const pieData = [
-        { name: 'Students', value: stats.students, color: '#008080' },
-        { name: 'Mentors', value: stats.mentors, color: '#008080' },
-        { name: 'Faculties', value: stats.faculties, color: '#006666' },
+        { name: 'Students', value: stats.students, color: '#14B8A6' },
+        { name: 'Mentors', value: stats.mentors, color: '#0F766E' },
+        { name: 'Faculties', value: stats.faculties, color: '#F59E0B' },
     ];
 
     const performanceData = [
@@ -131,7 +131,7 @@ const Dashboard = () => {
                 }
 
                 if (distRes.data.success) {
-                    const colors = ['#008080', '#008080', '#006666', '#e5a91f', '#004d4d', '#cca014'];
+                    const colors = ['#14B8A6', '#0F766E', '#F59E0B', '#10B981', '#6366F1', '#EC4899'];
                     const mappedDist = distRes.data.data.map((item, idx) => ({
                         name: item.mentor_name,
                         value: Number(item.student_count || 0),
@@ -187,10 +187,14 @@ const Dashboard = () => {
     }
 
     return (
-        <div className="flex flex-col gap-8">
-            <div className="flex flex-col mb-6">
-                <h2 className="text-3xl font-black text-slate-900 tracking-tighter uppercase italic">System Overview</h2>
-                <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em] mt-2">Monitoring platform-wide performance and engagement</p>
+        <div className="flex flex-col gap-10">
+            <div className="flex flex-col mb-2">
+                <h2 className="text-4xl font-black text-slate-900 tracking-tighter leading-none mb-3">Workspace Overview</h2>
+                <div className="flex items-center gap-3">
+                    <div className="px-3 py-1 bg-[#14B8A6]/10 rounded-lg border border-[#14B8A6]/20">
+                        <p className="text-[#14B8A6] text-[10px] font-black uppercase tracking-[0.2em]">Operational Pulse: Active</p>
+                    </div>
+                </div>
             </div>
 
             {/* Stats Grid */}
@@ -225,18 +229,21 @@ const Dashboard = () => {
             {/* Charts Section */}
             <div className="flex flex-col gap-6">
                 {/* Bar Chart Card */}
-                <div className="w-full bg-white p-4 sm:p-8 rounded-2xl border border-slate-200 shadow-sm">
-                    <div className="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center gap-4 mb-6 sm:mb-10 w-full">
-                        <div className="flex items-center gap-3">
-                            <div className="p-2.5 bg-[#008080]/10 text-[#008080] rounded-xl">
+                <div className="w-full bg-white/80 backdrop-blur-xl p-8 sm:p-10 rounded-[32px] border border-white/50 shadow-[0_10px_30px_rgba(0,0,0,0.04)]">
+                    <div className="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center gap-6 mb-12 w-full">
+                        <div className="flex items-center gap-4">
+                            <div className="w-12 h-12 bg-gradient-to-br from-[#0F766E] to-[#14B8A6] text-white rounded-[16px] flex items-center justify-center shadow-lg shadow-[#14B8A6]/20">
                                 <BarChart3 size={20} />
                             </div>
-                            <h4 className="text-lg font-bold text-slate-800">Task Performance Trend</h4>
+                            <div>
+                                <h4 className="text-xl font-black text-slate-800 tracking-tight">Task Velocity</h4>
+                                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">Resource allocation & Completion</p>
+                            </div>
                         </div>
                         <select
                             value={taskFilter}
                             onChange={(e) => setTaskFilter(e.target.value)}
-                            className="bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-xs font-bold text-slate-500 outline-none hover:border-[#008080] transition-colors"
+                            className="bg-white border border-slate-100 rounded-[14px] px-5 py-2.5 text-xs font-black text-slate-500 outline-none hover:border-[#14B8A6] transition-all shadow-sm focus:ring-4 focus:ring-[#14B8A6]/10"
                         >
                             <option value="today">Today</option>
                             <option value="yesterday">Yesterday</option>
@@ -310,18 +317,18 @@ const Dashboard = () => {
                                         <Bar
                                             name="Tasks"
                                             dataKey="tasks"
-                                            fill="#008080"
-                                            radius={[4, 4, 0, 0]}
-                                            barSize={45}
-                                            minPointSize={taskPerformance.length > 30 ? 2 : 5}
+                                            fill="#0F766E"
+                                            radius={[6, 6, 0, 0]}
+                                            barSize={40}
+                                            minPointSize={5}
                                         />
                                         <Bar
                                             name="Task Completed"
                                             dataKey="completed"
-                                            fill="#008080"
-                                            radius={[4, 4, 0, 0]}
-                                            barSize={45}
-                                            minPointSize={taskPerformance.length > 30 ? 2 : 5}
+                                            fill="#14B8A6"
+                                            radius={[6, 6, 0, 0]}
+                                            barSize={40}
+                                            minPointSize={5}
                                         />
                                     </BarChart>
                                 </ResponsiveContainer>
@@ -332,12 +339,15 @@ const Dashboard = () => {
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     {/* Pie Chart Card */}
-                    <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm flex flex-col">
-                        <div className="flex items-center gap-3 mb-10">
-                            <div className="p-2.5 bg-[#008080]/10 text-[#008080] rounded-xl">
+                    <div className="bg-white/80 backdrop-blur-xl p-8 sm:p-10 rounded-[32px] border border-white/50 shadow-[0_10px_30px_rgba(0,0,0,0.04)] flex flex-col">
+                        <div className="flex items-center gap-4 mb-10">
+                            <div className="w-12 h-12 bg-gradient-to-br from-slate-800 to-slate-900 text-white rounded-[16px] flex items-center justify-center shadow-lg">
                                 <Users size={20} />
                             </div>
-                            <h4 className="text-lg font-bold text-slate-800">Mentor Distribution</h4>
+                            <div>
+                                <h4 className="text-xl font-black text-slate-800 tracking-tight">Workforce Load</h4>
+                                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">Student-to-Mentor mapping</p>
+                            </div>
                         </div>
 
                         {/* Container with min-height and flexibility */}
@@ -404,13 +414,16 @@ const Dashboard = () => {
                     </div>
 
                     {/* Mentor Head Report Section */}
-                    <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm flex flex-col">
-                        <div className="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center gap-4 mb-6 sm:mb-10 w-full">
-                            <div className="flex items-center gap-3">
-                                <div className="p-2.5 bg-rose-50 text-rose-600 rounded-xl">
+                    <div className="bg-white/80 backdrop-blur-xl p-8 sm:p-10 rounded-[32px] border border-white/50 shadow-[0_10px_30px_rgba(0,0,0,0.04)] flex flex-col">
+                        <div className="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center gap-4 mb-10 w-full">
+                            <div className="flex items-center gap-4">
+                                <div className="w-12 h-12 bg-gradient-to-br from-[#F59E0B] to-[#D97706] text-white rounded-[16px] flex items-center justify-center shadow-lg shadow-[#F59E0B]/20">
                                     <ListTodo size={20} />
                                 </div>
-                                <h4 className="text-lg font-bold text-slate-800 italic uppercase">Daily Mentor Head Report</h4>
+                                <div>
+                                    <h4 className="text-xl font-black text-slate-800 tracking-tight">Daily Audit Pulse</h4>
+                                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">Mentor Head tracking</p>
+                                </div>
                             </div>
                         </div>
 
@@ -418,21 +431,21 @@ const Dashboard = () => {
                             {isMounted && mentorHeadReport.totalStudents > 0 ? (
                                 <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                                     <PieChart>
-                                        <Pie
+                                            <Pie
                                             data={[
-                                                { name: 'Checked Today', value: mentorHeadReport.checkedToday, color: '#008080' },
-                                                { name: 'Remaining', value: mentorHeadReport.remaining, color: '#008080' }
+                                                { name: 'Checked Today', value: mentorHeadReport.checkedToday, color: '#14B8A6' },
+                                                { name: 'Remaining', value: mentorHeadReport.remaining, color: '#F1F5F9' }
                                             ]}
                                             cx="50%"
                                             cy="50%"
-                                            innerRadius={80}
-                                            outerRadius={110}
+                                            innerRadius={85}
+                                            outerRadius={115}
                                             paddingAngle={8}
                                             dataKey="value"
                                         >
                                             {[
-                                                { name: 'Checked Today', value: mentorHeadReport.checkedToday, color: '#008080' },
-                                                { name: 'Remaining', value: mentorHeadReport.remaining, color: '#008080' }
+                                                { name: 'Checked Today', value: mentorHeadReport.checkedToday, color: '#14B8A6' },
+                                                { name: 'Remaining', value: mentorHeadReport.remaining, color: '#F1F5F9' }
                                             ].map((entry, index) => (
                                                 <Cell key={`cell-${index}`} fill={entry.color} />
                                             ))}
@@ -467,13 +480,16 @@ const Dashboard = () => {
             </div>
 
             {/* Performance Line Chart Section */}
-            <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm">
-                <div className="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center gap-4 mb-6 sm:mb-10 w-full">
-                    <div className="flex items-center gap-3">
-                        <div className="p-2.5 bg-emerald-50 text-emerald-600 rounded-xl">
+            <div className="bg-white/80 backdrop-blur-xl p-8 sm:p-10 rounded-[32px] border border-white/50 shadow-[0_10px_30px_rgba(0,0,0,0.04)]">
+                <div className="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center gap-6 mb-12 w-full">
+                    <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 bg-gradient-to-br from-[#10B981] to-[#059669] text-white rounded-[16px] flex items-center justify-center shadow-lg shadow-emerald-500/20">
                             <TrendingUp size={20} />
                         </div>
-                        <h4 className="text-lg font-bold text-slate-800 italic uppercase">Academic Performance Analytics</h4>
+                        <div>
+                            <h4 className="text-xl font-black text-slate-800 tracking-tight">Academic Momentum</h4>
+                            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">Success rate analytics</p>
+                        </div>
                     </div>
                 </div>
 
@@ -510,10 +526,10 @@ const Dashboard = () => {
                                     name="Success %"
                                     type="monotone"
                                     dataKey={examData.length > 0 ? "percentage" : "score"}
-                                    stroke="#008080"
-                                    strokeWidth={4}
-                                    dot={{ fill: '#008080', r: 6, strokeWidth: 2, stroke: '#fff' }}
-                                    activeDot={{ r: 8, strokeWidth: 0 }}
+                                    stroke="#14B8A6"
+                                    strokeWidth={5}
+                                    dot={{ fill: '#white', r: 7, strokeWidth: 4, stroke: '#14B8A6' }}
+                                    activeDot={{ r: 10, strokeWidth: 0, fill: '#14B8A6' }}
                                 />
                             </LineChart>
                         </ResponsiveContainer>

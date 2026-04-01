@@ -17,20 +17,29 @@ import {
     BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, Legend
 } from 'recharts';
 
-const StatCard = ({ title, value, icon: Icon, color, subtitle }) => (
-    <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-500 group flex-1">
-        <div className="flex flex-col gap-6">
-            <div className={`w-14 h-14 ${color} rounded-2xl flex items-center justify-center text-white shadow-lg`}>
-                <Icon size={28} />
-            </div>
-            <div>
-                <h3 className="text-4xl font-black text-slate-900 leading-none mb-2">{value}</h3>
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-tight">{title}</p>
-                {subtitle && <p className="text-[8px] font-bold text-slate-300 uppercase mt-1">{subtitle}</p>}
+const StatCard = ({ title, value, icon: Icon, color, subtitle }) => {
+    const isTeal = color.includes('008080') || color.includes('14B8A6');
+    const displayColor = isTeal ? 'bg-[#14B8A6]' : color;
+    
+    return (
+        <div className="bg-white/80 backdrop-blur-xl p-10 rounded-[40px] border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgba(0,0,0,0.08)] hover:-translate-y-2 transition-all duration-500 group relative overflow-hidden">
+            <div className={`absolute -right-4 -top-4 w-32 h-32 ${displayColor} opacity-[0.03] rounded-full blur-3xl group-hover:opacity-10 transition-opacity duration-700`}></div>
+            
+            <div className="flex flex-col gap-8 relative z-10">
+                <div className={`w-16 h-16 ${displayColor.replace('bg-', 'text-')} bg-slate-50/50 rounded-[24px] flex items-center justify-center border border-white transition-transform duration-500 group-hover:scale-110 group-hover:rotate-12 shadow-sm`}>
+                    <Icon size={32} strokeWidth={2.5} />
+                </div>
+                <div>
+                    <h3 className="text-5xl font-black text-slate-800 tabular-nums tracking-tighter leading-none mb-3">{value}</h3>
+                    <div className="space-y-1">
+                        <p className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] leading-none">{title}</p>
+                        {subtitle && <p className="text-[9px] font-bold text-slate-300 uppercase tracking-widest leading-none opacity-60 italic">{subtitle}</p>}
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
-);
+    );
+};
 
 const AcademicHeadDashboard = () => {
     const [loading, setLoading] = useState(true);
@@ -104,68 +113,74 @@ const AcademicHeadDashboard = () => {
     }
 
     return (
-        <div className="space-y-12 pb-20">
+        <div className="flex flex-col gap-10 pb-10">
             {/* Header Section */}
-            <div className="bg-white p-10 rounded-[3rem] border border-slate-100 shadow-sm">
-                <h2 className="text-3xl font-black text-slate-900 tracking-tighter uppercase italic">Academic Dashboard</h2>
-                <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest mt-2 flex items-center gap-2">
-                    <TrendingUp size={14} className="text-[#008080]" />
-                    Central monitoring of academic performance, student enrollment, and daily educational schedules
-                </p>
+            <div className="bg-white/70 backdrop-blur-xl p-12 rounded-[40px] border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.04)] flex flex-col md:flex-row justify-between items-center gap-10">
+                <div className="text-center md:text-left">
+                    <h2 className="text-5xl font-black text-slate-900 tracking-tighter leading-none mb-4 italic">Academic Engine</h2>
+                    <p className="text-slate-400 text-[11px] font-black uppercase tracking-[0.25em] flex items-center justify-center md:justify-start gap-3">
+                        <div className="w-2 h-2 rounded-full bg-[#14B8A6] animate-pulse shadow-[0_0_10px_rgba(20,184,166,0.5)]"></div>
+                        Unified Oversight & Educational Trajectory Pulse
+                    </p>
+                </div>
+                <div className="flex items-center gap-5 bg-slate-50/50 px-8 py-5 rounded-[24px] border border-slate-100/50 shadow-inner group">
+                    <Activity size={20} strokeWidth={3} className="text-[#14B8A6] group-hover:rotate-180 transition-transform duration-700" />
+                    <span className="text-xs font-black text-slate-600 uppercase tracking-[0.25em] italic leading-none">{new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}</span>
+                </div>
             </div>
 
             {/* KPI Row */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                 <StatCard
-                    title="Active Students"
-                    subtitle="Overall enrollment"
+                    title="Active Enrollment"
+                    subtitle="Integrated Nexus"
                     value={data.stats.totalStudents}
                     icon={Users}
                     color="bg-slate-900"
                 />
                 <StatCard
-                    title="Faculty Leads"
-                    subtitle="Academic staff"
+                    title="Academic Staff"
+                    subtitle="Lead Faculties"
                     value={data.stats.totalFaculties}
                     icon={ShieldCheck}
-                    color="bg-[#008080]"
+                    color="bg-[#14B8A6]"
                 />
                 <StatCard
-                    title="Mentor Network"
-                    subtitle="Operational mentors"
+                    title="Mentor Force"
+                    subtitle="Field Operations"
                     value={data.stats.totalMentors}
                     icon={UserCheck}
-                    color="bg-emerald-500"
+                    color="bg-[#10B981]"
                 />
                 <StatCard
-                    title="Faculties Name"
-                    subtitle="Live interactions"
+                    title="Active Pulse"
+                    subtitle="Live Interactions"
                     value={data.stats.todaySessions}
                     icon={Clock}
-                    color="bg-rose-500"
+                    color="bg-[#EF4444]"
                 />
             </div>
 
             {/* Exam Analytics Graph Section */}
-            <section className="bg-white rounded-[3rem] border border-slate-100 shadow-sm p-10 animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-200">
-                <div className="flex justify-between items-center mb-10">
+            <section className="bg-white/80 backdrop-blur-xl rounded-[40px] border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.04)] p-12 animate-in fade-in slide-in-from-bottom-8 duration-1000">
+                <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8 mb-16">
                     <div>
-                        <h3 className="text-xl font-black text-slate-900 tracking-tight italic uppercase">Individual Performance Analysis</h3>
-                        <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mt-1">Select a student to view their marks</p>
+                        <h3 className="text-3xl font-black text-slate-900 tracking-tighter italic uppercase leading-none mb-3">Sovereign Performance Audit</h3>
+                        <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.25em]">Multi-subject assessment trajectory vector</p>
                     </div>
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-5 w-full lg:w-auto">
                         <select 
                             value={selectedStudent} 
                             onChange={handleStudentChange}
-                            className="bg-slate-50 border border-slate-200 text-slate-700 text-sm rounded-xl px-4 py-3 font-bold focus:outline-none focus:ring-2 focus:ring-[#008080] cursor-pointer min-w-[200px]"
+                            className="flex-1 lg:min-w-[280px] bg-slate-50/80 border border-slate-100 text-slate-800 text-xs rounded-[20px] px-6 py-4 font-black uppercase tracking-widest focus:outline-none focus:ring-4 focus:ring-[#14B8A6]/5 cursor-pointer shadow-inner appearance-none transition-all"
                         >
-                            <option value="">Overview (Class Average)</option>
+                            <option value="">Global Class Average</option>
                             {students.map(student => (
                                 <option key={student.id} value={student.id}>{student.name}</option>
                             ))}
                         </select>
-                        <div className="w-12 h-12 bg-[#008080]/10 rounded-2xl flex items-center justify-center text-[#008080] shrink-0">
-                            <TrendingUp size={24} />
+                        <div className="w-14 h-14 bg-[#14B8A6]/10 rounded-[20px] border border-[#14B8A6]/20 flex items-center justify-center text-[#14B8A6] shrink-0 shadow-sm">
+                            <TrendingUp size={28} />
                         </div>
                     </div>
                 </div>
@@ -194,13 +209,13 @@ const AcademicHeadDashboard = () => {
                                 />
                                 <Legend wrapperStyle={{ paddingTop: '20px', fontSize: '10px', fontWeight: 'bold', textTransform: 'uppercase' }} />
                                 <Bar
-                                    name="Success Percentage (%)"
+                                    name="Success Coefficient"
                                     dataKey="percentage"
-                                    radius={[15, 15, 0, 0]}
+                                    radius={[12, 12, 0, 0]}
                                     barSize={60}
                                 >
                                     {data.examAnalytics.map((entry, index) => (
-                                        <Cell key={`cell-${index}`} fill={entry.percentage > 50 ? '#008080' : '#00b3b3'} />
+                                        <Cell key={`cell-${index}`} fill={entry.percentage > 75 ? '#14B8A6' : entry.percentage > 50 ? '#6366F1' : '#F59E0B'} fillOpacity={0.8} />
                                     ))}
                                 </Bar>
                             </BarChart>
@@ -215,16 +230,16 @@ const AcademicHeadDashboard = () => {
             </section>
 
             {/* Today's Schedule Section */}
-            <section className="bg-white rounded-[3rem] border border-slate-100 shadow-sm overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-300">
-                <div className="p-10 border-b border-slate-50 flex justify-between items-center">
-                    <div>
-                        <h3 className="text-xl font-black text-slate-900 tracking-tight">Today's Academic Schedule</h3>
-                        <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mt-1">Live session monitoring & oversight</p>
+            <section className="bg-white/80 backdrop-blur-xl rounded-[40px] border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.04)] overflow-hidden animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-200">
+                <div className="p-12 border-b border-slate-50 flex flex-col sm:flex-row justify-between items-center gap-6">
+                    <div className="text-center sm:text-left">
+                        <h3 className="text-3xl font-black text-slate-900 tracking-tighter italic uppercase leading-none mb-3">Academic Timeline</h3>
+                        <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.25em]">Live session synchronization protocols</p>
                     </div>
                     <div className="flex items-center gap-4">
-                        <div className="bg-emerald-50 px-4 py-2 rounded-xl flex items-center gap-2">
-                            <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
-                            <span className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">Live Tracking</span>
+                        <div className="bg-[#10B981]/10 border border-[#10B981]/20 px-6 py-3 rounded-full flex items-center gap-3 backdrop-blur-sm shadow-sm group">
+                            <div className="w-2 h-2 bg-[#10B981] rounded-full animate-ping opacity-60"></div>
+                            <span className="text-[10px] font-black text-[#10B981] uppercase tracking-[0.2em] group-hover:tracking-[0.3em] transition-all">Satellite Mode Active</span>
                         </div>
                     </div>
                 </div>
@@ -255,12 +270,12 @@ const AcademicHeadDashboard = () => {
                                         <tr key={session.id} className="group hover:bg-slate-50/80 transition-all duration-300">
                                             <td className="px-8 py-6 first:rounded-l-[2rem]">
                                                 <div className="flex items-center gap-3">
-                                                    <div className="w-10 h-10 bg-[#008080]/10 rounded-2xl flex items-center justify-center text-[#008080] border border-[#008080]/50">
-                                                        <Clock size={16} />
+                                                    <div className="w-12 h-12 bg-[#14B8A6]/5 rounded-[18px] flex items-center justify-center text-[#14B8A6] border border-[#14B8A6]/10 group-hover:bg-[#14B8A6] group-hover:text-white transition-all duration-500">
+                                                        <Clock size={18} strokeWidth={2.5} />
                                                     </div>
-                                                    <div className="flex flex-col">
-                                                        <span className="text-sm font-black text-slate-900">{session.start_time} - {session.end_time}</span>
-                                                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-tighter italic">Phase {idx + 1}</span>
+                                                    <div className="flex flex-col gap-0.5">
+                                                        <span className="text-base font-black text-slate-800 tracking-tight leading-none italic">{session.start_time} — {session.end_time}</span>
+                                                        <span className="text-[9px] font-black text-slate-300 uppercase tracking-[0.2em] leading-none">SECTOR_{idx + 1} ALPHA</span>
                                                     </div>
                                                 </div>
                                             </td>
@@ -288,9 +303,9 @@ const AcademicHeadDashboard = () => {
                                                     {session.status}
                                                 </span>
                                             </td>
-                                            <td className="px-8 py-6 text-right last:rounded-r-[2rem]">
-                                                <button className="w-10 h-10 bg-white border border-slate-200 rounded-xl flex items-center justify-center text-slate-400 hover:text-[#008080] hover:border-[#008080]/50 transition-all hover:shadow-lg shadow-slate-100 group-hover:-translate-x-1">
-                                                    <ChevronRight size={18} />
+                                            <td className="px-8 py-6 text-right last:rounded-r-[40px]">
+                                                <button className="w-12 h-12 bg-white border border-slate-100 rounded-2xl flex items-center justify-center text-slate-300 hover:text-[#14B8A6] hover:border-[#14B8A6]/40 transition-all hover:shadow-[0_10px_20px_rgba(20,184,166,0.15)] group-hover:-translate-x-2">
+                                                    <ChevronRight size={22} strokeWidth={3} />
                                                 </button>
                                             </td>
                                         </tr>
@@ -304,15 +319,16 @@ const AcademicHeadDashboard = () => {
 
             {/* Faculty Intelligence Feed */}
             <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
-                <div className="xl:col-span-2 bg-white rounded-[3rem] border border-slate-100 shadow-sm p-10">
-                    <div className="flex justify-between items-center mb-8">
-                        <div>
-                            <h3 className="text-xl font-black text-slate-900 tracking-tight">Recent Activity Logs</h3>
-                            <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mt-1">Daily interaction logs from Mentors and Faculties</p>
+                <div className="xl:col-span-2 bg-white/80 backdrop-blur-xl rounded-[40px] border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.04)] p-12 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-300">
+                    <div className="flex flex-col sm:flex-row justify-between items-center gap-8 mb-12">
+                        <div className="text-center sm:text-left">
+                            <h3 className="text-3xl font-black text-slate-900 tracking-tighter italic uppercase leading-none mb-3">Intelligence Feed</h3>
+                            <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.25em]">Multi-tier network activity synchronizer</p>
                         </div>
-                        <button className="p-3 bg-slate-50 rounded-2xl text-slate-400 hover:text-[#008080] transition-all">
-                            <Activity size={18} />
-                        </button>
+                        <div className="w-14 h-14 bg-slate-900 text-[#14B8A6] rounded-[22px] flex items-center justify-center shadow-2xl relative group">
+                            <div className="absolute inset-0 bg-[#14B8A6] opacity-0 group-hover:opacity-20 blur-xl transition-all duration-700"></div>
+                            <Activity size={24} strokeWidth={3} className="relative z-10" />
+                        </div>
                     </div>
 
                     <div className="space-y-6">
@@ -320,21 +336,23 @@ const AcademicHeadDashboard = () => {
                             <p className="text-center py-10 text-slate-400 font-bold italic">No activity recorded yet today.</p>
                         ) : (
                             data.activityFeed.map((activity, i) => (
-                                <div key={i} className="flex gap-6 p-6 rounded-[2rem] bg-slate-50/50 border border-slate-50 hover:border-[#008080]/50 hover:bg-white hover:shadow-xl transition-all duration-500 group">
-                                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 shadow-sm ${activity.type === 'Student Report' ? 'bg-[#008080] text-white' :
-                                        activity.type === 'Student Interaction' ? 'bg-emerald-500 text-white' :
-                                            'bg-purple-600 text-white'
+                                <div key={i} className="flex gap-8 p-8 rounded-[32px] bg-slate-50/40 border border-transparent hover:border-slate-100 hover:bg-white hover:shadow-[0_15px_40px_rgba(0,0,0,0.04)] transition-all duration-500 group relative overflow-hidden">
+                                    <div className="absolute top-0 right-0 w-24 h-24 bg-[#14B8A6]/5 rounded-bl-[40px] -mr-8 -mt-8 opacity-0 group-hover:opacity-100 transition-all duration-700"></div>
+                                    <div className={`w-14 h-14 rounded-[20px] flex items-center justify-center shrink-0 shadow-sm border border-white relative z-10 transition-transform group-hover:scale-110 group-hover:rotate-6 ${activity.type === 'Student Report' ? 'bg-[#14B8A6] text-white' :
+                                        activity.type === 'Student Interaction' ? 'bg-[#10B981] text-white' :
+                                            'bg-[#6366F1] text-white'
                                         }`}>
-                                        <ClipboardList size={20} />
+                                        <ClipboardList size={22} strokeWidth={2.5} />
                                     </div>
-                                    <div className="flex-1 min-w-0">
-                                        <div className="flex justify-between items-start mb-1">
-                                            <h4 className="font-black text-slate-900 truncate">{activity.type} for {activity.student_name}</h4>
-                                            <span className="text-[8px] font-black text-slate-300 uppercase shrink-0 ml-4">{new Date(activity.date).toLocaleString([], { hour: '2-digit', minute: '2-digit', day: '2-digit', month: 'short' })}</span>
+                                    <div className="flex-1 min-w-0 relative z-10">
+                                        <div className="flex flex-col sm:flex-row justify-between items-start mb-3 gap-2">
+                                            <h4 className="text-lg font-black text-slate-800 tracking-tight leading-none italic uppercase">{activity.type} — {activity.student_name}</h4>
+                                            <span className="text-[9px] font-black text-slate-400 bg-white border border-slate-100 px-3 py-1 rounded-full uppercase tracking-widest shrink-0">{new Date(activity.date).toLocaleString([], { hour: '2-digit', minute: '2-digit', day: '2-digit', month: 'short' })}</span>
                                         </div>
-                                        <p className="text-sm font-medium text-slate-600 line-clamp-1 italic mb-2">"{activity.details || 'No details'}"</p>
-                                        <div className="flex items-center gap-3">
-                                            <span className="text-[9px] font-black text-[#008080] uppercase tracking-widest">By: {activity.origin_name}</span>
+                                        <p className="text-sm font-bold text-slate-500 line-clamp-2 italic mb-4 leading-relaxed opacity-80 decoration-[#14B8A6]/30">"{activity.details || 'No meta-data compiled.'}"</p>
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-1.5 h-1.5 rounded-full bg-[#14B8A6]"></div>
+                                            <span className="text-[10px] font-black text-[#14B8A6] uppercase tracking-[0.2em]">ORIGIN: {activity.origin_name}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -359,15 +377,15 @@ const AcademicHeadDashboard = () => {
                         </div>
                     </div>
 
-                    <div className="bg-[#008080] p-10 rounded-[3rem] text-white flex flex-col justify-center relative overflow-hidden group shadow-2xl shadow-[#008080]/30">
-                        <div className="absolute left-0 bottom-0 w-48 h-48 bg-black/10 rounded-full -ml-10 -mb-10 blur-2xl group-hover:bg-black/20 transition-all duration-700"></div>
+                    <div className="bg-[#14B8A6] p-12 rounded-[40px] text-white flex flex-col justify-center relative overflow-hidden group shadow-2xl shadow-[#14B8A6]/30 hover:scale-[1.02] transition-all duration-700">
+                        <div className="absolute left-0 bottom-0 w-64 h-64 bg-black/10 rounded-full -ml-16 -mb-16 blur-3xl group-hover:bg-black/20 transition-all duration-700"></div>
                         <div className="relative z-10 flex items-center justify-between">
                             <div>
-                                <h4 className="text-2xl font-black mb-2 tracking-tight italic text-shadow-sm">System Status</h4>
-                                <p className="text-[#008080]/60 text-[10px] font-black uppercase tracking-widest max-w-[150px]">Advanced tracking systems fully operational.</p>
+                                <h4 className="text-3xl font-black mb-3 tracking-tighter italic uppercase leading-none">Sector Status</h4>
+                                <p className="text-white/70 text-[9px] font-black uppercase tracking-[0.25em] max-w-[180px] leading-relaxed">Multi-dimensional synchronization systems at peak efficiency.</p>
                             </div>
-                            <div className="w-16 h-16 bg-white/10 rounded-[1.5rem] border border-white/20 flex items-center justify-center backdrop-blur-md">
-                                <ShieldCheck size={32} className="text-white" />
+                            <div className="w-20 h-20 bg-white/10 rounded-[28px] border border-white/20 flex items-center justify-center backdrop-blur-xl group-hover:rotate-12 transition-transform duration-700">
+                                <ShieldCheck size={40} strokeWidth={2.5} className="text-white" />
                             </div>
                         </div>
                     </div>

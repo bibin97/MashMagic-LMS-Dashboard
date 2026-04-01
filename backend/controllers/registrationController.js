@@ -15,14 +15,19 @@ const registerStudent = async (req, res) => {
             time_table,
             mentor_name,
             faculty_name,
-            next_installment_date
+            next_installment_date,
+            enrollment_type
         } = req.body;
+
+        const badge = enrollment_type === 'Mentorship' ? 'Gold' : 
+                      enrollment_type === 'Tuition' ? 'Silver' : 
+                      enrollment_type === 'Mentorship and Tuition' ? 'Diamond' : null;
 
         const query = `
             INSERT INTO students (
                 name, grade, subject, course, hour, 
-                time_table, mentor_name, faculty_name, next_installment_date
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                time_table, mentor_name, faculty_name, next_installment_date, enrollment_type, badge
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `;
 
         const [studentResult] = await db.query(query, [
@@ -34,7 +39,9 @@ const registerStudent = async (req, res) => {
             JSON.stringify(time_table || {}),
             mentor_name || null,
             faculty_name || null,
-            next_installment_date || null
+            next_installment_date || null,
+            enrollment_type || null,
+            badge
         ]);
 
         const studentId = studentResult.insertId;

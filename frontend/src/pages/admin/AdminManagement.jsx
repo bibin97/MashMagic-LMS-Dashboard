@@ -121,23 +121,28 @@ const AdminManagement = () => {
     }
 
     return (
-        <div className="space-y-4 md:space-y-8 w-full max-w-full">
-            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 w-full">
-                <div>
-                    <h2 className="text-3xl font-black text-slate-900 tracking-tight uppercase italic flex items-center gap-3">
-                        <ShieldCheck className="text-[#008080]" size={32} />
-                        Admin Management
-                    </h2>
-                    <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-2 ml-1">
-                        Control system access and role management for the application
-                    </p>
+        <div className="flex flex-col gap-10 pb-10">
+            <div className="bg-white/70 backdrop-blur-xl p-12 rounded-[40px] border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.04)] flex flex-col md:flex-row justify-between items-center gap-10">
+                <div className="text-center md:text-left">
+                    <div className="flex flex-col md:flex-row items-center gap-8">
+                        <div className="w-20 h-20 bg-[#14B8A6] rounded-[28px] shadow-2xl shadow-[#14B8A6]/30 flex items-center justify-center group hover:rotate-12 transition-transform duration-700">
+                            <ShieldCheck className="text-white" size={36} strokeWidth={2.5} />
+                        </div>
+                        <div>
+                            <h2 className="text-5xl font-black text-slate-900 tracking-tighter leading-none mb-3 italic">Administrative Authority</h2>
+                            <p className="text-slate-400 text-[11px] font-black uppercase tracking-[0.25em] flex items-center justify-center md:justify-start gap-3 mt-1">
+                                <div className="w-2 h-2 rounded-full bg-[#14B8A6] animate-pulse"></div>
+                                System Access Control & Protocol Management
+                            </p>
+                        </div>
+                    </div>
                 </div>
                 <button
                     onClick={handleOpenCreate}
-                    className="bg-[#008080] text-white px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center gap-2 hover:bg-[#008080] transition-all shadow-xl shadow-[#008080]/30 active:scale-95"
+                    className="bg-gradient-to-br from-slate-800 to-slate-900 text-[#14B8A6] px-10 py-6 rounded-[24px] font-black text-[11px] uppercase tracking-[0.3em] flex items-center gap-4 hover:shadow-2xl hover:shadow-slate-900/20 hover:-translate-y-1 transition-all group"
                 >
-                    <UserPlus size={18} />
-                    <span>Create Sub Admin</span>
+                    <UserPlus size={20} strokeWidth={3} className="group-hover:scale-110 transition-transform" />
+                    <span>Authorize Sub-Admin</span>
                 </button>
             </div>
 
@@ -145,25 +150,28 @@ const AdminManagement = () => {
                 <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse">
                         <thead>
-                            <tr className="bg-slate-50 border-b border-slate-100">
-                                <th className="p-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Admin Details</th>
-                                <th className="p-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Contact</th>
-                                <th className="p-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</th>
-                                <th className="p-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Created Date</th>
-                                <th className="p-6 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Actions</th>
-                            </tr>
+                                <tr className="bg-slate-50/40 border-b border-slate-100/50">
+                                    <th className="p-8 text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] italic">Authority Profile</th>
+                                    <th className="p-8 text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] italic">Contact Vector</th>
+                                    <th className="p-8 text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] italic">Access State</th>
+                                    <th className="p-8 text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] italic">Activation Epoch</th>
+                                    <th className="p-8 text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] italic text-right">Verification Protocol</th>
+                                </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-50">
                             {subAdmins.map((admin) => (
                                 <tr key={admin.id} className="hover:bg-slate-50/50 transition-colors group">
-                                    <td className="p-6">
-                                        <div className="flex items-center gap-4">
-                                            <div className="w-10 h-10 bg-gradient-to-br from-[#008080] to-purple-600 rounded-xl flex items-center justify-center text-white font-black shadow-lg shadow-[#008080]">
+                                    <td className="p-8">
+                                        <div className="flex items-center gap-5">
+                                            <div className="w-14 h-14 bg-gradient-to-br from-[#14B8A6] to-slate-900 rounded-[20px] flex items-center justify-center text-white font-black shadow-xl shadow-[#14B8A6]/20 transition-transform group-hover:scale-110 group-hover:rotate-6">
                                                 {admin.name.charAt(0).toUpperCase()}
                                             </div>
                                             <div>
-                                                <span className="text-sm font-black text-slate-900 block">{admin.name}</span>
-                                                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Sub Admin</span>
+                                                <span className="text-lg font-black text-slate-800 block tracking-tighter leading-none italic uppercase group-hover:text-[#14B8A6] transition-colors mb-2">{admin.name}</span>
+                                                <div className="flex items-center gap-2">
+                                                    <Lock size={12} className="text-[#14B8A6] opacity-60" />
+                                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Management Node</span>
+                                                </div>
                                             </div>
                                         </div>
                                     </td>
@@ -173,10 +181,10 @@ const AdminManagement = () => {
                                             <span className="text-xs font-bold text-slate-400">{admin.phone_number || 'No Phone'}</span>
                                         </div>
                                     </td>
-                                    <td className="p-6">
-                                        <span className={`px-4 py-1.5 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-sm border ${admin.status === 'active'
-                                            ? 'bg-emerald-50 text-emerald-700 border-emerald-100'
-                                            : 'bg-rose-50 text-rose-700 border-rose-100'
+                                    <td className="p-8">
+                                        <span className={`px-6 py-2.5 rounded-[20px] text-[10px] font-black uppercase tracking-[0.2em] border shadow-sm transition-all group-hover:scale-105 ${admin.status === 'active'
+                                                ? 'bg-[#10B981]/10 text-[#10B981] border-[#10B981]/20'
+                                                : 'bg-[#EF4444]/10 text-[#EF4444] border-[#EF4444]/20'
                                             }`}>
                                             {admin.status}
                                         </span>
@@ -186,19 +194,19 @@ const AdminManagement = () => {
                                             {admin.created_at ? new Date(admin.created_at).toLocaleDateString('en-GB') : 'N/A'}
                                         </span>
                                     </td>
-                                    <td className="p-6 text-right">
-                                        <div className="flex items-center justify-end gap-2">
+                                    <td className="p-8 text-right">
+                                        <div className="flex items-center justify-end gap-3 translate-x-4 opacity-0 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-500">
                                             <button
                                                 onClick={() => handleOpenEdit(admin)}
-                                                className="w-10 h-10 rounded-xl flex items-center justify-center text-[#008080] hover:text-[#008080] hover:bg-[#008080]/10 transition-all border border-transparent hover:border-[#008080]"
+                                                className="w-12 h-12 rounded-[18px] flex items-center justify-center text-slate-300 hover:text-[#14B8A6] hover:bg-[#14B8A6]/10 transition-all border border-transparent hover:border-[#14B8A6]/20 active:scale-90"
                                             >
-                                                <Edit size={18} />
+                                                <Edit size={22} strokeWidth={2.5} />
                                             </button>
                                             <button
                                                 onClick={() => handleDelete(admin.id, admin.name)}
-                                                className="w-10 h-10 rounded-xl flex items-center justify-center text-rose-400 hover:text-rose-600 hover:bg-rose-50 transition-all border border-transparent hover:border-rose-100"
+                                                className="w-12 h-12 rounded-[18px] flex items-center justify-center text-slate-300 hover:text-rose-600 hover:bg-rose-50 transition-all border border-transparent hover:border-rose-100 active:scale-95"
                                             >
-                                                <Trash2 size={18} />
+                                                <Trash2 size={22} strokeWidth={2.5} />
                                             </button>
                                         </div>
                                     </td>

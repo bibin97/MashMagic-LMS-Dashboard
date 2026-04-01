@@ -116,8 +116,13 @@ const FacultyStudents = () => {
                                                     {student.name.charAt(0)}
                                                 </div>
                                                 <div>
-                                                    <p className="font-black text-slate-900 leading-none mb-1.5">{student.name}</p>
-                                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Undergraduate</p>
+                                                    <div className="flex items-center gap-2">
+                                                        <p className="font-black text-slate-900 leading-none mb-0.5">{student.name}</p>
+                                                        {student.badge === 'Gold' && <span title="Mentorship Plan" className="cursor-help text-base">🥇</span>}
+                                                        {student.badge === 'Silver' && <span title="Tuition Plan" className="cursor-help text-base">🥈</span>}
+                                                        {student.badge === 'Diamond' && <span title="Mentorship & Tuition Plan" className="cursor-help text-base">💎</span>}
+                                                    </div>
+                                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Undergraduate</p>
                                                 </div>
                                             </div>
                                         </td>
