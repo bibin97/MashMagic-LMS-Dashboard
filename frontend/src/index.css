@@ -60,3 +60,69 @@ body::-webkit-scrollbar,
   width: 0px;
   height: 0px;
 }
+
+body {
+  background: radial-gradient(circle at 50% 50%, #F8FAFC 0%, #E2E8F0 100%);
+  position: relative;
+  min-height: 100vh;
+  margin: 0;
+  overflow-x: hidden;
+  font-family: 'Poppins', sans-serif;
+}
+
+/* cinematic teal glow */
+body::before {
+  content: "";
+  position: fixed;
+  width: 90vw;
+  height: 90vh;
+  background: radial-gradient(circle, rgba(20,184,166,0.18), transparent 75%);
+  top: -15%;
+  left: -20%;
+  filter: blur(120px);
+  z-index: -1;
+  pointer-events: none;
+  animation: float-teal 20s infinite alternate ease-in-out;
+}
+
+/* cinematic yellow glow */
+body::after {
+  content: "";
+  position: fixed;
+  width: 80vw;
+  height: 80vh;
+  background: radial-gradient(circle, rgba(245,158,11,0.15), transparent 75%);
+  bottom: -15%;
+  right: -15%;
+  filter: blur(100px);
+  z-index: -1;
+  pointer-events: none;
+  animation: float-yellow 25s infinite alternate ease-in-out;
+}
+
+@keyframes float-teal {
+  0% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(100px, 50px) scale(1.1); }
+}
+
+@keyframes float-yellow {
+  0% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(-80px, -40px) scale(1.05); }
+}
+
+/* Glassmorphism utility */
+.glass {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(40px) saturate(180%);
+  -webkit-backdrop-filter: blur(40px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+/* Hidden scrollbars for clean UI */
+* {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+*::-webkit-scrollbar {
+  display: none;
+}
