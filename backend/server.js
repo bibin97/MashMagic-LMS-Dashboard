@@ -80,7 +80,7 @@ const startServer = async () => {
                     data_content TEXT,
                     registration_date DATE,
                     registration_time TIME,
-                    created_at TIMESTAMP DEFAULT CURRENT_VALUE
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 );`
             ];
             for (const migration of migrations) {

@@ -20,7 +20,7 @@ const AdminLayout = () => {
             
             <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
             
-            <div className="md:ml-64 flex-1 flex flex-col min-w-0 w-full transition-all duration-300">
+            <div className="md:ml-64 flex-1 flex flex-col min-w-0 w-full h-screen overflow-y-auto transition-all duration-300">
                 <Navbar onMenuClick={() => setIsSidebarOpen(true)} />
                 <main className="p-6 md:p-10 animate-in fade-in slide-in-from-bottom-8 duration-700 overflow-x-hidden w-full max-w-[100vw]">
                     <Outlet />

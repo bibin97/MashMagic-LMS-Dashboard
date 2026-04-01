@@ -112,7 +112,7 @@ const MentorHeadLayout = () => {
             </aside>
 
             {/* Main Content */}
-            <div className="flex-1 md:ml-64 flex flex-col min-w-0 w-full">
+            <div className="flex-1 md:ml-64 flex flex-col min-w-0 w-full h-screen overflow-y-auto">
                 <Navbar onMenuClick={() => setIsSidebarOpen(true)} />
                 <main className="p-6 md:p-10 min-h-screen animate-in fade-in slide-in-from-bottom-8 duration-700 overflow-x-hidden w-full max-w-[100vw]">
                     <Outlet />
