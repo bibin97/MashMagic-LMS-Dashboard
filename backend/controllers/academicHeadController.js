@@ -158,7 +158,7 @@ const getDropdownData = async (req, res) => {
 const registerStudent = async (req, res) => {
     try {
         const {
-            name, grade, mentorId, course, hour, nextInstallmentDate, admissionType,
+            name, email, password, grade, mentorId, course, hour, nextInstallmentDate, admissionType,
             registrationNumber, meetingLink, facultyHourlyRate, selectedSubjects
         } = req.body;
 
@@ -166,7 +166,24 @@ const registerStudent = async (req, res) => {
             return res.status(401).json({ success: false, message: "User session invalid. Please re-login." });
         }
 
-        // Fetch names for legacy columns if needed
+        // 1. Create User account for student first
+        const salt = await bcrypt.genSalt(10);
+        const passwordToHash = (password && password.trim() !== '') ? password.trim() : "student123";
+        const hashedPassword = await bcrypt.hash(passwordToHash, salt);
+
+        // Check if user already exists
+        const [existingUser] = await db.query('SELECT id FROM users WHERE email = ?', [email]);
+        if (existingUser.length > 0) {
+            return res.status(400).json({ success: false, message: "Email already registered as a user/student." });
+        }
+
+        const [userResult] = await db.query(
+            'INSERT INTO users (name, email, password, role, status, isApproved, isActive, registeredBy) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+            [name, email, hashedPassword, 'student', 'active', 1, 1, req.user.id]
+        );
+        const userId = userResult.insertId;
+
+        // 2. Fetch names for legacy columns
         let mentorName = null;
         let primaryFacultyId = null;
         let primaryFacultyName = null;
@@ -192,19 +209,20 @@ const registerStudent = async (req, res) => {
 
         const query = `
             INSERT INTO students (
-                name, grade, subject, course, hour, 
+                name, email, password, user_id, grade, subject, course, hour, 
                 mentor_id, mentor_name, faculty_id, faculty_name, next_installment_date,
                 time_table, status, onboarding_status, isApproved, registeredBy,
                 registration_number, meeting_link, faculty_hourly_rate, subjects_json, enrollment_type, badge
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, ?, ?, ?, ?)
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `;
 
         const [studentResult] = await db.query(query, [
-            name, grade, primarySubject, course, hour,
+            name, email, hashedPassword, userId, grade, primarySubject, course, hour,
             mentorId || null, mentorName, primaryFacultyId || null, primaryFacultyName, nextInstallmentDate || null,
             JSON.stringify({}), // Empty timetable initially
-            'pending', // This is global status (approval status)
+            'active', // Set to active since user is active
             onboardingStatus,
+            1, // Auto approved for consistency with user login
             req.user.id, // Registering user ID
             registrationNumber || null,
             meetingLink || null,

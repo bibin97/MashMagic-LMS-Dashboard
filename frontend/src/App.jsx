@@ -37,6 +37,7 @@ import StudentInteractionLog from './pages/Mentor/StudentInteractionLog';
 import FacultyInteractionLog from './pages/Mentor/FacultyInteractionLog';
 import Exams from './pages/Mentor/Exams';
 import AcademicSchedule from './pages/Mentor/AcademicSchedule';
+import StudentsData from './pages/Mentor/StudentsData';
 
 // Faculty Panel Pages
 import FacultyLayout from './components/Faculty/FacultyLayout';
@@ -84,9 +85,6 @@ import AcademicLiveMonitoring from './pages/AcademicHead/LiveMonitoring';
 // Mentor Head Additional Pages
 import FacultyDirectoryMentorHead from './pages/MentorHead/FacultyDirectory';
 import StudentsListMentorHead from './pages/AcademicHead/StudentsList'; // Reusing StudentsList logic for AH/MH if compatible, or I'll create a dedicated one if needed. Actually I created StudentsList.jsx in AH, I should check if it's reusable.
-
-// Student Placeholder
-import StudentDashboard from './pages/StudentDashboard';
 
 function App() {
   return (
@@ -206,18 +204,10 @@ function App() {
             <Route path="faculty-log" element={<FacultyInteractionLog />} />
             <Route path="exams" element={<Exams />} />
             <Route path="academic-schedule" element={<AcademicSchedule />} />
+            <Route path="students-data" element={<StudentsData />} />
             <Route path="profile" element={<AdminProfile />} />
           </Route>
 
-          {/* Student Routes (Minimal Placeholder) */}
-          <Route path="/student" element={
-            <ProtectedRoute allowedRoles={['student', 'user']}>
-              <AdminLayout />
-            </ProtectedRoute>
-          }>
-            <Route index element={<Navigate to="/student/dashboard" replace />} />
-            <Route path="dashboard" element={<StudentDashboard />} />
-          </Route>
 
           {/* Root Redirection Logic */}
           <Route path="/" element={<Navigate to="/login" replace />} />

@@ -845,6 +845,25 @@ const getAcademicSchedule = async (req, res) => {
     }
 };
 
+const getStudentDailyUpdates = async (req, res) => {
+    try {
+        const mentorId = req.user.id;
+        const { studentId } = req.params;
+        const [rows] = await db.query(`
+            SELECT *, 
+            DATE_FORMAT(registration_date, '%d-%m-%Y') as formatted_date,
+            DATE_FORMAT(registration_time, '%l:%i %p') as formatted_time
+            FROM student_daily_updates 
+            WHERE student_id = ? AND mentor_id = ? 
+            ORDER BY registration_date DESC, registration_time DESC
+        `, [studentId, mentorId]);
+        res.status(200).json({ success: true, data: rows });
+    } catch (error) {
+        console.error("Error fetching student daily updates:", error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
 module.exports = {
     getMentorDashboard,
     getMentorStudents,
@@ -869,5 +888,6 @@ module.exports = {
     getExamHistory,
     submitExamResult,
     logDailyHours,
-    getDailyHours
+    getDailyHours,
+    getStudentDailyUpdates
 };

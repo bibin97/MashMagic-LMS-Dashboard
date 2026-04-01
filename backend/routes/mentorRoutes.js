@@ -24,7 +24,8 @@ const {
     submitExamResult,
     logDailyHours,
     getDailyHours,
-    getAcademicSchedule
+    getAcademicSchedule,
+    getStudentDailyUpdates
 } = require('../controllers/mentorController');
 const { requireAuth } = require('../middleware/authMiddleware');
 const { requireRole } = require('../middleware/roleMiddleware');
@@ -55,6 +56,7 @@ router.post('/daily-hours', logDailyHours);
 router.get('/daily-hours/:studentId', getDailyHours);
 
 // Monitoring
+router.get('/students/:studentId/daily-updates', getStudentDailyUpdates);
 router.put('/students/:studentId/connection', toggleStudentConnection);
 router.put('/students/:studentId/onboard', completeOnboarding);
 router.post('/timetable/batch', createBatchTimetable);

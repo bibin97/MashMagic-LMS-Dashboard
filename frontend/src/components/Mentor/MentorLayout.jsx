@@ -13,6 +13,7 @@ import {
     User,
     GraduationCap,
     Menu,
+    ClipboardList,
     X
 } from 'lucide-react';
 import api from '../../services/api';
@@ -72,6 +73,7 @@ const MentorLayout = () => {
     const navItems = [
         { path: '/mentor/dashboard', icon: <LayoutDashboard size={18} />, label: 'Dashboard' },
         { path: '/mentor/students', icon: <Users size={18} />, label: 'My Students' },
+        { path: '/mentor/students-data', icon: <ClipboardList size={18} />, label: 'Students Data' },
         { path: '/mentor/tasks', icon: <ListTodo size={18} />, label: 'Tasks', badge: pendingTasksCount },
         { path: '/mentor/student-log', icon: <MessageSquare size={18} />, label: 'Student Logs' },
         { path: '/mentor/faculty-log', icon: <Contact size={18} />, label: 'Faculty Logs' },
@@ -79,6 +81,8 @@ const MentorLayout = () => {
         { path: '/mentor/academic-schedule', icon: <Calendar size={18} />, label: 'Academic Schedule' },
         { path: '/mentor/exams', icon: <GraduationCap size={18} />, label: 'Exams', badge: pendingExamsCount },
     ];
+
+
 
     const handleLogout = () => {
         logout();

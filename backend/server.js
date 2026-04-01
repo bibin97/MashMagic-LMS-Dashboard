@@ -9,6 +9,7 @@ dotenv.config();
 
 const authRoutes = require('./routes/authRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const studentRoutes = require('./routes/studentRoutes');
 
 const app = express();
 
@@ -27,6 +28,7 @@ app.use('/api/mentor-head', require('./routes/mentorHeadRoutes'));
 app.use('/api/mentor', require('./routes/mentorRoutes'));
 app.use('/api/academic-head', require('./routes/academicHeadRoutes'));
 app.use('/api/faculty', require('./routes/facultyRoutes'));
+app.use('/api/student', studentRoutes);
 
 // Basic Route
 app.get('/', (req, res) => {
@@ -67,7 +69,19 @@ const startServer = async () => {
                 'ALTER TABLE users ADD COLUMN next_installment_date VARCHAR(50) NULL;',
                 'ALTER TABLE users ADD COLUMN time_table JSON NULL;',
                 'ALTER TABLE users ADD COLUMN enrollment_type VARCHAR(100) NULL;',
-                'ALTER TABLE users ADD COLUMN badge VARCHAR(50) NULL;'
+                'ALTER TABLE users ADD COLUMN badge VARCHAR(50) NULL;',
+                'ALTER TABLE students ADD COLUMN email VARCHAR(255) NULL;',
+                'ALTER TABLE students ADD COLUMN password VARCHAR(255) NULL;',
+                'ALTER TABLE students ADD COLUMN user_id INT NULL;',
+                `CREATE TABLE IF NOT EXISTS student_daily_updates (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    student_id INT NOT NULL,
+                    mentor_id INT NOT NULL,
+                    data_content TEXT,
+                    registration_date DATE,
+                    registration_time TIME,
+                    created_at TIMESTAMP DEFAULT CURRENT_VALUE
+                );`
             ];
             for (const migration of migrations) {
                 try {
