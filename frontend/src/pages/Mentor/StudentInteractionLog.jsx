@@ -97,7 +97,6 @@ const StudentInteractionLog = () => {
         const file = e.target.files[0];
         if (!file) return;
 
-        // Check file size (5MB limit)
         if (file.size > 5 * 1024 * 1024) {
             toast.error("File size must be less than 5MB");
             return;
@@ -122,10 +121,12 @@ const StudentInteractionLog = () => {
         }
     };
 
+    const isDiamondCategory = (s) => s.badge === 'Diamond' || (s.enrollment_type && s.enrollment_type.toLowerCase() === 'both');
+    const isGoldCategory = (s) => (s.badge === 'Gold' || (s.enrollment_type && s.enrollment_type.toLowerCase() === 'mentorship')) && !isDiamondCategory(s);
+    const isSilverCategory = (s) => !isDiamondCategory(s) && !isGoldCategory(s);
+
     const isMentorshipStudent = (student) => {
-        if (!student) return false;
-        return student.badge === 'Diamond' || student.badge === 'Gold' || 
-               (student.enrollment_type && ['mentorship', 'both'].includes(student.enrollment_type.toLowerCase()));
+        return isDiamondCategory(student) || isGoldCategory(student);
     };
 
     const handleChange = (e) => {
@@ -247,8 +248,8 @@ const StudentInteractionLog = () => {
                         </h3>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {students.filter(s => s.badge === 'Diamond' || (s.enrollment_type && s.enrollment_type.toLowerCase() === 'both')).length > 0 ? (
-                            students.filter(s => s.badge === 'Diamond' || (s.enrollment_type && s.enrollment_type.toLowerCase() === 'both')).map(student => (
+                        {students.filter(isDiamondCategory).length > 0 ? (
+                            students.filter(isDiamondCategory).map(student => (
                                 <button
                                     key={student.id}
                                     onClick={() => handleStudentSelect(student)}
@@ -282,8 +283,8 @@ const StudentInteractionLog = () => {
                         </h3>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {students.filter(s => s.badge === 'Gold' || (s.enrollment_type && s.enrollment_type.toLowerCase() === 'mentorship')).length > 0 ? (
-                            students.filter(s => s.badge === 'Gold' || (s.enrollment_type && s.enrollment_type.toLowerCase() === 'mentorship')).map(student => (
+                        {students.filter(isGoldCategory).length > 0 ? (
+                            students.filter(isGoldCategory).map(student => (
                                 <button
                                     key={student.id}
                                     onClick={() => handleStudentSelect(student)}
@@ -317,8 +318,8 @@ const StudentInteractionLog = () => {
                         </h3>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {students.filter(s => s.badge !== 'Gold' && s.badge !== 'Diamond' && (!s.enrollment_type || s.enrollment_type.toLowerCase() === 'tuition')).length > 0 ? (
-                            students.filter(s => s.badge !== 'Gold' && s.badge !== 'Diamond' && (!s.enrollment_type || s.enrollment_type.toLowerCase() === 'tuition')).map(student => (
+                        {students.filter(isSilverCategory).length > 0 ? (
+                            students.filter(isSilverCategory).map(student => (
                                 <button
                                     key={student.id}
                                     onClick={() => handleStudentSelect(student)}
