@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Modal from '../../components/Modal';
+import MentorshipQuestionsForm from '../../components/Mentor/MentorshipQuestionsForm';
 
 const StudentInteractionLog = () => {
     const location = useLocation();
@@ -81,7 +82,12 @@ const StudentInteractionLog = () => {
     const fetchStudentLogs = async (studentId) => {
         try {
             const res = await api.get(`/mentor/students/${studentId}`);
-            setLogs(res.data.data.studentLogs);
+            const student = students.find(s => s.id === studentId) || selectedStudent;
+            if (isMentorshipStudent(student)) {
+                setLogs(res.data.data.mentorshipLogs || []);
+            } else {
+                setLogs(res.data.data.studentLogs || []);
+            }
         } catch (error) {
             toast.error("Failed to load student logs");
         }
@@ -114,6 +120,12 @@ const StudentInteractionLog = () => {
         } finally {
             setUploading(false);
         }
+    };
+
+    const isMentorshipStudent = (student) => {
+        if (!student) return false;
+        return student.badge === 'Diamond' || student.badge === 'Gold' || 
+               (student.enrollment_type && ['mentorship', 'both'].includes(student.enrollment_type.toLowerCase()));
     };
 
     const handleChange = (e) => {
@@ -380,6 +392,13 @@ const StudentInteractionLog = () => {
             </header>
 
             {!submitted ? (
+                isMentorshipStudent(selectedStudent) ? (
+                    <MentorshipQuestionsForm 
+                        selectedStudent={selectedStudent} 
+                        setSubmitted={setSubmitted} 
+                        fetchStudentLogs={fetchStudentLogs} 
+                    />
+                ) : (
                 <form onSubmit={handleSubmit} className="bg-white p-6 md:p-12 rounded-[3.5rem] shadow-xl shadow-slate-100 border border-slate-50 space-y-12">
 
                     {/* Section 1: Session Information */}
@@ -612,6 +631,7 @@ const StudentInteractionLog = () => {
                     </div>
 
                 </form>
+                )
             ) : (
                 <div className="space-y-8 animate-in fade-in zoom-in duration-300">
                     <div className="bg-emerald-50 border border-emerald-100 p-8 rounded-[3rem] text-center">
@@ -648,10 +668,10 @@ const StudentInteractionLog = () => {
                                             onClick={() => setViewLog(log)}
                                             className="border-b border-slate-50 hover:bg-slate-50 transition-colors cursor-pointer group"
                                         >
-                                            <td className="p-4 text-xs font-bold text-slate-700">{new Date(log.date).toLocaleDateString()}</td>
-                                            <td className="p-4 text-xs font-black text-slate-400">#{log.session_number}</td>
-                                            <td className="p-4 text-xs font-bold text-slate-600">{log.connection_method}</td>
-                                            <td className="p-4 text-xs font-bold text-[#008080]">{log.self_clarity}%</td>
+                                            <td className="p-4 text-xs font-bold text-slate-700">{new Date(log.date || log.session_date).toLocaleDateString()}</td>
+                                            <td className="p-4 text-xs font-black text-slate-400">#{log.session_number || log.id}</td>
+                                            <td className="p-4 text-xs font-bold text-slate-600">{log.connection_method || log.action_type}</td>
+                                            <td className="p-4 text-xs font-bold text-[#008080]">{log.self_clarity ? `${log.self_clarity}%` : log.student_status}</td>
                                             <td className="p-4 text-xs font-bold text-slate-400 group-hover:text-[#008080] transition-colors">
                                                 <MoreHorizontal size={16} />
                                             </td>
@@ -663,67 +683,102 @@ const StudentInteractionLog = () => {
                     </div>
 
                     {/* View Log Modal */}
-                    <Modal isOpen={!!viewLog} onClose={() => setViewLog(null)} title={`Interaction Log #${viewLog?.session_number}`} size="lg">
+                    <Modal isOpen={!!viewLog} onClose={() => setViewLog(null)} title={viewLog?.main_issue ? `Mentorship Log #${viewLog?.id}` : `Interaction Log #${viewLog?.session_number}`} size="lg">
                         {viewLog && (
                             <div className="space-y-8 p-2">
-                                <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-                                    <DetailRow label="Date" value={new Date(viewLog.date).toLocaleDateString()} />
-                                    <DetailRow label="Method" value={viewLog.connection_method} />
-                                    <DetailRow label="Student" value={selectedStudent.name} />
-                                    <DetailRow label="Status" value="Completed" highlight />
-                                </div>
-
-                                <div className="space-y-4">
-                                    <h4 className="text-xs font-black text-slate-900 uppercase tracking-[0.1em] border-l-4 border-[#008080] pl-3">Learning & Comprehension</h4>
-                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 bg-slate-50 p-6 rounded-3xl">
-                                        <DetailRow label="Self Clarity" value={`${viewLog.self_clarity}%`} highlight />
-                                        <DetailRow label="Can Solve Independently?" value={viewLog.can_solve_independently} />
-                                        <DetailRow label="Confusing Topic" value={viewLog.confusing_topic || 'None'} />
-                                    </div>
-                                </div>
-
-                                <div className="space-y-4">
-                                    <h4 className="text-xs font-black text-slate-900 uppercase tracking-[0.1em] border-l-4 border-amber-500 pl-3">Homework & Revision</h4>
-                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 bg-slate-50 p-6 rounded-3xl">
-                                        <DetailRow label="Homework Status" value={viewLog.homework_status} />
-                                        <DetailRow label="Difficulty" value={viewLog.homework_difficulty} />
-                                        <DetailRow label="Revision Quality" value={viewLog.revision_quality} />
-                                    </div>
-                                </div>
-
-                                <div className="space-y-4">
-                                    <h4 className="text-xs font-black text-slate-900 uppercase tracking-[0.1em] border-l-4 border-purple-500 pl-3">Performance & Emotion</h4>
-                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 bg-slate-50 p-6 rounded-3xl">
-                                        <DetailRow label="Confidence" value={`${viewLog.confidence}/5`} />
-                                        <DetailRow label="Motivation" value={viewLog.motivation_level} />
-                                        <DetailRow label="Anxiety" value={viewLog.exam_anxiety} />
-                                        <DetailRow label="Focus Level" value={viewLog.focus_level} />
-                                    </div>
-                                </div>
-
-                                <div className="space-y-4">
-                                    <h4 className="text-xs font-black text-slate-900 uppercase tracking-[0.1em] border-l-4 border-rose-500 pl-3">Requests & Actions</h4>
-                                    <div className="bg-slate-50 p-6 rounded-3xl space-y-6">
-                                        <DetailRow label="Student Requests" value={viewLog.student_requests || 'None'} />
-                                        <DetailRow label="Mentor Notes" value={viewLog.mentor_notes || 'None'} />
-                                        <div className="grid grid-cols-2 gap-6">
-                                            <DetailRow label="Parent Priority" value={viewLog.parent_update_priority} />
-                                            <DetailRow label="Action Needed" value={viewLog.mentor_action_needed} />
+                                {viewLog.main_issue ? (
+                                    <>
+                                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+                                            <DetailRow label="Date" value={new Date(viewLog.session_date).toLocaleDateString()} />
+                                            <DetailRow label="Main Issue" value={viewLog.main_issue} />
+                                            <DetailRow label="Student" value={selectedStudent.name} />
+                                            <DetailRow label="Status" value={viewLog.student_status} highlight />
                                         </div>
-                                        {viewLog.screenshot_url && (
-                                            <div className="pt-4 border-t border-slate-200">
-                                                <DetailRow
-                                                    label="Interaction Proof"
-                                                    value={
-                                                        <a href={viewLog.screenshot_url} target="_blank" rel="noreferrer" className="text-[#008080] hover:underline flex items-center gap-2">
-                                                            <ImageIcon size={14} /> View Document
-                                                        </a>
-                                                    }
-                                                />
+
+                                        <div className="space-y-4">
+                                            <h4 className="text-xs font-black text-slate-900 uppercase tracking-[0.1em] border-l-4 border-[#008080] pl-3">Diagnosis & Behavior</h4>
+                                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 bg-slate-50 p-6 rounded-3xl">
+                                                <DetailRow label="Weak Subject" value={viewLog.weak_subject || 'None'} />
+                                                <DetailRow label="Consistency (1-5)" value={viewLog.consistency_rating} />
+                                                <DetailRow label="Focus (1-5)" value={viewLog.focus_rating} highlight />
                                             </div>
-                                        )}
-                                    </div>
-                                </div>
+                                        </div>
+
+                                        <div className="space-y-4">
+                                            <h4 className="text-xs font-black text-slate-900 uppercase tracking-[0.1em] border-l-4 border-amber-500 pl-3">Action & Follow-up</h4>
+                                            <div className="bg-slate-50 p-6 rounded-3xl space-y-6">
+                                                <DetailRow label="Homework" value={viewLog.homework_status} />
+                                                <DetailRow label="Assigned Action" value={viewLog.action_type} />
+                                                <DetailRow label="Action Details" value={viewLog.action_details || 'None'} />
+                                                <div className="grid grid-cols-2 gap-6">
+                                                    <DetailRow label="Follow-up Required" value={viewLog.follow_up_required ? 'Yes' : 'No'} />
+                                                    {viewLog.follow_up_required && <DetailRow label="Date & Priority" value={`${new Date(viewLog.follow_up_date).toLocaleDateString()} (${viewLog.priority})`} />}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </>
+                                ) : (
+                                    <>
+                                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+                                            <DetailRow label="Date" value={new Date(viewLog.date).toLocaleDateString()} />
+                                            <DetailRow label="Method" value={viewLog.connection_method} />
+                                            <DetailRow label="Student" value={selectedStudent.name} />
+                                            <DetailRow label="Status" value="Completed" highlight />
+                                        </div>
+
+                                        <div className="space-y-4">
+                                            <h4 className="text-xs font-black text-slate-900 uppercase tracking-[0.1em] border-l-4 border-[#008080] pl-3">Learning & Comprehension</h4>
+                                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 bg-slate-50 p-6 rounded-3xl">
+                                                <DetailRow label="Self Clarity" value={`${viewLog.self_clarity}%`} highlight />
+                                                <DetailRow label="Can Solve Independently?" value={viewLog.can_solve_independently} />
+                                                <DetailRow label="Confusing Topic" value={viewLog.confusing_topic || 'None'} />
+                                            </div>
+                                        </div>
+
+                                        <div className="space-y-4">
+                                            <h4 className="text-xs font-black text-slate-900 uppercase tracking-[0.1em] border-l-4 border-amber-500 pl-3">Homework & Revision</h4>
+                                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 bg-slate-50 p-6 rounded-3xl">
+                                                <DetailRow label="Homework Status" value={viewLog.homework_status} />
+                                                <DetailRow label="Difficulty" value={viewLog.homework_difficulty} />
+                                                <DetailRow label="Revision Quality" value={viewLog.revision_quality} />
+                                            </div>
+                                        </div>
+
+                                        <div className="space-y-4">
+                                            <h4 className="text-xs font-black text-slate-900 uppercase tracking-[0.1em] border-l-4 border-purple-500 pl-3">Performance & Emotion</h4>
+                                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 bg-slate-50 p-6 rounded-3xl">
+                                                <DetailRow label="Confidence" value={`${viewLog.confidence}/5`} />
+                                                <DetailRow label="Motivation" value={viewLog.motivation_level} />
+                                                <DetailRow label="Anxiety" value={viewLog.exam_anxiety} />
+                                                <DetailRow label="Focus Level" value={viewLog.focus_level} />
+                                            </div>
+                                        </div>
+
+                                        <div className="space-y-4">
+                                            <h4 className="text-xs font-black text-slate-900 uppercase tracking-[0.1em] border-l-4 border-rose-500 pl-3">Requests & Actions</h4>
+                                            <div className="bg-slate-50 p-6 rounded-3xl space-y-6">
+                                                <DetailRow label="Student Requests" value={viewLog.student_requests || 'None'} />
+                                                <DetailRow label="Mentor Notes" value={viewLog.mentor_notes || 'None'} />
+                                                <div className="grid grid-cols-2 gap-6">
+                                                    <DetailRow label="Parent Priority" value={viewLog.parent_update_priority} />
+                                                    <DetailRow label="Action Needed" value={viewLog.mentor_action_needed} />
+                                                </div>
+                                                {viewLog.screenshot_url && (
+                                                    <div className="pt-4 border-t border-slate-200">
+                                                        <DetailRow
+                                                            label="Interaction Proof"
+                                                            value={
+                                                                <a href={viewLog.screenshot_url} target="_blank" rel="noreferrer" className="text-[#008080] hover:underline flex items-center gap-2">
+                                                                    <ImageIcon size={14} /> View Document
+                                                                </a>
+                                                            }
+                                                        />
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </>
+                                )}
                             </div>
                         )}
                     </Modal>

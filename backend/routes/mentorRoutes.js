@@ -22,11 +22,13 @@ const {
     getPendingExams,
     getExamHistory,
     submitExamResult,
-    logDailyHours,
-    getDailyHours,
-    getAcademicSchedule,
-    getStudentDailyUpdates
-} = require('../controllers/mentorController');
+     logDailyHours,
+     getDailyHours,
+     getAcademicSchedule,
+     getStudentDailyUpdates,
+     createMentorshipLog,
+     getMentorshipLogs
+ } = require('../controllers/mentorController');
 const { requireAuth } = require('../middleware/authMiddleware');
 const { requireRole } = require('../middleware/roleMiddleware');
 
@@ -66,5 +68,9 @@ router.get('/exams/pending', getPendingExams);
 router.get('/exams/history', getExamHistory);
 router.get('/academic-schedule', getAcademicSchedule);
 router.post('/exams/submit', submitExamResult);
+
+// Mentorship Logs
+router.post('/mentorship-log', createMentorshipLog);
+router.get('/mentorship-logs/:studentId', getMentorshipLogs);
 
 module.exports = router;

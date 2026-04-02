@@ -1,4 +1,4 @@
-const db = require('../config/db');
+﻿const db = require('../config/db');
 
 // @desc    Get mentor dashboard stats
 // @route   GET /api/mentor/dashboard
@@ -143,10 +143,6 @@ const getStudentDetails = async (req, res) => {
             WHERE student_id = ? 
             ORDER BY created_at DESC
         `, [studentId]);
-        
-        const [mentorshipLogs] = await db.query(`
-            SELECT * FROM mentorship_logs WHERE student_id = ? ORDER BY created_at DESC
-        `, [studentId]);
 
         res.status(200).json({
             success: true,
@@ -154,8 +150,7 @@ const getStudentDetails = async (req, res) => {
                 ...student[0],
                 timetable,
                 studentLogs,
-                facultyLogs,
-                mentorshipLogs
+                facultyLogs
             }
         });
     } catch (error) {
