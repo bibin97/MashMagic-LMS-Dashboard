@@ -238,28 +238,61 @@ const StudentInteractionLog = () => {
                     </div>
                 </div>
 
-                {/* Mentorship Program Area */}
+                {/* Category 1: Mentorship & Tuition (Diamond / Both) */}
                 <div className="space-y-6">
                     <div className="flex items-center gap-3 pl-2">
-                        <div className="w-4 h-8 bg-amber-400 rounded-full"></div>
+                        <div className="w-4 h-8 bg-purple-500 rounded-full"></div>
                         <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest">
-                            Mentorship Program Students
+                            Mentorship & Tuition (Diamond)
                         </h3>
                     </div>
-                    
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {students.filter(s => s.badge === 'Gold' || s.badge === 'Diamond').length > 0 ? (
-                            students.filter(s => s.badge === 'Gold' || s.badge === 'Diamond').map(student => (
+                        {students.filter(s => s.badge === 'Diamond' || (s.enrollment_type && s.enrollment_type.toLowerCase() === 'both')).length > 0 ? (
+                            students.filter(s => s.badge === 'Diamond' || (s.enrollment_type && s.enrollment_type.toLowerCase() === 'both')).map(student => (
                                 <button
                                     key={student.id}
                                     onClick={() => handleStudentSelect(student)}
-                                    className="bg-white p-6 md:p-8 rounded-[2.5rem] border border-slate-100 hover:shadow-xl hover:scale-[1.02] transition-all cursor-pointer group text-left relative overflow-hidden"
+                                    className="bg-white p-6 md:p-8 rounded-[2.5rem] border border-slate-100 hover:shadow-xl hover:shadow-purple-500/10 hover:border-purple-200 hover:scale-[1.02] transition-all cursor-pointer group text-left relative overflow-hidden"
                                 >
-                                    <div className="absolute top-0 right-0 w-24 h-24 bg-amber-50 rounded-full -mr-12 -mt-12 group-hover:bg-amber-400 group-hover:scale-150 transition-all duration-500 opacity-20"></div>
+                                    <div className="absolute top-0 right-0 w-24 h-24 bg-purple-50 rounded-full -mr-12 -mt-12 group-hover:bg-purple-100 group-hover:scale-150 transition-all duration-500 opacity-50"></div>
                                     <div className="flex items-center gap-2 mb-1 relative z-10">
                                         <h3 className="text-lg font-black text-slate-900">{student.name}</h3>
-                                        {student.badge === 'Gold' && <span>🥇</span>}
-                                        {student.badge === 'Diamond' && <span>💎</span>}
+                                        <span>💎</span>
+                                    </div>
+                                    <p className="text-xs font-bold text-slate-500 mb-4 relative z-10">{student.course} • {student.grade}</p>
+                                    <div className="flex items-center gap-2 text-purple-600 text-[10px] font-black uppercase tracking-widest relative z-10">
+                                        <span>Log Interaction</span> <ArrowLeft size={12} className="rotate-180" />
+                                    </div>
+                                </button>
+                            ))
+                        ) : (
+                            <div className="col-span-full py-10 text-center bg-slate-50 rounded-[2.5rem] border border-dashed border-slate-200">
+                                <p className="text-xs font-bold text-slate-400 uppercase tracking-widest italic">No students in this category.</p>
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                {/* Category 2: Mentorship Only (Gold) */}
+                <div className="space-y-6 pt-6">
+                    <div className="flex items-center gap-3 pl-2">
+                        <div className="w-4 h-8 bg-amber-400 rounded-full"></div>
+                        <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest pl-2">
+                            Mentorship Only (Gold)
+                        </h3>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {students.filter(s => s.badge === 'Gold' || (s.enrollment_type && s.enrollment_type.toLowerCase() === 'mentorship')).length > 0 ? (
+                            students.filter(s => s.badge === 'Gold' || (s.enrollment_type && s.enrollment_type.toLowerCase() === 'mentorship')).map(student => (
+                                <button
+                                    key={student.id}
+                                    onClick={() => handleStudentSelect(student)}
+                                    className="bg-white p-6 md:p-8 rounded-[2.5rem] border border-slate-100 hover:shadow-xl hover:shadow-amber-500/10 hover:border-amber-200 hover:scale-[1.02] transition-all cursor-pointer group text-left relative overflow-hidden"
+                                >
+                                    <div className="absolute top-0 right-0 w-24 h-24 bg-amber-50 rounded-full -mr-12 -mt-12 group-hover:bg-amber-100 group-hover:scale-150 transition-all duration-500 opacity-50"></div>
+                                    <div className="flex items-center gap-2 mb-1 relative z-10">
+                                        <h3 className="text-lg font-black text-slate-900">{student.name}</h3>
+                                        <span>🥇</span>
                                     </div>
                                     <p className="text-xs font-bold text-slate-500 mb-4 relative z-10">{student.course} • {student.grade}</p>
                                     <div className="flex items-center gap-2 text-amber-600 text-[10px] font-black uppercase tracking-widest relative z-10">
@@ -269,28 +302,27 @@ const StudentInteractionLog = () => {
                             ))
                         ) : (
                             <div className="col-span-full py-10 text-center bg-slate-50 rounded-[2.5rem] border border-dashed border-slate-200">
-                                <p className="text-xs font-bold text-slate-400 uppercase tracking-widest italic">No mentorship students assigned yet.</p>
+                                <p className="text-xs font-bold text-slate-400 uppercase tracking-widest italic">No students in this category.</p>
                             </div>
                         )}
                     </div>
                 </div>
 
-                {/* Other Students Area (Tuition only) */}
-                <div className="space-y-6 pt-10">
+                {/* Category 3: Tuition Only Phase 3 (Silver/Standard) */}
+                <div className="space-y-6 pt-6">
                     <div className="flex items-center gap-3 pl-2">
                         <div className="w-4 h-8 bg-slate-400 rounded-full"></div>
                         <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest pl-2">
-                            Other Students
+                            Tuition Only
                         </h3>
                     </div>
-
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {students.filter(s => s.badge !== 'Gold' && s.badge !== 'Diamond').length > 0 ? (
-                            students.filter(s => s.badge !== 'Gold' && s.badge !== 'Diamond').map(student => (
+                        {students.filter(s => s.badge !== 'Gold' && s.badge !== 'Diamond' && (!s.enrollment_type || s.enrollment_type.toLowerCase() === 'tuition')).length > 0 ? (
+                            students.filter(s => s.badge !== 'Gold' && s.badge !== 'Diamond' && (!s.enrollment_type || s.enrollment_type.toLowerCase() === 'tuition')).map(student => (
                                 <button
                                     key={student.id}
                                     onClick={() => handleStudentSelect(student)}
-                                    className="bg-white p-8 rounded-[2.5rem] border border-slate-100 hover:shadow-xl hover:scale-[1.02] transition-all cursor-pointer group text-left relative overflow-hidden opacity-80 hover:opacity-100"
+                                    className="bg-white p-6 md:p-8 rounded-[2.5rem] border border-slate-100 hover:shadow-xl hover:shadow-[#008080]/10 hover:border-[#008080]/30 hover:scale-[1.02] transition-all cursor-pointer group text-left relative overflow-hidden"
                                 >
                                     <div className="absolute top-0 right-0 w-24 h-24 bg-slate-50 rounded-full -mr-12 -mt-12 group-hover:bg-[#008080] group-hover:scale-150 transition-all duration-500 opacity-10"></div>
                                     <div className="flex items-center gap-2 mb-1 relative z-10">
@@ -299,13 +331,13 @@ const StudentInteractionLog = () => {
                                     </div>
                                     <p className="text-xs font-bold text-slate-500 mb-4 relative z-10">{student.course} • {student.grade}</p>
                                     <div className="flex items-center gap-2 text-slate-400 group-hover:text-[#008080] text-[10px] font-black uppercase tracking-widest relative z-10">
-                                        <span>Start Logging</span> <ArrowLeft size={12} className="rotate-180" />
+                                        <span>Log Interaction</span> <ArrowLeft size={12} className="rotate-180" />
                                     </div>
                                 </button>
                             ))
                         ) : (
                                 <div className="col-span-full py-10 text-center bg-slate-50 rounded-[2.5rem] border border-dashed border-slate-200">
-                                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest italic">No other students assigned.</p>
+                                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest italic">No students in this category.</p>
                                 </div>
                         )}
                     </div>

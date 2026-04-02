@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
-import { Camera, CheckCircle, Upload, Loader2, ImageIcon, Activity, BookOpen, Brain, Clock, HeartPulse, MoreHorizontal, Calendar, Star } from 'lucide-react';
+import { Camera, CheckCircle, Upload, Loader2, ImageIcon, Activity, BookOpen, Brain, Clock, HeartPulse, MoreHorizontal, Calendar, Star, Target } from 'lucide-react';
 
 const MentorshipQuestionsForm = ({ selectedStudent, setSubmitted, fetchStudentLogs }) => {
     const [loading, setLoading] = useState(false);
