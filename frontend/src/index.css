@@ -33,10 +33,95 @@ body,
 }
 
 html::-webkit-scrollbar,
-body::-webkit-scrollbar,
-#root::-webkit-scrollbar {
-  width: 0px;
-  height: 0px;
+body::-webkit-scrollbar {
+  display: none;
+}
+
+:root {
+  --primary: #14B8A6;
+  --primary-dark: #0D9488;
+  --secondary: #6366F1;
+  --accent: #818CF8;
+  --bg-slate: #F8FAFC;
+  --navy-dark: #0F172A;
+  --navy-deeper: #020617;
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply font-['Inter'] bg-slate-50 text-slate-900 antialiased;
+    background: radial-gradient(circle at top right, rgba(20, 184, 166, 0.05), transparent),
+                radial-gradient(circle at bottom left, rgba(99, 102, 241, 0.05), transparent),
+                #F8FAFC;
+  }
+}
+
+@layer components {
+  .glass-card {
+    @apply bg-white/70 backdrop-blur-xl border border-white/50 shadow-[0_8px_32px_rgba(0,0,0,0.04)] transition-all duration-500;
+  }
+  
+  .glass-card:hover {
+    @apply bg-white/80 border-white/80 shadow-[0_20px_48px_rgba(0,0,0,0.08)];
+  }
+
+  .premium-sidebar {
+    background: linear-gradient(180deg, #0F172A 0%, #020617 100%);
+  }
+
+  .nav-active-glow {
+    @apply relative overflow-hidden;
+  }
+
+  .nav-active-glow::before {
+    content: '';
+    @apply absolute inset-0 bg-teal-500/10 blur-xl opacity-0 transition-opacity duration-500;
+  }
+
+  .nav-active-glow.active::before {
+    @apply opacity-100;
+  }
+
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-600;
+  }
+
+  .glow-teal {
+    box-shadow: 0 0 20px rgba(20, 184, 166, 0.2);
+  }
+}
+
+/* Custom Scrollbar for Premium Feel */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-slate-200 rounded-full hover:bg-slate-300 transition-colors;
+}
+
+/* Page Load Animation */
+.page-transition {
+  animation: fadeInDown 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes enter {
