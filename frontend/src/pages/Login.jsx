@@ -96,8 +96,8 @@ const Login = () => {
                     <h1 className="text-5xl sm:text-6xl font-black tracking-tighter italic leading-none bg-gradient-to-br from-white via-white to-slate-500 bg-clip-text text-transparent">
                         MashMagic Hub
                     </h1>
-                    <p className="text-slate-500 font-bold mt-4 uppercase tracking-[0.4em] text-[10px]">
-                        Project Portfolio • Premium Auth
+                    <p className="text-[#008080] font-bold mt-4 uppercase tracking-[0.4em] text-[10px]">
+                        Enterprise Learning Management System
                     </p>
                 </div>
 
@@ -108,9 +108,9 @@ const Login = () => {
                     
                     {/* Dept Tabs Section - Pill Sliding Animation */}
                     <div className="p-1 sm:p-2 bg-slate-900/40 m-6 sm:m-8 rounded-[28px] flex gap-1 border border-white/5 relative">
-                        {/* Sliding Background */}
+                        {/* Sliding Background (Orange) */}
                         <div 
-                            className="absolute bg-teal-500/10 backdrop-blur-sm border border-teal-500/20 rounded-[22px] transition-all duration-500 ease-spring"
+                            className="absolute bg-[#f8ba2b]/10 backdrop-blur-sm border border-[#f8ba2b]/20 rounded-[22px] transition-all duration-500 ease-spring"
                             style={{
                                 width: 'calc(33.33% - 8px)',
                                 height: 'calc(100% - 16px)',
@@ -120,16 +120,16 @@ const Login = () => {
                         ></div>
 
                         {[
-                            { id: 'admin', label: 'Admin' },
-                            { id: 'mentor_dept', label: 'Mentor' },
-                            { id: 'academic_dept', label: 'Academic' }
+                            { id: 'admin', label: 'Admin Dept' },
+                            { id: 'mentor_dept', label: 'Mentor Dept' },
+                            { id: 'academic_dept', label: 'Academic Dept' }
                         ].map((dept) => (
                             <button
                                 key={dept.id}
                                 onClick={() => handleDepartmentChange(dept.id)}
                                 className={`flex-1 py-4 text-[10px] font-black uppercase tracking-widest transition-all rounded-[22px] relative z-10
                                     ${activeDepartment === dept.id 
-                                        ? 'text-teal-400' 
+                                        ? 'text-[#f8ba2b]' 
                                         : 'text-slate-500 hover:text-slate-300'}
                                 `}
                             >
@@ -142,7 +142,17 @@ const Login = () => {
                         {/* Sub-role Selector */}
                         <div className="flex justify-center mb-12 w-full">
                             {(activeDepartment === 'mentor_dept' || activeDepartment === 'academic_dept') && (
-                                <div className="bg-white/5 p-1 rounded-2xl flex gap-1 border border-white/5">
+                                <div className="bg-white/5 p-1 rounded-[20px] flex gap-1 border border-white/5 relative min-w-[300px]">
+                                    {/* Sliding Sub-role Background (Teal) */}
+                                    <div 
+                                        className="absolute bg-teal-500/10 backdrop-blur-sm border border-teal-500/20 rounded-[16px] transition-all duration-500 ease-spring"
+                                        style={{
+                                            width: 'calc(50% - 4px)',
+                                            height: 'calc(100% - 8px)',
+                                            left: (subRole === 'mentor_head' || subRole === 'academic_head') ? '4px' : 'calc(50% + 0px)',
+                                            top: '4px'
+                                        }}
+                                    ></div>
                                     {(activeDepartment === 'mentor_dept' 
                                         ? [{ id: 'mentor_head', label: 'Mentor Head' }, { id: 'mentor', label: 'Mentor' }]
                                         : [{ id: 'academic_head', label: 'Academic Head' }, { id: 'faculty', label: 'Faculty' }]
@@ -150,8 +160,8 @@ const Login = () => {
                                         <button
                                             key={role.id}
                                             onClick={() => handleSubRoleChange(role.id)}
-                                            className={`px-6 sm:px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all
-                                                ${subRole === role.id ? 'bg-white/10 text-white shadow-lg' : 'text-slate-500 hover:text-slate-300'}
+                                            className={`flex-1 px-6 sm:px-8 py-3 rounded-[16px] text-[10px] font-black uppercase tracking-wider transition-all relative z-10
+                                                ${subRole === role.id ? 'text-teal-400' : 'text-slate-500 hover:text-slate-300'}
                                             `}
                                         >
                                             {role.label}
@@ -226,20 +236,20 @@ const Login = () => {
                                     <button
                                         type="submit"
                                         disabled={isSubmitting}
-                                        className="w-full relative overflow-hidden group/btn bg-gradient-to-br from-orange-400 to-orange-600 text-white h-16 rounded-[24px] font-black text-[13px] uppercase tracking-[0.35em] transition-all hover:scale-[1.03] hover:shadow-[0_20px_40px_rgba(249,115,22,0.3)] active:scale-95 disabled:opacity-50 italic mt-4"
+                                        className="w-full relative overflow-hidden group/btn bg-[#f8ba2b] text-black h-16 rounded-[24px] font-black text-[13px] uppercase tracking-[0.35em] transition-all hover:scale-[1.03] hover:shadow-[0_20px_40px_rgba(248,186,43,0.3)] active:scale-95 disabled:opacity-50 italic mt-4"
                                     >
                                         {/* Shimmer Effect */}
-                                        <div className="absolute inset-x-[-100%] top-0 h-full bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-[-20deg] animate-shimmer"></div>
+                                        <div className="absolute inset-x-[-100%] top-0 h-full bg-gradient-to-r from-transparent via-black/10 to-transparent skew-x-[-20deg] animate-shimmer"></div>
                                         
                                         <div className="relative z-10 flex items-center justify-center gap-4">
                                             {isSubmitting ? (
                                                 <>
                                                     <Loader2 size={24} className="animate-spin" />
-                                                    <span>Authorizing...</span>
+                                                    <span>Logging in...</span>
                                                 </>
                                             ) : (
                                                 <>
-                                                    <span>Authorize Gateway</span>
+                                                    <span>LOGIN</span>
                                                     <ArrowRight size={20} className="transition-transform group-hover/btn:translate-x-2" strokeWidth={3} />
                                                 </>
                                             )}

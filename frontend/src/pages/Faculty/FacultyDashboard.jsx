@@ -127,7 +127,7 @@ const FacultyDashboard = () => {
             </div>
 
             {/* Charts Section */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+            <div className="grid grid-cols-1 gap-10">
                 {/* Performance Bar Chart */}
                 <div className="bg-white/80 backdrop-blur-xl p-10 md:p-12 rounded-[40px] border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.04)] hover:shadow-xl transition-all duration-700">
                     <div className="flex items-center justify-between mb-10">
@@ -142,10 +142,13 @@ const FacultyDashboard = () => {
                     <div className="h-[300px] w-full relative">
                         {mounted && stats && (
                             <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
-                                <BarChart data={stats?.charts?.performance || []}>
+                                <BarChart data={(stats?.charts?.performance || []).map(entry => ({
+                                    ...entry,
+                                    displayStatus: entry.status === 'Green' ? 'Good' : entry.status === 'Yellow' ? 'Average' : entry.status === 'Red' ? 'Poor' : entry.status
+                                }))}>
                                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                                     <XAxis
-                                        dataKey="status"
+                                        dataKey="displayStatus"
                                         axisLine={false}
                                         tickLine={false}
                                         tick={{ fill: '#94a3b8', fontSize: 10, fontWeight: 900 }}
@@ -161,9 +164,17 @@ const FacultyDashboard = () => {
                                         contentStyle={{ borderRadius: '20px', border: 'none', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)', fontWeight: 'bold' }}
                                     />
                                     <Bar dataKey="count" radius={[10, 10, 0, 0]} barSize={40}>
-                                        {stats?.charts?.performance?.map((entry, index) => (
-                                            <Cell key={`cell-${index}`} fill={entry.status === 'Green' ? '#14B8A6' : '#94a3b8'} fillOpacity={entry.status === 'Green' ? 1 : 0.3} />
-                                        ))}
+                                        {(stats?.charts?.performance || []).map((entry, index) => {
+                                            const fillColors = {
+                                                'Green': '#14B8A6',
+                                                'Yellow': '#F59E0B',
+                                                'Red': '#EF4444'
+                                            };
+                                            const fill = fillColors[entry.status] || '#94a3b8';
+                                            return (
+                                                <Cell key={`cell-${index}`} fill={fill} fillOpacity={0.8} />
+                                            );
+                                        })}
                                     </Bar>
                                 </BarChart>
                             </ResponsiveContainer>

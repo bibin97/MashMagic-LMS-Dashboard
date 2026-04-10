@@ -125,7 +125,7 @@ const StudentDetails = () => {
                             </div>
                             <div>
                                 <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-1">Status</p>
-                                <p className="font-bold text-lg">{data?.profile?.performance_status}</p>
+                                <p className="font-bold text-lg">{data?.profile?.performance_status === 'Green' ? 'Good' : data?.profile?.performance_status === 'Yellow' ? 'Average' : data?.profile?.performance_status === 'Red' ? 'Poor' : data?.profile?.performance_status}</p>
                             </div>
                             <div>
                                 <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-1">Contact</p>

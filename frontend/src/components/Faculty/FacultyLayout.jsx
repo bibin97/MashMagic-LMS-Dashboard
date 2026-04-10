@@ -32,8 +32,6 @@ const FacultyLayout = () => {
         { path: '/faculty/exam-scores', icon: <CheckSquare size={18} />, label: 'Exam Scores' },
         { path: '/faculty/student-logs', icon: <ClipboardList size={18} />, label: 'Student Logs' },
         { path: '/faculty/tasks', icon: <CheckSquare size={18} />, label: 'Tasks' },
-        { path: '/faculty/notifications', icon: <Bell size={18} />, label: 'Notifications' },
-        { path: '/faculty/profile', icon: <Settings size={18} />, label: 'Profile' },
     ];
 
     const handleLogout = () => {

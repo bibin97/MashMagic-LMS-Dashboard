@@ -43,9 +43,14 @@ const FacultyStudents = () => {
             Yellow: 'bg-amber-50 text-amber-600 border-amber-100',
             Red: 'bg-rose-50 text-rose-600 border-rose-100'
         };
+        const labels = {
+            Green: 'Good',
+            Yellow: 'Average',
+            Red: 'Poor'
+        };
         return (
             <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border ${colors[status] || colors.Green}`}>
-                {status}
+                {labels[status] || status}
             </span>
         );
     };
@@ -98,14 +103,13 @@ const FacultyStudents = () => {
                                 <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Department</th>
                                 <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Attendance</th>
                                 <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Performance</th>
-                                <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-50">
                             {loading ? (
                                 [1, 2, 3, 4, 5].map(i => (
                                     <tr key={i} className="animate-pulse">
-                                        <td colSpan="6" className="px-8 py-6"><div className="h-4 bg-slate-100 rounded w-full"></div></td>
+                                        <td colSpan="5" className="px-8 py-6"><div className="h-4 bg-slate-100 rounded w-full"></div></td>
                                     </tr>
                                 ))
                             ) : filteredStudents.length > 0 ? (
@@ -152,24 +156,11 @@ const FacultyStudents = () => {
                                         <td className="px-8 py-6">
                                             <StatusBadge status={student.performance_status || 'Green'} />
                                         </td>
-                                        <td className="px-8 py-6 text-right">
-                                            <div className="flex items-center justify-end gap-2">
-                                                <button
-                                                    onClick={() => navigate(`/faculty/students/${student.id}`)}
-                                                    className="px-6 py-2.5 bg-white border border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-600 hover:bg-[#008080] hover:text-white hover:border-[#008080] transition-all duration-500 shadow-sm"
-                                                >
-                                                    View Profile
-                                                </button>
-                                                <button className="p-2.5 text-slate-400 hover:text-slate-900 transition-colors">
-                                                    <MoreHorizontal size={18} />
-                                                </button>
-                                            </div>
-                                        </td>
                                     </tr>
                                 ))
                             ) : (
                                 <tr>
-                                    <td colSpan="6" className="px-8 py-20 text-center">
+                                    <td colSpan="5" className="px-8 py-20 text-center">
                                         <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center text-slate-300 mx-auto mb-6">
                                             <GraduationCap size={40} />
                                         </div>
