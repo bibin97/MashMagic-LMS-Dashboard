@@ -213,11 +213,8 @@ const Students = () => {
                 data={useMemo(() => sortStudentsByOption(filteredStudents, sortBy), [filteredStudents, sortBy])}
                 loading={loading}
                 onSearch={handleSearch}
-                onView={handleView}
                 onApprove={isSuperAdmin ? handleApprove : undefined}
                 onBlock={isSuperAdmin ? handleBlock : undefined}
-                onDelete={isSuperAdmin ? handleDelete : undefined}
-                onEdit={isSuperAdmin ? handleEdit : undefined}
                 searchPlaceholder="Search by name, email or reg #"
             />
 

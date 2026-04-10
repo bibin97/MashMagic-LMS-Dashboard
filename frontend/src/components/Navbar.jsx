@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Bell, Search, User, ShieldCheck, CheckCheck, Menu, LogOut, Settings, HelpCircle } from 'lucide-react';
+import { Bell, Search, User, ShieldCheck, CheckCheck, Menu, LogOut, Settings, HelpCircle, Activity } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import axios from 'axios';

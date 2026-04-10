@@ -4,7 +4,7 @@ import Modal from '../../components/Modal';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
 import { premiumConfirm } from '../../utils/premiumConfirm';
-import { Eye, Edit2, Ban, Trash2, Filter, Download, UserPlus, Search } from 'lucide-react';
+import { Eye, Edit2, Ban, Trash2, Filter, Download, UserPlus, Search, UserSquare2, GraduationCap } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 const Faculties = () => {
@@ -154,11 +154,8 @@ const Faculties = () => {
                 data={filteredFaculties}
                 loading={loading}
                 onSearch={handleSearch}
-                onView={handleView}
                 onApprove={isSuperAdmin ? handleApprove : undefined}
                 onBlock={isSuperAdmin ? handleBlock : undefined}
-                onDelete={isSuperAdmin ? handleDelete : undefined}
-                onEdit={isSuperAdmin ? handleEdit : undefined}
                 searchPlaceholder="Search leads by name or email..."
             />
 

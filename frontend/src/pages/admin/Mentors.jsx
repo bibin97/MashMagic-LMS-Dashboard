@@ -180,11 +180,8 @@ const Mentors = () => {
                 data={filteredMentors}
                 loading={loading}
                 onSearch={handleSearch}
-                onView={handleView}
                 onApprove={isSuperAdmin ? handleApprove : undefined}
                 onBlock={isSuperAdmin ? handleBlock : undefined}
-                onDelete={isSuperAdmin ? handleDelete : undefined}
-                onEdit={isSuperAdmin ? handleEdit : undefined}
                 searchPlaceholder="Filter mentors by name or email..."
             />
 
