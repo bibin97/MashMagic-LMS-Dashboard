@@ -121,7 +121,7 @@ const Login = () => {
                     <div className="w-[calc(100%-3rem)] sm:w-[calc(100%-4rem)] p-1 sm:p-2 bg-slate-900/40 mt-4 mx-6 sm:mx-8 mb-6 sm:mb-8 rounded-[28px] flex gap-1 border border-white/5 relative z-10">
                         {/* Sliding Background (Green) */}
                         <div 
-                            className="absolute bg-[#008080]/20 backdrop-blur-sm border border-[#008080]/30 rounded-[22px] transition-all duration-500 ease-spring"
+                            className="absolute bg-[#008080]/40 backdrop-blur-md border border-[#008080]/50 shadow-[0_0_15px_rgba(0,128,128,0.3)] rounded-[22px] transition-all duration-500 ease-spring"
                             style={{
                                 width: 'calc(33.33% - 8px)',
                                 height: 'calc(100% - 16px)',
@@ -156,7 +156,7 @@ const Login = () => {
                                 <div className="bg-white/5 p-1 rounded-[20px] flex gap-1 border border-white/5 relative min-w-[300px]">
                                     {/* Sliding Sub-role Background (Yellow) */}
                                     <div 
-                                        className="absolute bg-[#f8ba2b]/10 backdrop-blur-sm border border-[#f8ba2b]/20 rounded-[16px] transition-all duration-500 ease-spring"
+                                        className="absolute bg-[#f8ba2b]/30 backdrop-blur-md border border-[#f8ba2b]/50 shadow-[0_0_15px_rgba(248,186,43,0.3)] rounded-[16px] transition-all duration-500 ease-spring"
                                         style={{
                                             width: 'calc(50% - 4px)',
                                             height: 'calc(100% - 8px)',
@@ -208,7 +208,7 @@ const Login = () => {
                                                 type="text"
                                                 required
                                                 className="w-full p-5 pl-14 bg-white/5 border border-white/5 rounded-3xl text-sm font-bold text-white outline-none focus:bg-white/10 focus:border-teal-500/40 focus:ring-8 focus:ring-teal-500/5 transition-all"
-                                                placeholder={canSignup ? "node.access@mashmagic.com" : "Email or Phone"}
+                                                placeholder="Email or Phone"
                                                 value={formData.identifier}
                                                 onChange={handleChange}
                                             />
@@ -278,8 +278,8 @@ const Login = () => {
                 </div>
 
                 {/* Micro-copy Footer */}
-                <div className="mt-16 text-center">
-                    <p className="text-[10px] font-black uppercase tracking-[0.6em] text-slate-600 mix-blend-screen opacity-50">
+                <div className="mt-16 text-center pb-8">
+                    <p className="text-xs font-black uppercase tracking-widest text-[#f8ba2b] opacity-80">
                         MashMagic Secured Authorization v4.2 • End-to-End Encrypted
                     </p>
                 </div>
