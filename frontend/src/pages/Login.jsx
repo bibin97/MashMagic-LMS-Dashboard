@@ -93,24 +93,35 @@ const Login = () => {
                             <img src="/mashmagic logo.jpg" alt="Logo" className="w-full h-full object-contain rounded-lg brightness-110" />
                         </div>
                     </div>
-                    <h1 className="text-5xl sm:text-6xl font-black tracking-tighter italic leading-none bg-gradient-to-br from-white via-white to-slate-500 bg-clip-text text-transparent">
+                    <h1 className="text-5xl sm:text-6xl font-black tracking-tighter italic leading-none text-[#008080]">
                         MashMagic Hub
                     </h1>
-                    <p className="text-[#008080] font-bold mt-4 uppercase tracking-[0.4em] text-[10px]">
+                    <p className="text-[#f8ba2b] font-bold mt-4 uppercase tracking-[0.4em] text-xs">
                         Enterprise Learning Management System
                     </p>
                 </div>
 
                 {/* 2. Glassmorphic Container (The Card) */}
-                <div className="w-full bg-white/5 backdrop-blur-2xl rounded-[48px] shadow-[0_25px_80px_-12px_rgba(0,0,0,0.5)] border border-white/10 relative overflow-hidden group">
+                <div className="w-full bg-white/5 backdrop-blur-2xl rounded-[48px] shadow-[0_25px_80px_-12px_rgba(0,0,0,0.5)] border border-white/10 relative overflow-hidden group flex flex-col items-center">
                     {/* Refractive Inner Glow */}
                     <div className="absolute inset-0 bg-gradient-to-tr from-white/5 to-transparent pointer-events-none"></div>
                     
+                    {/* Vault Access (Moved Above Tabs) */}
+                    <div className="pt-10 pb-2 text-center relative z-10 w-full">
+                        <h2 className="text-4xl sm:text-5xl font-black tracking-tighter italic uppercase leading-tight text-[#008080]">
+                            Vault Access
+                        </h2>
+                        <p className="text-[#f8ba2b] text-xs font-black uppercase tracking-[0.3em] mt-4 flex items-center justify-center gap-3">
+                            <span className="w-2 h-2 rounded-full bg-[#f8ba2b] shadow-[0_0_10px_rgba(248,186,43,0.6)] animate-pulse"></span>
+                            Authorized Session Only
+                        </p>
+                    </div>
+
                     {/* Dept Tabs Section - Pill Sliding Animation */}
-                    <div className="p-1 sm:p-2 bg-slate-900/40 m-6 sm:m-8 rounded-[28px] flex gap-1 border border-white/5 relative">
-                        {/* Sliding Background (Orange) */}
+                    <div className="w-[calc(100%-3rem)] sm:w-[calc(100%-4rem)] p-1 sm:p-2 bg-slate-900/40 mt-4 mx-6 sm:mx-8 mb-6 sm:mb-8 rounded-[28px] flex gap-1 border border-white/5 relative z-10">
+                        {/* Sliding Background (Green) */}
                         <div 
-                            className="absolute bg-[#f8ba2b]/10 backdrop-blur-sm border border-[#f8ba2b]/20 rounded-[22px] transition-all duration-500 ease-spring"
+                            className="absolute bg-[#008080]/20 backdrop-blur-sm border border-[#008080]/30 rounded-[22px] transition-all duration-500 ease-spring"
                             style={{
                                 width: 'calc(33.33% - 8px)',
                                 height: 'calc(100% - 16px)',
@@ -129,8 +140,8 @@ const Login = () => {
                                 onClick={() => handleDepartmentChange(dept.id)}
                                 className={`flex-1 py-4 text-[10px] font-black uppercase tracking-widest transition-all rounded-[22px] relative z-10
                                     ${activeDepartment === dept.id 
-                                        ? 'text-[#f8ba2b]' 
-                                        : 'text-slate-500 hover:text-slate-300'}
+                                        ? 'text-[#008080]' 
+                                        : 'text-white hover:text-slate-200'}
                                 `}
                             >
                                 {dept.label}
@@ -143,9 +154,9 @@ const Login = () => {
                         <div className="flex justify-center mb-12 w-full">
                             {(activeDepartment === 'mentor_dept' || activeDepartment === 'academic_dept') && (
                                 <div className="bg-white/5 p-1 rounded-[20px] flex gap-1 border border-white/5 relative min-w-[300px]">
-                                    {/* Sliding Sub-role Background (Teal) */}
+                                    {/* Sliding Sub-role Background (Yellow) */}
                                     <div 
-                                        className="absolute bg-teal-500/10 backdrop-blur-sm border border-teal-500/20 rounded-[16px] transition-all duration-500 ease-spring"
+                                        className="absolute bg-[#f8ba2b]/10 backdrop-blur-sm border border-[#f8ba2b]/20 rounded-[16px] transition-all duration-500 ease-spring"
                                         style={{
                                             width: 'calc(50% - 4px)',
                                             height: 'calc(100% - 8px)',
@@ -161,7 +172,7 @@ const Login = () => {
                                             key={role.id}
                                             onClick={() => handleSubRoleChange(role.id)}
                                             className={`flex-1 px-6 sm:px-8 py-3 rounded-[16px] text-[10px] font-black uppercase tracking-wider transition-all relative z-10
-                                                ${subRole === role.id ? 'text-teal-400' : 'text-slate-500 hover:text-slate-300'}
+                                                ${subRole === role.id ? 'text-[#f8ba2b]' : 'text-white hover:text-slate-200'}
                                             `}
                                         >
                                             {role.label}
@@ -184,18 +195,8 @@ const Login = () => {
                                 </div>
                             </div>
                         ) : (
-                            <div className="animate-in fade-in slide-in-from-bottom-8 duration-700 flex-1 flex flex-col justify-center">
-                                <div className="mb-12 text-center">
-                                    <h2 className="text-4xl sm:text-5xl font-black text-white tracking-tighter italic uppercase leading-tight bg-gradient-to-b from-white to-slate-500 bg-clip-text text-transparent">
-                                        Vault Access
-                                    </h2>
-                                    <p className="text-slate-500 text-[10px] font-black uppercase tracking-[0.3em] mt-4 flex items-center justify-center gap-3">
-                                        <div className="w-2 h-2 rounded-full bg-teal-500 shadow-[0_0_10px_rgba(20,184,166,0.6)] animate-pulse"></div>
-                                        Authorized Session Only
-                                    </p>
-                                </div>
-
-                                <form onSubmit={handleSubmit} className="flex flex-col gap-8 w-full max-w-[380px] mx-auto">
+                            <div className="animate-in fade-in slide-in-from-bottom-8 duration-700 flex-1 flex flex-col justify-center w-full">
+                                <form onSubmit={handleSubmit} className="flex flex-col gap-8 w-full max-w-[380px] mx-auto pt-6">
                                     <div className="space-y-3">
                                         <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Credential ID</label>
                                         <div className="relative group">
