@@ -321,27 +321,43 @@ const getDailyMentorHeadReport = async (req, res) => {
         const { date } = req.query;
         const targetDate = date || new Date().toISOString().split('T')[0];
 
-        // Total Students (Overall)
-        const [totalRes] = await db.query('SELECT COUNT(*) as cnt FROM students');
-        const totalStudents = totalRes[0].cnt;
+        // Fetch all active students to calculate remaining
+        const [allStudents] = await db.query('SELECT id, name, registration_number FROM students WHERE status = "active"');
+        const totalStudents = allStudents.length;
 
-        // Fetch Mentor Heads and their verification counts
-        const [reportData] = await db.query(`
-            SELECT 
-                u.id as mentor_head_id,
-                u.name as mentor_head_name,
-                (SELECT COUNT(DISTINCT student_id) FROM student_verification WHERE mentor_head_id = u.id AND date = ?) as checkedToday
-            FROM users u
-            WHERE u.role = 'mentor_head'
-        `, [targetDate]);
+        // Fetch Mentor Heads
+        const [mentorHeads] = await db.query(`
+            SELECT id as mentor_head_id, name as mentor_head_name
+            FROM users 
+            WHERE role = 'mentor_head'
+        `);
 
-        const mappedData = reportData.map(rh => ({
-            date: targetDate,
-            mentorHeadName: rh.mentor_head_name,
-            totalStudents: totalStudents,
-            checkedToday: rh.checkedToday,
-            remaining: totalStudents - rh.checkedToday
-        }));
+        const mappedData = [];
+
+        for (const rh of mentorHeads) {
+            // Get checked students for this mentor head today
+            const [checkedRecords] = await db.query(`
+                SELECT DISTINCT s.id, s.name, s.registration_number
+                FROM student_verification v
+                JOIN students s ON v.student_id = s.id
+                WHERE v.mentor_head_id = ? AND v.date = ?
+            `, [rh.mentor_head_id, targetDate]);
+
+            // Calculate remaining
+            const checkedIds = new Set(checkedRecords.map(s => s.id));
+            const remainingRecords = allStudents.filter(s => !checkedIds.has(s.id));
+
+            mappedData.push({
+                mentorHeadId: rh.mentor_head_id,
+                date: targetDate,
+                mentorHeadName: rh.mentor_head_name,
+                totalStudents: totalStudents,
+                checkedToday: checkedRecords.length,
+                remaining: remainingRecords.length,
+                checkedStudents: checkedRecords,
+                remainingStudents: remainingRecords
+            });
+        }
 
         res.status(200).json({
             success: true,

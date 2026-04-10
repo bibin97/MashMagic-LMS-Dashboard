@@ -9,11 +9,16 @@ import {
     DownloadCloud
 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import Modal from '../../components/Modal';
 
 const DailyMentorHeadReport = () => {
     const [reportData, setReportData] = useState([]);
     const [loading, setLoading] = useState(true);
     const [filterDate, setFilterDate] = useState(new Date().toISOString().split('T')[0]);
+    
+    // Modal state
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedReport, setSelectedReport] = useState(null);
 
     useEffect(() => {
         fetchReport();
@@ -44,6 +49,11 @@ const DailyMentorHeadReport = () => {
                 error: 'Failed to download report',
             }
         );
+    };
+
+    const handleRowClick = (row) => {
+        setSelectedReport(row);
+        setIsModalOpen(true);
     };
 
     return (
@@ -106,13 +116,17 @@ const DailyMentorHeadReport = () => {
                                 </tr>
                             ) : (
                                 reportData.map((row, idx) => (
-                                    <tr key={idx} className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors group">
+                                    <tr 
+                                        key={idx} 
+                                        onClick={() => handleRowClick(row)}
+                                        className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors group cursor-pointer"
+                                    >
                                         <td className="p-4 text-xs font-bold text-slate-500">
                                             {new Date(row.date).toLocaleDateString()}
                                         </td>
                                         <td className="p-4">
                                             <div className="flex items-center gap-3">
-                                                <div className="w-8 h-8 rounded-full bg-[#008080]/10 text-[#008080] flex items-center justify-center font-black text-xs">
+                                                <div className="w-8 h-8 rounded-full bg-[#008080]/10 text-[#008080] flex items-center justify-center font-black text-xs group-hover:scale-110 transition-transform">
                                                     {row.mentorHeadName.charAt(0)}
                                                 </div>
                                                 <span className="text-sm font-bold text-slate-700">{row.mentorHeadName}</span>
@@ -143,6 +157,80 @@ const DailyMentorHeadReport = () => {
                     </table>
                 </div>
             </div>
+
+            <Modal 
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                title="Verification Details"
+                size="lg"
+            >
+                {selectedReport && (
+                    <div className="flex flex-col gap-6">
+                        <div className="bg-slate-50 border border-slate-100 rounded-[20px] p-6 flex justify-between items-center">
+                            <div>
+                                <h3 className="text-xl font-black text-slate-800 tracking-tight leading-none mb-1">{selectedReport.mentorHeadName}</h3>
+                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{new Date(selectedReport.date).toLocaleDateString()}</p>
+                            </div>
+                            <div className="flex gap-4">
+                                <span className="px-4 py-2 bg-emerald-100 text-emerald-700 rounded-xl text-xs font-black uppercase tracking-widest">
+                                    Checked: {selectedReport.checkedToday}
+                                </span>
+                                <span className="px-4 py-2 bg-rose-100 text-rose-700 rounded-xl text-xs font-black uppercase tracking-widest">
+                                    Remaining: {selectedReport.remaining}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            {/* Checked Students List */}
+                            <div className="flex flex-col gap-4">
+                                <h4 className="text-[11px] font-black text-emerald-600 uppercase tracking-widest flex items-center gap-2">
+                                    <CheckCircle2 size={14} /> Checked Students
+                                </h4>
+                                <div className="bg-white border border-emerald-100 rounded-2xl overflow-hidden max-h-[400px] overflow-y-auto custom-scrollbar">
+                                    {selectedReport.checkedStudents?.length > 0 ? (
+                                        <ul className="divide-y divide-emerald-50">
+                                            {selectedReport.checkedStudents.map(student => (
+                                                <li key={student.id} className="p-4 hover:bg-emerald-50/30 transition-colors flex flex-col gap-1">
+                                                    <span className="text-sm font-bold text-slate-700">{student.name}</span>
+                                                    <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest">{student.registration_number || 'No Reg #'}</span>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    ) : (
+                                        <div className="p-6 text-center text-[11px] font-black text-slate-300 uppercase tracking-widest">
+                                            No students checked
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Remaining Students List */}
+                            <div className="flex flex-col gap-4">
+                                <h4 className="text-[11px] font-black text-rose-600 uppercase tracking-widest flex items-center gap-2">
+                                    <ShieldAlert size={14} /> Remaining Students
+                                </h4>
+                                <div className="bg-white border border-rose-100 rounded-2xl overflow-hidden max-h-[400px] overflow-y-auto custom-scrollbar">
+                                    {selectedReport.remainingStudents?.length > 0 ? (
+                                        <ul className="divide-y divide-rose-50">
+                                            {selectedReport.remainingStudents.map(student => (
+                                                <li key={student.id} className="p-4 hover:bg-rose-50/30 transition-colors flex flex-col gap-1">
+                                                    <span className="text-sm font-bold text-slate-700">{student.name}</span>
+                                                    <span className="text-[10px] font-black text-rose-500 uppercase tracking-widest">{student.registration_number || 'No Reg #'}</span>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    ) : (
+                                        <div className="p-6 text-center text-[11px] font-black text-slate-300 uppercase tracking-widest">
+                                            All Complete
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </Modal>
         </div>
     );
 };
