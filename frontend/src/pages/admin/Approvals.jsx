@@ -10,7 +10,8 @@ import {
     ArrowUpRight,
     Mail,
     MapPin,
-    Phone
+    Phone,
+    UserCheck
 } from 'lucide-react';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
