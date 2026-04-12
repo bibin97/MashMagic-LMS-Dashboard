@@ -223,7 +223,7 @@ const Approvals = () => {
                 )}
             </div>
 
-            <div className="bg-gradient-to-br from-[#008080]/20 via-slate-950 to-slate-950 rounded-[2.5rem] p-10 text-white relative overflow-hidden border border-white/5">
+            <div className="bg-slate-950 rounded-[2.5rem] p-10 text-white relative overflow-hidden border border-white/5">
                 <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
                     <div className="max-w-md">
                         <h3 className="text-2xl font-black mb-2 tracking-tight text-[#008080]">Security Protocol Enforcement</h3>
@@ -243,8 +243,7 @@ const Approvals = () => {
                         </div>
                     </div>
                 </div>
-                <div className="absolute top-0 right-0 w-64 h-64 bg-[#008080]/10 rounded-full -mr-32 -mt-32 blur-3xl"></div>
-                <div className="absolute bottom-0 left-0 w-64 h-64 bg-[#008080]/5 rounded-full -ml-32 -mb-32 blur-3xl"></div>
+                </div>
             </div>
         </div>
     );
