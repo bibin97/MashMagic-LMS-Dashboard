@@ -54,8 +54,8 @@ const Sidebar = ({ isOpen, setIsOpen, isCollapsed, setIsCollapsed, navItems, tit
                 <div className="flex items-center justify-center w-full relative">
                     <div className={`transition-all duration-500 flex flex-col items-center ${isCollapsed ? 'w-full' : 'w-full'}`}>
                         {/* THE 'FULL' LOGO AREA */}
-                        <div className={`bg-white shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden transition-all duration-700 ${isCollapsed ? 'w-14 h-14 rounded-2xl' : 'w-full aspect-square rounded-[32px] mb-6 border-4 border-white/10'}`}>
-                            <img src="/mashmagic logo.jpg" alt="Logo" className="w-full h-full object-cover scale-110" />
+                        <div className={`bg-white shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden transition-all duration-700 ${isCollapsed ? 'w-14 h-14 rounded-2xl' : 'w-full h-32 rounded-[24px] mb-4 border-4 border-white/10'}`}>
+                            <img src="/mashmagic logo.jpg" alt="Logo" className="w-full h-full object-contain bg-black px-2" />
                         </div>
                         {!isCollapsed && (
                              <h1 className="text-2xl font-black text-white tracking-[0.2em] italic uppercase animate-in fade-in slide-in-from-top-6 duration-700 text-center drop-shadow-2xl">

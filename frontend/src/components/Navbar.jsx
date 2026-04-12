@@ -281,21 +281,6 @@ const Navbar = ({ onMenuClick }) => {
                                     </div>
                                     Profile Console
                                 </button>
-                                <button 
-                                    onClick={handleProfileClick}
-                                    className="w-full flex items-center gap-3.5 px-4 py-3.5 text-sm font-bold text-slate-600 hover:bg-slate-50 hover:text-[#14B8A6] rounded-[18px] transition-all group"
-                                >
-                                    <div className="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center group-hover:bg-[#14B8A6]/10 transition-all group-hover:rotate-45">
-                                        <Settings size={18} />
-                                    </div>
-                                    Protocol Matrix
-                                </button>
-                                <button className="w-full flex items-center gap-3.5 px-4 py-3.5 text-sm font-bold text-slate-600 hover:bg-slate-50 hover:text-[#14B8A6] rounded-[18px] transition-all group">
-                                    <div className="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center group-hover:bg-[#14B8A6]/10 transition-all group-hover:rotate-12">
-                                        <HelpCircle size={18} />
-                                    </div>
-                                    Support Node
-                                </button>
                                 <div className="my-3 mx-4 border-t border-slate-100/50"></div>
                                 <button 
                                     onClick={handleLogout}
