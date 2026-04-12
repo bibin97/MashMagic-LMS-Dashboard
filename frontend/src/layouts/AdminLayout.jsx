@@ -2,10 +2,38 @@ import React, { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import Navbar from '../components/Navbar';
+import { 
+    LayoutDashboard, 
+    UserCheck, 
+    Users, 
+    UserSquare2, 
+    GraduationCap, 
+    ListTodo, 
+    FileText, 
+    Target, 
+    ScrollText 
+} from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 const AdminLayout = () => {
+    const { user } = useAuth();
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-    const isAuthenticated = !!localStorage.getItem('token');
+    const [isCollapsed, setIsCollapsed] = useState(false);
+
+    const navItems = [
+        { path: '/admin/dashboard', icon: <LayoutDashboard size={20} />, label: 'Dashboard' },
+        { path: '/admin/admin-management', icon: <UserCheck size={20} />, label: 'Admins', superOnly: true },
+        { path: '/admin/approvals', icon: <UserCheck size={20} />, label: 'Approvals' },
+        { path: '/admin/students', icon: <Users size={20} />, label: 'Students' },
+        { path: '/admin/mentors', icon: <UserSquare2 size={20} />, label: 'Mentors' },
+        { path: '/admin/faculties', icon: <GraduationCap size={20} />, label: 'Faculties' },
+        { path: '/admin/staff', icon: <UserSquare2 size={20} />, label: 'Staff Management' },
+        { path: '/admin/tasks', icon: <ListTodo size={20} />, label: 'Tasks' },
+        { path: '/admin/reports', icon: <FileText size={20} />, label: 'Reports' },
+        { path: '/admin/live-monitoring', icon: <Target size={20} />, label: 'Live Classes' },
+        { path: '/admin/mentor-head-report', icon: <Target size={20} />, label: 'Mentor Head Report' },
+        { path: '/admin/logs', icon: <ScrollText size={20} />, label: 'Logs' },
+    ].filter(item => !item.superOnly || user?.role === 'super_admin');
 
     return (
         <div className="flex min-h-screen relative overflow-hidden" 
@@ -18,9 +46,16 @@ const AdminLayout = () => {
                 />
             )}
             
-            <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
+            <Sidebar 
+                isOpen={isSidebarOpen} 
+                setIsOpen={setIsSidebarOpen} 
+                isCollapsed={isCollapsed} 
+                setIsCollapsed={setIsCollapsed} 
+                navItems={navItems}
+                title="Admin Panel"
+            />
             
-            <div className="md:ml-64 flex-1 flex flex-col min-w-0 w-full h-screen overflow-y-auto transition-all duration-300">
+            <div className={`flex-1 flex flex-col min-w-0 w-full h-screen overflow-y-auto transition-all duration-300 ${isCollapsed ? 'md:ml-24' : 'md:ml-72'}`}>
                 <Navbar onMenuClick={() => setIsSidebarOpen(true)} />
                 <main className="p-6 md:p-10 animate-in fade-in slide-in-from-bottom-8 duration-700 overflow-x-hidden w-full max-w-[100vw]">
                     <Outlet />

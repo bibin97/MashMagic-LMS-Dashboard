@@ -1,293 +1,142 @@
-import React, { useState } from 'react';
-import { User, Mail, Shield, Smartphone, Camera, Save, Lock, AlertCircle, CheckCircle2 } from 'lucide-react';
+import React from 'react';
+import { User, Mail, Shield, Smartphone, Lock, AlertCircle } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-import axios from 'axios';
-import { toast } from 'react-hot-toast';
 
-const Profile = () => {
-    const { user, setAuthData } = useAuth();
-    const [isEditing, setIsEditing] = useState(false);
-    const [loading, setLoading] = useState(false);
+const ProfileConsole = () => {
+    const { user } = useAuth();
 
-    // Profile Data
-    const [formData, setFormData] = useState({
-        name: user?.name || '',
-        email: user?.email || '',
-        phone_number: user?.phone_number || '',
-    });
-
-    // Password Update Data
-    const [passwordData, setPasswordData] = useState({
-        currentPassword: '',
-        newPassword: '',
-        confirmPassword: ''
-    });
-
-    const handleProfileUpdate = async (e) => {
-        e.preventDefault();
-        setLoading(true);
-        try {
-            const token = localStorage.getItem('token');
-            // All users update using the same common endpoint (handled by /api/auth or similar)
-            // But we can reuse the user id based on role.
-            const res = await axios.put(`/api/admin/users/${user.id}`, {
-                ...formData,
-                role: user.role,
-                status: user.status
-            }, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-
-            if (res.data.success) {
-                setAuthData({
-                    token: localStorage.getItem('token'),
-                    user: { ...user, ...formData },
-                    role: user.role
-                });
-                toast.success('Identity Updated!', {
-                    icon: <CheckCircle2 className="text-[#008080]" />,
-                    style: { borderRadius: '20px', background: '#fff' }
-                });
-                setIsEditing(false);
-            }
-        } catch (error) {
-            toast.error(error.response?.data?.message || 'Failed to sync identity');
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handlePasswordChange = async (e) => {
-        e.preventDefault();
-        if (passwordData.newPassword !== passwordData.confirmPassword) {
-            return toast.error("New secret codes do not match!");
-        }
-        
-        setLoading(true);
-        try {
-            const token = localStorage.getItem('token');
-            // Use same password change logic for all roles
-            const res = await axios.put(`/api/admin/sub-admins/${user.id}`, {
-                ...formData,
-                password: passwordData.newPassword
-            }, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-
-            if (res.data.success) {
-                toast.success('Security Keys Rotated!');
-                setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
-            }
-        } catch (error) {
-            toast.error(error.response?.data?.message || 'Security breach during rotation');
-        } finally {
-            setLoading(false);
-        }
-    };
+    const DetailBlock = ({ icon: Icon, label, value, color = "text-slate-900" }) => (
+        <div className="bg-slate-50/50 p-6 rounded-[24px] border border-slate-100 group hover:bg-white hover:shadow-xl hover:shadow-slate-200/50 transition-all duration-500">
+            <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-[#008080] shadow-sm group-hover:scale-110 transition-transform">
+                    <Icon size={20} />
+                </div>
+                <div>
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">{label}</p>
+                    <p className={`text-sm font-black ${color} tracking-tight`}>{value || 'NOT DEFINED'}</p>
+                </div>
+            </div>
+        </div>
+    );
 
     return (
-        <div className="p-4 md:p-8 max-w-5xl mx-auto animate-in fade-in duration-700">
-            {/* Header */}
-            <div className="mb-10 text-center md:text-left">
-                <h1 className="text-3xl font-black text-slate-900 tracking-tight mb-2 uppercase italic italic">Control Center</h1>
-                <p className="text-slate-500 font-medium">Verify your credentials and secure your digital perimeter.</p>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                {/* Sidebar Card */}
-                <div className="lg:col-span-1 space-y-6">
-                    <div className="bg-white rounded-[32px] border border-slate-200 overflow-hidden shadow-xl shadow-slate-200/50">
-                        <div className="h-24 bg-gradient-to-br from-[#008080] to-teal-400 relative">
-                            <div className="absolute -bottom-12 left-1/2 -translate-x-1/2">
-                                <div className="relative group">
-                                    <div className="w-24 h-24 bg-slate-900 rounded-[28px] border-4 border-white flex items-center justify-center text-white shadow-lg overflow-hidden group-hover:scale-105 transition-transform">
-                                        <User size={40} className="opacity-80" />
-                                    </div>
-                                    <div className="absolute bottom-0 right-0 p-2 bg-[#008080] text-white rounded-xl shadow-md border-2 border-white">
-                                        <Shield size={12} />
-                                    </div>
-                                </div>
-                            </div>
+        <div className="p-4 md:p-12 max-w-6xl mx-auto animate-in fade-in slide-in-from-bottom-10 duration-1000">
+            {/* Header Area */}
+            <div className="flex flex-col md:flex-row justify-between items-center gap-10 mb-16 bg-white p-10 rounded-[48px] border border-slate-100 shadow-2xl shadow-slate-200/40 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-slate-50 rounded-full -mr-32 -mt-32 opacity-50"></div>
+                
+                <div className="flex items-center gap-8 relative z-10">
+                    <div className="relative group">
+                        <div className="w-28 h-28 bg-slate-900 rounded-[36px] overflow-hidden border-4 border-white shadow-2xl group-hover:rotate-6 transition-transform duration-500 flex items-center justify-center text-white">
+                            <User size={48} className="opacity-80" />
                         </div>
-                        <div className="pt-16 pb-8 px-6 text-center">
-                            <h2 className="text-xl font-black text-slate-900 mb-1">{user?.name}</h2>
-                            <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#008080]/10 text-[#008080] rounded-full text-[10px] font-black uppercase tracking-widest border border-[#008080]/10">
+                        <div className="absolute -bottom-2 -right-2 w-10 h-10 bg-[#008080] rounded-2xl border-4 border-white flex items-center justify-center text-white shadow-lg shadow-[#008080]/30 animate-pulse">
+                            <Shield size={16} />
+                        </div>
+                    </div>
+                    <div>
+                        <h1 className="text-4xl font-black text-slate-900 tracking-tighter uppercase italic">{user?.name}</h1>
+                        <div className="flex items-center gap-3 mt-3">
+                            <span className="px-4 py-1.5 bg-[#008080]/10 text-[#008080] rounded-full text-[10px] font-black uppercase tracking-widest border border-[#008080]/20">
                                 {user?.role?.replace('_', ' ')}
                             </span>
+                            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+                            <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest">Active Node</span>
                         </div>
-                        <div className="border-t border-slate-50 p-4 space-y-1">
-                            <div className="w-full flex items-center gap-3 px-4 py-3 text-xs font-black text-[#008080] bg-[#008080]/5 rounded-2xl uppercase tracking-widest">
-                                <User size={14} />
-                                Profile Data
+                    </div>
+                </div>
+
+                <div className="flex gap-4 relative z-10">
+                    <div className="bg-slate-50 px-6 py-4 rounded-[28px] border border-slate-100 text-center">
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Status</p>
+                        <p className="text-sm font-black text-emerald-600 uppercase">Verified</p>
+                    </div>
+                </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+                {/* Core Identity Panel */}
+                <div className="lg:col-span-2 space-y-8">
+                    <div className="bg-white p-10 rounded-[48px] border border-slate-100 shadow-2xl shadow-slate-200/30">
+                        <h3 className="text-xl font-black text-slate-900 uppercase italic tracking-tight mb-10 flex items-center gap-4">
+                            <div className="w-10 h-10 bg-[#008080]/10 rounded-xl flex items-center justify-center text-[#008080]">
+                                <User size={20} />
                             </div>
+                            Core Credentials
+                        </h3>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <DetailBlock icon={User} label="Assigned Identifier" value={user?.name} />
+                            <DetailBlock icon={Mail} label="Communication Terminal" value={user?.email} />
+                            <DetailBlock icon={Smartphone} label="Voice/Phone Link" value={user?.phone_number} />
+                            <DetailBlock icon={Shield} label="Protocol Authority" value={user?.role?.toUpperCase()} color="text-[#008080]" />
                         </div>
                     </div>
 
-                    <div className="bg-amber-50/50 border border-amber-200/50 rounded-3xl p-6">
-                        <div className="flex items-start gap-4">
-                            <div className="p-2 bg-amber-500/10 text-amber-600 rounded-xl">
-                                <AlertCircle size={20} />
+                    {/* System Information */}
+                    <div className="bg-slate-900 p-10 rounded-[48px] shadow-2xl shadow-slate-900/40 relative overflow-hidden group">
+                        <div className="absolute bottom-0 right-0 w-48 h-48 bg-white/5 rounded-full -mb-24 -mr-24 blur-3xl group-hover:bg-[#14B8A6]/10 transition-colors duration-1000"></div>
+                        <h3 className="text-xl font-black text-white uppercase italic tracking-tight mb-10 flex items-center gap-4">
+                            <div className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center text-white">
+                                <Lock size={20} />
+                            </div>
+                            Security Perimeter
+                        </h3>
+                        <div className="flex items-start gap-6 bg-white/5 p-8 rounded-[32px] border border-white/10">
+                            <div className="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center text-[#14B8A6] shrink-0">
+                                <AlertCircle size={24} />
                             </div>
                             <div>
-                                <h4 className="text-sm font-black text-amber-900 tracking-tight uppercase italic">Caution</h4>
-                                <p className="text-[10px] text-amber-700 font-bold leading-relaxed mt-1 uppercase">
-                                    Digital footprints are recorded. System access requires constant verification.
+                                <h4 className="text-lg font-black text-white uppercase italic mb-2">Protocol Monitoring</h4>
+                                <p className="text-slate-400 text-xs font-bold leading-relaxed uppercase tracking-tight">
+                                    This identity console is in high-security mode. Changes to core credentials must be requested through administrative protocols for security maintenance.
                                 </p>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                {/* Main Content Area */}
-                <div className="lg:col-span-2 space-y-8">
-                    {/* Identity Details */}
-                    <div className="bg-white rounded-[32px] border border-slate-200 p-8 shadow-xl shadow-slate-200/50">
-                        <div className="flex items-center justify-between mb-8">
-                            <h3 className="text-xl font-black text-slate-900 flex items-center gap-3 tracking-tight uppercase">
-                                <div className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center text-slate-500">
-                                    <User size={20} />
+                {/* Sidebar Stats/Info */}
+                <div className="space-y-8">
+                    <div className="bg-[#008080] p-10 rounded-[48px] shadow-2xl shadow-[#008080]/30 text-white relative overflow-hidden">
+                        <div className="absolute top-0 left-0 w-32 h-32 bg-white/10 rounded-full -ml-16 -mt-16 blur-2xl"></div>
+                        <h4 className="text-[10px] font-black uppercase tracking-[0.3em] mb-6 opacity-70">Session Health</h4>
+                        <div className="space-y-6">
+                            <div className="flex justify-between items-end border-b border-white/10 pb-4">
+                                <div>
+                                    <p className="text-[10px] font-black uppercase opacity-60">System Role</p>
+                                    <p className="text-lg font-black uppercase">{user?.role?.split('_')[0]}</p>
                                 </div>
-                                Identity Info
-                            </h3>
-                            <button 
-                                onClick={() => setIsEditing(!isEditing)}
-                                className={`px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
-                                    isEditing 
-                                        ? 'bg-slate-100 text-slate-500 hover:bg-slate-200' 
-                                        : 'bg-slate-900 text-white shadow-xl shadow-slate-900/10 hover:opacity-90'
-                                }`}
-                            >
-                                {isEditing ? 'Cancel' : 'Modify Access'}
-                            </button>
-                        </div>
-
-                        <form onSubmit={handleProfileUpdate} className="space-y-6">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Assigned Name</label>
-                                    <div className="relative">
-                                        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
-                                            <User size={16} />
-                                        </div>
-                                        <input 
-                                            type="text" 
-                                            disabled={!isEditing}
-                                            value={formData.name}
-                                            onChange={(e) => setFormData({...formData, name: e.target.value})}
-                                            className="w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold text-slate-900 focus:ring-4 focus:ring-[#008080]/10 focus:border-[#008080] transition-all disabled:opacity-50"
-                                        />
-                                    </div>
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Email Terminal</label>
-                                    <div className="relative">
-                                        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
-                                            <Mail size={16} />
-                                        </div>
-                                        <input 
-                                            type="email" 
-                                            disabled={!isEditing}
-                                            value={formData.email}
-                                            onChange={(e) => setFormData({...formData, email: e.target.value})}
-                                            className="w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold text-slate-900 focus:ring-4 focus:ring-[#008080]/10 focus:border-[#008080] transition-all disabled:opacity-50"
-                                        />
-                                    </div>
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Voice/Phone Link</label>
-                                    <div className="relative">
-                                        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
-                                            <Smartphone size={16} />
-                                        </div>
-                                        <input 
-                                            type="text" 
-                                            disabled={!isEditing}
-                                            value={formData.phone_number}
-                                            onChange={(e) => setFormData({...formData, phone_number: e.target.value})}
-                                            className="w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold text-slate-900 focus:ring-4 focus:ring-[#008080]/10 focus:border-[#008080] transition-all disabled:opacity-50"
-                                        />
-                                    </div>
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">System Permission</label>
-                                    <div className="relative">
-                                        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-[#008080]">
-                                            <Shield size={16} />
-                                        </div>
-                                        <input 
-                                            type="text" 
-                                            disabled
-                                            value={user?.role?.toUpperCase()}
-                                            className="w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-100 rounded-2xl text-[10px] font-black text-[#008080] tracking-widest opacity-80 cursor-not-allowed"
-                                        />
-                                    </div>
-                                </div>
+                                <Shield size={24} className="opacity-40" />
                             </div>
-
-                            {isEditing && (
-                                <button 
-                                    type="submit"
-                                    disabled={loading}
-                                    className="w-full md:w-auto flex items-center justify-center gap-3 px-8 py-4 bg-[#008080] text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-[#008080]/20 hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50"
-                                >
-                                    <Save size={18} />
-                                    Sync Metadata
-                                </button>
-                            )}
-                        </form>
+                            <div className="flex justify-between items-end border-b border-white/10 pb-4">
+                                <div>
+                                    <p className="text-[10px] font-black uppercase opacity-60">Permissions</p>
+                                    <p className="text-lg font-black uppercase">Standard</p>
+                                </div>
+                                <Lock size={24} className="opacity-40" />
+                            </div>
+                        </div>
+                        <div className="mt-10 p-4 bg-white/10 rounded-[28px] border border-white/10 text-center">
+                            <p className="text-[10px] font-black uppercase tracking-widest italic animate-pulse">Node Status: Nominal</p>
+                        </div>
                     </div>
 
-                    {/* Security Perimeter */}
-                    <div className="bg-white rounded-[32px] border border-slate-200 p-8 shadow-xl shadow-slate-200/50">
-                        <h3 className="text-xl font-black text-slate-900 flex items-center gap-3 tracking-tight uppercase mb-8">
-                            <div className="w-10 h-10 bg-rose-50 rounded-xl flex items-center justify-center text-rose-500">
-                                <Lock size={20} />
-                            </div>
-                            Security Perimeter
-                        </h3>
-
-                        <form onSubmit={handlePasswordChange} className="space-y-6">
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Active Secret</label>
-                                <input 
-                                    type="password" 
-                                    value={passwordData.currentPassword}
-                                    onChange={(e) => setPasswordData({...passwordData, currentPassword: e.target.value})}
-                                    className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold text-slate-900 focus:ring-4 focus:ring-rose-500/10 focus:border-rose-500 transition-all outline-none"
-                                    placeholder="••••••••"
-                                />
-                            </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">New Terminal Secret</label>
-                                    <input 
-                                        type="password" 
-                                        value={passwordData.newPassword}
-                                        onChange={(e) => setPasswordData({...passwordData, newPassword: e.target.value})}
-                                        className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold text-slate-900 focus:ring-4 focus:ring-[#008080]/10 focus:border-[#008080] transition-all outline-none"
-                                        placeholder="Min. 8 Chars"
-                                    />
+                    <div className="bg-white p-8 rounded-[40px] border border-slate-100 shadow-xl shadow-slate-200/50">
+                        <h4 className="text-xs font-black text-slate-900 uppercase tracking-widest mb-6 px-2">Recent Access</h4>
+                        <div className="space-y-4">
+                            {[1, 2].map(i => (
+                                <div key={i} className="flex items-center gap-4 p-4 bg-slate-50 rounded-3xl border border-slate-100 hover:bg-white hover:border-[#008080]/30 transition-all cursor-pointer group">
+                                    <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-slate-400 group-hover:text-[#008080] transition-colors shadow-sm">
+                                        <Activity size={18} />
+                                    </div>
+                                    <div>
+                                        <p className="text-[10px] font-black text-slate-900 uppercase tracking-tight">Login Successful</p>
+                                        <p className="text-[9px] font-bold text-slate-400 uppercase">{new Date().toLocaleDateString()} • System Terminal</p>
+                                    </div>
                                 </div>
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Re-Verify Key</label>
-                                    <input 
-                                        type="password" 
-                                        value={passwordData.confirmPassword}
-                                        onChange={(e) => setPasswordData({...passwordData, confirmPassword: e.target.value})}
-                                        className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold text-slate-900 focus:ring-4 focus:ring-[#008080]/10 focus:border-[#008080] transition-all outline-none"
-                                        placeholder="Repeat Secret"
-                                    />
-                                </div>
-                            </div>
-                            <button 
-                                type="submit"
-                                disabled={loading}
-                                className="w-full md:w-auto flex items-center justify-center gap-3 px-8 py-4 bg-slate-900 text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-slate-900/20 hover:scale-[1.02] active:scale-95 transition-all"
-                            >
-                                <Lock size={18} />
-                                Rotate Secret Key
-                            </button>
-                        </form>
+                            ))}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -295,4 +144,4 @@ const Profile = () => {
     );
 };
 
-export default Profile;
+export default ProfileConsole;

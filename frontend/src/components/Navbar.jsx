@@ -304,7 +304,7 @@ const Navbar = ({ onMenuClick }) => {
                                     <div className="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center transition-all group-hover:bg-white/20">
                                         <LogOut size={18} />
                                     </div>
-                                    Terminate
+                                    Logout
                                 </button>
                             </div>
                         </div>
