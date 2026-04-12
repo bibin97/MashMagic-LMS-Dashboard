@@ -223,7 +223,7 @@ const Approvals = () => {
                 )}
             </div>
 
-            <div className="bg-slate-950 rounded-[2.5rem] p-10 text-white relative overflow-hidden border border-white/5">
+            <div className="bg-gradient-to-br from-[#008080]/20 via-slate-950 to-slate-950 rounded-[2.5rem] p-10 text-white relative overflow-hidden border border-white/5">
                 <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
                     <div className="max-w-md">
                         <h3 className="text-2xl font-black mb-2 tracking-tight text-[#008080]">Security Protocol Enforcement</h3>
