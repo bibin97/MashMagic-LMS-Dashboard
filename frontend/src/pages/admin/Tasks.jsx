@@ -7,6 +7,8 @@ import { premiumConfirm } from '../../utils/premiumConfirm';
 import { useAuth } from '../../context/AuthContext';
 import { Plus, Calendar, Clock, AlertTriangle } from 'lucide-react';
 
+import FilterDropdown from '../../components/FilterDropdown';
+
 const Tasks = () => {
     const { user } = useAuth();
     const isSuperAdmin = user?.role === 'super_admin';
@@ -15,7 +17,7 @@ const Tasks = () => {
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [assignees, setAssignees] = useState([]);
-    const [filterPriority, setFilterPriority] = useState('All');
+    const [filterPriority, setFilterPriority] = useState('');
     const [formData, setFormData] = useState({
         title: '',
         description: '',
@@ -51,29 +53,21 @@ const Tasks = () => {
         setFilteredTasks(filtered);
     };
 
-    const handleFilter = () => {
-        const priorities = ['All', 'High', 'Medium', 'Low'];
-        const currentIndex = priorities.indexOf(filterPriority);
-        const nextIndex = (currentIndex + 1) % priorities.length;
-        const nextPriority = priorities[nextIndex];
-
-        setFilterPriority(nextPriority);
-
-        if (nextPriority === 'All') {
+    const handleFilterChange = (priority) => {
+        setFilterPriority(priority);
+        if (!priority) {
             setFilteredTasks(tasks);
         } else {
-            setFilteredTasks(tasks.filter(t => t.priority === nextPriority));
+            setFilteredTasks(tasks.filter(t => t.priority === priority));
         }
-
-        toast(`Filtering by: ${nextPriority} Priority`, {
-            icon: '🔍',
-            style: {
-                borderRadius: '10px',
-                background: '#333',
-                color: '#fff',
-            },
-        });
     };
+
+    const priorityOptions = [
+        { value: '', label: 'All Priorities' },
+        { value: 'High', label: 'High Priority' },
+        { value: 'Medium', label: 'Medium Priority' },
+        { value: 'Low', label: 'Low Priority' }
+    ];
 
     const handleExport = () => {
         if (filteredTasks.length === 0) {
@@ -232,7 +226,14 @@ const Tasks = () => {
                 data={filteredTasks}
                 loading={loading}
                 onSearch={handleSearch}
-                onFilter={handleFilter}
+                onFilter={
+                    <FilterDropdown
+                        value={filterPriority}
+                        onChange={handleFilterChange}
+                        options={priorityOptions}
+                        placeholder="Priority"
+                    />
+                }
                 onExport={handleExport}
                 onDelete={isSuperAdmin ? handleDelete : undefined}
                 searchPlaceholder="Filter tasks by objective or mentor..."

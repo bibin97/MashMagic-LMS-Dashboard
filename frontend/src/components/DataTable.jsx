@@ -33,20 +33,25 @@ const DataTable = ({
                 </div>
 
                 <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
-                    {useFilterDropdown ? (
+                    {onFilter ? (
+                        typeof onFilter === 'function' && !onFilterChange ? (
+                            <button
+                                onClick={onFilter}
+                                className="flex-1 lg:flex-none flex items-center justify-center gap-2.5 px-6 py-3.5 bg-white border border-slate-100 rounded-[18px] text-[11px] font-black uppercase tracking-widest text-slate-500 hover:bg-slate-50 hover:text-slate-900 transition-all shadow-sm active:scale-95 group"
+                            >
+                                <Filter size={16} className="text-slate-400 group-hover:rotate-12 transition-transform" />
+                                <span>Filters</span>
+                            </button>
+                        ) : (
+                            onFilter
+                        )
+                    ) : null}
+                    {useFilterDropdown && (
                         <StudentListFilterDropdown
                             value={filterValue}
                             onChange={onFilterChange}
                             className="flex-1 lg:flex-none w-full lg:w-auto min-w-[160px]"
                         />
-                    ) : (
-                        <button
-                            onClick={onFilter}
-                            className="flex-1 lg:flex-none flex items-center justify-center gap-2.5 px-6 py-3.5 bg-white border border-slate-100 rounded-[18px] text-[11px] font-black uppercase tracking-widest text-slate-500 hover:bg-slate-50 hover:text-slate-900 transition-all shadow-sm active:scale-95 group"
-                        >
-                            <Filter size={16} className="text-slate-400 group-hover:rotate-12 transition-transform" />
-                            <span>Filters</span>
-                        </button>
                     )}
                     <button
                         onClick={onExport}

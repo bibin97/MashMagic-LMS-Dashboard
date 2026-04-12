@@ -172,7 +172,7 @@ const Login = () => {
                                             key={role.id}
                                             onClick={() => handleSubRoleChange(role.id)}
                                             className={`flex-1 px-6 sm:px-8 py-3 rounded-[16px] text-[10px] font-black uppercase tracking-wider transition-all relative z-10
-                                                ${subRole === role.id ? 'text-[#f8ba2b]' : 'text-white hover:text-slate-200'}
+                                                ${subRole === role.id ? 'text-black' : 'text-white hover:text-slate-200'}
                                             `}
                                         >
                                             {role.label}

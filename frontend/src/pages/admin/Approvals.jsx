@@ -223,28 +223,28 @@ const Approvals = () => {
                 )}
             </div>
 
-            <div className="bg-[#008080] rounded-[2.5rem] p-10 text-white relative overflow-hidden">
+            <div className="bg-slate-950 rounded-[2.5rem] p-10 text-white relative overflow-hidden border border-white/5">
                 <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
                     <div className="max-w-md">
-                        <h3 className="text-2xl font-black mb-2 tracking-tight">Security Protocol Enforcement</h3>
-                        <p className="text-white/80 text-sm font-medium leading-relaxed">
+                        <h3 className="text-2xl font-black mb-2 tracking-tight text-[#008080]">Security Protocol Enforcement</h3>
+                        <p className="text-slate-400 text-sm font-bold leading-relaxed">
                             Every account activated here gains immediate access to their designated tools.
                             Rejected records are permanently archived in the system to prevent spam.
                         </p>
                     </div>
                     <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
-                        <div className="bg-yellow-400 p-6 rounded-3xl w-full md:w-44 text-center shadow-lg shadow-yellow-400/20">
-                            <span className="text-[10px] font-black text-black/50 uppercase tracking-widest block mb-1">Approved Today</span>
-                            <span className="text-3xl font-black text-black tracking-tighter">0</span>
+                        <div className="bg-[#008080] p-6 rounded-3xl w-full md:w-44 text-center shadow-lg shadow-[#008080]/20 border border-white/10 group hover:scale-105 transition-all">
+                            <span className="text-[10px] font-black text-white/50 uppercase tracking-widest block mb-1">Approved Today</span>
+                            <span className="text-3xl font-black text-white tracking-tighter">0</span>
                         </div>
-                        <div className="bg-yellow-400 p-6 rounded-3xl w-full md:w-44 text-center shadow-lg shadow-yellow-400/20">
-                            <span className="text-[10px] font-black text-black/50 uppercase tracking-widest block mb-1 text-rose-800">Rejected Today</span>
-                            <span className="text-3xl font-black text-black tracking-tighter">0</span>
+                        <div className="bg-[#008080] p-6 rounded-3xl w-full md:w-44 text-center shadow-lg shadow-[#008080]/20 border border-white/10 group hover:scale-105 transition-all">
+                            <span className="text-[10px] font-black text-white/50 uppercase tracking-widest block mb-1">Rejected Today</span>
+                            <span className="text-3xl font-black text-white tracking-tighter">0</span>
                         </div>
                     </div>
                 </div>
-                <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-32 -mt-32 blur-3xl"></div>
-                <div className="absolute bottom-0 left-0 w-64 h-64 bg-white/10 rounded-full -ml-32 -mb-32 blur-3xl"></div>
+                <div className="absolute top-0 right-0 w-64 h-64 bg-[#008080]/10 rounded-full -mr-32 -mt-32 blur-3xl"></div>
+                <div className="absolute bottom-0 left-0 w-64 h-64 bg-[#008080]/5 rounded-full -ml-32 -mb-32 blur-3xl"></div>
             </div>
         </div>
     );
