@@ -80,7 +80,8 @@ const StaffManagement = () => {
                 toast.success("Staff member removed from system");
                 fetchStaff();
             } catch (error) {
-                toast.error("Failed to delete member");
+                const errorMsg = error.response?.data?.message || "Failed to delete member";
+                toast.error(errorMsg);
             }
         }, { 
             name: member.name, 
