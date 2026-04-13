@@ -303,6 +303,7 @@ const Dashboard = () => {
                                                 fontWeight: 'bold',
                                                 backgroundColor: 'rgba(255, 255, 255, 0.95)'
                                             }}
+                                            itemSorter={(item) => (item.name === 'Tasks Assigned' ? -1 : 1)}
                                             cursor={{ fill: '#f8fafc' }}
                                         />
                                         <Legend
@@ -310,6 +311,10 @@ const Dashboard = () => {
                                             align="right"
                                             iconSize={10}
                                             wrapperStyle={{ top: -10, right: 0 }}
+                                            payload={[
+                                                { value: 'Tasks Assigned', type: 'rect', id: 'ID03', color: '#10B981' },
+                                                { value: 'Task Completed', type: 'rect', id: 'ID04', color: '#000000' }
+                                            ]}
                                             formatter={(value) => (
                                                 <span className="text-slate-600 font-bold text-[11px] uppercase tracking-widest ml-2">{value}</span>
                                             )}
@@ -409,13 +414,17 @@ const Dashboard = () => {
                                             verticalAlign="bottom"
                                             iconType="circle"
                                             wrapperStyle={{ paddingTop: '30px' }}
-                                            fontSize={10}
-                                            payload={[
-                                                { value: 'Mentors', type: 'circle', id: 'ID01', color: '#14B8A6' },
-                                                { value: 'Students', type: 'circle', id: 'ID02', color: '#000000' }
-                                            ]}
-                                            formatter={(value) => (
-                                                <span className="text-slate-600 font-bold text-[10px] uppercase tracking-widest ml-1">{value}</span>
+                                            content={({ payload }) => (
+                                                <div className="flex justify-center gap-6">
+                                                    <div className="flex items-center gap-2">
+                                                        <div className="w-2.5 h-2.5 rounded-full bg-[#14B8A6]" />
+                                                        <span className="text-slate-600 font-bold text-[10px] uppercase tracking-widest">Mentors</span>
+                                                    </div>
+                                                    <div className="flex items-center gap-2">
+                                                        <div className="w-2.5 h-2.5 rounded-full bg-[#000000]" />
+                                                        <span className="text-slate-600 font-bold text-[10px] uppercase tracking-widest">Students</span>
+                                                    </div>
+                                                </div>
                                             )}
                                         />
                                     </PieChart>
