@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
+    Activity,
     Users,
     UserPlus,
     GraduationCap,
@@ -7,7 +8,8 @@ import {
     BarChart3,
     TrendingUp,
     ListTodo,
-    CheckCircle2
+    CheckCircle2,
+    ChevronLeft
 } from 'lucide-react';
 import {
     BarChart,
