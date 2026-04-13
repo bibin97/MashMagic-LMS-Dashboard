@@ -275,7 +275,7 @@ const Dashboard = () => {
                         </div>
 
                         {/* Chart Container */}
-                        <div className="flex-1 w-full min-h-[400px]">
+                        <div className="flex-1 w-full h-[400px]">
                             {isMounted && (
                                 <ResponsiveContainer width="100%" height="100%">
                                     <BarChart
