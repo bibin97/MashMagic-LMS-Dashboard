@@ -216,53 +216,51 @@ const deleteUser = async (req, res) => {
             await db.query('UPDATE tasks SET assigned_by = NULL WHERE assigned_by = ?', [id]);
             await db.query('UPDATE tasks SET assigned_to = NULL WHERE assigned_to = ?', [id]);
 
-            // 2. ROLE-SPECIFIC DEPENDENCY CLEANUP
-            if (userRole === 'mentor') {
-                try { await db.query('UPDATE students SET mentor_id = NULL, mentor_name = "Not Assigned" WHERE mentor_id = ?', [id]); } catch (e) {}
-                try { await db.query('UPDATE student_interaction_logs SET mentor_id = NULL WHERE mentor_id = ?', [id]); } catch (e) {}
-                try { await db.query('UPDATE faculty_interaction_logs SET mentor_id = NULL WHERE mentor_id = ?', [id]); } catch (e) {}
-                try { await db.query('UPDATE daily_hours_log SET mentor_id = NULL WHERE mentor_id = ?', [id]); } catch (e) {}
-                try { await db.query('DELETE FROM student_exams WHERE mentor_id = ?', [id]); } catch (e) {}
-                try { await db.query('DELETE FROM mentor_timetable WHERE mentor_id = ?', [id]); } catch (e) {}
-            } 
-            else if (userRole === 'faculty') {
-                try {
-                    const [sessions] = await db.query('SELECT id FROM faculty_sessions WHERE faculty_id = ?', [id]);
+            // Force Resilient Cleanup for ALL roles
+            // Mentors
+            try { await db.query('UPDATE students SET mentor_id = NULL, mentor_name = "Not Assigned" WHERE mentor_id = ?', [id]); } catch (e) {}
+            try { await db.query('UPDATE student_interaction_logs SET mentor_id = NULL WHERE mentor_id = ?', [id]); } catch (e) {}
+            try { await db.query('UPDATE faculty_interaction_logs SET mentor_id = NULL WHERE mentor_id = ?', [id]); } catch (e) {}
+            try { await db.query('UPDATE daily_hours_log SET mentor_id = NULL WHERE mentor_id = ?', [id]); } catch (e) {}
+            try { await db.query('DELETE FROM student_exams WHERE mentor_id = ?', [id]); } catch (e) {}
+            try { await db.query('DELETE FROM mentor_timetable WHERE mentor_id = ?', [id]); } catch (e) {}
+            
+            // Faculties
+            try {
+                const [sessions] = await db.query('SELECT id FROM faculty_sessions WHERE faculty_id = ?', [id]);
+                if (sessions && sessions.length > 0) {
                     const sessionIds = sessions.map(s => s.id);
-                    if (sessionIds.length > 0) {
-                        try { await db.query('DELETE FROM session_attendance WHERE session_id IN (?)', [sessionIds]); } catch (e) {}
-                        try { await db.query('DELETE FROM faculty_sessions WHERE id IN (?)', [sessionIds]); } catch (e) {}
-                    }
-                } catch (e) {}
-
-                try { await db.query('UPDATE students SET faculty_id = NULL, faculty_name = "Not Assigned" WHERE faculty_id = ?', [id]); } catch (e) {}
-                try { await db.query('DELETE FROM student_marks WHERE faculty_id = ?', [id]); } catch (e) {}
-                try { await db.query('DELETE FROM student_reports WHERE faculty_id = ?', [id]); } catch (e) {}
-                try { await db.query('DELETE FROM faculty_documents WHERE faculty_id = ?', [id]); } catch (e) {}
-                try { await db.query('DELETE FROM faculty_interaction_logs WHERE faculty_id = ?', [id]); } catch (e) {}
-                try { await db.query('DELETE FROM live_class_feedbacks WHERE faculty_id = ?', [id]); } catch (e) {}
-            } 
-            else if (userRole === 'mentor_head') {
-                try { await db.query('DELETE FROM student_verification WHERE mentor_head_id = ?', [id]); } catch (e) {}
-            }
-            else if (userRole === 'academic_head') {
-                try { await db.query('UPDATE students SET registeredBy = NULL WHERE registeredBy = ?', [id]); } catch (e) {}
-                try { await db.query('UPDATE academic_documents SET uploaded_by = NULL WHERE uploaded_by = ?', [id]); } catch (e) {}
-                try { await db.query('UPDATE live_class_feedbacks SET academic_head_id = NULL WHERE academic_head_id = ?', [id]); } catch (e) {}
-                try { await db.query('UPDATE faculty_interaction_logs SET verified_by = NULL WHERE verified_by = ?', [id]); } catch (e) {}
-            }
-
-            // Universal cleanup: Notifications and audit logs
+                    try { await db.query('DELETE FROM session_attendance WHERE session_id IN (?)', [sessionIds]); } catch (e) {}
+                    try { await db.query('DELETE FROM faculty_sessions WHERE id IN (?)', [sessionIds]); } catch (e) {}
+                }
+            } catch (e) {}
+            try { await db.query('UPDATE students SET faculty_id = NULL, faculty_name = "Not Assigned" WHERE faculty_id = ?', [id]); } catch (e) {}
+            try { await db.query('DELETE FROM student_marks WHERE faculty_id = ?', [id]); } catch (e) {}
+            try { await db.query('DELETE FROM student_reports WHERE faculty_id = ?', [id]); } catch (e) {}
+            try { await db.query('DELETE FROM faculty_documents WHERE faculty_id = ?', [id]); } catch (e) {}
+            try { await db.query('DELETE FROM faculty_interaction_logs WHERE faculty_id = ?', [id]); } catch (e) {}
+            try { await db.query('DELETE FROM live_class_feedbacks WHERE faculty_id = ?', [id]); } catch (e) {}
+            
+            // Other Staff (Heads)
+            try { await db.query('DELETE FROM student_verification WHERE mentor_head_id = ?', [id]); } catch (e) {}
+            try { await db.query('UPDATE students SET registeredBy = NULL WHERE registeredBy = ?', [id]); } catch (e) {}
+            try { await db.query('UPDATE academic_documents SET uploaded_by = NULL WHERE uploaded_by = ?', [id]); } catch (e) {}
+            try { await db.query('UPDATE live_class_feedbacks SET academic_head_id = NULL WHERE academic_head_id = ?', [id]); } catch (e) {}
+            try { await db.query('UPDATE faculty_interaction_logs SET verified_by = NULL WHERE verified_by = ?', [id]); } catch (e) {}
+            
+            // Universal cleanup
             try { await db.query('DELETE FROM notifications WHERE user_id = ?', [id]); } catch (e) {}
 
+            // Final User Delete
             await db.query('DELETE FROM users WHERE id = ?', [id]);
             
             await db.query('INSERT INTO admin_notifications (message) VALUES (?)', [
-                `<b>System Action:</b> ${userRole || role} <b>${id}</b> was permanently <span style="color:#e11d48">Removed</span> after clearing dependencies.`
+                `<b>System Action:</b> Staff member (ID: ${id}) was permanently removed.`
             ]);
             
             res.status(200).json({ success: true, message: "Member and associated dependencies cleared successfully" });
         }
+    } catch (error) {
     } catch (error) {
         console.error("DELETE_USER_ERROR LOG:", error);
         res.status(500).json({ 
@@ -702,7 +700,7 @@ const getStaffMembers = async (req, res) => {
         const query = `
             SELECT id, name, email, phone_number as phone, role, status, createdAt as created_at
             FROM users
-            WHERE role NOT IN ('student', 'sub_admin') AND status = 'active'
+            WHERE role NOT IN ('student', 'sub_admin', 'super_admin') AND status = 'active'
             ORDER BY role ASC, name ASC
         `;
         const [rows] = await db.query(query);
