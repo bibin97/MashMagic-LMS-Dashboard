@@ -315,17 +315,17 @@ const Dashboard = () => {
                                             )}
                                         />
                                         <Bar
-                                            name="Task Completed"
-                                            dataKey="completed"
-                                            fill="#000000"
+                                            name="Tasks Assigned"
+                                            dataKey="tasks"
+                                            fill="#10B981"
                                             radius={[6, 6, 0, 0]}
                                             barSize={taskFilter === 'today' || taskFilter === 'yesterday' ? 60 : 20}
                                             minPointSize={5}
                                         />
                                         <Bar
-                                            name="Tasks Assigned"
-                                            dataKey="tasks"
-                                            fill="#10B981"
+                                            name="Task Completed"
+                                            dataKey="completed"
+                                            fill="#000000"
                                             radius={[6, 6, 0, 0]}
                                             barSize={taskFilter === 'today' || taskFilter === 'yesterday' ? 60 : 20}
                                             minPointSize={5}
@@ -356,30 +356,44 @@ const Dashboard = () => {
                                 <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                                     <PieChart>
                                         <Pie
-                                            data={mentorDistribution.flatMap(mentor => [
-                                                { name: mentor.name, value: 1, color: '#14B8A6', type: 'mentor' },
-                                                { name: `${mentor.name}'s Students`, value: mentor.value, color: '#000000', type: 'student' }
-                                            ])}
+                                            data={mentorDistribution.flatMap((mentor, idx) => {
+                                                const items = [
+                                                    { name: mentor.name, value: 0.8, color: '#14B8A6', type: 'mentor' },
+                                                    { name: `${mentor.name}'s Students`, value: mentor.value, color: '#000000', type: 'student' }
+                                                ];
+                                                // Add a gap segment after each mentor's group except the last one
+                                                if (idx < mentorDistribution.length - 1) {
+                                                    items.push({ name: 'gap', value: 0.5, color: 'transparent', type: 'gap' });
+                                                }
+                                                return items;
+                                            })}
                                             cx="50%"
                                             cy="50%"
                                             innerRadius={80}
                                             outerRadius={115}
-                                            paddingAngle={4}
+                                            paddingAngle={0} // No gap between Mentor and their students
                                             dataKey="value"
                                             stroke="none"
                                         >
-                                            {mentorDistribution.flatMap((mentor, idx) => [
-                                                <Cell key={`m-${idx}`} fill="#14B8A6" />,
-                                                <Cell key={`s-${idx}`} fill="#000000" />
-                                            ])}
+                                            {mentorDistribution.flatMap((mentor, idx) => {
+                                                const cells = [
+                                                    <Cell key={`m-${idx}`} fill="#14B8A6" />,
+                                                    <Cell key={`s-${idx}`} fill="#000000" />
+                                                ];
+                                                if (idx < mentorDistribution.length - 1) {
+                                                    cells.push(<Cell key={`g-${idx}`} fill="transparent" />);
+                                                }
+                                                return cells;
+                                            })}
                                         </Pie>
                                         <Tooltip
                                             content={({ active, payload }) => {
                                                 if (active && payload && payload.length) {
                                                     const data = payload[0].payload;
+                                                    if (data.type === 'gap') return null;
                                                     return (
                                                         <div className="bg-slate-900/90 backdrop-blur-md p-3 rounded-xl shadow-2xl border border-white/10 font-bold text-[11px] text-white">
-                                                            <p className={data.type === 'mentor' ? 'text-[#14B8A6]' : 'text-slate-400'}>
+                                                            <p className={data.type === 'mentor' ? 'text-[#14B8A6]' : 'text-slate-200'}>
                                                                 {data.name}
                                                             </p>
                                                             <p className="text-white/70">
