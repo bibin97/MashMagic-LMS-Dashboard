@@ -320,18 +320,22 @@ const FacultyInteractionLog = () => {
             {
                 isModalOpen && (
                     <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[100] flex items-end sm:items-start justify-center p-0 sm:p-4 sm:pt-16 animate-in fade-in duration-300">
-                        <div className="bg-white rounded-t-[2.5rem] sm:rounded-[3rem] shadow-2xl w-full max-w-4xl h-[95vh] sm:h-auto sm:max-h-[90vh] overflow-y-auto animate-in slide-in-from-bottom-6 duration-500">
-                            <div className="sticky top-0 bg-white/80 backdrop-blur-xl px-6 sm:px-10 py-5 sm:py-6 border-b border-slate-100 flex justify-between items-center z-10">
-                                <h2 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight italic">
-                                    {editingLogId ? 'Modify Session' : 'New Session Entry'}
+                        <div className="bg-white rounded-t-[2.5rem] sm:rounded-[3rem] shadow-2xl w-full max-w-5xl h-[95vh] sm:h-auto sm:max-h-[90vh] overflow-y-auto animate-in slide-in-from-bottom-6 duration-500">
+                            <div className="sticky top-0 bg-slate-900 px-6 sm:px-10 py-5 sm:py-6 border-b border-slate-800 flex justify-between items-center z-10">
+                                <h2 className="text-lg sm:text-xl font-black text-white tracking-tight italic">
+                                    {editingLogId ? 'Modify Faculty Session' : 'New Faculty Session Entry'}
                                 </h2>
                                 <button onClick={() => setIsModalOpen(false)} className="w-10 h-10 bg-slate-50 text-slate-400 rounded-full flex items-center justify-center hover:bg-slate-100 hover:text-slate-600 transition-all active:scale-90">
                                     <X size={20} />
                                 </button>
                             </div>
 
-                            <form onSubmit={handleSubmit} className="p-6 sm:p-10 space-y-8 sm:space-y-10">
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
+                            <form onSubmit={handleSubmit} className="p-6 sm:p-10 space-y-8 sm:space-y-10 bg-white">
+                                <div className="space-y-4">
+                                    <h3 className="text-xs font-black text-slate-900 uppercase tracking-[0.2em] border-l-4 border-[#008080] pl-4 flex items-center gap-2">
+                                        <Calendar size={16} className="text-[#008080]" /> Section 1: Session Information
+                                    </h3>
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start bg-slate-50/60 p-6 rounded-3xl border border-slate-100">
                                     <div className="space-y-2">
                                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 min-h-[22px] flex items-center">Select Student *</label>
                                         <select
@@ -369,8 +373,13 @@ const FacultyInteractionLog = () => {
                                     </div>
                                 </div>
                                 <p className="text-[9px] font-bold text-[#008080] normal-case italic -mt-4 ml-1">Date supports multiple classes/day</p>
+                                </div>
 
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                <div className="space-y-4">
+                                    <h3 className="text-xs font-black text-slate-900 uppercase tracking-[0.2em] border-l-4 border-emerald-600 pl-4 flex items-center gap-2">
+                                        <BookOpen size={16} className="text-emerald-600" /> Section 2: Chapter & Classroom Signals
+                                    </h3>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 bg-slate-50/60 p-6 rounded-3xl border border-slate-100">
                                     <div className="space-y-2">
                                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 min-h-[22px] flex items-center">Chapter Name *</label>
                                         <input
@@ -411,19 +420,29 @@ const FacultyInteractionLog = () => {
                                         </div>
                                     </div>
                                 </div>
-
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Topics Covered *</label>
-                                    <textarea
-                                        required
-                                        rows="2"
-                                        className="w-full p-6 bg-slate-50 border border-slate-100 rounded-[2rem] text-xs font-semibold focus:bg-white focus:ring-8 focus:ring-[#008080]/5 transition-all outline-none"
-                                        value={formData.topics_covered}
-                                        onChange={(e) => setFormData({ ...formData, topics_covered: e.target.value })}
-                                    ></textarea>
                                 </div>
 
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                <div className="space-y-4">
+                                    <h3 className="text-xs font-black text-slate-900 uppercase tracking-[0.2em] border-l-4 border-amber-500 pl-4 flex items-center gap-2">
+                                        <MessageSquare size={16} className="text-amber-500" /> Section 3: Coverage Summary
+                                    </h3>
+                                    <div className="space-y-2 bg-slate-50/60 p-6 rounded-3xl border border-slate-100">
+                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Topics Covered *</label>
+                                        <textarea
+                                            required
+                                            rows="2"
+                                            className="w-full p-6 bg-white border border-slate-100 rounded-[2rem] text-xs font-semibold focus:bg-white focus:ring-8 focus:ring-[#008080]/5 transition-all outline-none"
+                                            value={formData.topics_covered}
+                                            onChange={(e) => setFormData({ ...formData, topics_covered: e.target.value })}
+                                        ></textarea>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-4">
+                                    <h3 className="text-xs font-black text-slate-900 uppercase tracking-[0.2em] border-l-4 border-rose-500 pl-4 flex items-center gap-2">
+                                        <AlertTriangle size={16} className="text-rose-500" /> Section 4: Homework & Risk
+                                    </h3>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 bg-slate-50/60 p-6 rounded-3xl border border-slate-100">
                                     <div className="space-y-2">
                                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Homework Given</label>
                                         <input
@@ -455,6 +474,7 @@ const FacultyInteractionLog = () => {
                                             onChange={(e) => setFormData({ ...formData, test_score: e.target.value })}
                                         />
                                     </div>
+                                </div>
                                 </div>
 
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
