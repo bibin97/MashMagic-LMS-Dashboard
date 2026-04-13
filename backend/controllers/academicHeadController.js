@@ -291,8 +291,8 @@ const registerFaculty = async (req, res) => {
             place,
             password: hashedPassword,
             role: 'faculty',
-            status: 'active',
-            isApproved: 1,
+            status: 'pending',
+            isApproved: 0,
             registeredBy: requesterId
         });
 

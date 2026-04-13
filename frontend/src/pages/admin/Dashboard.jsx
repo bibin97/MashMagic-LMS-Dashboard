@@ -43,7 +43,7 @@ const Dashboard = () => {
     const [examData, setExamData] = useState([]);
     const [mentorDistribution, setMentorDistribution] = useState([]);
     const [taskPerformance, setTaskPerformance] = useState([]);
-    const [taskFilter, setTaskFilter] = useState('last7');
+    const [taskFilter, setTaskFilter] = useState('today');
     const [loading, setLoading] = useState(true);
     const [isMounted, setIsMounted] = useState(false);
 
@@ -315,19 +315,19 @@ const Dashboard = () => {
                                             )}
                                         />
                                         <Bar
-                                            name="Tasks"
+                                            name="Tasks Assigned"
                                             dataKey="tasks"
-                                            fill="#0F766E"
+                                            fill="#10B981"
                                             radius={[6, 6, 0, 0]}
-                                            barSize={40}
+                                            barSize={taskFilter === 'today' || taskFilter === 'yesterday' ? 60 : 20}
                                             minPointSize={5}
                                         />
                                         <Bar
                                             name="Task Completed"
                                             dataKey="completed"
-                                            fill="#14B8A6"
+                                            fill="#000000"
                                             radius={[6, 6, 0, 0]}
-                                            barSize={40}
+                                            barSize={taskFilter === 'today' || taskFilter === 'yesterday' ? 60 : 20}
                                             minPointSize={5}
                                         />
                                     </BarChart>
