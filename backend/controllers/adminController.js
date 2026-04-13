@@ -218,38 +218,35 @@ const deleteUser = async (req, res) => {
 
             // 2. ROLE-SPECIFIC DEPENDENCY CLEANUP
             if (userRole === 'mentor') {
-                // Unlink from students but preserve student records
-                await db.query('UPDATE students SET mentor_id = NULL, mentor_name = NULL WHERE mentor_id = ?', [id]);
-                
-                // Handle interaction logs (Optional: set to NULL or delete. Usually NULL is better for history)
+                await db.query('UPDATE students SET mentor_id = NULL, mentor_name = "Not Assigned" WHERE mentor_id = ?', [id]);
                 await db.query('UPDATE student_interaction_logs SET mentor_id = NULL WHERE mentor_id = ?', [id]);
                 await db.query('UPDATE faculty_interaction_logs SET mentor_id = NULL WHERE mentor_id = ?', [id]);
                 await db.query('UPDATE daily_hours_log SET mentor_id = NULL WHERE mentor_id = ?', [id]);
-                
-                // Fixed: student_exams mentor_id is often NOT NULL in many schemas
                 await db.query('DELETE FROM student_exams WHERE mentor_id = ?', [id]);
-                
-                // Fixed: Clear timetable records to avoid data noise and FK conflicts
                 await db.query('DELETE FROM mentor_timetable WHERE mentor_id = ?', [id]);
             } 
             else if (userRole === 'faculty') {
-                await db.query('UPDATE students SET faculty_id = NULL, faculty_name = NULL WHERE faculty_id = ?', [id]);
-                await db.query('UPDATE faculty_interaction_logs SET faculty_id = NULL WHERE faculty_id = ?', [id]);
-                await db.query('UPDATE student_reports SET faculty_id = NULL WHERE faculty_id = ?', [id]);
-                await db.query('UPDATE faculty_sessions SET faculty_id = NULL WHERE faculty_id = ?', [id]);
-                await db.query('UPDATE live_class_feedbacks SET faculty_id = NULL WHERE faculty_id = ?', [id]);
-                
-                // Added: Missing faculty-linked tables found in facultyController
+                // Cascading delete for faculty sessions and attendance
+                const [sessions] = await db.query('SELECT id FROM faculty_sessions WHERE faculty_id = ?', [id]);
+                const sessionIds = sessions.map(s => s.id);
+                if (sessionIds.length > 0) {
+                    await db.query('DELETE FROM session_attendance WHERE session_id IN (?)', [sessionIds]);
+                    await db.query('DELETE FROM faculty_sessions WHERE id IN (?)', [sessionIds]);
+                }
+
+                await db.query('UPDATE students SET faculty_id = NULL, faculty_name = "Not Assigned" WHERE faculty_id = ?', [id]);
                 await db.query('DELETE FROM student_marks WHERE faculty_id = ?', [id]);
+                await db.query('DELETE FROM student_reports WHERE faculty_id = ?', [id]);
                 await db.query('DELETE FROM faculty_documents WHERE faculty_id = ?', [id]);
+                await db.query('DELETE FROM faculty_interaction_logs WHERE faculty_id = ?', [id]);
+                await db.query('DELETE FROM live_class_feedbacks WHERE faculty_id = ?', [id]);
             } 
             else if (userRole === 'mentor_head') {
-                await db.query('UPDATE student_verification SET mentor_head_id = NULL WHERE mentor_head_id = ?', [id]);
+                await db.query('DELETE FROM student_verification WHERE mentor_head_id = ?', [id]);
             }
             else if (userRole === 'academic_head') {
-                // Fixed: faculty_verification academic_head_id is NOT NULL in migrations, handled by CASCADE but manual nulling would fail
-                // await db.query('UPDATE faculty_verification SET academic_head_id = NULL WHERE academic_head_id = ?', [id]);
-                
+                // Move any registered students to orphan state
+                await db.query('UPDATE students SET registeredBy = NULL WHERE registeredBy = ?', [id]);
                 await db.query('UPDATE academic_documents SET uploaded_by = NULL WHERE uploaded_by = ?', [id]);
                 await db.query('UPDATE live_class_feedbacks SET academic_head_id = NULL WHERE academic_head_id = ?', [id]);
                 await db.query('UPDATE faculty_interaction_logs SET verified_by = NULL WHERE verified_by = ?', [id]);
