@@ -230,56 +230,56 @@ const Dashboard = () => {
             <div className="flex flex-col gap-6">
                 {/* Bar Chart Card */}
                 <div className="w-full bg-white/80 backdrop-blur-xl p-8 sm:p-10 rounded-[32px] border border-white/50 shadow-[0_10px_30px_rgba(0,0,0,0.04)]">
-                    <div className="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center gap-6 mb-12 w-full">
-                        <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 bg-gradient-to-br from-[#0F766E] to-[#14B8A6] text-white rounded-[16px] flex items-center justify-center shadow-lg shadow-[#14B8A6]/20">
-                                <BarChart3 size={20} />
+                        <div className="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center gap-4 mb-10 w-full">
+                            <div className="flex items-center gap-4">
+                                <div className="w-12 h-12 bg-gradient-to-br from-[#0D9488] to-[#14B8A6] text-white rounded-[16px] flex items-center justify-center shadow-lg shadow-[#14B8A6]/20">
+                                    <Activity size={20} />
+                                </div>
+                                <div>
+                                    <h4 className="text-xl font-black text-slate-800 tracking-tight">Task Velocity</h4>
+                                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">Resource allocation & completion</p>
+                                </div>
                             </div>
-                            <div>
-                                <h4 className="text-xl font-black text-slate-800 tracking-tight">Task Velocity</h4>
-                                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">Resource allocation & Completion</p>
+                            <div className="flex items-center gap-6">
+                                {/* Fixed Outside Legend */}
+                                <div className="hidden md:flex items-center gap-6 mr-4">
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-2.5 h-2.5 rounded-[2px] bg-[#10B981]" />
+                                        <span className="text-slate-600 font-bold text-[10px] uppercase tracking-widest">Tasks Assigned</span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-2.5 h-2.5 rounded-[2px] bg-[#000000]" />
+                                        <span className="text-slate-600 font-bold text-[10px] uppercase tracking-widest">Task Completed</span>
+                                    </div>
+                                </div>
+                                <div className="relative group">
+                                    <select
+                                        value={taskFilter}
+                                        onChange={(e) => setTaskFilter(e.target.value)}
+                                        className="appearance-none bg-slate-50 border border-slate-200 text-slate-900 text-xs font-bold rounded-2xl focus:ring-[#14B8A6] focus:border-[#14B8A6] block w-full px-6 py-3 transition-all hover:bg-white cursor-pointer"
+                                    >
+                                        <option value="today">Today</option>
+                                        <option value="yesterday">Yesterday</option>
+                                        <option value="this_week">This Week</option>
+                                        <option value="last_week">Last Week</option>
+                                        <option value="this_month">This Month</option>
+                                        <option value="last_month">Last Month</option>
+                                    </select>
+                                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 group-hover:text-[#14B8A6] transition-colors">
+                                        <ChevronLeft size={16} className="-rotate-90" />
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <select
-                            value={taskFilter}
-                            onChange={(e) => setTaskFilter(e.target.value)}
-                            className="bg-white border border-slate-100 rounded-[14px] px-5 py-2.5 text-xs font-black text-slate-500 outline-none hover:border-[#14B8A6] transition-all shadow-sm focus:ring-4 focus:ring-[#14B8A6]/10"
-                        >
-                            <option value="today">Today</option>
-                            <option value="yesterday">Yesterday</option>
-                            <option value="last3">Last 3 Days</option>
-                            <option value="last7">Last 7 Days</option>
-                            <option value="last14">Last 14 Days</option>
-                            <option value="last30">Last 30 Days</option>
-                        </select>
-                    </div>
 
-                    {/* Main Chart Container - Scrollable for long ranges */}
-                    <div
-                        className="w-full h-[350px] overflow-x-auto overflow-y-hidden"
-                        style={{
-                            scrollbarWidth: 'none', /* Firefox */
-                            msOverflowStyle: 'none' /* IE/Edge */
-                        }}
-                    >
-                        {/* Webkit scrollbar hide */}
-                        <style dangerouslySetInnerHTML={{
-                            __html: `
-                            div::-webkit-scrollbar {
-                                display: none;
-                            }
-                        `}} />
-
-                        <div style={{
-                            width: taskPerformance.length > 7 ? `${taskPerformance.length * 100}px` : '100%',
-                            height: '100%',
-                            minWidth: '100%'
-                        }}>
+                        {/* Chart Container */}
+                        <div className="flex-1 w-full min-h-[400px]">
                             {isMounted && (
-                                <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
+                                <ResponsiveContainer width="100%" height="100%">
                                     <BarChart
-                                        data={taskPerformance.length > 0 ? taskPerformance : [{ name: 'Today', tasks: 0, completed: 0 }]}
+                                        data={taskPerformance}
                                         margin={{ top: 20, right: 30, left: 0, bottom: 20 }}
+                                        barGap={8}
                                     >
                                         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                                         <XAxis
@@ -290,7 +290,7 @@ const Dashboard = () => {
                                             axisLine={false}
                                             tickLine={false}
                                             dy={12}
-                                            interval={0} // Show every label for better readability since we can scroll
+                                            interval={0}
                                         />
                                         <YAxis fontSize={12} fontWeight={800} tick={{ fill: '#94a3b8' }} axisLine={false} tickLine={false} width={30} />
                                         <Tooltip
@@ -305,24 +305,6 @@ const Dashboard = () => {
                                             }}
                                             itemSorter={(item) => (item.name === 'Tasks Assigned' ? -1 : 1)}
                                             cursor={{ fill: '#f8fafc' }}
-                                        />
-                                        <Legend
-                                            verticalAlign="top"
-                                            align="right"
-                                            iconSize={10}
-                                            wrapperStyle={{ top: -10, right: 0 }}
-                                            content={() => (
-                                                <div className="flex justify-end gap-6 mb-4">
-                                                    <div className="flex items-center gap-2">
-                                                        <div className="w-2.5 h-2.5 rounded-[2px] bg-[#10B981]" />
-                                                        <span className="text-slate-600 font-bold text-[10px] uppercase tracking-widest">Tasks Assigned</span>
-                                                    </div>
-                                                    <div className="flex items-center gap-2">
-                                                        <div className="w-2.5 h-2.5 rounded-[2px] bg-[#000000]" />
-                                                        <span className="text-slate-600 font-bold text-[10px] uppercase tracking-widest">Task Completed</span>
-                                                    </div>
-                                                </div>
-                                            )}
                                         />
                                         <Bar
                                             name="Tasks Assigned"
