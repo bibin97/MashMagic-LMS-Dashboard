@@ -538,7 +538,7 @@ const getSubAdmins = async (req, res) => {
         }
 
         const [rows] = await db.query(
-            'SELECT id, name, email, phone_number, status, isActive, permissions, createdAt as created_at FROM users WHERE role = "sub_admin"'
+            'SELECT id, name, email, phone_number, status, isActive, permissions, created_at FROM users WHERE role = "sub_admin"'
         );
         res.status(200).json({ success: true, data: rows });
     } catch (error) {

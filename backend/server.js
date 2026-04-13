@@ -73,6 +73,9 @@ const startServer = async () => {
                 'ALTER TABLE students ADD COLUMN email VARCHAR(255) NULL;',
                 'ALTER TABLE students ADD COLUMN password VARCHAR(255) NULL;',
                 'ALTER TABLE students ADD COLUMN user_id INT NULL;',
+                'ALTER TABLE students ADD COLUMN meeting_link VARCHAR(255) NULL;',
+                'ALTER TABLE users ADD COLUMN permissions JSON DEFAULT NULL;',
+                'ALTER TABLE users ADD COLUMN meeting_link VARCHAR(255) NULL;',
                 `CREATE TABLE IF NOT EXISTS student_daily_updates (
                     id INT AUTO_INCREMENT PRIMARY KEY,
                     student_id INT NOT NULL,
