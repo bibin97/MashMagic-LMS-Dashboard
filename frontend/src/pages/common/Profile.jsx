@@ -1,5 +1,5 @@
 import React from 'react';
-import { User, Mail, Shield, Smartphone, Lock, AlertCircle } from 'lucide-react';
+import { User, Mail, Shield, Smartphone, Lock, AlertCircle, Activity } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 const ProfileConsole = () => {
