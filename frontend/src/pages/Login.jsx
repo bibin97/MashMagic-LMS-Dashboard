@@ -161,8 +161,8 @@ const Login = () => {
                                         height: 'calc(100% - 8px)',
                                         left: (subRole === 'mentor_head' || subRole === 'academic_head' || subRole === 'super_admin') ? '4px' : 'calc(50% + 0px)',
                                         top: '4px',
-                                        backgroundColor: (subRole === 'super_admin' || subRole === 'admin') ? 'rgba(0, 128, 128, 0.3)' : 'rgba(248, 186, 43, 0.3)',
-                                        borderColor: (subRole === 'super_admin' || subRole === 'admin') ? 'rgba(0, 128, 128, 0.5)' : 'rgba(248, 186, 43, 0.5)'
+                                        backgroundColor: (subRole === 'super_admin' || subRole === 'admin') ? 'rgba(248, 186, 43, 0.3)' : 'rgba(248, 186, 43, 0.3)',
+                                        borderColor: (subRole === 'super_admin' || subRole === 'admin') ? 'rgba(248, 186, 43, 0.5)' : 'rgba(248, 186, 43, 0.5)'
                                     }}
                                 ></div>
                                 {(activeDepartment === 'admin' 
@@ -176,7 +176,7 @@ const Login = () => {
                                         onClick={() => handleSubRoleChange(role.id)}
                                         className={`flex-1 px-6 sm:px-8 py-3 rounded-[16px] text-[10px] font-black uppercase tracking-wider transition-all relative z-10
                                             ${subRole === role.id 
-                                                ? (activeDepartment === 'admin' ? 'text-[#14B8A6]' : 'text-black') 
+                                                ? (activeDepartment === 'admin' ? 'text-black' : 'text-black') 
                                                 : 'text-white hover:text-slate-200'}
                                         `}
                                     >
