@@ -202,6 +202,7 @@ function App() {
             <Route path="timetable" element={<Timetable />} />
             <Route path="student-log" element={<StudentInteractionLog />} />
             <Route path="faculty-log" element={<FacultyInteractionLog />} />
+            <Route path="faculty-log/new" element={<FacultyInteractionLog />} />
             <Route path="exams" element={<Exams />} />
             <Route path="students-data" element={<StudentsData />} />
             <Route path="academic-schedule" element={<AcademicSchedule />} />

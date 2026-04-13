@@ -15,6 +15,7 @@ import { premiumConfirm } from '../../utils/premiumConfirm';
 const FacultyInteractionLog = () => {
     const location = useLocation();
     const navigate = useNavigate();
+    const isNewEntryPage = location.pathname.endsWith('/faculty-log/new');
     const [logs, setLogs] = useState([]);
     const [students, setStudents] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -47,6 +48,10 @@ const FacultyInteractionLog = () => {
     useEffect(() => {
         fetchData();
     }, []);
+
+    useEffect(() => {
+        setIsModalOpen(isNewEntryPage);
+    }, [isNewEntryPage]);
 
     const fetchData = async () => {
         try {
@@ -93,6 +98,11 @@ const FacultyInteractionLog = () => {
     };
 
     const handleOpenModal = (log = null) => {
+        if (!log) {
+            navigate('/mentor/faculty-log/new');
+            return;
+        }
+
         if (log) {
             setEditingLogId(log.id);
             setFormData({
@@ -141,6 +151,14 @@ const FacultyInteractionLog = () => {
         setIsModalOpen(true);
     };
 
+    const handleCloseEntryForm = () => {
+        if (isNewEntryPage) {
+            navigate('/mentor/faculty-log');
+            return;
+        }
+        setIsModalOpen(false);
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
@@ -151,7 +169,8 @@ const FacultyInteractionLog = () => {
                 await api.post('/mentor/faculty-log', formData);
                 toast.success("Faculty log added successfully");
             }
-            setIsModalOpen(false);
+            if (isNewEntryPage) navigate('/mentor/faculty-log');
+            else setIsModalOpen(false);
             fetchData();
         } catch (error) {
             toast.error(error.response?.data?.message || "Operation failed");
@@ -232,12 +251,36 @@ const FacultyInteractionLog = () => {
                     />
                 </div>
                 <button
-                    onClick={() => handleOpenModal()}
+                    onClick={() => navigate('/mentor/faculty-log/new')}
                     className="bg-[#008080] text-white px-8 py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-xl shadow-[#008080]/30 hover:bg-[#008080] active:scale-95 transition-all flex items-center justify-center gap-2 group italic"
                 >
                     <Plus size={16} className="group-hover:rotate-90 transition-transform" /> Add New Entry
                 </button>
             </div>
+
+            {isModalOpen && (
+                <div className="bg-slate-50 rounded-[2rem] border border-slate-200 p-3 sm:p-4">
+                    <div className="bg-slate-900 border border-slate-800 p-6 sm:p-8 rounded-[2.5rem] shadow-2xl relative overflow-hidden mb-6">
+                        <div className="absolute top-0 right-0 w-64 h-64 bg-[#008080] rounded-full -mr-32 -mt-32 opacity-10"></div>
+                        <button onClick={handleCloseEntryForm} className="absolute top-5 right-5 w-10 h-10 bg-white text-slate-500 rounded-full flex items-center justify-center hover:bg-slate-100 hover:text-slate-700 transition-all active:scale-90 z-10">
+                            <X size={20} />
+                        </button>
+                        <div className="relative z-10 flex items-center gap-4">
+                            <div className="w-14 h-14 bg-[#008080] rounded-2xl flex items-center justify-center text-white shadow-xl shadow-[#008080]/30">
+                                <BookOpen size={26} />
+                            </div>
+                            <div>
+                                <h2 className="text-2xl font-black text-white tracking-tight italic">
+                                    {editingLogId ? 'Modify Faculty Session' : 'Log Faculty Session'}
+                                </h2>
+                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mt-1">
+                                    Date: {formData.date} | Student: {students.find(s => String(s.id) === String(formData.student_id))?.name || 'Not Selected'}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
 
 
             <div className="bg-white rounded-[2rem] md:rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-200/40 overflow-hidden relative">
@@ -319,18 +362,8 @@ const FacultyInteractionLog = () => {
 
             {
                 isModalOpen && (
-                    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[100] flex items-end sm:items-start justify-center p-0 sm:p-4 sm:pt-16 animate-in fade-in duration-300">
-                        <div className="bg-white rounded-t-[2.5rem] sm:rounded-[3rem] shadow-2xl w-full max-w-5xl h-[95vh] sm:h-auto sm:max-h-[90vh] overflow-y-auto animate-in slide-in-from-bottom-6 duration-500">
-                            <div className="sticky top-0 bg-slate-900 px-6 sm:px-10 py-5 sm:py-6 border-b border-slate-800 flex justify-between items-center z-10">
-                                <h2 className="text-lg sm:text-xl font-black text-white tracking-tight italic">
-                                    {editingLogId ? 'Modify Faculty Session' : 'New Faculty Session Entry'}
-                                </h2>
-                                <button onClick={() => setIsModalOpen(false)} className="w-10 h-10 bg-slate-50 text-slate-400 rounded-full flex items-center justify-center hover:bg-slate-100 hover:text-slate-600 transition-all active:scale-90">
-                                    <X size={20} />
-                                </button>
-                            </div>
-
-                            <form onSubmit={handleSubmit} className="p-6 sm:p-10 space-y-8 sm:space-y-10 bg-white">
+                    <div className="bg-white p-6 md:p-10 rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-100 space-y-10">
+                        <form onSubmit={handleSubmit} className="space-y-10">
                                 <div className="space-y-4">
                                     <h3 className="text-xs font-black text-slate-900 uppercase tracking-[0.2em] border-l-4 border-[#008080] pl-4 flex items-center gap-2">
                                         <Calendar size={16} className="text-[#008080]" /> Section 1: Session Information
@@ -612,9 +645,8 @@ const FacultyInteractionLog = () => {
                                         {editingLogId ? 'Update Report' : 'Submit Log'} <ChevronRight size={16} />
                                     </button>
                                 </div>
-                            </form>
-                        </div>
-                    </div >
+                        </form>
+                    </div>
                 )
             }
 
