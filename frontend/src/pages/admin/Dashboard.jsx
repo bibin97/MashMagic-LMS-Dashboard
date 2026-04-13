@@ -355,35 +355,23 @@ const Dashboard = () => {
                             {isMounted && mentorDistribution.length > 0 && (
                                 <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                                     <PieChart>
-                                        {/* Outer Ring: Students (Black) */}
                                         <Pie
-                                            data={mentorDistribution}
+                                            data={mentorDistribution.flatMap(mentor => [
+                                                { name: mentor.name, value: 1, color: '#14B8A6', type: 'mentor' },
+                                                { name: `${mentor.name}'s Students`, value: mentor.value, color: '#000000', type: 'student' }
+                                            ])}
                                             cx="50%"
                                             cy="50%"
-                                            innerRadius={100}
-                                            outerRadius={125}
-                                            paddingAngle={8}
+                                            innerRadius={80}
+                                            outerRadius={115}
+                                            paddingAngle={4}
                                             dataKey="value"
                                             stroke="none"
                                         >
-                                            {mentorDistribution.map((entry, index) => (
-                                                <Cell key={`cell-outer-${index}`} fill="#000000" />
-                                            ))}
-                                        </Pie>
-                                        {/* Inner Ring: Mentors (Green) */}
-                                        <Pie
-                                            data={mentorDistribution}
-                                            cx="50%"
-                                            cy="50%"
-                                            innerRadius={70}
-                                            outerRadius={95}
-                                            paddingAngle={8}
-                                            dataKey="value"
-                                            stroke="none"
-                                        >
-                                            {mentorDistribution.map((entry, index) => (
-                                                <Cell key={`cell-inner-${index}`} fill="#14B8A6" />
-                                            ))}
+                                            {mentorDistribution.flatMap((mentor, idx) => [
+                                                <Cell key={`m-${idx}`} fill="#14B8A6" />,
+                                                <Cell key={`s-${idx}`} fill="#000000" />
+                                            ])}
                                         </Pie>
                                         <Tooltip
                                             content={({ active, payload }) => {
@@ -391,8 +379,12 @@ const Dashboard = () => {
                                                     const data = payload[0].payload;
                                                     return (
                                                         <div className="bg-slate-900/90 backdrop-blur-md p-3 rounded-xl shadow-2xl border border-white/10 font-bold text-[11px] text-white">
-                                                            <p className="text-[#14B8A6] mb-1 uppercase tracking-widest">{data.name}</p>
-                                                            <p className="text-white/70">{data.value} Students Assigned</p>
+                                                            <p className={data.type === 'mentor' ? 'text-[#14B8A6]' : 'text-slate-400'}>
+                                                                {data.name}
+                                                            </p>
+                                                            <p className="text-white/70">
+                                                                {data.type === 'mentor' ? 'Leader' : `${data.value} Members`}
+                                                            </p>
                                                         </div>
                                                     );
                                                 }
