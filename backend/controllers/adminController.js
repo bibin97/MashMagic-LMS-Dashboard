@@ -261,7 +261,6 @@ const deleteUser = async (req, res) => {
             res.status(200).json({ success: true, message: "Member and associated dependencies cleared successfully" });
         }
     } catch (error) {
-    } catch (error) {
         console.error("DELETE_USER_ERROR LOG:", error);
         res.status(500).json({ 
             success: false, 
