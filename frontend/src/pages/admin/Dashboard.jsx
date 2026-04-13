@@ -311,12 +311,17 @@ const Dashboard = () => {
                                             align="right"
                                             iconSize={10}
                                             wrapperStyle={{ top: -10, right: 0 }}
-                                            payload={[
-                                                { value: 'Tasks Assigned', type: 'rect', id: 'ID03', color: '#10B981' },
-                                                { value: 'Task Completed', type: 'rect', id: 'ID04', color: '#000000' }
-                                            ]}
-                                            formatter={(value) => (
-                                                <span className="text-slate-600 font-bold text-[11px] uppercase tracking-widest ml-2">{value}</span>
+                                            content={() => (
+                                                <div className="flex justify-end gap-6 mb-4">
+                                                    <div className="flex items-center gap-2">
+                                                        <div className="w-2.5 h-2.5 rounded-[2px] bg-[#10B981]" />
+                                                        <span className="text-slate-600 font-bold text-[10px] uppercase tracking-widest">Tasks Assigned</span>
+                                                    </div>
+                                                    <div className="flex items-center gap-2">
+                                                        <div className="w-2.5 h-2.5 rounded-[2px] bg-[#000000]" />
+                                                        <span className="text-slate-600 font-bold text-[10px] uppercase tracking-widest">Task Completed</span>
+                                                    </div>
+                                                </div>
                                             )}
                                         />
                                         <Bar
