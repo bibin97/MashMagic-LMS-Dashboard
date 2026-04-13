@@ -65,7 +65,7 @@ const Login = () => {
         }
     };
 
-    const canSignup = ['admin', 'mentor_head', 'academic_head'].includes(subRole);
+    const canSignup = ['super_admin', 'mentor_head', 'academic_head'].includes(subRole);
 
     return (
         <div className="min-h-screen flex items-center justify-center p-4 sm:p-6 relative overflow-hidden font-sans select-none bg-slate-950">
