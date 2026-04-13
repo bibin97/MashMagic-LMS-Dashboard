@@ -528,7 +528,6 @@ const getAllStudentsForAdmin = async (req, res) => {
 // ========================================================
 // ADMIN MANAGEMENT SECTION (SUPER ADMIN ONLY)
 // ========================================================
-
 // @desc    Get All Sub Admins
 // @route   GET /api/admin/sub-admins
 const getSubAdmins = async (req, res) => {
@@ -537,12 +536,19 @@ const getSubAdmins = async (req, res) => {
             return res.status(403).json({ success: false, message: "Access Denied. Admin authority required." });
         }
 
+        // Check common timestamp column names
+        const [tableInfo] = await db.query('SHOW COLUMNS FROM users');
+        const hasCreatedAt = tableInfo.some(c => c.Field === 'createdAt');
+        const hasCreatedAtSnake = tableInfo.some(c => c.Field === 'created_at');
+        const timeColumn = hasCreatedAt ? 'createdAt' : (hasCreatedAtSnake ? 'created_at' : 'id');
+
         const [rows] = await db.query(
-            'SELECT id, name, email, phone_number, status, isActive, permissions, created_at FROM users WHERE role = "sub_admin"'
+            `SELECT id, name, email, phone_number, status, isActive, permissions, ${timeColumn} as created_at FROM users WHERE role = "sub_admin"`
         );
         res.status(200).json({ success: true, data: rows });
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        console.error("GET_SUB_ADMINS_ERROR:", error);
+        res.status(500).json({ success: false, message: "Failed to fetch sub-admins: " + error.message });
     }
 };
 
@@ -631,8 +637,10 @@ const deleteSubAdmin = async (req, res) => {
         // Protection: System must not allow deleting the ACTIVE main super admin via this route
         const [target] = await db.query('SELECT name, role, status FROM users WHERE id = ?', [id]);
         if (!target.length) return res.status(404).json({ success: false, message: "User not found" });
-        if (target[0].role === 'super_admin' && target[0].status === 'active') {
-            return res.status(403).json({ success: false, message: "Fatal Error: Active Super Admin cannot be deleted." });
+        
+        const userRole = target[0].role;
+        if (userRole === 'super_admin' && target[0].status === 'active') {
+            return res.status(403).json({ success: false, message: "Active Super Admin cannot be deleted." });
         }
 
         // Handle sub-admin dependencies (they might have registered users or created tasks)
