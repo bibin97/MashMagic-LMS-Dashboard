@@ -319,7 +319,7 @@ const FacultyInteractionLog = () => {
 
             {
                 isModalOpen && (
-                    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-300">
+                    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[100] flex items-end sm:items-start justify-center p-0 sm:p-4 sm:pt-16 animate-in fade-in duration-300">
                         <div className="bg-white rounded-t-[2.5rem] sm:rounded-[3rem] shadow-2xl w-full max-w-4xl h-[95vh] sm:h-auto sm:max-h-[90vh] overflow-y-auto animate-in slide-in-from-bottom-6 duration-500">
                             <div className="sticky top-0 bg-white/80 backdrop-blur-xl px-6 sm:px-10 py-5 sm:py-6 border-b border-slate-100 flex justify-between items-center z-10">
                                 <h2 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight italic">
