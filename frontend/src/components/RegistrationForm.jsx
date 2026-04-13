@@ -157,7 +157,7 @@ const RegistrationForm = ({ onSuccess, preSelectedRole }) => {
                                     type="email"
                                     name="email"
                                     className="w-full p-3 pl-12 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-semibold"
-                                    placeholder={`${role.replace('_', ' ')} Email (Optional)`}
+                                    placeholder={`${role.replace('_', ' ')} Email`}
                                     value={formData.email}
                                     onChange={handleInputChange}
                                 />
@@ -205,7 +205,7 @@ const RegistrationForm = ({ onSuccess, preSelectedRole }) => {
                                     type="password"
                                     name="password"
                                     className="w-full p-3 pl-12 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-semibold"
-                                    placeholder="****** (Optional)"
+                                    placeholder="******"
                                     value={formData.password}
                                     onChange={handleInputChange}
                                 />
