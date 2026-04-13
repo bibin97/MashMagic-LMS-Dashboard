@@ -21,14 +21,18 @@ const register = async (req, res) => {
             return res.status(400).json({ success: false, message: "Identifier already registered" });
         }
 
-        // ONE-TIME SUPER ADMIN LOGIC:
-        const [superAdmins] = await db.query('SELECT id FROM users WHERE role = "super_admin"');
-
-        if (targetRole === 'super_admin' && superAdmins.length > 0) {
-            return res.status(403).json({
-                success: false,
-                message: "Super Admin already exists. Manual creation of Super Admin is restricted."
-            });
+        // ROLE EXISTENCE LOGIC (Restriction for single high-level roles)
+        const restrictedRoles = ['admin', 'mentor_head', 'academic_head'];
+        
+        if (restrictedRoles.includes(targetRole)) {
+            const [existingRole] = await db.query('SELECT id FROM users WHERE role = ?', [targetRole]);
+            
+            if (existingRole.length > 0) {
+                return res.status(403).json({
+                    success: false,
+                    message: `Registration Restricted: A ${targetRole.replace('_', ' ')} already exists in the system. Duplicates are not allowed for security reasons.`
+                });
+            }
         }
 
         const trimmedPassword = password.trim();
@@ -37,18 +41,19 @@ const register = async (req, res) => {
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(trimmedPassword, salt);
 
-        // If no super_admin exists and targetRole is super_admin, make it active
-        // Otherwise, if any other role, make it pending
+        // For initial setup: first Admin registration is automatically approved
         let status = 'pending';
         let isApproved = 0;
         let isActive = 0;
         let finalRole = targetRole;
 
-        if (superAdmins.length === 0 && (targetRole === 'super_admin' || targetRole === 'admin')) {
+        const [anyAdmins] = await db.query('SELECT id FROM users WHERE role = "admin" OR role = "super_admin"');
+
+        if (anyAdmins.length === 0 && targetRole === 'admin') {
             status = 'active';
             isApproved = 1;
             isActive = 1;
-            finalRole = 'super_admin';
+            finalRole = 'admin';
         }
 
         const userPayload = {
@@ -101,7 +106,7 @@ const register = async (req, res) => {
 // @route   GET /api/auth/check-super-admin
 const checkSuperAdminExists = async (req, res) => {
     try {
-        const [rows] = await db.query('SELECT id FROM users WHERE role = "super_admin" LIMIT 1');
+        const [rows] = await db.query('SELECT id FROM users WHERE role = "admin" OR role = "super_admin" LIMIT 1');
         res.status(200).json({
             success: true,
             exists: rows.length > 0
@@ -218,7 +223,7 @@ const login = async (req, res) => {
         // Department Role Validation
         const { department } = req.body;
         if (department === 'admin') {
-            if (user.role !== 'admin' && user.role !== 'super_admin') {
+            if (user.role !== 'admin' && user.role !== 'super_admin' && user.role !== 'sub_admin') {
                 return res.status(403).json({ success: false, message: "Unauthorized: Only Admin personnel can login here." });
             }
         } else if (department === 'mentor_dept') {
@@ -264,7 +269,8 @@ const login = async (req, res) => {
             user: {
                 id: user.id,
                 name: user.name,
-                role: user.role
+                role: user.role,
+                permissions: user.permissions ? (typeof user.permissions === 'string' ? JSON.parse(user.permissions) : user.permissions) : null
             }
         });
     } catch (error) {

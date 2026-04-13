@@ -7,7 +7,7 @@ const getAdminDashboardSummary = async (req, res) => {
         const [[{count: students}]] = await db.query('SELECT COUNT(*) as count FROM students');
         const [[{count: mentors}]] = await db.query('SELECT COUNT(*) as count FROM users WHERE role = "mentor"');
         const [[{count: faculties}]] = await db.query('SELECT COUNT(*) as count FROM users WHERE role = "faculty"');
-        const [[{count: pending}]] = await db.query('SELECT COUNT(*) as count FROM users WHERE (status = "pending" OR isApproved = 0)');
+        const [[{count: pending}]] = await db.query('SELECT COUNT(*) as count FROM users WHERE (status = "pending" OR isApproved = 0) AND status != "rejected"');
 
         res.status(200).json({
             success: true,
@@ -123,7 +123,7 @@ const getPendingUsers = async (req, res) => {
                    rb.name as registered_by_name
             FROM users u
             LEFT JOIN users rb ON u.registeredBy = rb.id
-            WHERE u.status = "pending" OR u.isApproved = 0
+            WHERE (u.status = "pending" OR u.isApproved = 0) AND u.status != 'rejected'
         `);
 
         // Attempt to fetch students with status pending
@@ -134,7 +134,7 @@ const getPendingUsers = async (req, res) => {
                        rb.name as registered_by_name
                 FROM students s
                 LEFT JOIN users rb ON s.registeredBy = rb.id
-                WHERE s.status = 'pending' OR s.isApproved = 0
+                WHERE (s.status = 'pending' OR s.isApproved = 0) AND s.status != 'rejected'
             `);
             students = studentRows;
         } catch (e) {
@@ -533,12 +533,12 @@ const getAllStudentsForAdmin = async (req, res) => {
 // @route   GET /api/admin/sub-admins
 const getSubAdmins = async (req, res) => {
     try {
-        if (req.user.role !== 'super_admin') {
-            return res.status(403).json({ success: false, message: "Access Denied. Super Admin only." });
+        if (req.user.role !== 'admin' && req.user.role !== 'super_admin') {
+            return res.status(403).json({ success: false, message: "Access Denied. Admin authority required." });
         }
 
         const [rows] = await db.query(
-            'SELECT id, name, email, phone_number, status, isActive, createdAt as created_at FROM users WHERE role = "sub_admin"'
+            'SELECT id, name, email, phone_number, status, isActive, permissions, createdAt as created_at FROM users WHERE role = "sub_admin"'
         );
         res.status(200).json({ success: true, data: rows });
     } catch (error) {
@@ -550,11 +550,11 @@ const getSubAdmins = async (req, res) => {
 // @route   POST /api/admin/sub-admins
 const createSubAdmin = async (req, res) => {
     try {
-        if (req.user.role !== 'super_admin') {
-            return res.status(403).json({ success: false, message: "Access Denied. Super Admin only." });
+        if (req.user.role !== 'admin' && req.user.role !== 'super_admin') {
+            return res.status(403).json({ success: false, message: "Access Denied. Authority insufficient." });
         }
 
-        const { name, email, password, phone_number, status } = req.body;
+        const { name, email, password, phone_number, status, permissions } = req.body;
 
         if (!name || !email || !password) {
             return res.status(400).json({ success: false, message: "Name, Email and Password are required" });
@@ -570,8 +570,8 @@ const createSubAdmin = async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, salt);
 
         const [result] = await db.query(
-            'INSERT INTO users (name, email, password, phone_number, role, status, isActive, createdBy) VALUES (?, ?, ?, ?, "sub_admin", ?, 1, ?)',
-            [name, email, hashedPassword, phone_number, status || 'active', req.user.id]
+            'INSERT INTO users (name, email, password, phone_number, role, status, isActive, createdBy, permissions) VALUES (?, ?, ?, ?, "sub_admin", ?, 1, ?, ?)',
+            [name, email, hashedPassword, phone_number, status || 'active', req.user.id, permissions ? JSON.stringify(permissions) : null]
         );
 
         res.status(201).json({ success: true, message: "Sub Admin created successfully", id: result.insertId });
@@ -584,12 +584,12 @@ const createSubAdmin = async (req, res) => {
 // @route   PUT /api/admin/sub-admins/:id
 const updateSubAdmin = async (req, res) => {
     try {
-        if (req.user.role !== 'super_admin') {
-            return res.status(403).json({ success: false, message: "Access Denied. Super Admin only." });
+        if (req.user.role !== 'admin' && req.user.role !== 'super_admin') {
+            return res.status(403).json({ success: false, message: "Access Denied. Authority insufficient." });
         }
 
         const { id } = req.params;
-        const { name, phone_number, status, password } = req.body;
+        const { name, phone_number, status, password, permissions } = req.body;
 
         // Check if target is actually a sub_admin to prevent privilege escalation or modifying super_admin
         const [target] = await db.query('SELECT role FROM users WHERE id = ?', [id]);
@@ -597,8 +597,8 @@ const updateSubAdmin = async (req, res) => {
             return res.status(400).json({ success: false, message: "Invalid target. Only sub_admins can be managed here." });
         }
 
-        let query = 'UPDATE users SET name = ?, phone_number = ?, status = ?, isActive = ?';
-        let params = [name, phone_number, status, status === 'active' ? 1 : 0];
+        let query = 'UPDATE users SET name = ?, phone_number = ?, status = ?, isActive = ?, permissions = ?';
+        let params = [name, phone_number, status, status === 'active' ? 1 : 0, permissions ? JSON.stringify(permissions) : null];
 
         if (password) {
             const bcrypt = require('bcrypt');
@@ -622,17 +622,17 @@ const updateSubAdmin = async (req, res) => {
 // @route   DELETE /api/admin/sub-admins/:id
 const deleteSubAdmin = async (req, res) => {
     try {
-        if (req.user.role !== 'super_admin') {
-            return res.status(403).json({ success: false, message: "Access Denied. Super Admin only." });
+        if (req.user.role !== 'admin' && req.user.role !== 'super_admin') {
+            return res.status(403).json({ success: false, message: "Access Denied. Authority insufficient." });
         }
 
         const { id } = req.params;
 
-        // Protection: System must not allow deleting super_admin via this route
+        // Protection: System must not allow deleting the main admin via this route
         const [target] = await db.query('SELECT name, role FROM users WHERE id = ?', [id]);
         if (!target.length) return res.status(404).json({ success: false, message: "User not found" });
-        if (target[0].role === 'super_admin') {
-            return res.status(403).json({ success: false, message: "Fatal Error: Super Admin cannot be deleted." });
+        if (target[0].role === 'admin' || target[0].role === 'super_admin') {
+            return res.status(403).json({ success: false, message: "Fatal Error: Main Admin cannot be deleted." });
         }
 
         // Handle sub-admin dependencies (they might have registered users or created tasks)

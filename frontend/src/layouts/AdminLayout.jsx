@@ -21,19 +21,31 @@ const AdminLayout = () => {
     const [isCollapsed, setIsCollapsed] = useState(false);
 
     const navItems = [
-        { path: '/admin/dashboard', icon: <LayoutDashboard size={20} />, label: 'Dashboard' },
-        { path: '/admin/admin-management', icon: <UserCheck size={20} />, label: 'Admins', superOnly: true },
-        { path: '/admin/approvals', icon: <UserCheck size={20} />, label: 'Approvals' },
-        { path: '/admin/students', icon: <Users size={20} />, label: 'Students' },
-        { path: '/admin/mentors', icon: <UserSquare2 size={20} />, label: 'Mentors' },
-        { path: '/admin/faculties', icon: <GraduationCap size={20} />, label: 'Faculties' },
-        { path: '/admin/staff', icon: <UserSquare2 size={20} />, label: 'Staff Management' },
-        { path: '/admin/tasks', icon: <ListTodo size={20} />, label: 'Tasks' },
-        { path: '/admin/reports', icon: <FileText size={20} />, label: 'Reports' },
-        { path: '/admin/live-monitoring', icon: <Target size={20} />, label: 'Live Classes' },
-        { path: '/admin/mentor-head-report', icon: <Target size={20} />, label: 'Mentor Head Report' },
-        { path: '/admin/logs', icon: <ScrollText size={20} />, label: 'Logs' },
-    ].filter(item => !item.superOnly || user?.role === 'super_admin');
+        { path: '/admin/dashboard', icon: <LayoutDashboard size={20} />, label: 'Dashboard', perm: 'dashboard' },
+        { path: '/admin/admin-management', icon: <UserCheck size={20} />, label: 'Admins', perm: 'admins' },
+        { path: '/admin/approvals', icon: <UserCheck size={20} />, label: 'Approvals', perm: 'approvals' },
+        { path: '/admin/students', icon: <Users size={20} />, label: 'Students', perm: 'students' },
+        { path: '/admin/mentors', icon: <UserSquare2 size={20} />, label: 'Mentors', perm: 'mentors' },
+        { path: '/admin/faculties', icon: <GraduationCap size={20} />, label: 'Faculties', perm: 'faculties' },
+        { path: '/admin/staff', icon: <UserSquare2 size={20} />, label: 'Staff Management', perm: 'staff' },
+        { path: '/admin/tasks', icon: <ListTodo size={20} />, label: 'Tasks', perm: 'tasks' },
+        { path: '/admin/reports', icon: <FileText size={20} />, label: 'Reports', perm: 'reports' },
+        { path: '/admin/live-monitoring', icon: <Target size={20} />, label: 'Live Classes', perm: 'monitoring' },
+        { path: '/admin/mentor-head-report', icon: <Target size={20} />, label: 'Mentor Head Report', perm: 'reports' },
+        { path: '/admin/logs', icon: <ScrollText size={20} />, label: 'Logs', perm: 'logs' },
+    ].filter(item => {
+        // Main Admin has full access
+        if (user?.role === 'admin' || user?.role === 'super_admin') return true;
+        
+        // Sub Admins filtered by granular permissions
+        if (user?.role === 'sub_admin') {
+            const perms = user?.permissions || {};
+            if (item.perm) return !!perms[item.perm];
+            return true;
+        }
+        
+        return false;
+    });
 
     return (
         <div className="flex min-h-screen relative overflow-hidden" 

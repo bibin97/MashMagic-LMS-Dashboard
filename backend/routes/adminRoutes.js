@@ -70,11 +70,11 @@ router.delete('/delete/:id', deleteUser);
 router.put('/users/:id', updateUserForAdmin);
 router.put('/students/:id', updateStudentForAdmin);
 
-// Sub Admin management (also Super Admin only)
-router.get('/sub-admins', getSubAdmins);
-router.post('/sub-admins', createSubAdmin);
-router.put('/sub-admins/:id', updateSubAdmin);
-router.delete('/sub-admins/:id', deleteSubAdmin);
+// Sub Admin management (allowed for Super Admin and Admin)
+router.get('/sub-admins', requireRole('super_admin', 'admin'), getSubAdmins);
+router.post('/sub-admins', requireRole('super_admin', 'admin'), createSubAdmin);
+router.put('/sub-admins/:id', requireRole('super_admin', 'admin'), updateSubAdmin);
+router.delete('/sub-admins/:id', requireRole('super_admin', 'admin'), deleteSubAdmin);
 
 // Log Routes
 router.get('/student-logs', getAllStudentLogs);

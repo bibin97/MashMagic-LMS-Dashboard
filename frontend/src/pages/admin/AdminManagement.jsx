@@ -29,9 +29,23 @@ const AdminManagement = () => {
         email: '',
         phone_number: '',
         password: '',
-        status: 'active'
+        status: 'active',
+        permissions: {}
     });
+    const [fullControl, setFullControl] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const permissionOptions = [
+        { key: 'dashboard', label: 'Global Dashboard' },
+        { key: 'admins', label: 'Sub-Admin Management' },
+        { key: 'approvals', label: 'Registration Approvals' },
+        { key: 'students', label: 'Student Management' },
+        { key: 'mentors', label: 'Mentor Management' },
+        { key: 'faculties', label: 'Faculty Management' },
+        { key: 'tasks', label: 'Task Management System' },
+        { key: 'logs', label: 'System Interaction Logs' },
+        { key: 'monitoring', label: 'Live Monitoring' }
+    ];
 
     useEffect(() => {
         fetchSubAdmins();
@@ -58,20 +72,28 @@ const AdminManagement = () => {
             email: '',
             phone_number: '',
             password: '',
-            status: 'active'
+            status: 'active',
+            permissions: {}
         });
+        setFullControl(false);
         setIsModalOpen(true);
     };
 
     const handleOpenEdit = (admin) => {
         setEditingAdmin(admin);
+        const perms = admin.permissions ? (typeof admin.permissions === 'string' ? JSON.parse(admin.permissions) : admin.permissions) : {};
         setFormData({
             name: admin.name,
             email: admin.email,
             phone_number: admin.phone_number || '',
-            password: '', // Keep password empty unless changing
-            status: admin.status
+            password: '', 
+            status: admin.status,
+            permissions: perms
         });
+        
+        // Check if all permissions are true
+        const isFull = permissionOptions.every(opt => perms[opt.key]);
+        setFullControl(isFull);
         setIsModalOpen(true);
     };
 
@@ -330,6 +352,50 @@ const AdminManagement = () => {
                                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                                 />
                             </div>
+                        </div>
+
+                        {/* Permissions Header */}
+                        <div className="md:col-span-2 pt-4 border-t border-slate-100 italic flex items-center justify-between">
+                            <h4 className="text-[11px] font-black text-slate-900 uppercase tracking-[0.2em]">Authority Delegation & Permissions</h4>
+                            <div className="flex items-center gap-3 bg-slate-50 px-4 py-2 rounded-xl border border-slate-100">
+                                <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Full Access Control</span>
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        const newVal = !fullControl;
+                                        setFullControl(newVal);
+                                        const newPerms = {};
+                                        permissionOptions.forEach(opt => newPerms[opt.key] = newVal);
+                                        setFormData({ ...formData, permissions: newPerms });
+                                    }}
+                                    className={`w-10 h-5 rounded-full relative transition-all duration-300 ${fullControl ? 'bg-[#008080]' : 'bg-slate-300'}`}
+                                >
+                                    <div className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all duration-300 ${fullControl ? 'left-6' : 'left-1'}`}></div>
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Permissions Grid */}
+                        <div className="md:col-span-2 grid grid-cols-2 sm:grid-cols-3 gap-3">
+                            {permissionOptions.map((opt) => (
+                                <button
+                                    key={opt.key}
+                                    type="button"
+                                    onClick={() => {
+                                        const newPerms = { ...formData.permissions, [opt.key]: !formData.permissions[opt.key] };
+                                        setFormData({ ...formData, permissions: newPerms });
+                                        // Update general full control toggle check
+                                        setFullControl(permissionOptions.every(o => newPerms[o.key]));
+                                    }}
+                                    className={`p-3 rounded-xl border text-[10px] font-bold text-left transition-all flex items-center gap-3 ${formData.permissions[opt.key]
+                                            ? 'bg-[#008080]/10 border-[#008080]/20 text-[#008080]'
+                                            : 'bg-white border-slate-100 text-slate-400 hover:border-slate-200'
+                                        }`}
+                                >
+                                    <div className={`w-3 h-3 rounded-full border-2 transition-all ${formData.permissions[opt.key] ? 'bg-[#008080] border-[#008080]' : 'border-slate-200'}`}></div>
+                                    {opt.label}
+                                </button>
+                            ))}
                         </div>
                     </div>
 
