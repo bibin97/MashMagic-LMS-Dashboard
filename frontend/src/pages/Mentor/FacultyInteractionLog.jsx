@@ -347,7 +347,6 @@ const FacultyInteractionLog = () => {
                                     </div>
                                     <div className="space-y-2">
                                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 min-h-[22px] flex items-center">Date *</label>
-                                        <p className="text-[8px] font-bold text-[#008080] normal-case italic -mt-1 ml-1">Supports multiple classes/day</p>
                                         <input
                                             type="date"
                                             required
@@ -369,6 +368,7 @@ const FacultyInteractionLog = () => {
                                         </select>
                                     </div>
                                 </div>
+                                <p className="text-[9px] font-bold text-[#008080] normal-case italic -mt-4 ml-1">Date supports multiple classes/day</p>
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                     <div className="space-y-2">
