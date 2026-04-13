@@ -177,17 +177,15 @@ const rejectUser = async (req, res) => {
 // @route   DELETE /api/admin/delete/:id
 // @access  Private (super_admin, admin)
 const deleteUser = async (req, res) => {
+    const { id } = req.params;
+    const role = req.query.role || req.body.role;
+
     try {
-        const role = req.query.role || req.body.role;
-        const { id } = req.params;
-        let result;
-        let nameRow;
-
         if (role === 'student') {
-            [[nameRow]] = await db.query('SELECT name FROM students WHERE id = ?', [id]);
-            if (!nameRow) return res.status(404).json({ success: false, message: "Student not found" });
+            const [[student]] = await db.query('SELECT name FROM students WHERE id = ?', [id]);
+            if (!student) return res.status(404).json({ success: false, message: "Student not found" });
 
-            // Handle student-specific dependencies before deletion
+            // Dependency Cleanup for Students
             await db.query('DELETE FROM student_interaction_logs WHERE student_id = ?', [id]);
             await db.query('DELETE FROM faculty_interaction_logs WHERE student_id = ?', [id]);
             await db.query('DELETE FROM student_verification WHERE student_id = ?', [id]);
@@ -199,19 +197,22 @@ const deleteUser = async (req, res) => {
             await db.query('DELETE FROM live_class_feedbacks WHERE student_id = ?', [id]);
             await db.query('DELETE FROM mentor_timetable WHERE student_id = ?', [id]);
 
-            [result] = await db.query('DELETE FROM students WHERE id = ?', [id]);
+            await db.query('DELETE FROM students WHERE id = ?', [id]);
+            res.status(200).json({ success: true, message: "Student deleted successfully" });
         } else {
-            [[nameRow]] = await db.query('SELECT name, role FROM users WHERE id = ?', [id]);
-            if (!nameRow) return res.status(404).json({ success: false, message: "User not found" });
+            const [users] = await db.query('SELECT id, name, role, status FROM users WHERE id = ?', [id]);
+            if (users.length === 0) return res.status(404).json({ success: false, message: "User not found" });
 
-            const userRole = nameRow.role;
+            const target = users[0];
+            const userRole = target.role;
 
-            // 1. UNIVERSAL NULLIFICATION (Apply to any user being removed)
-            // Handle registration tracking dependencies
+            if (userRole === 'super_admin' && target.status === 'active') {
+                return res.status(403).json({ success: false, message: "Active Super Admin cannot be deleted." });
+            }
+
+            // Global Dependencies
             await db.query('UPDATE users SET registeredBy = NULL WHERE registeredBy = ?', [id]);
             await db.query('UPDATE students SET registeredBy = NULL WHERE registeredBy = ?', [id]);
-            
-            // Handle Task System dependencies
             await db.query('UPDATE tasks SET assigned_by = NULL WHERE assigned_by = ?', [id]);
             await db.query('UPDATE tasks SET assigned_to = NULL WHERE assigned_to = ?', [id]);
 
