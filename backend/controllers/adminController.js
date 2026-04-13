@@ -178,7 +178,7 @@ const rejectUser = async (req, res) => {
 // @access  Private (super_admin, admin)
 const deleteUser = async (req, res) => {
     const { id } = req.params;
-    const role = req.query.role || req.body.role;
+    const role = req.query?.role || req.body?.role;
 
     try {
         if (role === 'student') {
