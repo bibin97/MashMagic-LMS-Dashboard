@@ -264,7 +264,7 @@ const deleteUser = async (req, res) => {
         console.error("DELETE_USER_ERROR LOG:", error);
         res.status(500).json({ 
             success: false, 
-            message: "Conflict detected: This member is linked to other critical records.", 
+            message: "Database Conflict: " + error.message, 
             error: error.message 
         });
     }
