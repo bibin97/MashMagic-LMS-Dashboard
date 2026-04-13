@@ -39,10 +39,20 @@ const Sidebar = ({ isOpen, setIsOpen, isCollapsed, setIsCollapsed, navItems, tit
     };
 
     return (
-        <aside className={`fixed left-0 top-0 h-full flex flex-col z-[1000] shadow-2xl transition-all duration-300 ease-in-out md:translate-x-0 ${isOpen ? 'translate-x-0' : (isCollapsed ? 'md:w-24 -translate-x-full' : 'md:w-72 -translate-x-full')} ${isCollapsed ? 'md:w-24' : 'md:w-72'}`}
+        <aside className={`fixed left-0 top-0 h-full flex flex-col z-[1000] shadow-2xl transition-all duration-300 ease-in-out md:translate-x-0 
+            ${isOpen ? 'translate-x-0' : '-translate-x-full'} 
+            w-[80%] max-w-[20rem] sm:w-80 ${isCollapsed ? 'md:w-24' : 'md:w-72'}`}
                style={{ background: 'linear-gradient(180deg, #0F172A, #020617)' }}>
             
-            {/* Collapse Toggle Bar */}
+            {/* Mobile Close Button */}
+            <button 
+                onClick={() => setIsOpen(false)}
+                className="md:hidden absolute right-4 top-4 z-[1100] p-3 bg-white/10 hover:bg-white/20 rounded-2xl text-white transition-all backdrop-blur-md border border-white/20"
+            >
+                <X size={20} />
+            </button>
+
+            {/* Collapse Toggle Bar (Desktop Only) */}
             <button 
                 onClick={() => setIsCollapsed(!isCollapsed)}
                 className="hidden md:flex absolute -right-4 top-24 w-8 h-8 bg-[#14B8A6] rounded-full items-center justify-center text-white shadow-lg border-2 border-slate-900 z-50 hover:scale-110 active:scale-95 transition-all"
@@ -63,14 +73,6 @@ const Sidebar = ({ isOpen, setIsOpen, isCollapsed, setIsCollapsed, navItems, tit
                             </h1>
                         )}
                     </div>
-                    {!isCollapsed && (
-                        <button 
-                            onClick={() => setIsOpen(false)}
-                            className="md:hidden text-white/50 hover:text-white p-2 hover:bg-white/5 rounded-xl transition-colors absolute -right-2 -top-2"
-                        >
-                            <X size={24} />
-                        </button>
-                    )}
                 </div>
             </div>
 

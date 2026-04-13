@@ -152,34 +152,38 @@ const Login = () => {
                     <div className="px-6 sm:px-14 pb-14 pt-2 relative min-h-[460px] flex flex-col">
                         {/* Sub-role Selector */}
                         <div className="flex justify-center mb-12 w-full">
-                            {(activeDepartment === 'mentor_dept' || activeDepartment === 'academic_dept') && (
-                                <div className="bg-white/5 p-1 rounded-[20px] flex gap-1 border border-white/5 relative min-w-[300px]">
-                                    {/* Sliding Sub-role Background (Yellow) */}
-                                    <div 
-                                        className="absolute bg-[#f8ba2b]/30 backdrop-blur-md border border-[#f8ba2b]/50 shadow-[0_0_15px_rgba(248,186,43,0.3)] rounded-[16px] transition-all duration-500 ease-spring"
-                                        style={{
-                                            width: 'calc(50% - 4px)',
-                                            height: 'calc(100% - 8px)',
-                                            left: (subRole === 'mentor_head' || subRole === 'academic_head') ? '4px' : 'calc(50% + 0px)',
-                                            top: '4px'
-                                        }}
-                                    ></div>
-                                    {(activeDepartment === 'mentor_dept' 
+                            <div className="bg-white/5 p-1 rounded-[20px] flex gap-1 border border-white/5 border-white/5 relative min-w-[300px]">
+                                {/* Sliding Sub-role Background */}
+                                <div 
+                                    className="absolute backdrop-blur-md border shadow-[0_0_15px_rgba(248,186,43,0.3)] rounded-[16px] transition-all duration-500 ease-spring"
+                                    style={{
+                                        width: 'calc(50% - 4px)',
+                                        height: 'calc(100% - 8px)',
+                                        left: (subRole === 'mentor_head' || subRole === 'academic_head' || subRole === 'super_admin') ? '4px' : 'calc(50% + 0px)',
+                                        top: '4px',
+                                        backgroundColor: (subRole === 'super_admin' || subRole === 'admin') ? 'rgba(0, 128, 128, 0.3)' : 'rgba(248, 186, 43, 0.3)',
+                                        borderColor: (subRole === 'super_admin' || subRole === 'admin') ? 'rgba(0, 128, 128, 0.5)' : 'rgba(248, 186, 43, 0.5)'
+                                    }}
+                                ></div>
+                                {(activeDepartment === 'admin' 
+                                    ? [{ id: 'super_admin', label: 'Super Admin' }, { id: 'admin', label: 'Sub Admin' }]
+                                    : activeDepartment === 'mentor_dept' 
                                         ? [{ id: 'mentor_head', label: 'Mentor Head' }, { id: 'mentor', label: 'Mentor' }]
                                         : [{ id: 'academic_head', label: 'Academic Head' }, { id: 'faculty', label: 'Faculty' }]
-                                    ).map(role => (
-                                        <button
-                                            key={role.id}
-                                            onClick={() => handleSubRoleChange(role.id)}
-                                            className={`flex-1 px-6 sm:px-8 py-3 rounded-[16px] text-[10px] font-black uppercase tracking-wider transition-all relative z-10
-                                                ${subRole === role.id ? 'text-black' : 'text-white hover:text-slate-200'}
-                                            `}
-                                        >
-                                            {role.label}
-                                        </button>
-                                    ))}
-                                </div>
-                            )}
+                                ).map(role => (
+                                    <button
+                                        key={role.id}
+                                        onClick={() => handleSubRoleChange(role.id)}
+                                        className={`flex-1 px-6 sm:px-8 py-3 rounded-[16px] text-[10px] font-black uppercase tracking-wider transition-all relative z-10
+                                            ${subRole === role.id 
+                                                ? (activeDepartment === 'admin' ? 'text-[#14B8A6]' : 'text-black') 
+                                                : 'text-white hover:text-slate-200'}
+                                        `}
+                                    >
+                                        {role.label}
+                                    </button>
+                                ))}
+                            </div>
                         </div>
 
                         {isRegistering ? (

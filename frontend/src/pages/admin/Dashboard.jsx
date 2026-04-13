@@ -315,17 +315,17 @@ const Dashboard = () => {
                                             )}
                                         />
                                         <Bar
-                                            name="Tasks Assigned"
-                                            dataKey="tasks"
-                                            fill="#10B981"
+                                            name="Task Completed"
+                                            dataKey="completed"
+                                            fill="#000000"
                                             radius={[6, 6, 0, 0]}
                                             barSize={taskFilter === 'today' || taskFilter === 'yesterday' ? 60 : 20}
                                             minPointSize={5}
                                         />
                                         <Bar
-                                            name="Task Completed"
-                                            dataKey="completed"
-                                            fill="#000000"
+                                            name="Tasks Assigned"
+                                            dataKey="tasks"
+                                            fill="#10B981"
                                             radius={[6, 6, 0, 0]}
                                             barSize={taskFilter === 'today' || taskFilter === 'yesterday' ? 60 : 20}
                                             minPointSize={5}
@@ -355,26 +355,44 @@ const Dashboard = () => {
                             {isMounted && mentorDistribution.length > 0 && (
                                 <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                                     <PieChart>
+                                        {/* Outer Ring: Students (Black) */}
                                         <Pie
                                             data={mentorDistribution}
                                             cx="50%"
                                             cy="50%"
-                                            innerRadius={80}
-                                            outerRadius={110}
-                                            paddingAngle={4}
+                                            innerRadius={100}
+                                            outerRadius={125}
+                                            paddingAngle={8}
                                             dataKey="value"
+                                            stroke="none"
                                         >
                                             {mentorDistribution.map((entry, index) => (
-                                                <Cell key={`cell-${index}`} fill={entry.color} />
+                                                <Cell key={`cell-outer-${index}`} fill="#000000" />
+                                            ))}
+                                        </Pie>
+                                        {/* Inner Ring: Mentors (Green) */}
+                                        <Pie
+                                            data={mentorDistribution}
+                                            cx="50%"
+                                            cy="50%"
+                                            innerRadius={70}
+                                            outerRadius={95}
+                                            paddingAngle={8}
+                                            dataKey="value"
+                                            stroke="none"
+                                        >
+                                            {mentorDistribution.map((entry, index) => (
+                                                <Cell key={`cell-inner-${index}`} fill="#14B8A6" />
                                             ))}
                                         </Pie>
                                         <Tooltip
                                             content={({ active, payload }) => {
                                                 if (active && payload && payload.length) {
+                                                    const data = payload[0].payload;
                                                     return (
-                                                        <div className="bg-white p-3 rounded-lg shadow-xl border border-slate-100 font-bold text-xs">
-                                                            <p className="text-slate-500 mb-1">{payload[0].name}</p>
-                                                            <p className="text-[#008080]">{payload[0].value} Students</p>
+                                                        <div className="bg-slate-900/90 backdrop-blur-md p-3 rounded-xl shadow-2xl border border-white/10 font-bold text-[11px] text-white">
+                                                            <p className="text-[#14B8A6] mb-1 uppercase tracking-widest">{data.name}</p>
+                                                            <p className="text-white/70">{data.value} Students Assigned</p>
                                                         </div>
                                                     );
                                                 }
@@ -386,8 +404,12 @@ const Dashboard = () => {
                                             iconType="circle"
                                             wrapperStyle={{ paddingTop: '30px' }}
                                             fontSize={10}
-                                            formatter={(value, entry) => (
-                                                <span className="text-slate-600 font-bold text-[10px]">{value}</span>
+                                            payload={[
+                                                { value: 'Mentors', type: 'circle', id: 'ID01', color: '#14B8A6' },
+                                                { value: 'Students', type: 'circle', id: 'ID02', color: '#000000' }
+                                            ]}
+                                            formatter={(value) => (
+                                                <span className="text-slate-600 font-bold text-[10px] uppercase tracking-widest ml-1">{value}</span>
                                             )}
                                         />
                                     </PieChart>
@@ -402,7 +424,7 @@ const Dashboard = () => {
                                     {mentorDistribution[0]?.name || 'N/A'}
                                 </span>
                             </div>
-                            <div className="flex flex-col gap-0.5">
+                            <div className="flex flex-col gap-0.5 text-right">
                                 <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Avg Loading</span>
                                 <span className="text-base font-bold text-slate-900">
                                     {mentorDistribution.length > 0
@@ -434,7 +456,7 @@ const Dashboard = () => {
                                             <Pie
                                             data={[
                                                 { name: 'Checked Today', value: mentorHeadReport.checkedToday, color: '#14B8A6' },
-                                                { name: 'Remaining', value: mentorHeadReport.remaining, color: '#F1F5F9' }
+                                                { name: 'Remaining', value: mentorHeadReport.remaining, color: '#EF4444' }
                                             ]}
                                             cx="50%"
                                             cy="50%"
@@ -445,7 +467,7 @@ const Dashboard = () => {
                                         >
                                             {[
                                                 { name: 'Checked Today', value: mentorHeadReport.checkedToday, color: '#14B8A6' },
-                                                { name: 'Remaining', value: mentorHeadReport.remaining, color: '#F1F5F9' }
+                                                { name: 'Remaining', value: mentorHeadReport.remaining, color: '#EF4444' }
                                             ].map((entry, index) => (
                                                 <Cell key={`cell-${index}`} fill={entry.color} />
                                             ))}
