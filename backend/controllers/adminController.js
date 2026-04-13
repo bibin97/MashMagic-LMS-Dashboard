@@ -210,22 +210,21 @@ const deleteUser = async (req, res) => {
                 return res.status(403).json({ success: false, message: "Active Super Admin cannot be deleted." });
             }
 
-            // Global Dependencies
-            await db.query('UPDATE users SET registeredBy = NULL WHERE registeredBy = ?', [id]);
-            await db.query('UPDATE students SET registeredBy = NULL WHERE registeredBy = ?', [id]);
-            await db.query('UPDATE tasks SET assigned_by = NULL WHERE assigned_by = ?', [id]);
-            await db.query('UPDATE tasks SET assigned_to = NULL WHERE assigned_to = ?', [id]);
-
-            // Master Force Cleanup for ALL potential tables
+            // Consolidated Resilient Cleanup for ALL potential tables
             const cleanupQueries = [
+                'UPDATE users SET registeredBy = NULL WHERE registeredBy = ?',
+                'UPDATE students SET registeredBy = NULL WHERE registeredBy = ?',
+                'UPDATE tasks SET assigned_by = NULL WHERE assigned_by = ?',
+                'UPDATE tasks SET assigned_to = NULL WHERE assigned_to = ?',
                 'UPDATE students SET mentor_id = NULL, mentor_name = "Not Assigned" WHERE mentor_id = ?',
                 'UPDATE students SET faculty_id = NULL, faculty_name = "Not Assigned" WHERE faculty_id = ?',
-                'UPDATE students SET registeredBy = NULL WHERE registeredBy = ?',
                 'DELETE FROM faculty_sessions WHERE faculty_id = ?',
                 'DELETE FROM student_marks WHERE faculty_id = ?',
                 'DELETE FROM student_reports WHERE faculty_id = ?',
                 'DELETE FROM faculty_documents WHERE faculty_id = ?',
                 'DELETE FROM faculty_interaction_logs WHERE faculty_id = ?',
+                'DELETE FROM mentorship_logs WHERE mentor_id = ?',
+                'DELETE FROM faculty_verification WHERE academic_head_id = ? OR faculty_id = ?',
                 'DELETE FROM student_interaction_logs WHERE mentor_id = ?',
                 'DELETE FROM daily_hours_log WHERE mentor_id = ?',
                 'DELETE FROM student_exams WHERE mentor_id = ? OR student_id IN (SELECT id FROM students WHERE mentor_id = ?)',
@@ -233,21 +232,17 @@ const deleteUser = async (req, res) => {
                 'DELETE FROM notifications WHERE user_id = ?',
                 'DELETE FROM live_class_feedbacks WHERE faculty_id = ?',
                 'DELETE FROM student_verification WHERE mentor_head_id = ?',
-                // Potential Log Tables
                 'DELETE FROM activity_logs WHERE user_id = ?',
                 'DELETE FROM user_activity_logs WHERE user_id = ?',
-                'DELETE FROM admin_actions WHERE user_id = ?',
-                'UPDATE tasks SET assigned_by = NULL WHERE assigned_by = ?',
-                'UPDATE tasks SET assigned_to = NULL WHERE assigned_to = ?'
+                'DELETE FROM admin_actions WHERE user_id = ?'
             ];
 
             for (const query of cleanupQueries) {
                 try {
-                    // Adjust params based on query requirements
                     const params = query.includes('OR') ? [id, id] : [id];
                     await db.query(query, params);
                 } catch (e) {
-                    // Silently ignore if table or column doesn't exist
+                    // Silently ignore schema mismatches
                 }
             }
 
