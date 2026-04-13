@@ -331,13 +331,13 @@ const FacultyInteractionLog = () => {
                             </div>
 
                             <form onSubmit={handleSubmit} className="p-6 sm:p-10 space-y-8 sm:space-y-10">
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
                                     <div className="space-y-2">
-                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Select Student *</label>
+                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 min-h-[22px] flex items-center">Select Student *</label>
                                         <select
                                             name="student_id"
                                             required
-                                            className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
+                                            className="w-full h-14 px-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
                                             value={formData.student_id}
                                             onChange={(e) => setFormData({ ...formData, student_id: e.target.value })}
                                         >
@@ -346,21 +346,20 @@ const FacultyInteractionLog = () => {
                                         </select>
                                     </div>
                                     <div className="space-y-2">
-                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 flex items-center gap-1">
-                                            Date * <span className="text-[8px] font-bold text-[#008080] normal-case italic">(Supports multiple classes/day)</span>
-                                        </label>
+                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 min-h-[22px] flex items-center">Date *</label>
+                                        <p className="text-[8px] font-bold text-[#008080] normal-case italic -mt-1 ml-1">Supports multiple classes/day</p>
                                         <input
                                             type="date"
                                             required
-                                            className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
+                                            className="w-full h-14 px-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
                                             value={formData.date}
                                             onChange={(e) => setFormData({ ...formData, date: e.target.value })}
                                         />
                                     </div>
                                     <div className="space-y-2">
-                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Session Type</label>
+                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 min-h-[22px] flex items-center">Session Type</label>
                                         <select
-                                            className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
+                                            className="w-full h-14 px-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
                                             value={formData.session_type}
                                             onChange={(e) => setFormData({ ...formData, session_type: e.target.value })}
                                         >
@@ -373,21 +372,21 @@ const FacultyInteractionLog = () => {
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                     <div className="space-y-2">
-                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Chapter Name *</label>
+                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 min-h-[22px] flex items-center">Chapter Name *</label>
                                         <input
                                             type="text"
                                             required
                                             placeholder="e.g. Integration, Photosynthesis..."
-                                            className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
+                                            className="w-full h-14 px-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
                                             value={formData.chapter}
                                             onChange={(e) => setFormData({ ...formData, chapter: e.target.value })}
                                         />
                                     </div>
                                     <div className="grid grid-cols-2 gap-4">
                                         <div className="space-y-2">
-                                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Performance (1-5)</label>
+                                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 min-h-[22px] flex items-center">Performance (1-5)</label>
                                             <select
-                                                className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
+                                                className="w-full h-14 px-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
                                                 value={formData.student_performance}
                                                 onChange={(e) => setFormData({ ...formData, student_performance: e.target.value })}
                                             >
@@ -399,9 +398,9 @@ const FacultyInteractionLog = () => {
                                             </select>
                                         </div>
                                         <div className="space-y-2">
-                                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Engagement</label>
+                                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 min-h-[22px] flex items-center">Engagement</label>
                                             <select
-                                                className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
+                                                className="w-full h-14 px-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
                                                 value={formData.engagement_level}
                                                 onChange={(e) => setFormData({ ...formData, engagement_level: e.target.value })}
                                             >

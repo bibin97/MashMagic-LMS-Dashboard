@@ -24,6 +24,25 @@ p, span, label, input, select, textarea, small, .italic {
   font-family: 'Inter', sans-serif !important;
 }
 
+/* Improve readability on white panel backgrounds */
+main .text-slate-500,
+main .text-slate-400,
+main .text-slate-300,
+main .text-gray-500,
+main .text-gray-400 {
+  color: #0f172a !important;
+}
+
+/* Keep sidebar text light on dark cards/backgrounds */
+aside .text-slate-500,
+aside .text-slate-400,
+aside .text-slate-300,
+aside .text-slate-200,
+aside .text-gray-500,
+aside .text-gray-400 {
+  color: #e2e8f0 !important;
+}
+
 /* Hide scrollbars globally (keep scrolling enabled) */
 html,
 body,

@@ -296,51 +296,77 @@ const Registrations = () => {
                             </div>
 
                             {/* Multiple Subjects & Faculties */}
-                            <div className="md:col-span-2 space-y-4">
-                                <div className="flex items-center justify-between">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Subjects & Assigned Faculties</label>
-                                    <button type="button" onClick={addSubjectRow} className="text-[10px] font-black text-[#008080] uppercase tracking-widest hover:text-[#008080] transition-colors bg-[#008080]/10 px-3 py-1.5 rounded-lg border border-[#008080]">
+                            <div className="md:col-span-2 rounded-2xl border border-[#008080]/30 bg-[#008080]/5 p-4 sm:p-5 space-y-4">
+                                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                                    <div>
+                                        <label className="text-[10px] font-black text-[#0f172a] uppercase tracking-widest ml-1">Subjects & Assigned Faculties</label>
+                                        <p className="text-[10px] font-bold text-slate-700 ml-1 mt-1">Add one or more subject-faculty pairs for this student.</p>
+                                    </div>
+                                    <button type="button" onClick={addSubjectRow} className="text-[10px] font-black text-[#008080] uppercase tracking-widest hover:text-[#0f172a] transition-colors bg-white px-3 py-2 rounded-lg border border-[#008080]/40 w-fit">
                                         + Add Subject
                                     </button>
                                 </div>
-                                
-                                {selectedSubjects.map((row, idx) => (
-                                    <div key={idx} className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50/50 p-4 rounded-2xl border border-slate-100 relative group animate-in slide-in-from-right-2 duration-300">
-                                        {selectedSubjects.length > 1 && (
-                                            <button type="button" onClick={() => removeSubjectRow(idx)} className="absolute -top-2 -right-2 w-6 h-6 bg-rose-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-sm">
-                                                ×
-                                            </button>
+
+                                <div className="space-y-3">
+                                    {selectedSubjects.map((row, idx) => (
+                                        <div key={idx} className="grid grid-cols-1 md:grid-cols-[1fr_1fr_auto] gap-3 bg-white p-4 rounded-xl border border-slate-200 relative animate-in slide-in-from-right-2 duration-300">
+                                            <div className="flex flex-col gap-1.5">
+                                                <label className="text-[10px] font-black text-slate-700 uppercase tracking-widest">Subject</label>
+                                                <select
+                                                    required
+                                                    value={row.subject}
+                                                    onChange={(e) => handleSubjectChange(idx, 'subject', e.target.value)}
+                                                    className="w-full p-3 bg-white border border-slate-300 rounded-xl text-xs outline-none focus:ring-2 focus:ring-[#008080] font-bold appearance-none text-black"
+                                                >
+                                                    <option value="" disabled>Select Subject</option>
+                                                    <option value="Mathematics">Mathematics</option>
+                                                    <option value="Physics">Physics</option>
+                                                    <option value="Chemistry">Chemistry</option>
+                                                    <option value="Biology">Biology</option>
+                                                    <option value="Science">Science</option>
+                                                    <option value="English">English</option>
+                                                    <option value="All Subjects">All Subjects</option>
+                                                </select>
+                                            </div>
+                                            <div className="flex flex-col gap-1.5">
+                                                <label className="text-[10px] font-black text-slate-700 uppercase tracking-widest">Assign Faculty</label>
+                                                <select
+                                                    required
+                                                    value={row.facultyId}
+                                                    onChange={(e) => handleSubjectChange(idx, 'facultyId', e.target.value)}
+                                                    className="w-full p-3 bg-white border border-slate-300 rounded-xl text-xs outline-none focus:ring-2 focus:ring-[#008080] font-bold appearance-none text-black"
+                                                >
+                                                    <option value="" disabled>Select Faculty</option>
+                                                    {faculties.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
+                                                </select>
+                                            </div>
+                                            <div className="flex items-end">
+                                                {selectedSubjects.length > 1 && (
+                                                    <button type="button" onClick={() => removeSubjectRow(idx)} className="h-11 px-3 bg-rose-50 text-rose-600 rounded-xl border border-rose-200 font-black text-xs hover:bg-rose-100 transition-colors">
+                                                        Remove
+                                                    </button>
+                                                )}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+
+                                <div className="bg-white border border-slate-200 rounded-xl p-3">
+                                    <p className="text-[10px] font-black text-slate-700 uppercase tracking-widest mb-2">Current Mapping</p>
+                                    <div className="flex flex-wrap gap-2">
+                                        {selectedSubjects.filter(item => item.subject && item.facultyName).length === 0 ? (
+                                            <span className="text-xs font-bold text-slate-600">No subject-faculty pair selected yet.</span>
+                                        ) : (
+                                            selectedSubjects
+                                                .filter(item => item.subject && item.facultyName)
+                                                .map((item, index) => (
+                                                    <span key={`${item.subject}-${item.facultyId}-${index}`} className="text-[11px] font-bold bg-[#008080]/10 text-[#0f172a] px-3 py-1.5 rounded-lg border border-[#008080]/20">
+                                                        {item.subject} {'->'} {item.facultyName}
+                                                    </span>
+                                                ))
                                         )}
-                                        <div className="flex flex-col gap-1.5">
-                                            <select 
-                                                required 
-                                                value={row.subject} 
-                                                onChange={(e) => handleSubjectChange(idx, 'subject', e.target.value)} 
-                                                className="w-full p-3 bg-white border border-slate-100 rounded-xl text-xs outline-none focus:ring-2 focus:ring-[#008080] font-bold appearance-none"
-                                            >
-                                                <option value="" disabled>Subject</option>
-                                                <option value="Mathematics">Mathematics</option>
-                                                <option value="Physics">Physics</option>
-                                                <option value="Chemistry">Chemistry</option>
-                                                <option value="Biology">Biology</option>
-                                                <option value="Science">Science</option>
-                                                <option value="English">English</option>
-                                                <option value="All Subjects">All Subjects</option>
-                                            </select>
-                                        </div>
-                                        <div className="flex flex-col gap-1.5">
-                                            <select 
-                                                required 
-                                                value={row.facultyId} 
-                                                onChange={(e) => handleSubjectChange(idx, 'facultyId', e.target.value)} 
-                                                className="w-full p-3 bg-white border border-slate-100 rounded-xl text-xs outline-none focus:ring-2 focus:ring-[#008080] font-bold appearance-none"
-                                            >
-                                                <option value="" disabled>Assign Faculty</option>
-                                                {faculties.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
-                                            </select>
-                                        </div>
                                     </div>
-                                ))}
+                                </div>
                             </div>
                             <div className="md:col-span-2 bg-[#008080]/10/50 p-4 rounded-xl border border-[#008080] flex items-start gap-4">
                                 <Clock className="text-[#008080] flex-shrink-0 mt-0.5" size={20} />
