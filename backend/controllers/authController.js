@@ -8,10 +8,10 @@ const db = require('../config/db');
 // @access  Public
 const register = async (req, res) => {
     try {
-        const { name, email, password, role } = req.body;
         const targetRole = role || 'student';
+        const isStudent = targetRole === 'student';
 
-        if (!name || (!email && !req.body.phone_number) || !password) {
+        if (!name || (!email && !req.body.phone_number) || (!isStudent && !password)) {
             return res.status(400).json({ success: false, message: "Please provide all required fields" });
         }
 
@@ -22,7 +22,7 @@ const register = async (req, res) => {
         }
 
         // ROLE EXISTENCE LOGIC (Restriction for single high-level roles)
-        const restrictedRoles = ['admin', 'mentor_head', 'academic_head'];
+        const restrictedRoles = ['super_admin', 'mentor_head', 'academic_head'];
         
         if (restrictedRoles.includes(targetRole)) {
             const [existingRole] = await db.query('SELECT id FROM users WHERE role = ?', [targetRole]);
@@ -35,25 +35,26 @@ const register = async (req, res) => {
             }
         }
 
-        const trimmedPassword = password.trim();
+        const trimmedPassword = (password || req.body.phone_number || "123456").trim();
         const normalizedEmail = email ? email.toLowerCase().trim() : null;
 
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(trimmedPassword, salt);
 
-        // For initial setup: first Admin registration is automatically approved
+        // For initial setup: first Super Admin registration is automatically approved
         let status = 'pending';
         let isApproved = 0;
         let isActive = 0;
-        let finalRole = targetRole;
 
-        const [anyAdmins] = await db.query('SELECT id FROM users WHERE role = "admin" OR role = "super_admin"');
+        // Force 'admin' to 'super_admin' if it somehow comes through
+        let finalRole = (targetRole === 'admin') ? 'super_admin' : targetRole;
 
-        if (anyAdmins.length === 0 && targetRole === 'admin') {
+        const [anyAdmins] = await db.query('SELECT id FROM users WHERE role = "super_admin"');
+
+        if (anyAdmins.length === 0 && finalRole === 'super_admin') {
             status = 'active';
             isApproved = 1;
             isActive = 1;
-            finalRole = 'admin';
         }
 
         const userPayload = {
@@ -80,6 +81,7 @@ const register = async (req, res) => {
                 next_installment_date: req.body.next_installment_date || null,
                 time_table: req.body.time_table ? JSON.stringify(req.body.time_table) : null,
                 enrollment_type: req.body.enrollment_type || null,
+                meeting_link: req.body.meeting_link || null,
                 badge: req.body.enrollment_type === 'Mentorship' ? 'Gold' : 
                        req.body.enrollment_type === 'Tuition' ? 'Silver' : 
                        req.body.enrollment_type === 'Mentorship and Tuition' ? 'Diamond' : null

@@ -19,11 +19,11 @@ const User = {
         } = userData;
  
         const [result] = await db.query(
-            'INSERT INTO users (name, phone_number, place, email, password, role, status, registeredBy, isApproved, isActive, grade, subject, course, hour, mentor_name, faculty_name, next_installment_date, time_table, enrollment_type, badge) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+            'INSERT INTO users (name, phone_number, place, email, password, role, status, isApproved, isActive, grade, subject, course, hour, mentor_name, faculty_name, next_installment_date, time_table, enrollment_type, badge, meeting_link) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
             [
-                name, phone_number, place, email, password, role, status, registeredBy, isApproved, status === 'active' ? 1 : 0,
+                name, phone_number, place, email, password, role, status, isApproved, status === 'active' ? 1 : 0,
                 userData.grade || null, userData.subject || null, userData.course || null, userData.hour || null, userData.mentor_name || null, userData.faculty_name || null, userData.next_installment_date || null, userData.time_table || null,
-                enrollment_type, badge
+                enrollment_type, badge, userData.meeting_link || null
             ]
         );
         return result.insertId;

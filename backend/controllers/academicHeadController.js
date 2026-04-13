@@ -166,20 +166,22 @@ const registerStudent = async (req, res) => {
             return res.status(401).json({ success: false, message: "User session invalid. Please re-login." });
         }
 
-        // 1. Create User account for student first
+        // 1. Create User account for student first (Only if password/email provided or using defaults)
         const salt = await bcrypt.genSalt(10);
         const passwordToHash = (password && password.trim() !== '') ? password.trim() : "student123";
         const hashedPassword = await bcrypt.hash(passwordToHash, salt);
 
-        // Check if user already exists
-        const [existingUser] = await db.query('SELECT id FROM users WHERE email = ?', [email]);
-        if (existingUser.length > 0) {
-            return res.status(400).json({ success: false, message: "Email already registered as a user/student." });
+        // Check if user already exists (ONLY if email is provided)
+        if (email && email.trim() !== '') {
+            const [existingUser] = await db.query('SELECT id FROM users WHERE email = ?', [email]);
+            if (existingUser.length > 0) {
+                return res.status(400).json({ success: false, message: "Email already registered as a user/student." });
+            }
         }
 
         const [userResult] = await db.query(
             'INSERT INTO users (name, email, password, role, status, isApproved, isActive, registeredBy) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-            [name, email, hashedPassword, 'student', 'active', 1, 1, req.user.id]
+            [name, (email && email.trim() !== '') ? email : null, hashedPassword, 'student', 'active', 1, 1, req.user.id]
         );
         const userId = userResult.insertId;
 
@@ -837,12 +839,41 @@ module.exports = {
     editStudent: async (req, res) => {
         try {
             const { id } = req.params;
-            const { name, grade, subject, course } = req.body;
-            const [[student]] = await db.query('SELECT name FROM students WHERE id = ?', [id]);
-            await db.query('UPDATE students SET name = ?, grade = ?, subject = ?, course = ? WHERE id = ?', [name, grade, subject, course, id]);
-            await db.query('INSERT INTO admin_notifications (message) VALUES (?)', [`Academic Head (${req.user.name}) edited student: ${student.name}`]);
-            res.status(200).json({ success: true, message: 'Student updated' });
-        } catch (error) { res.status(500).json({ success: false, message: error.message }); }
+            const { name, grade, subject, course, email, meetingLink, meeting_link, password } = req.body;
+            const finalMeetingLink = meetingLink || meeting_link;
+            
+            const [[student]] = await db.query('SELECT name, user_id FROM students WHERE id = ?', [id]);
+            if (!student) return res.status(404).json({ success: false, message: "Student not found" });
+
+            // Update Students table
+            await db.query(
+                'UPDATE students SET name = ?, grade = ?, subject = ?, course = ?, email = ?, meeting_link = ? WHERE id = ?', 
+                [name, grade, subject, course, email || null, finalMeetingLink || null, id]
+            );
+
+            // Update linked Users table
+            if (student.user_id) {
+                let userUpdateQuery = 'UPDATE users SET name = ?, email = ?';
+                let userParams = [name, email || null];
+
+                if (password && password.trim() !== '') {
+                    const salt = await bcrypt.genSalt(10);
+                    const hashedPassword = await bcrypt.hash(password, salt);
+                    userUpdateQuery += ', password = ?';
+                    userParams.push(hashedPassword);
+                }
+
+                userUpdateQuery += ' WHERE id = ?';
+                userParams.push(student.user_id);
+                await db.query(userUpdateQuery, userParams);
+            }
+
+            await db.query('INSERT INTO admin_notifications (message) VALUES (?)', [`Academic Head (${req.user.name}) updated student profile for: ${student.name}`]);
+            res.status(200).json({ success: true, message: 'Student profile updated successfully' });
+        } catch (error) { 
+            console.error("EDIT_STUDENT_ERROR:", error);
+            res.status(500).json({ success: false, message: error.message }); 
+        }
     },
     deleteStudent: async (req, res) => {
         try {

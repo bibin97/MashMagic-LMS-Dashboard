@@ -27,7 +27,8 @@ const RegistrationForm = ({ onSuccess, preSelectedRole }) => {
         next_installment_date: '',
         time_table: {
             mon: '', tue: '', wed: '', thu: '', fri: '', sat: '', sun: ''
-        }
+        },
+        meeting_link: ''
     });
 
     const handleRoleChange = (newRole) => {
@@ -59,7 +60,7 @@ const RegistrationForm = ({ onSuccess, preSelectedRole }) => {
             let endpoint = '';
             let payload = {};
 
-            if (role === 'admin' || role === 'mentor_head' || role === 'academic_head') {
+            if (role === 'super_admin' || role === 'mentor_head' || role === 'academic_head') {
                 endpoint = '/auth/register';
                 payload = {
                     name: formData.name,
@@ -67,7 +68,7 @@ const RegistrationForm = ({ onSuccess, preSelectedRole }) => {
                     phone_number: formData.phone_number,
                     place: formData.place,
                     password: formData.password,
-                    role: role // 'admin', 'mentor_head', or 'academic_head'
+                    role: role // 'super_admin', 'mentor_head', or 'academic_head'
                 };
             } else {
                 // Student
@@ -113,7 +114,7 @@ const RegistrationForm = ({ onSuccess, preSelectedRole }) => {
             {/* Role Switcher - conditional */}
             {!preSelectedRole && (
                 <div className="grid grid-cols-2 gap-2 p-1 bg-slate-100 rounded-xl">
-                    {['student', 'admin'].map((r) => (
+                    {['student', 'super_admin'].map((r) => (
                         <button
                             key={r}
                             type="button"
@@ -123,7 +124,7 @@ const RegistrationForm = ({ onSuccess, preSelectedRole }) => {
                                 ${role === r ? 'bg-white text-[#008080] shadow-sm' : 'text-slate-400'}
                             `}
                         >
-                            {r}
+                            {r.replace('_', ' ')}
                         </button>
                     ))}
                 </div>
@@ -146,7 +147,7 @@ const RegistrationForm = ({ onSuccess, preSelectedRole }) => {
                     </div>
                 </div>
 
-                {(role === 'admin' || role === 'mentor_head' || role === 'academic_head') && (
+                {(role === 'super_admin' || role === 'mentor_head' || role === 'academic_head') && (
                     <>
                         <div className="flex flex-col gap-2">
                             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Email Address</label>
@@ -155,9 +156,8 @@ const RegistrationForm = ({ onSuccess, preSelectedRole }) => {
                                 <input
                                     type="email"
                                     name="email"
-                                    required
                                     className="w-full p-3 pl-12 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-semibold"
-                                    placeholder={`${role.replace('_', ' ')} Email`}
+                                    placeholder={`${role.replace('_', ' ')} Email (Optional)`}
                                     value={formData.email}
                                     onChange={handleInputChange}
                                 />
@@ -204,9 +204,8 @@ const RegistrationForm = ({ onSuccess, preSelectedRole }) => {
                                 <input
                                     type="password"
                                     name="password"
-                                    required
                                     className="w-full p-3 pl-12 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-semibold"
-                                    placeholder="******"
+                                    placeholder="****** (Optional)"
                                     value={formData.password}
                                     onChange={handleInputChange}
                                 />
@@ -311,6 +310,43 @@ const RegistrationForm = ({ onSuccess, preSelectedRole }) => {
                                 name="next_installment_date"
                                 className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-semibold"
                                 value={formData.next_installment_date}
+                                onChange={handleInputChange}
+                            />
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="flex flex-col gap-2">
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Student Email (Optional)</label>
+                                <input
+                                    type="email"
+                                    name="email"
+                                    className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-semibold"
+                                    placeholder="Email Address"
+                                    value={formData.email}
+                                    onChange={handleInputChange}
+                                />
+                            </div>
+                            <div className="flex flex-col gap-2">
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Account Password (Optional)</label>
+                                <input
+                                    type="password"
+                                    name="password"
+                                    className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-semibold"
+                                    placeholder="Set Password"
+                                    value={formData.password}
+                                    onChange={handleInputChange}
+                                />
+                            </div>
+                        </div>
+
+                        <div className="flex flex-col gap-2">
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Google Meet Link (Optional)</label>
+                            <input
+                                type="url"
+                                name="meeting_link"
+                                className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-semibold"
+                                placeholder="https://meet.google.com/..."
+                                value={formData.meeting_link}
                                 onChange={handleInputChange}
                             />
                         </div>

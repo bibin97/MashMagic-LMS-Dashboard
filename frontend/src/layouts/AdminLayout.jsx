@@ -22,7 +22,7 @@ const AdminLayout = () => {
 
     const navItems = [
         { path: '/admin/dashboard', icon: <LayoutDashboard size={20} />, label: 'Dashboard', perm: 'dashboard' },
-        { path: '/admin/admin-management', icon: <UserCheck size={20} />, label: 'Admins', perm: 'admins' },
+        { path: '/admin/admin-management', icon: <UserCheck size={20} />, label: 'Sub Admins', perm: 'admins' },
         { path: '/admin/approvals', icon: <UserCheck size={20} />, label: 'Approvals', perm: 'approvals' },
         { path: '/admin/students', icon: <Users size={20} />, label: 'Students', perm: 'students' },
         { path: '/admin/mentors', icon: <UserSquare2 size={20} />, label: 'Mentors', perm: 'mentors' },
@@ -35,7 +35,7 @@ const AdminLayout = () => {
         { path: '/admin/logs', icon: <ScrollText size={20} />, label: 'Logs', perm: 'logs' },
     ].filter(item => {
         // Main Admin has full access
-        if (user?.role === 'admin' || user?.role === 'super_admin') return true;
+        if (user?.role === 'super_admin') return true;
         
         // Sub Admins filtered by granular permissions
         if (user?.role === 'sub_admin') {

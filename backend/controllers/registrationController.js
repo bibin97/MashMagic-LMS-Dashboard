@@ -108,13 +108,13 @@ const registerMentor = async (req, res) => {
         const hashedPassword = await bcrypt.hash(phone_number, salt);
 
         const [userResult] = await db.query(
-            'INSERT INTO users (name, email, password, role, status) VALUES (?, ?, ?, ?, ?)',
-            [name, phone_number, hashedPassword, 'mentor', 'active']
+            'INSERT INTO users (name, email, password, role, status, isApproved, isActive) VALUES (?, ?, ?, ?, ?, 0, 0)',
+            [name, phone_number, hashedPassword, 'mentor', 'pending']
         );
 
         // Notify Admin
         await db.query('INSERT INTO admin_notifications (message) VALUES (?)', [
-            `<b>New Mentor Joined:</b> ${name} has been successfully registered.`
+            `<b>Mentor Application:</b> ${name} has requested access. <span style="color:#F59E0B">Pending Admin Approval</span>.`
         ]);
 
         const userId = userResult.insertId;
@@ -165,13 +165,13 @@ const registerFaculty = async (req, res) => {
         const hashedPassword = await bcrypt.hash(phone_number, salt);
 
         const [userResult] = await db.query(
-            'INSERT INTO users (name, email, password, role, status) VALUES (?, ?, ?, ?, ?)',
-            [name, phone_number, hashedPassword, 'faculty', 'active']
+            'INSERT INTO users (name, email, password, role, status, isApproved, isActive) VALUES (?, ?, ?, ?, ?, 0, 0)',
+            [name, phone_number, hashedPassword, 'faculty', 'pending']
         );
 
         // Notify Admin
         await db.query('INSERT INTO admin_notifications (message) VALUES (?)', [
-            `<b>New Faculty Joined:</b> ${name} has been successfully registered.`
+            `<b>Faculty Application:</b> ${name} has requested access. <span style="color:#F59E0B">Pending Admin Approval</span>.`
         ]);
 
         const userId = userResult.insertId;

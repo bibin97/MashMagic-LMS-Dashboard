@@ -271,6 +271,40 @@ const StudentsList = ({ role = 'academic_head' }) => {
                                     className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-xs font-bold rounded-2xl px-5 py-4 focus:outline-none focus:ring-4 focus:ring-[#008080] focus:border-[#008080] transition-all"
                                 />
                             </div>
+
+                            <div className="grid grid-cols-2 gap-6">
+                                <div>
+                                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Email Address</label>
+                                    <input
+                                        type="email"
+                                        value={editingStudent.email || ''}
+                                        onChange={(e) => setEditingStudent(prev => ({ ...prev, email: e.target.value }))}
+                                        className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-xs font-bold rounded-2xl px-5 py-4 focus:outline-none focus:ring-4 focus:ring-[#008080] focus:border-[#008080] transition-all"
+                                        placeholder="Add Email"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">New Password</label>
+                                    <input
+                                        type="password"
+                                        value={editingStudent.password || ''}
+                                        onChange={(e) => setEditingStudent(prev => ({ ...prev, password: e.target.value }))}
+                                        className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-xs font-bold rounded-2xl px-5 py-4 focus:outline-none focus:ring-4 focus:ring-[#008080] focus:border-[#008080] transition-all"
+                                        placeholder="Update Password"
+                                    />
+                                </div>
+                            </div>
+
+                            <div>
+                                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Google Meet Link</label>
+                                <input
+                                    type="url"
+                                    value={editingStudent.meeting_link || ''}
+                                    onChange={(e) => setEditingStudent(prev => ({ ...prev, meeting_link: e.target.value }))}
+                                    className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-xs font-bold rounded-2xl px-5 py-4 focus:outline-none focus:ring-4 focus:ring-[#008080] focus:border-[#008080] transition-all"
+                                    placeholder="https://meet.google.com/..."
+                                />
+                            </div>
                         </div>
                         <div className="px-8 py-6 border-t border-slate-100 bg-slate-50/50 flex justify-end gap-3">
                             <button

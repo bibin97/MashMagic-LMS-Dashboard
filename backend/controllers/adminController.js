@@ -628,11 +628,11 @@ const deleteSubAdmin = async (req, res) => {
 
         const { id } = req.params;
 
-        // Protection: System must not allow deleting the main admin via this route
-        const [target] = await db.query('SELECT name, role FROM users WHERE id = ?', [id]);
+        // Protection: System must not allow deleting the ACTIVE main super admin via this route
+        const [target] = await db.query('SELECT name, role, status FROM users WHERE id = ?', [id]);
         if (!target.length) return res.status(404).json({ success: false, message: "User not found" });
-        if (target[0].role === 'admin' || target[0].role === 'super_admin') {
-            return res.status(403).json({ success: false, message: "Fatal Error: Main Admin cannot be deleted." });
+        if (target[0].role === 'super_admin' && target[0].status === 'active') {
+            return res.status(403).json({ success: false, message: "Fatal Error: Active Super Admin cannot be deleted." });
         }
 
         // Handle sub-admin dependencies (they might have registered users or created tasks)
@@ -654,7 +654,7 @@ const deleteSubAdmin = async (req, res) => {
 const getAllMentorsForAdmin = async (req, res) => {
     try {
         const { startDate, endDate, category } = req.query;
-        let whereClauses = ["u.role = 'mentor'"];
+        let whereClauses = ["u.role = 'mentor'", "u.status = 'active'"];
         let params = [];
 
         if (startDate) {
@@ -700,7 +700,7 @@ const getStaffMembers = async (req, res) => {
         const query = `
             SELECT id, name, email, phone_number as phone, role, status, createdAt as created_at
             FROM users
-            WHERE role NOT IN ('student', 'super_admin')
+            WHERE role NOT IN ('student', 'sub_admin') AND status = 'active'
             ORDER BY role ASC, name ASC
         `;
         const [rows] = await db.query(query);
@@ -720,7 +720,7 @@ const getAllFacultiesForAdmin = async (req, res) => {
                 (SELECT COUNT(*) FROM students s WHERE s.faculty_id = u.id AND s.status = 'active') as studentsUnder,
                 (SELECT COUNT(DISTINCT s.mentor_id) FROM students s WHERE s.faculty_id = u.id AND s.mentor_id IS NOT NULL AND s.status = 'active') as mentorsUnder
             FROM users u
-            WHERE u.role = 'faculty'
+            WHERE u.role = 'faculty' AND u.status = 'active'
             ORDER BY u.name ASC
         `;
         const [rows] = await db.query(query);
