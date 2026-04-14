@@ -21,6 +21,7 @@ const Login = () => {
     const [role, setRole] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [rememberMe, setRememberMe] = useState(false);
     const navigate = useNavigate();
 
     // Map sub-roles for better selection
