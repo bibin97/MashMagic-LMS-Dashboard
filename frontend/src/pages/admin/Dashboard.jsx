@@ -49,6 +49,32 @@ const Dashboard = () => {
     const [loading, setLoading] = useState(true);
     const [isMounted, setIsMounted] = useState(false);
 
+    const chartData = [
+        { name: 'Mon', tasks: 12, completed: 8 },
+        { name: 'Tue', tasks: 18, completed: 14 },
+        { name: 'Wed', tasks: 15, completed: 12 },
+        { name: 'Thu', tasks: 22, completed: 18 },
+        { name: 'Fri', tasks: 30, completed: 25 },
+        { name: 'Sat', tasks: 10, completed: 9 },
+        { name: 'Sun', tasks: 8, completed: 7 },
+    ];
+
+    const pieData = [
+        { name: 'Students', value: stats.students, color: '#14B8A6' },
+        { name: 'Mentors', value: stats.mentors, color: '#0F766E' },
+        { name: 'Faculties', value: stats.faculties, color: '#F59E0B' },
+    ];
+
+    const performanceData = [
+        { month: 'Jan', score: 0 },
+        { month: 'Feb', score: 0 },
+        { month: 'Mar', score: 0 },
+        { month: 'Apr', score: 0 },
+        { month: 'May', score: 0 },
+        { month: 'Jun', score: 0 },
+        { month: 'Jul', score: 0 },
+    ];
+
     useEffect(() => {
         const timer = setTimeout(() => {
             setIsMounted(true);
