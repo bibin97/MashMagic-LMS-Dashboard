@@ -56,32 +56,6 @@ const Dashboard = () => {
         return () => clearTimeout(timer);
     }, []);
 
-    const chartData = [
-        { name: 'Mon', tasks: 12, completed: 8 },
-        { name: 'Tue', tasks: 18, completed: 14 },
-        { name: 'Wed', tasks: 15, completed: 12 },
-        { name: 'Thu', tasks: 22, completed: 18 },
-        { name: 'Fri', tasks: 30, completed: 25 },
-        { name: 'Sat', tasks: 10, completed: 9 },
-        { name: 'Sun', tasks: 8, completed: 7 },
-    ];
-
-    const pieData = [
-        { name: 'Students', value: stats.students, color: '#14B8A6' },
-        { name: 'Mentors', value: stats.mentors, color: '#0F766E' },
-        { name: 'Faculties', value: stats.faculties, color: '#F59E0B' },
-    ];
-
-    const performanceData = [
-        { month: 'Jan', score: 0 },
-        { month: 'Feb', score: 0 },
-        { month: 'Mar', score: 0 },
-        { month: 'Apr', score: 0 },
-        { month: 'May', score: 0 },
-        { month: 'Jun', score: 0 },
-        { month: 'Jul', score: 0 },
-    ];
-
     useEffect(() => {
         const fetchStats = async () => {
             try {
@@ -133,7 +107,7 @@ const Dashboard = () => {
                 }
 
                 if (distRes.data.success) {
-                    const colors = ['#14B8A6', '#0F766E', '#F59E0B', '#10B981', '#6366F1', '#EC4899'];
+                    const colors = ['#14B8A6', '#0f766e', '#f59e0b', '#10b981', '#6366f1', '#ec4899'];
                     const mappedDist = distRes.data.data.map((item, idx) => ({
                         name: item.mentor_name,
                         value: Number(item.student_count || 0),
@@ -328,7 +302,6 @@ const Dashboard = () => {
                                 </ResponsiveContainer>
                             )}
                         </div>
-                    </div>
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

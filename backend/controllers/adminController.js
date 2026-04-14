@@ -802,8 +802,12 @@ module.exports = {
                 'yesterday': 2,
                 'last3': 3,
                 'last7': 7,
+                'this_week': 7,
+                'last_week': 7,
                 'last14': 14,
                 'last30': 30,
+                'this_month': 30,
+                'last_month': 30,
                 'last60': 60,
                 'last90': 90
             };
