@@ -115,130 +115,150 @@ const Login = () => {
                          <span className="text-xl font-black text-white tracking-tighter uppercase italic">MashMagic <span className="text-[#0d9488]">Hub</span></span>
                     </div>
 
-                    <div className="mb-10">
-                        <h2 className="text-3xl font-black text-[#0d9488] mb-2 tracking-tight uppercase">Vault Access</h2>
-                        <p className="text-[#927d49] text-[10px] font-bold uppercase tracking-[0.2em]">Authorized Personnel Only</p>
-                    </div>
-
-                    <form onSubmit={handleLogin} className="space-y-6">
-                        {/* Role & Dept Selectors */}
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <label className="text-[#927d49] text-[9px] font-bold uppercase tracking-widest pl-1">Department</label>
-                                <div className="relative">
-                                    <select 
-                                        value={dept}
-                                        onChange={(e) => { setDept(e.target.value); setRole(''); }}
-                                        className="w-full bg-white/[0.03] border border-white/5 rounded-2xl px-4 py-3.5 text-xs text-white outline-none focus:border-[#0d9488]/50 focus:bg-white/[0.05] transition-all appearance-none font-medium"
-                                    >
-                                        <option value="" className="bg-[#020617]">Select Dept</option>
-                                        <option value="admin" className="bg-[#020617]">Admin Dept</option>
-                                        <option value="academic" className="bg-[#020617]">Academic Dept</option>
-                                        <option value="mentor" className="bg-[#020617]">Mentor Dept</option>
-                                        <option value="faculty" className="bg-[#020617]">Faculty Dept</option>
-                                    </select>
-                                    <Building2 className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500" size={14} />
-                                </div>
-                            </div>
-                            <div className="space-y-2">
-                                <label className="text-[#927d49] text-[9px] font-bold uppercase tracking-widest pl-1">System Role</label>
-                                <div className="relative">
-                                    <select 
-                                        value={role}
-                                        onChange={(e) => setRole(e.target.value)}
-                                        disabled={!dept}
-                                        className="w-full bg-white/[0.03] border border-white/5 disabled:opacity-50 rounded-2xl px-4 py-3.5 text-xs text-white outline-none focus:border-[#0d9488]/50 focus:bg-white/[0.05] transition-all appearance-none font-medium"
-                                    >
-                                        <option value="" className="bg-[#020617]">Select Role</option>
-                                        {dept && subRoles[dept].map(r => (
-                                            <option key={r} value={r} className="bg-[#020617]">{r}</option>
-                                        ))}
-                                    </select>
-                                    <Users className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500" size={14} />
-                                </div>
-                            </div>
+                        <div className="mb-10">
+                            <h2 className="text-3xl font-black text-[#0d9488] mb-2 tracking-tight uppercase">Vault Access</h2>
+                            <p className="text-[#f8ba2b] text-[10px] font-bold uppercase tracking-[0.2em]">Authorized Personnel Only</p>
                         </div>
 
-                        {/* Credential ID */}
-                        <div className="space-y-2">
-                            <label className="text-[#927d49] text-[9px] font-bold uppercase tracking-widest pl-1">Credential ID</label>
-                            <div className="relative group">
-                                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-[#0d9488] transition-colors">
-                                    <User size={18} />
+                        <form onSubmit={handleLogin} className="space-y-6">
+                            {/* Role & Dept Selectors */}
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <label className="text-white text-[9px] font-bold uppercase tracking-widest pl-1">Department</label>
+                                    <div className="relative">
+                                        <select 
+                                            value={dept}
+                                            onChange={(e) => { setDept(e.target.value); setRole(''); }}
+                                            className="w-full bg-white/[0.03] border border-white/5 rounded-2xl px-4 py-3.5 text-xs text-white outline-none focus:border-[#0d9488]/50 focus:bg-white/[0.05] transition-all appearance-none font-medium"
+                                        >
+                                            <option value="" className="bg-[#020617]">Select Dept</option>
+                                            <option value="admin" className="bg-[#020617]">Admin Dept</option>
+                                            <option value="academic" className="bg-[#020617]">Academic Dept</option>
+                                            <option value="mentor" className="bg-[#020617]">Mentor Dept</option>
+                                            <option value="faculty" className="bg-[#020617]">Faculty Dept</option>
+                                        </select>
+                                        <Building2 className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500" size={14} />
+                                    </div>
                                 </div>
-                                <input 
-                                    type="email"
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    placeholder="Enter your system ID"
-                                    className="w-full bg-white/[0.03] border border-white/5 rounded-2xl pl-12 pr-6 py-4 text-sm text-white placeholder:text-slate-600 outline-none focus:border-[#0d9488]/50 focus:bg-white/[0.05] transition-all font-medium"
-                                />
+                                <div className="space-y-2">
+                                    <label className="text-white text-[9px] font-bold uppercase tracking-widest pl-1">System Role</label>
+                                    <div className="relative">
+                                        <select 
+                                            value={role}
+                                            onChange={(e) => setRole(e.target.value)}
+                                            disabled={!dept}
+                                            className="w-full bg-white/[0.03] border border-white/5 disabled:opacity-50 rounded-2xl px-4 py-3.5 text-xs text-white outline-none focus:border-[#0d9488]/50 focus:bg-white/[0.05] transition-all appearance-none font-medium"
+                                        >
+                                            <option value="" className="bg-[#020617]">Select Role</option>
+                                            {dept && subRoles[dept].map(r => (
+                                                <option key={r} value={r} className="bg-[#020617]">{r}</option>
+                                            ))}
+                                        </select>
+                                        <Users className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500" size={14} />
+                                    </div>
+                                </div>
                             </div>
-                        </div>
 
-                        {/* Security Key */}
-                        <div className="space-y-2">
-                            <label className="text-[#927d49] text-[9px] font-bold uppercase tracking-widest pl-1">Security Key</label>
-                            <div className="relative group">
-                                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-[#0d9488] transition-colors">
-                                    <Lock size={18} />
+                            {/* Credential ID */}
+                            <div className="space-y-2">
+                                <label className="text-white text-[9px] font-bold uppercase tracking-widest pl-1">Credential ID</label>
+                                <div className="relative group">
+                                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-[#0d9488] transition-colors">
+                                        <User size={18} />
+                                    </div>
+                                    <input 
+                                        type="email"
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                        placeholder="Enter your system ID"
+                                        className="w-full bg-white/[0.03] border border-white/5 rounded-2xl pl-12 pr-6 py-4 text-sm text-white placeholder:text-slate-600 outline-none focus:border-[#0d9488]/50 focus:bg-white/[0.05] transition-all font-medium"
+                                    />
                                 </div>
-                                <input 
-                                    type={showPassword ? "text" : "password"}
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    placeholder="••••••••"
-                                    className="w-full bg-white/[0.03] border border-white/5 rounded-2xl pl-12 pr-12 py-4 text-sm text-white placeholder:text-slate-600 outline-none focus:border-[#0d9488]/50 focus:bg-white/[0.05] transition-all font-medium"
-                                />
-                                <button 
+                            </div>
+
+                            {/* Security Key */}
+                            <div className="space-y-2">
+                                <label className="text-white text-[9px] font-bold uppercase tracking-widest pl-1">Security Key</label>
+                                <div className="relative group">
+                                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-[#0d9488] transition-colors">
+                                        <Lock size={18} />
+                                    </div>
+                                    <input 
+                                        type={showPassword ? "text" : "password"}
+                                        value={password}
+                                        onChange={(e) => setPassword(e.target.value)}
+                                        placeholder="••••••••"
+                                        className="w-full bg-white/[0.03] border border-white/5 rounded-2xl pl-12 pr-12 py-4 text-sm text-white placeholder:text-slate-600 outline-none focus:border-[#0d9488]/50 focus:bg-white/[0.05] transition-all font-medium"
+                                    />
+                                    <button 
+                                        type="button"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                        className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white transition-colors"
+                                    >
+                                        {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div className="flex items-center justify-between mt-2">
+                                <label className="flex items-center gap-2 cursor-pointer group">
+                                    <div className="relative flex items-center">
+                                        <input
+                                            type="checkbox"
+                                            id="rememberMe"
+                                            className="peer hidden"
+                                            checked={rememberMe}
+                                            onChange={(e) => setRememberMe(e.target.checked)}
+                                        />
+                                        <div className="w-5 h-5 border-2 border-teal-500/30 rounded-md bg-white/5 peer-checked:bg-teal-500 peer-checked:border-teal-500 transition-all duration-300"></div>
+                                        <Check className="absolute w-3.5 h-3.5 text-white scale-0 peer-checked:scale-100 transition-transform duration-300 left-[3px]" />
+                                    </div>
+                                    <span className="text-sm font-bold text-emerald-400 group-hover:text-emerald-300 transition-colors cursor-pointer" onClick={() => setRememberMe(!rememberMe)}>
+                                        Remember Me
+                                    </span>
+                                </label>
+                                <button
                                     type="button"
-                                    onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white transition-colors"
+                                    className="text-sm font-bold text-[#f8ba2b] hover:text-yellow-400 transition-colors tracking-wide uppercase"
                                 >
-                                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                    Recover Key?
                                 </button>
                             </div>
+
+                            <button
+                                type="submit"
+                                disabled={loading}
+                                className="w-full mt-8 py-4 bg-[#f8ba2b] hover:bg-[#eab308] text-black font-black rounded-2xl transition-all duration-300 transform active:scale-[0.98] shadow-lg shadow-yellow-500/20 flex items-center justify-center gap-3 group relative overflow-hidden"
+                            >
+                                <span className="relative uppercase tracking-[0.2em]">{loading ? 'Verifying...' : 'Login'}</span>
+                                {!loading && <ShieldCheck className="relative w-5 h-5 group-hover:rotate-12 transition-transform" />}
+                            </button>
+                        </form>
+
+                        <div className="mt-10 pt-8 border-t border-white/5 text-center">
+                            <p className="text-teal-100/50 text-[10px] font-bold uppercase tracking-widest mb-4">Request Administrative Access</p>
+                            <div className="flex flex-wrap justify-center gap-3">
+                                {['Super Admin', 'Academic Head', 'Mentor Head'].map((role) => (
+                                <button
+                                    key={role}
+                                    className="px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-[9px] font-bold text-teal-100/60 hover:bg-teal-500/10 hover:border-teal-500/30 hover:text-teal-400 transition-all duration-300 uppercase tracking-tighter"
+                                >
+                                    {role}
+                                </button>
+                                ))}
+                            </div>
                         </div>
 
-                        <div className="flex items-center justify-between pt-2">
-                            <label className="flex items-center gap-2 cursor-pointer group">
-                                <input type="checkbox" className="hidden" />
-                                <div className="w-4 h-4 rounded border border-white/10 bg-white/5 flex items-center justify-center group-hover:border-[#0d9488]/50 transition-all">
-                                    <div className="w-2 h-2 rounded-sm bg-[#0d9488] scale-0 transition-transform group-hover:scale-100" />
-                                </div>
-                                <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Stay Authenticated</span>
-                            </label>
-                            <button type="button" className="text-[10px] text-[#0d9488] font-black uppercase tracking-widest hover:text-[#2dd4bf] transition-colors">Recover Keys?</button>
+                        <div className="mt-12 pt-8 border-t border-white/5 flex flex-col items-center gap-4">
+                             <div className="flex gap-1">
+                                {[...Array(5)].map((_, i) => (
+                                    <ShieldCheck key={i} size={14} className="text-[#0d9488]/40" />
+                                ))}
+                             </div>
+                             <p className="text-[9px] text-[#f8ba2b] font-bold uppercase tracking-[0.3em] text-center">
+                                Secured by MashMagic Enterprise Encryption
+                             </p>
                         </div>
-
-                        <button 
-                            type="submit"
-                            disabled={loading}
-                            className="w-full group relative flex items-center justify-center gap-3 bg-[#0d9488] hover:bg-[#115e59] text-white py-4 rounded-full font-black uppercase tracking-[0.2em] text-xs shadow-xl shadow-[#0d9488]/20 transition-all active:scale-[0.98] disabled:opacity-70"
-                        >
-                            {loading ? (
-                                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                            ) : (
-                                <>
-                                    <span>Initiate Protocol</span>
-                                    <ChevronRight size={18} className="group-hover:translate-x-1 transition-transform" />
-                                </>
-                            )}
-                            {/* subtle glow effect */}
-                            <div className="absolute inset-x-0 bottom-[-20%] h-1/2 bg-[#0d9488]/30 blur-[20px] rounded-full scale-0 group-hover:scale-100 transition-transform opacity-50" />
-                        </button>
-                    </form>
-
-                    <div className="mt-12 pt-8 border-t border-white/5 flex flex-col items-center gap-4">
-                         <div className="flex gap-1">
-                            {[...Array(5)].map((_, i) => (
-                                <ShieldCheck key={i} size={14} className="text-[#0d9488]/40" />
-                            ))}
-                         </div>
-                         <p className="text-[9px] text-slate-600 font-bold uppercase tracking-[0.3em] text-center">
-                            Secured by MashMagic Enterprise Encryption
-                         </p>
-                    </div>
                 </div>
             </div>
         </div>
