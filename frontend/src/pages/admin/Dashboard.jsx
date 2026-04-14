@@ -258,14 +258,15 @@ const Dashboard = () => {
                                     <select
                                         value={taskFilter}
                                         onChange={(e) => setTaskFilter(e.target.value)}
-                                        className="appearance-none bg-slate-50 border border-slate-200 text-slate-900 text-xs font-bold rounded-2xl focus:ring-[#14B8A6] focus:border-[#14B8A6] block w-full px-6 py-3 transition-all hover:bg-white cursor-pointer"
+                                        className="appearance-none bg-slate-50 border border-slate-200 text-slate-900 text-xs font-bold rounded-2xl focus:ring-[#14B8A6] focus:border-[#14B8A6] block w-full px-6 py-3 transition-all hover:bg-white cursor-pointer min-w-[140px]"
                                     >
                                         <option value="today">Today</option>
                                         <option value="yesterday">Yesterday</option>
-                                        <option value="this_week">This Week</option>
-                                        <option value="last_week">Last Week</option>
+                                        <option value="last3">Last 3 Days</option>
+                                        <option value="last7">Last 7 Days</option>
+                                        <option value="last14">Last 14 Days</option>
                                         <option value="this_month">This Month</option>
-                                        <option value="last_month">Last Month</option>
+                                        <option value="last_month">Previous Month</option>
                                     </select>
                                     <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 group-hover:text-[#14B8A6] transition-colors">
                                         <ChevronLeft size={16} className="-rotate-90" />
@@ -274,59 +275,61 @@ const Dashboard = () => {
                             </div>
                         </div>
 
-                        {/* Chart Container */}
-                        <div className="flex-1 w-full h-[400px]">
-                            {isMounted && (
-                                <ResponsiveContainer width="100%" height="100%">
-                                    <BarChart
-                                        data={taskPerformance}
-                                        margin={{ top: 20, right: 30, left: 0, bottom: 20 }}
-                                        barGap={8}
-                                    >
-                                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                                        <XAxis
-                                            dataKey="name"
-                                            fontSize={12}
-                                            fontWeight={800}
-                                            tick={{ fill: '#64748b' }}
-                                            axisLine={false}
-                                            tickLine={false}
-                                            dy={12}
-                                            interval={0}
-                                        />
-                                        <YAxis fontSize={12} fontWeight={800} tick={{ fill: '#94a3b8' }} axisLine={false} tickLine={false} width={30} />
-                                        <Tooltip
-                                            contentStyle={{
-                                                borderRadius: '12px',
-                                                border: '1px solid #e2e8f0',
-                                                boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)',
-                                                padding: '12px',
-                                                fontSize: '13px',
-                                                fontWeight: 'bold',
-                                                backgroundColor: 'rgba(255, 255, 255, 0.95)'
-                                            }}
-                                            itemSorter={(item) => (item.name === 'Tasks Assigned' ? -1 : 1)}
-                                            cursor={{ fill: '#f8fafc' }}
-                                        />
-                                        <Bar
-                                            name="Tasks Assigned"
-                                            dataKey="tasks"
-                                            fill="#10B981"
-                                            radius={[6, 6, 0, 0]}
-                                            barSize={taskFilter === 'today' || taskFilter === 'yesterday' ? 60 : 20}
-                                            minPointSize={5}
-                                        />
-                                        <Bar
-                                            name="Task Completed"
-                                            dataKey="completed"
-                                            fill="#000000"
-                                            radius={[6, 6, 0, 0]}
-                                            barSize={taskFilter === 'today' || taskFilter === 'yesterday' ? 60 : 20}
-                                            minPointSize={5}
-                                        />
-                                    </BarChart>
-                                </ResponsiveContainer>
-                            )}
+                        {/* Chart Container with Scrollable Wrapper */}
+                        <div className="flex-1 w-full h-[400px] overflow-x-auto custom-scrollbar">
+                            <div style={{ minWidth: `${Math.max(100, taskPerformance.length * 80)}px`, height: '100%' }}>
+                                {isMounted && (
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <BarChart
+                                            data={taskPerformance}
+                                            margin={{ top: 20, right: 30, left: 0, bottom: 20 }}
+                                            barGap={8}
+                                        >
+                                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                                            <XAxis
+                                                dataKey="name"
+                                                fontSize={12}
+                                                fontWeight={800}
+                                                tick={{ fill: '#64748b' }}
+                                                axisLine={false}
+                                                tickLine={false}
+                                                dy={12}
+                                                interval={0}
+                                            />
+                                            <YAxis fontSize={12} fontWeight={800} tick={{ fill: '#94a3b8' }} axisLine={false} tickLine={false} width={30} />
+                                            <Tooltip
+                                                contentStyle={{
+                                                    borderRadius: '12px',
+                                                    border: '1px solid #e2e8f0',
+                                                    boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)',
+                                                    padding: '12px',
+                                                    fontSize: '13px',
+                                                    fontWeight: 'bold',
+                                                    backgroundColor: 'rgba(255, 255, 255, 0.95)'
+                                                }}
+                                                itemSorter={(item) => (item.name === 'Tasks Assigned' ? -1 : 1)}
+                                                cursor={{ fill: '#f8fafc' }}
+                                            />
+                                            <Bar
+                                                name="Tasks Assigned"
+                                                dataKey="tasks"
+                                                fill="#10B981"
+                                                radius={[6, 6, 0, 0]}
+                                                barSize={32}
+                                                minPointSize={5}
+                                            />
+                                            <Bar
+                                                name="Task Completed"
+                                                dataKey="completed"
+                                                fill="#000000"
+                                                radius={[6, 6, 0, 0]}
+                                                barSize={32}
+                                                minPointSize={5}
+                                            />
+                                        </BarChart>
+                                    </ResponsiveContainer>
+                                )}
+                            </div>
                         </div>
                 </div>
 
