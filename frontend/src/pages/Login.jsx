@@ -11,7 +11,8 @@ import {
     EyeOff,
     Briefcase,
     Building2,
-    Users
+    Users,
+    Check
 } from 'lucide-react';
 
 const Login = () => {
