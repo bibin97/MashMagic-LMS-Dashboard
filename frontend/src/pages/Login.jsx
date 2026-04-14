@@ -1,308 +1,246 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import { Lock, Mail, Loader2, Sparkles, LogIn, ArrowRight } from 'lucide-react';
+import api from '../services/api';
 import toast from 'react-hot-toast';
-import RegistrationForm from '../components/RegistrationForm';
+import { 
+    ShieldCheck, 
+    Lock, 
+    User, 
+    ChevronRight, 
+    Eye, 
+    EyeOff,
+    Briefcase,
+    Building2,
+    Users
+} from 'lucide-react';
 
 const Login = () => {
-    const [activeDepartment, setActiveDepartment] = useState('admin');
-    const [subRole, setSubRole] = useState('admin');
-    const [isRegistering, setIsRegistering] = useState(false);
-    const [formData, setFormData] = useState({ identifier: '', password: '' });
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const { login } = useAuth();
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [dept, setDept] = useState('');
+    const [role, setRole] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
-    // Entrance Animation Control
-    const [isMounted, setIsMounted] = useState(false);
-    useEffect(() => {
-        setIsMounted(true);
-    }, []);
-
-    const handleDepartmentChange = (dept) => {
-        setActiveDepartment(dept);
-        setIsRegistering(false);
-        setFormData({ identifier: '', password: '' });
-        if (dept === 'mentor_dept') setSubRole('mentor_head');
-        else if (dept === 'academic_dept') setSubRole('academic_head');
-        else setSubRole('admin');
+    // Map sub-roles for better selection
+    const subRoles = {
+        'admin': ['Super Admin', 'Sub Admin'],
+        'academic': ['Academic Head'],
+        'mentor': ['Mentor Head', 'Mentor'],
+        'faculty': ['Faculty Head', 'Faculty']
     };
 
-    const handleSubRoleChange = (role) => {
-        setSubRole(role);
-        setIsRegistering(false);
-        setFormData({ identifier: '', password: '' });
-    };
-
-    const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
-    };
-
-    const handleRegistrationSuccess = () => {
-        setIsRegistering(false);
-        toast.success("Account created successfully! Please login.");
-    };
-
-    const handleSubmit = async (e) => {
+    const handleLogin = async (e) => {
         e.preventDefault();
-        setIsSubmitting(true);
+        if (!email || !password || !dept || !role) {
+            toast.error('Please fill in all security protocols');
+            return;
+        }
+
+        setLoading(true);
         try {
-            const user = await login(formData.identifier, formData.password, activeDepartment);
-            const role = user.role?.toLowerCase().trim();
-            toast.success(`Welcome back, ${user.name}!`);
+            const finalRole = role.toLowerCase().replace(' ', '');
+            const response = await api.post('/auth/login', { email, password, role: finalRole });
             
-            if (role === 'super_admin' || role === 'admin') navigate('/admin/dashboard');
-            else if (role === 'mentor_head') navigate('/mentor-head/dashboard');
-            else if (role === 'mentor') navigate('/mentor/dashboard');
-            else if (role === 'faculty') navigate('/faculty/dashboard');
-            else if (role === 'academic_head') navigate('/academic-head/dashboard');
-            else navigate('/admin/dashboard');
+            if (response.data.token) {
+                localStorage.setItem('token', response.data.token);
+                localStorage.setItem('role', finalRole);
+                localStorage.setItem('user', JSON.stringify(response.data.user));
+                
+                toast.success(`Access Granted: ${role} Session Initiated`);
+                
+                // Route based on role
+                if (finalRole === 'superadmin' || finalRole === 'subadmin') navigate('/admin/dashboard');
+                else if (finalRole === 'academichead') navigate('/academic-head/dashboard');
+                else if (finalRole === 'mentorhead') navigate('/mentor-head/dashboard');
+                else if (finalRole === 'mentor') navigate('/mentor/dashboard');
+                else if (finalRole === 'facultyhead') navigate('/faculty-head/dashboard');
+                else if (finalRole === 'faculty') navigate('/faculty/dashboard');
+            }
         } catch (error) {
-            toast.error(error.response?.data?.message || error.message || "Login failed.");
+            toast.error(error.response?.data?.message || 'Authentication Failed');
         } finally {
-            setIsSubmitting(false);
+            setLoading(false);
         }
     };
 
-    const canSignup = ['super_admin', 'mentor_head', 'academic_head'].includes(subRole);
-
     return (
-        <div className="min-h-screen flex items-center justify-center p-4 sm:p-6 relative overflow-hidden font-sans select-none bg-slate-950">
-            {/* 1. Background & Atmosphere */}
-            <div className="absolute inset-0 z-0">
-                {/* Layered Radial Gradients */}
-                <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_0%_0%,rgba(20,184,166,0.15)_0%,transparent_50%)]"></div>
-                <div className="absolute bottom-0 right-0 w-full h-full bg-[radial-gradient(circle_at_100%_100%,rgba(99,102,241,0.15)_0%,transparent_50%)]"></div>
+        <div className="min-h-screen w-full flex items-center justify-center p-6 relative overflow-hidden bg-[#020617]">
+            {/* Enterprise Background Gradients */}
+            <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-[#0d9488]/15 blur-[120px] rounded-full animate-pulse" />
+            <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-[#1e1b4b]/40 blur-[150px] rounded-full" />
+            
+            {/* Main Vault Container */}
+            <div className="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-2 bg-white/[0.02] backdrop-blur-3xl rounded-[40px] border border-white/10 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)] overflow-hidden">
                 
-                {/* Abstract Depth Blobs */}
-                <div className="absolute top-[20%] left-[10%] w-[400px] h-[400px] bg-teal-500/10 rounded-full blur-[120px] animate-pulse"></div>
-                <div className="absolute bottom-[20%] right-[10%] w-[500px] h-[500px] bg-indigo-500/10 rounded-full blur-[150px] animate-pulse" style={{ animationDelay: '2s' }}></div>
-                
-                {/* 2% Noise Texture Overlay */}
-                <div className="absolute inset-0 opacity-[0.02] pointer-events-none mix-blend-overlay bg-[url('https://grainy-gradients.vercel.app/noise.svg')]"></div>
-            </div>
-
-            <div className={`w-full max-w-[520px] relative z-10 transition-all duration-1000 ease-out flex flex-col items-center ${isMounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
-                
-                {/* Brand Identity */}
-                <div className="text-center mb-12 flex flex-col items-center w-full px-4">
-                    <div className="w-24 h-24 mb-6 relative group">
-                        <div className="absolute inset-0 bg-teal-500/20 blur-2xl rounded-full scale-0 group-hover:scale-150 transition-transform duration-700"></div>
-                        <div className="relative z-10 w-full h-full bg-white/10 backdrop-blur-xl rounded-[28px] p-5 border border-white/20 shadow-2xl transition-all duration-500 hover:rotate-6 hover:scale-110">
-                            <img src="/mashmagic logo.jpg" alt="Logo" className="w-full h-full object-contain rounded-lg brightness-110" />
-                        </div>
-                    </div>
-                    <h1 className="text-5xl sm:text-6xl font-black tracking-tighter italic leading-none text-[#008080]">
-                        MashMagic Hub
-                    </h1>
-                    <p className="text-[#f8ba2b] font-bold mt-4 uppercase tracking-[0.4em] text-xs">
-                        Enterprise Learning Management System
-                    </p>
-                </div>
-
-                {/* 2. Glassmorphic Container (The Card) */}
-                <div className="w-full bg-white/5 backdrop-blur-2xl rounded-[48px] shadow-[0_25px_80px_-12px_rgba(0,0,0,0.5)] border border-white/10 relative overflow-hidden group flex flex-col items-center">
-                    {/* Refractive Inner Glow */}
-                    <div className="absolute inset-0 bg-gradient-to-tr from-white/5 to-transparent pointer-events-none"></div>
+                {/* Visual Branding Section */}
+                <div className="hidden lg:flex flex-col justify-between p-16 bg-gradient-to-br from-[#0d9488]/10 to-transparent border-r border-white/5 relative">
+                    <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-5 pointer-events-none" />
                     
-                    {/* Vault Access (Moved Above Tabs) */}
-                    <div className="pt-10 pb-2 text-center relative z-10 w-full">
-                        <h2 className="text-4xl sm:text-5xl font-black tracking-tighter italic uppercase leading-tight text-[#008080]">
-                            Vault Access
-                        </h2>
-                        <p className="text-[#f8ba2b] text-xs font-black uppercase tracking-[0.3em] mt-4 flex items-center justify-center gap-3">
-                            <span className="w-2 h-2 rounded-full bg-[#f8ba2b] shadow-[0_0_10px_rgba(248,186,43,0.6)] animate-pulse"></span>
-                            Authorized Session Only
+                    <div className="relative z-10">
+                        <div className="flex items-center gap-3 mb-12">
+                            <div className="w-10 h-10 bg-[#0d9488] rounded-xl flex items-center justify-center shadow-lg shadow-[#0d9488]/30">
+                                <ShieldCheck className="text-white" size={24} />
+                            </div>
+                            <span className="text-2xl font-black text-white tracking-tighter uppercase italic">MashMagic <span className="text-[#0d9488]">Hub</span></span>
+                        </div>
+
+                        <h1 className="text-5xl font-black text-white leading-[1.1] mb-6 tracking-tight">
+                            The Secure Gateway to <br />
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0d9488] to-[#2dd4bf]">Learning Excellence.</span>
+                        </h1>
+                        <p className="text-slate-400 text-lg leading-relaxed max-w-sm font-medium">
+                            Enterprise-grade management system designed for institutional growth and academic precision.
                         </p>
                     </div>
 
-                    {/* Dept Tabs Section - Pill Sliding Animation */}
-                    <div className="w-[calc(100%-3rem)] sm:w-[calc(100%-4rem)] p-1 sm:p-2 bg-slate-900/40 mt-4 mx-6 sm:mx-8 mb-6 sm:mb-8 rounded-[28px] flex gap-1 border border-white/5 relative z-10">
-                        {/* Sliding Background (Green) */}
-                        <div 
-                            className="absolute bg-[#008080]/40 backdrop-blur-md border border-[#008080]/50 shadow-[0_0_15px_rgba(0,128,128,0.3)] rounded-[22px] transition-all duration-500 ease-spring"
-                            style={{
-                                width: 'calc(33.33% - 8px)',
-                                height: 'calc(100% - 16px)',
-                                left: activeDepartment === 'admin' ? '8px' : activeDepartment === 'mentor_dept' ? '33.33%' : '66.66%',
-                                top: '8px'
-                            }}
-                        ></div>
+                    <div className="relative z-10">
+                        <div className="flex items-center gap-4 p-4 bg-white/5 rounded-2xl border border-white/10 backdrop-blur-md">
+                            <div className="flex -space-x-3">
+                                {[1,2,3,4].map(i => (
+                                    <div key={i} className="w-8 h-8 rounded-full border-2 border-[#020617] bg-slate-800" />
+                                ))}
+                            </div>
+                            <p className="text-sm text-slate-300 font-bold tracking-tight">
+                                <span className="text-white font-black">500+</span> Professionals Online
+                            </p>
+                        </div>
+                    </div>
+                </div>
 
-                        {[
-                            { id: 'admin', label: 'Admin Dept' },
-                            { id: 'mentor_dept', label: 'Mentor Dept' },
-                            { id: 'academic_dept', label: 'Academic Dept' }
-                        ].map((dept) => (
-                            <button
-                                key={dept.id}
-                                onClick={() => handleDepartmentChange(dept.id)}
-                                className={`flex-1 py-4 text-[10px] font-black uppercase tracking-widest transition-all rounded-[22px] relative z-10
-                                    ${activeDepartment === dept.id 
-                                        ? 'text-[#008080]' 
-                                        : 'text-white hover:text-slate-200'}
-                                `}
-                            >
-                                {dept.label}
-                            </button>
-                        ))}
+                {/* Login Form Section */}
+                <div className="p-8 sm:p-16 lg:p-20 flex flex-col justify-center">
+                    <div className="mb-10 lg:hidden text-center">
+                         <span className="text-xl font-black text-white tracking-tighter uppercase italic">MashMagic <span className="text-[#0d9488]">Hub</span></span>
                     </div>
 
-                    <div className="px-6 sm:px-14 pb-14 pt-2 relative min-h-[460px] flex flex-col">
-                        {/* Sub-role Selector */}
-                        <div className="flex justify-center mb-12 w-full">
-                            <div className="bg-white/5 p-1 rounded-[20px] flex gap-1 border border-white/5 border-white/5 relative min-w-[300px]">
-                                {/* Sliding Sub-role Background */}
-                                <div 
-                                    className="absolute backdrop-blur-md border shadow-[0_0_15px_rgba(248,186,43,0.3)] rounded-[16px] transition-all duration-500 ease-spring"
-                                    style={{
-                                        width: 'calc(50% - 4px)',
-                                        height: 'calc(100% - 8px)',
-                                        left: (subRole === 'mentor_head' || subRole === 'academic_head' || subRole === 'super_admin') ? '4px' : 'calc(50% + 0px)',
-                                        top: '4px',
-                                        backgroundColor: (subRole === 'super_admin' || subRole === 'admin') ? 'rgba(248, 186, 43, 0.3)' : 'rgba(248, 186, 43, 0.3)',
-                                        borderColor: (subRole === 'super_admin' || subRole === 'admin') ? 'rgba(248, 186, 43, 0.5)' : 'rgba(248, 186, 43, 0.5)'
-                                    }}
-                                ></div>
-                                {(activeDepartment === 'admin' 
-                                    ? [{ id: 'super_admin', label: 'Super Admin' }, { id: 'admin', label: 'Sub Admin' }]
-                                    : activeDepartment === 'mentor_dept' 
-                                        ? [{ id: 'mentor_head', label: 'Mentor Head' }, { id: 'mentor', label: 'Mentor' }]
-                                        : [{ id: 'academic_head', label: 'Academic Head' }, { id: 'faculty', label: 'Faculty' }]
-                                ).map(role => (
-                                    <button
-                                        key={role.id}
-                                        onClick={() => handleSubRoleChange(role.id)}
-                                        className={`flex-1 px-6 sm:px-8 py-3 rounded-[16px] text-[10px] font-black uppercase tracking-wider transition-all relative z-10
-                                            ${subRole === role.id 
-                                                ? (activeDepartment === 'admin' ? 'text-black' : 'text-black') 
-                                                : 'text-white hover:text-slate-200'}
-                                        `}
+                    <div className="mb-10">
+                        <h2 className="text-3xl font-black text-[#0d9488] mb-2 tracking-tight uppercase">Vault Access</h2>
+                        <p className="text-[#927d49] text-[10px] font-bold uppercase tracking-[0.2em]">Authorized Personnel Only</p>
+                    </div>
+
+                    <form onSubmit={handleLogin} className="space-y-6">
+                        {/* Role & Dept Selectors */}
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <label className="text-[#927d49] text-[9px] font-bold uppercase tracking-widest pl-1">Department</label>
+                                <div className="relative">
+                                    <select 
+                                        value={dept}
+                                        onChange={(e) => { setDept(e.target.value); setRole(''); }}
+                                        className="w-full bg-white/[0.03] border border-white/5 rounded-2xl px-4 py-3.5 text-xs text-white outline-none focus:border-[#0d9488]/50 focus:bg-white/[0.05] transition-all appearance-none font-medium"
                                     >
-                                        {role.label}
-                                    </button>
-                                ))}
+                                        <option value="" className="bg-[#020617]">Select Dept</option>
+                                        <option value="admin" className="bg-[#020617]">Admin Dept</option>
+                                        <option value="academic" className="bg-[#020617]">Academic Dept</option>
+                                        <option value="mentor" className="bg-[#020617]">Mentor Dept</option>
+                                        <option value="faculty" className="bg-[#020617]">Faculty Dept</option>
+                                    </select>
+                                    <Building2 className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500" size={14} />
+                                </div>
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-[#927d49] text-[9px] font-bold uppercase tracking-widest pl-1">System Role</label>
+                                <div className="relative">
+                                    <select 
+                                        value={role}
+                                        onChange={(e) => setRole(e.target.value)}
+                                        disabled={!dept}
+                                        className="w-full bg-white/[0.03] border border-white/5 disabled:opacity-50 rounded-2xl px-4 py-3.5 text-xs text-white outline-none focus:border-[#0d9488]/50 focus:bg-white/[0.05] transition-all appearance-none font-medium"
+                                    >
+                                        <option value="" className="bg-[#020617]">Select Role</option>
+                                        {dept && subRoles[dept].map(r => (
+                                            <option key={r} value={r} className="bg-[#020617]">{r}</option>
+                                        ))}
+                                    </select>
+                                    <Users className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500" size={14} />
+                                </div>
                             </div>
                         </div>
 
-                        {isRegistering ? (
-                            <div className="animate-in fade-in slide-in-from-right-8 duration-500 flex-1">
-                                <div className="mb-8 flex items-center justify-between px-2">
-                                    <h2 className="text-2xl font-black text-white tracking-tighter italic uppercase">Identity Setup</h2>
-                                    <button onClick={() => setIsRegistering(false)} className="w-12 h-12 flex items-center justify-center rounded-2xl bg-white/5 text-slate-400 hover:text-teal-400 transition-all border border-white/5">
-                                        <LogIn size={20} />
-                                    </button>
+                        {/* Credential ID */}
+                        <div className="space-y-2">
+                            <label className="text-[#927d49] text-[9px] font-bold uppercase tracking-widest pl-1">Credential ID</label>
+                            <div className="relative group">
+                                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-[#0d9488] transition-colors">
+                                    <User size={18} />
                                 </div>
-                                <div className="w-full">
-                                    <RegistrationForm preSelectedRole={subRole} onSuccess={handleRegistrationSuccess} />
+                                <input 
+                                    type="email"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    placeholder="Enter your system ID"
+                                    className="w-full bg-white/[0.03] border border-white/5 rounded-2xl pl-12 pr-6 py-4 text-sm text-white placeholder:text-slate-600 outline-none focus:border-[#0d9488]/50 focus:bg-white/[0.05] transition-all font-medium"
+                                />
+                            </div>
+                        </div>
+
+                        {/* Security Key */}
+                        <div className="space-y-2">
+                            <label className="text-[#927d49] text-[9px] font-bold uppercase tracking-widest pl-1">Security Key</label>
+                            <div className="relative group">
+                                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-[#0d9488] transition-colors">
+                                    <Lock size={18} />
                                 </div>
+                                <input 
+                                    type={showPassword ? "text" : "password"}
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    placeholder="••••••••"
+                                    className="w-full bg-white/[0.03] border border-white/5 rounded-2xl pl-12 pr-12 py-4 text-sm text-white placeholder:text-slate-600 outline-none focus:border-[#0d9488]/50 focus:bg-white/[0.05] transition-all font-medium"
+                                />
+                                <button 
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white transition-colors"
+                                >
+                                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                </button>
                             </div>
-                        ) : (
-                            <div className="animate-in fade-in slide-in-from-bottom-8 duration-700 flex-1 flex flex-col justify-center w-full">
-                                <form onSubmit={handleSubmit} className="flex flex-col gap-8 w-full max-w-[380px] mx-auto pt-6">
-                                    <div className="space-y-3">
-                                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Credential ID</label>
-                                        <div className="relative group">
-                                            <div className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-teal-400 transition-colors">
-                                                <Mail size={20} strokeWidth={2.5} />
-                                            </div>
-                                            <input
-                                                name="identifier"
-                                                type="text"
-                                                required
-                                                className="w-full p-5 pl-14 bg-white/5 border border-white/5 rounded-3xl text-sm font-bold text-white outline-none focus:bg-white/10 focus:border-teal-500/40 focus:ring-8 focus:ring-teal-500/5 transition-all"
-                                                placeholder="Email or Phone"
-                                                value={formData.identifier}
-                                                onChange={handleChange}
-                                            />
-                                        </div>
-                                    </div>
+                        </div>
 
-                                    <div className="space-y-3">
-                                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Secure Passkey</label>
-                                        <div className="relative group">
-                                            <div className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-teal-400 transition-colors">
-                                                <Lock size={20} strokeWidth={2.5} />
-                                            </div>
-                                            <input
-                                                name="password"
-                                                type="password"
-                                                required
-                                                className="w-full p-5 pl-14 bg-white/5 border border-white/5 rounded-3xl text-sm font-bold text-white outline-none focus:bg-white/10 focus:border-teal-500/40 focus:ring-8 focus:ring-teal-500/5 transition-all font-sans"
-                                                placeholder="••••••••"
-                                                value={formData.password}
-                                                onChange={handleChange}
-                                            />
-                                        </div>
-                                    </div>
+                        <div className="flex items-center justify-between pt-2">
+                            <label className="flex items-center gap-2 cursor-pointer group">
+                                <input type="checkbox" className="hidden" />
+                                <div className="w-4 h-4 rounded border border-white/10 bg-white/5 flex items-center justify-center group-hover:border-[#0d9488]/50 transition-all">
+                                    <div className="w-2 h-2 rounded-sm bg-[#0d9488] scale-0 transition-transform group-hover:scale-100" />
+                                </div>
+                                <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Stay Authenticated</span>
+                            </label>
+                            <button type="button" className="text-[10px] text-[#0d9488] font-black uppercase tracking-widest hover:text-[#2dd4bf] transition-colors">Recover Keys?</button>
+                        </div>
 
-                                    {/* 4. CTA Button (Orange Shimmer Edition) */}
-                                    <button
-                                        type="submit"
-                                        disabled={isSubmitting}
-                                        className="w-full relative overflow-hidden group/btn bg-[#f8ba2b] text-black h-16 rounded-[24px] font-black text-[13px] uppercase tracking-[0.35em] transition-all hover:scale-[1.03] hover:shadow-[0_20px_40px_rgba(248,186,43,0.3)] active:scale-95 disabled:opacity-50 italic mt-4"
-                                    >
-                                        {/* Shimmer Effect */}
-                                        <div className="absolute inset-x-[-100%] top-0 h-full bg-gradient-to-r from-transparent via-black/10 to-transparent skew-x-[-20deg] animate-shimmer"></div>
-                                        
-                                        <div className="relative z-10 flex items-center justify-center gap-4">
-                                            {isSubmitting ? (
-                                                <>
-                                                    <Loader2 size={24} className="animate-spin" />
-                                                    <span>Logging in...</span>
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <span>LOGIN</span>
-                                                    <ArrowRight size={20} className="transition-transform group-hover/btn:translate-x-2" strokeWidth={3} />
-                                                </>
-                                            )}
-                                        </div>
-                                    </button>
+                        <button 
+                            type="submit"
+                            disabled={loading}
+                            className="w-full group relative flex items-center justify-center gap-3 bg-[#0d9488] hover:bg-[#115e59] text-white py-4 rounded-full font-black uppercase tracking-[0.2em] text-xs shadow-xl shadow-[#0d9488]/20 transition-all active:scale-[0.98] disabled:opacity-70"
+                        >
+                            {loading ? (
+                                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                            ) : (
+                                <>
+                                    <span>Initiate Protocol</span>
+                                    <ChevronRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                                </>
+                            )}
+                            {/* subtle glow effect */}
+                            <div className="absolute inset-x-0 bottom-[-20%] h-1/2 bg-[#0d9488]/30 blur-[20px] rounded-full scale-0 group-hover:scale-100 transition-transform opacity-50" />
+                        </button>
+                    </form>
 
-                                    {canSignup && (
-                                        <div className="mt-8 text-center">
-                                            <p className="text-slate-500 text-[11px] font-bold uppercase tracking-widest">
-                                                New {subRole.replace('_', ' ')}? {' '}
-                                                <button
-                                                    type="button"
-                                                    onClick={() => setIsRegistering(true)}
-                                                    className="text-teal-400 hover:text-white transition-colors font-black border-b-2 border-teal-400/20 hover:border-teal-400 pb-1 ml-2"
-                                                >
-                                                    CREATE PROFILE
-                                                </button>
-                                            </p>
-                                        </div>
-                                    )}
-                                </form>
-                            </div>
-                        )}
+                    <div className="mt-12 pt-8 border-t border-white/5 flex flex-col items-center gap-4">
+                         <div className="flex gap-1">
+                            {[...Array(5)].map((_, i) => (
+                                <ShieldCheck key={i} size={14} className="text-[#0d9488]/40" />
+                            ))}
+                         </div>
+                         <p className="text-[9px] text-slate-600 font-bold uppercase tracking-[0.3em] text-center">
+                            Secured by MashMagic Enterprise Encryption
+                         </p>
                     </div>
                 </div>
-
-                {/* Micro-copy Footer */}
-                <div className="mt-16 text-center pb-8">
-                    <p className="text-xs font-black uppercase tracking-widest text-[#f8ba2b] opacity-80">
-                        MashMagic Secured Authorization v4.2 • End-to-End Encrypted
-                    </p>
-                </div>
             </div>
-
-            {/* Custom Animations Styles */}
-            <style dangerouslySetInnerHTML={{ __html: `
-                @keyframes shimmer {
-                    0% { transform: translateX(-100%) skewX(-20deg); }
-                    20% { transform: translateX(200%) skewX(-20deg); }
-                    100% { transform: translateX(200%) skewX(-20deg); }
-                }
-                .animate-shimmer {
-                    animation: shimmer 5s infinite cubic-bezier(0.4, 0, 0.2, 1);
-                }
-                .ease-spring {
-                    transition-timing-function: cubic-bezier(0.175, 0.885, 0.32, 1.275);
-                }
-            `}} />
         </div>
     );
 };
