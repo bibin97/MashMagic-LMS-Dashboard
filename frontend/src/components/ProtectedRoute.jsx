@@ -29,19 +29,21 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
     if (allowedRoles && allowedRoles.length > 0) {
         // Read role from state or fallback to localStorage
         const storedRole = localStorage.getItem('role');
-        const userRole = (user?.role || storedRole || '').toLowerCase().trim();
+        const normalizeRole = (r) => (r || '').toLowerCase().replace(/_/g, '').trim();
+        const userRoleNormalized = normalizeRole(user?.role || storedRole);
 
-        const hasPermission = allowedRoles.some(role => role.toLowerCase() === userRole);
+        const hasPermission = allowedRoles.some(role => normalizeRole(role) === userRoleNormalized);
 
         if (!hasPermission) {
-            console.warn(`Access Denied: Role '${userRole}' not in allowed list [${allowedRoles}]`);
+            console.warn(`Access Denied: Role '${user?.role || storedRole}' not in allowed list [${allowedRoles}]`);
 
             // Redirect to appropriate dashboard based on role to avoid login loop
-            if (userRole === 'admin' || userRole === 'super_admin') return <Navigate to="/admin/dashboard" replace />;
-            if (userRole === 'mentor_head') return <Navigate to="/mentor-head/dashboard" replace />;
-            if (userRole === 'mentor') return <Navigate to="/mentor/dashboard" replace />;
-            if (userRole === 'faculty') return <Navigate to="/faculty/dashboard" replace />;
-            if (userRole === 'student') return <Navigate to="/student/dashboard" replace />;
+            const r = userRoleNormalized;
+            if (r === 'admin' || r === 'superadmin') return <Navigate to="/admin/dashboard" replace />;
+            if (r === 'mentorhead') return <Navigate to="/mentor-head/dashboard" replace />;
+            if (r === 'mentor') return <Navigate to="/mentor/dashboard" replace />;
+            if (r === 'faculty') return <Navigate to="/faculty/dashboard" replace />;
+            if (r === 'student') return <Navigate to="/student/dashboard" replace />;
 
             return <Navigate to="/login" replace />;
         }
