@@ -74,13 +74,41 @@ const Login = () => {
 
     const handleRegister = async (e) => {
         e.preventDefault();
+        
+        if (!regData.fullName || !email || !password || !regData.phone || !regData.place) {
+            toast.error('All authentication parameters are required');
+            return;
+        }
+
+        setLoading(true);
         toast.loading('Initiating Identity Creation...');
-        // Backend logic for registration will be connected here
-        setTimeout(() => {
+        
+        try {
+            const finalRole = role.toLowerCase().replace(' ', '_');
+            const response = await api.post('/auth/register', {
+                name: regData.fullName,
+                email: email,
+                password: password,
+                phone_number: regData.phone,
+                place: regData.place,
+                role: finalRole
+            });
+
+            if (response.data.success) {
+                toast.dismiss();
+                toast.success(response.data.message || 'Identity Created. Awaiting Activation.');
+                setIsRegistering(false);
+                // Clear fields
+                setRegData({ fullName: '', phone: '', place: '' });
+                setPassword('');
+                setEmail('');
+            }
+        } catch (error) {
             toast.dismiss();
-            toast.success(`Identity Created for ${role}. Awaiting Activation.`);
-            setIsRegistering(false);
-        }, 2000);
+            toast.error(error.response?.data?.message || 'Identity Creation Failed');
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (

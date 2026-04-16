@@ -8,6 +8,7 @@ const db = require('../config/db');
 // @access  Public
 const register = async (req, res) => {
     try {
+        const { name, email, password, role } = req.body;
         const targetRole = role || 'student';
         const isStudent = targetRole === 'student';
 
