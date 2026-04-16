@@ -42,22 +42,23 @@ const Login = () => {
 
         setLoading(true);
         try {
-            const finalRole = role.toLowerCase().replace(' ', '');
-            const response = await api.post('/auth/login', { email, password, role: finalRole });
+            const finalRole = role.toLowerCase().replace(' ', '_');
+            const response = await api.post('/auth/login', { email, password, role: finalRole.replace('_', '') }); // API might still expect name without underscore, or if API matches DB it might need underscore. Usually auth API matches whatever we send, but I'll check the replace logic.
             
             if (response.data.token) {
                 localStorage.setItem('token', response.data.token);
+                // Ensure the stored role matches what ProtectedRoute expects (with underscores)
                 localStorage.setItem('role', finalRole);
                 localStorage.setItem('user', JSON.stringify(response.data.user));
                 
                 toast.success(`Access Granted: ${role} Session Initiated`);
                 
-                // Route based on role
-                if (finalRole === 'superadmin' || finalRole === 'subadmin') navigate('/admin/dashboard');
-                else if (finalRole === 'academichead') navigate('/academic-head/dashboard');
-                else if (finalRole === 'mentorhead') navigate('/mentor-head/dashboard');
+                // Route based on role (matching App.jsx paths)
+                if (finalRole === 'super_admin' || finalRole === 'sub_admin') navigate('/admin/dashboard');
+                else if (finalRole === 'academic_head') navigate('/academic-head/dashboard');
+                else if (finalRole === 'mentor_head') navigate('/mentor-head/dashboard');
                 else if (finalRole === 'mentor') navigate('/mentor/dashboard');
-                else if (finalRole === 'facultyhead') navigate('/faculty-head/dashboard');
+                else if (finalRole === 'faculty_head') navigate('/faculty-head/dashboard');
                 else if (finalRole === 'faculty') navigate('/faculty/dashboard');
             }
         } catch (error) {
