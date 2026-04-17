@@ -34,9 +34,8 @@ const Login = () => {
     // Map sub-roles for better selection
     const subRoles = {
         'admin': ['Super Admin', 'Sub Admin'],
-        'academic': ['Academic Head'],
-        'mentor': ['Mentor Head', 'Mentor'],
-        'faculty': ['Faculty Head', 'Faculty']
+        'academic': ['Academic Head', 'Faculty'],
+        'mentor': ['Mentor Head', 'Mentor']
     };
 
     const handleLogin = async (e) => {
@@ -168,7 +167,7 @@ const Login = () => {
                         <>
                             {/* Department Tabs with Glass Gradient Green Styling */}
                             <div className="flex flex-wrap gap-3 mb-8 scrollbar-none">
-                                {['admin', 'mentor', 'academic', 'faculty'].map((d) => (
+                                {['admin', 'mentor', 'academic'].map((d) => (
                                     <button
                                         key={d}
                                         onClick={() => { setDept(d); setRole(''); }}
@@ -275,7 +274,7 @@ const Login = () => {
                                     </div>
 
                                     {/* Registration Link placed above Login Button as requested */}
-                                    {(role === 'Super Admin' || role === 'Academic Head' || role === 'Mentor Head' || role === 'Faculty Head' || role === 'Faculty') && (
+                                    {(role === 'Super Admin' || role === 'Academic Head' || role === 'Mentor Head' || role === 'Faculty') && (
                                         <div className="flex justify-center pt-2 border-t border-white/5">
                                             <button 
                                                 type="button"
