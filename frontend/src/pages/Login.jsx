@@ -166,37 +166,39 @@ const Login = () => {
 
                     {!isRegistering ? (
                         <>
-                            {/* Department Tabs */}
-                            <div className="flex flex-wrap gap-2 mb-6 scrollbar-none">
+                            {/* Department Tabs with Glass Gradient Green Styling */}
+                            <div className="flex flex-wrap gap-3 mb-8 scrollbar-none">
                                 {['admin', 'mentor', 'academic', 'faculty'].map((d) => (
                                     <button
                                         key={d}
                                         onClick={() => { setDept(d); setRole(''); }}
-                                        className={`px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 border ${
+                                        className={`px-6 py-3 rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] transition-all duration-500 border ${
                                             dept === d 
-                                            ? 'bg-[#0d9488] text-white border-[#0d9488] shadow-lg shadow-[#0d9488]/30' 
-                                            : 'bg-white/5 text-slate-400 border-white/10 hover:border-white/20'
+                                            ? 'bg-gradient-to-br from-[#0d9488]/30 to-[#14b8a6]/10 backdrop-blur-xl border-[#0d9488]/50 shadow-[0_0_20px_rgba(13,148,136,0.3)] scale-105' 
+                                            : 'bg-white/5 text-slate-500 border-white/5 hover:border-white/10'
                                         }`}
                                     >
-                                        {d}
+                                        <span className={dept === d ? "text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-400" : ""}>
+                                            {d}
+                                        </span>
                                     </button>
                                 ))}
                             </div>
 
                             <form onSubmit={handleLogin} className="space-y-5">
-                                {/* Role Selector Inline */}
-                                <div className="space-y-2">
-                                    <label className="text-slate-300 text-[11px] font-black uppercase tracking-[0.2em] pl-1 drop-shadow">System Authorization Role</label>
+                                {/* Role Selector Inline with Glass Styling */}
+                                <div className="space-y-3">
+                                    <label className="text-slate-300 text-[11px] font-black uppercase tracking-[0.2em] pl-1 drop-shadow-sm">System Authorization Role</label>
                                     <div className="flex flex-wrap gap-2">
                                         {dept && subRoles[dept].map(r => (
                                             <button
                                                 key={r}
                                                 type="button"
                                                 onClick={() => setRole(r)}
-                                                className={`px-4 py-2 rounded-xl text-[10px] font-black tracking-wider transition-all duration-300 border ${
+                                                className={`px-5 py-2.5 rounded-xl text-[10px] font-black tracking-widest transition-all duration-500 border ${
                                                     role === r 
-                                                    ? 'bg-[#0d9488] text-white border-[#0d9488] shadow-lg shadow-[#0d9488]/20' 
-                                                    : 'bg-white/5 text-slate-500 border-white/5 hover:border-white/10'
+                                                    ? 'bg-gradient-to-r from-[#0d9488]/40 to-transparent backdrop-blur-md text-white border-[#0d9488] shadow-lg shadow-[#0d9488]/20 ring-1 ring-[#0d9488]/50' 
+                                                    : 'bg-white/5 text-slate-500 border-white/5 hover:border-white/20'
                                                 }`}
                                             >
                                                 {r}
