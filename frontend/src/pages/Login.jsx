@@ -430,10 +430,3 @@ const Login = () => {
 };
 
 export default Login;
-                </div>
-            </div>
-        </div>
-    );
-};
-
-export default Login;
