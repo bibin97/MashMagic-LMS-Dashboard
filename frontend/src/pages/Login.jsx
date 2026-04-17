@@ -327,7 +327,7 @@ const Login = () => {
                                         <ShieldCheck size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" />
                                         <input 
                                             type="email"
-                                            placeholder={`${role} Email (Optional)`}
+                                            placeholder={`${role} Email`}
                                             className="w-full bg-white text-black rounded-xl pl-12 pr-6 py-3.5 text-sm font-bold outline-none border-none shadow-inner"
                                             value={email}
                                             onChange={(e) => setEmail(e.target.value)}
@@ -370,7 +370,7 @@ const Login = () => {
                                         <Lock size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" />
                                         <input 
                                             type="password"
-                                            placeholder="****** (Optional)"
+                                            placeholder="******"
                                             className="w-full bg-white text-black rounded-xl pl-12 pr-6 py-3.5 text-sm font-bold outline-none border-none shadow-inner"
                                             value={password}
                                             onChange={(e) => setPassword(e.target.value)}
