@@ -156,39 +156,37 @@ const Login = () => {
                 </div>
 
                 {/* Login/Signup Form Section */}
-                <div className="p-8 sm:p-16 lg:p-20 flex flex-col justify-center min-h-[700px]">
-                    {/* Department Tabs */}
-                    <div className="flex justify-between gap-2 mb-10 overflow-x-auto pb-2 scrollbar-none">
-                        {['admin', 'mentor', 'academic'].map((d) => (
-                            <button
-                                key={d}
-                                onClick={() => { setDept(d); setRole(''); }}
-                                className={`px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all duration-300 border ${
-                                    dept === d 
-                                    ? 'bg-[#0d9488] text-white border-[#0d9488] shadow-lg shadow-[#0d9488]/20' 
-                                    : 'bg-white/5 text-slate-400 border-white/10 hover:border-white/20'
-                                }`}
-                            >
-                                {d} Dept
-                            </button>
-                        ))}
-                    </div>
-
-                    <div className="mb-10 lg:hidden text-center">
-                         <span className="text-xl font-black text-white tracking-tighter uppercase italic">MashMagic <span className="text-[#0d9488]">Hub</span></span>
+                <div className="p-8 sm:p-12 lg:p-16 flex flex-col justify-center min-h-[700px]">
+                    
+                    {/* Heading Section Moved to Top */}
+                    <div className="mb-8">
+                        <h2 className="text-4xl font-black text-[#0d9488] mb-1 tracking-tight uppercase drop-shadow-md">Establish Connection</h2>
+                        <p className="text-[#f8ba2b] text-[10px] font-black uppercase tracking-[0.3em] opacity-90">Security Protocol Activated</p>
                     </div>
 
                     {!isRegistering ? (
                         <>
-                            <div className="mb-10">
-                                <h2 className="text-3xl font-black text-[#0d9488] mb-1 tracking-tight uppercase drop-shadow-md">Establish Connection</h2>
-                                <p className="text-[#f8ba2b] text-[9px] font-black uppercase tracking-[0.3em] opacity-80">Security Protocol Activated</p>
+                            {/* Department Tabs */}
+                            <div className="flex flex-wrap gap-2 mb-6 scrollbar-none">
+                                {['admin', 'mentor', 'academic', 'faculty'].map((d) => (
+                                    <button
+                                        key={d}
+                                        onClick={() => { setDept(d); setRole(''); }}
+                                        className={`px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 border ${
+                                            dept === d 
+                                            ? 'bg-[#0d9488] text-white border-[#0d9488] shadow-lg shadow-[#0d9488]/30' 
+                                            : 'bg-white/5 text-slate-400 border-white/10 hover:border-white/20'
+                                        }`}
+                                    >
+                                        {d}
+                                    </button>
+                                ))}
                             </div>
 
-                            <form onSubmit={handleLogin} className="space-y-6">
+                            <form onSubmit={handleLogin} className="space-y-5">
                                 {/* Role Selector Inline */}
-                                <div className="space-y-3">
-                                    <label className="text-slate-400 text-[9px] font-black uppercase tracking-[0.2em] pl-1">System Authorization Role</label>
+                                <div className="space-y-2">
+                                    <label className="text-slate-300 text-[11px] font-black uppercase tracking-[0.2em] pl-1 drop-shadow">System Authorization Role</label>
                                     <div className="flex flex-wrap gap-2">
                                         {dept && subRoles[dept].map(r => (
                                             <button
@@ -209,7 +207,7 @@ const Login = () => {
 
                                 {/* Credential ID */}
                                 <div className="space-y-2">
-                                    <label className="text-slate-400 text-[9px] font-black uppercase tracking-[0.2em] pl-1">Authorized Identification</label>
+                                    <label className="text-slate-300 text-[11px] font-black uppercase tracking-[0.2em] pl-1 drop-shadow">Authorized Identification</label>
                                     <div className="relative group">
                                         <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-[#0d9488] transition-colors">
                                             <User size={18} />
@@ -226,7 +224,7 @@ const Login = () => {
 
                                 {/* Security Key */}
                                 <div className="space-y-2">
-                                    <label className="text-slate-400 text-[9px] font-black uppercase tracking-[0.2em] pl-1">Security Access Phrase</label>
+                                    <label className="text-slate-300 text-[11px] font-black uppercase tracking-[0.2em] pl-1 drop-shadow">Security Access Phrase</label>
                                     <div className="relative group">
                                         <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-[#0d9488] transition-colors">
                                             <Lock size={18} />
@@ -248,7 +246,7 @@ const Login = () => {
                                     </div>
                                 </div>
 
-                                <div className="flex flex-col gap-4 mt-2">
+                                <div className="flex flex-col gap-4 mt-1">
                                     <div className="flex items-center justify-between">
                                         <label className="flex items-center gap-3 cursor-pointer group">
                                             <div className="relative flex items-center">
@@ -262,25 +260,25 @@ const Login = () => {
                                                 <div className="w-5 h-5 border-2 border-[#0d9488]/30 rounded-lg bg-white/5 peer-checked:bg-[#0d9488] peer-checked:border-[#0d9488] transition-all duration-300 shadow-inner"></div>
                                                 <Check className="absolute w-3 h-3 text-white scale-0 peer-checked:scale-100 transition-transform duration-300 left-[4px]" />
                                             </div>
-                                            <span className="text-[10px] font-black text-slate-400 group-hover:text-emerald-400 transition-colors uppercase tracking-widest">
+                                            <span className="text-[11px] font-black text-slate-400 group-hover:text-emerald-400 transition-colors uppercase tracking-widest">
                                                 Persistent Mode
                                             </span>
                                         </label>
                                         <button
                                             type="button"
-                                            className="text-[10px] font-black text-[#f8ba2b] hover:text-yellow-400 transition-colors tracking-widest uppercase underline underline-offset-4"
+                                            className="text-[11px] font-black text-[#f8ba2b] hover:text-yellow-400 transition-colors tracking-widest uppercase underline underline-offset-4"
                                         >
                                             Restore Access?
                                         </button>
                                     </div>
 
                                     {/* Registration Link placed above Login Button as requested */}
-                                    {(role === 'Super Admin' || role === 'Academic Head' || role === 'Mentor Head') && (
+                                    {(role === 'Super Admin' || role === 'Academic Head' || role === 'Mentor Head' || role === 'Faculty Head' || role === 'Faculty') && (
                                         <div className="flex justify-center pt-2 border-t border-white/5">
                                             <button 
                                                 type="button"
                                                 onClick={() => setIsRegistering(true)}
-                                                className="text-[10px] text-[#0d9488] font-black tracking-[0.15em] uppercase hover:text-[#14b8a6] transition-all flex items-center gap-2 group"
+                                                className="text-[11px] text-[#0d9488] font-black tracking-[0.15em] uppercase hover:text-[#14b8a6] transition-all flex items-center gap-2 group"
                                             >
                                                 <div className="w-1.5 h-1.5 rounded-full bg-[#0d9488] group-hover:animate-ping" />
                                                 Create {role} Identity
@@ -292,7 +290,7 @@ const Login = () => {
                                 <button
                                     type="submit"
                                     disabled={loading}
-                                    className="w-full mt-4 py-5 bg-[#f8ba2b] hover:bg-[#eab308] text-black font-black rounded-2xl transition-all duration-300 transform active:scale-95 shadow-xl shadow-yellow-500/20 flex items-center justify-center gap-4 group relative overflow-hidden"
+                                    className="w-full mt-2 py-5 bg-[#f8ba2b] hover:bg-[#eab308] text-black font-black rounded-2xl transition-all duration-300 transform active:scale-95 shadow-xl shadow-yellow-500/20 flex items-center justify-center gap-4 group relative overflow-hidden"
                                 >
                                     <span className="relative uppercase tracking-[0.3em] text-xs">{loading ? 'AUTHENTICATING...' : 'INITIATE CONNECTION'}</span>
                                     {!loading && <ShieldCheck className="relative w-5 h-5 group-hover:scale-110 transition-transform" />}
@@ -312,9 +310,9 @@ const Login = () => {
                                 </button>
                             </div>
 
-                            <form onSubmit={handleRegister} className="space-y-5">
+                            <form onSubmit={handleRegister} className="space-y-4">
                                 <div className="space-y-2">
-                                    <label className="text-slate-400 text-[9px] font-black uppercase tracking-[0.2em] pl-1">Legal Full Name</label>
+                                    <label className="text-slate-300 text-[11px] font-black uppercase tracking-[0.2em] pl-1">Legal Full Name</label>
                                     <div className="relative group">
                                         <User size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-[#0d9488] transition-colors" />
                                         <input 
@@ -328,7 +326,7 @@ const Login = () => {
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label className="text-slate-400 text-[9px] font-black uppercase tracking-[0.2em] pl-1">Protocol Email Address</label>
+                                    <label className="text-slate-300 text-[11px] font-black uppercase tracking-[0.2em] pl-1">Protocol Email Address</label>
                                     <div className="relative group">
                                         <ShieldCheck size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-[#0d9488] transition-colors" />
                                         <input 
@@ -343,7 +341,7 @@ const Login = () => {
 
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-2">
-                                        <label className="text-slate-400 text-[9px] font-black uppercase tracking-[0.2em] pl-1">Communication Line</label>
+                                        <label className="text-slate-300 text-[11px] font-black uppercase tracking-[0.2em] pl-1">Communication Line</label>
                                         <div className="relative group">
                                             <ShieldCheck size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-[#0d9488] transition-colors" />
                                             <input 
@@ -356,7 +354,7 @@ const Login = () => {
                                         </div>
                                     </div>
                                     <div className="space-y-2">
-                                        <label className="text-slate-400 text-[9px] font-black uppercase tracking-[0.2em] pl-1">Operational Area</label>
+                                        <label className="text-slate-300 text-[11px] font-black uppercase tracking-[0.2em] pl-1">Operational Area</label>
                                         <div className="relative group">
                                             <Building2 size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-[#0d9488] transition-colors" />
                                             <input 
@@ -371,7 +369,7 @@ const Login = () => {
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label className="text-slate-400 text-[9px] font-black uppercase tracking-[0.2em] pl-1">Secure Access Key</label>
+                                    <label className="text-slate-300 text-[11px] font-black uppercase tracking-[0.2em] pl-1">Secure Access Key</label>
                                     <div className="relative group">
                                         <Lock size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-[#0d9488] transition-colors" />
                                         <input 
@@ -386,7 +384,7 @@ const Login = () => {
 
                                 <button
                                     type="submit"
-                                    className="w-full mt-6 py-4 bg-gradient-to-r from-[#0d9488] to-[#14b8a6] hover:from-[#0f766e] hover:to-[#0d9488] text-white font-black rounded-2xl transition-all duration-300 flex items-center justify-center gap-3 uppercase tracking-[0.2em] text-xs shadow-xl shadow-[#0d9488]/20 active:scale-95"
+                                    className="w-full mt-4 py-4 bg-gradient-to-r from-[#0d9488] to-[#14b8a6] hover:from-[#0f766e] hover:to-[#0d9488] text-white font-black rounded-2xl transition-all duration-300 flex items-center justify-center gap-3 uppercase tracking-[0.2em] text-xs shadow-xl shadow-[#0d9488]/20 active:scale-95"
                                 >
                                     <span>Register as {role}</span>
                                     <ShieldCheck size={18} />
@@ -395,13 +393,13 @@ const Login = () => {
                         </div>
                     )}
 
-                    <div className="mt-12 pt-8 border-t border-white/5 flex flex-col items-center gap-4">
+                    <div className="mt-8 pt-8 border-t border-white/5 flex flex-col items-center gap-4">
                          <div className="flex gap-1">
                             {[...Array(5)].map((_, i) => (
                                 <ShieldCheck key={i} size={14} className="text-[#0d9488]/40" />
                             ))}
                          </div>
-                         <p className="text-[9px] text-[#f8ba2b] font-bold uppercase tracking-[0.3em] text-center">
+                         <p className="text-[10px] text-[#f8ba2b] font-black uppercase tracking-[0.3em] text-center drop-shadow">
                             Secured by MashMagic Enterprise Encryption
                          </p>
                     </div>
