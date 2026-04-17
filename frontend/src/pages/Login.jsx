@@ -274,7 +274,7 @@ const Login = () => {
                                     </div>
 
                                     {/* Registration Link placed above Login Button as requested */}
-                                    {(role === 'Super Admin' || role === 'Academic Head' || role === 'Mentor Head' || role === 'Faculty') && (
+                                    {(role === 'Super Admin' || role === 'Academic Head' || role === 'Mentor Head') && (
                                         <div className="flex justify-center pt-2 border-t border-white/5">
                                             <button 
                                                 type="button"
