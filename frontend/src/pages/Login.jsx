@@ -181,45 +181,35 @@ const Login = () => {
                     {!isRegistering ? (
                         <>
                             <div className="mb-10">
-                                <h2 className="text-3xl font-black text-[#0d9488] mb-2 tracking-tight uppercase">Vault Access</h2>
-                                <p className="text-[#f8ba2b] text-[10px] font-bold uppercase tracking-[0.2em]">Authorized Personnel Only</p>
+                                <h2 className="text-3xl font-black text-[#0d9488] mb-1 tracking-tight uppercase drop-shadow-md">Establish Connection</h2>
+                                <p className="text-[#f8ba2b] text-[9px] font-black uppercase tracking-[0.3em] opacity-80">Security Protocol Activated</p>
                             </div>
 
                             <form onSubmit={handleLogin} className="space-y-6">
                                 {/* Role Selector Inline */}
                                 <div className="space-y-3">
-                                    <label className="text-white text-[9px] font-bold uppercase tracking-widest pl-1">System Role</label>
+                                    <label className="text-slate-400 text-[9px] font-black uppercase tracking-[0.2em] pl-1">System Authorization Role</label>
                                     <div className="flex flex-wrap gap-2">
                                         {dept && subRoles[dept].map(r => (
                                             <button
                                                 key={r}
                                                 type="button"
                                                 onClick={() => setRole(r)}
-                                                className={`px-4 py-2 rounded-xl text-[10px] font-bold transition-all duration-300 border ${
+                                                className={`px-4 py-2 rounded-xl text-[10px] font-black tracking-wider transition-all duration-300 border ${
                                                     role === r 
-                                                    ? 'bg-[#0d9488]/20 text-[#0d9488] border-[#0d9488]' 
-                                                    : 'bg-white/5 text-slate-500 border-white/5'
+                                                    ? 'bg-[#0d9488] text-white border-[#0d9488] shadow-lg shadow-[#0d9488]/20' 
+                                                    : 'bg-white/5 text-slate-500 border-white/5 hover:border-white/10'
                                                 }`}
                                             >
                                                 {r}
                                             </button>
                                         ))}
                                     </div>
-                                    {/* Detect if Super Admin registration is possible */}
-                                    {(role === 'Super Admin' || role === 'Academic Head' || role === 'Mentor Head') && (
-                                        <button 
-                                            type="button"
-                                            onClick={() => setIsRegistering(true)}
-                                            className="text-[10px] text-[#0d9488] font-bold underline underline-offset-4 pl-1"
-                                        >
-                                            Need a new account? Setup Identity
-                                        </button>
-                                    )}
                                 </div>
 
                                 {/* Credential ID */}
                                 <div className="space-y-2">
-                                    <label className="text-white text-[9px] font-bold uppercase tracking-widest pl-1">Credential ID</label>
+                                    <label className="text-slate-400 text-[9px] font-black uppercase tracking-[0.2em] pl-1">Authorized Identification</label>
                                     <div className="relative group">
                                         <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-[#0d9488] transition-colors">
                                             <User size={18} />
@@ -228,15 +218,15 @@ const Login = () => {
                                             type="email"
                                             value={email}
                                             onChange={(e) => setEmail(e.target.value)}
-                                            placeholder="Enter your system ID"
-                                            className="w-full bg-white/[0.03] border border-white/5 rounded-2xl pl-12 pr-6 py-4 text-sm text-white placeholder:text-slate-600 outline-none focus:border-[#0d9488]/50 focus:bg-white/[0.05] transition-all font-medium"
+                                            placeholder="verified-id@mashmagic.com"
+                                            className="w-full bg-white text-slate-900 rounded-2xl pl-12 pr-6 py-4 text-sm font-black outline-none border-b-4 border-slate-200 focus:border-[#0d9488] transition-all shadow-[0_10px_20px_-10px_rgba(0,0,0,0.1)] placeholder:text-slate-300"
                                         />
                                     </div>
                                 </div>
 
                                 {/* Security Key */}
                                 <div className="space-y-2">
-                                    <label className="text-white text-[9px] font-bold uppercase tracking-widest pl-1">Security Key</label>
+                                    <label className="text-slate-400 text-[9px] font-black uppercase tracking-[0.2em] pl-1">Security Access Phrase</label>
                                     <div className="relative group">
                                         <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-[#0d9488] transition-colors">
                                             <Lock size={18} />
@@ -246,50 +236,66 @@ const Login = () => {
                                             value={password}
                                             onChange={(e) => setPassword(e.target.value)}
                                             placeholder="••••••••"
-                                            className="w-full bg-white/[0.03] border border-white/5 rounded-2xl pl-12 pr-12 py-4 text-sm text-white placeholder:text-slate-600 outline-none focus:border-[#0d9488]/50 focus:bg-white/[0.05] transition-all font-medium"
+                                            className="w-full bg-white text-slate-900 rounded-2xl pl-12 pr-12 py-4 text-sm font-black outline-none border-b-4 border-slate-200 focus:border-[#0d9488] transition-all shadow-[0_10px_20px_-10px_rgba(0,0,0,0.1)] placeholder:text-slate-300"
                                         />
                                         <button 
                                             type="button"
                                             onClick={() => setShowPassword(!showPassword)}
-                                            className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white transition-colors"
+                                            className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-[#0d9488] transition-colors"
                                         >
                                             {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                                         </button>
                                     </div>
                                 </div>
 
-                                <div className="flex items-center justify-between mt-2">
-                                    <label className="flex items-center gap-2 cursor-pointer group">
-                                        <div className="relative flex items-center">
-                                            <input
-                                                type="checkbox"
-                                                id="rememberMe"
-                                                className="peer hidden"
-                                                checked={rememberMe}
-                                                onChange={(e) => setRememberMe(e.target.checked)}
-                                            />
-                                            <div className="w-5 h-5 border-2 border-teal-500/30 rounded-md bg-white/5 peer-checked:bg-teal-500 peer-checked:border-teal-500 transition-all duration-300"></div>
-                                            <Check className="absolute w-3.5 h-3.5 text-white scale-0 peer-checked:scale-100 transition-transform duration-300 left-[3px]" />
+                                <div className="flex flex-col gap-4 mt-2">
+                                    <div className="flex items-center justify-between">
+                                        <label className="flex items-center gap-3 cursor-pointer group">
+                                            <div className="relative flex items-center">
+                                                <input
+                                                    type="checkbox"
+                                                    id="rememberMe"
+                                                    className="peer hidden"
+                                                    checked={rememberMe}
+                                                    onChange={(e) => setRememberMe(e.target.checked)}
+                                                />
+                                                <div className="w-5 h-5 border-2 border-[#0d9488]/30 rounded-lg bg-white/5 peer-checked:bg-[#0d9488] peer-checked:border-[#0d9488] transition-all duration-300 shadow-inner"></div>
+                                                <Check className="absolute w-3 h-3 text-white scale-0 peer-checked:scale-100 transition-transform duration-300 left-[4px]" />
+                                            </div>
+                                            <span className="text-[10px] font-black text-slate-400 group-hover:text-emerald-400 transition-colors uppercase tracking-widest">
+                                                Persistent Mode
+                                            </span>
+                                        </label>
+                                        <button
+                                            type="button"
+                                            className="text-[10px] font-black text-[#f8ba2b] hover:text-yellow-400 transition-colors tracking-widest uppercase underline underline-offset-4"
+                                        >
+                                            Restore Access?
+                                        </button>
+                                    </div>
+
+                                    {/* Registration Link placed above Login Button as requested */}
+                                    {(role === 'Super Admin' || role === 'Academic Head' || role === 'Mentor Head') && (
+                                        <div className="flex justify-center pt-2 border-t border-white/5">
+                                            <button 
+                                                type="button"
+                                                onClick={() => setIsRegistering(true)}
+                                                className="text-[10px] text-[#0d9488] font-black tracking-[0.15em] uppercase hover:text-[#14b8a6] transition-all flex items-center gap-2 group"
+                                            >
+                                                <div className="w-1.5 h-1.5 rounded-full bg-[#0d9488] group-hover:animate-ping" />
+                                                Create {role} Identity
+                                            </button>
                                         </div>
-                                        <span className="text-sm font-bold text-emerald-400 group-hover:text-emerald-300 transition-colors cursor-pointer" onClick={() => setRememberMe(!rememberMe)}>
-                                            Remember Me
-                                        </span>
-                                    </label>
-                                    <button
-                                        type="button"
-                                        className="text-sm font-bold text-[#f8ba2b] hover:text-yellow-400 transition-colors tracking-wide uppercase"
-                                    >
-                                        Recover Key?
-                                    </button>
+                                    )}
                                 </div>
 
                                 <button
                                     type="submit"
                                     disabled={loading}
-                                    className="w-full mt-8 py-4 bg-[#f8ba2b] hover:bg-[#eab308] text-black font-black rounded-2xl transition-all duration-300 transform active:scale-[0.98] shadow-lg shadow-yellow-500/20 flex items-center justify-center gap-3 group relative overflow-hidden"
+                                    className="w-full mt-4 py-5 bg-[#f8ba2b] hover:bg-[#eab308] text-black font-black rounded-2xl transition-all duration-300 transform active:scale-95 shadow-xl shadow-yellow-500/20 flex items-center justify-center gap-4 group relative overflow-hidden"
                                 >
-                                    <span className="relative uppercase tracking-[0.2em]">{loading ? 'Verifying...' : 'Login'}</span>
-                                    {!loading && <ShieldCheck className="relative w-5 h-5 group-hover:rotate-12 transition-transform" />}
+                                    <span className="relative uppercase tracking-[0.3em] text-xs">{loading ? 'AUTHENTICATING...' : 'INITIATE CONNECTION'}</span>
+                                    {!loading && <ShieldCheck className="relative w-5 h-5 group-hover:scale-110 transition-transform" />}
                                 </button>
                             </form>
                         </>
@@ -297,10 +303,10 @@ const Login = () => {
                         /* Identity Setup Form (Signup) */
                         <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
                             <div className="flex items-center justify-between mb-8">
-                                <h2 className="text-4xl font-black text-white tracking-widest uppercase italic">Identity Setup</h2>
+                                <h2 className="text-4xl font-black text-white tracking-[0.1em] uppercase italic drop-shadow-lg">Identity Setup</h2>
                                 <button 
                                     onClick={() => setIsRegistering(false)}
-                                    className="p-3 rounded-xl bg-white/5 hover:bg-white/10 text-white transition-colors"
+                                    className="p-3 rounded-xl bg-white/5 hover:bg-white/10 text-[#0d9488] transition-all border border-white/5"
                                 >
                                     <ChevronRight className="rotate-180" size={20} />
                                 </button>
@@ -308,13 +314,13 @@ const Login = () => {
 
                             <form onSubmit={handleRegister} className="space-y-5">
                                 <div className="space-y-2">
-                                    <label className="text-white text-[9px] font-bold uppercase tracking-widest pl-1">Full Name</label>
-                                    <div className="relative">
-                                        <User size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" />
+                                    <label className="text-slate-400 text-[9px] font-black uppercase tracking-[0.2em] pl-1">Legal Full Name</label>
+                                    <div className="relative group">
+                                        <User size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-[#0d9488] transition-colors" />
                                         <input 
                                             type="text"
-                                            placeholder="Name"
-                                            className="w-full bg-white text-black rounded-xl pl-12 pr-6 py-3.5 text-sm font-bold outline-none border-none shadow-inner"
+                                            placeholder="John Doe"
+                                            className="w-full bg-white text-slate-900 rounded-2xl pl-12 pr-6 py-4 text-sm font-black outline-none border-b-4 border-slate-200 focus:border-[#0d9488] transition-all shadow-[0_10px_20px_-10px_rgba(0,0,0,0.1)] placeholder:text-slate-300"
                                             value={regData.fullName}
                                             onChange={(e) => setRegData({...regData, fullName: e.target.value})}
                                         />
@@ -322,13 +328,13 @@ const Login = () => {
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label className="text-white text-[9px] font-bold uppercase tracking-widest pl-1">Email Address</label>
-                                    <div className="relative">
-                                        <ShieldCheck size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" />
+                                    <label className="text-slate-400 text-[9px] font-black uppercase tracking-[0.2em] pl-1">Protocol Email Address</label>
+                                    <div className="relative group">
+                                        <ShieldCheck size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-[#0d9488] transition-colors" />
                                         <input 
                                             type="email"
-                                            placeholder={`${role} Email`}
-                                            className="w-full bg-white text-black rounded-xl pl-12 pr-6 py-3.5 text-sm font-bold outline-none border-none shadow-inner"
+                                            placeholder={`primary@${role.toLowerCase().replace(' ', '')}.com`}
+                                            className="w-full bg-white text-slate-900 rounded-2xl pl-12 pr-6 py-4 text-sm font-black outline-none border-b-4 border-slate-200 focus:border-[#0d9488] transition-all shadow-[0_10px_20px_-10px_rgba(0,0,0,0.1)] placeholder:text-slate-300"
                                             value={email}
                                             onChange={(e) => setEmail(e.target.value)}
                                         />
@@ -337,26 +343,26 @@ const Login = () => {
 
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-2">
-                                        <label className="text-white text-[9px] font-bold uppercase tracking-widest pl-1">Phone Number</label>
-                                        <div className="relative">
-                                            <ShieldCheck size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" />
+                                        <label className="text-slate-400 text-[9px] font-black uppercase tracking-[0.2em] pl-1">Communication Line</label>
+                                        <div className="relative group">
+                                            <ShieldCheck size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-[#0d9488] transition-colors" />
                                             <input 
                                                 type="tel"
-                                                placeholder="Phone"
-                                                className="w-full bg-white text-black rounded-xl pl-12 pr-6 py-3.5 text-sm font-bold outline-none border-none shadow-inner"
+                                                placeholder="+91 ...."
+                                                className="w-full bg-white text-slate-900 rounded-2xl pl-12 pr-6 py-4 text-sm font-black outline-none border-b-4 border-slate-200 focus:border-[#0d9488] transition-all shadow-[0_10px_20px_-10px_rgba(0,0,0,0.1)] placeholder:text-slate-300"
                                                 value={regData.phone}
                                                 onChange={(e) => setRegData({...regData, phone: e.target.value})}
                                             />
                                         </div>
                                     </div>
                                     <div className="space-y-2">
-                                        <label className="text-white text-[9px] font-bold uppercase tracking-widest pl-1">Place</label>
-                                        <div className="relative">
-                                            <Building2 size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" />
+                                        <label className="text-slate-400 text-[9px] font-black uppercase tracking-[0.2em] pl-1">Operational Area</label>
+                                        <div className="relative group">
+                                            <Building2 size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-[#0d9488] transition-colors" />
                                             <input 
                                                 type="text"
-                                                placeholder="Place"
-                                                className="w-full bg-white text-black rounded-xl pl-12 pr-6 py-3.5 text-sm font-bold outline-none border-none shadow-inner"
+                                                placeholder="Location"
+                                                className="w-full bg-white text-slate-900 rounded-2xl pl-12 pr-6 py-4 text-sm font-black outline-none border-b-4 border-slate-200 focus:border-[#0d9488] transition-all shadow-[0_10px_20px_-10px_rgba(0,0,0,0.1)] placeholder:text-slate-300"
                                                 value={regData.place}
                                                 onChange={(e) => setRegData({...regData, place: e.target.value})}
                                             />
@@ -365,13 +371,13 @@ const Login = () => {
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label className="text-white text-[9px] font-bold uppercase tracking-widest pl-1">Password</label>
-                                    <div className="relative">
-                                        <Lock size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" />
+                                    <label className="text-slate-400 text-[9px] font-black uppercase tracking-[0.2em] pl-1">Secure Access Key</label>
+                                    <div className="relative group">
+                                        <Lock size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-[#0d9488] transition-colors" />
                                         <input 
                                             type="password"
-                                            placeholder="******"
-                                            className="w-full bg-white text-black rounded-xl pl-12 pr-6 py-3.5 text-sm font-bold outline-none border-none shadow-inner"
+                                            placeholder="••••••••"
+                                            className="w-full bg-white text-slate-900 rounded-2xl pl-12 pr-6 py-4 text-sm font-black outline-none border-b-4 border-slate-200 focus:border-[#0d9488] transition-all shadow-[0_10px_20px_-10px_rgba(0,0,0,0.1)] placeholder:text-slate-300"
                                             value={password}
                                             onChange={(e) => setPassword(e.target.value)}
                                         />
@@ -380,7 +386,7 @@ const Login = () => {
 
                                 <button
                                     type="submit"
-                                    className="w-full mt-6 py-4 bg-[#0d9488] hover:bg-[#0f766e] text-white font-black rounded-xl transition-all duration-300 flex items-center justify-center gap-3 uppercase tracking-widest text-xs"
+                                    className="w-full mt-6 py-4 bg-gradient-to-r from-[#0d9488] to-[#14b8a6] hover:from-[#0f766e] hover:to-[#0d9488] text-white font-black rounded-2xl transition-all duration-300 flex items-center justify-center gap-3 uppercase tracking-[0.2em] text-xs shadow-xl shadow-[#0d9488]/20 active:scale-95"
                                 >
                                     <span>Register as {role}</span>
                                     <ShieldCheck size={18} />
@@ -388,30 +394,6 @@ const Login = () => {
                             </form>
                         </div>
                     )}
-
-                    <div className="mt-10 pt-8 border-t border-white/5 text-center">
-                        <p className="text-teal-100/50 text-[10px] font-bold uppercase tracking-widest mb-4">Request Administrative Access</p>
-                        <div className="flex flex-wrap justify-center gap-3">
-                            {['Super Admin', 'Academic Head', 'Mentor Head'].map((r) => (
-                            <button
-                                key={r}
-                                onClick={() => {
-                                    setIsRegistering(true);
-                                    setRole(r);
-                                    // Match dept automatically
-                                    if (r === 'Super Admin') setDept('admin');
-                                    else if (r === 'Academic Head') setDept('academic');
-                                    else if (r === 'Mentor Head') setDept('mentor');
-                                }}
-                                className={`px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-[9px] font-bold transition-all duration-300 uppercase tracking-tighter ${
-                                    role === r ? 'text-[#0d9488] border-[#0d9488]/30 bg-[#0d9488]/5' : 'text-teal-100/60 hover:text-teal-400'
-                                }`}
-                            >
-                                {r}
-                            </button>
-                            ))}
-                        </div>
-                    </div>
 
                     <div className="mt-12 pt-8 border-t border-white/5 flex flex-col items-center gap-4">
                          <div className="flex gap-1">
