@@ -141,14 +141,14 @@ const Login = () => {
             <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-[#1e1b4b]/40 blur-[150px] rounded-full" />
             
             {/* Main Vault Container */}
-            <div className="w-full max-w-4xl grid grid-cols-1 lg:grid-cols-2 bg-white/[0.02] backdrop-blur-3xl rounded-[32px] border border-white/10 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)] overflow-hidden">
+            <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-2 bg-white/[0.02] backdrop-blur-3xl rounded-[32px] border border-white/10 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)] overflow-hidden">
                 
                 {/* Visual Branding Section */}
-                <div className="hidden lg:flex flex-col justify-between p-10 bg-gradient-to-br from-[#0d9488]/10 to-transparent border-r border-white/5 relative">
+                <div className="hidden lg:flex flex-col justify-center p-8 lg:p-12 bg-gradient-to-br from-[#0d9488]/10 to-transparent border-r border-white/5 relative">
                     <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-5 pointer-events-none" />
                     
-                    <div className="relative z-10">
-                        <div className="flex items-center gap-3 mb-8">
+                    <div className="relative z-10 mb-10">
+                        <div className="flex items-center gap-3 mb-6">
                             <div className="w-10 h-10 bg-[#0d9488] rounded-xl flex items-center justify-center shadow-lg shadow-[#0d9488]/30">
                                 <ShieldCheck className="text-white" size={24} />
                             </div>
@@ -179,18 +179,18 @@ const Login = () => {
                 </div>
 
                 {/* Login/Signup Form Section */}
-                <div className="p-8 sm:p-10 flex flex-col justify-center min-h-[550px]">
+                <div className="p-6 md:p-8 flex flex-col justify-center">
                     
                     {/* Heading Section Moved to Top */}
-                    <div className="mb-6">
-                        <h2 className="text-4xl font-black text-[#0d9488] mb-1 tracking-tight uppercase drop-shadow-md">Establish Connection</h2>
-                        <p className="text-[#f8ba2b] text-[10px] font-black uppercase tracking-[0.3em] opacity-90">Security Protocol Activated</p>
+                    <div className="mb-4">
+                        <h2 className="text-3xl font-black text-[#0d9488] mb-1 tracking-tight uppercase drop-shadow-md">Establish Connection</h2>
+                        <p className="text-[#f8ba2b] text-[9px] font-black uppercase tracking-[0.3em] opacity-90">Security Protocol Activated</p>
                     </div>
 
                     {!isRegistering ? (
                         <>
                             {/* Department Tabs with Glass Gradient Green Styling */}
-                            <div className="flex flex-wrap gap-3 mb-8 scrollbar-none">
+                            <div className="flex flex-wrap gap-2 mb-6 scrollbar-none">
                                 {['admin', 'mentor', 'academic'].map((d) => (
                                     <button
                                         key={d}
@@ -242,7 +242,7 @@ const Login = () => {
                                             value={email}
                                             onChange={(e) => setEmail(e.target.value)}
                                             placeholder="verified-id@mashmagic.com"
-                                            className="w-full bg-white text-slate-900 rounded-2xl pl-12 pr-6 py-3.5 text-sm font-black outline-none border-b-4 border-slate-200 focus:border-[#0d9488] transition-all shadow-[0_10px_20px_-10px_rgba(0,0,0,0.1)] placeholder:text-slate-300"
+                                            className="w-full bg-white text-slate-900 rounded-2xl pl-12 pr-6 py-3 text-sm font-black outline-none border-b-4 border-slate-200 focus:border-[#0d9488] transition-all shadow-[0_10px_20px_-10px_rgba(0,0,0,0.1)] placeholder:text-slate-300"
                                         />
                                     </div>
                                 </div>
@@ -259,7 +259,7 @@ const Login = () => {
                                             value={password}
                                             onChange={(e) => setPassword(e.target.value)}
                                             placeholder="••••••••"
-                                            className="w-full bg-white text-slate-900 rounded-2xl pl-12 pr-12 py-3.5 text-sm font-black outline-none border-b-4 border-slate-200 focus:border-[#0d9488] transition-all shadow-[0_10px_20px_-10px_rgba(0,0,0,0.1)] placeholder:text-slate-300"
+                                            className="w-full bg-white text-slate-900 rounded-2xl pl-12 pr-12 py-3 text-sm font-black outline-none border-b-4 border-slate-200 focus:border-[#0d9488] transition-all shadow-[0_10px_20px_-10px_rgba(0,0,0,0.1)] placeholder:text-slate-300"
                                         />
                                         <button 
                                             type="button"
