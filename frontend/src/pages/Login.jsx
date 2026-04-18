@@ -141,21 +141,21 @@ const Login = () => {
             <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-[#1e1b4b]/40 blur-[150px] rounded-full" />
             
             {/* Main Vault Container */}
-            <div className="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-2 bg-white/[0.02] backdrop-blur-3xl rounded-[40px] border border-white/10 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)] overflow-hidden">
+            <div className="w-full max-w-4xl grid grid-cols-1 lg:grid-cols-2 bg-white/[0.02] backdrop-blur-3xl rounded-[32px] border border-white/10 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)] overflow-hidden">
                 
                 {/* Visual Branding Section */}
-                <div className="hidden lg:flex flex-col justify-between p-16 bg-gradient-to-br from-[#0d9488]/10 to-transparent border-r border-white/5 relative">
+                <div className="hidden lg:flex flex-col justify-between p-10 bg-gradient-to-br from-[#0d9488]/10 to-transparent border-r border-white/5 relative">
                     <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-5 pointer-events-none" />
                     
                     <div className="relative z-10">
-                        <div className="flex items-center gap-3 mb-12">
+                        <div className="flex items-center gap-3 mb-8">
                             <div className="w-10 h-10 bg-[#0d9488] rounded-xl flex items-center justify-center shadow-lg shadow-[#0d9488]/30">
                                 <ShieldCheck className="text-white" size={24} />
                             </div>
                             <span className="text-2xl font-black text-white tracking-tighter uppercase italic">MashMagic <span className="text-[#0d9488]">Hub</span></span>
                         </div>
 
-                        <h1 className="text-5xl font-black text-white leading-[1.1] mb-6 tracking-tight">
+                        <h1 className="text-4xl font-black text-white leading-[1.1] mb-5 tracking-tight">
                             The Secure Gateway to <br />
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0d9488] to-[#2dd4bf]">Learning Excellence.</span>
                         </h1>
@@ -179,10 +179,10 @@ const Login = () => {
                 </div>
 
                 {/* Login/Signup Form Section */}
-                <div className="p-8 sm:p-12 lg:p-16 flex flex-col justify-center min-h-[700px]">
+                <div className="p-8 sm:p-10 flex flex-col justify-center min-h-[550px]">
                     
                     {/* Heading Section Moved to Top */}
-                    <div className="mb-8">
+                    <div className="mb-6">
                         <h2 className="text-4xl font-black text-[#0d9488] mb-1 tracking-tight uppercase drop-shadow-md">Establish Connection</h2>
                         <p className="text-[#f8ba2b] text-[10px] font-black uppercase tracking-[0.3em] opacity-90">Security Protocol Activated</p>
                     </div>
@@ -208,7 +208,7 @@ const Login = () => {
                                 ))}
                             </div>
 
-                            <form onSubmit={handleLogin} className="space-y-5">
+                            <form onSubmit={handleLogin} className="space-y-4">
                                 {/* Role Selector Inline with Glass Styling */}
                                 <div className="space-y-3">
                                     <label className="text-slate-300 text-[11px] font-black uppercase tracking-[0.2em] pl-1 drop-shadow-sm">System Authorization Role</label>
@@ -242,7 +242,7 @@ const Login = () => {
                                             value={email}
                                             onChange={(e) => setEmail(e.target.value)}
                                             placeholder="verified-id@mashmagic.com"
-                                            className="w-full bg-white text-slate-900 rounded-2xl pl-12 pr-6 py-4 text-sm font-black outline-none border-b-4 border-slate-200 focus:border-[#0d9488] transition-all shadow-[0_10px_20px_-10px_rgba(0,0,0,0.1)] placeholder:text-slate-300"
+                                            className="w-full bg-white text-slate-900 rounded-2xl pl-12 pr-6 py-3.5 text-sm font-black outline-none border-b-4 border-slate-200 focus:border-[#0d9488] transition-all shadow-[0_10px_20px_-10px_rgba(0,0,0,0.1)] placeholder:text-slate-300"
                                         />
                                     </div>
                                 </div>
@@ -259,7 +259,7 @@ const Login = () => {
                                             value={password}
                                             onChange={(e) => setPassword(e.target.value)}
                                             placeholder="••••••••"
-                                            className="w-full bg-white text-slate-900 rounded-2xl pl-12 pr-12 py-4 text-sm font-black outline-none border-b-4 border-slate-200 focus:border-[#0d9488] transition-all shadow-[0_10px_20px_-10px_rgba(0,0,0,0.1)] placeholder:text-slate-300"
+                                            className="w-full bg-white text-slate-900 rounded-2xl pl-12 pr-12 py-3.5 text-sm font-black outline-none border-b-4 border-slate-200 focus:border-[#0d9488] transition-all shadow-[0_10px_20px_-10px_rgba(0,0,0,0.1)] placeholder:text-slate-300"
                                         />
                                         <button 
                                             type="button"
@@ -315,7 +315,7 @@ const Login = () => {
                                 <button
                                     type="submit"
                                     disabled={loading}
-                                    className="w-full mt-2 py-5 bg-[#f8ba2b] hover:bg-[#eab308] text-black font-black rounded-2xl transition-all duration-300 transform active:scale-95 shadow-xl shadow-yellow-500/20 flex items-center justify-center gap-4 group relative overflow-hidden"
+                                    className="w-full mt-2 py-4 bg-[#f8ba2b] hover:bg-[#eab308] text-black font-black rounded-2xl transition-all duration-300 transform active:scale-95 shadow-xl shadow-yellow-500/20 flex items-center justify-center gap-4 group relative overflow-hidden"
                                 >
                                     <span className="relative uppercase tracking-[0.3em] text-xs">{loading ? 'AUTHENTICATING...' : 'INITIATE CONNECTION'}</span>
                                     {!loading && <ShieldCheck className="relative w-5 h-5 group-hover:scale-110 transition-transform" />}
@@ -325,7 +325,7 @@ const Login = () => {
                     ) : (
                         /* Identity Setup Form (Signup) */
                         <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                            <div className="flex items-center justify-between mb-8">
+                            <div className="flex items-center justify-between mb-6">
                                 <h2 className="text-4xl font-black text-white tracking-[0.1em] uppercase italic drop-shadow-lg">Identity Setup</h2>
                                 <button 
                                     onClick={() => setIsRegistering(false)}
@@ -335,7 +335,7 @@ const Login = () => {
                                 </button>
                             </div>
 
-                            <form onSubmit={handleRegister} className="space-y-4">
+                            <form onSubmit={handleRegister} className="space-y-3">
                                 <div className="space-y-2">
                                     <label className="text-slate-300 text-[11px] font-black uppercase tracking-[0.2em] pl-1">Legal Full Name</label>
                                     <div className="relative group">
@@ -418,7 +418,7 @@ const Login = () => {
                         </div>
                     )}
 
-                    <div className="mt-8 pt-8 border-t border-white/5 flex flex-col items-center gap-4">
+                    <div className="mt-6 pt-6 border-t border-white/5 flex flex-col items-center gap-3">
                          <div className="flex gap-1">
                             {[...Array(5)].map((_, i) => (
                                 <ShieldCheck key={i} size={14} className="text-[#0d9488]/40" />
