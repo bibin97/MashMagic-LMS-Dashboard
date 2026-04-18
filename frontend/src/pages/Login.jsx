@@ -144,32 +144,34 @@ const Login = () => {
             <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-2 bg-white/[0.02] backdrop-blur-3xl rounded-[32px] border border-white/10 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)] overflow-hidden">
                 
                 {/* Visual Branding Section */}
-                <div className="hidden lg:flex flex-col justify-center p-8 lg:p-12 bg-gradient-to-br from-[#0d9488]/10 to-transparent border-r border-white/5 relative">
+                <div className="hidden lg:flex flex-col justify-between items-center text-center p-8 lg:p-12 lg:py-20 bg-gradient-to-br from-[#0d9488]/10 to-transparent border-r border-white/5 relative">
                     <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-5 pointer-events-none" />
                     
-                    <div className="relative z-10 mb-8">
-                        <img src="/mashmagic logo.jpg" className="h-16 w-auto object-contain mb-6 drop-shadow-xl" alt="Logo" />
-                        <div className="flex items-center gap-3 mb-6">
+                    <div className="relative z-10 w-full flex flex-col items-center">
+                        <img src="/mashmagic logo.jpg" className="h-24 w-auto object-contain mb-8 drop-shadow-xl mx-auto" alt="Logo" />
+                        <div className="flex items-center justify-center gap-3 mb-8">
                             <div className="w-10 h-10 bg-[#0d9488] rounded-xl flex items-center justify-center shadow-lg shadow-[#0d9488]/30">
                                 <ShieldCheck className="text-white" size={24} />
                             </div>
                             <span className="text-2xl font-black text-white tracking-tighter uppercase italic">MashMagic <span className="text-[#0d9488]">Hub</span></span>
                         </div>
 
-                        <h1 className="text-4xl font-black text-white leading-[1.1] mb-5 tracking-tight">
+                        <h1 className="text-4xl font-black text-white leading-[1.1] mb-6 tracking-tight max-w-md mx-auto">
                             The Secure Gateway to <br />
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0d9488] to-[#2dd4bf]">Learning Excellence.</span>
                         </h1>
-                        <p className="text-slate-400 text-lg leading-relaxed max-w-sm font-medium">
+                        <p className="text-slate-400 text-lg leading-relaxed max-w-sm font-medium mx-auto">
                             Enterprise-grade management system designed for institutional growth and academic precision.
                         </p>
                     </div>
 
                     <div className="relative z-10">
-                        <div className="flex items-center gap-4 p-4 bg-white/5 rounded-2xl border border-white/10 backdrop-blur-md">
+                        <div className="flex flex-col items-center gap-4 p-5 bg-white/5 rounded-3xl border border-white/10 backdrop-blur-md w-full max-w-sm">
                             <div className="flex -space-x-3">
                                 {[1,2,3,4].map(i => (
-                                    <div key={i} className="w-8 h-8 rounded-full border-2 border-[#020617] bg-slate-800" />
+                                    <div key={i} className="w-10 h-10 rounded-full border-2 border-[#020617] bg-slate-800 overflow-hidden">
+                                        <img src={`https://i.pravatar.cc/100?u=${i + 10}`} alt="User" className="w-full h-full object-cover" />
+                                    </div>
                                 ))}
                             </div>
                             <p className="text-sm text-slate-300 font-bold tracking-tight">
