@@ -48,7 +48,20 @@ const Login = () => {
         setLoading(true);
         try {
             const finalRole = role.toLowerCase().replace(' ', '_');
-            const response = await api.post('/auth/login', { email, password, role: finalRole.replace('_', '') });
+            // Map frontend dept to backend department parameter
+            const deptMap = {
+                'admin': 'admin',
+                'mentor': 'mentor_dept',
+                'academic': 'academic_dept',
+                'faculty': 'academic_dept'
+            };
+            
+            const response = await api.post('/auth/login', { 
+                email, 
+                password, 
+                role: finalRole,
+                department: deptMap[dept]
+            });
             
             if (response.data.token) {
                 localStorage.setItem('token', response.data.token);
