@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'; // Verified Login Component
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import toast from 'react-hot-toast';
+import { useAuth } from '../context/AuthContext';
 import { 
     ShieldCheck, 
     Lock, 
@@ -29,6 +30,7 @@ const Login = () => {
         phone: '',
         place: ''
     });
+    const { setAuthData } = useAuth();
     const navigate = useNavigate();
 
     // Map sub-roles for better selection
@@ -64,9 +66,11 @@ const Login = () => {
             });
             
             if (response.data.token) {
-                localStorage.setItem('token', response.data.token);
-                localStorage.setItem('role', finalRole);
-                localStorage.setItem('user', JSON.stringify(response.data.user));
+                // Update authentication state reactively
+                setAuthData({
+                    ...response.data,
+                    role: finalRole
+                });
                 
                 toast.success("Welcome to MashMagic");
                 
