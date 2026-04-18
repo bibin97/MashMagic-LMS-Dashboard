@@ -148,7 +148,7 @@ const Login = () => {
                     <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-5 pointer-events-none" />
                     
                     <div className="relative z-10 mb-8">
-                        <img src="/mashmagic logo.jpg" className="w-20 h-20 rounded-2xl mb-6 object-cover shadow-2xl border border-white/10" alt="Logo" />
+                        <img src="/mashmagic logo.jpg" className="h-16 w-auto object-contain mb-6 drop-shadow-xl" alt="Logo" />
                         <div className="flex items-center gap-3 mb-6">
                             <div className="w-10 h-10 bg-[#0d9488] rounded-xl flex items-center justify-center shadow-lg shadow-[#0d9488]/30">
                                 <ShieldCheck className="text-white" size={24} />
