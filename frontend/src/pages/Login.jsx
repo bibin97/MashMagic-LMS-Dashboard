@@ -68,7 +68,7 @@ const Login = () => {
                 localStorage.setItem('role', finalRole);
                 localStorage.setItem('user', JSON.stringify(response.data.user));
                 
-                toast.success(`Access Granted: ${role} Session Initiated`);
+                toast.success("Welcome to MashMagic");
                 
                 if (finalRole === 'super_admin' || finalRole === 'sub_admin') navigate('/admin/dashboard');
                 else if (finalRole === 'academic_head') navigate('/academic-head/dashboard');
@@ -108,7 +108,14 @@ const Login = () => {
 
             if (response.data.success) {
                 toast.dismiss();
-                toast.success(response.data.message || 'Identity Created. Awaiting Activation.');
+                
+                // Specialized messages based on role
+                if (finalRole === 'super_admin' || finalRole === 'admin') {
+                    toast.success("Account Created. Welcome to MashMagic");
+                } else {
+                    toast.success("Account Created. Waiting for Admin Approval");
+                }
+
                 setIsRegistering(false);
                 // Clear fields
                 setRegData({ fullName: '', phone: '', place: '' });
