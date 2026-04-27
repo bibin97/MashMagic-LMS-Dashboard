@@ -55,12 +55,12 @@ const StudentDashboard = () => {
                 <div className="text-center md:text-left relative z-10">
                     <h2 className="text-4xl font-black text-slate-900 tracking-tighter leading-none mb-3 italic uppercase">Gateway Dashboard</h2>
                     <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em] flex items-center justify-center md:justify-start gap-2">
-                        <div className="w-1.5 h-1.5 rounded-full bg-[#14B8A6] animate-pulse"></div>
+                        <div className="w-1.5 h-1.5 rounded-full bg-[#008080] animate-pulse"></div>
                         Student sync & direct mentor communication portal
                     </p>
                 </div>
                 <div className="flex items-center gap-4 bg-white/50 px-6 py-4 rounded-[20px] border border-white shadow-sm relative z-10">
-                    <Trophy size={18} strokeWidth={3} className="text-[#14B8A6]" />
+                    <Trophy size={18} strokeWidth={3} className="text-[#008080]" />
                     <span className="text-[11px] font-black text-slate-600 uppercase tracking-[0.2em] italic leading-none">Status: Mission Active</span>
                 </div>
             </div>

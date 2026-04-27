@@ -7,6 +7,15 @@
 
 :root {
   font-family: 'Poppins', sans-serif;
+  --primary: #008080;
+  --primary-dark: #006666;
+  --primary-light: #e6f2f2;
+  --accent: #F59E0B;
+  --accent-light: #fef3c7;
+  --text-main: #1e293b;
+  --text-muted: #64748b;
+  --bg-main: #f8fafc;
+  --bg-sidebar: #ffffff;
 }
 
 /* Global Poppins for main UI */
@@ -76,12 +85,13 @@ body::-webkit-scrollbar,
 }
 
 body {
-  background: radial-gradient(circle at 50% 50%, #FFFFFF 0%, #FAFAFA 50%, #F1F5F9 100%);
+  background: var(--bg-main);
   position: relative;
   min-height: 100vh;
   margin: 0;
   overflow-x: hidden;
   font-family: 'Poppins', sans-serif;
+  color: var(--text-main);
 }
 
 /* cinematic teal streak - left */
@@ -90,7 +100,7 @@ body::before {
   position: fixed;
   width: 120vw;
   height: 120vh;
-  background: radial-gradient(circle at 0% 0%, rgba(20,184,166,0.1) 0%, transparent 80%);
+  background: radial-gradient(circle at 0% 0%, rgba(0,128,128,0.12) 0%, transparent 80%);
   top: -20%;
   left: -20%;
   filter: blur(140px);

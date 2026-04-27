@@ -60,8 +60,8 @@ const Dashboard = () => {
     ];
 
     const pieData = [
-        { name: 'Students', value: stats.students, color: '#14B8A6' },
-        { name: 'Mentors', value: stats.mentors, color: '#0F766E' },
+        { name: 'Students', value: stats.students, color: '#008080' },
+        { name: 'Mentors', value: stats.mentors, color: '#004D4D' },
         { name: 'Faculties', value: stats.faculties, color: '#F59E0B' },
     ];
 
@@ -133,7 +133,7 @@ const Dashboard = () => {
                 }
 
                 if (distRes.data.success) {
-                    const colors = ['#14B8A6', '#0f766e', '#f59e0b', '#10b981', '#6366f1', '#ec4899'];
+                    const colors = ['#008080', '#006666', '#f59e0b', '#10b981', '#6366f1', '#ec4899'];
                     const mappedDist = distRes.data.data.map((item, idx) => ({
                         name: item.mentor_name,
                         value: Number(item.student_count || 0),
@@ -193,8 +193,8 @@ const Dashboard = () => {
             <div className="flex flex-col mb-2">
                 <h2 className="text-4xl font-black text-slate-900 tracking-tighter leading-none mb-3">Workspace Overview</h2>
                 <div className="flex items-center gap-3">
-                    <div className="px-3 py-1 bg-[#14B8A6]/10 rounded-lg border border-[#14B8A6]/20">
-                        <p className="text-[#14B8A6] text-[10px] font-black uppercase tracking-[0.2em]">Operational Pulse: Active</p>
+                    <div className="px-3 py-1 bg-[#008080]/10 rounded-lg border border-[#008080]/20">
+                        <p className="text-[#008080] text-[10px] font-black uppercase tracking-[0.2em]">Operational Pulse: Active</p>
                     </div>
                 </div>
             </div>
@@ -234,7 +234,7 @@ const Dashboard = () => {
                 <div className="w-full bg-white/80 backdrop-blur-xl p-8 sm:p-10 rounded-[32px] border border-white/50 shadow-[0_10px_30px_rgba(0,0,0,0.04)]">
                         <div className="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center gap-4 mb-10 w-full">
                             <div className="flex items-center gap-4">
-                                <div className="w-12 h-12 bg-gradient-to-br from-[#0D9488] to-[#14B8A6] text-white rounded-[16px] flex items-center justify-center shadow-lg shadow-[#14B8A6]/20">
+                                <div className="w-12 h-12 bg-gradient-to-br from-[#006666] to-[#008080] text-white rounded-[16px] flex items-center justify-center shadow-lg shadow-[#008080]/20">
                                     <Activity size={20} />
                                 </div>
                                 <div>
@@ -258,7 +258,7 @@ const Dashboard = () => {
                                     <select
                                         value={taskFilter}
                                         onChange={(e) => setTaskFilter(e.target.value)}
-                                        className="appearance-none bg-slate-50 border border-slate-200 text-slate-900 text-xs font-bold rounded-2xl focus:ring-[#14B8A6] focus:border-[#14B8A6] block w-full px-6 py-3 transition-all hover:bg-white cursor-pointer min-w-[140px]"
+                                        className="appearance-none bg-slate-50 border border-slate-200 text-slate-900 text-xs font-bold rounded-2xl focus:ring-[#008080] focus:border-[#008080] block w-full px-6 py-3 transition-all hover:bg-white cursor-pointer min-w-[140px]"
                                     >
                                         <option value="today">Today</option>
                                         <option value="yesterday">Yesterday</option>
@@ -268,7 +268,7 @@ const Dashboard = () => {
                                         <option value="this_month">This Month</option>
                                         <option value="last_month">Previous Month</option>
                                     </select>
-                                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 group-hover:text-[#14B8A6] transition-colors">
+                                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 group-hover:text-[#008080] transition-colors">
                                         <ChevronLeft size={16} className="-rotate-90" />
                                     </div>
                                 </div>
@@ -354,7 +354,7 @@ const Dashboard = () => {
                                         <Pie
                                             data={mentorDistribution.flatMap((mentor, idx) => {
                                                 const items = [
-                                                    { name: mentor.name, value: 0.8, color: '#14B8A6', type: 'mentor' },
+                                                    { name: mentor.name, value: 0.8, color: '#008080', type: 'mentor' },
                                                     { name: `${mentor.name}'s Students`, value: mentor.value, color: '#000000', type: 'student' }
                                                 ];
                                                 // Add a gap segment after each mentor's group except the last one
@@ -373,7 +373,7 @@ const Dashboard = () => {
                                         >
                                             {mentorDistribution.flatMap((mentor, idx) => {
                                                 const cells = [
-                                                    <Cell key={`m-${idx}`} fill="#14B8A6" />,
+                                                    <Cell key={`m-${idx}`} fill="#008080" />,
                                                     <Cell key={`s-${idx}`} fill="#000000" />
                                                 ];
                                                 if (idx < mentorDistribution.length - 1) {
@@ -389,7 +389,7 @@ const Dashboard = () => {
                                                     if (data.type === 'gap') return null;
                                                     return (
                                                         <div className="bg-slate-900/90 backdrop-blur-md p-3 rounded-xl shadow-2xl border border-white/10 font-bold text-[11px] text-white">
-                                                            <p className={data.type === 'mentor' ? 'text-[#14B8A6]' : 'text-slate-200'}>
+                                                            <p className={data.type === 'mentor' ? 'text-[#008080]' : 'text-slate-200'}>
                                                                 {data.name}
                                                             </p>
                                                             <p className="text-white/70">
@@ -408,7 +408,7 @@ const Dashboard = () => {
                                             content={({ payload }) => (
                                                 <div className="flex justify-center gap-6">
                                                     <div className="flex items-center gap-2">
-                                                        <div className="w-2.5 h-2.5 rounded-full bg-[#14B8A6]" />
+                                                        <div className="w-2.5 h-2.5 rounded-full bg-[#008080]" />
                                                         <span className="text-slate-600 font-bold text-[10px] uppercase tracking-widest">Mentors</span>
                                                     </div>
                                                     <div className="flex items-center gap-2">
@@ -461,7 +461,7 @@ const Dashboard = () => {
                                     <PieChart>
                                             <Pie
                                             data={[
-                                                { name: 'Checked Today', value: mentorHeadReport.checkedToday, color: '#14B8A6' },
+                                                { name: 'Checked Today', value: mentorHeadReport.checkedToday, color: '#008080' },
                                                 { name: 'Remaining', value: mentorHeadReport.remaining, color: '#EF4444' }
                                             ]}
                                             cx="50%"
@@ -472,7 +472,7 @@ const Dashboard = () => {
                                             dataKey="value"
                                         >
                                             {[
-                                                { name: 'Checked Today', value: mentorHeadReport.checkedToday, color: '#14B8A6' },
+                                                { name: 'Checked Today', value: mentorHeadReport.checkedToday, color: '#008080' },
                                                 { name: 'Remaining', value: mentorHeadReport.remaining, color: '#EF4444' }
                                             ].map((entry, index) => (
                                                 <Cell key={`cell-${index}`} fill={entry.color} />
@@ -554,10 +554,10 @@ const Dashboard = () => {
                                     name="Success %"
                                     type="monotone"
                                     dataKey={examData.length > 0 ? "percentage" : "score"}
-                                    stroke="#14B8A6"
+                                    stroke="#008080"
                                     strokeWidth={5}
-                                    dot={{ fill: '#white', r: 7, strokeWidth: 4, stroke: '#14B8A6' }}
-                                    activeDot={{ r: 10, strokeWidth: 0, fill: '#14B8A6' }}
+                                    dot={{ fill: '#white', r: 7, strokeWidth: 4, stroke: '#008080' }}
+                                    activeDot={{ r: 10, strokeWidth: 0, fill: '#008080' }}
                                 />
                             </LineChart>
                         </ResponsiveContainer>

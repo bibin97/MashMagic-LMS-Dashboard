@@ -12,13 +12,13 @@ const StudentCard = ({ student, navigate, viewMode, handleToggleConnection, hand
         className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-200/50 group cursor-pointer hover:-translate-y-2 transition-all duration-500 relative overflow-hidden flex flex-col justify-between"
     >
         <div className="absolute top-0 right-0 p-8 opacity-0 group-hover:opacity-100 transition-opacity duration-700">
-            <div className="w-14 h-14 bg-[#14B8A6] rounded-[22px] flex items-center justify-center text-white shadow-2xl shadow-[#14B8A6]/30">
+            <div className="w-14 h-14 bg-[#008080] rounded-[22px] flex items-center justify-center text-white shadow-2xl shadow-[#008080]/30">
                 <ChevronRight size={24} strokeWidth={3} />
             </div>
         </div>
 
         <div className="flex flex-col gap-6">
-            <div className="w-20 h-20 bg-slate-50/50 rounded-[28px] border border-slate-100 flex items-center justify-center text-slate-400 group-hover:text-[#14B8A6] group-hover:bg-[#14B8A6]/5 group-hover:border-[#14B8A6]/10 transition-all duration-500">
+            <div className="w-20 h-20 bg-slate-50/50 rounded-[28px] border border-slate-100 flex items-center justify-center text-slate-400 group-hover:text-[#008080] group-hover:bg-[#008080]/5 group-hover:border-[#008080]/10 transition-all duration-500">
                 <User size={36} strokeWidth={2.5} />
             </div>
 
@@ -44,7 +44,7 @@ const StudentCard = ({ student, navigate, viewMode, handleToggleConnection, hand
                     )}
                 </h3>
                 <div className="flex flex-wrap gap-3">
-                    <span className="px-5 py-2 bg-[#14B8A6]/10 text-[#14B8A6] text-[10px] font-black uppercase tracking-[0.2em] rounded-[14px] border border-[#14B8A6]/20">
+                    <span className="px-5 py-2 bg-[#008080]/10 text-[#008080] text-[10px] font-black uppercase tracking-[0.2em] rounded-[14px] border border-[#008080]/20">
                         {student.grade}
                     </span>
                     <span className="px-5 py-2 bg-slate-50 text-slate-400 text-[10px] font-black uppercase tracking-[0.2em] rounded-[14px] border border-slate-100">
@@ -87,7 +87,7 @@ const StudentCard = ({ student, navigate, viewMode, handleToggleConnection, hand
                         onClick={(e) => handleLogHoursClick(student, e)}
                         className="w-full flex items-center justify-center gap-4 py-4 bg-slate-900 text-white rounded-[20px] text-[11px] font-black uppercase tracking-[0.25em] transition-all border border-slate-800 hover:shadow-2xl hover:shadow-slate-900/20 active:scale-95 group/btn"
                     >
-                        <Clock size={16} strokeWidth={3} className="text-[#14B8A6] group-hover/btn:scale-110 transition-transform" />
+                        <Clock size={16} strokeWidth={3} className="text-[#008080] group-hover/btn:scale-110 transition-transform" />
                         Log Node Access
                     </button>
                 </div>
@@ -230,11 +230,11 @@ const MyStudents = () => {
                 <div className="text-center md:text-left">
                     <h2 className="text-5xl font-black text-slate-900 tracking-tighter leading-none mb-3 italic">Student Fleet</h2>
                     <p className="text-slate-400 text-[11px] font-black uppercase tracking-[0.25em] flex items-center justify-center md:justify-start gap-3 mt-1">
-                        <div className="w-2 h-2 rounded-full bg-[#14B8A6] animate-pulse"></div>
+                        <div className="w-2 h-2 rounded-full bg-[#008080] animate-pulse"></div>
                         Direct assignments & operational node management
                     </p>
                 </div>
-                <div className="w-20 h-20 bg-[#14B8A6] rounded-[28px] shadow-2xl shadow-[#14B8A6]/30 flex items-center justify-center text-white">
+                <div className="w-20 h-20 bg-[#008080] rounded-[28px] shadow-2xl shadow-[#008080]/30 flex items-center justify-center text-white">
                     <Users size={36} strokeWidth={2.5} />
                 </div>
             </div>

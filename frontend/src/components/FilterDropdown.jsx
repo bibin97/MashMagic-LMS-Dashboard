@@ -22,7 +22,7 @@ const FilterDropdown = ({ value, onChange, options, className = '', placeholder 
                 onClick={() => setOpen((o) => !o)}
                 className="w-full sm:w-auto flex items-center justify-between sm:justify-center gap-2.5 px-6 py-3.5 bg-white border border-slate-100 rounded-[18px] text-[11px] font-black uppercase tracking-widest text-slate-500 hover:bg-slate-50 hover:text-slate-900 transition-all shadow-sm active:scale-95 group"
             >
-                <Filter size={16} className={`transition-transform duration-300 ${open ? 'rotate-12 text-[#14B8A6]' : 'text-slate-400 group-hover:rotate-12'}`} />
+                <Filter size={16} className={`transition-transform duration-300 ${open ? 'rotate-12 text-[#008080]' : 'text-slate-400 group-hover:rotate-12'}`} />
                 <span>{value ? currentLabel : placeholder}</span>
                 <ChevronDown size={14} className={`text-slate-400 transition-transform duration-300 ${open ? 'rotate-180' : ''}`} />
             </button>
@@ -42,7 +42,7 @@ const FilterDropdown = ({ value, onChange, options, className = '', placeholder 
                                 }}
                                 className={`w-full text-left px-4 py-3 text-[10px] font-black uppercase tracking-widest transition-all ${
                                     opt.value === value 
-                                        ? 'bg-[#14B8A6]/10 text-[#14B8A6] border-l-4 border-[#14B8A6]' 
+                                        ? 'bg-[#008080]/10 text-[#008080] border-l-4 border-[#008080]' 
                                         : 'text-slate-600 hover:bg-slate-50 hover:pl-6'
                                 }`}
                             >

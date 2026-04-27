@@ -45,13 +45,13 @@ const MyTasks = () => {
         <div className="flex flex-col gap-10 pb-10">
             <header className="bg-white/70 backdrop-blur-xl p-12 rounded-[40px] border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.04)] flex flex-col md:flex-row justify-between items-center gap-10">
                 <div className="flex items-center gap-8">
-                    <div className="w-20 h-20 bg-[#14B8A6] rounded-[28px] shadow-2xl shadow-[#14B8A6]/30 flex items-center justify-center text-white group hover:rotate-12 transition-transform duration-700">
+                    <div className="w-20 h-20 bg-[#008080] rounded-[28px] shadow-2xl shadow-[#008080]/30 flex items-center justify-center text-white group hover:rotate-12 transition-transform duration-700">
                         <ListTodo size={36} strokeWidth={2.5} />
                     </div>
                     <div>
                         <h1 className="text-5xl font-black text-slate-900 tracking-tighter uppercase italic leading-none mb-3">Task Protocol</h1>
                         <p className="text-slate-400 text-[11px] font-black uppercase tracking-[0.3em] flex items-center gap-3 mt-1">
-                            <div className="w-2 h-2 rounded-full bg-[#14B8A6] animate-pulse"></div>
+                            <div className="w-2 h-2 rounded-full bg-[#008080] animate-pulse"></div>
                             Operational Directives & Action Items
                         </p>
                     </div>
@@ -104,12 +104,12 @@ const MyTasks = () => {
                                         {task.status !== 'Completed' ? (
                                             <button
                                                 onClick={() => handleComplete(task.id)}
-                                                className="bg-slate-900 text-[#14B8A6] px-8 py-3.5 rounded-[18px] text-[10px] font-black uppercase tracking-[0.2em] shadow-xl hover:shadow-slate-900/20 hover:-translate-y-0.5 transition-all active:scale-95 border border-slate-800"
+                                                className="bg-slate-900 text-[#008080] px-8 py-3.5 rounded-[18px] text-[10px] font-black uppercase tracking-[0.2em] shadow-xl hover:shadow-slate-900/20 hover:-translate-y-0.5 transition-all active:scale-95 border border-slate-800"
                                             >
                                                 Mark Done
                                             </button>
                                         ) : (
-                                            <div className="text-[10px] text-right font-black text-[#14B8A6] uppercase italic tracking-[0.1em] opacity-80">
+                                            <div className="text-[10px] text-right font-black text-[#008080] uppercase italic tracking-[0.1em] opacity-80">
                                                 Verified: <br />{new Date(task.completed_at).toLocaleDateString('en-GB')}
                                             </div>
                                         )}

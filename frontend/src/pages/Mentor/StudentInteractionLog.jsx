@@ -179,9 +179,9 @@ const StudentInteractionLog = () => {
 
     // Helper to render label-value pair
     const DetailRow = ({ label, value, highlight = false }) => (
-        <div className="flex flex-col gap-2 p-5 bg-slate-50/50 rounded-[20px] border border-slate-100/50 group/detail hover:bg-white hover:border-[#14B8A6]/30 transition-all">
-            <span className="text-[10px] uppercase font-black text-slate-400 tracking-[0.2em] group-hover/detail:text-[#14B8A6] transition-colors">{label}</span>
-            <span className={`text-[13px] font-black uppercase tracking-tighter ${highlight ? 'text-[#14B8A6]' : 'text-slate-700'}`}>{value || '—'}</span>
+        <div className="flex flex-col gap-2 p-5 bg-slate-50/50 rounded-[20px] border border-slate-100/50 group/detail hover:bg-white hover:border-[#008080]/30 transition-all">
+            <span className="text-[10px] uppercase font-black text-slate-400 tracking-[0.2em] group-hover/detail:text-[#008080] transition-colors">{label}</span>
+            <span className={`text-[13px] font-black uppercase tracking-tighter ${highlight ? 'text-[#008080]' : 'text-slate-700'}`}>{value || '—'}</span>
         </div>
     );
 
@@ -192,21 +192,21 @@ const StudentInteractionLog = () => {
                 <div className="text-center md:text-left">
                     <h1 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tighter uppercase italic leading-none mb-4">Engagement Hub</h1>
                     <p className="text-slate-400 text-[11px] font-black uppercase tracking-[0.3em] mt-3 flex items-center gap-3 justify-center md:justify-start">
-                        <div className="w-2 h-2 rounded-full bg-[#14B8A6] animate-ping"></div>
+                        <div className="w-2 h-2 rounded-full bg-[#008080] animate-ping"></div>
                         Student Performance Protocol
                     </p>
                 </div>
-                <div className="w-20 h-20 md:w-24 md:h-24 bg-gradient-to-br from-slate-800 to-slate-900 rounded-[32px] flex items-center justify-center text-[#14B8A6] shadow-2xl shadow-slate-900/20 group hover:rotate-12 transition-transform duration-500">
+                <div className="w-20 h-20 md:w-24 md:h-24 bg-gradient-to-br from-slate-800 to-slate-900 rounded-[32px] flex items-center justify-center text-[#008080] shadow-2xl shadow-slate-900/20 group hover:rotate-12 transition-transform duration-500">
                     <UserCheck size={40} strokeWidth={2.5} className="group-hover:scale-110 transition-transform" />
                 </div>
             </header>
 
                 {/* Explicit Start Logging Action Bar */}
                 <div className="bg-slate-900/95 backdrop-blur-2xl p-8 md:p-12 rounded-[40px] border border-slate-800 shadow-[0_30px_60px_rgba(0,0,0,0.15)] flex flex-col md:flex-row items-center justify-between gap-10 relative overflow-hidden group">
-                    <div className="absolute top-0 right-0 w-64 h-64 bg-[#14B8A6]/5 rounded-full -mr-32 -mt-32 blur-3xl group-hover:bg-[#14B8A6]/10 transition-colors duration-1000"></div>
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-[#008080]/5 rounded-full -mr-32 -mt-32 blur-3xl group-hover:bg-[#008080]/10 transition-colors duration-1000"></div>
                     <div className="relative z-10 w-full md:w-auto text-center md:text-left">
                         <h3 className="text-2xl font-black text-white mb-2 flex items-center gap-4 justify-center md:justify-start italic tracking-tight">
-                            <Plus size={28} className="text-[#14B8A6]" strokeWidth={3} /> Initialize Session Log
+                            <Plus size={28} className="text-[#008080]" strokeWidth={3} /> Initialize Session Log
                         </h3>
                         <p className="text-[11px] font-black text-slate-500 uppercase tracking-[0.25em]">Select an active student node to begin documentation</p>
                     </div>
@@ -219,7 +219,7 @@ const StudentInteractionLog = () => {
                                         const student = students.find(s => s.id.toString() === e.target.value);
                                         if(student) handleStudentSelect(student);
                                     }}
-                                    className="w-full p-6 bg-slate-800/50 border border-slate-700/50 rounded-[28px] text-[13px] font-black uppercase tracking-[0.1em] text-slate-300 outline-none focus:ring-4 focus:ring-[#14B8A6]/10 focus:border-[#14B8A6]/30 appearance-none cursor-pointer transition-all hover:bg-slate-800"
+                                    className="w-full p-6 bg-slate-800/50 border border-slate-700/50 rounded-[28px] text-[13px] font-black uppercase tracking-[0.1em] text-slate-300 outline-none focus:ring-4 focus:ring-[#008080]/10 focus:border-[#008080]/30 appearance-none cursor-pointer transition-all hover:bg-slate-800"
                                     defaultValue=""
                                 >
                                     <option value="" disabled>Search Protocol Database...</option>
@@ -227,7 +227,7 @@ const StudentInteractionLog = () => {
                                         <option key={s.id} value={s.id}>{s.name} • {s.course.toUpperCase()}</option>
                                     ))}
                                 </select>
-                                <div className="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500 group-hover:text-[#14B8A6] transition-colors">
+                                <div className="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500 group-hover:text-[#008080] transition-colors">
                                     <ArrowLeft size={20} className="rotate-[-90deg]" strokeWidth={3} />
                                 </div>
                             </div>
@@ -347,7 +347,7 @@ const StudentInteractionLog = () => {
                 {/* History Table for all students */}
                 <div className="mt-12 bg-white/80 backdrop-blur-lg p-10 rounded-[44px] shadow-[0_30px_60px_rgba(0,0,0,0.04)] border border-white/60 group">
                     <h3 className="text-2xl font-black text-slate-900 mb-8 flex items-center gap-4 italic tracking-tight">
-                        <Activity className="text-[#14B8A6]" size={28} strokeWidth={2.5} />
+                        <Activity className="text-[#008080]" size={28} strokeWidth={2.5} />
                         Protocol History Feed
                     </h3>
                     <div className="overflow-x-auto">
@@ -365,7 +365,7 @@ const StudentInteractionLog = () => {
                                 {allLogs.slice(0, 10).map(log => (
                                     <tr key={log.id} className="border-b border-slate-50 hover:bg-slate-50/80 transition-all group/row">
                                         <td className="p-6 text-[11px] font-black text-slate-500 uppercase tracking-widest">{new Date(log.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</td>
-                                        <td className="p-6 text-[13px] font-black text-slate-800 italic uppercase tracking-tighter group-hover/row:text-[#14B8A6] transition-colors">{log.student_name}</td>
+                                        <td className="p-6 text-[13px] font-black text-slate-800 italic uppercase tracking-tighter group-hover/row:text-[#008080] transition-colors">{log.student_name}</td>
                                         <td className="p-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
                                             <span className="px-4 py-1.5 bg-slate-100/50 rounded-full border border-slate-200/50">
                                                 {log.connection_method}
@@ -382,7 +382,7 @@ const StudentInteractionLog = () => {
                                                         setSubmitted(true);
                                                     }, 100);
                                                 }}
-                                                className="w-12 h-12 rounded-[18px] bg-slate-50 flex items-center justify-center text-slate-400 hover:text-[#14B8A6] hover:bg-[#14B8A6]/10 transition-all border border-transparent hover:border-[#14B8A6]/20 active:scale-90"
+                                                className="w-12 h-12 rounded-[18px] bg-slate-50 flex items-center justify-center text-slate-400 hover:text-[#008080] hover:bg-[#008080]/10 transition-all border border-transparent hover:border-[#008080]/20 active:scale-90"
                                             >
                                                 <Target size={20} strokeWidth={2.5} />
                                             </button>

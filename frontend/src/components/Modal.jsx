@@ -21,7 +21,7 @@ const Modal = ({ isOpen, onClose, title, children, size = 'md' }) => {
                 onClick={(e) => e.stopPropagation()}
             >
                 {/* Decorative Accent */}
-                <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#0F766E] via-[#14B8A6] to-[#F59E0B]/20"></div>
+                <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#006666] via-[#008080] to-[#F59E0B]/20"></div>
 
                 <div className="flex items-center justify-between px-10 py-8 border-b border-slate-100/50">
                     <div>

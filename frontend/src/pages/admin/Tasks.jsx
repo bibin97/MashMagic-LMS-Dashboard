@@ -206,14 +206,14 @@ const Tasks = () => {
                 <div className="text-center md:text-left">
                     <h2 className="text-4xl font-black text-slate-900 tracking-tighter leading-none mb-3 italic">Operations Hub</h2>
                     <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em] flex items-center justify-center md:justify-start gap-2">
-                        <div className="w-1.5 h-1.5 rounded-full bg-[#14B8A6] animate-pulse"></div>
+                        <div className="w-1.5 h-1.5 rounded-full bg-[#008080] animate-pulse"></div>
                         Coordinate and track educational tasks for the mentor network
                     </p>
                 </div>
                 {isSuperAdmin && (
                     <button
                         onClick={() => setIsModalOpen(true)}
-                        className="bg-gradient-to-br from-[#0F766E] to-[#14B8A6] text-white px-8 py-5 rounded-[20px] font-black text-[10px] uppercase tracking-[0.2em] hover:shadow-xl hover:shadow-[#14B8A6]/40 hover:-translate-y-1 transition-all flex items-center gap-3"
+                        className="bg-gradient-to-br from-[#006666] to-[#008080] text-white px-8 py-5 rounded-[20px] font-black text-[10px] uppercase tracking-[0.2em] hover:shadow-xl hover:shadow-[#008080]/40 hover:-translate-y-1 transition-all flex items-center gap-3"
                     >
                         <Plus size={18} strokeWidth={3} />
                         <span>Issue New Mission</span>
@@ -251,7 +251,7 @@ const Tasks = () => {
                         <input
                             type="text"
                             required
-                            className="p-5 bg-slate-50/50 border border-slate-100/50 rounded-2xl text-[13px] outline-none focus:bg-white focus:ring-4 focus:ring-[#14B8A6]/5 focus:border-[#14B8A6] transition-all font-black uppercase tracking-widest text-slate-700 placeholder:text-slate-300 shadow-inner"
+                            className="p-5 bg-slate-50/50 border border-slate-100/50 rounded-2xl text-[13px] outline-none focus:bg-white focus:ring-4 focus:ring-[#008080]/5 focus:border-[#008080] transition-all font-black uppercase tracking-widest text-slate-700 placeholder:text-slate-300 shadow-inner"
                             placeholder="OBJECTIVE IDENTIFIER..."
                             value={formData.title}
                             onChange={(e) => setFormData({ ...formData, title: e.target.value })}
@@ -263,7 +263,7 @@ const Tasks = () => {
                         <textarea
                             rows="4"
                             required
-                            className="p-5 bg-slate-50/50 border border-slate-100/50 rounded-2xl text-[13px] outline-none focus:bg-white focus:ring-4 focus:ring-[#14B8A6]/5 focus:border-[#14B8A6] transition-all font-bold text-slate-600 placeholder:text-slate-300 shadow-inner resize-none italic"
+                            className="p-5 bg-slate-50/50 border border-slate-100/50 rounded-2xl text-[13px] outline-none focus:bg-white focus:ring-4 focus:ring-[#008080]/5 focus:border-[#008080] transition-all font-bold text-slate-600 placeholder:text-slate-300 shadow-inner resize-none italic"
                             placeholder="Specify detailed engagement protocols..."
                             value={formData.description}
                             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
@@ -275,7 +275,7 @@ const Tasks = () => {
                             <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Designated Personnel</label>
                             <select
                                 required
-                                className="p-5 bg-slate-50/50 border border-slate-100/50 rounded-2xl text-[10px] outline-none focus:bg-white focus:ring-4 focus:ring-[#14B8A6]/5 focus:border-[#14B8A6] transition-all font-black uppercase tracking-[0.1em] appearance-none cursor-pointer shadow-inner"
+                                className="p-5 bg-slate-50/50 border border-slate-100/50 rounded-2xl text-[10px] outline-none focus:bg-white focus:ring-4 focus:ring-[#008080]/5 focus:border-[#008080] transition-all font-black uppercase tracking-[0.1em] appearance-none cursor-pointer shadow-inner"
                                 value={formData.mentor_id}
                                 onChange={(e) => setFormData({ ...formData, mentor_id: e.target.value })}
                             >
@@ -300,11 +300,11 @@ const Tasks = () => {
                         <div className="flex flex-col gap-2">
                             <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Temporal Deadline</label>
                             <div className="relative">
-                                <Calendar size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-[#14B8A6] opacity-50" />
+                                <Calendar size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-[#008080] opacity-50" />
                                 <input
                                     type="date"
                                     required
-                                    className="w-full p-5 pl-14 bg-slate-50/50 border border-slate-100/50 rounded-2xl text-[11px] outline-none focus:bg-white focus:ring-4 focus:ring-[#14B8A6]/5 focus:border-[#14B8A6] transition-all font-black uppercase tracking-[0.2em] shadow-inner"
+                                    className="w-full p-5 pl-14 bg-slate-50/50 border border-slate-100/50 rounded-2xl text-[11px] outline-none focus:bg-white focus:ring-4 focus:ring-[#008080]/5 focus:border-[#008080] transition-all font-black uppercase tracking-[0.2em] shadow-inner"
                                     value={formData.deadline}
                                     onChange={(e) => setFormData({ ...formData, deadline: e.target.value })}
                                 />
@@ -323,7 +323,7 @@ const Tasks = () => {
                                     className={`
                                         p-4 rounded-2xl border-2 text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-500
                                         ${formData.priority === p
-                                            ? 'bg-slate-900 border-slate-900 text-[#14B8A6] shadow-2xl scale-[1.02]'
+                                            ? 'bg-slate-900 border-slate-900 text-[#008080] shadow-2xl scale-[1.02]'
                                             : 'bg-white border-slate-100 text-slate-300 hover:border-slate-200'}
                                     `}
                                 >
@@ -338,7 +338,7 @@ const Tasks = () => {
                         className="w-full bg-slate-900 text-white p-6 rounded-[24px] font-black text-[11px] uppercase tracking-[0.3em] hover:bg-slate-800 transition-all shadow-2xl shadow-slate-900/10 mt-4 flex items-center justify-center gap-4 group italic"
                     >
                         <span>Authorize and Issue Mission Protocol</span>
-                        <div className="w-1.5 h-1.5 rounded-full bg-[#14B8A6] group-hover:animate-ping"></div>
+                        <div className="w-1.5 h-1.5 rounded-full bg-[#008080] group-hover:animate-ping"></div>
                     </button>
                 </form>
             </Modal>

@@ -98,7 +98,7 @@ const StaffManagement = () => {
             header: 'Operational Role',
             accessor: 'role',
             render: (row) => (
-                <span className="px-5 py-2.5 bg-slate-50 border border-slate-100 rounded-[18px] text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 shadow-sm group-hover:bg-white group-hover:border-[#14B8A6]/20 transition-all">
+                <span className="px-5 py-2.5 bg-slate-50 border border-slate-100 rounded-[18px] text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 shadow-sm group-hover:bg-white group-hover:border-[#008080]/20 transition-all">
                     {row.role.replace('_', ' ')}
                 </span>
             )
@@ -122,12 +122,12 @@ const StaffManagement = () => {
                 <div className="text-center md:text-left">
                     <h2 className="text-5xl font-black text-slate-900 tracking-tighter leading-none mb-3 italic">Institutional Authority</h2>
                     <p className="text-slate-400 text-[11px] font-black uppercase tracking-[0.25em] flex items-center justify-center md:justify-start gap-3 mt-1">
-                        <div className="w-2 h-2 rounded-full bg-[#14B8A6] animate-pulse"></div>
+                        <div className="w-2 h-2 rounded-full bg-[#008080] animate-pulse"></div>
                         Managing Core Operational Nodes & Team Architecture
                     </p>
                 </div>
                 <div className="bg-slate-900 px-8 py-5 rounded-[24px] border border-slate-800 shadow-2xl flex items-center gap-5 group hover:translate-x-1 transition-all">
-                    <ShieldCheck className="text-[#14B8A6]" size={20} strokeWidth={2.5} />
+                    <ShieldCheck className="text-[#008080]" size={20} strokeWidth={2.5} />
                     <div className="flex flex-col">
                         <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] leading-none mb-1">Total Personnel</span>
                         <span className="text-2xl font-black text-white leading-none tabular-nums tracking-tighter">{staff.length}</span>

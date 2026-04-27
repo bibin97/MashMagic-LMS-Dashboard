@@ -19,7 +19,7 @@ import {
 
 const StatCard = ({ title, value, icon: Icon, color, subtitle }) => {
     const isTeal = color.includes('008080') || color.includes('14B8A6');
-    const displayColor = isTeal ? 'bg-[#14B8A6]' : color;
+    const displayColor = isTeal ? 'bg-[#008080]' : color;
     
     return (
         <div className="bg-white/80 backdrop-blur-xl p-10 rounded-[40px] border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgba(0,0,0,0.08)] hover:-translate-y-2 transition-all duration-500 group relative overflow-hidden">
@@ -119,12 +119,12 @@ const AcademicHeadDashboard = () => {
                 <div className="text-center md:text-left">
                     <h2 className="text-5xl font-black text-slate-900 tracking-tighter leading-none mb-4 italic">Academic Engine</h2>
                     <p className="text-slate-400 text-[11px] font-black uppercase tracking-[0.25em] flex items-center justify-center md:justify-start gap-3">
-                        <div className="w-2 h-2 rounded-full bg-[#14B8A6] animate-pulse shadow-[0_0_10px_rgba(20,184,166,0.5)]"></div>
+                        <div className="w-2 h-2 rounded-full bg-[#008080] animate-pulse shadow-[0_0_10px_rgba(20,184,166,0.5)]"></div>
                         Unified Oversight & Educational Trajectory Pulse
                     </p>
                 </div>
                 <div className="flex items-center gap-5 bg-slate-50/50 px-8 py-5 rounded-[24px] border border-slate-100/50 shadow-inner group">
-                    <Activity size={20} strokeWidth={3} className="text-[#14B8A6] group-hover:rotate-180 transition-transform duration-700" />
+                    <Activity size={20} strokeWidth={3} className="text-[#008080] group-hover:rotate-180 transition-transform duration-700" />
                     <span className="text-xs font-black text-slate-600 uppercase tracking-[0.25em] italic leading-none">{new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}</span>
                 </div>
             </div>
@@ -143,7 +143,7 @@ const AcademicHeadDashboard = () => {
                     subtitle="Lead Faculties"
                     value={data.stats.totalFaculties}
                     icon={ShieldCheck}
-                    color="bg-[#14B8A6]"
+                    color="bg-[#008080]"
                 />
                 <StatCard
                     title="Mentor Force"
@@ -172,14 +172,14 @@ const AcademicHeadDashboard = () => {
                         <select 
                             value={selectedStudent} 
                             onChange={handleStudentChange}
-                            className="flex-1 lg:min-w-[280px] bg-slate-50/80 border border-slate-100 text-slate-800 text-xs rounded-[20px] px-6 py-4 font-black uppercase tracking-widest focus:outline-none focus:ring-4 focus:ring-[#14B8A6]/5 cursor-pointer shadow-inner appearance-none transition-all"
+                            className="flex-1 lg:min-w-[280px] bg-slate-50/80 border border-slate-100 text-slate-800 text-xs rounded-[20px] px-6 py-4 font-black uppercase tracking-widest focus:outline-none focus:ring-4 focus:ring-[#008080]/5 cursor-pointer shadow-inner appearance-none transition-all"
                         >
                             <option value="">Global Class Average</option>
                             {students.map(student => (
                                 <option key={student.id} value={student.id}>{student.name}</option>
                             ))}
                         </select>
-                        <div className="w-14 h-14 bg-[#14B8A6]/10 rounded-[20px] border border-[#14B8A6]/20 flex items-center justify-center text-[#14B8A6] shrink-0 shadow-sm">
+                        <div className="w-14 h-14 bg-[#008080]/10 rounded-[20px] border border-[#008080]/20 flex items-center justify-center text-[#008080] shrink-0 shadow-sm">
                             <TrendingUp size={28} />
                         </div>
                     </div>
@@ -215,7 +215,7 @@ const AcademicHeadDashboard = () => {
                                     barSize={60}
                                 >
                                     {data.examAnalytics.map((entry, index) => (
-                                        <Cell key={`cell-${index}`} fill={entry.percentage > 75 ? '#14B8A6' : entry.percentage > 50 ? '#6366F1' : '#F59E0B'} fillOpacity={0.8} />
+                                        <Cell key={`cell-${index}`} fill={entry.percentage > 75 ? '#008080' : entry.percentage > 50 ? '#6366F1' : '#F59E0B'} fillOpacity={0.8} />
                                     ))}
                                 </Bar>
                             </BarChart>
@@ -270,7 +270,7 @@ const AcademicHeadDashboard = () => {
                                         <tr key={session.id} className="group hover:bg-slate-50/80 transition-all duration-300">
                                             <td className="px-8 py-6 first:rounded-l-[2rem]">
                                                 <div className="flex items-center gap-3">
-                                                    <div className="w-12 h-12 bg-[#14B8A6]/5 rounded-[18px] flex items-center justify-center text-[#14B8A6] border border-[#14B8A6]/10 group-hover:bg-[#14B8A6] group-hover:text-white transition-all duration-500">
+                                                    <div className="w-12 h-12 bg-[#008080]/5 rounded-[18px] flex items-center justify-center text-[#008080] border border-[#008080]/10 group-hover:bg-[#008080] group-hover:text-white transition-all duration-500">
                                                         <Clock size={18} strokeWidth={2.5} />
                                                     </div>
                                                     <div className="flex flex-col gap-0.5">
@@ -304,7 +304,7 @@ const AcademicHeadDashboard = () => {
                                                 </span>
                                             </td>
                                             <td className="px-8 py-6 text-right last:rounded-r-[40px]">
-                                                <button className="w-12 h-12 bg-white border border-slate-100 rounded-2xl flex items-center justify-center text-slate-300 hover:text-[#14B8A6] hover:border-[#14B8A6]/40 transition-all hover:shadow-[0_10px_20px_rgba(20,184,166,0.15)] group-hover:-translate-x-2">
+                                                <button className="w-12 h-12 bg-white border border-slate-100 rounded-2xl flex items-center justify-center text-slate-300 hover:text-[#008080] hover:border-[#008080]/40 transition-all hover:shadow-[0_10px_20px_rgba(20,184,166,0.15)] group-hover:-translate-x-2">
                                                     <ChevronRight size={22} strokeWidth={3} />
                                                 </button>
                                             </td>
@@ -325,8 +325,8 @@ const AcademicHeadDashboard = () => {
                             <h3 className="text-3xl font-black text-slate-900 tracking-tighter italic uppercase leading-none mb-3">Intelligence Feed</h3>
                             <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.25em]">Multi-tier network activity synchronizer</p>
                         </div>
-                        <div className="w-14 h-14 bg-slate-900 text-[#14B8A6] rounded-[22px] flex items-center justify-center shadow-2xl relative group">
-                            <div className="absolute inset-0 bg-[#14B8A6] opacity-0 group-hover:opacity-20 blur-xl transition-all duration-700"></div>
+                        <div className="w-14 h-14 bg-slate-900 text-[#008080] rounded-[22px] flex items-center justify-center shadow-2xl relative group">
+                            <div className="absolute inset-0 bg-[#008080] opacity-0 group-hover:opacity-20 blur-xl transition-all duration-700"></div>
                             <Activity size={24} strokeWidth={3} className="relative z-10" />
                         </div>
                     </div>
@@ -337,8 +337,8 @@ const AcademicHeadDashboard = () => {
                         ) : (
                             data.activityFeed.map((activity, i) => (
                                 <div key={i} className="flex gap-8 p-8 rounded-[32px] bg-slate-50/40 border border-transparent hover:border-slate-100 hover:bg-white hover:shadow-[0_15px_40px_rgba(0,0,0,0.04)] transition-all duration-500 group relative overflow-hidden">
-                                    <div className="absolute top-0 right-0 w-24 h-24 bg-[#14B8A6]/5 rounded-bl-[40px] -mr-8 -mt-8 opacity-0 group-hover:opacity-100 transition-all duration-700"></div>
-                                    <div className={`w-14 h-14 rounded-[20px] flex items-center justify-center shrink-0 shadow-sm border border-white relative z-10 transition-transform group-hover:scale-110 group-hover:rotate-6 ${activity.type === 'Student Report' ? 'bg-[#14B8A6] text-white' :
+                                    <div className="absolute top-0 right-0 w-24 h-24 bg-[#008080]/5 rounded-bl-[40px] -mr-8 -mt-8 opacity-0 group-hover:opacity-100 transition-all duration-700"></div>
+                                    <div className={`w-14 h-14 rounded-[20px] flex items-center justify-center shrink-0 shadow-sm border border-white relative z-10 transition-transform group-hover:scale-110 group-hover:rotate-6 ${activity.type === 'Student Report' ? 'bg-[#008080] text-white' :
                                         activity.type === 'Student Interaction' ? 'bg-[#10B981] text-white' :
                                             'bg-[#6366F1] text-white'
                                         }`}>
@@ -349,10 +349,10 @@ const AcademicHeadDashboard = () => {
                                             <h4 className="text-lg font-black text-slate-800 tracking-tight leading-none italic uppercase">{activity.type} — {activity.student_name}</h4>
                                             <span className="text-[9px] font-black text-slate-400 bg-white border border-slate-100 px-3 py-1 rounded-full uppercase tracking-widest shrink-0">{new Date(activity.date).toLocaleString([], { hour: '2-digit', minute: '2-digit', day: '2-digit', month: 'short' })}</span>
                                         </div>
-                                        <p className="text-sm font-bold text-slate-500 line-clamp-2 italic mb-4 leading-relaxed opacity-80 decoration-[#14B8A6]/30">"{activity.details || 'No meta-data compiled.'}"</p>
+                                        <p className="text-sm font-bold text-slate-500 line-clamp-2 italic mb-4 leading-relaxed opacity-80 decoration-[#008080]/30">"{activity.details || 'No meta-data compiled.'}"</p>
                                         <div className="flex items-center gap-4">
-                                            <div className="w-1.5 h-1.5 rounded-full bg-[#14B8A6]"></div>
-                                            <span className="text-[10px] font-black text-[#14B8A6] uppercase tracking-[0.2em]">ORIGIN: {activity.origin_name}</span>
+                                            <div className="w-1.5 h-1.5 rounded-full bg-[#008080]"></div>
+                                            <span className="text-[10px] font-black text-[#008080] uppercase tracking-[0.2em]">ORIGIN: {activity.origin_name}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -377,7 +377,7 @@ const AcademicHeadDashboard = () => {
                         </div>
                     </div>
 
-                    <div className="bg-[#14B8A6] p-12 rounded-[40px] text-white flex flex-col justify-center relative overflow-hidden group shadow-2xl shadow-[#14B8A6]/30 hover:scale-[1.02] transition-all duration-700">
+                    <div className="bg-[#008080] p-12 rounded-[40px] text-white flex flex-col justify-center relative overflow-hidden group shadow-2xl shadow-[#008080]/30 hover:scale-[1.02] transition-all duration-700">
                         <div className="absolute left-0 bottom-0 w-64 h-64 bg-black/10 rounded-full -ml-16 -mb-16 blur-3xl group-hover:bg-black/20 transition-all duration-700"></div>
                         <div className="relative z-10 flex items-center justify-between">
                             <div>

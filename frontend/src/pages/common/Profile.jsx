@@ -75,7 +75,7 @@ const ProfileConsole = () => {
 
                     {/* System Information */}
                     <div className="bg-slate-900 p-10 rounded-[48px] shadow-2xl shadow-slate-900/40 relative overflow-hidden group">
-                        <div className="absolute bottom-0 right-0 w-48 h-48 bg-white/5 rounded-full -mb-24 -mr-24 blur-3xl group-hover:bg-[#14B8A6]/10 transition-colors duration-1000"></div>
+                        <div className="absolute bottom-0 right-0 w-48 h-48 bg-white/5 rounded-full -mb-24 -mr-24 blur-3xl group-hover:bg-[#008080]/10 transition-colors duration-1000"></div>
                         <h3 className="text-xl font-black text-white uppercase italic tracking-tight mb-10 flex items-center gap-4">
                             <div className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center text-white">
                                 <Lock size={20} />
@@ -83,7 +83,7 @@ const ProfileConsole = () => {
                             Security Perimeter
                         </h3>
                         <div className="flex items-start gap-6 bg-white/5 p-8 rounded-[32px] border border-white/10">
-                            <div className="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center text-[#14B8A6] shrink-0">
+                            <div className="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center text-[#008080] shrink-0">
                                 <AlertCircle size={24} />
                             </div>
                             <div>

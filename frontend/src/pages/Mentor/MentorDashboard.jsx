@@ -6,7 +6,7 @@ import toast from 'react-hot-toast';
 
 const StatCard = ({ title, value, icon: Icon, color }) => {
     const isTeal = color.includes('008080') || color.includes('14B8A6');
-    const displayColor = isTeal ? 'bg-[#14B8A6]' : color;
+    const displayColor = isTeal ? 'bg-[#008080]' : color;
     
     return (
         <div className="bg-white/80 backdrop-blur-xl p-8 rounded-[32px] border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgba(0,0,0,0.08)] hover:-translate-y-2 transition-all duration-500 group relative overflow-hidden">
@@ -27,8 +27,8 @@ const StatCard = ({ title, value, icon: Icon, color }) => {
 
 const SessionCard = ({ session, isLive, isPast }) => (
     <div className={`p-7 rounded-[32px] border transition-all duration-500 relative group overflow-hidden h-full flex flex-col ${isLive
-        ? 'bg-gradient-to-br from-[#0F766E] to-[#14B8A6] border-[#14B8A6] shadow-xl shadow-[#14B8A6]/20'
-        : isPast ? 'bg-slate-50/80 border-slate-100 opacity-70 hover:opacity-100' : 'bg-white border-slate-100 hover:border-[#14B8A6]/30 hover:shadow-[0_15px_35px_rgba(0,0,0,0.06)]'
+        ? 'bg-gradient-to-br from-[#006666] to-[#008080] border-[#008080] shadow-xl shadow-[#008080]/20'
+        : isPast ? 'bg-slate-50/80 border-slate-100 opacity-70 hover:opacity-100' : 'bg-white border-slate-100 hover:border-[#008080]/30 hover:shadow-[0_15px_35px_rgba(0,0,0,0.06)]'
         }`}>
         {isLive && (
             <div className="absolute top-0 right-0 p-5">
@@ -51,7 +51,7 @@ const SessionCard = ({ session, isLive, isPast }) => (
                     </span>
                 </div>
             </div>
-            <div className={`flex items-center gap-2 px-4 py-2 rounded-xl backdrop-blur-md border ${isLive ? 'bg-white/10 border-white/20 text-white' : 'bg-slate-50 border-slate-100 text-[#14B8A6]'}`}>
+            <div className={`flex items-center gap-2 px-4 py-2 rounded-xl backdrop-blur-md border ${isLive ? 'bg-white/10 border-white/20 text-white' : 'bg-slate-50 border-slate-100 text-[#008080]'}`}>
                 <Clock size={12} className="opacity-70" />
                 <span className="text-[11px] font-black italic tracking-tight">
                     {session.start_time ? session.start_time.substring(0, 5) : 'TBD'}
@@ -60,11 +60,11 @@ const SessionCard = ({ session, isLive, isPast }) => (
         </div>
 
         <div className="mb-8 flex-1">
-            <h4 className={`text-lg font-black tracking-tight leading-tight mb-3 transition-colors uppercase italic ${isLive ? 'text-white' : 'text-slate-900 group-hover:text-[#14B8A6]'}`}>
+            <h4 className={`text-lg font-black tracking-tight leading-tight mb-3 transition-colors uppercase italic ${isLive ? 'text-white' : 'text-slate-900 group-hover:text-[#008080]'}`}>
                 {session.topic || 'General Session Analyst'}
             </h4>
             <div className="flex items-center gap-2 mt-2">
-                <div className={`w-1.5 h-1.5 rounded-full ${isLive ? 'bg-white' : 'bg-[#14B8A6]'}`}></div>
+                <div className={`w-1.5 h-1.5 rounded-full ${isLive ? 'bg-white' : 'bg-[#008080]'}`}></div>
                 <p className={`text-[10px] font-black uppercase tracking-widest ${isLive ? 'text-white/70' : 'text-slate-400'}`}>
                     Student: <span className={isLive ? 'text-white' : 'text-slate-800'}>{session.student_name || 'N/A'}</span>
                 </p>
@@ -76,14 +76,14 @@ const SessionCard = ({ session, isLive, isPast }) => (
                 href={session.meeting_link.startsWith('http') ? session.meeting_link : `https://${session.meeting_link}`}
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="group/btn block w-full text-center bg-white text-[#14B8A6] py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] mb-6 hover:shadow-xl transition-all active:scale-95 border border-white/50"
+                className="group/btn block w-full text-center bg-white text-[#008080] py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] mb-6 hover:shadow-xl transition-all active:scale-95 border border-white/50"
             >
                 Launch Protocol <span className="ml-2 transition-transform group-hover/btn:translate-x-1 inline-block">→</span>
             </a>
         )}
 
         <div className={`flex items-center gap-4 mt-auto pt-6 border-t ${isLive ? 'border-white/10' : 'border-slate-50'}`}>
-            <div className={`w-10 h-10 rounded-[14px] flex items-center justify-center text-sm font-black shadow-sm ${isLive ? 'bg-white text-[#14B8A6]' : 'bg-gradient-to-br from-[#0F766E] to-[#14B8A6] text-white'}`}>
+            <div className={`w-10 h-10 rounded-[14px] flex items-center justify-center text-sm font-black shadow-sm ${isLive ? 'bg-white text-[#008080]' : 'bg-gradient-to-br from-[#006666] to-[#008080] text-white'}`}>
                 {session.faculty_name?.charAt(0)}
             </div>
             <div>
@@ -157,7 +157,7 @@ const MentorDashboard = () => {
                 <div className="text-center md:text-left">
                     <h2 className="text-4xl font-black text-slate-900 tracking-tighter leading-none mb-3 italic">Mentor Oversight</h2>
                     <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em] flex items-center justify-center md:justify-start gap-2">
-                        <div className="w-1.5 h-1.5 rounded-full bg-[#14B8A6] animate-pulse"></div>
+                        <div className="w-1.5 h-1.5 rounded-full bg-[#008080] animate-pulse"></div>
                         Real-time trajectory tracking & academic audit pulse
                     </p>
                 </div>
@@ -177,7 +177,7 @@ const MentorDashboard = () => {
                     title="Assigned Students"
                     value={stats.totalStudents}
                     icon={Users}
-                    color="bg-[#14B8A6]"
+                    color="bg-[#008080]"
                 />
                 <StatCard
                     title="Scheduled Sessions"
@@ -201,7 +201,7 @@ const MentorDashboard = () => {
                     title="Student Reach"
                     value={stats.totalStudentInteractions}
                     icon={Users}
-                    color="bg-[#14B8A6]"
+                    color="bg-[#008080]"
                 />
                  <StatCard
                     title="Faculty Nexus"
@@ -222,13 +222,13 @@ const MentorDashboard = () => {
                     {/* 1. Live Sessions Section */}
                     <div className="space-y-10">
                         <div className="flex items-center gap-6">
-                            <div className="w-1.5 h-10 bg-[#14B8A6] rounded-full animate-pulse shadow-[0_0_15px_rgba(20,184,166,0.3)]"></div>
+                            <div className="w-1.5 h-10 bg-[#008080] rounded-full animate-pulse shadow-[0_0_15px_rgba(20,184,166,0.3)]"></div>
                             <h3 className="text-xl font-black text-slate-800 uppercase italic tracking-tight flex items-center gap-4">
                                 Active Protocols
                                 {stats.liveSessions?.length > 0 && (
-                                    <div className="flex items-center gap-2 px-3 py-1 bg-[#14B8A6]/10 border border-[#14B8A6]/20 rounded-full">
-                                        <div className="w-1.5 h-1.5 rounded-full bg-[#14B8A6] animate-ping"></div>
-                                        <span className="text-[10px] text-[#14B8A6]">{stats.liveSessions.length} LIVE</span>
+                                    <div className="flex items-center gap-2 px-3 py-1 bg-[#008080]/10 border border-[#008080]/20 rounded-full">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-[#008080] animate-ping"></div>
+                                        <span className="text-[10px] text-[#008080]">{stats.liveSessions.length} LIVE</span>
                                     </div>
                                 )}
                             </h3>
@@ -241,7 +241,7 @@ const MentorDashboard = () => {
                                 ))
                             ) : (
                                 <div className="col-span-full py-16 text-center bg-slate-50/50 rounded-[32px] border border-dashed border-slate-200 group transition-all duration-700">
-                                    <Activity className="mx-auto text-slate-200 mb-4 group-hover:text-[#14B8A6] transition-colors" size={48} strokeWidth={1} />
+                                    <Activity className="mx-auto text-slate-200 mb-4 group-hover:text-[#008080] transition-colors" size={48} strokeWidth={1} />
                                     <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.25em] italic">No active protocols detected in this sector</p>
                                 </div>
                             )}

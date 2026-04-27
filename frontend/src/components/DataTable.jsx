@@ -23,12 +23,12 @@ const DataTable = ({
         <div className="bg-white/70 backdrop-blur-xl rounded-[28px] border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.04)] overflow-hidden transition-all duration-500">
             <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center p-6 md:p-8 border-b border-slate-100/50 gap-6 w-full">
                 <div className="relative w-full lg:w-96 group">
-                    <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#14B8A6] transition-all duration-300" />
+                    <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#008080] transition-all duration-300" />
                     <input
                         type="text"
                         placeholder={searchPlaceholder}
                         onChange={(e) => onSearch && onSearch(e.target.value)}
-                        className="w-full bg-white/50 border border-slate-100 rounded-[18px] py-3.5 pl-12 pr-5 text-sm font-bold text-slate-600 outline-none focus:bg-white focus:ring-4 focus:ring-[#14B8A6]/5 focus:border-[#14B8A6]/20 transition-all shadow-sm placeholder:text-slate-300"
+                        className="w-full bg-white/50 border border-slate-100 rounded-[18px] py-3.5 pl-12 pr-5 text-sm font-bold text-slate-600 outline-none focus:bg-white focus:ring-4 focus:ring-[#008080]/5 focus:border-[#008080]/20 transition-all shadow-sm placeholder:text-slate-300"
                     />
                 </div>
 
@@ -55,7 +55,7 @@ const DataTable = ({
                     )}
                     <button
                         onClick={onExport}
-                        className="flex-1 lg:flex-none flex items-center justify-center gap-2.5 px-8 py-3.5 bg-gradient-to-br from-[#0F766E] to-[#14B8A6] rounded-[18px] text-[11px] font-black uppercase tracking-[0.2em] text-white hover:shadow-lg hover:shadow-[#14B8A6]/30 hover:-translate-y-0.5 transition-all active:scale-95"
+                        className="flex-1 lg:flex-none flex items-center justify-center gap-2.5 px-8 py-3.5 bg-gradient-to-br from-[#006666] to-[#008080] rounded-[18px] text-[11px] font-black uppercase tracking-[0.2em] text-white hover:shadow-lg hover:shadow-[#008080]/30 hover:-translate-y-0.5 transition-all active:scale-95"
                     >
                         <span>Export CSV</span>
                     </button>
@@ -111,7 +111,7 @@ const DataTable = ({
                                         <div className="flex justify-center items-center gap-2">
                                             {onView && (
                                                 <button
-                                                    className="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-[#14B8A6] hover:bg-[#14B8A6]/10 rounded-[12px] transition-all hover:scale-110 active:scale-95"
+                                                    className="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-[#008080] hover:bg-[#008080]/10 rounded-[12px] transition-all hover:scale-110 active:scale-95"
                                                     onClick={() => onView(row)}
                                                     title="View profile"
                                                 >
@@ -121,7 +121,7 @@ const DataTable = ({
 
                                             {onEdit && (
                                                 <button
-                                                    className="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-[#14B8A6] hover:bg-[#14B8A6]/10 rounded-[12px] transition-all hover:scale-110 active:scale-95"
+                                                    className="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-[#008080] hover:bg-[#008080]/10 rounded-[12px] transition-all hover:scale-110 active:scale-95"
                                                     onClick={() => onEdit(row)}
                                                     title="Modify data"
                                                 >
@@ -196,7 +196,7 @@ const DataTable = ({
                                 {onView && (
                                     <div className="pl-4">
                                         <button 
-                                            className="w-10 h-10 flex items-center justify-center bg-[#14B8A6]/10 text-[#14B8A6] rounded-xl"
+                                            className="w-10 h-10 flex items-center justify-center bg-[#008080]/10 text-[#008080] rounded-xl"
                                             onClick={() => onView(row)}
                                         >
                                             <Eye size={18} strokeWidth={2.5} />
@@ -251,14 +251,14 @@ const DataTable = ({
 
             <div className="flex items-center justify-between px-8 py-6 bg-slate-50/20 border-t border-slate-100/50">
                 <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-[#14B8A6] animate-pulse"></div>
+                    <div className="w-2 h-2 rounded-full bg-[#008080] animate-pulse"></div>
                     <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">Record cluster: {data.length} units detected</span>
                 </div>
                 <div className="flex items-center gap-3">
                     <button className="w-10 h-10 flex items-center justify-center rounded-[12px] bg-white border border-slate-100 text-slate-400 hover:text-slate-600 hover:bg-slate-50 transition-all disabled:opacity-30 disabled:cursor-not-allowed group shadow-sm" disabled>
                         <ChevronLeft size={18} className="group-active:-translate-x-0.5 transition-transform" />
                     </button>
-                    <div className="px-5 py-2 rounded-[12px] bg-gradient-to-br from-[#0F766E] to-[#14B8A6] text-white text-xs font-black shadow-lg shadow-[#14B8A6]/20">1</div>
+                    <div className="px-5 py-2 rounded-[12px] bg-gradient-to-br from-[#006666] to-[#008080] text-white text-xs font-black shadow-lg shadow-[#008080]/20">1</div>
                     <button className="w-10 h-10 flex items-center justify-center rounded-[12px] bg-white border border-slate-100 text-slate-400 hover:text-slate-600 hover:bg-slate-50 transition-all group shadow-sm">
                         <ChevronRight size={18} className="group-active:translate-x-0.5 transition-transform" />
                     </button>

@@ -187,7 +187,7 @@ const Students = () => {
                 <div className="text-center md:text-left">
                     <h2 className="text-5xl font-black text-slate-900 tracking-tighter leading-none mb-3 italic">Student Enrollment</h2>
                     <p className="text-slate-400 text-[11px] font-black uppercase tracking-[0.25em] flex items-center justify-center md:justify-start gap-3 mt-1">
-                        <span className="w-2 h-2 rounded-full bg-[#14B8A6] animate-pulse shadow-[0_0_10px_rgba(20,184,166,0.5)]"></span>
+                        <span className="w-2 h-2 rounded-full bg-[#008080] animate-pulse shadow-[0_0_10px_rgba(20,184,166,0.5)]"></span>
                         Cross-functional Academic Database Nexus
                     </p>
                 </div>
@@ -230,7 +230,7 @@ const Students = () => {
                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2">Full Name</label>
                         <input
                             type="text"
-                            className="p-5 bg-slate-50/50 border border-slate-100 rounded-[20px] text-sm font-bold text-slate-700 outline-none focus:bg-white focus:ring-4 focus:ring-[#14B8A6]/5 focus:border-[#14B8A6]/20 transition-all"
+                            className="p-5 bg-slate-50/50 border border-slate-100 rounded-[20px] text-sm font-bold text-slate-700 outline-none focus:bg-white focus:ring-4 focus:ring-[#008080]/5 focus:border-[#008080]/20 transition-all"
                             value={editFormData.name}
                             onChange={(e) => setEditFormData({ ...editFormData, name: e.target.value })}
                             required
@@ -288,7 +288,7 @@ const Students = () => {
                     </div>
                     <div className="col-span-2 flex justify-end gap-3 pt-8 pb-4">
                         <button type="button" className="px-8 py-4 rounded-[18px] border border-slate-100 text-[11px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-600 hover:bg-slate-50 transition-all font-sans" onClick={() => setIsEditModalOpen(false)}>Abort Change</button>
-                        <button type="submit" className="px-10 py-4 rounded-[18px] bg-gradient-to-br from-[#0F766E] to-[#14B8A6] text-white text-[11px] font-black uppercase tracking-[0.2em] hover:shadow-lg hover:shadow-[#14B8A6]/30 hover:-translate-y-1 transition-all shadow-md shadow-[#14B8A6]/20 font-sans">Commit Data Refresh</button>
+                        <button type="submit" className="px-10 py-4 rounded-[18px] bg-gradient-to-br from-[#006666] to-[#008080] text-white text-[11px] font-black uppercase tracking-[0.2em] hover:shadow-lg hover:shadow-[#008080]/30 hover:-translate-y-1 transition-all shadow-md shadow-[#008080]/20 font-sans">Commit Data Refresh</button>
                     </div>
                 </form>
             </Modal>
@@ -301,8 +301,8 @@ const Students = () => {
             >
                 {selectedStudent && (
                     <div className="flex flex-col gap-10">
-                        <div className="flex items-center gap-8 p-8 bg-[#14B8A6]/5 rounded-[32px] border border-[#14B8A6]/10 shadow-[0_10px_30px_rgba(20,184,166,0.05)]">
-                            <div className="w-24 h-24 bg-gradient-to-br from-[#0F766E] to-[#14B8A6] text-white rounded-[28px] flex items-center justify-center text-4xl font-black shadow-xl shadow-[#14B8A6]/20 relative overflow-hidden group">
+                        <div className="flex items-center gap-8 p-8 bg-[#008080]/5 rounded-[32px] border border-[#008080]/10 shadow-[0_10px_30px_rgba(20,184,166,0.05)]">
+                            <div className="w-24 h-24 bg-gradient-to-br from-[#006666] to-[#008080] text-white rounded-[28px] flex items-center justify-center text-4xl font-black shadow-xl shadow-[#008080]/20 relative overflow-hidden group">
                                 <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-500"></div>
                                 <span className="relative z-10">{selectedStudent.name.charAt(0)}</span>
                             </div>
@@ -332,12 +332,12 @@ const Students = () => {
                             <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4">Daily Logged Hours (Mentor)</h4>
                             <div className="max-h-40 overflow-y-auto space-y-2 pr-2">
                                 {dailyHours.length > 0 ? dailyHours.map((log) => (
-                                    <div key={log.id} className="flex justify-between items-center bg-white p-4 rounded-[18px] border border-slate-100/50 shadow-sm hover:border-[#14B8A6]/20 transition-all group">
+                                    <div key={log.id} className="flex justify-between items-center bg-white p-4 rounded-[18px] border border-slate-100/50 shadow-sm hover:border-[#008080]/20 transition-all group">
                                         <div className="flex items-center gap-3">
-                                            <div className="w-1.5 h-1.5 rounded-full bg-[#14B8A6]"></div>
+                                            <div className="w-1.5 h-1.5 rounded-full bg-[#008080]"></div>
                                             <span className="text-[11px] font-black text-slate-500 uppercase tracking-widest">{new Date(log.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</span>
                                         </div>
-                                        <span className="text-sm font-black text-[#14B8A6] bg-[#14B8A6]/5 px-3 py-1 rounded-full">{log.hours} <span className="text-[10px] uppercase ml-0.5">Hrs</span></span>
+                                        <span className="text-sm font-black text-[#008080] bg-[#008080]/5 px-3 py-1 rounded-full">{log.hours} <span className="text-[10px] uppercase ml-0.5">Hrs</span></span>
                                     </div>
                                 )) : (
                                     <p className="text-sm text-slate-400 font-medium italic">No hours logged yet.</p>
@@ -348,7 +348,7 @@ const Students = () => {
                         <div className="flex justify-end gap-3 pt-10 border-t border-slate-100/50">
                             <button className="px-8 py-4 rounded-[18px] border border-slate-100 text-[11px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-600 hover:bg-slate-50 transition-all" onClick={() => setIsModalOpen(false)}>Exit Dashboard</button>
                             <button 
-                                className="px-10 py-4 rounded-[18px] bg-gradient-to-br from-[#0F766E] to-[#14B8A6] text-white text-[11px] font-black uppercase tracking-[0.2em] hover:shadow-lg hover:shadow-[#14B8A6]/30 hover:-translate-y-1 transition-all shadow-md shadow-[#14B8A6]/20"
+                                className="px-10 py-4 rounded-[18px] bg-gradient-to-br from-[#006666] to-[#008080] text-white text-[11px] font-black uppercase tracking-[0.2em] hover:shadow-lg hover:shadow-[#008080]/30 hover:-translate-y-1 transition-all shadow-md shadow-[#008080]/20"
                                 onClick={() => handleEdit(selectedStudent)}
                             >
                                 Reconfigure Profile
@@ -362,10 +362,10 @@ const Students = () => {
 };
 
 const InfoGroup = ({ label, value, highlight }) => (
-    <div className="flex flex-col gap-2 p-6 bg-slate-50/50 rounded-[24px] border border-slate-100 hover:border-[#14B8A6]/30 hover:bg-white hover:shadow-[0_10px_20px_rgba(0,0,0,0.03)] transition-all group overflow-hidden relative">
-        <div className={`absolute top-0 right-0 w-12 h-12 bg-[#14B8A6]/5 rounded-bl-[24px] transition-all duration-500 scale-0 group-hover:scale-100`}></div>
-        <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] group-hover:text-[#14B8A6] transition-colors">{label}</label>
-        <p className={`text-sm font-bold leading-relaxed ${highlight ? 'text-[#14B8A6]' : 'text-slate-800'}`}>{value || '---'}</p>
+    <div className="flex flex-col gap-2 p-6 bg-slate-50/50 rounded-[24px] border border-slate-100 hover:border-[#008080]/30 hover:bg-white hover:shadow-[0_10px_20px_rgba(0,0,0,0.03)] transition-all group overflow-hidden relative">
+        <div className={`absolute top-0 right-0 w-12 h-12 bg-[#008080]/5 rounded-bl-[24px] transition-all duration-500 scale-0 group-hover:scale-100`}></div>
+        <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] group-hover:text-[#008080] transition-colors">{label}</label>
+        <p className={`text-sm font-bold leading-relaxed ${highlight ? 'text-[#008080]' : 'text-slate-800'}`}>{value || '---'}</p>
     </div>
 );
 

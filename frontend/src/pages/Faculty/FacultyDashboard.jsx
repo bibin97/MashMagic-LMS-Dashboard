@@ -17,7 +17,7 @@ import toast from 'react-hot-toast';
 
 const StatCard = ({ title, value, icon: Icon, color, trend }) => {
     const isTeal = color.includes('008080') || color.includes('14B8A6');
-    const displayColor = isTeal ? 'bg-[#14B8A6]' : color;
+    const displayColor = isTeal ? 'bg-[#008080]' : color;
     
     return (
         <div className="bg-white/80 backdrop-blur-xl p-8 rounded-[32px] border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgba(0,0,0,0.08)] hover:-translate-y-2 transition-all duration-500 group relative overflow-hidden">
@@ -81,12 +81,12 @@ const FacultyDashboard = () => {
                 <div className="text-center md:text-left">
                     <h2 className="text-4xl font-black text-slate-900 tracking-tighter leading-none mb-3 italic">Faculty Oversight</h2>
                     <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em] flex items-center justify-center md:justify-start gap-2">
-                        <div className="w-1.5 h-1.5 rounded-full bg-[#14B8A6] animate-pulse"></div>
+                        <div className="w-1.5 h-1.5 rounded-full bg-[#008080] animate-pulse"></div>
                         Real-time trajectory tracking & academic resource management
                     </p>
                 </div>
                 <div className="flex items-center gap-4 bg-slate-50/50 px-6 py-4 rounded-[20px] border border-slate-100/50 shadow-inner">
-                    <CalendarDays size={16} strokeWidth={3} className="text-[#14B8A6]" />
+                    <CalendarDays size={16} strokeWidth={3} className="text-[#008080]" />
                     <span className="text-[11px] font-black text-slate-600 uppercase tracking-[0.2em] italic leading-none">{new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}</span>
                 </div>
             </div>
@@ -97,7 +97,7 @@ const FacultyDashboard = () => {
                     title="Assigned Students"
                     value={stats?.badges?.totalStudents || 0}
                     icon={Users}
-                    color="bg-[#14B8A6]"
+                    color="bg-[#008080]"
                     trend="+2 Network Growth"
                 />
                 <StatCard
@@ -166,7 +166,7 @@ const FacultyDashboard = () => {
                                     <Bar dataKey="count" radius={[10, 10, 0, 0]} barSize={40}>
                                         {(stats?.charts?.performance || []).map((entry, index) => {
                                             const fillColors = {
-                                                'Green': '#14B8A6',
+                                                'Green': '#008080',
                                                 'Yellow': '#F59E0B',
                                                 'Red': '#EF4444'
                                             };
@@ -218,9 +218,9 @@ const FacultyDashboard = () => {
                                     <Line
                                         type="monotone"
                                         dataKey="percentage"
-                                        stroke="#14B8A6"
+                                        stroke="#008080"
                                         strokeWidth={4}
-                                        dot={{ r: 6, fill: '#14B8A6', strokeWidth: 3, stroke: '#fff' }}
+                                        dot={{ r: 6, fill: '#008080', strokeWidth: 3, stroke: '#fff' }}
                                         activeDot={{ r: 8, strokeWidth: 0 }}
                                     />
                                 </LineChart>
@@ -232,14 +232,14 @@ const FacultyDashboard = () => {
 
             {/* Bottom Section - Engine Status */}
             <div className="bg-slate-900 p-12 rounded-[40px] relative overflow-hidden group shadow-2xl shadow-slate-900/20">
-                <div className="absolute top-0 right-0 w-96 h-96 bg-[#14B8A6]/20 rounded-full -mr-48 -mt-48 blur-[100px] transition-all duration-1000 group-hover:scale-150"></div>
+                <div className="absolute top-0 right-0 w-96 h-96 bg-[#008080]/20 rounded-full -mr-48 -mt-48 blur-[100px] transition-all duration-1000 group-hover:scale-150"></div>
                 <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-10">
                     <div className="text-center lg:text-left">
                         <h2 className="text-4xl font-black text-white tracking-tighter italic uppercase leading-none mb-4">Academic Engine Pulse</h2>
                         <p className="text-slate-500 font-black uppercase tracking-[0.4em] text-[10px]">Unified Operations Protocol Integrated</p>
                     </div>
                     <div className="flex flex-col sm:flex-row gap-5 w-full lg:w-auto">
-                        <button className="bg-gradient-to-br from-[#0F766E] to-[#14B8A6] text-white px-10 py-5 rounded-[20px] font-black text-[10px] uppercase tracking-[0.2em] hover:shadow-xl hover:shadow-[#14B8A6]/40 hover:-translate-y-1 transition-all">
+                        <button className="bg-gradient-to-br from-[#006666] to-[#008080] text-white px-10 py-5 rounded-[20px] font-black text-[10px] uppercase tracking-[0.2em] hover:shadow-xl hover:shadow-[#008080]/40 hover:-translate-y-1 transition-all">
                             Generate Audit Report
                         </button>
                         <button className="bg-slate-800 text-white px-10 py-5 rounded-[20px] font-black text-[10px] uppercase tracking-[0.2em] hover:bg-slate-700 transition-all">

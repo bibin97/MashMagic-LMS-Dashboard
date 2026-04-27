@@ -129,8 +129,8 @@ const Navbar = ({ onMenuClick }) => {
                 >
                     <Menu size={22} />
                 </button>
-                <div className="flex-1 md:flex-none flex items-center gap-3 bg-[#F1F5F9] px-5 py-3 rounded-[16px] max-w-full md:w-96 group focus-within:bg-white focus-within:ring-2 focus-within:ring-[#14B8A6]/20 transition-all border border-transparent focus-within:border-[#14B8A6]/30 shadow-inner">
-                    <Search size={20} className="text-slate-400 group-focus-within:text-[#14B8A6] shrink-0 transition-colors" />
+                <div className="flex-1 md:flex-none flex items-center gap-3 bg-[#F1F5F9] px-5 py-3 rounded-[16px] max-w-full md:w-96 group focus-within:bg-white focus-within:ring-2 focus-within:ring-[#008080]/20 transition-all border border-transparent focus-within:border-[#008080]/30 shadow-inner">
+                    <Search size={20} className="text-slate-400 group-focus-within:text-[#008080] shrink-0 transition-colors" />
                     <input
                         type="text"
                         placeholder="Search workspace..."
@@ -173,7 +173,7 @@ const Navbar = ({ onMenuClick }) => {
                                             Clear Stack
                                         </button>
                                     )}
-                                    <span className="text-[10px] font-black text-white bg-gradient-to-r from-[#0F766E] to-[#14B8A6] px-3.5 py-1.5 rounded-full shadow-lg shadow-[#14B8A6]/20">{unreadCount} New</span>
+                                    <span className="text-[10px] font-black text-white bg-gradient-to-r from-[#006666] to-[#008080] px-3.5 py-1.5 rounded-full shadow-lg shadow-[#008080]/20">{unreadCount} New</span>
                                 </div>
                             </div>
                             
@@ -192,13 +192,13 @@ const Navbar = ({ onMenuClick }) => {
                                             className={`group relative p-5 rounded-[22px] transition-all duration-300 border ${
                                                 notif.is_read 
                                                     ? 'bg-white/40 border-slate-100/50 opacity-70 hover:opacity-100 hover:bg-white hover:border-slate-200' 
-                                                    : 'bg-gradient-to-br from-[#14B8A6]/5 to-transparent border-[#14B8A6]/20 shadow-sm hover:shadow-xl hover:shadow-[#14B8A6]/5 hover:border-[#14B8A6]/40'
+                                                    : 'bg-gradient-to-br from-[#008080]/5 to-transparent border-[#008080]/20 shadow-sm hover:shadow-xl hover:shadow-[#008080]/5 hover:border-[#008080]/40'
                                             }`}
                                             style={{ animationDelay: `${idx * 50}ms` }}
                                         >
                                             <div className="flex gap-5">
                                                 <div className={`w-12 h-12 rounded-[18px] flex items-center justify-center shrink-0 transition-transform group-hover:scale-105 ${
-                                                    notif.is_read ? 'bg-slate-100 text-slate-400' : 'bg-white text-[#14B8A6] shadow-md border border-[#14B8A6]/10'
+                                                    notif.is_read ? 'bg-slate-100 text-slate-400' : 'bg-white text-[#008080] shadow-md border border-[#008080]/10'
                                                 }`}>
                                                     <Bell size={20} />
                                                 </div>
@@ -209,7 +209,7 @@ const Navbar = ({ onMenuClick }) => {
                                                     />
                                                     <div className="flex items-center gap-3 mt-3">
                                                         <div className="flex items-center gap-1.5 text-[10px] text-slate-400 font-black bg-slate-100/50 px-2.5 py-1 rounded-lg">
-                                                            <span className="w-1 h-1 bg-[#14B8A6] rounded-full animate-pulse"></span>
+                                                            <span className="w-1 h-1 bg-[#008080] rounded-full animate-pulse"></span>
                                                             <span>{new Date(notif.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                                                         </div>
                                                         <span className="text-[10px] text-slate-400 font-black uppercase tracking-widest">
@@ -221,7 +221,7 @@ const Navbar = ({ onMenuClick }) => {
                                                     {!notif.is_read && (
                                                         <button 
                                                             onClick={(e) => markRead(notif.id, e)} 
-                                                            className="p-2 bg-white text-[#14B8A6] border border-[#14B8A6]/20 hover:bg-[#14B8A6] hover:text-white rounded-[12px] shadow-sm transition-all duration-300"
+                                                            className="p-2 bg-white text-[#008080] border border-[#008080]/20 hover:bg-[#008080] hover:text-white rounded-[12px] shadow-sm transition-all duration-300"
                                                             title="Mark read"
                                                         >
                                                             <CheckCheck size={16} />
@@ -241,7 +241,7 @@ const Navbar = ({ onMenuClick }) => {
                                 )}
                             </div>
                             <div className="p-4 bg-slate-50/50 border-t border-slate-100 text-center shrink-0">
-                                <button className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] hover:text-[#14B8A6] transition-all active:scale-95">Archived Records</button>
+                                <button className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] hover:text-[#008080] transition-all active:scale-95">Archived Records</button>
                             </div>
                         </div>
                     )}
@@ -260,7 +260,7 @@ const Navbar = ({ onMenuClick }) => {
                             setIsUserMenuOpen(!isUserMenuOpen);
                             setIsDropdownOpen(false);
                         }}
-                        className="w-12 h-12 bg-gradient-to-br from-[#0F766E] to-[#14B8A6] rounded-[18px] flex items-center justify-center text-white border-2 border-white shadow-[0_10px_20px_rgba(20,184,166,0.25)] overflow-hidden hover:scale-105 active:scale-95 transition-all cursor-pointer ring-4 ring-[#14B8A6]/10"
+                        className="w-12 h-12 bg-gradient-to-br from-[#006666] to-[#008080] rounded-[18px] flex items-center justify-center text-white border-2 border-white shadow-[0_10px_20px_rgba(0,128,128,0.25)] overflow-hidden hover:scale-105 active:scale-95 transition-all cursor-pointer ring-4 ring-[#008080]/10"
                     >
                         <User size={24} />
                     </button>
@@ -274,9 +274,9 @@ const Navbar = ({ onMenuClick }) => {
                             <div className="space-y-1">
                                 <button 
                                     onClick={handleProfileClick}
-                                    className="w-full flex items-center gap-3.5 px-4 py-3.5 text-sm font-bold text-slate-600 hover:bg-slate-50 hover:text-[#14B8A6] rounded-[18px] transition-all group"
+                                    className="w-full flex items-center gap-3.5 px-4 py-3.5 text-sm font-bold text-slate-600 hover:bg-slate-50 hover:text-[#008080] rounded-[18px] transition-all group"
                                 >
-                                    <div className="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center group-hover:bg-[#14B8A6]/10 transition-all group-hover:scale-105">
+                                    <div className="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center group-hover:bg-[#008080]/10 transition-all group-hover:scale-105">
                                         <User size={18} />
                                     </div>
                                     Profile Console

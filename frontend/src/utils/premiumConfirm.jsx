@@ -12,10 +12,10 @@ export const premiumConfirm = (callback, { name = '', title = '', message = '', 
   
   const confirmBtnClass = isDanger 
     ? 'bg-rose-600 shadow-rose-200/50 hover:bg-rose-700' 
-    : 'bg-gradient-to-br from-[#0F766E] to-[#14B8A6] shadow-[#14B8A6]/20 hover:shadow-[#14B8A6]/40';
+    : 'bg-gradient-to-br from-[#006666] to-[#008080] shadow-[#008080]/20 hover:shadow-[#008080]/40';
   
-  const iconBg = isDanger ? 'bg-rose-50' : 'bg-[#14B8A6]/10';
-  const iconColor = isDanger ? 'text-rose-500' : 'text-[#14B8A6]';
+  const iconBg = isDanger ? 'bg-rose-50' : 'bg-[#008080]/10';
+  const iconColor = isDanger ? 'text-rose-500' : 'text-[#008080]';
 
   toast.custom((t) => (
     <div

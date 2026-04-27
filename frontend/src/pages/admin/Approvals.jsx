@@ -77,11 +77,11 @@ const Approvals = () => {
             case 'academic_head':
                 return 'bg-purple-50 text-purple-700 border-purple-200';
             case 'mentor_head':
-                return 'bg-[#008080]/10 text-[#008080] border-[#008080]';
+                return 'bg-[#008080]/10 text-[#008080] border-[#008080]/20';
             case 'faculty':
-                return 'bg-green-50 text-green-700 border-green-200';
+                return 'bg-emerald-50 text-emerald-700 border-emerald-200';
             case 'mentor':
-                return 'bg-teal-50 text-teal-700 border-teal-200';
+                return 'bg-[#008080]/10 text-[#008080] border-[#008080]/20';
             case 'student':
                 return 'bg-slate-100 text-slate-600 border-slate-200';
             default:
@@ -102,7 +102,7 @@ const Approvals = () => {
             <div className="bg-white/70 backdrop-blur-xl p-12 rounded-[40px] border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.04)] flex flex-col md:flex-row justify-between items-center gap-10">
                 <div className="text-center md:text-left">
                     <div className="flex flex-col md:flex-row items-center gap-8">
-                        <div className="w-20 h-20 bg-[#14B8A6] rounded-[28px] shadow-2xl shadow-[#14B8A6]/30 flex items-center justify-center group hover:rotate-12 transition-transform duration-700">
+                        <div className="w-20 h-20 bg-[#008080] rounded-[28px] shadow-2xl shadow-[#008080]/30 flex items-center justify-center group hover:rotate-12 transition-transform duration-700">
                             <Shield className="text-white" size={36} strokeWidth={2.5} />
                         </div>
                         <div>
@@ -120,7 +120,7 @@ const Approvals = () => {
                         <span className="text-3xl font-black text-white leading-none tabular-nums tracking-tighter">{pendingUsers.length}</span>
                     </div>
                     <div className="w-px h-10 bg-slate-800"></div>
-                    <Activity className="text-[#14B8A6] animate-pulse" size={24} strokeWidth={3} />
+                    <Activity className="text-[#008080] animate-pulse" size={24} strokeWidth={3} />
                 </div>
             </div>
 
@@ -142,13 +142,13 @@ const Approvals = () => {
                                     <tr key={`${user.role}-${user.id}`} className="hover:bg-slate-50/50 transition-all group">
                                         <td className="p-8">
                                             <div className="flex items-center gap-5">
-                                                <div className="w-16 h-16 bg-white rounded-[24px] flex items-center justify-center text-slate-400 font-black border border-slate-100 group-hover:border-[#14B8A6] group-hover:text-[#14B8A6] group-hover:translate-x-1 group-hover:-translate-y-1 transition-all shadow-sm">
+                                                <div className="w-16 h-16 bg-white rounded-[24px] flex items-center justify-center text-slate-400 font-black border border-slate-100 group-hover:border-[#008080] group-hover:text-[#008080] group-hover:translate-x-1 group-hover:-translate-y-1 transition-all shadow-sm">
                                                     {user.name.charAt(0).toUpperCase()}
                                                 </div>
                                                 <div>
-                                                    <span className="text-lg font-black text-slate-800 block tracking-tight leading-none italic group-hover:text-[#14B8A6] transition-colors mb-2 uppercase">{user.name}</span>
+                                                    <span className="text-lg font-black text-slate-800 block tracking-tight leading-none italic group-hover:text-[#008080] transition-colors mb-2 uppercase">{user.name}</span>
                                                     <div className="flex items-center gap-2">
-                                                        <Calendar size={12} className="text-[#14B8A6] opacity-60" />
+                                                        <Calendar size={12} className="text-[#008080] opacity-60" />
                                                         <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.1em]">
                                                             LOGGED_{new Date(user.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
                                                         </span>
@@ -157,14 +157,14 @@ const Approvals = () => {
                                             </div>
                                         </td>
                                         <td className="p-8">
-                                            <span className={`inline-flex items-center gap-2.5 px-6 py-2.5 rounded-[20px] text-[10px] font-black uppercase tracking-[0.2em] border shadow-sm transition-all group-hover:scale-105 active:scale-95 ${getRoleBadgeStyle(user.role).replace('008080', '14B8A6')}`}>
+                                            <span className={`inline-flex items-center gap-2.5 px-6 py-2.5 rounded-[20px] text-[10px] font-black uppercase tracking-[0.2em] border shadow-sm transition-all group-hover:scale-105 active:scale-95 ${getRoleBadgeStyle(user.role)}`}>
                                                 <div className={`w-2 h-2 rounded-full ${user.role === 'student' ? 'bg-slate-400' : 'bg-current animate-pulse'}`} />
                                                 {user.role.replace('_', ' ')}
                                             </span>
                                         </td>
                                         <td className="p-8">
                                             <div className="flex items-center gap-4">
-                                                <div className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center text-[#14B8A6] border border-slate-100 group-hover:bg-white transition-all">
+                                                <div className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center text-[#008080] border border-slate-100 group-hover:bg-white transition-all">
                                                     <UserCheck size={16} strokeWidth={2.5} />
                                                 </div>
                                                 <div>
@@ -198,7 +198,7 @@ const Approvals = () => {
                                                 </button>
                                                 <button
                                                      onClick={() => handleApprove(user.id, user.role)}
-                                                     className="w-12 h-12 rounded-[18px] flex items-center justify-center bg-[#14B8A6]/10 text-[#14B8A6] hover:bg-[#14B8A6] hover:text-white transition-all shadow-[0_10px_20px_rgba(20,184,166,0.15)] active:scale-95 group/btn"
+                                                     className="w-12 h-12 rounded-[18px] flex items-center justify-center bg-[#008080]/10 text-[#008080] hover:bg-[#008080] hover:text-white transition-all shadow-[0_10px_20px_rgba(20,184,166,0.15)] active:scale-95 group/btn"
                                                      title="Approve & Activate"
                                                  >
                                                      <CheckCircle size={22} strokeWidth={2.5} className="group-hover/btn:scale-110 transition-transform" />
@@ -233,11 +233,11 @@ const Approvals = () => {
                         </p>
                     </div>
                     <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
-                        <div className="bg-gradient-to-br from-[#008080] to-[#14B8A6] p-6 rounded-3xl w-full md:w-44 text-center shadow-lg shadow-[#008080]/20 border border-white/10 group hover:scale-105 transition-all">
+                        <div className="bg-gradient-to-br from-[#008080] to-[#008080] p-6 rounded-3xl w-full md:w-44 text-center shadow-lg shadow-[#008080]/20 border border-white/10 group hover:scale-105 transition-all">
                             <span className="text-[10px] font-black text-white/50 uppercase tracking-widest block mb-1">Active Today</span>
                             <span className="text-3xl font-black text-white tracking-tighter">0</span>
                         </div>
-                        <div className="bg-gradient-to-br from-[#008080] to-[#14B8A6] p-6 rounded-3xl w-full md:w-44 text-center shadow-lg shadow-[#008080]/20 border border-white/10 group hover:scale-105 transition-all">
+                        <div className="bg-gradient-to-br from-[#008080] to-[#008080] p-6 rounded-3xl w-full md:w-44 text-center shadow-lg shadow-[#008080]/20 border border-white/10 group hover:scale-105 transition-all">
                             <span className="text-[10px] font-black text-white/50 uppercase tracking-widest block mb-1">Rejected Today</span>
                             <span className="text-3xl font-black text-white tracking-tighter">0</span>
                         </div>

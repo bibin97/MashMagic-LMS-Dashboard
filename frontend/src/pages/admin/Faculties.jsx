@@ -171,7 +171,7 @@ const Faculties = () => {
                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Full Name</label>
                         <input
                             type="text"
-                            className="p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-[#14B8A6]/5 transition-all"
+                            className="p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-[#008080]/5 transition-all"
                             value={editFormData.name}
                             onChange={(e) => setEditFormData({ ...editFormData, name: e.target.value })}
                             required
@@ -199,7 +199,7 @@ const Faculties = () => {
                     <div className="flex flex-col gap-1.5">
                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Account Status</label>
                         <select
-                            className="p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-[#14B8A6]/10 transition-all"
+                            className="p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-[#008080]/10 transition-all"
                             value={editFormData.status}
                             onChange={(e) => setEditFormData({ ...editFormData, status: e.target.value })}
                         >
@@ -210,7 +210,7 @@ const Faculties = () => {
                     </div>
                     <div className="flex justify-end gap-3 mt-8">
                         <button type="button" className="px-8 py-3.5 rounded-2xl border border-slate-100 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-600 hover:bg-slate-50 transition-all" onClick={() => setIsEditModalOpen(false)}>Discard</button>
-                        <button type="submit" className="px-10 py-3.5 rounded-2xl bg-gradient-to-br from-[#0F766E] to-[#14B8A6] text-white text-[10px] font-black uppercase tracking-[0.2em] hover:shadow-lg hover:shadow-[#14B8A6]/30 hover:-translate-y-1 transition-all shadow-md shadow-[#14B8A6]/20">Update Leadership Data</button>
+                        <button type="submit" className="px-10 py-3.5 rounded-2xl bg-gradient-to-br from-[#006666] to-[#008080] text-white text-[10px] font-black uppercase tracking-[0.2em] hover:shadow-lg hover:shadow-[#008080]/30 hover:-translate-y-1 transition-all shadow-md shadow-[#008080]/20">Update Leadership Data</button>
                     </div>
                 </form>
             </Modal>
@@ -223,8 +223,8 @@ const Faculties = () => {
             >
                 {selectedFaculty && (
                     <div className="flex flex-col gap-10">
-                        <div className="flex items-center gap-8 p-8 bg-[#14B8A6]/5 rounded-[32px] border border-[#14B8A6]/10 shadow-[0_10px_30px_rgba(20,184,166,0.05)]">
-                            <div className="w-24 h-24 bg-gradient-to-br from-[#0F766E] to-[#14B8A6] text-white rounded-[28px] flex items-center justify-center text-4xl font-black shadow-xl shadow-[#14B8A6]/20">
+                        <div className="flex items-center gap-8 p-8 bg-[#008080]/5 rounded-[32px] border border-[#008080]/10 shadow-[0_10px_30px_rgba(20,184,166,0.05)]">
+                            <div className="w-24 h-24 bg-gradient-to-br from-[#006666] to-[#008080] text-white rounded-[28px] flex items-center justify-center text-4xl font-black shadow-xl shadow-[#008080]/20">
                                 {selectedFaculty.name.charAt(0)}
                             </div>
                             <div className="flex flex-col gap-2">
@@ -234,7 +234,7 @@ const Faculties = () => {
                                     <span className="px-4 py-1.5 bg-[#F59E0B]/10 rounded-xl text-[9px] font-bold text-[#F59E0B] border border-[#F59E0B]/20 uppercase tracking-[0.15em]">
                                         Head Faculty Lead
                                     </span>
-                                    <span className="px-4 py-1.5 bg-[#14B8A6]/10 rounded-xl text-[9px] font-bold text-[#14B8A6] border border-[#14B8A6]/20 uppercase tracking-[0.15em]">
+                                    <span className="px-4 py-1.5 bg-[#008080]/10 rounded-xl text-[9px] font-bold text-[#008080] border border-[#008080]/20 uppercase tracking-[0.15em]">
                                         Exp: Senior Lead
                                     </span>
                                 </div>
@@ -242,9 +242,9 @@ const Faculties = () => {
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
-                            <div className="p-8 bg-white border border-slate-100 rounded-[32px] flex items-center gap-6 hover:border-[#14B8A6]/20 hover:shadow-lg transition-all group overflow-hidden relative">
-                                <div className="absolute top-0 right-0 w-24 h-24 bg-[#14B8A6]/5 rounded-bl-[48px] -mr-8 -mt-8 group-hover:scale-125 transition-transform duration-500"></div>
-                                <div className="p-4 bg-[#14B8A6]/5 text-[#14B8A6] rounded-[20px] shadow-sm relative z-10 border border-[#14B8A6]/10">
+                            <div className="p-8 bg-white border border-slate-100 rounded-[32px] flex items-center gap-6 hover:border-[#008080]/20 hover:shadow-lg transition-all group overflow-hidden relative">
+                                <div className="absolute top-0 right-0 w-24 h-24 bg-[#008080]/5 rounded-bl-[48px] -mr-8 -mt-8 group-hover:scale-125 transition-transform duration-500"></div>
+                                <div className="p-4 bg-[#008080]/5 text-[#008080] rounded-[20px] shadow-sm relative z-10 border border-[#008080]/10">
                                     <UserSquare2 size={24} />
                                 </div>
                                 <div className="relative z-10">
@@ -278,7 +278,7 @@ const Faculties = () => {
 
                         <div className="flex justify-end gap-3 pt-10 border-t border-slate-100/50">
                             <button className="px-8 py-4 rounded-[20px] border border-slate-100 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-600 hover:bg-slate-50 transition-all font-sans" onClick={() => setIsModalOpen(false)}>Exit Dashboard</button>
-                            <button className="px-10 py-4 rounded-[20px] bg-gradient-to-br from-[#0F766E] to-[#14B8A6] text-white text-[10px] font-black uppercase tracking-[0.2em] hover:shadow-lg hover:shadow-[#14B8A6]/30 hover:-translate-y-1 transition-all shadow-md shadow-[#14B8A6]/20 font-sans">Allocate Resources</button>
+                            <button className="px-10 py-4 rounded-[20px] bg-gradient-to-br from-[#006666] to-[#008080] text-white text-[10px] font-black uppercase tracking-[0.2em] hover:shadow-lg hover:shadow-[#008080]/30 hover:-translate-y-1 transition-all shadow-md shadow-[#008080]/20 font-sans">Allocate Resources</button>
                         </div>
                     </div>
                 )}
