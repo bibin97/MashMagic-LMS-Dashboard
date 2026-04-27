@@ -452,8 +452,9 @@ const Login = () => {
                                     <ShieldCheck size={18} />
                                 </button>
                             </form>
-                        </div>
+                        </motion.div>
                     )}
+                    </AnimatePresence>
 
                     <div className="mt-6 pt-6 border-t border-white/5 flex flex-col items-center gap-3">
                          <div className="flex gap-1">
