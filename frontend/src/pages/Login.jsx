@@ -15,6 +15,7 @@ import {
     Users,
     Check
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const Login = () => {
     const [email, setEmail] = useState('');
@@ -141,7 +142,12 @@ const Login = () => {
             <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-[#1e1b4b]/40 blur-[150px] rounded-full" />
             
             {/* Main Vault Container */}
-            <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-2 bg-white/[0.02] backdrop-blur-3xl rounded-[32px] border border-white/10 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)] overflow-hidden">
+            <motion.div 
+                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+                className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-2 bg-white/[0.02] backdrop-blur-3xl rounded-[32px] border border-white/10 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)] overflow-hidden"
+            >
                 
                 {/* Visual Branding Section */}
                 <div className="hidden lg:flex flex-col justify-between items-center text-center p-8 lg:p-12 lg:py-20 bg-gradient-to-br from-[#0d9488]/10 to-transparent border-r border-white/5 relative">
@@ -186,12 +192,33 @@ const Login = () => {
                     
                     {/* Heading Section Moved to Top */}
                     <div className="mb-4">
-                        <h2 className="text-3xl font-black text-[#0d9488] mb-1 tracking-tight uppercase drop-shadow-md">Establish Connection</h2>
-                        <p className="text-[#f8ba2b] text-[9px] font-black uppercase tracking-[0.3em] opacity-90">Security Protocol Activated</p>
+                        <motion.h2 
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.2, duration: 0.5 }}
+                            className="text-3xl font-black text-[#0d9488] mb-1 tracking-tight uppercase drop-shadow-md"
+                        >
+                            Establish Connection
+                        </motion.h2>
+                        <motion.p 
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ delay: 0.4 }}
+                            className="text-[#f8ba2b] text-[9px] font-black uppercase tracking-[0.3em] opacity-90"
+                        >
+                            Security Protocol Activated
+                        </motion.p>
                     </div>
 
-                    {!isRegistering ? (
-                        <>
+                    <AnimatePresence mode="wait">
+                        {!isRegistering ? (
+                            <motion.div
+                                key="login"
+                                initial={{ opacity: 0, x: -20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: 20 }}
+                                transition={{ duration: 0.4, ease: "easeInOut" }}
+                            >
                             {/* Department Tabs with Glass Gradient Green Styling */}
                             <div className="flex flex-wrap gap-2 mb-6 scrollbar-none">
                                 {['admin', 'mentor', 'academic'].map((d) => (
@@ -324,10 +351,17 @@ const Login = () => {
                                     {!loading && <ShieldCheck className="relative w-5 h-5 group-hover:scale-110 transition-transform" />}
                                 </button>
                             </form>
-                        </>
+                            </motion.div>
                     ) : (
                         /* Identity Setup Form (Signup) */
-                        <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                        <motion.div 
+                            key="register"
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -20 }}
+                            transition={{ duration: 0.4, ease: "easeInOut" }}
+                            className="relative"
+                        >
                             <div className="flex items-center justify-between mb-6">
                                 <h2 className="text-4xl font-black text-white tracking-[0.1em] uppercase italic drop-shadow-lg">Identity Setup</h2>
                                 <button 
@@ -432,7 +466,7 @@ const Login = () => {
                          </p>
                     </div>
                 </div>
-            </div>
+            </motion.div>
         </div>
     );
 };
