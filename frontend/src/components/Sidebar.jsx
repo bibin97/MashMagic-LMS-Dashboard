@@ -68,7 +68,7 @@ const Sidebar = ({ isOpen, setIsOpen, isCollapsed, setIsCollapsed, navItems, tit
                             <img src="/mashmagic logo.jpg" alt="Logo" className="w-full h-full object-contain" />
                         </div>
                         {!isCollapsed && (
-                             <h1 className="text-2xl font-black text-white tracking-[0.2em] italic uppercase animate-in fade-in slide-in-from-top-6 duration-700 text-center drop-shadow-2xl">
+                             <h1 className="text-2xl font-black text-slate-900 tracking-[0.2em] italic uppercase animate-in fade-in slide-in-from-top-6 duration-700 text-center drop-shadow-2xl">
                                 MashMagic
                             </h1>
                         )}
@@ -115,23 +115,7 @@ const Sidebar = ({ isOpen, setIsOpen, isCollapsed, setIsCollapsed, navItems, tit
             </nav>
 
             <div className={`p-4 space-y-4 transition-all ${isCollapsed ? 'items-center px-2' : ''}`}>
-                {/* Upgrade Card - Matching Reference Image */}
-                {!isCollapsed && (
-                    <div className="bg-[#FFF8E6] border border-[#FDE68A] p-5 rounded-[24px] relative overflow-hidden group mb-4">
-                        <div className="absolute -right-4 -top-4 w-16 h-16 bg-[#F59E0B]/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700" />
-                        <div className="relative z-10">
-                            <div className="flex items-center gap-2 mb-2">
-                                <Target size={16} className="text-[#F59E0B]" />
-                                <span className="text-[10px] font-black text-[#B45309] uppercase tracking-widest">Premium Plan</span>
-                            </div>
-                            <p className="text-[11px] text-[#92400E] font-medium leading-relaxed mb-3">Upgrade to a advanced tier for more features.</p>
-                            <button className="w-full py-2.5 bg-[#F59E0B] text-white text-[10px] font-black uppercase tracking-widest rounded-xl shadow-lg shadow-[#F59E0B]/20 hover:scale-[1.02] active:scale-[0.98] transition-all">
-                                Upgrade Now
-                            </button>
-                        </div>
-                    </div>
-                )}
-
+                {/* User Profile Summary */}
                 <div className={`bg-slate-50 border border-slate-100 p-4 rounded-[24px] flex items-center gap-3 group hover:bg-slate-100 transition-all cursor-pointer overflow-hidden ${isCollapsed ? 'justify-center w-14' : ''}`}>
                     <div className="shrink-0 w-10 h-10 bg-gradient-to-br from-[#008080] to-[#20B2AA] rounded-[14px] flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform">
                         <User size={20} />
