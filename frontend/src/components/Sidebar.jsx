@@ -65,16 +65,16 @@ const Sidebar = ({ isOpen, setIsOpen, isCollapsed, setIsCollapsed, navItems, tit
     <div className="flex items-center justify-center w-full relative">
       <div className={`transition-all duration-500 flex flex-col items-center ${isCollapsed ? 'w-full' : 'w-full'}`}>
         {/* THE 'FULL' LOGO AREA */}
-        <div className={`transition-all duration-700 flex items-center justify-center ${isCollapsed ? 'w-10 h-10 mb-0' : 'w-full h-24 mb-4'}`}>
+        <div className={`transition-all duration-700 flex items-center justify-center ${isCollapsed ? 'w-12 h-12 mb-0' : 'w-full h-24 mb-4'}`}>
           <img 
             src={mlogo} 
             alt="Logo" 
-            className={`transition-all duration-700 ${isCollapsed ? 'w-8 h-8 object-contain' : 'w-full h-full object-contain scale-[2.2]'}`} 
+            className={`transition-all duration-700 ${isCollapsed ? 'w-6 h-6 object-contain' : 'w-full h-full object-contain scale-[2.2]'}`} 
           />
         </div>
         {!isCollapsed && (
           <h1 className="text-2xl font-black text-slate-900 tracking-[0.2em] uppercase animate-in fade-in slide-in-from-top-6 duration-700 text-center drop-shadow-2xl">
-            MashMagic
+            {title}
           </h1>
         )}
       </div>
