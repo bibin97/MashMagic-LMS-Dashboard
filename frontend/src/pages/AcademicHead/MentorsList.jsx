@@ -292,7 +292,6 @@ const MentorsList = () => {
  </div>
  )}
  </div>
- </div>
  )) : (
  <div className="py-20 bg-white rounded-[3rem] border border-slate-100 text-center shadow-sm">
  <Users size={40} className="mx-auto text-slate-200 mb-4" />
