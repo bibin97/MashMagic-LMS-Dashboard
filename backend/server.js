@@ -105,6 +105,18 @@ const startServer = async () => {
                 'ALTER TABLE users ADD COLUMN phone_number VARCHAR(50) NULL;',
                 'ALTER TABLE users ADD COLUMN email VARCHAR(255) NULL;',
                 'ALTER TABLE users ADD COLUMN registeredBy INT NULL;',
+                'ALTER TABLE users ADD COLUMN faculty_id_card VARCHAR(100) NULL;',
+                'ALTER TABLE users ADD COLUMN section VARCHAR(100) NULL;',
+                'ALTER TABLE users ADD COLUMN syllabus VARCHAR(100) NULL;',
+                'ALTER TABLE users ADD COLUMN languages_proficiency JSON NULL;',
+                'ALTER TABLE users ADD COLUMN qualification VARCHAR(255) NULL;',
+                'ALTER TABLE users ADD COLUMN experience VARCHAR(100) NULL;',
+                'ALTER TABLE users ADD COLUMN availability VARCHAR(255) NULL;',
+                'ALTER TABLE users ADD COLUMN hourly_rate DECIMAL(10,2) DEFAULT 0.00;',
+                'ALTER TABLE users ADD COLUMN teaching_mode VARCHAR(50) NULL;',
+                'ALTER TABLE users ADD COLUMN joining_date DATE NULL;',
+                'ALTER TABLE users ADD COLUMN remarks TEXT NULL;',
+                'ALTER TABLE users ADD COLUMN profile_pic TEXT NULL;',
                 
                 'ALTER TABLE students ADD COLUMN badge VARCHAR(50) NULL;',
                 'ALTER TABLE students ADD COLUMN enrollment_type VARCHAR(100) NULL;',
@@ -132,6 +144,7 @@ const startServer = async () => {
                 'ALTER TABLE students ADD COLUMN next_installment_date VARCHAR(50) NULL;',
                 'ALTER TABLE students ADD COLUMN time_table JSON NULL;',
                 'ALTER TABLE students ADD COLUMN registeredBy INT NULL;',
+                'ALTER TABLE students ADD COLUMN profile_pic TEXT NULL;',
                 
                 `CREATE TABLE IF NOT EXISTS student_daily_updates (
                     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -145,9 +158,13 @@ const startServer = async () => {
                 `CREATE TABLE IF NOT EXISTS admin_notifications (
                     id INT AUTO_INCREMENT PRIMARY KEY,
                     message TEXT NOT NULL,
+                    related_id INT NULL,
+                    action_type VARCHAR(100) NULL,
                     is_read TINYINT(1) DEFAULT 0,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                );`
+                );`,
+                'ALTER TABLE admin_notifications ADD COLUMN related_id INT NULL;',
+                'ALTER TABLE admin_notifications ADD COLUMN action_type VARCHAR(100) NULL;'
             ];
             for (const migration of migrations) {
                 try {

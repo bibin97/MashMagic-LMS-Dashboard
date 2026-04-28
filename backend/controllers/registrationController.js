@@ -47,8 +47,10 @@ const registerStudent = async (req, res) => {
         const studentId = studentResult.insertId;
 
         // Notify Admin
-        await db.query('INSERT INTO admin_notifications (message) VALUES (?)', [
-            `<b>New Student Registration:</b> ${name} registered for <b>${course}</b> (${grade}).`
+        await db.query('INSERT INTO admin_notifications (message, related_id, action_type) VALUES (?, ?, ?)', [
+            `<b>New Student Registration:</b> ${name} registered for <b>${course}</b> (${grade}).`,
+            studentId,
+            'student_registration'
         ]);
 
         // Automatically insert initial session into mentor_timetable if mentor exists
@@ -113,8 +115,10 @@ const registerMentor = async (req, res) => {
         );
 
         // Notify Admin
-        await db.query('INSERT INTO admin_notifications (message) VALUES (?)', [
-            `<b>Mentor Application:</b> ${name} has requested access. <span style="color:#F59E0B">Pending Admin Approval</span>.`
+        await db.query('INSERT INTO admin_notifications (message, related_id, action_type) VALUES (?, ?, ?)', [
+            `<b>Mentor Application:</b> ${name} has requested access. <span style="color:#F59E0B">Pending Admin Approval</span>.`,
+            userId,
+            'mentor_registration'
         ]);
 
         const userId = userResult.insertId;
@@ -170,8 +174,10 @@ const registerFaculty = async (req, res) => {
         );
 
         // Notify Admin
-        await db.query('INSERT INTO admin_notifications (message) VALUES (?)', [
-            `<b>Faculty Application:</b> ${name} has requested access. <span style="color:#F59E0B">Pending Admin Approval</span>.`
+        await db.query('INSERT INTO admin_notifications (message, related_id, action_type) VALUES (?, ?, ?)', [
+            `<b>Faculty Application:</b> ${name} has requested access. <span style="color:#F59E0B">Pending Admin Approval</span>.`,
+            userId,
+            'faculty_registration'
         ]);
 
         const userId = userResult.insertId;

@@ -58,9 +58,32 @@ const Registrations = () => {
  setSelectedSubjects(newSubjects);
  };
 
- const [facultyForm, setFacultyForm] = useState({
- name: '', email: '', phone_number: '', place: '', password: '', confirmPassword: ''
- });
+  const [facultyForm, setFacultyForm] = useState({
+    name: '', email: '', phone_number: '', place: '', password: '', confirmPassword: '',
+    faculty_id_card: '', section: '', syllabus: '', languages_proficiency: [],
+    qualification: '', experience: '', availability: '', hourly_rate: '',
+    teaching_mode: 'Both', joining_date: new Date().toISOString().split('T')[0], remarks: '', subject: ''
+  });
+
+  const LANG_OPTIONS = [
+    { id: 'ENG', label: 'ENG(100%)' },
+    { id: 'BL-AD', label: 'BILINGUAL ADVANCE' },
+    { id: 'BL-SM', label: 'BILINGUAL SIMPLE' },
+    { id: 'MLM', label: 'MAL' },
+    { id: 'HIN', label: 'HINDI' },
+    { id: 'TML', label: 'TML' }
+  ];
+
+  const handleLanguageToggle = (langId) => {
+    setFacultyForm(prev => {
+      const current = prev.languages_proficiency;
+      if (current.includes(langId)) {
+        return { ...prev, languages_proficiency: current.filter(id => id !== langId) };
+      } else {
+        return { ...prev, languages_proficiency: [...current, langId] };
+      }
+    });
+  };
 
 
  // Courses allowed
@@ -129,7 +152,12 @@ const Registrations = () => {
  const res = await api.post('/academic-head/register-faculty', facultyForm);
  if (res.data.success) {
  toast.success('Faculty Account Created Successfully!');
- setFacultyForm({ name: '', email: '', phone_number: '', place: '', password: '', confirmPassword: '' });
+ setFacultyForm({ 
+  name: '', email: '', phone_number: '', place: '', password: '', confirmPassword: '',
+  faculty_id_card: '', section: '', syllabus: '', languages_proficiency: [],
+  qualification: '', experience: '', availability: '', hourly_rate: '',
+  teaching_mode: 'Both', joining_date: new Date().toISOString().split('T')[0], remarks: '', subject: ''
+ });
  fetchDropdowns();
  }
  } catch (error) {
@@ -402,13 +430,13 @@ const Registrations = () => {
 
  <button disabled={loading} type="submit" className="w-full mt-8 bg-slate-900 text-white p-4 rounded-xl font-black text-xs uppercase tracking-[0.2em] hover:bg-emerald-600 transition-all shadow-xl hover:shadow-[#008080] flex items-center justify-center gap-3">
  {loading ? 'Processing...' : 'Register Student'}
- {!loading && <CheckCircle size={16} />}
+ { !loading && <CheckCircle size={16} /> }
  </button>
  </form>
  )}
 
  {activeTab === 'faculty' && (
- <form onSubmit={submitFaculty} className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+ <form onSubmit={submitFaculty} className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-10">
  <div className="flex items-center gap-3 mb-6">
  <div className="w-8 h-8 bg-emerald-100 text-emerald-600 rounded-lg flex items-center justify-center">
  <ShieldCheck size={18} />
@@ -461,9 +489,133 @@ const Registrations = () => {
  </div>
  </div>
 
+  {/* New Faculty Details Section */}
+  <div className="pt-8 border-t border-slate-100 space-y-8">
+    <div className="flex items-center gap-3">
+      <div className="w-8 h-8 bg-emerald-50 text-emerald-600 rounded-lg flex items-center justify-center">
+        <BookOpen size={18} />
+      </div>
+      <h3 className="text-sm font-black text-slate-800 uppercase tracking-widest">Academic & Professional Profile</h3>
+    </div>
+
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="flex flex-col gap-2">
+        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Faculty ID #</label>
+        <input type="text" name="faculty_id_card" value={facultyForm.faculty_id_card} onChange={handleFacultyChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-emerald-100 font-bold" placeholder="FAC-ID-001" />
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Primary Subject</label>
+        <select name="subject" value={facultyForm.subject} onChange={handleFacultyChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-emerald-100 font-bold appearance-none text-black">
+          <option value="">Select Subject</option>
+          <option value="Mathematics">Mathematics</option>
+          <option value="Physics">Physics</option>
+          <option value="Chemistry">Chemistry</option>
+          <option value="Biology">Biology</option>
+          <option value="English">English</option>
+          <option value="Social Science">Social Science</option>
+          <option value="Computer Science">Computer Science</option>
+          <option value="Malayalam">Malayalam</option>
+          <option value="Hindi">Hindi</option>
+          <option value="Accountancy">Accountancy</option>
+          <option value="Business Studies">Business Studies</option>
+        </select>
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Section Coverage</label>
+        <select name="section" value={facultyForm.section} onChange={handleFacultyChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-emerald-100 font-bold appearance-none text-black">
+          <option value="">Select Section</option>
+          <option value="KG">KG</option>
+          <option value="LP">LP</option>
+          <option value="UP">UP</option>
+          <option value="HS">HS</option>
+          <option value="HSS">HSS</option>
+        </select>
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Syllabus Expertise</label>
+        <select name="syllabus" value={facultyForm.syllabus} onChange={handleFacultyChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-emerald-100 font-bold appearance-none text-black">
+          <option value="">Select Syllabus</option>
+          <option value="CBSE">CBSE</option>
+          <option value="STATE">STATE</option>
+          <option value="ICSE">ICSE</option>
+        </select>
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Highest Qualification</label>
+        <input type="text" name="qualification" value={facultyForm.qualification} onChange={handleFacultyChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-emerald-100 font-bold text-black" placeholder="E.g. MSc, BEd" />
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Experience (Years)</label>
+        <input type="text" name="experience" value={facultyForm.experience} onChange={handleFacultyChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-emerald-100 font-bold text-black" placeholder="E.g. 5 Years" />
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Teaching Mode</label>
+        <select name="teaching_mode" value={facultyForm.teaching_mode} onChange={handleFacultyChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-emerald-100 font-bold appearance-none text-black">
+          <option value="Online">Online</option>
+          <option value="Offline">Offline</option>
+          <option value="Both">Both</option>
+        </select>
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Hourly Rate (₹)</label>
+        <input type="number" name="hourly_rate" value={facultyForm.hourly_rate} onChange={handleFacultyChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-emerald-100 font-bold text-black" placeholder="Rate in ₹" />
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Joining Date</label>
+        <div className="relative group">
+          <Calendar size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-emerald-600 transition-colors" />
+          <input type="date" name="joining_date" value={facultyForm.joining_date} onChange={handleFacultyChange} className="w-full p-3 pl-12 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-emerald-100 font-bold text-black" />
+        </div>
+      </div>
+    </div>
+
+    {/* Language Proficiency Pills */}
+    <div className="flex flex-col gap-4 bg-slate-50 p-6 rounded-3xl border border-slate-100">
+      <label className="text-[10px] font-black text-slate-900 uppercase tracking-[0.2em] ml-1">Language Proficiency</label>
+      <div className="flex flex-wrap gap-2">
+        {LANG_OPTIONS.map((lang) => (
+          <button
+            key={lang.id}
+            type="button"
+            onClick={() => handleLanguageToggle(lang.id)}
+            className={`px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 border ${
+              facultyForm.languages_proficiency.includes(lang.id)
+                ? 'bg-emerald-600 text-white border-emerald-600 shadow-lg shadow-emerald-100 scale-105'
+                : 'bg-white text-slate-400 border-slate-200 hover:border-emerald-200'
+            }`}
+          >
+            {lang.label}
+          </button>
+        ))}
+      </div>
+    </div>
+
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="flex flex-col gap-2">
+        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Availability (Time Slots)</label>
+        <div className="relative group">
+          <Clock size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-emerald-600" />
+          <input type="text" name="availability" value={facultyForm.availability} onChange={handleFacultyChange} className="w-full p-3 pl-12 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-emerald-100 font-bold text-black" placeholder="E.g. 4PM - 9PM Weekdays" />
+        </div>
+      </div>
+      <div className="flex flex-col gap-2">
+        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Internal Remarks</label>
+        <textarea name="remarks" value={facultyForm.remarks} onChange={handleFacultyChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-emerald-100 font-bold resize-none h-[46px] text-black" placeholder="Additional notes about faculty expertise..." />
+      </div>
+    </div>
+  </div>
+
  <button disabled={loading} type="submit" className="w-full mt-8 bg-slate-900 text-white p-4 rounded-xl font-black text-xs uppercase tracking-[0.2em] hover:bg-emerald-600 transition-all shadow-xl hover:shadow-emerald-100 flex items-center justify-center gap-3">
  {loading ? 'Processing...' : 'Securely Onboard Faculty'}
- {!loading && <CheckCircle size={16} />}
+ { !loading && <CheckCircle size={16} /> }
  </button>
  </form>
  )}

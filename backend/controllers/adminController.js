@@ -73,6 +73,13 @@ const approveUser = async (req, res) => {
             return res.status(404).json({ success: false, message: "User/Student not found" });
         }
 
+        // Automatically clear all related "Pending Approval" notifications from the activity feed
+        await db.query(`
+            DELETE FROM admin_notifications 
+            WHERE related_id = ? 
+            AND action_type IN ('student_registration', 'faculty_registration', 'mentor_registration', 'faculty_onboarding', 'mentor_head_onboarding')
+        `, [id]);
+
         await db.query('INSERT INTO admin_notifications (message) VALUES (?)', [
             `<b>Approval Success:</b> ${nameRow?.name || id} is now <span style="color:#008080">Active</span>.`
         ]);
@@ -167,6 +174,13 @@ const rejectUser = async (req, res) => {
         if (result.affectedRows === 0) {
             return res.status(404).json({ success: false, message: "User/Student not found" });
         }
+        // Automatically clear all related "Pending Approval" notifications from the activity feed
+        await db.query(`
+            DELETE FROM admin_notifications 
+            WHERE related_id = ? 
+            AND action_type IN ('student_registration', 'faculty_registration', 'mentor_registration', 'faculty_onboarding', 'mentor_head_onboarding')
+        `, [req.params.id]);
+
         res.status(200).json({ success: true, message: "Registration rejected" });
     } catch (error) {
         res.status(500).json({ success: false, message: "Server Error", error: error.message });

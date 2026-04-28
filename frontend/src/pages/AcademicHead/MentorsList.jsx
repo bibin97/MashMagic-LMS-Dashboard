@@ -125,6 +125,26 @@ const MentorsList = () => {
  onChange={(e) => setSearchTerm(e.target.value)}
  />
  </div>
+  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 px-2">
+    <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm flex flex-col gap-2 group transition-all hover:shadow-xl hover:shadow-[#008080]/5 hover:-translate-y-1">
+      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest group-hover:text-[#008080] transition-colors">Total Mentors</span>
+      <div className="flex items-end gap-3 font-black text-slate-900 tracking-tighter">
+        <span className="text-4xl leading-none">{mentors.length}</span>
+        <span className="text-[10px] text-slate-400 mb-1 uppercase tracking-widest">Database Total</span>
+      </div>
+    </div>
+    
+    <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm flex flex-col gap-2 group transition-all hover:shadow-xl hover:shadow-[#008080]/5 hover:-translate-y-1">
+      <span className="text-[10px] font-black text-[#008080] uppercase tracking-widest">Active Pulse</span>
+      <div className="flex items-end gap-3 font-black text-slate-900 tracking-tighter">
+        <span className="text-4xl leading-none">{mentors.filter(m => m.status === 'active').length}</span>
+        <div className="flex items-center gap-1.5 mb-1 bg-[#008080]/10 px-2 py-0.5 rounded-full">
+           <div className="w-1.5 h-1.5 rounded-full bg-[#008080] animate-pulse"></div>
+           <span className="text-[10px] text-[#008080] uppercase tracking-widest">Live</span>
+        </div>
+      </div>
+    </div>
+  </div>
  </div>
 
  {/* List Layout */}
@@ -140,9 +160,9 @@ const MentorsList = () => {
  <div className="flex flex-col min-w-0">
  <div className="flex items-center gap-3">
  <h3 className="text-lg font-black text-slate-900 group-hover:text-[#008080] transition-colors uppercase truncate">{mentor.name}</h3>
- <div className={`px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest ${mentor.status === 'active' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-amber-50 text-amber-600 border border-amber-100'}`}>
- {mentor.status}
- </div>
+  <div className={`px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest ${mentor.status === 'active' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-amber-50 text-amber-600 border border-amber-100'}`}>
+  {mentor.status === 'active' ? 'Active' : mentor.status === 'inactive' ? 'Backup' : mentor.status === 'pending' ? 'Left' : mentor.status}
+  </div>
  </div>
  
  <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1">
@@ -176,23 +196,6 @@ const MentorsList = () => {
  </div>
  </div>
 
- <div className="flex items-center gap-3 shrink-0 self-end md:self-center">
- <button
- onClick={() => handleEdit(mentor)}
- className="p-3 bg-slate-50 text-white rounded-xl hover:bg-[#008080] hover:text-white transition-all shadow-sm flex items-center gap-2"
- >
- <Edit2 size={14} />
- <span className="text-[10px] font-black uppercase tracking-widest md:hidden">Edit</span>
- </button>
- <button
- onClick={() => handleDelete(mentor.id, mentor.name)}
- className="p-3 bg-slate-50 text-rose-600 rounded-xl hover:bg-rose-600 hover:text-white transition-all shadow-sm flex items-center gap-2"
- >
- <Trash2 size={14} />
- <span className="text-[10px] font-black uppercase tracking-widest md:hidden">Delete</span>
- </button>
- </div>
- </div>
 
  {/* Inline Student List Section */}
  {expandedMentorId === mentor.id && (
@@ -214,7 +217,7 @@ const MentorsList = () => {
  {/* Table Header for the inline list */}
  <div className="hidden lg:grid grid-cols-5 gap-4 px-6 mb-2">
  <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Student / ID</span>
- <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest text-center">Faculty</span>
+  <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest text-center">Faculty</span>
  <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest text-center">Mentor</span>
  <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest text-center invisible">Metadata</span>
  <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest text-right">Performance Status</span>

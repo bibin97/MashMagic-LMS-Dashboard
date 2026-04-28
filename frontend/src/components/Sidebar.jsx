@@ -125,8 +125,12 @@ const Sidebar = ({ isOpen, setIsOpen, isCollapsed, setIsCollapsed, navItems, tit
  <div className={`p-4 space-y-4 transition-all ${isCollapsed ? 'items-center px-2' : ''}`}>
  {/* User Profile Summary */}
  <div className={`bg-slate-50 border border-slate-100 p-4 rounded-[24px] flex items-center gap-3 group hover:bg-slate-100 transition-all cursor-pointer overflow-hidden ${isCollapsed ? 'justify-center w-14' : ''}`}>
- <div className="shrink-0 w-10 h-10 bg-gradient-to-br from-[#008080] to-[#20B2AA] rounded-[14px] flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform">
+ <div className="shrink-0 w-10 h-10 bg-gradient-to-br from-[#008080] to-[#20B2AA] rounded-[14px] flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform overflow-hidden">
+ {user?.profile_pic ? (
+ <img src={user.profile_pic} alt="Profile" className="w-full h-full object-cover" />
+ ) : (
  <User size={20} />
+ )}
  </div>
  {!isCollapsed && (
  <div className="flex flex-col overflow-hidden animate-in fade-in duration-500">

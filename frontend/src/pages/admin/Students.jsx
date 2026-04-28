@@ -171,13 +171,14 @@ const Students = () => {
  { header: 'Mentor', accessor: 'mentor' },
  { header: 'Faculty', accessor: 'faculty' },
  {
- header: 'Status Pulse', accessor: 'status', render: (row) => (
- <span className={`px-6 py-2.5 rounded-[20px] text-[10px] font-black uppercase tracking-[0.2em] shadow-sm border transition-all hover:scale-105 active:scale-95 ${row.status === 'active' 
- ? 'bg-[#10B981]/10 text-[#10B981] border-[#10B981]/20' 
- : 'bg-[#EF4444]/10 text-[#EF4444] border-[#EF4444]/20 animate-pulse'}`}>
- {row.status}
- </span>
- )
+  header: 'Status Pulse',
+  render: (row) => (
+  <span className={`px-6 py-2.5 rounded-[20px] text-[10px] font-black uppercase tracking-[0.2em] shadow-sm border transition-all hover:scale-105 active:scale-95 ${row.status === 'active' 
+  ? 'bg-[#10B981]/10 text-[#10B981] border-[#10B981]/20' 
+  : 'bg-[#EF4444]/10 text-[#EF4444] border-[#EF4444]/20 animate-pulse'}`}>
+  {row.status === 'active' ? 'Active' : row.status === 'inactive' ? 'Backup' : row.status === 'pending' ? 'Left' : row.status}
+  </span>
+  )
  },
  ];
 
@@ -207,6 +208,27 @@ const Students = () => {
  </div>
  </div>
  </div>
+
+  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 px-2">
+    <div className="bg-white/70 backdrop-blur-md p-8 rounded-[35px] border border-white/60 shadow-sm flex flex-col gap-2 group transition-all hover:bg-white hover:shadow-md">
+      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest group-hover:text-[#008080] transition-colors">Total Enrollment</span>
+      <div className="flex items-end gap-3 font-black text-slate-900 tracking-tighter">
+        <span className="text-4xl leading-none">{students.length}</span>
+        <span className="text-[10px] text-slate-400 mb-1 uppercase tracking-widest">Active Members</span>
+      </div>
+    </div>
+    
+    <div className="bg-white/70 backdrop-blur-md p-8 rounded-[35px] border border-white/60 shadow-sm flex flex-col gap-2 group transition-all hover:bg-white hover:shadow-md">
+      <span className="text-[10px] font-black text-[#10B981] uppercase tracking-widest">Active Pulse</span>
+      <div className="flex items-end gap-3 font-black text-slate-900 tracking-tighter">
+        <span className="text-4xl leading-none">{students.filter(s => s.status === 'active').length}</span>
+        <div className="flex items-center gap-1.5 mb-1 bg-[#10B981]/10 px-2 py-0.5 rounded-full">
+           <div className="w-1.5 h-1.5 rounded-full bg-[#10B981] animate-pulse"></div>
+           <span className="text-[10px] text-[#10B981] uppercase tracking-widest">Live</span>
+        </div>
+      </div>
+    </div>
+  </div>
 
  <DataTable
  columns={columns}
@@ -272,10 +294,10 @@ const Students = () => {
  value={editFormData.status}
  onChange={(e) => setEditFormData({ ...editFormData, status: e.target.value })}
  >
- <option value="active">Active</option>
- <option value="inactive">Inactive</option>
- <option value="pending">Pending</option>
- <option value="rejected">Rejected</option>
+  <option value="active">Active</option>
+  <option value="inactive">Backup</option>
+  <option value="pending">Left</option>
+  <option value="rejected">Rejected</option>
  </select>
  </div>
  <div className="col-span-2 flex flex-col gap-2">

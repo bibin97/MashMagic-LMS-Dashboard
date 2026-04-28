@@ -110,7 +110,7 @@ const StaffManagement = () => {
  <span className={`px-6 py-2.5 rounded-[20px] text-[10px] font-black uppercase tracking-[0.2em] border shadow-sm transition-all hover:scale-105 active:scale-95 ${row.status === 'active' 
  ? 'bg-[#10B981]/10 text-[#10B981] border-[#10B981]/20' 
  : 'bg-[#EF4444]/10 text-[#EF4444] border-[#EF4444]/20 animate-pulse'}`}>
- {row.status}
+ {row.status === 'active' ? 'Active' : row.status === 'inactive' ? 'Backup' : row.status === 'pending' ? 'Left' : row.status}
  </span>
  )
  },
@@ -221,8 +221,8 @@ const StaffManagement = () => {
  onChange={(e) => setEditFormData({ ...editFormData, status: e.target.value })}
  >
  <option value="active">Active</option>
- <option value="inactive">Inactive</option>
- <option value="pending">Pending</option>
+ <option value="inactive">Backup</option>
+ <option value="pending">Left</option>
  </select>
  </div>
  </div>

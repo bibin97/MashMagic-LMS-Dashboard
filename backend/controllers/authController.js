@@ -250,7 +250,7 @@ const login = async (req, res) => {
 
         // Status Check
         if (user.status === 'pending') {
-            return res.status(403).json({ success: false, message: "Account pending approval. Please contact Admin." });
+            return res.status(403).json({ success: false, message: "Account in 'Left' status or pending approval. Please contact Admin." });
         }
 
         if (user.status === 'rejected') {
@@ -258,7 +258,7 @@ const login = async (req, res) => {
         }
 
         if (user.status !== 'active' || user.isActive === 0) {
-            return res.status(403).json({ success: false, message: "Account is inactive/blocked" });
+            return res.status(403).json({ success: false, message: "Account is in 'Backup' or blocked state." });
         }
 
         const token = jwt.sign(
@@ -283,8 +283,31 @@ const login = async (req, res) => {
     }
 };
 
+const updateProfilePic = async (req, res) => {
+    try {
+        const { profile_pic } = req.body;
+        const userId = req.user.id;
+
+        if (!profile_pic) {
+            return res.status(400).json({ success: false, message: "Profile picture URL is required" });
+        }
+
+        // Update in users table
+        await db.query('UPDATE users SET profile_pic = ? WHERE id = ?', [profile_pic, userId]);
+
+        // Also check if user is a student and update students table if linked
+        await db.query('UPDATE students SET profile_pic = ? WHERE user_id = ?', [profile_pic, userId]);
+
+        res.status(200).json({ success: true, message: "Profile picture updated successfully", profile_pic });
+    } catch (error) {
+        console.error("Update Profile Pic Error:", error);
+        res.status(500).json({ success: false, message: "Internal Server Error" });
+    }
+};
+
 exports.register = register;
 exports.mentorSignup = mentorSignup;
 exports.facultySignup = facultySignup;
 exports.login = login;
 exports.checkSuperAdminExists = checkSuperAdminExists;
+exports.updateProfilePic = updateProfilePic;

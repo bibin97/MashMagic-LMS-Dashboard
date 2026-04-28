@@ -19,11 +19,21 @@ const User = {
         } = userData;
  
         const [result] = await db.query(
-            'INSERT INTO users (name, phone_number, place, email, password, role, status, isApproved, isActive, grade, subject, course, hour, mentor_name, faculty_name, next_installment_date, time_table, enrollment_type, badge, meeting_link) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+            `INSERT INTO users (
+                name, phone_number, place, email, password, role, status, isApproved, isActive, 
+                grade, subject, course, hour, mentor_name, faculty_name, next_installment_date, 
+                time_table, enrollment_type, badge, meeting_link, registeredBy,
+                faculty_id_card, section, syllabus, languages_proficiency, qualification, 
+                experience, availability, hourly_rate, teaching_mode, joining_date, remarks
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [
-                name, phone_number, place, email, password, role, status, isApproved, status === 'active' ? 1 : 0,
+                name, phone_number, place, email, password, role, status, isApproved, status === 'active' ? 1 : 1,
                 userData.grade || null, userData.subject || null, userData.course || null, userData.hour || null, userData.mentor_name || null, userData.faculty_name || null, userData.next_installment_date || null, userData.time_table || null,
-                enrollment_type, badge, userData.meeting_link || null
+                enrollment_type, badge, userData.meeting_link || null, registeredBy,
+                userData.faculty_id_card || null, userData.section || null, userData.syllabus || null, 
+                userData.languages_proficiency ? JSON.stringify(userData.languages_proficiency) : null,
+                userData.qualification || null, userData.experience || null, userData.availability || null,
+                userData.hourly_rate || 0, userData.teaching_mode || null, userData.joining_date || null, userData.remarks || null
             ]
         );
         return result.insertId;

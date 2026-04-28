@@ -161,9 +161,9 @@ const Mentors = () => {
  header: 'Account Status',
  accessor: 'status',
  render: (row) => (
- <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase border ${row.status === 'active' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-rose-50 text-rose-600 border-rose-100'}`}>
- {row.status}
- </span>
+  <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase border ${row.status === 'active' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-rose-50 text-rose-600 border-rose-100'}`}>
+  {row.status === 'active' ? 'Active' : row.status === 'inactive' ? 'Backup' : row.status === 'pending' ? 'Left' : row.status}
+  </span>
  )
  },
  ];
@@ -174,6 +174,27 @@ const Mentors = () => {
  <h2 className="text-4xl font-black text-slate-900 tracking-tighter leading-none mb-3 ">Mentor Network</h2>
  <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em]">Operational lead directory & performance audit</p>
  </div>
+
+  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-2">
+    <div className="bg-white/70 backdrop-blur-md p-8 rounded-[35px] border border-white/60 shadow-sm flex flex-col gap-2 group transition-all hover:bg-white hover:shadow-md">
+      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest group-hover:text-[#008080] transition-colors">Total Mentors</span>
+      <div className="flex items-end gap-3 font-black text-slate-900 tracking-tighter">
+        <span className="text-4xl leading-none">{mentors.length}</span>
+        <span className="text-[10px] text-slate-400 mb-1 uppercase tracking-widest">Database Total</span>
+      </div>
+    </div>
+    
+    <div className="bg-white/70 backdrop-blur-md p-8 rounded-[35px] border border-white/60 shadow-sm flex flex-col gap-2 group transition-all hover:bg-white hover:shadow-md">
+      <span className="text-[10px] font-black text-[#10B981] uppercase tracking-widest">Active Pulse</span>
+      <div className="flex items-end gap-3 font-black text-slate-900 tracking-tighter">
+        <span className="text-4xl leading-none">{mentors.filter(m => m.status === 'active').length}</span>
+        <div className="flex items-center gap-1.5 mb-1 bg-[#10B981]/10 px-2 py-0.5 rounded-full">
+           <div className="w-1.5 h-1.5 rounded-full bg-[#10B981] animate-pulse"></div>
+           <span className="text-[10px] text-[#10B981] uppercase tracking-widest">Live</span>
+        </div>
+      </div>
+    </div>
+  </div>
 
  <DataTable
  columns={columns}
@@ -229,9 +250,9 @@ const Mentors = () => {
  value={editFormData.status}
  onChange={(e) => setEditFormData({ ...editFormData, status: e.target.value })}
  >
- <option value="active">Active</option>
- <option value="inactive">Inactive</option>
- <option value="pending">Pending</option>
+  <option value="active">Active</option>
+  <option value="inactive">Backup</option>
+  <option value="pending">Left</option>
  </select>
  </div>
  <div className="flex justify-end gap-3 mt-8">

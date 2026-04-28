@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Bell, Search, User, ShieldCheck, CheckCheck, Menu, LogOut, Settings, HelpCircle, Activity, RefreshCw } from 'lucide-react';
+import { Bell, Search, User, ShieldCheck, CheckCheck, Menu, LogOut, Settings, HelpCircle, Activity, RefreshCw, Check, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
@@ -89,6 +89,38 @@ const Navbar = ({ onMenuClick }) => {
  } catch (error) {
  }
  };
+
+  const handleQuickApprove = async (notif, e) => {
+    e.stopPropagation();
+    try {
+      const token = localStorage.getItem('token');
+      const role = notif.action_type.split('_')[0]; 
+      await axios.put(`/api/admin/approve/${notif.related_id}`, { role }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      toast.success("Approved successfully");
+      fetchNotifications();
+      if (window.refetchNotifications) window.refetchNotifications();
+    } catch (error) {
+      toast.error("Failed to approve");
+    }
+  };
+
+  const handleQuickReject = async (notif, e) => {
+    e.stopPropagation();
+    try {
+      const token = localStorage.getItem('token');
+      const role = notif.action_type.split('_')[0];
+      await axios.put(`/api/admin/reject/${notif.related_id}`, { role }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      toast.success("Rejected successfully");
+      fetchNotifications();
+      if (window.refetchNotifications) window.refetchNotifications();
+    } catch (error) {
+      toast.error("Failed to reject");
+    }
+  };
 
  const clearAllNotifications = async () => {
  try {
@@ -234,23 +266,41 @@ const Navbar = ({ onMenuClick }) => {
  </div>
  </div>
  <div className="absolute right-4 top-4 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-all translate-x-2 group-hover:translate-x-0">
- {!notif.is_read && (
- <button 
- onClick={(e) => markRead(notif.id, e)} 
- className="p-2 bg-white text-[#008080] border border-[#008080]/20 hover:bg-[#008080] hover:text-white rounded-[12px] shadow-sm transition-all duration-300"
- title="Mark read"
- >
- <CheckCheck size={16} />
- </button>
- )}
- <button 
- onClick={(e) => deleteNotification(notif.id, e)}
- className="p-2 bg-white text-rose-500 border border-rose-100 hover:bg-rose-500 hover:text-white rounded-[12px] shadow-sm transition-all duration-300"
- title="Delete"
- >
- <ShieldCheck className="rotate-45" size={16} />
- </button>
- </div>
+  {notif.action_type && (
+    <>
+      <button 
+        onClick={(e) => handleQuickApprove(notif, e)} 
+        className="p-2 bg-white text-emerald-600 border border-emerald-100 hover:bg-emerald-600 hover:text-white rounded-full shadow-sm transition-all duration-300"
+        title="Quick Approve"
+      >
+        <Check size={14} />
+      </button>
+      <button 
+        onClick={(e) => handleQuickReject(notif, e)}
+        className="p-2 bg-white text-rose-500 border border-rose-100 hover:bg-rose-500 hover:text-white rounded-full shadow-sm transition-all duration-300"
+        title="Quick Reject"
+      >
+        <X size={14} />
+      </button>
+    </>
+  )}
+  {!notif.is_read && !notif.action_type && (
+  <button 
+  onClick={(e) => markRead(notif.id, e)} 
+  className="p-2 bg-white text-[#008080] border border-[#008080]/20 hover:bg-[#008080] hover:text-white rounded-[12px] shadow-sm transition-all duration-300"
+  title="Mark read"
+  >
+  <CheckCheck size={16} />
+  </button>
+  )}
+  <button 
+  onClick={(e) => deleteNotification(notif.id, e)}
+  className="p-2 bg-white text-rose-500 border border-rose-100 hover:bg-rose-500 hover:text-white rounded-[12px] shadow-sm transition-all duration-300"
+  title="Delete"
+  >
+  <ShieldCheck className="rotate-45" size={16} />
+  </button>
+  </div>
  </div>
  </div>
  ))
@@ -278,7 +328,11 @@ const Navbar = ({ onMenuClick }) => {
  }}
  className="w-12 h-12 bg-gradient-to-br from-[#006666] to-[#008080] rounded-[18px] flex items-center justify-center text-white border-2 border-white shadow-[0_10px_20px_rgba(0,128,128,0.25)] overflow-hidden hover:scale-105 active:scale-95 transition-all cursor-pointer ring-4 ring-[#008080]/10"
  >
- <User size={24} />
+    {user?.profile_pic ? (
+      <img src={user.profile_pic} alt="Profile" className="w-full h-full object-cover" />
+    ) : (
+      <User size={24} />
+    )}
  </button>
 
  {isUserMenuOpen && (

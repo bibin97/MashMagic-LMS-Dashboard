@@ -166,6 +166,27 @@ const FacultyDirectory = () => {
  </div>
  </div>
 
+ <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 px-2">
+    <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm flex flex-col gap-2 group transition-all hover:shadow-xl hover:shadow-[#008080]/5 hover:-translate-y-1">
+      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest group-hover:text-[#008080] transition-colors">Total Faculty</span>
+      <div className="flex items-end gap-3 font-black text-slate-900 tracking-tighter">
+        <span className="text-4xl leading-none">{faculties.length}</span>
+        <span className="text-[10px] text-slate-400 mb-1 uppercase tracking-widest">Active Leads</span>
+      </div>
+    </div>
+    
+    <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm flex flex-col gap-2 group transition-all hover:shadow-xl hover:shadow-[#008080]/5 hover:-translate-y-1">
+      <span className="text-[10px] font-black text-[#008080] uppercase tracking-widest">Active Pulse</span>
+      <div className="flex items-end gap-3 font-black text-slate-900 tracking-tighter">
+        <span className="text-4xl leading-none">{faculties.filter(f => f.status === 'active').length}</span>
+        <div className="flex items-center gap-1.5 mb-1 bg-[#008080]/10 px-2 py-0.5 rounded-full">
+           <div className="w-1.5 h-1.5 rounded-full bg-[#008080] animate-pulse"></div>
+           <span className="text-[10px] text-[#008080] uppercase tracking-widest">Live</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
  {/* Filter & Analysis Bar */}
  <div className="flex flex-col lg:flex-row gap-6 items-end lg:items-center justify-between px-2">
  <div className="flex flex-wrap items-center gap-4">
@@ -255,7 +276,7 @@ const FacultyDirectory = () => {
  <h4 className="text-sm font-black text-slate-900 uppercase tracking-tight">{faculty.name}</h4>
  <div className="flex items-center gap-2 mt-1">
  <span className="text-[8px] font-black text-emerald-500 bg-emerald-50 px-2 py-0.5 rounded-md uppercase tracking-widest border border-emerald-100">
- {faculty.status}
+ {faculty.status === 'active' ? 'Active' : faculty.status === 'inactive' ? 'Backup' : faculty.status === 'pending' ? 'Left' : faculty.status}
  </span>
  <span className="text-[8px] font-black text-slate-300 uppercase tracking-widest">
  ID:#{faculty.id.toString().padStart(4, '0')}

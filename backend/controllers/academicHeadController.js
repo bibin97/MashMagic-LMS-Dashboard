@@ -253,7 +253,7 @@ const registerStudent = async (req, res) => {
 
         // Notify Admin
         const msg = `<b>Academic Update:</b> <span style="color:#008080">${req.user.name}</span> registered a new student <b>${name}</b> for ${course}. <span style="color:#f59e0b">(Pending Approval)</span>`;
-        await db.query('INSERT INTO admin_notifications (message) VALUES (?)', [msg]);
+        await db.query('INSERT INTO admin_notifications (message, related_id, action_type) VALUES (?, ?, ?)', [msg, studentId, 'student_registration']);
 
         res.status(201).json({ success: true, message: "Student registered successfully. Pending Admin approval." });
     } catch (error) {
@@ -266,7 +266,12 @@ const registerStudent = async (req, res) => {
 // @route   POST /api/academic-head/register-faculty
 const registerFaculty = async (req, res) => {
     try {
-        const { name, email, phone_number, place, password } = req.body;
+        const { 
+            name, email, phone_number, place, password,
+            faculty_id_card, section, syllabus, languages_proficiency,
+            qualification, experience, availability, hourly_rate,
+            teaching_mode, joining_date, remarks, subject
+        } = req.body;
         const requesterId = req.user?.id;
 
         console.log(`[FACULTY REG] Attempting registration: ${email} (By Admin ID: ${requesterId})`);
@@ -276,14 +281,11 @@ const registerFaculty = async (req, res) => {
         }
 
         const salt = await bcrypt.genSalt(10);
-        // Explicit password priority: Form > Phone > Default
         const passwordToHash = (password && password.trim() !== '') ? password.trim() : (phone_number || "faculty123");
         const hashedPassword = await bcrypt.hash(passwordToHash, salt);
 
-        console.log(`[FACULTY REG] Password source applied. Identifier to use for login: ${email || phone_number}`);
-
-        // Faculty registration starts as ACTIVE when created by Academic Head
-        // They are auto-approved to allow immediate assignment to students.
+        // Faculty registration starts as PENDING when created by Academic Head (to follow standard approval flow if needed)
+        // Or ACTIVE if desired - project seems to use 'pending' for notification logic.
         const userId = await User.create({
             name,
             email: email?.trim() || null,
@@ -291,14 +293,26 @@ const registerFaculty = async (req, res) => {
             place,
             password: hashedPassword,
             role: 'faculty',
-            status: 'pending',
-            isApproved: 0,
-            registeredBy: requesterId
+            status: 'active', // Set to active as per previous logic (Academic Head created)
+            isApproved: 1, 
+            registeredBy: requesterId,
+            faculty_id_card,
+            section,
+            syllabus,
+            languages_proficiency,
+            qualification,
+            experience,
+            availability,
+            hourly_rate,
+            teaching_mode,
+            joining_date,
+            remarks,
+            subject
         });
 
         // Notify Admin
         const msg = `<b>Staff Onboarding:</b> <span style="color:#008080">${req.user.name}</span> added and activated new faculty <b>${name}</b>.`;
-        await db.query('INSERT INTO admin_notifications (message) VALUES (?)', [msg]);
+        await db.query('INSERT INTO admin_notifications (message, related_id, action_type) VALUES (?, ?, ?)', [msg, userId, 'faculty_onboarding']);
 
         console.log(`[FACULTY REG] SUCCESS! New Faculty ID: ${userId} | Status: ACTIVE`);
         res.status(201).json({

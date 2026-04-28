@@ -158,6 +158,27 @@ const MentorsList = () => {
  </div>
  </div>
 
+  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm flex flex-col gap-2 group transition-all hover:shadow-xl hover:shadow-[#008080]/5 hover:-translate-y-1">
+      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest group-hover:text-[#008080] transition-colors">Total Mentors</span>
+      <div className="flex items-end gap-3 font-black text-slate-900 tracking-tighter">
+        <span className="text-4xl leading-none">{mentors.length}</span>
+        <span className="text-[10px] text-slate-400 mb-1 uppercase tracking-widest">Database Total</span>
+      </div>
+    </div>
+    
+    <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm flex flex-col gap-2 group transition-all hover:shadow-xl hover:shadow-[#008080]/5 hover:-translate-y-1">
+      <span className="text-[10px] font-black text-[#008080] uppercase tracking-widest">Active Pulse</span>
+      <div className="flex items-end gap-3 font-black text-slate-900 tracking-tighter">
+        <span className="text-4xl leading-none">{mentors.filter(m => m.status === 'active' || m.isActive === 1).length}</span>
+        <div className="flex items-center gap-1.5 mb-1 bg-[#008080]/10 px-2 py-0.5 rounded-full">
+           <div className="w-1.5 h-1.5 rounded-full bg-[#008080] animate-pulse"></div>
+           <span className="text-[10px] text-[#008080] uppercase tracking-widest">Live</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
  <div className="bg-white rounded-[2rem] border border-slate-100 shadow-sm overflow-hidden">
  <div className="overflow-x-auto">
  <table className="w-full text-left border-collapse">
