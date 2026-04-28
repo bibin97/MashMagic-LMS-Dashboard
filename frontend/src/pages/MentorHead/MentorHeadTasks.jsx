@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
-import { ListTodo, CheckCircle, Clock, AlertCircle, Plus, Calendar, AlertTriangle, User } from 'lucide-react';
+import { ListTodo, CheckCircle, Clock, AlertCircle, Plus, Calendar, AlertTriangle, User, Upload } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { premiumConfirm } from '../../utils/premiumConfirm';
 import Modal from '../../components/Modal';
+import { useAuth } from '../../context/AuthContext';
 
 const MentorHeadTasks = () => {
+ const { user } = useAuth();
  const [tasks, setTasks] = useState([]);
  const [loading, setLoading] = useState(true);
  const [isModalOpen, setIsModalOpen] = useState(false);
@@ -13,6 +15,7 @@ const MentorHeadTasks = () => {
  const [filterMentor, setFilterMentor] = useState('');
  const [statusFilter, setStatusFilter] = useState('All');
  const [searchQuery, setSearchQuery] = useState('');
+ const [uploadingId, setUploadingId] = useState(null);
  const [formData, setFormData] = useState({
  title: '',
  description: '',
@@ -49,13 +52,33 @@ const MentorHeadTasks = () => {
  }
  };
 
- const handleComplete = async (taskId) => {
+ const handleComplete = async (taskId, file = null) => {
+ if (!file) {
  try {
- await api.put(`/tasks/${taskId}/status`, { status: 'Completed' });
+ await api.put(`/api/tasks/${taskId}/status`, { status: 'Completed' });
  toast.success("Task completed!");
  fetchTasks();
  } catch (error) {
  toast.error("Action failed");
+ }
+ return;
+ }
+
+ const formDataUpload = new FormData();
+ formDataUpload.append('proof', file);
+ formDataUpload.append('status', 'Completed');
+
+ setUploadingId(taskId);
+ try {
+ await api.put(`/api/tasks/${taskId}/status`, formDataUpload, {
+ headers: { 'Content-Type': 'multipart/form-data' }
+ });
+ toast.success("Task completed with proof!");
+ fetchTasks();
+ } catch (error) {
+ toast.error("Upload failed");
+ } finally {
+ setUploadingId(null);
  }
  };
 
@@ -245,6 +268,25 @@ const MentorHeadTasks = () => {
  <div className="w-1.5 h-1.5 rounded-full bg-current animate-pulse" />
  {task.status === 'Completed' ? 'Fulfilled' : (isOverdue ? 'Overdue' : 'Active')}
  </div>
+ {task.status === 'Completed' && (
+ <div className="flex flex-col gap-1">
+ {task.completed_at && (
+ <span className="text-[9px] font-bold text-slate-500 lowercase">
+ at {new Date(task.completed_at).toLocaleString('en-GB', { dateStyle: 'short', timeStyle: 'short' })}
+ </span>
+ )}
+ {task.proof_url && (
+ <a 
+ href={task.proof_url} 
+ target="_blank" 
+ rel="noopener noreferrer" 
+ className="text-[9px] font-black text-[#008080] hover:underline uppercase tracking-widest bg-[#008080]/5 px-2 py-0.5 rounded w-fit"
+ >
+ View Evidence
+ </a>
+ )}
+ </div>
+ )}
  <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-600">
  <Calendar size={10} />
  {new Date(task.deadline).toLocaleDateString(undefined, { day: '2-digit', month: 'short' })}
@@ -255,8 +297,31 @@ const MentorHeadTasks = () => {
  <span className="text-[10px] font-black text-slate-500 uppercase tracking-tighter block">{task.assigner_name || 'ADMIN'}</span>
  <span className="text-[9px] font-bold text-slate-600 uppercase opacity-60">System Authority</span>
  </td>
- <td className="p-6 text-right">
+  <td className="p-6 text-right">
  <div className="flex items-center justify-end gap-2 opactiy-0 group-hover:opacity-100 transition-opacity">
+ {task.status !== 'Completed' && task.assigned_to === user.id && (
+ <div className="flex items-center gap-2">
+ <input
+ type="file"
+ id={`proof-${task.id}`}
+ className="hidden"
+ onChange={(e) => handleComplete(task.id, e.target.files[0])}
+ />
+ <label
+ htmlFor={`proof-${task.id}`}
+ className={`h-10 px-4 rounded-xl flex items-center justify-center gap-2 bg-[#008080] text-white hover:bg-slate-900 transition-all shadow-sm cursor-pointer font-black text-[9px] uppercase tracking-widest ${uploadingId === task.id ? 'opacity-50 cursor-wait' : ''}`}
+ >
+ <Upload size={14} />
+ {uploadingId === task.id ? 'Uploading...' : 'Upload & Close'}
+ </label>
+ <button
+ onClick={() => handleComplete(task.id)}
+ className="h-10 px-4 rounded-xl flex items-center justify-center gap-2 bg-slate-100 text-slate-600 hover:bg-slate-200 transition-all font-black text-[9px] uppercase tracking-widest"
+ >
+ Mark Done
+ </button>
+ </div>
+ )}
  <button
  onClick={() => handleDelete(task)}
  className="w-10 h-10 rounded-xl flex items-center justify-center text-slate-300 hover:text-rose-600 hover:bg-rose-50 transition-all border border-transparent hover:border-rose-100"
@@ -264,15 +329,6 @@ const MentorHeadTasks = () => {
  >
  <AlertCircle size={18} />
  </button>
- {task.status !== 'Completed' && (
- <button
- onClick={() => handleComplete(task.id)}
- className="h-10 px-4 rounded-xl flex items-center justify-center gap-2 bg-[#008080]/10 text-white hover:bg-[#008080] hover:text-white transition-all shadow-sm shadow-[#008080]/30 active:scale-95 font-black text-[10px] uppercase tracking-widest"
- >
- <CheckCircle size={14} />
- Identify Solved
- </button>
- )}
  </div>
  </td>
  </tr>

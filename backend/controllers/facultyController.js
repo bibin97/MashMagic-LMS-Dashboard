@@ -260,7 +260,7 @@ const submitTaskProof = async (req, res) => {
         const proof_url = req.file ? req.file.path : null;
 
         await db.query(`
-            UPDATE tasks SET status = "Completed", proof_url = ? WHERE id = ? AND assigned_to = ?
+            UPDATE tasks SET status = "Completed", proof_url = ?, completed_at = NOW() WHERE id = ? AND assigned_to = ?
         `, [proof_url, taskId, req.user.id]);
 
         res.status(200).json({ success: true, message: "Task marked as completed with proof" });

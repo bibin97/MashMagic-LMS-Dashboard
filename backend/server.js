@@ -145,6 +145,13 @@ const startServer = async () => {
                 'ALTER TABLE students ADD COLUMN time_table JSON NULL;',
                 'ALTER TABLE students ADD COLUMN registeredBy INT NULL;',
                 'ALTER TABLE students ADD COLUMN profile_pic TEXT NULL;',
+                'ALTER TABLE students ADD COLUMN contact VARCHAR(50) NULL;',
+                'ALTER TABLE students ADD COLUMN admission_date DATE NULL;',
+                'ALTER TABLE students ADD COLUMN school_name VARCHAR(255) NULL;',
+                'ALTER TABLE students ADD COLUMN preferred_language VARCHAR(100) NULL;',
+                'ALTER TABLE students ADD COLUMN country VARCHAR(100) NULL;',
+                'ALTER TABLE students ADD COLUMN total_fees DECIMAL(10,2) DEFAULT 0.00;',
+                'ALTER TABLE students ADD COLUMN total_paid DECIMAL(10,2) DEFAULT 0.00;',
                 
                 `CREATE TABLE IF NOT EXISTS student_daily_updates (
                     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -164,7 +171,14 @@ const startServer = async () => {
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 );`,
                 'ALTER TABLE admin_notifications ADD COLUMN related_id INT NULL;',
-                'ALTER TABLE admin_notifications ADD COLUMN action_type VARCHAR(100) NULL;'
+                'ALTER TABLE admin_notifications ADD COLUMN action_type VARCHAR(100) NULL;',
+
+                // Performance Indexes
+                'CREATE INDEX IF NOT EXISTS idx_users_role_status ON users(role, status);',
+                'CREATE INDEX IF NOT EXISTS idx_students_user_id ON students(user_id);',
+                'CREATE INDEX IF NOT EXISTS idx_students_mentor_id ON students(mentor_id);',
+                'CREATE INDEX IF NOT EXISTS idx_students_faculty_id ON students(faculty_id);',
+                'CREATE INDEX IF NOT EXISTS idx_students_status ON students(status);'
             ];
             for (const migration of migrations) {
                 try {

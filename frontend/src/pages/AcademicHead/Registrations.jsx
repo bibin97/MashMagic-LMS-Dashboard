@@ -15,13 +15,20 @@ const Registrations = () => {
  const [studentForm, setStudentForm] = useState({
  name: '', 
  email: '',
- password: '',
+ contact: '',
+ password: '', 
  confirmPassword: '',
  grade: '', 
  syllabus: '',
  mentorId: '', 
  course: '', 
  hour: '', 
+ admissionDate: new Date().toISOString().split('T')[0],
+ schoolName: '',
+ preferredLanguage: '',
+ country: '',
+ totalFees: '',
+ totalPaid: '',
  nextInstallmentDate: '', 
  admissionType: 'new',
  registrationNumber: '',
@@ -243,6 +250,60 @@ const Registrations = () => {
  <input type="password" name="confirmPassword" value={studentForm.confirmPassword} onChange={handleStudentChange} className="w-full p-3 pl-12 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-bold" placeholder="••••••••" />
  </div>
  </div>
+ <div className="flex flex-col gap-2">
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Contact Number</label>
+ <div className="relative group">
+ <Phone size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#008080] transition-colors" />
+ <input type="tel" name="contact" value={studentForm.contact} onChange={handleStudentChange} className="w-full p-3 pl-12 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-bold" placeholder="Phone Number" />
+ </div>
+ </div>
+ </div>
+
+ <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+ <div className="flex flex-col gap-2">
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Date of Admission</label>
+ <div className="relative group">
+ <Calendar size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#008080] transition-colors" />
+ <input type="date" name="admissionDate" value={studentForm.admissionDate} onChange={handleStudentChange} className="w-full p-3 pl-12 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-bold" />
+ </div>
+ </div>
+ <div className="flex flex-col gap-2">
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Current School Name</label>
+ <input type="text" name="schoolName" value={studentForm.schoolName} onChange={handleStudentChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-bold" placeholder="E.g. Model Excellence School" />
+ </div>
+ </div>
+
+ <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+ <div className="flex flex-col gap-2">
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Preferred Language</label>
+ <select name="preferredLanguage" value={studentForm.preferredLanguage} onChange={handleStudentChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-bold appearance-none">
+ <option value="">Select Language</option>
+ <option value="Eng">Eng</option>
+ <option value="BL-AD">BL-AD</option>
+ <option value="BL-SM">BL-SM</option>
+ <option value="MLM">MLM</option>
+ <option value="HIN">HIN</option>
+ <option value="TML">TML</option>
+ </select>
+ </div>
+ <div className="flex flex-col gap-2">
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Country</label>
+ <div className="relative group">
+ <MapPin size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#008080] transition-colors" />
+ <input type="text" name="country" value={studentForm.country} onChange={handleStudentChange} className="w-full p-3 pl-12 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-bold" placeholder="E.g. UAE, India" />
+ </div>
+ </div>
+ </div>
+
+ <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+ <div className="flex flex-col gap-2">
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Total Fees (INR)</label>
+ <input type="number" name="totalFees" value={studentForm.totalFees} onChange={handleStudentChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-bold" placeholder="E.g. 50000" />
+ </div>
+ <div className="flex flex-col gap-2">
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Total Paid (INR)</label>
+ <input type="number" name="totalPaid" value={studentForm.totalPaid} onChange={handleStudentChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-bold" placeholder="E.g. 25000" />
+ </div>
  </div>
 
  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -291,8 +352,8 @@ const Registrations = () => {
  </select>
  </div>
  <div className="flex flex-col gap-2">
- <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Reg Number</label>
- <input type="text" name="registrationNumber" value={studentForm.registrationNumber} onChange={handleStudentChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-bold" placeholder="E.g. REG-001" />
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Student ID (Registration Number)</label>
+ <input type="text" name="registrationNumber" value={studentForm.registrationNumber} onChange={handleStudentChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-bold" placeholder="E.g. ST-2024-001" />
  </div>
  <div className="flex flex-col gap-2">
  <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Meeting Link</label>
@@ -363,19 +424,19 @@ const Registrations = () => {
  >
  <option value="" disabled>Select Subject</option>
  <option value="Mathematics">Mathematics</option>
- <option value="Physics">Physics</option>
- <option value="Chemistry">Chemistry</option>
- <option value="Biology">Biology</option>
  <option value="Science">Science</option>
  <option value="Social Science">Social Science</option>
  <option value="English">English</option>
  <option value="Malayalam">Malayalam</option>
  <option value="Hindi">Hindi</option>
- <option value="Arabic">Arabic</option>
+ <option value="Physics">Physics</option>
+ <option value="Chemistry">Chemistry</option>
+ <option value="Biology">Biology</option>
  <option value="Accountancy">Accountancy</option>
  <option value="Business Studies">Business Studies</option>
  <option value="Economics">Economics</option>
  <option value="Computer Science">Computer Science</option>
+ <option value="Arabic">Arabic</option>
  <option value="All Subjects">All Subjects</option>
  </select>
  </div>
@@ -509,16 +570,19 @@ const Registrations = () => {
         <select name="subject" value={facultyForm.subject} onChange={handleFacultyChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-emerald-100 font-bold appearance-none text-black">
           <option value="">Select Subject</option>
           <option value="Mathematics">Mathematics</option>
+          <option value="Science">Science</option>
+          <option value="Social Science">Social Science</option>
+          <option value="English">English</option>
+          <option value="Malayalam">Malayalam</option>
+          <option value="Hindi">Hindi</option>
           <option value="Physics">Physics</option>
           <option value="Chemistry">Chemistry</option>
           <option value="Biology">Biology</option>
-          <option value="English">English</option>
-          <option value="Social Science">Social Science</option>
-          <option value="Computer Science">Computer Science</option>
-          <option value="Malayalam">Malayalam</option>
-          <option value="Hindi">Hindi</option>
           <option value="Accountancy">Accountancy</option>
           <option value="Business Studies">Business Studies</option>
+          <option value="Economics">Economics</option>
+          <option value="Computer Science">Computer Science</option>
+          <option value="Arabic">Arabic</option>
         </select>
       </div>
 

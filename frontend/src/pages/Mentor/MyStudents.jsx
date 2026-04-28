@@ -88,7 +88,7 @@ const StudentCard = ({ student, navigate, viewMode, handleToggleConnection, hand
  className="w-full flex items-center justify-center gap-4 py-4 bg-slate-900 text-white rounded-[20px] text-[11px] font-black uppercase tracking-[0.25em] transition-all border border-slate-800 hover:shadow-2xl hover:shadow-slate-900/20 active:scale-95 group/btn"
  >
  <Clock size={16} strokeWidth={3} className="text-[#008080] group-hover/btn:scale-110 transition-transform" />
- Log Node Access
+ Log Mentoring Hours
  </button>
  </div>
  ) : (

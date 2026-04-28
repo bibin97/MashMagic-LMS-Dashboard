@@ -187,17 +187,18 @@ const processMentorTaskCompletion = async (req, res) => {
     try {
         const mentorId = req.user.id;
         const taskId = req.params.id;
+        const proof_url = req.file ? req.file.path : null;
 
         const [result] = await db.query(
-            'UPDATE tasks SET status = "Completed" WHERE id = ? AND assigned_to = ?',
-            [taskId, mentorId]
+            'UPDATE tasks SET status = "Completed", proof_url = ?, completed_at = NOW() WHERE id = ? AND assigned_to = ?',
+            [proof_url, taskId, mentorId]
         );
 
         if (result.affectedRows === 0) {
             return res.status(404).json({ success: false, message: "Task not found" });
         }
 
-        res.status(200).json({ success: true, message: "Task marked as completed" });
+        res.status(200).json({ success: true, message: "Task marked as completed with proof" });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }

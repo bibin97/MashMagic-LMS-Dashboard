@@ -152,8 +152,15 @@ const FacultyTasks = () => {
  View Submission <ExternalLink size={12} />
  </a>
  )}
- <span className="text-emerald-500 font-black text-[10px] uppercase tracking-widest flex items-center gap-2 px-6 py-4 bg-emerald-50 rounded-2xl">
- Verified Completed
+ <span className="text-emerald-500 font-black text-[10px] uppercase tracking-widest flex flex-col items-end gap-1 px-6 py-4 bg-emerald-50 rounded-2xl">
+ <div className="flex items-center gap-2">
+ <CheckCircle2 size={14} /> Verified Completed
+ </div>
+ {task.completed_at && (
+ <span className="text-[9px] text-slate-500 font-bold lowercase tracking-normal">
+ at {new Date(task.completed_at).toLocaleString('en-GB', { dateStyle: 'short', timeStyle: 'short' })}
+ </span>
+ )}
  </span>
  </div>
  )}

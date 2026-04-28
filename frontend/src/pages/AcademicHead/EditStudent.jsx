@@ -264,19 +264,19 @@ const EditStudent = () => {
                                     >
                                         <option value="" disabled>Select Sector</option>
                                         <option value="Mathematics">Mathematics</option>
-                                        <option value="Physics">Physics</option>
-                                        <option value="Chemistry">Chemistry</option>
-                                        <option value="Biology">Biology</option>
                                         <option value="Science">Science</option>
                                         <option value="Social Science">Social Science</option>
                                         <option value="English">English</option>
                                         <option value="Malayalam">Malayalam</option>
                                         <option value="Hindi">Hindi</option>
-                                        <option value="Arabic">Arabic</option>
+                                        <option value="Physics">Physics</option>
+                                        <option value="Chemistry">Chemistry</option>
+                                        <option value="Biology">Biology</option>
                                         <option value="Accountancy">Accountancy</option>
                                         <option value="Business Studies">Business Studies</option>
                                         <option value="Economics">Economics</option>
                                         <option value="Computer Science">Computer Science</option>
+                                        <option value="Arabic">Arabic</option>
                                         <option value="All Subjects">All Subjects</option>
                                     </select>
                                 </div>

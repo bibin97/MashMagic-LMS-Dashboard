@@ -11,6 +11,8 @@ const MyTasks = () => {
  fetchTasks();
  }, []);
 
+  const [uploadingId, setUploadingId] = useState(null);
+
  const fetchTasks = async () => {
  try {
  const res = await api.get('/mentor/tasks');
@@ -22,13 +24,32 @@ const MyTasks = () => {
  }
  };
 
- const handleComplete = async (taskId) => {
+ const handleComplete = async (taskId, file = null) => {
+ if (!file) {
  try {
  await api.put(`/mentor/tasks/${taskId}/complete`);
  toast.success("Task completed!");
  fetchTasks();
  } catch (error) {
  toast.error("Action failed");
+ }
+ return;
+ }
+
+ const formData = new FormData();
+ formData.append('proof', file);
+
+ setUploadingId(taskId);
+ try {
+ await api.put(`/mentor/tasks/${taskId}/complete`, formData, {
+ headers: { 'Content-Type': 'multipart/form-data' }
+ });
+ toast.success("Task completed with proof!");
+ fetchTasks();
+ } catch (error) {
+ toast.error("Upload failed");
+ } finally {
+ setUploadingId(null);
  }
  };
 
@@ -100,17 +121,46 @@ const MyTasks = () => {
  </div>
  </div>
 
- <div className="w-[150px] flex justify-end">
+ <div className="w-[180px] flex flex-col items-end gap-3">
  {task.status !== 'Completed' ? (
+ <div className="flex flex-col gap-2 w-full">
+ <input
+ type="file"
+ id={`proof-${task.id}`}
+ className="hidden"
+ onChange={(e) => handleComplete(task.id, e.target.files[0])}
+ />
+ <label
+ htmlFor={`proof-${task.id}`}
+ className={`bg-[#008080] text-white px-4 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest text-center cursor-pointer hover:bg-[#006666] transition-all flex items-center justify-center gap-2 ${uploadingId === task.id ? 'opacity-50 cursor-wait' : ''}`}
+ >
+ {uploadingId === task.id ? 'Uploading...' : 'Upload & Close'}
+ </label>
  <button
  onClick={() => handleComplete(task.id)}
- className="bg-slate-900 text-[#008080] px-8 py-3.5 rounded-[18px] text-[10px] font-black uppercase tracking-[0.2em] shadow-xl hover:shadow-slate-900/20 hover:-translate-y-0.5 transition-all active:scale-95 border border-slate-800"
+ className="bg-slate-900 text-white px-4 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all"
  >
  Mark Done
  </button>
+ </div>
  ) : (
- <div className="text-[10px] text-right font-black text-[#008080] uppercase tracking-[0.1em] opacity-80">
- Verified: <br />{new Date(task.completed_at).toLocaleDateString('en-GB')}
+ <div className="text-right flex flex-col gap-2 items-end w-full">
+ <div className="text-[9px] font-black text-[#008080] uppercase tracking-widest">
+ Finished At: <br />
+ <span className="text-slate-500 font-bold">
+ {task.completed_at ? new Date(task.completed_at).toLocaleString('en-GB', { dateStyle: 'short', timeStyle: 'short' }) : 'Verified'}
+ </span>
+ </div>
+ {task.proof_url && (
+ <a 
+ href={task.proof_url} 
+ target="_blank" 
+ rel="noopener noreferrer"
+ className="text-[9px] font-black text-[#008080] hover:underline uppercase tracking-widest bg-[#008080]/5 px-2 py-1 rounded-md"
+ >
+ View Evidence
+ </a>
+ )}
  </div>
  )}
  </div>

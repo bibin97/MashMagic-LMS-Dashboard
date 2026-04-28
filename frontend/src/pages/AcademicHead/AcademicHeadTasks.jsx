@@ -1,18 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import DataTable from '../../components/DataTable';
-import Modal from '../../components/Modal';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
-import { Plus, Calendar, Clock, AlertTriangle, Layers } from 'lucide-react';
+import DataTable from '../../components/DataTable';
+import Modal from '../../components/Modal';
 import { premiumConfirm } from '../../utils/premiumConfirm';
+import { useAuth } from '../../context/AuthContext';
+import { Plus, Calendar, Clock, AlertTriangle, Layers, Upload, ExternalLink } from 'lucide-react';
 
 const AcademicHeadTasks = () => {
+ const { user } = useAuth();
  const [tasks, setTasks] = useState([]);
  const [filteredTasks, setFilteredTasks] = useState([]);
  const [loading, setLoading] = useState(true);
  const [isModalOpen, setIsModalOpen] = useState(false);
  const [assignees, setAssignees] = useState([]);
  const [filterPriority, setFilterPriority] = useState('All');
+ const [uploadingId, setUploadingId] = useState(null);
  const [formData, setFormData] = useState({
  title: '',
  description: '',
@@ -36,6 +39,36 @@ const AcademicHeadTasks = () => {
  } catch (error) {
  toast.error("Failed to load tasks");
  setLoading(false);
+ }
+ };
+
+ const handleComplete = async (taskId, file = null) => {
+ if (!file) {
+ try {
+ await api.put(`/api/tasks/${taskId}/status`, { status: 'Completed' });
+ toast.success("Task completed!");
+ fetchTasks();
+ } catch (error) {
+ toast.error("Action failed");
+ }
+ return;
+ }
+
+ const formDataUpload = new FormData();
+ formDataUpload.append('proof', file);
+ formDataUpload.append('status', 'Completed');
+
+ setUploadingId(taskId);
+ try {
+ await api.put(`/api/tasks/${taskId}/status`, formDataUpload, {
+ headers: { 'Content-Type': 'multipart/form-data' }
+ });
+ toast.success("Task completed with proof!");
+ fetchTasks();
+ } catch (error) {
+ toast.error("Upload failed");
+ } finally {
+ setUploadingId(null);
  }
  };
 
@@ -181,11 +214,57 @@ const AcademicHeadTasks = () => {
  },
  {
  header: 'Phase', accessor: 'status', render: (row) => (
+ <div className="flex flex-col gap-2">
  <div className="flex items-center gap-2">
  <div className={`w-2 h-2 rounded-full ${row.status === 'Completed' ? 'bg-emerald-500' : 'bg-amber-500 animate-pulse'}`}></div>
  <span className={`text-[10px] font-black uppercase tracking-widest ${row.status === 'Completed' ? 'text-emerald-600' : 'text-amber-600'}`}>
  {row.status}
  </span>
+ </div>
+ 
+ {row.status === 'Completed' ? (
+ <div className="flex flex-col gap-1">
+ {row.completed_at && (
+ <span className="text-[9px] font-bold text-slate-500 lowercase">
+ at {new Date(row.completed_at).toLocaleString('en-GB', { dateStyle: 'short', timeStyle: 'short' })}
+ </span>
+ )}
+ {row.proof_url && (
+ <a 
+ href={row.proof_url} 
+ target="_blank" 
+ rel="noopener noreferrer" 
+ className="text-[9px] font-black text-[#008080] hover:underline uppercase tracking-tighter bg-[#008080]/5 px-1.5 py-0.5 rounded w-fit"
+ >
+ View Evidence
+ </a>
+ )}
+ </div>
+ ) : (
+ row.assigned_to === user.id && (
+ <div className="flex flex-col gap-2 mt-2">
+ <input
+ type="file"
+ id={`proof-${row.id}`}
+ className="hidden"
+ onChange={(e) => handleComplete(row.id, e.target.files[0])}
+ />
+ <label
+ htmlFor={`proof-${row.id}`}
+ className={`bg-[#008080] text-white px-3 py-1.5 rounded-lg text-[8px] font-black uppercase tracking-widest text-center cursor-pointer hover:bg-[#006666] transition-all flex items-center justify-center gap-2 ${uploadingId === row.id ? 'opacity-50 cursor-wait' : ''}`}
+ >
+ <Upload size={12} />
+ {uploadingId === row.id ? 'Uploading...' : 'Upload & Close'}
+ </label>
+ <button
+ onClick={() => handleComplete(row.id)}
+ className="bg-slate-900 text-white px-3 py-1.5 rounded-lg text-[8px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all font-bold"
+ >
+ Mark Done
+ </button>
+ </div>
+ )
+ )}
  </div>
  )
  },

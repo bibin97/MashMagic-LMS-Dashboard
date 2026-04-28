@@ -188,13 +188,34 @@ const Tasks = () => {
  </span>
  )
  },
- {
+  {
  header: 'Phase', accessor: 'status', render: (row) => (
+ <div className="flex flex-col gap-2">
  <div className="flex items-center gap-2">
  <div className={`w-2 h-2 rounded-full ${row.status === 'Completed' ? 'bg-emerald-500' : 'bg-amber-500 animate-pulse'}`}></div>
  <span className={`text-[11px] font-black uppercase tracking-widest ${row.status === 'Completed' ? 'text-emerald-600' : 'text-amber-600'}`}>
  {row.status}
  </span>
+ </div>
+ {row.status === 'Completed' && (
+ <div className="flex flex-col gap-1">
+ {row.completed_at && (
+ <span className="text-[9px] font-bold text-slate-500 lowercase">
+ at {new Date(row.completed_at).toLocaleString('en-GB', { dateStyle: 'short', timeStyle: 'short' })}
+ </span>
+ )}
+ {row.proof_url && (
+ <a 
+ href={row.proof_url} 
+ target="_blank" 
+ rel="noopener noreferrer" 
+ className="text-[9px] font-black text-[#008080] hover:underline uppercase tracking-tighter bg-[#008080]/5 px-1.5 py-0.5 rounded w-fit"
+ >
+ View Evidence
+ </a>
+ )}
+ </div>
+ )}
  </div>
  )
  },

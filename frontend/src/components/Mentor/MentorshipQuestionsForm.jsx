@@ -137,7 +137,7 @@ const MentorshipQuestionsForm = ({ selectedStudent, setSubmitted, fetchStudentLo
  className="w-full p-4 bg-white border border-slate-200 rounded-2xl text-sm font-bold text-slate-700 outline-none focus:ring-4 focus:ring-[#008080]/10 transition-all"
  >
  <option value="">Select subject...</option>
- {['Maths', 'Science', 'English', 'Social Studies', 'Language', 'Computer Science', 'General'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
+ {['Mathematics', 'Science', 'Social Science', 'English', 'Malayalam', 'Hindi', 'Physics', 'Chemistry', 'Biology', 'Accountancy', 'Business Studies', 'Economics', 'Computer Science', 'Arabic', 'General'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
  </select>
  </div>
  </div>

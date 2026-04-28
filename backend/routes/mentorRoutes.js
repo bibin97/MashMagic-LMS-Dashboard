@@ -31,6 +31,7 @@ const {
  } = require('../controllers/mentorController');
 const { requireAuth } = require('../middleware/authMiddleware');
 const { requireRole } = require('../middleware/roleMiddleware');
+const { upload } = require('../config/cloudinary');
 
 // Apply middleware to all routes
 router.use(requireAuth);
@@ -40,7 +41,7 @@ router.get('/dashboard', getMentorDashboard);
 router.get('/students', getMentorStudents);
 router.get('/students/:id', getStudentDetails);
 router.get('/tasks', getMentorTasks);
-router.put('/tasks/:id/complete', completeMentorTask);
+router.put('/tasks/:id/complete', upload.single('proof'), completeMentorTask);
 router.get('/timetable', getMentorTimetable);
 router.post('/timetable', createSession);
 router.put('/timetable/:id', updateSession);

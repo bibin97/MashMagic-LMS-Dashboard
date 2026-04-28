@@ -102,13 +102,31 @@ const createTask = async (req, res) => {
 // @access  Private (super_admin, mentor)
 const updateTaskStatus = async (req, res) => {
     const { status } = req.body;
+    const proof_url = req.file ? req.file.path : null;
+    
     try {
-        const [result] = await db.query('UPDATE tasks SET status = ? WHERE id = ?', [status, req.params.id]);
+        let query = 'UPDATE tasks SET status = ?';
+        let params = [status];
+
+        if (status === 'Completed') {
+            query += ', completed_at = NOW()';
+            if (proof_url) {
+                query += ', proof_url = ?';
+                params.push(proof_url);
+            }
+        }
+
+        query += ' WHERE id = ?';
+        params.push(req.params.id);
+
+        const [result] = await db.query(query, params);
+        
         if (result.affectedRows === 0) {
             return res.status(404).json({ success: false, message: "Task not found" });
         }
-        res.status(200).json({ success: true, message: "Task status updated" });
+        res.status(200).json({ success: true, message: "Task status updated successfully" });
     } catch (error) {
+        console.error("UPDATE_TASK_STATUS_ERROR:", error);
         res.status(500).json({ success: false, message: "Server Error", error: error.message });
     }
 };

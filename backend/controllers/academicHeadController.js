@@ -158,8 +158,9 @@ const getDropdownData = async (req, res) => {
 const registerStudent = async (req, res) => {
     try {
         const {
-            name, email, password, grade, syllabus, mentorId, course, hour, nextInstallmentDate, admissionType,
-            registrationNumber, meetingLink, facultyHourlyRate, selectedSubjects
+            name, email, contact, password, grade, syllabus, mentorId, course, hour, nextInstallmentDate, admissionType,
+            registrationNumber, meetingLink, facultyHourlyRate, selectedSubjects,
+            admissionDate, schoolName, preferredLanguage, country, totalFees, totalPaid
         } = req.body;
 
         if (!req.user || !req.user.id) {
@@ -180,8 +181,8 @@ const registerStudent = async (req, res) => {
         }
 
         const [userResult] = await db.query(
-            'INSERT INTO users (name, email, password, role, status, isApproved, isActive, registeredBy) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-            [name, (email && email.trim() !== '') ? email : null, hashedPassword, 'student', 'active', 1, 1, req.user.id]
+            'INSERT INTO users (name, email, phone_number, password, role, status, isApproved, isActive, registeredBy) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+            [name, (email && email.trim() !== '') ? email : null, contact || null, hashedPassword, 'student', 'active', 1, 1, req.user.id]
         );
         const userId = userResult.insertId;
 
@@ -214,8 +215,9 @@ const registerStudent = async (req, res) => {
                 name, email, password, user_id, grade, syllabus, subject, course, hour, 
                 mentor_id, mentor_name, faculty_id, faculty_name, next_installment_date,
                 time_table, status, onboarding_status, isApproved, registeredBy,
-                registration_number, meeting_link, faculty_hourly_rate, subjects_json, enrollment_type, badge
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                registration_number, meeting_link, faculty_hourly_rate, subjects_json, enrollment_type, badge,
+                contact, admission_date, school_name, preferred_language, country, total_fees, total_paid
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `;
 
         const [studentResult] = await db.query(query, [
@@ -231,7 +233,14 @@ const registerStudent = async (req, res) => {
             facultyHourlyRate || 0,
             JSON.stringify(selectedSubjects || []),
             enrollmentType,
-            badge
+            badge,
+            contact || null,
+            admissionDate || null,
+            schoolName || null,
+            preferredLanguage || null,
+            country || null,
+            totalFees || 0,
+            totalPaid || 0
         ]);
 
         const studentId = studentResult.insertId;

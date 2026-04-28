@@ -4,6 +4,8 @@ const { getTasks, createTask, updateTaskStatus, deleteTask } = require('../contr
 const { requireAuth } = require('../middleware/authMiddleware');
 const { requireRole } = require('../middleware/roleMiddleware');
 
+const { upload } = require('../config/cloudinary');
+
 // All task routes require authentication
 router.use(requireAuth);
 
@@ -12,7 +14,7 @@ router.get('/', getTasks);
 router.post('/', requireRole('super_admin', 'admin', 'academic_head', 'mentor_head'), createTask);
 router.delete('/:id', requireRole('super_admin', 'admin', 'academic_head', 'mentor_head'), deleteTask);
 
-// Status update can be done by mentor or admin
-router.put('/:id/status', updateTaskStatus);
+// Status update can be done by anybody assigned to the task
+router.put('/:id/status', upload.single('proof'), updateTaskStatus);
 
 module.exports = router;

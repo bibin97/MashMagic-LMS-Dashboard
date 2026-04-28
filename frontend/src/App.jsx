@@ -1,91 +1,99 @@
-import React from 'react';
+import { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 
-// Layouts
-import AdminLayout from './layouts/AdminLayout';
-import MentorLayout from './components/Mentor/MentorLayout';
+// Loading Spinner for Suspense
+const PageLoader = () => (
+ <div className="min-h-screen w-full flex items-center justify-center bg-white">
+ <div className="flex flex-col items-center gap-4">
+ <div className="w-12 h-12 border-4 border-[#008080]/20 border-t-[#008080] rounded-full animate-spin"></div>
+ <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 animate-pulse">Initializing Portal...</p>
+ </div>
+ </div>
+);
 
-// Admin Pages
-import Dashboard from './pages/admin/Dashboard';
-import Students from './pages/admin/Students';
-import Mentors from './pages/admin/Mentors';
-import Faculties from './pages/admin/Faculties';
-import Tasks from './pages/admin/Tasks';
-import Reports from './pages/admin/Reports';
-import InteractionLogs from './pages/admin/InteractionLogs';
-import Approvals from './pages/admin/Approvals';
-import DailyMentorHeadReport from './pages/admin/DailyMentorHeadReport';
-import AdminManagement from './pages/admin/AdminManagement';
-import StaffManagement from './pages/admin/StaffManagement';
-import AdminLiveMonitoring from './pages/admin/LiveMonitoring';
-import AdminProfile from './pages/common/Profile';
+// Layouts - Lazy Loaded
+const AdminLayout = lazy(() => import('./layouts/AdminLayout'));
+const MentorLayout = lazy(() => import('./components/Mentor/MentorLayout'));
+const FacultyLayout = lazy(() => import('./components/Faculty/FacultyLayout'));
+const MentorHeadLayout = lazy(() => import('./components/MentorHead/MentorHeadLayout'));
+const AcademicHeadLayout = lazy(() => import('./components/AcademicHead/AcademicHeadLayout'));
 
-// Auth Pages
-import Login from './pages/Login';
-import Signup from './pages/Signup';
+// Auth Pages - Lazy Loaded
+const Login = lazy(() => import('./pages/Login'));
+const Signup = lazy(() => import('./pages/Signup'));
 
-// Mentor Panel Pages
-import MentorDashboard from './pages/Mentor/MentorDashboard';
-import MyStudents from './pages/Mentor/MyStudents';
-import StudentDetails from './pages/Mentor/StudentDetails';
-import MyTasks from './pages/Mentor/MyTasks';
-import Timetable from './pages/Mentor/Timetable';
-import StudentInteractionLog from './pages/Mentor/StudentInteractionLog';
-import FacultyInteractionLog from './pages/Mentor/FacultyInteractionLog';
-import Exams from './pages/Mentor/Exams';
-import AcademicSchedule from './pages/Mentor/AcademicSchedule';
-import StudentsData from './pages/Mentor/StudentsData';
+// Common Pages
+const AdminProfile = lazy(() => import('./pages/common/Profile'));
 
-// Faculty Panel Pages
-import FacultyLayout from './components/Faculty/FacultyLayout';
-import FacultyDashboard from './pages/Faculty/FacultyDashboard';
-import FacultyStudents from './pages/Faculty/MyStudents';
-import FacultySessions from './pages/Faculty/FacultySessions';
-import FacultyReports from './pages/Faculty/FacultyReports';
-import FacultyExams from './pages/Faculty/FacultyExams';
-import StudentLogs from './pages/Faculty/StudentLogs';
-import FacultyTasks from './pages/Faculty/FacultyTasks';
-import FacultyDocuments from './pages/Faculty/FacultyDocuments';
-import FacultyNotifications from './pages/Faculty/FacultyNotifications';
-import FacultyStudentDetails from './pages/Mentor/StudentDetails'; // Fixed potential duplicate or incorrect import path if needed, but keeping it as is for now if it works.
-// Note: We are now using common Profile for all.
+// Admin Pages - Lazy Loaded
+const Dashboard = lazy(() => import('./pages/admin/Dashboard'));
+const Students = lazy(() => import('./pages/admin/Students'));
+const Mentors = lazy(() => import('./pages/admin/Mentors'));
+const Faculties = lazy(() => import('./pages/admin/Faculties'));
+const Tasks = lazy(() => import('./pages/admin/Tasks'));
+const Reports = lazy(() => import('./pages/admin/Reports'));
+const InteractionLogs = lazy(() => import('./pages/admin/InteractionLogs'));
+const Approvals = lazy(() => import('./pages/admin/Approvals'));
+const DailyMentorHeadReport = lazy(() => import('./pages/admin/DailyMentorHeadReport'));
+const AdminManagement = lazy(() => import('./pages/admin/AdminManagement'));
+const StaffManagement = lazy(() => import('./pages/admin/StaffManagement'));
+const AdminLiveMonitoring = lazy(() => import('./pages/admin/LiveMonitoring'));
 
-// Mentor Head Pages
-import MentorHeadLayout from './components/MentorHead/MentorHeadLayout';
-import MentorHeadDashboard from './pages/MentorHead/MentorHeadDashboard';
-import MentorRegistration from './pages/MentorHead/MentorRegistration';
-import MentorsList from './pages/MentorHead/MentorsList';
-import CourseCompletedTracker from './pages/MentorHead/CourseCompletedTracker';
-import MentorDetails from './pages/MentorHead/MentorDetails';
-import StudentCheckTracker from './pages/MentorHead/StudentCheckTracker';
-import StudentShift from './pages/MentorHead/StudentShift';
-import MentorHeadInteractions from './pages/MentorHead/MentorHeadInteractions';
-import MentorHeadTasks from './pages/MentorHead/MentorHeadTasks';
+// Mentor Panel Pages - Lazy Loaded
+const MentorDashboard = lazy(() => import('./pages/Mentor/MentorDashboard'));
+const MyStudents = lazy(() => import('./pages/Mentor/MyStudents'));
+const StudentDetails = lazy(() => import('./pages/Mentor/StudentDetails'));
+const MyTasks = lazy(() => import('./pages/Mentor/MyTasks'));
+const Timetable = lazy(() => import('./pages/Mentor/Timetable'));
+const StudentInteractionLog = lazy(() => import('./pages/Mentor/StudentInteractionLog'));
+const FacultyInteractionLog = lazy(() => import('./pages/Mentor/FacultyInteractionLog'));
+const Exams = lazy(() => import('./pages/Mentor/Exams'));
+const AcademicSchedule = lazy(() => import('./pages/Mentor/AcademicSchedule'));
+const StudentsData = lazy(() => import('./pages/Mentor/StudentsData'));
 
-// Academic Head Pages
-import AcademicHeadLayout from './components/AcademicHead/AcademicHeadLayout';
-import AcademicHeadDashboard from './pages/AcademicHead/AcademicHeadDashboard';
-import Registrations from './pages/AcademicHead/Registrations';
-import AcademicHeadTasks from './pages/AcademicHead/AcademicHeadTasks';
-import AcademicHeadFacultyActivity from './pages/AcademicHead/AcademicHeadFacultyActivity';
-import AcademicActions from './pages/AcademicHead/AcademicActions';
-import FacultyDirectory from './pages/AcademicHead/FacultyDirectory';
-import StudentsListAcademic from './pages/AcademicHead/StudentsList';
-import MentorsListAcademic from './pages/AcademicHead/MentorsList';
-import Documents from './pages/AcademicHead/Documents';
-import FacultyAudit from './pages/AcademicHead/FacultyAudit';
-import StudentLogsAcademic from './pages/AcademicHead/StudentLogs';
-import FacultyLogsAcademic from './pages/AcademicHead/FacultyLogs';
-import CheckingSection from './pages/AcademicHead/CheckingSection';
-import AcademicLiveMonitoring from './pages/AcademicHead/LiveMonitoring';
-import EditStudent from './pages/AcademicHead/EditStudent';
+// Faculty Panel Pages - Lazy Loaded
+const FacultyDashboard = lazy(() => import('./pages/Faculty/FacultyDashboard'));
+const FacultyStudents = lazy(() => import('./pages/Faculty/MyStudents'));
+const FacultySessions = lazy(() => import('./pages/Faculty/FacultySessions'));
+const FacultyReports = lazy(() => import('./pages/Faculty/FacultyReports'));
+const FacultyExams = lazy(() => import('./pages/Faculty/FacultyExams'));
+const StudentLogs = lazy(() => import('./pages/Faculty/StudentLogs'));
+const FacultyTasks = lazy(() => import('./pages/Faculty/FacultyTasks'));
+const FacultyDocuments = lazy(() => import('./pages/Faculty/FacultyDocuments'));
+const FacultyNotifications = lazy(() => import('./pages/Faculty/FacultyNotifications'));
+const FacultyStudentDetails = lazy(() => import('./pages/Mentor/StudentDetails'));
 
-// Mentor Head Additional Pages
-import FacultyDirectoryMentorHead from './pages/MentorHead/FacultyDirectory';
-import StudentsListMentorHead from './pages/AcademicHead/StudentsList'; // Reusing StudentsList logic for AH/MH if compatible, or I'll create a dedicated one if needed. Actually I created StudentsList.jsx in AH, I should check if it's reusable.
+// Mentor Head Pages - Lazy Loaded
+const MentorHeadDashboard = lazy(() => import('./pages/MentorHead/MentorHeadDashboard'));
+const MentorRegistration = lazy(() => import('./pages/MentorHead/MentorRegistration'));
+const MentorsList = lazy(() => import('./pages/MentorHead/MentorsList'));
+const CourseCompletedTracker = lazy(() => import('./pages/MentorHead/CourseCompletedTracker'));
+const MentorDetails = lazy(() => import('./pages/MentorHead/MentorDetails'));
+const StudentCheckTracker = lazy(() => import('./pages/MentorHead/StudentCheckTracker'));
+const StudentShift = lazy(() => import('./pages/MentorHead/StudentShift'));
+const MentorHeadInteractions = lazy(() => import('./pages/MentorHead/MentorHeadInteractions'));
+const MentorHeadTasks = lazy(() => import('./pages/MentorHead/MentorHeadTasks'));
+const FacultyDirectoryMentorHead = lazy(() => import('./pages/MentorHead/FacultyDirectory'));
+
+// Academic Head Pages - Lazy Loaded
+const AcademicHeadDashboard = lazy(() => import('./pages/AcademicHead/AcademicHeadDashboard'));
+const Registrations = lazy(() => import('./pages/AcademicHead/Registrations'));
+const AcademicHeadTasks = lazy(() => import('./pages/AcademicHead/AcademicHeadTasks'));
+const AcademicHeadFacultyActivity = lazy(() => import('./pages/AcademicHead/AcademicHeadFacultyActivity'));
+const AcademicActions = lazy(() => import('./pages/AcademicHead/AcademicActions'));
+const FacultyDirectory = lazy(() => import('./pages/AcademicHead/FacultyDirectory'));
+const StudentsListAcademic = lazy(() => import('./pages/AcademicHead/StudentsList'));
+const MentorsListAcademic = lazy(() => import('./pages/AcademicHead/MentorsList'));
+const Documents = lazy(() => import('./pages/AcademicHead/Documents'));
+const FacultyAudit = lazy(() => import('./pages/AcademicHead/FacultyAudit'));
+const StudentLogsAcademic = lazy(() => import('./pages/AcademicHead/StudentLogs'));
+const FacultyLogsAcademic = lazy(() => import('./pages/AcademicHead/FacultyLogs'));
+const CheckingSection = lazy(() => import('./pages/AcademicHead/CheckingSection'));
+const AcademicLiveMonitoring = lazy(() => import('./pages/AcademicHead/LiveMonitoring'));
+const EditStudent = lazy(() => import('./pages/AcademicHead/EditStudent'));
 
 function App() {
  return (
@@ -98,6 +106,7 @@ function App() {
  duration: 3000,
  }}
  />
+ <Suspense fallback={<PageLoader />}>
  <Routes>
  {/* Public Routes */}
  <Route path="/login" element={<Login />} />
@@ -229,6 +238,7 @@ function App() {
  </div>
  } />
  </Routes>
+ </Suspense>
  </Router>
  </AuthProvider>
  );

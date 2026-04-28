@@ -12,6 +12,21 @@ const StudentDetails = () => {
  const [loading, setLoading] = useState(true);
  const [activeTab, setActiveTab] = useState('info'); // info, timetable, logs
 
+ const handleUpdateStatus = async (sessionId, currentSession, newStatus) => {
+ try {
+ const res = await api.put(`/mentor/timetable/${sessionId}`, {
+ ...currentSession,
+ status: newStatus
+ });
+ if (res.data.success) {
+ toast.success(`Status updated to ${newStatus}`);
+ fetchStudentDetails(); // Refresh data
+ }
+ } catch (error) {
+ toast.error(error.response?.data?.message || "Failed to update status");
+ }
+ };
+
  useEffect(() => {
  fetchStudentDetails();
  }, [id]);
@@ -156,7 +171,7 @@ const StudentDetails = () => {
  <th className="py-6 px-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">Date</th>
  <th className="py-6 px-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">Timing</th>
  <th className="py-6 px-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">Chapters / Topics</th>
- <th className="py-6 px-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">Status</th>
+ <th className="py-6 px-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">Status / Action</th>
  </tr>
  </thead>
  <tbody>
@@ -172,7 +187,20 @@ const StudentDetails = () => {
  <td className="py-6 px-4 font-bold text-slate-700 text-sm">{session.start_time} - {session.end_time}</td>
  <td className="py-6 px-4 font-bold text-slate-700 text-sm ">{session.chapter_topic || 'Pending Assignment'}</td>
  <td className="py-6 px-4">
+ <div className="flex items-center gap-3">
  <StatusBadge status={session.status} />
+ <select 
+ className="text-[10px] font-black uppercase tracking-widest bg-slate-100 border-none rounded-lg p-1 outline-none cursor-pointer hover:bg-slate-200 transition-colors"
+ value={session.status}
+ onChange={(e) => handleUpdateStatus(session.id, session, e.target.value)}
+ >
+ <option value="Scheduled">Schedule</option>
+ <option value="Completed">Complete</option>
+ <option value="Postponed">Postpone</option>
+ <option value="Absent">Absent</option>
+ <option value="Cancelled">Cancel</option>
+ </select>
+ </div>
  </td>
  </tr>
  ))}
