@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Bell, Search, User, ShieldCheck, CheckCheck, Menu, LogOut, Settings, HelpCircle, Activity } from 'lucide-react';
+import { Bell, Search, User, ShieldCheck, CheckCheck, Menu, LogOut, Settings, HelpCircle, Activity, RefreshCw } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
@@ -44,6 +44,13 @@ const Navbar = ({ onMenuClick }) => {
  useEffect(() => {
  window.refetchNotifications = fetchNotifications;
  return () => { delete window.refetchNotifications; };
+ }, []);
+
+ useEffect(() => {
+ const interval = setInterval(() => {
+ window.location.reload();
+ }, 300000); // 5 minutes
+ return () => clearInterval(interval);
  }, []);
 
  const fetchNotifications = async () => {
@@ -139,7 +146,16 @@ const Navbar = ({ onMenuClick }) => {
  </div>
  </div>
 
- <div className="flex items-center gap-4 md:gap-8 ml-4">
+ <div className="flex items-center gap-2 md:gap-4 ml-4">
+ 
+ <button
+ onClick={() => window.location.reload()}
+ className="relative p-3 rounded-[16px] hover:bg-white hover:shadow-lg hover:shadow-[#0F172A]/5 text-slate-500 transition-all group border border-transparent hover:border-slate-100 active:scale-95"
+ title="Refresh Panel (Auto-refreshes every 5 mins)"
+ >
+ <RefreshCw size={22} className="group-hover:rotate-180 transition-transform duration-500 text-[#008080]" />
+ </button>
+
  <div className="relative dropdown-container">
  <button
  onClick={() => {

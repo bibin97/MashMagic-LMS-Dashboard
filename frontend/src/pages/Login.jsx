@@ -480,7 +480,7 @@ const Login = () => {
  Secured by MashMagic Enterprise Encryption
  </p>
  <p className="text-[10px] text-slate-400 font-bold tracking-widest uppercase">
- Developed by <a href="https://linkedin.com/in/bibinthankachan" target="_blank" rel="noopener noreferrer" className="text-[#0d9488] hover:text-[#14b8a6] hover:underline transition-all font-black">Bibin Thankachan</a>
+ Developed by <a href="https://linkedin.com/in/bibinthankachan" target="_blank" rel="noopener noreferrer" className="text-[#f8ba2b] hover:text-yellow-400 hover:underline transition-all font-black">Bibin Thankachan</a>
  </p>
  </div>
  </div>
