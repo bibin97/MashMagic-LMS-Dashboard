@@ -69,7 +69,7 @@ const Sidebar = ({ isOpen, setIsOpen, isCollapsed, setIsCollapsed, navItems, tit
           <img 
             src={mlogo} 
             alt="Logo" 
-            className={`transition-all duration-700 ${isCollapsed ? 'w-12 h-12 object-contain' : 'w-full h-full object-contain scale-[2.2]'}`} 
+            className={`transition-all duration-700 ${isCollapsed ? 'w-16 h-16 object-contain' : 'w-full h-full object-contain scale-[2.2]'}`} 
           />
         </div>
         {!isCollapsed && (
