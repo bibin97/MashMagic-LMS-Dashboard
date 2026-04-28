@@ -13,6 +13,7 @@ const StaffManagement = () => {
  const [staff, setStaff] = useState([]);
  const [filteredStaff, setFilteredStaff] = useState([]);
  const [loading, setLoading] = useState(true);
+ const [sortBy, setSortBy] = useState('newest');
  const [selectedMember, setSelectedMember] = useState(null);
  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
  const [editFormData, setEditFormData] = useState({
@@ -48,6 +49,35 @@ const StaffManagement = () => {
  );
  setFilteredStaff(filtered);
  };
+
+ const sortedStaff = [...filteredStaff].sort((a, b) => {
+    if (sortBy === 'newest') return b.id - a.id;
+    if (sortBy === 'oldest') return a.id - b.id;
+    return 0;
+  });
+
+  const handleExport = () => {
+    const headers = ['Name', 'Email', 'Role', 'Status'];
+    const csvContent = [
+      headers.join(','),
+      ...filteredStaff.map(s => [
+        `"${s.name}"`,
+        `"${s.email}"`,
+        `"${s.role}"`,
+        `"${s.status}"`
+      ].join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `staff_export_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
  const handleEdit = (member) => {
  setSelectedMember(member);
@@ -120,7 +150,7 @@ const StaffManagement = () => {
  <div className="flex flex-col gap-10 pb-10">
  <div className="bg-white/70 backdrop-blur-xl p-12 rounded-[40px] border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.04)] flex flex-col md:flex-row justify-between items-center gap-10">
  <div className="text-center md:text-left">
- <h2 className="text-5xl font-black text-slate-900 tracking-tighter leading-none mb-3 ">Institutional Authority</h2>
+ <h2 className="text-4xl font-black text-slate-900 tracking-tighter leading-none mb-3 ">Institutional Authority</h2>
  <p className="text-slate-600 text-[11px] font-black uppercase tracking-[0.25em] flex items-center justify-center md:justify-start gap-3 mt-1">
  <div className="w-2 h-2 rounded-full bg-[#008080] animate-pulse"></div>
  Managing Core Operational Nodes & Team Architecture
@@ -137,9 +167,10 @@ const StaffManagement = () => {
 
  <DataTable
  columns={columns}
- data={filteredStaff}
+ data={sortedStaff}
  loading={loading}
  onSearch={handleSearch}
+ onExport={handleExport}
  onDelete={isSuperAdmin ? handleDelete : undefined}
  onEdit={isSuperAdmin ? handleEdit : undefined}
  searchPlaceholder="Search by name, email or role..."

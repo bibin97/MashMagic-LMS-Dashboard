@@ -4,7 +4,7 @@ import Modal from '../../components/Modal';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
 import { premiumConfirm } from '../../utils/premiumConfirm';
-import { Eye, Edit2, Ban, Trash2, Filter, Download, UserPlus, Search, ArrowUpRight } from 'lucide-react';
+import { Eye, Edit2, Ban, Trash2, Filter, Download, UserPlus, Search, ArrowUpRight, Users, ListTodo, TrendingUp } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 const Mentors = () => {
@@ -13,6 +13,7 @@ const Mentors = () => {
  const [mentors, setMentors] = useState([]);
  const [filteredMentors, setFilteredMentors] = useState([]);
  const [loading, setLoading] = useState(true);
+ const [sortBy, setSortBy] = useState('newest');
  const [selectedMentor, setSelectedMentor] = useState(null);
  const [mentorStudents, setMentorStudents] = useState([]);
  const [loadingStudents, setLoadingStudents] = useState(false);
@@ -52,6 +53,37 @@ const Mentors = () => {
  m.phone?.toLowerCase().includes(query.toLowerCase())
  );
  setFilteredMentors(filtered);
+ };
+
+ const sortedMentors = [...filteredMentors].sort((a, b) => {
+    if (sortBy === 'newest') return b.id - a.id;
+    if (sortBy === 'oldest') return a.id - b.id;
+    return 0;
+  });
+
+ const handleExport = () => {
+   const headers = ['Name', 'Email', 'Phone', 'Students Count', 'Completion Rate', 'Status'];
+   const csvContent = [
+     headers.join(','),
+     ...filteredMentors.map(m => [
+       `"${m.name}"`,
+       `"${m.email}"`,
+       `"${m.phone || ''}"`,
+       m.studentsCount,
+       `"${m.completionRate}%"`,
+       `"${m.status}"`
+     ].join(','))
+   ].join('\n');
+
+   const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+   const link = document.createElement('a');
+   const url = URL.createObjectURL(blob);
+   link.setAttribute('href', url);
+   link.setAttribute('download', `mentors_export_${new Date().toISOString().split('T')[0]}.csv`);
+   link.style.visibility = 'hidden';
+   document.body.appendChild(link);
+   link.click();
+   document.body.removeChild(link);
  };
 
  const handleView = async (mentor) => {
@@ -170,10 +202,25 @@ const Mentors = () => {
 
  return (
  <div className="flex flex-col gap-10">
- <div className="flex flex-col mb-4">
- <h2 className="text-4xl font-black text-slate-900 tracking-tighter leading-none mb-3 ">Mentor Network</h2>
- <p className="text-slate-600 text-[10px] font-black uppercase tracking-[0.2em]">Operational lead directory & performance audit</p>
- </div>
+  <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
+    <div className="flex flex-col">
+      <h2 className="text-4xl font-black text-slate-900 tracking-tighter leading-none mb-3 ">Mentor Network</h2>
+      <p className="text-slate-600 text-[10px] font-black uppercase tracking-[0.2em]">Operational lead directory & performance audit</p>
+    </div>
+    
+    <div className="flex items-center gap-4 bg-white/70 backdrop-blur-md px-6 py-4 rounded-[20px] border border-white/60 shadow-sm group">
+      <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Sort By</span>
+      <div className="w-px h-6 bg-slate-200"></div>
+      <select 
+        value={sortBy} 
+        onChange={(e) => setSortBy(e.target.value)}
+        className="bg-transparent border-none text-xs font-black uppercase tracking-widest text-slate-800 outline-none focus:ring-0 cursor-pointer"
+      >
+        <option value="newest">Newest First</option>
+        <option value="oldest">Oldest First</option>
+      </select>
+    </div>
+  </div>
 
   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-2">
     <div className="bg-white/70 backdrop-blur-md p-8 rounded-[35px] border border-white/60 shadow-sm flex flex-col gap-2 group transition-all hover:bg-white hover:shadow-md">
@@ -196,15 +243,16 @@ const Mentors = () => {
     </div>
   </div>
 
- <DataTable
- columns={columns}
- data={filteredMentors}
- loading={loading}
- onSearch={handleSearch}
- onApprove={isSuperAdmin ? handleApprove : undefined}
- onBlock={isSuperAdmin ? handleBlock : undefined}
- searchPlaceholder="Filter mentors by name or email..."
- />
+  <DataTable
+  columns={columns}
+  data={sortedMentors}
+  loading={loading}
+  onSearch={handleSearch}
+  onExport={handleExport}
+  onApprove={isSuperAdmin ? handleApprove : undefined}
+  onBlock={isSuperAdmin ? handleBlock : undefined}
+  searchPlaceholder="Filter mentors by name or email..."
+  />
 
  {/* Edit Mentor Modal */}
  <Modal

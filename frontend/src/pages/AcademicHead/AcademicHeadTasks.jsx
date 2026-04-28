@@ -274,7 +274,7 @@ const AcademicHeadTasks = () => {
  <div className="flex flex-col gap-8">
  <div className="flex justify-between items-end">
  <div className="flex flex-col gap-1">
- <h2 className="text-2xl font-black text-slate-900 tracking-tight">Academic Task Delegation</h2>
+ <h2 className="text-3xl lg:text-4xl font-black text-slate-900 tracking-tighter uppercase leading-none mb-1">Academic Task Delegation</h2>
  <p className="text-slate-500 text-xs font-bold uppercase tracking-widest mt-1">Assignment of academic deliverables to the workforce</p>
  </div>
  <button

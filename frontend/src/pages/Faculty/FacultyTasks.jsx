@@ -63,7 +63,7 @@ const FacultyTasks = () => {
  {/* Header Area */}
  <div className="flex flex-col md:flex-row justify-between items-center gap-8">
  <div>
- <h2 className="text-3xl font-black text-slate-900 tracking-tighter uppercase ">Operational Tasks</h2>
+ <h2 className="text-3xl lg:text-4xl font-black text-slate-900 tracking-tighter uppercase leading-none">Operational Tasks</h2>
  <p className="text-slate-600 text-[10px] font-black uppercase tracking-[0.2em] mt-2">Administrative directives from Academic Head</p>
  </div>
 

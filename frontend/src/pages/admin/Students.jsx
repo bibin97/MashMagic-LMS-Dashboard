@@ -53,6 +53,32 @@ const Students = () => {
  setSearchTerm(query);
  };
 
+ const handleExport = () => {
+    const headers = ['Reg #', 'Name', 'Email', 'Grade', 'Mentor', 'Faculty', 'Status'];
+    const csvContent = [
+      headers.join(','),
+      ...filteredStudents.map(s => [
+        `"${s.registration_number || ''}"`,
+        `"${s.name}"`,
+        `"${s.email}"`,
+        `"${s.grade}"`,
+        `"${s.mentor || ''}"`,
+        `"${s.faculty || ''}"`,
+        `"${s.status}"`
+      ].join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `students_export_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
  const handleView = async (student) => {
  setSelectedStudent(student);
  setDailyHours([]);
@@ -186,7 +212,7 @@ const Students = () => {
  <div className="flex flex-col gap-10 pb-10">
  <div className="bg-white/70 backdrop-blur-xl p-12 rounded-[40px] border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.04)] flex flex-col md:flex-row justify-between items-center gap-10">
  <div className="text-center md:text-left">
- <h2 className="text-5xl font-black text-slate-900 tracking-tighter leading-none mb-3 ">Student Enrollment</h2>
+ <h2 className="text-4xl font-black text-slate-900 tracking-tighter leading-none mb-3 ">Student Enrollment</h2>
  <p className="text-slate-600 text-[11px] font-black uppercase tracking-[0.25em] flex items-center justify-center md:justify-start gap-3 mt-1">
  <span className="w-2 h-2 rounded-full bg-[#008080] animate-pulse shadow-[0_0_10px_rgba(20,184,166,0.5)]"></span>
  Cross-functional Academic Database Nexus
@@ -235,6 +261,7 @@ const Students = () => {
  data={useMemo(() => sortStudentsByOption(filteredStudents, sortBy), [filteredStudents, sortBy])}
  loading={loading}
  onSearch={handleSearch}
+ onExport={handleExport}
  onApprove={isSuperAdmin ? handleApprove : undefined}
  onBlock={isSuperAdmin ? handleBlock : undefined}
  searchPlaceholder="Search by name, email or reg #"

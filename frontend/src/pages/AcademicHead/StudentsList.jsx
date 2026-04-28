@@ -83,7 +83,7 @@ const StudentsList = ({ role = 'academic_head' }) => {
 			{/* Header */}
 			<div className="bg-white p-10 rounded-[3rem] border border-slate-100 shadow-sm flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
 				<div>
-					<h2 className="text-3xl font-black text-slate-900 tracking-tighter uppercase ">Student Directory</h2>
+					<h2 className="text-3xl lg:text-4xl font-black text-slate-900 tracking-tighter uppercase leading-none">Student Directory</h2>
 					<p className="text-slate-600 text-[10px] font-bold uppercase tracking-widest mt-2 flex items-center gap-2">
 						<GraduationCap size={14} className="text-[#008080]" />
 						Comprehensive database of all enrolled students across all courses and mentors

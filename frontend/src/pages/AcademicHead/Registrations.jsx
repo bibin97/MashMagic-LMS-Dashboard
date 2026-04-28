@@ -180,7 +180,7 @@ const Registrations = () => {
  {/* Header */}
  <div className="bg-white p-4 md:p-6 rounded-[1.5rem] md:rounded-[2rem] shadow-sm border border-slate-100 mb-6 md:mb-8 flex items-center justify-between">
  <div>
- <h1 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight uppercase ">Onboarding Gateway</h1>
+ <h1 className="text-2xl md:text-4xl font-black text-slate-900 tracking-tighter uppercase leading-none">Onboarding Gateway</h1>
  <p className="text-slate-500 font-bold text-[9px] md:text-[10px] uppercase tracking-widest mt-1">Unified registration portal for students and faculty</p>
  </div>
  <div className="w-10 h-10 md:w-12 md:h-12 bg-[#008080]/10 rounded-2xl flex items-center justify-center text-[#008080] rotate-3 shrink-0">

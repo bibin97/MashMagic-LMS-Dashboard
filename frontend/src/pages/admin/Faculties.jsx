@@ -13,6 +13,7 @@ const Faculties = () => {
  const [faculties, setFaculties] = useState([]);
  const [filteredFaculties, setFilteredFaculties] = useState([]);
  const [loading, setLoading] = useState(true);
+ const [sortBy, setSortBy] = useState('newest');
  const [selectedFaculty, setSelectedFaculty] = useState(null);
  const [isModalOpen, setIsModalOpen] = useState(false);
  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -51,6 +52,37 @@ const Faculties = () => {
  );
  setFilteredFaculties(filtered);
  };
+
+ const sortedFaculties = [...filteredFaculties].sort((a, b) => {
+    if (sortBy === 'newest') return b.id - a.id;
+    if (sortBy === 'oldest') return a.id - b.id;
+    return 0;
+  });
+
+ const handleExport = () => {
+    const headers = ['Faculty Lead', 'Email', 'Phone', 'Mentors Group', 'Total Students', 'Status'];
+    const csvContent = [
+      headers.join(','),
+      ...filteredFaculties.map(f => [
+        `"${f.name}"`,
+        `"${f.email}"`,
+        `"${f.phone || ''}"`,
+        f.mentorsUnder,
+        f.studentsUnder,
+        `"${f.status}"`
+      ].join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `faculties_export_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
  const handleView = (faculty) => {
  setSelectedFaculty(faculty);
@@ -144,10 +176,25 @@ const Faculties = () => {
 
  return (
  <div className="flex flex-col gap-10">
- <div className="flex flex-col mb-4">
- <h2 className="text-4xl font-black text-slate-900 tracking-tighter leading-none mb-3 ">Faculty Administration</h2>
- <p className="text-slate-600 text-[10px] font-black uppercase tracking-[0.2em]">High-level academic lead governance</p>
- </div>
+  <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
+    <div className="flex flex-col">
+      <h2 className="text-4xl font-black text-slate-900 tracking-tighter leading-none mb-3 ">Faculty Administration</h2>
+      <p className="text-slate-600 text-[10px] font-black uppercase tracking-[0.2em]">High-level academic lead governance</p>
+    </div>
+    
+    <div className="flex items-center gap-4 bg-white/70 backdrop-blur-md px-6 py-4 rounded-[20px] border border-white/60 shadow-sm group">
+      <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Sort Engine</span>
+      <div className="w-px h-6 bg-slate-200"></div>
+      <select 
+        value={sortBy} 
+        onChange={(e) => setSortBy(e.target.value)}
+        className="bg-transparent border-none text-xs font-black uppercase tracking-widest text-slate-800 outline-none focus:ring-0 cursor-pointer"
+      >
+        <option value="newest">Latest Lead</option>
+        <option value="oldest">Legacy Lead</option>
+      </select>
+    </div>
+  </div>
 
  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-2">
     <div className="bg-white/70 backdrop-blur-md p-8 rounded-[35px] border border-white/60 shadow-sm flex flex-col gap-2 group transition-all hover:bg-white hover:shadow-md">
@@ -172,9 +219,10 @@ const Faculties = () => {
 
   <DataTable
  columns={columns}
- data={filteredFaculties}
+ data={sortedFaculties}
  loading={loading}
  onSearch={handleSearch}
+ onExport={handleExport}
  onApprove={isSuperAdmin ? handleApprove : undefined}
  onBlock={isSuperAdmin ? handleBlock : undefined}
  searchPlaceholder="Search leads by name or email..."

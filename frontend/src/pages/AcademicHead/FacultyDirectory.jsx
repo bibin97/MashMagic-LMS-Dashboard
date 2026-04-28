@@ -144,7 +144,7 @@ const FacultyDirectory = () => {
  <Users size={32} />
  </div>
  <div>
- <h1 className="text-3xl font-black text-slate-900 tracking-tighter uppercase ">Faculty Directory</h1>
+ <h1 className="text-3xl lg:text-4xl font-black text-slate-900 tracking-tighter uppercase leading-none">Faculty Directory</h1>
  <p className="text-slate-500 text-[10px] font-bold uppercase tracking-[0.2em] mt-1 flex items-center gap-2">
  <Activity size={12} className="text-[#008080]" />
  Comprehensive management of faculty profiles, assigned student cohorts, and live session timelines

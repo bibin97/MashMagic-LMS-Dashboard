@@ -50,10 +50,10 @@ const AcademicHeadLayout = () => {
  title="Academic Head"
  />
  
- <div className={`flex-1 flex flex-col min-w-0 w-full h-screen overflow-y-auto transition-all duration-300 ${isCollapsed ? 'md:ml-24' : 'md:ml-72'}`}>
- <Navbar onMenuClick={() => setIsSidebarOpen(true)} />
- <main className="p-6 md:p-10 overflow-x-hidden w-full max-w-[100vw]">
- <AnimatePresence mode="wait">
+  <div className={`flex-1 flex flex-col min-w-0 w-full h-screen overflow-y-auto transition-all duration-300 ${isCollapsed ? 'md:ml-[88px]' : 'md:ml-72'}`}>
+    <Navbar onMenuClick={() => setIsSidebarOpen(true)} />
+    <main className="p-4 md:p-10 overflow-x-hidden w-full max-w-full">
+      <AnimatePresence mode="wait">
  <motion.div
  key={location.pathname}
  initial={{ opacity: 0, y: 15, scale: 0.98 }}
