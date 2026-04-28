@@ -19,18 +19,13 @@
 }
 
 /* Global Poppins for main UI */
-body, h1, h2, h3, h4, h5, h6, .font-black, .font-bold {
+body, h1, h2, h3, h4, h5, h6, .font-black, .font-bold, p, span, label, input, select, textarea, small {
   font-family: 'Poppins', sans-serif !important;
-}
-
-/* Inter for sub-texts and dashboard data for better readability */
-p, span, label, input, select, textarea, small, .italic {
-  font-family: 'Inter', sans-serif !important;
 }
 
 /* Specific subtext classes */
 .text-slate-500, .text-slate-400, .text-slate-300 {
-  font-family: 'Inter', sans-serif !important;
+  font-family: 'Poppins', sans-serif !important;
 }
 
 /* Improve readability only inside light/white surfaces */
@@ -145,7 +140,6 @@ body::after {
 
 /* Clean, modern typography */
 .italic-header {
-  font-style: italic;
   font-weight: 900;
   letter-spacing: -0.05em;
   text-transform: uppercase;
