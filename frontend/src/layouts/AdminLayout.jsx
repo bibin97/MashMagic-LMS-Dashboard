@@ -15,17 +15,41 @@ import {
     ScrollText 
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import api from '../services/api';
 
 const AdminLayout = () => {
     const { user } = useAuth();
     const location = useLocation();
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [isCollapsed, setIsCollapsed] = useState(false);
+    const [pendingApprovalsCount, setPendingApprovalsCount] = useState(0);
+
+    const fetchPendingApprovals = async () => {
+        try {
+            const res = await api.get('/admin/pending-users');
+            if (res.data.success) {
+                setPendingApprovalsCount(res.data.data.length);
+            }
+        } catch (error) {
+            console.error('Error fetching pending approvals:', error);
+        }
+    };
+
+    useEffect(() => {
+        if (user) {
+            fetchPendingApprovals();
+            // Allow components inside Outlet to trigger a nav refresh
+            window.refetchNotifications = fetchPendingApprovals;
+        }
+        return () => {
+            window.refetchNotifications = null;
+        };
+    }, [user]);
 
     const navItems = [
         { path: '/admin/dashboard', icon: <LayoutDashboard size={20} />, label: 'Dashboard', perm: 'dashboard' },
         { path: '/admin/admin-management', icon: <UserCheck size={20} />, label: 'Sub Admins', perm: 'admins' },
-        { path: '/admin/approvals', icon: <UserCheck size={20} />, label: 'Approvals', perm: 'approvals' },
+        { path: '/admin/approvals', icon: <UserCheck size={20} />, label: 'Approvals', perm: 'approvals', dotBadge: pendingApprovalsCount },
         { path: '/admin/students', icon: <Users size={20} />, label: 'Students', perm: 'students' },
         { path: '/admin/mentors', icon: <UserSquare2 size={20} />, label: 'Mentors', perm: 'mentors' },
         { path: '/admin/faculties', icon: <GraduationCap size={20} />, label: 'Faculties', perm: 'faculties' },

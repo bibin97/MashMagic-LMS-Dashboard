@@ -101,14 +101,21 @@ const Sidebar = ({ isOpen, setIsOpen, isCollapsed, setIsCollapsed, navItems, tit
                                         {item.badge}
                                     </span>
                                 )}
+                                {item.dotBadge > 0 && (
+                                    <span className="w-2.5 h-2.5 rounded-full bg-yellow-400 shadow-[0_0_8px_rgba(250,204,21,0.8)] animate-pulse shrink-0 ml-2"></span>
+                                )}
                             </div>
                         )}
                         
                         {/* Tooltip for collapsed state */}
                         {isCollapsed && (
                             <div className="absolute left-full ml-4 px-3 py-2 bg-slate-900 text-white text-[10px] font-black uppercase tracking-widest rounded-lg opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity border border-white/10 z-[1100] whitespace-nowrap">
-                                {item.label} {item.badge > 0 ? `(${item.badge})` : ''}
+                                {item.label} {item.badge > 0 ? `(${item.badge})` : ''} {item.dotBadge > 0 ? `(${item.dotBadge} Pending)` : ''}
                             </div>
+                        )}
+
+                        {isCollapsed && item.dotBadge > 0 && (
+                            <span className="w-2 h-2 rounded-full bg-yellow-400 shadow-[0_0_8px_rgba(250,204,21,0.8)] animate-pulse absolute top-2 right-2"></span>
                         )}
                     </NavLink>
                 ))}
