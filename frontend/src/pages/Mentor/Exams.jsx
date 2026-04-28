@@ -94,7 +94,7 @@ const Exams = () => {
  </div>
  <div>
  <h1 className="text-3xl font-black text-slate-900 tracking-tighter uppercase ">Academic Milestones</h1>
- <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mt-1">Exam Alerts & Assessment Tracking to monitor student performance • PHASE 2026</p>
+ <p className="text-[10px] font-bold text-slate-600 uppercase tracking-[0.2em] mt-1">Exam Alerts & Assessment Tracking to monitor student performance • PHASE 2026</p>
  </div>
  </div>
 
@@ -149,7 +149,7 @@ const Exams = () => {
  {loading ? (
  <div className="flex flex-col items-center justify-center p-20 space-y-4">
  <div className="w-12 h-12 border-4 border-[#008080] border-t-transparent rounded-full animate-spin"></div>
- <p className="text-xs font-black text-slate-400 uppercase tracking-widest animate-pulse">Syncing Milestone Data...</p>
+ <p className="text-xs font-black text-slate-600 uppercase tracking-widest animate-pulse">Syncing Milestone Data...</p>
  </div>
  ) : activeTab === 'pending' ? (
  pendingExams.length === 0 ? (
@@ -158,7 +158,7 @@ const Exams = () => {
  <CheckCircle2 size={40} />
  </div>
  <h3 className="text-lg font-black text-slate-900 tracking-tight">No Pending Assessments</h3>
- <p className="text-xs font-bold text-slate-400 mt-2 uppercase tracking-widest leading-loose max-w-sm mx-auto">
+ <p className="text-xs font-bold text-slate-600 mt-2 uppercase tracking-widest leading-loose max-w-sm mx-auto">
  All students are currently in compliance with their exam schedules. Keep up the high performance!
  </p>
  </div>
@@ -187,13 +187,13 @@ const Exams = () => {
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <div className="bg-slate-50 p-5 rounded-2xl border border-slate-100 space-y-3">
  <div>
- <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1">Target Chapter</span>
+ <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest block mb-1">Target Chapter</span>
  <p className="text-xs font-black text-slate-900 ">
  {exam.chapter || 'Pending...'}
  </p>
  </div>
  <div>
- <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1">Portions / Details</span>
+ <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest block mb-1">Portions / Details</span>
  <p className="text-[11px] font-bold text-slate-600 ">
  {exam.portions || 'Scope assignment pending from Academic Head'}
  </p>
@@ -208,7 +208,7 @@ const Exams = () => {
  </div>
  <div className="bg-slate-50 p-5 rounded-2xl border border-slate-100 flex items-center justify-between">
  <div>
- <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest block">Target Timeline</span>
+ <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest block">Target Timeline</span>
  <p className="text-sm font-black text-[#008080] ">
  {exam.scheduled_date ? new Date(exam.scheduled_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' }) : 'Date TBD'}
  </p>
@@ -218,8 +218,8 @@ const Exams = () => {
  </div>
 
  <div className="flex flex-wrap gap-5 pt-2">
- <div className="flex items-center gap-2 text-slate-400 bg-slate-100/50 px-4 py-2 rounded-xl border border-slate-100/50">
- <Clock size={14} className="text-slate-400" />
+ <div className="flex items-center gap-2 text-slate-600 bg-slate-100/50 px-4 py-2 rounded-xl border border-slate-100/50">
+ <Clock size={14} className="text-slate-600" />
  <span className="text-[10px] font-black uppercase tracking-widest ">Current Progress: {exam.session_count} Sessions</span>
  </div>
  </div>
@@ -244,7 +244,7 @@ const Exams = () => {
  <History size={40} />
  </div>
  <h3 className="text-lg font-black text-slate-900 tracking-tight">No History Found</h3>
- <p className="text-xs font-bold text-slate-400 mt-2 uppercase tracking-widest">Adjust your search or start recording milestones.</p>
+ <p className="text-xs font-bold text-slate-600 mt-2 uppercase tracking-widest">Adjust your search or start recording milestones.</p>
  </div>
  ) : (
  <div className="bg-white rounded-[3rem] border border-slate-100 shadow-sm overflow-hidden">
@@ -252,11 +252,11 @@ const Exams = () => {
  <table className="w-full text-left">
  <thead className="bg-slate-50 border-b border-slate-100">
  <tr>
- <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Milestone</th>
- <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Student</th>
- <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Recorded Date</th>
- <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Score / Insight</th>
- <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Protocol Status</th>
+ <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Milestone</th>
+ <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Student</th>
+ <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Recorded Date</th>
+ <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Score / Insight</th>
+ <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest text-center">Protocol Status</th>
  </tr>
  </thead>
  <tbody className="divide-y divide-slate-50">
@@ -329,7 +329,7 @@ const Exams = () => {
  onClick={() => setFormData({ ...formData, type: 'Complete' })}
  className={`flex-1 py-4 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all duration-500 flex items-center justify-center gap-2 ${formData.type === 'Complete'
  ? 'bg-white text-[#008080] shadow-xl shadow-slate-200/50'
- : 'text-slate-400 hover:text-slate-600'
+ : 'text-slate-600 hover:text-slate-600'
  }`}
  >
  <Target size={14} /> Submit Score
@@ -339,7 +339,7 @@ const Exams = () => {
  onClick={() => setFormData({ ...formData, type: 'Postpone' })}
  className={`flex-1 py-4 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all duration-500 flex items-center justify-center gap-2 ${formData.type === 'Postpone'
  ? 'bg-white text-amber-600 shadow-xl shadow-slate-200/50'
- : 'text-slate-400 hover:text-slate-600'
+ : 'text-slate-600 hover:text-slate-600'
  }`}
  >
  <Calendar size={14} /> Handle Later
@@ -350,7 +350,7 @@ const Exams = () => {
  {formData.type === 'Complete' ? (
  <div className="space-y-6 animate-in fade-in duration-500">
  <div className="space-y-3">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 ">Exam Performance Insight *</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 ">Exam Performance Insight *</label>
  <div className="relative group">
  <div className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#008080] transition-colors">
  <Target size={20} />
@@ -365,14 +365,14 @@ const Exams = () => {
  onChange={(e) => setFormData({ ...formData, score: e.target.value })}
  />
  </div>
- <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest pl-1">Note: This score will be synced with Academic Head reports.</p>
+ <p className="text-[8px] font-bold text-slate-600 uppercase tracking-widest pl-1">Note: This score will be synced with Academic Head reports.</p>
  </div>
  </div>
  ) : (
  <div className="space-y-8 animate-in fade-in duration-500">
  <div className="grid grid-cols-1 gap-8">
  <div className="space-y-3">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 ">Rescheduled Date *</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 ">Rescheduled Date *</label>
  <div className="relative group">
  <Calendar className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-amber-500 transition-colors" size={20} />
  <input
@@ -385,7 +385,7 @@ const Exams = () => {
  </div>
  </div>
  <div className="space-y-3">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 ">Reason for Protocol Shift *</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 ">Reason for Protocol Shift *</label>
  <div className="relative group">
  <FileText className="absolute left-5 top-5 text-slate-300 group-focus-within:text-amber-500 transition-colors" size={20} />
  <textarea

@@ -54,7 +54,7 @@ const StudentDashboard = () => {
  <div className="absolute right-0 top-0 w-64 h-64 bg-teal-50 rounded-full -mr-32 -mt-32 transition-transform group-hover:scale-110 duration-1000 opacity-50" />
  <div className="text-center md:text-left relative z-10">
  <h2 className="text-4xl font-black text-slate-900 tracking-tighter leading-none mb-3 uppercase">Gateway Dashboard</h2>
- <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em] flex items-center justify-center md:justify-start gap-2">
+ <p className="text-slate-600 text-[10px] font-black uppercase tracking-[0.2em] flex items-center justify-center md:justify-start gap-2">
  <div className="w-1.5 h-1.5 rounded-full bg-[#008080] animate-pulse"></div>
  Student sync & direct mentor communication portal
  </p>
@@ -89,7 +89,7 @@ const StudentDashboard = () => {
  required
  />
  <div className="absolute bottom-6 right-6">
- <div className="w-10 h-10 bg-white rounded-xl border border-slate-100 flex items-center justify-center text-slate-400">
+ <div className="w-10 h-10 bg-white rounded-xl border border-slate-100 flex items-center justify-center text-slate-600">
  <Send size={18} />
  </div>
  </div>
@@ -99,7 +99,7 @@ const StudentDashboard = () => {
  disabled={loading}
  className={`w-full py-6 rounded-[24px] font-black text-sm uppercase tracking-[0.3em] flex items-center justify-center gap-4 transition-all
  ${loading 
- ? 'bg-slate-100 text-slate-400 cursor-not-allowed' 
+ ? 'bg-slate-100 text-slate-600 cursor-not-allowed' 
  : 'bg-slate-900 text-white hover:bg-black hover:shadow-2xl hover:shadow-teal-500/20 active:scale-95'}
  `}
  >
@@ -139,7 +139,7 @@ const StudentDashboard = () => {
  </div>
 
  <div className="bg-white p-8 rounded-[40px] border border-slate-100 shadow-sm flex flex-col">
- <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6 flex items-center gap-2">
+ <h4 className="text-[10px] font-black text-slate-600 uppercase tracking-widest mb-6 flex items-center gap-2">
  <History size={14} className="text-teal-500" /> Activity Stream
  </h4>
  <div className="space-y-4 max-h-[350px] overflow-y-auto pr-2 custom-scrollbar">
@@ -156,7 +156,7 @@ const StudentDashboard = () => {
  myUpdates.slice(0, 5).map(update => (
  <div key={update.id} className="p-4 bg-slate-50 border border-slate-100 rounded-[20px] transition-all hover:bg-white hover:shadow-md group/item">
  <div className="flex justify-between items-center mb-2">
- <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{update.formatted_date}</span>
+ <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest">{update.formatted_date}</span>
  <span className="text-[9px] font-black text-teal-600 bg-teal-50 px-2 py-0.5 rounded-full">{update.formatted_time}</span>
  </div>
  <p className="text-xs font-bold text-slate-600 truncate group-hover/item:whitespace-normal group-hover/item:line-clamp-2">

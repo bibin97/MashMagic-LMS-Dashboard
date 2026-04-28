@@ -146,7 +146,7 @@ const Tasks = () => {
  header: 'Task Objective', accessor: 'title', render: (row) => (
  <div className="flex flex-col">
  <span className="font-bold text-slate-900">{row.title}</span>
- <span className="text-xs text-slate-400 font-medium truncate max-w-[200px]">{row.description}</span>
+ <span className="text-xs text-slate-600 font-medium truncate max-w-[200px]">{row.description}</span>
  </div>
  )
  },
@@ -166,7 +166,7 @@ const Tasks = () => {
  header: 'Assigned By', accessor: 'assigner_name', render: (row) => (
  <div className="flex flex-col">
  <span className="text-xs font-bold text-slate-700">{row.assigner_name || 'System Admin'}</span>
- <span className="text-[9px] text-slate-400 font-black uppercase tracking-widest">{row.assigner_role?.replace('_', ' ') || 'admin'}</span>
+ <span className="text-[9px] text-slate-600 font-black uppercase tracking-widest">{row.assigner_role?.replace('_', ' ') || 'admin'}</span>
  </div>
  )
  },
@@ -205,7 +205,7 @@ const Tasks = () => {
  <div className="bg-white/70 backdrop-blur-xl p-10 rounded-[32px] border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.04)] flex flex-col md:flex-row justify-between items-center gap-8">
  <div className="text-center md:text-left">
  <h2 className="text-4xl font-black text-slate-900 tracking-tighter leading-none mb-3 ">Operations Hub</h2>
- <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em] flex items-center justify-center md:justify-start gap-2">
+ <p className="text-slate-600 text-[10px] font-black uppercase tracking-[0.2em] flex items-center justify-center md:justify-start gap-2">
  <div className="w-1.5 h-1.5 rounded-full bg-[#008080] animate-pulse"></div>
  Coordinate and track educational tasks for the mentor network
  </p>
@@ -247,7 +247,7 @@ const Tasks = () => {
  >
  <form onSubmit={handleSubmit} className="flex flex-col gap-6">
  <div className="flex flex-col gap-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Mission Objective</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] ml-1">Mission Objective</label>
  <input
  type="text"
  required
@@ -259,7 +259,7 @@ const Tasks = () => {
  </div>
 
  <div className="flex flex-col gap-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Strategic Parameters</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] ml-1">Strategic Parameters</label>
  <textarea
  rows="4"
  required
@@ -272,7 +272,7 @@ const Tasks = () => {
 
  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
  <div className="flex flex-col gap-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Designated Personnel</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] ml-1">Designated Personnel</label>
  <select
  required
  className="p-5 bg-slate-50/50 border border-slate-100/50 rounded-2xl text-[10px] outline-none focus:bg-white focus:ring-4 focus:ring-[#008080]/5 focus:border-[#008080] transition-all font-black uppercase tracking-[0.1em] appearance-none cursor-pointer shadow-inner"
@@ -305,7 +305,7 @@ const Tasks = () => {
  </select>
  </div>
  <div className="flex flex-col gap-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Temporal Deadline</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] ml-1">Temporal Deadline</label>
  <div className="relative">
  <Calendar size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-[#008080] opacity-50" />
  <input
@@ -320,7 +320,7 @@ const Tasks = () => {
  </div>
 
  <div className="flex flex-col gap-4">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Priority Categorization</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] ml-1">Priority Categorization</label>
  <div className="grid grid-cols-3 gap-4">
  {['Low', 'Medium', 'High'].map((p) => (
  <button

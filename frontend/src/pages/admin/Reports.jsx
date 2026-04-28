@@ -175,7 +175,7 @@ const Reports = () => {
 
 const FilterGroup = ({ label, children }) => (
  <div className="flex flex-col gap-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">{label}</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em]">{label}</label>
  {children}
  </div>
 );

@@ -73,7 +73,7 @@ const MentorHeadInteractions = () => {
  <div className="flex items-center justify-center h-[60vh]">
  <div className="flex flex-col items-center gap-4">
  <Loader2 className="w-10 h-10 text-[#008080] animate-spin" />
- <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Compiling interaction matrix...</p>
+ <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Compiling interaction matrix...</p>
  </div>
  </div>
  );
@@ -85,7 +85,7 @@ const MentorHeadInteractions = () => {
  <div className="bg-white p-10 rounded-[3rem] border border-slate-100 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
  <div>
  <h2 className="text-3xl font-black text-slate-900 tracking-tight uppercase ">Interaction Log Archive</h2>
- <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-1 flex items-center gap-2">
+ <p className="text-slate-600 text-[10px] font-bold uppercase tracking-widest mt-1 flex items-center gap-2">
  <Activity size={14} className="text-[#008080]" />
  Complete repository of mentor-student calls and mentor-faculty interaction reports
  </p>
@@ -115,7 +115,7 @@ const MentorHeadInteractions = () => {
 
  {/* Search and Filters */}
  <div className="relative group max-w-2xl">
- <div className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#008080] transition-colors">
+ <div className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#008080] transition-colors">
  <Search size={20} />
  </div>
  <input
@@ -131,7 +131,7 @@ const MentorHeadInteractions = () => {
  {activeTab === 'mentors' ? (
  <div className="grid grid-cols-1 gap-6">
  {filteredMentorLogs.length === 0 ? (
- <div className="bg-white rounded-[3rem] p-20 text-center border border-slate-100 font-bold text-slate-400">
+ <div className="bg-white rounded-[3rem] p-20 text-center border border-slate-100 font-bold text-slate-600">
  No mentor - student interaction logs found.
  </div>
  ) : (
@@ -159,7 +159,7 @@ const MentorHeadInteractions = () => {
  </span>
  </div>
  <h3 className="text-xl font-black text-slate-900 mb-1">
- {log.mentor_name} <span className="text-slate-400 font-medium mx-2 font-serif">→</span> {log.student_name}
+ {log.mentor_name} <span className="text-slate-600 font-medium mx-2 font-serif">→</span> {log.student_name}
  </h3>
  <p className="text-sm font-medium text-slate-500 line-clamp-2 leading-relaxed">
  "{log.mentor_notes || log.notes || 'No detailed notes provided for this interaction.'}"
@@ -176,7 +176,7 @@ const MentorHeadInteractions = () => {
  Call Missed/Rejected
  </span>
  ) : null}
- <button onClick={() => setViewingLog(log)} className="p-4 bg-slate-50 rounded-2xl text-slate-400 group-hover:bg-[#008080] group-hover:text-white transition-all shadow-sm">
+ <button onClick={() => setViewingLog(log)} className="p-4 bg-slate-50 rounded-2xl text-slate-600 group-hover:bg-[#008080] group-hover:text-white transition-all shadow-sm">
  <ChevronRight size={18} />
  </button>
  </div>
@@ -188,7 +188,7 @@ const MentorHeadInteractions = () => {
  ) : (
  <div className="grid grid-cols-1 gap-6">
  {filteredFacultyLogs.length === 0 ? (
- <div className="bg-white rounded-[3rem] p-20 text-center border border-slate-100 font-bold text-slate-400">
+ <div className="bg-white rounded-[3rem] p-20 text-center border border-slate-100 font-bold text-slate-600">
  No mentor - faculty interaction logs found.
  </div>
  ) : (
@@ -216,7 +216,7 @@ const MentorHeadInteractions = () => {
  </span>
  </div>
  <h3 className="text-xl font-black text-slate-900 mb-1">
- {log.faculty_name} <span className="text-slate-400 font-medium mx-2 font-serif">→</span> {log.student_name}
+ {log.faculty_name} <span className="text-slate-600 font-medium mx-2 font-serif">→</span> {log.student_name}
  </h3>
  <p className="text-sm font-medium text-slate-500 line-clamp-2 leading-relaxed">
  "{log.remarks}"
@@ -228,7 +228,7 @@ const MentorHeadInteractions = () => {
  <div className="w-8 h-8 rounded-full bg-slate-900 flex items-center justify-center text-white text-[10px] font-black">
  {log.faculty_name?.charAt(0)}
  </div>
- <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Submitted By Faculty</span>
+ <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Submitted By Faculty</span>
  </div>
  <div className="flex items-center gap-2">
  <span className={`px-6 py-2 rounded-2xl text-[9px] font-black uppercase tracking-widest shadow-sm border ${log.status === 'Open'
@@ -237,7 +237,7 @@ const MentorHeadInteractions = () => {
  }`}>
  {log.status} Phase
  </span>
- <button onClick={() => setViewingLog({ ...log, category: 'Intelligence' })} className="p-2 bg-slate-50 rounded-xl text-slate-400 hover:bg-[#008080] hover:text-white transition-all shadow-sm">
+ <button onClick={() => setViewingLog({ ...log, category: 'Intelligence' })} className="p-2 bg-slate-50 rounded-xl text-slate-600 hover:bg-[#008080] hover:text-white transition-all shadow-sm">
  <ChevronRight size={16} />
  </button>
  </div>
@@ -259,10 +259,10 @@ const MentorHeadInteractions = () => {
  </div>
  <div>
  <h2 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight ">Interaction Details</h2>
- <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest ">{viewingLog.student_name} • {viewingLog.category}</p>
+ <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest ">{viewingLog.student_name} • {viewingLog.category}</p>
  </div>
  </div>
- <button onClick={() => setViewingLog(null)} className="w-10 h-10 bg-slate-50 text-slate-400 rounded-full flex items-center justify-center hover:bg-slate-100 hover:text-slate-600 transition-all active:scale-90">
+ <button onClick={() => setViewingLog(null)} className="w-10 h-10 bg-slate-50 text-slate-600 rounded-full flex items-center justify-center hover:bg-slate-100 hover:text-slate-600 transition-all active:scale-90">
  <X size={20} />
  </button>
  </div>
@@ -270,11 +270,11 @@ const MentorHeadInteractions = () => {
  {/* Summary Grid */}
  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
  <div className="bg-slate-50 p-4 rounded-3xl border border-slate-100">
- <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Date</p>
+ <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest mb-1">Date</p>
  <p className="text-xs font-black text-slate-900">{new Date(viewingLog.date || viewingLog.created_at).toLocaleDateString()}</p>
  </div>
  <div className="bg-slate-50 p-4 rounded-3xl border border-slate-100">
- <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Student</p>
+ <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest mb-1">Student</p>
  <p className="text-xs font-black text-slate-900">{viewingLog.student_name}</p>
  </div>
  <div className="bg-[#008080]/10 p-4 rounded-3xl border border-[#008080]">
@@ -282,68 +282,68 @@ const MentorHeadInteractions = () => {
  <p className="text-xs font-black text-[#008080]">{viewingLog.mentor_name || viewingLog.faculty_name}</p>
  </div>
  <div className="bg-slate-50 p-4 rounded-3xl border border-slate-100">
- <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Status</p>
+ <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest mb-1">Status</p>
  <p className="text-xs font-black text-slate-900">{viewingLog.connected_today === false ? 'Missed' : viewingLog.status || 'Resolved'}</p>
  </div>
  </div>
 
  {/* Details section */}
  <div className="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm">
- <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 border-b border-slate-100 pb-2">Detailed Report</h4>
+ <h4 className="text-[10px] font-black text-slate-600 uppercase tracking-widest mb-4 border-b border-slate-100 pb-2">Detailed Report</h4>
  {viewingLog.category === 'Student Call' ? (
  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
  <div>
- <p className="text-[10px] font-bold text-slate-400 uppercase mb-1 flex items-center gap-1">Self Clarity & Confidence</p>
+ <p className="text-[10px] font-bold text-slate-600 uppercase mb-1 flex items-center gap-1">Self Clarity & Confidence</p>
  <p className="text-sm font-semibold text-slate-800">{viewingLog.self_clarity}% • {viewingLog.confidence}/5</p>
  </div>
  <div>
- <p className="text-[10px] font-bold text-slate-400 uppercase mb-1 flex items-center gap-1">Confusing Topics</p>
+ <p className="text-[10px] font-bold text-slate-600 uppercase mb-1 flex items-center gap-1">Confusing Topics</p>
  <p className="text-sm font-semibold text-slate-800">{viewingLog.confusing_topic || 'None'}</p>
  </div>
  <div>
- <p className="text-[10px] font-bold text-slate-400 uppercase mb-1 flex items-center gap-1">Motivation & Anxiety</p>
+ <p className="text-[10px] font-bold text-slate-600 uppercase mb-1 flex items-center gap-1">Motivation & Anxiety</p>
  <p className="text-sm font-semibold text-slate-800">{viewingLog.motivation_level || 'N/A'} • {viewingLog.exam_anxiety || 'N/A'}</p>
  </div>
  <div>
- <p className="text-[10px] font-bold text-slate-400 uppercase mb-1 flex items-center gap-1">Action Needed</p>
+ <p className="text-[10px] font-bold text-slate-600 uppercase mb-1 flex items-center gap-1">Action Needed</p>
  <p className="text-sm font-semibold text-slate-800">{viewingLog.mentor_action_needed || 'None'}</p>
  </div>
  <div className="col-span-full mt-2">
- <p className="text-[10px] font-bold text-slate-400 uppercase mb-1">Mentor Notes</p>
+ <p className="text-[10px] font-bold text-slate-600 uppercase mb-1">Mentor Notes</p>
  <p className="text-sm text-slate-600 bg-slate-50 p-4 rounded-2xl border border-slate-100 font-medium">{viewingLog.mentor_notes || 'No notes left by mentor'}</p>
  </div>
  </div>
  ) : viewingLog.category === 'Faculty Call' ? (
  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
  <div>
- <p className="text-[10px] font-bold text-slate-400 uppercase mb-1">Session & Chapter</p>
+ <p className="text-[10px] font-bold text-slate-600 uppercase mb-1">Session & Chapter</p>
  <p className="text-sm font-semibold text-slate-800">#{viewingLog.session_number} • {viewingLog.chapter}</p>
  </div>
  <div>
- <p className="text-[10px] font-bold text-slate-400 uppercase mb-1">Topics</p>
+ <p className="text-[10px] font-bold text-slate-600 uppercase mb-1">Topics</p>
  <p className="text-sm font-semibold text-slate-800">{viewingLog.topics_covered}</p>
  </div>
  <div>
- <p className="text-[10px] font-bold text-slate-400 uppercase mb-1">Performance & Risk</p>
+ <p className="text-[10px] font-bold text-slate-600 uppercase mb-1">Performance & Risk</p>
  <p className="text-sm font-semibold text-slate-800">{viewingLog.student_performance}/5 • {viewingLog.risk_level} Risk</p>
  </div>
  <div>
- <p className="text-[10px] font-bold text-slate-400 uppercase mb-1">Parent Update Required</p>
+ <p className="text-[10px] font-bold text-slate-600 uppercase mb-1">Parent Update Required</p>
  <p className="text-sm font-semibold text-slate-800">{viewingLog.parent_update_needed}</p>
  </div>
  <div className="col-span-full mt-2">
- <p className="text-[10px] font-bold text-slate-400 uppercase mb-1">Mentor Notes</p>
+ <p className="text-[10px] font-bold text-slate-600 uppercase mb-1">Mentor Notes</p>
  <p className="text-sm text-slate-600 bg-slate-50 p-4 rounded-2xl border border-slate-100 font-medium">{viewingLog.notes || 'No private notes'}</p>
  </div>
  </div>
  ) : (
  <div className="grid grid-cols-1 gap-6">
  <div>
- <p className="text-[10px] font-bold text-slate-400 uppercase mb-1">Issue Type</p>
+ <p className="text-[10px] font-bold text-slate-600 uppercase mb-1">Issue Type</p>
  <p className="text-sm font-semibold text-slate-800">{viewingLog.type}</p>
  </div>
  <div className="col-span-full mt-2">
- <p className="text-[10px] font-bold text-slate-400 uppercase mb-1">Faculty Remarks</p>
+ <p className="text-[10px] font-bold text-slate-600 uppercase mb-1">Faculty Remarks</p>
  <p className="text-sm text-slate-600 bg-slate-50 p-4 rounded-2xl border border-slate-100 font-medium">{viewingLog.remarks}</p>
  </div>
  </div>

@@ -151,11 +151,11 @@ const FacultySessions = () => {
  <ArrowRight size={14} className="group-hover/btn:translate-x-1 transition-transform" />
  </button>
  ) : (
- <button className="flex-1 py-4 bg-slate-50 text-slate-400 rounded-2xl font-black text-[10px] uppercase tracking-widest cursor-default">
+ <button className="flex-1 py-4 bg-slate-50 text-slate-600 rounded-2xl font-black text-[10px] uppercase tracking-widest cursor-default">
  Session Concluded
  </button>
  )}
- <button className="p-4 bg-white border border-slate-100 rounded-2xl text-slate-400 hover:text-slate-900 transition-all">
+ <button className="p-4 bg-white border border-slate-100 rounded-2xl text-slate-600 hover:text-slate-900 transition-all">
  <MoreVertical size={18} />
  </button>
  </div>
@@ -167,7 +167,7 @@ const FacultySessions = () => {
  <Calendar size={48} />
  </div>
  <h3 className="text-2xl font-black text-slate-900 tracking-tight ">No sessions scheduled</h3>
- <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px] mt-2">Use the "Schedule" button to create your first class</p>
+ <p className="text-slate-600 font-bold uppercase tracking-widest text-[10px] mt-2">Use the "Schedule" button to create your first class</p>
  </div>
  )}
  </div>
@@ -182,14 +182,14 @@ const FacultySessions = () => {
  <h3 className="text-2xl font-black tracking-tight ">Plan Session</h3>
  <p className="text-[10px] font-black uppercase tracking-[0.2em] opacity-60">Academic Planning Engine</p>
  </div>
- <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:text-white transition-colors relative">
+ <button onClick={() => setIsModalOpen(false)} className="text-slate-600 hover:text-white transition-colors relative">
  <Plus size={24} className="rotate-45" />
  </button>
  </div>
  <form onSubmit={handleSubmit} className="p-12 space-y-10 max-h-[70vh] overflow-y-auto custom-scrollbar">
  <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
  <div className="space-y-4">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4">Topic / Subject</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-4">Topic / Subject</label>
  <input
  type="text"
  placeholder="e.g. Advanced Mathematics"
@@ -200,7 +200,7 @@ const FacultySessions = () => {
  />
  </div>
  <div className="space-y-4">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4">Schedule Date</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-4">Schedule Date</label>
  <input
  type="date"
  className="w-full px-10 py-5 bg-slate-50 border border-slate-100 rounded-[2rem] text-xs font-bold focus:outline-none focus:ring-4 focus:ring-[#008080]/5 focus:border-[#008080] transition-all shadow-sm"
@@ -213,7 +213,7 @@ const FacultySessions = () => {
 
  <div className="space-y-6">
  <div className="flex items-center justify-between ml-4">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Enroll Students ({formData.studentIds.length})</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Enroll Students ({formData.studentIds.length})</label>
  <button
  type="button"
  onClick={() => setFormData({ ...formData, studentIds: students.map(s => s.id) })}
@@ -239,7 +239,7 @@ const FacultySessions = () => {
  </div>
  <div className="flex-1 min-w-0">
  <p className="text-xs font-bold truncate">{student.name}</p>
- <p className={`text-[9px] font-black uppercase tracking-tighter ${formData.studentIds.includes(student.id) ? 'text-[#008080]' : 'text-slate-400'
+ <p className={`text-[9px] font-black uppercase tracking-tighter ${formData.studentIds.includes(student.id) ? 'text-[#008080]' : 'text-slate-600'
  }`}>{student.roll_number || 'ID UNKNOWN'}</p>
  </div>
  {formData.studentIds.includes(student.id) && <CheckCircle size={14} className="animate-in zoom-in" />}

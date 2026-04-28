@@ -66,7 +66,7 @@ const FacultyAudit = () => {
  if (loading) return (
  <div className="p-20 text-center">
  <div className="w-16 h-16 border-4 border-[#008080] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
- <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">Synchronizing Audit Data...</p>
+ <p className="text-slate-600 font-bold uppercase tracking-widest text-[10px]">Synchronizing Audit Data...</p>
  </div>
  );
 
@@ -91,17 +91,17 @@ const FacultyAudit = () => {
  <table className="w-full text-left border-separate border-spacing-0">
  <thead>
  <tr className="bg-slate-50">
- <th className="p-6 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100 rounded-tl-[1.5rem]">Faculty Member</th>
- <th className="p-6 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">Session Date</th>
- <th className="p-6 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">Chapter / Topic</th>
- <th className="p-6 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100 text-center">Audit Status</th>
- <th className="p-6 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100 text-center rounded-tr-[1.5rem]">Verification</th>
+ <th className="p-6 text-[10px] font-black text-slate-600 uppercase tracking-widest border-b border-slate-100 rounded-tl-[1.5rem]">Faculty Member</th>
+ <th className="p-6 text-[10px] font-black text-slate-600 uppercase tracking-widest border-b border-slate-100">Session Date</th>
+ <th className="p-6 text-[10px] font-black text-slate-600 uppercase tracking-widest border-b border-slate-100">Chapter / Topic</th>
+ <th className="p-6 text-[10px] font-black text-slate-600 uppercase tracking-widest border-b border-slate-100 text-center">Audit Status</th>
+ <th className="p-6 text-[10px] font-black text-slate-600 uppercase tracking-widest border-b border-slate-100 text-center rounded-tr-[1.5rem]">Verification</th>
  </tr>
  </thead>
  <tbody>
  {sessions.length === 0 ? (
  <tr>
- <td colSpan="5" className="p-20 text-center text-slate-400 font-bold uppercase tracking-widest text-xs">
+ <td colSpan="5" className="p-20 text-center text-slate-600 font-bold uppercase tracking-widest text-xs">
  No session reports available for audit.
  </td>
  </tr>
@@ -126,7 +126,7 @@ const FacultyAudit = () => {
  <td className="p-6 border-b border-slate-50">
  <div className="flex flex-col gap-1">
  <span className="text-xs font-black text-slate-900 uppercase tracking-tight">{session.chapter}</span>
- <span className="text-[10px] text-slate-400 font-bold line-clamp-1">{session.topics_covered}</span>
+ <span className="text-[10px] text-slate-600 font-bold line-clamp-1">{session.topics_covered}</span>
  </div>
  </td>
  <td className="p-6 border-b border-slate-50 text-center">

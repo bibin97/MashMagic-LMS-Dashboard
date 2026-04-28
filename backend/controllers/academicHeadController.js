@@ -853,16 +853,38 @@ module.exports = {
     editStudent: async (req, res) => {
         try {
             const { id } = req.params;
-            const { name, grade, subject, course, email, meetingLink, meeting_link, password } = req.body;
+            const { 
+                name, grade, subject, course, email, meetingLink, meeting_link, 
+                password, subjects_json, selectedSubjects, mentor_id 
+            } = req.body;
             const finalMeetingLink = meetingLink || meeting_link;
+            const finalSubjects = selectedSubjects || subjects_json || [];
             
             const [[student]] = await db.query('SELECT name, user_id FROM students WHERE id = ?', [id]);
             if (!student) return res.status(404).json({ success: false, message: "Student not found" });
 
+            // Prepare primary faculty/subject for legacy columns
+            let primaryFacultyId = null;
+            let primaryFacultyName = null;
+            let primarySubject = subject;
+
+            if (finalSubjects.length > 0) {
+                primaryFacultyId = finalSubjects[0].facultyId;
+                primaryFacultyName = finalSubjects[0].facultyName;
+                primarySubject = primarySubject || finalSubjects[0].subject;
+            }
+
             // Update Students table
             await db.query(
-                'UPDATE students SET name = ?, grade = ?, subject = ?, course = ?, email = ?, meeting_link = ? WHERE id = ?', 
-                [name, grade, subject, course, email || null, finalMeetingLink || null, id]
+                `UPDATE students SET 
+                    name = ?, grade = ?, subject = ?, course = ?, email = ?, 
+                    meeting_link = ?, subjects_json = ?, mentor_id = ?
+                 WHERE id = ?`, 
+                [
+                    name, grade, primarySubject, course, email || null, 
+                    finalMeetingLink || null, JSON.stringify(finalSubjects), 
+                    mentor_id || null, id
+                ]
             );
 
             // Update linked Users table

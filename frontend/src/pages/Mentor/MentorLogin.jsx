@@ -52,14 +52,14 @@ const MentorLogin = () => {
  <img src={mlogo} alt="Logo" className="w-full h-full object-contain scale-[2.5]" />
  </div>
  <h1 className="text-3xl font-black text-slate-900 tracking-tight">Mentor Login</h1>
- <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px] mt-2">Secure Access Portal</p>
+ <p className="text-slate-600 font-bold uppercase tracking-widest text-[10px] mt-2">Secure Access Portal</p>
  </div>
 
  <form onSubmit={handleSubmit} className="space-y-6 relative z-10">
  <div className="space-y-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Phone Number</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Phone Number</label>
  <div className="relative group">
- <Phone size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#008080] transition-colors" />
+ <Phone size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#008080] transition-colors" />
  <input
  name="phone_number"
  type="tel"
@@ -73,9 +73,9 @@ const MentorLogin = () => {
  </div>
 
  <div className="space-y-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Password</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Password</label>
  <div className="relative group">
- <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#008080] transition-colors" />
+ <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#008080] transition-colors" />
  <input
  name="password"
  type="password"
@@ -97,7 +97,7 @@ const MentorLogin = () => {
  </button>
 
  <div className="text-center mt-6">
- <p className="text-slate-400 text-xs font-bold uppercase tracking-widest">
+ <p className="text-slate-600 text-xs font-bold uppercase tracking-widest">
  New Mentor?{' '}
  <Link to="/mentor/signup" className="text-[#008080] hover:text-[#008080] transition-colors">Register Here</Link>
  </p>

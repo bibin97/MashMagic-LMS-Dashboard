@@ -213,16 +213,16 @@ const Registrations = () => {
 
  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
  <div className="flex flex-col gap-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Student Name</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Student Name</label>
  <div className="relative group">
- <User size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#008080] transition-colors" />
+ <User size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#008080] transition-colors" />
  <input type="text" name="name" required value={studentForm.name} onChange={handleStudentChange} className="w-full p-3 pl-12 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-bold" placeholder="Full Name" />
  </div>
  </div>
  <div className="flex flex-col gap-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Email Address (Optional)</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Email Address (Optional)</label>
  <div className="relative group">
- <Mail size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#008080] transition-colors" />
+ <Mail size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#008080] transition-colors" />
  <input type="email" name="email" value={studentForm.email} onChange={handleStudentChange} className="w-full p-3 pl-12 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-bold" placeholder="Email Address (Optional)" />
  </div>
  </div>
@@ -230,16 +230,16 @@ const Registrations = () => {
 
  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
  <div className="flex flex-col gap-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Login Password (Optional)</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Login Password (Optional)</label>
  <div className="relative group">
- <Lock size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#008080] transition-colors" />
+ <Lock size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#008080] transition-colors" />
  <input type="password" name="password" value={studentForm.password} onChange={handleStudentChange} className="w-full p-3 pl-12 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-bold" placeholder="••••••••" />
  </div>
  </div>
  <div className="flex flex-col gap-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Confirm Password (Optional)</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Confirm Password (Optional)</label>
  <div className="relative group">
- <Lock size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#008080] transition-colors" />
+ <Lock size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#008080] transition-colors" />
  <input type="password" name="confirmPassword" value={studentForm.confirmPassword} onChange={handleStudentChange} className="w-full p-3 pl-12 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-bold" placeholder="••••••••" />
  </div>
  </div>
@@ -247,7 +247,7 @@ const Registrations = () => {
 
  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
  <div className="flex flex-col gap-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Grade</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Grade</label>
  <select name="grade" required value={studentForm.grade} onChange={handleStudentChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-bold appearance-none">
  <option value="" disabled>Select Grade</option>
  <option value="KG 1">KG 1</option>
@@ -258,7 +258,7 @@ const Registrations = () => {
  </select>
  </div>
  <div className="flex flex-col gap-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Syllabus</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Syllabus</label>
  <select name="syllabus" required value={studentForm.syllabus} onChange={handleStudentChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-bold appearance-none">
  <option value="" disabled>Select Syllabus</option>
  <option value="CBSE">CBSE</option>
@@ -270,50 +270,50 @@ const Registrations = () => {
  </select>
  </div>
  <div className="flex flex-col gap-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Admission Type</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Admission Type</label>
  <select name="admissionType" required value={studentForm.admissionType} onChange={handleStudentChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-bold appearance-none">
  <option value="new">New Student (Requires Onboarding)</option>
  <option value="existing">Existing Student</option>
  </select>
  </div>
  <div className="flex flex-col gap-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Course</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Course</label>
  <select name="course" required value={studentForm.course} onChange={handleStudentChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-bold appearance-none">
  <option value="" disabled>Select Course</option>
  {coursesList.map(c => <option key={c} value={c}>{c}</option>)}
  </select>
  </div>
  <div className="flex flex-col gap-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Assigned Mentor</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Assigned Mentor</label>
  <select name="mentorId" required value={studentForm.mentorId} onChange={handleStudentChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-bold appearance-none">
  <option value="" disabled>Select Mentor</option>
  {mentors.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
  </select>
  </div>
  <div className="flex flex-col gap-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Reg Number</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Reg Number</label>
  <input type="text" name="registrationNumber" value={studentForm.registrationNumber} onChange={handleStudentChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-bold" placeholder="E.g. REG-001" />
  </div>
  <div className="flex flex-col gap-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Meeting Link</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Meeting Link</label>
  <input type="text" name="meetingLink" value={studentForm.meetingLink} onChange={handleStudentChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-bold" placeholder="Google Meet Link" />
  </div>
  <div className="flex flex-col gap-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Faculty Payment (Per Hour)</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Faculty Payment (Per Hour)</label>
  <input type="number" name="facultyHourlyRate" value={studentForm.facultyHourlyRate} onChange={handleStudentChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-bold" placeholder="Rate in ₹" />
  </div>
  <div className="flex flex-col gap-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Session Hour</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Session Hour</label>
  <input type="text" name="hour" required value={studentForm.hour} onChange={handleStudentChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-bold" placeholder="e.g. 10:00 AM - 11:00 AM" />
  </div>
  <div className="flex flex-col gap-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Next Installment Date</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Next Installment Date</label>
  <input type="date" name="nextInstallmentDate" value={studentForm.nextInstallmentDate} onChange={handleStudentChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-bold" />
  </div>
 
  {/* Enrollment Type Selection */}
  <div className="md:col-span-2 space-y-4">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Enrollment Plan</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Enrollment Plan</label>
  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
  {[
  { id: 'mentorship', label: 'Mentorship only', icon: '🥇' },
@@ -446,44 +446,44 @@ const Registrations = () => {
 
  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
  <div className="flex flex-col gap-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Full Name</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Full Name</label>
  <div className="relative group">
- <User size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-emerald-600 transition-colors" />
+ <User size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-emerald-600 transition-colors" />
  <input type="text" name="name" required value={facultyForm.name} onChange={handleFacultyChange} className="w-full p-3 pl-12 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-emerald-100 font-bold" placeholder="Faculty Name" />
  </div>
  </div>
  <div className="flex flex-col gap-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Email Address</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Email Address</label>
  <div className="relative group">
- <Mail size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-emerald-600 transition-colors" />
+ <Mail size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-emerald-600 transition-colors" />
  <input type="email" name="email" required value={facultyForm.email} onChange={handleFacultyChange} className="w-full p-3 pl-12 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-emerald-100 font-bold" placeholder="Email Address" />
  </div>
  </div>
  <div className="flex flex-col gap-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Phone Number</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Phone Number</label>
  <div className="relative group">
- <Phone size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-emerald-600 transition-colors" />
+ <Phone size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-emerald-600 transition-colors" />
  <input type="tel" name="phone_number" required value={facultyForm.phone_number} onChange={handleFacultyChange} className="w-full p-3 pl-12 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-emerald-100 font-bold" placeholder="Phone Number" />
  </div>
  </div>
  <div className="flex flex-col gap-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Place / City</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Place / City</label>
  <div className="relative group">
- <MapPin size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-emerald-600 transition-colors" />
+ <MapPin size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-emerald-600 transition-colors" />
  <input type="text" name="place" required value={facultyForm.place} onChange={handleFacultyChange} className="w-full p-3 pl-12 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-emerald-100 font-bold" placeholder="Location" />
  </div>
  </div>
  <div className="flex flex-col gap-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Assign Login Password</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Assign Login Password</label>
  <div className="relative group">
- <Lock size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-emerald-600 transition-colors" />
+ <Lock size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-emerald-600 transition-colors" />
  <input type="password" name="password" required value={facultyForm.password} onChange={handleFacultyChange} className="w-full p-3 pl-12 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-emerald-100 font-bold" placeholder="••••••••" />
  </div>
  </div>
  <div className="flex flex-col gap-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Confirm Password</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Confirm Password</label>
  <div className="relative group">
- <Lock size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-emerald-600 transition-colors" />
+ <Lock size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-emerald-600 transition-colors" />
  <input type="password" name="confirmPassword" required value={facultyForm.confirmPassword} onChange={handleFacultyChange} className="w-full p-3 pl-12 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-emerald-100 font-bold" placeholder="••••••••" />
  </div>
  </div>
@@ -500,12 +500,12 @@ const Registrations = () => {
 
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <div className="flex flex-col gap-2">
-        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Faculty ID #</label>
+        <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Faculty ID #</label>
         <input type="text" name="faculty_id_card" value={facultyForm.faculty_id_card} onChange={handleFacultyChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-emerald-100 font-bold" placeholder="FAC-ID-001" />
       </div>
 
       <div className="flex flex-col gap-2">
-        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Primary Subject</label>
+        <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Primary Subject</label>
         <select name="subject" value={facultyForm.subject} onChange={handleFacultyChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-emerald-100 font-bold appearance-none text-black">
           <option value="">Select Subject</option>
           <option value="Mathematics">Mathematics</option>
@@ -523,7 +523,7 @@ const Registrations = () => {
       </div>
 
       <div className="flex flex-col gap-2">
-        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Section Coverage</label>
+        <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Section Coverage</label>
         <select name="section" value={facultyForm.section} onChange={handleFacultyChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-emerald-100 font-bold appearance-none text-black">
           <option value="">Select Section</option>
           <option value="KG">KG</option>
@@ -535,7 +535,7 @@ const Registrations = () => {
       </div>
 
       <div className="flex flex-col gap-2">
-        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Syllabus Expertise</label>
+        <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Syllabus Expertise</label>
         <select name="syllabus" value={facultyForm.syllabus} onChange={handleFacultyChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-emerald-100 font-bold appearance-none text-black">
           <option value="">Select Syllabus</option>
           <option value="CBSE">CBSE</option>
@@ -545,17 +545,17 @@ const Registrations = () => {
       </div>
 
       <div className="flex flex-col gap-2">
-        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Highest Qualification</label>
+        <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Highest Qualification</label>
         <input type="text" name="qualification" value={facultyForm.qualification} onChange={handleFacultyChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-emerald-100 font-bold text-black" placeholder="E.g. MSc, BEd" />
       </div>
 
       <div className="flex flex-col gap-2">
-        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Experience (Years)</label>
+        <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Experience (Years)</label>
         <input type="text" name="experience" value={facultyForm.experience} onChange={handleFacultyChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-emerald-100 font-bold text-black" placeholder="E.g. 5 Years" />
       </div>
 
       <div className="flex flex-col gap-2">
-        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Teaching Mode</label>
+        <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Teaching Mode</label>
         <select name="teaching_mode" value={facultyForm.teaching_mode} onChange={handleFacultyChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-emerald-100 font-bold appearance-none text-black">
           <option value="Online">Online</option>
           <option value="Offline">Offline</option>
@@ -564,14 +564,14 @@ const Registrations = () => {
       </div>
 
       <div className="flex flex-col gap-2">
-        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Hourly Rate (₹)</label>
+        <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Hourly Rate (₹)</label>
         <input type="number" name="hourly_rate" value={facultyForm.hourly_rate} onChange={handleFacultyChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-emerald-100 font-bold text-black" placeholder="Rate in ₹" />
       </div>
 
       <div className="flex flex-col gap-2">
-        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Joining Date</label>
+        <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Joining Date</label>
         <div className="relative group">
-          <Calendar size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-emerald-600 transition-colors" />
+          <Calendar size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-emerald-600 transition-colors" />
           <input type="date" name="joining_date" value={facultyForm.joining_date} onChange={handleFacultyChange} className="w-full p-3 pl-12 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-emerald-100 font-bold text-black" />
         </div>
       </div>
@@ -589,7 +589,7 @@ const Registrations = () => {
             className={`px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 border ${
               facultyForm.languages_proficiency.includes(lang.id)
                 ? 'bg-emerald-600 text-white border-emerald-600 shadow-lg shadow-emerald-100 scale-105'
-                : 'bg-white text-slate-400 border-slate-200 hover:border-emerald-200'
+                : 'bg-white text-slate-600 border-slate-200 hover:border-emerald-200'
             }`}
           >
             {lang.label}
@@ -600,14 +600,14 @@ const Registrations = () => {
 
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       <div className="flex flex-col gap-2">
-        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Availability (Time Slots)</label>
+        <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Availability (Time Slots)</label>
         <div className="relative group">
-          <Clock size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-emerald-600" />
+          <Clock size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-emerald-600" />
           <input type="text" name="availability" value={facultyForm.availability} onChange={handleFacultyChange} className="w-full p-3 pl-12 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-emerald-100 font-bold text-black" placeholder="E.g. 4PM - 9PM Weekdays" />
         </div>
       </div>
       <div className="flex flex-col gap-2">
-        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Internal Remarks</label>
+        <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Internal Remarks</label>
         <textarea name="remarks" value={facultyForm.remarks} onChange={handleFacultyChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-emerald-100 font-bold resize-none h-[46px] text-black" placeholder="Additional notes about faculty expertise..." />
       </div>
     </div>

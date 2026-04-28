@@ -211,7 +211,7 @@ const FacultyInteractionLog = () => {
  if (loading) return (
  <div className="flex flex-col items-center justify-center h-64 gap-4">
  <Loader2 className="animate-spin text-[#008080]" size={40} />
- <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">Loading Intelligence...</p>
+ <p className="text-slate-600 font-bold uppercase tracking-widest text-[10px]">Loading Intelligence...</p>
  </div>
  );
 
@@ -241,7 +241,7 @@ const FacultyInteractionLog = () => {
 
  <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
  <div className="relative group flex-1 sm:flex-none">
- <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#008080] transition-colors" size={16} />
+ <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#008080] transition-colors" size={16} />
  <input
  type="text"
  placeholder="Search logs..."
@@ -273,7 +273,7 @@ const FacultyInteractionLog = () => {
  <h2 className="text-2xl font-black text-white tracking-tight ">
  {editingLogId ? 'Modify Faculty Session' : 'Log Faculty Session'}
  </h2>
- <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mt-1">
+ <p className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] mt-1">
  Date: {formData.date} | Student: {students.find(s => String(s.id) === String(formData.student_id))?.name || 'Not Selected'}
  </p>
  </div>
@@ -287,13 +287,13 @@ const FacultyInteractionLog = () => {
  {/* Mobile scroll indicator */}
  <div className="md:hidden flex items-center justify-center gap-2 p-3 bg-[#008080]/10/50 border-b border-slate-100 ">
  <Filter size={12} className="text-[#008080] animate-pulse" />
- <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Swipe left to view full table</span>
+ <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest">Swipe left to view full table</span>
  <ChevronRight size={12} className="text-[#008080] animate-bounce-x" />
  </div>
  <div className="overflow-x-auto scrollbar-hide md:scrollbar-default">
  <table className="w-full text-left border-collapse">
  <thead>
- <tr className="bg-slate-50/50 border-b border-slate-100 font-black text-[10px] text-slate-400 uppercase tracking-widest text-center">
+ <tr className="bg-slate-50/50 border-b border-slate-100 font-black text-[10px] text-slate-600 uppercase tracking-widest text-center">
  <th className="p-5 border-r border-slate-100 sticky left-0 bg-white z-20 text-left">Student Name</th>
  <th className="p-5 border-r border-slate-100">Date</th>
  <th className="p-5 border-r border-slate-100">SN #</th>
@@ -307,7 +307,7 @@ const FacultyInteractionLog = () => {
  <tr key={log.id} className="group hover:bg-[#008080]/10/30 transition-colors text-center">
  <td className="p-5 border-r border-slate-50 sticky left-0 bg-white group-hover:bg-[#008080]/10/30 transition-colors z-10 text-xs font-black text-slate-900 text-left">{log.student_name}</td>
  <td className="p-5 border-r border-slate-50 text-xs font-bold text-slate-500">{new Date(log.date).toLocaleDateString()}</td>
- <td className="p-5 border-r border-slate-50 text-xs font-black text-slate-400">#{log.session_number}</td>
+ <td className="p-5 border-r border-slate-50 text-xs font-black text-slate-600">#{log.session_number}</td>
  <td className="p-5 border-r border-slate-50 text-xs font-bold text-slate-700">{log.chapter}</td>
  <td className="p-5 border-r border-slate-50">
  <div className="flex gap-1 justify-center">
@@ -318,7 +318,7 @@ const FacultyInteractionLog = () => {
  </td>
  <td className="p-5 sticky right-0 bg-white group-hover:bg-[#008080]/10/30 transition-colors shadow-[-10px_0_15px_-3px_rgba(0,0,0,0.05)]">
  <div className="flex items-center justify-center gap-2">
- <button onClick={() => setViewingLog(log)} className="p-2 text-slate-400 hover:bg-slate-50 hover:text-[#008080] rounded-lg transition-all active:scale-90"><Eye size={14} /></button>
+ <button onClick={() => setViewingLog(log)} className="p-2 text-slate-600 hover:bg-slate-50 hover:text-[#008080] rounded-lg transition-all active:scale-90"><Eye size={14} /></button>
  <button onClick={() => handleOpenModal(log)} className="p-2 text-[#008080] hover:bg-[#008080]/10 rounded-lg transition-colors"><Edit2 size={14} /></button>
  <button onClick={() => handleDelete(log)} className="p-2 text-rose-500 hover:bg-rose-50 rounded-lg transition-colors"><Trash2 size={14} /></button>
  </div>
@@ -336,7 +336,7 @@ const FacultyInteractionLog = () => {
  <TrendingUp size={28} />
  </div>
  <div>
- <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Total Sessions</p>
+ <p className="text-[10px] font-black uppercase tracking-widest text-slate-600">Total Sessions</p>
  <h4 className="text-3xl font-black text-slate-900 tracking-tight">{stats.total}</h4>
  </div>
  </div>
@@ -345,7 +345,7 @@ const FacultyInteractionLog = () => {
  <ShieldAlert size={28} />
  </div>
  <div>
- <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">High Risk Sessions</p>
+ <p className="text-[10px] font-black uppercase tracking-widest text-slate-600">High Risk Sessions</p>
  <h4 className="text-3xl font-black text-rose-600 tracking-tight">{stats.highRisk}</h4>
  </div>
  </div>
@@ -354,7 +354,7 @@ const FacultyInteractionLog = () => {
  <AlertCircle size={28} />
  </div>
  <div>
- <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">P. Update Required</p>
+ <p className="text-[10px] font-black uppercase tracking-widest text-slate-600">P. Update Required</p>
  <h4 className="text-3xl font-black text-amber-600 tracking-tight">{stats.parentUpdate}</h4>
  </div>
  </div>
@@ -370,7 +370,7 @@ const FacultyInteractionLog = () => {
  </h3>
  <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start bg-slate-50/60 p-6 rounded-3xl border border-slate-100">
  <div className="space-y-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 min-h-[22px] flex items-center">Select Student *</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 min-h-[22px] flex items-center">Select Student *</label>
  <select
  name="student_id"
  required
@@ -383,7 +383,7 @@ const FacultyInteractionLog = () => {
  </select>
  </div>
  <div className="space-y-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 min-h-[22px] flex items-center">Date *</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 min-h-[22px] flex items-center">Date *</label>
  <input
  type="date"
  required
@@ -393,7 +393,7 @@ const FacultyInteractionLog = () => {
  />
  </div>
  <div className="space-y-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 min-h-[22px] flex items-center">Session Type</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 min-h-[22px] flex items-center">Session Type</label>
  <select
  className="w-full h-14 px-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
  value={formData.session_type}
@@ -414,7 +414,7 @@ const FacultyInteractionLog = () => {
  </h3>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-8 bg-slate-50/60 p-6 rounded-3xl border border-slate-100">
  <div className="space-y-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 min-h-[22px] flex items-center">Chapter Name *</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 min-h-[22px] flex items-center">Chapter Name *</label>
  <input
  type="text"
  required
@@ -426,7 +426,7 @@ const FacultyInteractionLog = () => {
  </div>
  <div className="grid grid-cols-2 gap-4">
  <div className="space-y-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 min-h-[22px] flex items-center">Performance (1-5)</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 min-h-[22px] flex items-center">Performance (1-5)</label>
  <select
  className="w-full h-14 px-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
  value={formData.student_performance}
@@ -440,7 +440,7 @@ const FacultyInteractionLog = () => {
  </select>
  </div>
  <div className="space-y-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 min-h-[22px] flex items-center">Engagement</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 min-h-[22px] flex items-center">Engagement</label>
  <select
  className="w-full h-14 px-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
  value={formData.engagement_level}
@@ -460,7 +460,7 @@ const FacultyInteractionLog = () => {
  <MessageSquare size={16} className="text-amber-500" /> Section 3: Coverage Summary
  </h3>
  <div className="space-y-2 bg-slate-50/60 p-6 rounded-3xl border border-slate-100">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Topics Covered *</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Topics Covered *</label>
  <textarea
  required
  rows="2"
@@ -477,7 +477,7 @@ const FacultyInteractionLog = () => {
  </h3>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-8 bg-slate-50/60 p-6 rounded-3xl border border-slate-100">
  <div className="space-y-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Homework Given</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Homework Given</label>
  <input
  type="text"
  className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold outline-none"
@@ -486,7 +486,7 @@ const FacultyInteractionLog = () => {
  />
  </div>
  <div className="space-y-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Homework Status</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Homework Status</label>
  <select
  className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold outline-none"
  value={formData.homework_status}
@@ -498,7 +498,7 @@ const FacultyInteractionLog = () => {
  </select>
  </div>
  <div className="space-y-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Test Score (Optional)</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Test Score (Optional)</label>
  <input
  type="text"
  placeholder="e.g. 18/20 or N/A"
@@ -512,7 +512,7 @@ const FacultyInteractionLog = () => {
 
  <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
  <div className="space-y-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Risk Level</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Risk Level</label>
  <select
  className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold outline-none"
  value={formData.risk_level}
@@ -524,7 +524,7 @@ const FacultyInteractionLog = () => {
  </select>
  </div>
  <div className="space-y-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Parent Update Required?</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Parent Update Required?</label>
  <select
  className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold outline-none"
  value={formData.parent_update_needed}
@@ -535,7 +535,7 @@ const FacultyInteractionLog = () => {
  </select>
  </div>
  <div className="space-y-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 text-rose-500">Faculty Intervention?</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 text-rose-500">Faculty Intervention?</label>
  <select
  className="w-full p-4 bg-rose-50 border border-rose-100 rounded-2xl text-xs font-bold outline-none text-rose-700"
  value={formData.faculty_intervention_required}
@@ -549,7 +549,7 @@ const FacultyInteractionLog = () => {
 
  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
  <div className="space-y-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Issues Reported</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Issues Reported</label>
  <textarea
  rows="2"
  className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold outline-none"
@@ -558,7 +558,7 @@ const FacultyInteractionLog = () => {
  ></textarea>
  </div>
  <div className="space-y-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Remedial Plan</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Remedial Plan</label>
  <textarea
  rows="2"
  className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold outline-none"
@@ -569,7 +569,7 @@ const FacultyInteractionLog = () => {
  </div>
 
  <div className="space-y-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Mentor Notes</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Mentor Notes</label>
  <textarea
  rows="2"
  className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold outline-none"
@@ -579,7 +579,7 @@ const FacultyInteractionLog = () => {
  </div>
 
  <div className="space-y-4 bg-slate-50 p-8 rounded-[2rem] border border-slate-100">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 flex items-center gap-2">
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 flex items-center gap-2">
  <Upload size={14} className="text-[#008080]" /> Session Proof (Image/PDF/Docs)
  </label>
 
@@ -599,7 +599,7 @@ const FacultyInteractionLog = () => {
  {uploading ? (
  <Loader2 className="animate-spin text-[#008080]" size={20} />
  ) : (
- <ImageIcon className="text-slate-400 group-hover:text-[#008080]" size={20} />
+ <ImageIcon className="text-slate-600 group-hover:text-[#008080]" size={20} />
  )}
  <span className="text-xs font-black text-slate-600 uppercase tracking-widest">
  {uploading ? 'Uploading...' : 'Choose File'}
@@ -613,7 +613,7 @@ const FacultyInteractionLog = () => {
  <CheckCircle2 size={18} />
  </div>
  <div className="flex flex-col">
- <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">File Attached</span>
+ <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">File Attached</span>
  <a href={formData.screenshot_url} target="_blank" rel="noreferrer" className="text-xs font-bold text-[#008080] hover:underline truncate max-w-[150px]">View Document</a>
  </div>
  <button
@@ -626,7 +626,7 @@ const FacultyInteractionLog = () => {
  </div>
  )}
  </div>
- <p className="text-[9px] font-bold text-slate-400 ">Max size: 5MB. Supports JPG, PNG, PDF, Word</p>
+ <p className="text-[9px] font-bold text-slate-600 ">Max size: 5MB. Supports JPG, PNG, PDF, Word</p>
  </div>
 
  <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-6">
@@ -662,10 +662,10 @@ const FacultyInteractionLog = () => {
  </div>
  <div>
  <h2 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight ">Session Intelligence Report</h2>
- <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest ">{viewingLog.student_name} • Session #{viewingLog.session_number}</p>
+ <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest ">{viewingLog.student_name} • Session #{viewingLog.session_number}</p>
  </div>
  </div>
- <button onClick={() => setViewingLog(null)} className="w-10 h-10 bg-slate-50 text-slate-400 rounded-full flex items-center justify-center hover:bg-slate-100 hover:text-slate-600 transition-all active:scale-90">
+ <button onClick={() => setViewingLog(null)} className="w-10 h-10 bg-slate-50 text-slate-600 rounded-full flex items-center justify-center hover:bg-slate-100 hover:text-slate-600 transition-all active:scale-90">
  <X size={20} />
  </button>
  </div>
@@ -674,13 +674,13 @@ const FacultyInteractionLog = () => {
  {/* Key Stats Row */}
  <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
  <div className="bg-slate-50 p-5 rounded-3xl border border-slate-100">
- <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Risk Status</p>
+ <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest mb-1">Risk Status</p>
  <span className={`text-[10px] font-black uppercase px-2 py-1 rounded-md ${viewingLog.risk_level === 'High' ? 'bg-rose-100 text-rose-600' : viewingLog.risk_level === 'Medium' ? 'bg-amber-100 text-amber-600' : 'bg-emerald-100 text-emerald-600'}`}>
  {viewingLog.risk_level} Risk
  </span>
  </div>
  <div className="bg-slate-50 p-5 rounded-3xl border border-slate-100">
- <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Performance</p>
+ <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest mb-1">Performance</p>
  <div className="flex gap-1">
  {[1, 2, 3, 4, 5].map(star => (
  <div key={star} className={`w-2 h-2 rounded-full ${star <= (viewingLog.student_performance || 0) ? 'bg-amber-400' : 'bg-slate-200'}`}></div>
@@ -688,11 +688,11 @@ const FacultyInteractionLog = () => {
  </div>
  </div>
  <div className="bg-slate-50 p-5 rounded-3xl border border-slate-100">
- <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Engagement</p>
+ <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest mb-1">Engagement</p>
  <p className="text-xs font-black text-slate-900 uppercase">{viewingLog.engagement_level}</p>
  </div>
  <div className="bg-slate-50 p-5 rounded-3xl border border-slate-100">
- <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Date</p>
+ <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest mb-1">Date</p>
  <p className="text-xs font-black text-slate-900 ">{new Date(viewingLog.date).toLocaleDateString()}</p>
  </div>
  <div className="bg-[#008080]/10 p-5 rounded-3xl border border-[#008080]">
@@ -709,7 +709,7 @@ const FacultyInteractionLog = () => {
  <BookOpen size={18} />
  </div>
  <div>
- <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Chapter & Topics</p>
+ <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest mb-1">Chapter & Topics</p>
  <h4 className="text-sm font-black text-slate-900 mb-2">{viewingLog.chapter}</h4>
  <p className="text-xs text-slate-500 font-bold leading-relaxed">{viewingLog.topics_covered}</p>
  </div>
@@ -720,7 +720,7 @@ const FacultyInteractionLog = () => {
  <CheckCircle2 size={18} />
  </div>
  <div>
- <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Homework Assessment</p>
+ <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest mb-1">Homework Assessment</p>
  <p className="text-xs font-black text-slate-900 mb-2">Status: {viewingLog.homework_status}</p>
  <p className="text-xs text-slate-500 font-bold leading-relaxed">{viewingLog.homework_given || 'No homework assigned'}</p>
  </div>
@@ -733,7 +733,7 @@ const FacultyInteractionLog = () => {
  <AlertTriangle size={18} />
  </div>
  <div>
- <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Issues & Roadblocks</p>
+ <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest mb-1">Issues & Roadblocks</p>
  <p className="text-xs text-slate-500 font-bold leading-relaxed ">{viewingLog.issues_reported || 'No issues reported during session'}</p>
  </div>
  </div>
@@ -743,7 +743,7 @@ const FacultyInteractionLog = () => {
  <ShieldAlert size={18} />
  </div>
  <div>
- <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Strategy & Action Plan</p>
+ <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest mb-1">Strategy & Action Plan</p>
  <p className="text-xs text-slate-500 font-bold leading-relaxed ">{viewingLog.remedial_plan || 'Standard path continuation'}</p>
  </div>
  </div>
@@ -754,13 +754,13 @@ const FacultyInteractionLog = () => {
  <div className="p-8 bg-slate-50 rounded-[2.5rem] border border-slate-100 flex flex-col md:flex-row justify-between items-center gap-6">
  <div className="flex items-center gap-6">
  <div className="text-center">
- <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Parent Update</p>
+ <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest mb-1">Parent Update</p>
  <span className={`text-[10px] font-black uppercase px-3 py-1.5 rounded-full ${viewingLog.parent_update_needed === 'Yes' ? 'bg-[#008080] text-white shadow-lg shadow-[#008080]/30' : 'bg-slate-200 text-slate-500'}`}>
  {viewingLog.parent_update_needed}
  </span>
  </div>
  <div className="text-center">
- <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Fac Interv.</p>
+ <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest mb-1">Fac Interv.</p>
  <span className={`text-[10px] font-black uppercase px-3 py-1.5 rounded-full ${viewingLog.faculty_intervention_required === 'Yes' ? 'bg-rose-600 text-white shadow-lg shadow-rose-200' : 'bg-slate-200 text-slate-500'}`}>
  {viewingLog.faculty_intervention_required}
  </span>
@@ -768,7 +768,7 @@ const FacultyInteractionLog = () => {
  </div>
 
  <div className="flex-1 max-w-md">
- <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Mentor Private Notes</p>
+ <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest mb-1">Mentor Private Notes</p>
  <p className="text-xs text-slate-500 font- leading-relaxed">{viewingLog.notes || 'No private notes'}</p>
  </div>
 

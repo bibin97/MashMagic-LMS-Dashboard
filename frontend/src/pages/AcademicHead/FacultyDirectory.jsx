@@ -154,7 +154,7 @@ const FacultyDirectory = () => {
 
  <div className="relative z-10 w-full md:w-96">
  <div className="relative group">
- <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#008080] transition-colors" size={18} />
+ <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#008080] transition-colors" size={18} />
  <input
  type="text"
  placeholder="Find by Name or Email..."
@@ -168,10 +168,10 @@ const FacultyDirectory = () => {
 
  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 px-2">
     <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm flex flex-col gap-2 group transition-all hover:shadow-xl hover:shadow-[#008080]/5 hover:-translate-y-1">
-      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest group-hover:text-[#008080] transition-colors">Total Faculty</span>
+      <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest group-hover:text-[#008080] transition-colors">Total Faculty</span>
       <div className="flex items-end gap-3 font-black text-slate-900 tracking-tighter">
         <span className="text-4xl leading-none">{faculties.length}</span>
-        <span className="text-[10px] text-slate-400 mb-1 uppercase tracking-widest">Active Leads</span>
+        <span className="text-[10px] text-slate-600 mb-1 uppercase tracking-widest">Active Leads</span>
       </div>
     </div>
     
@@ -193,25 +193,25 @@ const FacultyDirectory = () => {
  <div className="flex items-center gap-2 bg-white p-2 border border-slate-100 rounded-2xl shadow-sm">
  <button 
  onClick={() => setSortBy('newest')}
- className={`px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${sortBy === 'newest' ? 'bg-[#008080] text-white shadow-lg shadow-[#008080]/30' : 'text-slate-400 hover:bg-slate-50'}`}
+ className={`px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${sortBy === 'newest' ? 'bg-[#008080] text-white shadow-lg shadow-[#008080]/30' : 'text-slate-600 hover:bg-slate-50'}`}
  >Newest First</button>
  <button 
  onClick={() => setSortBy('oldest')}
- className={`px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${sortBy === 'oldest' ? 'bg-[#008080] text-white shadow-lg shadow-[#008080]/30' : 'text-slate-400 hover:bg-slate-50'}`}
+ className={`px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${sortBy === 'oldest' ? 'bg-[#008080] text-white shadow-lg shadow-[#008080]/30' : 'text-slate-600 hover:bg-slate-50'}`}
  >Oldest First</button>
  <button 
  onClick={() => setSortBy('most_students')}
- className={`px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${sortBy === 'most_students' ? 'bg-[#008080] text-white shadow-lg shadow-[#008080]/30' : 'text-slate-400 hover:bg-slate-50'}`}
+ className={`px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${sortBy === 'most_students' ? 'bg-[#008080] text-white shadow-lg shadow-[#008080]/30' : 'text-slate-600 hover:bg-slate-50'}`}
  >Top Load</button>
  <button 
  onClick={() => setSortBy('most_hours')}
- className={`px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${sortBy === 'most_hours' ? 'bg-[#008080] text-white shadow-lg shadow-[#008080]/30' : 'text-slate-400 hover:bg-slate-50'}`}
+ className={`px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${sortBy === 'most_hours' ? 'bg-[#008080] text-white shadow-lg shadow-[#008080]/30' : 'text-slate-600 hover:bg-slate-50'}`}
  >Most Hours</button>
  </div>
 
  <div className="flex items-center gap-3 bg-white p-2 border border-slate-100 rounded-2xl shadow-sm">
  <div className="flex flex-col gap-0.5 px-2">
- <span className="text-[7px] font-black text-slate-400 uppercase tracking-widest">Audit Start</span>
+ <span className="text-[7px] font-black text-slate-600 uppercase tracking-widest">Audit Start</span>
  <input 
  type="date" 
  className="text-[10px] font-black text-slate-700 outline-none" 
@@ -221,7 +221,7 @@ const FacultyDirectory = () => {
  </div>
  <div className="w-px h-6 bg-slate-100"></div>
  <div className="flex flex-col gap-0.5 px-2">
- <span className="text-[7px] font-black text-slate-400 uppercase tracking-widest">Audit End</span>
+ <span className="text-[7px] font-black text-slate-600 uppercase tracking-widest">Audit End</span>
  <input 
  type="date" 
  className="text-[10px] font-black text-slate-700 outline-none" 
@@ -243,12 +243,12 @@ const FacultyDirectory = () => {
  {loading ? (
  <div className="flex flex-col items-center justify-center p-32 space-y-4">
  <div className="w-14 h-14 border-4 border-[#008080] border-t-transparent rounded-full animate-spin"></div>
- <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest animate-pulse">Syncing Faculty Database...</p>
+ <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest animate-pulse">Syncing Faculty Database...</p>
  </div>
  ) : filteredFaculties.length === 0 ? (
  <div className="bg-white p-20 rounded-[4rem] text-center border-2 border-dashed border-slate-100">
  <Users size={64} className="text-slate-100 mx-auto mb-6" />
- <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">No matching faculty profiles found</p>
+ <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest">No matching faculty profiles found</p>
  </div>
  ) : (
  <div className="bg-white rounded-[3rem] border border-slate-100 shadow-sm overflow-hidden">
@@ -256,11 +256,11 @@ const FacultyDirectory = () => {
  <table className="w-full text-left border-collapse">
  <thead>
  <tr className="bg-slate-50/50 border-b border-slate-100">
- <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Faculty Expert</th>
- <th className="px-6 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Contact Details</th>
- <th className="px-6 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Metrics</th>
- <th className="px-6 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Timeline</th>
- <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] text-right">Actions</th>
+ <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-[0.2em]">Faculty Expert</th>
+ <th className="px-6 py-6 text-[10px] font-black text-slate-600 uppercase tracking-[0.2em]">Contact Details</th>
+ <th className="px-6 py-6 text-[10px] font-black text-slate-600 uppercase tracking-[0.2em]">Metrics</th>
+ <th className="px-6 py-6 text-[10px] font-black text-slate-600 uppercase tracking-[0.2em]">Timeline</th>
+ <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] text-right">Actions</th>
  </tr>
  </thead>
  <tbody className="divide-y divide-slate-50">
@@ -312,7 +312,7 @@ const FacultyDirectory = () => {
  <td className="px-6 py-6">
  <div className="flex flex-col">
  <span className="text-[10px] font-black text-slate-600 uppercase tracking-tight">Active Duty</span>
- <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">
+ <span className="text-[8px] font-bold text-slate-600 uppercase tracking-widest">
  Joined {new Date(faculty.created_at).toLocaleDateString(undefined, { month: 'short', year: 'numeric' })}
  </span>
  </div>
@@ -321,7 +321,7 @@ const FacultyDirectory = () => {
  <div className="flex items-center justify-end gap-2">
  <button 
  onClick={() => setExpandedFaculty(expandedFaculty === faculty.id ? null : faculty.id)}
- className={`p-2 rounded-xl transition-all ${expandedFaculty === faculty.id ? 'bg-slate-900 text-white shadow-xl' : 'bg-slate-100 text-slate-400 hover:text-slate-600'}`}
+ className={`p-2 rounded-xl transition-all ${expandedFaculty === faculty.id ? 'bg-slate-900 text-white shadow-xl' : 'bg-slate-100 text-slate-600 hover:text-slate-600'}`}
  title="Schedule View"
  >
  <Calendar size={16} />
@@ -363,7 +363,7 @@ const FacultyDirectory = () => {
  <span className="text-[10px] font-black text-slate-600 uppercase transition-colors group-hover/student:text-[#008080]">{student.name}</span>
  </div>
  ))}
- {faculty.assignedStudents.length === 0 && <span className="text-[10px] font-bold text-slate-400 ">No assigned students.</span>}
+ {faculty.assignedStudents.length === 0 && <span className="text-[10px] font-bold text-slate-600 ">No assigned students.</span>}
  </div>
  </div>
  {/* Daily Timeline */}
@@ -384,7 +384,7 @@ const FacultyDirectory = () => {
  <ArrowRight size={14} className="text-slate-200 group-hover/session:text-[#008080] transition-colors" />
  </div>
  ))}
- {faculty.todaySchedule.length === 0 && <div className="bg-white p-4 rounded-xl border border-dashed border-slate-200 text-center text-[10px] font-bold text-slate-400 ">No scheduled sessions for today.</div>}
+ {faculty.todaySchedule.length === 0 && <div className="bg-white p-4 rounded-xl border border-dashed border-slate-200 text-center text-[10px] font-bold text-slate-600 ">No scheduled sessions for today.</div>}
  </div>
  </div>
  </div>
@@ -409,13 +409,13 @@ const FacultyDirectory = () => {
  <h2 className="text-lg font-black text-slate-900 flex items-center gap-3 ">
  <Edit2 size={20} className="text-[#008080]" /> Edit Faculty Profile
  </h2>
- <button onClick={() => setIsEditModalOpen(false)} className="w-10 h-10 flex items-center justify-center bg-white rounded-xl text-slate-400 hover:text-slate-600 hover:shadow-md transition-all">
+ <button onClick={() => setIsEditModalOpen(false)} className="w-10 h-10 flex items-center justify-center bg-white rounded-xl text-slate-600 hover:text-slate-600 hover:shadow-md transition-all">
  <X size={20} />
  </button>
  </div>
  <div className="p-8 space-y-6">
  <div>
- <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Full Name</label>
+ <label className="block text-[10px] font-black text-slate-600 uppercase tracking-widest mb-2 ml-1">Full Name</label>
  <input
  type="text"
  value={editingFaculty.name}
@@ -424,7 +424,7 @@ const FacultyDirectory = () => {
  />
  </div>
  <div>
- <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Email Address</label>
+ <label className="block text-[10px] font-black text-slate-600 uppercase tracking-widest mb-2 ml-1">Email Address</label>
  <input
  type="email"
  value={editingFaculty.email}
@@ -434,7 +434,7 @@ const FacultyDirectory = () => {
  </div>
  <div className="grid grid-cols-2 gap-6">
  <div>
- <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Phone Number</label>
+ <label className="block text-[10px] font-black text-slate-600 uppercase tracking-widest mb-2 ml-1">Phone Number</label>
  <input
  type="text"
  value={editingFaculty.phone_number || ''}
@@ -443,7 +443,7 @@ const FacultyDirectory = () => {
  />
  </div>
  <div>
- <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Place / City</label>
+ <label className="block text-[10px] font-black text-slate-600 uppercase tracking-widest mb-2 ml-1">Place / City</label>
  <input
  type="text"
  value={editingFaculty.place || ''}
@@ -456,7 +456,7 @@ const FacultyDirectory = () => {
  <div className="px-8 py-6 border-t border-slate-100 bg-slate-50/50 flex justify-end gap-3">
  <button
  onClick={() => setIsEditModalOpen(false)}
- className="px-8 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-all"
+ className="px-8 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest text-slate-600 hover:text-slate-600 hover:bg-slate-100 transition-all"
  >
  Discard
  </button>

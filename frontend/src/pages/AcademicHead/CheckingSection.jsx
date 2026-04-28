@@ -168,12 +168,12 @@ const CheckingSection = () => {
  <table className="w-full text-left border-collapse min-w-max">
  <thead>
  <tr className="bg-slate-50/50 border-b border-slate-100">
- <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Faculty Member</th>
- <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Session Date</th>
- <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Chapter / Topic</th>
- <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Audit Track</th>
- <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Audit Status</th>
- <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Verification</th>
+ <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Faculty Member</th>
+ <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Session Date</th>
+ <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Chapter / Topic</th>
+ <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Audit Track</th>
+ <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest text-center">Audit Status</th>
+ <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest text-right">Verification</th>
  </tr>
  </thead>
  <tbody className="divide-y divide-slate-100">
@@ -194,7 +194,7 @@ const CheckingSection = () => {
  </td>
  <td className="px-8 py-6">
  <p className="text-xs font-black text-slate-900 uppercase tracking-tight">{session.chapter}</p>
- <p className="text-[10px] text-slate-400 font-bold max-w-[200px] truncate">{session.topics_covered}</p>
+ <p className="text-[10px] text-slate-600 font-bold max-w-[200px] truncate">{session.topics_covered}</p>
  </td>
  <td className="px-8 py-6">
  <p className="text-xs font-black text-slate-800 uppercase tracking-tight">{session.student_name}</p>
@@ -214,7 +214,7 @@ const CheckingSection = () => {
  <Check size={10} /> Verified
  </span>
  ) : (
- <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-100 text-slate-400 rounded-full text-[9px] font-black uppercase tracking-widest">
+ <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-100 text-slate-600 rounded-full text-[9px] font-black uppercase tracking-widest">
  <Target size={10} /> Pending
  </span>
  )}
@@ -223,7 +223,7 @@ const CheckingSection = () => {
  <div className="flex items-center justify-end gap-2">
  <button
  onClick={() => handleAddCheck(session.session_id)}
- className={`p-2.5 rounded-xl border transition-all ${isChecked ? 'bg-emerald-600 border-emerald-600 text-white shadow-lg shadow-emerald-100' : 'bg-white border-slate-200 text-slate-400 hover:text-[#008080] hover:border-[#008080] shadow-sm'}`}
+ className={`p-2.5 rounded-xl border transition-all ${isChecked ? 'bg-emerald-600 border-emerald-600 text-white shadow-lg shadow-emerald-100' : 'bg-white border-slate-200 text-slate-600 hover:text-[#008080] hover:border-[#008080] shadow-sm'}`}
  >
  <Check size={18} />
  </button>
@@ -242,7 +242,7 @@ const CheckingSection = () => {
  );
  })}
  {sessions.length === 0 && (
- <tr><td colSpan="6" className="px-8 py-20 text-center text-slate-400 font-bold uppercase tracking-widest text-[10px]">No sessions found for audit.</td></tr>
+ <tr><td colSpan="6" className="px-8 py-20 text-center text-slate-600 font-bold uppercase tracking-widest text-[10px]">No sessions found for audit.</td></tr>
  )}
  </tbody>
  </table>
@@ -256,7 +256,7 @@ const CheckingSection = () => {
  <div className="bg-white rounded-[2.5rem] border border-slate-100 p-16 text-center shadow-sm">
  <ShieldAlert size={48} className="mx-auto text-slate-300 mb-6" />
  <h3 className="text-xl font-black text-slate-900 mb-2 tracking-tight">No Live Classes Evaluated</h3>
- <p className="text-slate-400 font-bold text-sm">Start by clicking "New Evaluation".</p>
+ <p className="text-slate-600 font-bold text-sm">Start by clicking "New Evaluation".</p>
  </div>
  ) : (
  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -264,7 +264,7 @@ const CheckingSection = () => {
  <div key={ev.id} className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-200/50 hover:-translate-y-1 transition-all duration-300 relative group">
  <div className="flex justify-between items-start mb-6">
  <div>
- <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Faculty Name</span>
+ <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Faculty Name</span>
  <h3 className="text-xl font-black text-slate-900">{ev.faculty_name}</h3>
  </div>
  <div className="bg-[#008080]/10 text-[#008080] px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider">
@@ -294,7 +294,7 @@ const CheckingSection = () => {
  </div>
  {ev.remarks && (
  <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 mb-4">
- <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 block">Remarks</span>
+ <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest mb-1 block">Remarks</span>
  <p className="text-xs font-bold text-slate-700 ">"{ev.remarks}"</p>
  </div>
  )}
@@ -316,11 +316,11 @@ const CheckingSection = () => {
  <table className="w-full text-left border-collapse min-w-max">
  <thead>
  <tr className="bg-slate-50/50 border-b border-slate-100">
- <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Date / Session</th>
- <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Faculty / Student</th>
- <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Class Progress</th>
- <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Verification</th>
- <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Action</th>
+ <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Date / Session</th>
+ <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Faculty / Student</th>
+ <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Class Progress</th>
+ <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Verification</th>
+ <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest text-right">Action</th>
  </tr>
  </thead>
  <tbody className="divide-y divide-slate-100">
@@ -335,8 +335,8 @@ const CheckingSection = () => {
  <p className="text-xs font-bold text-[#008080] mt-1">{log.student_name || 'N/A'}</p>
  </td>
  <td className="px-8 py-6 max-w-xs">
- <p className="text-xs font-bold text-slate-700 truncate"><span className="text-slate-400">Chap:</span> {log.chapter}</p>
- <p className="text-xs font-bold text-slate-700 truncate mt-1"><span className="text-slate-400">Topics:</span> {log.topics_covered}</p>
+ <p className="text-xs font-bold text-slate-700 truncate"><span className="text-slate-600">Chap:</span> {log.chapter}</p>
+ <p className="text-xs font-bold text-slate-700 truncate mt-1"><span className="text-slate-600">Topics:</span> {log.topics_covered}</p>
  </td>
  <td className="px-8 py-6">
  {log.verification_status === 'Pending' ? (
@@ -359,7 +359,7 @@ const CheckingSection = () => {
  setVerifyForm({ id: log.id, verification_status: log.verification_status === 'Pending' ? 'Verified' : log.verification_status, verification_remarks: log.verification_remarks || '' });
  setIsVerifyModalOpen(true);
  }}
- className="inline-flex items-center justify-center w-10 h-10 bg-white border border-slate-200 rounded-xl text-slate-400 hover:text-[#008080] hover:border-[#008080] hover:bg-[#008080]/10 shadow-sm transition-all"
+ className="inline-flex items-center justify-center w-10 h-10 bg-white border border-slate-200 rounded-xl text-slate-600 hover:text-[#008080] hover:border-[#008080] hover:bg-[#008080]/10 shadow-sm transition-all"
  >
  <CheckCircle size={18} />
  </button>
@@ -367,7 +367,7 @@ const CheckingSection = () => {
  </tr>
  ))}
  {pendingLogs.length === 0 && (
- <tr><td colSpan="5" className="px-8 py-20 text-center text-slate-400 font-bold">No daily logs found.</td></tr>
+ <tr><td colSpan="5" className="px-8 py-20 text-center text-slate-600 font-bold">No daily logs found.</td></tr>
  )}
  </tbody>
  </table>
@@ -387,7 +387,7 @@ const CheckingSection = () => {
  <form onSubmit={handleEvalSubmit} className="p-10 space-y-6">
  <div className="grid grid-cols-2 gap-6">
  <div className="col-span-2 md:col-span-1">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2 mb-2 block">Check Method</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest pl-2 mb-2 block">Check Method</label>
  <select
  className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold shadow-sm outline-none focus:ring-4 focus:ring-[#008080]"
  value={evalForm.check_method}
@@ -399,7 +399,7 @@ const CheckingSection = () => {
  </select>
  </div>
  <div className="col-span-2 md:col-span-1">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2 mb-2 block">Class Date</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest pl-2 mb-2 block">Class Date</label>
  <input
  type="date" required
  className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold shadow-sm outline-none focus:ring-4 focus:ring-[#008080]"
@@ -408,7 +408,7 @@ const CheckingSection = () => {
  />
  </div>
  <div className="col-span-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2 mb-2 block">Target Faculty</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest pl-2 mb-2 block">Target Faculty</label>
  <select
  required
  className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold shadow-sm outline-none focus:ring-4 focus:ring-[#008080]"
@@ -432,29 +432,29 @@ const CheckingSection = () => {
 
  <div className="grid grid-cols-2 gap-6">
  <div className="space-y-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2 block">Faculty Energy (1-5)</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest pl-2 block">Faculty Energy (1-5)</label>
  <input 
  type="range" min="1" max="5" step="1"
  className="w-full h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-[#008080]"
  value={evalForm.energy_level}
  onChange={(e) => setEvalForm({...evalForm, energy_level: parseInt(e.target.value)})}
  />
- <div className="flex justify-between px-1"><span className="text-[9px] font-bold text-slate-400">Low</span><span className="text-[10px] font-black text-[#008080]">{evalForm.energy_level}</span><span className="text-[9px] font-bold text-slate-400">High</span></div>
+ <div className="flex justify-between px-1"><span className="text-[9px] font-bold text-slate-600">Low</span><span className="text-[10px] font-black text-[#008080]">{evalForm.energy_level}</span><span className="text-[9px] font-bold text-slate-600">High</span></div>
  </div>
  <div className="space-y-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2 block">Student Interaction (1-5)</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest pl-2 block">Student Interaction (1-5)</label>
  <input 
  type="range" min="1" max="5" step="1"
  className="w-full h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-emerald-500"
  value={evalForm.student_interaction_level}
  onChange={(e) => setEvalForm({...evalForm, student_interaction_level: parseInt(e.target.value)})}
  />
- <div className="flex justify-between px-1"><span className="text-[9px] font-bold text-slate-400">Bored</span><span className="text-[10px] font-black text-emerald-600">{evalForm.student_interaction_level}</span><span className="text-[9px] font-bold text-slate-400">Active</span></div>
+ <div className="flex justify-between px-1"><span className="text-[9px] font-bold text-slate-600">Bored</span><span className="text-[10px] font-black text-emerald-600">{evalForm.student_interaction_level}</span><span className="text-[9px] font-bold text-slate-600">Active</span></div>
  </div>
  </div>
 
  <div>
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2 mb-2 block">Proof / Screenshot URL (Optional)</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest pl-2 mb-2 block">Proof / Screenshot URL (Optional)</label>
  <input
  type="text" placeholder="https://..."
  className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold shadow-sm outline-none focus:ring-4 focus:ring-[#008080]"
@@ -463,7 +463,7 @@ const CheckingSection = () => {
  />
  </div>
  <div>
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2 mb-2 block">Remarks</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest pl-2 mb-2 block">Remarks</label>
  <textarea
  className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold shadow-sm outline-none focus:ring-4 focus:ring-[#008080] min-h-[100px]"
  value={evalForm.remarks}
@@ -490,7 +490,7 @@ const CheckingSection = () => {
  </div>
  <form onSubmit={handleVerifySubmit} className="p-10 space-y-6">
  <div>
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2 mb-2 block">Verification Status</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest pl-2 mb-2 block">Verification Status</label>
  <select
  required
  className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold shadow-sm outline-none focus:ring-4 focus:ring-emerald-50"
@@ -503,7 +503,7 @@ const CheckingSection = () => {
  </select>
  </div>
  <div>
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2 mb-2 block">Manager Remarks</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest pl-2 mb-2 block">Manager Remarks</label>
  <textarea
  className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold shadow-sm outline-none focus:ring-4 focus:ring-emerald-50 min-h-[120px]"
  value={verifyForm.verification_remarks}
@@ -547,7 +547,7 @@ const CheckboxItem = ({ label, checked, onChange }) => (
 const TabButton = ({ active, onClick, label }) => (
  <button
  onClick={onClick}
- className={`px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${active ? 'bg-slate-900 text-white shadow-lg shadow-slate-200' : 'bg-slate-50 text-slate-400 hover:bg-slate-100'}`}
+ className={`px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${active ? 'bg-slate-900 text-white shadow-lg shadow-slate-200' : 'bg-slate-50 text-slate-600 hover:bg-slate-100'}`}
  >
  {label}
  </button>

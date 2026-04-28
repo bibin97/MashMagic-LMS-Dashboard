@@ -53,7 +53,7 @@ const StudentLogs = () => {
 
  <div className="relative z-10 w-full md:w-96 flex items-center gap-4">
  <div className="relative flex-1 group">
- <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-emerald-500 transition-colors" size={18} />
+ <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-emerald-500 transition-colors" size={18} />
  <input
  type="text"
  placeholder="Find by Student or Mentor..."
@@ -69,7 +69,7 @@ const StudentLogs = () => {
  {loading ? (
  <div className="flex flex-col items-center justify-center p-32 space-y-4">
  <div className="w-14 h-14 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
- <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest animate-pulse">Synchronizing Intelligence Stream...</p>
+ <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest animate-pulse">Synchronizing Intelligence Stream...</p>
  </div>
  ) : filteredLogs.length === 0 ? (
  <div className="bg-white p-20 rounded-[4rem] text-center border-2 border-dashed border-slate-100 shadow-sm">
@@ -77,7 +77,7 @@ const StudentLogs = () => {
  <MessageSquare size={48} />
  </div>
  <h3 className="text-xl font-black text-slate-900 uppercase">No Interaction Data</h3>
- <p className="text-[10px] font-bold text-slate-400 mt-2 uppercase tracking-[0.2em] leading-loose max-w-sm mx-auto">
+ <p className="text-[10px] font-bold text-slate-600 mt-2 uppercase tracking-[0.2em] leading-loose max-w-sm mx-auto">
  The registry is currently silent. Synchronize with portal to ingest new mentor call logs.
  </p>
  </div>
@@ -101,7 +101,7 @@ const StudentLogs = () => {
  </div>
  <div>
  <h3 className="text-xl font-black text-slate-900 tracking-tight uppercase">{log.student_name}</h3>
- <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-0.5 flex items-center gap-1">
+ <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest mt-0.5 flex items-center gap-1">
  <Calendar size={10} /> {new Date(log.created_at).toLocaleDateString()}
  <span className="mx-2 opacity-20 text-slate-200">|</span>
  <Clock size={10} /> {new Date(log.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
@@ -120,7 +120,7 @@ const StudentLogs = () => {
  <div className="grid grid-cols-2 gap-12 mb-10">
  <div className="space-y-6">
  <div className="bg-slate-50 p-6 rounded-3xl border border-slate-100/50">
- <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2">
+ <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest mb-3 flex items-center gap-2">
  <Heart size={10} className="text-rose-400" /> Sentiment Analysis
  </p>
  <div className="flex flex-wrap gap-2">
@@ -132,7 +132,7 @@ const StudentLogs = () => {
  </div>
  <div className="flex flex-col justify-center">
  <div className="space-y-4">
- <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-widest text-slate-400">
+ <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-widest text-slate-600">
  <span>Communication</span>
  <span className="text-emerald-600">{log.connection_method}</span>
  </div>
@@ -144,7 +144,7 @@ const StudentLogs = () => {
  </div>
 
  <div className="relative group/notes">
- <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-2 ">
+ <p className="text-[8px] font-black text-slate-600 uppercase tracking-widest mb-2 flex items-center gap-2 ">
  <MessageSquare size={10} className="text-[#008080]" /> Mentor Intel Registry
  </p>
  <p className="text-xs text-slate-600 font-bold leading-relaxed line-clamp-3 group-hover/notes:line-clamp-none transition-all duration-500 ">
@@ -200,7 +200,7 @@ const StudentLogs = () => {
  { label: 'Rev Quality', val: selectedLog.revision_quality }
  ].map((stat, i) => (
  <div key={i} className="bg-slate-50 p-6 rounded-[2.5rem] text-center border border-slate-100">
- <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">{stat.label}</p>
+ <p className="text-[8px] font-black text-slate-600 uppercase tracking-widest mb-1">{stat.label}</p>
  <p className="text-xl font-black text-slate-900 tracking-tighter">{stat.val}/10</p>
  <div className="w-full h-1 bg-slate-200 mt-3 rounded-full overflow-hidden">
  <div className="h-full bg-emerald-500" style={{ width: `${stat.val * 10}%` }}></div>
@@ -212,7 +212,7 @@ const StudentLogs = () => {
  <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
  <div className="space-y-10">
  <div className="space-y-4">
- <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2 h-10 border-b border-slate-50 ">
+ <h4 className="text-[10px] font-black text-slate-600 uppercase tracking-widest flex items-center gap-2 h-10 border-b border-slate-50 ">
  <ShieldAlert size={14} className="text-rose-500" /> Barriers Identified
  </h4>
  <div className="bg-slate-50 p-8 rounded-[3rem] border border-slate-100/50 min-h-[150px]">
@@ -224,7 +224,7 @@ const StudentLogs = () => {
  </div>
 
  <div className="space-y-4">
- <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2 h-10 border-b border-slate-50 ">
+ <h4 className="text-[10px] font-black text-slate-600 uppercase tracking-widest flex items-center gap-2 h-10 border-b border-slate-50 ">
  <MessageSquare size={14} className="text-emerald-500" /> Mentor Assessment Registry
  </h4>
  <div className="bg-white p-8 rounded-[3rem] border-2 border-slate-50 shadow-sm min-h-[200px]">
@@ -237,7 +237,7 @@ const StudentLogs = () => {
 
  <div className="space-y-10">
  <div className="space-y-4">
- <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2 h-10 border-b border-slate-50 ">
+ <h4 className="text-[10px] font-black text-slate-600 uppercase tracking-widest flex items-center gap-2 h-10 border-b border-slate-50 ">
  <Activity size={14} className="text-[#008080]" /> Operational Action Plan
  </h4>
  <div className="space-y-6">
@@ -246,7 +246,7 @@ const StudentLogs = () => {
  <BarChart3 size={20} />
  </div>
  <div>
- <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1 ">Mentor Priority Action</p>
+ <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest mb-1 ">Mentor Priority Action</p>
  <p className="text-xs font-bold text-slate-700 ">{selectedLog.mentor_action_needed || "Routine Monitoring"}</p>
  </div>
  </div>
@@ -255,7 +255,7 @@ const StudentLogs = () => {
  <ShieldAlert size={20} />
  </div>
  <div>
- <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1 ">Parent Connect Protocol</p>
+ <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest mb-1 ">Parent Connect Protocol</p>
  <p className="text-xs font-bold text-slate-700 ">{selectedLog.parent_update_priority} Priority Status</p>
  </div>
  </div>
@@ -264,7 +264,7 @@ const StudentLogs = () => {
 
  {selectedLog.screenshot_url && (
  <div className="space-y-4">
- <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest ">Verification Artifact</h4>
+ <h4 className="text-[10px] font-black text-slate-600 uppercase tracking-widest ">Verification Artifact</h4>
  <a
  href={selectedLog.screenshot_url}
  target="_blank"

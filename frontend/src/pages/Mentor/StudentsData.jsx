@@ -67,7 +67,7 @@ const StudentsData = () => {
  <Users className="text-teal-600" size={32} />
  Student Tracking Gateway
  </h1>
- <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em] mt-2">
+ <p className="text-[10px] font-black text-slate-600 uppercase tracking-[0.4em] mt-2">
  Monitor daily progress and task compliance protocols
  </p>
  </div>
@@ -88,7 +88,7 @@ const StudentsData = () => {
  {/* Students List Sidebar */}
  <div className="lg:col-span-4 space-y-4">
  <div className="flex items-center justify-between px-2">
- <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Assigned Personnel</h3>
+ <h3 className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Assigned Personnel</h3>
  <span className="bg-slate-100 text-slate-600 px-3 py-1 rounded-full text-[10px] font-black">
  {filteredStudents.length} Active
  </span>
@@ -102,7 +102,7 @@ const StudentsData = () => {
  ) : filteredStudents.length === 0 ? (
  <div className="bg-white p-12 rounded-[32px] border border-dashed border-slate-200 text-center">
  <AlertCircle className="mx-auto text-slate-200 mb-4" size={48} />
- <p className="text-sm font-bold text-slate-400 uppercase ">No Students Found</p>
+ <p className="text-sm font-bold text-slate-600 uppercase ">No Students Found</p>
  </div>
  ) : (
  filteredStudents.map(student => (
@@ -116,7 +116,7 @@ const StudentsData = () => {
  `}
  >
  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center font-black text-lg transition-transform group-hover:scale-110 duration-500
- ${selectedStudent?.id === student.id ? 'bg-white/10 text-white' : 'bg-slate-50 text-slate-400'}`}>
+ ${selectedStudent?.id === student.id ? 'bg-white/10 text-white' : 'bg-slate-50 text-slate-600'}`}>
  {student.name.charAt(0)}
  </div>
  <div className="text-left flex-1">
@@ -148,7 +148,7 @@ const StudentsData = () => {
  {stat.icon}
  </div>
  <div>
- <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{stat.label}</p>
+ <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest">{stat.label}</p>
  <p className="text-2xl font-black text-slate-900 tracking-tighter ">{stat.value}</p>
  </div>
  </div>
@@ -163,7 +163,7 @@ const StudentsData = () => {
  Daily Activity Streams
  </h3>
  <div className="flex gap-2">
- <span className="text-[10px] font-black text-slate-400 uppercase bg-slate-50 px-4 py-1.5 rounded-full border border-slate-100">
+ <span className="text-[10px] font-black text-slate-600 uppercase bg-slate-50 px-4 py-1.5 rounded-full border border-slate-100">
  {selectedStudent.registration_number || 'UNOFFICIAL-NODE'}
  </span>
  </div>
@@ -173,13 +173,13 @@ const StudentsData = () => {
  {updatesLoading ? (
  <div className="flex flex-col items-center justify-center h-64 space-y-4">
  <div className="w-12 h-12 border-4 border-teal-500/20 border-t-teal-500 rounded-full animate-spin" />
- <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Decrypting Logs...</p>
+ <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Decrypting Logs...</p>
  </div>
  ) : dailyUpdates.length === 0 ? (
  <div className="flex flex-col items-center justify-center h-80 text-center p-12 bg-slate-50/50 rounded-[32px] border border-slate-100">
  <TrendingUp className="text-slate-200 mb-6" size={64} />
  <h4 className="text-lg font-black text-slate-900 tracking-tighter uppercase mb-2">No activity recorded yet</h4>
- <p className="text-sm font-bold text-slate-400 max-w-xs">
+ <p className="text-sm font-bold text-slate-600 max-w-xs">
  This student has not submitted any data through the gateway portal yet.
  </p>
  </div>
@@ -203,7 +203,7 @@ const StudentsData = () => {
  <div className="bg-slate-900 text-white px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest ">
  {update.formatted_date}
  </div>
- <div className="flex items-center gap-1.5 text-slate-400 font-bold text-xs bg-white px-4 py-1.5 rounded-xl border border-slate-100">
+ <div className="flex items-center gap-1.5 text-slate-600 font-bold text-xs bg-white px-4 py-1.5 rounded-xl border border-slate-100">
  <Clock size={14} className="text-teal-500" />
  {update.formatted_time}
  </div>
@@ -233,7 +233,7 @@ const StudentsData = () => {
  <Users className="text-slate-200" size={64} />
  </div>
  <h3 className="text-2xl font-black text-slate-900 tracking-tighter uppercase mb-4 relative z-10">Select a Student Identity</h3>
- <p className="text-sm font-bold text-slate-400 max-w-sm leading-relaxed relative z-10">
+ <p className="text-sm font-bold text-slate-600 max-w-sm leading-relaxed relative z-10">
  Choose a student from the sidebar to visualize their daily activity stream and tracking metrics.
  </p>
  <div className="mt-8 flex gap-3 relative z-10 opacity-30">

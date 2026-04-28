@@ -29,20 +29,20 @@ const SessionLogs = () => {
  l.chapter.toLowerCase().includes(search.toLowerCase())
  );
 
- if (loading) return <div className="p-20 text-center text-slate-400 font-bold animate-pulse uppercase tracking-[0.2em] text-xs">Accessing Verification Audit Trail...</div>;
+ if (loading) return <div className="p-20 text-center text-slate-600 font-bold animate-pulse uppercase tracking-[0.2em] text-xs">Accessing Verification Audit Trail...</div>;
 
  return (
  <div className="space-y-8 pb-10">
  {/* Page Header */}
  <div>
  <h2 className="text-3xl font-black text-slate-900 tracking-tighter uppercase ">Verification Audit</h2>
- <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em] mt-2">Chronological audit ledger of all mentor-student interactions</p>
+ <p className="text-slate-600 text-[10px] font-black uppercase tracking-[0.2em] mt-2">Chronological audit ledger of all mentor-student interactions</p>
  </div>
 
  {/* Action Bar */}
  <div className="flex flex-col md:flex-row justify-between items-center bg-white p-6 rounded-3xl border border-slate-100 shadow-sm gap-4">
  <div className="relative w-full md:w-96">
- <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+ <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600" size={18} />
  <input
  type="text"
  placeholder="Search by student, mentor or unit..."
@@ -62,12 +62,12 @@ const SessionLogs = () => {
  <table className="w-full">
  <thead>
  <tr className="bg-slate-50 border-b border-slate-100">
- <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">Timestamp</th>
- <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">Student Entity</th>
- <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">Subject Module</th>
- <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap text-center">Efficiency</th>
- <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap text-center">Risk Vector</th>
- <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">Operational Notes</th>
+ <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest whitespace-nowrap">Timestamp</th>
+ <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest whitespace-nowrap">Student Entity</th>
+ <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest whitespace-nowrap">Subject Module</th>
+ <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest whitespace-nowrap text-center">Efficiency</th>
+ <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest whitespace-nowrap text-center">Risk Vector</th>
+ <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest whitespace-nowrap">Operational Notes</th>
  </tr>
  </thead>
  <tbody className="divide-y divide-slate-50">
@@ -77,13 +77,13 @@ const SessionLogs = () => {
  <td className="px-8 py-6 whitespace-nowrap">
  <div className="flex flex-col">
  <span className="text-xs font-black text-slate-900">{new Date(log.date).toLocaleDateString()}</span>
- <span className="text-[9px] font-bold text-slate-400 uppercase mt-1">Session {log.session_number}</span>
+ <span className="text-[9px] font-bold text-slate-600 uppercase mt-1">Session {log.session_number}</span>
  </div>
  </td>
  <td className="px-8 py-6 whitespace-nowrap">
  <div className="flex flex-col">
  <span className="text-sm font-black text-slate-700 group-hover:text-emerald-600 transition-colors uppercase tracking-tight">{log.student_name}</span>
- <span className="text-[9px] font-bold text-slate-400 uppercase mt-1">Mentor: {log.mentor_name}</span>
+ <span className="text-[9px] font-bold text-slate-600 uppercase mt-1">Mentor: {log.mentor_name}</span>
  </div>
  </td>
  <td className="px-8 py-6 whitespace-nowrap">
@@ -119,7 +119,7 @@ const SessionLogs = () => {
  <tr>
  <td colSpan="6" className="py-20 text-center">
  <AlertCircle size={40} className="mx-auto text-slate-200 mb-4" />
- <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">No verification logs found matching the filter.</p>
+ <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest">No verification logs found matching the filter.</p>
  </td>
  </tr>
  )}

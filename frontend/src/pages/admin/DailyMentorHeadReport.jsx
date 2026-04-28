@@ -74,13 +74,13 @@ const DailyMentorHeadReport = () => {
  <Target className="text-[#008080]" />
  Daily Verification Report
  </h2>
- <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-1 text-slate-500">
+ <p className="text-slate-600 text-[10px] font-bold uppercase tracking-widest mt-1 text-slate-500">
  Monitor daily student verifications and accountability across mentor heads
  </p>
  </div>
  <div className="flex flex-col md:flex-row gap-4">
  <div className="relative">
- <Calendar size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+ <Calendar size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600" />
  <input
  type="date"
  value={filterDate}
@@ -98,22 +98,22 @@ const DailyMentorHeadReport = () => {
  <table className="w-full text-left border-collapse">
  <thead>
  <tr className="border-b border-slate-100 bg-slate-50">
- <th className="p-4 text-[10px] font-black text-slate-400 uppercase tracking-widest rounded-tl-xl text-center">Date</th>
- <th className="p-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Mentor Head Name</th>
- <th className="p-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Total Students</th>
- <th className="p-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Checked By Them</th>
+ <th className="p-4 text-[10px] font-black text-slate-600 uppercase tracking-widest rounded-tl-xl text-center">Date</th>
+ <th className="p-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">Mentor Head Name</th>
+ <th className="p-4 text-[10px] font-black text-slate-600 uppercase tracking-widest text-center">Total Students</th>
+ <th className="p-4 text-[10px] font-black text-slate-600 uppercase tracking-widest text-center">Checked By Them</th>
  </tr>
  </thead>
  <tbody>
  {loading ? (
  <tr>
- <td colSpan="4" className="p-12 text-center text-slate-400 font-bold animate-pulse">
+ <td colSpan="4" className="p-12 text-center text-slate-600 font-bold animate-pulse">
  Loading report data...
  </td>
  </tr>
  ) : reportData.length === 0 ? (
  <tr>
- <td colSpan="4" className="p-12 text-center text-slate-400 font-bold">
+ <td colSpan="4" className="p-12 text-center text-slate-600 font-bold">
  No Mentor Heads found for this date.
  </td>
  </tr>
@@ -136,7 +136,7 @@ const DailyMentorHeadReport = () => {
  </td>
  <td className="p-4 text-center">
  <div className="inline-flex items-center gap-2 px-3 py-1 bg-slate-50 text-slate-600 rounded-lg text-sm font-black border border-slate-100">
- <Users size={14} className="text-slate-400" />
+ <Users size={14} className="text-slate-600" />
  {row.totalStudents}
  </div>
  </td>
@@ -210,7 +210,7 @@ const DailyMentorHeadReport = () => {
  </ul>
  ) : (
  <div className="h-full flex flex-col items-center justify-center opacity-40">
- <Target size={48} className="text-slate-400 mb-4" />
+ <Target size={48} className="text-slate-600 mb-4" />
  <p className="text-xs font-black text-slate-500 uppercase tracking-[0.2em]">All verifications complete</p>
  </div>
  )}

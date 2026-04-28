@@ -239,7 +239,7 @@ const Timetable = () => {
  </div>
  <div>
  <h1 className="text-3xl font-black text-slate-900 tracking-tighter uppercase ">Academic Scheduling</h1>
- <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mt-1">Master Control for Student Sessions & Timetables</p>
+ <p className="text-[10px] font-bold text-slate-600 uppercase tracking-[0.2em] mt-1">Master Control for Student Sessions & Timetables</p>
  </div>
  </div>
 
@@ -269,10 +269,10 @@ const Timetable = () => {
  { label: 'Aborted', value: summary.cancelled, icon: XCircle, color: 'text-rose-600', bg: 'bg-rose-50/50 border-rose-100/50' },
  ].map((stat, i) => (
  <div key={i} className={`${stat.bg} p-8 rounded-[2.5rem] border shadow-sm flex flex-col items-center text-center group hover:shadow-xl hover:-translate-y-2 transition-all duration-500`}>
- <div className={`w-10 h-10 ${stat.bg.replace('/50', '')} rounded-xl flex items-center justify-center mb-4 text-slate-400 group-hover:scale-110 transition-transform`}>
+ <div className={`w-10 h-10 ${stat.bg.replace('/50', '')} rounded-xl flex items-center justify-center mb-4 text-slate-600 group-hover:scale-110 transition-transform`}>
  <stat.icon size={20} className={stat.color} />
  </div>
- <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{stat.label}</p>
+ <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest mb-1">{stat.label}</p>
  <h4 className={`text-3xl font-black ${stat.color} tracking-tighter`}>{stat.value}</h4>
  </div>
  ))}
@@ -285,9 +285,9 @@ const Timetable = () => {
  <div className="flex flex-wrap items-end gap-6 justify-between">
  {/* 1. Student Target */}
  <div className="flex-1 min-w-[240px]">
- <label className="text-[8px] font-black text-slate-400 uppercase tracking-[0.2em] pl-1 mb-2 block">Target Student</label>
+ <label className="text-[8px] font-black text-slate-600 uppercase tracking-[0.2em] pl-1 mb-2 block">Target Student</label>
  <div className="relative group">
- <Users className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#008080] transition-colors" size={16} />
+ <Users className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#008080] transition-colors" size={16} />
  <select
  value={filters.student_id}
  onChange={(e) => setFilters({ ...filters, student_id: e.target.value })}
@@ -298,15 +298,15 @@ const Timetable = () => {
  <option key={s.id} value={s.id}>{s.name} ({s.student_id})</option>
  ))}
  </select>
- <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={14} />
+ <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-600 pointer-events-none" size={14} />
  </div>
  </div>
 
  {/* 2. Month Navigator */}
  <div className="w-[200px]">
- <label className="text-[8px] font-black text-slate-400 uppercase tracking-[0.2em] pl-1 mb-2 block">Temporal Batch (Month)</label>
+ <label className="text-[8px] font-black text-slate-600 uppercase tracking-[0.2em] pl-1 mb-2 block">Temporal Batch (Month)</label>
  <div className="relative group">
- <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#008080] transition-colors" size={16} />
+ <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#008080] transition-colors" size={16} />
  <select
  onChange={(e) => {
  if (!e.target.value) return;
@@ -335,13 +335,13 @@ const Timetable = () => {
  return <option key={val} value={val}>{label}</option>;
  })}
  </select>
- <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={14} />
+ <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-600 pointer-events-none" size={14} />
  </div>
  </div>
 
  {/* 3. Status Segregation */}
  <div className="w-[200px]">
- <label className="text-[8px] font-black text-slate-400 uppercase tracking-[0.2em] pl-1 mb-2 block">Status segregation</label>
+ <label className="text-[8px] font-black text-slate-600 uppercase tracking-[0.2em] pl-1 mb-2 block">Status segregation</label>
  <select
  value={filters.status}
  onChange={(e) => setFilters({ ...filters, status: e.target.value })}
@@ -362,7 +362,7 @@ const Timetable = () => {
 
  <div className="flex items-center gap-6 pt-6 border-t border-slate-50">
  <div className="flex items-center gap-3">
- <label className="text-[9px] font-black text-slate-400 uppercase ">Custom Range:</label>
+ <label className="text-[9px] font-black text-slate-600 uppercase ">Custom Range:</label>
  <div className="flex items-center bg-slate-50 p-1.5 rounded-xl border border-slate-100">
  <input
  type="date"
@@ -386,7 +386,7 @@ const Timetable = () => {
  {loading ? (
  <div className="flex flex-col items-center justify-center p-32 space-y-4 bg-white rounded-[3rem] border border-slate-100 shadow-sm">
  <div className="w-16 h-16 border-4 border-[#008080] border-t-transparent rounded-full animate-spin"></div>
- <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] animate-pulse">Syncing session stream...</p>
+ <p className="text-[10px] font-black text-slate-600 uppercase tracking-[0.3em] animate-pulse">Syncing session stream...</p>
  </div>
  ) : (
  <div className="space-y-4">
@@ -396,12 +396,12 @@ const Timetable = () => {
 
  <div className="flex-grow p-8 flex flex-col md:flex-row md:items-center justify-between gap-8">
  <div className="flex items-center gap-6 min-w-[250px]">
- <div className="w-16 h-16 bg-slate-50 rounded-[1.5rem] flex items-center justify-center text-slate-400 group-hover:bg-[#008080] group-hover:text-white transition-all duration-700 -rotate-3 group-hover:rotate-0">
+ <div className="w-16 h-16 bg-slate-50 rounded-[1.5rem] flex items-center justify-center text-slate-600 group-hover:bg-[#008080] group-hover:text-white transition-all duration-700 -rotate-3 group-hover:rotate-0">
  <Users size={24} />
  </div>
  <div>
  <h3 className="text-base font-black text-slate-900 tracking-tight uppercase">{session.student_name}</h3>
- <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mt-1">SN #{session.session_number} • {session.session_type}</p>
+ <p className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] mt-1">SN #{session.session_number} • {session.session_type}</p>
  </div>
  </div>
 
@@ -419,7 +419,7 @@ const Timetable = () => {
  </div>
 
  <div className="flex flex-col gap-1 flex-grow min-w-[200px]">
- <span className="text-[8px] font-black text-slate-400 uppercase tracking-[0.2em] pl-1">Chapter / Primary Topic</span>
+ <span className="text-[8px] font-black text-slate-600 uppercase tracking-[0.2em] pl-1">Chapter / Primary Topic</span>
  <p className="text-sm font-black text-slate-900 truncate ">{session.chapter || 'Pending topic assignment'}</p>
  </div>
  </div>
@@ -431,7 +431,7 @@ const Timetable = () => {
  <div className="flex gap-3">
  <button
  onClick={() => handleEditOpen(session)}
- className="w-11 h-11 bg-slate-50 text-white rounded-[1rem] flex items-center justify-center hover:bg-[#008080] hover:text-white transition-all duration-500 active:scale-90 shadow-sm"
+ className="w-11 h-11 bg-slate-50 text-[#008080] rounded-[1rem] flex items-center justify-center hover:bg-[#008080] hover:text-white transition-all duration-500 active:scale-90 shadow-sm"
  >
  <Edit2 size={16} />
  </button>
@@ -453,7 +453,7 @@ const Timetable = () => {
  <Target size={48} />
  </div>
  <h3 className="text-xl font-black text-slate-900 tracking-tight uppercase">Timeline Void Discovery</h3>
- <p className="text-[10px] font-bold text-slate-400 max-w-sm mt-3 uppercase tracking-widest leading-relaxed">No sessions found for the current filter parameters. Adjust your timeline or student selection.</p>
+ <p className="text-[10px] font-bold text-slate-600 max-w-sm mt-3 uppercase tracking-widest leading-relaxed">No sessions found for the current filter parameters. Adjust your timeline or student selection.</p>
  </div>
  )}
  </div>
@@ -468,11 +468,11 @@ const Timetable = () => {
  <h2 className="text-xl font-black text-slate-900 tracking-tight uppercase">
  {editingSession ? 'Reconfigure Session' : 'Deploy New Session'}
  </h2>
- <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mt-1">Master Scheduling Module</p>
+ <p className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] mt-1">Master Scheduling Module</p>
  </div>
  <button
  onClick={() => setIsModalOpen(false)}
- className="w-12 h-12 bg-slate-50 text-slate-400 rounded-2xl flex items-center justify-center hover:bg-slate-100 hover:text-slate-600 transition-all active:scale-90"
+ className="w-12 h-12 bg-slate-50 text-slate-600 rounded-2xl flex items-center justify-center hover:bg-slate-100 hover:text-slate-600 transition-all active:scale-90"
  >
  <XCircle size={24} />
  </button>
@@ -504,7 +504,7 @@ const Timetable = () => {
  </div>
  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
  <div className="space-y-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Student Select *</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Student Select *</label>
  <select
  required
  value={formData.student_id}
@@ -517,7 +517,7 @@ const Timetable = () => {
  </select>
  </div>
  <div className="space-y-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Session Date *</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Session Date *</label>
  <input
  type="date"
  required
@@ -527,7 +527,7 @@ const Timetable = () => {
  />
  </div>
  <div className="space-y-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Start Time *</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Start Time *</label>
  <input
  type="time"
  required
@@ -549,7 +549,7 @@ const Timetable = () => {
  <button
  type="button"
  onClick={() => setIsModalOpen(false)}
- className="flex-1 bg-slate-50 text-slate-400 p-5 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-slate-100 transition-all h-16"
+ className="flex-1 bg-slate-50 text-slate-600 p-5 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-slate-100 transition-all h-16"
  >
  Cancel Operation
  </button>

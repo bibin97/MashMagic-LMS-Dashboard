@@ -18,7 +18,7 @@ const StudentCard = ({ student, navigate, viewMode, handleToggleConnection, hand
  </div>
 
  <div className="flex flex-col gap-6">
- <div className="w-20 h-20 bg-slate-50/50 rounded-[28px] border border-slate-100 flex items-center justify-center text-slate-400 group-hover:text-[#008080] group-hover:bg-[#008080]/5 group-hover:border-[#008080]/10 transition-all duration-500">
+ <div className="w-20 h-20 bg-slate-50/50 rounded-[28px] border border-slate-100 flex items-center justify-center text-slate-600 group-hover:text-[#008080] group-hover:bg-[#008080]/5 group-hover:border-[#008080]/10 transition-all duration-500">
  <User size={36} strokeWidth={2.5} />
  </div>
 
@@ -47,7 +47,7 @@ const StudentCard = ({ student, navigate, viewMode, handleToggleConnection, hand
  <span className="px-5 py-2 bg-[#008080]/10 text-[#008080] text-[10px] font-black uppercase tracking-[0.2em] rounded-[14px] border border-[#008080]/20">
  {student.grade}
  </span>
- <span className="px-5 py-2 bg-slate-50 text-slate-400 text-[10px] font-black uppercase tracking-[0.2em] rounded-[14px] border border-slate-100">
+ <span className="px-5 py-2 bg-slate-50 text-slate-600 text-[10px] font-black uppercase tracking-[0.2em] rounded-[14px] border border-slate-100">
  {student.subject}
  </span>
  </div>
@@ -55,11 +55,11 @@ const StudentCard = ({ student, navigate, viewMode, handleToggleConnection, hand
 
  <div className="pt-6 border-t border-slate-50 grid grid-cols-2 gap-4">
  <div>
- <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Weekly Hours</p>
+ <p className="text-[8px] font-black text-slate-600 uppercase tracking-widest mb-1">Weekly Hours</p>
  <p className="text-sm font-bold text-slate-700">{student.hour} Hrs</p>
  </div>
  <div>
- <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Next Payment</p>
+ <p className="text-[8px] font-black text-slate-600 uppercase tracking-widest mb-1">Next Payment</p>
  <p className="text-sm font-bold text-[#008080]">{student.next_installment_date ? new Date(student.next_installment_date).toLocaleDateString() : 'N/A'}</p>
  </div>
  </div>
@@ -76,7 +76,7 @@ const StudentCard = ({ student, navigate, viewMode, handleToggleConnection, hand
  <span className="text-[10px] uppercase font-black tracking-widest text-slate-500">Connected Today</span>
  <button
  onClick={(e) => handleToggleConnection(student.id, student.connected_today, e)}
- className={`flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-xs font-black transition-all ${student.connected_today ? 'bg-emerald-50 text-emerald-600 border border-emerald-100 shadow-sm' : 'bg-slate-50 text-slate-400 hover:bg-slate-100 border border-slate-100'}`}
+ className={`flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-xs font-black transition-all ${student.connected_today ? 'bg-emerald-50 text-emerald-600 border border-emerald-100 shadow-sm' : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-100'}`}
  >
  <CheckCircle2 size={16} className={student.connected_today ? 'text-emerald-500' : 'text-slate-300'} />
  {student.connected_today ? 'YES' : 'NO'}
@@ -101,7 +101,7 @@ const StudentCard = ({ student, navigate, viewMode, handleToggleConnection, hand
  <Calendar size={16} />
  Setup Timetable & Finish
  </button>
- <p className="text-[10px] text-slate-400 text-center font-bold">Create a one-month schedule to activate this student.</p>
+ <p className="text-[10px] text-slate-600 text-center font-bold">Create a one-month schedule to activate this student.</p>
  </div>
  )}
  </div>
@@ -229,7 +229,7 @@ const MyStudents = () => {
  <div className="bg-white/70 backdrop-blur-xl p-12 rounded-[40px] border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.04)] flex flex-col md:flex-row justify-between items-center gap-10">
  <div className="text-center md:text-left">
  <h2 className="text-5xl font-black text-slate-900 tracking-tighter leading-none mb-3 ">Student Fleet</h2>
- <p className="text-slate-400 text-[11px] font-black uppercase tracking-[0.25em] flex items-center justify-center md:justify-start gap-3 mt-1">
+ <p className="text-slate-600 text-[11px] font-black uppercase tracking-[0.25em] flex items-center justify-center md:justify-start gap-3 mt-1">
  <div className="w-2 h-2 rounded-full bg-[#008080] animate-pulse"></div>
  Direct assignments & operational node management
  </p>
@@ -241,7 +241,7 @@ const MyStudents = () => {
 
  <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100">
  <div className="relative w-full md:w-96">
- <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+ <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600" />
  <input
  type="text"
  placeholder="Search student or subject..."
@@ -255,14 +255,14 @@ const MyStudents = () => {
  <div className="flex items-center gap-2 bg-slate-50 p-1 rounded-2xl border border-slate-100">
  <button
  onClick={() => setViewMode('active')}
- className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${viewMode === 'active' ? 'bg-white text-[#008080] shadow-sm' : 'text-slate-400 hover:text-slate-600'
+ className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${viewMode === 'active' ? 'bg-white text-[#008080] shadow-sm' : 'text-slate-600 hover:text-slate-600'
  }`}
  >
  Active Students
  </button>
  <button
  onClick={() => setViewMode('new')}
- className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${viewMode === 'new' ? 'bg-white text-emerald-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'
+ className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${viewMode === 'new' ? 'bg-white text-emerald-600 shadow-sm' : 'text-slate-600 hover:text-slate-600'
  }`}
  >
  New (Onboarding)
@@ -277,13 +277,13 @@ const MyStudents = () => {
  </div>
 
  {loading ? (
- <div className="text-center p-20 text-slate-400 font-bold animate-pulse">Scanning Student Database...</div>
+ <div className="text-center p-20 text-slate-600 font-bold animate-pulse">Scanning Student Database...</div>
  ) : (
  <div className="space-y-12">
  {/* Direct Assignments */}
  {filteredStudents.filter(s => !s.is_shifted).length > 0 && (
  <div>
- <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6 flex items-center gap-3">
+ <h4 className="text-[10px] font-black text-slate-600 uppercase tracking-widest mb-6 flex items-center gap-3">
  <div className="w-2 h-2 rounded-full bg-[#008080]"></div>
  Direct Assignments
  </h4>
@@ -312,7 +312,7 @@ const MyStudents = () => {
 
  {filteredStudents.length === 0 && (
  <div className="col-span-full py-20 text-center bg-white rounded-[2.5rem] border border-dashed border-slate-200">
- <p className="text-slate-400 font-bold">No students matched your search criteria.</p>
+ <p className="text-slate-600 font-bold">No students matched your search criteria.</p>
  </div>
  )}
  </div>
@@ -325,9 +325,9 @@ const MyStudents = () => {
  <div className="px-10 py-8 border-b border-slate-100 flex justify-between items-center bg-white">
  <div>
  <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tight ">Onboarding Workflow</h2>
- <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mt-1">Setup Timetable for {selectedStudent?.name}</p>
+ <p className="text-[10px] font-bold text-slate-600 uppercase tracking-[0.2em] mt-1">Setup Timetable for {selectedStudent?.name}</p>
  </div>
- <button onClick={() => setIsTimetableModalOpen(false)} className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-400 hover:text-rose-500 transition-all">
+ <button onClick={() => setIsTimetableModalOpen(false)} className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-600 hover:text-rose-500 transition-all">
  <XCircle size={24} />
  </button>
  </div>
@@ -337,7 +337,7 @@ const MyStudents = () => {
  {batchSessions.map((session, index) => (
  <div key={index} className="grid grid-cols-1 md:grid-cols-5 gap-4 p-6 bg-slate-50 rounded-2xl border border-slate-100 relative group">
  <div className="space-y-1">
- <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest pl-1">Date</label>
+ <label className="text-[8px] font-black text-slate-600 uppercase tracking-widest pl-1">Date</label>
  <input
  type="date"
  required
@@ -347,7 +347,7 @@ const MyStudents = () => {
  />
  </div>
  <div className="space-y-1">
- <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest pl-1">Start Time</label>
+ <label className="text-[8px] font-black text-slate-600 uppercase tracking-widest pl-1">Start Time</label>
  <input
  type="time"
  required
@@ -357,7 +357,7 @@ const MyStudents = () => {
  />
  </div>
  <div className="space-y-1">
- <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest pl-1">End Time</label>
+ <label className="text-[8px] font-black text-slate-600 uppercase tracking-widest pl-1">End Time</label>
  <input
  type="time"
  required
@@ -367,7 +367,7 @@ const MyStudents = () => {
  />
  </div>
  <div className="space-y-1">
- <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest pl-1">Chapter/Topic</label>
+ <label className="text-[8px] font-black text-slate-600 uppercase tracking-widest pl-1">Chapter/Topic</label>
  <input
  type="text"
  placeholder="e.g. Calculus Intro"
@@ -378,7 +378,7 @@ const MyStudents = () => {
  </div>
  <div className="flex items-end gap-2">
  <div className="flex-1 space-y-1">
- <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest pl-1">Type</label>
+ <label className="text-[8px] font-black text-slate-600 uppercase tracking-widest pl-1">Type</label>
  <select
  className="w-full p-3 bg-white border border-slate-200 rounded-xl text-xs font-bold outline-none"
  value={session.session_type}
@@ -403,7 +403,7 @@ const MyStudents = () => {
  <button
  type="button"
  onClick={addBatchRow}
- className="w-full py-4 border-2 border-dashed border-slate-200 rounded-2xl text-slate-400 font-black text-[10px] uppercase tracking-[0.2em] hover:bg-slate-50 hover:border-[#008080] hover:text-[#008080] transition-all flex items-center justify-center gap-2"
+ className="w-full py-4 border-2 border-dashed border-slate-200 rounded-2xl text-slate-600 font-black text-[10px] uppercase tracking-[0.2em] hover:bg-slate-50 hover:border-[#008080] hover:text-[#008080] transition-all flex items-center justify-center gap-2"
  >
  <Plus size={16} /> Add Session To Schedule
  </button>
@@ -418,7 +418,7 @@ const MyStudents = () => {
  >
  <CheckCircle2 size={18} /> Initialize Activation
  </button>
- <button onClick={() => setIsTimetableModalOpen(false)} className="px-8 bg-white border border-slate-200 rounded-2xl font-black text-xs uppercase tracking-widest text-slate-400 hover:bg-rose-50 hover:text-rose-500 transition-all">
+ <button onClick={() => setIsTimetableModalOpen(false)} className="px-8 bg-white border border-slate-200 rounded-2xl font-black text-xs uppercase tracking-widest text-slate-600 hover:bg-rose-50 hover:text-rose-500 transition-all">
  Abort
  </button>
  </div>
@@ -435,11 +435,11 @@ const MyStudents = () => {
  <Clock size={48} />
  </div>
  <h3 className="text-2xl font-black tracking-tighter uppercase relative z-10">Log Working Hours</h3>
- <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1 relative z-10">Record time spent for {selectedStudent.name}</p>
+ <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest mt-1 relative z-10">Record time spent for {selectedStudent.name}</p>
  </div>
  <form onSubmit={handleHoursSubmit} className="p-10 space-y-6">
  <div>
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2 mb-2 block">Date</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest pl-2 mb-2 block">Date</label>
  <input
  type="date"
  required
@@ -449,7 +449,7 @@ const MyStudents = () => {
  />
  </div>
  <div>
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2 mb-2 block">Total Hours</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest pl-2 mb-2 block">Total Hours</label>
  <input
  type="number"
  step="0.5"
@@ -471,7 +471,7 @@ const MyStudents = () => {
  <button
  type="button"
  onClick={() => setIsHoursModalOpen(false)}
- className="flex-1 bg-white border border-slate-200 text-slate-400 py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-slate-50 transition-all"
+ className="flex-1 bg-white border border-slate-200 text-slate-600 py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-slate-50 transition-all"
  >
  Cancel
  </button>

@@ -39,7 +39,7 @@ const AcademicSchedule = () => {
  if (loading) return (
  <div className="flex flex-col items-center justify-center p-20 space-y-4">
  <div className="w-12 h-12 border-4 border-[#008080] border-t-transparent rounded-full animate-spin"></div>
- <p className="text-xs font-black text-slate-400 uppercase tracking-widest animate-pulse">Syncing Academic Timetable...</p>
+ <p className="text-xs font-black text-slate-600 uppercase tracking-widest animate-pulse">Syncing Academic Timetable...</p>
  </div>
  );
 
@@ -53,7 +53,7 @@ const AcademicSchedule = () => {
  </div>
  <div>
  <h1 className="text-3xl font-black text-slate-900 tracking-tighter uppercase ">Academic Schedule</h1>
- <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mt-1">Full monitoring of faculty-led sessions for your students</p>
+ <p className="text-[10px] font-bold text-slate-600 uppercase tracking-[0.2em] mt-1">Full monitoring of faculty-led sessions for your students</p>
  </div>
  </div>
 
@@ -61,7 +61,7 @@ const AcademicSchedule = () => {
  <div className="bg-slate-50 px-6 py-3 rounded-2xl border border-slate-100 flex items-center gap-3">
  <Activity className="text-emerald-500" size={18} />
  <div>
- <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Total Active</p>
+ <p className="text-[8px] font-black text-slate-600 uppercase tracking-widest">Total Active</p>
  <p className="text-sm font-black text-slate-900 leading-none">{schedule.filter(s => s.status === 'Scheduled').length} Sessions</p>
  </div>
  </div>
@@ -71,7 +71,7 @@ const AcademicSchedule = () => {
  {/* Filter & Search Bar */}
  <div className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm flex flex-col md:flex-row items-center gap-6">
  <div className="flex-1 w-full relative">
- <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+ <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600" size={18} />
  <input
  type="text"
  placeholder="Search by topic or faculty name..."
@@ -82,7 +82,7 @@ const AcademicSchedule = () => {
  </div>
 
  <div className="flex items-center gap-4 w-full md:w-auto">
- <div className="flex items-center gap-2 px-4 py-2 bg-slate-50 rounded-xl text-slate-400">
+ <div className="flex items-center gap-2 px-4 py-2 bg-slate-50 rounded-xl text-slate-600">
  <Filter size={16} />
  <span className="text-[10px] font-black uppercase tracking-widest">Status</span>
  </div>
@@ -108,7 +108,7 @@ const AcademicSchedule = () => {
  <div className="flex items-center justify-between mb-8">
  <div className="flex items-center gap-2">
  <Calendar className="text-[#008080]" size={14} />
- <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+ <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">
  {new Date(session.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })}
  </span>
  </div>
@@ -126,7 +126,7 @@ const AcademicSchedule = () => {
  <BookOpen size={20} />
  </div>
  <div>
- <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Subject / Technical Topic</p>
+ <p className="text-[8px] font-black text-slate-600 uppercase tracking-widest leading-none mb-1">Subject / Technical Topic</p>
  <h4 className="text-lg font-black text-slate-900 leading-tight pr-4">{session.topic || 'General Academic Session'}</h4>
  </div>
  </div>
@@ -136,7 +136,7 @@ const AcademicSchedule = () => {
  <Users size={20} />
  </div>
  <div>
- <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Assigned Faculty</p>
+ <p className="text-[8px] font-black text-slate-600 uppercase tracking-widest leading-none mb-1">Assigned Faculty</p>
  <h4 className="text-lg font-black text-slate-900 leading-tight">{session.faculty_name}</h4>
  </div>
  </div>
@@ -162,7 +162,7 @@ const AcademicSchedule = () => {
  <AlertCircle size={40} />
  </div>
  <h3 className="text-xl font-black text-slate-900 uppercase ">No sessions found</h3>
- <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mt-2">Try adjusting your filters or search keywords</p>
+ <p className="text-slate-600 text-xs font-bold uppercase tracking-widest mt-2">Try adjusting your filters or search keywords</p>
  </div>
  )}
  </div>

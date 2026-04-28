@@ -93,9 +93,9 @@ const MentorRegistration = () => {
  <div className="grid grid-cols-1 gap-6">
  {/* Full Name */}
  <div className="space-y-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Mentor Name</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Mentor Name</label>
  <div className="relative group">
- <div className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#008080] transition-colors">
+ <div className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#008080] transition-colors">
  <User size={18} />
  </div>
  <input
@@ -112,9 +112,9 @@ const MentorRegistration = () => {
 
  {/* Email */}
  <div className="space-y-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Email ID</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Email ID</label>
  <div className="relative group">
- <div className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#008080] transition-colors">
+ <div className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#008080] transition-colors">
  <User size={18} />
  </div>
  <input
@@ -131,9 +131,9 @@ const MentorRegistration = () => {
 
  {/* Phone Number */}
  <div className="space-y-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Phone Number</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Phone Number</label>
  <div className="relative group">
- <div className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#008080] transition-colors">
+ <div className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#008080] transition-colors">
  <Phone size={18} />
  </div>
  <input
@@ -150,9 +150,9 @@ const MentorRegistration = () => {
 
  {/* Place */}
  <div className="space-y-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Location</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Location</label>
  <div className="relative group">
- <div className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#008080] transition-colors">
+ <div className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#008080] transition-colors">
  <MapPin size={18} />
  </div>
  <input
@@ -169,9 +169,9 @@ const MentorRegistration = () => {
 
  {/* Password */}
  <div className="space-y-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Password</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Password</label>
  <div className="relative group">
- <div className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#008080] transition-colors">
+ <div className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#008080] transition-colors">
  <Lock size={18} />
  </div>
  <input

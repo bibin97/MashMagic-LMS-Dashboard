@@ -126,7 +126,7 @@ const FacultyExams = () => {
  {/* Filters Section */}
  <div className="flex flex-col md:flex-row gap-6">
  <div className="flex-1 relative group">
- <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#008080] transition-colors" size={20} />
+ <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#008080] transition-colors" size={20} />
  <input
  type="text"
  placeholder="Search by student, subject or term..."
@@ -165,7 +165,7 @@ const FacultyExams = () => {
  <span className="px-5 py-2 bg-[#008080] text-white rounded-full text-[9px] font-black uppercase tracking-[0.2em]">
  {score.term}
  </span>
- <span className="flex items-center gap-1.5 text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">
+ <span className="flex items-center gap-1.5 text-[10px] font-black text-slate-600 uppercase tracking-widest ml-2">
  <Calendar size={12} />
  {new Date(score.exam_date).toLocaleDateString()}
  </span>
@@ -174,7 +174,7 @@ const FacultyExams = () => {
  <div className="flex items-center gap-4 mt-2">
  <div className="flex items-center gap-2">
  <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
- <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em]">Grade Secured: <span className="text-slate-900">{score.grade}</span></span>
+ <span className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em]">Grade Secured: <span className="text-slate-900">{score.grade}</span></span>
  </div>
  </div>
  </div>
@@ -198,7 +198,7 @@ const FacultyExams = () => {
  <SearchX size={48} />
  </div>
  <h3 className="text-2xl font-black text-slate-900 tracking-tight uppercase">No scores registered</h3>
- <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px] mt-2">Start by adding a new exam result</p>
+ <p className="text-slate-600 font-bold uppercase tracking-widest text-[10px] mt-2">Start by adding a new exam result</p>
  </div>
  )}
  </div>
@@ -211,9 +211,9 @@ const FacultyExams = () => {
  <div className="flex justify-between items-start mb-10">
  <div>
  <h2 className="text-3xl font-black text-slate-900 tracking-tight uppercase ">Add Exam Score</h2>
- <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mt-2">Enter student performance details</p>
+ <p className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] mt-2">Enter student performance details</p>
  </div>
- <button onClick={() => setShowAddModal(false)} className="p-4 bg-slate-50 text-slate-400 hover:bg-slate-900 hover:text-white rounded-2xl transition-all">
+ <button onClick={() => setShowAddModal(false)} className="p-4 bg-slate-50 text-slate-600 hover:bg-slate-900 hover:text-white rounded-2xl transition-all">
  <X size={20} />
  </button>
  </div>
@@ -221,9 +221,9 @@ const FacultyExams = () => {
  <form onSubmit={handleSubmit} className="space-y-6">
  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
  <div className="space-y-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Student</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Student</label>
  <div className="relative group">
- <User className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#008080] transition-colors" size={18} />
+ <User className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#008080] transition-colors" size={18} />
  <select
  required
  className="w-full bg-slate-50 border border-slate-100 pl-14 pr-8 py-4 rounded-2xl text-sm font-bold focus:bg-white focus:ring-4 focus:ring-[#008080]/5 focus:border-[#008080] transition-all outline-none appearance-none"
@@ -239,9 +239,9 @@ const FacultyExams = () => {
  </div>
 
  <div className="space-y-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Subject</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Subject</label>
  <div className="relative group">
- <BookOpen className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#008080] transition-colors" size={18} />
+ <BookOpen className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#008080] transition-colors" size={18} />
  <input
  type="text"
  required
@@ -254,9 +254,9 @@ const FacultyExams = () => {
  </div>
 
  <div className="space-y-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Marks Obtained</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Marks Obtained</label>
  <div className="relative group">
- <Trophy className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#008080] transition-colors" size={18} />
+ <Trophy className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#008080] transition-colors" size={18} />
  <input
  type="number"
  required
@@ -269,9 +269,9 @@ const FacultyExams = () => {
  </div>
 
  <div className="space-y-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Total Marks</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Total Marks</label>
  <div className="relative group">
- <BookOpen className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#008080] transition-colors" size={18} />
+ <BookOpen className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#008080] transition-colors" size={18} />
  <input
  type="number"
  required
@@ -284,9 +284,9 @@ const FacultyExams = () => {
  </div>
 
  <div className="space-y-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Grade</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Grade</label>
  <div className="relative group">
- <GraduationCap className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#008080] transition-colors" size={18} />
+ <GraduationCap className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#008080] transition-colors" size={18} />
  <input
  type="text"
  required
@@ -299,9 +299,9 @@ const FacultyExams = () => {
  </div>
 
  <div className="space-y-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Exam / Term</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Exam / Term</label>
  <div className="relative group">
- <Calendar className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#008080] transition-colors" size={18} />
+ <Calendar className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#008080] transition-colors" size={18} />
  <input
  type="text"
  required
@@ -315,9 +315,9 @@ const FacultyExams = () => {
  </div>
 
  <div className="space-y-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Exam Date</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Exam Date</label>
  <div className="relative group">
- <Calendar className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#008080] transition-colors" size={18} />
+ <Calendar className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#008080] transition-colors" size={18} />
  <input
  type="date"
  required

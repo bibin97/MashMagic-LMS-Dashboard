@@ -28,14 +28,14 @@ const StudentDetails = () => {
  }
  };
 
- if (loading) return <div className="p-20 text-center text-slate-400 font-bold animate-pulse">Accessing Encrypted Profile...</div>;
+ if (loading) return <div className="p-20 text-center text-slate-600 font-bold animate-pulse">Accessing Encrypted Profile...</div>;
  if (!student) return null;
 
  return (
  <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
  <button
  onClick={() => navigate('/mentor/students')}
- className="flex items-center gap-2 text-slate-400 hover:text-[#008080] font-black text-[10px] uppercase tracking-widest transition-colors mb-6"
+ className="flex items-center gap-2 text-slate-600 hover:text-[#008080] font-black text-[10px] uppercase tracking-widest transition-colors mb-6"
  >
  <ArrowLeft size={16} /> Back to My Students
  </button>
@@ -71,19 +71,19 @@ const StudentDetails = () => {
 
  <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
  <div>
- <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 flex items-center gap-2"><BookOpen size={12} /> Primary Subject</p>
+ <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest mb-1 flex items-center gap-2"><BookOpen size={12} /> Primary Subject</p>
  <p className="text-base font-bold text-slate-700">{student.subject}</p>
  </div>
  <div>
- <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 flex items-center gap-2"><Clock size={12} /> Allocated Hours</p>
+ <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest mb-1 flex items-center gap-2"><Clock size={12} /> Allocated Hours</p>
  <p className="text-base font-bold text-slate-700">{student.hour} Hrs/Week</p>
  </div>
  <div>
- <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 flex items-center gap-2"><Phone size={12} /> Contact</p>
+ <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest mb-1 flex items-center gap-2"><Phone size={12} /> Contact</p>
  <p className="text-base font-bold text-slate-700">{student.phone_number || 'N/A'}</p>
  </div>
  <div>
- <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 flex items-center gap-2"><Calendar size={12} /> Next Payment</p>
+ <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest mb-1 flex items-center gap-2"><Calendar size={12} /> Next Payment</p>
  <p className="text-base font-bold text-[#008080]">{student.next_installment_date ? new Date(student.next_installment_date).toLocaleDateString() : 'Pending'}</p>
  </div>
  </div>
@@ -120,15 +120,15 @@ const StudentDetails = () => {
  </h3>
  <div className="space-y-4">
  <div className="p-5 bg-slate-50 rounded-2xl border border-slate-100 group hover:border-[#008080] transition-colors">
- <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Enrolled Course</p>
+ <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest mb-1">Enrolled Course</p>
  <p className="text-sm font-bold text-slate-700">{student.course}</p>
  </div>
  <div className="p-5 bg-slate-50 rounded-2xl border border-slate-100 group hover:border-[#008080] transition-colors">
- <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Assigned Faculty Name</p>
+ <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest mb-1">Assigned Faculty Name</p>
  <p className="text-sm font-bold text-slate-700">{student.faculty_name || 'Not Specified'}</p>
  </div>
  <div className="p-5 bg-slate-50 rounded-2xl border border-slate-100 group hover:border-[#008080] transition-colors">
- <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Mentor Name (Ref)</p>
+ <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest mb-1">Mentor Name (Ref)</p>
  <p className="text-sm font-bold text-slate-700">{student.mentor_name || 'You'}</p>
  </div>
  </div>
@@ -152,17 +152,17 @@ const StudentDetails = () => {
  <table className="w-full text-left border-collapse">
  <thead>
  <tr className="border-b border-slate-50">
- <th className="py-6 px-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">#Sess</th>
- <th className="py-6 px-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Date</th>
- <th className="py-6 px-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Timing</th>
- <th className="py-6 px-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Chapters / Topics</th>
- <th className="py-6 px-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</th>
+ <th className="py-6 px-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">#Sess</th>
+ <th className="py-6 px-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">Date</th>
+ <th className="py-6 px-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">Timing</th>
+ <th className="py-6 px-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">Chapters / Topics</th>
+ <th className="py-6 px-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">Status</th>
  </tr>
  </thead>
  <tbody>
  {student.timetable.map((session) => (
  <tr key={session.id} className="border-b border-slate-50 hover:bg-slate-50 transition-colors">
- <td className="py-6 px-4 font-black text-slate-400 text-sm">#{session.session_number}</td>
+ <td className="py-6 px-4 font-black text-slate-600 text-sm">#{session.session_number}</td>
  <td className="py-6 px-4 font-bold text-slate-700 text-sm">
  {new Date(session.date).toLocaleDateString()}
  {session.status === 'Postponed' && session.new_date && (
@@ -178,7 +178,7 @@ const StudentDetails = () => {
  ))}
  {student.timetable.length === 0 && (
  <tr>
- <td colSpan="5" className="py-20 text-center text-slate-400 font-bold">No sessions scheduled yet.</td>
+ <td colSpan="5" className="py-20 text-center text-slate-600 font-bold">No sessions scheduled yet.</td>
  </tr>
  )}
  </tbody>
@@ -199,31 +199,31 @@ const StudentDetails = () => {
  <div className="absolute top-0 right-0 w-20 h-20 bg-[#008080] rounded-full -mr-10 -mt-10 opacity-20 group-hover:scale-150 transition-transform"></div>
  <div className="flex justify-between items-start mb-4 relative z-10">
  <span className="text-[10px] font-black bg-[#008080] text-white px-3 py-1 rounded-full uppercase">Session #{log.session_number}</span>
- <span className="text-[10px] font-black text-slate-400 uppercase">{new Date(log.created_at || log.date).toLocaleDateString()}</span>
+ <span className="text-[10px] font-black text-slate-600 uppercase">{new Date(log.created_at || log.date).toLocaleDateString()}</span>
  </div>
 
  <div className="mb-4 space-y-2 relative z-10">
  <div>
- <p className="text-[8px] font-black text-slate-400 uppercase">Mentor Notes</p>
+ <p className="text-[8px] font-black text-slate-600 uppercase">Mentor Notes</p>
  <p className="text-xs text-slate-600 font-medium line-clamp-2">{log.mentor_notes || 'No notes provided.'}</p>
  </div>
  <div>
- <p className="text-[8px] font-black text-slate-400 uppercase">Weak Area</p>
+ <p className="text-[8px] font-black text-slate-600 uppercase">Weak Area</p>
  <p className="text-xs text-slate-600 line-clamp-2">{log.weak_area_identified || 'N/A'}</p>
  </div>
  </div>
 
  <div className="flex flex-wrap gap-4 relative z-10 pt-2 border-t border-slate-100">
  <div className="flex flex-col">
- <span className="text-[8px] font-black text-slate-400 uppercase">Confidence</span>
+ <span className="text-[8px] font-black text-slate-600 uppercase">Confidence</span>
  <span className="text-[10px] font-bold text-[#008080]">{log.concept_confidence}/5</span>
  </div>
  <div className="flex flex-col">
- <span className="text-[8px] font-black text-slate-400 uppercase">HW Status</span>
+ <span className="text-[8px] font-black text-slate-600 uppercase">HW Status</span>
  <span className={`text-[10px] font-bold ${log.homework_status === 'Done' ? 'text-emerald-600' : 'text-amber-600'}`}>{log.homework_status}</span>
  </div>
  <div className="flex flex-col">
- <span className="text-[8px] font-black text-slate-400 uppercase">Parent Priority</span>
+ <span className="text-[8px] font-black text-slate-600 uppercase">Parent Priority</span>
  <span className={`text-[10px] font-bold ${log.parent_update_priority === 'High' ? 'text-rose-600' : 'text-slate-600'}`}>{log.parent_update_priority}</span>
  </div>
  </div>
@@ -233,7 +233,7 @@ const StudentDetails = () => {
  )}
  </div>
  ))}
- {student.studentLogs.length === 0 && <p className="text-slate-400 text-center text-sm font-bold py-10">No student interaction logs found.</p>}
+ {student.studentLogs.length === 0 && <p className="text-slate-600 text-center text-sm font-bold py-10">No student interaction logs found.</p>}
  </div>
  </section>
 
@@ -247,15 +247,15 @@ const StudentDetails = () => {
  <div className="absolute top-0 right-0 w-20 h-20 bg-purple-50 rounded-full -mr-10 -mt-10 opacity-50"></div>
  <div className="flex justify-between items-start mb-3 relative z-10">
  <span className="text-sm font-bold text-slate-700">{log.chapter}</span>
- <span className="text-[10px] font-black text-slate-400 uppercase">{new Date(log.date).toLocaleDateString()}</span>
+ <span className="text-[10px] font-black text-slate-600 uppercase">{new Date(log.date).toLocaleDateString()}</span>
  </div>
  <div className="mb-3 space-y-2 relative z-10">
  <div>
- <p className="text-[8px] font-black text-slate-400 uppercase">Topic Coverage</p>
+ <p className="text-[8px] font-black text-slate-600 uppercase">Topic Coverage</p>
  <p className="text-xs text-slate-500 line-clamp-2">{log.topics_covered}</p>
  </div>
  <div>
- <p className="text-[8px] font-black text-slate-400 uppercase">Performance</p>
+ <p className="text-[8px] font-black text-slate-600 uppercase">Performance</p>
  <span className={`inline-block px-2 py-1 rounded-md text-[10px] font-black uppercase tracking-widest ${log.student_performance === 'Excellent' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600'}`}>
  {log.student_performance}
  </span>
@@ -267,7 +267,7 @@ const StudentDetails = () => {
  )}
  </div>
  ))}
- {student.facultyLogs.length === 0 && <p className="text-slate-400 text-center text-sm font-bold py-10">No faculty interaction logs found.</p>}
+ {student.facultyLogs.length === 0 && <p className="text-slate-600 text-center text-sm font-bold py-10">No faculty interaction logs found.</p>}
  </div>
  </section>
  </div>

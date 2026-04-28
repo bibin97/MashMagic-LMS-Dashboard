@@ -134,7 +134,7 @@ const PublicRegistration = () => {
  py-3 rounded-xl text-xs font-black uppercase tracking-wider transition-all
  ${role === r
  ? 'bg-white text-[#008080] shadow-sm'
- : 'text-slate-400 hover:text-slate-600'}
+ : 'text-slate-600 hover:text-slate-600'}
  `}
  >
  {r}
@@ -146,7 +146,7 @@ const PublicRegistration = () => {
  {/* Basic Info */}
  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
  <div className="flex flex-col gap-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Full Name</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Full Name</label>
  <div className="relative">
  <User size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" />
  <input
@@ -163,7 +163,7 @@ const PublicRegistration = () => {
 
  {(role === 'mentor' || role === 'faculty') && (
  <div className="flex flex-col gap-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Phone Number</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Phone Number</label>
  <div className="relative">
  <Phone size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" />
  <input
@@ -185,7 +185,7 @@ const PublicRegistration = () => {
  <>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
  <div className="flex flex-col gap-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Grade / Level</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Grade / Level</label>
  <input
  type="text"
  name="grade"
@@ -197,7 +197,7 @@ const PublicRegistration = () => {
  />
  </div>
  <div className="flex flex-col gap-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Core Subject</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Core Subject</label>
  <input
  type="text"
  name="subject"
@@ -212,7 +212,7 @@ const PublicRegistration = () => {
 
  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
  <div className="flex flex-col gap-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Course Name</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Course Name</label>
  <input
  type="text"
  name="course"
@@ -224,7 +224,7 @@ const PublicRegistration = () => {
  />
  </div>
  <div className="flex flex-col gap-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Allocated Hours</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Allocated Hours</label>
  <div className="relative">
  <Clock size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" />
  <input
@@ -239,7 +239,7 @@ const PublicRegistration = () => {
  </div>
  </div>
  <div className="flex flex-col gap-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Next Payment</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Next Payment</label>
  <div className="relative">
  <Calendar size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" />
  <input
@@ -255,7 +255,7 @@ const PublicRegistration = () => {
 
  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
  <div className="flex flex-col gap-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Assigned Mentor</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Assigned Mentor</label>
  <select
  name="mentor_id"
  className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm outline-none focus:bg-white focus:ring-4 focus:ring-[#008080] focus:border-[#008080] transition-all font-semibold"
@@ -267,7 +267,7 @@ const PublicRegistration = () => {
  </select>
  </div>
  <div className="flex flex-col gap-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Assigned Faculty</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Assigned Faculty</label>
  <select
  name="faculty_id"
  className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm outline-none focus:bg-white focus:ring-4 focus:ring-[#008080] focus:border-[#008080] transition-all font-semibold"
@@ -282,13 +282,13 @@ const PublicRegistration = () => {
 
  {/* Weekly Time Table */}
  <div className="flex flex-col gap-4 mt-4">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 flex items-center gap-2">
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 flex items-center gap-2">
  <Clock size={12} /> Weekly Time Table Settings
  </label>
  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
  {['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'].map((day) => (
  <div key={day} className="flex flex-col gap-1">
- <span className="text-[8px] font-bold text-slate-400 uppercase ml-1">{day}</span>
+ <span className="text-[8px] font-bold text-slate-600 uppercase ml-1">{day}</span>
  <input
  type="text"
  placeholder="Time"
@@ -316,7 +316,7 @@ const PublicRegistration = () => {
  {!loading && <CheckCircle size={20} />}
  </button>
 
- <p className="text-center text-[10px] text-slate-400 font-bold uppercase tracking-widest">
+ <p className="text-center text-[10px] text-slate-600 font-bold uppercase tracking-widest">
  By registering, you agree to MashMagic Terms of Service
  </p>
  </form>

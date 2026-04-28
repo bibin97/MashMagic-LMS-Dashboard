@@ -50,7 +50,7 @@ const MyTasks = () => {
  </div>
  <div>
  <h1 className="text-5xl font-black text-slate-900 tracking-tighter uppercase leading-none mb-3">Task Protocol</h1>
- <p className="text-slate-400 text-[11px] font-black uppercase tracking-[0.3em] flex items-center gap-3 mt-1">
+ <p className="text-slate-600 text-[11px] font-black uppercase tracking-[0.3em] flex items-center gap-3 mt-1">
  <div className="w-2 h-2 rounded-full bg-[#008080] animate-pulse"></div>
  Operational Directives & Action Items
  </p>
@@ -59,7 +59,7 @@ const MyTasks = () => {
  </header>
 
  {loading ? (
- <div className="text-center p-20 text-slate-400 font-bold animate-pulse">Synchronizing Agent Tasks...</div>
+ <div className="text-center p-20 text-slate-600 font-bold animate-pulse">Synchronizing Agent Tasks...</div>
  ) : (
  <div className="flex flex-col gap-4">
  {tasks.map((task) => {
@@ -77,7 +77,7 @@ const MyTasks = () => {
  <span className={`px-3 py-1 text-[8px] font-black uppercase tracking-widest rounded-lg bg-white border ${style.border} ${style.text} shadow-sm`}>
  {task.status === 'Completed' ? 'Completed' : (new Date(task.deadline) < new Date() ? 'Overdue' : 'Pending')}
  </span>
- <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest bg-slate-100 px-2.5 py-1 rounded-md">
+ <span className="text-[8px] font-black text-slate-600 uppercase tracking-widest bg-slate-100 px-2.5 py-1 rounded-md">
  {task.priority || 'Standard'}
  </span>
  </div>
@@ -89,13 +89,13 @@ const MyTasks = () => {
  <div className="flex items-center gap-6 w-full md:w-auto pt-4 md:pt-0 border-t md:border-t-0 border-slate-200/50 justify-between md:justify-end shrink-0">
  <div className="flex items-center gap-6">
  <div className="flex flex-col">
- <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Assigned By</p>
+ <p className="text-[8px] font-black text-slate-600 uppercase tracking-widest mb-0.5">Assigned By</p>
  <p className="text-[10px] font-bold text-slate-700 uppercase truncate max-w-[100px]">
  {task.assigner_name || 'Admin'} <span className="opacity-50 lowercase">({task.assigner_role?.replace('_', ' ') || 'admin'})</span>
  </p>
  </div>
  <div className="flex flex-col">
- <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Deadline</p>
+ <p className="text-[8px] font-black text-slate-600 uppercase tracking-widest mb-0.5">Deadline</p>
  <p className="text-[10px] font-bold text-slate-700">{new Date(task.deadline).toLocaleDateString()}</p>
  </div>
  </div>
@@ -121,7 +121,7 @@ const MyTasks = () => {
  {tasks.length === 0 && (
  <div className="py-20 bg-white rounded-[2.5rem] border border-dashed border-slate-200 flex flex-col items-center justify-center shadow-sm">
  <CheckCircle size={40} className="text-emerald-100 mb-4" />
- <p className="text-slate-400 font-bold">Protocol Clear. No active tasks detected.</p>
+ <p className="text-slate-600 font-bold">Protocol Clear. No active tasks detected.</p>
  </div>
  )}
  </div>

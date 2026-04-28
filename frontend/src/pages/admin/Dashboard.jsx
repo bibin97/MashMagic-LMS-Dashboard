@@ -239,7 +239,7 @@ const Dashboard = () => {
  </div>
  <div>
  <h4 className="text-xl font-black text-slate-800 tracking-tight">Task Velocity</h4>
- <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">Resource allocation & completion</p>
+ <p className="text-[10px] text-slate-600 font-bold uppercase tracking-widest mt-1">Resource allocation & completion</p>
  </div>
  </div>
  <div className="flex items-center gap-6">
@@ -268,7 +268,7 @@ const Dashboard = () => {
  <option value="this_month">This Month</option>
  <option value="last_month">Previous Month</option>
  </select>
- <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 group-hover:text-[#008080] transition-colors">
+ <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-600 group-hover:text-[#008080] transition-colors">
  <ChevronLeft size={16} className="-rotate-90" />
  </div>
  </div>
@@ -342,7 +342,7 @@ const Dashboard = () => {
  </div>
  <div>
  <h4 className="text-xl font-black text-slate-800 tracking-tight">Workforce Load</h4>
- <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">Student-to-Mentor mapping</p>
+ <p className="text-[10px] text-slate-600 font-bold uppercase tracking-widest mt-1">Student-to-Mentor mapping</p>
  </div>
  </div>
 
@@ -425,13 +425,13 @@ const Dashboard = () => {
 
  <div className="mt-8 pt-8 border-t border-slate-100 grid grid-cols-2 gap-4">
  <div className="flex flex-col gap-0.5">
- <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Top Mentor</span>
+ <span className="text-[10px] uppercase font-bold text-slate-600 tracking-wider">Top Mentor</span>
  <span className="text-base font-bold text-slate-900 truncate">
  {mentorDistribution[0]?.name || 'N/A'}
  </span>
  </div>
  <div className="flex flex-col gap-0.5 text-right">
- <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Avg Loading</span>
+ <span className="text-[10px] uppercase font-bold text-slate-600 tracking-wider">Avg Loading</span>
  <span className="text-base font-bold text-slate-900">
  {mentorDistribution.length > 0
  ? Math.round(mentorDistribution.reduce((acc, d) => acc + d.value, 0) / mentorDistribution.length)
@@ -450,7 +450,7 @@ const Dashboard = () => {
  </div>
  <div>
  <h4 className="text-xl font-black text-slate-800 tracking-tight">Daily Audit Pulse</h4>
- <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">Mentor Head tracking</p>
+ <p className="text-[10px] text-slate-600 font-bold uppercase tracking-widest mt-1">Mentor Head tracking</p>
  </div>
  </div>
  </div>
@@ -483,7 +483,7 @@ const Dashboard = () => {
  </PieChart>
  </ResponsiveContainer>
  ) : (
- <div className="flex items-center justify-center h-full text-sm font-bold text-slate-400">
+ <div className="flex items-center justify-center h-full text-sm font-bold text-slate-600">
  No check data for today
  </div>
  )}
@@ -491,7 +491,7 @@ const Dashboard = () => {
 
  <div className="mt-8 pt-8 border-t border-slate-100 flex justify-between">
  <div className="flex flex-col gap-0.5">
- <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Total</span>
+ <span className="text-[10px] uppercase font-bold text-slate-600 tracking-wider">Total</span>
  <span className="text-base font-bold text-slate-900">{mentorHeadReport.totalStudents}</span>
  </div>
  <div className="flex flex-col gap-0.5">
@@ -516,7 +516,7 @@ const Dashboard = () => {
  </div>
  <div>
  <h4 className="text-xl font-black text-slate-800 tracking-tight">Academic Momentum</h4>
- <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">Success rate analytics</p>
+ <p className="text-[10px] text-slate-600 font-bold uppercase tracking-widest mt-1">Success rate analytics</p>
  </div>
  </div>
  </div>

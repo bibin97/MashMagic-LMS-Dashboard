@@ -65,20 +65,20 @@ const FacultyLogs = () => {
  <div className="flex bg-slate-50 p-1.5 rounded-2xl border border-slate-100">
  <button
  onClick={() => setActiveTab('mentor')}
- className={`px-6 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${isMentorTab ? 'bg-white text-[#008080] shadow-sm border border-slate-100' : 'text-slate-400'}`}
+ className={`px-6 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${isMentorTab ? 'bg-white text-[#008080] shadow-sm border border-slate-100' : 'text-slate-600'}`}
  >
  Mentor Audit
  </button>
  <button
  onClick={() => setActiveTab('faculty')}
- className={`px-6 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${!isMentorTab ? 'bg-white text-[#008080] shadow-sm border border-slate-100' : 'text-slate-400'}`}
+ className={`px-6 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${!isMentorTab ? 'bg-white text-[#008080] shadow-sm border border-slate-100' : 'text-slate-600'}`}
  >
  Faculty Intake
  </button>
  </div>
 
  <div className="relative group min-w-[300px]">
- <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#008080] transition-colors" size={18} />
+ <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#008080] transition-colors" size={18} />
  <input
  type="text"
  placeholder="Search Sessions..."
@@ -94,7 +94,7 @@ const FacultyLogs = () => {
  {loading ? (
  <div className="flex flex-col items-center justify-center p-32 space-y-4">
  <div className="w-14 h-14 border-4 border-[#008080] border-t-transparent rounded-full animate-spin"></div>
- <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest animate-pulse">Ingesting Session Intel...</p>
+ <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest animate-pulse">Ingesting Session Intel...</p>
  </div>
  ) : isMentorTab ? (
  /* Mentor Audit View */
@@ -114,7 +114,7 @@ const FacultyLogs = () => {
  </div>
  <div>
  <h3 className="text-xl font-black text-slate-900 tracking-tight uppercase line-clamp-1">{log.chapter}</h3>
- <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-0.5 flex items-center gap-1 ">
+ <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest mt-0.5 flex items-center gap-1 ">
  {log.student_name} • Session #{log.session_number}
  </p>
  </div>
@@ -123,7 +123,7 @@ const FacultyLogs = () => {
  <div className="bg-[#008080] text-white px-4 py-1.5 rounded-xl text-[8px] font-black uppercase tracking-widest shadow-lg shadow-[#008080]/30 ">
  Audit By {log.mentor_name}
  </div>
- <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1 ">
+ <p className="text-[8px] font-black text-slate-600 uppercase tracking-widest flex items-center gap-1 ">
  <Calendar size={10} /> {new Date(log.created_at).toLocaleDateString()}
  </p>
  </div>
@@ -132,7 +132,7 @@ const FacultyLogs = () => {
  <div className="grid grid-cols-2 gap-8 mb-10">
  <div className="space-y-4">
  <div className="bg-slate-50 p-5 rounded-[2rem] border border-slate-100/50">
- <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-2 ">Faculty Assigned</p>
+ <p className="text-[8px] font-black text-slate-600 uppercase tracking-widest mb-2 ">Faculty Assigned</p>
  <div className="flex items-center gap-2">
  <div className="w-6 h-6 bg-white rounded-lg flex items-center justify-center text-[#008080] border border-slate-100">
  <User size={12} />
@@ -143,7 +143,7 @@ const FacultyLogs = () => {
  </div>
  <div className="space-y-4 text-right">
  <div className="inline-block bg-slate-50 p-5 rounded-[2rem] border border-slate-100/50 min-w-[120px]">
- <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1 ">Performance</p>
+ <p className="text-[8px] font-black text-slate-600 uppercase tracking-widest mb-1 ">Performance</p>
  <div className="flex justify-end gap-1">
  {[1, 2, 3, 4, 5].map(s => (
  <div key={s} className={`w-2 h-2 rounded-full ${s <= log.student_performance ? 'bg-[#008080]' : 'bg-slate-200'}`}></div>
@@ -156,7 +156,7 @@ const FacultyLogs = () => {
  <div className="bg-slate-50/50 p-6 rounded-[2rem] border border-slate-100/30">
  <div className="flex items-center gap-3 mb-3">
  <Layers size={14} className="text-[#008080]" />
- <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest ">Core Intel Registry</p>
+ <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest ">Core Intel Registry</p>
  </div>
  <p className="text-xs text-slate-600 font-bold leading-relaxed line-clamp-2 ">
  {log.topics_covered}
@@ -171,7 +171,7 @@ const FacultyLogs = () => {
  <span className="text-[8px] font-black uppercase tracking-widest">CRITICAL RISK</span>
  </div>
  )}
- <div className="flex items-center gap-1 text-slate-400">
+ <div className="flex items-center gap-1 text-slate-600">
  <span className="text-[8px] font-black uppercase tracking-widest ">{log.session_type}</span>
  </div>
  </div>
@@ -188,12 +188,12 @@ const FacultyLogs = () => {
  <table className="w-full text-left">
  <thead>
  <tr className="bg-slate-50/80 border-b border-slate-100">
- <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest ">Temporal Stamp</th>
- <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest ">Faculty Unit</th>
- <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest ">Focus Chapter</th>
- <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest ">Schedule</th>
- <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest ">Chronometry</th>
- <th className="px-8 py-6 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest ">Audit</th>
+ <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest ">Temporal Stamp</th>
+ <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest ">Faculty Unit</th>
+ <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest ">Focus Chapter</th>
+ <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest ">Schedule</th>
+ <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest ">Chronometry</th>
+ <th className="px-8 py-6 text-right text-[10px] font-black text-slate-600 uppercase tracking-widest ">Audit</th>
  </tr>
  </thead>
  <tbody className="divide-y divide-slate-50">
@@ -202,7 +202,7 @@ const FacultyLogs = () => {
  <td className="px-8 py-6">
  <div className="flex flex-col">
  <span className="text-[10px] font-black text-slate-900 tracking-tight">{new Date(log.date).toLocaleDateString()}</span>
- <span className="text-[8px] font-bold text-slate-400 uppercase tracking-[0.2em] mt-1">Registry Lock</span>
+ <span className="text-[8px] font-bold text-slate-600 uppercase tracking-[0.2em] mt-1">Registry Lock</span>
  </div>
  </td>
  <td className="px-8 py-6">
@@ -219,7 +219,7 @@ const FacultyLogs = () => {
  </div>
  </td>
  <td className="px-8 py-6">
- <div className="flex items-center gap-2 text-slate-400">
+ <div className="flex items-center gap-2 text-slate-600">
  <Clock size={12} />
  <span className="text-[10px] font-bold tracking-tight">{log.start_time} - {log.end_time}</span>
  </div>
@@ -238,7 +238,7 @@ const FacultyLogs = () => {
  </table>
  {filteredLogs.length === 0 && (
  <div className="p-20 text-center">
- <p className="text-xs font-black text-slate-400 uppercase tracking-widest ">Audit Stream Exhausted - No Intake Logs Found</p>
+ <p className="text-xs font-black text-slate-600 uppercase tracking-widest ">Audit Stream Exhausted - No Intake Logs Found</p>
  </div>
  )}
  </div>
@@ -273,7 +273,7 @@ const FacultyLogs = () => {
  <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
  <div className="space-y-10">
  <div className="space-y-4">
- <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2 h-10 border-b border-slate-50 ">
+ <h4 className="text-[10px] font-black text-slate-600 uppercase tracking-widest flex items-center gap-2 h-10 border-b border-slate-50 ">
  <BookOpen size={14} className="text-[#008080]" /> Academic Content Intake
  </h4>
  <div className="bg-slate-50 p-8 rounded-[3.5rem] border border-slate-100/50">
@@ -285,11 +285,11 @@ const FacultyLogs = () => {
 
  <div className="grid grid-cols-2 gap-6">
  <div className="bg-slate-50 p-6 rounded-3xl border border-slate-100">
- <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1 ">Engagement</p>
+ <p className="text-[8px] font-black text-slate-600 uppercase tracking-widest mb-1 ">Engagement</p>
  <span className="text-xs font-black text-slate-900 uppercase tracking-widest">{selectedLog.engagement_level}</span>
  </div>
  <div className="bg-slate-50 p-6 rounded-3xl border border-slate-100">
- <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1 ">Risk Status</p>
+ <p className="text-[8px] font-black text-slate-600 uppercase tracking-widest mb-1 ">Risk Status</p>
  <span className={`text-[8px] font-black uppercase tracking-widest ${selectedLog.risk_level === 'High' ? 'text-rose-500' : 'text-emerald-500'}`}>{selectedLog.risk_level} Priority</span>
  </div>
  </div>
@@ -297,12 +297,12 @@ const FacultyLogs = () => {
 
  <div className="space-y-10">
  <div className="space-y-4">
- <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2 h-10 border-b border-slate-50 ">
+ <h4 className="text-[10px] font-black text-slate-600 uppercase tracking-widest flex items-center gap-2 h-10 border-b border-slate-50 ">
  <Activity size={14} className="text-rose-500" /> Session Audit & Findings
  </h4>
  <div className="space-y-6">
  <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100">
- <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2 ">Issues Reported By Mentor</p>
+ <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest mb-2 ">Issues Reported By Mentor</p>
  <p className="text-xs font-bold text-slate-600 leading-loose">{selectedLog.issues_reported || "Routine Compliance."}</p>
  </div>
  <div className="p-6 bg-[#008080]/10 rounded-3xl border border-[#008080]">
@@ -315,11 +315,11 @@ const FacultyLogs = () => {
  {selectedLog.screenshot_url && (
  <div className="p-6 bg-white border-2 border-slate-50 rounded-[3rem] shadow-sm flex items-center justify-between">
  <div className="flex items-center gap-4">
- <div className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-400">
+ <div className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-600">
  <Layout size={20} />
  </div>
  <div>
- <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest ">Verification Document</p>
+ <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest ">Verification Document</p>
  <p className="text-xs font-bold text-slate-900 ">Audit Proof Attachment</p>
  </div>
  </div>

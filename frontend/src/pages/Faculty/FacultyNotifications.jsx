@@ -56,7 +56,7 @@ const FacultyNotifications = () => {
  switch (type) {
  case 'Task': return <AlertCircle className="text-rose-500" size={24} />;
  case 'Session': return <Calendar className="text-[#008080]" size={24} />;
- default: return <Bell className="text-slate-400" size={24} />;
+ default: return <Bell className="text-slate-600" size={24} />;
  }
  };
 
@@ -66,7 +66,7 @@ const FacultyNotifications = () => {
  <div className="flex flex-col md:flex-row justify-between items-center gap-8">
  <div>
  <h2 className="text-3xl font-black text-slate-900 tracking-tighter uppercase ">Notification Centre</h2>
- <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em] mt-2">Real-time system updates and academic alerts</p>
+ <p className="text-slate-600 text-[10px] font-black uppercase tracking-[0.2em] mt-2">Real-time system updates and academic alerts</p>
  </div>
 
  <div className="flex bg-white p-1.5 rounded-[1.5rem] border border-slate-100 shadow-sm">
@@ -74,7 +74,7 @@ const FacultyNotifications = () => {
  <button
  key={f}
  onClick={() => setFilter(f)}
- className={`px-8 py-3 rounded-[1.2rem] text-[10px] font-black uppercase tracking-widest transition-all duration-500 ${filter === f ? 'bg-[#008080] text-white shadow-xl shadow-[#008080]/30' : 'text-slate-400 hover:text-white'
+ className={`px-8 py-3 rounded-[1.2rem] text-[10px] font-black uppercase tracking-widest transition-all duration-500 ${filter === f ? 'bg-[#008080] text-white shadow-xl shadow-[#008080]/30' : 'text-slate-600 hover:text-white'
  }`}
  >
  {f}
@@ -111,7 +111,7 @@ const FacultyNotifications = () => {
  {notif.title}
  </h3>
  <div className="flex items-center gap-3">
- <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+ <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest flex items-center gap-2">
  <Clock size={12} />
  {new Date(notif.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
  </span>
@@ -128,7 +128,7 @@ const FacultyNotifications = () => {
  Source: Platform Engine
  </span>
  {notif.is_read && (
- <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+ <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest flex items-center gap-2">
  <CheckCircle2 size={12} />
  Acknowledged
  </span>
@@ -147,7 +147,7 @@ const FacultyNotifications = () => {
  <BellOff size={48} />
  </div>
  <h3 className="text-2xl font-black text-slate-900 tracking-tight ">Frequency Silent</h3>
- <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px] mt-2">No active notifications in this category</p>
+ <p className="text-slate-600 font-bold uppercase tracking-widest text-[10px] mt-2">No active notifications in this category</p>
  </div>
  )}
  </div>

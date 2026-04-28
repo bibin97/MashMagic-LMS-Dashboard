@@ -68,13 +68,13 @@ const FacultyStudents = () => {
  {/* Page Title */}
  <div>
  <h2 className="text-3xl font-black text-slate-900 tracking-tighter uppercase ">Assigned Roster</h2>
- <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em] mt-2">Manage and monitor your assigned students</p>
+ <p className="text-slate-600 text-[10px] font-black uppercase tracking-[0.2em] mt-2">Manage and monitor your assigned students</p>
  </div>
 
  {/* Header / Actions */}
  <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
  <div className="relative group flex-1 max-w-md">
- <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#008080] transition-colors" size={18} />
+ <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#008080] transition-colors" size={18} />
  <input
  type="text"
  placeholder="Search students by name or roll number..."
@@ -98,11 +98,11 @@ const FacultyStudents = () => {
  <table className="w-full text-left border-collapse">
  <thead>
  <tr className="bg-slate-50/50">
- <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Student Information</th>
- <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Roll Number</th>
- <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Department</th>
- <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Attendance</th>
- <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Performance</th>
+ <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Student Information</th>
+ <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Roll Number</th>
+ <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Department</th>
+ <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest text-center">Attendance</th>
+ <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Performance</th>
  </tr>
  </thead>
  <tbody className="divide-y divide-slate-50">
@@ -127,7 +127,7 @@ const FacultyStudents = () => {
  {student.badge === 'Tuition' && <span title="Tuition Plan" className="cursor-help text-base">🥈</span>}
  {student.badge === 'Diamond' && <span title="Mentorship & Tuition Plan" className="cursor-help text-base">💎</span>}
  </div>
- <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Undergraduate</p>
+ <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest mt-1">Undergraduate</p>
  </div>
  </div>
  </td>
@@ -165,7 +165,7 @@ const FacultyStudents = () => {
  <GraduationCap size={40} />
  </div>
  <p className="text-slate-900 font-black text-xl">No students found</p>
- <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px] mt-2">Adjust your search filters or check your assignments</p>
+ <p className="text-slate-600 font-bold uppercase tracking-widest text-[10px] mt-2">Adjust your search filters or check your assignments</p>
  </td>
  </tr>
  )}

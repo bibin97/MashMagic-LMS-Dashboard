@@ -116,19 +116,19 @@ const StudentDetails = () => {
  <h1 className="text-5xl font-black tracking-tighter mb-4 ">{data?.profile?.name}</h1>
  <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-8">
  <div>
- <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-1">Department</p>
+ <p className="text-slate-600 text-[10px] font-black uppercase tracking-widest mb-1">Department</p>
  <p className="font-bold text-lg">{data?.profile?.department || 'General Academic'}</p>
  </div>
  <div>
- <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-1">Attendance</p>
+ <p className="text-slate-600 text-[10px] font-black uppercase tracking-widest mb-1">Attendance</p>
  <p className="font-bold text-lg text-emerald-400">{data?.profile?.attendance_percentage || '0'}% Avg</p>
  </div>
  <div>
- <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-1">Status</p>
+ <p className="text-slate-600 text-[10px] font-black uppercase tracking-widest mb-1">Status</p>
  <p className="font-bold text-lg">{data?.profile?.performance_status === 'Green' ? 'Good' : data?.profile?.performance_status === 'Yellow' ? 'Average' : data?.profile?.performance_status === 'Red' ? 'Poor' : data?.profile?.performance_status}</p>
  </div>
  <div>
- <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-1">Contact</p>
+ <p className="text-slate-600 text-[10px] font-black uppercase tracking-widest mb-1">Contact</p>
  <p className="font-bold text-lg">{data?.profile?.phone_number || 'No Phone'}</p>
  </div>
  </div>
@@ -149,7 +149,7 @@ const StudentDetails = () => {
  key={tab.id}
  onClick={() => setActiveTab(tab.id)}
  className={`pb-8 flex items-center gap-3 transition-all duration-500 relative group
- ${activeTab === tab.id ? 'text-[#008080] font-black' : 'text-slate-400 font-bold hover:text-slate-600'}
+ ${activeTab === tab.id ? 'text-[#008080] font-black' : 'text-slate-600 font-bold hover:text-slate-600'}
  `}
  >
  <tab.icon size={18} className={activeTab === tab.id ? 'animate-bounce-slow' : ''} />
@@ -176,7 +176,7 @@ const StudentDetails = () => {
  <div key={i} className="flex justify-between items-center bg-slate-50 p-6 rounded-3xl border border-slate-100/50 hover:bg-[#008080]/10/30 transition-all duration-500">
  <div>
  <p className="font-black text-slate-900 leading-none mb-1">{mark.subject}</p>
- <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{mark.term || 'Term 1'}</p>
+ <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest">{mark.term || 'Term 1'}</p>
  </div>
  <div className="text-right">
  <p className="text-xl font-black text-[#008080]">{mark.marks}/{mark.total}</p>
@@ -187,7 +187,7 @@ const StudentDetails = () => {
  </div>
  ) : (
  <div className="bg-slate-50 border-2 border-dashed border-slate-200 rounded-[2.5rem] p-12 text-center">
- <p className="text-slate-400 font-black text-xs uppercase tracking-widest">No mark records found.</p>
+ <p className="text-slate-600 font-black text-xs uppercase tracking-widest">No mark records found.</p>
  </div>
  )}
  </div>
@@ -231,9 +231,9 @@ const StudentDetails = () => {
  <table className="w-full text-left">
  <thead>
  <tr>
- <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Session Topic</th>
- <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Date</th>
- <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</th>
+ <th className="px-8 py-5 text-[10px] font-black text-slate-600 uppercase tracking-widest">Session Topic</th>
+ <th className="px-8 py-5 text-[10px] font-black text-slate-600 uppercase tracking-widest">Date</th>
+ <th className="px-8 py-5 text-[10px] font-black text-slate-600 uppercase tracking-widest">Status</th>
  </tr>
  </thead>
  <tbody className="divide-y divide-slate-100">
@@ -274,11 +274,11 @@ const StudentDetails = () => {
  <div className="flex-1">
  <div className="flex items-center gap-3 mb-2">
  <h4 className="text-lg font-black text-slate-900 tracking-tight">{report.type} Issue</h4>
- <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">• {new Date(report.created_at).toLocaleDateString()}</span>
+ <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">• {new Date(report.created_at).toLocaleDateString()}</span>
  </div>
  <p className="text-slate-700 text-sm font-medium leading-relaxed mb-6">"{report.remarks}"</p>
  <div className="bg-white/50 p-6 rounded-3xl border border-slate-100">
- <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Action Taken</p>
+ <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest mb-1">Action Taken</p>
  <p className="text-slate-900 text-sm font-bold">{report.action_taken || 'Awaiting update...'}</p>
  </div>
  </div>
@@ -288,7 +288,7 @@ const StudentDetails = () => {
  ) : (
  <div className="text-center py-20 bg-slate-50 rounded-[2.5rem] border-2 border-dashed border-slate-200">
  <Plus size={48} className="mx-auto text-slate-300 mb-4" />
- <p className="text-slate-400 font-black text-xs uppercase tracking-widest">No interaction history recorded.</p>
+ <p className="text-slate-600 font-black text-xs uppercase tracking-widest">No interaction history recorded.</p>
  </div>
  )}
  </div>
@@ -306,11 +306,11 @@ const StudentDetails = () => {
  {dailyHours.map((log) => (
  <div key={log.id} className="bg-slate-50 p-6 rounded-3xl border border-slate-100 flex items-center justify-between shadow-sm">
  <div className="flex flex-col gap-1">
- <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Date</span>
+ <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Date</span>
  <span className="text-sm font-bold text-slate-700">{new Date(log.date).toLocaleDateString()}</span>
  </div>
  <div className="flex flex-col gap-1 text-right">
- <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Hours Logged</span>
+ <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Hours Logged</span>
  <span className="text-xl font-black text-[#008080]">{log.hours} Hrs</span>
  </div>
  </div>
@@ -319,7 +319,7 @@ const StudentDetails = () => {
  ) : (
  <div className="text-center py-20 bg-slate-50 rounded-[2.5rem] border-2 border-dashed border-slate-200">
  <Clock size={48} className="mx-auto text-slate-300 mb-4" />
- <p className="text-slate-400 font-black text-xs uppercase tracking-widest">No daily hours logged yet.</p>
+ <p className="text-slate-600 font-black text-xs uppercase tracking-widest">No daily hours logged yet.</p>
  </div>
  )}
  </div>
@@ -337,14 +337,14 @@ const StudentDetails = () => {
  <h3 className="text-2xl font-black tracking-tight ">Submit Report</h3>
  <p className="text-[10px] font-black uppercase tracking-[0.2em] opacity-60">MashMagic Academic Engine</p>
  </div>
- <button onClick={() => setIsReportModalOpen(false)} className="text-slate-400 hover:text-white transition-colors relative">
+ <button onClick={() => setIsReportModalOpen(false)} className="text-slate-600 hover:text-white transition-colors relative">
  <ChevronLeft size={24} className="rotate-90" />
  </button>
  </div>
  <form onSubmit={handleReportSubmit} className="p-12 space-y-8">
  <div className="grid grid-cols-2 gap-8">
  <div className="space-y-3">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4">Interaction Type</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-4">Interaction Type</label>
  <select
  className="w-full px-8 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:outline-none focus:ring-4 focus:ring-[#008080]/5 focus:border-[#008080] transition-all cursor-pointer"
  value={reportForm.type}
@@ -357,7 +357,7 @@ const StudentDetails = () => {
  </select>
  </div>
  <div className="space-y-3">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4">Follow-up Date</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-4">Follow-up Date</label>
  <input
  type="date"
  className="w-full px-8 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:outline-none focus:ring-4 focus:ring-[#008080]/5 focus:border-[#008080] transition-all"
@@ -368,7 +368,7 @@ const StudentDetails = () => {
  </div>
 
  <div className="space-y-3">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4">Observation Remarks</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-4">Observation Remarks</label>
  <textarea
  placeholder="Enter detailed observation notes..."
  rows="3"
@@ -380,7 +380,7 @@ const StudentDetails = () => {
  </div>
 
  <div className="space-y-3">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4">Action Taken / Proposed</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-4">Action Taken / Proposed</label>
  <textarea
  placeholder="Planned corrective actions..."
  rows="2"

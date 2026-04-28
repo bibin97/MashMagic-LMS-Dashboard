@@ -64,13 +64,13 @@ const AcademicHeadFacultyActivity = () => {
  <div className="flex bg-white p-1.5 rounded-[2rem] border border-slate-100 shadow-sm self-stretch md:self-auto">
  <button
  onClick={() => setActiveTab('sessions')}
- className={`flex-1 md:w-40 px-6 py-3 rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'sessions' ? 'bg-slate-900 text-white shadow-lg' : 'text-slate-400 hover:text-slate-600'}`}
+ className={`flex-1 md:w-40 px-6 py-3 rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'sessions' ? 'bg-slate-900 text-white shadow-lg' : 'text-slate-600 hover:text-slate-600'}`}
  >
  Live Sessions
  </button>
  <button
  onClick={() => setActiveTab('reports')}
- className={`flex-1 md:w-40 px-6 py-3 rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'reports' ? 'bg-slate-900 text-white shadow-lg' : 'text-slate-400 hover:text-slate-600'}`}
+ className={`flex-1 md:w-40 px-6 py-3 rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'reports' ? 'bg-slate-900 text-white shadow-lg' : 'text-slate-600 hover:text-slate-600'}`}
  >
  Academic Reports
  </button>
@@ -89,7 +89,7 @@ const AcademicHeadFacultyActivity = () => {
  onChange={(e) => setSearchTerm(e.target.value)}
  />
  </div>
- <button className="p-5 bg-white border border-slate-100 rounded-2xl text-slate-400 hover:text-[#008080] transition-all shadow-sm">
+ <button className="p-5 bg-white border border-slate-100 rounded-2xl text-slate-600 hover:text-[#008080] transition-all shadow-sm">
  <Filter size={20} />
  </button>
  </div>
@@ -102,7 +102,7 @@ const AcademicHeadFacultyActivity = () => {
  <div className="py-40 text-center bg-white rounded-[4rem] border border-slate-100">
  <Search className="mx-auto text-slate-100 mb-6" size={60} />
  <h3 className="text-xl font-black text-slate-900 tracking-tight">Zero traces found</h3>
- <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mt-2">No matching activity records in the current matrix</p>
+ <p className="text-slate-600 text-[10px] font-black uppercase tracking-widest mt-2">No matching activity records in the current matrix</p>
  </div>
  ) : (
  filteredData.map((item, idx) => (
@@ -120,7 +120,7 @@ const AcademicHeadFacultyActivity = () => {
  <span className="px-5 py-1.5 bg-slate-900 text-white rounded-full text-[9px] font-black uppercase tracking-[0.2em]">
  {activeTab === 'sessions' ? 'Session' : 'Audit Report'}
  </span>
- <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+ <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest flex items-center gap-2">
  <Calendar size={14} />
  {new Date(item.date || item.created_at).toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
  </span>
@@ -148,7 +148,7 @@ const AcademicHeadFacultyActivity = () => {
  {activeTab === 'sessions' ? (
  <div className="space-y-4">
  <div>
- <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Attendance</p>
+ <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Attendance</p>
  <p className="text-lg font-black text-slate-900">{item.student_count || 0} Students</p>
  </div>
  <span className={`inline-block px-4 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest ${item.status === 'Completed' ? 'bg-emerald-500 text-white' : 'bg-amber-500 text-white'}`}>
@@ -158,7 +158,7 @@ const AcademicHeadFacultyActivity = () => {
  ) : (
  <div className="space-y-4">
  <div>
- <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Audit Status</p>
+ <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Audit Status</p>
  <p className="text-lg font-black text-slate-900 tracking-tight capitalize">{item.status}</p>
  </div>
  <div className={`px-4 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest inline-block ${item.type === 'Academic' ? 'bg-[#008080] text-white' : 'bg-rose-100 text-rose-700'

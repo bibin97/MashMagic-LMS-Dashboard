@@ -101,7 +101,7 @@ const MentorsList = () => {
  m.place?.toLowerCase().includes(searchTerm.toLowerCase())
  );
 
- if (loading) return <div className="p-20 text-center font-black text-slate-400 animate-pulse">SYNCING MENTOR DIRECTORY...</div>;
+ if (loading) return <div className="p-20 text-center font-black text-slate-600 animate-pulse">SYNCING MENTOR DIRECTORY...</div>;
 
  return (
  <div className="space-y-8 animate-in fade-in duration-700">
@@ -109,14 +109,14 @@ const MentorsList = () => {
  <div className="bg-white p-10 rounded-[3rem] border border-slate-100 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
  <div>
  <h2 className="text-3xl font-black text-slate-900 tracking-tighter uppercase ">Mentor Faculty</h2>
- <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest mt-2 flex items-center gap-2">
+ <p className="text-slate-600 text-[10px] font-bold uppercase tracking-widest mt-2 flex items-center gap-2">
  <Users size={14} className="text-[#008080]" />
  Academic Head level management of all mentor profiles and assignments
  </p>
  </div>
 
  <div className="relative group">
- <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#008080] transition-colors" size={18} />
+ <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#008080] transition-colors" size={18} />
  <input
  type="text"
  placeholder="FILTER BY NAME OR LOCATION..."
@@ -127,10 +127,10 @@ const MentorsList = () => {
  </div>
   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 px-2">
     <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm flex flex-col gap-2 group transition-all hover:shadow-xl hover:shadow-[#008080]/5 hover:-translate-y-1">
-      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest group-hover:text-[#008080] transition-colors">Total Mentors</span>
+      <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest group-hover:text-[#008080] transition-colors">Total Mentors</span>
       <div className="flex items-end gap-3 font-black text-slate-900 tracking-tighter">
         <span className="text-4xl leading-none">{mentors.length}</span>
-        <span className="text-[10px] text-slate-400 mb-1 uppercase tracking-widest">Database Total</span>
+        <span className="text-[10px] text-slate-600 mb-1 uppercase tracking-widest">Database Total</span>
       </div>
     </div>
     
@@ -167,17 +167,17 @@ const MentorsList = () => {
  
  <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1">
  <div className="flex items-center gap-1.5">
- <MapPin size={10} className="text-slate-400" />
- <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{mentor.place || 'Unknown'}</span>
+ <MapPin size={10} className="text-slate-600" />
+ <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest">{mentor.place || 'Unknown'}</span>
  </div>
  <div className="flex items-center gap-1.5">
- <Mail size={10} className="text-slate-400" />
- <span className="text-[9px] font-bold text-slate-400">{mentor.email}</span>
+ <Mail size={10} className="text-slate-600" />
+ <span className="text-[9px] font-bold text-slate-600">{mentor.email}</span>
  </div>
- <div className="flex items-center gap-1.5">
- <Phone size={10} className="text-slate-400" />
- <span className="text-[9px] font-bold text-slate-400">{mentor.phone_number}</span>
- </div>
+  <div className="flex items-center gap-1.5">
+  <Phone size={10} className="text-slate-500" />
+  <span className="text-[9px] font-bold text-slate-600">{mentor.phone_number}</span>
+  </div>
  </div>
 
  {/* Expand Option Below Name Section */}
@@ -195,6 +195,24 @@ const MentorsList = () => {
  </button>
  </div>
  </div>
+  <div className="flex items-center gap-3">
+  <button
+  onClick={() => handleEdit(mentor)}
+  className="w-10 h-10 bg-white border border-slate-200 rounded-xl text-[#008080] flex items-center justify-center hover:bg-[#008080]/10 transition-all shadow-sm"
+  title="Edit Profile"
+  >
+  <Edit2 size={16} />
+  </button>
+  <button
+  onClick={() => handleDelete(mentor.id, mentor.name)}
+  className="w-10 h-10 bg-white border border-slate-200 rounded-xl text-rose-600 flex items-center justify-center hover:bg-rose-50 transition-all shadow-sm"
+  title="Delete Record"
+  >
+  <Trash2 size={16} />
+  </button>
+  </div>
+  </div>
+  </div>
 
 
  {/* Inline Student List Section */}
@@ -210,17 +228,17 @@ const MentorsList = () => {
  {loadingStudents ? (
  <div className="py-10 text-center">
  <div className="inline-block w-5 h-5 border-2 border-[#008080]/30 border-t-[#008080] rounded-full animate-spin mb-2"></div>
- <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest animate-pulse">Synchronizing student records...</div>
+ <div className="text-[10px] font-black text-slate-600 uppercase tracking-widest animate-pulse">Synchronizing student records...</div>
  </div>
  ) : mentorStudents.length > 0 ? (
  <div className="space-y-3">
  {/* Table Header for the inline list */}
  <div className="hidden lg:grid grid-cols-5 gap-4 px-6 mb-2">
- <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Student / ID</span>
-  <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest text-center">Faculty</span>
- <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest text-center">Mentor</span>
- <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest text-center invisible">Metadata</span>
- <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest text-right">Performance Status</span>
+ <span className="text-[8px] font-black text-slate-600 uppercase tracking-widest">Student / ID</span>
+  <span className="text-[8px] font-black text-slate-600 uppercase tracking-widest text-center">Faculty</span>
+ <span className="text-[8px] font-black text-slate-600 uppercase tracking-widest text-center">Mentor</span>
+ <span className="text-[8px] font-black text-slate-600 uppercase tracking-widest text-center invisible">Metadata</span>
+ <span className="text-[8px] font-black text-slate-600 uppercase tracking-widest text-right">Performance Status</span>
  </div>
  {mentorStudents.map((student) => (
  <div key={student.id} className="p-4 bg-slate-50 border border-slate-100 rounded-[2rem] hover:bg-white hover:border-[#008080] hover:shadow-xl transition-all duration-300 group/student">
@@ -231,23 +249,23 @@ const MentorsList = () => {
  </div>
  <div className="flex-1 min-w-0">
  <h4 className="text-[12px] font-black text-slate-900 uppercase truncate">{student.name}</h4>
- <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">{student.registration_number || 'REG-PENDING'}</span>
+ <span className="text-[8px] font-bold text-slate-600 uppercase tracking-widest">{student.registration_number || 'REG-PENDING'}</span>
  </div>
  </div>
  
  <div className="flex flex-col lg:items-center">
  <span className="text-[10px] font-black text-slate-900 uppercase truncate">{student.faculty_name || 'Unassigned'}</span>
- <span className="text-[7px] font-bold text-slate-400 uppercase tracking-tighter">Academic Faculty</span>
+ <span className="text-[7px] font-bold text-slate-600 uppercase tracking-tighter">Academic Faculty</span>
  </div>
 
  <div className="flex flex-col lg:items-center">
  <span className="text-[10px] font-black text-slate-900 uppercase truncate">{student.mentor_name || mentor.name}</span>
- <span className="text-[7px] font-bold text-slate-400 uppercase tracking-tighter">Assigned Mentor</span>
+ <span className="text-[7px] font-bold text-slate-600 uppercase tracking-tighter">Assigned Mentor</span>
  </div>
 
  <div className="flex flex-col lg:items-center">
  <span className="text-[10px] font-black text-[#008080] uppercase">{student.course}</span>
- <span className="text-[7px] font-bold text-slate-400 uppercase">{student.grade}</span>
+ <span className="text-[7px] font-bold text-slate-600 uppercase">{student.grade}</span>
  </div>
 
  <div className="flex flex-col items-end">
@@ -260,7 +278,7 @@ const MentorsList = () => {
  'bg-slate-100 text-slate-500 border border-slate-200'}`}>
  {student.performance}
  </div>
- <span className="text-[7px] font-bold text-slate-400 uppercase mt-1 tracking-[0.2em]">Live Analytics: {student.avg_score}%</span>
+ <span className="text-[7px] font-bold text-slate-600 uppercase mt-1 tracking-[0.2em]">Live Analytics: {student.avg_score}%</span>
  </div>
  </div>
  </div>
@@ -268,7 +286,7 @@ const MentorsList = () => {
  </div>
  ) : (
  <div className="py-10 bg-slate-50/50 rounded-2xl text-center border border-dashed border-slate-200">
- <p className="text-slate-400 font-black text-[10px] uppercase tracking-[0.2em] ">No students currently assigned to this mentor</p>
+ <p className="text-slate-600 font-black text-[10px] uppercase tracking-[0.2em] ">No students currently assigned to this mentor</p>
  </div>
  )}
  </div>
@@ -278,7 +296,7 @@ const MentorsList = () => {
  )) : (
  <div className="py-20 bg-white rounded-[3rem] border border-slate-100 text-center shadow-sm">
  <Users size={40} className="mx-auto text-slate-200 mb-4" />
- <p className="text-slate-400 font-black text-[10px] uppercase tracking-[0.3em]">No mentors matching your search parameters</p>
+ <p className="text-slate-600 font-black text-[10px] uppercase tracking-[0.3em]">No mentors matching your search parameters</p>
  </div>
  )}
  </div>
@@ -291,13 +309,13 @@ const MentorsList = () => {
  <h2 className="text-lg font-black text-slate-900 flex items-center gap-3 ">
  <Edit2 size={20} className="text-[#008080]" /> Edit Mentor Profile
  </h2>
- <button onClick={() => setIsEditModalOpen(false)} className="w-10 h-10 flex items-center justify-center bg-white rounded-xl text-slate-400 hover:text-slate-600 hover:shadow-md transition-all">
+ <button onClick={() => setIsEditModalOpen(false)} className="w-10 h-10 flex items-center justify-center bg-white rounded-xl text-slate-600 hover:text-slate-600 hover:shadow-md transition-all">
  <X size={20} />
  </button>
  </div>
  <div className="p-8 space-y-6">
  <div>
- <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Full Name</label>
+ <label className="block text-[10px] font-black text-slate-600 uppercase tracking-widest mb-2 ml-1">Full Name</label>
  <input
  type="text"
  value={editingMentor.name}
@@ -306,7 +324,7 @@ const MentorsList = () => {
  />
  </div>
  <div>
- <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Email Address</label>
+ <label className="block text-[10px] font-black text-slate-600 uppercase tracking-widest mb-2 ml-1">Email Address</label>
  <input
  type="email"
  value={editingMentor.email}
@@ -316,7 +334,7 @@ const MentorsList = () => {
  </div>
  <div className="grid grid-cols-2 gap-6">
  <div>
- <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Phone Number</label>
+ <label className="block text-[10px] font-black text-slate-600 uppercase tracking-widest mb-2 ml-1">Phone Number</label>
  <input
  type="text"
  value={editingMentor.phone_number}
@@ -325,7 +343,7 @@ const MentorsList = () => {
  />
  </div>
  <div>
- <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Place / Location</label>
+ <label className="block text-[10px] font-black text-slate-600 uppercase tracking-widest mb-2 ml-1">Place / Location</label>
  <input
  type="text"
  value={editingMentor.place || ''}
@@ -338,7 +356,7 @@ const MentorsList = () => {
  <div className="px-8 py-6 border-t border-slate-100 bg-slate-50/50 flex justify-end gap-3">
  <button
  onClick={() => setIsEditModalOpen(false)}
- className="px-8 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-all"
+ className="px-8 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest text-slate-600 hover:text-slate-600 hover:bg-slate-100 transition-all"
  >
  Discard
  </button>

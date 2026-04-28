@@ -124,7 +124,7 @@ const MentorDetails = () => {
  <div className="w-16 h-16 border-4 border-[#008080] border-t-[#008080] rounded-full animate-spin"></div>
  <Activity className="absolute inset-0 m-auto text-[#008080] animate-pulse" size={20} />
  </div>
- <p className="text-slate-400 font-black text-[10px] uppercase tracking-widest animate-pulse">Syncing Dashboard...</p>
+ <p className="text-slate-600 font-black text-[10px] uppercase tracking-widest animate-pulse">Syncing Dashboard...</p>
  </div>
  );
  }
@@ -160,7 +160,7 @@ const MentorDetails = () => {
  <div className="flex items-center justify-between px-4">
  <button
  onClick={() => navigate(-1)}
- className="group flex items-center gap-2 text-slate-400 hover:text-[#008080] transition-all font-bold uppercase tracking-widest text-[10px]"
+ className="group flex items-center gap-2 text-slate-600 hover:text-[#008080] transition-all font-bold uppercase tracking-widest text-[10px]"
  >
  <div className="p-2 bg-white rounded-xl shadow-sm border border-slate-100 group-hover:bg-[#008080]/10 group-hover:border-[#008080] transition-all">
  <ArrowLeft size={14} />
@@ -190,7 +190,7 @@ const MentorDetails = () => {
  <div className="text-center md:text-left">
  <div className="inline-flex items-center gap-2 mb-3 px-3 py-1 bg-slate-50 border border-slate-100 rounded-full">
  <div className={`w-2 h-2 rounded-full ${profile.status === 'active' ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'}`}></div>
- <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{profile.status} Member</span>
+ <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">{profile.status} Member</span>
  </div>
  <h1 className="text-4xl font-black text-slate-900 tracking-tight leading-none mb-6">
  {profile.name}
@@ -248,7 +248,7 @@ const MentorDetails = () => {
 
  <div className="space-y-4">
  <div className="flex justify-between items-end">
- <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Marking Progress</span>
+ <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Marking Progress</span>
  <span className="text-lg font-black text-[#008080]">{progressPercent.toFixed(0)}%</span>
  </div>
  <div className="h-3 w-full bg-slate-800 rounded-full overflow-hidden border border-slate-700 shadow-inner">
@@ -281,7 +281,7 @@ const MentorDetails = () => {
  <span className="text-4xl font-black text-slate-900">{kpi.value}</span>
  <span className="text-[10px] font-black text-slate-300 uppercase">{kpi.unit}</span>
  </div>
- <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{kpi.label}</div>
+ <div className="text-[10px] font-black text-slate-600 uppercase tracking-widest">{kpi.label}</div>
  </div>
  ))}
  </div>
@@ -295,13 +295,13 @@ const MentorDetails = () => {
  </div>
  <div>
  <h3 className="text-2xl font-black text-slate-900 tracking-tight leading-none mb-1">Assigned Students & Faculty</h3>
- <p className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">Academic Portfolio Management</p>
+ <p className="text-[11px] font-black text-slate-600 uppercase tracking-[0.2em]">Academic Portfolio Management</p>
  </div>
  </div>
 
  <div className="flex items-center gap-4 w-full md:w-auto">
  <div className="relative flex-grow md:flex-grow-0 md:min-w-[350px]">
- <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+ <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-600" size={18} />
  <input
  type="text"
  placeholder="Search by student or faculty identity..."
@@ -340,13 +340,13 @@ const MentorDetails = () => {
  <table className="w-full text-left">
  <thead>
  <tr className="bg-slate-50/50">
- <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Student Identity</th>
- <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Assigned Faculty</th>
- <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] text-center">Last Interaction</th>
- <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] text-center">Sessions</th>
- <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] text-center">Verifications</th>
- <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Status</th>
- <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] text-right">Actions</th>
+ <th className="px-10 py-6 text-[10px] font-black text-slate-600 uppercase tracking-[0.2em]">Student Identity</th>
+ <th className="px-10 py-6 text-[10px] font-black text-slate-600 uppercase tracking-[0.2em]">Assigned Faculty</th>
+ <th className="px-10 py-6 text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] text-center">Last Interaction</th>
+ <th className="px-10 py-6 text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] text-center">Sessions</th>
+ <th className="px-10 py-6 text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] text-center">Verifications</th>
+ <th className="px-10 py-6 text-[10px] font-black text-slate-600 uppercase tracking-[0.2em]">Status</th>
+ <th className="px-10 py-6 text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] text-right">Actions</th>
  </tr>
  </thead>
  <tbody className="divide-y divide-slate-100">
@@ -356,7 +356,7 @@ const MentorDetails = () => {
  <div className="flex flex-col">
  <span className="text-base font-black text-slate-900 group-hover:text-[#008080] transition-colors">{s.name}</span>
  <div className="flex items-center gap-2 mt-1">
- <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{s.grade} • {s.course}</span>
+ <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">{s.grade} • {s.course}</span>
  {s.is_shifted && (
  <span className="px-2 py-0.5 bg-rose-50 text-rose-500 rounded text-[8px] font-black uppercase tracking-widest border border-rose-100">Shifted from {s.shifted_from}</span>
  )}
@@ -422,7 +422,7 @@ const MentorDetails = () => {
  <Search size={40} />
  </div>
  <h4 className="text-xl font-black text-slate-900 tracking-tight">Data Not Found</h4>
- <p className="text-slate-400 font-bold uppercase tracking-[0.2em] text-[10px] mt-2">Try adjusting your search or filters</p>
+ <p className="text-slate-600 font-bold uppercase tracking-[0.2em] text-[10px] mt-2">Try adjusting your search or filters</p>
  </td>
  </tr>
  )}
@@ -439,14 +439,14 @@ const MentorDetails = () => {
  <h2 className="text-lg font-black text-slate-900 flex items-center gap-3 ">
  <Edit2 size={20} className="text-[#008080]" /> Edit Student Registry
  </h2>
- <button onClick={() => setIsEditModalOpen(false)} className="w-10 h-10 flex items-center justify-center bg-white rounded-xl text-slate-400 hover:text-slate-600 hover:shadow-md transition-all">
+ <button onClick={() => setIsEditModalOpen(false)} className="w-10 h-10 flex items-center justify-center bg-white rounded-xl text-slate-600 hover:text-slate-600 hover:shadow-md transition-all">
  <X size={20} />
  </button>
  </div>
  <div className="p-8 space-y-6">
  <div className="grid grid-cols-2 gap-6">
  <div>
- <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Student Name</label>
+ <label className="block text-[10px] font-black text-slate-600 uppercase tracking-widest mb-2 ml-1">Student Name</label>
  <input
  type="text"
  value={editingStudent.name}
@@ -455,7 +455,7 @@ const MentorDetails = () => {
  />
  </div>
  <div>
- <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Grade / Level</label>
+ <label className="block text-[10px] font-black text-slate-600 uppercase tracking-widest mb-2 ml-1">Grade / Level</label>
  <input
  type="text"
  value={editingStudent.grade}
@@ -466,7 +466,7 @@ const MentorDetails = () => {
  </div>
  <div className="grid grid-cols-2 gap-6">
  <div>
- <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Email Address</label>
+ <label className="block text-[10px] font-black text-slate-600 uppercase tracking-widest mb-2 ml-1">Email Address</label>
  <input
  type="email"
  value={editingStudent.email}
@@ -475,7 +475,7 @@ const MentorDetails = () => {
  />
  </div>
  <div>
- <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Phone Number</label>
+ <label className="block text-[10px] font-black text-slate-600 uppercase tracking-widest mb-2 ml-1">Phone Number</label>
  <input
  type="text"
  value={editingStudent.phone_number}
@@ -485,7 +485,7 @@ const MentorDetails = () => {
  </div>
  </div>
  <div>
- <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Course / Subject</label>
+ <label className="block text-[10px] font-black text-slate-600 uppercase tracking-widest mb-2 ml-1">Course / Subject</label>
  <input
  type="text"
  value={editingStudent.course}
@@ -497,7 +497,7 @@ const MentorDetails = () => {
  <div className="px-8 py-6 border-t border-slate-100 bg-slate-50/50 flex justify-end gap-3">
  <button
  onClick={() => setIsEditModalOpen(false)}
- className="px-8 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-all"
+ className="px-8 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest text-slate-600 hover:text-slate-600 hover:bg-slate-100 transition-all"
  >
  Discard
  </button>

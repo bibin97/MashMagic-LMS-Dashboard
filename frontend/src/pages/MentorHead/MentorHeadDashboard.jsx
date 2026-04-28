@@ -109,7 +109,7 @@ const MentorHeadDashboard = () => {
  <span className="text-[10px] font-black text-[#008080] uppercase tracking-widest bg-[#008080]/10 px-3 py-1 rounded-full">Active</span>
  </div>
  <h3 className="text-3xl font-black text-slate-900">{stats.totalMentors}</h3>
- <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mt-1">Total Mentors</p>
+ <p className="text-slate-600 text-xs font-bold uppercase tracking-widest mt-1">Total Mentors</p>
  </div>
 
  <div className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-500 group">
@@ -120,7 +120,7 @@ const MentorHeadDashboard = () => {
  <span className="text-[10px] font-black text-emerald-400 uppercase tracking-widest bg-emerald-50 px-3 py-1 rounded-full">Completed</span>
  </div>
  <h3 className="text-3xl font-black text-slate-900">{stats.totalInteractions}</h3>
- <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mt-1">Total Interactions</p>
+ <p className="text-slate-600 text-xs font-bold uppercase tracking-widest mt-1">Total Interactions</p>
  </div>
 
  <div className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-500 group">
@@ -131,7 +131,7 @@ const MentorHeadDashboard = () => {
  <span className="text-[10px] font-black text-amber-400 uppercase tracking-widest bg-amber-50 px-3 py-1 rounded-full">Efficiency</span>
  </div>
  <h3 className="text-3xl font-black text-slate-900">{stats.avgEfficiency}</h3>
- <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mt-1">Avg Updates/Mentor</p>
+ <p className="text-slate-600 text-xs font-bold uppercase tracking-widest mt-1">Avg Updates/Mentor</p>
  </div>
  </div>
 
@@ -139,9 +139,9 @@ const MentorHeadDashboard = () => {
  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
  <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-6">
  <div className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm flex flex-col justify-center text-center">
- <Users className="w-8 h-8 text-slate-400 mx-auto mb-2" />
+ <Users className="w-8 h-8 text-slate-600 mx-auto mb-2" />
  <h3 className="text-3xl font-black text-slate-900">{dailySummary.totalStudents}</h3>
- <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mt-1">Total Students</p>
+ <p className="text-[10px] font-black uppercase tracking-widest text-slate-600 mt-1">Total Students</p>
  </div>
  <div className="bg-emerald-50 p-6 rounded-[2rem] border border-emerald-100 shadow-sm flex flex-col justify-center text-center">
  <CheckCircle2 className="w-8 h-8 text-emerald-500 mx-auto mb-2" />
@@ -156,7 +156,7 @@ const MentorHeadDashboard = () => {
  </div>
 
  <div className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm flex flex-col items-center justify-center min-h-[200px]">
- <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4">Verification Progress</h4>
+ <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-600 mb-4">Verification Progress</h4>
  {dailySummary.totalStudents > 0 ? (
  <div className="h-32 w-full">
  <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
@@ -184,7 +184,7 @@ const MentorHeadDashboard = () => {
  </ResponsiveContainer>
  </div>
  ) : (
- <p className="text-slate-400 font-bold text-sm">No students data available</p>
+ <p className="text-slate-600 font-bold text-sm">No students data available</p>
  )}
  </div>
  </div>
@@ -195,7 +195,7 @@ const MentorHeadDashboard = () => {
  <div className="flex justify-between items-center mb-10 relative z-10">
  <div>
  <h3 className="text-xl font-black text-slate-900 tracking-tight uppercase">Academic Performance Overview</h3>
- <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mt-1">Cross-cohort success rate analytics</p>
+ <p className="text-slate-600 text-[10px] font-black uppercase tracking-widest mt-1">Cross-cohort success rate analytics</p>
  </div>
  <div className="flex items-center gap-2">
  <div className="w-10 h-10 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600">
@@ -243,10 +243,10 @@ const MentorHeadDashboard = () => {
  <Activity className="text-[#008080]" size={24} />
  Live Activity Feed
  </h3>
- <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mt-1">Real-time updates from mentor panels</p>
+ <p className="text-slate-600 text-xs font-bold uppercase tracking-widest mt-1">Real-time updates from mentor panels</p>
  </div>
  <div className="flex items-center gap-3">
- <div className="text-xs font-bold text-slate-400 uppercase tracking-widest bg-slate-50 px-4 py-2 rounded-xl">
+ <div className="text-xs font-bold text-slate-600 uppercase tracking-widest bg-slate-50 px-4 py-2 rounded-xl">
  Last synced: {lastSynced || 'Just now'}
  </div>
  <button onClick={fetchDashboardData} disabled={loading} title="Refresh Data" className="p-2 bg-[#008080]/10 text-white rounded-xl hover:bg-[#008080] transition-all active:scale-95">
@@ -295,7 +295,7 @@ const MentorHeadDashboard = () => {
 
  <div className="flex items-center justify-between pt-2 border-t border-slate-50">
  <div className="flex items-center gap-2">
- <User size={14} className="text-slate-400" />
+ <User size={14} className="text-slate-600" />
  <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">{activity.student_name}</span>
  </div>
  <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">{activity.mentor_place}</span>
@@ -310,7 +310,7 @@ const MentorHeadDashboard = () => {
  <Activity size={32} />
  </div>
  <h3 className="text-lg font-black text-slate-900">No Recent Activity</h3>
- <p className="text-slate-400 font-bold uppercase tracking-widest text-xs mt-2">
+ <p className="text-slate-600 font-bold uppercase tracking-widest text-xs mt-2">
  Mentor updates will appear here in real-time.
  </p>
  </div>

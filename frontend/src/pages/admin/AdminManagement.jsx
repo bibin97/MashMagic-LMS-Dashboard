@@ -152,7 +152,7 @@ const AdminManagement = () => {
  </div>
  <div>
  <h2 className="text-5xl font-black text-slate-900 tracking-tighter leading-none mb-3 ">Administrative Authority</h2>
- <p className="text-slate-400 text-[11px] font-black uppercase tracking-[0.25em] flex items-center justify-center md:justify-start gap-3 mt-1">
+ <p className="text-slate-600 text-[11px] font-black uppercase tracking-[0.25em] flex items-center justify-center md:justify-start gap-3 mt-1">
  <div className="w-2 h-2 rounded-full bg-[#008080] animate-pulse"></div>
  System Access Control & Protocol Management
  </p>
@@ -173,11 +173,11 @@ const AdminManagement = () => {
  <table className="w-full text-left border-collapse">
  <thead>
  <tr className="bg-slate-50/40 border-b border-slate-100/50">
- <th className="p-8 text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] ">Authority Profile</th>
- <th className="p-8 text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] ">Contact Vector</th>
- <th className="p-8 text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] ">Access State</th>
- <th className="p-8 text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] ">Activation Epoch</th>
- <th className="p-8 text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] text-right">Verification Protocol</th>
+ <th className="p-8 text-[11px] font-black text-slate-600 uppercase tracking-[0.2em] ">Authority Profile</th>
+ <th className="p-8 text-[11px] font-black text-slate-600 uppercase tracking-[0.2em] ">Contact Vector</th>
+ <th className="p-8 text-[11px] font-black text-slate-600 uppercase tracking-[0.2em] ">Access State</th>
+ <th className="p-8 text-[11px] font-black text-slate-600 uppercase tracking-[0.2em] ">Activation Epoch</th>
+ <th className="p-8 text-[11px] font-black text-slate-600 uppercase tracking-[0.2em] text-right">Verification Protocol</th>
  </tr>
  </thead>
  <tbody className="divide-y divide-slate-50">
@@ -192,7 +192,7 @@ const AdminManagement = () => {
  <span className="text-lg font-black text-slate-800 block tracking-tighter leading-none uppercase group-hover:text-[#008080] transition-colors mb-2">{admin.name}</span>
  <div className="flex items-center gap-2">
  <Lock size={12} className="text-[#008080] opacity-60" />
- <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Management Node</span>
+ <span className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em]">Management Node</span>
  </div>
  </div>
  </div>
@@ -200,7 +200,7 @@ const AdminManagement = () => {
  <td className="p-6">
  <div className="flex flex-col gap-1">
  <span className="text-xs font-bold text-slate-600">{admin.email}</span>
- <span className="text-xs font-bold text-slate-400">{admin.phone_number || 'No Phone'}</span>
+ <span className="text-xs font-bold text-slate-600">{admin.phone_number || 'No Phone'}</span>
  </div>
  </td>
  <td className="p-8">
@@ -242,7 +242,7 @@ const AdminManagement = () => {
  <Shield size={32} />
  </div>
  <h3 className="text-lg font-black text-slate-900">No Sub Admins Found</h3>
- <p className="text-slate-400 text-xs font-bold uppercase tracking-widest">Create your first sub admin to start delegating work.</p>
+ <p className="text-slate-600 text-xs font-bold uppercase tracking-widest">Create your first sub admin to start delegating work.</p>
  </div>
  </td>
  </tr>
@@ -261,9 +261,9 @@ const AdminManagement = () => {
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
  {/* Name */}
  <div className="space-y-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Full Name</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Full Name</label>
  <div className="relative group">
- <User size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#008080] transition-colors" />
+ <User size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#008080] transition-colors" />
  <input
  type="text"
  required
@@ -277,9 +277,9 @@ const AdminManagement = () => {
 
  {/* Email */}
  <div className="space-y-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Email Address</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Email Address</label>
  <div className="relative group">
- <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#008080] transition-colors" />
+ <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#008080] transition-colors" />
  <input
  type="email"
  required
@@ -294,9 +294,9 @@ const AdminManagement = () => {
 
  {/* Phone */}
  <div className="space-y-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Phone Number</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Phone Number</label>
  <div className="relative group">
- <Phone size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#008080] transition-colors" />
+ <Phone size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#008080] transition-colors" />
  <input
  type="tel"
  className="w-full p-4 pl-12 bg-slate-50 border border-slate-100 rounded-2xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] focus:border-[#008080] transition-all font-bold tracking-wide"
@@ -309,14 +309,14 @@ const AdminManagement = () => {
 
  {/* Status */}
  <div className="space-y-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Account Status</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Account Status</label>
  <div className="flex gap-2">
  <button
  type="button"
  onClick={() => setFormData({ ...formData, status: 'active' })}
  className={`flex-1 flex items-center justify-center gap-2 p-4 rounded-2xl text-xs font-black uppercase tracking-widest transition-all ${formData.status === 'active'
  ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-100'
- : 'bg-slate-50 text-slate-400 border border-slate-100'
+ : 'bg-slate-50 text-slate-600 border border-slate-100'
  }`}
  >
  <CheckCircle size={14} />
@@ -327,7 +327,7 @@ const AdminManagement = () => {
  onClick={() => setFormData({ ...formData, status: 'inactive' })}
  className={`flex-1 flex items-center justify-center gap-2 p-4 rounded-2xl text-xs font-black uppercase tracking-widest transition-all ${formData.status === 'inactive'
  ? 'bg-rose-500 text-white shadow-lg shadow-rose-100'
- : 'bg-slate-50 text-slate-400 border border-slate-100'
+ : 'bg-slate-50 text-slate-600 border border-slate-100'
  }`}
  >
  <XCircle size={14} />
@@ -338,11 +338,11 @@ const AdminManagement = () => {
 
  {/* Password */}
  <div className="space-y-2 md:col-span-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">
  {editingAdmin ? "Reset Password (Leave blank to keep)" : "Password"}
  </label>
  <div className="relative group">
- <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#008080] transition-colors" />
+ <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#008080] transition-colors" />
  <input
  type="password"
  required={!editingAdmin}
@@ -358,7 +358,7 @@ const AdminManagement = () => {
  <div className="md:col-span-2 pt-4 border-t border-slate-100 flex items-center justify-between">
  <h4 className="text-[11px] font-black text-slate-900 uppercase tracking-[0.2em]">Authority Delegation & Permissions</h4>
  <div className="flex items-center gap-3 bg-slate-50 px-4 py-2 rounded-xl border border-slate-100">
- <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Full Access Control</span>
+ <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest">Full Access Control</span>
  <button
  type="button"
  onClick={() => {
@@ -389,7 +389,7 @@ const AdminManagement = () => {
  }}
  className={`p-3 rounded-xl border text-[10px] font-bold text-left transition-all flex items-center gap-3 ${formData.permissions[opt.key]
  ? 'bg-[#008080]/10 border-[#008080]/20 text-[#008080]'
- : 'bg-white border-slate-100 text-slate-400 hover:border-slate-200'
+ : 'bg-white border-slate-100 text-slate-600 hover:border-slate-200'
  }`}
  >
  <div className={`w-3 h-3 rounded-full border-2 transition-all ${formData.permissions[opt.key] ? 'bg-[#008080] border-[#008080]' : 'border-slate-200'}`}></div>
@@ -403,7 +403,7 @@ const AdminManagement = () => {
  <button
  type="button"
  onClick={() => setIsModalOpen(false)}
- className="flex-1 p-5 rounded-2xl text-xs font-black uppercase tracking-widest text-slate-400 hover:text-slate-600 hover:bg-slate-50 transition-all"
+ className="flex-1 p-5 rounded-2xl text-xs font-black uppercase tracking-widest text-slate-600 hover:text-slate-600 hover:bg-slate-50 transition-all"
  >
  Cancel
  </button>

@@ -62,12 +62,12 @@ const StudentLogs = () => {
  <div className="flex flex-col md:flex-row justify-between items-center gap-8">
  <div>
  <h2 className="text-3xl font-black text-slate-900 tracking-tighter uppercase ">Student Logs</h2>
- <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em] mt-2">Mentor-submitted session intelligence</p>
+ <p className="text-slate-600 text-[10px] font-black uppercase tracking-[0.2em] mt-2">Mentor-submitted session intelligence</p>
  </div>
 
  <div className="w-full md:w-auto flex flex-col sm:flex-row gap-4">
  <div className="relative group">
- <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#008080] transition-colors" size={18} />
+ <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#008080] transition-colors" size={18} />
  <input
  type="text"
  placeholder="Search by student, chapter or mentor..."
@@ -84,7 +84,7 @@ const StudentLogs = () => {
  <div className="overflow-x-auto">
  <table className="w-full text-left border-collapse">
  <thead>
- <tr className="bg-slate-50 border-b border-slate-100 font-black text-[10px] text-slate-400 uppercase tracking-widest ">
+ <tr className="bg-slate-50 border-b border-slate-100 font-black text-[10px] text-slate-600 uppercase tracking-widest ">
  <th className="px-8 py-6">Date & Session</th>
  <th className="px-8 py-6">Student & Mentor</th>
  <th className="px-8 py-6">Chapter & Topics</th>
@@ -106,7 +106,7 @@ const StudentLogs = () => {
  <td className="px-8 py-6">
  <div className="flex flex-col">
  <span className="font-black text-slate-900 text-sm whitespace-nowrap">{new Date(log.date).toLocaleDateString()}</span>
- <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1 mt-1">
+ <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest flex items-center gap-1 mt-1">
  <Clock size={10} /> Session #{log.session_number}
  </span>
  </div>
@@ -145,7 +145,7 @@ const StudentLogs = () => {
  <td className="px-8 py-6 text-right">
  <button
  onClick={() => setViewingLog(log)}
- className="p-3 bg-white border border-slate-200 rounded-xl text-slate-400 hover:text-[#008080] hover:border-[#008080] transition-all shadow-sm hover:shadow-md active:scale-95"
+ className="p-3 bg-white border border-slate-200 rounded-xl text-slate-600 hover:text-[#008080] hover:border-[#008080] transition-all shadow-sm hover:shadow-md active:scale-95"
  >
  <Eye size={18} />
  </button>
@@ -159,7 +159,7 @@ const StudentLogs = () => {
  <SearchX size={40} />
  </div>
  <h3 className="text-xl font-black text-slate-900 tracking-tight ">No logs found</h3>
- <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px] mt-2">We couldn't find any interaction records</p>
+ <p className="text-slate-600 font-bold uppercase tracking-widest text-[10px] mt-2">We couldn't find any interaction records</p>
  </td>
  </tr>
  )}
@@ -179,10 +179,10 @@ const StudentLogs = () => {
  </div>
  <div>
  <h2 className="text-2xl font-black text-slate-900 tracking-tight ">Session Intelligence Report</h2>
- <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mt-1">{viewingLog.student_name} • Session #{viewingLog.session_number}</p>
+ <p className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] mt-1">{viewingLog.student_name} • Session #{viewingLog.session_number}</p>
  </div>
  </div>
- <button onClick={() => setViewingLog(null)} className="w-12 h-12 bg-slate-50 text-slate-400 rounded-2xl flex items-center justify-center hover:bg-slate-100 hover:text-slate-600 transition-all active:scale-90">
+ <button onClick={() => setViewingLog(null)} className="w-12 h-12 bg-slate-50 text-slate-600 rounded-2xl flex items-center justify-center hover:bg-slate-100 hover:text-slate-600 transition-all active:scale-90">
  <X size={24} />
  </button>
  </div>
@@ -191,7 +191,7 @@ const StudentLogs = () => {
  {/* Key Performance Indicators */}
  <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
  <div className="bg-slate-50 p-6 rounded-3xl border border-slate-100">
- <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Performance</p>
+ <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest mb-2">Performance</p>
  <div className="flex gap-1.5">
  {[1, 2, 3, 4, 5].map(star => (
  <div key={star} className={`w-2.5 h-2.5 rounded-full ${star <= (viewingLog.student_performance || 0) ? 'bg-amber-400' : 'bg-slate-200'}`}></div>
@@ -199,11 +199,11 @@ const StudentLogs = () => {
  </div>
  </div>
  <div className="bg-slate-50 p-6 rounded-3xl border border-slate-100">
- <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Engagement</p>
+ <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest mb-1">Engagement</p>
  <p className="text-sm font-black text-slate-900 uppercase">{viewingLog.engagement_level}</p>
  </div>
  <div className="bg-slate-50 p-6 rounded-3xl border border-slate-100">
- <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Risk Vector</p>
+ <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest mb-1">Risk Vector</p>
  <div className="flex items-center gap-2">
  <div className={`w-2 h-2 rounded-full ${viewingLog.risk_level === 'High' ? 'bg-rose-500 animate-pulse' : viewingLog.risk_level === 'Medium' ? 'bg-amber-400' : 'bg-emerald-400'}`}></div>
  <span className={`text-[10px] font-black uppercase tracking-widest ${viewingLog.risk_level === 'High' ? 'text-rose-600' : 'text-slate-700'}`}>
@@ -222,14 +222,14 @@ const StudentLogs = () => {
  <div className="space-y-8">
  <div className="relative pl-8 border-l-2 border-slate-100">
  <div className="absolute -left-2 top-0 w-4 h-4 bg-[#008080] rounded-full border-4 border-white shadow-sm"></div>
- <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Subject Context</h4>
+ <h4 className="text-[10px] font-black text-slate-600 uppercase tracking-widest mb-2">Subject Context</h4>
  <h3 className="text-lg font-black text-slate-900 tracking-tight mb-2">{viewingLog.chapter}</h3>
  <p className="text-sm text-slate-600 font-medium leading-relaxed">{viewingLog.topics_covered}</p>
  </div>
 
  <div className="relative pl-8 border-l-2 border-slate-100">
  <div className="absolute -left-2 top-0 w-4 h-4 bg-emerald-500 rounded-full border-4 border-white shadow-sm"></div>
- <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Homework Assessment</h4>
+ <h4 className="text-[10px] font-black text-slate-600 uppercase tracking-widest mb-2">Homework Assessment</h4>
  <div className="flex items-center gap-2 mb-2">
  {getHomeworkStatusIcon(viewingLog.homework_status)}
  <span className="text-xs font-black text-slate-800 uppercase ">Status: {viewingLog.homework_status}</span>
@@ -245,7 +245,7 @@ const StudentLogs = () => {
  <div className="space-y-8">
  <div className="relative pl-8 border-l-2 border-slate-100">
  <div className="absolute -left-2 top-0 w-4 h-4 bg-rose-500 rounded-full border-4 border-white shadow-sm"></div>
- <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Operational Roadblocks</h4>
+ <h4 className="text-[10px] font-black text-slate-600 uppercase tracking-widest mb-2">Operational Roadblocks</h4>
  <p className="text-sm text-slate-600 font-medium leading-relaxed bg-rose-50/30 p-4 rounded-2xl border border-rose-100/30">
  {viewingLog.issues_reported || 'Zero anomalies detected during session execution.'}
  </p>
@@ -253,7 +253,7 @@ const StudentLogs = () => {
 
  <div className="relative pl-8 border-l-2 border-slate-100">
  <div className="absolute -left-2 top-0 w-4 h-4 bg-amber-500 rounded-full border-4 border-white shadow-sm"></div>
- <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Strategic Roadmap</h4>
+ <h4 className="text-[10px] font-black text-slate-600 uppercase tracking-widest mb-2">Strategic Roadmap</h4>
  <p className="text-sm text-slate-600 font-medium leading-relaxed bg-amber-50/30 p-4 rounded-2xl border border-amber-100/30">
  {viewingLog.remedial_plan || 'Maintaining current academic trajectory with no adjustments needed.'}
  </p>
@@ -267,13 +267,13 @@ const StudentLogs = () => {
  <div className="relative flex flex-wrap gap-8 items-center">
  <div className="text-center md:text-left">
  <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Parent Notification</p>
- <span className={`px-4 py-2 rounded-xl text-[10px] font-black tracking-widest uppercase transition-all ${viewingLog.parent_update_needed === 'Yes' ? 'bg-[#008080] text-white shadow-lg shadow-[#008080]/30/20' : 'bg-slate-800 text-slate-400'}`}>
+ <span className={`px-4 py-2 rounded-xl text-[10px] font-black tracking-widest uppercase transition-all ${viewingLog.parent_update_needed === 'Yes' ? 'bg-[#008080] text-white shadow-lg shadow-[#008080]/30/20' : 'bg-slate-800 text-slate-600'}`}>
  {viewingLog.parent_update_needed === 'Yes' ? 'Urgent Required' : 'Not Needed'}
  </span>
  </div>
  <div className="text-center md:text-left">
  <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Faculty Attention</p>
- <span className={`px-4 py-2 rounded-xl text-[10px] font-black tracking-widest uppercase transition-all ${viewingLog.faculty_intervention_required === 'Yes' ? 'bg-rose-500 text-white shadow-lg shadow-rose-500/20' : 'bg-slate-800 text-slate-400'}`}>
+ <span className={`px-4 py-2 rounded-xl text-[10px] font-black tracking-widest uppercase transition-all ${viewingLog.faculty_intervention_required === 'Yes' ? 'bg-rose-500 text-white shadow-lg shadow-rose-500/20' : 'bg-slate-800 text-slate-600'}`}>
  {viewingLog.faculty_intervention_required === 'Yes' ? 'Action Required' : 'On Track'}
  </span>
  </div>
@@ -293,7 +293,7 @@ const StudentLogs = () => {
 
  {/* Mentor Memo */}
  <div className="bg-slate-50 p-8 rounded-[2.5rem] border border-slate-100">
- <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2">
+ <h4 className="text-[10px] font-black text-slate-600 uppercase tracking-widest mb-3 flex items-center gap-2">
  <ShieldAlert size={14} className="text-amber-500" /> Mentor's Internal Memo
  </h4>
  <p className="text-sm text-slate-600 font-bold leading-relaxed">

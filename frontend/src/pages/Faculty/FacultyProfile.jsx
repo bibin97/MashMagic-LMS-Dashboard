@@ -87,7 +87,7 @@ const FacultyProfile = () => {
  {/* Header */}
  <div>
  <h2 className="text-3xl font-black text-slate-900 tracking-tighter ">Identity Control</h2>
- <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em] mt-2">Manage your core credentials and public profile</p>
+ <p className="text-slate-600 text-[10px] font-black uppercase tracking-[0.2em] mt-2">Manage your core credentials and public profile</p>
  </div>
 
  <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
@@ -118,7 +118,7 @@ const FacultyProfile = () => {
  <p className="text-[10px] font-black text-[#008080] uppercase tracking-[0.3em] mb-8">Authorized Faculty</p>
 
  <div className="w-full space-y-4 pt-10 border-t border-white/10">
- <div className="flex items-center gap-4 text-slate-400">
+ <div className="flex items-center gap-4 text-slate-600">
  <Mail size={16} />
  <span className="text-xs font-bold truncate">{user?.email}</span>
  </div>
@@ -131,7 +131,7 @@ const FacultyProfile = () => {
  </div>
 
  <div className="bg-white p-10 rounded-[2.5rem] border border-slate-100 shadow-sm">
- <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-6">System Privileges</h4>
+ <h4 className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] mb-6">System Privileges</h4>
  <div className="space-y-4">
  {[
  'Full Roster Access',
@@ -158,15 +158,15 @@ const FacultyProfile = () => {
  </div>
  <div>
  <h3 className="text-xl font-black text-slate-900 tracking-tight">Contact Matrix</h3>
- <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest">Update your reachable indicators</p>
+ <p className="text-slate-600 text-[10px] font-black uppercase tracking-widest">Update your reachable indicators</p>
  </div>
  </div>
 
  <div className="space-y-8">
  <div className="space-y-3">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-6">Global Phone Number</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-6">Global Phone Number</label>
  <div className="relative group">
- <Phone className="absolute left-8 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#008080] transition-colors" size={18} />
+ <Phone className="absolute left-8 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#008080] transition-colors" size={18} />
  <input
  type="text"
  className="w-full pl-18 pr-8 py-5 bg-slate-50 border border-slate-100 rounded-[2rem] text-sm font-bold focus:outline-none focus:ring-4 focus:ring-[#008080]/5 focus:border-[#008080] transition-all shadow-sm"
@@ -195,13 +195,13 @@ const FacultyProfile = () => {
  </div>
  <div>
  <h3 className="text-xl font-black text-slate-900 tracking-tight">Security Vault</h3>
- <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest">Rotate access credentials</p>
+ <p className="text-slate-600 text-[10px] font-black uppercase tracking-widest">Rotate access credentials</p>
  </div>
  </div>
 
  <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
  <div className="space-y-4">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-6">New Password</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-6">New Password</label>
  <input
  type="password"
  className="w-full px-10 py-5 bg-slate-50 border border-slate-100 rounded-[2rem] text-sm font-bold focus:outline-none focus:ring-4 focus:ring-rose-500/5 focus:border-rose-500 transition-all shadow-sm"
@@ -212,7 +212,7 @@ const FacultyProfile = () => {
  />
  </div>
  <div className="space-y-4">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-6">Confirm Handshake</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-6">Confirm Handshake</label>
  <input
  type="password"
  className="w-full px-10 py-5 bg-slate-50 border border-slate-100 rounded-[2rem] text-sm font-bold focus:outline-none focus:ring-4 focus:ring-rose-500/5 focus:border-rose-500 transition-all shadow-sm"

@@ -135,7 +135,7 @@ const AcademicHeadTasks = () => {
  header: 'Task Objective', accessor: 'title', render: (row) => (
  <div className="flex flex-col">
  <span className="font-bold text-slate-900">{row.title}</span>
- <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider truncate max-w-[200px] mt-0.5">{row.description}</span>
+ <span className="text-[10px] text-slate-600 font-bold uppercase tracking-wider truncate max-w-[200px] mt-0.5">{row.description}</span>
  </div>
  )
  },
@@ -157,7 +157,7 @@ const AcademicHeadTasks = () => {
  header: 'Assigned By', accessor: 'assigner_name', render: (row) => (
  <div className="flex flex-col">
  <span className="text-xs font-bold text-slate-700">{row.assigner_name || 'System Admin'}</span>
- <span className="text-[9px] text-slate-400 font-black uppercase tracking-widest">{row.assigner_role?.replace('_', ' ') || 'admin'}</span>
+ <span className="text-[9px] text-slate-600 font-black uppercase tracking-widest">{row.assigner_role?.replace('_', ' ') || 'admin'}</span>
  </div>
  )
  },
@@ -225,7 +225,7 @@ const AcademicHeadTasks = () => {
  >
  <form onSubmit={handleSubmit} className="flex flex-col gap-6 p-2">
  <div className="flex flex-col gap-3">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Quick Action Templates</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Quick Action Templates</label>
  <select
  onChange={(e) => {
  const preset = academicPresets.find(p => p.title === e.target.value);
@@ -239,11 +239,11 @@ const AcademicHeadTasks = () => {
  <option key={i} value={p.title}>{p.title}</option>
  ))}
  </select>
- <p className="text-[9px] font-bold text-slate-400 ml-1">* Selecting a template will auto-fill the target details below.</p>
+ <p className="text-[9px] font-bold text-slate-600 ml-1">* Selecting a template will auto-fill the target details below.</p>
  </div>
 
  <div className="flex flex-col gap-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Task Identification</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Task Identification</label>
  <input
  type="text"
  required
@@ -255,7 +255,7 @@ const AcademicHeadTasks = () => {
  </div>
 
  <div className="flex flex-col gap-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Operational Directives</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Operational Directives</label>
  <textarea
  rows="4"
  required
@@ -268,7 +268,7 @@ const AcademicHeadTasks = () => {
 
  <div className="grid grid-cols-2 gap-4">
  <div className="flex flex-col gap-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Assign User</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Assign User</label>
  <select
  required
  className="p-4 bg-slate-50 border border-slate-100 rounded-3xl text-sm outline-none focus:bg-white focus:ring-4 focus:ring-[#008080] focus:border-[#008080] transition-all font-bold text-slate-700 appearance-none"
@@ -294,7 +294,7 @@ const AcademicHeadTasks = () => {
  </select>
  </div>
  <div className="flex flex-col gap-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Submission Cut-off</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Submission Cut-off</label>
  <input
  type="date"
  required
@@ -306,7 +306,7 @@ const AcademicHeadTasks = () => {
  </div>
 
  <div className="flex flex-col gap-3 mt-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 text-center">Priority Categorization</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 text-center">Priority Categorization</label>
  <div className="grid grid-cols-3 gap-3">
  {['Low', 'Medium', 'High'].map((p) => (
  <button
@@ -317,7 +317,7 @@ const AcademicHeadTasks = () => {
  p-4 rounded-3xl border-2 text-[10px] font-black uppercase tracking-widest transition-all
  ${formData.priority === p
  ? 'bg-slate-900 border-slate-900 text-white shadow-xl shadow-slate-200 -translate-y-1'
- : 'bg-white border-slate-100 text-slate-400 hover:border-slate-200'}
+ : 'bg-white border-slate-100 text-slate-600 hover:border-slate-200'}
  `}
  >
  {p}

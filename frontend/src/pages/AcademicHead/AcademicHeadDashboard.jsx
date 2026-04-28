@@ -32,7 +32,7 @@ const StatCard = ({ title, value, icon: Icon, color, subtitle }) => {
  <div>
  <h3 className="text-5xl font-black text-slate-800 tabular-nums tracking-tighter leading-none mb-3">{value}</h3>
  <div className="space-y-1">
- <p className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] leading-none">{title}</p>
+ <p className="text-[11px] font-black text-slate-600 uppercase tracking-[0.2em] leading-none">{title}</p>
  {subtitle && <p className="text-[9px] font-bold text-slate-300 uppercase tracking-widest leading-none opacity-60 ">{subtitle}</p>}
  </div>
  </div>
@@ -106,7 +106,7 @@ const AcademicHeadDashboard = () => {
  <div className="flex items-center justify-center h-[60vh]">
  <div className="flex flex-col items-center gap-4">
  <div className="w-12 h-12 border-4 border-[#008080] border-t-transparent rounded-full animate-spin"></div>
- <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Compiling academic metrics...</p>
+ <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Compiling academic metrics...</p>
  </div>
  </div>
  );
@@ -118,7 +118,7 @@ const AcademicHeadDashboard = () => {
  <div className="bg-white/70 backdrop-blur-xl p-12 rounded-[40px] border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.04)] flex flex-col md:flex-row justify-between items-center gap-10">
  <div className="text-center md:text-left">
  <h2 className="text-5xl font-black text-slate-900 tracking-tighter leading-none mb-4 ">Academic Engine</h2>
- <p className="text-slate-400 text-[11px] font-black uppercase tracking-[0.25em] flex items-center justify-center md:justify-start gap-3">
+ <p className="text-slate-600 text-[11px] font-black uppercase tracking-[0.25em] flex items-center justify-center md:justify-start gap-3">
  <div className="w-2 h-2 rounded-full bg-[#008080] animate-pulse shadow-[0_0_10px_rgba(20,184,166,0.5)]"></div>
  Unified Oversight & Educational Trajectory Pulse
  </p>
@@ -166,7 +166,7 @@ const AcademicHeadDashboard = () => {
  <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8 mb-16">
  <div>
  <h3 className="text-3xl font-black text-slate-900 tracking-tighter uppercase leading-none mb-3">Sovereign Performance Audit</h3>
- <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.25em]">Multi-subject assessment trajectory vector</p>
+ <p className="text-slate-600 text-[10px] font-black uppercase tracking-[0.25em]">Multi-subject assessment trajectory vector</p>
  </div>
  <div className="flex items-center gap-5 w-full lg:w-auto">
  <select 
@@ -234,7 +234,7 @@ const AcademicHeadDashboard = () => {
  <div className="p-12 border-b border-slate-50 flex flex-col sm:flex-row justify-between items-center gap-6">
  <div className="text-center sm:text-left">
  <h3 className="text-3xl font-black text-slate-900 tracking-tighter uppercase leading-none mb-3">Academic Timeline</h3>
- <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.25em]">Live session synchronization protocols</p>
+ <p className="text-slate-600 text-[10px] font-black uppercase tracking-[0.25em]">Live session synchronization protocols</p>
  </div>
  <div className="flex items-center gap-4">
  <div className="bg-[#10B981]/10 border border-[#10B981]/20 px-6 py-3 rounded-full flex items-center gap-3 backdrop-blur-sm shadow-sm group">
@@ -251,18 +251,18 @@ const AcademicHeadDashboard = () => {
  <Calendar size={40} />
  </div>
  <h4 className="text-lg font-bold text-slate-900 ">No scheduled sessions for today.</h4>
- <p className="text-slate-400 text-sm max-w-xs mx-auto mt-2 font-medium">Any new schedules added by mentors will appear here in real-time.</p>
+ <p className="text-slate-600 text-sm max-w-xs mx-auto mt-2 font-medium">Any new schedules added by mentors will appear here in real-time.</p>
  </div>
  ) : (
  <div className="overflow-x-auto">
  <table className="w-full text-left border-separate border-spacing-y-2">
  <thead>
  <tr>
- <th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Timeline</th>
- <th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Student & Subject</th>
- <th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Faculty In-Charge</th>
- <th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</th>
- <th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Actions</th>
+ <th className="px-8 py-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">Timeline</th>
+ <th className="px-8 py-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">Student & Subject</th>
+ <th className="px-8 py-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">Faculty In-Charge</th>
+ <th className="px-8 py-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">Status</th>
+ <th className="px-8 py-4 text-[10px] font-black text-slate-600 uppercase tracking-widest text-right">Actions</th>
  </tr>
  </thead>
  <tbody>
@@ -323,7 +323,7 @@ const AcademicHeadDashboard = () => {
  <div className="flex flex-col sm:flex-row justify-between items-center gap-8 mb-12">
  <div className="text-center sm:text-left">
  <h3 className="text-3xl font-black text-slate-900 tracking-tighter uppercase leading-none mb-3">Intelligence Feed</h3>
- <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.25em]">Multi-tier network activity synchronizer</p>
+ <p className="text-slate-600 text-[10px] font-black uppercase tracking-[0.25em]">Multi-tier network activity synchronizer</p>
  </div>
  <div className="w-14 h-14 bg-slate-900 text-[#008080] rounded-[22px] flex items-center justify-center shadow-2xl relative group">
  <div className="absolute inset-0 bg-[#008080] opacity-0 group-hover:opacity-20 blur-xl transition-all duration-700"></div>
@@ -333,7 +333,7 @@ const AcademicHeadDashboard = () => {
 
  <div className="space-y-6">
  {!data.activityFeed || data.activityFeed.length === 0 ? (
- <p className="text-center py-10 text-slate-400 font-bold ">No activity recorded yet today.</p>
+ <p className="text-center py-10 text-slate-600 font-bold ">No activity recorded yet today.</p>
  ) : (
  data.activityFeed.map((activity, i) => (
  <div key={i} className="flex gap-8 p-8 rounded-[32px] bg-slate-50/40 border border-transparent hover:border-slate-100 hover:bg-white hover:shadow-[0_15px_40px_rgba(0,0,0,0.04)] transition-all duration-500 group relative overflow-hidden">
@@ -347,7 +347,7 @@ const AcademicHeadDashboard = () => {
  <div className="flex-1 min-w-0 relative z-10">
  <div className="flex flex-col sm:flex-row justify-between items-start mb-3 gap-2">
  <h4 className="text-lg font-black text-slate-800 tracking-tight leading-none uppercase">{activity.type} — {activity.student_name}</h4>
- <span className="text-[9px] font-black text-slate-400 bg-white border border-slate-100 px-3 py-1 rounded-full uppercase tracking-widest shrink-0">{new Date(activity.date).toLocaleString([], { hour: '2-digit', minute: '2-digit', day: '2-digit', month: 'short' })}</span>
+ <span className="text-[9px] font-black text-slate-600 bg-white border border-slate-100 px-3 py-1 rounded-full uppercase tracking-widest shrink-0">{new Date(activity.date).toLocaleString([], { hour: '2-digit', minute: '2-digit', day: '2-digit', month: 'short' })}</span>
  </div>
  <p className="text-sm font-bold text-slate-500 line-clamp-2 mb-4 leading-relaxed opacity-80 decoration-[#008080]/30">"{activity.details || 'No meta-data compiled.'}"</p>
  <div className="flex items-center gap-4">
@@ -367,13 +367,13 @@ const AcademicHeadDashboard = () => {
  <div className="relative z-10">
  <div className="flex items-center gap-3 mb-4">
  <TrendingUp size={20} className="text-emerald-400" />
- <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Performance Overview</span>
+ <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-600">Performance Overview</span>
  </div>
  <h4 className="text-2xl font-black leading-tight">Academic performance <br /><span className="text-[#008080]">trending up</span> by 12.4%</h4>
  </div>
  <div className="relative z-10 mt-10">
  <p className="text-4xl font-black text-emerald-400 tracking-tighter">Gold</p>
- <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Cohort Rating</p>
+ <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Cohort Rating</p>
  </div>
  </div>
 

@@ -121,7 +121,7 @@ const StaffManagement = () => {
  <div className="bg-white/70 backdrop-blur-xl p-12 rounded-[40px] border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.04)] flex flex-col md:flex-row justify-between items-center gap-10">
  <div className="text-center md:text-left">
  <h2 className="text-5xl font-black text-slate-900 tracking-tighter leading-none mb-3 ">Institutional Authority</h2>
- <p className="text-slate-400 text-[11px] font-black uppercase tracking-[0.25em] flex items-center justify-center md:justify-start gap-3 mt-1">
+ <p className="text-slate-600 text-[11px] font-black uppercase tracking-[0.25em] flex items-center justify-center md:justify-start gap-3 mt-1">
  <div className="w-2 h-2 rounded-full bg-[#008080] animate-pulse"></div>
  Managing Core Operational Nodes & Team Architecture
  </p>
@@ -153,9 +153,9 @@ const StaffManagement = () => {
  >
  <form onSubmit={handleUpdate} className="flex flex-col gap-6">
  <div className="flex flex-col gap-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Full Name</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest pl-1">Full Name</label>
  <div className="relative">
- <UserCog size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+ <UserCog size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600" />
  <input
  type="text"
  className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-[#008080] transition-all shadow-sm"
@@ -168,9 +168,9 @@ const StaffManagement = () => {
 
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <div className="flex flex-col gap-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Email</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest pl-1">Email</label>
  <div className="relative">
- <Mail size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+ <Mail size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600" />
  <input
  type="email"
  className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-[13px] font-bold outline-none focus:bg-white focus:ring-4 focus:ring-[#008080] transition-all shadow-sm"
@@ -181,9 +181,9 @@ const StaffManagement = () => {
  </div>
  </div>
  <div className="flex flex-col gap-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Phone</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest pl-1">Phone</label>
  <div className="relative">
- <Phone size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+ <Phone size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600" />
  <input
  type="text"
  className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-[13px] font-bold outline-none focus:bg-white focus:ring-4 focus:ring-[#008080] transition-all shadow-sm"
@@ -196,9 +196,9 @@ const StaffManagement = () => {
 
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <div className="flex flex-col gap-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Operational Role</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest pl-1">Operational Role</label>
  <div className="relative">
- <Briefcase size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+ <Briefcase size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600" />
  <select
  className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-[#008080] transition-all shadow-sm appearance-none"
  value={editFormData.role}
@@ -212,9 +212,9 @@ const StaffManagement = () => {
  </div>
  </div>
  <div className="flex flex-col gap-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Account Status</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest pl-1">Account Status</label>
  <div className="relative">
- <ShieldCheck size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+ <ShieldCheck size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600" />
  <select
  className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-[#008080] transition-all shadow-sm appearance-none"
  value={editFormData.status}

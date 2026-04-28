@@ -45,13 +45,13 @@ const InteractionLogs = () => {
  <div className="flex bg-slate-100 p-1.5 rounded-2xl">
  <button
  onClick={() => setActiveTab('student')}
- className={`px-6 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${activeTab === 'student' ? 'bg-white text-[#008080] shadow-md' : 'text-slate-400 hover:text-slate-600'}`}
+ className={`px-6 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${activeTab === 'student' ? 'bg-white text-[#008080] shadow-md' : 'text-slate-600 hover:text-slate-600'}`}
  >
  Student Logs
  </button>
  <button
  onClick={() => setActiveTab('faculty')}
- className={`px-6 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${activeTab === 'faculty' ? 'bg-white text-purple-600 shadow-md' : 'text-slate-400 hover:text-slate-600'}`}
+ className={`px-6 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${activeTab === 'faculty' ? 'bg-white text-purple-600 shadow-md' : 'text-slate-600 hover:text-slate-600'}`}
  >
  Faculty Logs
  </button>
@@ -59,7 +59,7 @@ const InteractionLogs = () => {
  </header>
 
  <div className="flex gap-4 items-center bg-white p-4 rounded-2xl shadow-sm border border-slate-100 w-full md:w-96">
- <Search size={20} className="text-slate-400" />
+ <Search size={20} className="text-slate-600" />
  <input
  type="text"
  placeholder="Search by student, mentor or chapter..."
@@ -70,7 +70,7 @@ const InteractionLogs = () => {
  </div>
 
  {loading ? (
- <div className="text-center py-20 font-bold text-slate-400 animate-pulse">Retrieving Encrypted Logs...</div>
+ <div className="text-center py-20 font-bold text-slate-600 animate-pulse">Retrieving Encrypted Logs...</div>
  ) : (
  <div className="grid gap-6">
  {filteredLogs.map((log) => (
@@ -83,24 +83,24 @@ const InteractionLogs = () => {
  <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${activeTab === 'student' ? 'bg-[#008080] text-white' : 'bg-purple-600 text-white'}`}>
  {activeTab === 'student' ? `Session #${log.session_number}` : log.session_type}
  </span>
- <span className="text-xs font-black text-slate-400 uppercase tracking-wide flex items-center gap-2">
+ <span className="text-xs font-black text-slate-600 uppercase tracking-wide flex items-center gap-2">
  <Clock size={14} /> {new Date(log.created_at).toLocaleDateString()}
  </span>
  </div>
 
  <div className="flex items-center gap-8">
  <div>
- <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Student</p>
+ <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest mb-1">Student</p>
  <p className="text-lg font-black text-slate-900">{log.student_name}</p>
  </div>
  <div>
- <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Mentor</p>
+ <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest mb-1">Mentor</p>
  <p className="text-sm font-bold text-slate-600">{log.mentor_name}</p>
  </div>
  </div>
 
  <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100">
- <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">
+ <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest mb-2">
  {activeTab === 'student' ? 'Mentor Synthesis / Notes' : 'Topics / Issues'}
  </p>
  <p className="text-sm font-medium text-slate-700 leading-relaxed">
@@ -123,7 +123,7 @@ const InteractionLogs = () => {
  <Metric label="Performance" value={log.student_performance} color="emerald-600" />
  <Metric label="Homework" value={log.homework_status} color="purple-600" />
  <div className="mt-2">
- <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Chapter</p>
+ <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest mb-1">Chapter</p>
  <p className="text-xs font-bold text-slate-800">{log.chapter}</p>
  </div>
  </>
@@ -145,7 +145,7 @@ const InteractionLogs = () => {
  ))}
  {filteredLogs.length === 0 && (
  <div className="bg-slate-50 p-20 rounded-[3rem] text-center border-2 border-dashed border-slate-200">
- <p className="text-slate-400 font-bold">No logs found matching your criteria.</p>
+ <p className="text-slate-600 font-bold">No logs found matching your criteria.</p>
  </div>
  )}
  </div>
@@ -156,7 +156,7 @@ const InteractionLogs = () => {
 
 const Metric = ({ label, value, color }) => (
  <div className="flex justify-between items-center bg-white p-3 rounded-xl border border-slate-100 shadow-sm">
- <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{label}</span>
+ <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">{label}</span>
  <span className={`text-xs font-black text-${color}`}>{value}</span>
  </div>
 );

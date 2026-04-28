@@ -167,7 +167,7 @@ const Login = () => {
  The Secure Gateway to <br />
  <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0d9488] to-[#2dd4bf]">Learning Excellence.</span>
  </h1>
- <p className="text-slate-400 text-lg leading-relaxed max-w-sm font-medium mx-auto">
+ <p className="text-slate-600 text-lg leading-relaxed max-w-sm font-medium mx-auto">
  Enterprise-grade management system designed for institutional growth and academic precision.
  </p>
  </div>
@@ -321,7 +321,7 @@ const Login = () => {
  <div className="w-5 h-5 border-2 border-[#0d9488]/30 rounded-lg bg-white/5 peer-checked:bg-[#0d9488] peer-checked:border-[#0d9488] transition-all duration-300 shadow-inner"></div>
  <Check className="absolute w-3 h-3 text-white scale-0 peer-checked:scale-100 transition-transform duration-300 left-[4px]" />
  </div>
- <span className="text-[11px] font-black text-slate-400 group-hover:text-emerald-400 transition-colors uppercase tracking-widest">
+ <span className="text-[11px] font-black text-slate-600 group-hover:text-emerald-400 transition-colors uppercase tracking-widest">
  Persistent Mode
  </span>
  </label>
@@ -479,7 +479,7 @@ const Login = () => {
  <p className="text-[10px] text-[#f8ba2b] font-black uppercase tracking-[0.3em] drop-shadow">
  Secured by MashMagic Enterprise Encryption
  </p>
- <p className="text-[10px] text-slate-400 font-bold tracking-widest uppercase">
+ <p className="text-[10px] text-slate-600 font-bold tracking-widest uppercase">
  Developed by <a href="https://linkedin.com/in/bibinthankachan" target="_blank" rel="noopener noreferrer" className="text-[#f8ba2b] hover:text-yellow-400 hover:underline transition-all font-black">Bibin Thankachan</a>
  </p>
  </div>

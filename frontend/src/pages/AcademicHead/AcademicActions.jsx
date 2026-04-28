@@ -88,11 +88,11 @@ const AcademicActions = () => {
 
  <div className="relative z-10 flex items-center gap-4">
  <div className="bg-slate-50 px-6 py-4 rounded-2xl border border-slate-100">
- <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Pending Exam Alerts</span>
+ <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest block mb-1">Pending Exam Alerts</span>
  <span className="text-xl font-black text-rose-500 ">{milestones.length}</span>
  </div>
  <div className="bg-slate-50 px-6 py-4 rounded-2xl border border-slate-100">
- <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Today's Intake</span>
+ <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest block mb-1">Today's Intake</span>
  <span className="text-xl font-black text-[#008080] ">{dailyLogs.length}</span>
  </div>
  </div>
@@ -117,7 +117,7 @@ const AcademicActions = () => {
  ) : milestones.length === 0 ? (
  <div className="bg-white p-12 rounded-[3rem] border border-slate-100 text-center">
  <CheckCircle2 size={40} className="text-emerald-500 mx-auto mb-4" />
- <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">All Milestones Clear</p>
+ <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest">All Milestones Clear</p>
  </div>
  ) : (
  <div className="space-y-4">
@@ -130,7 +130,7 @@ const AcademicActions = () => {
  <div className="flex justify-between items-start mb-4">
  <div>
  <h4 className="text-lg font-black text-slate-900 uppercase leading-none">{milestone.student_name}</h4>
- <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">Session Milestone: {milestone.milestone}</p>
+ <p className="text-[9px] font-bold text-slate-600 uppercase tracking-widest mt-1">Session Milestone: {milestone.milestone}</p>
  </div>
  <div className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest ${milestone.portions ? 'bg-emerald-50 text-emerald-500' : 'bg-rose-50 text-rose-500'}`}>
  {milestone.portions ? 'Planned' : 'Set Portions'}
@@ -163,7 +163,7 @@ const AcademicActions = () => {
  <User size={14} />
  </div>
  <div>
- <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Mentor</p>
+ <p className="text-[8px] font-black text-slate-600 uppercase tracking-widest">Mentor</p>
  <p className="text-[10px] font-bold text-slate-700 line-clamp-1">{milestone.mentor_name}</p>
  </div>
  </div>
@@ -183,7 +183,7 @@ const AcademicActions = () => {
  <h3 className="text-[11px] font-black text-slate-900 uppercase tracking-[0.3em] flex items-center gap-2">
  <BookOpen size={16} className="text-[#008080]" /> Today's Registry Update
  </h3>
- <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1">
+ <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest flex items-center gap-1">
  <Clock size={10} /> Live Stream
  </span>
  </div>
@@ -191,7 +191,7 @@ const AcademicActions = () => {
  {loading ? (
  <div className="bg-white p-20 rounded-[4rem] border border-slate-100 flex items-center justify-center flex-col gap-4">
  <div className="w-12 h-12 border-4 border-[#008080] border-t-transparent rounded-full animate-spin"></div>
- <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Synchronizing Intra-Day Logs...</p>
+ <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Synchronizing Intra-Day Logs...</p>
  </div>
  ) : dailyLogs.length === 0 ? (
  <div className="bg-white p-20 rounded-[4rem] border-2 border-dashed border-slate-100 text-center">
@@ -199,17 +199,17 @@ const AcademicActions = () => {
  <Activity size={40} />
  </div>
  <h4 className="text-xl font-black text-slate-900 uppercase">Registry Empty</h4>
- <p className="text-[10px] font-bold text-slate-400 mt-2 uppercase tracking-[0.2em]">No faculty submissions recorded today yet.</p>
+ <p className="text-[10px] font-bold text-slate-600 mt-2 uppercase tracking-[0.2em]">No faculty submissions recorded today yet.</p>
  </div>
  ) : (
  <div className="bg-white rounded-[3.5rem] border border-slate-100 shadow-sm overflow-hidden">
  <table className="w-full text-left">
  <thead>
  <tr className="bg-slate-50 border-b border-slate-100">
- <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest ">Faculty Unit</th>
- <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest ">Target Chapter</th>
- <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest ">Session Frame</th>
- <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest ">Status</th>
+ <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest ">Faculty Unit</th>
+ <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest ">Target Chapter</th>
+ <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest ">Session Frame</th>
+ <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest ">Status</th>
  <th className="px-8 py-6 text-right"></th>
  </tr>
  </thead>
@@ -223,7 +223,7 @@ const AcademicActions = () => {
  </div>
  <div>
  <p className="text-xs font-black text-slate-900 uppercase tracking-tighter">{log.faculty_name}</p>
- <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">Faculty ID: {log.faculty_id}</p>
+ <p className="text-[8px] font-bold text-slate-600 uppercase tracking-widest">Faculty ID: {log.faculty_id}</p>
  </div>
  </div>
  </td>
@@ -278,7 +278,7 @@ const AcademicActions = () => {
 
  <form onSubmit={handleSaveExamPlan} className="space-y-6">
  <div className="flex flex-col gap-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Chapter</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Chapter</label>
  <input
  type="text"
  required
@@ -290,7 +290,7 @@ const AcademicActions = () => {
  </div>
 
  <div className="flex flex-col gap-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Exam Portions / Details</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Exam Portions / Details</label>
  <textarea
  rows="3"
  required
@@ -302,7 +302,7 @@ const AcademicActions = () => {
  </div>
 
  <div className="flex flex-col gap-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Exam Type</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Exam Type</label>
  <select
  required
  className="p-4 bg-slate-50 border border-slate-100 rounded-3xl text-sm outline-none focus:bg-white focus:ring-4 focus:ring-rose-50 focus:border-rose-300 transition-all font-bold text-slate-700 cursor-pointer"
@@ -315,7 +315,7 @@ const AcademicActions = () => {
  </div>
 
  <div className="flex flex-col gap-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Target Scheduled Date</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Target Scheduled Date</label>
  <input
  type="date"
  required

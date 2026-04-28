@@ -170,9 +170,9 @@ const Profile = () => {
  <form onSubmit={handleProfileUpdate} className="space-y-6">
  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
  <div className="space-y-2">
- <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Display Name</label>
+ <label className="text-xs font-black text-slate-600 uppercase tracking-widest ml-1">Display Name</label>
  <div className="relative group">
- <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+ <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-600">
  <User size={18} />
  </div>
  <input 
@@ -185,9 +185,9 @@ const Profile = () => {
  </div>
  </div>
  <div className="space-y-2">
- <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Email Terminal</label>
+ <label className="text-xs font-black text-slate-600 uppercase tracking-widest ml-1">Email Terminal</label>
  <div className="relative group">
- <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+ <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-600">
  <Mail size={18} />
  </div>
  <input 
@@ -200,9 +200,9 @@ const Profile = () => {
  </div>
  </div>
  <div className="space-y-2">
- <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Phone Link</label>
+ <label className="text-xs font-black text-slate-600 uppercase tracking-widest ml-1">Phone Link</label>
  <div className="relative group">
- <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+ <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-600">
  <Smartphone size={18} />
  </div>
  <input 
@@ -215,9 +215,9 @@ const Profile = () => {
  </div>
  </div>
  <div className="space-y-2">
- <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Access Tier</label>
+ <label className="text-xs font-black text-slate-600 uppercase tracking-widest ml-1">Access Tier</label>
  <div className="relative group">
- <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+ <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-600">
  <Shield size={18} />
  </div>
  <input 
@@ -254,7 +254,7 @@ const Profile = () => {
 
  <form onSubmit={handlePasswordChange} className="space-y-6">
  <div className="space-y-2">
- <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Current Passcode</label>
+ <label className="text-xs font-black text-slate-600 uppercase tracking-widest ml-1">Current Passcode</label>
  <input 
  type="password" 
  value={passwordData.currentPassword}
@@ -264,7 +264,7 @@ const Profile = () => {
  </div>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
  <div className="space-y-2">
- <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">New Terminal Secret</label>
+ <label className="text-xs font-black text-slate-600 uppercase tracking-widest ml-1">New Terminal Secret</label>
  <input 
  type="password" 
  value={passwordData.newPassword}
@@ -273,7 +273,7 @@ const Profile = () => {
  />
  </div>
  <div className="space-y-2">
- <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Re-verify Secret</label>
+ <label className="text-xs font-black text-slate-600 uppercase tracking-widest ml-1">Re-verify Secret</label>
  <input 
  type="password" 
  value={passwordData.confirmPassword}

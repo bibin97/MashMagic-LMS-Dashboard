@@ -180,7 +180,7 @@ const StudentInteractionLog = () => {
  // Helper to render label-value pair
  const DetailRow = ({ label, value, highlight = false }) => (
  <div className="flex flex-col gap-2 p-5 bg-slate-50/50 rounded-[20px] border border-slate-100/50 group/detail hover:bg-white hover:border-[#008080]/30 transition-all">
- <span className="text-[10px] uppercase font-black text-slate-400 tracking-[0.2em] group-hover/detail:text-[#008080] transition-colors">{label}</span>
+ <span className="text-[10px] uppercase font-black text-slate-600 tracking-[0.2em] group-hover/detail:text-[#008080] transition-colors">{label}</span>
  <span className={`text-[13px] font-black uppercase tracking-tighter ${highlight ? 'text-[#008080]' : 'text-slate-700'}`}>{value || '—'}</span>
  </div>
  );
@@ -191,7 +191,7 @@ const StudentInteractionLog = () => {
  <header className="bg-white/70 backdrop-blur-xl p-8 md:p-14 rounded-[40px] md:rounded-[48px] border border-white/60 shadow-[0_20px_50px_rgba(0,0,0,0.06)] flex flex-col md:flex-row justify-between items-center gap-10">
  <div className="text-center md:text-left">
  <h1 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tighter uppercase leading-none mb-4">Engagement Hub</h1>
- <p className="text-slate-400 text-[11px] font-black uppercase tracking-[0.3em] mt-3 flex items-center gap-3 justify-center md:justify-start">
+ <p className="text-slate-600 text-[11px] font-black uppercase tracking-[0.3em] mt-3 flex items-center gap-3 justify-center md:justify-start">
  <div className="w-2 h-2 rounded-full bg-[#008080] animate-ping"></div>
  Student Performance Protocol
  </p>
@@ -268,7 +268,7 @@ const StudentInteractionLog = () => {
  ))
  ) : (
  <div className="col-span-full py-10 text-center bg-slate-50 rounded-[2.5rem] border border-dashed border-slate-200">
- <p className="text-xs font-bold text-slate-400 uppercase tracking-widest ">No students in this category.</p>
+ <p className="text-xs font-bold text-slate-600 uppercase tracking-widest ">No students in this category.</p>
  </div>
  )}
  </div>
@@ -303,7 +303,7 @@ const StudentInteractionLog = () => {
  ))
  ) : (
  <div className="col-span-full py-10 text-center bg-slate-50 rounded-[2.5rem] border border-dashed border-slate-200">
- <p className="text-xs font-bold text-slate-400 uppercase tracking-widest ">No students in this category.</p>
+ <p className="text-xs font-bold text-slate-600 uppercase tracking-widest ">No students in this category.</p>
  </div>
  )}
  </div>
@@ -331,14 +331,14 @@ const StudentInteractionLog = () => {
  {student.badge === 'Silver' && <span>🥈</span>}
  </div>
  <p className="text-xs font-bold text-slate-500 mb-4 relative z-10">{student.course} • {student.grade}</p>
- <div className="flex items-center gap-2 text-slate-400 group-hover:text-[#008080] text-[10px] font-black uppercase tracking-widest relative z-10">
+ <div className="flex items-center gap-2 text-slate-600 group-hover:text-[#008080] text-[10px] font-black uppercase tracking-widest relative z-10">
  <span>Log Interaction</span> <ArrowLeft size={12} className="rotate-180" />
  </div>
  </button>
  ))
  ) : (
  <div className="col-span-full py-10 text-center bg-slate-50 rounded-[2.5rem] border border-dashed border-slate-200">
- <p className="text-xs font-bold text-slate-400 uppercase tracking-widest ">No students in this category.</p>
+ <p className="text-xs font-bold text-slate-600 uppercase tracking-widest ">No students in this category.</p>
  </div>
  )}
  </div>
@@ -354,11 +354,11 @@ const StudentInteractionLog = () => {
  <table className="w-full text-left border-collapse">
  <thead>
  <tr className="border-b border-slate-100 bg-slate-50">
- <th className="p-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Date</th>
- <th className="p-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Student</th>
- <th className="p-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Method</th>
- <th className="p-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Mentor Notes</th>
- <th className="p-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Details</th>
+ <th className="p-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">Date</th>
+ <th className="p-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">Student</th>
+ <th className="p-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">Method</th>
+ <th className="p-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">Mentor Notes</th>
+ <th className="p-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">Details</th>
  </tr>
  </thead>
  <tbody>
@@ -366,7 +366,7 @@ const StudentInteractionLog = () => {
  <tr key={log.id} className="border-b border-slate-50 hover:bg-slate-50/80 transition-all group/row">
  <td className="p-6 text-[11px] font-black text-slate-500 uppercase tracking-widest">{new Date(log.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</td>
  <td className="p-6 text-[13px] font-black text-slate-800 uppercase tracking-tighter group-hover/row:text-[#008080] transition-colors">{log.student_name}</td>
- <td className="p-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
+ <td className="p-6 text-[10px] font-black text-slate-600 uppercase tracking-[0.2em]">
  <span className="px-4 py-1.5 bg-slate-100/50 rounded-full border border-slate-200/50">
  {log.connection_method}
  </span>
@@ -382,7 +382,7 @@ const StudentInteractionLog = () => {
  setSubmitted(true);
  }, 100);
  }}
- className="w-12 h-12 rounded-[18px] bg-slate-50 flex items-center justify-center text-slate-400 hover:text-[#008080] hover:bg-[#008080]/10 transition-all border border-transparent hover:border-[#008080]/20 active:scale-90"
+ className="w-12 h-12 rounded-[18px] bg-slate-50 flex items-center justify-center text-slate-600 hover:text-[#008080] hover:bg-[#008080]/10 transition-all border border-transparent hover:border-[#008080]/20 active:scale-90"
  >
  <Target size={20} strokeWidth={2.5} />
  </button>
@@ -391,7 +391,7 @@ const StudentInteractionLog = () => {
  ))}
  {allLogs.length === 0 && (
  <tr>
- <td colSpan="5" className="p-8 text-center text-sm font-bold text-slate-400">No interaction logs found.</td>
+ <td colSpan="5" className="p-8 text-center text-sm font-bold text-slate-600">No interaction logs found.</td>
  </tr>
  )}
  </tbody>
@@ -406,7 +406,7 @@ const StudentInteractionLog = () => {
  <div className="max-w-4xl mx-auto space-y-10 p-6 pb-20 animate-in fade-in slide-in-from-bottom-4 duration-500">
  <button
  onClick={() => { setSelectedStudent(null); setSubmitted(false); }}
- className="flex items-center gap-2 text-slate-400 hover:text-[#008080] font-black text-[10px] uppercase tracking-widest transition-colors mb-4"
+ className="flex items-center gap-2 text-slate-600 hover:text-[#008080] font-black text-[10px] uppercase tracking-widest transition-colors mb-4"
  >
  <ArrowLeft size={16} /> Select Different Student
  </button>
@@ -419,7 +419,7 @@ const StudentInteractionLog = () => {
  </div>
  <div>
  <h1 className="text-3xl font-black text-white tracking-tight">Log Interaction</h1>
- <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mt-1">Student: {selectedStudent.name} | Date: {formData.date}</p>
+ <p className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] mt-1">Student: {selectedStudent.name} | Date: {formData.date}</p>
  </div>
  </div>
  </header>
@@ -441,7 +441,7 @@ const StudentInteractionLog = () => {
  </h3>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-slate-50/50 p-6 rounded-3xl border border-slate-100">
  <div className="space-y-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Date</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Date</label>
  <input
  type="date"
  name="date"
@@ -451,7 +451,7 @@ const StudentInteractionLog = () => {
  />
  </div>
  <div className="space-y-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Connection Method</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Connection Method</label>
  <select name="connection_method" value={formData.connection_method} onChange={handleChange} className="w-full p-4 bg-white border border-slate-200 rounded-2xl text-sm font-bold text-slate-700 focus:ring-4 focus:ring-[#008080] outline-none">
  {['Call', 'WhatsApp Chat', 'Zoom', 'Direct', 'Other'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
  </select>
@@ -466,17 +466,17 @@ const StudentInteractionLog = () => {
  </h3>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
  <div className="space-y-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Self Clarity (0-100)</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Self Clarity (0-100)</label>
  <input type="number" min="0" max="100" name="self_clarity" value={formData.self_clarity} onChange={handleChange} placeholder="e.g. 85" className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-700 outline-none" required />
  </div>
  <div className="space-y-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Can Solve Independently?</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Can Solve Independently?</label>
  <select name="can_solve_independently" value={formData.can_solve_independently} onChange={handleChange} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-700 outline-none">
  {['Yes', 'Partially', 'No'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
  </select>
  </div>
  <div className="space-y-2 md:col-span-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Confusing Topic</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Confusing Topic</label>
  <input type="text" name="confusing_topic" value={formData.confusing_topic} onChange={handleChange} placeholder="Any specific topic?" className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-700 outline-none" />
  </div>
  </div>
@@ -489,19 +489,19 @@ const StudentInteractionLog = () => {
  </h3>
  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
  <div className="space-y-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Homework Status</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Homework Status</label>
  <select name="homework_status" value={formData.homework_status} onChange={handleChange} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-700 outline-none">
  {['Done', 'Partial', 'Not Done'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
  </select>
  </div>
  <div className="space-y-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Difficulty</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Difficulty</label>
  <select name="homework_difficulty" value={formData.homework_difficulty} onChange={handleChange} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-700 outline-none">
  {['Easy', 'Medium', 'Hard'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
  </select>
  </div>
  <div className="space-y-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Revision Quality</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Revision Quality</label>
  <select name="revision_quality" value={formData.revision_quality} onChange={handleChange} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-700 outline-none">
  {['Good', 'Rushed', 'Not Done'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
  </select>
@@ -516,14 +516,14 @@ const StudentInteractionLog = () => {
  </h3>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
  <div className="space-y-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Confidence (1-5)</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Confidence (1-5)</label>
  <div className="flex gap-2">
  {[1, 2, 3, 4, 5].map(num => (
  <button
  key={num}
  type="button"
  onClick={() => setFormData({ ...formData, confidence: num })}
- className={`flex-1 p-3 rounded-xl font-black text-sm transition-all ${formData.confidence === num ? 'bg-rose-500 text-white shadow-lg shadow-rose-200' : 'bg-slate-50 text-slate-400 hover:bg-slate-100'}`}
+ className={`flex-1 p-3 rounded-xl font-black text-sm transition-all ${formData.confidence === num ? 'bg-rose-500 text-white shadow-lg shadow-rose-200' : 'bg-slate-50 text-slate-600 hover:bg-slate-100'}`}
  >
  {num}
  </button>
@@ -531,19 +531,19 @@ const StudentInteractionLog = () => {
  </div>
  </div>
  <div className="space-y-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Focus Level</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Focus Level</label>
  <select name="focus_level" value={formData.focus_level} onChange={handleChange} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-700 outline-none">
  {['Good', 'Average', 'Poor'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
  </select>
  </div>
  <div className="space-y-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Motivation</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Motivation</label>
  <select name="motivation_level" value={formData.motivation_level} onChange={handleChange} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-700 outline-none">
  {['High', 'Medium', 'Low'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
  </select>
  </div>
  <div className="space-y-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Exam Anxiety?</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Exam Anxiety?</label>
  <select name="exam_anxiety" value={formData.exam_anxiety} onChange={handleChange} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-700 outline-none">
  {['No', 'Yes'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
  </select>
@@ -558,23 +558,23 @@ const StudentInteractionLog = () => {
  </h3>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
  <div className="space-y-2 md:col-span-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Student Requests</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Student Requests</label>
  <textarea name="student_requests" rows="2" value={formData.student_requests} onChange={handleChange} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-700 outline-none"></textarea>
  </div>
  <div className="space-y-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Parent Update Priority</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Parent Update Priority</label>
  <select name="parent_update_priority" value={formData.parent_update_priority} onChange={handleChange} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-700 outline-none">
  {['Low', 'Medium', 'High'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
  </select>
  </div>
  <div className="space-y-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Mentor Action Needed?</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Mentor Action Needed?</label>
  <select name="mentor_action_needed" value={formData.mentor_action_needed} onChange={handleChange} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-700 outline-none">
  {['Yes', 'No'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
  </select>
  </div>
  <div className="space-y-2 md:col-span-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Mentor Notes</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Mentor Notes</label>
  <textarea name="mentor_notes" rows="4" value={formData.mentor_notes} onChange={handleChange} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-700 outline-none"></textarea>
  </div>
 
@@ -601,7 +601,7 @@ const StudentInteractionLog = () => {
  </h3>
 
  <div className="space-y-4 bg-slate-50 p-8 rounded-[2rem] border border-slate-100">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 flex items-center gap-2">
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 flex items-center gap-2">
  <Upload size={14} className="text-[#008080]" /> Interaction Proof (Image/PDF)
  </label>
 
@@ -621,7 +621,7 @@ const StudentInteractionLog = () => {
  {uploading ? (
  <Loader2 className="animate-spin text-[#008080]" size={20} />
  ) : (
- <ImageIcon className="text-slate-400 group-hover:text-[#008080]" size={20} />
+ <ImageIcon className="text-slate-600 group-hover:text-[#008080]" size={20} />
  )}
  <span className="text-xs font-black text-slate-600 uppercase tracking-widest">
  {uploading ? 'Uploading...' : 'Choose File'}
@@ -635,7 +635,7 @@ const StudentInteractionLog = () => {
  <CheckCircle size={18} />
  </div>
  <div className="flex flex-col">
- <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">File Attached</span>
+ <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">File Attached</span>
  <a href={formData.screenshot_url} target="_blank" rel="noreferrer" className="text-xs font-bold text-[#008080] hover:underline truncate max-w-[150px]">View Document</a>
  </div>
  <button
@@ -648,7 +648,7 @@ const StudentInteractionLog = () => {
  </div>
  )}
  </div>
- <p className="text-[9px] font-bold text-slate-400 ">Max size: 5MB. Supports JPG, PNG, PDF</p>
+ <p className="text-[9px] font-bold text-slate-600 ">Max size: 5MB. Supports JPG, PNG, PDF</p>
  </div>
  </div>
 
@@ -687,11 +687,11 @@ const StudentInteractionLog = () => {
  <table className="w-full text-left border-collapse">
  <thead>
  <tr className="border-b border-slate-100">
- <th className="p-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Date</th>
- <th className="p-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Sess #</th>
- <th className="p-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Method</th>
- <th className="p-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Clarity</th>
- <th className="p-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Show More</th>
+ <th className="p-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">Date</th>
+ <th className="p-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">Sess #</th>
+ <th className="p-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">Method</th>
+ <th className="p-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">Clarity</th>
+ <th className="p-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">Show More</th>
  </tr>
  </thead>
  <tbody>
@@ -702,10 +702,10 @@ const StudentInteractionLog = () => {
  className="border-b border-slate-50 hover:bg-slate-50 transition-colors cursor-pointer group"
  >
  <td className="p-4 text-xs font-bold text-slate-700">{new Date(log.date || log.session_date).toLocaleDateString()}</td>
- <td className="p-4 text-xs font-black text-slate-400">#{log.session_number || log.id}</td>
+ <td className="p-4 text-xs font-black text-slate-600">#{log.session_number || log.id}</td>
  <td className="p-4 text-xs font-bold text-slate-600">{log.connection_method || log.action_type}</td>
  <td className="p-4 text-xs font-bold text-[#008080]">{log.self_clarity ? `${log.self_clarity}%` : log.student_status}</td>
- <td className="p-4 text-xs font-bold text-slate-400 group-hover:text-[#008080] transition-colors">
+ <td className="p-4 text-xs font-bold text-slate-600 group-hover:text-[#008080] transition-colors">
  <MoreHorizontal size={16} />
  </td>
  </tr>

@@ -95,7 +95,7 @@ const Documents = () => {
 
  <div className="relative z-10 flex flex-col sm:flex-row items-center gap-4 w-full md:w-auto">
  <div className="relative group w-full sm:w-80">
- <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-emerald-500 transition-colors" size={18} />
+ <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-emerald-500 transition-colors" size={18} />
  <input
  type="text"
  placeholder="Identify Document..."
@@ -117,7 +117,7 @@ const Documents = () => {
  {loading ? (
  <div className="flex flex-col items-center justify-center p-32 space-y-4">
  <div className="w-14 h-14 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
- <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest animate-pulse">Accessing Encrypted Vault...</p>
+ <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest animate-pulse">Accessing Encrypted Vault...</p>
  </div>
  ) : filteredDocs.length === 0 ? (
  <div className="bg-white p-32 rounded-[4rem] text-center border-2 border-dashed border-slate-100">
@@ -125,7 +125,7 @@ const Documents = () => {
  <FileText size={48} />
  </div>
  <h3 className="text-xl font-black text-slate-900 uppercase">Repository Void</h3>
- <p className="text-[10px] font-bold text-slate-400 mt-2 uppercase tracking-[0.2em] leading-loose max-w-sm mx-auto ">
+ <p className="text-[10px] font-bold text-slate-600 mt-2 uppercase tracking-[0.2em] leading-loose max-w-sm mx-auto ">
  No academic assets detected in the current filter stack. Initiate new document ingestion.
  </p>
  </div>
@@ -154,10 +154,10 @@ const Documents = () => {
  </div>
 
  <div className="relative z-10 grid grid-cols-2 gap-4 mb-4">
- <div className="flex items-center gap-2 text-[8px] font-black text-slate-400 uppercase tracking-widest ">
+ <div className="flex items-center gap-2 text-[8px] font-black text-slate-600 uppercase tracking-widest ">
  <Calendar size={12} /> {new Date(doc.created_at).toLocaleDateString()}
  </div>
- <div className="flex items-center gap-2 text-[8px] font-black text-slate-400 uppercase tracking-widest justify-end">
+ <div className="flex items-center gap-2 text-[8px] font-black text-slate-600 uppercase tracking-widest justify-end">
  <User size={12} /> {doc.uploaded_by_name}
  </div>
  </div>
@@ -206,7 +206,7 @@ const Documents = () => {
  <form onSubmit={handleUpload} className="p-12 space-y-8">
  <div className="space-y-6">
  <div className="space-y-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ">Asset Title</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] ">Asset Title</label>
  <input
  required
  type="text"
@@ -219,7 +219,7 @@ const Documents = () => {
 
  <div className="grid grid-cols-2 gap-6">
  <div className="space-y-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ">Category</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] ">Category</label>
  <div className="relative">
  <select
  className="w-full px-8 py-5 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold appearance-none focus:bg-white outline-none transition-all "
@@ -228,11 +228,11 @@ const Documents = () => {
  >
  {categories.map(c => <option key={c} value={c}>{c}</option>)}
  </select>
- <Filter className="absolute right-6 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={16} />
+ <Filter className="absolute right-6 top-1/2 -translate-y-1/2 text-slate-600 pointer-events-none" size={16} />
  </div>
  </div>
  <div className="space-y-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ">File Source (URL)</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] ">File Source (URL)</label>
  <input
  required
  type="text"
@@ -245,7 +245,7 @@ const Documents = () => {
  </div>
 
  <div className="space-y-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ">Supplied Intelligence (Description)</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] ">Supplied Intelligence (Description)</label>
  <textarea
  rows="4"
  className="w-full px-8 py-5 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white outline-none transition-all resize-none "

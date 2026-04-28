@@ -123,7 +123,7 @@ const MentorHeadTasks = () => {
  </div>
  <div>
  <h1 className="text-2xl font-black text-slate-900 tracking-tight uppercase ">Assigned Protocols</h1>
- <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mt-1">Operational directiives and tasks for Mentors</p>
+ <p className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] mt-1">Operational directiives and tasks for Mentors</p>
  </div>
  </div>
 
@@ -152,22 +152,22 @@ const MentorHeadTasks = () => {
  </header>
 
  {loading ? (
- <div className="text-center p-20 text-slate-400 font-bold animate-pulse">Synchronizing Workforce Tasks...</div>
+ <div className="text-center p-20 text-slate-600 font-bold animate-pulse">Synchronizing Workforce Tasks...</div>
  ) : (
  <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden flex flex-col min-h-[500px]">
  <div className="flex flex-col sm:flex-row justify-between items-center p-8 border-b border-slate-100 gap-4">
  <div className="relative w-full sm:w-80 group">
- <AlertTriangle size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#008080] transition-colors" />
+ <AlertTriangle size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#008080] transition-colors" />
  <input
  type="text"
  placeholder="Scan protocols by title..."
- className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-3 pl-12 pr-4 text-xs font-bold outline-none focus:bg-white focus:ring-4 focus:ring-[#008080]/50 focus:border-[#008080] transition-all placeholder:text-slate-400"
+ className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-3 pl-12 pr-4 text-xs font-bold outline-none focus:bg-white focus:ring-4 focus:ring-[#008080]/50 focus:border-[#008080] transition-all placeholder:text-slate-600"
  value={searchQuery}
  onChange={(e) => setSearchQuery(e.target.value)}
  />
  </div>
  <div className="flex items-center gap-3">
- <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest hidden sm:block">Status:</span>
+ <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest hidden sm:block">Status:</span>
  <div className="flex bg-slate-100 p-1 rounded-xl">
  {['All', 'Pending', 'Completed'].map(s => (
  <button 
@@ -186,11 +186,11 @@ const MentorHeadTasks = () => {
  <table className="w-full text-left border-collapse">
  <thead>
  <tr className="bg-slate-50/50 border-b border-slate-100">
- <th className="p-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Protocol Matrix</th>
- <th className="p-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Personnel Assigned</th>
- <th className="p-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Temporal Status</th>
- <th className="p-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Origin Authority</th>
- <th className="p-6 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Operations</th>
+ <th className="p-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Protocol Matrix</th>
+ <th className="p-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Personnel Assigned</th>
+ <th className="p-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Temporal Status</th>
+ <th className="p-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Origin Authority</th>
+ <th className="p-6 text-[10px] font-black text-slate-600 uppercase tracking-widest text-right">Operations</th>
  </tr>
  </thead>
  <tbody className="divide-y divide-slate-50">
@@ -233,7 +233,7 @@ const MentorHeadTasks = () => {
  </td>
  <td className="p-6">
  <div className="flex items-center gap-3">
- <div className="w-8 h-8 bg-slate-100 rounded-lg flex items-center justify-center text-slate-400 border border-slate-200 uppercase font-black text-[10px]">
+ <div className="w-8 h-8 bg-slate-100 rounded-lg flex items-center justify-center text-slate-600 border border-slate-200 uppercase font-black text-[10px]">
  {task.mentor_name?.charAt(0) || 'M'}
  </div>
  <span className="text-xs font-bold text-slate-700">{task.mentor_name || 'Unassigned'}</span>
@@ -245,7 +245,7 @@ const MentorHeadTasks = () => {
  <div className="w-1.5 h-1.5 rounded-full bg-current animate-pulse" />
  {task.status === 'Completed' ? 'Fulfilled' : (isOverdue ? 'Overdue' : 'Active')}
  </div>
- <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-400">
+ <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-600">
  <Calendar size={10} />
  {new Date(task.deadline).toLocaleDateString(undefined, { day: '2-digit', month: 'short' })}
  </div>
@@ -253,7 +253,7 @@ const MentorHeadTasks = () => {
  </td>
  <td className="p-6">
  <span className="text-[10px] font-black text-slate-500 uppercase tracking-tighter block">{task.assigner_name || 'ADMIN'}</span>
- <span className="text-[9px] font-bold text-slate-400 uppercase opacity-60">System Authority</span>
+ <span className="text-[9px] font-bold text-slate-600 uppercase opacity-60">System Authority</span>
  </td>
  <td className="p-6 text-right">
  <div className="flex items-center justify-end gap-2 opactiy-0 group-hover:opacity-100 transition-opacity">
@@ -283,9 +283,9 @@ const MentorHeadTasks = () => {
  </table>
  </div>
  <div className="p-6 bg-slate-50/50 border-t border-slate-100 flex justify-between items-center mt-auto">
- <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Sector Logged: {filteredTasks.length} Protocols Active</span>
+ <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Sector Logged: {filteredTasks.length} Protocols Active</span>
  <div className="flex gap-2">
- <button className="px-4 py-2 bg-white border border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-400 cursor-not-allowed">Previous</button>
+ <button className="px-4 py-2 bg-white border border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-600 cursor-not-allowed">Previous</button>
  <button className="px-4 py-2 bg-[#008080] text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-[#008080]/30 ">Page 01</button>
  <button className="px-4 py-2 bg-white border border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-900 shadow-sm hover:bg-slate-50">Next</button>
  </div>
@@ -301,7 +301,7 @@ const MentorHeadTasks = () => {
  >
  <form onSubmit={handleSubmit} className="flex flex-col gap-6">
  <div className="flex flex-col gap-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Task Title</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Task Title</label>
  <input
  type="text"
  required
@@ -313,7 +313,7 @@ const MentorHeadTasks = () => {
  </div>
 
  <div className="flex flex-col gap-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Detailed Description</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Detailed Description</label>
  <textarea
  rows="4"
  required
@@ -326,7 +326,7 @@ const MentorHeadTasks = () => {
 
  <div className="grid grid-cols-2 gap-4">
  <div className="flex flex-col gap-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Assign User</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Assign User</label>
  <select
  required
  className="p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] focus:border-[#008080] transition-all font-semibold appearance-none"
@@ -340,9 +340,9 @@ const MentorHeadTasks = () => {
  </select>
  </div>
  <div className="flex flex-col gap-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Fulfillment Deadline</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Fulfillment Deadline</label>
  <div className="relative">
- <Calendar size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+ <Calendar size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600" />
  <input
  type="date"
  required
@@ -355,7 +355,7 @@ const MentorHeadTasks = () => {
  </div>
 
  <div className="flex flex-col gap-3">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Priority Categorization</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Priority Categorization</label>
  <div className="grid grid-cols-3 gap-3">
  {['Low', 'Medium', 'High'].map((p) => (
  <button
@@ -366,7 +366,7 @@ const MentorHeadTasks = () => {
  p-3 rounded-2xl border-2 text-[10px] font-black uppercase tracking-widest transition-all
  ${formData.priority === p
  ? 'bg-slate-900 border-slate-900 text-white shadow-lg shadow-slate-200'
- : 'bg-white border-slate-100 text-slate-400 hover:border-slate-200'}
+ : 'bg-white border-slate-100 text-slate-600 hover:border-slate-200'}
  `}
  >
  {p}

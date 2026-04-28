@@ -61,7 +61,7 @@ const CourseCompletedTracker = () => {
  return matchesSearch;
  });
 
- if (loading) return <div className="p-8 text-center text-slate-400 font-bold">Loading records...</div>;
+ if (loading) return <div className="p-8 text-center text-slate-600 font-bold">Loading records...</div>;
 
  const completedCount = students.filter(s => s.course_completed === 1).length;
 
@@ -85,7 +85,7 @@ const CourseCompletedTracker = () => {
  <div className="flex gap-4">
  <div className="bg-slate-50 px-6 py-4 rounded-3xl border border-slate-100 text-center">
  <p className="text-3xl font-black text-slate-900">{students.length}</p>
- <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mt-1">Total</p>
+ <p className="text-[10px] font-black uppercase tracking-widest text-slate-600 mt-1">Total</p>
  </div>
  <div className="bg-emerald-50 px-6 py-4 rounded-3xl border border-emerald-100 text-center">
  <p className="text-3xl font-black text-emerald-600">{completedCount}</p>
@@ -97,13 +97,13 @@ const CourseCompletedTracker = () => {
  {/* Controls */}
  <div className="flex flex-col md:flex-row gap-4 mb-6">
  <div className="relative flex-1">
- <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+ <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600" size={18} />
  <input
  type="text"
  placeholder="Search student or course..."
  value={searchTerm}
  onChange={(e) => setSearchTerm(e.target.value)}
- className="w-full bg-white border border-slate-200 rounded-2xl pl-12 pr-4 py-3 text-sm font-bold text-slate-700 focus:outline-none focus:border-[#008080] focus:ring-4 focus:ring-[#008080]/10 transition-all placeholder:text-slate-400 placeholder:font-medium"
+ className="w-full bg-white border border-slate-200 rounded-2xl pl-12 pr-4 py-3 text-sm font-bold text-slate-700 focus:outline-none focus:border-[#008080] focus:ring-4 focus:ring-[#008080]/10 transition-all placeholder:text-slate-600 placeholder:font-medium"
  />
  </div>
  <div className="flex gap-2">
@@ -128,11 +128,11 @@ const CourseCompletedTracker = () => {
  <table className="w-full text-left border-collapse min-w-[800px]">
  <thead>
  <tr className="border-b border-slate-100 bg-slate-50">
- <th className="p-4 rounded-tl-xl text-[10px] font-black text-slate-400 uppercase tracking-widest">Student</th>
- <th className="p-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Course & Grade</th>
- <th className="p-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Assigned To</th>
- <th className="p-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</th>
- <th className="p-4 rounded-tr-xl text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Actions</th>
+ <th className="p-4 rounded-tl-xl text-[10px] font-black text-slate-600 uppercase tracking-widest">Student</th>
+ <th className="p-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">Course & Grade</th>
+ <th className="p-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">Assigned To</th>
+ <th className="p-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">Status</th>
+ <th className="p-4 rounded-tr-xl text-[10px] font-black text-slate-600 uppercase tracking-widest text-right">Actions</th>
  </tr>
  </thead>
  <tbody>
@@ -143,7 +143,7 @@ const CourseCompletedTracker = () => {
  <tr key={student.id} className="border-b border-slate-50 transition-colors group hover:bg-slate-50/50">
  <td className="p-4">
  <p className="text-sm font-bold text-slate-900">{student.name}</p>
- <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">ID: {student.id}</p>
+ <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest mt-0.5">ID: {student.id}</p>
  </td>
  <td className="p-4">
  <p className="text-xs font-bold text-slate-700">{student.course || 'N/A'}</p>
@@ -191,7 +191,7 @@ const CourseCompletedTracker = () => {
  );
  }) : (
  <tr>
- <td colSpan="5" className="p-8 text-center text-slate-400 font-bold">
+ <td colSpan="5" className="p-8 text-center text-slate-600 font-bold">
  No students found matching your criteria.
  </td>
  </tr>

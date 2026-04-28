@@ -187,7 +187,7 @@ const Students = () => {
  <div className="bg-white/70 backdrop-blur-xl p-12 rounded-[40px] border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.04)] flex flex-col md:flex-row justify-between items-center gap-10">
  <div className="text-center md:text-left">
  <h2 className="text-5xl font-black text-slate-900 tracking-tighter leading-none mb-3 ">Student Enrollment</h2>
- <p className="text-slate-400 text-[11px] font-black uppercase tracking-[0.25em] flex items-center justify-center md:justify-start gap-3 mt-1">
+ <p className="text-slate-600 text-[11px] font-black uppercase tracking-[0.25em] flex items-center justify-center md:justify-start gap-3 mt-1">
  <span className="w-2 h-2 rounded-full bg-[#008080] animate-pulse shadow-[0_0_10px_rgba(20,184,166,0.5)]"></span>
  Cross-functional Academic Database Nexus
  </p>
@@ -195,7 +195,7 @@ const Students = () => {
  
  <div className="flex flex-col sm:flex-row items-center gap-5">
  <div className="flex items-center gap-4 bg-slate-50/50 px-8 py-5 rounded-[24px] border border-slate-100/50 shadow-inner group">
- <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] leading-none whitespace-nowrap">Sort Engine</span>
+ <span className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] leading-none whitespace-nowrap">Sort Engine</span>
  <div className="w-px h-10 bg-slate-200"></div>
  <select 
  value={sortBy} 
@@ -211,10 +211,10 @@ const Students = () => {
 
   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 px-2">
     <div className="bg-white/70 backdrop-blur-md p-8 rounded-[35px] border border-white/60 shadow-sm flex flex-col gap-2 group transition-all hover:bg-white hover:shadow-md">
-      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest group-hover:text-[#008080] transition-colors">Total Enrollment</span>
+      <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest group-hover:text-[#008080] transition-colors">Total Enrollment</span>
       <div className="flex items-end gap-3 font-black text-slate-900 tracking-tighter">
         <span className="text-4xl leading-none">{students.length}</span>
-        <span className="text-[10px] text-slate-400 mb-1 uppercase tracking-widest">Active Members</span>
+        <span className="text-[10px] text-slate-600 mb-1 uppercase tracking-widest">Active Members</span>
       </div>
     </div>
     
@@ -249,7 +249,7 @@ const Students = () => {
  >
  <form onSubmit={handleUpdate} className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
  <div className="flex flex-col gap-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2">Full Name</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest pl-2">Full Name</label>
  <input
  type="text"
  className="p-5 bg-slate-50/50 border border-slate-100 rounded-[20px] text-sm font-bold text-slate-700 outline-none focus:bg-white focus:ring-4 focus:ring-[#008080]/5 focus:border-[#008080]/20 transition-all"
@@ -259,7 +259,7 @@ const Students = () => {
  />
  </div>
  <div className="flex flex-col gap-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2">Grade</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest pl-2">Grade</label>
  <input
  type="text"
  className="p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-[#008080] transition-all"
@@ -269,7 +269,7 @@ const Students = () => {
  />
  </div>
  <div className="flex flex-col gap-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2">Subject</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest pl-2">Subject</label>
  <input
  type="text"
  className="p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-[#008080] transition-all"
@@ -279,7 +279,7 @@ const Students = () => {
  />
  </div>
  <div className="flex flex-col gap-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2">Next Installment</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest pl-2">Next Installment</label>
  <input
  type="date"
  className="p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-[#008080] transition-all"
@@ -288,7 +288,7 @@ const Students = () => {
  />
  </div>
  <div className="col-span-2 flex flex-col gap-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2">Status</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest pl-2">Status</label>
  <select
  className="p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-[#008080] transition-all"
  value={editFormData.status}
@@ -301,7 +301,7 @@ const Students = () => {
  </select>
  </div>
  <div className="col-span-2 flex flex-col gap-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2">Timetable Summary</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest pl-2">Timetable Summary</label>
  <textarea
  className="p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-[#008080] transition-all min-h-[100px]"
  value={editFormData.timetable}
@@ -309,7 +309,7 @@ const Students = () => {
  />
  </div>
  <div className="col-span-2 flex justify-end gap-3 pt-8 pb-4">
- <button type="button" className="px-8 py-4 rounded-[18px] border border-slate-100 text-[11px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-600 hover:bg-slate-50 transition-all font-sans" onClick={() => setIsEditModalOpen(false)}>Abort Change</button>
+ <button type="button" className="px-8 py-4 rounded-[18px] border border-slate-100 text-[11px] font-black uppercase tracking-widest text-slate-600 hover:text-slate-600 hover:bg-slate-50 transition-all font-sans" onClick={() => setIsEditModalOpen(false)}>Abort Change</button>
  <button type="submit" className="px-10 py-4 rounded-[18px] bg-gradient-to-br from-[#006666] to-[#008080] text-white text-[11px] font-black uppercase tracking-[0.2em] hover:shadow-lg hover:shadow-[#008080]/30 hover:-translate-y-1 transition-all shadow-md shadow-[#008080]/20 font-sans">Commit Data Refresh</button>
  </div>
  </form>
@@ -330,13 +330,13 @@ const Students = () => {
  </div>
  <div className="flex flex-col gap-2">
  <h3 className="text-3xl font-black text-slate-900 tracking-tight">{selectedStudent.name}</h3>
- <p className="text-slate-400 font-bold text-xs uppercase tracking-widest">{selectedStudent.email || 'System user without email'}</p>
+ <p className="text-slate-600 font-bold text-xs uppercase tracking-widest">{selectedStudent.email || 'System user without email'}</p>
  <div className="mt-3 flex items-center gap-3">
  <span className={`px-4 py-1.5 rounded-full text-[10px] font-black tracking-widest border-2 ${selectedStudent.status === 'active' ? 'border-emerald-100/50 bg-emerald-100/30 text-emerald-600' : 'border-rose-100/50 bg-rose-100/30 text-rose-600'}`}>
  PROTOCOL: {selectedStudent.status.toUpperCase()}
  </span>
  <span className="w-2 h-2 rounded-full bg-slate-200"></span>
- <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{selectedStudent.registration_number}</span>
+ <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">{selectedStudent.registration_number}</span>
  </div>
  </div>
  </div>
@@ -351,7 +351,7 @@ const Students = () => {
  </div>
 
  <div className="mt-2 border-t border-slate-100 pt-6">
- <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4">Daily Logged Hours (Mentor)</h4>
+ <h4 className="text-xs font-black text-slate-600 uppercase tracking-widest mb-4">Daily Logged Hours (Mentor)</h4>
  <div className="max-h-40 overflow-y-auto space-y-2 pr-2">
  {dailyHours.length > 0 ? dailyHours.map((log) => (
  <div key={log.id} className="flex justify-between items-center bg-white p-4 rounded-[18px] border border-slate-100/50 shadow-sm hover:border-[#008080]/20 transition-all group">
@@ -362,13 +362,13 @@ const Students = () => {
  <span className="text-sm font-black text-[#008080] bg-[#008080]/5 px-3 py-1 rounded-full">{log.hours} <span className="text-[10px] uppercase ml-0.5">Hrs</span></span>
  </div>
  )) : (
- <p className="text-sm text-slate-400 font-medium ">No hours logged yet.</p>
+ <p className="text-sm text-slate-600 font-medium ">No hours logged yet.</p>
  )}
  </div>
  </div>
 
  <div className="flex justify-end gap-3 pt-10 border-t border-slate-100/50">
- <button className="px-8 py-4 rounded-[18px] border border-slate-100 text-[11px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-600 hover:bg-slate-50 transition-all" onClick={() => setIsModalOpen(false)}>Exit Dashboard</button>
+ <button className="px-8 py-4 rounded-[18px] border border-slate-100 text-[11px] font-black uppercase tracking-widest text-slate-600 hover:text-slate-600 hover:bg-slate-50 transition-all" onClick={() => setIsModalOpen(false)}>Exit Dashboard</button>
  <button 
  className="px-10 py-4 rounded-[18px] bg-gradient-to-br from-[#006666] to-[#008080] text-white text-[11px] font-black uppercase tracking-[0.2em] hover:shadow-lg hover:shadow-[#008080]/30 hover:-translate-y-1 transition-all shadow-md shadow-[#008080]/20"
  onClick={() => handleEdit(selectedStudent)}
@@ -386,7 +386,7 @@ const Students = () => {
 const InfoGroup = ({ label, value, highlight }) => (
  <div className="flex flex-col gap-2 p-6 bg-slate-50/50 rounded-[24px] border border-slate-100 hover:border-[#008080]/30 hover:bg-white hover:shadow-[0_10px_20px_rgba(0,0,0,0.03)] transition-all group overflow-hidden relative">
  <div className={`absolute top-0 right-0 w-12 h-12 bg-[#008080]/5 rounded-bl-[24px] transition-all duration-500 scale-0 group-hover:scale-100`}></div>
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] group-hover:text-[#008080] transition-colors">{label}</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] group-hover:text-[#008080] transition-colors">{label}</label>
  <p className={`text-sm font-bold leading-relaxed ${highlight ? 'text-[#008080]' : 'text-slate-800'}`}>{value || '---'}</p>
  </div>
 );

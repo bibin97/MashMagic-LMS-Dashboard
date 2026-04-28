@@ -36,7 +36,7 @@ const StatCard = ({ title, value, icon: Icon, color, trend }) => {
  </div>
  <div>
  <h3 className="text-4xl font-black text-slate-800 tabular-nums tracking-tighter leading-none mb-3">{value}</h3>
- <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] leading-none">{title}</p>
+ <p className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] leading-none">{title}</p>
  </div>
  </div>
  </div>
@@ -80,7 +80,7 @@ const FacultyDashboard = () => {
  <div className="bg-white/70 backdrop-blur-xl p-10 rounded-[32px] border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.04)] flex flex-col md:flex-row justify-between items-center gap-8">
  <div className="text-center md:text-left">
  <h2 className="text-4xl font-black text-slate-900 tracking-tighter leading-none mb-3 ">Faculty Oversight</h2>
- <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em] flex items-center justify-center md:justify-start gap-2">
+ <p className="text-slate-600 text-[10px] font-black uppercase tracking-[0.2em] flex items-center justify-center md:justify-start gap-2">
  <div className="w-1.5 h-1.5 rounded-full bg-[#008080] animate-pulse"></div>
  Real-time trajectory tracking & academic resource management
  </p>
@@ -133,7 +133,7 @@ const FacultyDashboard = () => {
  <div className="flex items-center justify-between mb-10">
  <div>
  <h3 className="text-xl font-black text-slate-900 tracking-tight">Performance Distribution</h3>
- <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mt-1">Student Academic Status</p>
+ <p className="text-slate-600 text-[10px] font-black uppercase tracking-widest mt-1">Student Academic Status</p>
  </div>
  <div className="w-12 h-12 bg-[#008080]/10 rounded-2xl flex items-center justify-center text-[#008080]">
  <TrendingUp size={24} />
@@ -187,7 +187,7 @@ const FacultyDashboard = () => {
  <div className="flex items-center justify-between mb-10">
  <div>
  <h3 className="text-xl font-black text-slate-900 tracking-tight">Attendance Pipeline</h3>
- <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mt-1">7-Day Attendance Trend (%)</p>
+ <p className="text-slate-600 text-[10px] font-black uppercase tracking-widest mt-1">7-Day Attendance Trend (%)</p>
  </div>
  <div className="w-12 h-12 bg-rose-50 rounded-2xl flex items-center justify-center text-rose-500">
  <Calendar size={24} />

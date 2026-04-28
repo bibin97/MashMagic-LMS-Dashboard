@@ -40,14 +40,14 @@ const MentorSignup = () => {
 
  <div className="text-center mb-10 relative z-10">
  <h1 className="text-3xl font-black text-slate-900 tracking-tight mb-2">Mentor Access</h1>
- <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">Join the Elite Teaching Force</p>
+ <p className="text-slate-600 font-bold uppercase tracking-widest text-[10px]">Join the Elite Teaching Force</p>
  </div>
 
  <form onSubmit={handleSubmit} className="space-y-6 relative z-10">
  <div className="space-y-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Full Name</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Full Name</label>
  <div className="relative group">
- <User size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-purple-600 transition-colors" />
+ <User size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-purple-600 transition-colors" />
  <input
  name="name"
  type="text"
@@ -61,9 +61,9 @@ const MentorSignup = () => {
  </div>
 
  <div className="space-y-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Phone Number</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Phone Number</label>
  <div className="relative group">
- <Phone size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-purple-600 transition-colors" />
+ <Phone size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-purple-600 transition-colors" />
  <input
  name="phone_number"
  type="tel"
@@ -77,9 +77,9 @@ const MentorSignup = () => {
  </div>
 
  <div className="space-y-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Place / City</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Place / City</label>
  <div className="relative group">
- <MapPin size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-purple-600 transition-colors" />
+ <MapPin size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-purple-600 transition-colors" />
  <input
  name="place"
  type="text"
@@ -93,9 +93,9 @@ const MentorSignup = () => {
  </div>
 
  <div className="space-y-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Password</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Password</label>
  <div className="relative group">
- <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-purple-600 transition-colors" />
+ <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-purple-600 transition-colors" />
  <input
  name="password"
  type="password"
@@ -117,7 +117,7 @@ const MentorSignup = () => {
  </button>
 
  <div className="text-center mt-6">
- <p className="text-slate-400 text-xs font-bold uppercase tracking-widest">
+ <p className="text-slate-600 text-xs font-bold uppercase tracking-widest">
  Already have an account?{' '}
  <Link to="/login" className="text-purple-600 hover:text-purple-800 transition-colors">Login</Link>
  </p>

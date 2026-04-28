@@ -146,15 +146,15 @@ const Faculties = () => {
  <div className="flex flex-col gap-10">
  <div className="flex flex-col mb-4">
  <h2 className="text-4xl font-black text-slate-900 tracking-tighter leading-none mb-3 ">Faculty Administration</h2>
- <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em]">High-level academic lead governance</p>
+ <p className="text-slate-600 text-[10px] font-black uppercase tracking-[0.2em]">High-level academic lead governance</p>
  </div>
 
  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-2">
     <div className="bg-white/70 backdrop-blur-md p-8 rounded-[35px] border border-white/60 shadow-sm flex flex-col gap-2 group transition-all hover:bg-white hover:shadow-md">
-      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest group-hover:text-[#008080] transition-colors">Total Faculty</span>
+      <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest group-hover:text-[#008080] transition-colors">Total Faculty</span>
       <div className="flex items-end gap-3 font-black text-slate-900 tracking-tighter">
         <span className="text-4xl leading-none">{faculties.length}</span>
-        <span className="text-[10px] text-slate-400 mb-1 uppercase tracking-widest">Database Total</span>
+        <span className="text-[10px] text-slate-600 mb-1 uppercase tracking-widest">Database Total</span>
       </div>
     </div>
     
@@ -189,7 +189,7 @@ const Faculties = () => {
  >
  <form onSubmit={handleUpdate} className="flex flex-col gap-5">
  <div className="flex flex-col gap-1.5">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Full Name</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest pl-1">Full Name</label>
  <input
  type="text"
  className="p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-[#008080]/5 transition-all"
@@ -199,7 +199,7 @@ const Faculties = () => {
  />
  </div>
  <div className="flex flex-col gap-1.5">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Email Address</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest pl-1">Email Address</label>
  <input
  type="email"
  className="p-3.5 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-[#008080] transition-all"
@@ -209,7 +209,7 @@ const Faculties = () => {
  />
  </div>
  <div className="flex flex-col gap-1.5">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Phone Number</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest pl-1">Phone Number</label>
  <input
  type="text"
  className="p-3.5 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-[#008080] transition-all"
@@ -218,7 +218,7 @@ const Faculties = () => {
  />
  </div>
  <div className="flex flex-col gap-1.5">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Account Status</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest pl-1">Account Status</label>
  <select
  className="p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-[#008080]/10 transition-all"
  value={editFormData.status}
@@ -230,7 +230,7 @@ const Faculties = () => {
  </select>
  </div>
  <div className="flex justify-end gap-3 mt-8">
- <button type="button" className="px-8 py-3.5 rounded-2xl border border-slate-100 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-600 hover:bg-slate-50 transition-all" onClick={() => setIsEditModalOpen(false)}>Discard</button>
+ <button type="button" className="px-8 py-3.5 rounded-2xl border border-slate-100 text-[10px] font-black uppercase tracking-widest text-slate-600 hover:text-slate-600 hover:bg-slate-50 transition-all" onClick={() => setIsEditModalOpen(false)}>Discard</button>
  <button type="submit" className="px-10 py-3.5 rounded-2xl bg-gradient-to-br from-[#006666] to-[#008080] text-white text-[10px] font-black uppercase tracking-[0.2em] hover:shadow-lg hover:shadow-[#008080]/30 hover:-translate-y-1 transition-all shadow-md shadow-[#008080]/20">Update Leadership Data</button>
  </div>
  </form>
@@ -250,7 +250,7 @@ const Faculties = () => {
  </div>
  <div className="flex flex-col gap-2">
  <h3 className="text-3xl font-black text-slate-900 tracking-tight leading-none ">{selectedFaculty.name}</h3>
- <p className="text-slate-400 font-bold text-[10px] uppercase tracking-widest">{selectedFaculty.email}</p>
+ <p className="text-slate-600 font-bold text-[10px] uppercase tracking-widest">{selectedFaculty.email}</p>
  <div className="mt-3 flex gap-2">
  <span className="px-4 py-1.5 bg-[#F59E0B]/10 rounded-xl text-[9px] font-bold text-[#F59E0B] border border-[#F59E0B]/20 uppercase tracking-[0.15em]">
  Head Faculty Lead
@@ -269,7 +269,7 @@ const Faculties = () => {
  <UserSquare2 size={24} />
  </div>
  <div className="relative z-10">
- <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] leading-none mb-2">Mentors Managed</p>
+ <p className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] leading-none mb-2">Mentors Managed</p>
  <h4 className="text-3xl font-black text-slate-800 tracking-tighter leading-none">{selectedFaculty.mentorsUnder}</h4>
  </div>
  </div>
@@ -279,26 +279,26 @@ const Faculties = () => {
  <GraduationCap size={24} />
  </div>
  <div className="relative z-10">
- <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] leading-none mb-2">Enrolled Students</p>
+ <p className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] leading-none mb-2">Enrolled Students</p>
  <h4 className="text-3xl font-black text-slate-800 tracking-tighter leading-none">{selectedFaculty.studentsUnder}</h4>
  </div>
  </div>
  </div>
 
  <div className="space-y-4">
- <h5 className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Assignment Roster</h5>
+ <h5 className="text-[10px] font-bold text-slate-600 uppercase tracking-[0.2em]">Assignment Roster</h5>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  {[...Array(selectedFaculty.mentorsUnder)].map((_, i) => (
  <div key={i} className="flex justify-between items-center p-4 bg-white border border-slate-100 rounded-2xl hover:border-[#008080] transition-all group">
  <span className="text-sm font-bold text-slate-700 group-hover:text-[#008080]">Mentor {String.fromCharCode(65 + i)}</span>
- <span className="text-[10px] font-black text-slate-400 bg-slate-50 px-2 py-1 rounded-md">Assigned</span>
+ <span className="text-[10px] font-black text-slate-600 bg-slate-50 px-2 py-1 rounded-md">Assigned</span>
  </div>
  ))}
  </div>
  </div>
 
  <div className="flex justify-end gap-3 pt-10 border-t border-slate-100/50">
- <button className="px-8 py-4 rounded-[20px] border border-slate-100 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-600 hover:bg-slate-50 transition-all font-sans" onClick={() => setIsModalOpen(false)}>Exit Dashboard</button>
+ <button className="px-8 py-4 rounded-[20px] border border-slate-100 text-[10px] font-black uppercase tracking-widest text-slate-600 hover:text-slate-600 hover:bg-slate-50 transition-all font-sans" onClick={() => setIsModalOpen(false)}>Exit Dashboard</button>
  <button className="px-10 py-4 rounded-[20px] bg-gradient-to-br from-[#006666] to-[#008080] text-white text-[10px] font-black uppercase tracking-[0.2em] hover:shadow-lg hover:shadow-[#008080]/30 hover:-translate-y-1 transition-all shadow-md shadow-[#008080]/20 font-sans">Allocate Resources</button>
  </div>
  </div>

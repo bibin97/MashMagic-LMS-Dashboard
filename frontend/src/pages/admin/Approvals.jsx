@@ -107,7 +107,7 @@ const Approvals = () => {
  </div>
  <div>
  <h2 className="text-4xl font-black text-slate-900 tracking-tighter leading-none mb-3">Pending Approvals</h2>
- <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em] flex items-center justify-center md:justify-start gap-3 mt-1">
+ <p className="text-slate-600 text-[10px] font-black uppercase tracking-[0.2em] flex items-center justify-center md:justify-start gap-3 mt-1">
  <div className="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></div>
  Secure Admission & Staff Activation Matrix
  </p>
@@ -130,11 +130,11 @@ const Approvals = () => {
  <table className="w-full text-left border-collapse">
  <thead>
  <tr className="bg-slate-50/40 border-b border-slate-100/50">
- <th className="p-8 text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] ">Candidate Identity</th>
- <th className="p-8 text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] ">Designation Vector</th>
- <th className="p-8 text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] ">Authorizing Node</th>
- <th className="p-8 text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] ">Communications</th>
- <th className="p-8 text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] text-right">Verification Protocol</th>
+ <th className="p-8 text-[11px] font-black text-slate-600 uppercase tracking-[0.2em] ">Candidate Identity</th>
+ <th className="p-8 text-[11px] font-black text-slate-600 uppercase tracking-[0.2em] ">Designation Vector</th>
+ <th className="p-8 text-[11px] font-black text-slate-600 uppercase tracking-[0.2em] ">Authorizing Node</th>
+ <th className="p-8 text-[11px] font-black text-slate-600 uppercase tracking-[0.2em] ">Communications</th>
+ <th className="p-8 text-[11px] font-black text-slate-600 uppercase tracking-[0.2em] text-right">Verification Protocol</th>
  </tr>
  </thead>
  <tbody className="divide-y divide-slate-50">
@@ -142,14 +142,14 @@ const Approvals = () => {
  <tr key={`${user.role}-${user.id}`} className="hover:bg-slate-50/50 transition-all group">
  <td className="p-8">
  <div className="flex items-center gap-5">
- <div className="w-16 h-16 bg-white rounded-[24px] flex items-center justify-center text-slate-400 font-black border border-slate-100 group-hover:border-[#008080] group-hover:text-[#008080] group-hover:translate-x-1 group-hover:-translate-y-1 transition-all shadow-sm">
+ <div className="w-16 h-16 bg-white rounded-[24px] flex items-center justify-center text-slate-600 font-black border border-slate-100 group-hover:border-[#008080] group-hover:text-[#008080] group-hover:translate-x-1 group-hover:-translate-y-1 transition-all shadow-sm">
  {user.name.charAt(0).toUpperCase()}
  </div>
  <div>
  <span className="text-lg font-black text-slate-800 block tracking-tight leading-none group-hover:text-[#008080] transition-colors mb-2 uppercase">{user.name}</span>
  <div className="flex items-center gap-2">
  <Calendar size={12} className="text-[#008080] opacity-60" />
- <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.1em]">
+ <span className="text-[10px] font-black text-slate-600 uppercase tracking-[0.1em]">
  LOGGED_{new Date(user.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
  </span>
  </div>
@@ -169,7 +169,7 @@ const Approvals = () => {
  </div>
  <div>
  <span className="text-xs font-black text-slate-800 block uppercase tracking-tight ">{user.registered_by_name || 'Autonomous Registry'}</span>
- <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.15em] mt-0.5 block">Authorized Registrar</span>
+ <span className="text-[9px] font-black text-slate-600 uppercase tracking-[0.15em] mt-0.5 block">Authorized Registrar</span>
  </div>
  </div>
  </td>
@@ -181,7 +181,7 @@ const Approvals = () => {
  </div>
  <div className="flex items-center gap-2">
  <Phone size={12} className="text-slate-300" />
- <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em]">
+ <span className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em]">
  {user.phone_number || 'OFFLINE'}
  </span>
  </div>
@@ -216,7 +216,7 @@ const Approvals = () => {
  <CheckCircle size={48} />
  </div>
  <h3 className="text-2xl font-black text-slate-900 tracking-tight">Pipeline Clear</h3>
- <p className="text-slate-400 text-xs font-bold uppercase tracking-[0.2em] mt-3">
+ <p className="text-slate-600 text-xs font-bold uppercase tracking-[0.2em] mt-3">
  All registration requests have been processed
  </p>
  </div>
@@ -227,7 +227,7 @@ const Approvals = () => {
  <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
  <div className="max-w-md">
  <h3 className="text-2xl font-black mb-2 tracking-tight text-[#008080]">Security Protocol Enforcement</h3>
- <p className="text-slate-400 text-sm font-bold leading-relaxed">
+ <p className="text-slate-600 text-sm font-bold leading-relaxed">
  Every account activated here gains immediate access to their designated tools.
  Rejected records are permanently archived in the system to prevent spam.
  </p>

@@ -58,7 +58,7 @@ const FacultyReports = () => {
 
  <div className="w-full md:w-auto flex flex-col sm:flex-row gap-4">
  <div className="relative group">
- <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#008080] transition-colors" size={18} />
+ <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#008080] transition-colors" size={18} />
  <input
  type="text"
  placeholder="Search reports..."
@@ -92,7 +92,7 @@ const FacultyReports = () => {
  }`}>
  {report.type}
  </span>
- <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+ <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest flex items-center gap-2">
  <Calendar size={12} />
  Submited {new Date(report.created_at).toLocaleDateString()}
  </span>
@@ -105,14 +105,14 @@ const FacultyReports = () => {
 
  <div className="flex flex-col sm:flex-row gap-4 w-full lg:w-auto relative z-10">
  <div className="text-center lg:text-right pr-6 border-r border-slate-100 hidden xl:block">
- <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Status</p>
+ <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest mb-1">Status</p>
  <p className="font-bold text-slate-900">{report.status}</p>
  </div>
  <button className="px-8 py-4 bg-slate-900 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-800 transition-all flex items-center gap-3 shadow-xl shadow-slate-200">
  Full Intel
  <ArrowUpRight size={14} />
  </button>
- <button className="p-4 bg-white border border-slate-200 rounded-2xl text-slate-400 hover:text-slate-900 transition-all">
+ <button className="p-4 bg-white border border-slate-200 rounded-2xl text-slate-600 hover:text-slate-900 transition-all">
  <MoreHorizontal size={18} />
  </button>
  </div>
@@ -124,7 +124,7 @@ const FacultyReports = () => {
  <SearchX size={48} />
  </div>
  <h3 className="text-2xl font-black text-slate-900 tracking-tight ">No reports found</h3>
- <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px] mt-2">Try adjusting your search criteria</p>
+ <p className="text-slate-600 font-bold uppercase tracking-widest text-[10px] mt-2">Try adjusting your search criteria</p>
  </div>
  )}
  </div>

@@ -172,15 +172,15 @@ const Mentors = () => {
  <div className="flex flex-col gap-10">
  <div className="flex flex-col mb-4">
  <h2 className="text-4xl font-black text-slate-900 tracking-tighter leading-none mb-3 ">Mentor Network</h2>
- <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em]">Operational lead directory & performance audit</p>
+ <p className="text-slate-600 text-[10px] font-black uppercase tracking-[0.2em]">Operational lead directory & performance audit</p>
  </div>
 
   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-2">
     <div className="bg-white/70 backdrop-blur-md p-8 rounded-[35px] border border-white/60 shadow-sm flex flex-col gap-2 group transition-all hover:bg-white hover:shadow-md">
-      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest group-hover:text-[#008080] transition-colors">Total Mentors</span>
+      <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest group-hover:text-[#008080] transition-colors">Total Mentors</span>
       <div className="flex items-end gap-3 font-black text-slate-900 tracking-tighter">
         <span className="text-4xl leading-none">{mentors.length}</span>
-        <span className="text-[10px] text-slate-400 mb-1 uppercase tracking-widest">Database Total</span>
+        <span className="text-[10px] text-slate-600 mb-1 uppercase tracking-widest">Database Total</span>
       </div>
     </div>
     
@@ -215,7 +215,7 @@ const Mentors = () => {
  >
  <form onSubmit={handleUpdate} className="flex flex-col gap-5">
  <div className="flex flex-col gap-1.5">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Full Name</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest pl-1">Full Name</label>
  <input
  type="text"
  className="p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-[#008080]/5 transition-all"
@@ -225,7 +225,7 @@ const Mentors = () => {
  />
  </div>
  <div className="flex flex-col gap-1.5">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Email Address</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest pl-1">Email Address</label>
  <input
  type="email"
  className="p-3.5 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-[#008080] transition-all"
@@ -235,7 +235,7 @@ const Mentors = () => {
  />
  </div>
  <div className="flex flex-col gap-1.5">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Phone Number</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest pl-1">Phone Number</label>
  <input
  type="text"
  className="p-3.5 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-[#008080] transition-all"
@@ -244,7 +244,7 @@ const Mentors = () => {
  />
  </div>
  <div className="flex flex-col gap-1.5">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Account Status</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest pl-1">Account Status</label>
  <select
  className="p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-[#008080]/5 transition-all"
  value={editFormData.status}
@@ -256,7 +256,7 @@ const Mentors = () => {
  </select>
  </div>
  <div className="flex justify-end gap-3 mt-8">
- <button type="button" className="px-8 py-3.5 rounded-2xl border border-slate-100 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-600 hover:bg-slate-50 transition-all" onClick={() => setIsEditModalOpen(false)}>Dismiss</button>
+ <button type="button" className="px-8 py-3.5 rounded-2xl border border-slate-100 text-[10px] font-black uppercase tracking-widest text-slate-600 hover:text-slate-600 hover:bg-slate-50 transition-all" onClick={() => setIsEditModalOpen(false)}>Dismiss</button>
  <button type="submit" className="px-10 py-3.5 rounded-2xl bg-gradient-to-br from-[#006666] to-[#008080] text-white text-[10px] font-black uppercase tracking-[0.2em] hover:shadow-lg hover:shadow-[#008080]/30 hover:-translate-y-1 transition-all shadow-md shadow-[#008080]/20">Update Network Profile</button>
  </div>
  </form>
@@ -276,7 +276,7 @@ const Mentors = () => {
  </div>
  <div className="flex flex-col gap-2">
  <h3 className="text-3xl font-black text-slate-900 tracking-tight">{selectedMentor.name}</h3>
- <p className="text-slate-400 font-bold text-[10px] uppercase tracking-widest leading-none">{selectedMentor.email}</p>
+ <p className="text-slate-600 font-bold text-[10px] uppercase tracking-widest leading-none">{selectedMentor.email}</p>
  <div className="mt-3">
  <span className="px-4 py-1.5 bg-white/70 border border-[#008080]/20 rounded-xl text-[10px] font-black text-[#008080] shadow-sm uppercase tracking-widest">
  NETWORK_ID: {selectedMentor.id.toString().padStart(4, '0')}
@@ -293,10 +293,10 @@ const Mentors = () => {
 
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
  <div className="bg-white border border-slate-100 rounded-2xl p-6">
- <h5 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Assigned Students</h5>
+ <h5 className="text-xs font-bold text-slate-600 uppercase tracking-widest mb-4">Assigned Students</h5>
  <div className="space-y-3 max-h-[300px] overflow-y-auto pr-2">
  {loadingStudents ? (
- <div className="text-center py-4 text-[10px] font-black text-slate-400 animate-pulse">FETCHING STUDENTS...</div>
+ <div className="text-center py-4 text-[10px] font-black text-slate-600 animate-pulse">FETCHING STUDENTS...</div>
  ) : mentorStudents.length > 0 ? mentorStudents.map((student) => (
  <div key={student.id} className="flex justify-between items-center p-5 rounded-[24px] bg-slate-50/50 border border-slate-100/50 hover:bg-white hover:border-[#008080]/30 hover:shadow-lg hover:shadow-[#008080]/5 transition-all cursor-default group">
  <div className="flex flex-col gap-1">
@@ -305,7 +305,7 @@ const Mentors = () => {
  </div>
  <div className="flex flex-col items-end gap-1">
  <span className="text-[10px] font-black text-[#008080] bg-[#008080]/5 px-2.5 py-1 rounded-lg uppercase leading-none">{student.course}</span>
- <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest opacity-60 leading-none">{student.grade} GRADE</span>
+ <span className="text-[9px] font-bold text-slate-600 uppercase tracking-widest opacity-60 leading-none">{student.grade} GRADE</span>
  </div>
  </div>
  )) : (
@@ -314,7 +314,7 @@ const Mentors = () => {
  </div>
  </div>
  <div className="bg-white border border-slate-100 rounded-2xl p-6">
- <h5 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Immediate Deliverables</h5>
+ <h5 className="text-xs font-bold text-slate-600 uppercase tracking-widest mb-4">Immediate Deliverables</h5>
  <div className="space-y-3">
  {[...Array(4)].map((_, i) => (
  <div key={i} className="flex justify-between items-center p-3 rounded-xl border border-slate-50 hover:bg-slate-50 transition-all cursor-default group">
@@ -329,7 +329,7 @@ const Mentors = () => {
  </div>
 
  <div className="flex justify-end gap-3 pt-10 border-t border-slate-100/50">
- <button className="px-8 py-4 rounded-[20px] border border-slate-100 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-all" onClick={() => setIsModalOpen(false)}>Exit Analysis</button>
+ <button className="px-8 py-4 rounded-[20px] border border-slate-100 text-[10px] font-black uppercase tracking-widest text-slate-600 hover:text-slate-600 hover:bg-slate-100 transition-all" onClick={() => setIsModalOpen(false)}>Exit Analysis</button>
  <button className="px-10 py-4 rounded-[20px] bg-gradient-to-br from-[#006666] to-[#008080] text-white text-[10px] font-black uppercase tracking-[0.2em] hover:shadow-lg hover:shadow-[#008080]/30 transition-all shadow-md shadow-[#008080]/20">Broadcast Protocol</button>
  </div>
  </div>

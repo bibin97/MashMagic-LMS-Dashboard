@@ -64,7 +64,7 @@ const FacultyTasks = () => {
  <div className="flex flex-col md:flex-row justify-between items-center gap-8">
  <div>
  <h2 className="text-3xl font-black text-slate-900 tracking-tighter uppercase ">Operational Tasks</h2>
- <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em] mt-2">Administrative directives from Academic Head</p>
+ <p className="text-slate-600 text-[10px] font-black uppercase tracking-[0.2em] mt-2">Administrative directives from Academic Head</p>
  </div>
 
  <div className="flex gap-4">
@@ -100,7 +100,7 @@ const FacultyTasks = () => {
  }`}>
  {task.status}
  </div>
- <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-3 flex items-center justify-end gap-2">
+ <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest mt-3 flex items-center justify-end gap-2">
  <Calendar size={12} />
  Deadline: {new Date(task.deadline).toLocaleDateString()}
  </p>
@@ -114,11 +114,11 @@ const FacultyTasks = () => {
 
  <div className="pt-10 border-t border-slate-50 flex flex-wrap items-center justify-between gap-6">
  <div className="flex items-center gap-4">
- <div className="w-10 h-10 bg-slate-100 rounded-2xl flex items-center justify-center text-slate-400">
+ <div className="w-10 h-10 bg-slate-100 rounded-2xl flex items-center justify-center text-slate-600">
  <FileText size={18} />
  </div>
  <div>
- <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Assigned By</p>
+ <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Assigned By</p>
  <p className="text-xs font-black text-slate-900">{task.assigned_by_name || 'Academic Head'}</p>
  </div>
  </div>
@@ -167,7 +167,7 @@ const FacultyTasks = () => {
  <CheckSquare size={48} />
  </div>
  <h3 className="text-2xl font-black text-slate-900 tracking-tight ">Clear Schedule</h3>
- <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px] mt-2">All administrative tasks have been addressed</p>
+ <p className="text-slate-600 font-bold uppercase tracking-widest text-[10px] mt-2">All administrative tasks have been addressed</p>
  </div>
  )}
  </div>

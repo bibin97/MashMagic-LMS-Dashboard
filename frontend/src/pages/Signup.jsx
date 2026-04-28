@@ -49,7 +49,7 @@ const Signup = () => {
  }
  };
 
- if (checkingSuper) return <div className="min-h-screen bg-slate-50 flex items-center justify-center font-bold text-slate-400 animate-pulse">Verifying System State...</div>;
+ if (checkingSuper) return <div className="min-h-screen bg-slate-50 flex items-center justify-center font-bold text-slate-600 animate-pulse">Verifying System State...</div>;
 
  return (
  <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] bg-fixed">
@@ -69,9 +69,9 @@ const Signup = () => {
 
  <form onSubmit={handleSubmit} className="flex flex-col gap-6 relative z-10">
  <div className="flex flex-col gap-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Full Name</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Full Name</label>
  <div className="relative group">
- <User size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#008080] transition-colors" />
+ <User size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#008080] transition-colors" />
  <input
  name="name"
  type="text"
@@ -85,9 +85,9 @@ const Signup = () => {
  </div>
 
  <div className="flex flex-col gap-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Email Address</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Email Address</label>
  <div className="relative group">
- <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#008080] transition-colors" />
+ <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#008080] transition-colors" />
  <input
  name="email"
  type="email"
@@ -101,9 +101,9 @@ const Signup = () => {
  </div>
 
  <div className="flex flex-col gap-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Password</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Password</label>
  <div className="relative group">
- <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#008080] transition-colors" />
+ <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#008080] transition-colors" />
  <input
  name="password"
  type="password"

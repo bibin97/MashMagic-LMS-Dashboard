@@ -73,7 +73,7 @@ const StudentShift = () => {
  s.course.toLowerCase().includes(searchTerm.toLowerCase())
  );
 
- if (loading) return <div className="p-8 text-center text-slate-400 font-bold">Loading system...</div>;
+ if (loading) return <div className="p-8 text-center text-slate-600 font-bold">Loading system...</div>;
 
  return (
  <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -100,7 +100,7 @@ const StudentShift = () => {
  </h3>
 
  <div className="relative mb-6">
- <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+ <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600" />
  <input
  type="text"
  placeholder="Search by name or course..."
@@ -130,7 +130,7 @@ const StudentShift = () => {
  </span>
  )}
  </h4>
- <p className="text-[10px] uppercase font-black tracking-widest text-slate-400 mt-1">
+ <p className="text-[10px] uppercase font-black tracking-widest text-slate-600 mt-1">
  Current Mentor: {mentors.find(m => m.mentor_id === student.mentor_id)?.mentor_name || 'None'}
  </p>
  </div>
@@ -152,7 +152,7 @@ const StudentShift = () => {
  <div className="flex-1 flex flex-col gap-6 relative z-10">
  {selectedStudent ? (
  <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100 shadow-sm animate-in fade-in zoom-in-95">
- <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-2">Target Student</p>
+ <p className="text-[10px] text-slate-600 font-black uppercase tracking-widest mb-2">Target Student</p>
  <h4 className="text-xl font-black text-slate-900 flex items-center gap-2">
  {selectedStudent.name}
  {selectedStudent.onboarding_status === 'pending' && (
@@ -168,12 +168,12 @@ const StudentShift = () => {
  </div>
  ) : (
  <div className="p-6 bg-slate-50 rounded-3xl border border-dashed border-slate-200 text-center flex-1 flex flex-col items-center justify-center">
- <p className="text-slate-400 font-bold">Select a student first to unlock reassignment.</p>
+ <p className="text-slate-600 font-bold">Select a student first to unlock reassignment.</p>
  </div>
  )}
 
  <div className={`transition-all duration-300 ${!selectedStudent ? 'opacity-50 pointer-events-none' : ''}`}>
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block ml-2">Select New Mentor</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest mb-2 block ml-2">Select New Mentor</label>
  <select
  value={selectedMentor}
  onChange={(e) => setSelectedMentor(e.target.value)}
@@ -195,7 +195,7 @@ const StudentShift = () => {
  {shifting ? 'Shifting Data...' : 'Confirm Reassignment'}
  <ArrowRight size={16} />
  </button>
- <p className="text-center text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-4">
+ <p className="text-center text-[10px] text-slate-600 font-bold uppercase tracking-widest mt-4">
  Note: Past interaction logs will be preserved under student profile.
  </p>
  </div>

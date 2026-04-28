@@ -147,7 +147,7 @@ const MentorsList = () => {
  </div>
 
  <div className="relative group">
- <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#008080] transition-colors" size={18} />
+ <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#008080] transition-colors" size={18} />
  <input
  type="text"
  placeholder="FILTER BY NAME, PHONE, OR LOCATION..."
@@ -160,10 +160,10 @@ const MentorsList = () => {
 
   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
     <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm flex flex-col gap-2 group transition-all hover:shadow-xl hover:shadow-[#008080]/5 hover:-translate-y-1">
-      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest group-hover:text-[#008080] transition-colors">Total Mentors</span>
+      <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest group-hover:text-[#008080] transition-colors">Total Mentors</span>
       <div className="flex items-end gap-3 font-black text-slate-900 tracking-tighter">
         <span className="text-4xl leading-none">{mentors.length}</span>
-        <span className="text-[10px] text-slate-400 mb-1 uppercase tracking-widest">Database Total</span>
+        <span className="text-[10px] text-slate-600 mb-1 uppercase tracking-widest">Database Total</span>
       </div>
     </div>
     
@@ -184,11 +184,11 @@ const MentorsList = () => {
  <table className="w-full text-left border-collapse">
  <thead>
  <tr className="bg-slate-50 border-b border-slate-100">
- <th className="p-6 text-[10px] font-black text-slate-400 uppercase tracking-widest min-w-[200px]">Mentor</th>
- <th className="p-6 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Total Students</th>
- <th className="p-6 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Connected Today</th>
- <th className="p-6 text-[10px] font-black text-slate-400 uppercase tracking-widest min-w-[250px]">Connection Progress</th>
- <th className="p-6 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Actions</th>
+ <th className="p-6 text-[10px] font-black text-slate-600 uppercase tracking-widest min-w-[200px]">Mentor</th>
+ <th className="p-6 text-[10px] font-black text-slate-600 uppercase tracking-widest text-center">Total Students</th>
+ <th className="p-6 text-[10px] font-black text-slate-600 uppercase tracking-widest text-center">Connected Today</th>
+ <th className="p-6 text-[10px] font-black text-slate-600 uppercase tracking-widest min-w-[250px]">Connection Progress</th>
+ <th className="p-6 text-[10px] font-black text-slate-600 uppercase tracking-widest text-right">Actions</th>
  </tr>
  </thead>
  <tbody className="divide-y divide-slate-50">
@@ -285,7 +285,7 @@ const MentorsList = () => {
  <Users size={40} />
  </div>
  <h3 className="text-xl font-black text-slate-900 tracking-tight">System Empty</h3>
- <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mt-2 max-w-xs mx-auto">
+ <p className="text-slate-600 text-xs font-bold uppercase tracking-widest mt-2 max-w-xs mx-auto">
  No mentors found matching your current filters. Try expanding your search.
  </p>
  </div>
@@ -302,13 +302,13 @@ const MentorsList = () => {
  <h2 className="text-lg font-black text-slate-900 flex items-center gap-3 ">
  <Users size={20} className="text-[#008080]" /> Students: {selectedMentorForView.mentor_name.toUpperCase()}
  </h2>
- <button onClick={() => setIsStudentModalOpen(false)} className="text-slate-400 hover:text-slate-600 transition-colors">
+ <button onClick={() => setIsStudentModalOpen(false)} className="text-slate-600 hover:text-slate-600 transition-colors">
  <X size={20} />
  </button>
  </div>
  <div className="p-8 max-h-[60vh] overflow-y-auto">
  {loadingStudents ? (
- <div className="text-center py-10 font-black text-slate-400 animate-pulse uppercase tracking-widest">Loading Mentor Registry...</div>
+ <div className="text-center py-10 font-black text-slate-600 animate-pulse uppercase tracking-widest">Loading Mentor Registry...</div>
  ) : mentorStudents.length > 0 ? (
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  {mentorStudents.map((student) => (
@@ -319,7 +319,7 @@ const MentorsList = () => {
  </div>
  <div className="flex flex-col">
  <span className="text-xs font-black text-slate-900 uppercase ">{student.name}</span>
- <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">{student.registration_number || 'REG-PENDING'}</span>
+ <span className="text-[8px] font-bold text-slate-600 uppercase tracking-widest">{student.registration_number || 'REG-PENDING'}</span>
  </div>
  </div>
  <div className="flex flex-wrap gap-2">
@@ -330,7 +330,7 @@ const MentorsList = () => {
  ))}
  </div>
  ) : (
- <div className="text-center py-10 text-slate-400 font-black text-[10px] uppercase tracking-widest">No students found</div>
+ <div className="text-center py-10 text-slate-600 font-black text-[10px] uppercase tracking-widest">No students found</div>
  )}
  </div>
  <div className="px-8 py-6 border-t border-slate-100 bg-slate-50 flex justify-end">

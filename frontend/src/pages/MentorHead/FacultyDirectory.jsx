@@ -73,7 +73,7 @@ const FacultyDirectory = () => {
  f.email?.toLowerCase().includes(searchTerm.toLowerCase())
  );
 
- if (loading) return <div className="p-20 text-center font-black text-slate-400 animate-pulse">SYNCING FACULTY DATA...</div>;
+ if (loading) return <div className="p-20 text-center font-black text-slate-600 animate-pulse">SYNCING FACULTY DATA...</div>;
 
  return (
  <div className="space-y-8 animate-in fade-in duration-700">
@@ -93,7 +93,7 @@ const FacultyDirectory = () => {
  </div>
 
  <div className="relative group">
- <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#008080] transition-colors" size={18} />
+ <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#008080] transition-colors" size={18} />
  <input
  type="text"
  placeholder="FILTER BY NAME OR EMAIL..."
@@ -110,12 +110,12 @@ const FacultyDirectory = () => {
  <table className="w-full text-left border-collapse">
  <thead>
  <tr className="bg-slate-50/50 border-b border-slate-100">
- <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Faculty</th>
- <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Email</th>
- <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Phone</th>
- <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Place</th>
- <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</th>
- <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Actions</th>
+ <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Faculty</th>
+ <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Email</th>
+ <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Phone</th>
+ <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Place</th>
+ <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Status</th>
+ <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest text-right">Actions</th>
  </tr>
  </thead>
  <tbody className="divide-y divide-slate-50">
@@ -128,7 +128,7 @@ const FacultyDirectory = () => {
  </div>
  <div className="min-w-0">
  <div className="text-sm font-black text-slate-900 group-hover:text-[#008080] transition-colors uppercase truncate">{faculty.name}</div>
- <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">ID {faculty.id}</div>
+ <div className="text-[10px] font-bold text-slate-600 uppercase tracking-widest mt-0.5">ID {faculty.id}</div>
  </div>
  </div>
  </td>
@@ -181,7 +181,7 @@ const FacultyDirectory = () => {
  )) : (
  <tr>
  <td colSpan={6} className="px-8 py-20 text-center">
- <p className="text-slate-400 font-black text-[10px] uppercase tracking-[0.3em]">System empty or no faculty found</p>
+ <p className="text-slate-600 font-black text-[10px] uppercase tracking-[0.3em]">System empty or no faculty found</p>
  </td>
  </tr>
  )}
@@ -198,13 +198,13 @@ const FacultyDirectory = () => {
  <h2 className="text-lg font-black text-slate-900 flex items-center gap-3 ">
  <Edit2 size={20} className="text-emerald-600" /> Edit Faculty Profile
  </h2>
- <button onClick={() => setIsEditModalOpen(false)} className="w-10 h-10 flex items-center justify-center bg-white rounded-xl text-slate-400 hover:text-slate-600 hover:shadow-md transition-all">
+ <button onClick={() => setIsEditModalOpen(false)} className="w-10 h-10 flex items-center justify-center bg-white rounded-xl text-slate-600 hover:text-slate-600 hover:shadow-md transition-all">
  <X size={20} />
  </button>
  </div>
  <div className="p-8 space-y-6">
  <div>
- <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Full Name</label>
+ <label className="block text-[10px] font-black text-slate-600 uppercase tracking-widest mb-2 ml-1">Full Name</label>
  <input
  type="text"
  value={editingFaculty.name}
@@ -213,7 +213,7 @@ const FacultyDirectory = () => {
  />
  </div>
  <div>
- <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Email Address</label>
+ <label className="block text-[10px] font-black text-slate-600 uppercase tracking-widest mb-2 ml-1">Email Address</label>
  <input
  type="email"
  value={editingFaculty.email}
@@ -223,7 +223,7 @@ const FacultyDirectory = () => {
  </div>
  <div className="grid grid-cols-2 gap-6">
  <div>
- <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Phone Number</label>
+ <label className="block text-[10px] font-black text-slate-600 uppercase tracking-widest mb-2 ml-1">Phone Number</label>
  <input
  type="text"
  value={editingFaculty.phone_number}
@@ -232,7 +232,7 @@ const FacultyDirectory = () => {
  />
  </div>
  <div>
- <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Place / Location</label>
+ <label className="block text-[10px] font-black text-slate-600 uppercase tracking-widest mb-2 ml-1">Place / Location</label>
  <input
  type="text"
  value={editingFaculty.place || ''}
@@ -245,7 +245,7 @@ const FacultyDirectory = () => {
  <div className="px-8 py-6 border-t border-slate-100 bg-slate-50/50 flex justify-end gap-3">
  <button
  onClick={() => setIsEditModalOpen(false)}
- className="px-8 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-all"
+ className="px-8 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest text-slate-600 hover:text-slate-600 hover:bg-slate-100 transition-all"
  >
  Discard
  </button>

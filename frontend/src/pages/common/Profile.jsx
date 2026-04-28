@@ -16,7 +16,7 @@ const ProfileConsole = () => {
 					<Icon size={20} />
 				</div>
 				<div>
-					<p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">{label}</p>
+					<p className="text-[10px] font-black text-slate-600 uppercase tracking-widest leading-none mb-1">{label}</p>
 					<p className={`text-sm font-black ${color} tracking-tight uppercase`}>{value || 'NOT DEFINED'}</p>
 				</div>
 			</div>
@@ -131,7 +131,7 @@ const ProfileConsole = () => {
 
 				<div className="flex gap-4 relative z-10 shrink-0">
 					<div className="bg-slate-50 px-8 py-5 rounded-[32px] border border-slate-100 text-center flex flex-col items-center justify-center">
-						<p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Status Verification</p>
+						<p className="text-[9px] font-black text-slate-600 uppercase tracking-[0.2em] mb-1">Status Verification</p>
 						<div className="flex items-center gap-2">
 							<CheckCircle2 size={14} className="text-emerald-500" />
 							<p className="text-xs font-black text-emerald-600 uppercase tracking-tighter">Identity Authenticated</p>
@@ -216,12 +216,12 @@ const ProfileConsole = () => {
 						<div className="space-y-4">
 							{[1, 2, 3].map(i => (
 								<div key={i} className="flex items-center gap-4 p-4 bg-slate-50 rounded-3xl border border-slate-100 hover:bg-white hover:border-[#008080]/30 transition-all cursor-pointer group">
-									<div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-slate-400 group-hover:text-[#008080] transition-colors shadow-sm">
+									<div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-slate-600 group-hover:text-[#008080] transition-colors shadow-sm">
 										<Activity size={18} />
 									</div>
 									<div>
 										<p className="text-[10px] font-black text-slate-900 uppercase tracking-tight">{i === 1 ? 'System Handshake' : 'Encrypted Access'}</p>
-										<p className="text-[9px] font-bold text-slate-400 uppercase">{new Date().toLocaleDateString()} • Node #{i}04</p>
+										<p className="text-[9px] font-bold text-slate-600 uppercase">{new Date().toLocaleDateString()} • Node #{i}04</p>
 									</div>
 								</div>
 							))}
