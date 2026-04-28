@@ -65,11 +65,11 @@ const Sidebar = ({ isOpen, setIsOpen, isCollapsed, setIsCollapsed, navItems, tit
     <div className="flex items-center justify-center w-full relative">
       <div className={`transition-all duration-500 flex flex-col items-center ${isCollapsed ? 'w-full' : 'w-full'}`}>
         {/* THE 'FULL' LOGO AREA */}
-        <div className={`transition-all duration-700 flex items-center justify-center ${isCollapsed ? 'w-12 h-12 mb-0' : 'w-full h-24 mb-4'}`}>
+        <div className={`transition-all duration-700 flex items-center justify-center ${isCollapsed ? 'w-20 h-20 mb-0' : 'w-full h-24 mb-4'}`}>
           <img 
             src={mlogo} 
             alt="Logo" 
-            className={`transition-all duration-700 ${isCollapsed ? 'w-6 h-6 object-contain' : 'w-full h-full object-contain scale-[2.2]'}`} 
+            className={`transition-all duration-700 ${isCollapsed ? 'w-12 h-12 object-contain' : 'w-full h-full object-contain scale-[2.2]'}`} 
           />
         </div>
         {!isCollapsed && (
