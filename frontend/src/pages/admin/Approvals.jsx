@@ -106,8 +106,8 @@ const Approvals = () => {
  <Shield className="text-white" size={36} strokeWidth={2.5} />
  </div>
  <div>
- <h2 className="text-5xl font-black text-slate-900 tracking-tighter leading-none mb-3 ">Pending Approvals</h2>
- <p className="text-slate-400 text-[11px] font-black uppercase tracking-[0.25em] flex items-center justify-center md:justify-start gap-3 mt-1">
+ <h2 className="text-4xl font-black text-slate-900 tracking-tighter leading-none mb-3">Pending Approvals</h2>
+ <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em] flex items-center justify-center md:justify-start gap-3 mt-1">
  <div className="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></div>
  Secure Admission & Staff Activation Matrix
  </p>
@@ -191,14 +191,14 @@ const Approvals = () => {
  <div className="flex items-center justify-end gap-3 translate-x-4 opacity-0 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-500">
  <button
  onClick={() => handleReject(user.id, user.role, user.name)}
- className="w-12 h-12 rounded-[18px] flex items-center justify-center text-slate-300 hover:text-rose-600 hover:bg-rose-50 transition-all border border-transparent hover:border-rose-100 active:scale-90"
+ className="w-12 h-12 rounded-[18px] flex items-center justify-center bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white transition-all border border-rose-100 hover:border-rose-600 shadow-sm hover:shadow-rose-500/30 active:scale-90"
  title="Reject Application"
  >
  <XCircle size={22} strokeWidth={2.5} />
  </button>
  <button
  onClick={() => handleApprove(user.id, user.role)}
- className="w-12 h-12 rounded-[18px] flex items-center justify-center bg-[#008080]/10 text-[#008080] hover:bg-[#008080] hover:text-white transition-all shadow-[0_10px_20px_rgba(20,184,166,0.15)] active:scale-95 group/btn"
+ className="w-12 h-12 rounded-[18px] flex items-center justify-center bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white transition-all border border-emerald-100 hover:border-emerald-600 shadow-sm hover:shadow-emerald-500/30 active:scale-95 group/btn"
  title="Approve & Activate"
  >
  <CheckCircle size={22} strokeWidth={2.5} className="group-hover/btn:scale-110 transition-transform" />

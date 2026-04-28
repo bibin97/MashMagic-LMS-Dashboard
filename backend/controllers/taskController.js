@@ -64,6 +64,25 @@ const getTasks = async (req, res) => {
 const createTask = async (req, res) => {
     const { title, description, mentor_id, deadline, priority } = req.body;
     try {
+        if (mentor_id === 'all_mentors' || mentor_id === 'all_faculties') {
+            const roleFilter = mentor_id === 'all_mentors' ? 'mentor' : 'faculty';
+            const [users] = await db.query('SELECT id FROM users WHERE role = ?', [roleFilter]);
+            
+            if (users.length === 0) {
+                return res.status(404).json({ success: false, message: `No active ${roleFilter}s found to assign tasks.` });
+            }
+
+            const values = users.map(u => [title, description, u.id, req.user.id, deadline, priority]);
+            const sql = 'INSERT INTO tasks (title, description, assigned_to, assigned_by, deadline, priority) VALUES ?';
+            const [result] = await db.query(sql, [values]);
+
+            return res.status(201).json({
+                success: true,
+                message: `Task successfully assigned to all ${roleFilter}s`,
+                taskCount: result.affectedRows
+            });
+        }
+
         const sql = 'INSERT INTO tasks (title, description, assigned_to, assigned_by, deadline, priority) VALUES (?, ?, ?, ?, ?, ?)';
         const [result] = await db.query(sql, [title, description, mentor_id, req.user.id, deadline, priority]);
 

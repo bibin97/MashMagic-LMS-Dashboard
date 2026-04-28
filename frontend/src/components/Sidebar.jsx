@@ -103,7 +103,7 @@ const Sidebar = ({ isOpen, setIsOpen, isCollapsed, setIsCollapsed, navItems, tit
  </span>
  )}
  {item.dotBadge > 0 && (
- <span className="w-2.5 h-2.5 rounded-full bg-yellow-400 shadow-[0_0_8px_rgba(250,204,21,0.8)] animate-pulse shrink-0 ml-2"></span>
+ <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)] animate-pulse shrink-0 ml-2"></span>
  )}
  </div>
  )}

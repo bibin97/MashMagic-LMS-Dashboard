@@ -103,7 +103,7 @@ const Tasks = () => {
  const fetchAssignees = async () => {
  try {
  const response = await api.get('/admin/users');
- const targetRoles = ['mentor', 'faculty', 'mentor_head'];
+ const targetRoles = ['mentor', 'faculty', 'mentor_head', 'academic_head'];
  const filteredUsers = response.data.data.filter(u => targetRoles.includes(u.role));
  setAssignees(filteredUsers);
  } catch (error) {
@@ -279,7 +279,9 @@ const Tasks = () => {
  value={formData.mentor_id}
  onChange={(e) => setFormData({ ...formData, mentor_id: e.target.value })}
  >
- <option value="">SELECT TARGET ANALYST</option>
+ <option value="">SELECT ASSIGNEE</option>
+ <option value="all_mentors" className="font-bold text-[#008080]">✦ ALL MENTORS (BULK ASSIGN)</option>
+ <option value="all_faculties" className="font-bold text-[#008080]">✦ ALL FACULTIES (BULK ASSIGN)</option>
  <optgroup label="MENTORS">
  {assignees.filter(a => a.role === 'mentor').map(m => (
  <option key={m.id} value={m.id}>{m.name}</option>
@@ -290,9 +292,14 @@ const Tasks = () => {
  <option key={f.id} value={f.id}>{f.name}</option>
  ))}
  </optgroup>
- <optgroup label="OPERATIONAL HEADS">
+ <optgroup label="MENTOR HEADS">
  {assignees.filter(a => a.role === 'mentor_head').map(mh => (
  <option key={mh.id} value={mh.id}>{mh.name}</option>
+ ))}
+ </optgroup>
+ <optgroup label="ACADEMIC HEADS">
+ {assignees.filter(a => a.role === 'academic_head').map(ah => (
+ <option key={ah.id} value={ah.id}>{ah.name}</option>
  ))}
  </optgroup>
  </select>
