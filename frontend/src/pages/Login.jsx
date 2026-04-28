@@ -469,9 +469,14 @@ const Login = () => {
                                 <ShieldCheck key={i} size={14} className="text-[#0d9488]/40" />
                             ))}
                          </div>
-                         <p className="text-[10px] text-[#f8ba2b] font-black uppercase tracking-[0.3em] text-center drop-shadow">
-                            Secured by MashMagic Enterprise Encryption
-                         </p>
+                         <div className="text-center space-y-2">
+                             <p className="text-[10px] text-[#f8ba2b] font-black uppercase tracking-[0.3em] drop-shadow">
+                                Secured by MashMagic Enterprise Encryption
+                             </p>
+                             <p className="text-[10px] text-slate-400 font-bold tracking-widest uppercase">
+                                Developed by <a href="https://linkedin.com/in/bibinthankachan" target="_blank" rel="noopener noreferrer" className="text-[#0d9488] hover:text-[#14b8a6] hover:underline transition-all font-black">Bibin Thankachan</a>
+                             </p>
+                         </div>
                     </div>
                 </div>
             </motion.div>

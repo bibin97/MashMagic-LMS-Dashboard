@@ -18,6 +18,7 @@ const Registrations = () => {
         password: '',
         confirmPassword: '',
         grade: '', 
+        syllabus: '',
         mentorId: '', 
         course: '', 
         hour: '', 
@@ -104,7 +105,7 @@ const Registrations = () => {
                 toast.success('Student Registered Successfully!');
                 setStudentForm({ 
                     name: '', email: '', password: '', confirmPassword: '',
-                    grade: '', mentorId: '', course: '', hour: '', 
+                    grade: '', syllabus: '', mentorId: '', course: '', hour: '', 
                     nextInstallmentDate: '', admissionType: 'new',
                     registrationNumber: '', meetingLink: '', facultyHourlyRate: '', 
                     enrollmentType: 'mentorship'
@@ -218,14 +219,28 @@ const Registrations = () => {
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="flex flex-col gap-2">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Grade (1-12)</label>
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Grade</label>
                                 <select name="grade" required value={studentForm.grade} onChange={handleStudentChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-bold appearance-none">
                                     <option value="" disabled>Select Grade</option>
+                                    <option value="KG 1">KG 1</option>
+                                    <option value="KG 2">KG 2</option>
                                     {[...Array(12)].map((_, i) => (
                                         <option key={i + 1} value={`Class ${i + 1}`}>Class {i + 1}</option>
                                     ))}
                                 </select>
-                             </div>
+                            </div>
+                            <div className="flex flex-col gap-2">
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Syllabus</label>
+                                <select name="syllabus" required value={studentForm.syllabus} onChange={handleStudentChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-bold appearance-none">
+                                    <option value="" disabled>Select Syllabus</option>
+                                    <option value="CBSE">CBSE</option>
+                                    <option value="STATE">STATE</option>
+                                    <option value="ICSE">ICSE</option>
+                                    <option value="IGCSE">IGCSE</option>
+                                    <option value="IB">IB</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
                              <div className="flex flex-col gap-2">
                                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Admission Type</label>
                                  <select name="admissionType" required value={studentForm.admissionType} onChange={handleStudentChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-bold appearance-none">
@@ -324,7 +339,15 @@ const Registrations = () => {
                                                     <option value="Chemistry">Chemistry</option>
                                                     <option value="Biology">Biology</option>
                                                     <option value="Science">Science</option>
+                                                    <option value="Social Science">Social Science</option>
                                                     <option value="English">English</option>
+                                                    <option value="Malayalam">Malayalam</option>
+                                                    <option value="Hindi">Hindi</option>
+                                                    <option value="Arabic">Arabic</option>
+                                                    <option value="Accountancy">Accountancy</option>
+                                                    <option value="Business Studies">Business Studies</option>
+                                                    <option value="Economics">Economics</option>
+                                                    <option value="Computer Science">Computer Science</option>
                                                     <option value="All Subjects">All Subjects</option>
                                                 </select>
                                             </div>

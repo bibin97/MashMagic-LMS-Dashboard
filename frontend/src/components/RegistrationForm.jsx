@@ -18,6 +18,7 @@ const RegistrationForm = ({ onSuccess, preSelectedRole }) => {
         place: '',
         password: '',
         grade: '',
+        syllabus: '',
         subject: '',
         course: '',
         hour: '',
@@ -36,7 +37,7 @@ const RegistrationForm = ({ onSuccess, preSelectedRole }) => {
         // Soft reset
         setFormData(prev => ({
             ...prev,
-            grade: '', subject: '', course: '', hour: '', mentor_name: '', faculty_name: '',
+            grade: '', syllabus: '', subject: '', course: '', hour: '', mentor_name: '', faculty_name: '',
         }));
     };
 
@@ -90,6 +91,7 @@ const RegistrationForm = ({ onSuccess, preSelectedRole }) => {
                     place: '',
                     password: '',
                     grade: '',
+                    syllabus: '',
                     subject: '',
                     course: '',
                     hour: '',
@@ -226,27 +228,65 @@ const RegistrationForm = ({ onSuccess, preSelectedRole }) => {
                     <div className="grid grid-cols-2 gap-4">
                         <div className="flex flex-col gap-2">
                             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Grade</label>
-                            <input
-                                type="text"
+                            <select
                                 name="grade"
                                 required
-                                className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-semibold"
-                                placeholder="Grade"
+                                className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-semibold appearance-none"
                                 value={formData.grade}
                                 onChange={handleInputChange}
-                            />
+                            >
+                                <option value="" disabled>Select Grade</option>
+                                <option value="KG 1">KG 1</option>
+                                <option value="KG 2">KG 2</option>
+                                {[...Array(12)].map((_, i) => (
+                                    <option key={i + 1} value={`Class ${i + 1}`}>Class {i + 1}</option>
+                                ))}
+                            </select>
+                        </div>
+                        <div className="flex flex-col gap-2">
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Syllabus</label>
+                            <select
+                                name="syllabus"
+                                required
+                                className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-semibold appearance-none"
+                                value={formData.syllabus}
+                                onChange={handleInputChange}
+                            >
+                                <option value="" disabled>Select Syllabus</option>
+                                <option value="CBSE">CBSE</option>
+                                <option value="STATE">STATE</option>
+                                <option value="ICSE">ICSE</option>
+                                <option value="IGCSE">IGCSE</option>
+                                <option value="IB">IB</option>
+                                <option value="Other">Other</option>
+                            </select>
                         </div>
                         <div className="flex flex-col gap-2">
                             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Subject</label>
-                            <input
-                                type="text"
+                            <select
                                 name="subject"
                                 required
-                                className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-semibold"
-                                placeholder="Subject"
+                                className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-semibold appearance-none"
                                 value={formData.subject}
                                 onChange={handleInputChange}
-                            />
+                            >
+                                <option value="" disabled>Select Subject</option>
+                                <option value="Mathematics">Mathematics</option>
+                                <option value="Physics">Physics</option>
+                                <option value="Chemistry">Chemistry</option>
+                                <option value="Biology">Biology</option>
+                                <option value="Science">Science</option>
+                                <option value="Social Science">Social Science</option>
+                                <option value="English">English</option>
+                                <option value="Malayalam">Malayalam</option>
+                                <option value="Hindi">Hindi</option>
+                                <option value="Arabic">Arabic</option>
+                                <option value="Accountancy">Accountancy</option>
+                                <option value="Business Studies">Business Studies</option>
+                                <option value="Economics">Economics</option>
+                                <option value="Computer Science">Computer Science</option>
+                                <option value="All Subjects">All Subjects</option>
+                            </select>
                         </div>
                     </div>
                 )}

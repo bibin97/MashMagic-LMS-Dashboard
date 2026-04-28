@@ -158,7 +158,7 @@ const getDropdownData = async (req, res) => {
 const registerStudent = async (req, res) => {
     try {
         const {
-            name, email, password, grade, mentorId, course, hour, nextInstallmentDate, admissionType,
+            name, email, password, grade, syllabus, mentorId, course, hour, nextInstallmentDate, admissionType,
             registrationNumber, meetingLink, facultyHourlyRate, selectedSubjects
         } = req.body;
 
@@ -211,15 +211,15 @@ const registerStudent = async (req, res) => {
 
         const query = `
             INSERT INTO students (
-                name, email, password, user_id, grade, subject, course, hour, 
+                name, email, password, user_id, grade, syllabus, subject, course, hour, 
                 mentor_id, mentor_name, faculty_id, faculty_name, next_installment_date,
                 time_table, status, onboarding_status, isApproved, registeredBy,
                 registration_number, meeting_link, faculty_hourly_rate, subjects_json, enrollment_type, badge
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `;
 
         const [studentResult] = await db.query(query, [
-            name, email, hashedPassword, userId, grade, primarySubject, course, hour,
+            name, email, hashedPassword, userId, grade, syllabus || null, primarySubject, course, hour,
             mentorId || null, mentorName, primaryFacultyId || null, primaryFacultyName, nextInstallmentDate || null,
             JSON.stringify({}), // Empty timetable initially
             'active', // Set to active since user is active
