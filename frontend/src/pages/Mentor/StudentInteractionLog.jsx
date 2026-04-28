@@ -364,7 +364,7 @@ const StudentInteractionLog = () => {
  <tbody>
  {allLogs.slice(0, 10).map(log => (
  <tr key={log.id} className="border-b border-slate-50 hover:bg-slate-50/80 transition-all group/row">
- <td className="p-6 text-[11px] font-black text-slate-500 uppercase tracking-widest">{new Date(log.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</td>
+ <td className="p-6 text-[11px] font-black text-slate-500 uppercase tracking-widest">{new Date(log.date).toLocaleDateString('en-GB')}</td>
  <td className="p-6 text-[13px] font-black text-slate-800 uppercase tracking-tighter group-hover/row:text-[#008080] transition-colors">{log.student_name}</td>
  <td className="p-6 text-[10px] font-black text-slate-600 uppercase tracking-[0.2em]">
  <span className="px-4 py-1.5 bg-slate-100/50 rounded-full border border-slate-200/50">
@@ -701,7 +701,7 @@ const StudentInteractionLog = () => {
  onClick={() => setViewLog(log)}
  className="border-b border-slate-50 hover:bg-slate-50 transition-colors cursor-pointer group"
  >
- <td className="p-4 text-xs font-bold text-slate-700">{new Date(log.date || log.session_date).toLocaleDateString()}</td>
+ <td className="p-4 text-xs font-bold text-slate-700">{new Date(log.date || log.session_date).toLocaleDateString('en-GB')}</td>
  <td className="p-4 text-xs font-black text-slate-600">#{log.session_number || log.id}</td>
  <td className="p-4 text-xs font-bold text-slate-600">{log.connection_method || log.action_type}</td>
  <td className="p-4 text-xs font-bold text-[#008080]">{log.self_clarity ? `${log.self_clarity}%` : log.student_status}</td>
@@ -722,7 +722,7 @@ const StudentInteractionLog = () => {
  {viewLog.main_issue ? (
  <>
  <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
- <DetailRow label="Date" value={new Date(viewLog.session_date).toLocaleDateString()} />
+ <DetailRow label="Date" value={new Date(viewLog.session_date).toLocaleDateString('en-GB')} />
  <DetailRow label="Main Issue" value={viewLog.main_issue} />
  <DetailRow label="Student" value={selectedStudent.name} />
  <DetailRow label="Status" value={viewLog.student_status} highlight />
@@ -753,7 +753,7 @@ const StudentInteractionLog = () => {
  ) : (
  <>
  <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
- <DetailRow label="Date" value={new Date(viewLog.date).toLocaleDateString()} />
+ <DetailRow label="Date" value={new Date(viewLog.date).toLocaleDateString('en-GB')} />
  <DetailRow label="Method" value={viewLog.connection_method} />
  <DetailRow label="Student" value={selectedStudent.name} />
  <DetailRow label="Status" value="Completed" highlight />

@@ -408,7 +408,7 @@ const Timetable = () => {
  <div className="flex flex-wrap items-center gap-8 flex-grow">
  <div className="flex items-center gap-3 bg-slate-50/50 px-5 py-3 rounded-2xl border border-slate-100 transition-colors group-hover:bg-[#008080]/10">
  <Calendar className="text-[#008080]" size={16} />
- <span className="text-xs font-black text-slate-700 ">{new Date(session.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })}</span>
+ <span className="text-xs font-black text-slate-700 ">{new Date(session.date).toLocaleDateString('en-GB')}</span>
  </div>
 
  <div className="flex items-center gap-3 bg-slate-50/50 px-5 py-3 rounded-2xl border border-slate-100 transition-colors group-hover:bg-[#008080]/10">
@@ -518,6 +518,7 @@ const Timetable = () => {
  </div>
  <div className="space-y-2">
  <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Session Date *</label>
+ <div className="relative">
  <input
  type="date"
  required
@@ -525,6 +526,14 @@ const Timetable = () => {
  onChange={(e) => setFormData({ ...formData, date: e.target.value })}
  className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
  />
+ {formData.date && (
+ <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
+ <span className="text-[10px] bg-white border border-slate-100 px-3 py-1 rounded-lg font-black text-[#008080] shadow-sm">
+ {new Date(formData.date).toLocaleDateString('en-GB')}
+ </span>
+ </div>
+ )}
+ </div>
  </div>
  <div className="space-y-2">
  <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Start Time *</label>

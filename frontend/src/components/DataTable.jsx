@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, Filter, ChevronLeft, ChevronRight, Eye, CheckCircle, Ban, Trash2, Pencil } from 'lucide-react';
+import { Search, Filter, ChevronLeft, ChevronRight, Eye, CheckCircle, Ban, Trash2, Pencil, Download } from 'lucide-react';
 import StudentListFilterDropdown from './StudentListFilterDropdown';
 
 const DataTable = ({

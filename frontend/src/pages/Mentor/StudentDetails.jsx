@@ -99,7 +99,7 @@ const StudentDetails = () => {
  </div>
  <div>
  <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest mb-1 flex items-center gap-2"><Calendar size={12} /> Next Payment</p>
- <p className="text-base font-bold text-[#008080]">{student.next_installment_date ? new Date(student.next_installment_date).toLocaleDateString() : 'Pending'}</p>
+ <p className="text-base font-bold text-[#008080]">{student.next_installment_date ? new Date(student.next_installment_date).toLocaleDateString('en-GB') : 'Pending'}</p>
  </div>
  </div>
  </div>
@@ -179,9 +179,9 @@ const StudentDetails = () => {
  <tr key={session.id} className="border-b border-slate-50 hover:bg-slate-50 transition-colors">
  <td className="py-6 px-4 font-black text-slate-600 text-sm">#{session.session_number}</td>
  <td className="py-6 px-4 font-bold text-slate-700 text-sm">
- {new Date(session.date).toLocaleDateString()}
+ {new Date(session.date).toLocaleDateString('en-GB')}
  {session.status === 'Postponed' && session.new_date && (
- <p className="text-[10px] text-amber-600 mt-1">New: {new Date(session.new_date).toLocaleDateString()}</p>
+ <p className="text-[10px] text-amber-600 mt-1">New: {new Date(session.new_date).toLocaleDateString('en-GB')}</p>
  )}
  </td>
  <td className="py-6 px-4 font-bold text-slate-700 text-sm">{session.start_time} - {session.end_time}</td>
@@ -227,7 +227,7 @@ const StudentDetails = () => {
  <div className="absolute top-0 right-0 w-20 h-20 bg-[#008080] rounded-full -mr-10 -mt-10 opacity-20 group-hover:scale-150 transition-transform"></div>
  <div className="flex justify-between items-start mb-4 relative z-10">
  <span className="text-[10px] font-black bg-[#008080] text-white px-3 py-1 rounded-full uppercase">Session #{log.session_number}</span>
- <span className="text-[10px] font-black text-slate-600 uppercase">{new Date(log.created_at || log.date).toLocaleDateString()}</span>
+ <span className="text-[10px] font-black text-slate-600 uppercase">{new Date(log.created_at || log.date).toLocaleDateString('en-GB')}</span>
  </div>
 
  <div className="mb-4 space-y-2 relative z-10">
@@ -275,7 +275,7 @@ const StudentDetails = () => {
  <div className="absolute top-0 right-0 w-20 h-20 bg-purple-50 rounded-full -mr-10 -mt-10 opacity-50"></div>
  <div className="flex justify-between items-start mb-3 relative z-10">
  <span className="text-sm font-bold text-slate-700">{log.chapter}</span>
- <span className="text-[10px] font-black text-slate-600 uppercase">{new Date(log.date).toLocaleDateString()}</span>
+ <span className="text-[10px] font-black text-slate-600 uppercase">{new Date(log.date).toLocaleDateString('en-GB')}</span>
  </div>
  <div className="mb-3 space-y-2 relative z-10">
  <div>
