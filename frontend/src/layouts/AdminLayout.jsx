@@ -60,18 +60,18 @@ const AdminLayout = () => {
  { path: '/admin/mentor-head-report', icon: <Target size={20} />, label: 'Mentor Head Report', perm: 'reports' },
  { path: '/admin/logs', icon: <ScrollText size={20} />, label: 'Logs', perm: 'logs' },
  ].filter(item => {
- // Main Admin has full access
- if (user?.role === 'super_admin') return true;
- 
- // Sub Admins filtered by granular permissions
- if (user?.role === 'sub_admin') {
- const perms = user?.permissions || {};
- if (item.perm) return !!perms[item.perm];
- return true;
- }
- 
- return false;
- });
+    // Main Admin has full access
+    if (user?.role === 'super_admin') return true;
+    
+    // Sub Admins filtered by granular permissions
+    if (user?.role === 'sub_admin') {
+      const perms = user?.permissions || {};
+      if (item.perm) return !!perms[item.perm];
+      return true;
+    }
+    
+    return false;
+  });
 
  return (
  <div className="flex min-h-screen relative overflow-hidden" 

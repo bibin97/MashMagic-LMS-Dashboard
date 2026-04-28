@@ -103,11 +103,11 @@ function App() {
  <Route path="/signup" element={<Signup />} />
 
  {/* Admin Routes (Super Admin) */}
- <Route path="/admin" element={
- <ProtectedRoute allowedRoles={['super_admin']}>
- <AdminLayout />
- </ProtectedRoute>
- }>
+  <Route path="/admin" element={
+  <ProtectedRoute allowedRoles={['super_admin']}>
+  <AdminLayout />
+  </ProtectedRoute>
+  }>
  <Route index element={<Navigate to="/admin/dashboard" replace />} />
  <Route path="dashboard" element={<Dashboard />} />
  <Route path="students" element={<Students />} />

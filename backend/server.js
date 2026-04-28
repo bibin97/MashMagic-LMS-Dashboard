@@ -117,8 +117,22 @@ const startServer = async () => {
                 'ALTER TABLE students ADD COLUMN user_id INT NULL;',
                 'ALTER TABLE students ADD COLUMN meeting_link VARCHAR(255) NULL;',
                 'ALTER TABLE students ADD COLUMN isApproved TINYINT(1) DEFAULT 0;',
+                'ALTER TABLE students ADD COLUMN registration_number VARCHAR(100) NULL;',
+                'ALTER TABLE students ADD COLUMN faculty_hourly_rate DECIMAL(10,2) DEFAULT 0.00;',
+                'ALTER TABLE students ADD COLUMN subjects_json JSON NULL;',
+                'ALTER TABLE students ADD COLUMN grade VARCHAR(100) NULL;',
+                'ALTER TABLE students ADD COLUMN syllabus VARCHAR(100) NULL;',
+                'ALTER TABLE students ADD COLUMN subject VARCHAR(100) NULL;',
+                'ALTER TABLE students ADD COLUMN course VARCHAR(100) NULL;',
+                'ALTER TABLE students ADD COLUMN hour VARCHAR(50) NULL;',
+                'ALTER TABLE students ADD COLUMN mentor_name VARCHAR(100) NULL;',
+                'ALTER TABLE students ADD COLUMN faculty_id INT NULL;',
+                'ALTER TABLE students ADD COLUMN faculty_name VARCHAR(100) NULL;',
+                'ALTER TABLE students ADD COLUMN onboarding_status VARCHAR(50) DEFAULT "pending";',
+                'ALTER TABLE students ADD COLUMN next_installment_date VARCHAR(50) NULL;',
+                'ALTER TABLE students ADD COLUMN time_table JSON NULL;',
                 'ALTER TABLE students ADD COLUMN registeredBy INT NULL;',
-
+                
                 `CREATE TABLE IF NOT EXISTS student_daily_updates (
                     id INT AUTO_INCREMENT PRIMARY KEY,
                     student_id INT NOT NULL,
