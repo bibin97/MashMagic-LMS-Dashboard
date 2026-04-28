@@ -262,8 +262,6 @@ const Students = () => {
  loading={loading}
  onSearch={handleSearch}
  onExport={handleExport}
- onApprove={isSuperAdmin ? handleApprove : undefined}
- onBlock={isSuperAdmin ? handleBlock : undefined}
  searchPlaceholder="Search by name, email or reg #"
  />
 

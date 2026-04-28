@@ -19,6 +19,7 @@ const DataTable = ({
  onFilterChange,
 }) => {
  const useFilterDropdown = filterValue !== undefined && onFilterChange;
+ const hasActions = onView || onEdit || onApprove || onBlock || onDelete;
  return (
  <div className="bg-white/70 backdrop-blur-xl rounded-[28px] border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.04)] overflow-hidden transition-all duration-500">
  <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center p-6 md:p-8 border-b border-slate-100/50 gap-6 w-full">
@@ -85,7 +86,7 @@ const DataTable = ({
  {col.header}
  </th>
  ))}
- <th className="px-8 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 border-b border-slate-100/50 text-center">Actions</th>
+ {hasActions && <th className="px-8 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 border-b border-slate-100/50 text-center">Actions</th>}
  </tr>
  </thead>
  <tbody className="divide-y divide-slate-100/50">
@@ -120,6 +121,7 @@ const DataTable = ({
  {col.render ? col.render(row) : row[col.accessor]}
  </td>
  ))}
+ {hasActions && (
  <td className="px-8 py-6 text-center">
  <div className="flex justify-center items-center gap-2">
  {onView && (
@@ -173,6 +175,7 @@ const DataTable = ({
  )}
  </div>
  </td>
+ )}
  </tr>
  ))
  )}
