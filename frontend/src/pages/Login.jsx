@@ -155,7 +155,7 @@ const Login = () => {
  <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-5 pointer-events-none" />
  
  <div className="relative z-10 w-full flex flex-col items-center">
- <img src={mlogo} className="h-24 w-auto object-contain mb-8 drop-shadow-xl mx-auto" alt="Logo" />
+ <img src={mlogo} className="h-24 w-auto object-contain mb-8 drop-shadow-xl mx-auto scale-[2.5]" alt="Logo" />
  <div className="flex items-center justify-center gap-3 mb-8">
  <div className="w-10 h-10 bg-[#0d9488] rounded-xl flex items-center justify-center shadow-lg shadow-[#0d9488]/30">
  <ShieldCheck className="text-white" size={24} />
@@ -193,7 +193,7 @@ const Login = () => {
 
  {/* Mobile Logo */}
  <div className="flex lg:hidden justify-center mb-6 mt-4">
- <img src={mlogo} className="h-20 w-auto object-contain drop-shadow-xl" alt="Logo" />
+ <img src={mlogo} className="h-20 w-auto object-contain drop-shadow-xl scale-[2.5]" alt="Logo" />
  </div>
  
  {/* Heading Section Moved to Top */}

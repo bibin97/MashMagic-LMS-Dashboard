@@ -66,7 +66,7 @@ const Sidebar = ({ isOpen, setIsOpen, isCollapsed, setIsCollapsed, navItems, tit
  <div className={`transition-all duration-500 flex flex-col items-center ${isCollapsed ? 'w-full' : 'w-full'}`}>
  {/* THE 'FULL' LOGO AREA */}
  <div className={`transition-all duration-700 ${isCollapsed ? 'w-14 h-14' : 'w-full h-24 mb-4'}`}>
- <img src={mlogo} alt="Logo" className="w-full h-full object-contain" />
+ <img src={mlogo} alt="Logo" className="w-full h-full object-contain scale-[2.5]" />
  </div>
  {!isCollapsed && (
  <h1 className="text-2xl font-black text-slate-900 tracking-[0.2em] uppercase animate-in fade-in slide-in-from-top-6 duration-700 text-center drop-shadow-2xl">

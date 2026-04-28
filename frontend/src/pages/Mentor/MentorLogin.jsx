@@ -49,7 +49,7 @@ const MentorLogin = () => {
 
  <div className="text-center mb-10 relative z-10">
  <div className="w-28 h-28 flex items-center justify-center mx-auto mb-6 transition-transform hover:scale-110 duration-500 bg-transparent">
- <img src={mlogo} alt="Logo" className="w-full h-full object-contain" />
+ <img src={mlogo} alt="Logo" className="w-full h-full object-contain scale-[2.5]" />
  </div>
  <h1 className="text-3xl font-black text-slate-900 tracking-tight">Mentor Login</h1>
  <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px] mt-2">Secure Access Portal</p>
