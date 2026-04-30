@@ -116,7 +116,7 @@ const getFacultyClassUpdates = async (req, res) => {
             JOIN students s ON fcu.student_id = s.id
             JOIN users u ON fcu.faculty_id = u.id
             LEFT JOIN mentor_reviews mr ON fcu.id = mr.faculty_log_id
-            WHERE s.mentor_id = ? AND (s.badge = 'Gold' OR s.badge = 'Diamond')
+            WHERE s.mentor_id = ?
             ORDER BY fcu.created_at DESC
         `, [mentorId]);
 

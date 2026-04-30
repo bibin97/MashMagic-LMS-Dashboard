@@ -50,9 +50,8 @@ const FacultyDailyUpdate = () => {
   const fetchAssignedStudents = async () => {
     try {
       const res = await axios.get('/faculty/students');
-      // Filter only Mentorship/Diamond students
-      const filtered = res.data.data.filter(s => s.badge === 'Gold' || s.badge === 'Diamond');
-      setStudents(filtered);
+      // Include all students assigned to this faculty
+      setStudents(res.data.data);
     } catch (error) {
       toast.error("Failed to load students");
     } finally {
@@ -142,7 +141,7 @@ const FacultyDailyUpdate = () => {
             <h2 className="text-4xl font-black text-slate-900 tracking-tighter uppercase leading-none mb-3">Daily Class Protocol</h2>
             <p className="text-slate-600 text-[10px] font-black uppercase tracking-[0.2em] flex items-center gap-2">
               <div className="w-1.5 h-1.5 rounded-full bg-[#008080] animate-pulse"></div>
-              MANDATORY UPDATE FOR MENTORSHIP STUDENTS
+              MANDATORY UPDATE FOR ALL STUDENTS
             </p>
           </div>
           <div className="w-16 h-16 bg-[#008080] text-white rounded-[20px] flex items-center justify-center shadow-lg shadow-[#008080]/30">
@@ -153,8 +152,8 @@ const FacultyDailyUpdate = () => {
         {students.length === 0 ? (
           <div className="bg-white p-20 rounded-[32px] text-center border border-slate-100 shadow-xl">
              <Users size={48} className="mx-auto text-slate-200 mb-6" />
-             <h3 className="text-xl font-black text-slate-900 uppercase">No Mentorship Students Assigned</h3>
-             <p className="text-slate-500 font-bold uppercase tracking-widest text-[10px] mt-2">Only students with 'Gold' or 'Diamond' badges require these logs.</p>
+             <h3 className="text-xl font-black text-slate-900 uppercase">No Students Assigned</h3>
+             <p className="text-slate-500 font-bold uppercase tracking-widest text-[10px] mt-2">You have no active students assigned to your roster.</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -170,7 +169,7 @@ const FacultyDailyUpdate = () => {
                   </div>
                   <div>
                     <h4 className="font-black text-slate-800 uppercase tracking-tight">{student.name}</h4>
-                    <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">{student.badge === 'Gold' ? 'Mentorship' : 'Mentorship + Tuition'}</p>
+                    <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">{student.enrollment_type || 'General Student'}</p>
                   </div>
                 </div>
                 <div className="flex items-center justify-between mt-4 pt-4 border-t border-slate-50">

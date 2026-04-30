@@ -86,7 +86,7 @@ const getStudents = async (req, res) => {
     try {
         const facultyId = req.user.id;
         const [students] = await db.query(`
-            SELECT id, name, roll_number, department, attendance_percentage, performance_status, status, created_at, badge
+            SELECT id, name, roll_number, department, attendance_percentage, performance_status, status, created_at, badge, enrollment_type
             FROM students
             WHERE faculty_id = ?
         `, [facultyId]);
