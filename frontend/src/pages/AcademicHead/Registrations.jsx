@@ -13,28 +13,26 @@ const Registrations = () => {
 
  // Forms data
  const [studentForm, setStudentForm] = useState({
- name: '', 
- email: '',
- contact: '',
- password: '', 
- confirmPassword: '',
- grade: '', 
- syllabus: '',
- mentorId: '', 
- course: '', 
- hour: '', 
- admissionDate: new Date().toISOString().split('T')[0],
- schoolName: '',
- preferredLanguage: '',
- country: '',
- totalFees: '',
- totalPaid: '',
- nextInstallmentDate: '', 
- admissionType: 'new',
- registrationNumber: '',
- meetingLink: '',
- facultyHourlyRate: '',
- enrollmentType: 'mentorship'
+  name: '', 
+  email: '',
+  contact: '',
+  password: '', 
+  confirmPassword: '',
+  grade: '', 
+  syllabus: '',
+  mentorId: '', 
+  course: '', 
+  admissionDate: new Date().toISOString().split('T')[0],
+  schoolName: '',
+  preferredLanguage: '',
+  country: '',
+  totalFees: '',
+  totalPaid: '',
+  nextInstallmentDate: '', 
+  admissionType: 'new',
+  registrationNumber: '',
+  meetingLink: '',
+  enrollmentType: 'mentorship'
  });
 
  const [selectedSubjects, setSelectedSubjects] = useState([
