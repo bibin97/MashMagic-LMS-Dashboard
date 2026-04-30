@@ -261,6 +261,18 @@ const startServer = async () => {
                 'ALTER TABLE faculty_sessions ADD COLUMN duration VARCHAR(50) NULL;',
                 'ALTER TABLE admin_notifications ADD COLUMN action_type VARCHAR(100) NULL;',
 
+                `CREATE TABLE IF NOT EXISTS faculty_schedules (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    faculty_id INT NOT NULL,
+                    student_id INT NOT NULL,
+                    subject VARCHAR(100),
+                    day_of_week ENUM('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'),
+                    start_time TIME,
+                    end_time TIME,
+                    hourly_rate DECIMAL(10,2),
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                );`,
+
                 // Performance Indexes
                 'CREATE INDEX IF NOT EXISTS idx_users_role_status ON users(role, status);',
                 'CREATE INDEX IF NOT EXISTS idx_students_user_id ON students(user_id);',

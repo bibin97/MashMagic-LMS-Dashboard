@@ -33,18 +33,17 @@ api.interceptors.response.use(
             message.includes('no token') ||
             message.includes('not authorized');
 
-        // IMPORTANT: Do not logout on generic 403 errors.
-        // Only force logout for real auth failures/expired token.
-        if (status === 401 || isExpired || (status === 403 && looksLikeTokenProblem)) {
-            console.warn(`[AUTH ERROR] Status ${status}: clearing auth and redirecting to login`);
+        // ONLY force logout for genuine 401 (Unauthorized/Expired) or explicit expired flags.
+        // Do NOT logout on 403 (Forbidden/Role mismatch).
+        if (status === 401 || isExpired) {
+            console.warn(`[AUTH EXPIRED] Status ${status}: clearing session`);
             
-            // Clear all auth data
             localStorage.removeItem('token');
             localStorage.removeItem('user');
             localStorage.removeItem('role');
             
-            // Do NOT auto-refresh/auto-redirect from interceptor.
-            // Let UI pages decide navigation flow explicitly.
+            // Optional: notify user or redirect
+            // window.location.href = '/login'; 
         }
         return Promise.reject(error);
     }

@@ -136,6 +136,37 @@ const getAllFacultyActivity = async (req, res) => {
     }
 };
 
+// @desc    Get available faculties for a specific day and time slot
+// @route   GET /api/academic-head/available-faculties
+const getAvailableFaculties = async (req, res) => {
+    try {
+        const { day, startTime, endTime } = req.query;
+        if (!day || !startTime || !endTime) {
+            return res.status(400).json({ success: false, message: "Missing day, startTime, or endTime" });
+        }
+
+        const [availableFaculties] = await db.query(`
+            SELECT u.id, u.name 
+            FROM users u
+            WHERE u.role = 'faculty' AND u.status = 'active'
+            AND u.id NOT IN (
+                SELECT faculty_id FROM faculty_schedules
+                WHERE day_of_week = ? 
+                AND (
+                    (start_time <= ? AND end_time > ?) OR
+                    (start_time < ? AND end_time >= ?) OR
+                    (? <= start_time AND ? >= end_time)
+                )
+            )
+        `, [day, startTime, startTime, endTime, endTime, startTime, endTime]);
+
+        res.status(200).json({ success: true, data: availableFaculties });
+    } catch (error) {
+        console.error('Error in getAvailableFaculties:', error);
+        res.status(500).json({ success: false, message: "Server Error" });
+    }
+};
+
 // @desc    Get dropdown data for student registration
 // @route   GET /api/academic-head/dropdowns
 const getDropdownData = async (req, res) => {
@@ -186,7 +217,7 @@ const registerStudent = async (req, res) => {
 
         const [userResult] = await db.query(
             'INSERT INTO users (name, email, phone_number, password, role, status, isApproved, isActive, registeredBy) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
-            [name, (email && email.trim() !== '') ? email : null, contact || null, hashedPassword, 'student', 'active', 1, 1, req.user.id]
+            [name, (email && email.trim() !== '') ? email : null, contact || null, hashedPassword, 'student', 'pending', 0, 0, req.user.id]
         );
         const userId = userResult.insertId;
 
@@ -228,9 +259,9 @@ const registerStudent = async (req, res) => {
             name, email, hashedPassword, userId, grade, syllabus || null, primarySubject, course, hour,
             mentorId || null, mentorName, primaryFacultyId || null, primaryFacultyName, nextInstallmentDate || null,
             JSON.stringify({}), // Empty timetable initially
-            'active', // Set to active since user is active
+            'pending', // Set to pending for approval
             onboardingStatus,
-            1, // Auto approved for consistency with user login
+            0, // Requires approval
             req.user.id, // Registering user ID
             registrationNumber || null,
             meetingLink || null,
@@ -249,6 +280,21 @@ const registerStudent = async (req, res) => {
 
         const studentId = studentResult.insertId;
 
+        // 3. Register Faculty Weekly Schedules
+        if (selectedSubjects && selectedSubjects.length > 0) {
+            for (const sub of selectedSubjects) {
+                if (sub.facultyId && sub.day && sub.startTime && sub.endTime) {
+                    await db.query(`
+                        INSERT INTO faculty_schedules (
+                            faculty_id, student_id, subject, day_of_week, start_time, end_time, hourly_rate
+                        ) VALUES (?, ?, ?, ?, ?, ?, ?)
+                    `, [
+                        sub.facultyId, studentId, sub.subject, sub.day, sub.startTime, sub.endTime, sub.hourlyRate || 0
+                    ]);
+                }
+            }
+        }
+
         // Schedule first session for each faculty if mentor exists
         if (mentorId && selectedSubjects && selectedSubjects.length > 0) {
             for (const sub of selectedSubjects) {
@@ -259,7 +305,7 @@ const registerStudent = async (req, res) => {
                     ) VALUES (?, ?, ?, CURDATE(), ?, ?, ?, ?, ?, ?)
                 `, [
                     mentorId, studentId, 1, 'Scheduled',
-                    `Initial Session: ${sub.subject}`, '10:00', '11:00', '1h 0m', 'Regular Class'
+                    `Initial Session: ${sub.subject}`, sub.startTime || '10:00', sub.endTime || '11:00', '1h 0m', 'Regular Class'
                 ]);
             }
         }
@@ -306,8 +352,8 @@ const registerFaculty = async (req, res) => {
             place,
             password: hashedPassword,
             role: 'faculty',
-            status: 'active', // Set to active as per previous logic (Academic Head created)
-            isApproved: 1, 
+            status: 'pending', 
+            isApproved: 0, 
             registeredBy: requesterId,
             faculty_id_card,
             section,
@@ -324,13 +370,13 @@ const registerFaculty = async (req, res) => {
         });
 
         // Notify Admin
-        const msg = `<b>Staff Onboarding:</b> <span style="color:#008080">${req.user.name}</span> added and activated new faculty <b>${name}</b>.`;
-        await db.query('INSERT INTO admin_notifications (message, related_id, action_type) VALUES (?, ?, ?)', [msg, userId, 'faculty_onboarding']);
+        const msg = `<b>Staff Onboarding:</b> <span style="color:#008080">${req.user.name}</span> added new faculty <b>${name}</b>. <span style="color:#f59e0b">(Pending Approval)</span>`;
+        await db.query('INSERT INTO admin_notifications (message, related_id, action_type) VALUES (?, ?, ?)', [msg, userId, 'faculty_registration']);
 
-        console.log(`[FACULTY REG] SUCCESS! New Faculty ID: ${userId} | Status: ACTIVE`);
+        console.log(`[FACULTY REG] SUCCESS! New Faculty ID: ${userId} | Status: PENDING`);
         res.status(201).json({
             success: true,
-            message: "Faculty account created and activated successfully.",
+            message: "Faculty account created successfully. Pending Admin approval.",
             userId
         });
     } catch (error) {
@@ -1034,7 +1080,8 @@ module.exports = {
             console.error("LIVE_MONITORING_ERROR:", error);
             res.status(500).json({ success: false, message: error.message });
         }
-    }
+    },
+    getAvailableFaculties
 };
 
 

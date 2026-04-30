@@ -38,11 +38,11 @@ const Registrations = () => {
  });
 
  const [selectedSubjects, setSelectedSubjects] = useState([
- { subject: '', facultyId: '', facultyName: '' }
+    { subject: '', day: '', startTime: '', endTime: '', facultyId: '', facultyName: '', hourlyRate: '', availableFaculties: [] }
  ]);
 
  const addSubjectRow = () => {
- setSelectedSubjects([...selectedSubjects, { subject: '', facultyId: '', facultyName: '' }]);
+   setSelectedSubjects([...selectedSubjects, { subject: '', day: '', startTime: '', endTime: '', facultyId: '', facultyName: '', hourlyRate: '', availableFaculties: [] }]);
  };
 
  const removeSubjectRow = (index) => {
@@ -53,16 +53,38 @@ const Registrations = () => {
  }
  };
 
+ const fetchAvailableFaculties = async (index, day, startTime, endTime) => {
+   if (!day || !startTime || !endTime) return;
+   try {
+     const res = await api.get(`/academic-head/available-faculties?day=${day}&startTime=${startTime}&endTime=${endTime}`);
+     if (res.data.success) {
+       const newSubjects = [...selectedSubjects];
+       newSubjects[index].availableFaculties = res.data.data;
+       setSelectedSubjects(newSubjects);
+     }
+   } catch (error) {
+     console.error("Failed to fetch available faculties:", error);
+   }
+ };
+
  const handleSubjectChange = (index, field, value) => {
- const newSubjects = [...selectedSubjects];
- if (field === 'facultyId') {
- const faculty = faculties.find(f => f.id.toString() === value);
- newSubjects[index].facultyId = value;
- newSubjects[index].facultyName = faculty ? faculty.name : '';
- } else {
- newSubjects[index][field] = value;
- }
- setSelectedSubjects(newSubjects);
+   const newSubjects = [...selectedSubjects];
+   newSubjects[index][field] = value;
+
+   if (field === 'facultyId') {
+     const faculty = newSubjects[index].availableFaculties.find(f => f.id.toString() === value);
+     newSubjects[index].facultyName = faculty ? faculty.name : '';
+   }
+
+   setSelectedSubjects(newSubjects);
+
+   // If Day, StartTime or EndTime changes, refresh available faculties
+   if (['day', 'startTime', 'endTime'].includes(field)) {
+     const row = newSubjects[index];
+     if (row.day && row.startTime && row.endTime) {
+       fetchAvailableFaculties(index, row.day, row.startTime, row.endTime);
+     }
+   }
  };
 
   const [facultyForm, setFacultyForm] = useState({
@@ -131,17 +153,17 @@ const Registrations = () => {
  ...studentForm,
  selectedSubjects
  });
- if (res.data.success) {
- toast.success('Student Registered Successfully!');
- setStudentForm({ 
- name: '', email: '', password: '', confirmPassword: '',
- grade: '', syllabus: '', mentorId: '', course: '', hour: '', 
- nextInstallmentDate: '', admissionType: 'new',
- registrationNumber: '', meetingLink: '', facultyHourlyRate: '', 
- enrollmentType: 'mentorship'
- });
- setSelectedSubjects([{ subject: '', facultyId: '', facultyName: '' }]);
- }
+  if (res.data.success) {
+  toast.success('Student Registered Successfully!');
+  setStudentForm({ 
+  name: '', email: '', password: '', confirmPassword: '',
+  grade: '', syllabus: '', mentorId: '', course: '',
+  nextInstallmentDate: '', admissionType: 'new',
+  registrationNumber: '', meetingLink: '', 
+  enrollmentType: 'mentorship'
+  });
+  setSelectedSubjects([{ subject: '', day: '', startTime: '', endTime: '', facultyId: '', facultyName: '', hourlyRate: '', availableFaculties: [] }]);
+  }
  } catch (error) {
  toast.error(error.response?.data?.message || 'Failed to register student');
  } finally {
@@ -359,14 +381,7 @@ const Registrations = () => {
  <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Meeting Link</label>
  <input type="text" name="meetingLink" value={studentForm.meetingLink} onChange={handleStudentChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-bold" placeholder="Google Meet Link" />
  </div>
- <div className="flex flex-col gap-2">
- <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Faculty Payment (Per Hour)</label>
- <input type="number" name="facultyHourlyRate" value={studentForm.facultyHourlyRate} onChange={handleStudentChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-bold" placeholder="Rate in ₹" />
- </div>
- <div className="flex flex-col gap-2">
- <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Session Hour</label>
- <input type="text" name="hour" required value={studentForm.hour} onChange={handleStudentChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-bold" placeholder="e.g. 10:00 AM - 11:00 AM" />
- </div>
+
  <div className="flex flex-col gap-2">
  <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Next Installment Date</label>
  <input type="date" name="nextInstallmentDate" value={studentForm.nextInstallmentDate} onChange={handleStudentChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-bold" />
@@ -411,9 +426,9 @@ const Registrations = () => {
  </button>
  </div>
 
- <div className="space-y-3">
+ <div className="space-y-4">
  {selectedSubjects.map((row, idx) => (
- <div key={idx} className="grid grid-cols-1 md:grid-cols-[1fr_1fr_auto] gap-3 bg-white p-4 rounded-xl border border-slate-200 relative animate-in slide-in-from-right-2 duration-300">
+ <div key={idx} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7 gap-4 bg-white p-5 rounded-2xl border border-slate-200 relative animate-in slide-in-from-right-2 duration-300">
  <div className="flex flex-col gap-1.5">
  <label className="text-[10px] font-black text-slate-700 uppercase tracking-widest">Subject</label>
  <select
@@ -440,21 +455,77 @@ const Registrations = () => {
  <option value="All Subjects">All Subjects</option>
  </select>
  </div>
+
  <div className="flex flex-col gap-1.5">
- <label className="text-[10px] font-black text-slate-700 uppercase tracking-widest">Assign Faculty</label>
+ <label className="text-[10px] font-black text-slate-700 uppercase tracking-widest">Day</label>
  <select
  required
- value={row.facultyId}
- onChange={(e) => handleSubjectChange(idx, 'facultyId', e.target.value)}
+ value={row.day}
+ onChange={(e) => handleSubjectChange(idx, 'day', e.target.value)}
  className="w-full p-3 bg-white border border-slate-300 rounded-xl text-xs outline-none focus:ring-2 focus:ring-[#008080] font-bold appearance-none text-black"
  >
- <option value="" disabled>Select Faculty</option>
- {faculties.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
+ <option value="" disabled>Select Day</option>
+ <option value="Monday">Monday</option>
+ <option value="Tuesday">Tuesday</option>
+ <option value="Wednesday">Wednesday</option>
+ <option value="Thursday">Thursday</option>
+ <option value="Friday">Friday</option>
+ <option value="Saturday">Saturday</option>
+ <option value="Sunday">Sunday</option>
  </select>
  </div>
+
+ <div className="flex flex-col gap-1.5">
+ <label className="text-[10px] font-black text-slate-700 uppercase tracking-widest">Start Time</label>
+ <input
+ type="time"
+ required
+ value={row.startTime}
+ onChange={(e) => handleSubjectChange(idx, 'startTime', e.target.value)}
+ className="w-full p-3 bg-white border border-slate-300 rounded-xl text-xs outline-none focus:ring-2 focus:ring-[#008080] font-bold text-black"
+ />
+ </div>
+
+ <div className="flex flex-col gap-1.5">
+ <label className="text-[10px] font-black text-slate-700 uppercase tracking-widest">End Time</label>
+ <input
+ type="time"
+ required
+ value={row.endTime}
+ onChange={(e) => handleSubjectChange(idx, 'endTime', e.target.value)}
+ className="w-full p-3 bg-white border border-slate-300 rounded-xl text-xs outline-none focus:ring-2 focus:ring-[#008080] font-bold text-black"
+ />
+ </div>
+
+ <div className="flex flex-col gap-1.5">
+ <label className="text-[10px] font-black text-slate-700 uppercase tracking-widest">Faculty Rate (₹)</label>
+ <input
+ type="number"
+ required
+ placeholder="Rate/hr"
+ value={row.hourlyRate}
+ onChange={(e) => handleSubjectChange(idx, 'hourlyRate', e.target.value)}
+ className="w-full p-3 bg-white border border-slate-300 rounded-xl text-xs outline-none focus:ring-2 focus:ring-[#008080] font-bold text-black"
+ />
+ </div>
+
+ <div className="flex flex-col gap-1.5">
+ <label className="text-[10px] font-black text-slate-700 uppercase tracking-widest">Available Faculty</label>
+ <select
+ required
+ disabled={!row.day || !row.startTime || !row.endTime}
+ value={row.facultyId}
+ onChange={(e) => handleSubjectChange(idx, 'facultyId', e.target.value)}
+ className="w-full p-3 bg-white border border-slate-300 rounded-xl text-xs outline-none focus:ring-2 focus:ring-[#008080] font-bold appearance-none text-black disabled:bg-slate-50 disabled:cursor-not-allowed"
+ >
+ <option value="" disabled>{!row.day ? 'Select day/time first' : row.availableFaculties.length === 0 ? 'No faculty available' : 'Select Faculty'}</option>
+ {row.availableFaculties.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
+ </select>
+ </div>
+
  <div className="flex items-end">
  {selectedSubjects.length > 1 && (
- <button type="button" onClick={() => removeSubjectRow(idx)} className="h-11 px-3 bg-rose-50 text-rose-600 rounded-xl border border-rose-200 font-black text-xs hover:bg-rose-100 transition-colors">
+ <button type="button" onClick={() => removeSubjectRow(idx)} className="w-full h-11 bg-rose-50 text-rose-600 rounded-xl border border-rose-200 font-black text-xs hover:bg-rose-100 transition-colors">
  Remove
  </button>
  )}

@@ -53,6 +53,7 @@ router.get('/faculty-checks', getDailyFacultyChecks);
 router.post('/sessions/:sessionId/check', checkFacultySessionToday);
 router.delete('/sessions/:sessionId/uncheck', uncheckFacultySession);
 router.get('/dropdowns', getDropdownData);
+router.get('/available-faculties', getAvailableFaculties);
 router.post('/register-student', registerStudent);
 router.post('/register-faculty', registerFaculty);
 
