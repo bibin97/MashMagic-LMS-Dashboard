@@ -16,7 +16,7 @@ router.use(requireAuth);
 router.post('/create', requireRole('mentor'), createLog);
 
 // Proof Upload - Multi
-router.post('/upload', requireRole('mentor'), upload.array('files', 8), (req, res) => {
+router.post('/upload', upload.array('files', 8), (req, res) => {
     try {
         const urls = req.files.map(f => f.path);
         res.status(200).json({ success: true, urls });

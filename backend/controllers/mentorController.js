@@ -22,14 +22,12 @@ const getMentorDashboard = async (req, res) => {
         const pendingTasks = await safeQuery('SELECT COUNT(*) as count FROM tasks WHERE assigned_to = ? AND status != "Completed"', [mentorId], 'pendingTasks');
         const completedTasks = await safeQuery('SELECT COUNT(*) as count FROM tasks WHERE assigned_to = ? AND status = "Completed"', [mentorId], 'completedTasks');
         const studentLogsCount = await safeQuery('SELECT COUNT(*) as count FROM student_interaction_logs WHERE mentor_id = ?', [mentorId], 'studentLogsCount');
-        const facultyLogsCount = await safeQuery('SELECT COUNT(*) as count FROM faculty_interaction_logs WHERE mentor_id = ?', [mentorId], 'facultyLogsCount');
 
         const sessionStats = await safeQuery(`
             SELECT 
                 (SELECT COUNT(*) FROM mentor_timetable WHERE mentor_id = ? AND status = 'Completed') as completed_sessions,
-                (SELECT COUNT(*) FROM student_interaction_logs WHERE mentor_id = ?) as student_verified_sessions,
-                (SELECT COUNT(*) FROM faculty_interaction_logs WHERE mentor_id = ?) as faculty_verified_sessions
-        `, [mentorId, mentorId, mentorId], 'sessionStats');
+                (SELECT COUNT(*) FROM student_interaction_logs WHERE mentor_id = ?) as student_verified_sessions
+        `, [mentorId, mentorId], 'sessionStats');
 
         const recentInteractions = await safeQuery(`
             SELECT * FROM (
@@ -37,14 +35,9 @@ const getMentorDashboard = async (req, res) => {
                  FROM student_interaction_logs sil
                  JOIN students s ON sil.student_id = s.id
                  WHERE sil.mentor_id = ?)
-                UNION ALL
-                (SELECT fil.date as created_at, s.name as student_name, 'Faculty' as type, fil.notes as remarks, NULL as self_clarity, NULL as confidence, NULL as start_time, NULL as end_time
-                 FROM faculty_interaction_logs fil
-                 JOIN students s ON fil.student_id = s.id
-                 WHERE fil.mentor_id = ?)
             ) as interactions
             ORDER BY created_at DESC LIMIT 10
-        `, [mentorId, mentorId], 'recentInteractions');
+        `, [mentorId], 'recentInteractions');
 
         const liveSessions = await safeQuery(`
             SELECT DISTINCT fs.id, fs.faculty_id, fs.topic, fs.date, fs.start_time, fs.end_time, fs.status, u.name as faculty_name, 1 as is_live, s.meeting_link, s.registration_number, s.name as student_name
@@ -86,8 +79,7 @@ const getMentorDashboard = async (req, res) => {
                 pendingTasks: pendingTasks[0]?.count || 0,
                 completedTasks: completedTasks[0]?.count || 0,
                 totalStudentInteractions: studentLogsCount[0]?.count || 0,
-                totalFacultyInteractions: facultyLogsCount[0]?.count || 0,
-                audit: sessionStats[0] || { completed_sessions: 0, student_verified_sessions: 0, faculty_verified_sessions: 0 },
+                audit: sessionStats[0] || { completed_sessions: 0, student_verified_sessions: 0 },
                 recentInteractions,
                 liveSessions,
                 upcomingSessions,
@@ -137,12 +129,6 @@ const getStudentDetails = async (req, res) => {
 
         const [timetable] = await db.query('SELECT * FROM mentor_timetable WHERE student_id = ? ORDER BY date ASC, start_time ASC', [studentId]);
         const [studentLogs] = await db.query('SELECT * FROM student_interaction_logs WHERE student_id = ? ORDER BY created_at DESC', [studentId]);
-        const [facultyLogs] = await db.query(`
-            SELECT *, IF(parent_update_needed = 1, 'Yes', 'No') as parent_update_needed 
-            FROM faculty_interaction_logs 
-            WHERE student_id = ? 
-            ORDER BY created_at DESC
-        `, [studentId]);
         
         const [mentorshipLogs] = await db.query(`
             SELECT
@@ -172,7 +158,6 @@ const getStudentDetails = async (req, res) => {
                 ...student[0],
                 timetable,
                 studentLogs,
-                facultyLogs,
                 mentorshipLogs
             }
         });
@@ -475,61 +460,6 @@ const createStudentLog = async (req, res) => {
     }
 };
 
-// @desc    Create faculty interaction log
-// @route   POST /api/mentor/faculty-log
-const createFacultyLog = async (req, res) => {
-    try {
-        const mentorId = req.user.id;
-        const {
-            student_id, session_id, date, session_number,
-            chapter, session_type, topics_covered,
-            student_performance, engagement_level, homework_given, homework_status, test_score,
-            issues_reported, risk_level, remedial_plan, parent_update_needed,
-            faculty_intervention_required, notes, screenshot_url
-        } = req.body;
-
-        // Fetch faculty_id from students table
-        const [student] = await db.query('SELECT faculty_id FROM students WHERE id = ?', [student_id]);
-        const facultyId = student.length > 0 ? student[0].faculty_id : null;
-
-        // Auto-increment session number if not provided
-        let finalSessionNumber = session_number;
-        if (!finalSessionNumber) {
-            const [lastSession] = await db.query(
-                'SELECT MAX(session_number) as lastNum FROM faculty_interaction_logs WHERE student_id = ? AND mentor_id = ?',
-                [student_id, mentorId]
-            );
-            finalSessionNumber = (lastSession[0].lastNum || 0) + 1;
-        }
-
-        const query = `
-            INSERT INTO faculty_interaction_logs (
-                mentor_id, faculty_id, student_id, session_id, date, session_number,
-                chapter, session_type, topics_covered,
-                student_performance, engagement_level, homework_given, homework_status, test_score,
-                issues_reported, risk_level, remedial_plan, parent_update_needed,
-                faculty_intervention_required, notes, screenshot_url
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        `;
-
-        await db.query(query, [
-            mentorId, facultyId, student_id, session_id || null, date, finalSessionNumber,
-            chapter, session_type, topics_covered,
-            student_performance, engagement_level, homework_given, homework_status, test_score || null,
-            issues_reported, risk_level, remedial_plan, parent_update_needed === 'Yes' ? 1 : 0,
-            faculty_intervention_required, notes, screenshot_url
-        ]);
-
-        // Notify Admin/Academic Head
-        await db.query('INSERT INTO admin_notifications (message) VALUES (?)', [`Mentor (${req.user.name}) submitted a new Faculty Interaction Log for student ${student_id}`]);
-
-        res.status(201).json({ success: true, message: "Faculty interaction log saved", session_number: finalSessionNumber });
-    } catch (error) {
-        console.error("Create Faculty Log Error:", error);
-        res.status(500).json({ success: false, message: error.message });
-    }
-};
-
 // @desc    Get mentor student logs
 // @route   GET /api/mentor/student-logs
 const getStudentLogs = async (req, res) => {
@@ -548,80 +478,6 @@ const getStudentLogs = async (req, res) => {
     }
 };
 
-// @desc    Get mentor faculty logs
-const getFacultyLogs = async (req, res) => {
-    try {
-        const mentorId = req.user.id;
-        const [rows] = await db.query(`
-            SELECT logs.*, s.name as student_name,
-            IF(logs.parent_update_needed = 1, 'Yes', 'No') as parent_update_needed
-            FROM faculty_interaction_logs logs
-            JOIN students s ON logs.student_id = s.id
-            WHERE s.mentor_id = ?
-            ORDER BY logs.date DESC, logs.session_number DESC
-        `, [mentorId]);
-        res.status(200).json({ success: true, data: rows });
-    } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
-    }
-};
-
-// @desc    Update faculty interaction log
-// @route   PUT /api/mentor/faculty-log/:id
-const updateFacultyLog = async (req, res) => {
-    try {
-        const mentorId = req.user.id;
-        const logId = req.params.id;
-        const {
-            date, session_number, chapter, session_type, topics_covered,
-            student_performance, engagement_level, homework_given, homework_status, test_score,
-            issues_reported, risk_level, remedial_plan, parent_update_needed,
-            faculty_intervention_required, notes, screenshot_url
-        } = req.body;
-
-        const [result] = await db.query(`
-            UPDATE faculty_interaction_logs SET 
-                date = ?, session_number = ?, chapter = ?, session_type = ?, topics_covered = ?,
-                student_performance = ?, engagement_level = ?, homework_given = ?, homework_status = ?, test_score = ?,
-                issues_reported = ?, risk_level = ?, remedial_plan = ?, parent_update_needed = ?,
-                faculty_intervention_required = ?, notes = ?, screenshot_url = ?
-            WHERE id = ? AND mentor_id = ?
-        `, [
-            date, session_number, chapter, session_type, topics_covered,
-            student_performance, engagement_level, homework_given, homework_status, test_score || null,
-            issues_reported, risk_level, remedial_plan, parent_update_needed === 'Yes' ? 1 : 0,
-            faculty_intervention_required, notes, screenshot_url,
-            logId, mentorId
-        ]);
-
-        if (result.affectedRows === 0) {
-            return res.status(404).json({ success: false, message: "Log not found or unauthorized" });
-        }
-
-        res.status(200).json({ success: true, message: "Faculty log updated successfully" });
-    } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
-    }
-};
-
-// @desc    Delete faculty interaction log
-// @route   DELETE /api/mentor/faculty-log/:id
-const deleteFacultyLog = async (req, res) => {
-    try {
-        const mentorId = req.user.id;
-        const logId = req.params.id;
-
-        const [result] = await db.query('DELETE FROM faculty_interaction_logs WHERE id = ? AND mentor_id = ?', [logId, mentorId]);
-
-        if (result.affectedRows === 0) {
-            return res.status(404).json({ success: false, message: "Log not found or unauthorized" });
-        }
-
-        res.status(200).json({ success: true, message: "Faculty log deleted successfully" });
-    } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
-    }
-};
 
 // @desc    Toggle student connected today status
 // @route   PUT /api/mentor/students/:studentId/connection
@@ -941,11 +797,7 @@ module.exports = {
     updateSession,
     deleteSession,
     createStudentLog,
-    createFacultyLog,
-    updateFacultyLog,
-    deleteFacultyLog,
     getStudentLogs,
-    getFacultyLogs,
     toggleStudentConnection,
     getAcademicSchedule,
     completeOnboarding,

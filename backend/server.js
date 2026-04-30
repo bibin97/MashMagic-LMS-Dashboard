@@ -30,6 +30,7 @@ app.use('/api/academic-head', require('./routes/academicHeadRoutes'));
 app.use('/api/faculty', require('./routes/facultyRoutes'));
 app.use('/api/student', studentRoutes);
 app.use('/api/mentor-logs', require('./routes/mentorLogRoutes'));
+app.use('/api/faculty-tracking', require('./routes/facultyTrackingRoutes'));
 
 // Basic Route
 app.get('/', (req, res) => {
@@ -197,6 +198,57 @@ const startServer = async () => {
                     registration_time TIME,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 );`,
+
+                `CREATE TABLE IF NOT EXISTS faculty_class_updates (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    student_id INT NOT NULL,
+                    faculty_id INT NOT NULL,
+                    subject VARCHAR(100),
+                    date DATE,
+                    class_duration VARCHAR(50),
+                    topic_taught TEXT,
+                    homework_given BOOLEAN,
+                    homework_details TEXT,
+                    attention_level ENUM('High', 'Medium', 'Low'),
+                    participation_level ENUM('Active', 'Moderate', 'Passive'),
+                    understanding_level ENUM('Good', 'Average', 'Poor'),
+                    issue_flag BOOLEAN DEFAULT FALSE,
+                    issue_type ENUM('Concept difficulty', 'Not attentive', 'Homework not done', 'Slow learning', 'Behaviour issue'),
+                    faculty_files JSON,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                );`,
+
+                `CREATE TABLE IF NOT EXISTS mentor_reviews (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    faculty_log_id INT NOT NULL,
+                    mentor_id INT NOT NULL,
+                    todays_observation ENUM('Normal', 'Needs Attention', 'Issue Detected'),
+                    reviewed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    UNIQUE KEY (faculty_log_id)
+                );`,
+
+                `CREATE TABLE IF NOT EXISTS mentor_faculty_interactions (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    faculty_log_id INT NOT NULL,
+                    student_id INT NOT NULL,
+                    mentor_id INT NOT NULL,
+                    subject VARCHAR(100),
+                    faculty_name VARCHAR(100),
+                    date DATE,
+                    connection_method ENUM('Call', 'WhatsApp'),
+                    main_issue TEXT,
+                    issue_details TEXT,
+                    teacher_feedback TEXT,
+                    root_cause ENUM('Concept gap', 'Carelessness', 'Lack of practice', 'Distraction'),
+                    action_plan TEXT,
+                    responsibility ENUM('Student', 'Mentor', 'Faculty', 'Parent'),
+                    followup_required BOOLEAN,
+                    followup_date DATE,
+                    issue_understood ENUM('Yes', 'Partial', 'No'),
+                    interaction_quality_rating INT,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                );`,
+
                 `CREATE TABLE IF NOT EXISTS admin_notifications (
                     id INT AUTO_INCREMENT PRIMARY KEY,
                     message TEXT NOT NULL,
@@ -206,6 +258,7 @@ const startServer = async () => {
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 );`,
                 'ALTER TABLE admin_notifications ADD COLUMN related_id INT NULL;',
+                'ALTER TABLE faculty_sessions ADD COLUMN duration VARCHAR(50) NULL;',
                 'ALTER TABLE admin_notifications ADD COLUMN action_type VARCHAR(100) NULL;',
 
                 // Performance Indexes

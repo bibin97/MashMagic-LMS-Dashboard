@@ -75,8 +75,12 @@ const getDashboardStats = async (req, res) => {
              FROM faculty_interaction_logs fil
              JOIN students s ON fil.student_id = s.id
              JOIN users u ON fil.mentor_id = u.id)
+            UNION ALL
+            (SELECT 'Session Milestone' as type, n.message as details, 'N/A' as student_name, 'System' as origin_name, n.created_at as date
+             FROM admin_notifications n
+             WHERE n.action_type = 'session_milestone')
             ORDER BY date DESC
-            LIMIT 10
+            LIMIT 20
         `);
 
         res.status(200).json({

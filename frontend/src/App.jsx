@@ -38,7 +38,6 @@ import StudentDetails from './pages/Mentor/StudentDetails';
 import MyTasks from './pages/Mentor/MyTasks';
 import Timetable from './pages/Mentor/Timetable';
 import StudentInteractionLog from './pages/Mentor/StudentInteractionLog';
-import FacultyInteractionLog from './pages/Mentor/FacultyInteractionLog';
 import Exams from './pages/Mentor/Exams';
 import AcademicSchedule from './pages/Mentor/AcademicSchedule';
 import StudentsData from './pages/Mentor/StudentsData';
@@ -49,9 +48,10 @@ import FacultyStudents from './pages/Faculty/MyStudents';
 import FacultySessions from './pages/Faculty/FacultySessions';
 import FacultyReports from './pages/Faculty/FacultyReports';
 import FacultyExams from './pages/Faculty/FacultyExams';
-import StudentLogs from './pages/Faculty/StudentLogs';
+import FacultyDailyUpdate from './pages/Faculty/FacultyDailyUpdate';
 import FacultyTasks from './pages/Faculty/FacultyTasks';
 import FacultyNotifications from './pages/Faculty/FacultyNotifications';
+import MentorFeedbackView from './pages/Faculty/StudentLogs'; // Renamed import for clarity
 
 // Mentor Head Pages
 import MentorHeadDashboard from './pages/MentorHead/MentorHeadDashboard';
@@ -64,6 +64,9 @@ import StudentShift from './pages/MentorHead/StudentShift';
 import MentorHeadInteractions from './pages/MentorHead/MentorHeadInteractions';
 import MentorHeadTasks from './pages/MentorHead/MentorHeadTasks';
 import FacultyDirectoryMentorHead from './pages/MentorHead/FacultyDirectory';
+
+// Mentor Interaction Tracking
+import FacultyTracking from './pages/Mentor/FacultyTracking';
 
 // Academic Head Pages
 import AcademicHeadDashboard from './pages/AcademicHead/AcademicHeadDashboard';
@@ -179,7 +182,8 @@ function App() {
             <Route path="sessions" element={<FacultySessions />} />
             <Route path="reports" element={<FacultyReports />} />
             <Route path="exam-scores" element={<FacultyExams />} />
-            <Route path="student-logs" element={<StudentLogs />} />
+            <Route path="student-logs" element={<FacultyDailyUpdate />} />
+            <Route path="mentor-feedback" element={<MentorFeedbackView />} />
             <Route path="tasks" element={<FacultyTasks />} />
             <Route path="notifications" element={<FacultyNotifications />} />
             <Route path="profile" element={<AdminProfile />} />
@@ -197,9 +201,8 @@ function App() {
             <Route path="students/:id" element={<StudentDetails />} />
             <Route path="tasks" element={<MyTasks />} />
             <Route path="timetable" element={<Timetable />} />
-            <Route path="student-log" element={<StudentInteractionLog />} />
-            <Route path="faculty-log" element={<FacultyInteractionLog />} />
-            <Route path="faculty-log/new" element={<FacultyInteractionLog />} />
+            <Route path="interaction-logs" element={<StudentInteractionLog />} />
+            <Route path="faculty-logs" element={<FacultyTracking />} />
             <Route path="exams" element={<Exams />} />
             <Route path="students-data" element={<StudentsData />} />
             <Route path="academic-schedule" element={<AcademicSchedule />} />

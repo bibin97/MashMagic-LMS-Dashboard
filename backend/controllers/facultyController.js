@@ -171,7 +171,8 @@ const getSessions = async (req, res) => {
     try {
         const [rows] = await db.query(`
             SELECT s.*, 
-                   (SELECT COUNT(*) FROM session_attendance WHERE session_id = s.id) as student_count
+                   (SELECT COUNT(*) FROM session_attendance WHERE session_id = s.id) as student_count,
+                   (SELECT st.name FROM students st JOIN session_attendance sa ON st.id = sa.student_id WHERE sa.session_id = s.id LIMIT 1) as student_name
             FROM faculty_sessions s
             WHERE s.faculty_id = ?
             ORDER BY s.date DESC

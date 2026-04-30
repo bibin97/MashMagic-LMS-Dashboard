@@ -11,11 +11,7 @@ const {
     updateSession,
     deleteSession,
     createStudentLog,
-    createFacultyLog,
-    updateFacultyLog,
-    deleteFacultyLog,
     getStudentLogs,
-    getFacultyLogs,
     toggleStudentConnection,
     completeOnboarding,
     createBatchTimetable,
@@ -47,12 +43,8 @@ router.post('/timetable', createSession);
 router.put('/timetable/:id', updateSession);
 router.delete('/timetable/:id', deleteSession);
 router.post('/student-log', createStudentLog);
-router.post('/faculty-log', createFacultyLog);
 // New log retrieval routes
 router.get('/student-logs', getStudentLogs);
-router.get('/faculty-logs', getFacultyLogs);
-router.put('/faculty-log/:id', updateFacultyLog);
-router.delete('/faculty-log/:id', deleteFacultyLog);
 
 // Daily Hours
 router.post('/daily-hours', logDailyHours);
