@@ -11,7 +11,7 @@ import {
  CalendarClock, 
  Calendar, 
  GraduationCap, 
- ClipboardList 
+ClipboardList 
 } from 'lucide-react';
 import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';

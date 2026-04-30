@@ -145,8 +145,26 @@ const getStudentDetails = async (req, res) => {
         `, [studentId]);
         
         const [mentorshipLogs] = await db.query(`
-            SELECT * FROM mentorship_logs WHERE student_id = ? ORDER BY created_at DESC
-        `, [studentId]);
+            SELECT
+                id,
+                date AS session_date,
+                main_issue,
+                secondary_issue,
+                weak_subject,
+                action_type,
+                action_detail AS action_details,
+                IF(followup_required = 1, TRUE, FALSE) AS follow_up_required,
+                followup_date AS follow_up_date,
+                'Medium' AS priority,
+                student_status,
+                previous_task_status,
+                understanding_after_session,
+                session_quality_rating,
+                created_at
+            FROM mentor_session_logs
+            WHERE student_id = ? AND mentor_id = ?
+            ORDER BY created_at DESC
+        `, [studentId, mentorId]);
 
         res.status(200).json({
             success: true,

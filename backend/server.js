@@ -29,6 +29,7 @@ app.use('/api/mentor', require('./routes/mentorRoutes'));
 app.use('/api/academic-head', require('./routes/academicHeadRoutes'));
 app.use('/api/faculty', require('./routes/facultyRoutes'));
 app.use('/api/student', studentRoutes);
+app.use('/api/mentor-logs', require('./routes/mentorLogRoutes'));
 
 // Basic Route
 app.get('/', (req, res) => {
@@ -153,6 +154,40 @@ const startServer = async () => {
                 'ALTER TABLE students ADD COLUMN total_fees DECIMAL(10,2) DEFAULT 0.00;',
                 'ALTER TABLE students ADD COLUMN total_paid DECIMAL(10,2) DEFAULT 0.00;',
                 
+                `CREATE TABLE IF NOT EXISTS mentor_session_logs (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    student_id INT NOT NULL,
+                    mentor_id INT NOT NULL,
+                    date DATE NOT NULL,
+                    connection_method ENUM('WhatsApp Chat', 'Voice Note', 'Voice Call', 'Video Call') NOT NULL,
+                    session_start_time DATETIME NOT NULL,
+                    session_end_time DATETIME NOT NULL,
+                    session_duration_minutes INT NULL,
+                    focus_level INT,
+                    energy_level ENUM('Low', 'Normal', 'High'),
+                    stress_level ENUM('Low', 'Medium', 'High'),
+                    homework_status ENUM('Completed', 'Partial', 'Not Done'),
+                    revision_done BOOLEAN,
+                    doubts_present BOOLEAN,
+                    main_issue ENUM('No Issue', 'Low Focus', 'Distraction', 'Procrastination', 'Homework Pending', 'Concept Difficulty', 'Low Motivation'),
+                    secondary_issue VARCHAR(255),
+                    weak_subject VARCHAR(100),
+                    problem_clarity ENUM('Clear', 'Partial', 'Not Clear'),
+                    action_type ENUM('Complete Homework', 'Revise Topic', 'Start on Time', 'Reduce Distraction', 'Practice Questions', 'Doubt Clarification'),
+                    action_detail TEXT,
+                    action_specific BOOLEAN,
+                    student_engagement ENUM('High', 'Medium', 'Low'),
+                    understanding_after_session ENUM('Improved', 'Same', 'Not Improved'),
+                    previous_task_status ENUM('Completed', 'Not Completed', 'Not Checked'),
+                    followup_required BOOLEAN,
+                    followup_date DATE,
+                    student_status ENUM('Critical', 'Needs Attention', 'On Track'),
+                    session_quality_rating INT,
+                    interaction_files JSON,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                );`,
+                'ALTER TABLE mentor_session_logs ADD COLUMN session_duration_minutes INT NULL;',
+
                 `CREATE TABLE IF NOT EXISTS student_daily_updates (
                     id INT AUTO_INCREMENT PRIMARY KEY,
                     student_id INT NOT NULL,

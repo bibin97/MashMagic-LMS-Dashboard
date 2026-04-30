@@ -20,26 +20,31 @@ api.interceptors.request.use(
     }
 );
 
-// Response interceptor to handle 401 (Unauthorized) and 403 (Forbidden) errors
+// Response interceptor to handle auth expiration safely
 api.interceptors.response.use(
     (response) => response,
     (error) => {
-        // Handle Token Expiration or Authorization issues
-        if (error.response && (error.response.status === 401 || error.response.status === 403)) {
-            console.warn(`[AUTH ERROR] Status ${error.response.status}: Redirecting to login...`);
+        const status = error?.response?.status;
+        const isExpired = Boolean(error?.response?.data?.isExpired);
+        const message = String(error?.response?.data?.message || '').toLowerCase();
+        const looksLikeTokenProblem =
+            message.includes('token expired') ||
+            message.includes('token failed') ||
+            message.includes('no token') ||
+            message.includes('not authorized');
+
+        // IMPORTANT: Do not logout on generic 403 errors.
+        // Only force logout for real auth failures/expired token.
+        if (status === 401 || isExpired || (status === 403 && looksLikeTokenProblem)) {
+            console.warn(`[AUTH ERROR] Status ${status}: clearing auth and redirecting to login`);
             
             // Clear all auth data
             localStorage.removeItem('token');
             localStorage.removeItem('user');
+            localStorage.removeItem('role');
             
-            // Avoid infinite loops if we are already on login or signup
-            const publicPaths = ['/login', '/signup'];
-            const currentPath = window.location.pathname;
-            
-            if (!publicPaths.some(path => currentPath.startsWith(path))) {
-                // Use replace to prevent back-button loops
-                window.location.replace('/login?expired=true');
-            }
+            // Do NOT auto-refresh/auto-redirect from interceptor.
+            // Let UI pages decide navigation flow explicitly.
         }
         return Promise.reject(error);
     }

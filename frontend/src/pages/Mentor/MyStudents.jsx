@@ -1,111 +1,95 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
-import { User, Users, ChevronRight, Search, CheckCircle2, Calendar, Clock, Plus, Trash2, XCircle } from 'lucide-react';
+import { User, Users, ChevronRight, Search, CheckCircle2, Calendar, Clock, Plus, Trash2, XCircle, Activity } from 'lucide-react';
 import toast from 'react-hot-toast';
 import StudentListFilterDropdown, { sortStudentsByOption } from '../../components/StudentListFilterDropdown';
 
 const StudentCard = ({ student, navigate, viewMode, handleToggleConnection, handleCompleteOnboarding, handleLogHoursClick }) => (
- <div
- key={student.id}
- onClick={() => navigate(`/mentor/students/${student.id}`)}
- className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-200/50 group cursor-pointer hover:-translate-y-2 transition-all duration-500 relative overflow-hidden flex flex-col justify-between"
- >
- <div className="absolute top-0 right-0 p-8 opacity-0 group-hover:opacity-100 transition-opacity duration-700">
- <div className="w-14 h-14 bg-[#008080] rounded-[22px] flex items-center justify-center text-white shadow-2xl shadow-[#008080]/30">
- <ChevronRight size={24} strokeWidth={3} />
- </div>
- </div>
+  <div
+    key={student.id}
+    onClick={() => navigate(`/mentor/students/${student.id}`)}
+    className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-200/50 group cursor-pointer hover:-translate-y-2 transition-all duration-500 relative overflow-hidden flex flex-col justify-between"
+  >
+    <div className="absolute top-0 right-0 p-8 opacity-0 group-hover:opacity-100 transition-opacity duration-700">
+      <div className="w-14 h-14 bg-[#008080] rounded-[22px] flex items-center justify-center text-white shadow-2xl shadow-[#008080]/30">
+        <ChevronRight size={24} strokeWidth={3} />
+      </div>
+    </div>
 
- <div className="flex flex-col gap-6">
- <div className="w-20 h-20 bg-slate-50/50 rounded-[28px] border border-slate-100 flex items-center justify-center text-slate-600 group-hover:text-[#008080] group-hover:bg-[#008080]/5 group-hover:border-[#008080]/10 transition-all duration-500">
- <User size={36} strokeWidth={2.5} />
- </div>
+    <div className="flex flex-col gap-6">
+      <div className="w-20 h-20 bg-slate-50/50 rounded-[28px] border border-slate-100 flex items-center justify-center text-slate-600 group-hover:text-[#008080] group-hover:bg-[#008080]/5 group-hover:border-[#008080]/10 transition-all duration-500">
+        <User size={36} strokeWidth={2.5} />
+      </div>
 
- <div>
- <h3 className="text-xl font-black text-slate-900 leading-tight mb-2 group-hover:text-[#008080] transition-colors flex flex-wrap items-center gap-2">
- {student.name}
- 
- {/* Student Badge System */}
- {student.badge === 'Gold' && <span title="Mentorship Plan" className="cursor-help text-lg">🥇</span>}
- {student.badge === 'Silver' && <span title="Tuition Plan" className="cursor-help text-lg">🥈</span>}
- {student.badge === 'Diamond' && <span title="Mentorship & Tuition Plan" className="cursor-help text-lg">💎</span>}
+      <div>
+        <h3 className="text-xl font-black text-slate-900 leading-tight mb-2 group-hover:text-[#008080] transition-colors flex flex-wrap items-center gap-2">
+          {student.name}
+          {student.badge === 'Gold' && <span title="Mentorship Plan" className="cursor-help text-lg">🥇</span>}
+          {student.badge === 'Silver' && <span title="Tuition Plan" className="cursor-help text-lg">🥈</span>}
+          {student.badge === 'Diamond' && <span title="Mentorship & Tuition Plan" className="cursor-help text-lg">💎</span>}
+        </h3>
+      </div>
 
- {student.is_shifted ? (
- <span className="px-2 py-0.5 bg-rose-50 text-rose-500 text-[8px] font-black uppercase tracking-widest border border-rose-100 rounded-lg">
- Shifted: {student.shifted_from}
- </span>
- ) : null}
- {student.course_completed === 1 && (
- <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-600 border border-emerald-200 text-[9px] font-black uppercase tracking-widest whitespace-nowrap">
- <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>
- Course Completed
- </span>
- )}
- </h3>
- <div className="flex flex-wrap gap-3">
- <span className="px-5 py-2 bg-[#008080]/10 text-[#008080] text-[10px] font-black uppercase tracking-[0.2em] rounded-[14px] border border-[#008080]/20">
- {student.grade}
- </span>
- <span className="px-5 py-2 bg-slate-50 text-slate-600 text-[10px] font-black uppercase tracking-[0.2em] rounded-[14px] border border-slate-100">
- {student.subject}
- </span>
- </div>
- </div>
+      <div className="pt-6 border-t border-slate-50 grid grid-cols-2 gap-4">
+        <div>
+          <p className="text-[8px] font-black text-slate-600 uppercase tracking-widest mb-1">Weekly Hours</p>
+          <p className="text-sm font-bold text-slate-700">{student.hour} Hrs</p>
+        </div>
+        <div>
+          <p className="text-[8px] font-black text-slate-600 uppercase tracking-widest mb-1">Next Payment</p>
+          <p className="text-sm font-bold text-[#008080]">{student.next_installment_date ? new Date(student.next_installment_date).toLocaleDateString() : 'N/A'}</p>
+        </div>
+      </div>
+    </div>
 
- <div className="pt-6 border-t border-slate-50 grid grid-cols-2 gap-4">
- <div>
- <p className="text-[8px] font-black text-slate-600 uppercase tracking-widest mb-1">Weekly Hours</p>
- <p className="text-sm font-bold text-slate-700">{student.hour} Hrs</p>
- </div>
- <div>
- <p className="text-[8px] font-black text-slate-600 uppercase tracking-widest mb-1">Next Payment</p>
- <p className="text-sm font-bold text-[#008080]">{student.next_installment_date ? new Date(student.next_installment_date).toLocaleDateString() : 'N/A'}</p>
- </div>
- </div>
- </div>
+    <div className="mt-6 pt-6 border-t border-slate-50 flex flex-col gap-3" onClick={(e) => e.stopPropagation()}>
+      {viewMode === 'active' ? (
+        <div className="flex flex-col gap-3">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <span className="text-[10px] uppercase font-black tracking-widest text-slate-500">Connected Today</span>
+            <button
+              onClick={(e) => handleToggleConnection(student.id, student.connected_today, e)}
+              className={`flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-xs font-black transition-all ${student.connected_today ? 'bg-emerald-50 text-emerald-600 border border-emerald-100 shadow-sm' : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-100'}`}
+            >
+              <CheckCircle2 size={16} className={student.connected_today ? 'text-emerald-500' : 'text-slate-300'} />
+              {student.connected_today ? 'YES' : 'NO'}
+            </button>
+          </div>
+          
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              navigate('/mentor/student-log', { state: { student } });
+            }}
+            className="w-full flex items-center justify-center gap-4 py-4 bg-white text-slate-900 rounded-[20px] text-[11px] font-black uppercase tracking-[0.25em] transition-all border-2 border-slate-900 hover:bg-slate-900 hover:text-white active:scale-95"
+          >
+            <Activity size={16} strokeWidth={3} className="text-[#008080]" />
+            Launch Interaction Log
+          </button>
 
- {/* Action Area */}
- <div
- className="mt-6 pt-6 border-t border-slate-50 flex flex-col gap-3"
- onClick={(e) => e.stopPropagation()}
- >
- {viewMode === 'active' ? (
- <div className="flex flex-col gap-3">
- <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
- <span className="text-[10px] uppercase font-black tracking-widest text-slate-500">Connected Today</span>
- <button
- onClick={(e) => handleToggleConnection(student.id, student.connected_today, e)}
- className={`flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-xs font-black transition-all ${student.connected_today ? 'bg-emerald-50 text-emerald-600 border border-emerald-100 shadow-sm' : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-100'}`}
- >
- <CheckCircle2 size={16} className={student.connected_today ? 'text-emerald-500' : 'text-slate-300'} />
- {student.connected_today ? 'YES' : 'NO'}
- </button>
- </div>
- {/* Log Hours Button */}
- <button
- onClick={(e) => handleLogHoursClick(student, e)}
- className="w-full flex items-center justify-center gap-4 py-4 bg-slate-900 text-white rounded-[20px] text-[11px] font-black uppercase tracking-[0.25em] transition-all border border-slate-800 hover:shadow-2xl hover:shadow-slate-900/20 active:scale-95 group/btn"
- >
- <Clock size={16} strokeWidth={3} className="text-[#008080] group-hover/btn:scale-110 transition-transform" />
- Log Mentoring Hours
- </button>
- </div>
- ) : (
- <div className="flex flex-col gap-2">
- <span className="text-[10px] uppercase font-black tracking-widest text-amber-500">Action Required</span>
- <button
- onClick={(e) => handleCompleteOnboarding(student, e)}
- className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl text-xs font-black uppercase tracking-wider transition-all shadow-lg shadow-emerald-200"
- >
- <Calendar size={16} />
- Setup Timetable & Finish
- </button>
- <p className="text-[10px] text-slate-600 text-center font-bold">Create a one-month schedule to activate this student.</p>
- </div>
- )}
- </div>
- </div>
+          <button
+            onClick={(e) => handleLogHoursClick(student, e)}
+            className="w-full flex items-center justify-center gap-4 py-4 bg-slate-900 text-white rounded-[20px] text-[11px] font-black uppercase tracking-[0.25em] transition-all border border-slate-800 hover:shadow-2xl active:scale-95"
+          >
+            <Clock size={16} strokeWidth={3} className="text-[#008080]" />
+            Log Mentoring Hours
+          </button>
+        </div>
+      ) : (
+        <div className="flex flex-col gap-2">
+          <span className="text-[10px] uppercase font-black tracking-widest text-amber-500">Action Required</span>
+          <button
+            onClick={(e) => handleCompleteOnboarding(student, e)}
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl text-xs font-black uppercase tracking-wider transition-all shadow-lg"
+          >
+            <Calendar size={16} />
+            Setup Timetable & Finish
+          </button>
+        </div>
+      )}
+    </div>
+  </div>
 );
 
 const MyStudents = () => {
