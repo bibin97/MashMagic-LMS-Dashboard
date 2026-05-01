@@ -513,18 +513,29 @@ const Registrations = () => {
     <label className="text-[10px] font-black text-[#008080] uppercase tracking-widest ml-1">Available Faculty</label>
   <select
     required
-    disabled={!row.day || !row.startTime || !row.endTime}
+
     value={row.facultyId}
     onChange={(e) => handleSubjectChange(idx, 'facultyId', e.target.value)}
-    className="w-full p-4 bg-[#008080]/5 border border-[#008080]/20 rounded-2xl text-sm font-bold outline-none focus:ring-2 focus:ring-[#008080] appearance-none disabled:opacity-50 disabled:cursor-not-allowed"
+    className="w-full p-4 bg-[#008080]/5 border border-[#008080]/20 rounded-2xl text-sm font-bold outline-none focus:ring-2 focus:ring-[#008080] appearance-none"
   >
-    <option value="" disabled>{!row.day ? 'Awaiting Day/Time...' : row.availableFaculties.length === 0 ? 'No Faculty Available' : 'Select Faculty'}</option>
-    {row.availableFaculties
-      .filter(af => {
+    <option value="" disabled>
+      {(!row.day || !row.startTime || !row.endTime) ? 'Select Faculty (Full List)' : row.availableFaculties.length === 0 ? 'No Faculty Available' : 'Select Available Faculty'}
+    </option>
+    {(row.day && row.startTime && row.endTime ? row.availableFaculties : faculties)
+      .filter(f => {
+        // Filter by subject if row has a subject and it's not "All Subjects"
+        if (row.subject && row.subject !== 'All Subjects') {
+          if (f.subject !== row.subject) return false;
+        }
+
         const hasOverlapInForm = selectedSubjects.some((otherRow, otherIdx) => {
           if (idx === otherIdx) return false; 
-          if (!otherRow.facultyId || otherRow.day !== row.day || Number(otherRow.facultyId) !== af.id) return false;
-          return row.startTime < otherRow.endTime && otherRow.startTime < row.endTime;
+          if (!otherRow.facultyId || otherRow.day !== row.day || Number(otherRow.facultyId) !== f.id) return false;
+          // Only check overlap if times are filled for both
+          if (row.startTime && row.endTime && otherRow.startTime && otherRow.endTime) {
+            return row.startTime < otherRow.endTime && otherRow.startTime < row.endTime;
+          }
+          return false;
         });
         return !hasOverlapInForm;
       })

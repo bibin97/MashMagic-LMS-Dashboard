@@ -141,22 +141,38 @@ const getAllFacultyActivity = async (req, res) => {
 const getAvailableFaculties = async (req, res) => {
     try {
         const { subject, day, startTime, endTime } = req.query;
-        if (!subject || !day || !startTime || !endTime) {
-            return res.status(400).json({ success: false, message: "Missing subject, day, startTime, or endTime" });
+        if (!day || !startTime || !endTime) {
+            return res.status(400).json({ success: false, message: "Missing day, startTime, or endTime" });
         }
 
-        const [availableFaculties] = await db.query(`
-            SELECT u.id, u.name 
+        // We use a query that shows faculties for the specific subject, 
+        // but if no subject is provided or we want to see all, we can adjust.
+        // For now, let's show all active faculties who are free at this time, 
+        // and optionally sort/filter by subject if we can.
+        
+        let query = `
+            SELECT u.id, u.name, u.subject 
             FROM users u
             WHERE u.role = 'faculty' AND u.status = 'active'
-            AND u.subject = ?
+        `;
+        let params = [];
+
+        if (subject && subject !== 'All Subjects') {
+            query += ` AND u.subject = ? `;
+            params.push(subject);
+        }
+
+        query += `
             AND u.id NOT IN (
                 SELECT faculty_id FROM faculty_schedules
                 WHERE day_of_week = ? 
                 AND start_time < ? 
                 AND end_time > ?
             )
-        `, [subject, day, endTime, startTime]);
+        `;
+        params.push(day, endTime, startTime);
+
+        const [availableFaculties] = await db.query(query, params);
 
         res.status(200).json({ success: true, data: availableFaculties });
     } catch (error) {
