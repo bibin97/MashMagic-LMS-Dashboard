@@ -152,13 +152,10 @@ const getAvailableFaculties = async (req, res) => {
             AND u.id NOT IN (
                 SELECT faculty_id FROM faculty_schedules
                 WHERE day_of_week = ? 
-                AND (
-                    (start_time <= ? AND end_time > ?) OR
-                    (start_time < ? AND end_time >= ?) OR
-                    (? <= start_time AND ? >= end_time)
-                )
+                AND start_time < ? 
+                AND end_time > ?
             )
-        `, [day, startTime, startTime, endTime, endTime, startTime, endTime]);
+        `, [day, endTime, startTime]);
 
         res.status(200).json({ success: true, data: availableFaculties });
     } catch (error) {
