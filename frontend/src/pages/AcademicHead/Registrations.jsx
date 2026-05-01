@@ -51,10 +51,10 @@ const Registrations = () => {
  }
  };
 
- const fetchAvailableFaculties = async (index, day, startTime, endTime) => {
-   if (!day || !startTime || !endTime) return;
+ const fetchAvailableFaculties = async (index, subject, day, startTime, endTime) => {
+   if (!subject || !day || !startTime || !endTime) return;
    try {
-     const res = await api.get(`/academic-head/available-faculties?day=${day}&startTime=${startTime}&endTime=${endTime}`);
+     const res = await api.get(`/academic-head/available-faculties?subject=${subject}&day=${day}&startTime=${startTime}&endTime=${endTime}`);
      if (res.data.success) {
        const newSubjects = [...selectedSubjects];
        newSubjects[index].availableFaculties = res.data.data;
@@ -77,10 +77,10 @@ const Registrations = () => {
    setSelectedSubjects(newSubjects);
 
    // If Day, StartTime or EndTime changes, refresh available faculties
-   if (['day', 'startTime', 'endTime'].includes(field)) {
+   if (['subject', 'day', 'startTime', 'endTime'].includes(field)) {
      const row = newSubjects[index];
-     if (row.day && row.startTime && row.endTime) {
-       fetchAvailableFaculties(index, row.day, row.startTime, row.endTime);
+     if (row.subject && row.day && row.startTime && row.endTime) {
+       fetchAvailableFaculties(index, row.subject, row.day, row.startTime, row.endTime);
      }
    }
  };

@@ -140,22 +140,23 @@ const getAllFacultyActivity = async (req, res) => {
 // @route   GET /api/academic-head/available-faculties
 const getAvailableFaculties = async (req, res) => {
     try {
-        const { day, startTime, endTime } = req.query;
-        if (!day || !startTime || !endTime) {
-            return res.status(400).json({ success: false, message: "Missing day, startTime, or endTime" });
+        const { subject, day, startTime, endTime } = req.query;
+        if (!subject || !day || !startTime || !endTime) {
+            return res.status(400).json({ success: false, message: "Missing subject, day, startTime, or endTime" });
         }
 
         const [availableFaculties] = await db.query(`
             SELECT u.id, u.name 
             FROM users u
             WHERE u.role = 'faculty' AND u.status = 'active'
+            AND u.subject = ?
             AND u.id NOT IN (
                 SELECT faculty_id FROM faculty_schedules
                 WHERE day_of_week = ? 
                 AND start_time < ? 
                 AND end_time > ?
             )
-        `, [day, endTime, startTime]);
+        `, [subject, day, endTime, startTime]);
 
         res.status(200).json({ success: true, data: availableFaculties });
     } catch (error) {

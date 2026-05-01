@@ -30,7 +30,8 @@ const {
     editMentor,
     deleteMentor,
     saveExamPlan,
-    getLiveMonitoring
+    getLiveMonitoring,
+    getAvailableFaculties
 } = require('../controllers/academicHeadController');
 const { requireAuth } = require('../middleware/authMiddleware');
 const { requireRole } = require('../middleware/roleMiddleware');
