@@ -4,8 +4,6 @@ import api from '../../services/api';
 import toast from 'react-hot-toast';
 
 const Registrations = () => {
- // Forms data
- const [showFacultyModal, setShowFacultyModal] = useState(false);
  const [activeTab, setActiveTab] = useState('student');
  const [loading, setLoading] = useState(false);
 
@@ -199,69 +197,6 @@ const Registrations = () => {
 
  return (
  <div className="w-full px-4 md:px-8 py-4 bg-slate-50/50 min-h-screen">
-   {/* Faculty Quick Add Modal */}
-   {showFacultyModal && (
-     <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-       <div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto p-6 md:p-10 relative">
-         <button 
-           onClick={() => setShowFacultyModal(false)}
-           className="absolute top-6 right-6 w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-200 transition-colors"
-         >
-           ✕
-         </button>
-         
-         <div className="flex items-center gap-4 mb-8">
-           <div className="w-12 h-12 bg-[#008080] text-white rounded-2xl flex items-center justify-center shadow-lg shadow-[#008080]/20">
-             <UserPlus size={24} />
-           </div>
-           <div>
-             <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tight">Quick Faculty Onboarding</h2>
-             <p className="text-slate-500 font-bold text-xs">Add a new educator to the system immediately</p>
-           </div>
-         </div>
-
-         <form onSubmit={async (e) => {
-           await submitFaculty(e);
-           setShowFacultyModal(false);
-         }} className="space-y-8">
-           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <div className="flex flex-col gap-2">
-               <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Faculty Name</label>
-               <input type="text" name="name" required value={facultyForm.name} onChange={handleFacultyChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold" placeholder="Full Name" />
-             </div>
-             <div className="flex flex-col gap-2">
-               <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Phone Number</label>
-               <input type="tel" name="phone_number" required value={facultyForm.phone_number} onChange={handleFacultyChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold" placeholder="Phone Number" />
-             </div>
-             <div className="flex flex-col gap-2">
-               <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Email Address</label>
-               <input type="email" name="email" value={facultyForm.email} onChange={handleFacultyChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold" placeholder="Email (Optional)" />
-             </div>
-             <div className="flex flex-col gap-2">
-               <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Subject Expertise</label>
-               <input type="text" name="subject" value={facultyForm.subject} onChange={handleFacultyChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold" placeholder="E.g. Mathematics" />
-             </div>
-             <div className="flex flex-col gap-2">
-               <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Hourly Rate (₹)</label>
-               <input type="number" name="hourly_rate" value={facultyForm.hourly_rate} onChange={handleFacultyChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold" placeholder="E.g. 500" />
-             </div>
-             <div className="flex flex-col gap-2">
-               <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Qualification</label>
-               <input type="text" name="qualification" value={facultyForm.qualification} onChange={handleFacultyChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold" placeholder="E.g. M.Sc Physics" />
-             </div>
-           </div>
-
-           <div className="flex justify-end gap-4 pt-6 border-t">
-             <button type="button" onClick={() => setShowFacultyModal(false)} className="px-8 py-3 rounded-xl font-black text-xs uppercase tracking-widest text-slate-500 hover:bg-slate-100 transition-all">Cancel</button>
-             <button type="submit" disabled={loading} className="px-10 py-3 bg-[#008080] text-white rounded-xl font-black text-xs uppercase tracking-widest shadow-lg shadow-[#008080]/20 hover:scale-105 active:scale-95 transition-all">
-               {loading ? 'Creating...' : 'Register Faculty'}
-             </button>
-           </div>
-         </form>
-       </div>
-     </div>
-   )}
-
    <div className="max-w-[1600px] mx-auto">
  {/* Header */}
  <div className="bg-white p-4 md:p-6 rounded-[1.5rem] md:rounded-[2rem] shadow-sm border border-slate-100 mb-6 md:mb-8 flex items-center justify-between">
@@ -490,16 +425,16 @@ const Registrations = () => {
  </button>
  </div>
 
- <div className="space-y-4">
+ <div className="space-y-6">
  {selectedSubjects.map((row, idx) => (
- <div key={idx} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7 gap-4 bg-white p-5 rounded-2xl border border-slate-200 relative animate-in slide-in-from-right-2 duration-300">
- <div className="flex flex-col gap-1.5">
- <label className="text-[10px] font-black text-slate-700 uppercase tracking-widest">Subject</label>
+ <div key={idx} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 bg-white p-6 rounded-3xl border border-slate-100 shadow-sm relative animate-in slide-in-from-right-2 duration-300">
+ <div className="flex flex-col gap-2">
+ <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Subject</label>
  <select
  required
  value={row.subject}
  onChange={(e) => handleSubjectChange(idx, 'subject', e.target.value)}
- className="w-full p-3 bg-white border border-slate-300 rounded-xl text-xs outline-none focus:ring-2 focus:ring-[#008080] font-bold appearance-none text-black"
+ className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:ring-2 focus:ring-[#008080] appearance-none"
  >
  <option value="" disabled>Select Subject</option>
  <option value="Mathematics">Mathematics</option>
@@ -520,13 +455,13 @@ const Registrations = () => {
  </select>
  </div>
 
- <div className="flex flex-col gap-1.5">
- <label className="text-[10px] font-black text-slate-700 uppercase tracking-widest">Day</label>
+ <div className="flex flex-col gap-2">
+ <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Day</label>
  <select
  required
  value={row.day}
  onChange={(e) => handleSubjectChange(idx, 'day', e.target.value)}
- className="w-full p-3 bg-white border border-slate-300 rounded-xl text-xs outline-none focus:ring-2 focus:ring-[#008080] font-bold appearance-none text-black"
+ className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:ring-2 focus:ring-[#008080] appearance-none"
  >
  <option value="" disabled>Select Day</option>
  <option value="Monday">Monday</option>
@@ -539,84 +474,65 @@ const Registrations = () => {
  </select>
  </div>
 
- <div className="flex flex-col gap-1.5">
- <label className="text-[10px] font-black text-slate-700 uppercase tracking-widest">Start Time</label>
- <input
- type="time"
- required
- value={row.startTime}
- onChange={(e) => handleSubjectChange(idx, 'startTime', e.target.value)}
- className="w-full p-3 bg-white border border-slate-300 rounded-xl text-xs outline-none focus:ring-2 focus:ring-[#008080] font-bold text-black"
- />
+ <div className="grid grid-cols-2 gap-4">
+    <div className="flex flex-col gap-2">
+    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Start Time</label>
+    <input
+    type="time"
+    required
+    value={row.startTime}
+    onChange={(e) => handleSubjectChange(idx, 'startTime', e.target.value)}
+    className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:ring-2 focus:ring-[#008080]"
+    />
+    </div>
+    <div className="flex flex-col gap-2">
+    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">End Time</label>
+    <input
+    type="time"
+    required
+    value={row.endTime}
+    onChange={(e) => handleSubjectChange(idx, 'endTime', e.target.value)}
+    className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:ring-2 focus:ring-[#008080]"
+    />
+    </div>
  </div>
 
- <div className="flex flex-col gap-1.5">
- <label className="text-[10px] font-black text-slate-700 uppercase tracking-widest">End Time</label>
- <input
- type="time"
- required
- value={row.endTime}
- onChange={(e) => handleSubjectChange(idx, 'endTime', e.target.value)}
- className="w-full p-3 bg-white border border-slate-300 rounded-xl text-xs outline-none focus:ring-2 focus:ring-[#008080] font-bold text-black"
- />
- </div>
-
- <div className="flex flex-col gap-1.5">
- <label className="text-[10px] font-black text-slate-700 uppercase tracking-widest">Faculty Rate (₹)</label>
+ <div className="flex flex-col gap-2">
+ <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Faculty Rate (₹ / Hr)</label>
  <input
  type="number"
  required
- placeholder="Rate/hr"
+ placeholder="e.g. 500"
  value={row.hourlyRate}
  onChange={(e) => handleSubjectChange(idx, 'hourlyRate', e.target.value)}
- className="w-full p-3 bg-white border border-slate-300 rounded-xl text-xs outline-none focus:ring-2 focus:ring-[#008080] font-bold text-black"
+ className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:ring-2 focus:ring-[#008080]"
  />
  </div>
 
- <div className="flex flex-col gap-1.5">
-  <div className="flex items-center justify-between">
-    <label className="text-[10px] font-black text-slate-700 uppercase tracking-widest">Available Faculty</label>
-    <button type="button" onClick={() => setShowFacultyModal(true)} className="text-[9px] font-black text-[#008080] uppercase bg-[#008080]/10 px-1.5 py-0.5 rounded-md hover:bg-[#008080]/20 transition-all border border-[#008080]/20"> + Add </button>
-  </div>
+ <div className="flex flex-col gap-2">
+    <label className="text-[10px] font-black text-[#008080] uppercase tracking-widest ml-1">Available Faculty</label>
   <select
     required
     disabled={!row.day || !row.startTime || !row.endTime}
     value={row.facultyId}
     onChange={(e) => handleSubjectChange(idx, 'facultyId', e.target.value)}
-    className="w-full p-3 bg-white border border-slate-300 rounded-xl text-xs outline-none focus:ring-2 focus:ring-[#008080] font-bold appearance-none text-black disabled:bg-slate-50 disabled:cursor-not-allowed"
+    className="w-full p-4 bg-[#008080]/5 border border-[#008080]/20 rounded-2xl text-sm font-bold outline-none focus:ring-2 focus:ring-[#008080] appearance-none disabled:opacity-50 disabled:cursor-not-allowed"
   >
-    <option value="" disabled>{!row.day ? 'Select day/time first' : 'Select Faculty'}</option>
-    {faculties.map(f => {
-      const isAvailableInDB = row.availableFaculties.some(af => af.id === f.id);
-      
-      const hasOverlapInForm = selectedSubjects.some((otherRow, otherIdx) => {
-        if (idx === otherIdx) return false; 
-        if (!otherRow.facultyId || otherRow.day !== row.day || Number(otherRow.facultyId) !== f.id) return false;
-        
-        const s1 = row.startTime;
-        const e1 = row.endTime;
-        const s2 = otherRow.startTime;
-        const e2 = otherRow.endTime;
-        return s1 < e2 && s2 < e1;
-      });
-
-      const isBusy = (row.day && row.startTime && row.endTime && !isAvailableInDB) || hasOverlapInForm;
-
-      return (
-        <option key={f.id} value={f.id} disabled={isBusy} className={isBusy ? 'text-slate-400' : 'text-black'}>
-          {f.name} {isBusy ? ' (Busy at this time)' : ''}
-        </option>
-      );
-    })}
+    <option value="" disabled>{!row.day ? 'Awaiting Day/Time...' : row.availableFaculties.length === 0 ? 'No Faculty Available' : 'Select Faculty'}</option>
+    {row.availableFaculties
+      .filter(af => {
+        const hasOverlapInForm = selectedSubjects.some((otherRow, otherIdx) => {
+          if (idx === otherIdx) return false; 
+          if (!otherRow.facultyId || otherRow.day !== row.day || Number(otherRow.facultyId) !== af.id) return false;
+          return row.startTime < otherRow.endTime && otherRow.startTime < row.endTime;
+        });
+        return !hasOverlapInForm;
+      })
+      .map(f => (
+        <option key={f.id} value={f.id} className="text-slate-900 font-bold">{f.name}</option>
+      ))
+    }
   </select>
- </div>
-
- <div className="flex items-end">
- {selectedSubjects.length > 1 && (
- <button type="button" onClick={() => removeSubjectRow(idx)} className="w-full h-11 bg-rose-50 text-rose-600 rounded-xl border border-rose-200 font-black text-xs hover:bg-rose-100 transition-colors">
- Remove
- </button>
- )}
  </div>
  </div>
  ))}
@@ -843,10 +759,10 @@ const Registrations = () => {
  </form>
  )}
 
+    </div>
    </div>
   </div>
- </div>
- );
+  );
 };
 
 export default Registrations;
