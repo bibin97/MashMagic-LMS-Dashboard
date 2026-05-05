@@ -687,7 +687,10 @@ const getAllMentorsForAdmin = async (req, res) => {
                 u.id, u.name, u.email, u.phone_number as phone, u.status, u.createdAt as created_at,
                 (SELECT COUNT(*) FROM students s WHERE s.mentor_id = u.id AND s.status = 'active') as studentsCount,
                 (SELECT COUNT(*) FROM tasks t WHERE t.assigned_to = u.id) as tasksAssigned,
-                (SELECT COUNT(*) FROM tasks t WHERE t.assigned_to = u.id AND t.status = 'Completed') as completedTasks
+                (SELECT COUNT(*) FROM tasks t WHERE t.assigned_to = u.id AND t.status = 'Completed') as completedTasks,
+                (SELECT COUNT(*) FROM student_interaction_logs sil WHERE sil.mentor_id = u.id) as logsReportCount,
+                (SELECT COUNT(DISTINCT s.faculty_id) FROM students s WHERE s.mentor_id = u.id AND s.faculty_id IS NOT NULL AND s.status = 'active') as facultyCount,
+                (SELECT COUNT(*) FROM students s WHERE s.mentor_id = u.id AND LOWER(s.performance_status) = 'critical' AND s.status = 'active') as criticalStudentsCount
             FROM users u
             WHERE ${whereClauses.join(' AND ')}
             ORDER BY u.name ASC
