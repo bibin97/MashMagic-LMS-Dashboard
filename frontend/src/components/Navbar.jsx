@@ -166,10 +166,10 @@ const Navbar = ({ onMenuClick }) => {
 
   return (
     <nav
-      className={`sticky top-0 z-50 w-full transition-all duration-300 ${
+      className={`sticky top-0 z-[900] w-full transition-all duration-300 bg-gradient-to-r from-[#008080]/10 via-white/70 to-[#008080]/5 backdrop-blur-2xl border-b border-[#008080]/10 ${
         isScrolled
-          ? 'bg-white/80 backdrop-blur-md border-b border-slate-200/50 shadow-[0_4px_20px_-10px_rgba(0,0,0,0.05)]'
-          : 'bg-transparent border-b border-transparent'
+          ? 'shadow-[0_8px_30px_rgb(0,0,0,0.04)]'
+          : 'shadow-sm shadow-[#008080]/5'
       }`}
       style={{ fontFamily: "'Inter', sans-serif" }}
     >

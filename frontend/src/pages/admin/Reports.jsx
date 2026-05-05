@@ -18,7 +18,40 @@ const Reports = () => {
  }
 
  try {
- const worksheet = XLSX.utils.json_to_sheet(data);
+ // 1. Format keys to Title Case for nice headers
+ const formatKey = (key) => {
+ return key
+ .replace(/([A-Z])/g, ' $1')
+ .replace(/_/g, ' ')
+ .replace(/^./, (str) => str.toUpperCase())
+ .trim();
+ };
+
+ const formattedData = data.map(item => {
+ const newItem = {};
+ for (const [key, value] of Object.entries(item)) {
+ let displayValue = value;
+ if (typeof value === 'string' && value.match(/^\d{4}-\d{2}-\d{2}T/)) {
+ displayValue = new Date(value).toLocaleDateString('en-GB'); // dd/mm/yyyy
+ }
+ newItem[formatKey(key)] = displayValue;
+ }
+ return newItem;
+ });
+
+ const worksheet = XLSX.utils.json_to_sheet(formattedData);
+ 
+ // 2. Auto-fit columns calculation
+ const headerKeys = Object.keys(formattedData[0] || {});
+ const wscols = headerKeys.map(key => {
+ const maxContentLength = formattedData.reduce((max, row) => {
+ const valStr = row[key] !== null && row[key] !== undefined ? row[key].toString() : '';
+ return Math.max(max, valStr.length);
+ }, key.length);
+ return { wch: Math.min(maxContentLength + 3, 50) }; // Pad by 3, cap at 50
+ });
+ worksheet['!cols'] = wscols;
+
  const workbook = XLSX.utils.book_new();
  XLSX.utils.book_append_sheet(workbook, worksheet, "Report");
 
