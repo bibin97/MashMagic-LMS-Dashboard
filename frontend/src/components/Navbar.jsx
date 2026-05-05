@@ -187,8 +187,8 @@ const Navbar = ({ onMenuClick }) => {
             <div className="w-8 h-8 rounded-[14px] bg-gradient-to-tr from-slate-900 to-slate-700 items-center justify-center text-white shadow-sm hidden md:flex">
               <span className="font-bold text-sm">M</span>
             </div>
-            <span className="font-semibold text-slate-900 tracking-tight hidden sm:block">
-              Mentor Hub
+            <span className="font-semibold text-slate-900 tracking-tight hidden sm:block uppercase tracking-widest text-sm">
+              Mash Magic
             </span>
           </div>
 
