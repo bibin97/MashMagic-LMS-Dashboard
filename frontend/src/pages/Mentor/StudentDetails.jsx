@@ -110,7 +110,7 @@ const StudentDetails = () => {
  {[
  { id: 'info', label: 'Detailed Info', icon: <User size={14} /> },
  { id: 'timetable', label: 'Session Timetable', icon: <Clock size={14} /> },
- { id: 'logs', label: 'Interaction Logs', icon: <History size={14} /> }
+ { id: 'logs', label: 'Student Interactions', icon: <History size={14} /> }
  ].map((tab) => (
  <button
  key={tab.id}

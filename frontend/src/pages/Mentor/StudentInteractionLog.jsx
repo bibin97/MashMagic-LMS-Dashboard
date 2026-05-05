@@ -26,6 +26,7 @@ const StudentInteractionLog = () => {
  // State for viewing details
  const [viewLog, setViewLog] = useState(null);
  const [uploading, setUploading] = useState(false);
+ const [activeTab, setActiveTab] = useState('both'); // 'both', 'mentorship', 'tuition'
 
  const initialFormData = {
  date: new Date().toISOString().split('T')[0],
@@ -75,7 +76,7 @@ const StudentInteractionLog = () => {
  const res = await api.get('/mentor/student-logs');
  setAllLogs(res.data.data);
  } catch (error) {
- toast.error("Failed to load interaction history");
+ toast.error("Failed to load student interaction history");
  }
  };
 
@@ -166,7 +167,7 @@ const StudentInteractionLog = () => {
  student_name: selectedStudent.name
  });
 
- toast.success("Interaction log submitted!");
+ toast.success("Student interaction submitted!");
  setFormData(initialFormData); // Clear form after submission
  setSubmitted(true);
  fetchStudentLogs(selectedStudent.id); // Refresh logs
@@ -190,7 +191,7 @@ const StudentInteractionLog = () => {
  <div className="max-w-6xl mx-auto p-4 md:p-10 pb-20 space-y-12 animate-in fade-in slide-in-from-bottom-6 duration-700">
  <header className="bg-white/70 backdrop-blur-xl p-8 md:p-14 rounded-[40px] md:rounded-[48px] border border-white/60 shadow-[0_20px_50px_rgba(0,0,0,0.06)] flex flex-col md:flex-row justify-between items-center gap-10">
  <div className="text-center md:text-left">
- <h1 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tighter uppercase leading-none mb-4">Engagement Hub</h1>
+ <h1 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tighter uppercase leading-none mb-4">Student Interactions</h1>
  <p className="text-slate-600 text-[11px] font-black uppercase tracking-[0.3em] mt-3 flex items-center gap-3 justify-center md:justify-start">
  <div className="w-2 h-2 rounded-full bg-[#008080] animate-ping"></div>
  Student Performance Protocol
@@ -206,7 +207,7 @@ const StudentInteractionLog = () => {
  <div className="absolute top-0 right-0 w-64 h-64 bg-[#008080]/5 rounded-full -mr-32 -mt-32 blur-3xl group-hover:bg-[#008080]/10 transition-colors duration-1000"></div>
  <div className="relative z-10 w-full md:w-auto text-center md:text-left">
  <h3 className="text-2xl font-black text-white mb-2 flex items-center gap-4 justify-center md:justify-start tracking-tight">
- <Plus size={28} className="text-[#008080]" strokeWidth={3} /> Initialize Session Log
+ <Plus size={28} className="text-[#008080]" strokeWidth={3} /> Initialize Student Interaction
  </h3>
  <p className="text-[11px] font-black text-slate-500 uppercase tracking-[0.25em]">Select an active student node to begin documentation</p>
  </div>
@@ -239,116 +240,138 @@ const StudentInteractionLog = () => {
  </div>
  </div>
 
- {/* Category 1: Mentorship & Tuition (Diamond / Both) */}
- <div className="space-y-6">
- <div className="flex items-center gap-3 pl-2">
- <div className="w-4 h-8 bg-purple-500 rounded-full"></div>
- <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest">
- Mentorship & Tuition (Diamond)
- </h3>
- </div>
- <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
- {students.filter(isDiamondCategory).length > 0 ? (
- students.filter(isDiamondCategory).map(student => (
- <button
- key={student.id}
- onClick={() => handleStudentSelect(student)}
- className="bg-white p-6 md:p-8 rounded-[2.5rem] border border-slate-100 hover:shadow-xl hover:shadow-purple-500/10 hover:border-purple-200 hover:scale-[1.02] transition-all cursor-pointer group text-left relative overflow-hidden"
- >
- <div className="absolute top-0 right-0 w-24 h-24 bg-purple-50 rounded-full -mr-12 -mt-12 group-hover:bg-purple-100 group-hover:scale-150 transition-all duration-500 opacity-50"></div>
- <div className="flex items-center gap-2 mb-1 relative z-10">
- <h3 className="text-lg font-black text-slate-900">{student.name}</h3>
- <span>💎</span>
- </div>
- <p className="text-xs font-bold text-slate-500 mb-4 relative z-10">{student.course} • {student.grade}</p>
- <div className="flex items-center gap-2 text-purple-600 text-[10px] font-black uppercase tracking-widest relative z-10">
- <span>Log Interaction</span> <ArrowLeft size={12} className="rotate-180" />
- </div>
- </button>
- ))
- ) : (
- <div className="col-span-full py-10 text-center bg-slate-50 rounded-[2.5rem] border border-dashed border-slate-200">
- <p className="text-xs font-bold text-slate-600 uppercase tracking-widest ">No students in this category.</p>
- </div>
- )}
- </div>
+ {/* Tab Navigation */}
+ <div className="flex flex-wrap gap-4 p-2 bg-slate-100/50 rounded-[28px] border border-slate-200/50">
+   <button
+     onClick={() => setActiveTab('both')}
+     className={`flex-1 py-4 px-6 rounded-[22px] text-[11px] font-black uppercase tracking-widest transition-all ${activeTab === 'both' ? 'bg-[#008080] text-white shadow-lg shadow-[#008080]/20' : 'text-slate-600 hover:bg-white hover:text-[#008080]'}`}
+   >
+     Mentorship & Tuition
+   </button>
+   <button
+     onClick={() => setActiveTab('mentorship')}
+     className={`flex-1 py-4 px-6 rounded-[22px] text-[11px] font-black uppercase tracking-widest transition-all ${activeTab === 'mentorship' ? 'bg-amber-400 text-white shadow-lg shadow-amber-400/20' : 'text-slate-600 hover:bg-white hover:text-amber-500'}`}
+   >
+     Mentorship Only
+   </button>
+   <button
+     onClick={() => setActiveTab('tuition')}
+     className={`flex-1 py-4 px-6 rounded-[22px] text-[11px] font-black uppercase tracking-widest transition-all ${activeTab === 'tuition' ? 'bg-slate-400 text-white shadow-lg shadow-slate-400/20' : 'text-slate-600 hover:bg-white hover:text-slate-600'}`}
+   >
+     Tuition Only
+   </button>
  </div>
 
- {/* Category 2: Mentorship Only (Gold) */}
- <div className="space-y-6 pt-6">
- <div className="flex items-center gap-3 pl-2">
- <div className="w-4 h-8 bg-amber-400 rounded-full"></div>
- <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest pl-2">
- Mentorship Only (Gold)
- </h3>
- </div>
- <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
- {students.filter(isGoldCategory).length > 0 ? (
- students.filter(isGoldCategory).map(student => (
- <button
- key={student.id}
- onClick={() => handleStudentSelect(student)}
- className="bg-white p-6 md:p-8 rounded-[2.5rem] border border-slate-100 hover:shadow-xl hover:shadow-amber-500/10 hover:border-amber-200 hover:scale-[1.02] transition-all cursor-pointer group text-left relative overflow-hidden"
- >
- <div className="absolute top-0 right-0 w-24 h-24 bg-amber-50 rounded-full -mr-12 -mt-12 group-hover:bg-amber-100 group-hover:scale-150 transition-all duration-500 opacity-50"></div>
- <div className="flex items-center gap-2 mb-1 relative z-10">
- <h3 className="text-lg font-black text-slate-900">{student.name}</h3>
- <span>🥇</span>
- </div>
- <p className="text-xs font-bold text-slate-500 mb-4 relative z-10">{student.course} • {student.grade}</p>
- <div className="flex items-center gap-2 text-amber-600 text-[10px] font-black uppercase tracking-widest relative z-10">
- <span>Log Interaction</span> <ArrowLeft size={12} className="rotate-180" />
- </div>
- </button>
- ))
- ) : (
- <div className="col-span-full py-10 text-center bg-slate-50 rounded-[2.5rem] border border-dashed border-slate-200">
- <p className="text-xs font-bold text-slate-600 uppercase tracking-widest ">No students in this category.</p>
- </div>
- )}
- </div>
- </div>
+ {/* Tab Content */}
+ <div className="min-h-[400px]">
+   {activeTab === 'both' && (
+     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+       <div className="flex items-center gap-3 pl-2">
+         <div className="w-4 h-8 bg-purple-500 rounded-full"></div>
+         <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest">Mentorship & Tuition (Diamond)</h3>
+       </div>
+       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+         {students.filter(isDiamondCategory).length > 0 ? (
+           students.filter(isDiamondCategory).map(student => (
+             <button
+               key={student.id}
+               onClick={() => handleStudentSelect(student)}
+               className="bg-white p-6 md:p-8 rounded-[2.5rem] border border-slate-100 hover:shadow-xl hover:shadow-purple-500/10 hover:border-purple-200 hover:scale-[1.02] transition-all cursor-pointer group text-left relative overflow-hidden"
+             >
+               <div className="absolute top-0 right-0 w-24 h-24 bg-purple-50 rounded-full -mr-12 -mt-12 group-hover:bg-purple-100 group-hover:scale-150 transition-all duration-500 opacity-50"></div>
+               <div className="flex items-center gap-2 mb-1 relative z-10">
+                 <h3 className="text-lg font-black text-slate-900">{student.name}</h3>
+                 <span>💎</span>
+               </div>
+               <p className="text-xs font-bold text-slate-500 mb-4 relative z-10">{student.course} • {student.grade}</p>
+               <div className="flex items-center gap-2 text-purple-600 text-[10px] font-black uppercase tracking-widest relative z-10">
+                 <span>Log Student Interaction</span> <ArrowLeft size={12} className="rotate-180" />
+               </div>
+             </button>
+           ))
+         ) : (
+           <div className="col-span-full py-20 text-center bg-slate-50/50 rounded-[2.5rem] border border-dashed border-slate-200">
+             <p className="text-xs font-bold text-slate-400 uppercase tracking-[0.2em]">{`No students in this category.`}</p>
+           </div>
+         )}
+       </div>
+     </div>
+   )}
 
- {/* Category 3: Tuition Only Phase 3 (Silver/Standard) */}
- <div className="space-y-6 pt-6">
- <div className="flex items-center gap-3 pl-2">
- <div className="w-4 h-8 bg-slate-400 rounded-full"></div>
- <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest pl-2">
- Tuition Only
- </h3>
- </div>
- <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
- {students.filter(isSilverCategory).length > 0 ? (
- students.filter(isSilverCategory).map(student => (
- <button
- key={student.id}
- onClick={() => handleStudentSelect(student)}
- className="bg-white p-6 md:p-8 rounded-[2.5rem] border border-slate-100 hover:shadow-xl hover:shadow-[#008080]/10 hover:border-[#008080]/30 hover:scale-[1.02] transition-all cursor-pointer group text-left relative overflow-hidden"
- >
- <div className="absolute top-0 right-0 w-24 h-24 bg-slate-50 rounded-full -mr-12 -mt-12 group-hover:bg-[#008080] group-hover:scale-150 transition-all duration-500 opacity-10"></div>
- <div className="flex items-center gap-2 mb-1 relative z-10">
- <h3 className="text-lg font-black text-slate-900">{student.name}</h3>
- {student.badge === 'Silver' && <span>🥈</span>}
- </div>
- <p className="text-xs font-bold text-slate-500 mb-4 relative z-10">{student.course} • {student.grade}</p>
- <div className="flex items-center gap-2 text-slate-600 group-hover:text-[#008080] text-[10px] font-black uppercase tracking-widest relative z-10">
- <span>Log Interaction</span> <ArrowLeft size={12} className="rotate-180" />
- </div>
- </button>
- ))
- ) : (
- <div className="col-span-full py-10 text-center bg-slate-50 rounded-[2.5rem] border border-dashed border-slate-200">
- <p className="text-xs font-bold text-slate-600 uppercase tracking-widest ">No students in this category.</p>
- </div>
- )}
- </div>
+   {activeTab === 'mentorship' && (
+     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+       <div className="flex items-center gap-3 pl-2">
+         <div className="w-4 h-8 bg-amber-400 rounded-full"></div>
+         <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest pl-2">Mentorship Only (Gold)</h3>
+       </div>
+       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+         {students.filter(isGoldCategory).length > 0 ? (
+           students.filter(isGoldCategory).map(student => (
+             <button
+               key={student.id}
+               onClick={() => handleStudentSelect(student)}
+               className="bg-white p-6 md:p-8 rounded-[2.5rem] border border-slate-100 hover:shadow-xl hover:shadow-amber-500/10 hover:border-amber-200 hover:scale-[1.02] transition-all cursor-pointer group text-left relative overflow-hidden"
+             >
+               <div className="absolute top-0 right-0 w-24 h-24 bg-amber-50 rounded-full -mr-12 -mt-12 group-hover:bg-amber-100 group-hover:scale-150 transition-all duration-500 opacity-50"></div>
+               <div className="flex items-center gap-2 mb-1 relative z-10">
+                 <h3 className="text-lg font-black text-slate-900">{student.name}</h3>
+                 <span>🥇</span>
+               </div>
+               <p className="text-xs font-bold text-slate-500 mb-4 relative z-10">{student.course} • {student.grade}</p>
+               <div className="flex items-center gap-2 text-amber-600 text-[10px] font-black uppercase tracking-widest relative z-10">
+                 <span>Log Student Interaction</span> <ArrowLeft size={12} className="rotate-180" />
+               </div>
+             </button>
+           ))
+         ) : (
+           <div className="col-span-full py-20 text-center bg-slate-50/50 rounded-[2.5rem] border border-dashed border-slate-200">
+             <p className="text-xs font-bold text-slate-400 uppercase tracking-[0.2em]">No students in this category.</p>
+           </div>
+         )}
+       </div>
+     </div>
+   )}
+
+   {activeTab === 'tuition' && (
+     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+       <div className="flex items-center gap-3 pl-2">
+         <div className="w-4 h-8 bg-slate-400 rounded-full"></div>
+         <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest pl-2">Tuition Only</h3>
+       </div>
+       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+         {students.filter(isSilverCategory).length > 0 ? (
+           students.filter(isSilverCategory).map(student => (
+             <button
+               key={student.id}
+               onClick={() => handleStudentSelect(student)}
+               className="bg-white p-6 md:p-8 rounded-[2.5rem] border border-slate-100 hover:shadow-xl hover:shadow-[#008080]/10 hover:border-[#008080]/30 hover:scale-[1.02] transition-all cursor-pointer group text-left relative overflow-hidden"
+             >
+               <div className="absolute top-0 right-0 w-24 h-24 bg-slate-50 rounded-full -mr-12 -mt-12 group-hover:bg-[#008080] group-hover:scale-150 transition-all duration-500 opacity-10"></div>
+               <div className="flex items-center gap-2 mb-1 relative z-10">
+                 <h3 className="text-lg font-black text-slate-900">{student.name}</h3>
+                 {student.badge === 'Silver' && <span>🥈</span>}
+               </div>
+               <p className="text-xs font-bold text-slate-500 mb-4 relative z-10">{student.course} • {student.grade}</p>
+               <div className="flex items-center gap-2 text-slate-600 group-hover:text-[#008080] text-[10px] font-black uppercase tracking-widest relative z-10">
+                 <span>Log Student Interaction</span> <ArrowLeft size={12} className="rotate-180" />
+               </div>
+             </button>
+           ))
+         ) : (
+           <div className="col-span-full py-20 text-center bg-slate-50/50 rounded-[2.5rem] border border-dashed border-slate-200">
+             <p className="text-xs font-bold text-slate-400 uppercase tracking-[0.2em]">No students in this category.</p>
+           </div>
+         )}
+       </div>
+     </div>
+   )}
  </div>
 
  {/* History Table for all students */}
  <div className="mt-12 bg-white/80 backdrop-blur-lg p-10 rounded-[44px] shadow-[0_30px_60px_rgba(0,0,0,0.04)] border border-white/60 group">
  <h3 className="text-2xl font-black text-slate-900 mb-8 flex items-center gap-4 tracking-tight">
  <Activity className="text-[#008080]" size={28} strokeWidth={2.5} />
- Protocol History Feed
+ Student Interaction History
  </h3>
  <div className="overflow-x-auto">
  <table className="w-full text-left border-collapse">
@@ -418,7 +441,7 @@ const StudentInteractionLog = () => {
  <MessageSquare size={32} />
  </div>
  <div>
- <h1 className="text-3xl font-black text-white tracking-tight">Log Interaction</h1>
+ <h1 className="text-3xl font-black text-white tracking-tight">Student Interaction</h1>
  <p className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] mt-1">Student: {selectedStudent.name} | Date: {formData.date}</p>
  </div>
  </div>
@@ -658,7 +681,7 @@ const StudentInteractionLog = () => {
  disabled={loading}
  className="w-full bg-[#008080] text-white p-5 rounded-[2rem] font-black text-sm uppercase tracking-[0.3em] shadow-2xl shadow-[#008080]/30/50 hover:bg-[#008080] hover:-translate-y-1 transition-all disabled:opacity-50 flex items-center justify-center gap-4 active:scale-[0.98]"
  >
- {loading ? 'Submitting...' : 'Submit Log'}
+ {loading ? 'Submitting...' : 'Submit Student Interaction'}
  {!loading && <CheckCircle size={20} />}
  </button>
  </div>
@@ -671,7 +694,7 @@ const StudentInteractionLog = () => {
  <div className="w-16 h-16 bg-emerald-500 text-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg shadow-emerald-200">
  <CheckCircle size={32} />
  </div>
- <h2 className="text-2xl font-black text-emerald-900 mb-2">Log Submitted!</h2>
+ <h2 className="text-2xl font-black text-emerald-900 mb-2">Student Interaction Submitted!</h2>
  <button
  onClick={() => setSubmitted(false)}
  className="text-xs font-bold text-emerald-600 hover:text-emerald-800 underline uppercase tracking-widest"
@@ -716,7 +739,7 @@ const StudentInteractionLog = () => {
  </div>
 
  {/* View Log Modal */}
- <Modal isOpen={!!viewLog} onClose={() => setViewLog(null)} title={viewLog?.main_issue ? `Mentorship Log #${viewLog?.id}` : `Interaction Log #${viewLog?.session_number}`} size="lg">
+ <Modal isOpen={!!viewLog} onClose={() => setViewLog(null)} title={viewLog?.main_issue ? `Mentorship Log #${viewLog?.id}` : `Student Interaction #${viewLog?.session_number}`} size="lg">
  {viewLog && (
  <div className="space-y-8 p-2">
  {viewLog.main_issue ? (

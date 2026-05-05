@@ -65,7 +65,7 @@ const StudentCard = ({ student, navigate, viewMode, handleToggleConnection, hand
             className="w-full flex items-center justify-center gap-4 py-4 bg-white text-slate-900 rounded-[20px] text-[11px] font-black uppercase tracking-[0.25em] transition-all border-2 border-slate-900 hover:bg-slate-900 hover:text-white active:scale-95"
           >
             <Activity size={16} strokeWidth={3} className="text-[#008080]" />
-            Launch Interaction Log
+            Student Interactions
           </button>
 
           <button
