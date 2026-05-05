@@ -245,7 +245,7 @@ const Login = () => {
                 <div className="space-y-2">
                   <label className="text-slate-300 text-[11px] font-black uppercase tracking-[0.2em] pl-1 drop-shadow">Authorized Identification</label>
                   <div className="relative group">
-                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-[#0d9488] transition-colors">
+                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-[#0d9488] transition-colors pointer-events-none">
                       <User size={18} />
                     </div>
                     <input 
@@ -253,7 +253,7 @@ const Login = () => {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="verified-id@mashmagic.com"
-                      className="w-full bg-white text-slate-900 rounded-2xl pl-12 pr-6 py-3 text-sm font-black outline-none border-b-4 border-slate-200 focus:border-[#0d9488] transition-all shadow-[0_10px_20px_-10px_rgba(0,0,0,0.1)] placeholder:text-slate-300"
+                      className="w-full bg-white text-slate-900 rounded-2xl pl-12 pr-6 py-3 text-sm font-black outline-none border-b-4 border-slate-200 focus:border-[#0d9488] transition-all shadow-[0_10px_20px_-10px_rgba(0,0,0,0.1)] placeholder:text-slate-300 cursor-text"
                     />
                   </div>
                 </div>
@@ -262,7 +262,7 @@ const Login = () => {
                 <div className="space-y-2">
                   <label className="text-slate-300 text-[11px] font-black uppercase tracking-[0.2em] pl-1 drop-shadow">Security Access Phrase</label>
                   <div className="relative group">
-                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-[#0d9488] transition-colors">
+                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-[#0d9488] transition-colors pointer-events-none">
                       <Lock size={18} />
                     </div>
                     <input 
@@ -270,7 +270,7 @@ const Login = () => {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="••••••••"
-                      className="w-full bg-white text-slate-900 rounded-2xl pl-12 pr-12 py-3 text-sm font-black outline-none border-b-4 border-slate-200 focus:border-[#0d9488] transition-all shadow-[0_10px_20px_-10px_rgba(0,0,0,0.1)] placeholder:text-slate-300"
+                      className="w-full bg-white text-slate-900 rounded-2xl pl-12 pr-12 py-3 text-sm font-black outline-none border-b-4 border-slate-200 focus:border-[#0d9488] transition-all shadow-[0_10px_20px_-10px_rgba(0,0,0,0.1)] placeholder:text-slate-300 cursor-text"
                     />
                     <button 
                       type="button"
@@ -348,11 +348,11 @@ const Login = () => {
                 <div className="space-y-2">
                   <label className="text-slate-300 text-[11px] font-black uppercase tracking-[0.2em] pl-1">Legal Full Name</label>
                   <div className="relative group">
-                    <User size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-[#0d9488] transition-colors" />
+                    <User size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-[#0d9488] transition-colors pointer-events-none" />
                     <input 
                       type="text"
                       placeholder="John Doe"
-                      className="w-full bg-white text-slate-900 rounded-2xl pl-12 pr-6 py-4 text-sm font-black outline-none border-b-4 border-slate-200 focus:border-[#0d9488] transition-all shadow-[0_10px_20px_-10px_rgba(0,0,0,0.1)] placeholder:text-slate-300"
+                      className="w-full bg-white text-slate-900 rounded-2xl pl-12 pr-6 py-4 text-sm font-black outline-none border-b-4 border-slate-200 focus:border-[#0d9488] transition-all shadow-[0_10px_20px_-10px_rgba(0,0,0,0.1)] placeholder:text-slate-300 cursor-text"
                       value={regData.fullName}
                       onChange={(e) => setRegData({...regData, fullName: e.target.value})}
                     />
@@ -362,11 +362,11 @@ const Login = () => {
                 <div className="space-y-2">
                   <label className="text-slate-300 text-[11px] font-black uppercase tracking-[0.2em] pl-1">Protocol Email Address</label>
                   <div className="relative group">
-                    <ShieldCheck size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-[#0d9488] transition-colors" />
+                    <ShieldCheck size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-[#0d9488] transition-colors pointer-events-none" />
                     <input 
                       type="email"
                       placeholder={`primary@${role.toLowerCase().replace(' ', '')}.com`}
-                      className="w-full bg-white text-slate-900 rounded-2xl pl-12 pr-6 py-4 text-sm font-black outline-none border-b-4 border-slate-200 focus:border-[#0d9488] transition-all shadow-[0_10px_20px_-10px_rgba(0,0,0,0.1)] placeholder:text-slate-300"
+                      className="w-full bg-white text-slate-900 rounded-2xl pl-12 pr-6 py-4 text-sm font-black outline-none border-b-4 border-slate-200 focus:border-[#0d9488] transition-all shadow-[0_10px_20px_-10px_rgba(0,0,0,0.1)] placeholder:text-slate-300 cursor-text"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                     />
@@ -377,11 +377,11 @@ const Login = () => {
                   <div className="space-y-2">
                     <label className="text-slate-300 text-[11px] font-black uppercase tracking-[0.2em] pl-1">Communication Line</label>
                     <div className="relative group">
-                      <ShieldCheck size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-[#0d9488] transition-colors" />
+                      <ShieldCheck size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-[#0d9488] transition-colors pointer-events-none" />
                       <input 
                         type="tel"
                         placeholder="+91 ...."
-                        className="w-full bg-white text-slate-900 rounded-2xl pl-12 pr-6 py-4 text-sm font-black outline-none border-b-4 border-slate-200 focus:border-[#0d9488] transition-all shadow-[0_10px_20px_-10px_rgba(0,0,0,0.1)] placeholder:text-slate-300"
+                        className="w-full bg-white text-slate-900 rounded-2xl pl-12 pr-6 py-4 text-sm font-black outline-none border-b-4 border-slate-200 focus:border-[#0d9488] transition-all shadow-[0_10px_20_px_-10px_rgba(0,0,0,0.1)] placeholder:text-slate-300 cursor-text"
                         value={regData.phone}
                         onChange={(e) => setRegData({...regData, phone: e.target.value})}
                       />
@@ -390,11 +390,11 @@ const Login = () => {
                   <div className="space-y-2">
                     <label className="text-slate-300 text-[11px] font-black uppercase tracking-[0.2em] pl-1">Operational Area</label>
                     <div className="relative group">
-                      <Building2 size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-[#0d9488] transition-colors" />
+                      <Building2 size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-[#0d9488] transition-colors pointer-events-none" />
                       <input 
                         type="text"
                         placeholder="Location"
-                        className="w-full bg-white text-slate-900 rounded-2xl pl-12 pr-6 py-4 text-sm font-black outline-none border-b-4 border-slate-200 focus:border-[#0d9488] transition-all shadow-[0_10px_20px_-10px_rgba(0,0,0,0.1)] placeholder:text-slate-300"
+                        className="w-full bg-white text-slate-900 rounded-2xl pl-12 pr-6 py-4 text-sm font-black outline-none border-b-4 border-slate-200 focus:border-[#0d9488] transition-all shadow-[0_10px_20px_-10px_rgba(0,0,0,0.1)] placeholder:text-slate-300 cursor-text"
                         value={regData.place}
                         onChange={(e) => setRegData({...regData, place: e.target.value})}
                       />
@@ -405,11 +405,11 @@ const Login = () => {
                 <div className="space-y-2">
                   <label className="text-slate-300 text-[11px] font-black uppercase tracking-[0.2em] pl-1">Secure Access Key</label>
                   <div className="relative group">
-                    <Lock size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-[#0d9488] transition-colors" />
+                    <Lock size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-[#0d9488] transition-colors pointer-events-none" />
                     <input 
                       type={showPassword ? "text" : "password"}
                       placeholder="••••••••"
-                      className="w-full bg-white text-slate-900 rounded-2xl pl-12 pr-12 py-4 text-sm font-black outline-none border-b-4 border-slate-200 focus:border-[#0d9488] transition-all shadow-[0_10px_20px_-10px_rgba(0,0,0,0.1)] placeholder:text-slate-300"
+                      className="w-full bg-white text-slate-900 rounded-2xl pl-12 pr-12 py-4 text-sm font-black outline-none border-b-4 border-slate-200 focus:border-[#0d9488] transition-all shadow-[0_10px_20px_-10px_rgba(0,0,0,0.1)] placeholder:text-slate-300 cursor-text"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                     />

@@ -23,6 +23,10 @@ body, h1, h2, h3, h4, h5, h6, .font-black, .font-bold, p, span, label, input, se
   font-family: 'Poppins', sans-serif !important;
 }
 
+input[type="text"], input[type="email"], input[type="password"], input[type="tel"], textarea {
+  cursor: text !important;
+}
+
 /* Specific subtext classes */
 .text-slate-500, .text-slate-400, .text-slate-300 {
   font-family: 'Poppins', sans-serif !important;
