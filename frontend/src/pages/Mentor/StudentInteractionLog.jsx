@@ -1,846 +1,568 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation, useLocation as useLoc, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import {
  MessageSquare, CheckCircle, ArrowLeft, Target, AlertCircle, BarChart3,
  CloudLightning, FileText, Camera, Phone, UserCheck, HeartPulse, Brain,
- Clock, Activity, BookOpen, Smile, Plus, Frown, Meh, MoreHorizontal, Upload, ImageIcon, Loader2
+ Clock, Activity, BookOpen, Smile, Plus, Frown, Meh, MoreHorizontal, Upload, ImageIcon, Loader2, Zap, TrendingUp, ShieldAlert, CheckCircle2, ChevronRight
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Modal from '../../components/Modal';
-import MentorshipQuestionsForm from '../../components/Mentor/MentorshipQuestionsForm';
 
 const StudentInteractionLog = () => {
  const location = useLocation();
  const navigate = useNavigate();
 
- // Check if a student was passed via state (e.g. from My Students list)
- const studentFromState = location.state?.student;
-
  const [loading, setLoading] = useState(false);
+ const [assignedLoading, setAssignedLoading] = useState(true);
  const [submitted, setSubmitted] = useState(false);
- const [students, setStudents] = useState([]);
- const [selectedStudent, setSelectedStudent] = useState(studentFromState || null);
- const [logs, setLogs] = useState([]);
- const [allLogs, setAllLogs] = useState([]);
- // State for viewing details
- const [viewLog, setViewLog] = useState(null);
- const [uploading, setUploading] = useState(false);
+ const [allStudents, setAllStudents] = useState([]);
+ const [assignedStudents, setAssignedStudents] = useState([]);
+ const [selectedStudent, setSelectedStudent] = useState(null);
  const [activeTab, setActiveTab] = useState('both'); // 'both', 'mentorship', 'tuition'
-
- const initialFormData = {
- date: new Date().toISOString().split('T')[0],
- connection_method: 'Call',
- self_clarity: '',
- confusing_topic: '',
- can_solve_independently: 'Yes',
- homework_status: 'Done',
- homework_difficulty: 'Medium',
- revision_quality: 'Good',
- confidence: 3,
- motivation_level: 'Medium',
- exam_anxiety: 'No',
- focus_level: 'Average',
- student_requests: '',
- parent_update_priority: 'Low',
- mentor_action_needed: 'No',
- mentor_notes: '',
- connected_today: true,
- screenshot_url: ''
- };
-
- const [formData, setFormData] = useState(initialFormData);
+ 
+ // Form States
+ const [sessionType, setSessionType] = useState(null); // 'DEEP', 'MEDIUM', 'QUICK'
+ const [formData, setFormData] = useState({});
 
  useEffect(() => {
- if (!selectedStudent) {
- fetchStudents();
- fetchAllLogs();
- } else {
- fetchStudentLogs(selectedStudent.id);
- }
- }, [selectedStudent]);
+   fetchAssignedStudents();
+   fetchAllStudents();
+ }, []);
 
- const fetchStudents = async () => {
- try {
- const res = await api.get('/mentor/students');
- setStudents(res.data.data);
- } catch (error) {
- toast.error("Failed to load students");
- } finally {
- setLoading(false);
- }
+ const fetchAssignedStudents = async () => {
+   setAssignedLoading(true);
+   try {
+     const res = await api.get('/mentor-interactions/daily-assignments');
+     setAssignedStudents(res.data.data);
+   } catch (error) {
+     toast.error("Failed to load daily assignments");
+   } finally {
+     setAssignedLoading(false);
+   }
  };
 
- const fetchAllLogs = async () => {
- try {
- const res = await api.get('/mentor/student-logs');
- setAllLogs(res.data.data);
- } catch (error) {
- toast.error("Failed to load student interaction history");
- }
+ const fetchAllStudents = async () => {
+   try {
+     const res = await api.get('/mentor/students');
+     setAllStudents(res.data.data);
+   } catch (error) {
+     console.error("Failed to load all students");
+   }
  };
 
- const fetchStudentLogs = async (studentId) => {
- try {
- const res = await api.get(`/mentor/students/${studentId}`);
- const student = students.find(s => s.id === studentId) || selectedStudent;
- if (isMentorshipStudent(student)) {
- setLogs(res.data.data.mentorshipLogs || []);
- } else {
- setLogs(res.data.data.studentLogs || []);
- }
- } catch (error) {
- toast.error("Failed to load student logs");
- }
+ const handleStudentSelect = (student, type) => {
+   setSelectedStudent(student);
+   setSessionType(type || 'TUITION');
+   setSubmitted(false);
+   
+   // Initialize form data based on type
+   if (type === 'DEEP') {
+     setFormData({
+       student_status_before: 'Yes',
+       main_problem: 'None',
+       root_cause: '',
+       mentor_guidance: '',
+       action_plan: '',
+       student_response: 'Positive',
+       followup_required: 'No',
+       followup_when: 'Tomorrow',
+       priority_tag: 'Stable'
+     });
+   } else if (type === 'MEDIUM') {
+     setFormData({
+       progress: 'Good',
+       class_attendance: 'Regular',
+       issue_found: 'No',
+       issue_category: 'Academic',
+       quick_guidance: '',
+       next_task: '',
+       upgrade_to_deep: 'No'
+     });
+   } else if (type === 'QUICK') {
+     setFormData({
+       availability: 'Attended',
+       study_status: 'Proper',
+       attendance: 'Attended',
+       immediate_concern: 'No',
+       motivation_given: 'Yes'
+     });
+   } else {
+     // Simple Tuition Tracking
+     setFormData({
+       date: new Date().toISOString().split('T')[0],
+       attendance: 'Present',
+       notes: ''
+     });
+   }
  };
 
- const handleFileUpload = async (e) => {
- const file = e.target.files[0];
- if (!file) return;
+ const handleChange = (e) => {
+   const { name, value } = e.target;
+   setFormData(prev => ({ ...prev, [name]: value }));
+ };
 
- if (file.size > 5 * 1024 * 1024) {
- toast.error("File size must be less than 5MB");
- return;
- }
+ const handleSubmit = async (e) => {
+   e.preventDefault();
+   setLoading(true);
 
- const uploadData = new FormData();
- uploadData.append('file', file);
+   try {
+     if (sessionType === 'TUITION') {
+       // Old legacy logging or simple tracking for tuition
+       await api.post('/mentor/student-log', {
+         ...formData,
+         student_id: selectedStudent.id,
+         student_name: selectedStudent.name,
+         connection_method: 'Other',
+         mentor_notes: formData.notes
+       });
+     } else {
+       // New Structured Interaction System
+       await api.post('/mentor-interactions/submit-report', {
+         student_id: selectedStudent.id,
+         session_type: sessionType,
+         report_data: formData
+       });
+     }
 
- setUploading(true);
- try {
- const res = await api.post('/upload', uploadData, {
- headers: { 'Content-Type': 'multipart/form-data' }
- });
- if (res.data.success) {
- setFormData({ ...formData, screenshot_url: res.data.url });
- toast.success("File uploaded successfully");
- }
- } catch (error) {
- toast.error(error.response?.data?.message || "File upload failed");
- } finally {
- setUploading(false);
- }
+     toast.success("Interaction submitted successfully!");
+     setSubmitted(true);
+     fetchAssignedStudents(); // Refresh daily list
+   } catch (error) {
+     toast.error(error.response?.data?.message || "Submission failed");
+   } finally {
+     setLoading(false);
+   }
  };
 
  const isDiamondCategory = (s) => s.badge === 'Diamond' || (s.enrollment_type && s.enrollment_type.toLowerCase() === 'both');
  const isGoldCategory = (s) => (s.badge === 'Gold' || (s.enrollment_type && s.enrollment_type.toLowerCase() === 'mentorship')) && !isDiamondCategory(s);
  const isSilverCategory = (s) => !isDiamondCategory(s) && !isGoldCategory(s);
 
- const isMentorshipStudent = (student) => {
- return isDiamondCategory(student) || isGoldCategory(student);
+ const getSessionIcon = (type) => {
+   switch(type) {
+     case 'DEEP': return <Activity className="text-rose-500" size={20} />;
+     case 'MEDIUM': return <TrendingUp className="text-amber-500" size={20} />;
+     case 'QUICK': return <Zap className="text-blue-500" size={20} />;
+     default: return <UserCheck className="text-slate-400" size={20} />;
+   }
  };
 
- const handleChange = (e) => {
- const { name, value } = e.target;
-
- // Validate Self Clarity (0-100)
- if (name === 'self_clarity') {
- const num = parseInt(value);
- if (value !== '' && (isNaN(num) || num < 0 || num > 100)) return;
- }
-
- setFormData(prev => ({
- ...prev,
- [name]: value
- }));
+ const getSessionColor = (type) => {
+   switch(type) {
+     case 'DEEP': return 'bg-rose-50 border-rose-100 text-rose-600';
+     case 'MEDIUM': return 'bg-amber-50 border-amber-100 text-amber-600';
+     case 'QUICK': return 'bg-blue-50 border-blue-100 text-blue-600';
+     default: return 'bg-slate-50 border-slate-100 text-slate-600';
+   }
  };
 
- const handleCheckboxChange = (e) => {
- const { name, checked } = e.target;
- setFormData(prev => ({ ...prev, [name]: checked }));
- };
-
- const handleStudentSelect = (student) => {
- setSelectedStudent(student);
- setFormData(initialFormData); // Reset form data for the new student
- setSubmitted(false); // Reset submission state
- };
-
- const handleSubmit = async (e) => {
- e.preventDefault();
- setLoading(true);
-
- try {
- await api.post('/mentor/student-log', {
- ...formData,
- student_id: selectedStudent.id,
- student_name: selectedStudent.name
- });
-
- toast.success("Student interaction submitted!");
- setFormData(initialFormData); // Clear form after submission
- setSubmitted(true);
- fetchStudentLogs(selectedStudent.id); // Refresh logs
- } catch (error) {
- toast.error(error.response?.data?.message || "Logging failed");
- } finally {
- setLoading(false);
- }
- };
-
- // Helper to render label-value pair
- const DetailRow = ({ label, value, highlight = false }) => (
- <div className="flex flex-col gap-2 p-5 bg-slate-50/50 rounded-[20px] border border-slate-100/50 group/detail hover:bg-white hover:border-[#008080]/30 transition-all">
- <span className="text-[10px] uppercase font-black text-slate-600 tracking-[0.2em] group-hover/detail:text-[#008080] transition-colors">{label}</span>
- <span className={`text-[13px] font-black uppercase tracking-tighter ${highlight ? 'text-[#008080]' : 'text-slate-700'}`}>{value || '—'}</span>
- </div>
- );
-
+ // Main List Screen
  if (!selectedStudent) {
- return (
- <div className="max-w-6xl mx-auto p-4 md:p-10 pb-20 space-y-12 animate-in fade-in slide-in-from-bottom-6 duration-700">
- <header className="bg-white/70 backdrop-blur-xl p-8 md:p-14 rounded-[40px] md:rounded-[48px] border border-white/60 shadow-[0_20px_50px_rgba(0,0,0,0.06)] flex flex-col md:flex-row justify-between items-center gap-10">
- <div className="text-center md:text-left">
- <h1 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tighter uppercase leading-none mb-4">Student Interactions</h1>
- <p className="text-slate-600 text-[11px] font-black uppercase tracking-[0.3em] mt-3 flex items-center gap-3 justify-center md:justify-start">
- <div className="w-2 h-2 rounded-full bg-[#008080] animate-ping"></div>
- Student Performance Protocol
- </p>
- </div>
- <div className="w-20 h-20 md:w-24 md:h-24 bg-gradient-to-br from-slate-800 to-slate-900 rounded-[32px] flex items-center justify-center text-[#008080] shadow-2xl shadow-slate-900/20 group hover:rotate-12 transition-transform duration-500">
- <UserCheck size={40} strokeWidth={2.5} className="group-hover:scale-110 transition-transform" />
- </div>
- </header>
+   return (
+     <div className="max-w-6xl mx-auto p-4 md:p-10 pb-20 space-y-12 animate-in fade-in slide-in-from-bottom-6 duration-700">
+       <header className="bg-white/70 backdrop-blur-xl p-8 md:p-14 rounded-[40px] md:rounded-[48px] border border-white/60 shadow-[0_20px_50px_rgba(0,0,0,0.06)] flex flex-col md:flex-row justify-between items-center gap-10">
+         <div className="text-center md:text-left">
+           <h1 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tighter uppercase leading-none mb-4">Mentor Execution Hub</h1>
+           <p className="text-slate-600 text-[11px] font-black uppercase tracking-[0.3em] mt-3 flex items-center gap-3 justify-center md:justify-start">
+             <div className="w-2 h-2 rounded-full bg-[#008080] animate-ping"></div>
+             Decision-Driven Mentorship Engine
+           </p>
+         </div>
+         <div className="flex gap-4">
+            <div className="p-6 bg-rose-50 rounded-3xl border border-rose-100 text-center">
+                <p className="text-[10px] font-black text-rose-600 uppercase mb-1">Deep</p>
+                <p className="text-2xl font-black text-rose-900">05</p>
+            </div>
+            <div className="p-6 bg-amber-50 rounded-3xl border border-amber-100 text-center">
+                <p className="text-[10px] font-black text-amber-600 uppercase mb-1">Med</p>
+                <p className="text-2xl font-black text-amber-900">05</p>
+            </div>
+            <div className="p-6 bg-blue-50 rounded-3xl border border-blue-100 text-center">
+                <p className="text-[10px] font-black text-blue-600 uppercase mb-1">Quick</p>
+                <p className="text-2xl font-black text-blue-900">05</p>
+            </div>
+         </div>
+       </header>
 
- {/* Explicit Start Logging Action Bar */}
- <div className="bg-slate-900/95 backdrop-blur-2xl p-8 md:p-12 rounded-[40px] border border-slate-800 shadow-[0_30px_60px_rgba(0,0,0,0.15)] flex flex-col md:flex-row items-center justify-between gap-10 relative overflow-hidden group">
- <div className="absolute top-0 right-0 w-64 h-64 bg-[#008080]/5 rounded-full -mr-32 -mt-32 blur-3xl group-hover:bg-[#008080]/10 transition-colors duration-1000"></div>
- <div className="relative z-10 w-full md:w-auto text-center md:text-left">
- <h3 className="text-2xl font-black text-white mb-2 flex items-center gap-4 justify-center md:justify-start tracking-tight">
- <Plus size={28} className="text-[#008080]" strokeWidth={3} /> Initialize Student Interaction
- </h3>
- <p className="text-[11px] font-black text-slate-500 uppercase tracking-[0.25em]">Select an active student node to begin documentation</p>
- </div>
- 
- <div className="relative w-full md:w-[450px] z-10">
- {students.length > 0 ? (
- <div className="relative">
- <select
- onChange={(e) => {
- const student = students.find(s => s.id.toString() === e.target.value);
- if(student) handleStudentSelect(student);
- }}
- className="w-full p-6 bg-slate-800/50 border border-slate-700/50 rounded-[28px] text-[13px] font-black uppercase tracking-[0.1em] text-slate-300 outline-none focus:ring-4 focus:ring-[#008080]/10 focus:border-[#008080]/30 appearance-none cursor-pointer transition-all hover:bg-slate-800"
- defaultValue=""
- >
- <option value="" disabled>Search Protocol Database...</option>
- {students.map(s => (
- <option key={s.id} value={s.id}>{s.name} • {s.course.toUpperCase()}</option>
- ))}
- </select>
- <div className="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500 group-hover:text-[#008080] transition-colors">
- <ArrowLeft size={20} className="rotate-[-90deg]" strokeWidth={3} />
- </div>
- </div>
- ) : (
- <div className="w-full p-6 bg-rose-500/10 border border-rose-500/20 rounded-[28px] text-[11px] font-black uppercase tracking-widest text-rose-500 text-center animate-pulse">
- Null Assigned Student Payload
- </div>
- )}
- </div>
- </div>
-
- {/* Tab Navigation */}
- <div className="flex flex-wrap gap-4 p-2 bg-slate-100/50 rounded-[28px] border border-slate-200/50">
-   <button
-     onClick={() => setActiveTab('both')}
-     className={`flex-1 py-4 px-6 rounded-[22px] text-[11px] font-black uppercase tracking-widest transition-all ${activeTab === 'both' ? 'bg-[#008080] text-white shadow-lg shadow-[#008080]/20' : 'text-slate-600 hover:bg-white hover:text-[#008080]'}`}
-   >
-     Mentorship & Tuition
-   </button>
-   <button
-     onClick={() => setActiveTab('mentorship')}
-     className={`flex-1 py-4 px-6 rounded-[22px] text-[11px] font-black uppercase tracking-widest transition-all ${activeTab === 'mentorship' ? 'bg-amber-400 text-white shadow-lg shadow-amber-400/20' : 'text-slate-600 hover:bg-white hover:text-amber-500'}`}
-   >
-     Mentorship Only
-   </button>
-   <button
-     onClick={() => setActiveTab('tuition')}
-     className={`flex-1 py-4 px-6 rounded-[22px] text-[11px] font-black uppercase tracking-widest transition-all ${activeTab === 'tuition' ? 'bg-slate-400 text-white shadow-lg shadow-slate-400/20' : 'text-slate-600 hover:bg-white hover:text-slate-600'}`}
-   >
-     Tuition Only
-   </button>
- </div>
-
- {/* Tab Content */}
- <div className="min-h-[400px]">
-   {activeTab === 'both' && (
-     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-       <div className="flex items-center gap-3 pl-2">
-         <div className="w-4 h-8 bg-purple-500 rounded-full"></div>
-         <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest">Mentorship & Tuition (Diamond)</h3>
+       {/* Tab Navigation */}
+       <div className="flex flex-wrap gap-4 p-2 bg-white/50 backdrop-blur-md rounded-[28px] border border-slate-200/50 sticky top-4 z-50 shadow-sm">
+         {[
+           { id: 'both', label: 'Mentorship + Tuition', color: 'bg-purple-600' },
+           { id: 'mentorship', label: 'Mentorship Only', color: 'bg-amber-500' },
+           { id: 'tuition', label: 'Tuition Only', color: 'bg-slate-900' }
+         ].map(tab => (
+           <button
+             key={tab.id}
+             onClick={() => setActiveTab(tab.id)}
+             className={`flex-1 py-4 px-6 rounded-[22px] text-[11px] font-black uppercase tracking-widest transition-all ${activeTab === tab.id ? `${tab.color} text-white shadow-lg` : 'text-slate-600 hover:bg-white'}`}
+           >
+             {tab.label}
+           </button>
+         ))}
        </div>
-       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-         {students.filter(isDiamondCategory).length > 0 ? (
-           students.filter(isDiamondCategory).map(student => (
-             <button
-               key={student.id}
-               onClick={() => handleStudentSelect(student)}
-               className="bg-white p-6 md:p-8 rounded-[2.5rem] border border-slate-100 hover:shadow-xl hover:shadow-purple-500/10 hover:border-purple-200 hover:scale-[1.02] transition-all cursor-pointer group text-left relative overflow-hidden"
-             >
-               <div className="absolute top-0 right-0 w-24 h-24 bg-purple-50 rounded-full -mr-12 -mt-12 group-hover:bg-purple-100 group-hover:scale-150 transition-all duration-500 opacity-50"></div>
-               <div className="flex items-center gap-2 mb-1 relative z-10">
-                 <h3 className="text-lg font-black text-slate-900">{student.name}</h3>
-                 <span>💎</span>
-               </div>
-               <p className="text-xs font-bold text-slate-500 mb-4 relative z-10">{student.course} • {student.grade}</p>
-               <div className="flex items-center gap-2 text-purple-600 text-[10px] font-black uppercase tracking-widest relative z-10">
-                 <span>Log Student Interaction</span> <ArrowLeft size={12} className="rotate-180" />
-               </div>
-             </button>
-           ))
+
+       {/* Main Content Area */}
+       <div className="min-h-[400px]">
+         {assignedLoading ? (
+           <div className="flex flex-col items-center justify-center py-40 gap-4">
+             <Loader2 size={40} className="animate-spin text-[#008080]" />
+             <p className="text-xs font-black text-slate-400 uppercase tracking-widest">Rotating Engines...</p>
+           </div>
          ) : (
-           <div className="col-span-full py-20 text-center bg-slate-50/50 rounded-[2.5rem] border border-dashed border-slate-200">
-             <p className="text-xs font-bold text-slate-400 uppercase tracking-[0.2em]">{`No students in this category.`}</p>
+           <div className="space-y-10 animate-in fade-in duration-500">
+             {activeTab !== 'tuition' ? (
+               <div className="space-y-8">
+                 <div className="flex items-center justify-between px-4">
+                    <h3 className="text-sm font-black text-slate-900 uppercase tracking-[0.2em] flex items-center gap-3">
+                        <ShieldAlert size={18} className="text-[#008080]" /> Today's Assigned Students (15 Only)
+                    </h3>
+                    <div className="px-4 py-2 bg-slate-900 text-white rounded-xl text-[10px] font-black tracking-widest">
+                        {assignedStudents.filter(s => s.status === 'COMPLETED').length} / 15 COMPLETED
+                    </div>
+                 </div>
+
+                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                   {assignedStudents
+                     .filter(s => {
+                       const fullStudent = allStudents.find(as => as.id === s.id);
+                       if (!fullStudent) return false;
+                       if (activeTab === 'both') return isDiamondCategory(fullStudent);
+                       if (activeTab === 'mentorship') return isGoldCategory(fullStudent);
+                       return false;
+                     })
+                     .map(student => (
+                     <button
+                       key={student.id}
+                       disabled={student.status === 'COMPLETED'}
+                       onClick={() => handleStudentSelect(student, student.sessionType)}
+                       className={`group relative overflow-hidden p-8 rounded-[3rem] border transition-all text-left flex flex-col justify-between h-64 ${student.status === 'COMPLETED' ? 'bg-slate-50 border-slate-100 opacity-60 grayscale' : 'bg-white border-slate-100 hover:shadow-2xl hover:scale-[1.02] hover:border-slate-200 active:scale-95'}`}
+                     >
+                       <div className={`absolute top-0 right-0 w-32 h-32 rounded-full -mr-16 -mt-16 opacity-10 transition-transform group-hover:scale-150 duration-700 ${getSessionColor(student.sessionType).split(' ')[0]}`}></div>
+                       
+                       <div>
+                         <div className="flex justify-between items-start mb-4">
+                           <div className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest border ${getSessionColor(student.sessionType)}`}>
+                             {student.sessionType} SESSION
+                           </div>
+                           {student.status === 'COMPLETED' && <CheckCircle2 className="text-emerald-500" size={24} />}
+                         </div>
+                         <h3 className="text-2xl font-black text-slate-900 tracking-tight leading-none uppercase mb-2">{student.name}</h3>
+                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Student ID: MM-{student.id.toString().padStart(4, '0')}</p>
+                       </div>
+
+                       <div className="flex items-center justify-between mt-6">
+                         <div className="flex items-center gap-3">
+                           <div className={`w-10 h-10 rounded-2xl flex items-center justify-center ${getSessionColor(student.sessionType)}`}>
+                             {getSessionIcon(student.sessionType)}
+                           </div>
+                           <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                             {student.status === 'COMPLETED' ? 'Report Logged' : 'Awaiting Interaction'}
+                           </span>
+                         </div>
+                         <ChevronRight size={20} className="text-slate-300 group-hover:text-slate-900 transition-colors" />
+                       </div>
+                     </button>
+                   ))}
+                   {assignedStudents.filter(s => {
+                       const fullStudent = allStudents.find(as => as.id === s.id);
+                       if (!fullStudent) return false;
+                       if (activeTab === 'both') return isDiamondCategory(fullStudent);
+                       if (activeTab === 'mentorship') return isGoldCategory(fullStudent);
+                       return false;
+                     }).length === 0 && (
+                     <div className="col-span-full py-20 text-center bg-slate-50/50 rounded-[3rem] border border-dashed border-slate-200">
+                        <p className="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">No students assigned in this category for today.</p>
+                     </div>
+                   )}
+                 </div>
+               </div>
+             ) : (
+               <div className="space-y-8">
+                  <div className="flex items-center gap-3 px-4">
+                    <div className="w-4 h-8 bg-slate-900 rounded-full"></div>
+                    <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest">Tuition Only Tracker</h3>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {allStudents.filter(isSilverCategory).map(student => (
+                      <button
+                        key={student.id}
+                        onClick={() => handleStudentSelect(student, 'TUITION')}
+                        className="bg-white p-8 rounded-[3rem] border border-slate-100 hover:shadow-xl hover:scale-[1.02] transition-all text-left group"
+                      >
+                        <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight mb-1">{student.name}</h3>
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">{student.course} • Grade {student.grade}</p>
+                        <div className="flex items-center gap-2 text-[#008080] text-[9px] font-black uppercase tracking-[0.2em]">
+                          Track Attendance <ArrowLeft size={12} className="rotate-180" />
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+               </div>
+             )}
            </div>
          )}
        </div>
      </div>
-   )}
-
-   {activeTab === 'mentorship' && (
-     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-       <div className="flex items-center gap-3 pl-2">
-         <div className="w-4 h-8 bg-amber-400 rounded-full"></div>
-         <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest pl-2">Mentorship Only (Gold)</h3>
-       </div>
-       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-         {students.filter(isGoldCategory).length > 0 ? (
-           students.filter(isGoldCategory).map(student => (
-             <button
-               key={student.id}
-               onClick={() => handleStudentSelect(student)}
-               className="bg-white p-6 md:p-8 rounded-[2.5rem] border border-slate-100 hover:shadow-xl hover:shadow-amber-500/10 hover:border-amber-200 hover:scale-[1.02] transition-all cursor-pointer group text-left relative overflow-hidden"
-             >
-               <div className="absolute top-0 right-0 w-24 h-24 bg-amber-50 rounded-full -mr-12 -mt-12 group-hover:bg-amber-100 group-hover:scale-150 transition-all duration-500 opacity-50"></div>
-               <div className="flex items-center gap-2 mb-1 relative z-10">
-                 <h3 className="text-lg font-black text-slate-900">{student.name}</h3>
-                 <span>🥇</span>
-               </div>
-               <p className="text-xs font-bold text-slate-500 mb-4 relative z-10">{student.course} • {student.grade}</p>
-               <div className="flex items-center gap-2 text-amber-600 text-[10px] font-black uppercase tracking-widest relative z-10">
-                 <span>Log Student Interaction</span> <ArrowLeft size={12} className="rotate-180" />
-               </div>
-             </button>
-           ))
-         ) : (
-           <div className="col-span-full py-20 text-center bg-slate-50/50 rounded-[2.5rem] border border-dashed border-slate-200">
-             <p className="text-xs font-bold text-slate-400 uppercase tracking-[0.2em]">No students in this category.</p>
-           </div>
-         )}
-       </div>
-     </div>
-   )}
-
-   {activeTab === 'tuition' && (
-     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-       <div className="flex items-center gap-3 pl-2">
-         <div className="w-4 h-8 bg-slate-400 rounded-full"></div>
-         <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest pl-2">Tuition Only</h3>
-       </div>
-       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-         {students.filter(isSilverCategory).length > 0 ? (
-           students.filter(isSilverCategory).map(student => (
-             <button
-               key={student.id}
-               onClick={() => handleStudentSelect(student)}
-               className="bg-white p-6 md:p-8 rounded-[2.5rem] border border-slate-100 hover:shadow-xl hover:shadow-[#008080]/10 hover:border-[#008080]/30 hover:scale-[1.02] transition-all cursor-pointer group text-left relative overflow-hidden"
-             >
-               <div className="absolute top-0 right-0 w-24 h-24 bg-slate-50 rounded-full -mr-12 -mt-12 group-hover:bg-[#008080] group-hover:scale-150 transition-all duration-500 opacity-10"></div>
-               <div className="flex items-center gap-2 mb-1 relative z-10">
-                 <h3 className="text-lg font-black text-slate-900">{student.name}</h3>
-                 {student.badge === 'Silver' && <span>🥈</span>}
-               </div>
-               <p className="text-xs font-bold text-slate-500 mb-4 relative z-10">{student.course} • {student.grade}</p>
-               <div className="flex items-center gap-2 text-slate-600 group-hover:text-[#008080] text-[10px] font-black uppercase tracking-widest relative z-10">
-                 <span>Log Student Interaction</span> <ArrowLeft size={12} className="rotate-180" />
-               </div>
-             </button>
-           ))
-         ) : (
-           <div className="col-span-full py-20 text-center bg-slate-50/50 rounded-[2.5rem] border border-dashed border-slate-200">
-             <p className="text-xs font-bold text-slate-400 uppercase tracking-[0.2em]">No students in this category.</p>
-           </div>
-         )}
-       </div>
-     </div>
-   )}
- </div>
-
- {/* History Table for all students */}
- <div className="mt-12 bg-white/80 backdrop-blur-lg p-10 rounded-[44px] shadow-[0_30px_60px_rgba(0,0,0,0.04)] border border-white/60 group">
- <h3 className="text-2xl font-black text-slate-900 mb-8 flex items-center gap-4 tracking-tight">
- <Activity className="text-[#008080]" size={28} strokeWidth={2.5} />
- Student Interaction History
- </h3>
- <div className="overflow-x-auto">
- <table className="w-full text-left border-collapse">
- <thead>
- <tr className="border-b border-slate-100 bg-slate-50">
- <th className="p-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">Date</th>
- <th className="p-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">Student</th>
- <th className="p-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">Method</th>
- <th className="p-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">Mentor Notes</th>
- <th className="p-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">Details</th>
- </tr>
- </thead>
- <tbody>
- {allLogs.slice(0, 10).map(log => (
- <tr key={log.id} className="border-b border-slate-50 hover:bg-slate-50/80 transition-all group/row">
- <td className="p-6 text-[11px] font-black text-slate-500 uppercase tracking-widest">{new Date(log.date).toLocaleDateString('en-GB')}</td>
- <td className="p-6 text-[13px] font-black text-slate-800 uppercase tracking-tighter group-hover/row:text-[#008080] transition-colors">{log.student_name}</td>
- <td className="p-6 text-[10px] font-black text-slate-600 uppercase tracking-[0.2em]">
- <span className="px-4 py-1.5 bg-slate-100/50 rounded-full border border-slate-200/50">
- {log.connection_method}
- </span>
- </td>
- <td className="p-6 text-[11px] font-black text-slate-500 max-w-[250px] truncate ">{log.mentor_notes || '—'}</td>
- <td className="p-6 text-right">
- <button
- onClick={() => {
- const stu = students.find(s => s.id === log.student_id);
- setSelectedStudent(stu || { id: log.student_id, name: log.student_name });
- setTimeout(() => {
- setViewLog(log);
- setSubmitted(true);
- }, 100);
- }}
- className="w-12 h-12 rounded-[18px] bg-slate-50 flex items-center justify-center text-slate-600 hover:text-[#008080] hover:bg-[#008080]/10 transition-all border border-transparent hover:border-[#008080]/20 active:scale-90"
- >
- <Target size={20} strokeWidth={2.5} />
- </button>
- </td>
- </tr>
- ))}
- {allLogs.length === 0 && (
- <tr>
- <td colSpan="5" className="p-8 text-center text-sm font-bold text-slate-600">No interaction logs found.</td>
- </tr>
- )}
- </tbody>
- </table>
- </div>
- </div>
- </div>
- );
+   );
  }
 
+ // Interaction Form Screen
  return (
- <div className="max-w-4xl mx-auto space-y-10 p-6 pb-20 animate-in fade-in slide-in-from-bottom-4 duration-500">
- <button
- onClick={() => { setSelectedStudent(null); setSubmitted(false); }}
- className="flex items-center gap-2 text-slate-600 hover:text-[#008080] font-black text-[10px] uppercase tracking-widest transition-colors mb-4"
- >
- <ArrowLeft size={16} /> Select Different Student
- </button>
+   <div className="max-w-4xl mx-auto space-y-10 p-6 pb-20 animate-in fade-in slide-in-from-bottom-4 duration-500">
+     <button
+       onClick={() => { setSelectedStudent(null); setSubmitted(false); }}
+       className="flex items-center gap-2 text-slate-600 hover:text-[#008080] font-black text-[10px] uppercase tracking-widest transition-colors mb-4"
+     >
+       <ArrowLeft size={16} /> Return to Execution Hub
+     </button>
 
- <header className="bg-slate-900 border border-slate-800 p-10 rounded-[3rem] shadow-2xl relative overflow-hidden">
- <div className="absolute top-0 right-0 w-80 h-80 bg-[#008080] rounded-full -mr-40 -mt-40 opacity-10"></div>
- <div className="relative z-10 flex items-center gap-6">
- <div className="w-16 h-16 bg-[#008080] rounded-[1.5rem] flex items-center justify-center text-white shadow-xl shadow-[#008080]/30/50">
- <MessageSquare size={32} />
- </div>
- <div>
- <h1 className="text-3xl font-black text-white tracking-tight">Student Interaction</h1>
- <p className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] mt-1">Student: {selectedStudent.name} | Date: {formData.date}</p>
- </div>
- </div>
- </header>
+     <header className={`border p-10 rounded-[3rem] shadow-2xl relative overflow-hidden transition-all ${sessionType === 'DEEP' ? 'bg-rose-950 border-rose-900' : sessionType === 'MEDIUM' ? 'bg-amber-950 border-amber-900' : sessionType === 'QUICK' ? 'bg-blue-950 border-blue-900' : 'bg-slate-900 border-slate-800'}`}>
+        <div className={`absolute top-0 right-0 w-80 h-80 rounded-full -mr-40 -mt-40 opacity-10 ${sessionType === 'DEEP' ? 'bg-rose-500' : sessionType === 'MEDIUM' ? 'bg-amber-500' : sessionType === 'QUICK' ? 'bg-blue-500' : 'bg-[#008080]'}`}></div>
+        <div className="relative z-10 flex items-center gap-6">
+          <div className={`w-16 h-16 rounded-[1.5rem] flex items-center justify-center text-white shadow-xl ${sessionType === 'DEEP' ? 'bg-rose-500' : sessionType === 'MEDIUM' ? 'bg-amber-500' : sessionType === 'QUICK' ? 'bg-blue-500' : 'bg-[#008080]'}`}>
+            {getSessionIcon(sessionType)}
+          </div>
+          <div>
+            <h1 className="text-3xl font-black text-white tracking-tight leading-none uppercase mb-2">{selectedStudent.name}</h1>
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">
+              {sessionType} SESSION PROTOCOL • {new Date().toLocaleDateString('en-GB')}
+            </p>
+          </div>
+        </div>
+     </header>
 
- {!submitted ? (
- isMentorshipStudent(selectedStudent) ? (
- <MentorshipQuestionsForm 
- selectedStudent={selectedStudent} 
- setSubmitted={setSubmitted} 
- fetchStudentLogs={fetchStudentLogs} 
- />
- ) : (
- <form onSubmit={handleSubmit} className="bg-white p-6 md:p-12 rounded-[3.5rem] shadow-xl shadow-slate-100 border border-slate-50 space-y-12">
+     {!submitted ? (
+       <form onSubmit={handleSubmit} className="bg-white p-6 md:p-12 rounded-[3.5rem] shadow-2xl border border-slate-50 space-y-12">
+         
+         {sessionType === 'DEEP' && (
+           <div className="space-y-12">
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+               <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Student Status Before Session</label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {['Yes', 'Partially', 'No'].map(opt => (
+                      <button key={opt} type="button" onClick={() => setFormData({...formData, student_status_before: opt})} className={`py-4 rounded-2xl text-[10px] font-black uppercase transition-all ${formData.student_status_before === opt ? 'bg-rose-500 text-white shadow-lg' : 'bg-slate-50 text-slate-400'}`}>{opt}</button>
+                    ))}
+                  </div>
+               </div>
+               <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Main Problem Identified</label>
+                  <select name="main_problem" value={formData.main_problem} onChange={handleChange} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-black uppercase">
+                    {['Academic', 'Consistency', 'Confidence', 'Distraction', 'Emotional', 'None'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                  </select>
+               </div>
+             </div>
 
- {/* Section 1: Session Information */}
- <div className="space-y-6">
- <h3 className="text-xs font-black text-slate-900 uppercase tracking-[0.2em] border-l-4 border-[#008080] pl-4 flex items-center gap-2">
- <Clock size={16} className="text-[#008080]" /> Section 1: Session Information
- </h3>
- <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-slate-50/50 p-6 rounded-3xl border border-slate-100">
- <div className="space-y-2">
- <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Date</label>
- <input
- type="date"
- name="date"
- value={formData.date}
- onChange={handleChange}
- className="w-full p-4 bg-white border border-slate-200 rounded-2xl text-sm font-bold text-slate-700 focus:ring-4 focus:ring-[#008080] outline-none"
- />
- </div>
- <div className="space-y-2">
- <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Connection Method</label>
- <select name="connection_method" value={formData.connection_method} onChange={handleChange} className="w-full p-4 bg-white border border-slate-200 rounded-2xl text-sm font-bold text-slate-700 focus:ring-4 focus:ring-[#008080] outline-none">
- {['Call', 'WhatsApp Chat', 'Zoom', 'Direct', 'Other'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
- </select>
- </div>
- </div>
- </div>
+             <div className="space-y-8">
+                <div className="space-y-2">
+                   <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Root Cause Identification</label>
+                   <textarea name="root_cause" rows="2" required value={formData.root_cause} onChange={handleChange} className="w-full p-6 bg-slate-50 border border-slate-100 rounded-[2rem] text-sm font-bold outline-none focus:ring-4 focus:ring-rose-500/10 focus:border-rose-200" placeholder="Analyze the fundamental reason..."></textarea>
+                </div>
+                <div className="space-y-2">
+                   <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Mentor Guidance Given</label>
+                   <textarea name="mentor_guidance" rows="2" required value={formData.mentor_guidance} onChange={handleChange} className="w-full p-6 bg-slate-50 border border-slate-100 rounded-[2rem] text-sm font-bold outline-none focus:ring-4 focus:ring-rose-500/10 focus:border-rose-200" placeholder="What strategic advice was provided?"></textarea>
+                </div>
+                <div className="space-y-2">
+                   <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Action Plan (Measurable Steps)</label>
+                   <textarea name="action_plan" rows="2" required value={formData.action_plan} onChange={handleChange} className="w-full p-6 bg-slate-900 text-white rounded-[2rem] text-sm font-bold outline-none border-none" placeholder="1. Step one... 2. Step two..."></textarea>
+                </div>
+             </div>
 
- {/* Section 2: Learning Evaluation */}
- <div className="space-y-6">
- <h3 className="text-xs font-black text-slate-900 uppercase tracking-[0.2em] border-l-4 border-emerald-600 pl-4 flex items-center gap-2">
- <Brain size={16} className="text-emerald-600" /> Section 2: Learning Evaluation
- </h3>
- <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
- <div className="space-y-2">
- <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Self Clarity (0-100)</label>
- <input type="number" min="0" max="100" name="self_clarity" value={formData.self_clarity} onChange={handleChange} placeholder="e.g. 85" className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-700 outline-none" required />
- </div>
- <div className="space-y-2">
- <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Can Solve Independently?</label>
- <select name="can_solve_independently" value={formData.can_solve_independently} onChange={handleChange} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-700 outline-none">
- {['Yes', 'Partially', 'No'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
- </select>
- </div>
- <div className="space-y-2 md:col-span-2">
- <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Confusing Topic</label>
- <input type="text" name="confusing_topic" value={formData.confusing_topic} onChange={handleChange} placeholder="Any specific topic?" className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-700 outline-none" />
- </div>
- </div>
- </div>
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-6 border-t border-slate-100">
+               <div className="space-y-4">
+                  <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Student Response</label>
+                  <div className="flex gap-2">
+                    {['Positive', 'Neutral', 'Not responsive'].map(opt => (
+                      <button key={opt} type="button" onClick={() => setFormData({...formData, student_response: opt})} className={`flex-1 py-4 rounded-2xl text-[9px] font-black uppercase transition-all ${formData.student_response === opt ? 'bg-slate-900 text-white shadow-lg' : 'bg-slate-50 text-slate-400'}`}>{opt}</button>
+                    ))}
+                  </div>
+               </div>
+               <div className="space-y-4">
+                  <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Priority Tag After Session</label>
+                  <div className="flex gap-2">
+                    {['High', 'Medium', 'Stable'].map(opt => (
+                      <button key={opt} type="button" onClick={() => setFormData({...formData, priority_tag: opt})} className={`flex-1 py-4 rounded-2xl text-[9px] font-black uppercase transition-all ${formData.priority_tag === opt ? 'bg-rose-500 text-white shadow-lg' : 'bg-slate-50 text-slate-400'}`}>{opt}</button>
+                    ))}
+                  </div>
+               </div>
+             </div>
 
- {/* Section 3: Homework & Revision */}
- <div className="space-y-6">
- <h3 className="text-xs font-black text-slate-900 uppercase tracking-[0.2em] border-l-4 border-amber-500 pl-4 flex items-center gap-2">
- <BookOpen size={16} className="text-amber-500" /> Section 3: Homework & Revision
- </h3>
- <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
- <div className="space-y-2">
- <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Homework Status</label>
- <select name="homework_status" value={formData.homework_status} onChange={handleChange} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-700 outline-none">
- {['Done', 'Partial', 'Not Done'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
- </select>
- </div>
- <div className="space-y-2">
- <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Difficulty</label>
- <select name="homework_difficulty" value={formData.homework_difficulty} onChange={handleChange} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-700 outline-none">
- {['Easy', 'Medium', 'Hard'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
- </select>
- </div>
- <div className="space-y-2">
- <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Revision Quality</label>
- <select name="revision_quality" value={formData.revision_quality} onChange={handleChange} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-700 outline-none">
- {['Good', 'Rushed', 'Not Done'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
- </select>
- </div>
- </div>
- </div>
+             <div className="p-8 bg-slate-50 rounded-[2.5rem] border border-slate-100 flex flex-col md:flex-row items-center justify-between gap-6">
+                <div className="flex items-center gap-4">
+                  <input type="checkbox" id="followup" checked={formData.followup_required === 'Yes'} onChange={(e) => setFormData({...formData, followup_required: e.target.checked ? 'Yes' : 'No'})} className="w-6 h-6 rounded-lg text-rose-500 border-slate-300 focus:ring-rose-500" />
+                  <label htmlFor="followup" className="text-xs font-black text-slate-900 uppercase tracking-widest">Follow-up Required?</label>
+                </div>
+                {formData.followup_required === 'Yes' && (
+                  <select name="followup_when" value={formData.followup_when} onChange={handleChange} className="p-4 bg-white border border-slate-200 rounded-2xl text-[10px] font-black uppercase tracking-widest outline-none">
+                    {['Tomorrow', '2 days', 'This week'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                  </select>
+                )}
+             </div>
+           </div>
+         )}
 
- {/* Section 4: Emotional & Performance */}
- <div className="space-y-6">
- <h3 className="text-xs font-black text-slate-900 uppercase tracking-[0.2em] border-l-4 border-rose-500 pl-4 flex items-center gap-2">
- <HeartPulse size={16} className="text-rose-500" /> Section 4: Emotional & Performance
- </h3>
- <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
- <div className="space-y-2">
- <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Confidence (1-5)</label>
- <div className="flex gap-2">
- {[1, 2, 3, 4, 5].map(num => (
- <button
- key={num}
- type="button"
- onClick={() => setFormData({ ...formData, confidence: num })}
- className={`flex-1 p-3 rounded-xl font-black text-sm transition-all ${formData.confidence === num ? 'bg-rose-500 text-white shadow-lg shadow-rose-200' : 'bg-slate-50 text-slate-600 hover:bg-slate-100'}`}
- >
- {num}
- </button>
- ))}
- </div>
- </div>
- <div className="space-y-2">
- <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Focus Level</label>
- <select name="focus_level" value={formData.focus_level} onChange={handleChange} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-700 outline-none">
- {['Good', 'Average', 'Poor'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
- </select>
- </div>
- <div className="space-y-2">
- <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Motivation</label>
- <select name="motivation_level" value={formData.motivation_level} onChange={handleChange} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-700 outline-none">
- {['High', 'Medium', 'Low'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
- </select>
- </div>
- <div className="space-y-2">
- <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Exam Anxiety?</label>
- <select name="exam_anxiety" value={formData.exam_anxiety} onChange={handleChange} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-700 outline-none">
- {['No', 'Yes'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
- </select>
- </div>
- </div>
- </div>
+         {sessionType === 'MEDIUM' && (
+           <div className="space-y-10">
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+               <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Session Progress</label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {['Good', 'Average', 'Poor'].map(opt => (
+                      <button key={opt} type="button" onClick={() => setFormData({...formData, progress: opt})} className={`py-4 rounded-2xl text-[10px] font-black uppercase transition-all ${formData.progress === opt ? 'bg-amber-500 text-white shadow-lg' : 'bg-slate-50 text-slate-400'}`}>{opt}</button>
+                    ))}
+                  </div>
+               </div>
+               <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Class Attendance</label>
+                  <select name="class_attendance" value={formData.class_attendance} onChange={handleChange} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-black uppercase">
+                    {['Regular', 'Missed 1', 'Missed multiple'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                  </select>
+               </div>
+             </div>
 
- {/* Section 5: Requests & Actions */}
- <div className="space-y-6">
- <h3 className="text-xs font-black text-slate-900 uppercase tracking-[0.2em] border-l-4 border-purple-500 pl-4 flex items-center gap-2">
- <Activity size={16} className="text-purple-500" /> Section 5: Requests & Actions
- </h3>
- <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
- <div className="space-y-2 md:col-span-2">
- <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Student Requests</label>
- <textarea name="student_requests" rows="2" value={formData.student_requests} onChange={handleChange} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-700 outline-none"></textarea>
- </div>
- <div className="space-y-2">
- <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Parent Update Priority</label>
- <select name="parent_update_priority" value={formData.parent_update_priority} onChange={handleChange} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-700 outline-none">
- {['Low', 'Medium', 'High'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
- </select>
- </div>
- <div className="space-y-2">
- <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Mentor Action Needed?</label>
- <select name="mentor_action_needed" value={formData.mentor_action_needed} onChange={handleChange} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-700 outline-none">
- {['Yes', 'No'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
- </select>
- </div>
- <div className="space-y-2 md:col-span-2">
- <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Mentor Notes</label>
- <textarea name="mentor_notes" rows="4" value={formData.mentor_notes} onChange={handleChange} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-700 outline-none"></textarea>
- </div>
+             <div className="p-8 bg-amber-50/50 rounded-[2.5rem] border border-amber-100 space-y-6">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-black text-amber-900 uppercase tracking-widest">Issue Detected?</span>
+                  <div className="flex gap-2">
+                    {['Yes', 'No'].map(opt => (
+                      <button key={opt} type="button" onClick={() => setFormData({...formData, issue_found: opt})} className={`px-8 py-2 rounded-xl text-[10px] font-black uppercase transition-all ${formData.issue_found === opt ? 'bg-amber-600 text-white shadow-md' : 'bg-white text-slate-400 border border-amber-100'}`}>{opt}</button>
+                    ))}
+                  </div>
+                </div>
+                {formData.issue_found === 'Yes' && (
+                  <div className="animate-in slide-in-from-top-4 duration-300">
+                    <label className="text-[9px] font-black text-amber-600 uppercase tracking-widest ml-1">Category</label>
+                    <div className="flex gap-2 mt-2">
+                      {['Academic', 'Discipline', 'Focus'].map(opt => (
+                        <button key={opt} type="button" onClick={() => setFormData({...formData, issue_category: opt})} className={`flex-1 py-3 rounded-xl text-[9px] font-black uppercase transition-all ${formData.issue_category === opt ? 'bg-slate-900 text-white' : 'bg-white text-slate-400 border border-slate-100'}`}>{opt}</button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+             </div>
 
- <div className="md:col-span-2 pt-4 flex items-center gap-4">
- <input
- type="checkbox"
- id="connected_today"
- name="connected_today"
- checked={formData.connected_today}
- onChange={handleCheckboxChange}
- className="w-6 h-6 rounded-lg text-[#008080] border-slate-300 focus:ring-[#008080]"
- />
- <label htmlFor="connected_today" className="text-sm font-black text-slate-900 uppercase tracking-widest cursor-pointer">
- [✓] Connected Today
- </label>
- </div>
- </div>
- </div>
+             <div className="space-y-8">
+                <div className="space-y-2">
+                   <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Quick Guidance Provided</label>
+                   <textarea name="quick_guidance" rows="2" value={formData.quick_guidance} onChange={handleChange} className="w-full p-6 bg-slate-50 border border-slate-100 rounded-[2rem] text-sm font-bold outline-none focus:ring-4 focus:ring-amber-500/10 focus:border-amber-200" placeholder="Briefly summarize the guidance..."></textarea>
+                </div>
+                <div className="space-y-2">
+                   <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Next Task (Mandatory)</label>
+                   <input type="text" name="next_task" required value={formData.next_task} onChange={handleChange} className="w-full p-6 bg-slate-900 text-white rounded-[2rem] text-sm font-bold outline-none border-none" placeholder="What is the very next action for the student?" />
+                </div>
+             </div>
 
- {/* Section 6: Attachments */}
- <div className="space-y-6">
- <h3 className="text-xs font-black text-slate-900 uppercase tracking-[0.2em] border-l-4 border-[#008080] pl-4 flex items-center gap-2">
- <Camera size={16} className="text-[#008080]" /> Section 6: Attachments
- </h3>
+             <div className="flex items-center justify-between p-8 bg-slate-50 rounded-[2.5rem] border border-slate-100">
+                <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Upgrade to Deep Session?</span>
+                <div className="flex gap-2">
+                  {['Yes', 'No'].map(opt => (
+                    <button key={opt} type="button" onClick={() => setFormData({...formData, upgrade_to_deep: opt})} className={`px-8 py-3 rounded-xl text-[10px] font-black uppercase transition-all ${formData.upgrade_to_deep === opt ? 'bg-rose-500 text-white shadow-lg' : 'bg-white text-slate-400 border border-slate-200'}`}>{opt}</button>
+                  ))}
+                </div>
+             </div>
+           </div>
+         )}
 
- <div className="space-y-4 bg-slate-50 p-8 rounded-[2rem] border border-slate-100">
- <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 flex items-center gap-2">
- <Upload size={14} className="text-[#008080]" /> Interaction Proof (Image/PDF)
- </label>
+         {sessionType === 'QUICK' && (
+           <div className="space-y-10">
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                <div className="space-y-6">
+                   <div className="flex items-center justify-between bg-slate-50 p-6 rounded-3xl">
+                      <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Availability</span>
+                      <select name="availability" value={formData.availability} onChange={handleChange} className="p-2 bg-transparent border-none text-[10px] font-black uppercase text-blue-600 outline-none">
+                        {['Attended', 'Not attended'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                      </select>
+                   </div>
+                   <div className="flex items-center justify-between bg-slate-50 p-6 rounded-3xl">
+                      <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Study Status</span>
+                      <select name="study_status" value={formData.study_status} onChange={handleChange} className="p-2 bg-transparent border-none text-[10px] font-black uppercase text-blue-600 outline-none">
+                        {['Proper', 'Partial', 'Not studied'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                      </select>
+                   </div>
+                </div>
+                <div className="space-y-6">
+                   <div className="flex items-center justify-between bg-slate-50 p-6 rounded-3xl">
+                      <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Attendance</span>
+                      <select name="attendance" value={formData.attendance} onChange={handleChange} className="p-2 bg-transparent border-none text-[10px] font-black uppercase text-blue-600 outline-none">
+                        {['Attended', 'Missed'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                      </select>
+                   </div>
+                   <div className="flex items-center justify-between bg-blue-50 p-6 rounded-3xl border border-blue-100">
+                      <span className="text-[10px] font-black text-blue-900 uppercase tracking-widest">Motivation Given?</span>
+                      <div className="flex gap-2">
+                        {['Yes', 'No'].map(opt => (
+                          <button key={opt} type="button" onClick={() => setFormData({...formData, motivation_given: opt})} className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase transition-all ${formData.motivation_given === opt ? 'bg-blue-600 text-white shadow-md' : 'bg-white text-slate-400 border border-blue-200'}`}>{opt}</button>
+                        ))}
+                      </div>
+                   </div>
+                </div>
+             </div>
 
- <div className="flex flex-col md:flex-row items-center gap-6">
- <div className="relative group w-full md:w-auto">
- <input
- type="file"
- id="proof-upload"
- className="hidden"
- onChange={handleFileUpload}
- accept=".jpg,.jpeg,.png,.pdf"
- />
- <label
- htmlFor="proof-upload"
- className={`flex items-center justify-center gap-3 px-8 py-4 bg-white border-2 border-dashed border-slate-200 rounded-2xl cursor-pointer hover:border-[#008080] hover:bg-[#008080]/10/50 transition-all group ${uploading ? 'opacity-50 pointer-events-none' : ''}`}
- >
- {uploading ? (
- <Loader2 className="animate-spin text-[#008080]" size={20} />
- ) : (
- <ImageIcon className="text-slate-600 group-hover:text-[#008080]" size={20} />
- )}
- <span className="text-xs font-black text-slate-600 uppercase tracking-widest">
- {uploading ? 'Uploading...' : 'Choose File'}
- </span>
- </label>
- </div>
+             <div className="p-10 bg-rose-50 rounded-[3rem] border-2 border-rose-100 text-center space-y-6">
+                <ShieldAlert className="mx-auto text-rose-500" size={40} />
+                <h4 className="text-lg font-black text-rose-900 uppercase tracking-tight">Immediate Concern?</h4>
+                <p className="text-[10px] font-bold text-rose-600 uppercase tracking-widest max-w-sm mx-auto">Flagging an immediate concern will automatically schedule a DEEP session for tomorrow.</p>
+                <div className="flex justify-center gap-4">
+                  {['Yes', 'No'].map(opt => (
+                    <button key={opt} type="button" onClick={() => setFormData({...formData, immediate_concern: opt})} className={`px-12 py-4 rounded-[1.5rem] text-sm font-black uppercase tracking-widest transition-all ${formData.immediate_concern === opt ? 'bg-rose-600 text-white shadow-2xl' : 'bg-white text-rose-300 border border-rose-100 hover:bg-rose-100'}`}>{opt}</button>
+                  ))}
+                </div>
+             </div>
+           </div>
+         )}
 
- {formData.screenshot_url && (
- <div className="flex items-center gap-4 bg-white px-6 py-3 rounded-2xl border border-slate-200 animate-in zoom-in duration-300">
- <div className="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center">
- <CheckCircle size={18} />
- </div>
- <div className="flex flex-col">
- <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">File Attached</span>
- <a href={formData.screenshot_url} target="_blank" rel="noreferrer" className="text-xs font-bold text-[#008080] hover:underline truncate max-w-[150px]">View Document</a>
- </div>
- <button
- type="button"
- onClick={() => setFormData({ ...formData, screenshot_url: '' })}
- className="text-slate-300 hover:text-rose-500 transition-colors"
- >
- <MoreHorizontal size={16} />
- </button>
- </div>
- )}
- </div>
- <p className="text-[9px] font-bold text-slate-600 ">Max size: 5MB. Supports JPG, PNG, PDF</p>
- </div>
- </div>
+         {sessionType === 'TUITION' && (
+           <div className="space-y-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="space-y-2">
+                   <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Attendance Status</label>
+                   <select name="attendance" value={formData.attendance} onChange={handleChange} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-black uppercase">
+                     {['Present', 'Absent', 'Late'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                   </select>
+                </div>
+                <div className="space-y-2">
+                   <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Date</label>
+                   <input type="date" name="date" value={formData.date} onChange={handleChange} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-black uppercase" />
+                </div>
+              </div>
+              <div className="space-y-2">
+                 <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Observations / Quick Notes</label>
+                 <textarea name="notes" rows="4" value={formData.notes} onChange={handleChange} className="w-full p-6 bg-slate-50 border border-slate-100 rounded-[2rem] text-sm font-bold outline-none focus:ring-4 focus:ring-slate-900/10" placeholder="Any specific notes for today's tuition..."></textarea>
+              </div>
+           </div>
+         )}
 
- <div className="pt-8">
- <button
- type="submit"
- disabled={loading}
- className="w-full bg-[#008080] text-white p-5 rounded-[2rem] font-black text-sm uppercase tracking-[0.3em] shadow-2xl shadow-[#008080]/30/50 hover:bg-[#008080] hover:-translate-y-1 transition-all disabled:opacity-50 flex items-center justify-center gap-4 active:scale-[0.98]"
- >
- {loading ? 'Submitting...' : 'Submit Student Interaction'}
- {!loading && <CheckCircle size={20} />}
- </button>
- </div>
+         <div className="pt-8">
+           <button
+             type="submit"
+             disabled={loading}
+             className={`w-full p-6 rounded-[2.5rem] font-black text-sm uppercase tracking-[0.3em] shadow-2xl transition-all disabled:opacity-50 flex items-center justify-center gap-4 active:scale-[0.98] ${sessionType === 'DEEP' ? 'bg-rose-600 text-white shadow-rose-200 hover:-translate-y-1' : sessionType === 'MEDIUM' ? 'bg-amber-500 text-white shadow-amber-200 hover:-translate-y-1' : sessionType === 'QUICK' ? 'bg-blue-600 text-white shadow-blue-200 hover:-translate-y-1' : 'bg-slate-900 text-white hover:-translate-y-1'}`}
+           >
+             {loading ? 'Processing Protocol...' : 'Finalize Interaction & Sync State'}
+             {!loading && <CheckCircle2 size={24} />}
+           </button>
+         </div>
 
- </form>
- )
- ) : (
- <div className="space-y-8 animate-in fade-in zoom-in duration-300">
- <div className="bg-emerald-50 border border-emerald-100 p-8 rounded-[3rem] text-center">
- <div className="w-16 h-16 bg-emerald-500 text-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg shadow-emerald-200">
- <CheckCircle size={32} />
- </div>
- <h2 className="text-2xl font-black text-emerald-900 mb-2">Student Interaction Submitted!</h2>
- <button
- onClick={() => setSubmitted(false)}
- className="text-xs font-bold text-emerald-600 hover:text-emerald-800 underline uppercase tracking-widest"
- >
- Add Another Log
- </button>
- </div>
-
- {/* Compact Table View */}
- <div className="bg-white p-6 rounded-[2.5rem] shadow-xl shadow-slate-100 border border-slate-50">
- <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest mb-6 ml-2">Recent Logs for {selectedStudent.name}</h3>
- <div className="overflow-x-auto">
- <table className="w-full text-left border-collapse">
- <thead>
- <tr className="border-b border-slate-100">
- <th className="p-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">Date</th>
- <th className="p-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">Sess #</th>
- <th className="p-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">Method</th>
- <th className="p-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">Clarity</th>
- <th className="p-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">Show More</th>
- </tr>
- </thead>
- <tbody>
- {logs.slice(0, 5).map(log => (
- <tr
- key={log.id}
- onClick={() => setViewLog(log)}
- className="border-b border-slate-50 hover:bg-slate-50 transition-colors cursor-pointer group"
- >
- <td className="p-4 text-xs font-bold text-slate-700">{new Date(log.date || log.session_date).toLocaleDateString('en-GB')}</td>
- <td className="p-4 text-xs font-black text-slate-600">#{log.session_number || log.id}</td>
- <td className="p-4 text-xs font-bold text-slate-600">{log.connection_method || log.action_type}</td>
- <td className="p-4 text-xs font-bold text-[#008080]">{log.self_clarity ? `${log.self_clarity}%` : log.student_status}</td>
- <td className="p-4 text-xs font-bold text-slate-600 group-hover:text-[#008080] transition-colors">
- <MoreHorizontal size={16} />
- </td>
- </tr>
- ))}
- </tbody>
- </table>
- </div>
- </div>
-
- {/* View Log Modal */}
- <Modal isOpen={!!viewLog} onClose={() => setViewLog(null)} title={viewLog?.main_issue ? `Mentorship Log #${viewLog?.id}` : `Student Interaction #${viewLog?.session_number}`} size="lg">
- {viewLog && (
- <div className="space-y-8 p-2">
- {viewLog.main_issue ? (
- <>
- <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
- <DetailRow label="Date" value={new Date(viewLog.session_date).toLocaleDateString('en-GB')} />
- <DetailRow label="Main Issue" value={viewLog.main_issue} />
- <DetailRow label="Student" value={selectedStudent.name} />
- <DetailRow label="Status" value={viewLog.student_status} highlight />
- </div>
-
- <div className="space-y-4">
- <h4 className="text-xs font-black text-slate-900 uppercase tracking-[0.1em] border-l-4 border-[#008080] pl-3">Diagnosis & Behavior</h4>
- <div className="grid grid-cols-1 md:grid-cols-3 gap-6 bg-slate-50 p-6 rounded-3xl">
- <DetailRow label="Weak Subject" value={viewLog.weak_subject || 'None'} />
- <DetailRow label="Consistency (1-5)" value={viewLog.consistency_rating} />
- <DetailRow label="Focus (1-5)" value={viewLog.focus_rating} highlight />
- </div>
- </div>
-
- <div className="space-y-4">
- <h4 className="text-xs font-black text-slate-900 uppercase tracking-[0.1em] border-l-4 border-amber-500 pl-3">Action & Follow-up</h4>
- <div className="bg-slate-50 p-6 rounded-3xl space-y-6">
- <DetailRow label="Homework" value={viewLog.homework_status} />
- <DetailRow label="Assigned Action" value={viewLog.action_type} />
- <DetailRow label="Action Details" value={viewLog.action_details || 'None'} />
- <div className="grid grid-cols-2 gap-6">
- <DetailRow label="Follow-up Required" value={viewLog.follow_up_required ? 'Yes' : 'No'} />
- {viewLog.follow_up_required && <DetailRow label="Date & Priority" value={`${new Date(viewLog.follow_up_date).toLocaleDateString()} (${viewLog.priority})`} />}
- </div>
- </div>
- </div>
- </>
- ) : (
- <>
- <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
- <DetailRow label="Date" value={new Date(viewLog.date).toLocaleDateString('en-GB')} />
- <DetailRow label="Method" value={viewLog.connection_method} />
- <DetailRow label="Student" value={selectedStudent.name} />
- <DetailRow label="Status" value="Completed" highlight />
- </div>
-
- <div className="space-y-4">
- <h4 className="text-xs font-black text-slate-900 uppercase tracking-[0.1em] border-l-4 border-[#008080] pl-3">Learning & Comprehension</h4>
- <div className="grid grid-cols-1 md:grid-cols-3 gap-6 bg-slate-50 p-6 rounded-3xl">
- <DetailRow label="Self Clarity" value={`${viewLog.self_clarity}%`} highlight />
- <DetailRow label="Can Solve Independently?" value={viewLog.can_solve_independently} />
- <DetailRow label="Confusing Topic" value={viewLog.confusing_topic || 'None'} />
- </div>
- </div>
-
- <div className="space-y-4">
- <h4 className="text-xs font-black text-slate-900 uppercase tracking-[0.1em] border-l-4 border-amber-500 pl-3">Homework & Revision</h4>
- <div className="grid grid-cols-1 md:grid-cols-3 gap-6 bg-slate-50 p-6 rounded-3xl">
- <DetailRow label="Homework Status" value={viewLog.homework_status} />
- <DetailRow label="Difficulty" value={viewLog.homework_difficulty} />
- <DetailRow label="Revision Quality" value={viewLog.revision_quality} />
- </div>
- </div>
-
- <div className="space-y-4">
- <h4 className="text-xs font-black text-slate-900 uppercase tracking-[0.1em] border-l-4 border-purple-500 pl-3">Performance & Emotion</h4>
- <div className="grid grid-cols-1 md:grid-cols-3 gap-6 bg-slate-50 p-6 rounded-3xl">
- <DetailRow label="Confidence" value={`${viewLog.confidence}/5`} />
- <DetailRow label="Motivation" value={viewLog.motivation_level} />
- <DetailRow label="Anxiety" value={viewLog.exam_anxiety} />
- <DetailRow label="Focus Level" value={viewLog.focus_level} />
- </div>
- </div>
-
- <div className="space-y-4">
- <h4 className="text-xs font-black text-slate-900 uppercase tracking-[0.1em] border-l-4 border-rose-500 pl-3">Requests & Actions</h4>
- <div className="bg-slate-50 p-6 rounded-3xl space-y-6">
- <DetailRow label="Student Requests" value={viewLog.student_requests || 'None'} />
- <DetailRow label="Mentor Notes" value={viewLog.mentor_notes || 'None'} />
- <div className="grid grid-cols-2 gap-6">
- <DetailRow label="Parent Priority" value={viewLog.parent_update_priority} />
- <DetailRow label="Action Needed" value={viewLog.mentor_action_needed} />
- </div>
- {viewLog.screenshot_url && (
- <div className="pt-4 border-t border-slate-200">
- <DetailRow
- label="Interaction Proof"
- value={
- <a href={viewLog.screenshot_url} target="_blank" rel="noreferrer" className="text-[#008080] hover:underline flex items-center gap-2">
- <ImageIcon size={14} /> View Document
- </a>
- }
- />
- </div>
- )}
- </div>
- </div>
- </>
- )}
- </div>
- )}
- </Modal>
- </div>
- )}
- </div>
+       </form>
+     ) : (
+       <div className="space-y-8 animate-in fade-in zoom-in duration-300">
+         <div className="bg-emerald-50 border border-emerald-100 p-12 rounded-[4rem] text-center shadow-xl">
+           <div className="w-20 h-20 bg-emerald-500 text-white rounded-full flex items-center justify-center mx-auto mb-6 shadow-2xl shadow-emerald-200">
+             <CheckCircle2 size={40} strokeWidth={3} />
+           </div>
+           <h2 className="text-3xl font-black text-emerald-900 mb-2 uppercase tracking-tight">Protocol Synchronized!</h2>
+           <p className="text-emerald-600 font-bold text-xs uppercase tracking-widest mb-10">The student's performance state has been updated in the intelligence engine.</p>
+           <button
+             onClick={() => { setSelectedStudent(null); setSubmitted(false); }}
+             className="px-12 py-5 bg-emerald-600 text-white rounded-[2rem] text-xs font-black uppercase tracking-[0.2em] hover:bg-emerald-700 hover:shadow-xl transition-all active:scale-95"
+           >
+             Continue Today's Plan
+           </button>
+         </div>
+       </div>
+     )}
+   </div>
  );
 };
 

@@ -31,6 +31,7 @@ app.use('/api/faculty', require('./routes/facultyRoutes'));
 app.use('/api/student', studentRoutes);
 app.use('/api/mentor-logs', require('./routes/mentorLogRoutes'));
 app.use('/api/faculty-tracking', require('./routes/facultyTrackingRoutes'));
+app.use('/api/mentor-interactions', require('./routes/mentorInteractionRoutes'));
 
 // Basic Route
 app.get('/', (req, res) => {
@@ -154,6 +155,27 @@ const startServer = async () => {
                 'ALTER TABLE students ADD COLUMN country VARCHAR(100) NULL;',
                 'ALTER TABLE students ADD COLUMN total_fees DECIMAL(10,2) DEFAULT 0.00;',
                 'ALTER TABLE students ADD COLUMN total_paid DECIMAL(10,2) DEFAULT 0.00;',
+                'ALTER TABLE students ADD COLUMN priority_category ENUM("High", "Medium", "Stable") DEFAULT "Stable";',
+                'ALTER TABLE students ADD COLUMN last_session_type ENUM("DEEP", "MEDIUM", "QUICK") NULL;',
+                'ALTER TABLE students ADD COLUMN last_session_date DATE NULL;',
+
+                `CREATE TABLE IF NOT EXISTS daily_assignments (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    mentor_id INT NOT NULL,
+                    date DATE NOT NULL,
+                    assignments JSON NOT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    UNIQUE KEY (mentor_id, date)
+                );`,
+
+                `CREATE TABLE IF NOT EXISTS mentor_session_reports (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    student_id INT NOT NULL,
+                    mentor_id INT NOT NULL,
+                    session_type ENUM("DEEP", "MEDIUM", "QUICK") NOT NULL,
+                    report_data JSON NOT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                );`,
                 
                 `CREATE TABLE IF NOT EXISTS mentor_session_logs (
                     id INT AUTO_INCREMENT PRIMARY KEY,
