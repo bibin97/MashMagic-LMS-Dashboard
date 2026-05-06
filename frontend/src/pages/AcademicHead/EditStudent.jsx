@@ -302,37 +302,67 @@ const EditStudent = () => {
                     <div className="space-y-6">
                         {selectedSubjects.map((row, idx) => (
                             <div key={idx} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 bg-white p-8 rounded-[40px] border border-slate-100 shadow-sm relative animate-in slide-in-from-bottom-4 duration-300 items-end">
-                                {/* Custom Subject Dropdown */}
+                                {/* Custom Subject Dropdown (Multiple Selection) */}
                                 <div className="flex flex-col gap-2 relative">
-                                    <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest ml-1">Academic Subject</label>
+                                    <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest ml-1">Academic Subjects</label>
                                     <div 
                                         onClick={() => {
                                             const newSubjects = [...selectedSubjects];
                                             newSubjects[idx].isSubjectDropdownOpen = !newSubjects[idx].isSubjectDropdownOpen;
                                             setSelectedSubjects(newSubjects);
                                         }}
-                                        className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-[10px] font-black uppercase text-slate-800 cursor-pointer flex justify-between items-center"
+                                        className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-[10px] font-black uppercase text-slate-800 cursor-pointer flex justify-between items-center min-h-[52px]"
                                     >
-                                        <span>{row.subject || 'Select Subject'}</span>
-                                        <span>▼</span>
+                                        <span className="truncate">
+                                            {Array.isArray(row.subject) && row.subject.length > 0 
+                                                ? row.subject.join(', ') 
+                                                : (typeof row.subject === 'string' && row.subject ? row.subject : 'Select Subjects')}
+                                        </span>
+                                        <span className="text-slate-400">▼</span>
                                     </div>
                                     {row.isSubjectDropdownOpen && (
                                         <div className="absolute top-[100%] left-0 w-full bg-white border border-slate-100 rounded-2xl shadow-2xl z-[120] mt-1 p-2 max-h-60 overflow-y-auto animate-in fade-in zoom-in-95 duration-200">
-                                            {SUBJECT_OPTIONS.map(sub => (
-                                                <div 
-                                                    key={sub} 
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        handleSubjectChange(idx, 'subject', sub);
-                                                        const newSubjects = [...selectedSubjects];
-                                                        newSubjects[idx].isSubjectDropdownOpen = false;
-                                                        setSelectedSubjects(newSubjects);
-                                                    }}
-                                                    className={`p-3 rounded-xl cursor-pointer text-[10px] font-black uppercase ${row.subject === sub ? 'bg-[#008080] text-white' : 'hover:bg-slate-50 text-slate-600'}`}
-                                                >
-                                                    {sub}
-                                                </div>
-                                            ))}
+                                            {SUBJECT_OPTIONS.map(sub => {
+                                                const isSelected = Array.isArray(row.subject) ? row.subject.includes(sub) : row.subject === sub;
+                                                return (
+                                                    <div 
+                                                        key={sub} 
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            const newSubjects = [...selectedSubjects];
+                                                            let current = Array.isArray(newSubjects[idx].subject) 
+                                                                ? newSubjects[idx].subject 
+                                                                : (newSubjects[idx].subject ? [newSubjects[idx].subject] : []);
+                                                            
+                                                            if (current.includes(sub)) {
+                                                                current = current.filter(s => s !== sub);
+                                                            } else {
+                                                                current = [...current, sub];
+                                                            }
+                                                            newSubjects[idx].subject = current;
+                                                            setSelectedSubjects(newSubjects);
+                                                        }}
+                                                        className={`flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all ${isSelected ? 'bg-[#008080]/10 text-[#008080]' : 'hover:bg-slate-50 text-slate-600'}`}
+                                                    >
+                                                        <div className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${isSelected ? 'bg-[#008080] border-[#008080]' : 'border-slate-300'}`}>
+                                                            {isSelected && <CheckCircle size={10} className="text-white" />}
+                                                        </div>
+                                                        <span className="text-[10px] font-black uppercase">{sub}</span>
+                                                    </div>
+                                                );
+                                            })}
+                                            <button 
+                                                type="button"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    const newSubjects = [...selectedSubjects];
+                                                    newSubjects[idx].isSubjectDropdownOpen = false;
+                                                    setSelectedSubjects(newSubjects);
+                                                }}
+                                                className="w-full mt-2 p-3 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg active:scale-95 transition-transform"
+                                            >
+                                                Confirm Selection
+                                            </button>
                                         </div>
                                     )}
                                 </div>
