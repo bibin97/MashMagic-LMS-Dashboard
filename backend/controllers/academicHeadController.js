@@ -967,9 +967,13 @@ module.exports = {
         try {
             const { id } = req.params;
             const { 
-                name, grade, subject, course, email, meetingLink, meeting_link, 
-                password, subjects_json, selectedSubjects, mentor_id 
+                name, email, contact, grade, syllabus, course, hour, 
+                next_installment_date, admission_date, registration_number, 
+                meeting_link, meetingLink, enrollment_type, 
+                school_name, preferred_language, country, total_fees, total_paid,
+                selectedSubjects, subjects_json, mentor_id, password
             } = req.body;
+
             const finalMeetingLink = meetingLink || meeting_link;
             const finalSubjects = selectedSubjects || subjects_json || [];
             
@@ -979,31 +983,44 @@ module.exports = {
             // Prepare primary faculty/subject for legacy columns
             let primaryFacultyId = null;
             let primaryFacultyName = null;
-            let primarySubject = subject;
+            let primarySubject = null;
 
             if (finalSubjects.length > 0) {
                 primaryFacultyId = finalSubjects[0].facultyId;
                 primaryFacultyName = finalSubjects[0].facultyName;
-                primarySubject = primarySubject || finalSubjects[0].subject;
+                primarySubject = finalSubjects[0].subject;
             }
+
+            // Sync Badge with Enrollment Type
+            const badge = enrollment_type === 'Mentorship' ? 'Gold' : 
+                          enrollment_type === 'Tuition' ? 'Silver' : 
+                          enrollment_type === 'Mentorship and Tuition' ? 'Diamond' : null;
 
             // Update Students table
             await db.query(
                 `UPDATE students SET 
-                    name = ?, grade = ?, subject = ?, course = ?, email = ?, 
-                    meeting_link = ?, subjects_json = ?, mentor_id = ?
+                    name = ?, email = ?, contact = ?, grade = ?, syllabus = ?, course = ?, hour = ?,
+                    next_installment_date = ?, admission_date = ?, registration_number = ?,
+                    meeting_link = ?, enrollment_type = ?, badge = ?,
+                    school_name = ?, preferred_language = ?, country = ?, 
+                    total_fees = ?, total_paid = ?,
+                    subjects_json = ?, subject = ?, faculty_id = ?, faculty_name = ?, mentor_id = ?
                  WHERE id = ?`, 
                 [
-                    name, grade, primarySubject, course, email || null, 
-                    finalMeetingLink || null, JSON.stringify(finalSubjects), 
-                    mentor_id || null, id
+                    name, email || null, contact || null, grade || null, syllabus || null, course || null, hour || null,
+                    next_installment_date || null, admission_date || null, registration_number || null,
+                    finalMeetingLink || null, enrollment_type || null, badge,
+                    school_name || null, preferred_language || null, country || null,
+                    total_fees || 0, total_paid || 0,
+                    JSON.stringify(finalSubjects), primarySubject, primaryFacultyId, primaryFacultyName, mentor_id || null, 
+                    id
                 ]
             );
 
             // Update linked Users table
             if (student.user_id) {
-                let userUpdateQuery = 'UPDATE users SET name = ?, email = ?';
-                let userParams = [name, email || null];
+                let userUpdateQuery = 'UPDATE users SET name = ?, email = ?, phone_number = ?';
+                let userParams = [name, email || null, contact || null];
 
                 if (password && password.trim() !== '') {
                     const salt = await bcrypt.genSalt(10);

@@ -23,15 +23,21 @@ const Registrations = () => {
   });
 
   const [selectedSubjects, setSelectedSubjects] = useState([
-    { subject: '', days: [], startTime: '', endTime: '', facultyId: '', facultyName: '', hourlyRate: '', availableFaculties: [] }
+    { 
+      subject: '', days: [], startTime: '', endTime: '', facultyId: '', 
+      facultyName: '', hourlyRate: '', availableFaculties: [], 
+      isDayDropdownOpen: false, isSubjectDropdownOpen: false 
+    }
   ]);
 
   const [facultyForm, setFacultyForm] = useState({
     name: '', email: '', phone_number: '', place: '', password: '', confirmPassword: '',
     faculty_id_card: '', section: '', syllabus: [], languages_proficiency: [],
     qualification: '', experience: '', availability: '', hourly_rate: '',
-    teaching_mode: 'Both', joining_date: new Date().toISOString().split('T')[0], remarks: '', primary_subject: '', secondary_subjects: [],
-    isSecondaryDropdownOpen: false, isSectionDropdownOpen: false // State for dropdowns
+    teaching_mode: 'Both', joining_date: new Date().toISOString().split('T')[0], 
+    remarks: '', primary_subject: '', secondary_subjects: [],
+    isSecondaryDropdownOpen: false, isSectionDropdownOpen: false,
+    isSyllabusDropdownOpen: false, isLangDropdownOpen: false
   });
 
   const LANG_OPTIONS = [
@@ -51,6 +57,7 @@ const Registrations = () => {
 
   const DAYS_LIST = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
   const coursesList = ["Mission X", "Classmate", "Crash 45", "Bright Bridge", "Magic Revision"];
+  const SYLLABUS_OPTIONS = ["CBSE", "STATE", "ICSE", "IGCSE", "IB"];
 
   useEffect(() => {
     fetchDropdowns();
@@ -149,7 +156,8 @@ const Registrations = () => {
       facultyName: '', 
       hourlyRate: '', 
       availableFaculties: [],
-      isDayDropdownOpen: false // Track dropdown state for each row
+      isDayDropdownOpen: false, 
+      isSubjectDropdownOpen: false // Track subject dropdown state per row
     }]);
   };
 
@@ -446,17 +454,42 @@ const Registrations = () => {
                 <div className="space-y-6">
                   {selectedSubjects.map((row, idx) => (
                     <div key={idx} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-sm relative animate-in slide-in-from-right-2 duration-300 items-end">
-                      <div className="flex flex-col gap-2">
+                      <div className="flex flex-col gap-2 relative">
                         <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Subject</label>
-                        <select
-                          required
-                          value={row.subject}
-                          onChange={(e) => handleSubjectChange(idx, 'subject', e.target.value)}
-                          className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-xs font-bold outline-none focus:ring-2 focus:ring-[#008080] appearance-none"
+                        <div 
+                          onClick={() => {
+                            const newSubjects = [...selectedSubjects];
+                            newSubjects[idx].isSubjectDropdownOpen = !newSubjects[idx].isSubjectDropdownOpen;
+                            setSelectedSubjects(newSubjects);
+                          }}
+                          className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-xs font-bold text-slate-700 cursor-pointer flex justify-between items-center min-h-[42px]"
                         >
-                          <option value="" disabled>Select Subject</option>
-                          {SUBJECT_OPTIONS.map(sub => <option key={sub} value={sub}>{sub}</option>)}
-                        </select>
+                          <span className="truncate">{row.subject || 'Select Subject'}</span>
+                          <span className="text-slate-400">▼</span>
+                        </div>
+
+                        {row.isSubjectDropdownOpen && (
+                          <div className="absolute top-[100%] left-0 w-full bg-white border border-slate-100 rounded-xl shadow-2xl z-[110] mt-1 p-2 max-h-60 overflow-y-auto animate-in fade-in zoom-in-95 duration-200">
+                            {SUBJECT_OPTIONS.map(sub => (
+                              <div 
+                                key={sub} 
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleSubjectChange(idx, 'subject', sub);
+                                  const newSubjects = [...selectedSubjects];
+                                  newSubjects[idx].isSubjectDropdownOpen = false;
+                                  setSelectedSubjects(newSubjects);
+                                }}
+                                className={`flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all ${row.subject === sub ? 'bg-[#008080]/10 text-[#008080]' : 'hover:bg-slate-50 text-slate-600'}`}
+                              >
+                                <div className={`w-4 h-4 rounded-full border flex items-center justify-center transition-colors ${row.subject === sub ? 'bg-[#008080] border-[#008080]' : 'border-slate-300'}`}>
+                                  {row.subject === sub && <div className="w-1.5 h-1.5 bg-white rounded-full"></div>}
+                                </div>
+                                <span className="text-xs font-bold">{sub}</span>
+                              </div>
+                            ))}
+                          </div>
+                        )}
                       </div>
 
                       <div className="flex flex-col gap-2 relative">
@@ -760,40 +793,74 @@ const Registrations = () => {
                 </div>
 
                 <div className="flex flex-col gap-4 bg-slate-50 p-6 rounded-3xl border border-slate-100">
-                  <label className="text-[10px] font-black text-slate-900 uppercase tracking-[0.2em] ml-1">Syllabus Expertise</label>
-                  <div className="flex flex-wrap gap-2">
-                    {["CBSE", "STATE", "ICSE"].map((syll) => (
-                      <button
-                        key={syll}
-                        type="button"
-                        onClick={() => handleSyllabusToggle(syll)}
-                        className={`px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 border ${facultyForm.syllabus.includes(syll)
-                          ? 'bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-100'
-                          : 'bg-white text-slate-600 border-slate-200 hover:border-blue-200'
-                          }`}
-                      >
-                        {syll}
-                      </button>
-                    ))}
+                  <div className="flex flex-col gap-2 relative">
+                    <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Syllabus Expertise</label>
+                    <div 
+                      onClick={() => setFacultyForm(prev => ({ ...prev, isSyllabusDropdownOpen: !prev.isSyllabusDropdownOpen }))}
+                      className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold text-black cursor-pointer flex justify-between items-center min-h-[46px]"
+                    >
+                      <span className="truncate max-w-[250px]">
+                        {facultyForm.syllabus?.length > 0 ? facultyForm.syllabus.join(', ') : 'Select Syllabus'}
+                      </span>
+                      <span className="text-slate-400">▼</span>
+                    </div>
+                    {facultyForm.isSyllabusDropdownOpen && (
+                      <div className="absolute top-[100%] left-0 w-full bg-white border border-slate-100 rounded-xl shadow-2xl z-[100] mt-1 p-2 max-h-60 overflow-y-auto animate-in slide-in-from-top-2 duration-200">
+                        {SYLLABUS_OPTIONS.map(syl => (
+                          <div 
+                            key={syl} 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              const current = facultyForm.syllabus || [];
+                              const updated = current.includes(syl) ? current.filter(s => s !== syl) : [...current, syl];
+                              setFacultyForm(prev => ({ ...prev, syllabus: updated }));
+                            }}
+                            className={`flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all ${facultyForm.syllabus?.includes(syl) ? 'bg-[#008080]/10 text-[#008080]' : 'hover:bg-slate-50 text-slate-600'}`}
+                          >
+                            <div className={`w-5 h-5 rounded-lg border flex items-center justify-center transition-colors ${facultyForm.syllabus?.includes(syl) ? 'bg-[#008080] border-[#008080]' : 'border-slate-300'}`}>
+                              {facultyForm.syllabus?.includes(syl) && <CheckCircle size={12} className="text-white" />}
+                            </div>
+                            <span className="text-xs font-bold">{syl}</span>
+                          </div>
+                        ))}
+                        <button onClick={(e) => { e.stopPropagation(); setFacultyForm(prev => ({ ...prev, isSyllabusDropdownOpen: false })); }} className="w-full mt-3 p-3 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest">Confirm</button>
+                      </div>
+                    )}
                   </div>
-                </div>
 
-                <div className="flex flex-col gap-4 bg-slate-50 p-6 rounded-3xl border border-slate-100">
-                  <label className="text-[10px] font-black text-slate-900 uppercase tracking-[0.2em] ml-1">Language Proficiency</label>
-                  <div className="flex flex-wrap gap-2">
-                    {LANG_OPTIONS.map((lang) => (
-                      <button
-                        key={lang.id}
-                        type="button"
-                        onClick={() => handleLanguageToggle(lang.id)}
-                        className={`px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 border ${facultyForm.languages_proficiency.includes(lang.id)
-                          ? 'bg-emerald-600 text-white border-emerald-600 shadow-lg shadow-emerald-100'
-                          : 'bg-white text-slate-600 border-slate-200 hover:border-emerald-200'
-                          }`}
-                      >
-                        {lang.label}
-                      </button>
-                    ))}
+                  <div className="flex flex-col gap-2 relative">
+                    <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Language Proficiency</label>
+                    <div 
+                      onClick={() => setFacultyForm(prev => ({ ...prev, isLangDropdownOpen: !prev.isLangDropdownOpen }))}
+                      className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold text-black cursor-pointer flex justify-between items-center min-h-[46px]"
+                    >
+                      <span className="truncate max-w-[250px]">
+                        {facultyForm.languages_proficiency?.length > 0 ? facultyForm.languages_proficiency.map(id => LANG_OPTIONS.find(l => l.id === id)?.label || id).join(', ') : 'Select Languages'}
+                      </span>
+                      <span className="text-slate-400">▼</span>
+                    </div>
+                    {facultyForm.isLangDropdownOpen && (
+                      <div className="absolute top-[100%] left-0 w-full bg-white border border-slate-100 rounded-xl shadow-2xl z-[100] mt-1 p-2 max-h-60 overflow-y-auto animate-in slide-in-from-top-2 duration-200">
+                        {LANG_OPTIONS.map(lang => (
+                          <div 
+                            key={lang.id} 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              const current = facultyForm.languages_proficiency || [];
+                              const updated = current.includes(lang.id) ? current.filter(id => id !== lang.id) : [...current, lang.id];
+                              setFacultyForm(prev => ({ ...prev, languages_proficiency: updated }));
+                            }}
+                            className={`flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all ${facultyForm.languages_proficiency?.includes(lang.id) ? 'bg-[#008080]/10 text-[#008080]' : 'hover:bg-slate-50 text-slate-600'}`}
+                          >
+                            <div className={`w-5 h-5 rounded-lg border flex items-center justify-center transition-colors ${facultyForm.languages_proficiency?.includes(lang.id) ? 'bg-[#008080] border-[#008080]' : 'border-slate-300'}`}>
+                              {facultyForm.languages_proficiency?.includes(lang.id) && <CheckCircle size={12} className="text-white" />}
+                            </div>
+                            <span className="text-xs font-bold">{lang.label}</span>
+                          </div>
+                        ))}
+                        <button onClick={(e) => { e.stopPropagation(); setFacultyForm(prev => ({ ...prev, isLangDropdownOpen: false })); }} className="w-full mt-3 p-3 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest">Confirm</button>
+                      </div>
+                    )}
                   </div>
                 </div>
 

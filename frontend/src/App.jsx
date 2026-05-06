@@ -84,6 +84,7 @@ import FacultyLogsAcademic from './pages/AcademicHead/FacultyLogs';
 import CheckingSection from './pages/AcademicHead/CheckingSection';
 import AcademicLiveMonitoring from './pages/AcademicHead/LiveMonitoring';
 import EditStudent from './pages/AcademicHead/EditStudent';
+import EditFaculty from './pages/AcademicHead/EditFaculty';
 
 function App() {
   return (
@@ -156,6 +157,7 @@ function App() {
             <Route path="faculties" element={<FacultyDirectory />} />
             <Route path="students" element={<StudentsListAcademic role="academic_head" />} />
             <Route path="edit-student/:id" element={<EditStudent />} />
+            <Route path="edit-faculty/:id" element={<EditFaculty />} />
             <Route path="mentors" element={<MentorsListAcademic />} />
             <Route path="documents" element={<Documents />} />
             <Route path="faculty-audit" element={<FacultyAudit />} />
