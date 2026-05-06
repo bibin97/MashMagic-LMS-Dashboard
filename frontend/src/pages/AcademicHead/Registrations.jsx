@@ -79,9 +79,11 @@ const Registrations = () => {
   };
 
   const fetchAvailableFaculties = async (index, subject, days, startTime, endTime) => {
-    if (!subject || !days || days.length === 0 || !startTime || !endTime) return;
+    const subjectsToFetch = Array.isArray(subject) ? subject : (subject ? [subject] : []);
+    if (subjectsToFetch.length === 0 || !days || days.length === 0 || !startTime || !endTime) return;
     try {
-      const res = await api.get(`/academic-head/available-faculties?subject=${subject}&days=${days.join(',')}&startTime=${startTime}&endTime=${endTime}`);
+      const subjectParam = subjectsToFetch.join(',');
+      const res = await api.get(`/academic-head/available-faculties?subject=${subjectParam}&days=${days.join(',')}&startTime=${startTime}&endTime=${endTime}`);
       if (res.data.success) {
         const newSubjects = [...selectedSubjects];
         newSubjects[index].availableFaculties = res.data.data;
@@ -102,7 +104,8 @@ const Registrations = () => {
     setSelectedSubjects(newSubjects);
     if (['subject', 'days', 'startTime', 'endTime'].includes(field)) {
       const row = newSubjects[index];
-      if (row.subject && row.days && row.days.length > 0 && row.startTime && row.endTime) {
+      const hasSubject = Array.isArray(row.subject) ? row.subject.length > 0 : !!row.subject;
+      if (hasSubject && row.days && row.days.length > 0 && row.startTime && row.endTime) {
         fetchAvailableFaculties(index, row.subject, row.days, row.startTime, row.endTime);
       }
     }
@@ -118,7 +121,8 @@ const Registrations = () => {
     }
     setSelectedSubjects(newSubjects);
     const row = newSubjects[index];
-    if (row.subject && row.days && row.days.length > 0 && row.startTime && row.endTime) {
+    const hasSubject = Array.isArray(row.subject) ? row.subject.length > 0 : !!row.subject;
+    if (hasSubject && row.days && row.days.length > 0 && row.startTime && row.endTime) {
       fetchAvailableFaculties(index, row.subject, row.days, row.startTime, row.endTime);
     }
   };
@@ -494,6 +498,12 @@ const Registrations = () => {
                                     }
                                     newSubjects[idx].subject = current;
                                     setSelectedSubjects(newSubjects);
+                                    
+                                    // Trigger faculty fetch
+                                    const row = newSubjects[idx];
+                                    if (row.subject.length > 0 && row.days && row.days.length > 0 && row.startTime && row.endTime) {
+                                      fetchAvailableFaculties(idx, row.subject, row.days, row.startTime, row.endTime);
+                                    }
                                   }}
                                   className={`flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all ${isSelected ? 'bg-[#008080]/10 text-[#008080]' : 'hover:bg-slate-50 text-slate-600'}`}
                                 >

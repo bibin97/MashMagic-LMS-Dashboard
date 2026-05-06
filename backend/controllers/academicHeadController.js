@@ -157,8 +157,12 @@ const getAvailableFaculties = async (req, res) => {
         let params = [];
 
         if (subject && subject !== 'All Subjects') {
-            query += ` AND FIND_IN_SET(?, u.subject) > 0 `;
-            params.push(subject);
+            const subjectList = subject.split(',');
+            if (subjectList.length > 0) {
+                const subjectConditions = subjectList.map(() => `FIND_IN_SET(?, u.subject) > 0`).join(' OR ');
+                query += ` AND (${subjectConditions}) `;
+                params.push(...subjectList);
+            }
         }
 
         if (daysToExclude.length > 0) {
