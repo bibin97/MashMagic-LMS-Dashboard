@@ -37,7 +37,7 @@ const MentorHeadDashboard = () => {
 
  const fetchDashboardData = async () => {
  try {
- const token = localStorage.getItem('token');
+ const token = sessionStorage.getItem('token');
 
  // Parallel fetch for stats and activities
  const [statsRes, activitiesRes, summaryRes, examRes] = await Promise.all([

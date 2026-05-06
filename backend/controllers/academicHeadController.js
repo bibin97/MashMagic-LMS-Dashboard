@@ -919,13 +919,17 @@ module.exports = {
                 name, email, phone_number, place, 
                 faculty_id_card, section, syllabus, languages_proficiency,
                 qualification, experience, availability, hourly_rate,
-                teaching_mode, joining_date, remarks, subjects
+                teaching_mode, joining_date, remarks, primary_subject, secondary_subjects
             } = req.body;
 
             const [[user]] = await db.query('SELECT name FROM users WHERE id = ?', [id]);
             if (!user) return res.status(404).json({ success: false, message: "Faculty not found" });
 
-            const subjectsStr = (subjects && Array.isArray(subjects)) ? subjects.join(',') : null;
+            // Logic to merge subjects into a single comma-separated string for DB
+            const subjectsList = [primary_subject, ...(secondary_subjects || [])].filter(Boolean);
+            const subjectsStr = subjectsList.length > 0 ? subjectsList.join(',') : null;
+            
+            const syllabusStr = Array.isArray(syllabus) ? syllabus.join(',') : (syllabus || null);
             const languagesJson = languages_proficiency ? JSON.stringify(languages_proficiency) : null;
 
             await db.query(`
@@ -937,7 +941,7 @@ module.exports = {
                 WHERE id = ?
             `, [
                 name, email || null, phone_number || null, place || null,
-                faculty_id_card || null, section || null, syllabus || null, languagesJson,
+                faculty_id_card || null, section || null, syllabusStr, languagesJson,
                 qualification || null, experience || null, availability || null, hourly_rate || 0,
                 teaching_mode || null, joining_date || null, remarks || null, subjectsStr,
                 id

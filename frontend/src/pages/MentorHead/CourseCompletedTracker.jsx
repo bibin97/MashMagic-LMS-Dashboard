@@ -15,7 +15,7 @@ const CourseCompletedTracker = () => {
 
  const fetchStudents = async () => {
  try {
- const token = localStorage.getItem('token');
+ const token = sessionStorage.getItem('token');
  const res = await axios.get('/api/mentor-head/students-all', {
  headers: { Authorization: `Bearer ${token}` }
  });
@@ -31,7 +31,7 @@ const CourseCompletedTracker = () => {
 
  const toggleStatus = async (studentId, currentStatus) => {
  try {
- const token = localStorage.getItem('token');
+ const token = sessionStorage.getItem('token');
  const newStatus = !currentStatus;
 
  await axios.put(`/api/mentor-head/students/${studentId}/course-complete`,

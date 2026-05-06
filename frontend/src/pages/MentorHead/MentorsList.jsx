@@ -37,7 +37,7 @@ const MentorsList = () => {
  useEffect(() => {
  const fetchMentors = async () => {
  try {
- const token = localStorage.getItem('token');
+ const token = sessionStorage.getItem('token');
  // Fetching from the new activity dashboard endpoint which has progress logic
  const res = await axios.get('/api/mentor-head/mentor-activity', {
  headers: { Authorization: `Bearer ${token}` }
@@ -67,7 +67,7 @@ const MentorsList = () => {
 
  const handleUpdateMentor = async () => {
  try {
- const token = localStorage.getItem('token');
+ const token = sessionStorage.getItem('token');
  // Using the actual server endpoint that handles edit
  const payload = { ...editingMentor };
  if (!payload.password) delete payload.password; // Don't send empty password
@@ -88,7 +88,7 @@ const MentorsList = () => {
  const handleDelete = async (mentorId, mentorName) => {
  premiumConfirm(async () => {
  try {
- const token = localStorage.getItem('token');
+ const token = sessionStorage.getItem('token');
  const res = await axios.delete(`/api/mentor-head/mentors/${mentorId}`, {
  headers: { Authorization: `Bearer ${token}` }
  });
@@ -112,7 +112,7 @@ const MentorsList = () => {
  setIsStudentModalOpen(true);
  setLoadingStudents(true);
  try {
- const token = localStorage.getItem('token');
+ const token = sessionStorage.getItem('token');
  const res = await axios.get(`/api/mentor-head/students-all?mentor_id=${mentor.mentor_id}`, {
  headers: { Authorization: `Bearer ${token}` }
  });

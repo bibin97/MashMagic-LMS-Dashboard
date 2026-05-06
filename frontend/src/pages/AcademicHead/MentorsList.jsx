@@ -125,22 +125,22 @@ const MentorsList = () => {
  onChange={(e) => setSearchTerm(e.target.value)}
  />
  </div>
-  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 px-2">
-    <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm flex flex-col gap-2 group transition-all hover:shadow-xl hover:shadow-[#008080]/5 hover:-translate-y-1">
-      <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest group-hover:text-[#008080] transition-colors">Total Mentors</span>
-      <div className="flex items-end gap-3 font-black text-slate-900 tracking-tighter">
-        <span className="text-4xl leading-none">{mentors.length}</span>
-        <span className="text-[10px] text-slate-600 mb-1 uppercase tracking-widest">Database Total</span>
+  <div className="flex gap-4 shrink-0">
+    <div className="h-32 w-28 bg-white rounded-full border border-slate-100 shadow-sm flex flex-col items-center justify-center text-center p-4">
+      <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest leading-tight">Total<br/>Mentors</span>
+      <div className="mt-2 flex flex-col items-center">
+        <span className="text-3xl font-black text-slate-900 leading-none">{mentors.length}</span>
+        <span className="text-[7px] font-black text-slate-400 uppercase tracking-widest mt-1">Database Total</span>
       </div>
     </div>
     
-    <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm flex flex-col gap-2 group transition-all hover:shadow-xl hover:shadow-[#008080]/5 hover:-translate-y-1">
-      <span className="text-[10px] font-black text-[#008080] uppercase tracking-widest">Active Pulse</span>
-      <div className="flex items-end gap-3 font-black text-slate-900 tracking-tighter">
-        <span className="text-4xl leading-none">{mentors.filter(m => m.status === 'active').length}</span>
-        <div className="flex items-center gap-1.5 mb-1 bg-[#008080]/10 px-2 py-0.5 rounded-full">
-           <div className="w-1.5 h-1.5 rounded-full bg-[#008080] animate-pulse"></div>
-           <span className="text-[10px] text-[#008080] uppercase tracking-widest">Live</span>
+    <div className="h-32 w-28 bg-white rounded-full border border-slate-100 shadow-sm flex flex-col items-center justify-center text-center p-4">
+      <span className="text-[9px] font-black text-[#008080] uppercase tracking-widest leading-tight">Active<br/>Pulse</span>
+      <div className="mt-2 flex flex-col items-center">
+        <span className="text-3xl font-black text-slate-900 leading-none">{mentors.filter(m => m.status === 'active').length}</span>
+        <div className="flex items-center gap-1 bg-emerald-50 px-2 py-0.5 rounded-full mt-1">
+           <div className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse"></div>
+           <span className="text-[7px] text-emerald-600 font-black uppercase tracking-widest">Live</span>
         </div>
       </div>
     </div>
@@ -195,21 +195,7 @@ const MentorsList = () => {
  </button>
  </div>
  </div>
-  <div className="flex items-center gap-3">
-  <button
-  onClick={() => handleEdit(mentor)}
-  className="w-10 h-10 bg-white border border-slate-200 rounded-xl text-[#008080] flex items-center justify-center hover:bg-[#008080]/10 transition-all shadow-sm"
-  title="Edit Profile"
-  >
-  <Edit2 size={16} />
-  </button>
-  <button
-  onClick={() => handleDelete(mentor.id, mentor.name)}
-  className="w-10 h-10 bg-white border border-slate-200 rounded-xl text-rose-600 flex items-center justify-center hover:bg-rose-50 transition-all shadow-sm"
-  title="Delete Record"
-  >
-  <Trash2 size={16} />
-  </button>
+  {/* Actions removed as per request */}
   </div>
   </div>
   </div>

@@ -18,7 +18,7 @@ const StudentShift = () => {
 
  const fetchData = async () => {
  try {
- const token = localStorage.getItem('token');
+ const token = sessionStorage.getItem('token');
  const [studentsRes, mentorsRes] = await Promise.all([
  axios.get('/api/mentor-head/all-students', { headers: { Authorization: `Bearer ${token}` } }),
  axios.get('/api/mentor-head/dashboard', { headers: { Authorization: `Bearer ${token}` } })
@@ -50,7 +50,7 @@ const StudentShift = () => {
 
  setShifting(true);
  try {
- const token = localStorage.getItem('token');
+ const token = sessionStorage.getItem('token');
  const res = await axios.put(`/api/mentor-head/students/${selectedStudent.id}/shift`,
  { newMentorId: selectedMentor },
  { headers: { Authorization: `Bearer ${token}` } });

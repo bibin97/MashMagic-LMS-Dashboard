@@ -27,7 +27,7 @@ const Profile = () => {
  e.preventDefault();
  setLoading(true);
  try {
- const token = localStorage.getItem('token');
+ const token = sessionStorage.getItem('token');
  const res = await axios.put(`/api/admin/users/${user.id}`, {
  ...formData,
  role: user.role,
@@ -39,7 +39,7 @@ const Profile = () => {
  if (res.data.success) {
  // Update local auth state to reflect new name/email
  setAuthData({
- token: localStorage.getItem('token'),
+ token: sessionStorage.getItem('token'),
  user: { ...user, ...formData },
  role: user.role
  });
@@ -64,7 +64,7 @@ const Profile = () => {
  
  setLoading(true);
  try {
- const token = localStorage.getItem('token');
+ const token = sessionStorage.getItem('token');
  // Assuming we reuse the update-user route or have a dedicated one. 
  // For now, let's assume we have a dedicated password route or pass it to update-user.
  // Many apps use a separate POST /api/auth/change-password.

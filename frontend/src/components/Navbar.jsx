@@ -65,7 +65,7 @@ const Navbar = ({ onMenuClick }) => {
 
   const fetchNotifications = async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       const res = await axios.get('/api/admin/notifications', {
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -78,7 +78,7 @@ const Navbar = ({ onMenuClick }) => {
   const markRead = async (id, e) => {
     e.stopPropagation();
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       await axios.put(`/api/admin/notifications/${id}/read`, {}, {
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -89,7 +89,7 @@ const Navbar = ({ onMenuClick }) => {
   const deleteNotification = async (id, e) => {
     if (e) e.stopPropagation();
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       await axios.delete(`/api/admin/notifications/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -100,7 +100,7 @@ const Navbar = ({ onMenuClick }) => {
   const handleQuickApprove = async (notif, e) => {
     e.stopPropagation();
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       const role = notif.action_type.split('_')[0]; 
       await axios.put(`/api/admin/approve/${notif.related_id}`, { role }, {
         headers: { Authorization: `Bearer ${token}` }
@@ -116,7 +116,7 @@ const Navbar = ({ onMenuClick }) => {
   const handleQuickReject = async (notif, e) => {
     e.stopPropagation();
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       const role = notif.action_type.split('_')[0];
       await axios.put(`/api/admin/reject/${notif.related_id}`, { role }, {
         headers: { Authorization: `Bearer ${token}` }
@@ -131,7 +131,7 @@ const Navbar = ({ onMenuClick }) => {
 
   const clearAllNotifications = async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       await axios.delete('/api/admin/notifications/clear-all', {
         headers: { Authorization: `Bearer ${token}` }
       });

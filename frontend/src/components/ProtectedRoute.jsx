@@ -21,8 +21,8 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
 
   // Role-based authorization
   if (allowedRoles && allowedRoles.length > 0) {
-    // Read role from state or fallback to localStorage
-    const storedRole = localStorage.getItem('role');
+    // Read role from state or fallback to sessionStorage
+    const storedRole = sessionStorage.getItem('role');
     const normalizeRole = (r) => (r || '').toLowerCase().replace(/_/g, '').trim();
     const userRoleNormalized = normalizeRole(user?.role || storedRole);
 
@@ -33,7 +33,7 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
 
       // Redirect to appropriate dashboard based on role to avoid login loop
       const r = userRoleNormalized;
-      if (r === 'admin' || r === 'superadmin') return <Navigate to="/admin/dashboard" replace />;
+      if (r === 'admin' || r === 'superadmin' || r === 'subadmin') return <Navigate to="/admin/dashboard" replace />;
       if (r === 'mentorhead') return <Navigate to="/mentor-head/dashboard" replace />;
       if (r === 'mentor') return <Navigate to="/mentor/dashboard" replace />;
       if (r === 'faculty') return <Navigate to="/faculty/dashboard" replace />;

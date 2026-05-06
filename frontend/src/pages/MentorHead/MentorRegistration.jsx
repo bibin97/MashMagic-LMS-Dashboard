@@ -31,7 +31,7 @@ const MentorRegistration = () => {
  setLoading(true);
 
  try {
- const token = localStorage.getItem('token');
+ const token = sessionStorage.getItem('token');
  const res = await axios.post('/api/mentor-head/register-mentor', formData, {
  headers: { Authorization: `Bearer ${token}` }
  });

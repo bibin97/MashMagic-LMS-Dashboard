@@ -14,7 +14,7 @@ const StudentCheckTracker = () => {
 
  const fetchStudentChecks = async () => {
  try {
- const token = localStorage.getItem('token');
+ const token = sessionStorage.getItem('token');
  const res = await axios.get('/api/mentor-head/daily-student-checks', {
  headers: { Authorization: `Bearer ${token}` }
  });
@@ -30,7 +30,7 @@ const StudentCheckTracker = () => {
 
  const handleAddCheck = async (studentId) => {
  try {
- const token = localStorage.getItem('token');
+ const token = sessionStorage.getItem('token');
  await axios.post(`/api/mentor-head/students/${studentId}/check`,
  {},
  { headers: { Authorization: `Bearer ${token}` } });
@@ -52,7 +52,7 @@ const StudentCheckTracker = () => {
 
  const handleRemoveCheck = async (studentId) => {
  try {
- const token = localStorage.getItem('token');
+ const token = sessionStorage.getItem('token');
  await axios.delete(`/api/mentor-head/students/${studentId}/uncheck`,
  { headers: { Authorization: `Bearer ${token}` } });
 
