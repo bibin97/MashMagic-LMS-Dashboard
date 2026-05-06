@@ -342,7 +342,7 @@ const EditStudent = () => {
                                                             newSubjects[idx].subject = current;
                                                             setSelectedSubjects(newSubjects);
                                                         }}
-                                                        className={`flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all ${isSelected ? 'bg-[#008080]/10 text-[#008080]' : 'hover:bg-slate-50 text-slate-600'}`}
+                                                        className={`flex items-center gap-3 p-2.5 rounded-xl cursor-pointer transition-all ${isSelected ? 'bg-[#008080]/10 text-[#008080]' : 'hover:bg-slate-50 text-slate-600'}`}
                                                     >
                                                         <div className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${isSelected ? 'bg-[#008080] border-[#008080]' : 'border-slate-300'}`}>
                                                             {isSelected && <CheckCircle size={10} className="text-white" />}
@@ -351,18 +351,18 @@ const EditStudent = () => {
                                                     </div>
                                                 );
                                             })}
-                                            <button 
-                                                type="button"
+                                            {/* Clear All Option */}
+                                            <div 
                                                 onClick={(e) => {
                                                     e.stopPropagation();
                                                     const newSubjects = [...selectedSubjects];
-                                                    newSubjects[idx].isSubjectDropdownOpen = false;
+                                                    newSubjects[idx].subject = [];
                                                     setSelectedSubjects(newSubjects);
                                                 }}
-                                                className="w-full mt-2 p-3 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg active:scale-95 transition-transform"
+                                                className="mt-2 p-2 text-center text-[10px] font-black text-rose-500 uppercase tracking-widest hover:bg-rose-50 rounded-lg cursor-pointer transition-colors border border-dashed border-rose-200"
                                             >
-                                                Confirm Selection
-                                            </button>
+                                                Clear All
+                                            </div>
                                         </div>
                                     )}
                                 </div>

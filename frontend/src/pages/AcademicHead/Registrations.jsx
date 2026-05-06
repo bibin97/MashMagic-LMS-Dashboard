@@ -499,33 +499,33 @@ const Registrations = () => {
                                     newSubjects[idx].subject = current;
                                     setSelectedSubjects(newSubjects);
                                     
-                                    // Trigger faculty fetch
-                                    const row = newSubjects[idx];
-                                    if (row.subject.length > 0 && row.days && row.days.length > 0 && row.startTime && row.endTime) {
-                                      fetchAvailableFaculties(idx, row.subject, row.days, row.startTime, row.endTime);
+                                    // Trigger faculty fetch immediately
+                                    const r = newSubjects[idx];
+                                    if (r.subject.length > 0 && r.days && r.days.length > 0 && r.startTime && r.endTime) {
+                                      fetchAvailableFaculties(idx, r.subject, r.days, r.startTime, r.endTime);
                                     }
                                   }}
-                                  className={`flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all ${isSelected ? 'bg-[#008080]/10 text-[#008080]' : 'hover:bg-slate-50 text-slate-600'}`}
+                                  className={`flex items-center gap-3 p-2.5 rounded-xl cursor-pointer transition-all ${isSelected ? 'bg-[#008080]/10 text-[#008080]' : 'hover:bg-slate-50 text-slate-600'}`}
                                 >
                                   <div className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${isSelected ? 'bg-[#008080] border-[#008080]' : 'border-slate-300'}`}>
                                     {isSelected && <CheckCircle size={10} className="text-white" />}
                                   </div>
-                                  <span className="text-xs font-bold uppercase">{sub}</span>
+                                  <span className="text-[11px] font-bold uppercase">{sub}</span>
                                 </div>
                               );
                             })}
-                            <button 
-                                type="button"
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    const newSubjects = [...selectedSubjects];
-                                    newSubjects[idx].isSubjectDropdownOpen = false;
-                                    setSelectedSubjects(newSubjects);
-                                }}
-                                className="w-full mt-2 p-3 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg active:scale-95 transition-transform"
+                            {/* Clear All Option */}
+                            <div 
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                const newSubjects = [...selectedSubjects];
+                                newSubjects[idx].subject = [];
+                                setSelectedSubjects(newSubjects);
+                              }}
+                              className="mt-2 p-2 text-center text-[10px] font-black text-rose-500 uppercase tracking-widest hover:bg-rose-50 rounded-lg cursor-pointer transition-colors border border-dashed border-rose-200"
                             >
-                                Confirm Selection
-                            </button>
+                              Clear All
+                            </div>
                           </div>
                         )}
                       </div>
