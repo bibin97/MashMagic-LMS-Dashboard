@@ -167,11 +167,12 @@ const getAvailableFaculties = async (req, res) => {
 
         if (daysToExclude.length > 0) {
             query += `
-                AND u.id NOT IN (
-                    SELECT faculty_id FROM faculty_schedules
-                    WHERE day_of_week IN (${daysToExclude.map(() => '?').join(',')})
-                    AND start_time < ? 
-                    AND end_time > ?
+                AND NOT EXISTS (
+                    SELECT 1 FROM faculty_schedules fs
+                    WHERE fs.faculty_id = u.id
+                    AND fs.day_of_week IN (${daysToExclude.map(() => '?').join(',')})
+                    AND fs.start_time < ? 
+                    AND fs.end_time > ?
                 )
             `;
             params.push(...daysToExclude, endTime, startTime);

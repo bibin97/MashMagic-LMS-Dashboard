@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { UserPlus, User, GraduationCap, MapPin, Mail, Phone, Lock, BookOpen, Clock, Calendar, CheckCircle, ShieldCheck } from 'lucide-react';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
@@ -58,6 +58,8 @@ const Registrations = () => {
   const DAYS_LIST = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
   const coursesList = ["Mission X", "Classmate", "Crash 45", "Bright Bridge", "Magic Revision"];
   const SYLLABUS_OPTIONS = ["CBSE", "STATE", "ICSE", "IGCSE", "IB"];
+
+  const fetchTimeoutRef = useRef(null);
 
   useEffect(() => {
     fetchDropdowns();
@@ -499,11 +501,15 @@ const Registrations = () => {
                                     newSubjects[idx].subject = current;
                                     setSelectedSubjects(newSubjects);
                                     
-                                    // Trigger faculty fetch immediately
+                                    // Trigger debounced faculty fetch
                                     const r = newSubjects[idx];
-                                    if (r.subject.length > 0 && r.days && r.days.length > 0 && r.startTime && r.endTime) {
-                                      fetchAvailableFaculties(idx, r.subject, r.days, r.startTime, r.endTime);
-                                    }
+                                    if (fetchTimeoutRef.current) clearTimeout(fetchTimeoutRef.current);
+                                    
+                                    fetchTimeoutRef.current = setTimeout(() => {
+                                      if (r.subject.length > 0 && r.days && r.days.length > 0 && r.startTime && r.endTime) {
+                                        fetchAvailableFaculties(idx, r.subject, r.days, r.startTime, r.endTime);
+                                      }
+                                    }, 500);
                                   }}
                                   className={`flex items-center gap-3 p-2.5 rounded-xl cursor-pointer transition-all ${isSelected ? 'bg-[#008080]/10 text-[#008080]' : 'hover:bg-slate-50 text-slate-600'}`}
                                 >

@@ -58,18 +58,33 @@ const approveUser = async (req, res) => {
     try {
         const { role } = req.body;
         const { id } = req.params;
-        let result;
+        let result = { affectedRows: 0 };
         let nameRow;
 
-        if (role === 'student') {
-            [[nameRow]] = await db.query('SELECT name FROM students WHERE id = ?', [id]);
-            [result] = await db.query('UPDATE students SET status = "active", isApproved = 1 WHERE id = ?', [id]);
-        } else {
-            [[nameRow]] = await db.query('SELECT name FROM users WHERE id = ?', [id]);
+        // 1. Try to find and update in users table first
+        [[nameRow]] = await db.query('SELECT name, role FROM users WHERE id = ?', [id]);
+        if (nameRow) {
             [result] = await db.query('UPDATE users SET status = "active", isApproved = 1, isActive = 1 WHERE id = ?', [id]);
+            
+            // If it's a student user, also try to update corresponding record in students table if it exists
+            if (nameRow.role === 'student' || role === 'student') {
+                await db.query('UPDATE students SET status = "active", isApproved = 1 WHERE user_id = ? OR id = ?', [id, id]);
+            }
+        } else {
+            // 2. If not found in users, try students table
+            [[nameRow]] = await db.query('SELECT name FROM students WHERE id = ?', [id]);
+            if (nameRow) {
+                [result] = await db.query('UPDATE students SET status = "active", isApproved = 1 WHERE id = ?', [id]);
+                
+                // If there's a user_id linked, update that too
+                const [[studentData]] = await db.query('SELECT user_id FROM students WHERE id = ?', [id]);
+                if (studentData?.user_id) {
+                    await db.query('UPDATE users SET status = "active", isApproved = 1, isActive = 1 WHERE id = ?', [studentData.user_id]);
+                }
+            }
         }
 
-        if (result.affectedRows === 0) {
+        if (!nameRow || result.affectedRows === 0) {
             return res.status(404).json({ success: false, message: "User/Student not found" });
         }
 
@@ -85,6 +100,7 @@ const approveUser = async (req, res) => {
         ]);
         res.status(200).json({ success: true, message: "Approved successfully" });
     } catch (error) {
+        console.error("APPROVE_USER_ERROR:", error);
         res.status(500).json({ success: false, message: "Server Error", error: error.message });
     }
 };
@@ -96,26 +112,38 @@ const blockUser = async (req, res) => {
     try {
         const role = req.body.role || req.query.role;
         const { id } = req.params;
-        let result;
+        let result = { affectedRows: 0 };
         let nameRow;
 
-        if (role === 'student') {
-            [[nameRow]] = await db.query('SELECT name FROM students WHERE id = ?', [id]);
-            [result] = await db.query('UPDATE students SET status = "inactive" WHERE id = ?', [id]);
+        // Try users table
+        [[nameRow]] = await db.query('SELECT name, role FROM users WHERE id = ?', [id]);
+        if (nameRow) {
+            [result] = await db.query('UPDATE users SET status = "inactive", isActive = 0 WHERE id = ?', [id]);
+            if (nameRow.role === 'student' || role === 'student') {
+                await db.query('UPDATE students SET status = "inactive" WHERE user_id = ? OR id = ?', [id, id]);
+            }
         } else {
-            [[nameRow]] = await db.query('SELECT name FROM users WHERE id = ?', [id]);
-            [result] = await db.query('UPDATE users SET status = "inactive" WHERE id = ?', [id]);
+            // Try students table
+            [[nameRow]] = await db.query('SELECT name FROM students WHERE id = ?', [id]);
+            if (nameRow) {
+                [result] = await db.query('UPDATE students SET status = "inactive" WHERE id = ?', [id]);
+                const [[studentData]] = await db.query('SELECT user_id FROM students WHERE id = ?', [id]);
+                if (studentData?.user_id) {
+                    await db.query('UPDATE users SET status = "inactive", isActive = 0 WHERE id = ?', [studentData.user_id]);
+                }
+            }
         }
 
         if (result.affectedRows === 0) {
-            return res.status(404).json({ success: false, message: "User not found" });
+            return res.status(404).json({ success: false, message: "User/Student not found" });
         }
 
         await db.query('INSERT INTO admin_notifications (message) VALUES (?)', [
-            `<b>Security Alert:</b> ${role} <b>${nameRow?.name || id}</b> has been <span style="color:#e11d48">Blocked</span> by Admin.`
+            `<b>Security Alert:</b> <b>${nameRow?.name || id}</b> has been <span style="color:#e11d48">Blocked</span> by Admin.`
         ]);
         res.status(200).json({ success: true, message: "User blocked successfully" });
     } catch (error) {
+        console.error("BLOCK_USER_ERROR:", error);
         res.status(500).json({ success: false, message: "Server Error", error: error.message });
     }
 };
@@ -137,7 +165,7 @@ const getPendingUsers = async (req, res) => {
         let students = [];
         try {
             const [studentRows] = await db.query(`
-                SELECT s.id, s.name, NULL as email, NULL as phone_number, 'student' as role, NULL as place, s.status, s.created_at,
+                SELECT s.id, s.name, s.email, COALESCE(s.phone_number, s.contact) as phone_number, 'student' as role, NULL as place, s.status, s.createdAt as created_at,
                        rb.name as registered_by_name
                 FROM students s
                 LEFT JOIN users rb ON s.registeredBy = rb.id
@@ -163,12 +191,25 @@ const getPendingUsers = async (req, res) => {
 const rejectUser = async (req, res) => {
     try {
         const { role } = req.body;
-        let result;
+        const { id } = req.params;
+        let result = { affectedRows: 0 };
 
-        if (role === 'student') {
-            [result] = await db.query('UPDATE students SET status = "rejected", isApproved = 0 WHERE id = ?', [req.params.id]);
+        // Try users table first
+        const [[userRow]] = await db.query('SELECT role FROM users WHERE id = ?', [id]);
+        if (userRow) {
+            [result] = await db.query('UPDATE users SET status = "rejected", isApproved = 0, isActive = 0 WHERE id = ?', [id]);
+            if (userRow.role === 'student' || role === 'student') {
+                await db.query('UPDATE students SET status = "rejected", isApproved = 0 WHERE user_id = ? OR id = ?', [id, id]);
+            }
         } else {
-            [result] = await db.query('UPDATE users SET status = "rejected", isApproved = 0, isActive = 0 WHERE id = ?', [req.params.id]);
+            // Try students table
+            const [[studentRow]] = await db.query('SELECT user_id FROM students WHERE id = ?', [id]);
+            if (studentRow) {
+                [result] = await db.query('UPDATE students SET status = "rejected", isApproved = 0 WHERE id = ?', [id]);
+                if (studentRow.user_id) {
+                    await db.query('UPDATE users SET status = "rejected", isApproved = 0, isActive = 0 WHERE id = ?', [studentRow.user_id]);
+                }
+            }
         }
 
         if (result.affectedRows === 0) {
@@ -179,10 +220,11 @@ const rejectUser = async (req, res) => {
             DELETE FROM admin_notifications 
             WHERE related_id = ? 
             AND action_type IN ('student_registration', 'faculty_registration', 'mentor_registration', 'faculty_onboarding', 'mentor_head_onboarding')
-        `, [req.params.id]);
+        `, [id]);
 
         res.status(200).json({ success: true, message: "Registration rejected" });
     } catch (error) {
+        console.error("REJECT_USER_ERROR:", error);
         res.status(500).json({ success: false, message: "Server Error", error: error.message });
     }
 };
@@ -192,31 +234,13 @@ const rejectUser = async (req, res) => {
 // @access  Private (super_admin, admin)
 const deleteUser = async (req, res) => {
     const { id } = req.params;
-    const role = req.query?.role || req.body?.role;
+    const roleHint = req.query?.role || req.body?.role;
 
     try {
-        if (role === 'student') {
-            const [[student]] = await db.query('SELECT name FROM students WHERE id = ?', [id]);
-            if (!student) return res.status(404).json({ success: false, message: "Student not found" });
-
-            // Dependency Cleanup for Students
-            await db.query('DELETE FROM student_interaction_logs WHERE student_id = ?', [id]);
-            await db.query('DELETE FROM faculty_interaction_logs WHERE student_id = ?', [id]);
-            await db.query('DELETE FROM student_verification WHERE student_id = ?', [id]);
-            await db.query('DELETE FROM daily_hours_log WHERE student_id = ?', [id]);
-            await db.query('DELETE FROM student_marks WHERE student_id = ?', [id]);
-            await db.query('DELETE FROM student_exams WHERE student_id = ?', [id]);
-            await db.query('DELETE FROM session_attendance WHERE student_id = ?', [id]);
-            await db.query('DELETE FROM student_reports WHERE student_id = ?', [id]);
-            await db.query('DELETE FROM live_class_feedbacks WHERE student_id = ?', [id]);
-            await db.query('DELETE FROM mentor_timetable WHERE student_id = ?', [id]);
-
-            await db.query('DELETE FROM students WHERE id = ?', [id]);
-            res.status(200).json({ success: true, message: "Student deleted successfully" });
-        } else {
-            const [users] = await db.query('SELECT id, name, role, status FROM users WHERE id = ?', [id]);
-            if (users.length === 0) return res.status(404).json({ success: false, message: "User not found" });
-
+        // Try to find in users table first
+        const [users] = await db.query('SELECT id, name, role, status FROM users WHERE id = ?', [id]);
+        
+        if (users.length > 0) {
             const target = users[0];
             const userRole = target.role;
 
@@ -224,7 +248,14 @@ const deleteUser = async (req, res) => {
                 return res.status(403).json({ success: false, message: "Active Super Admin cannot be deleted." });
             }
 
-            // Consolidated Resilient Cleanup for ALL potential tables
+            // If it's a student user, or role hint is student, clean up student dependencies first
+            if (userRole === 'student' || roleHint === 'student') {
+                await cleanupStudentDependencies(id);
+                // Also try to delete from students table if it exists
+                await db.query('DELETE FROM students WHERE user_id = ? OR id = ?', [id, id]);
+            }
+
+            // Consolidated Resilient Cleanup for ALL potential staff dependencies
             const cleanupQueries = [
                 'UPDATE users SET registeredBy = NULL WHERE registeredBy = ?',
                 'UPDATE students SET registeredBy = NULL WHERE registeredBy = ?',
@@ -241,11 +272,9 @@ const deleteUser = async (req, res) => {
                 'DELETE FROM faculty_verification WHERE academic_head_id = ? OR faculty_id = ?',
                 'DELETE FROM student_interaction_logs WHERE mentor_id = ?',
                 'DELETE FROM daily_hours_log WHERE mentor_id = ?',
-                'DELETE FROM student_exams WHERE mentor_id = ? OR student_id IN (SELECT id FROM students WHERE mentor_id = ?)',
                 'DELETE FROM mentor_timetable WHERE mentor_id = ?',
                 'DELETE FROM notifications WHERE user_id = ?',
                 'DELETE FROM live_class_feedbacks WHERE faculty_id = ?',
-                'DELETE FROM student_verification WHERE mentor_head_id = ?',
                 'DELETE FROM activity_logs WHERE user_id = ?',
                 'DELETE FROM user_activity_logs WHERE user_id = ?',
                 'DELETE FROM admin_actions WHERE user_id = ?'
@@ -255,9 +284,7 @@ const deleteUser = async (req, res) => {
                 try {
                     const params = query.includes('OR') ? [id, id] : [id];
                     await db.query(query, params);
-                } catch (e) {
-                    // Silently ignore schema mismatches
-                }
+                } catch (e) {}
             }
 
             // Final User Delete
@@ -269,7 +296,16 @@ const deleteUser = async (req, res) => {
                 ]);
             } catch (e) {}
             
-            res.status(200).json({ success: true, message: "Member and associated dependencies cleared successfully" });
+            return res.status(200).json({ success: true, message: "Member and associated dependencies cleared successfully" });
+        } else {
+            // Not found in users, try students table directly
+            const [[student]] = await db.query('SELECT name FROM students WHERE id = ?', [id]);
+            if (!student) return res.status(404).json({ success: false, message: "User/Student not found" });
+
+            await cleanupStudentDependencies(id);
+            await db.query('DELETE FROM students WHERE id = ?', [id]);
+            
+            return res.status(200).json({ success: true, message: "Student record deleted successfully" });
         }
     } catch (error) {
         console.error("DELETE_USER_ERROR LOG:", error);
@@ -280,6 +316,27 @@ const deleteUser = async (req, res) => {
         });
     }
 };
+
+// Helper for student cleanup
+async function cleanupStudentDependencies(studentId) {
+    const queries = [
+        'DELETE FROM student_interaction_logs WHERE student_id = ?',
+        'DELETE FROM faculty_interaction_logs WHERE student_id = ?',
+        'DELETE FROM student_verification WHERE student_id = ?',
+        'DELETE FROM daily_hours_log WHERE student_id = ?',
+        'DELETE FROM student_marks WHERE student_id = ?',
+        'DELETE FROM student_exams WHERE student_id = ?',
+        'DELETE FROM session_attendance WHERE student_id = ?',
+        'DELETE FROM student_reports WHERE student_id = ?',
+        'DELETE FROM live_class_feedbacks WHERE student_id = ?',
+        'DELETE FROM mentor_timetable WHERE student_id = ?',
+        'DELETE FROM student_daily_updates WHERE student_id = ?',
+        'DELETE FROM faculty_class_updates WHERE student_id = ?'
+    ];
+    for (const q of queries) {
+        try { await db.query(q, [studentId]); } catch (e) {}
+    }
+}
 
 // @desc    Get all student logs
 // @route   GET /api/admin/student-logs
