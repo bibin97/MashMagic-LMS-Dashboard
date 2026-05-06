@@ -150,6 +150,9 @@ const getAvailableFaculties = async (req, res) => {
         // For now, let's show all active faculties who are free at this time, 
         // and optionally sort/filter by subject if we can.
         
+        const { subject, days, day, startTime, endTime } = req.query;
+        const daysToExclude = days ? days.split(',') : (day ? [day] : []);
+        
         let query = `
             SELECT u.id, u.name, u.subject 
             FROM users u
@@ -158,19 +161,21 @@ const getAvailableFaculties = async (req, res) => {
         let params = [];
 
         if (subject && subject !== 'All Subjects') {
-            query += ` AND u.subject = ? `;
+            query += ` AND FIND_IN_SET(?, u.subject) > 0 `;
             params.push(subject);
         }
 
-        query += `
-            AND u.id NOT IN (
-                SELECT faculty_id FROM faculty_schedules
-                WHERE day_of_week = ? 
-                AND start_time < ? 
-                AND end_time > ?
-            )
-        `;
-        params.push(day, endTime, startTime);
+        if (daysToExclude.length > 0) {
+            query += `
+                AND u.id NOT IN (
+                    SELECT faculty_id FROM faculty_schedules
+                    WHERE day_of_week IN (${daysToExclude.map(() => '?').join(',')})
+                    AND start_time < ? 
+                    AND end_time > ?
+                )
+            `;
+            params.push(...daysToExclude, endTime, startTime);
+        }
 
         const [availableFaculties] = await db.query(query, params);
 
@@ -297,14 +302,17 @@ const registerStudent = async (req, res) => {
         // 3. Register Faculty Weekly Schedules
         if (selectedSubjects && selectedSubjects.length > 0) {
             for (const sub of selectedSubjects) {
-                if (sub.facultyId && sub.day && sub.startTime && sub.endTime) {
-                    await db.query(`
-                        INSERT INTO faculty_schedules (
-                            faculty_id, student_id, subject, day_of_week, start_time, end_time, hourly_rate
-                        ) VALUES (?, ?, ?, ?, ?, ?, ?)
-                    `, [
-                        sub.facultyId, studentId, sub.subject, sub.day, sub.startTime, sub.endTime, sub.hourlyRate || 0
-                    ]);
+                const days = sub.days || (sub.day ? [sub.day] : []);
+                for (const day of days) {
+                    if (sub.facultyId && day && sub.startTime && sub.endTime) {
+                        await db.query(`
+                            INSERT INTO faculty_schedules (
+                                faculty_id, student_id, subject, day_of_week, start_time, end_time, hourly_rate
+                            ) VALUES (?, ?, ?, ?, ?, ?, ?)
+                        `, [
+                            sub.facultyId, studentId, sub.subject, day, sub.startTime, sub.endTime, sub.hourlyRate || 0
+                        ]);
+                    }
                 }
             }
         }
@@ -342,8 +350,8 @@ const registerFaculty = async (req, res) => {
         const { 
             name, email, phone_number, place, password,
             faculty_id_card, section, syllabus, languages_proficiency,
-            qualification, experience, availability, hourly_rate,
-            teaching_mode, joining_date, remarks, subject
+            qualification, experience, availability, hourly_rates,
+            teaching_mode, joining_date, remarks, primary_subject, secondary_subjects
         } = req.body;
         const requesterId = req.user?.id;
 
@@ -376,11 +384,12 @@ const registerFaculty = async (req, res) => {
             qualification,
             experience,
             availability,
-            hourly_rate,
+            hourly_rates,
             teaching_mode,
             joining_date,
             remarks,
-            subject
+            primary_subject,
+            secondary_subjects
         });
 
         // Notify Admin
@@ -620,7 +629,10 @@ const getFacultyDirectory = async (req, res) => {
         const { sortBy, startDate, endDate } = req.query;
         
         let query = `
-            SELECT id, name, email, phone_number, status, place, createdAt as created_at 
+            SELECT 
+                id, name, email, phone_number, status, place, createdAt as created_at,
+                faculty_id_card, section, syllabus, languages_proficiency, qualification, 
+                experience, availability, hourly_rate, teaching_mode, joining_date, remarks, subject
             FROM users 
             WHERE role = "faculty" 
         `;
@@ -907,12 +919,40 @@ module.exports = {
     editFaculty: async (req, res) => {
         try {
             const { id } = req.params;
-            const { name, email, phone_number, place } = req.body;
+            const { 
+                name, email, phone_number, place, 
+                faculty_id_card, section, syllabus, languages_proficiency,
+                qualification, experience, availability, hourly_rate,
+                teaching_mode, joining_date, remarks, subjects
+            } = req.body;
+
             const [[user]] = await db.query('SELECT name FROM users WHERE id = ?', [id]);
-            await db.query('UPDATE users SET name = ?, email = ?, phone_number = ?, place = ? WHERE id = ?', [name, email, phone_number, place, id]);
-            await db.query('INSERT INTO admin_notifications (message) VALUES (?)', [`Academic Head (${req.user.name}) edited faculty: ${user.name}`]);
-            res.status(200).json({ success: true, message: 'Faculty updated' });
-        } catch (error) { res.status(500).json({ success: false, message: error.message }); }
+            if (!user) return res.status(404).json({ success: false, message: "Faculty not found" });
+
+            const subjectsStr = (subjects && Array.isArray(subjects)) ? subjects.join(',') : null;
+            const languagesJson = languages_proficiency ? JSON.stringify(languages_proficiency) : null;
+
+            await db.query(`
+                UPDATE users SET 
+                    name = ?, email = ?, phone_number = ?, place = ?,
+                    faculty_id_card = ?, section = ?, syllabus = ?, languages_proficiency = ?,
+                    qualification = ?, experience = ?, availability = ?, hourly_rate = ?,
+                    teaching_mode = ?, joining_date = ?, remarks = ?, subject = ?
+                WHERE id = ?
+            `, [
+                name, email || null, phone_number || null, place || null,
+                faculty_id_card || null, section || null, syllabus || null, languagesJson,
+                qualification || null, experience || null, availability || null, hourly_rate || 0,
+                teaching_mode || null, joining_date || null, remarks || null, subjectsStr,
+                id
+            ]);
+
+            await db.query('INSERT INTO admin_notifications (message) VALUES (?)', [`Academic Head (${req.user.name}) edited faculty profile: ${user.name}`]);
+            res.status(200).json({ success: true, message: 'Faculty profile updated successfully' });
+        } catch (error) { 
+            console.error("EDIT_FACULTY_ERROR:", error);
+            res.status(500).json({ success: false, message: error.message }); 
+        }
     },
     deleteFaculty: async (req, res) => {
         try {

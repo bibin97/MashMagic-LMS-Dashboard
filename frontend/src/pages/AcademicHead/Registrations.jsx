@@ -36,11 +36,11 @@ const Registrations = () => {
  });
 
  const [selectedSubjects, setSelectedSubjects] = useState([
-    { subject: '', day: '', startTime: '', endTime: '', facultyId: '', facultyName: '', hourlyRate: '', availableFaculties: [] }
+    { subject: '', days: [], startTime: '', endTime: '', facultyId: '', facultyName: '', hourlyRate: '', availableFaculties: [] }
  ]);
 
  const addSubjectRow = () => {
-   setSelectedSubjects([...selectedSubjects, { subject: '', day: '', startTime: '', endTime: '', facultyId: '', facultyName: '', hourlyRate: '', availableFaculties: [] }]);
+   setSelectedSubjects([...selectedSubjects, { subject: '', days: [], startTime: '', endTime: '', facultyId: '', facultyName: '', hourlyRate: '', availableFaculties: [] }]);
  };
 
  const removeSubjectRow = (index) => {
@@ -51,10 +51,10 @@ const Registrations = () => {
  }
  };
 
- const fetchAvailableFaculties = async (index, subject, day, startTime, endTime) => {
-   if (!subject || !day || !startTime || !endTime) return;
+ const fetchAvailableFaculties = async (index, subject, days, startTime, endTime) => {
+   if (!subject || !days || days.length === 0 || !startTime || !endTime) return;
    try {
-     const res = await api.get(`/academic-head/available-faculties?subject=${subject}&day=${day}&startTime=${startTime}&endTime=${endTime}`);
+     const res = await api.get(`/academic-head/available-faculties?subject=${subject}&days=${days.join(',')}&startTime=${startTime}&endTime=${endTime}`);
      if (res.data.success) {
        const newSubjects = [...selectedSubjects];
        newSubjects[index].availableFaculties = res.data.data;
@@ -76,20 +76,20 @@ const Registrations = () => {
 
    setSelectedSubjects(newSubjects);
 
-   // If Day, StartTime or EndTime changes, refresh available faculties
-   if (['subject', 'day', 'startTime', 'endTime'].includes(field)) {
+   // If Days, StartTime or EndTime changes, refresh available faculties
+   if (['subject', 'days', 'startTime', 'endTime'].includes(field)) {
      const row = newSubjects[index];
-     if (row.subject && row.day && row.startTime && row.endTime) {
-       fetchAvailableFaculties(index, row.subject, row.day, row.startTime, row.endTime);
+     if (row.subject && row.days && row.days.length > 0 && row.startTime && row.endTime) {
+       fetchAvailableFaculties(index, row.subject, row.days, row.startTime, row.endTime);
      }
    }
  };
 
   const [facultyForm, setFacultyForm] = useState({
     name: '', email: '', phone_number: '', place: '', password: '', confirmPassword: '',
-    faculty_id_card: '', section: '', syllabus: '', languages_proficiency: [],
-    qualification: '', experience: '', availability: '', hourly_rate: '',
-    teaching_mode: 'Both', joining_date: new Date().toISOString().split('T')[0], remarks: '', subject: ''
+    faculty_id_card: '', section: '', syllabus: [], languages_proficiency: [],
+    qualification: '', experience: '', availability: '', hourly_rates: [],
+    teaching_mode: 'Both', joining_date: new Date().toISOString().split('T')[0], remarks: '', primary_subject: '', secondary_subjects: []
   });
 
   const LANG_OPTIONS = [
@@ -100,6 +100,65 @@ const Registrations = () => {
     { id: 'HIN', label: 'HINDI' },
     { id: 'TML', label: 'TML' }
   ];
+
+  const SUBJECT_OPTIONS = [
+    "Mathematics", "Science", "Social Science", "English", "Malayalam", 
+    "Hindi", "Physics", "Chemistry", "Biology", "Accountancy", 
+    "Business Studies", "Economics", "Computer Science", "Arabic"
+  ];
+
+  const handleSubjectToggle = (subject) => {
+    setFacultyForm(prev => {
+      const current = prev.secondary_subjects || [];
+      if (current.includes(subject)) {
+        return { ...prev, secondary_subjects: current.filter(s => s !== subject) };
+      } else {
+        return { ...prev, secondary_subjects: [...current, subject] };
+      }
+    });
+  };
+
+  const handleSyllabusToggle = (syll) => {
+    setFacultyForm(prev => {
+      const current = prev.syllabus || [];
+      if (current.includes(syll)) {
+        return { ...prev, syllabus: current.filter(s => s !== syll) };
+      } else {
+        return { ...prev, syllabus: [...current, syll] };
+      }
+    });
+  };
+
+  const HOURLY_RATE_OPTIONS = ["300", "400", "500", "600", "700", "800", "1000", "1200", "1500"];
+
+  const handleHourlyRateToggle = (rate) => {
+    setFacultyForm(prev => {
+      const current = prev.hourly_rates || [];
+      if (current.includes(rate)) {
+        return { ...prev, hourly_rates: current.filter(r => r !== rate) };
+      } else {
+        return { ...prev, hourly_rates: [...current, rate] };
+      }
+    });
+  };
+
+  const DAYS_LIST = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+
+  const handleDayToggle = (index, day) => {
+    const newSubjects = [...selectedSubjects];
+    const currentDays = newSubjects[index].days || [];
+    if (currentDays.includes(day)) {
+      newSubjects[index].days = currentDays.filter(d => d !== day);
+    } else {
+      newSubjects[index].days = [...currentDays, day];
+    }
+    setSelectedSubjects(newSubjects);
+    
+    const row = newSubjects[index];
+    if (row.subject && row.days && row.days.length > 0 && row.startTime && row.endTime) {
+      fetchAvailableFaculties(index, row.subject, row.days, row.startTime, row.endTime);
+    }
+  };
 
   const handleLanguageToggle = (langId) => {
     setFacultyForm(prev => {
@@ -183,7 +242,7 @@ const Registrations = () => {
   name: '', email: '', phone_number: '', place: '', password: '', confirmPassword: '',
   faculty_id_card: '', section: '', syllabus: '', languages_proficiency: [],
   qualification: '', experience: '', availability: '', hourly_rate: '',
-  teaching_mode: 'Both', joining_date: new Date().toISOString().split('T')[0], remarks: '', subject: ''
+  teaching_mode: 'Both', joining_date: new Date().toISOString().split('T')[0], remarks: '', subjects: []
  });
  fetchDropdowns();
  }
@@ -213,7 +272,7 @@ const Registrations = () => {
  <div className="flex gap-2 mb-8 bg-slate-200/50 p-1.5 rounded-2xl w-fit mx-auto shadow-inner">
  {[
  { id: 'student', label: 'Student' },
- { id: 'faculty', label: 'Faculty Signup' }
+ { id: 'faculty', label: 'Faculty Registration' }
  ].map((tab) => (
  <button
  key={tab.id}
@@ -455,24 +514,25 @@ const Registrations = () => {
  </select>
  </div>
 
- <div className="flex flex-col gap-2">
- <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Day</label>
- <select
- required
- value={row.day}
- onChange={(e) => handleSubjectChange(idx, 'day', e.target.value)}
- className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:ring-2 focus:ring-[#008080] appearance-none"
- >
- <option value="" disabled>Select Day</option>
- <option value="Monday">Monday</option>
- <option value="Tuesday">Tuesday</option>
- <option value="Wednesday">Wednesday</option>
- <option value="Thursday">Thursday</option>
- <option value="Friday">Friday</option>
- <option value="Saturday">Saturday</option>
- <option value="Sunday">Sunday</option>
- </select>
- </div>
+ <div className="flex flex-col gap-2 md:col-span-2 lg:col-span-3">
+  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Days (Select Multiple)</label>
+  <div className="flex flex-wrap gap-2">
+    {DAYS_LIST.map((day) => (
+      <button
+        key={day}
+        type="button"
+        onClick={() => handleDayToggle(idx, day)}
+        className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border ${
+          (row.days || []).includes(day)
+            ? 'bg-[#008080] text-white border-[#008080] shadow-sm'
+            : 'bg-white text-slate-500 border-slate-200 hover:border-[#008080]'
+        }`}
+      >
+        {day.substring(0, 3)}
+      </button>
+    ))}
+  </div>
+  </div>
 
  <div className="grid grid-cols-2 gap-4">
     <div className="flex flex-col gap-2">
@@ -642,34 +702,20 @@ const Registrations = () => {
       <div className="w-8 h-8 bg-emerald-50 text-emerald-600 rounded-lg flex items-center justify-center">
         <BookOpen size={18} />
       </div>
-      <h3 className="text-sm font-black text-slate-800 uppercase tracking-widest">Academic & Professional Profile</h3>
+            <h3 className="text-sm font-black text-slate-800 uppercase tracking-widest">Academic & Professional Profile</h3>
     </div>
 
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <div className="flex flex-col gap-2">
+        <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Primary Subject</label>
+        <select name="primary_subject" value={facultyForm.primary_subject} onChange={handleFacultyChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-emerald-100 font-bold appearance-none text-black">
+          <option value="">Select Primary Subject</option>
+          {SUBJECT_OPTIONS.map(sub => <option key={sub} value={sub}>{sub}</option>)}
+        </select>
+      </div>
+      <div className="flex flex-col gap-2">
         <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Faculty ID #</label>
         <input type="text" name="faculty_id_card" value={facultyForm.faculty_id_card} onChange={handleFacultyChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-emerald-100 font-bold" placeholder="FAC-ID-001" />
-      </div>
-
-      <div className="flex flex-col gap-2">
-        <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Primary Subject</label>
-        <select name="subject" value={facultyForm.subject} onChange={handleFacultyChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-emerald-100 font-bold appearance-none text-black">
-          <option value="">Select Subject</option>
-          <option value="Mathematics">Mathematics</option>
-          <option value="Science">Science</option>
-          <option value="Social Science">Social Science</option>
-          <option value="English">English</option>
-          <option value="Malayalam">Malayalam</option>
-          <option value="Hindi">Hindi</option>
-          <option value="Physics">Physics</option>
-          <option value="Chemistry">Chemistry</option>
-          <option value="Biology">Biology</option>
-          <option value="Accountancy">Accountancy</option>
-          <option value="Business Studies">Business Studies</option>
-          <option value="Economics">Economics</option>
-          <option value="Computer Science">Computer Science</option>
-          <option value="Arabic">Arabic</option>
-        </select>
       </div>
 
       <div className="flex flex-col gap-2">
@@ -684,15 +730,25 @@ const Registrations = () => {
         </select>
       </div>
 
-      <div className="flex flex-col gap-2">
-        <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Syllabus Expertise</label>
-        <select name="syllabus" value={facultyForm.syllabus} onChange={handleFacultyChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-emerald-100 font-bold appearance-none text-black">
-          <option value="">Select Syllabus</option>
-          <option value="CBSE">CBSE</option>
-          <option value="STATE">STATE</option>
-          <option value="ICSE">ICSE</option>
-        </select>
+      <div className="flex flex-col gap-4 bg-slate-50 p-6 rounded-3xl border border-slate-100 mb-6">
+      <label className="text-[10px] font-black text-slate-900 uppercase tracking-[0.2em] ml-1">Syllabus Expertise (Select Multiple)</label>
+      <div className="flex flex-wrap gap-2">
+        {["CBSE", "STATE", "ICSE"].map((syll) => (
+          <button
+            key={syll}
+            type="button"
+            onClick={() => handleSyllabusToggle(syll)}
+            className={`px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 border ${
+              (facultyForm.syllabus || []).includes(syll)
+                ? 'bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-100 scale-105'
+                : 'bg-white text-slate-600 border-slate-200 hover:border-blue-200'
+            }`}
+          >
+            {syll}
+          </button>
+        ))}
       </div>
+    </div>
 
       <div className="flex flex-col gap-2">
         <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Highest Qualification</label>
@@ -713,10 +769,25 @@ const Registrations = () => {
         </select>
       </div>
 
-      <div className="flex flex-col gap-2">
-        <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Hourly Rate (₹)</label>
-        <input type="number" name="hourly_rate" value={facultyForm.hourly_rate} onChange={handleFacultyChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-emerald-100 font-bold text-black" placeholder="Rate in ₹" />
+      <div className="flex flex-col gap-4 bg-slate-50 p-6 rounded-3xl border border-slate-100 mb-6">
+      <label className="text-[10px] font-black text-slate-900 uppercase tracking-[0.2em] ml-1">Hourly Rates (Select Multiple)</label>
+      <div className="flex flex-wrap gap-2">
+        {HOURLY_RATE_OPTIONS.map((rate) => (
+          <button
+            key={rate}
+            type="button"
+            onClick={() => handleHourlyRateToggle(rate)}
+            className={`px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 border ${
+              (facultyForm.hourly_rates || []).includes(rate)
+                ? 'bg-amber-600 text-white border-amber-600 shadow-lg shadow-amber-100 scale-105'
+                : 'bg-white text-slate-600 border-slate-200 hover:border-amber-200'
+            }`}
+          >
+            ₹{rate}
+          </button>
+        ))}
       </div>
+    </div>
 
       <div className="flex flex-col gap-2">
         <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Joining Date</label>
@@ -724,6 +795,27 @@ const Registrations = () => {
           <Calendar size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-emerald-600 transition-colors" />
           <input type="date" name="joining_date" value={facultyForm.joining_date} onChange={handleFacultyChange} className="w-full p-3 pl-12 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-emerald-100 font-bold text-black" />
         </div>
+      </div>
+    </div>
+
+    {/* Primary Subjects Pills */}
+    <div className="flex flex-col gap-4 bg-slate-50 p-6 rounded-3xl border border-slate-100 mb-6">
+      <label className="text-[10px] font-black text-slate-900 uppercase tracking-[0.2em] ml-1">Secondary Subjects (Select Multiple)</label>
+      <div className="flex flex-wrap gap-2">
+        {SUBJECT_OPTIONS.map((sub) => (
+          <button
+            key={sub}
+            type="button"
+            onClick={() => handleSubjectToggle(sub)}
+            className={`px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 border ${
+              (facultyForm.subjects || []).includes(sub)
+                ? 'bg-emerald-600 text-white border-emerald-600 shadow-lg shadow-emerald-100 scale-105'
+                : 'bg-white text-slate-600 border-slate-200 hover:border-emerald-200'
+            }`}
+          >
+            {sub}
+          </button>
+        ))}
       </div>
     </div>
 

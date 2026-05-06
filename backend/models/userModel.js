@@ -18,6 +18,11 @@ const User = {
             registeredBy = null, isApproved = 0, enrollment_type = null, badge = null
         } = userData;
  
+        const subjectsList = [userData.primary_subject, ...(userData.secondary_subjects || [])].filter(Boolean);
+        const subjectValue = subjectsList.length > 0 ? subjectsList.join(',') : ((userData.subjects && Array.isArray(userData.subjects)) ? userData.subjects.join(',') : (userData.subject || null));
+        const syllabusValue = Array.isArray(userData.syllabus) ? userData.syllabus.join(',') : (userData.syllabus || null);
+        const hourlyRateValue = Array.isArray(userData.hourly_rates) ? userData.hourly_rates.join(',') : (userData.hourly_rate || 0);
+
         const [result] = await db.query(
             `INSERT INTO users (
                 name, phone_number, place, email, password, role, status, isApproved, isActive, 
@@ -28,12 +33,12 @@ const User = {
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [
                 name, phone_number, place, email, password, role, status, isApproved, status === 'active' ? 1 : 1,
-                userData.grade || null, userData.subject || null, userData.course || null, userData.hour || null, userData.mentor_name || null, userData.faculty_name || null, userData.next_installment_date || null, userData.time_table || null,
+                userData.grade || null, subjectValue, userData.course || null, userData.hour || null, userData.mentor_name || null, userData.faculty_name || null, userData.next_installment_date || null, userData.time_table || null,
                 enrollment_type, badge, userData.meeting_link || null, registeredBy,
-                userData.faculty_id_card || null, userData.section || null, userData.syllabus || null, 
+                userData.faculty_id_card || null, userData.section || null, syllabusValue, 
                 userData.languages_proficiency ? JSON.stringify(userData.languages_proficiency) : null,
                 userData.qualification || null, userData.experience || null, userData.availability || null,
-                userData.hourly_rate || 0, userData.teaching_mode || null, userData.joining_date || null, userData.remarks || null
+                hourlyRateValue, userData.teaching_mode || null, userData.joining_date || null, userData.remarks || null
             ]
         );
         return result.insertId;

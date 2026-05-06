@@ -1,0 +1,172 @@
+import React, { useState, useEffect } from 'react';
+import { UserPlus, User, GraduationCap, MapPin, Mail, Phone, Lock, BookOpen, Clock, Calendar, CheckCircle, ShieldCheck } from 'lucide-react';
+import api from '../../services/api';
+import toast from 'react-hot-toast';
+
+const Registrations = () => {
+ const [activeTab, setActiveTab] = useState('student');
+ const [loading, setLoading] = useState(false);
+
+ // Dropdowns data
+ const [mentors, setMentors] = useState([]);
+ const [faculties, setFaculties] = useState([]);
+
+ // Forms data
+ const [studentForm, setStudentForm] = useState({
+  name: '', 
+  email: '',
+  contact: '',
+  password: '', 
+  confirmPassword: '',
+  grade: '', 
+  syllabus: '',
+  mentorId: '', 
+  course: '', 
+  admissionDate: new Date().toISOString().split('T')[0],
+  schoolName: '',
+  preferredLanguage: '',
+  country: '',
+  totalFees: '',
+  totalPaid: '',
+  nextInstallmentDate: '', 
+  admissionType: 'new',
+  registrationNumber: '',
+  meetingLink: '',
+  enrollmentType: 'mentorship'
+ });
+
+ const [selectedSubjects, setSelectedSubjects] = useState([
+    { subject: '', days: [], startTime: '', endTime: '', facultyId: '', facultyName: '', hourlyRate: '', availableFaculties: [] }
+ ]);
+
+ const addSubjectRow = () => {
+   setSelectedSubjects([...selectedSubjects, { subject: '', days: [], startTime: '', endTime: '', facultyId: '', facultyName: '', hourlyRate: '', availableFaculties: [] }]);
+ };
+
+ const removeSubjectRow = (index) => {
+ if (selectedSubjects.length > 1) {
+ const newSubjects = [...selectedSubjects];
+ newSubjects.splice(index, 1);
+ setSelectedSubjects(newSubjects);
+ }
+ };
+
+ const fetchAvailableFaculties = async (index, subject, days, startTime, endTime) => {
+   if (!subject || !days || days.length === 0 || !startTime || !endTime) return;
+   try {
+     const res = await api.get(`/academic-head/available-faculties?subject=${subject}&days=${days.join(',')}&startTime=${startTime}&endTime=${endTime}`);
+     if (res.data.success) {
+       const newSubjects = [...selectedSubjects];
+       newSubjects[index].availableFaculties = res.data.data;
+       setSelectedSubjects(newSubjects);
+     }
+   } catch (error) {
+     console.error("Failed to fetch available faculties:", error);
+   }
+ };
+
+ const handleSubjectChange = (index, field, value) => {
+   const newSubjects = [...selectedSubjects];
+   newSubjects[index][field] = value;
+
+   if (field === 'facultyId') {
+     const faculty = newSubjects[index].availableFaculties.find(f => f.id.toString() === value);
+     newSubjects[index].facultyName = faculty ? faculty.name : '';
+   }
+
+   setSelectedSubjects(newSubjects);
+
+   // If Days, StartTime or EndTime changes, refresh available faculties
+   if (['subject', 'days', 'startTime', 'endTime'].includes(field)) {
+     const row = newSubjects[index];
+     if (row.subject && row.days && row.days.length > 0 && row.startTime && row.endTime) {
+       fetchAvailableFaculties(index, row.subject, row.days, row.startTime, row.endTime);
+     }
+   }
+ };
+
+  const [facultyForm, setFacultyForm] = useState({
+    name: '', email: '', phone_number: '', place: '', password: '', confirmPassword: '',
+    faculty_id_card: '', section: '', syllabus: [], languages_proficiency: [],
+    qualification: '', experience: '', availability: '', hourly_rates: [],
+    teaching_mode: 'Both', joining_date: new Date().toISOString().split('T')[0], remarks: '', primary_subject: '', secondary_subjects: []
+  });
+
+  const LANG_OPTIONS = [
+    { id: 'ENG', label: 'ENG(100%)' },
+    { id: 'BL-AD', label: 'BILINGUAL ADVANCE' },
+    { id: 'BL-SM', label: 'BILINGUAL SIMPLE' },
+    { id: 'MLM', label: 'MAL' },
+    { id: 'HIN', label: 'HINDI' },
+    { id: 'TML', label: 'TML' }
+  ];
+
+  const SUBJECT_OPTIONS = [
+    "Mathematics", "Science", "Social Science", "English", "Malayalam", 
+    "Hindi", "Physics", "Chemistry", "Biology", "Accountancy", 
+    "Business Studies", "Economics", "Computer Science", "Arabic"
+  ];
+
+  const handleSubjectToggle = (subject) => {
+    setFacultyForm(prev => {
+      const current = prev.secondary_subjects || [];
+      if (current.includes(subject)) {
+        return { ...prev, secondary_subjects: current.filter(s => s !== subject) };
+      } else {
+        return { ...prev, secondary_subjects: [...current, subject] };
+      }
+    });
+  };
+
+  const handleSyllabusToggle = (syll) => {
+    setFacultyForm(prev => {
+      const current = prev.syllabus || [];
+      if (current.includes(syll)) {
+        return { ...prev, syllabus: current.filter(s => s !== syll) };
+      } else {
+        return { ...prev, syllabus: [...current, syll] };
+      }
+    });
+  };
+
+  const HOURLY_RATE_OPTIONS = ["300", "400", "500", "600", "700", "800", "1000", "1200", "1500"];
+
+  const handleHourlyRateToggle = (rate) => {
+    setFacultyForm(prev => {
+      const current = prev.hourly_rates || [];
+      if (current.includes(rate)) {
+        return { ...prev, hourly_rates: current.filter(r => r !== rate) };
+      } else {
+        return { ...prev, hourly_rates: [...current, rate] };
+      }
+    });
+  };
+
+  const DAYS_LIST = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+
+  const handleDayToggle = (index, day) => {
+    const newSubjects = [...selectedSubjects];
+    const currentDays = newSubjects[index].days || [];
+    if (currentDays.includes(day)) {
+      newSubjects[index].days = currentDays.filter(d => d !== day);
+    } else {
+      newSubjects[index].days = [...currentDays, day];
+    }
+    setSelectedSubjects(newSubjects);
+    
+    const row = newSubjects[index];
+    if (row.subject && row.days && row.days.length > 0 && row.startTime && row.endTime) {
+      fetchAvailableFaculties(index, row.subject, row.days, row.startTime, row.endTime);
+    }
+  };
+
+  const handleLanguageToggle = (langId) => {
+    setFacultyForm(prev => {
+      const current = prev.languages_proficiency;
+      if (current.includes(langId)) {
+        return { ...prev, languages_proficiency: current.filter(id => id !== langId) };
+      } else {
+        return { ...prev, languages_proficiency: [...current, langId] };
+      }
+    });
+  };
