@@ -140,18 +140,14 @@ const getAllFacultyActivity = async (req, res) => {
 // @route   GET /api/academic-head/available-faculties
 const getAvailableFaculties = async (req, res) => {
     try {
-        const { subject, day, startTime, endTime } = req.query;
-        if (!day || !startTime || !endTime) {
-            return res.status(400).json({ success: false, message: "Missing day, startTime, or endTime" });
+        const { subject, days, day, startTime, endTime } = req.query;
+        
+        if ((!day && !days) || !startTime || !endTime) {
+            return res.status(400).json({ success: false, message: "Missing day/days, startTime, or endTime" });
         }
 
-        // We use a query that shows faculties for the specific subject, 
-        // but if no subject is provided or we want to see all, we can adjust.
-        // For now, let's show all active faculties who are free at this time, 
-        // and optionally sort/filter by subject if we can.
-        
-        const { subject, days, day, startTime, endTime } = req.query;
-        const daysToExclude = days ? days.split(',') : (day ? [day] : []);
+        const daysToExclude = days ? (Array.isArray(days) ? days : days.split(',')) : (day ? [day] : []);
+
         
         let query = `
             SELECT u.id, u.name, u.subject 
