@@ -30,7 +30,8 @@ const Registrations = () => {
     name: '', email: '', phone_number: '', place: '', password: '', confirmPassword: '',
     faculty_id_card: '', section: '', syllabus: [], languages_proficiency: [],
     qualification: '', experience: '', availability: '', hourly_rate: '',
-    teaching_mode: 'Both', joining_date: new Date().toISOString().split('T')[0], remarks: '', primary_subject: '', secondary_subjects: []
+    teaching_mode: 'Both', joining_date: new Date().toISOString().split('T')[0], remarks: '', primary_subject: '', secondary_subjects: [],
+    isSecondaryDropdownOpen: false, isSectionDropdownOpen: false // State for dropdowns
   });
 
   const LANG_OPTIONS = [
@@ -139,7 +140,17 @@ const Registrations = () => {
   const handleFacultyChange = (e) => setFacultyForm({ ...facultyForm, [e.target.name]: e.target.value });
 
   const addSubjectRow = () => {
-    setSelectedSubjects([...selectedSubjects, { subject: '', days: [], startTime: '', endTime: '', facultyId: '', facultyName: '', hourlyRate: '', availableFaculties: [] }]);
+    setSelectedSubjects([...selectedSubjects, { 
+      subject: '', 
+      days: [], 
+      startTime: '', 
+      endTime: '', 
+      facultyId: '', 
+      facultyName: '', 
+      hourlyRate: '', 
+      availableFaculties: [],
+      isDayDropdownOpen: false // Track dropdown state for each row
+    }]);
   };
 
   const submitStudent = async (e) => {
@@ -434,7 +445,7 @@ const Registrations = () => {
 
                 <div className="space-y-6">
                   {selectedSubjects.map((row, idx) => (
-                    <div key={idx} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 bg-white p-5 rounded-[2rem] border border-slate-100 shadow-sm relative animate-in slide-in-from-right-2 duration-300 items-end">
+                    <div key={idx} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-sm relative animate-in slide-in-from-right-2 duration-300 items-end">
                       <div className="flex flex-col gap-2">
                         <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Subject</label>
                         <select
@@ -448,22 +459,52 @@ const Registrations = () => {
                         </select>
                       </div>
 
-                      <div className="flex flex-col gap-2">
+                      <div className="flex flex-col gap-2 relative">
                         <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Days</label>
-                        <select
-                          multiple
-                          required
-                          value={row.days || []}
-                          onChange={(e) => {
-                            const values = Array.from(e.target.selectedOptions, option => option.value);
-                            handleSubjectChange(idx, 'days', values);
+                        <div 
+                          onClick={() => {
+                            const newSubjects = [...selectedSubjects];
+                            newSubjects[idx].isDayDropdownOpen = !newSubjects[idx].isDayDropdownOpen;
+                            setSelectedSubjects(newSubjects);
                           }}
-                          className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-xs font-bold outline-none focus:ring-2 focus:ring-[#008080] min-h-[42px]"
+                          className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-700 cursor-pointer flex justify-between items-center min-h-[42px]"
                         >
-                          {DAYS_LIST.map(day => (
-                            <option key={day} value={day}>{day.substring(0, 3)}</option>
-                          ))}
-                        </select>
+                          <span className="truncate max-w-[120px]">
+                            {row.days && row.days.length > 0 ? row.days.map(d => d.substring(0, 3)).join(', ') : 'Select Days'}
+                          </span>
+                          <span className="text-slate-400">▼</span>
+                        </div>
+                        
+                        {row.isDayDropdownOpen && (
+                          <div className="absolute top-[100%] left-0 w-full bg-white border border-slate-100 rounded-xl shadow-2xl z-[100] mt-1 p-2 max-h-48 overflow-y-auto animate-in fade-in zoom-in-95 duration-200">
+                            {DAYS_LIST.map(day => (
+                              <div 
+                                key={day} 
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDayToggle(idx, day);
+                                }}
+                                className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer transition-colors ${row.days?.includes(day) ? 'bg-[#008080]/10 text-[#008080]' : 'hover:bg-slate-50 text-slate-600'}`}
+                              >
+                                <div className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${row.days?.includes(day) ? 'bg-[#008080] border-[#008080]' : 'border-slate-300'}`}>
+                                  {row.days?.includes(day) && <CheckCircle size={10} className="text-white" />}
+                                </div>
+                                <span className="text-[10px] font-black uppercase">{day}</span>
+                              </div>
+                            ))}
+                            <button 
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                const newSubjects = [...selectedSubjects];
+                                newSubjects[idx].isDayDropdownOpen = false;
+                                setSelectedSubjects(newSubjects);
+                              }}
+                              className="w-full mt-2 p-2 bg-slate-900 text-white rounded-lg text-[9px] font-black uppercase tracking-widest"
+                            >
+                              Apply
+                            </button>
+                          </div>
+                        )}
                       </div>
 
                       <div className="flex flex-col gap-2">
@@ -582,23 +623,48 @@ const Registrations = () => {
                     </select>
                   </div>
 
-                  <div className="flex flex-col gap-2">
+                  <div className="flex flex-col gap-2 relative">
                     <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Secondary Subjects</label>
-                    <select
-                      multiple
-                      name="secondary_subjects"
-                      value={facultyForm.secondary_subjects}
-                      onChange={(e) => {
-                        const values = Array.from(e.target.selectedOptions, option => option.value);
-                        setFacultyForm(prev => ({ ...prev, secondary_subjects: values }));
-                      }}
-                      className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-emerald-100 font-bold min-h-[46px] text-black"
+                    <div 
+                      onClick={() => setFacultyForm(prev => ({ ...prev, isSecondaryDropdownOpen: !prev.isSecondaryDropdownOpen }))}
+                      className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold text-black cursor-pointer flex justify-between items-center min-h-[46px]"
                     >
-                      {SUBJECT_OPTIONS.map(sub => (
-                        <option key={sub} value={sub}>{sub}</option>
-                      ))}
-                    </select>
-                    <p className="text-[7px] text-slate-400 uppercase font-black ml-1">Hold Ctrl/Cmd to select multiple</p>
+                      <span className="truncate max-w-[250px]">
+                        {facultyForm.secondary_subjects.length > 0 ? facultyForm.secondary_subjects.join(', ') : 'Select Secondary Subjects'}
+                      </span>
+                      <span className="text-slate-400">▼</span>
+                    </div>
+                    
+                    {facultyForm.isSecondaryDropdownOpen && (
+                      <div className="absolute top-[100%] left-0 w-full bg-white border border-slate-100 rounded-xl shadow-2xl z-[100] mt-1 p-2 max-h-60 overflow-y-auto animate-in slide-in-from-top-2 duration-200">
+                        {SUBJECT_OPTIONS.filter(s => s !== facultyForm.primary_subject).map(sub => (
+                          <div 
+                            key={sub} 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              const current = facultyForm.secondary_subjects;
+                              const updated = current.includes(sub) ? current.filter(s => s !== sub) : [...current, sub];
+                              setFacultyForm(prev => ({ ...prev, secondary_subjects: updated }));
+                            }}
+                            className={`flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all ${facultyForm.secondary_subjects.includes(sub) ? 'bg-[#008080]/10 text-[#008080]' : 'hover:bg-slate-50 text-slate-600'}`}
+                          >
+                            <div className={`w-5 h-5 rounded-lg border flex items-center justify-center transition-colors ${facultyForm.secondary_subjects.includes(sub) ? 'bg-[#008080] border-[#008080]' : 'border-slate-300'}`}>
+                              {facultyForm.secondary_subjects.includes(sub) && <CheckCircle size={12} className="text-white" />}
+                            </div>
+                            <span className="text-xs font-bold">{sub}</span>
+                          </div>
+                        ))}
+                        <button 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setFacultyForm(prev => ({ ...prev, isSecondaryDropdownOpen: false }));
+                          }}
+                          className="w-full mt-3 p-3 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest"
+                        >
+                          Confirm Selection
+                        </button>
+                      </div>
+                    )}
                   </div>
 
                   <div className="flex flex-col gap-2">
@@ -606,12 +672,48 @@ const Registrations = () => {
                     <input type="text" name="faculty_id_card" value={facultyForm.faculty_id_card} onChange={handleFacultyChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-emerald-100 font-bold" placeholder="FAC-ID-001" />
                   </div>
 
-                  <div className="flex flex-col gap-2">
+                  <div className="flex flex-col gap-2 relative">
                     <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Section Coverage</label>
-                    <select name="section" value={facultyForm.section} onChange={handleFacultyChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-emerald-100 font-bold appearance-none text-black">
-                      <option value="">Select Section</option>
-                      {["KG", "LP", "UP", "HS", "HSS"].map(sec => <option key={sec} value={sec}>{sec}</option>)}
-                    </select>
+                    <div 
+                      onClick={() => setFacultyForm(prev => ({ ...prev, isSectionDropdownOpen: !prev.isSectionDropdownOpen }))}
+                      className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold text-black cursor-pointer flex justify-between items-center min-h-[46px]"
+                    >
+                      <span className="truncate max-w-[250px]">
+                        {facultyForm.section ? facultyForm.section : 'Select Sections'}
+                      </span>
+                      <span className="text-slate-400">▼</span>
+                    </div>
+                    
+                    {facultyForm.isSectionDropdownOpen && (
+                      <div className="absolute top-[100%] left-0 w-full bg-white border border-slate-100 rounded-xl shadow-2xl z-[100] mt-1 p-2 max-h-60 overflow-y-auto animate-in slide-in-from-top-2 duration-200">
+                        {["KG", "LP", "UP", "HS", "HSS"].map(sec => (
+                          <div 
+                            key={sec} 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              const current = facultyForm.section ? facultyForm.section.split(', ') : [];
+                              const updated = current.includes(sec) ? current.filter(s => s !== sec) : [...current, sec];
+                              setFacultyForm(prev => ({ ...prev, section: updated.join(', ') }));
+                            }}
+                            className={`flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all ${facultyForm.section?.includes(sec) ? 'bg-[#008080]/10 text-[#008080]' : 'hover:bg-slate-50 text-slate-600'}`}
+                          >
+                            <div className={`w-5 h-5 rounded-lg border flex items-center justify-center transition-colors ${facultyForm.section?.includes(sec) ? 'bg-[#008080] border-[#008080]' : 'border-slate-300'}`}>
+                              {facultyForm.section?.includes(sec) && <CheckCircle size={12} className="text-white" />}
+                            </div>
+                            <span className="text-xs font-bold">{sec}</span>
+                          </div>
+                        ))}
+                        <button 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setFacultyForm(prev => ({ ...prev, isSectionDropdownOpen: false }));
+                          }}
+                          className="w-full mt-3 p-3 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest"
+                        >
+                          Confirm Selection
+                        </button>
+                      </div>
+                    )}
                   </div>
 
                   <div className="flex flex-col gap-2">
@@ -634,10 +736,17 @@ const Registrations = () => {
                   </div>
 
                   <div className="flex flex-col gap-2">
-                    <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Hourly Rate (₹)</label>
+                    <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Hourly Rate (₹) (Multiple Typing)</label>
                     <div className="relative group">
                       <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-sm">₹</span>
-                      <input type="number" name="hourly_rate" value={facultyForm.hourly_rate} onChange={handleFacultyChange} className="w-full p-3 pl-10 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-emerald-100 font-bold text-black" placeholder="e.g. 500" />
+                      <input 
+                        type="text" 
+                        name="hourly_rate" 
+                        value={facultyForm.hourly_rate} 
+                        onChange={handleFacultyChange} 
+                        className="w-full p-3 pl-10 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-emerald-100 font-bold text-black" 
+                        placeholder="e.g. 500, 600, 750" 
+                      />
                     </div>
                   </div>
 
