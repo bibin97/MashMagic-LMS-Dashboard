@@ -13,6 +13,7 @@ const AcademicActions = () => {
  const [milestones, setMilestones] = useState([]);
  const [dailyLogs, setDailyLogs] = useState([]);
  const [loading, setLoading] = useState(true);
+ const [activeTab, setActiveTab] = useState('milestones');
  const [selectedMilestone, setSelectedMilestone] = useState(null);
  const [isExamModalOpen, setIsExamModalOpen] = useState(false);
  const [planData, setPlanData] = useState({
@@ -98,9 +99,28 @@ const AcademicActions = () => {
  </div>
  </div>
 
- <div className="grid grid-cols-1 xl:grid-cols-3 gap-10">
- {/* Milestone Alerts Section */}
- <div className="xl:col-span-1 space-y-6">
+  <div className="flex gap-2 mb-8 bg-slate-200/50 p-1.5 rounded-2xl w-fit mx-auto shadow-inner">
+  {[
+    { id: 'milestones', label: 'Exam Milestones', icon: <GraduationCap size={16} /> },
+    { id: 'registry', label: "Today's Registry Update", icon: <BookOpen size={16} /> }
+  ].map((tab) => (
+    <button
+      key={tab.id}
+      onClick={() => setActiveTab(tab.id)}
+      className={`px-8 py-3 rounded-xl font-black text-[11px] uppercase tracking-widest transition-all flex items-center gap-3 ${activeTab === tab.id
+        ? 'bg-white text-slate-900 shadow-sm scale-100'
+        : 'text-slate-500 hover:text-slate-800 scale-95'
+        }`}
+    >
+      {tab.icon}
+      {tab.label}
+    </button>
+  ))}
+  </div>
+
+  <div className="w-full">
+ {activeTab === 'milestones' && (
+ <div className="space-y-6">
  <div className="flex items-center justify-between px-4">
  <h3 className="text-[11px] font-black text-slate-900 uppercase tracking-[0.3em] flex items-center gap-2">
  <GraduationCap size={16} className="text-rose-500" /> Exam Milestones
@@ -120,7 +140,7 @@ const AcademicActions = () => {
  <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest">All Milestones Clear</p>
  </div>
  ) : (
- <div className="space-y-4">
+ <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
  {milestones.map((milestone, idx) => (
  <div key={idx} 
  onClick={() => handleOpenExamModal(milestone)}
@@ -176,13 +196,14 @@ const AcademicActions = () => {
  </div>
  )}
  </div>
+ )}
 
- {/* Daily Activity Section */}
- <div className="xl:col-span-2 space-y-6">
- <div className="flex items-center justify-between px-4">
- <h3 className="text-[11px] font-black text-slate-900 uppercase tracking-[0.3em] flex items-center gap-2">
- <BookOpen size={16} className="text-[#008080]" /> Today's Registry Update
- </h3>
+  {activeTab === 'registry' && (
+  <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-500">
+  <div className="flex items-center justify-between px-4">
+  <h3 className="text-[11px] font-black text-slate-900 uppercase tracking-[0.3em] flex items-center gap-2">
+  <BookOpen size={16} className="text-[#008080]" /> Today's Registry Update
+  </h3>
  <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest flex items-center gap-1">
  <Clock size={10} /> Live Stream
  </span>
@@ -255,6 +276,7 @@ const AcademicActions = () => {
  </div>
  )}
  </div>
+ )}
  </div>
 
  {/* Exam Planning Modal */}
