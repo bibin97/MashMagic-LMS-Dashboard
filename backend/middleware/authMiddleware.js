@@ -7,8 +7,18 @@ const protect = async (req, res, next) => {
     if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
         try {
             token = req.headers.authorization.split(' ')[1];
+            
+            // Verify token first. If it fails, it will jump to the catch block.
             const decoded = jwt.verify(token, process.env.JWT_SECRET);
-            const user = await User.findById(decoded.id);
+            
+            // Fetch user. If DB fails, we should handle it as a 500, not 401.
+            let user;
+            try {
+                user = await User.findById(decoded.id);
+            } catch (dbError) {
+                console.error(`[AUTH DB ERROR] Failed to fetch user:`, dbError.message);
+                return res.status(500).json({ success: false, message: "Internal server error during authentication check." });
+            }
 
             if (!user) {
                 return res.status(401).json({ success: false, message: "Not authorized, user not found" });
@@ -29,7 +39,7 @@ const protect = async (req, res, next) => {
                 console.error(`[AUTH] Token Expired: ${error.expiredAt}`);
                 return res.status(401).json({ success: false, message: "Token expired, please login again", isExpired: true });
             }
-            console.error(`[AUTH] Verification Failed:`, error.message);
+            console.error(`[AUTH] JWT Verification Failed:`, error.message);
             return res.status(401).json({ success: false, message: "Not authorized, token failed" });
         }
     }

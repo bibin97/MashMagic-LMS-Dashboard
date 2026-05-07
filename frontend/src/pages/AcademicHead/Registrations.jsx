@@ -52,7 +52,7 @@ const Registrations = () => {
   const SUBJECT_OPTIONS = [
     "Mathematics", "Science", "Social Science", "English", "Malayalam", 
     "Hindi", "Physics", "Chemistry", "Biology", "Accountancy", 
-    "Business Studies", "Economics", "Computer Science", "Arabic"
+    "Business Studies", "Economics", "Computer Science", "Arabic", "French"
   ];
 
   const DAYS_LIST = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
@@ -87,9 +87,14 @@ const Registrations = () => {
       const subjectParam = subjectsToFetch.join(',');
       const res = await api.get(`/academic-head/available-faculties?subject=${subjectParam}&days=${days.join(',')}&startTime=${startTime}&endTime=${endTime}`);
       if (res.data.success) {
-        const newSubjects = [...selectedSubjects];
-        newSubjects[index].availableFaculties = res.data.data;
-        setSelectedSubjects(newSubjects);
+        setSelectedSubjects(prev => {
+          const newSubjects = [...prev];
+          // Ensure the row still exists in case user deleted it while fetching
+          if (newSubjects[index]) {
+            newSubjects[index].availableFaculties = res.data.data;
+          }
+          return newSubjects;
+        });
       }
     } catch (error) {
       console.error("Failed to fetch available faculties:", error);
