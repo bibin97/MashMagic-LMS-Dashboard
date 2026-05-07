@@ -21,21 +21,27 @@ const MentorHeadInteractions = () => {
  const [activeTab, setActiveTab] = useState('mentors');
  const [loading, setLoading] = useState(true);
  const [searchTerm, setSearchTerm] = useState('');
+ const [mentorName, setMentorName] = useState('');
+ const [filterDate, setFilterDate] = useState('');
  const [mentorLogs, setMentorLogs] = useState({ studentLogs: [], facultyLogs: [] });
  const [facultyLogs, setFacultyLogs] = useState([]);
  const [viewingLog, setViewingLog] = useState(null);
 
  useEffect(() => {
- fetchLogs();
- }, []);
+  fetchLogs();
+ }, [mentorName, filterDate]);
 
  const fetchLogs = async () => {
  setLoading(true);
  try {
- const [mentorRes, facultyRes] = await Promise.all([
- api.get('/mentor-head/mentor-logs'),
- api.get('/mentor-head/faculty-intelligence')
- ]);
+  const params = {};
+  if (mentorName) params.mentor_name = mentorName;
+  if (filterDate) params.date = filterDate;
+
+  const [mentorRes, facultyRes] = await Promise.all([
+  api.get('/mentor-head/mentor-logs', { params }),
+  api.get('/mentor-head/faculty-intelligence', { params })
+  ]);
 
  if (mentorRes.data.success) {
  setMentorLogs(mentorRes.data.data);
@@ -54,12 +60,11 @@ const MentorHeadInteractions = () => {
  const combinedMentorLogs = [
  ...mentorLogs.studentLogs.map(log => ({ ...log, category: 'Student Call' })),
  ...mentorLogs.facultyLogs.map(log => ({ ...log, category: 'Faculty Call' }))
- ].sort((a, b) => new Date(b.date) - new Date(a.date));
+  ].sort((a, b) => new Date(b.sort_date || b.date) - new Date(a.sort_date || a.date));
 
  const filteredMentorLogs = combinedMentorLogs.filter(log =>
- log.mentor_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
- log.student_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
- log.category?.toLowerCase().includes(searchTerm.toLowerCase())
+  log.student_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  log.category?.toLowerCase().includes(searchTerm.toLowerCase())
  );
 
  const filteredFacultyLogs = facultyLogs.filter(log =>
@@ -113,19 +118,57 @@ const MentorHeadInteractions = () => {
  </div>
  </div>
 
- {/* Search and Filters */}
- <div className="relative group max-w-2xl">
- <div className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#008080] transition-colors">
- <Search size={20} />
- </div>
- <input
- type="text"
- placeholder={`Search by ${activeTab === 'mentors' ? 'mentor, student or call type' : 'faculty, student or remarks'}...`}
- className="w-full p-6 pl-16 bg-white border border-slate-100 rounded-[2.5rem] shadow-sm outline-none focus:ring-4 focus:ring-[#008080] transition-all font-bold text-slate-800 placeholder:text-slate-300"
- value={searchTerm}
- onChange={(e) => setSearchTerm(e.target.value)}
- />
- </div>
+  {/* Search and Filters */}
+  <div className="flex flex-col lg:flex-row gap-6">
+  <div className="relative group flex-1">
+  <div className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#008080] transition-colors">
+  <Search size={20} />
+  </div>
+  <input
+  type="text"
+  placeholder={`Search by student or type...`}
+  className="w-full p-6 pl-16 bg-white border border-slate-100 rounded-[2.5rem] shadow-sm outline-none focus:ring-4 focus:ring-[#008080]/10 transition-all font-bold text-slate-800 placeholder:text-slate-300"
+  value={searchTerm}
+  onChange={(e) => setSearchTerm(e.target.value)}
+  />
+  </div>
+
+  <div className="flex flex-col sm:flex-row gap-4">
+  <div className="relative group">
+  <div className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#008080] transition-colors">
+  <User size={18} />
+  </div>
+  <input
+  type="text"
+  placeholder="Mentor Name..."
+  className="w-full sm:w-64 p-6 pl-16 bg-white border border-slate-100 rounded-[2.5rem] shadow-sm outline-none focus:ring-4 focus:ring-[#008080]/10 transition-all font-bold text-slate-800"
+  value={mentorName}
+  onChange={(e) => setMentorName(e.target.value)}
+  />
+  </div>
+  
+  <div className="relative group">
+  <div className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#008080] transition-colors">
+  <Calendar size={18} />
+  </div>
+  <input
+  type="date"
+  className="w-full sm:w-56 p-6 pl-16 bg-white border border-slate-100 rounded-[2.5rem] shadow-sm outline-none focus:ring-4 focus:ring-[#008080]/10 transition-all font-bold text-slate-800"
+  value={filterDate}
+  onChange={(e) => setFilterDate(e.target.value)}
+  />
+  </div>
+
+  {(mentorName || filterDate) && (
+  <button 
+  onClick={() => { setMentorName(''); setFilterDate(''); }}
+  className="p-6 bg-rose-50 text-rose-500 rounded-[2.5rem] border border-rose-100 hover:bg-rose-500 hover:text-white transition-all shadow-sm flex items-center justify-center gap-2 font-black text-[10px] uppercase tracking-widest"
+  >
+  <X size={18} /> Reset
+  </button>
+  )}
+  </div>
+  </div>
 
  {/* Content Area */}
  {activeTab === 'mentors' ? (

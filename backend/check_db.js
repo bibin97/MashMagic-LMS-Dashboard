@@ -1,3 +1,4 @@
+require('dotenv').config({ path: __dirname + '/.env' });
 const pool = require('./config/db');
 
 async function check() {
@@ -11,6 +12,9 @@ async function check() {
 
         const [studentsColumns] = await pool.query('DESCRIBE students');
         console.log('Students Columns:', studentsColumns.map(c => c.Field));
+
+        const [facultySessionsColumns] = await pool.query('DESCRIBE faculty_sessions');
+        console.log('Faculty Sessions Columns:', facultySessionsColumns.map(c => c.Field));
 
         process.exit(0);
     } catch (err) {

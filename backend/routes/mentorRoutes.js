@@ -36,6 +36,7 @@ router.use(requireRole('mentor'));
 router.get('/dashboard', getMentorDashboard);
 router.get('/students', getMentorStudents);
 router.get('/students/:id', getStudentDetails);
+router.get('/students/:id/schedule', getStudentAcademicSchedule);
 router.get('/tasks', getMentorTasks);
 router.put('/tasks/:id/complete', upload.single('proof'), completeMentorTask);
 router.get('/timetable', getMentorTimetable);
@@ -54,12 +55,14 @@ router.get('/daily-hours/:studentId', getDailyHours);
 router.get('/students/:studentId/daily-updates', getStudentDailyUpdates);
 router.put('/students/:studentId/connection', toggleStudentConnection);
 router.put('/students/:studentId/onboard', completeOnboarding);
-router.post('/timetable/batch', createBatchTimetable);
 
 // Exams
 router.get('/exams/pending', getPendingExams);
 router.get('/exams/history', getExamHistory);
 router.get('/academic-schedule', getAcademicSchedule);
+router.put('/academic-schedule/:id/reminder', updateAcademicSessionReminder);
+router.put('/academic-schedule/:id/complete', completeAcademicSession);
+router.post('/timetable/batch', createBatchTimetable);
 router.post('/exams/submit', submitExamResult);
 
 // Mentorship Logs

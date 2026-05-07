@@ -4,7 +4,7 @@ import api from '../../services/api';
 import {
  MessageSquare, CheckCircle, ArrowLeft, Target, AlertCircle, BarChart3,
  CloudLightning, FileText, Camera, Phone, UserCheck, HeartPulse, Brain,
- Clock, Activity, BookOpen, Smile, Plus, Frown, Meh, MoreHorizontal, Upload, ImageIcon, Loader2, Zap, TrendingUp, ShieldAlert, CheckCircle2, ChevronRight
+ Clock, Activity, BookOpen, Smile, Plus, Frown, Meh, MoreHorizontal, Upload, ImageIcon, Loader2, Zap, TrendingUp, ShieldAlert, CheckCircle2, ChevronRight, XCircle
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Modal from '../../components/Modal';
@@ -20,6 +20,7 @@ const StudentInteractionLog = () => {
  const [assignedStudents, setAssignedStudents] = useState([]);
  const [selectedStudent, setSelectedStudent] = useState(null);
  const [activeTab, setActiveTab] = useState('both'); // 'both', 'mentorship', 'tuition'
+ const [statusFilter, setStatusFilter] = useState('pending'); // 'pending', 'completed'
  
  // Form States
  const [sessionType, setSessionType] = useState(null); // 'DEEP', 'MEDIUM', 'QUICK'
@@ -128,6 +129,7 @@ const StudentInteractionLog = () => {
      toast.success("Interaction submitted successfully!");
      setSubmitted(true);
      fetchAssignedStudents(); // Refresh daily list
+     fetchAllStudents(); // Refresh all students list
    } catch (error) {
      toast.error(error.response?.data?.message || "Submission failed");
    } finally {
@@ -172,35 +174,61 @@ const StudentInteractionLog = () => {
          <div className="flex gap-4">
             <div className="p-6 bg-rose-50 rounded-3xl border border-rose-100 text-center">
                 <p className="text-[10px] font-black text-rose-600 uppercase mb-1">Deep</p>
-                <p className="text-2xl font-black text-rose-900">05</p>
+                <p className="text-2xl font-black text-rose-900">{allStudents.filter(s => s.badge === 'Diamond').length}</p>
             </div>
             <div className="p-6 bg-amber-50 rounded-3xl border border-amber-100 text-center">
                 <p className="text-[10px] font-black text-amber-600 uppercase mb-1">Med</p>
-                <p className="text-2xl font-black text-amber-900">05</p>
+                <p className="text-2xl font-black text-amber-900">{allStudents.filter(s => s.badge === 'Gold').length}</p>
             </div>
             <div className="p-6 bg-blue-50 rounded-3xl border border-blue-100 text-center">
                 <p className="text-[10px] font-black text-blue-600 uppercase mb-1">Quick</p>
-                <p className="text-2xl font-black text-blue-900">05</p>
+                <p className="text-2xl font-black text-blue-900">{allStudents.filter(s => s.badge === 'Silver').length}</p>
             </div>
          </div>
        </header>
 
-       {/* Tab Navigation */}
-       <div className="flex flex-wrap gap-4 p-2 bg-white/50 backdrop-blur-md rounded-[28px] border border-slate-200/50 sticky top-4 z-50 shadow-sm">
-         {[
-           { id: 'both', label: 'Mentorship + Tuition', color: 'bg-purple-600' },
-           { id: 'mentorship', label: 'Mentorship Only', color: 'bg-amber-500' },
-           { id: 'tuition', label: 'Tuition Only', color: 'bg-slate-900' }
-         ].map(tab => (
-           <button
-             key={tab.id}
-             onClick={() => setActiveTab(tab.id)}
-             className={`flex-1 py-4 px-6 rounded-[22px] text-[11px] font-black uppercase tracking-widest transition-all ${activeTab === tab.id ? `${tab.color} text-white shadow-lg` : 'text-slate-600 hover:bg-white'}`}
-           >
-             {tab.label}
-           </button>
-         ))}
-       </div>
+       <div className="space-y-4">
+        {/* Main Category Tabs */}
+        <div className="flex flex-wrap gap-4 p-2 bg-white/50 backdrop-blur-md rounded-[28px] border border-slate-200/50 sticky top-4 z-50 shadow-sm">
+          {[
+            { id: 'both', label: 'Mentorship + Tuition', color: 'bg-purple-600' },
+            { id: 'mentorship', label: 'Mentorship Only', color: 'bg-amber-500' },
+            { id: 'tuition', label: 'Tuition Only', color: 'bg-slate-900' }
+          ].map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex-1 py-4 px-6 rounded-[22px] text-[11px] font-black uppercase tracking-widest transition-all ${activeTab === tab.id ? `${tab.color} text-white shadow-lg` : 'text-slate-600 hover:bg-white'}`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Sub-Tabs: Status Filter */}
+        <div className="flex justify-center gap-3">
+          <button
+            onClick={() => setStatusFilter('pending')}
+            className={`px-8 py-3 rounded-2xl text-[9px] font-black uppercase tracking-[0.2em] transition-all flex items-center gap-3 ${statusFilter === 'pending' ? 'bg-rose-500 text-white shadow-xl shadow-rose-200' : 'bg-white text-slate-400 border border-slate-100 hover:border-rose-200'}`}
+          >
+            <div className={`w-2 h-2 rounded-full ${statusFilter === 'pending' ? 'bg-white animate-pulse' : 'bg-rose-500'}`}></div>
+            Awaiting Interaction ({allStudents.filter(s => {
+              const matchesTab = activeTab === 'both' ? isDiamondCategory(s) : activeTab === 'mentorship' ? isGoldCategory(s) : isSilverCategory(s);
+              return matchesTab && !s.connected_today;
+            }).length})
+          </button>
+          <button
+            onClick={() => setStatusFilter('completed')}
+            className={`px-8 py-3 rounded-2xl text-[9px] font-black uppercase tracking-[0.2em] transition-all flex items-center gap-3 ${statusFilter === 'completed' ? 'bg-emerald-500 text-white shadow-xl shadow-emerald-200' : 'bg-white text-slate-400 border border-slate-100 hover:border-emerald-200'}`}
+          >
+            <div className={`w-2 h-2 rounded-full ${statusFilter === 'completed' ? 'bg-white animate-pulse' : 'bg-emerald-500'}`}></div>
+            Completed Today ({allStudents.filter(s => {
+              const matchesTab = activeTab === 'both' ? isDiamondCategory(s) : activeTab === 'mentorship' ? isGoldCategory(s) : isSilverCategory(s);
+              return matchesTab && s.connected_today;
+            }).length})
+          </button>
+        </div>
+      </div>
 
        {/* Main Content Area */}
        <div className="min-h-[400px]">
@@ -212,93 +240,109 @@ const StudentInteractionLog = () => {
          ) : (
            <div className="space-y-10 animate-in fade-in duration-500">
              {activeTab !== 'tuition' ? (
-               <div className="space-y-8">
-                 <div className="flex items-center justify-between px-4">
-                    <h3 className="text-sm font-black text-slate-900 uppercase tracking-[0.2em] flex items-center gap-3">
-                        <ShieldAlert size={18} className="text-[#008080]" /> Today's Assigned Students (15 Only)
-                    </h3>
-                    <div className="px-4 py-2 bg-slate-900 text-white rounded-xl text-[10px] font-black tracking-widest">
-                        {assignedStudents.filter(s => s.status === 'COMPLETED').length} / 15 COMPLETED
-                    </div>
-                 </div>
+                <div className="space-y-8">
+                  <div className="flex items-center justify-between px-4">
+                     <h3 className="text-sm font-black text-slate-900 uppercase tracking-[0.2em] flex items-center gap-3">
+                         <ShieldAlert size={18} className="text-[#008080]" /> 
+                         {statusFilter === 'pending' ? 'Pending Execution Fleet' : 'Concluded Interactions'}
+                     </h3>
+                  </div>
 
-                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                   {assignedStudents
-                     .filter(s => {
-                       const fullStudent = allStudents.find(as => as.id === s.id);
-                       if (!fullStudent) return false;
-                       if (activeTab === 'both') return isDiamondCategory(fullStudent);
-                       if (activeTab === 'mentorship') return isGoldCategory(fullStudent);
-                       return false;
-                     })
-                     .map(student => (
-                     <button
-                       key={student.id}
-                       disabled={student.status === 'COMPLETED'}
-                       onClick={() => handleStudentSelect(student, student.sessionType)}
-                       className={`group relative overflow-hidden p-8 rounded-[3rem] border transition-all text-left flex flex-col justify-between h-64 ${student.status === 'COMPLETED' ? 'bg-slate-50 border-slate-100 opacity-60 grayscale' : 'bg-white border-slate-100 hover:shadow-2xl hover:scale-[1.02] hover:border-slate-200 active:scale-95'}`}
-                     >
-                       <div className={`absolute top-0 right-0 w-32 h-32 rounded-full -mr-16 -mt-16 opacity-10 transition-transform group-hover:scale-150 duration-700 ${getSessionColor(student.sessionType).split(' ')[0]}`}></div>
-                       
-                       <div>
-                         <div className="flex justify-between items-start mb-4">
-                           <div className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest border ${getSessionColor(student.sessionType)}`}>
-                             {student.sessionType} SESSION
-                           </div>
-                           {student.status === 'COMPLETED' && <CheckCircle2 className="text-emerald-500" size={24} />}
-                         </div>
-                         <h3 className="text-2xl font-black text-slate-900 tracking-tight leading-none uppercase mb-2">{student.name}</h3>
-                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Student ID: MM-{student.id.toString().padStart(4, '0')}</p>
-                       </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {allStudents
+                      .filter(s => {
+                        const matchesTab = activeTab === 'both' ? isDiamondCategory(s) : isGoldCategory(s);
+                        const matchesStatus = statusFilter === 'completed' ? s.connected_today : !s.connected_today;
+                        return matchesTab && matchesStatus;
+                      })
+                      .sort((a, b) => a.name.localeCompare(b.name))
+                      .map(student => {
+                        const sessionType = student.badge === 'Diamond' ? 'DEEP' : 'MEDIUM';
+                        const isCompleted = student.connected_today;
+                        return (
+                          <button
+                            key={student.id}
+                            onClick={() => handleStudentSelect(student, sessionType)}
+                            className={`group relative overflow-hidden p-8 rounded-[3rem] border transition-all text-left flex flex-col justify-between h-64 ${isCompleted ? 'bg-emerald-50/50 border-emerald-100' : 'bg-white border-slate-100 hover:shadow-2xl hover:scale-[1.02] hover:border-slate-200 active:scale-95'}`}
+                          >
+                            <div className={`absolute top-0 right-0 w-32 h-32 rounded-full -mr-16 -mt-16 opacity-10 transition-transform group-hover:scale-150 duration-700 ${getSessionColor(sessionType).split(' ')[0]}`}></div>
+                            
+                            <div>
+                              <div className="flex justify-between items-start mb-4">
+                                <div className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest border ${getSessionColor(sessionType)}`}>
+                                  {sessionType} SESSION
+                                </div>
+                                {isCompleted && <CheckCircle2 className="text-emerald-500" size={24} />}
+                              </div>
+                              <h3 className="text-2xl font-black text-slate-900 tracking-tight leading-none uppercase mb-2 truncate">{student.name}</h3>
+                              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest truncate">MM-{student.id.toString().padStart(4, '0')} • {student.course}</p>
+                            </div>
 
-                       <div className="flex items-center justify-between mt-6">
-                         <div className="flex items-center gap-3">
-                           <div className={`w-10 h-10 rounded-2xl flex items-center justify-center ${getSessionColor(student.sessionType)}`}>
-                             {getSessionIcon(student.sessionType)}
-                           </div>
-                           <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                             {student.status === 'COMPLETED' ? 'Report Logged' : 'Awaiting Interaction'}
-                           </span>
-                         </div>
-                         <ChevronRight size={20} className="text-slate-300 group-hover:text-slate-900 transition-colors" />
-                       </div>
-                     </button>
-                   ))}
-                   {assignedStudents.filter(s => {
-                       const fullStudent = allStudents.find(as => as.id === s.id);
-                       if (!fullStudent) return false;
-                       if (activeTab === 'both') return isDiamondCategory(fullStudent);
-                       if (activeTab === 'mentorship') return isGoldCategory(fullStudent);
-                       return false;
-                     }).length === 0 && (
-                     <div className="col-span-full py-20 text-center bg-slate-50/50 rounded-[3rem] border border-dashed border-slate-200">
-                        <p className="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">No students assigned in this category for today.</p>
-                     </div>
-                   )}
-                 </div>
-               </div>
+                            <div className="flex items-center justify-between mt-6">
+                              <div className="flex items-center gap-3">
+                                <div className={`w-10 h-10 rounded-2xl flex items-center justify-center ${getSessionColor(sessionType)}`}>
+                                  {getSessionIcon(sessionType)}
+                                </div>
+                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                  {isCompleted ? 'Report Logged' : 'Awaiting Interaction'}
+                                </span>
+                              </div>
+                              <ChevronRight size={20} className="text-slate-300 group-hover:text-slate-900 transition-colors" />
+                            </div>
+                          </button>
+                        );
+                      })}
+                    {allStudents.filter(s => {
+                        const matchesTab = activeTab === 'both' ? isDiamondCategory(s) : isGoldCategory(s);
+                        const matchesStatus = statusFilter === 'completed' ? s.connected_today : !s.connected_today;
+                        return matchesTab && matchesStatus;
+                    }).length === 0 && (
+                      <div className="col-span-full py-20 text-center bg-slate-50/50 rounded-[3rem] border border-dashed border-slate-200 animate-in fade-in zoom-in duration-500">
+                         <p className="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">All students in this segment are {statusFilter === 'pending' ? 'accounted for' : 'awaiting action'}.</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
              ) : (
-               <div className="space-y-8">
+                <div className="space-y-8">
                   <div className="flex items-center gap-3 px-4">
                     <div className="w-4 h-8 bg-slate-900 rounded-full"></div>
-                    <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest">Tuition Only Tracker</h3>
+                    <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest">
+                      {statusFilter === 'pending' ? 'Pending Tuition Attendance' : 'Concluded Tuition Records'}
+                    </h3>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {allStudents.filter(isSilverCategory).map(student => (
+                    {allStudents
+                      .filter(s => isSilverCategory(s) && (statusFilter === 'completed' ? s.connected_today : !s.connected_today))
+                      .sort((a, b) => a.name.localeCompare(b.name))
+                      .map(student => (
                       <button
                         key={student.id}
                         onClick={() => handleStudentSelect(student, 'TUITION')}
-                        className="bg-white p-8 rounded-[3rem] border border-slate-100 hover:shadow-xl hover:scale-[1.02] transition-all text-left group"
+                        className={`bg-white p-8 rounded-[3rem] border border-slate-100 hover:shadow-xl hover:scale-[1.02] transition-all text-left group h-48 flex flex-col justify-between ${student.connected_today ? 'bg-emerald-50/50 border-emerald-100' : ''}`}
                       >
-                        <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight mb-1">{student.name}</h3>
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">{student.course} • Grade {student.grade}</p>
-                        <div className="flex items-center gap-2 text-[#008080] text-[9px] font-black uppercase tracking-[0.2em]">
-                          Track Attendance <ArrowLeft size={12} className="rotate-180" />
+                        <div>
+                          <div className="flex justify-between items-start mb-1">
+                            <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight truncate">{student.name}</h3>
+                            {student.connected_today && <CheckCircle2 className="text-emerald-500" size={20} />}
+                          </div>
+                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest truncate">{student.course} • Grade {student.grade}</p>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2 text-[#008080] text-[9px] font-black uppercase tracking-[0.2em]">
+                            {student.connected_today ? 'View Record' : 'Track Attendance'}
+                          </div>
+                          <ArrowLeft size={16} className="text-slate-300 rotate-180" />
                         </div>
                       </button>
                     ))}
+                    {allStudents.filter(s => isSilverCategory(s) && (statusFilter === 'completed' ? s.connected_today : !s.connected_today)).length === 0 && (
+                      <div className="col-span-full py-20 text-center bg-slate-50/50 rounded-[3rem] border border-dashed border-slate-200">
+                         <p className="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">No students in this {statusFilter} category.</p>
+                      </div>
+                    )}
                   </div>
-               </div>
+                </div>
              )}
            </div>
          )}

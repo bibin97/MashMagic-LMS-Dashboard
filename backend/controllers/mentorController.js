@@ -710,13 +710,13 @@ const getAcademicSchedule = async (req, res) => {
         console.log(`[AcademicSchedule] Fetching for Mentor ID: ${mentorId}`);
 
         const [rows] = await db.query(`
-            SELECT DISTINCT fs.id, fs.faculty_id, fs.topic, fs.date, fs.status, u.name as faculty_name
+            SELECT fs.*, u.name as faculty_name, s.name as student_name, s.id as student_id
             FROM faculty_sessions fs
             JOIN users u ON fs.faculty_id = u.id
             JOIN session_attendance sa ON fs.id = sa.session_id
             JOIN students s ON sa.student_id = s.id
             WHERE s.mentor_id = ?
-            ORDER BY fs.date DESC
+            ORDER BY fs.date DESC, fs.start_time ASC
         `, [mentorId]);
         res.status(200).json({ success: true, data: rows });
     } catch (error) {
@@ -786,10 +786,80 @@ const getMentorshipLogs = async (req, res) => {
     }
 };
 
+// @desc    Update session reminder and remark
+// @route   PUT /api/mentor/academic-schedule/:id/reminder
+const updateAcademicSessionReminder = async (req, res) => {
+    try {
+        const { reminder_num, remark } = req.body;
+        const sessionId = req.params.id;
+
+        if (![1, 2, 3].includes(reminder_num)) {
+            return res.status(400).json({ success: false, message: "Invalid reminder number" });
+        }
+
+        const reminderField = `reminder_${reminder_num}`;
+        const remarkField = `reminder_${reminder_num}_remark`;
+
+        await db.query(`
+            UPDATE faculty_sessions 
+            SET ${reminderField} = 1, ${remarkField} = ? 
+            WHERE id = ?
+        `, [remark, sessionId]);
+
+        res.status(200).json({ success: true, message: `Reminder ${reminder_num} updated` });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+// @desc    Mark academic session as completed with minutes taken
+// @route   PUT /api/mentor/academic-schedule/:id/complete
+const completeAcademicSession = async (req, res) => {
+    try {
+        const { minutes_taken } = req.body;
+        const sessionId = req.params.id;
+
+        // Check if already locked
+        const [session] = await db.query('SELECT minutes_locked FROM faculty_sessions WHERE id = ?', [sessionId]);
+        if (session.length > 0 && session[0].minutes_locked) {
+            return res.status(403).json({ success: false, message: "This session's duration is locked and cannot be edited." });
+        }
+
+        await db.query(`
+            UPDATE faculty_sessions 
+            SET status = 'Completed', minutes_taken = ?, minutes_locked = 1 
+            WHERE id = ?
+        `, [minutes_taken, sessionId]);
+
+        res.status(200).json({ success: true, message: "Session marked as completed and locked" });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+// @desc    Get student's academic schedule (pre-set in academic panel)
+// @route   GET /api/mentor/students/:id/schedule
+const getStudentAcademicSchedule = async (req, res) => {
+    try {
+        const studentId = req.params.id;
+        const [schedules] = await db.query(`
+            SELECT fs.*, u.name as faculty_name 
+            FROM faculty_schedules fs
+            JOIN users u ON fs.faculty_id = u.id
+            WHERE fs.student_id = ?
+        `, [studentId]);
+        
+        res.status(200).json({ success: true, data: schedules });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
 module.exports = {
     getMentorDashboard,
     getMentorStudents,
     getStudentDetails,
+    getStudentAcademicSchedule,
     getMentorTasks,
     completeMentorTask: processMentorTaskCompletion,
     getMentorTimetable,
@@ -799,6 +869,9 @@ module.exports = {
     createStudentLog,
     getStudentLogs,
     toggleStudentConnection,
+    getStudentAcademicSchedule,
+    updateAcademicSessionReminder,
+    completeAcademicSession,
     getAcademicSchedule,
     completeOnboarding,
     createBatchTimetable,

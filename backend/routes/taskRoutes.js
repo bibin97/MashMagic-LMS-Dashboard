@@ -11,8 +11,8 @@ router.use(requireAuth);
 
 // Admin and Mentor Head routes for creating/deleting
 router.get('/', getTasks);
-router.post('/', requireRole('super_admin', 'admin', 'academic_head', 'mentor_head'), createTask);
-router.delete('/:id', requireRole('super_admin', 'admin', 'academic_head', 'mentor_head'), deleteTask);
+router.post('/', requireRole('super_admin', 'admin', 'sub_admin', 'academic_head', 'mentor_head'), createTask);
+router.delete('/:id', requireRole('super_admin', 'admin', 'sub_admin', 'academic_head', 'mentor_head'), deleteTask);
 
 // Status update can be done by anybody assigned to the task
 router.put('/:id/status', upload.single('proof'), updateTaskStatus);

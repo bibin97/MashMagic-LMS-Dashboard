@@ -44,7 +44,7 @@ const getTasks = async (req, res) => {
             // Mentor head can see tasks they created, tasks assigned to them, AND tasks assigned to any mentor
             sql += ' AND (t.assigned_by = ? OR t.assigned_to = ? OR u.role = "mentor")';
             params.push(req.user.id, req.user.id);
-        } else if (req.user.role !== 'super_admin' && req.user.role !== 'admin') {
+        } else if (req.user.role !== 'super_admin' && req.user.role !== 'admin' && req.user.role !== 'sub_admin') {
             return res.status(200).json({ success: true, count: 0, data: [] });
         }
 

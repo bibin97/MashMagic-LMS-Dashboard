@@ -5,92 +5,91 @@ import { User, Users, ChevronRight, Search, CheckCircle2, Calendar, Clock, Plus,
 import toast from 'react-hot-toast';
 import StudentListFilterDropdown, { sortStudentsByOption } from '../../components/StudentListFilterDropdown';
 
-const StudentCard = ({ student, navigate, viewMode, handleToggleConnection, handleCompleteOnboarding, handleLogHoursClick }) => (
-  <div
-    key={student.id}
-    onClick={() => navigate(`/mentor/students/${student.id}`)}
-    className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-200/50 group cursor-pointer hover:-translate-y-2 transition-all duration-500 relative overflow-hidden flex flex-col justify-between"
-  >
-    <div className="absolute top-0 right-0 p-8 opacity-0 group-hover:opacity-100 transition-opacity duration-700">
-      <div className="w-14 h-14 bg-[#008080] rounded-[22px] flex items-center justify-center text-white shadow-2xl shadow-[#008080]/30">
-        <ChevronRight size={24} strokeWidth={3} />
-      </div>
-    </div>
+const StudentRow = ({ student, navigate, handleToggleConnection, handleCompleteOnboarding, handleLogHoursClick }) => {
+  const isPending = student.onboarding_status === 'pending';
+  const isNew = student.onboarding_status === 'completed' && (!student.session_count || student.session_count < 5);
 
-    <div className="flex flex-col gap-6">
-      <div className="w-20 h-20 bg-slate-50/50 rounded-[28px] border border-slate-100 flex items-center justify-center text-slate-600 group-hover:text-[#008080] group-hover:bg-[#008080]/5 group-hover:border-[#008080]/10 transition-all duration-500">
-        <User size={36} strokeWidth={2.5} />
-      </div>
-
-      <div>
-        <h3 className="text-xl font-black text-slate-900 leading-tight mb-2 group-hover:text-[#008080] transition-colors flex flex-wrap items-center gap-2">
-          {student.name}
-          {student.badge === 'Gold' && <span title="Mentorship Plan" className="cursor-help text-lg">🥇</span>}
-          {student.badge === 'Silver' && <span title="Tuition Plan" className="cursor-help text-lg">🥈</span>}
-          {student.badge === 'Diamond' && <span title="Mentorship & Tuition Plan" className="cursor-help text-lg">💎</span>}
-        </h3>
-      </div>
-
-      <div className="pt-6 border-t border-slate-50 grid grid-cols-2 gap-4">
-        <div>
-          <p className="text-[8px] font-black text-slate-600 uppercase tracking-widest mb-1">Weekly Hours</p>
-          <p className="text-sm font-bold text-slate-700">{student.hour} Hrs</p>
+  return (
+    <div
+      onClick={() => navigate(`/mentor/students/${student.id}`)}
+      className={`group relative bg-white border border-slate-100 rounded-[2rem] p-5 flex flex-col lg:flex-row items-center gap-6 transition-all duration-500 hover:shadow-2xl hover:-translate-y-1 cursor-pointer ${isPending ? 'border-amber-100 bg-amber-50/10' : ''}`}
+    >
+      {/* Student Profile Info */}
+      <div className="flex items-center gap-5 flex-1 min-w-0 w-full">
+        <div className={`w-16 h-16 rounded-2xl flex items-center justify-center shrink-0 border transition-all duration-500 ${isPending ? 'bg-amber-100 border-amber-200 text-amber-600' : 'bg-slate-50 border-slate-100 text-[#008080] group-hover:bg-[#008080] group-hover:text-white group-hover:border-[#008080]'}`}>
+          <User size={28} strokeWidth={2.5} />
         </div>
-        <div>
-          <p className="text-[8px] font-black text-slate-600 uppercase tracking-widest mb-1">Next Payment</p>
-          <p className="text-sm font-bold text-[#008080]">{student.next_installment_date ? new Date(student.next_installment_date).toLocaleDateString() : 'N/A'}</p>
-        </div>
-      </div>
-    </div>
-
-    <div className="mt-6 pt-6 border-t border-slate-50 flex flex-col gap-3" onClick={(e) => e.stopPropagation()}>
-      {viewMode === 'active' ? (
-        <div className="flex flex-col gap-3">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <span className="text-[10px] uppercase font-black tracking-widest text-slate-500">Connected Today</span>
-            <button
-              onClick={(e) => handleToggleConnection(student.id, student.connected_today, e)}
-              className={`flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-xs font-black transition-all ${student.connected_today ? 'bg-emerald-50 text-emerald-600 border border-emerald-100 shadow-sm' : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-100'}`}
-            >
-              <CheckCircle2 size={16} className={student.connected_today ? 'text-emerald-500' : 'text-slate-300'} />
-              {student.connected_today ? 'YES' : 'NO'}
-            </button>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <h3 className="text-lg font-black text-slate-900 truncate leading-none">{student.name}</h3>
+            {isNew && (
+              <span className="px-3 py-1 bg-emerald-500 text-white text-[8px] font-black uppercase tracking-widest rounded-full shadow-lg shadow-emerald-200 animate-pulse">New Member</span>
+            )}
+            {isPending && (
+              <span className="px-3 py-1 bg-amber-500 text-white text-[8px] font-black uppercase tracking-widest rounded-full">Onboarding</span>
+            )}
           </div>
-          
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              navigate('/mentor/student-log', { state: { student } });
-            }}
-            className="w-full flex items-center justify-center gap-4 py-4 bg-white text-slate-900 rounded-[20px] text-[11px] font-black uppercase tracking-[0.25em] transition-all border-2 border-slate-900 hover:bg-slate-900 hover:text-white active:scale-95"
-          >
-            <Activity size={16} strokeWidth={3} className="text-[#008080]" />
-            Student Interactions
-          </button>
-
-          <button
-            onClick={(e) => handleLogHoursClick(student, e)}
-            className="w-full flex items-center justify-center gap-4 py-4 bg-slate-900 text-white rounded-[20px] text-[11px] font-black uppercase tracking-[0.25em] transition-all border border-slate-800 hover:shadow-2xl active:scale-95"
-          >
-            <Clock size={16} strokeWidth={3} className="text-[#008080]" />
-            Log Mentoring Hours
-          </button>
+          <div className="flex items-center gap-3 mt-2">
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">ID: MM-{student.id.toString().padStart(4, '0')}</span>
+            <span className="w-1 h-1 rounded-full bg-slate-200"></span>
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{student.course || 'Technical Course'}</span>
+          </div>
         </div>
-      ) : (
-        <div className="flex flex-col gap-2">
-          <span className="text-[10px] uppercase font-black tracking-widest text-amber-500">Action Required</span>
+      </div>
+
+      {/* Stats Area */}
+      <div className="flex items-center gap-10 px-8 py-3 bg-slate-50/50 rounded-2xl border border-slate-100/50 w-full lg:w-auto">
+        <div className="text-center">
+          <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Hours</p>
+          <p className="text-sm font-black text-slate-700 leading-none">{student.hour || '0'} Hrs</p>
+        </div>
+        <div className="w-[1px] h-8 bg-slate-200"></div>
+        <div className="text-center">
+          <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Status</p>
+          <p className={`text-xs font-black leading-none ${student.connected_today ? 'text-emerald-500' : 'text-slate-400'}`}>
+            {student.connected_today ? 'Connected' : 'Offline'}
+          </p>
+        </div>
+      </div>
+
+      {/* Quick Actions */}
+      <div className="flex items-center gap-3 w-full lg:w-auto shrink-0" onClick={(e) => e.stopPropagation()}>
+        {isPending ? (
           <button
             onClick={(e) => handleCompleteOnboarding(student, e)}
-            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl text-xs font-black uppercase tracking-wider transition-all shadow-lg"
+            className="flex-1 lg:flex-none flex items-center justify-center gap-3 bg-amber-500 text-white px-8 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-amber-200 hover:bg-amber-600 transition-all active:scale-95"
           >
-            <Calendar size={16} />
-            Setup Timetable & Finish
+            <Calendar size={16} /> Setup
           </button>
-        </div>
-      )}
+        ) : (
+          <>
+            <button
+              onClick={(e) => handleToggleConnection(student.id, student.connected_today, e)}
+              className={`flex-1 lg:flex-none p-4 rounded-2xl border transition-all flex items-center justify-center gap-2 ${student.connected_today ? 'bg-emerald-500 text-white border-emerald-600 shadow-lg shadow-emerald-200' : 'bg-white border-slate-100 text-slate-400 hover:border-[#008080] hover:text-[#008080]'}`}
+              title="Toggle Attendance"
+            >
+              <CheckCircle2 size={18} strokeWidth={3} />
+              <span className="lg:hidden text-[10px] font-black uppercase">Presence</span>
+            </button>
+            <button
+              onClick={() => navigate('/mentor/interaction-logs', { state: { studentId: student.id } })}
+              className="flex-1 lg:flex-none p-4 bg-slate-50 text-slate-600 border border-slate-100 rounded-2xl hover:bg-[#008080] hover:text-white hover:border-[#008080] transition-all group/btn"
+              title="Interaction Log"
+            >
+              <Activity size={18} strokeWidth={2.5} className="group-hover/btn:scale-110 transition-transform" />
+            </button>
+            <button
+              onClick={(e) => handleLogHoursClick(student, e)}
+              className="flex-[2] lg:flex-none flex items-center justify-center gap-3 bg-slate-900 text-white px-8 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-slate-200 hover:shadow-2xl transition-all active:scale-95"
+            >
+              <Clock size={16} /> Log Hours
+            </button>
+          </>
+        )}
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 const MyStudents = () => {
  const [students, setStudents] = useState([]);
@@ -196,16 +195,23 @@ const MyStudents = () => {
  }
  };
 
- const filteredStudents = useMemo(() => {
- const filtered = students.filter(s => {
- const isNew = s.onboarding_status === 'pending';
- if (viewMode === 'new' && !isNew) return false;
- if (viewMode === 'active' && isNew) return false;
- return s.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
- (s.subject || '').toLowerCase().includes(searchTerm.toLowerCase());
- });
- return sortStudentsByOption(filtered, sortBy);
- }, [students, viewMode, searchTerm, sortBy]);
+  const filteredStudents = useMemo(() => {
+    const filtered = students.filter(s => {
+      const isNew = s.onboarding_status === 'pending';
+      if (viewMode === 'new' && !isNew) return false;
+      // In 'active' view, show all students
+      return s.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (s.subject || '').toLowerCase().includes(searchTerm.toLowerCase());
+    });
+    
+    // Auto-Rotation: Completed interactions move to the bottom
+    const rotated = [...filtered].sort((a, b) => {
+      if (a.connected_today === b.connected_today) return 0;
+      return a.connected_today ? 1 : -1;
+    });
+
+    return sortStudentsByOption(rotated, sortBy);
+  }, [students, viewMode, searchTerm, sortBy]);
 
  return (
  <div className="space-y-12 pb-20">
@@ -236,71 +242,53 @@ const MyStudents = () => {
  </div>
  <div className="flex flex-wrap items-center gap-2">
  <StudentListFilterDropdown value={sortBy} onChange={setSortBy} />
- <div className="flex items-center gap-2 bg-slate-50 p-1 rounded-2xl border border-slate-100">
- <button
- onClick={() => setViewMode('active')}
- className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${viewMode === 'active' ? 'bg-white text-[#008080] shadow-sm' : 'text-slate-600 hover:text-slate-600'
- }`}
- >
- Active Students
- </button>
- <button
- onClick={() => setViewMode('new')}
- className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${viewMode === 'new' ? 'bg-white text-emerald-600 shadow-sm' : 'text-slate-600 hover:text-slate-600'
- }`}
- >
- New (Onboarding)
- {students.filter(s => s.onboarding_status === 'pending').length > 0 && (
- <span className="ml-2 px-1.5 py-0.5 bg-rose-500 text-white rounded-full text-[10px]">
- {students.filter(s => s.onboarding_status === 'pending').length}
- </span>
- )}
- </button>
- </div>
+  <div className="flex items-center gap-2 bg-slate-50 p-1 rounded-2xl border border-slate-100">
+  <button
+  onClick={() => setViewMode('active')}
+  className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${viewMode === 'active' ? 'bg-white text-[#008080] shadow-sm' : 'text-slate-400 hover:text-slate-600'
+  }`}
+  >
+  All Assigned Hub ({students.length})
+  </button>
+  <button
+  onClick={() => setViewMode('new')}
+  className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${viewMode === 'new' ? 'bg-white text-emerald-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'
+  }`}
+  >
+  Pending Onboarding
+  {students.filter(s => s.onboarding_status === 'pending').length > 0 && (
+  <span className="ml-2 px-2 py-0.5 bg-amber-500 text-white rounded-full text-[8px] font-black animate-bounce">
+  {students.filter(s => s.onboarding_status === 'pending').length}
+  </span>
+  )}
+  </button>
+  </div>
  </div>
  </div>
 
  {loading ? (
  <div className="text-center p-20 text-slate-600 font-bold animate-pulse">Scanning Student Database...</div>
  ) : (
- <div className="space-y-12">
- {/* Direct Assignments */}
- {filteredStudents.filter(s => !s.is_shifted).length > 0 && (
- <div>
- <h4 className="text-[10px] font-black text-slate-600 uppercase tracking-widest mb-6 flex items-center gap-3">
- <div className="w-2 h-2 rounded-full bg-[#008080]"></div>
- Direct Assignments
- </h4>
- <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
- {filteredStudents.filter(s => !s.is_shifted).map((student) => (
- <StudentCard key={student.id} student={student} navigate={navigate} viewMode={viewMode} handleToggleConnection={handleToggleConnection} handleCompleteOnboarding={handleCompleteOnboarding} handleLogHoursClick={handleLogHoursClick} />
- ))}
- </div>
- </div>
- )}
-
- {/* Shifted Assignments */}
- {filteredStudents.filter(s => s.is_shifted).length > 0 && (
- <div>
- <h4 className="text-[10px] font-black text-rose-500 uppercase tracking-widest mb-6 flex items-center gap-3">
- <div className="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></div>
- Shifted from Other Mentors
- </h4>
- <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
- {filteredStudents.filter(s => s.is_shifted).map((student) => (
- <StudentCard key={student.id} student={student} navigate={navigate} viewMode={viewMode} handleToggleConnection={handleToggleConnection} handleCompleteOnboarding={handleCompleteOnboarding} handleLogHoursClick={handleLogHoursClick} />
- ))}
- </div>
- </div>
+  <div className="space-y-4">
+    {/* Unified List View */}
+    {filteredStudents.map((student) => (
+  <StudentRow 
+    key={student.id} 
+    student={student} 
+    navigate={navigate} 
+    handleToggleConnection={handleToggleConnection} 
+    handleCompleteOnboarding={handleCompleteOnboarding} 
+    handleLogHoursClick={handleLogHoursClick} 
+  />
+  ))}
+  </div>
  )}
 
  {filteredStudents.length === 0 && (
  <div className="col-span-full py-20 text-center bg-white rounded-[2.5rem] border border-dashed border-slate-200">
  <p className="text-slate-600 font-bold">No students matched your search criteria.</p>
  </div>
- )}
- </div>
- )}
+  )}
 
  {/* Batch Timetable Modal */}
  {isTimetableModalOpen && (

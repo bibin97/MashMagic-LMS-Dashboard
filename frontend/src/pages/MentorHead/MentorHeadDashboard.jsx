@@ -30,19 +30,28 @@ const MentorHeadDashboard = () => {
  const [activities, setActivities] = useState([]);
  const [loading, setLoading] = useState(true);
  const [lastSynced, setLastSynced] = useState('');
+ const [mentorName, setMentorName] = useState('');
+ const [filterDate, setFilterDate] = useState('');
 
  useEffect(() => {
  fetchDashboardData();
- }, []);
+ }, [mentorName, filterDate]);
 
  const fetchDashboardData = async () => {
  try {
  const token = sessionStorage.getItem('token');
 
+ const activityParams = {};
+ if (mentorName) activityParams.mentor_name = mentorName;
+ if (filterDate) activityParams.date = filterDate;
+
  // Parallel fetch for stats and activities
  const [statsRes, activitiesRes, summaryRes, examRes] = await Promise.all([
  axios.get('/api/mentor-head/dashboard', { headers: { Authorization: `Bearer ${token}` } }),
- axios.get('/api/mentor-head/activities', { headers: { Authorization: `Bearer ${token}` } }),
+ axios.get('/api/mentor-head/activities', { 
+    headers: { Authorization: `Bearer ${token}` },
+    params: activityParams
+  }),
  axios.get('/api/mentor-head/daily-summary', { headers: { Authorization: `Bearer ${token}` } }),
  axios.get('/api/mentor-head/exam-analytics', { headers: { Authorization: `Bearer ${token}` } })
  ]);
@@ -78,7 +87,7 @@ const MentorHeadDashboard = () => {
  }
  };
 
- if (loading) {
+ if (loading && activities.length === 0) {
  return (
  <div className="flex items-center justify-center h-64">
  <Loader2 className="w-8 h-8 text-[#008080] animate-spin" />
@@ -174,7 +183,7 @@ const MentorHeadDashboard = () => {
  stroke="none"
  >
  <Cell fill="#008080" />
- <Cell fill="#008080" />
+ <Cell fill="#e11d48" />
  </Pie>
  <Tooltip
  formatter={(value, name) => [`${value} Students`, name]}
@@ -237,23 +246,48 @@ const MentorHeadDashboard = () => {
 
  {/* Live Feed Section */}
  <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden flex flex-col min-h-[500px]">
- <div className="p-8 border-b border-slate-50 flex items-center justify-between">
- <div>
- <h3 className="text-xl font-black text-slate-900 tracking-tight flex items-center gap-3">
- <Activity className="text-[#008080]" size={24} />
- Live Activity Feed
- </h3>
- <p className="text-slate-600 text-xs font-bold uppercase tracking-widest mt-1">Real-time updates from mentor panels</p>
- </div>
- <div className="flex items-center gap-3">
- <div className="text-xs font-bold text-slate-600 uppercase tracking-widest bg-slate-50 px-4 py-2 rounded-xl">
- Last synced: {lastSynced || 'Just now'}
- </div>
- <button onClick={fetchDashboardData} disabled={loading} title="Refresh Data" className="p-2 bg-[#008080]/10 text-white rounded-xl hover:bg-[#008080] transition-all active:scale-95">
- <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
- </button>
- </div>
- </div>
+  <div className="p-8 border-b border-slate-50">
+  <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+  <div>
+  <h3 className="text-xl font-black text-slate-900 tracking-tight flex items-center gap-3">
+  <Activity className="text-[#008080]" size={24} />
+  Live Activity Feed
+  </h3>
+  <p className="text-slate-600 text-xs font-bold uppercase tracking-widest mt-1">Real-time updates from mentor panels</p>
+  </div>
+  <div className="flex flex-wrap items-center gap-3">
+  <div className="relative group">
+  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#008080]">
+  <User size={14} />
+  </div>
+  <input
+  type="text"
+  placeholder="Mentor Name"
+  className="p-3 pl-10 bg-slate-50 border border-slate-100 rounded-xl text-[10px] font-bold outline-none focus:ring-2 focus:ring-[#008080]/10 w-40"
+  value={mentorName}
+  onChange={(e) => setMentorName(e.target.value)}
+  />
+  </div>
+  <div className="relative group">
+  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#008080]">
+  <Calendar size={14} />
+  </div>
+  <input
+  type="date"
+  className="p-3 pl-10 bg-slate-50 border border-slate-100 rounded-xl text-[10px] font-bold outline-none focus:ring-2 focus:ring-[#008080]/10 w-40"
+  value={filterDate}
+  onChange={(e) => setFilterDate(e.target.value)}
+  />
+  </div>
+  <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest bg-slate-50 px-4 py-3 rounded-xl border border-slate-100">
+  {lastSynced || 'Just now'}
+  </div>
+  <button onClick={fetchDashboardData} disabled={loading} title="Refresh Data" className="p-3 bg-[#008080]/10 text-[#008080] rounded-xl hover:bg-[#008080] hover:text-white transition-all active:scale-95">
+  <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
+  </button>
+  </div>
+  </div>
+  </div>
 
  <div className="p-8">
  {activities.length > 0 ? (

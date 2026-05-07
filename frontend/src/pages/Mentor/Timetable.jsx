@@ -24,6 +24,10 @@ const Timetable = () => {
  const [loading, setLoading] = useState(true);
  const [isModalOpen, setIsModalOpen] = useState(false);
  const [editingSession, setEditingSession] = useState(null);
+ const [isBulkMode, setIsBulkMode] = useState(false);
+ const [bulkSessions, setBulkSessions] = useState([]);
+ const [studentSchedule, setStudentSchedule] = useState([]);
+ const [selectedSlot, setSelectedSlot] = useState(null);
 
  // Filters
  const [filters, setFilters] = useState({
@@ -110,14 +114,51 @@ const Timetable = () => {
  s.name?.toLowerCase().includes(studentSearch.toLowerCase()) ||
  s.student_id?.toString().toLowerCase().includes(studentSearch.toLowerCase())
  );
+ 
+ const fetchStudentSchedule = async (studentId) => {
+ try {
+ const res = await api.get(`/mentor/students/${studentId}/schedule`);
+ setStudentSchedule(res.data.data);
+ } catch (error) {
+ console.error("Failed to fetch student schedule");
+ }
+ };
+ 
+ useEffect(() => {
+ if (formData.student_id && isBulkMode) {
+ fetchStudentSchedule(formData.student_id);
+ } else {
+ setStudentSchedule([]);
+ }
+ }, [formData.student_id, isBulkMode]);
 
  const handleCreateOpen = () => {
  setEditingSession(null);
+ setIsBulkMode(false);
+ setBulkSessions([]);
  setFormData({
  student_id: filters.student_id || '',
  date: new Date().toISOString().split('T')[0],
  start_time: '10:00',
  end_time: '11:00',
+ chapter: '',
+ session_type: 'Regular Class',
+ status: 'Scheduled',
+ status_reason: '',
+ notes: ''
+ });
+ setIsModalOpen(true);
+ };
+ 
+ const handleBulkOpen = () => {
+ setEditingSession(null);
+ setIsBulkMode(true);
+ setBulkSessions([]);
+ setFormData({
+ student_id: filters.student_id || '',
+ date: new Date().toISOString().split('T')[0],
+ start_time: '',
+ end_time: '',
  chapter: '',
  session_type: 'Regular Class',
  status: 'Scheduled',
@@ -166,10 +207,19 @@ const Timetable = () => {
 
  const handleSubmit = async (e) => {
  e.preventDefault();
- if (formData.end_time <= formData.start_time) {
- toast.error("End time must be after start time");
- return;
- }
+ 
+  if (!isBulkMode) {
+  if (formData.end_time <= formData.start_time) {
+  toast.error("End time must be after start time");
+  return;
+  }
+
+  // Reason Validation for Postponed or Cancelled sessions
+  const needsReason = ['Postponed', 'Cancelled', 'Faculty Cancelled', 'Student Cancelled'].includes(formData.status);
+  if (needsReason && !formData.status_reason?.trim()) {
+  toast.error(`Please provide a reason for mark as ${formData.status}`);
+  return;
+  }
 
  try {
  if (editingSession) {
@@ -184,6 +234,45 @@ const Timetable = () => {
  } catch (error) {
  toast.error(error.response?.data?.message || "Operation failed");
  }
+ } else {
+ if (bulkSessions.length === 0) {
+ toast.error("Add at least one session to the list");
+ return;
+ }
+
+ try {
+ await api.post('/mentor/timetable/batch', {
+ student_id: formData.student_id,
+ sessions: bulkSessions
+ });
+ toast.success(`${bulkSessions.length} sessions scheduled successfully`);
+ setIsModalOpen(false);
+ fetchTimetable();
+ } catch (error) {
+ toast.error(error.response?.data?.message || "Batch operation failed");
+ }
+ }
+ };
+ 
+ const addToBatch = () => {
+ if (!formData.student_id || !formData.date || !formData.start_time || !formData.end_time) {
+ toast.error("Please fill all required fields for this session");
+ return;
+ }
+ 
+ setBulkSessions([...bulkSessions, { ...formData }]);
+ toast.success("Session added to list");
+ setFormData({
+ ...formData,
+ start_time: '',
+ end_time: '',
+ chapter: ''
+ });
+ setSelectedSlot(null);
+ };
+ 
+ const removeFromBatch = (index) => {
+ setBulkSessions(bulkSessions.filter((_, i) => i !== index));
  };
 
  const getStatusColor = (status) => {
@@ -192,6 +281,8 @@ const Timetable = () => {
  case 'Completed': return 'bg-emerald-100 text-emerald-600 border-emerald-200';
  case 'Postponed': return 'bg-amber-100 text-amber-600 border-amber-200';
  case 'Cancelled': return 'bg-rose-100 text-rose-600 border-rose-200';
+ case 'Faculty Cancelled': return 'bg-rose-100 text-rose-600 border-rose-200';
+ case 'Student Cancelled': return 'bg-rose-100 text-rose-600 border-rose-200';
  case 'No Show': return 'bg-slate-800 text-white border-slate-900';
  default: return 'bg-slate-100 text-slate-600 border-slate-200';
  }
@@ -249,6 +340,12 @@ const Timetable = () => {
  className="hidden lg:flex items-center gap-2 px-6 py-4 bg-slate-50 text-slate-600 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-100 transition-all border border-slate-100"
  >
  <CalendarDays size={16} /> This Month
+ </button>
+ <button
+ onClick={handleBulkOpen}
+ className="hidden md:flex items-center justify-center gap-3 bg-slate-900 text-white px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-slate-200 hover:-translate-y-1 transition-all active:scale-95"
+ >
+ <CalendarClock size={18} /> Bulk Schedule
  </button>
  <button
  onClick={handleCreateOpen}
@@ -347,10 +444,10 @@ const Timetable = () => {
  onChange={(e) => setFilters({ ...filters, status: e.target.value })}
  className="w-full px-5 py-4 bg-slate-50 border-none rounded-2xl text-[11px] font-black text-slate-700 focus:bg-white focus:ring-4 ring-[#008080]/10 outline-none cursor-pointer"
  >
- <option value="">Global Operations</option>
- {['Scheduled', 'Completed', 'Postponed', 'Cancelled', 'No Show'].map(s => <option key={s} value={s}>{s}</option>)}
- </select>
- </div>
+  <option value="">Global Operations</option>
+  {['Scheduled', 'Completed', 'Postponed', 'Cancelled', 'Faculty Cancelled', 'Student Cancelled', 'No Show'].map(s => <option key={s} value={s}>{s}</option>)}
+  </select>
+  </div>
 
  <button
  onClick={() => setFilters({ ...filters, student_id: '', status: '', start_date: formatDate(new Date(new Date().getFullYear(), new Date().getMonth(), 1)), end_date: formatDate(new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0)) })}
@@ -466,7 +563,7 @@ const Timetable = () => {
  <div className="sticky top-0 bg-white/80 backdrop-blur-xl px-10 py-6 border-b border-slate-100 flex justify-between items-center z-10">
  <div>
  <h2 className="text-xl font-black text-slate-900 tracking-tight uppercase">
- {editingSession ? 'Reconfigure Session' : 'Deploy New Session'}
+ {editingSession ? 'Reconfigure Session' : isBulkMode ? 'Bulk Timeline Generation' : 'Deploy New Session'}
  </h2>
  <p className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] mt-1">Master Scheduling Module</p>
  </div>
@@ -535,6 +632,49 @@ const Timetable = () => {
  )}
  </div>
  </div>
+
+ {isBulkMode && studentSchedule.length > 0 && (
+ <div className="space-y-2 col-span-full">
+ <label className="text-[10px] font-black text-[#008080] uppercase tracking-widest ml-1">Select from Registered Academic Slots</label>
+ <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+ {studentSchedule.map((slot, idx) => {
+ const dayName = new Date(formData.date).toLocaleDateString('en-GB', { weekday: 'long' });
+ const isSameDay = slot.day_of_week === dayName;
+ return (
+ <button
+ key={idx}
+ type="button"
+ onClick={() => {
+ setFormData({
+ ...formData,
+ start_time: slot.start_time,
+ end_time: slot.end_time,
+ chapter: slot.subject || ''
+ });
+ setSelectedSlot(idx);
+ }}
+ className={`p-4 rounded-2xl border text-left transition-all relative overflow-hidden ${
+ selectedSlot === idx 
+ ? 'bg-[#008080] text-white border-[#008080] shadow-lg scale-[1.02]' 
+ : isSameDay 
+ ? 'bg-emerald-50 border-emerald-100 text-emerald-700 hover:border-emerald-300' 
+ : 'bg-white border-slate-100 text-slate-600 hover:border-slate-200 opacity-60'
+ }`}
+ >
+ <div className="flex justify-between items-start mb-2">
+ <span className="text-[10px] font-black uppercase tracking-tighter">{slot.day_of_week}</span>
+ {isSameDay && <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />}
+ </div>
+ <p className="text-xs font-black truncate">{slot.subject}</p>
+ <p className="text-[10px] font-bold mt-1 opacity-80">{slot.start_time} - {slot.end_time}</p>
+ <p className="text-[9px] mt-2 font-medium italic opacity-70">Faculty: {slot.faculty_name}</p>
+ </button>
+ );
+ })}
+ </div>
+ </div>
+ )}
+
  <div className="space-y-2">
  <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Start Time *</label>
  <input
@@ -545,7 +685,95 @@ const Timetable = () => {
  className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
  />
  </div>
+ <div className="space-y-2">
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">End Time *</label>
+ <input
+ type="time"
+ required
+ value={formData.end_time}
+ onChange={(e) => setFormData({ ...formData, end_time: e.target.value })}
+ className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
+ />
  </div>
+ <div className="space-y-2 md:col-span-2 lg:col-span-1">
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Topic / Chapter</label>
+ <input
+ type="text"
+ value={formData.chapter}
+ onChange={(e) => setFormData({ ...formData, chapter: e.target.value })}
+ placeholder="Enter topic name"
+ className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
+ />
+ </div>
+
+ {/* Status & Reason Section - Only visible during edit */}
+ {editingSession && (
+ <div className="col-span-full grid grid-cols-1 md:grid-cols-2 gap-8 pt-8 border-t border-slate-100">
+ <div className="space-y-2">
+ <label className="text-[10px] font-black text-[#008080] uppercase tracking-widest ml-1">Update Operational Status</label>
+ <select
+ value={formData.status}
+ onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+ className="w-full p-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] outline-none focus:ring-4 ring-slate-200 transition-all cursor-pointer shadow-xl shadow-slate-200"
+ >
+ {['Scheduled', 'Completed', 'Postponed', 'Cancelled', 'Faculty Cancelled', 'Student Cancelled', 'No Show'].map(s => (
+ <option key={s} value={s}>{s.toUpperCase()}</option>
+ ))}
+ </select>
+ </div>
+ <div className="space-y-2">
+ <label className="text-[10px] font-black text-rose-500 uppercase tracking-widest ml-1">Official Reason for Change *</label>
+ <textarea
+ required={['Postponed', 'Cancelled', 'Faculty Cancelled', 'Student Cancelled'].includes(formData.status)}
+ value={formData.status_reason}
+ onChange={(e) => setFormData({ ...formData, status_reason: e.target.value })}
+ rows="2"
+ className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-rose-500/10 transition-all outline-none"
+ placeholder="Mandatory for postponement or cancellation: Type the specific reason here..."
+ ></textarea>
+ </div>
+ </div>
+ )}
+ </div>
+
+ {isBulkMode && (
+ <div className="pt-6 border-t border-slate-50">
+ <button
+ type="button"
+ onClick={addToBatch}
+ className="w-full py-4 bg-emerald-50 text-emerald-600 border border-emerald-100 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] hover:bg-emerald-600 hover:text-white transition-all flex items-center justify-center gap-3"
+ >
+ <Plus size={16} /> Add This Session to Timeline
+ </button>
+
+ {bulkSessions.length > 0 && (
+ <div className="mt-8 space-y-3">
+ <div className="flex items-center justify-between px-2">
+ <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Staged Timeline ({bulkSessions.length})</h4>
+ <button type="button" onClick={() => setBulkSessions([])} className="text-[10px] font-black text-rose-500 uppercase">Clear All</button>
+ </div>
+ <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+ {bulkSessions.map((session, index) => (
+ <div key={index} className="flex items-center justify-between p-4 bg-slate-50 border border-slate-100 rounded-2xl group hover:border-[#008080] transition-all">
+ <div className="flex items-center gap-4">
+ <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center text-[#008080] font-black text-[10px] shadow-sm">
+ {index + 1}
+ </div>
+ <div>
+ <p className="text-[11px] font-black text-slate-800">{new Date(session.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })}</p>
+ <p className="text-[9px] font-bold text-slate-500">{session.start_time} - {session.end_time}</p>
+ </div>
+ </div>
+ <button type="button" onClick={() => removeFromBatch(index)} className="p-2 text-slate-300 hover:text-rose-500 opacity-0 group-hover:opacity-100 transition-all">
+ <Trash2 size={14} />
+ </button>
+ </div>
+ ))}
+ </div>
+ </div>
+ )}
+ </div>
+ )}
  </div>
 
  <div className="flex flex-col md:flex-row gap-4 pt-10 border-t border-slate-50">
@@ -553,7 +781,7 @@ const Timetable = () => {
  type="submit"
  className="flex-1 bg-slate-900 text-white p-5 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-slate-200 hover:shadow-2xl transition-all h-16 "
  >
- {editingSession ? 'Execute Update' : 'Initialize Session'}
+ {editingSession ? 'Execute Update' : isBulkMode ? `Deploy ${bulkSessions.length} Sessions` : 'Initialize Session'}
  </button>
  <button
  type="button"

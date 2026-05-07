@@ -168,21 +168,44 @@ exports.getMentorStudents = async (req, res) => {
 // @access  Private (Mentor Head)
 exports.getMentorInteractionLogs = async (req, res) => {
     try {
-        const [studentLogs] = await db.query(`
-            SELECT sil.*, sil.created_at, s.name as student_name, m.name as mentor_name, 'Student' as type
+        const { mentor_id, mentor_name, date } = req.query;
+        let studentQuery = `
+            SELECT sil.*, COALESCE(sil.created_at, sil.date) as sort_date, s.name as student_name, m.name as mentor_name, 'Student' as type
             FROM student_interaction_logs sil
             JOIN students s ON sil.student_id = s.id
             JOIN users m ON sil.mentor_id = m.id
-            ORDER BY sil.created_at DESC
-        `);
-
-        const [facultyLogs] = await db.query(`
-            SELECT fil.*, fil.created_at, s.name as student_name, m.name as mentor_name, 'Faculty' as type
+            WHERE 1=1
+        `;
+        let facultyQuery = `
+            SELECT fil.*, COALESCE(fil.created_at, fil.date) as sort_date, s.name as student_name, m.name as mentor_name, 'Faculty' as type
             FROM faculty_interaction_logs fil
             JOIN students s ON fil.student_id = s.id
             JOIN users m ON fil.mentor_id = m.id
-            ORDER BY fil.created_at DESC
-        `);
+            WHERE 1=1
+        `;
+        let params = [];
+
+        if (mentor_id) {
+            studentQuery += " AND sil.mentor_id = ?";
+            facultyQuery += " AND fil.mentor_id = ?";
+            params.push(mentor_id);
+        } else if (mentor_name) {
+            studentQuery += " AND m.name LIKE ?";
+            facultyQuery += " AND m.name LIKE ?";
+            params.push(`%${mentor_name}%`);
+        }
+
+        if (date) {
+            studentQuery += " AND sil.date = ?";
+            facultyQuery += " AND fil.date = ?";
+            params.push(date);
+        }
+
+        studentQuery += " ORDER BY sort_date DESC";
+        facultyQuery += " ORDER BY sort_date DESC";
+
+        const [studentLogs] = await db.query(studentQuery, params);
+        const [facultyLogs] = await db.query(facultyQuery, params);
 
         res.status(200).json({
             success: true,
@@ -224,35 +247,55 @@ exports.getFacultyIntelligenceLogs = async (req, res) => {
 // @access  Private (Mentor Head)
 exports.getAllActivities = async (req, res) => {
     try {
-        const query = `
-            (SELECT 
-                sil.id as log_id,
-                sil.created_at as date,
-                sil.mentor_notes as details,
-                s.name as student_name,
-                m.name as mentor_name,
-                m.place as mentor_place,
-                'Mentor Interaction' as type
-            FROM student_interaction_logs sil
-            JOIN students s ON s.id = sil.student_id
-            JOIN users m ON m.id = sil.mentor_id)
-            UNION ALL
-            (SELECT 
-                fil.id as log_id,
-                fil.created_at as date,
-                fil.notes as details,
-                s.name as student_name,
-                m.name as mentor_name,
-                m.place as mentor_place,
-                'Faculty Interaction' as type
-            FROM faculty_interaction_logs fil
-            JOIN students s ON s.id = fil.student_id
-            JOIN users m ON m.id = fil.mentor_id)
-            ORDER BY date DESC
-            LIMIT 50
+        const { mentor_id, mentor_name, date } = req.query;
+        let params = [];
+        let query = `
+            SELECT * FROM (
+                (SELECT 
+                    sil.id as log_id,
+                    COALESCE(sil.created_at, sil.date) as date,
+                    sil.mentor_notes as details,
+                    s.name as student_name,
+                    m.name as mentor_name,
+                    m.id as mentor_id,
+                    m.place as mentor_place,
+                    'Mentor Interaction' as type
+                FROM student_interaction_logs sil
+                JOIN students s ON s.id = sil.student_id
+                JOIN users m ON m.id = sil.mentor_id)
+                UNION ALL
+                (SELECT 
+                    fil.id as log_id,
+                    COALESCE(fil.created_at, fil.date) as date,
+                    fil.notes as details,
+                    s.name as student_name,
+                    m.name as mentor_name,
+                    m.id as mentor_id,
+                    m.place as mentor_place,
+                    'Faculty Interaction' as type
+                FROM faculty_interaction_logs fil
+                JOIN students s ON s.id = fil.student_id
+                JOIN users m ON m.id = fil.mentor_id)
+            ) as activities
+            WHERE 1=1
         `;
 
-        const [activities] = await db.query(query);
+        if (mentor_id) {
+            query += " AND mentor_id = ?";
+            params.push(mentor_id);
+        } else if (mentor_name) {
+            query += " AND mentor_name LIKE ?";
+            params.push(`%${mentor_name}%`);
+        }
+
+        if (date) {
+            query += " AND DATE(date) = ?";
+            params.push(date);
+        }
+
+        query += " ORDER BY date DESC LIMIT 100";
+
+        const [activities] = await db.query(query, params);
 
         res.status(200).json({
             success: true,

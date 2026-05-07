@@ -56,12 +56,13 @@ const Navbar = ({ onMenuClick }) => {
     return () => { delete window.refetchNotifications; };
   }, []);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      window.location.reload();
-    }, 300000); // 5 minutes
-    return () => clearInterval(interval);
-  }, []);
+  // Removed problematic auto-refresh logic that was causing disruption
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     window.location.reload();
+  //   }, 300000); // 5 minutes
+  //   return () => clearInterval(interval);
+  // }, []);
 
   const fetchNotifications = async () => {
     try {

@@ -105,29 +105,51 @@ const StudentsData = () => {
  <p className="text-sm font-bold text-slate-600 uppercase ">No Students Found</p>
  </div>
  ) : (
- filteredStudents.map(student => (
- <button
- key={student.id}
- onClick={() => handleStudentSelect(student)}
- className={`w-full p-5 rounded-[28px] border transition-all flex items-center gap-4 group relative overflow-hidden
- ${selectedStudent?.id === student.id 
- ? 'bg-slate-900 border-slate-900 text-white shadow-xl translate-x-2' 
- : 'bg-white border-slate-100 text-slate-600 hover:border-teal-500/30 hover:bg-teal-50/10'}
- `}
- >
- <div className={`w-12 h-12 rounded-2xl flex items-center justify-center font-black text-lg transition-transform group-hover:scale-110 duration-500
- ${selectedStudent?.id === student.id ? 'bg-white/10 text-white' : 'bg-slate-50 text-slate-600'}`}>
- {student.name.charAt(0)}
- </div>
- <div className="text-left flex-1">
- <h4 className="text-sm font-black tracking-tight">{student.name}</h4>
- <p className={`text-[9px] font-bold uppercase tracking-widest mt-1 opacity-60`}>
- {student.grade} • {student.course}
- </p>
- </div>
- <ChevronRight className={`transition-transform duration-500 ${selectedStudent?.id === student.id ? 'translate-x-1' : 'opacity-20 translate-x-0'}`} size={20} />
- </button>
- ))
+ filteredStudents.map(student => {
+  const isNew = student.created_at && (new Date() - new Date(student.created_at)) < 24 * 60 * 60 * 1000;
+  const isOnboarding = student.onboarding_status === 'pending';
+  
+  return (
+    <button
+      key={student.id}
+      onClick={() => handleStudentSelect(student)}
+      className={`w-full p-5 rounded-[28px] border transition-all flex items-center gap-4 group relative overflow-hidden
+      ${selectedStudent?.id === student.id 
+        ? 'bg-slate-900 border-slate-900 text-white shadow-xl translate-x-2' 
+        : 'bg-white border-slate-100 text-slate-600 hover:border-teal-500/30 hover:bg-teal-50/10'}
+      `}
+    >
+      <div className={`w-12 h-12 rounded-2xl flex items-center justify-center font-black text-lg transition-transform group-hover:scale-110 duration-500
+      ${selectedStudent?.id === student.id ? 'bg-white/10 text-white' : 'bg-slate-50 text-slate-600'}`}>
+        {student.name.charAt(0)}
+      </div>
+      <div className="text-left flex-1 min-w-0">
+        <div className="flex items-center gap-2 mb-1">
+          <h4 className="text-sm font-black tracking-tight truncate">{student.name}</h4>
+          {isNew && (
+            <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse shrink-0"></span>
+          )}
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <p className={`text-[8px] font-bold uppercase tracking-widest opacity-60 truncate`}>
+            {student.course}
+          </p>
+          {isOnboarding && (
+            <span className="px-2 py-0.5 bg-amber-500/10 text-amber-600 text-[7px] font-black uppercase rounded-lg border border-amber-500/20">
+              Onboarding
+            </span>
+          )}
+          {isNew && (
+            <span className="px-2 py-0.5 bg-emerald-500 text-white text-[7px] font-black uppercase rounded-lg shadow-sm">
+              NEW
+            </span>
+          )}
+        </div>
+      </div>
+      <ChevronRight className={`transition-transform duration-500 shrink-0 ${selectedStudent?.id === student.id ? 'translate-x-1' : 'opacity-20 translate-x-0'}`} size={20} />
+    </button>
+  );
+})
  )}
  </div>
  </div>
