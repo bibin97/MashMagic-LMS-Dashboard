@@ -241,8 +241,33 @@ const getHighRiskStudents = async (req, res) => {
     }
 };
 
+const getWeeklyCoverage = async (req, res) => {
+    try {
+        const query = `
+            SELECT 
+                s.id, s.name, s.priority_category, s.mentor_name,
+                COUNT(CASE WHEN r.session_type = 'DEEP' THEN 1 END) as deep_count,
+                COUNT(CASE WHEN r.session_type = 'MEDIUM' THEN 1 END) as medium_count,
+                COUNT(CASE WHEN r.session_type = 'QUICK' THEN 1 END) as quick_count,
+                MAX(r.created_at) as last_interaction
+            FROM students s
+            LEFT JOIN mentor_session_reports r ON s.id = r.student_id AND r.created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+            WHERE s.status = 'active'
+            GROUP BY s.id
+            ORDER BY deep_count ASC, medium_count ASC
+        `;
+
+        const [coverage] = await db.query(query);
+        res.status(200).json({ success: true, data: coverage });
+    } catch (error) {
+        console.error('Weekly Coverage Error:', error);
+        res.status(500).json({ success: false, message: "Server Error" });
+    }
+};
+
 module.exports = {
     getDailyAssignments,
     submitSessionReport,
-    getHighRiskStudents
+    getHighRiskStudents,
+    getWeeklyCoverage
 };

@@ -277,9 +277,9 @@ exports.getAllActivities = async (req, res) => {
                     m.place as mentor_place,
                     'Quick Log' as type,
                     'Quick Log' as source,
-                    sil.self_clarity as understanding_level,
-                    sil.confidence as student_confidence,
-                    sil.exam_anxiety as stress_level,
+                    CAST(sil.self_clarity AS CHAR) as understanding_level,
+                    CAST(sil.confidence AS CHAR) as student_confidence,
+                    CAST(sil.exam_anxiety AS CHAR) as stress_level,
                     sil.created_at
                 FROM student_interaction_logs sil
                 JOIN students s ON s.id = sil.student_id
@@ -297,9 +297,9 @@ exports.getAllActivities = async (req, res) => {
                     m.place as mentor_place,
                     'Session Log' as type,
                     'Session Log' as source,
-                    msl.understanding_after_session as understanding_level,
-                    msl.session_quality_rating as student_confidence,
-                    msl.stress_level,
+                    CAST(msl.understanding_after_session AS CHAR) as understanding_level,
+                    CAST(msl.session_quality_rating AS CHAR) as student_confidence,
+                    CAST(msl.stress_level AS CHAR) as stress_level,
                     msl.created_at
                 FROM mentor_session_logs msl
                 JOIN students s ON s.id = msl.student_id
@@ -317,8 +317,8 @@ exports.getAllActivities = async (req, res) => {
                     m.place as mentor_place,
                     CONCAT('Hub: ', msr.session_type) as type,
                     'Interaction Hub' as source,
-                    JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.understanding_level')) as understanding_level,
-                    JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.confidence')) as student_confidence,
+                    CAST(JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.understanding_level')) AS CHAR) as understanding_level,
+                    CAST(JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.confidence')) AS CHAR) as student_confidence,
                     NULL as stress_level,
                     msr.created_at
                 FROM mentor_session_reports msr

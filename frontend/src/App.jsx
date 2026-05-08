@@ -64,6 +64,7 @@ import StudentShift from './pages/MentorHead/StudentShift';
 import MentorHeadInteractions from './pages/MentorHead/MentorHeadInteractions';
 import MentorHeadTasks from './pages/MentorHead/MentorHeadTasks';
 import FacultyDirectoryMentorHead from './pages/MentorHead/FacultyDirectory';
+import MentorHeadNotifications from './pages/MentorHead/MentorHeadNotifications';
 
 // Mentor Interaction Tracking
 import FacultyTracking from './pages/Mentor/FacultyTracking';
@@ -142,6 +143,7 @@ function App() {
             <Route path="course-completed" element={<CourseCompletedTracker />} />
             <Route path="tasks" element={<MentorHeadTasks />} />
             <Route path="interactions" element={<MentorHeadInteractions />} />
+            <Route path="notifications" element={<MentorHeadNotifications />} />
             <Route path="profile" element={<AdminProfile />} />
           </Route>
 
