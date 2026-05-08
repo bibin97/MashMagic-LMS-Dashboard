@@ -104,13 +104,36 @@ const submitSessionReport = async (req, res) => {
             return res.status(400).json({ success: false, message: 'Missing required fields' });
         }
 
-        // 1. Save Report
-        await db.query(
-            'INSERT INTO mentor_session_reports (student_id, mentor_id, session_type, report_data) VALUES (?, ?, ?, ?)',
-            [student_id, mentor_id, session_type, JSON.stringify(report_data)]
-        );
+        // 4. Fraud Check (Module 7)
+        let isFlagged = 0;
+        let flagReason = null;
 
-        // 2. Update Daily Assignment Status
+        if (history.length > 0) {
+            const lastReport = JSON.parse(history[0].report_data);
+            const currentPlan = report_data.action_plan || '';
+            const lastPlan = lastReport.action_plan || '';
+
+            if (currentPlan && currentPlan === lastPlan && currentPlan.length > 10) {
+                isFlagged = 1;
+                flagReason = 'Duplicate Action Plan detected';
+            }
+        }
+
+        // 5. Save Report (with optional flagging if columns exist)
+        try {
+            await db.query(
+                'INSERT INTO mentor_session_reports (student_id, mentor_id, session_type, report_data, is_flagged, flag_reason) VALUES (?, ?, ?, ?, ?, ?)',
+                [student_id, mentor_id, session_type, JSON.stringify(report_data), isFlagged, flagReason]
+            );
+        } catch (dbErr) {
+            // Fallback if columns don't exist yet
+            await db.query(
+                'INSERT INTO mentor_session_reports (student_id, mentor_id, session_type, report_data) VALUES (?, ?, ?, ?)',
+                [student_id, mentor_id, session_type, JSON.stringify(report_data)]
+            );
+        }
+
+        // 6. Update Daily Assignment Status
         const today = new Date().toISOString().split('T')[0];
         const [existing] = await db.query(
             'SELECT id, assignments FROM daily_assignments WHERE mentor_id = ? AND date = ?',
@@ -131,37 +154,63 @@ const submitSessionReport = async (req, res) => {
             );
         }
 
-        // 3. Auto Intelligence Engine (Update Student Priority)
-        let newPriority = 'Stable';
-        
-        if (session_type === 'DEEP') {
-            if (report_data.student_response === 'Not responsive' || report_data.priority_tag === 'High') {
-                newPriority = 'High';
-            } else if (report_data.priority_tag === 'Medium') {
-                newPriority = 'Medium';
-            }
-        } else if (session_type === 'MEDIUM') {
-            if (report_data.progress === 'Poor' || report_data.upgrade_to_deep === 'Yes') {
-                newPriority = 'High';
-            } else if (report_data.progress === 'Average') {
-                newPriority = 'Medium';
-            }
-        } else if (session_type === 'QUICK') {
-            if (report_data.study_status === 'Not studied' || report_data.immediate_concern === 'Yes') {
-                newPriority = 'High';
+        // 7. Priority Upgrade/Downgrade Logic (Auto Intelligence)
+        let newPriority = null; // Default to null (keep current)
+        const [[currentStudent]] = await db.query('SELECT priority_category FROM students WHERE id = ?', [student_id]);
+        let currentP = currentStudent?.priority_category || 'Stable';
+
+        // --- UPGRADE LOGIC ---
+        let triggerUpgrade = false;
+
+        // Condition A: Immediate Flags
+        if (session_type === 'QUICK' && report_data.immediate_concern === 'Yes') triggerUpgrade = true;
+        if (session_type === 'MEDIUM' && report_data.upgrade_to_deep === 'Yes') triggerUpgrade = true;
+        if (session_type === 'DEEP' && (report_data.priority_tag === 'High' || report_data.student_response === 'Not responsive')) triggerUpgrade = true;
+
+        // Condition B: Consecutive Poor Progress (Medium Sessions)
+        const mediumReports = history.filter(h => h.session_type === 'MEDIUM');
+        if (session_type === 'MEDIUM' && report_data.progress === 'Poor') {
+            if (mediumReports.length > 0 && JSON.parse(mediumReports[0].report_data).progress === 'Poor') {
+                triggerUpgrade = true; // 2 consecutive Poor
             }
         }
 
+        if (triggerUpgrade) {
+            newPriority = 'High';
+        } 
+        
+        // --- DOWNGRADE LOGIC ---
+        else {
+            // Trigger if Stable performance for 5-7 days (Good progress in all recent sessions)
+            const recentGoodSessions = history.filter(h => {
+                try {
+                    const data = typeof h.report_data === 'string' ? JSON.parse(h.report_data) : h.report_data;
+                    return data.progress === 'Good' || data.student_status === 'On Track' || data.study_status === 'Studied properly';
+                } catch(e) { return false; }
+            });
+
+            if (recentGoodSessions.length >= 5) {
+                if (currentP === 'High') newPriority = 'Medium';
+                else if (currentP === 'Medium') newPriority = 'Stable';
+            }
+        }
+
+        // Final Priority Update
+        const finalPriority = newPriority || currentP;
+
         await db.query(
             'UPDATE students SET priority_category = ?, last_session_type = ?, last_session_date = ? WHERE id = ?',
-            [newPriority, session_type, today, student_id]
+            [finalPriority, session_type, today, student_id]
         );
 
         // Notify Admin of new session report
         try {
             const [[student]] = await db.query('SELECT name FROM students WHERE id = ?', [student_id]);
+            let msg = `<b>Interaction Hub:</b> Mentor <b>${req.user.name}</b> completed a <b>${session_type}</b> session with <b>${student?.name || student_id}</b>.`;
+            if (isFlagged) msg += ` <span style="color: red;">⚠️ Possible Fraud Detected!</span>`;
+
             await db.query('INSERT INTO admin_notifications (message, related_id, action_type) VALUES (?, ?, ?)', [
-                `<b>Interaction Hub:</b> Mentor <b>${req.user.name}</b> completed a <b>${session_type}</b> session with <b>${student?.name || student_id}</b>.`,
+                msg,
                 student_id,
                 'mentor_session_report'
             ]);
@@ -169,14 +218,31 @@ const submitSessionReport = async (req, res) => {
             console.error("Notification Error:", nErr.message);
         }
 
-        res.status(200).json({ success: true, message: 'Report submitted and student state updated' });
+        res.status(200).json({ success: true, message: 'Report submitted and student state updated', flagged: isFlagged });
     } catch (error) {
         console.error('Submit Session Report Error:', error);
         res.status(500).json({ success: false, message: 'Server Error' });
     }
 };
 
+const getHighRiskStudents = async (req, res) => {
+    try {
+        const [students] = await db.query(
+            `SELECT id, name, priority_category, last_session_date, mentor_name 
+             FROM students 
+             WHERE priority_category = 'High' 
+             OR id IN (SELECT student_id FROM mentor_session_reports WHERE is_flagged = 1)
+             ORDER BY last_session_date DESC`
+        );
+        res.status(200).json({ success: true, data: students });
+    } catch (error) {
+        console.error('Get High Risk Students Error:', error);
+        res.status(500).json({ success: false, message: 'Server Error' });
+    }
+};
+
 module.exports = {
     getDailyAssignments,
-    submitSessionReport
+    submitSessionReport,
+    getHighRiskStudents
 };

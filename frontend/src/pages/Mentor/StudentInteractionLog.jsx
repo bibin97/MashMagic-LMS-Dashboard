@@ -107,7 +107,27 @@ const StudentInteractionLog = () => {
    e.preventDefault();
    setLoading(true);
 
-   try {
+    try {
+      // Validation Rules from Product Document
+      if (sessionType === 'DEEP') {
+        if (!formData.action_plan || !formData.main_problem || !formData.root_cause || !formData.guidance_given) {
+          toast.error("Please fill all mandatory fields (Problem, Root Cause, Guidance, and Action Plan)");
+          setLoading(false);
+          return;
+        }
+      } else if (sessionType === 'MEDIUM') {
+        if (!formData.next_task) {
+          toast.error("Next Task is mandatory for Medium sessions");
+          setLoading(false);
+          return;
+        }
+      } else if (sessionType === 'QUICK') {
+        if (!formData.study_status) {
+          toast.error("Today's Study Status is mandatory");
+          setLoading(false);
+          return;
+        }
+      }
      if (sessionType === 'TUITION') {
        // Old legacy logging or simple tracking for tuition
        await api.post('/mentor/student-log', {
@@ -171,20 +191,20 @@ const StudentInteractionLog = () => {
              Decision-Driven Mentorship Engine
            </p>
          </div>
-         <div className="flex gap-4">
-            <div className="p-6 bg-rose-50 rounded-3xl border border-rose-100 text-center">
-                <p className="text-[10px] font-black text-rose-600 uppercase mb-1">Deep</p>
-                <p className="text-2xl font-black text-rose-900">{allStudents.filter(s => s.badge === 'Diamond').length}</p>
-            </div>
-            <div className="p-6 bg-amber-50 rounded-3xl border border-amber-100 text-center">
-                <p className="text-[10px] font-black text-amber-600 uppercase mb-1">Med</p>
-                <p className="text-2xl font-black text-amber-900">{allStudents.filter(s => s.badge === 'Gold').length}</p>
-            </div>
-            <div className="p-6 bg-blue-50 rounded-3xl border border-blue-100 text-center">
-                <p className="text-[10px] font-black text-blue-600 uppercase mb-1">Quick</p>
-                <p className="text-2xl font-black text-blue-900">{allStudents.filter(s => s.badge === 'Silver').length}</p>
-            </div>
-         </div>
+          <div className="flex gap-4">
+             <div className="p-6 bg-rose-50 rounded-3xl border border-rose-100 text-center">
+                 <p className="text-[10px] font-black text-rose-600 uppercase mb-1">Deep</p>
+                 <p className="text-2xl font-black text-rose-900">{assignedStudents.filter(s => s.sessionType === 'DEEP').length || 0}</p>
+             </div>
+             <div className="p-6 bg-amber-50 rounded-3xl border border-amber-100 text-center">
+                 <p className="text-[10px] font-black text-amber-600 uppercase mb-1">Med</p>
+                 <p className="text-2xl font-black text-amber-900">{assignedStudents.filter(s => s.sessionType === 'MEDIUM').length || 0}</p>
+             </div>
+             <div className="p-6 bg-blue-50 rounded-3xl border border-blue-100 text-center">
+                 <p className="text-[10px] font-black text-blue-600 uppercase mb-1">Quick</p>
+                 <p className="text-2xl font-black text-blue-900">{assignedStudents.filter(s => s.sessionType === 'QUICK').length || 0}</p>
+             </div>
+          </div>
        </header>
 
        <div className="space-y-4">
@@ -212,20 +232,20 @@ const StudentInteractionLog = () => {
             className={`px-8 py-3 rounded-2xl text-[9px] font-black uppercase tracking-[0.2em] transition-all flex items-center gap-3 ${statusFilter === 'pending' ? 'bg-rose-500 text-white shadow-xl shadow-rose-200' : 'bg-white text-slate-400 border border-slate-100 hover:border-rose-200'}`}
           >
             <div className={`w-2 h-2 rounded-full ${statusFilter === 'pending' ? 'bg-white animate-pulse' : 'bg-rose-500'}`}></div>
-            Awaiting Interaction ({allStudents.filter(s => {
-              const matchesTab = activeTab === 'both' ? isDiamondCategory(s) : activeTab === 'mentorship' ? isGoldCategory(s) : isSilverCategory(s);
-              return matchesTab && !s.connected_today;
-            }).length})
+            Awaiting Interaction ({activeTab === 'tuition' ? 
+              allStudents.filter(s => isSilverCategory(s) && !s.connected_today).length :
+              assignedStudents.filter(s => s.status !== 'COMPLETED').length
+            })
           </button>
           <button
             onClick={() => setStatusFilter('completed')}
             className={`px-8 py-3 rounded-2xl text-[9px] font-black uppercase tracking-[0.2em] transition-all flex items-center gap-3 ${statusFilter === 'completed' ? 'bg-emerald-500 text-white shadow-xl shadow-emerald-200' : 'bg-white text-slate-400 border border-slate-100 hover:border-emerald-200'}`}
           >
             <div className={`w-2 h-2 rounded-full ${statusFilter === 'completed' ? 'bg-white animate-pulse' : 'bg-emerald-500'}`}></div>
-            Completed Today ({allStudents.filter(s => {
-              const matchesTab = activeTab === 'both' ? isDiamondCategory(s) : activeTab === 'mentorship' ? isGoldCategory(s) : isSilverCategory(s);
-              return matchesTab && s.connected_today;
-            }).length})
+            Completed Today ({activeTab === 'tuition' ? 
+              allStudents.filter(s => isSilverCategory(s) && s.connected_today).length :
+              assignedStudents.filter(s => s.status === 'COMPLETED').length
+            })
           </button>
         </div>
       </div>
@@ -249,56 +269,53 @@ const StudentInteractionLog = () => {
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {allStudents
-                      .filter(s => {
-                        const matchesTab = activeTab === 'both' ? isDiamondCategory(s) : isGoldCategory(s);
-                        const matchesStatus = statusFilter === 'completed' ? s.connected_today : !s.connected_today;
-                        return matchesTab && matchesStatus;
-                      })
-                      .sort((a, b) => a.name.localeCompare(b.name))
-                      .map(student => {
-                        const sessionType = isDiamondCategory(student) ? 'DEEP' : 'MEDIUM';
-                        const isCompleted = student.connected_today;
-                        return (
-                          <button
-                            key={student.id}
-                            onClick={() => handleStudentSelect(student, sessionType)}
-                            className={`group relative overflow-hidden p-8 rounded-[3rem] border transition-all text-left flex flex-col justify-between h-64 ${isCompleted ? 'bg-emerald-50/50 border-emerald-100' : 'bg-white border-slate-100 hover:shadow-2xl hover:scale-[1.02] hover:border-slate-200 active:scale-95'}`}
-                          >
-                            <div className={`absolute top-0 right-0 w-32 h-32 rounded-full -mr-16 -mt-16 opacity-10 transition-transform group-hover:scale-150 duration-700 ${getSessionColor(sessionType).split(' ')[0]}`}></div>
-                            
-                            <div>
-                              <div className="flex justify-between items-start mb-4">
-                                <div className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest border ${getSessionColor(sessionType)}`}>
-                                  {sessionType} SESSION
-                                </div>
-                                {isCompleted && <CheckCircle2 className="text-emerald-500" size={24} />}
-                              </div>
-                              <h3 className="text-2xl font-black text-slate-900 tracking-tight leading-none uppercase mb-2 truncate">{student.name}</h3>
-                              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest truncate">MM-{student.id.toString().padStart(4, '0')} • {student.course}</p>
-                            </div>
+                    {(assignedStudents.length > 0 ? assignedStudents : [])
+                       .filter(s => {
+                         const matchesStatus = statusFilter === 'completed' ? s.status === 'COMPLETED' : s.status !== 'COMPLETED';
+                         return matchesStatus;
+                       })
+                       .map(student => {
+                         const sessionType = student.sessionType || 'QUICK';
+                         const isCompleted = student.status === 'COMPLETED';
+                         return (
+                           <button
+                             key={student.id}
+                             onClick={() => handleStudentSelect(student, sessionType)}
+                             className={`group relative overflow-hidden p-8 rounded-[3rem] border transition-all text-left flex flex-col justify-between h-64 ${isCompleted ? 'bg-emerald-50/50 border-emerald-100' : 'bg-white border-slate-100 hover:shadow-2xl hover:scale-[1.02] hover:border-slate-200 active:scale-95'}`}
+                           >
+                             <div className={`absolute top-0 right-0 w-32 h-32 rounded-full -mr-16 -mt-16 opacity-10 transition-transform group-hover:scale-150 duration-700 ${getSessionColor(sessionType).split(' ')[0]}`}></div>
+                             
+                             <div>
+                               <div className="flex justify-between items-start mb-4">
+                                 <div className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest border ${getSessionColor(sessionType)}`}>
+                                   {sessionType} SESSION
+                                 </div>
+                                 {isCompleted && <CheckCircle2 className="text-emerald-500" size={24} />}
+                               </div>
+                               <h3 className="text-2xl font-black text-slate-900 tracking-tight leading-none uppercase mb-2 truncate">{student.name}</h3>
+                               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest truncate">MM-{student.id.toString().padStart(4, '0')} • {student.priority_category || 'Stable'} Priority</p>
+                             </div>
 
-                            <div className="flex items-center justify-between mt-6">
-                              <div className="flex items-center gap-3">
-                                <div className={`w-10 h-10 rounded-2xl flex items-center justify-center ${getSessionColor(sessionType)}`}>
-                                  {getSessionIcon(sessionType)}
-                                </div>
-                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                                  {isCompleted ? 'Report Logged' : 'Awaiting Interaction'}
-                                </span>
-                              </div>
-                              <ChevronRight size={20} className="text-slate-300 group-hover:text-slate-900 transition-colors" />
-                            </div>
-                          </button>
-                        );
-                      })}
-                    {allStudents.filter(s => {
-                        const matchesTab = activeTab === 'both' ? isDiamondCategory(s) : isGoldCategory(s);
-                        const matchesStatus = statusFilter === 'completed' ? s.connected_today : !s.connected_today;
-                        return matchesTab && matchesStatus;
+                             <div className="flex items-center justify-between mt-6">
+                               <div className="flex items-center gap-3">
+                                 <div className={`w-10 h-10 rounded-2xl flex items-center justify-center ${getSessionColor(sessionType)}`}>
+                                   {getSessionIcon(sessionType)}
+                                 </div>
+                                 <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                   {isCompleted ? 'Report Logged' : 'Awaiting Interaction'}
+                                 </span>
+                               </div>
+                               <ChevronRight size={20} className="text-slate-300 group-hover:text-slate-900 transition-colors" />
+                             </div>
+                           </button>
+                         );
+                       })}
+                    {assignedStudents.filter(s => {
+                        const matchesStatus = statusFilter === 'completed' ? s.status === 'COMPLETED' : s.status !== 'COMPLETED';
+                        return matchesStatus;
                     }).length === 0 && (
                       <div className="col-span-full py-20 text-center bg-slate-50/50 rounded-[3rem] border border-dashed border-slate-200 animate-in fade-in zoom-in duration-500">
-                         <p className="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">All students in this segment are {statusFilter === 'pending' ? 'accounted for' : 'awaiting action'}.</p>
+                         <p className="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">All students in your today's fleet are {statusFilter === 'pending' ? 'accounted for' : 'awaiting action'}.</p>
                       </div>
                     )}
                   </div>
