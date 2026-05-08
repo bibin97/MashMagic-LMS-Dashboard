@@ -256,6 +256,11 @@ const Navbar = ({ onMenuClick }) => {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    performSearch();
+                  }
+                }}
                 className="block w-full pl-10 pr-4 py-2 bg-slate-50/50 border border-slate-200/60 rounded-full text-sm placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-slate-100 focus:bg-white focus:border-slate-300 shadow-inner transition-all duration-300"
                 placeholder="Search students by name or ID..."
                 onFocus={() => {
