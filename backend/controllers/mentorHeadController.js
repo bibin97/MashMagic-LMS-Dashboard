@@ -985,5 +985,74 @@ exports.getExamAnalytics = async (req, res) => {
     }
 };
 
-// End of file cleanup
+
+// @desc    Delete a specific interaction log
+// @route   DELETE /api/mentor-head/logs/:id
+// @access  Private (Mentor Head)
+exports.deleteInteractionLog = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { source } = req.query; // Expecting source table name or identifier
+
+        if (!id || !source) {
+            return res.status(400).json({ success: false, message: "Log ID and Source are required" });
+        }
+
+        let tableName = "";
+        switch (source) {
+            case "Student Call":
+            case "student_interaction_logs":
+                tableName = "student_interaction_logs";
+                break;
+            case "Interaction Hub":
+            case "mentor_session_reports":
+                tableName = "mentor_session_reports";
+                break;
+            case "Faculty Tracking":
+            case "faculty_interaction_logs":
+                tableName = "faculty_interaction_logs";
+                break;
+            case "Faculty Interaction":
+            case "mentor_faculty_interactions":
+                tableName = "mentor_faculty_interactions";
+                break;
+            case "Mentorship":
+            case "mentorship_logs":
+                tableName = "mentorship_logs";
+                break;
+            case "Session Log":
+            case "mentor_session_logs":
+                tableName = "mentor_session_logs";
+                break;
+            case "Intelligence":
+            case "student_reports":
+                tableName = "student_reports";
+                break;
+            default:
+                return res.status(400).json({ success: false, message: "Invalid log source provided" });
+        }
+
+        const [result] = await db.query(`DELETE FROM ${tableName} WHERE id = ?`, [id]);
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ success: false, message: "Log not found or already deleted" });
+        }
+
+        // Notify admin about the deletion
+        try {
+            const adminMsg = `Mentor Head (${req.user.name}) deleted a log from ${tableName} (ID: ${id})`;
+            await db.query('INSERT INTO admin_notifications (message) VALUES (?)', [adminMsg]);
+        } catch (err) {
+            console.error("Failed to notify admin about log deletion");
+        }
+
+        res.status(200).json({
+            success: true,
+            message: "Interaction log permanently deleted"
+        });
+    } catch (error) {
+        console.error('Error in deleteInteractionLog:', error);
+        res.status(500).json({ success: false, message: "Server Error", error: error.message });
+    }
+};
 

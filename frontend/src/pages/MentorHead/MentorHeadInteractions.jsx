@@ -12,6 +12,7 @@ import {
  ChevronRight,
  Loader2,
  X,
+ Trash2,
  Image as ImageIcon
 } from 'lucide-react';
 import api from '../../services/api';
@@ -55,6 +56,24 @@ const MentorHeadInteractions = () => {
  } finally {
  setLoading(false);
  }
+ };
+
+ const handleDeleteLog = async (log) => {
+  const confirmMessage = "Are you sure you want to permanently delete this interaction log? This action will remove it from the database forever.";
+  if (!window.confirm(confirmMessage)) return;
+
+  try {
+   const source = log.category || (activeTab === 'faculties' ? 'Intelligence' : 'student_interaction_logs');
+   const response = await api.delete(`/mentor-head/logs/${log.id}?source=${source}`);
+
+   if (response.data.success) {
+    toast.success("Log deleted successfully");
+    fetchLogs();
+   }
+  } catch (error) {
+   console.error("Error deleting log:", error);
+   toast.error(error.response?.data?.message || "Failed to delete interaction log");
+  }
  };
 
  const combinedMentorLogs = [
@@ -219,9 +238,22 @@ const MentorHeadInteractions = () => {
  Call Missed/Rejected
  </span>
  ) : null}
- <button onClick={() => setViewingLog(log)} className="p-4 bg-slate-50 rounded-2xl text-slate-600 group-hover:bg-[#008080] group-hover:text-white transition-all shadow-sm">
- <ChevronRight size={18} />
- </button>
+ <div className="flex gap-2">
+  <button 
+    onClick={() => handleDeleteLog(log)} 
+    className="p-4 bg-rose-50 rounded-2xl text-rose-500 hover:bg-rose-500 hover:text-white transition-all shadow-sm"
+    title="Delete Log"
+  >
+    <Trash2 size={18} />
+  </button>
+  <button 
+    onClick={() => setViewingLog(log)} 
+    className="p-4 bg-slate-50 rounded-2xl text-slate-600 group-hover:bg-[#008080] group-hover:text-white transition-all shadow-sm"
+    title="View Details"
+  >
+    <ChevronRight size={18} />
+  </button>
+ </div>
  </div>
  </div>
  </div>
@@ -280,6 +312,13 @@ const MentorHeadInteractions = () => {
  }`}>
  {log.status} Phase
  </span>
+ <button 
+    onClick={() => handleDeleteLog(log)} 
+    className="p-2 bg-rose-50 rounded-xl text-rose-500 hover:bg-rose-500 hover:text-white transition-all shadow-sm"
+    title="Delete Log"
+  >
+    <Trash2 size={16} />
+  </button>
  <button onClick={() => setViewingLog({ ...log, category: 'Intelligence' })} className="p-2 bg-slate-50 rounded-xl text-slate-600 hover:bg-[#008080] hover:text-white transition-all shadow-sm">
  <ChevronRight size={16} />
  </button>

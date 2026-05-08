@@ -26,7 +26,8 @@ const {
     getStudents,
     editMentor,
     deleteMentor,
-    toggleCourseCompleted
+    toggleCourseCompleted,
+    deleteInteractionLog
 } = require('../controllers/mentorHeadController');
 const { requireAuth } = require('../middleware/authMiddleware');
 const { requireRole } = require('../middleware/roleMiddleware');
@@ -61,6 +62,7 @@ router.put('/students/:studentId/course-complete', toggleCourseCompleted);
 // Intelligence Hub Routes
 router.get('/mentor-logs', getMentorInteractionLogs);
 router.get('/faculty-intelligence', getFacultyIntelligenceLogs);
+router.delete('/logs/:id', deleteInteractionLog);
 
 // Faculty Management for Mentor Head
 router.get('/faculties-all', getFaculties);
