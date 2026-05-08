@@ -13,126 +13,153 @@ import { premiumConfirm } from '../../utils/premiumConfirm';
 import { useAuth } from '../../context/AuthContext';
 
 const Timetable = () => {
- const { user } = useAuth();
- const [sessions, setSessions] = useState([]);
- const [students, setStudents] = useState([]);
- const [mentors, setMentors] = useState([]);
- const [studentSearch, setStudentSearch] = useState('');
- const [summary, setSummary] = useState({
- total: 0, completed: 0, cancelled: 0, postponed: 0, upcoming: 0
- });
- const [loading, setLoading] = useState(true);
- const [isModalOpen, setIsModalOpen] = useState(false);
- const [editingSession, setEditingSession] = useState(null);
- const [isBulkMode, setIsBulkMode] = useState(false);
- const [bulkSessions, setBulkSessions] = useState([]);
- const [studentSchedule, setStudentSchedule] = useState([]);
- const [selectedSlot, setSelectedSlot] = useState(null);
+  const { user } = useAuth();
+  const [sessions, setSessions] = useState([]);
+  const [students, setStudents] = useState([]);
+  const [mentors, setMentors] = useState([]);
+  const [faculties, setFaculties] = useState([]);
+  const [studentSearch, setStudentSearch] = useState('');
+  const [summary, setSummary] = useState({
+    total: 0, completed: 0, cancelled: 0, postponed: 0, upcoming: 0
+  });
+  const [loading, setLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingSession, setEditingSession] = useState(null);
+  const [isBulkMode, setIsBulkMode] = useState(false);
+  const [bulkSessions, setBulkSessions] = useState([]);
+  const [studentSchedule, setStudentSchedule] = useState([]);
+  const [selectedSlot, setSelectedSlot] = useState(null);
 
- // Filters
- const [filters, setFilters] = useState({
- student_id: '',
- mentor_id: '',
- status: '',
- start_date: (() => {
- const d = new Date();
- return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-01`;
- })(),
- end_date: (() => {
- const d = new Date();
- const lastDay = new Date(d.getFullYear(), d.getMonth() + 1, 0);
- return `${lastDay.getFullYear()}-${String(lastDay.getMonth() + 1).padStart(2, '0')}-${String(lastDay.getDate()).padStart(2, '0')}`;
- })()
- });
+  // Filters
+  const [filters, setFilters] = useState({
+    student_id: '',
+    mentor_id: '',
+    status: '',
+    start_date: (() => {
+      const d = new Date();
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-01`;
+    })(),
+    end_date: (() => {
+      const d = new Date();
+      const lastDay = new Date(d.getFullYear(), d.getMonth() + 1, 0);
+      return `${lastDay.getFullYear()}-${String(lastDay.getMonth() + 1).padStart(2, '0')}-${String(lastDay.getDate()).padStart(2, '0')}`;
+    })()
+  });
 
- // Form State
- const [formData, setFormData] = useState({
- student_id: '',
- date: new Date().toISOString().split('T')[0],
- start_time: '10:00',
- end_time: '11:00',
- chapter: '',
- session_type: 'Regular Class',
- status: 'Scheduled',
- status_reason: '',
- notes: '',
- faculty_id: null,
- faculty_name: ''
- });
+  // Form State
+  const [formData, setFormData] = useState({
+    student_id: '',
+    date: new Date().toISOString().split('T')[0],
+    start_time: '10:00',
+    end_time: '11:00',
+    chapter: '',
+    session_type: 'Regular Class',
+    status: 'Scheduled',
+    status_reason: '',
+    notes: '',
+    faculty_id: null,
+    faculty_name: ''
+  });
 
- const navigate = useNavigate();
+  const navigate = useNavigate();
 
- useEffect(() => {
- fetchTimetable();
- }, [filters]);
+  useEffect(() => {
+    fetchTimetable();
+  }, [filters]);
 
- useEffect(() => {
- fetchStudents();
- if (user?.role === 'academic_head' || user?.role === 'super_admin') {
- fetchMentors();
- }
- }, [user, filters.mentor_id]);
+  useEffect(() => {
+    fetchStudents();
+    fetchFaculties();
+    if (user?.role === 'academic_head' || user?.role === 'super_admin') {
+      fetchMentors();
+    }
+  }, [user, filters.mentor_id]);
 
- const fetchMentors = async () => {
- try {
- const res = await api.get('/academic-head/mentors-all');
- setMentors(res.data.data);
- } catch (error) {
- console.error("Failed to load mentors");
- }
- };
+  const fetchFaculties = async () => {
+    try {
+      const res = await api.get('/academic-head/faculties-all');
+      setFaculties(res.data.data);
+    } catch (error) {
+      console.error("Failed to load faculties");
+    }
+  };
 
- const fetchTimetable = async () => {
- try {
- setLoading(true);
- const params = new URLSearchParams();
- Object.entries(filters).forEach(([key, value]) => {
- if (value) params.append(key, value);
- });
- const res = await api.get(`/mentor/timetable?${params.toString()}`);
- setSessions(res.data.data);
- setSummary(res.data.summary);
- } catch (error) {
- toast.error("Failed to load timetable");
- } finally {
- setLoading(false);
- }
- };
+  const fetchMentors = async () => {
+    try {
+      const res = await api.get('/academic-head/mentors-all');
+      setMentors(res.data.data);
+    } catch (error) {
+      console.error("Failed to load mentors");
+    }
+  };
 
- const fetchStudents = async () => {
- try {
- // If user is academic_head or super_admin, fetch all students
- const endpoint = (user?.role === 'academic_head' || user?.role === 'super_admin')
- ? `/academic-head/students-all${filters.mentor_id ? `?mentor_id=${filters.mentor_id}` : ''}`
- : '/mentor/students';
- const res = await api.get(endpoint);
- setStudents(res.data.data);
- } catch (error) {
- console.error("Failed to load students");
- }
- };
+  const fetchTimetable = async () => {
+    try {
+      setLoading(true);
+      const params = new URLSearchParams();
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value) params.append(key, value);
+      });
+      const res = await api.get(`/mentor/timetable?${params.toString()}`);
+      setSessions(res.data.data);
+      setSummary(res.data.summary);
+    } catch (error) {
+      toast.error("Failed to load timetable");
+    } finally {
+      setLoading(false);
+    }
+  };
 
- const filteredStudents = students.filter(s =>
- s.name?.toLowerCase().includes(studentSearch.toLowerCase()) ||
- s.student_id?.toString().toLowerCase().includes(studentSearch.toLowerCase())
- );
- 
- const fetchStudentSchedule = async (studentId) => {
- try {
- const res = await api.get(`/mentor/students/${studentId}/schedule`);
- setStudentSchedule(res.data.data);
- } catch (error) {
- console.error("Failed to fetch student schedule");
- }
- };
- 
- useEffect(() => {
- if (formData.student_id) {
- fetchStudentSchedule(formData.student_id);
- } else {
- setStudentSchedule([]);
- }
- }, [formData.student_id]);
+  const fetchStudents = async () => {
+    try {
+      // If user is academic_head or super_admin, fetch all students
+      const endpoint = (user?.role === 'academic_head' || user?.role === 'super_admin')
+        ? `/academic-head/students-all${filters.mentor_id ? `?mentor_id=${filters.mentor_id}` : ''}`
+        : '/mentor/students';
+      const res = await api.get(endpoint);
+      setStudents(res.data.data);
+    } catch (error) {
+      console.error("Failed to load students");
+    }
+  };
+
+  const filteredStudents = students.filter(s =>
+    s.name?.toLowerCase().includes(studentSearch.toLowerCase()) ||
+    s.student_id?.toString().toLowerCase().includes(studentSearch.toLowerCase())
+  );
+  
+  useEffect(() => {
+    const autoPopulate = async () => {
+      if (formData.student_id && !editingSession) {
+        try {
+          const res = await api.get(`/mentor/students/${formData.student_id}/schedule`);
+          const schedule = res.data.data;
+          setStudentSchedule(schedule);
+          
+          // Auto-populate if there's a schedule for SELECTED day of week
+          const dayName = new Date(formData.date).toLocaleDateString('en-GB', { weekday: 'long' });
+          const todaySlot = schedule.find(slot => slot.day_of_week === dayName);
+          
+          if (todaySlot) {
+            setFormData(prev => ({
+              ...prev,
+              start_time: todaySlot.start_time.substring(0, 5),
+              end_time: todaySlot.end_time.substring(0, 5),
+              chapter: todaySlot.subject || '',
+              faculty_id: todaySlot.faculty_id,
+              faculty_name: todaySlot.faculty_name
+            }));
+            toast.success(`Auto-populated ${todaySlot.day_of_week} schedule`);
+          }
+        } catch (error) {
+          console.error("Failed to fetch student schedule");
+        }
+      } else {
+        setStudentSchedule([]);
+      }
+    };
+    autoPopulate();
+  }, [formData.student_id, formData.date]);
 
  const handleCreateOpen = () => {
  setEditingSession(null);
@@ -713,16 +740,31 @@ const Timetable = () => {
   className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
   />
   </div>
- <div className="space-y-2 md:col-span-2 lg:col-span-1">
- <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Topic / Chapter</label>
- <input
- type="text"
- value={formData.chapter}
- onChange={(e) => setFormData({ ...formData, chapter: e.target.value })}
- placeholder="Enter topic name"
- className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
- />
- </div>
+  <div className="space-y-2">
+  <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Faculty Assignment *</label>
+  <select
+  required
+  value={formData.faculty_id || ''}
+  onChange={(e) => {
+    const fac = faculties.find(f => f.id == e.target.value);
+    setFormData({ ...formData, faculty_id: e.target.value, faculty_name: fac?.name || '' });
+  }}
+  className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
+  >
+  <option value="">Select Faculty</option>
+  {faculties.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
+  </select>
+  </div>
+  <div className="space-y-2">
+  <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Topic / Chapter</label>
+  <input
+  type="text"
+  value={formData.chapter}
+  onChange={(e) => setFormData({ ...formData, chapter: e.target.value })}
+  placeholder="Enter topic name"
+  className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
+  />
+  </div>
 
  {/* Status & Reason Section - Only visible during edit */}
  {editingSession && (
