@@ -882,6 +882,26 @@ exports.getMentors = async (req, res) => {
 
 // @desc    Toggle Course Completed status for a student
 // @route   PUT /api/mentor-head/students/:studentId/course-complete
+// @desc    Get Daily Summary (Mentors and Students)
+// @route   GET /api/mentor-head/daily-summary
+exports.getDailySummary = async (req, res) => {
+    try {
+        const [mentors] = await db.query("SELECT id, name, role FROM users WHERE role = 'mentor' AND status = 'active'");
+        const [students] = await db.query("SELECT id, name, mentor_id FROM students WHERE status = 'active'");
+
+        res.status(200).json({
+            success: true,
+            data: {
+                mentors,
+                students
+            }
+        });
+    } catch (error) {
+        console.error('Error in getDailySummary:', error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
 exports.toggleCourseCompleted = async (req, res) => {
     try {
         const { studentId } = req.params;
@@ -896,6 +916,57 @@ exports.toggleCourseCompleted = async (req, res) => {
         res.status(200).json({ success: true, message: `Student ${statusMsg}` });
     } catch (error) {
         console.error('Error in toggleCourseCompleted:', error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+// @desc    Get Mentor Head Dashboard Summary
+// @route   GET /api/mentor-head/dashboard
+exports.getMentorHeadDashboard = async (req, res) => {
+    try {
+        const [mentors] = await db.query("SELECT COUNT(*) as count FROM users WHERE role = 'mentor' AND status = 'active'");
+        const [interactions] = await db.query("SELECT COUNT(*) as count FROM student_interaction_logs WHERE DATE(created_at) = CURDATE()");
+        const [criticalStudents] = await db.query("SELECT COUNT(*) as count FROM students WHERE performance_status = 'Critical' AND status = 'active'");
+        const [pendingApprovals] = await db.query("SELECT COUNT(*) as count FROM users WHERE status = 'pending'");
+
+        // Today's activities snippet
+        const [todayActivities] = await db.query(`
+            SELECT s.name as student_name, m.name as mentor_name, logs.created_at, logs.mentor_notes
+            FROM student_interaction_logs logs
+            JOIN students s ON s.id = logs.student_id
+            JOIN users m ON m.id = logs.mentor_id
+            WHERE DATE(logs.created_at) = CURDATE()
+            ORDER BY logs.created_at DESC LIMIT 5
+        `);
+
+        res.status(200).json({
+            success: true,
+            data: {
+                totalMentors: mentors[0].count,
+                totalInteractions: interactions[0].count,
+                criticalStudents: criticalStudents[0].count,
+                pendingApprovals: pendingApprovals[0].count,
+                recentActivities: todayActivities
+            }
+        });
+    } catch (error) {
+        console.error('Error in getMentorHeadDashboard:', error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+// @desc    Get Exam Analytics
+// @route   GET /api/mentor-head/exam-analytics
+exports.getExamAnalytics = async (req, res) => {
+    try {
+        const [rows] = await db.query(`
+            SELECT subject, AVG(marks) as avg_marks, MAX(marks) as max_marks, COUNT(*) as total_students
+            FROM student_marks
+            GROUP BY subject
+        `);
+        res.status(200).json({ success: true, data: rows });
+    } catch (error) {
+        console.error('Error in getExamAnalytics:', error);
         res.status(500).json({ success: false, message: error.message });
     }
 };
