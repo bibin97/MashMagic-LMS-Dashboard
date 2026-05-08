@@ -354,15 +354,15 @@ const getAllStudentLogs = async (req, res) => {
                 r.id, r.mentor_id, r.student_id, r.created_at,
                 m.name as mentor_name, s.name as student_name,
                 CAST(r.session_type AS CHAR) as session_number,
-                COALESCE(
+                CONVERT(COALESCE(
                     JSON_UNQUOTE(JSON_EXTRACT(r.report_data, '$.notes')), 
                     JSON_UNQUOTE(JSON_EXTRACT(r.report_data, '$.action_plan')),
                     JSON_UNQUOTE(JSON_EXTRACT(r.report_data, '$.next_task')),
                     JSON_UNQUOTE(JSON_EXTRACT(r.report_data, '$.study_status')),
                     JSON_UNQUOTE(JSON_EXTRACT(r.report_data, '$.main_problem')),
                     r.session_type
-                ) as mentor_notes,
-                CAST(JSON_UNQUOTE(JSON_EXTRACT(r.report_data, '$.understanding_level')) AS CHAR) as understanding_level,
+                ) USING utf8mb4) as mentor_notes,
+                CAST(JSON_UNQUOTE(JSON_EXTRACT(r.report_data, '$.self_clarity')) AS CHAR) as understanding_level,
                 CAST(JSON_UNQUOTE(JSON_EXTRACT(r.report_data, '$.confidence')) AS CHAR) as student_confidence,
                 NULL as stress_level,
                 NULL as screenshot_url
@@ -377,7 +377,7 @@ const getAllStudentLogs = async (req, res) => {
                 l.id, l.mentor_id, l.student_id, l.created_at,
                 m.name as mentor_name, s.name as student_name,
                 'S-Log' as session_number,
-                CONCAT(l.main_issue, ': ', l.action_type) as mentor_notes,
+                CONVERT(CONCAT(l.main_issue, ': ', l.action_type) USING utf8mb4) as mentor_notes,
                 CAST(l.understanding_after_session AS CHAR) as understanding_level,
                 CAST(l.session_quality_rating AS CHAR) as student_confidence,
                 CAST(l.stress_level AS CHAR) as stress_level,
@@ -392,8 +392,8 @@ const getAllStudentLogs = async (req, res) => {
                 'Quick Log' as source,
                 logs.id, logs.mentor_id, logs.student_id, logs.created_at,
                 m.name as mentor_name, s.name as student_name,
-                'Q-Log' as session_number, -- Replaced logs.session_number with 'Q-Log' to avoid potential missing column error
-                logs.mentor_notes,
+                'Q-Log' as session_number,
+                CONVERT(logs.mentor_notes USING utf8mb4) as mentor_notes,
                 CAST(logs.self_clarity AS CHAR) as understanding_level,
                 CAST(logs.confidence AS CHAR) as student_confidence,
                 CAST(logs.exam_anxiety AS CHAR) as stress_level,
@@ -409,7 +409,7 @@ const getAllStudentLogs = async (req, res) => {
                 ml.id, ml.mentor_id, ml.student_id, ml.created_at,
                 m.name as mentor_name, s.name as student_name,
                 'M-Log' as session_number,
-                ml.action_details as mentor_notes,
+                CONVERT(ml.action_details USING utf8mb4) as mentor_notes,
                 NULL as understanding_level,
                 NULL as student_confidence,
                 NULL as stress_level,
