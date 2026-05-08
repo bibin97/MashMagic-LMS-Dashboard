@@ -92,6 +92,18 @@ const MentorHeadInteractions = () => {
  log.remarks?.toLowerCase().includes(searchTerm.toLowerCase())
  );
 
+ const formatDateTime = (dateStr) => {
+  if (!dateStr) return '---';
+  return new Date(dateStr).toLocaleString('en-GB', { 
+    day: '2-digit', 
+    month: '2-digit', 
+    year: 'numeric', 
+    hour: '2-digit', 
+    minute: '2-digit', 
+    hour12: true 
+  }).toUpperCase();
+ };
+
  if (loading) {
  return (
  <div className="flex items-center justify-center h-[60vh]">
@@ -217,7 +229,7 @@ const MentorHeadInteractions = () => {
  </span>
  <span className="text-[11px] font-black text-slate-700 bg-slate-100 px-3 py-1.5 rounded-xl border border-slate-200 flex items-center gap-1.5 shadow-sm">
  <Calendar size={13} className="text-[#008080]" />
- {new Date(log.created_at || log.date).toLocaleString('en-US', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true })}
+ {formatDateTime(log.created_at || log.date)}
  </span>
  </div>
  <h3 className="text-xl font-black text-slate-900 mb-1">
@@ -287,7 +299,7 @@ const MentorHeadInteractions = () => {
  </span>
  <span className="text-[11px] font-black text-slate-700 bg-slate-100 px-3 py-1.5 rounded-xl border border-slate-200 flex items-center gap-1.5 shadow-sm">
  <Calendar size={13} className="text-rose-500" />
- {new Date(log.created_at || log.date).toLocaleString('en-US', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true })}
+ {formatDateTime(log.created_at || log.date)}
  </span>
  </div>
  <h3 className="text-xl font-black text-slate-900 mb-1">
@@ -353,7 +365,7 @@ const MentorHeadInteractions = () => {
  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
  <div className="bg-slate-50 p-4 rounded-3xl border border-slate-100">
  <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest mb-1">Date</p>
- <p className="text-xs font-black text-slate-900">{new Date(viewingLog.date || viewingLog.created_at).toLocaleDateString()}</p>
+ <p className="text-xs font-black text-slate-900">{formatDateTime(viewingLog.date || viewingLog.created_at)}</p>
  </div>
  <div className="bg-slate-50 p-4 rounded-3xl border border-slate-100">
  <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest mb-1">Student</p>

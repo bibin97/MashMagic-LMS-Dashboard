@@ -84,7 +84,7 @@ const InteractionLogs = () => {
  {activeTab === 'student' ? `Session #${log.session_number}` : log.session_type}
  </span>
  <span className="text-xs font-black text-slate-600 uppercase tracking-wide flex items-center gap-2">
- <Clock size={14} /> {new Date(log.created_at).toLocaleDateString()}
+ <Clock size={14} /> {new Date(log.created_at).toLocaleString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true }).toUpperCase()}
  </span>
  </div>
 
