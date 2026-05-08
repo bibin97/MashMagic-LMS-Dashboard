@@ -170,11 +170,15 @@ const startServer = async () => {
 
                 `CREATE TABLE IF NOT EXISTS mentor_session_reports (
                     id INT AUTO_INCREMENT PRIMARY KEY,
-                    student_id INT NOT NULL,
-                    mentor_id INT NOT NULL,
-                    session_type ENUM("DEEP", "MEDIUM", "QUICK") NOT NULL,
-                    report_data JSON NOT NULL,
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                    mentor_id INT,
+                    student_id INT,
+                    session_type ENUM('DEEP', 'MEDIUM', 'QUICK'),
+                    report_data JSON,
+                    is_flagged TINYINT(1) DEFAULT 0,
+                    flag_reason TEXT,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (mentor_id) REFERENCES users(id),
+                    FOREIGN KEY (student_id) REFERENCES students(id)
                 );`,
                 
                 `CREATE TABLE IF NOT EXISTS mentor_session_logs (
@@ -308,18 +312,8 @@ const startServer = async () => {
                     is_read TINYINT(1) DEFAULT 0,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 );`,
-                `CREATE TABLE IF NOT EXISTS mentor_session_reports (
-                    id INT AUTO_INCREMENT PRIMARY KEY,
-                    mentor_id INT,
-                    student_id INT,
-                    session_type ENUM('DEEP', 'MEDIUM', 'QUICK'),
-                    report_data JSON,
-                    is_flagged TINYINT(1) DEFAULT 0,
-                    flag_reason TEXT,
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                    FOREIGN KEY (mentor_id) REFERENCES users(id),
-                    FOREIGN KEY (student_id) REFERENCES students(id)
-                );`,
+                'ALTER TABLE mentor_session_reports ADD COLUMN is_flagged TINYINT(1) DEFAULT 0;',
+                'ALTER TABLE mentor_session_reports ADD COLUMN flag_reason TEXT;',
 
                 `CREATE TABLE IF NOT EXISTS mentorship_logs (
                     id INT AUTO_INCREMENT PRIMARY KEY,
