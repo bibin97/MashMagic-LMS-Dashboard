@@ -168,6 +168,7 @@ const Students = () => {
  {
  header: 'Reg #',
  accessor: 'registration_number',
+ width: '150px',
  render: (row) => <span className="font-mono text-[10px] font-black">{row.registration_number || '---'}</span>
  },
  {

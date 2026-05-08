@@ -353,7 +353,7 @@ const getAllStudentLogs = async (req, res) => {
                 'Interaction Hub' as source,
                 r.id, r.mentor_id, r.student_id, r.created_at,
                 m.name as mentor_name, s.name as student_name,
-                r.session_type as session_number,
+                CAST(r.session_type AS CHAR) as session_number,
                 COALESCE(
                     JSON_UNQUOTE(JSON_EXTRACT(r.report_data, '$.notes')), 
                     JSON_UNQUOTE(JSON_EXTRACT(r.report_data, '$.action_plan')),
@@ -362,8 +362,8 @@ const getAllStudentLogs = async (req, res) => {
                     JSON_UNQUOTE(JSON_EXTRACT(r.report_data, '$.main_problem')),
                     r.session_type
                 ) as mentor_notes,
-                JSON_UNQUOTE(JSON_EXTRACT(r.report_data, '$.understanding_level')) as understanding_level,
-                JSON_UNQUOTE(JSON_EXTRACT(r.report_data, '$.confidence')) as student_confidence,
+                CAST(JSON_UNQUOTE(JSON_EXTRACT(r.report_data, '$.understanding_level')) AS CHAR) as understanding_level,
+                CAST(JSON_UNQUOTE(JSON_EXTRACT(r.report_data, '$.confidence')) AS CHAR) as student_confidence,
                 NULL as stress_level,
                 NULL as screenshot_url
             FROM mentor_session_reports r
@@ -378,9 +378,9 @@ const getAllStudentLogs = async (req, res) => {
                 m.name as mentor_name, s.name as student_name,
                 'S-Log' as session_number,
                 CONCAT(l.main_issue, ': ', l.action_type) as mentor_notes,
-                l.understanding_after_session as understanding_level,
-                l.session_quality_rating as student_confidence,
-                l.stress_level as stress_level,
+                CAST(l.understanding_after_session AS CHAR) as understanding_level,
+                CAST(l.session_quality_rating AS CHAR) as student_confidence,
+                CAST(l.stress_level AS CHAR) as stress_level,
                 NULL as screenshot_url
             FROM mentor_session_logs l
             LEFT JOIN users m ON l.mentor_id = m.id
@@ -392,11 +392,11 @@ const getAllStudentLogs = async (req, res) => {
                 'Quick Log' as source,
                 logs.id, logs.mentor_id, logs.student_id, logs.created_at,
                 m.name as mentor_name, s.name as student_name,
-                logs.session_number,
+                'Q-Log' as session_number, -- Replaced logs.session_number with 'Q-Log' to avoid potential missing column error
                 logs.mentor_notes,
-                logs.self_clarity as understanding_level,
-                logs.confidence as student_confidence,
-                logs.exam_anxiety as stress_level,
+                CAST(logs.self_clarity AS CHAR) as understanding_level,
+                CAST(logs.confidence AS CHAR) as student_confidence,
+                CAST(logs.exam_anxiety AS CHAR) as stress_level,
                 logs.screenshot_url
             FROM student_interaction_logs logs
             LEFT JOIN users m ON logs.mentor_id = m.id
