@@ -147,13 +147,53 @@ exports.getMentorStudents = async (req, res) => {
 exports.getMentorInteractionLogs = async (req, res) => {
     try {
         const { mentor_id, mentor_name, date } = req.query;
+        // 1. Fetch Student Logs (Merged from student_interaction_logs and mentor_session_reports)
         let studentQuery = `
-            SELECT sil.*, COALESCE(sil.created_at, sil.date) as sort_date, s.name as student_name, m.name as mentor_name, 'Student' as type
-            FROM student_interaction_logs sil
-            JOIN students s ON sil.student_id = s.id
-            JOIN users m ON sil.mentor_id = m.id
+            SELECT * FROM (
+                (SELECT 
+                    CAST(sil.id AS CHAR) as id,
+                    COALESCE(sil.created_at, sil.date) as sort_date,
+                    s.name as student_name, m.name as mentor_name,
+                    CONVERT(sil.mentor_notes USING utf8mb4) as mentor_notes,
+                    sil.mentor_id, sil.student_id, sil.date,
+                    'Student Call' as category, 'Quick' as sub_type,
+                    sil.connected_today, sil.self_clarity, sil.confidence, sil.exam_anxiety,
+                    sil.motivation_level, sil.mentor_action_needed, sil.confusing_topic,
+                    sil.created_at
+                FROM student_interaction_logs sil
+                JOIN students s ON sil.student_id = s.id
+                JOIN users m ON sil.mentor_id = m.id)
+
+                UNION ALL
+
+                (SELECT 
+                    CAST(msr.id AS CHAR) as id,
+                    msr.created_at as sort_date,
+                    s.name as student_name, m.name as mentor_name,
+                    CONVERT(COALESCE(
+                        JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.notes')), 
+                        JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.action_plan')),
+                        JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.next_task')),
+                        JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.study_status')),
+                        JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.main_problem')),
+                        msr.session_type
+                    ) USING utf8mb4) as mentor_notes,
+                    msr.mentor_id, msr.student_id, DATE(msr.created_at) as date,
+                    'Interaction Hub' as category, msr.session_type as sub_type,
+                    TRUE as connected_today, 
+                    CAST(JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.self_clarity')) AS CHAR) as self_clarity,
+                    CAST(JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.confidence')) AS CHAR) as confidence,
+                    NULL as exam_anxiety, NULL as motivation_level, NULL as mentor_action_needed,
+                    JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.confusing_topic')) as confusing_topic,
+                    msr.created_at
+                FROM mentor_session_reports msr
+                JOIN students s ON msr.student_id = s.id
+                JOIN users m ON msr.mentor_id = m.id)
+            ) as combined_student_logs
             WHERE 1=1
         `;
+
+        // 2. Fetch Faculty Logs
         let facultyQuery = `
             SELECT fil.*, COALESCE(fil.created_at, fil.date) as sort_date, s.name as student_name, m.name as mentor_name, 'Faculty' as type
             FROM faculty_interaction_logs fil
@@ -161,29 +201,33 @@ exports.getMentorInteractionLogs = async (req, res) => {
             JOIN users m ON fil.mentor_id = m.id
             WHERE 1=1
         `;
-        let params = [];
+        let studentParams = [];
+        let facultyParams = [];
 
         if (mentor_id) {
-            studentQuery += " AND sil.mentor_id = ?";
-            facultyQuery += " AND fil.mentor_id = ?";
-            params.push(mentor_id);
+            studentQuery += " AND mentor_id = ?";
+            facultyQuery += " AND mentor_id = ?";
+            studentParams.push(mentor_id);
+            facultyParams.push(mentor_id);
         } else if (mentor_name) {
-            studentQuery += " AND m.name LIKE ?";
-            facultyQuery += " AND m.name LIKE ?";
-            params.push(`%${mentor_name}%`);
+            studentQuery += " AND mentor_name LIKE ?";
+            facultyQuery += " AND mentor_name LIKE ?";
+            studentParams.push(`%${mentor_name}%`);
+            facultyParams.push(`%${mentor_name}%`);
         }
 
         if (date) {
-            studentQuery += " AND sil.date = ?";
-            facultyQuery += " AND fil.date = ?";
-            params.push(date);
+            studentQuery += " AND date = ?";
+            facultyQuery += " AND date = ?";
+            studentParams.push(date);
+            facultyParams.push(date);
         }
 
         studentQuery += " ORDER BY sort_date DESC";
         facultyQuery += " ORDER BY sort_date DESC";
 
-        const [studentLogs] = await db.query(studentQuery, params);
-        const [facultyLogs] = await db.query(facultyQuery, params);
+        const [studentLogs] = await db.query(studentQuery, studentParams);
+        const [facultyLogs] = await db.query(facultyQuery, facultyParams);
 
         res.status(200).json({
             success: true,
