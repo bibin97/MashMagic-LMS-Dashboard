@@ -103,44 +103,6 @@ exports.editMentor = async (req, res) => {
     }
 };
 
-// @desc    Get dashboard stats (mentors with completed counts)
-// @route   GET /api/mentor-head/dashboard
-// @access  Private (Mentor Head)
-exports.getDashboardStats = async (req, res) => {
-    try {
-        const query = `
-            SELECT 
-                u.id as mentor_id, 
-                u.name as mentor_name, 
-                u.phone_number,
-                u.place,
-                (
-                    SELECT COUNT(*) FROM (
-                        SELECT id, mentor_id FROM student_interaction_logs
-                        UNION ALL
-                        SELECT id, mentor_id FROM mentor_session_logs
-                        UNION ALL
-                        SELECT id, mentor_id FROM mentor_session_reports
-                        UNION ALL
-                        SELECT id, mentor_id FROM mentorship_logs
-                    ) as all_logs WHERE all_logs.mentor_id = u.id
-                ) as completed_count
-            FROM users u
-            WHERE u.role = 'mentor'
-            ORDER BY completed_count DESC
-        `;
-
-        const [mentors] = await db.query(query);
-
-        res.status(200).json({
-            success: true,
-            data: mentors
-        });
-    } catch (error) {
-        console.error('Error in getDashboardStats:', error);
-        res.status(500).json({ success: false, message: "Server Error", error: error.message });
-    }
-};
 
 // @desc    Get mentor's completed student interactions
 // @route   GET /api/mentor-head/mentor/:mentorId/students
@@ -900,9 +862,9 @@ exports.toggleCourseCompleted = async (req, res) => {
     }
 };
 
-// @desc    Get Mentor Head Dashboard Summary
+// @desc    Get dashboard stats (mentors with completed counts)
 // @route   GET /api/mentor-head/dashboard
-exports.getMentorHeadDashboard = async (req, res) => {
+exports.getDashboardStats = async (req, res) => {
     try {
         // Frontend expects an array of mentors to calculate stats
         const [mentors] = await db.query(`
