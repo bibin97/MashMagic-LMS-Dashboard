@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Search, RefreshCw, Bell, ChevronDown, CheckCircle, LogOut, Settings, User, Menu, Check, X, CheckCheck, ShieldCheck, Activity } from 'lucide-react';
+import { Search, RefreshCw, Bell, ChevronDown, CheckCircle, LogOut, Settings, User, Menu, Check, X, CheckCheck, ShieldCheck, Activity, GraduationCap } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
@@ -12,13 +12,18 @@ const Navbar = ({ onMenuClick }) => {
 
   const [isScrolled, setIsScrolled] = useState(false);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
   
   const [notifications, setNotifications] = useState([]);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
   
   const profileRef = useRef(null);
   const dropdownRef = useRef(null);
+  const searchRef = useRef(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -36,6 +41,9 @@ const Navbar = ({ onMenuClick }) => {
       }
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setIsDropdownOpen(false);
+      }
+      if (searchRef.current && !searchRef.current.contains(event.target)) {
+        setIsSearchOpen(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -55,6 +63,51 @@ const Navbar = ({ onMenuClick }) => {
     window.refetchNotifications = fetchNotifications;
     return () => { delete window.refetchNotifications; };
   }, []);
+
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      if (searchQuery.length > 1) {
+        performSearch();
+      } else {
+        setSearchResults([]);
+        setIsSearchOpen(false);
+      }
+    }, 300);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchQuery]);
+
+  const performSearch = async () => {
+    try {
+      setIsSearching(true);
+      const token = sessionStorage.getItem('token');
+      // Generic search endpoint for students
+      const res = await axios.get(`/api/mentor/students?search=${searchQuery}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.data.success) {
+        setSearchResults(res.data.data.slice(0, 8)); // Limit to top 8
+        setIsSearchOpen(true);
+      }
+    } catch (error) {
+      console.error("Search failed");
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  const handleSearchResultClick = (student) => {
+    setIsSearchOpen(false);
+    setSearchQuery('');
+    // Navigate based on role or to a common details page
+    if (user?.role === 'mentor') {
+      navigate(`/mentor/students/${student.id}`);
+    } else if (user?.role === 'academic_head' || user?.role === 'super_admin') {
+      navigate(`/academic-head/students/edit/${student.id}`);
+    } else {
+      navigate(`/mentor/students/${student.id}`);
+    }
+  };
 
   const fetchNotifications = async () => {
     try {
@@ -186,7 +239,7 @@ const Navbar = ({ onMenuClick }) => {
           </div>
 
           {/* Center: Smart Search Bar */}
-          <div className="flex-1 max-w-md px-6 hidden md:block">
+          <div className="flex-1 max-w-md px-6 hidden md:block" ref={searchRef}>
             <div
               className={`relative flex items-center w-full transition-all duration-300 ease-out ${
                 isSearchFocused ? 'scale-[1.02]' : 'scale-100'
@@ -201,16 +254,65 @@ const Navbar = ({ onMenuClick }) => {
               </div>
               <input
                 type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 className="block w-full pl-10 pr-4 py-2 bg-slate-50/50 border border-slate-200/60 rounded-full text-sm placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-slate-100 focus:bg-white focus:border-slate-300 shadow-inner transition-all duration-300"
-                placeholder="Search students, tasks, resources..."
-                onFocus={() => setIsSearchFocused(true)}
+                placeholder="Search students by name or ID..."
+                onFocus={() => {
+                  setIsSearchFocused(true);
+                  if (searchResults.length > 0) setIsSearchOpen(true);
+                }}
                 onBlur={() => setIsSearchFocused(false)}
               />
+              {isSearching && (
+                <div className="absolute inset-y-0 right-10 flex items-center pointer-events-none">
+                  <RefreshCw className="w-3 h-3 text-[#008080] animate-spin" />
+                </div>
+              )}
               <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
                 <span className="text-[10px] font-medium text-slate-400 border border-slate-200 rounded px-1.5 py-0.5 bg-white">
                   ⌘K
                 </span>
               </div>
+
+              {/* Global Search Results Dropdown */}
+              {isSearchOpen && (searchResults.length > 0 || isSearching) && (
+                <div className="absolute top-full left-0 right-0 mt-3 bg-white/95 backdrop-blur-xl border border-slate-200 rounded-[24px] shadow-[0_20px_50px_-12px_rgba(0,0,0,0.15)] overflow-hidden z-[1001] animate-in fade-in slide-in-from-top-2 duration-200">
+                  <div className="p-3 max-h-[400px] overflow-y-auto">
+                    {isSearching && searchResults.length === 0 ? (
+                      <div className="p-8 text-center">
+                        <RefreshCw className="w-6 h-6 text-[#008080] animate-spin mx-auto mb-2" />
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Searching Database...</p>
+                      </div>
+                    ) : (
+                      <>
+                        <div className="px-3 py-2 mb-2 border-b border-slate-50">
+                          <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Quick Results</span>
+                        </div>
+                        {searchResults.map((result) => (
+                          <button
+                            key={result.id}
+                            onClick={() => handleSearchResultClick(result)}
+                            className="w-full flex items-center gap-4 p-3 rounded-2xl hover:bg-slate-50 transition-all text-left group"
+                          >
+                            <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-500 group-hover:bg-[#008080] group-hover:text-white transition-all">
+                              <GraduationCap size={18} />
+                            </div>
+                            <div className="flex-1">
+                              <h4 className="text-sm font-bold text-slate-900 leading-tight">{result.name}</h4>
+                              <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide mt-0.5">ID: {result.student_id} • {result.course || 'Regular Batch'}</p>
+                            </div>
+                            <ChevronRight size={14} className="text-slate-300 group-hover:text-[#008080] transition-colors" />
+                          </button>
+                        ))}
+                      </>
+                    )}
+                  </div>
+                  <div className="p-3 bg-slate-50/50 border-t border-slate-100 flex justify-center">
+                    <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Press Enter for Advanced Search</p>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
