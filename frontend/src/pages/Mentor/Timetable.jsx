@@ -55,7 +55,9 @@ const Timetable = () => {
  session_type: 'Regular Class',
  status: 'Scheduled',
  status_reason: '',
- notes: ''
+ notes: '',
+ faculty_id: null,
+ faculty_name: ''
  });
 
  const navigate = useNavigate();
@@ -125,12 +127,12 @@ const Timetable = () => {
  };
  
  useEffect(() => {
- if (formData.student_id && isBulkMode) {
+ if (formData.student_id) {
  fetchStudentSchedule(formData.student_id);
  } else {
  setStudentSchedule([]);
  }
- }, [formData.student_id, isBulkMode]);
+ }, [formData.student_id]);
 
  const handleCreateOpen = () => {
  setEditingSession(null);
@@ -145,7 +147,9 @@ const Timetable = () => {
  session_type: 'Regular Class',
  status: 'Scheduled',
  status_reason: '',
- notes: ''
+ notes: '',
+ faculty_id: null,
+ faculty_name: ''
  });
  setIsModalOpen(true);
  };
@@ -163,7 +167,9 @@ const Timetable = () => {
  session_type: 'Regular Class',
  status: 'Scheduled',
  status_reason: '',
- notes: ''
+ notes: '',
+ faculty_id: null,
+ faculty_name: ''
  });
  setIsModalOpen(true);
  };
@@ -179,7 +185,10 @@ const Timetable = () => {
  session_type: session.session_type || 'Regular Class',
  status: session.status,
  status_reason: session.status_reason || '',
- notes: session.notes || ''
+ notes: session.notes || '',
+ faculty_id: session.faculty_id || null,
+ faculty_name: session.faculty_name || '',
+ session_mode: session.session_mode || 'Online'
  });
  setIsModalOpen(true);
  };
@@ -266,7 +275,9 @@ const Timetable = () => {
  ...formData,
  start_time: '',
  end_time: '',
- chapter: ''
+ chapter: '',
+ faculty_id: null,
+ faculty_name: ''
  });
  setSelectedSlot(null);
  };
@@ -498,7 +509,10 @@ const Timetable = () => {
  </div>
  <div>
  <h3 className="text-base font-black text-slate-900 tracking-tight uppercase">{session.student_name}</h3>
- <p className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] mt-1">SN #{session.session_number} • {session.session_type}</p>
+ <p className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] mt-1">
+ SN #{session.session_number} • {session.session_type} 
+ {session.faculty_name && ` • Faculty: ${session.faculty_name}`}
+ </p>
  </div>
  </div>
 
@@ -633,68 +647,72 @@ const Timetable = () => {
  </div>
  </div>
 
- {isBulkMode && studentSchedule.length > 0 && (
- <div className="space-y-2 col-span-full">
- <label className="text-[10px] font-black text-[#008080] uppercase tracking-widest ml-1">Select from Registered Academic Slots</label>
- <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
- {studentSchedule.map((slot, idx) => {
- const dayName = new Date(formData.date).toLocaleDateString('en-GB', { weekday: 'long' });
- const isSameDay = slot.day_of_week === dayName;
- return (
- <button
- key={idx}
- type="button"
- onClick={() => {
- setFormData({
- ...formData,
- start_time: slot.start_time,
- end_time: slot.end_time,
- chapter: slot.subject || ''
- });
- setSelectedSlot(idx);
- }}
- className={`p-4 rounded-2xl border text-left transition-all relative overflow-hidden ${
- selectedSlot === idx 
- ? 'bg-[#008080] text-white border-[#008080] shadow-lg scale-[1.02]' 
- : isSameDay 
- ? 'bg-emerald-50 border-emerald-100 text-emerald-700 hover:border-emerald-300' 
- : 'bg-white border-slate-100 text-slate-600 hover:border-slate-200 opacity-60'
- }`}
- >
- <div className="flex justify-between items-start mb-2">
- <span className="text-[10px] font-black uppercase tracking-tighter">{slot.day_of_week}</span>
- {isSameDay && <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />}
- </div>
- <p className="text-xs font-black truncate">{slot.subject}</p>
- <p className="text-[10px] font-bold mt-1 opacity-80">{slot.start_time} - {slot.end_time}</p>
- <p className="text-[9px] mt-2 font-medium italic opacity-70">Faculty: {slot.faculty_name}</p>
- </button>
- );
- })}
- </div>
- </div>
+ {studentSchedule.length > 0 && (
+  <div className="space-y-2 col-span-full">
+  <label className="text-[10px] font-black text-[#008080] uppercase tracking-widest ml-1">
+  Select from Registered Academic Slots (Automatically pre-fills Faculty & Times)
+  </label>
+  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+  {studentSchedule.map((slot, idx) => {
+  const dayName = new Date(formData.date).toLocaleDateString('en-GB', { weekday: 'long' });
+  const isSameDay = slot.day_of_week === dayName;
+  return (
+  <button
+  key={idx}
+  type="button"
+  onClick={() => {
+  setFormData({
+  ...formData,
+  start_time: slot.start_time.substring(0, 5),
+  end_time: slot.end_time.substring(0, 5),
+  chapter: slot.subject || '',
+  faculty_id: slot.faculty_id,
+  faculty_name: slot.faculty_name
+  });
+  setSelectedSlot(idx);
+  }}
+  className={`p-4 rounded-2xl border text-left transition-all relative overflow-hidden ${
+  selectedSlot === idx 
+  ? 'bg-[#008080] text-white border-[#008080] shadow-lg scale-[1.02]' 
+  : isSameDay 
+  ? 'bg-emerald-50 border-emerald-100 text-emerald-700 hover:border-emerald-300' 
+  : 'bg-white border-slate-100 text-slate-600 hover:border-slate-200 opacity-60'
+  }`}
+  >
+  <div className="flex justify-between items-start mb-2">
+  <span className="text-[10px] font-black uppercase tracking-tighter">{slot.day_of_week}</span>
+  {isSameDay && <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />}
+  </div>
+  <p className="text-xs font-black truncate">{slot.subject}</p>
+  <p className="text-[10px] font-bold mt-1 opacity-80">{(slot.start_time || '').substring(0, 5)} - {(slot.end_time || '').substring(0, 5)}</p>
+  <p className="text-[9px] mt-2 font-medium italic opacity-70">Faculty: {slot.faculty_name}</p>
+  </button>
+  );
+  })}
+  </div>
+  </div>
  )}
 
- <div className="space-y-2">
- <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Start Time *</label>
- <input
- type="time"
- required
- value={formData.start_time}
- onChange={(e) => setFormData({ ...formData, start_time: e.target.value })}
- className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
- />
- </div>
- <div className="space-y-2">
- <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">End Time *</label>
- <input
- type="time"
- required
- value={formData.end_time}
- onChange={(e) => setFormData({ ...formData, end_time: e.target.value })}
- className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
- />
- </div>
+  <div className="space-y-2">
+  <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Start Time *</label>
+  <input
+  type="time"
+  required={!isBulkMode}
+  value={formData.start_time}
+  onChange={(e) => setFormData({ ...formData, start_time: e.target.value })}
+  className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
+  />
+  </div>
+  <div className="space-y-2">
+  <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">End Time *</label>
+  <input
+  type="time"
+  required={!isBulkMode}
+  value={formData.end_time}
+  onChange={(e) => setFormData({ ...formData, end_time: e.target.value })}
+  className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
+  />
+  </div>
  <div className="space-y-2 md:col-span-2 lg:col-span-1">
  <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Topic / Chapter</label>
  <input

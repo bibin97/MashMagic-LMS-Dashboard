@@ -242,6 +242,50 @@ const MentorDashboard = () => {
 
           <div className="space-y-10">
             <div className="flex items-center gap-6">
+              <div className="w-1.5 h-10 bg-indigo-500 rounded-full"></div>
+              <h3 className="text-xl font-black text-slate-800 uppercase tracking-tight">Recent Intelligence</h3>
+              <div className="h-[1px] flex-1 bg-slate-100 opacity-50"></div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {stats.recentInteractions?.length > 0 ? (
+                stats.recentInteractions.map((log, idx) => (
+                  <div key={`log-${idx}`} className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm hover:shadow-md transition-all group">
+                    <div className="flex justify-between items-start mb-4">
+                      <div className="px-3 py-1 bg-slate-50 text-[9px] font-black uppercase tracking-widest text-slate-600 rounded-full border border-slate-100">
+                        {log.type} PROTOCOL
+                      </div>
+                      <span className="text-[10px] font-bold text-slate-400 uppercase">
+                        {new Date(log.created_at).toLocaleDateString('en-GB')}
+                      </span>
+                    </div>
+                    <h4 className="text-xl font-black text-slate-900 uppercase tracking-tight mb-2 group-hover:text-[#008080] transition-colors">{log.student_name}</h4>
+                    <p className="text-sm font-medium text-slate-600 line-clamp-2 leading-relaxed italic">"{log.remarks || 'No notes provided'}"</p>
+                    <div className="flex items-center gap-4 mt-6">
+                      {log.self_clarity !== null && (
+                        <div className="flex flex-col">
+                          <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Clarity</span>
+                          <span className="text-xs font-black text-emerald-600">{log.self_clarity}%</span>
+                        </div>
+                      )}
+                      {log.confidence !== null && (
+                        <div className="flex flex-col">
+                          <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Confidence</span>
+                          <span className="text-xs font-black text-[#008080]">{log.confidence}/5</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="col-span-full py-12 text-center bg-slate-50/50 rounded-3xl border border-dashed border-slate-200">
+                  <p className="text-slate-600 text-[10px] font-black uppercase tracking-widest">No recent intelligence logs found</p>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="space-y-10">
+            <div className="flex items-center gap-6">
               <div className="w-1.5 h-10 bg-slate-200 rounded-full"></div>
               <h3 className="text-xl font-black text-slate-800 uppercase tracking-tight">Future Sequences</h3>
               <div className="h-[1px] flex-1 bg-slate-100 opacity-50"></div>

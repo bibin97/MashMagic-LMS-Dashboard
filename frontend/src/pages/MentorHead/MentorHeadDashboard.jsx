@@ -324,7 +324,7 @@ const MentorHeadDashboard = () => {
 
  <div className="bg-slate-50 rounded-2xl p-4 mb-4">
  <p className="text-slate-600 text-sm font-medium leading-relaxed line-clamp-2">
- {activity.details || `Interacted with ${activity.student_name} regarding academic progress.`}
+ {activity.mentor_notes || activity.details || `Interacted with ${activity.student_name} regarding academic progress.`}
  </p>
  </div>
 

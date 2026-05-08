@@ -61,11 +61,11 @@ const StudentInteractionLog = () => {
    if (type === 'DEEP') {
      setFormData({
        student_status_before: 'Yes',
-       main_problem: 'None',
+       main_problem: 'No major issue',
        root_cause: '',
        mentor_guidance: '',
        action_plan: '',
-       student_response: 'Positive',
+       student_response: 'Positive / motivated',
        followup_required: 'No',
        followup_when: 'Tomorrow',
        priority_tag: 'Stable'
@@ -82,8 +82,8 @@ const StudentInteractionLog = () => {
      });
    } else if (type === 'QUICK') {
      setFormData({
-       availability: 'Attended',
-       study_status: 'Proper',
+       availability: 'Attended call',
+       study_status: 'Studied properly',
        attendance: 'Attended',
        immediate_concern: 'No',
        motivation_given: 'Yes'
@@ -257,7 +257,7 @@ const StudentInteractionLog = () => {
                       })
                       .sort((a, b) => a.name.localeCompare(b.name))
                       .map(student => {
-                        const sessionType = student.badge === 'Diamond' ? 'DEEP' : 'MEDIUM';
+                        const sessionType = isDiamondCategory(student) ? 'DEEP' : 'MEDIUM';
                         const isCompleted = student.connected_today;
                         return (
                           <button
@@ -383,7 +383,7 @@ const StudentInteractionLog = () => {
            <div className="space-y-12">
              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                <div className="space-y-2">
-                  <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Student Status Before Session</label>
+                  <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">1. Student Status Before Session (Completed planned tasks?)</label>
                   <div className="grid grid-cols-3 gap-2">
                     {['Yes', 'Partially', 'No'].map(opt => (
                       <button key={opt} type="button" onClick={() => setFormData({...formData, student_status_before: opt})} className={`py-4 rounded-2xl text-[10px] font-black uppercase transition-all ${formData.student_status_before === opt ? 'bg-rose-500 text-white shadow-lg' : 'bg-slate-50 text-slate-400'}`}>{opt}</button>
@@ -391,39 +391,39 @@ const StudentInteractionLog = () => {
                   </div>
                </div>
                <div className="space-y-2">
-                  <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Main Problem Identified</label>
+                  <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">2. Main Problem Identified (Compulsory)</label>
                   <select name="main_problem" value={formData.main_problem} onChange={handleChange} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-black uppercase">
-                    {['Academic', 'Consistency', 'Confidence', 'Distraction', 'Emotional', 'None'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                    {['Academic difficulty', 'Lack of consistency', 'Low confidence', 'Distraction / mobile usage', 'Emotional issue', 'No major issue'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
                   </select>
                </div>
              </div>
 
              <div className="space-y-8">
                 <div className="space-y-2">
-                   <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Root Cause Identification</label>
+                   <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">3. Root Cause (Compulsory) - WHY this problem is happening?</label>
                    <textarea name="root_cause" rows="2" required value={formData.root_cause} onChange={handleChange} className="w-full p-6 bg-slate-50 border border-slate-100 rounded-[2rem] text-sm font-bold outline-none focus:ring-4 focus:ring-rose-500/10 focus:border-rose-200" placeholder="Analyze the fundamental reason..."></textarea>
                 </div>
                 <div className="space-y-2">
-                   <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Mentor Guidance Given</label>
-                   <textarea name="mentor_guidance" rows="2" required value={formData.mentor_guidance} onChange={handleChange} className="w-full p-6 bg-slate-50 border border-slate-100 rounded-[2rem] text-sm font-bold outline-none focus:ring-4 focus:ring-rose-500/10 focus:border-rose-200" placeholder="What strategic advice was provided?"></textarea>
+                   <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">4. Mentor Guidance Given (Compulsory) - What exact strategy was given?</label>
+                   <textarea name="mentor_guidance" rows="2" required value={formData.mentor_guidance} onChange={handleChange} className="w-full p-6 bg-slate-50 border border-slate-100 rounded-[2rem] text-sm font-bold outline-none focus:ring-4 focus:ring-rose-500/10 focus:border-rose-200" placeholder="What exact solution/strategy was given?"></textarea>
                 </div>
                 <div className="space-y-2">
-                   <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Action Plan (Measurable Steps)</label>
-                   <textarea name="action_plan" rows="2" required value={formData.action_plan} onChange={handleChange} className="w-full p-6 bg-slate-900 text-white rounded-[2rem] text-sm font-bold outline-none border-none" placeholder="1. Step one... 2. Step two..."></textarea>
+                   <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">5. Action Plan Set for Student (Compulsory) - Clear, measurable task</label>
+                   <textarea name="action_plan" rows="2" required value={formData.action_plan} onChange={handleChange} className="w-full p-6 bg-slate-900 text-white rounded-[2rem] text-sm font-bold outline-none border-none" placeholder="Example: 'Complete 2 chapters + revise notes'"></textarea>
                 </div>
              </div>
 
              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-6 border-t border-slate-100">
                <div className="space-y-4">
-                  <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Student Response</label>
+                  <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">6. Student Response Level</label>
                   <div className="flex gap-2">
-                    {['Positive', 'Neutral', 'Not responsive'].map(opt => (
+                    {['Positive / motivated', 'Neutral', 'Not responsive'].map(opt => (
                       <button key={opt} type="button" onClick={() => setFormData({...formData, student_response: opt})} className={`flex-1 py-4 rounded-2xl text-[9px] font-black uppercase transition-all ${formData.student_response === opt ? 'bg-slate-900 text-white shadow-lg' : 'bg-slate-50 text-slate-400'}`}>{opt}</button>
                     ))}
                   </div>
                </div>
                <div className="space-y-4">
-                  <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Priority Tag After Session</label>
+                  <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">8. Priority Tag After Session</label>
                   <div className="flex gap-2">
                     {['High', 'Medium', 'Stable'].map(opt => (
                       <button key={opt} type="button" onClick={() => setFormData({...formData, priority_tag: opt})} className={`flex-1 py-4 rounded-2xl text-[9px] font-black uppercase transition-all ${formData.priority_tag === opt ? 'bg-rose-500 text-white shadow-lg' : 'bg-slate-50 text-slate-400'}`}>{opt}</button>
@@ -435,12 +435,15 @@ const StudentInteractionLog = () => {
              <div className="p-8 bg-slate-50 rounded-[2.5rem] border border-slate-100 flex flex-col md:flex-row items-center justify-between gap-6">
                 <div className="flex items-center gap-4">
                   <input type="checkbox" id="followup" checked={formData.followup_required === 'Yes'} onChange={(e) => setFormData({...formData, followup_required: e.target.checked ? 'Yes' : 'No'})} className="w-6 h-6 rounded-lg text-rose-500 border-slate-300 focus:ring-rose-500" />
-                  <label htmlFor="followup" className="text-xs font-black text-slate-900 uppercase tracking-widest">Follow-up Required?</label>
+                  <label htmlFor="followup" className="text-xs font-black text-slate-900 uppercase tracking-widest">7. Follow-up Required?</label>
                 </div>
                 {formData.followup_required === 'Yes' && (
-                  <select name="followup_when" value={formData.followup_when} onChange={handleChange} className="p-4 bg-white border border-slate-200 rounded-2xl text-[10px] font-black uppercase tracking-widest outline-none">
-                    {['Tomorrow', '2 days', 'This week'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
-                  </select>
+                  <div className="flex items-center gap-4 animate-in slide-in-from-right-4">
+                    <span className="text-[10px] font-black text-slate-400 uppercase">When?</span>
+                    <select name="followup_when" value={formData.followup_when} onChange={handleChange} className="p-4 bg-white border border-slate-200 rounded-2xl text-[10px] font-black uppercase tracking-widest outline-none">
+                      {['Tomorrow', 'Within 2 days', 'This week'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                    </select>
+                  </div>
                 )}
              </div>
            </div>
@@ -450,7 +453,7 @@ const StudentInteractionLog = () => {
            <div className="space-y-10">
              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                <div className="space-y-2">
-                  <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Session Progress</label>
+                  <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">1. Progress Since Last Session</label>
                   <div className="grid grid-cols-3 gap-2">
                     {['Good', 'Average', 'Poor'].map(opt => (
                       <button key={opt} type="button" onClick={() => setFormData({...formData, progress: opt})} className={`py-4 rounded-2xl text-[10px] font-black uppercase transition-all ${formData.progress === opt ? 'bg-amber-500 text-white shadow-lg' : 'bg-slate-50 text-slate-400'}`}>{opt}</button>
@@ -458,16 +461,16 @@ const StudentInteractionLog = () => {
                   </div>
                </div>
                <div className="space-y-2">
-                  <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Class Attendance</label>
+                  <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">2. Class Attendance Status</label>
                   <select name="class_attendance" value={formData.class_attendance} onChange={handleChange} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-black uppercase">
-                    {['Regular', 'Missed 1', 'Missed multiple'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                    {['Regular', 'Missed 1 class', 'Missed multiple'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
                   </select>
                </div>
              </div>
 
              <div className="p-8 bg-amber-50/50 rounded-[2.5rem] border border-amber-100 space-y-6">
                 <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-black text-amber-900 uppercase tracking-widest">Issue Detected?</span>
+                  <span className="text-[10px] font-black text-amber-900 uppercase tracking-widest">3. Any Issue Found?</span>
                   <div className="flex gap-2">
                     {['Yes', 'No'].map(opt => (
                       <button key={opt} type="button" onClick={() => setFormData({...formData, issue_found: opt})} className={`px-8 py-2 rounded-xl text-[10px] font-black uppercase transition-all ${formData.issue_found === opt ? 'bg-amber-600 text-white shadow-md' : 'bg-white text-slate-400 border border-amber-100'}`}>{opt}</button>
@@ -478,7 +481,7 @@ const StudentInteractionLog = () => {
                   <div className="animate-in slide-in-from-top-4 duration-300">
                     <label className="text-[9px] font-black text-amber-600 uppercase tracking-widest ml-1">Category</label>
                     <div className="flex gap-2 mt-2">
-                      {['Academic', 'Discipline', 'Focus'].map(opt => (
+                      {['Academic', 'Discipline', 'Focus issue'].map(opt => (
                         <button key={opt} type="button" onClick={() => setFormData({...formData, issue_category: opt})} className={`flex-1 py-3 rounded-xl text-[9px] font-black uppercase transition-all ${formData.issue_category === opt ? 'bg-slate-900 text-white' : 'bg-white text-slate-400 border border-slate-100'}`}>{opt}</button>
                       ))}
                     </div>
@@ -488,72 +491,79 @@ const StudentInteractionLog = () => {
 
              <div className="space-y-8">
                 <div className="space-y-2">
-                   <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Quick Guidance Provided</label>
-                   <textarea name="quick_guidance" rows="2" value={formData.quick_guidance} onChange={handleChange} className="w-full p-6 bg-slate-50 border border-slate-100 rounded-[2rem] text-sm font-bold outline-none focus:ring-4 focus:ring-amber-500/10 focus:border-amber-200" placeholder="Briefly summarize the guidance..."></textarea>
+                   <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">4. Quick Guidance Given - What correction did mentor give?</label>
+                   <textarea name="quick_guidance" rows="2" value={formData.quick_guidance} onChange={handleChange} className="w-full p-6 bg-slate-50 border border-slate-100 rounded-[2rem] text-sm font-bold outline-none focus:ring-4 focus:ring-amber-500/10 focus:border-amber-200" placeholder="Briefly summarize the correction..."></textarea>
                 </div>
                 <div className="space-y-2">
-                   <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Next Task (Mandatory)</label>
+                   <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">5. Next Task Assigned - Simple instruction (compulsory)</label>
                    <input type="text" name="next_task" required value={formData.next_task} onChange={handleChange} className="w-full p-6 bg-slate-900 text-white rounded-[2rem] text-sm font-bold outline-none border-none" placeholder="What is the very next action for the student?" />
                 </div>
              </div>
 
-             <div className="flex items-center justify-between p-8 bg-slate-50 rounded-[2.5rem] border border-slate-100">
-                <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Upgrade to Deep Session?</span>
-                <div className="flex gap-2">
-                  {['Yes', 'No'].map(opt => (
-                    <button key={opt} type="button" onClick={() => setFormData({...formData, upgrade_to_deep: opt})} className={`px-8 py-3 rounded-xl text-[10px] font-black uppercase transition-all ${formData.upgrade_to_deep === opt ? 'bg-rose-500 text-white shadow-lg' : 'bg-white text-slate-400 border border-slate-200'}`}>{opt}</button>
-                  ))}
+             <div className="p-8 bg-slate-50 rounded-[2.5rem] border border-slate-100 space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">6. Need Upgrade to Deep Session?</span>
+                  <div className="flex gap-2">
+                    {['Yes', 'No'].map(opt => (
+                      <button key={opt} type="button" onClick={() => setFormData({...formData, upgrade_to_deep: opt})} className={`px-8 py-3 rounded-xl text-[10px] font-black uppercase transition-all ${formData.upgrade_to_deep === opt ? 'bg-rose-500 text-white shadow-lg' : 'bg-white text-slate-400 border border-slate-200'}`}>{opt}</button>
+                    ))}
+                  </div>
                 </div>
+                <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">(This is important for system auto-adjustment)</p>
              </div>
            </div>
          )}
 
          {sessionType === 'QUICK' && (
-           <div className="space-y-10">
-             <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                <div className="space-y-6">
-                   <div className="flex items-center justify-between bg-slate-50 p-6 rounded-3xl">
-                      <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Availability</span>
-                      <select name="availability" value={formData.availability} onChange={handleChange} className="p-2 bg-transparent border-none text-[10px] font-black uppercase text-blue-600 outline-none">
-                        {['Attended', 'Not attended'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
-                      </select>
-                   </div>
-                   <div className="flex items-center justify-between bg-slate-50 p-6 rounded-3xl">
-                      <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Study Status</span>
-                      <select name="study_status" value={formData.study_status} onChange={handleChange} className="p-2 bg-transparent border-none text-[10px] font-black uppercase text-blue-600 outline-none">
-                        {['Proper', 'Partial', 'Not studied'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
-                      </select>
-                   </div>
-                </div>
-                <div className="space-y-6">
-                   <div className="flex items-center justify-between bg-slate-50 p-6 rounded-3xl">
-                      <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Attendance</span>
-                      <select name="attendance" value={formData.attendance} onChange={handleChange} className="p-2 bg-transparent border-none text-[10px] font-black uppercase text-blue-600 outline-none">
-                        {['Attended', 'Missed'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
-                      </select>
-                   </div>
-                   <div className="flex items-center justify-between bg-blue-50 p-6 rounded-3xl border border-blue-100">
-                      <span className="text-[10px] font-black text-blue-900 uppercase tracking-widest">Motivation Given?</span>
-                      <div className="flex gap-2">
-                        {['Yes', 'No'].map(opt => (
-                          <button key={opt} type="button" onClick={() => setFormData({...formData, motivation_given: opt})} className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase transition-all ${formData.motivation_given === opt ? 'bg-blue-600 text-white shadow-md' : 'bg-white text-slate-400 border border-blue-200'}`}>{opt}</button>
-                        ))}
-                      </div>
-                   </div>
-                </div>
-             </div>
+            <div className="space-y-10">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                 <div className="space-y-6">
+                    <div className="flex items-center justify-between bg-slate-50 p-6 rounded-3xl">
+                       <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">1. Student Availability</span>
+                       <select name="availability" value={formData.availability} onChange={handleChange} className="p-2 bg-transparent border-none text-[10px] font-black uppercase text-blue-600 outline-none">
+                          {['Attended call', 'Did not attend'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                       </select>
+                    </div>
+                    <div className="flex items-center justify-between bg-slate-50 p-6 rounded-3xl">
+                       <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">3. Class Attendance Today</span>
+                       <select name="attendance" value={formData.attendance} onChange={handleChange} className="p-2 bg-transparent border-none text-[10px] font-black uppercase text-[#008080] outline-none">
+                          {['Attended', 'Missed'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                       </select>
+                    </div>
+                    <div className="flex items-center justify-between bg-slate-50 p-6 rounded-3xl">
+                       <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">5. Motivation Given?</span>
+                       <div className="flex gap-2">
+                          {['Yes', 'No'].map(opt => (
+                            <button key={opt} type="button" onClick={() => setFormData({...formData, motivation_given: opt})} className={`px-4 py-1 rounded-lg text-[10px] font-black uppercase transition-all ${formData.motivation_given === opt ? 'bg-[#008080] text-white' : 'bg-white text-slate-400 border border-slate-200'}`}>{opt}</button>
+                          ))}
+                       </div>
+                    </div>
+                 </div>
 
-             <div className="p-10 bg-rose-50 rounded-[3rem] border-2 border-rose-100 text-center space-y-6">
-                <ShieldAlert className="mx-auto text-rose-500" size={40} />
-                <h4 className="text-lg font-black text-rose-900 uppercase tracking-tight">Immediate Concern?</h4>
-                <p className="text-[10px] font-bold text-rose-600 uppercase tracking-widest max-w-sm mx-auto">Flagging an immediate concern will automatically schedule a DEEP session for tomorrow.</p>
-                <div className="flex justify-center gap-4">
-                  {['Yes', 'No'].map(opt => (
-                    <button key={opt} type="button" onClick={() => setFormData({...formData, immediate_concern: opt})} className={`px-12 py-4 rounded-[1.5rem] text-sm font-black uppercase tracking-widest transition-all ${formData.immediate_concern === opt ? 'bg-rose-600 text-white shadow-2xl' : 'bg-white text-rose-300 border border-rose-100 hover:bg-rose-100'}`}>{opt}</button>
-                  ))}
-                </div>
-             </div>
-           </div>
+                 <div className="space-y-6">
+                    <div className="space-y-3">
+                       <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">2. Today's Study Status</label>
+                       <div className="flex flex-col gap-2">
+                          {['Studied properly', 'Studied partially', 'Not studied'].map(opt => (
+                            <button key={opt} type="button" onClick={() => setFormData({...formData, study_status: opt})} className={`w-full py-4 rounded-2xl text-[10px] font-black uppercase transition-all text-left px-6 ${formData.study_status === opt ? 'bg-slate-900 text-white shadow-xl translate-x-2' : 'bg-slate-50 text-slate-400 hover:bg-slate-100'}`}>{opt}</button>
+                          ))}
+                       </div>
+                    </div>
+                 </div>
+              </div>
+
+              <div className="p-10 bg-rose-50 rounded-[3rem] border border-rose-100 text-center space-y-6">
+                 <div className="space-y-2">
+                    <h4 className="text-lg font-black text-rose-900 uppercase tracking-tight">4. Any Immediate Concern?</h4>
+                    <p className="text-[10px] font-bold text-rose-600 uppercase tracking-widest max-w-sm mx-auto">Mark for Deep Session (Auto trigger)</p>
+                 </div>
+                 <div className="flex justify-center gap-4">
+                    {['Yes', 'No'].map(opt => (
+                       <button key={opt} type="button" onClick={() => setFormData({...formData, immediate_concern: opt})} className={`px-12 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${formData.immediate_concern === opt ? 'bg-rose-500 text-white shadow-xl scale-110' : 'bg-white text-slate-400 border border-rose-200 hover:bg-rose-100/50'}`}>{opt}</button>
+                    ))}
+                 </div>
+              </div>
+            </div>
          )}
 
          {sessionType === 'TUITION' && (

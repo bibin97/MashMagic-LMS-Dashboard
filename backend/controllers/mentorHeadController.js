@@ -114,11 +114,19 @@ exports.getDashboardStats = async (req, res) => {
                 u.name as mentor_name, 
                 u.phone_number,
                 u.place,
-                COUNT(sil.id) as completed_count
+                (
+                    SELECT COUNT(*) FROM (
+                        SELECT id, mentor_id FROM student_interaction_logs
+                        UNION ALL
+                        SELECT id, mentor_id FROM mentor_session_logs
+                        UNION ALL
+                        SELECT id, mentor_id FROM mentor_session_reports
+                        UNION ALL
+                        SELECT id, mentor_id FROM mentorship_logs
+                    ) as all_logs WHERE all_logs.mentor_id = u.id
+                ) as completed_count
             FROM users u
-            LEFT JOIN student_interaction_logs sil ON u.id = sil.mentor_id
             WHERE u.role = 'mentor'
-            GROUP BY u.id, u.name, u.phone_number, u.place
             ORDER BY completed_count DESC
         `;
 
@@ -144,15 +152,23 @@ exports.getMentorStudents = async (req, res) => {
         const query = `
             SELECT 
                 s.name as student_name, 
-                sil.date,
-                sil.id as log_id
-            FROM student_interaction_logs sil
-            JOIN students s ON s.id = sil.student_id
-            WHERE sil.mentor_id = ?
-            ORDER BY sil.date DESC
+                logs.date,
+                logs.log_id,
+                logs.type
+            FROM (
+                SELECT id as log_id, student_id, date, 'Quick' as type FROM student_interaction_logs WHERE mentor_id = ?
+                UNION ALL
+                SELECT id as log_id, student_id, DATE(created_at) as date, 'Session' as type FROM mentor_session_logs WHERE mentor_id = ?
+                UNION ALL
+                SELECT id as log_id, student_id, DATE(created_at) as date, 'Hub' as type FROM mentor_session_reports WHERE mentor_id = ?
+                UNION ALL
+                SELECT id as log_id, student_id, DATE(created_at) as date, 'Mentorship' as type FROM mentorship_logs WHERE mentor_id = ?
+            ) as logs
+            JOIN students s ON s.id = logs.student_id
+            ORDER BY logs.date DESC
         `;
 
-        const [students] = await db.query(query, [mentorId]);
+        const [students] = await db.query(query, [mentorId, mentorId, mentorId, mentorId]);
 
         res.status(200).json({
             success: true,
@@ -254,25 +270,117 @@ exports.getAllActivities = async (req, res) => {
                 (SELECT 
                     sil.id as log_id,
                     COALESCE(sil.created_at, sil.date) as date,
-                    sil.mentor_notes as details,
+                    sil.mentor_notes,
                     s.name as student_name,
                     m.name as mentor_name,
                     m.id as mentor_id,
                     m.place as mentor_place,
-                    'Mentor Interaction' as type
+                    'Quick Log' as type,
+                    'Quick Log' as source,
+                    sil.self_clarity as understanding_level,
+                    sil.confidence as student_confidence,
+                    sil.exam_anxiety as stress_level,
+                    sil.created_at
                 FROM student_interaction_logs sil
                 JOIN students s ON s.id = sil.student_id
                 JOIN users m ON m.id = sil.mentor_id)
+                
                 UNION ALL
+                
                 (SELECT 
-                    fil.id as log_id,
-                    COALESCE(fil.created_at, fil.date) as date,
-                    fil.notes as details,
+                    msl.id as log_id,
+                    msl.created_at as date,
+                    CONCAT(msl.main_issue, ': ', msl.action_type) as mentor_notes,
                     s.name as student_name,
                     m.name as mentor_name,
                     m.id as mentor_id,
                     m.place as mentor_place,
-                    'Faculty Interaction' as type
+                    'Session Log' as type,
+                    'Session Log' as source,
+                    msl.understanding_after_session as understanding_level,
+                    msl.session_quality_rating as student_confidence,
+                    msl.stress_level,
+                    msl.created_at
+                FROM mentor_session_logs msl
+                JOIN students s ON s.id = msl.student_id
+                JOIN users m ON m.id = msl.mentor_id)
+
+                UNION ALL
+
+                (SELECT 
+                    msr.id as log_id,
+                    msr.created_at as date,
+                    JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.notes')) as mentor_notes,
+                    s.name as student_name,
+                    m.name as mentor_name,
+                    m.id as mentor_id,
+                    m.place as mentor_place,
+                    CONCAT('Hub: ', msr.session_type) as type,
+                    'Interaction Hub' as source,
+                    JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.understanding_level')) as understanding_level,
+                    JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.confidence')) as student_confidence,
+                    NULL as stress_level,
+                    msr.created_at
+                FROM mentor_session_reports msr
+                JOIN students s ON s.id = msr.student_id
+                JOIN users m ON m.id = msr.mentor_id)
+
+                UNION ALL
+
+                (SELECT 
+                    ml.id as log_id,
+                    ml.created_at as date,
+                    ml.action_details as mentor_notes,
+                    s.name as student_name,
+                    m.name as mentor_name,
+                    m.id as mentor_id,
+                    m.place as mentor_place,
+                    'Mentorship' as type,
+                    'Mentorship' as source,
+                    NULL as understanding_level,
+                    NULL as student_confidence,
+                    NULL as stress_level,
+                    ml.created_at
+                FROM mentorship_logs ml
+                JOIN students s ON s.id = ml.student_id
+                JOIN users m ON m.id = ml.mentor_id)
+
+                UNION ALL
+                
+                (SELECT 
+                    mfi.id as log_id,
+                    mfi.created_at as date,
+                    mfi.main_issue as mentor_notes,
+                    s.name as student_name,
+                    m.name as mentor_name,
+                    m.id as mentor_id,
+                    m.place as mentor_place,
+                    'Faculty Call' as type,
+                    'Faculty Interaction' as source,
+                    NULL as understanding_level,
+                    NULL as student_confidence,
+                    NULL as stress_level,
+                    mfi.created_at
+                FROM mentor_faculty_interactions mfi
+                JOIN students s ON s.id = mfi.student_id
+                JOIN users m ON m.id = mfi.mentor_id)
+                
+                UNION ALL
+                
+                (SELECT 
+                    fil.id as log_id,
+                    COALESCE(fil.created_at, fil.date) as date,
+                    fil.notes as mentor_notes,
+                    s.name as student_name,
+                    m.name as mentor_name,
+                    m.id as mentor_id,
+                    m.place as mentor_place,
+                    'Faculty Tracking' as type,
+                    'Faculty Tracking' as source,
+                    NULL as understanding_level,
+                    NULL as student_confidence,
+                    NULL as stress_level,
+                    fil.created_at
                 FROM faculty_interaction_logs fil
                 JOIN students s ON s.id = fil.student_id
                 JOIN users m ON m.id = fil.mentor_id)
@@ -329,21 +437,53 @@ exports.getMentorDetails = async (req, res) => {
         );
 
         const [interactionLogs] = await db.query(
-            `SELECT sil.*, s.name as student_name 
-             FROM student_interaction_logs sil 
-             JOIN students s ON s.id = sil.student_id 
-             WHERE sil.mentor_id = ? 
-             ORDER BY sil.date DESC`,
-            [mentorId]
+            `SELECT * FROM (
+                SELECT sil.id, sil.date, sil.mentor_notes as details, s.name as student_name, 'Quick Log' as type, sil.created_at
+                FROM student_interaction_logs sil 
+                JOIN students s ON s.id = sil.student_id 
+                WHERE sil.mentor_id = ?
+                
+                UNION ALL
+                
+                SELECT msl.id, DATE(msl.created_at) as date, CONCAT(msl.main_issue, ': ', msl.action_type) as details, s.name as student_name, 'Session Log' as type, msl.created_at
+                FROM mentor_session_logs msl
+                JOIN students s ON s.id = msl.student_id
+                WHERE msl.mentor_id = ?
+
+                UNION ALL
+
+                SELECT msr.id, DATE(msr.created_at) as date, JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.notes')) as details, s.name as student_name, CONCAT('Hub: ', msr.session_type) as type, msr.created_at
+                FROM mentor_session_reports msr
+                JOIN students s ON s.id = msr.student_id
+                WHERE msr.mentor_id = ?
+
+                UNION ALL
+
+                SELECT ml.id, DATE(ml.created_at) as date, ml.action_details as details, s.name as student_name, 'Mentorship' as type, ml.created_at
+                FROM mentorship_logs ml
+                JOIN students s ON s.id = ml.student_id
+                WHERE ml.mentor_id = ?
+            ) as combined_logs
+            ORDER BY created_at DESC`,
+            [mentorId, mentorId, mentorId, mentorId]
         );
 
         const [facultyLogs] = await db.query(
-            `SELECT fil.*, s.name as student_name 
-             FROM faculty_interaction_logs fil 
-             JOIN students s ON s.id = fil.student_id 
-             WHERE fil.mentor_id = ? 
-             ORDER BY fil.date DESC`,
-            [mentorId]
+            `SELECT * FROM (
+                SELECT fil.id, fil.date, fil.notes as details, s.name as student_name, 'Tracking' as type, fil.created_at
+                FROM faculty_interaction_logs fil 
+                JOIN students s ON s.id = fil.student_id 
+                WHERE fil.mentor_id = ?
+                
+                UNION ALL
+                
+                SELECT mfi.id, DATE(mfi.created_at) as date, mfi.main_issue as details, s.name as student_name, 'Interaction' as type, mfi.created_at
+                FROM mentor_faculty_interactions mfi
+                JOIN students s ON s.id = mfi.student_id
+                WHERE mfi.mentor_id = ?
+            ) as combined_faculty
+            ORDER BY created_at DESC`,
+            [mentorId, mentorId]
         );
 
         res.status(200).json({
@@ -560,8 +700,20 @@ exports.getDailySummary = async (req, res) => {
     try {
         const today = new Date().toISOString().split('T')[0];
 
-        const [[{ totalStudents }]] = await db.query('SELECT COUNT(*) AS totalStudents FROM students');
-        const [[{ checkedToday }]] = await db.query('SELECT COUNT(DISTINCT student_id) AS checkedToday FROM student_verification WHERE date = ?', [today]);
+        const [[{ totalStudents }]] = await db.query('SELECT COUNT(*) AS totalStudents FROM students WHERE status = "active"');
+        const [[{ checkedToday }]] = await db.query(`
+            SELECT COUNT(DISTINCT student_id) as checkedToday FROM (
+                SELECT student_id FROM student_interaction_logs WHERE DATE(created_at) = ?
+                UNION
+                SELECT student_id FROM mentor_session_logs WHERE DATE(created_at) = ?
+                UNION
+                SELECT student_id FROM mentor_session_reports WHERE DATE(created_at) = ?
+                UNION
+                SELECT student_id FROM mentorship_logs WHERE DATE(created_at) = ?
+                UNION
+                SELECT student_id FROM student_verification WHERE date = ?
+            ) as daily_checks
+        `, [today, today, today, today, today]);
 
         const remaining = totalStudents - checkedToday;
 

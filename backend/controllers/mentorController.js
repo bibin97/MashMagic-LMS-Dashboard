@@ -31,13 +31,28 @@ const getMentorDashboard = async (req, res) => {
 
         const recentInteractions = await safeQuery(`
             SELECT * FROM (
-                (SELECT sil.date as created_at, s.name as student_name, 'Student' as type, sil.mentor_notes as remarks, sil.self_clarity, sil.confidence, NULL as start_time, NULL as end_time
+                (SELECT sil.created_at, s.name as student_name, 'Quick' as type, sil.mentor_notes as remarks, sil.self_clarity, sil.confidence
                  FROM student_interaction_logs sil
                  JOIN students s ON sil.student_id = s.id
                  WHERE sil.mentor_id = ?)
+                UNION ALL
+                (SELECT msl.created_at, s.name as student_name, 'Session' as type, CONCAT(msl.main_issue, ': ', msl.action_type) as remarks, msl.understanding_after_session as self_clarity, msl.session_quality_rating as confidence
+                 FROM mentor_session_logs msl
+                 JOIN students s ON msl.student_id = s.id
+                 WHERE msl.mentor_id = ?)
+                UNION ALL
+                (SELECT msr.created_at, s.name as student_name, msr.session_type as type, JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.notes')) as remarks, NULL as self_clarity, NULL as confidence
+                 FROM mentor_session_reports msr
+                 JOIN students s ON msr.student_id = s.id
+                 WHERE msr.mentor_id = ?)
+                UNION ALL
+                (SELECT ml.created_at, s.name as student_name, 'Mentorship' as type, ml.action_details as remarks, NULL as self_clarity, NULL as confidence
+                 FROM mentorship_logs ml
+                 JOIN students s ON ml.student_id = s.id
+                 WHERE ml.mentor_id = ?)
             ) as interactions
             ORDER BY created_at DESC LIMIT 10
-        `, [mentorId], 'recentInteractions');
+        `, [mentorId, mentorId, mentorId, mentorId], 'recentInteractions');
 
         const liveSessions = await safeQuery(`
             SELECT DISTINCT fs.id, fs.faculty_id, fs.topic, fs.date, fs.start_time, fs.end_time, fs.status, u.name as faculty_name, 1 as is_live, s.meeting_link, s.registration_number, s.name as student_name
@@ -128,12 +143,37 @@ const getStudentDetails = async (req, res) => {
         }
 
         const [timetable] = await db.query('SELECT * FROM mentor_timetable WHERE student_id = ? ORDER BY date ASC, start_time ASC', [studentId]);
-        const [studentLogs] = await db.query('SELECT * FROM student_interaction_logs WHERE student_id = ? ORDER BY created_at DESC', [studentId]);
-        
+        const [studentLogs] = await db.query(`
+            SELECT * FROM (
+                SELECT sil.id, sil.date, sil.mentor_notes as details, 'Quick Log' as type, sil.created_at
+                FROM student_interaction_logs sil 
+                WHERE sil.student_id = ?
+                
+                UNION ALL
+                
+                SELECT msl.id, DATE(msl.created_at) as date, CONCAT(msl.main_issue, ': ', msl.action_type) as details, 'Session Log' as type, msl.created_at
+                FROM mentor_session_logs msl
+                WHERE msl.student_id = ?
+
+                UNION ALL
+
+                SELECT msr.id, DATE(msr.created_at) as date, JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.notes')) as details, CONCAT('Hub: ', msr.session_type) as type, msr.created_at
+                FROM mentor_session_reports msr
+                WHERE msr.student_id = ?
+
+                UNION ALL
+
+                SELECT ml.id, DATE(ml.created_at) as date, ml.action_details as details, 'Mentorship' as type, ml.created_at
+                FROM mentorship_logs ml
+                WHERE ml.student_id = ?
+            ) as combined_logs
+            ORDER BY created_at DESC
+        `, [studentId, studentId, studentId, studentId]);
+
         const [mentorshipLogs] = await db.query(`
             SELECT
                 id,
-                date AS session_date,
+                DATE(created_at) AS session_date,
                 main_issue,
                 secondary_issue,
                 weak_subject,
@@ -273,7 +313,8 @@ const createSession = async (req, res) => {
         const mentorId = req.user.id;
         const {
             student_id, date, start_time, end_time,
-            chapter, session_type, status, status_reason, notes
+            chapter, session_type, status, status_reason, notes,
+            faculty_id, faculty_name, session_mode
         } = req.body;
 
         // 1. Conflict Check for Mentor
@@ -307,11 +348,13 @@ const createSession = async (req, res) => {
         const [result] = await db.query(`
             INSERT INTO mentor_timetable (
                 mentor_id, student_id, session_number, date, start_time, end_time,
-                duration, chapter, session_type, status, status_reason, notes
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                duration, chapter, session_type, status, status_reason, notes, 
+                faculty_id, faculty_name, session_mode
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `, [
             mentorId, student_id, session_number, date, start_time, end_time,
-            duration, chapter, session_type, status || 'Scheduled', status_reason, notes
+            duration, chapter, session_type, status || 'Scheduled', status_reason, notes,
+            faculty_id || null, faculty_name || null, session_mode || 'Online'
         ]);
 
         res.status(201).json({ success: true, message: "Session created successfully", id: result.insertId });
@@ -328,7 +371,8 @@ const updateSession = async (req, res) => {
         const sessionId = req.params.id;
         const {
             date, start_time, end_time,
-            chapter, session_type, status, status_reason, notes
+            chapter, session_type, status, status_reason, notes,
+            faculty_id, faculty_name, session_mode
         } = req.body;
 
         // Conflict check excluding current session
@@ -353,13 +397,15 @@ const updateSession = async (req, res) => {
         const duration = `${Math.floor(diffMins / 60)}h ${diffMins % 60}m`;
 
         await db.query(`
-            UPDATE mentor_timetable SET 
-                date = ?, start_time = ?, end_time = ?, duration = ?,
-                chapter = ?, session_type = ?, status = ?, status_reason = ?, notes = ?
+            UPDATE mentor_timetable 
+            SET date = ?, start_time = ?, end_time = ?, duration = ?, chapter = ?, 
+                session_type = ?, status = ?, status_reason = ?, notes = ?,
+                faculty_id = ?, faculty_name = ?, session_mode = ?
             WHERE id = ? AND mentor_id = ?
         `, [
-            date, start_time, end_time, duration,
-            chapter, session_type, status, status_reason, notes,
+            date, start_time, end_time, duration, chapter, 
+            session_type, status, status_reason, notes,
+            faculty_id || null, faculty_name || null, session_mode || 'Online',
             sessionId, mentorId
         ]);
 
@@ -556,7 +602,7 @@ const createBatchTimetable = async (req, res) => {
 
         // 2. Prepare and Insert each session
         for (const session of sessions) {
-            const { date, start_time, end_time, chapter, session_type, notes } = session;
+            const { date, start_time, end_time, chapter, session_type, notes, faculty_id, faculty_name, session_mode } = session;
 
             // Calculate duration
             const start = new Date(`1970-01-01T${start_time}`);
@@ -568,11 +614,13 @@ const createBatchTimetable = async (req, res) => {
             await connection.query(`
                 INSERT INTO mentor_timetable (
                     mentor_id, student_id, session_number, date, start_time, end_time,
-                    duration, chapter, session_type, status, notes
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'Scheduled', ?)
+                    duration, chapter, session_type, status, notes, 
+                    faculty_id, faculty_name, session_mode
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'Scheduled', ?, ?, ?, ?)
             `, [
                 mentorId, student_id, currentSessionNum++, date, start_time, end_time,
-                duration, chapter, session_type || 'Regular Class', notes || ''
+                duration, chapter, session_type || 'Regular Class', notes || '',
+                faculty_id || null, faculty_name || null, session_mode || 'Online'
             ]);
         }
 
