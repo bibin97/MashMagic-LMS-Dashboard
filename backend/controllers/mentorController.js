@@ -143,32 +143,61 @@ const getStudentDetails = async (req, res) => {
         }
 
         const [timetable] = await db.query('SELECT * FROM mentor_timetable WHERE student_id = ? ORDER BY date ASC, start_time ASC', [studentId]);
-        const [studentLogs] = await db.query(`
-            SELECT * FROM (
-                SELECT sil.id, sil.date, sil.mentor_notes as details, 'Quick Log' as type, sil.created_at
-                FROM student_interaction_logs sil 
-                WHERE sil.student_id = ?
-                
-                UNION ALL
-                
-                SELECT msl.id, DATE(msl.created_at) as date, CONCAT(msl.main_issue, ': ', msl.action_type) as details, 'Session Log' as type, msl.created_at
-                FROM mentor_session_logs msl
-                WHERE msl.student_id = ?
+        
+        let studentLogs = [];
+        try {
+            const [logs] = await db.query(`
+                SELECT * FROM (
+                    SELECT sil.id, sil.date, sil.mentor_notes as details, 'Quick Log' as type, sil.created_at
+                    FROM student_interaction_logs sil 
+                    WHERE sil.student_id = ?
+                    
+                    UNION ALL
+                    
+                    SELECT msl.id, DATE(msl.created_at) as date, CONCAT(msl.main_issue, ': ', msl.action_type) as details, 'Session Log' as type, msl.created_at
+                    FROM mentor_session_logs msl
+                    WHERE msl.student_id = ?
 
-                UNION ALL
+                    UNION ALL
 
-                SELECT msr.id, DATE(msr.created_at) as date, JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.notes')) as details, CONCAT('Hub: ', msr.session_type) as type, msr.created_at
-                FROM mentor_session_reports msr
-                WHERE msr.student_id = ?
+                    SELECT msr.id, DATE(msr.created_at) as date, JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.notes')) as details, CONCAT('Hub: ', msr.session_type) as type, msr.created_at
+                    FROM mentor_session_reports msr
+                    WHERE msr.student_id = ?
 
-                UNION ALL
+                    UNION ALL
 
-                SELECT ml.id, DATE(ml.created_at) as date, ml.action_details as details, 'Mentorship' as type, ml.created_at
-                FROM mentorship_logs ml
-                WHERE ml.student_id = ?
-            ) as combined_logs
-            ORDER BY created_at DESC
-        `, [studentId, studentId, studentId, studentId]);
+                    SELECT ml.id, DATE(ml.created_at) as date, ml.action_details as details, 'Mentorship' as type, ml.created_at
+                    FROM mentorship_logs ml
+                    WHERE ml.student_id = ?
+                ) as combined_logs
+                ORDER BY created_at DESC
+            `, [studentId, studentId, studentId, studentId]);
+            studentLogs = logs;
+        } catch (logErr) {
+            console.error("LOG_QUERY_ERROR:", logErr);
+            // If UNION fails, try without mentorship_logs as it might be the culprit
+            const [logs] = await db.query(`
+                SELECT * FROM (
+                    SELECT sil.id, sil.date, sil.mentor_notes as details, 'Quick Log' as type, sil.created_at
+                    FROM student_interaction_logs sil 
+                    WHERE sil.student_id = ?
+                    
+                    UNION ALL
+                    
+                    SELECT l.id, DATE(l.created_at) as date, CONCAT(l.main_issue, ': ', l.action_type) as details, 'Session Log' as type, l.created_at
+                    FROM mentor_session_logs l
+                    WHERE l.student_id = ?
+
+                    UNION ALL
+
+                    SELECT msr.id, DATE(msr.created_at) as date, JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.notes')) as details, CONCAT('Hub: ', msr.session_type) as type, msr.created_at
+                    FROM mentor_session_reports msr
+                    WHERE msr.student_id = ?
+                ) as combined_logs
+                ORDER BY created_at DESC
+            `, [studentId, studentId, studentId]);
+            studentLogs = logs;
+        }
 
         const [mentorshipLogs] = await db.query(`
             SELECT
@@ -202,6 +231,7 @@ const getStudentDetails = async (req, res) => {
             }
         });
     } catch (error) {
+        console.error("GET_STUDENT_DETAILS_ERROR:", error);
         res.status(500).json({ success: false, message: error.message });
     }
 };
