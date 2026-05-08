@@ -513,7 +513,23 @@ const getDailyMentorHeadReport = async (req, res) => {
 // @route   GET /api/admin/notifications
 const getAdminNotifications = async (req, res) => {
     try {
-        const [rows] = await db.query('SELECT * FROM admin_notifications ORDER BY created_at DESC LIMIT 50');
+        const { role } = req.user;
+        let query = 'SELECT * FROM admin_notifications';
+        let params = [];
+
+        if (role === 'mentor_head') {
+            // Mentor Head sees: 
+            // 1. Mentor activities (mentorship_report, fraud_alert)
+            // 2. Admin actions (Student/Staff updates)
+            query += ` WHERE action_type IN ('mentorship_report', 'fraud_alert', 'student_registration', 'mentor_registration')
+                       OR message LIKE '%Student Updated%'
+                       OR message LIKE '%Staff Updated%'
+                       OR message LIKE '%System Action%'`;
+        }
+
+        query += ' ORDER BY created_at DESC LIMIT 100';
+        
+        const [rows] = await db.query(query, params);
         res.status(200).json({ success: true, data: rows });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });

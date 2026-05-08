@@ -209,6 +209,35 @@ const startServer = async () => {
                     interaction_files JSON,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 );`,
+
+                `CREATE TABLE IF NOT EXISTS student_interaction_logs (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    mentor_id INT,
+                    student_id INT,
+                    date DATE,
+                    session_number INT,
+                    connection_method VARCHAR(50),
+                    self_clarity INT,
+                    confusing_topic TEXT,
+                    can_solve_independently VARCHAR(20),
+                    homework_status VARCHAR(50),
+                    homework_difficulty VARCHAR(50),
+                    revision_quality VARCHAR(50),
+                    confidence INT,
+                    motivation_level INT,
+                    exam_anxiety INT,
+                    focus_level INT,
+                    student_requests TEXT,
+                    parent_update_priority VARCHAR(20),
+                    mentor_action_needed TEXT,
+                    mentor_notes TEXT,
+                    connected_today TINYINT(1) DEFAULT 1,
+                    screenshot_url TEXT,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (mentor_id) REFERENCES users(id),
+                    FOREIGN KEY (student_id) REFERENCES students(id)
+                );`,
+
                 'ALTER TABLE mentor_session_logs ADD COLUMN session_duration_minutes INT NULL;',
 
                 `CREATE TABLE IF NOT EXISTS student_daily_updates (
@@ -279,9 +308,45 @@ const startServer = async () => {
                     is_read TINYINT(1) DEFAULT 0,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 );`,
-                'ALTER TABLE admin_notifications ADD COLUMN related_id INT NULL;',
-                'ALTER TABLE faculty_sessions ADD COLUMN duration VARCHAR(50) NULL;',
-                'ALTER TABLE admin_notifications ADD COLUMN action_type VARCHAR(100) NULL;',
+                `CREATE TABLE IF NOT EXISTS mentor_session_reports (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    mentor_id INT,
+                    student_id INT,
+                    session_type ENUM('DEEP', 'MEDIUM', 'QUICK'),
+                    report_data JSON,
+                    is_flagged TINYINT(1) DEFAULT 0,
+                    flag_reason TEXT,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (mentor_id) REFERENCES users(id),
+                    FOREIGN KEY (student_id) REFERENCES students(id)
+                );`,
+
+                `CREATE TABLE IF NOT EXISTS mentorship_logs (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    student_id INT,
+                    mentor_id INT,
+                    action_details TEXT,
+                    focus_rating INT,
+                    homework_status VARCHAR(50),
+                    priority VARCHAR(20),
+                    main_issue TEXT,
+                    consistency_rating INT,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (student_id) REFERENCES students(id),
+                    FOREIGN KEY (mentor_id) REFERENCES users(id)
+                );`,
+
+                `CREATE TABLE IF NOT EXISTS faculty_interaction_logs (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    faculty_id INT,
+                    student_id INT,
+                    mentor_id INT,
+                    date DATE,
+                    notes TEXT,
+                    session_number INT,
+                    parent_update_needed TINYINT(1) DEFAULT 0,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                );`,
 
                 `CREATE TABLE IF NOT EXISTS faculty_schedules (
                     id INT AUTO_INCREMENT PRIMARY KEY,
