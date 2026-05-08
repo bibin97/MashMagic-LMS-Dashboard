@@ -165,6 +165,8 @@ const startServer = async () => {
                 'ALTER TABLE students ADD COLUMN mentor_name VARCHAR(100) NULL;',
                 'ALTER TABLE students ADD COLUMN roll_number VARCHAR(50) NULL;',
                 'ALTER TABLE students ADD COLUMN registration_number VARCHAR(100) NULL;',
+                'ALTER TABLE students ADD COLUMN performance_status ENUM("Excellent", "Good", "Average", "Critical") DEFAULT "Good";',
+                'ALTER TABLE students ADD COLUMN course_completed TINYINT(1) DEFAULT 0;',
 
                 `CREATE TABLE IF NOT EXISTS daily_assignments (
                     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -371,6 +373,16 @@ const startServer = async () => {
                     total DECIMAL(5,2),
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     FOREIGN KEY (student_id) REFERENCES students(id)
+                );`,
+
+                `CREATE TABLE IF NOT EXISTS student_reports (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    student_id INT NOT NULL,
+                    faculty_id INT NOT NULL,
+                    report_text TEXT,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (student_id) REFERENCES students(id),
+                    FOREIGN KEY (faculty_id) REFERENCES users(id)
                 );`,
 
                 // Performance Indexes
