@@ -353,7 +353,7 @@ const getAllStudentLogs = async (req, res) => {
                 'Interaction Hub' as source,
                 r.id, r.mentor_id, r.student_id, r.created_at,
                 m.name as mentor_name, s.name as student_name,
-                JSON_UNQUOTE(JSON_EXTRACT(r.report_data, '$.session_type')) as session_number,
+                r.session_type as session_number,
                 COALESCE(
                     JSON_UNQUOTE(JSON_EXTRACT(r.report_data, '$.notes')), 
                     JSON_UNQUOTE(JSON_EXTRACT(r.report_data, '$.action_plan')),

@@ -249,8 +249,6 @@ const Mentors = () => {
   loading={loading}
   onSearch={handleSearch}
   onExport={handleExport}
-  onApprove={isSuperAdmin ? handleApprove : undefined}
-  onBlock={isSuperAdmin ? handleBlock : undefined}
   searchPlaceholder="Filter mentors by name or email..."
   />
 
