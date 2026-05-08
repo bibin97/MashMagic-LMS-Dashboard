@@ -1,14 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Search, RefreshCw, Bell, ChevronDown, CheckCircle, LogOut, Settings, User, Menu, Check, X, CheckCheck, ShieldCheck, Activity, Moon, Sun } from 'lucide-react';
+import { Search, RefreshCw, Bell, ChevronDown, CheckCircle, LogOut, Settings, User, Menu, Check, X, CheckCheck, ShieldCheck, Activity } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { useTheme } from '../context/ThemeContext';
 import axios from 'axios';
 import { toast } from 'react-hot-toast';
 
 const Navbar = ({ onMenuClick }) => {
   const { user, logout } = useAuth();
-  const { isDarkMode, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const adminName = user?.name || "Super Admin";
 
@@ -57,14 +55,6 @@ const Navbar = ({ onMenuClick }) => {
     window.refetchNotifications = fetchNotifications;
     return () => { delete window.refetchNotifications; };
   }, []);
-
-  // Removed problematic auto-refresh logic that was causing disruption
-  // useEffect(() => {
-  //   const interval = setInterval(() => {
-  //     window.location.reload();
-  //   }, 300000); // 5 minutes
-  //   return () => clearInterval(interval);
-  // }, []);
 
   const fetchNotifications = async () => {
     try {
@@ -244,14 +234,6 @@ const Navbar = ({ onMenuClick }) => {
 
             {/* Action Icons */}
             <div className="flex items-center gap-1">
-              <button 
-                onClick={toggleTheme}
-                className="p-2 text-slate-500 hover:text-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-[14px] transition-all duration-200 hover:scale-105 active:scale-95"
-                title={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
-              >
-                {isDarkMode ? <Sun className="w-4.5 h-4.5" /> : <Moon className="w-4.5 h-4.5" />}
-              </button>
-
               <button 
                 onClick={() => window.location.reload()}
                 className="p-2 text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-[14px] transition-all duration-200 hover:scale-105 active:scale-95"
