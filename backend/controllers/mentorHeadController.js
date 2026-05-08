@@ -271,10 +271,10 @@ exports.getAllActivities = async (req, res) => {
                     CAST(sil.id AS CHAR) as log_id,
                     COALESCE(sil.created_at, sil.date) as date,
                     sil.mentor_notes,
-                    s.name as student_name,
-                    m.name as mentor_name,
-                    CAST(m.id AS CHAR) as mentor_id,
-                    m.place as mentor_place,
+                    COALESCE(s.name, 'Unknown Student') as student_name,
+                    COALESCE(m.name, 'Unknown Mentor') as mentor_name,
+                    CAST(sil.mentor_id AS CHAR) as mentor_id,
+                    COALESCE(m.place, 'N/A') as mentor_place,
                     'Quick Log' as type,
                     'Quick Log' as source,
                     CAST(sil.self_clarity AS CHAR) as understanding_level,
@@ -282,8 +282,8 @@ exports.getAllActivities = async (req, res) => {
                     CAST(sil.exam_anxiety AS CHAR) as stress_level,
                     sil.created_at
                 FROM student_interaction_logs sil
-                JOIN students s ON s.id = sil.student_id
-                JOIN users m ON m.id = sil.mentor_id)
+                LEFT JOIN students s ON s.id = sil.student_id
+                LEFT JOIN users m ON m.id = sil.mentor_id)
                 
                 UNION ALL
                 
@@ -291,10 +291,10 @@ exports.getAllActivities = async (req, res) => {
                     CAST(msl.id AS CHAR) as log_id,
                     msl.created_at as date,
                     CONCAT(msl.main_issue, ': ', msl.action_type) as mentor_notes,
-                    s.name as student_name,
-                    m.name as mentor_name,
-                    CAST(m.id AS CHAR) as mentor_id,
-                    m.place as mentor_place,
+                    COALESCE(s.name, 'Unknown Student') as student_name,
+                    COALESCE(m.name, 'Unknown Mentor') as mentor_name,
+                    CAST(msl.mentor_id AS CHAR) as mentor_id,
+                    COALESCE(m.place, 'N/A') as mentor_place,
                     'Session Log' as type,
                     'Session Log' as source,
                     CAST(msl.understanding_after_session AS CHAR) as understanding_level,
@@ -302,8 +302,8 @@ exports.getAllActivities = async (req, res) => {
                     CAST(msl.stress_level AS CHAR) as stress_level,
                     msl.created_at
                 FROM mentor_session_logs msl
-                JOIN students s ON s.id = msl.student_id
-                JOIN users m ON m.id = msl.mentor_id)
+                LEFT JOIN students s ON s.id = msl.student_id
+                LEFT JOIN users m ON m.id = msl.mentor_id)
 
                 UNION ALL
 
@@ -311,10 +311,10 @@ exports.getAllActivities = async (req, res) => {
                     CAST(msr.id AS CHAR) as log_id,
                     msr.created_at as date,
                     JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.notes')) as mentor_notes,
-                    s.name as student_name,
-                    m.name as mentor_name,
-                    CAST(m.id AS CHAR) as mentor_id,
-                    m.place as mentor_place,
+                    COALESCE(s.name, 'Unknown Student') as student_name,
+                    COALESCE(m.name, 'Unknown Mentor') as mentor_name,
+                    CAST(msr.mentor_id AS CHAR) as mentor_id,
+                    COALESCE(m.place, 'N/A') as mentor_place,
                     CONCAT('Hub: ', msr.session_type) as type,
                     'Interaction Hub' as source,
                     CAST(JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.understanding_level')) AS CHAR) as understanding_level,
@@ -322,8 +322,8 @@ exports.getAllActivities = async (req, res) => {
                     NULL as stress_level,
                     msr.created_at
                 FROM mentor_session_reports msr
-                JOIN students s ON s.id = msr.student_id
-                JOIN users m ON m.id = msr.mentor_id)
+                LEFT JOIN students s ON s.id = msr.student_id
+                LEFT JOIN users m ON m.id = msr.mentor_id)
 
                 UNION ALL
 
@@ -331,10 +331,10 @@ exports.getAllActivities = async (req, res) => {
                     CAST(ml.id AS CHAR) as log_id,
                     ml.created_at as date,
                     ml.action_details as mentor_notes,
-                    s.name as student_name,
-                    m.name as mentor_name,
-                    CAST(m.id AS CHAR) as mentor_id,
-                    m.place as mentor_place,
+                    COALESCE(s.name, 'Unknown Student') as student_name,
+                    COALESCE(m.name, 'Unknown Mentor') as mentor_name,
+                    CAST(ml.mentor_id AS CHAR) as mentor_id,
+                    COALESCE(m.place, 'N/A') as mentor_place,
                     'Mentorship' as type,
                     'Mentorship' as source,
                     NULL as understanding_level,
@@ -342,8 +342,8 @@ exports.getAllActivities = async (req, res) => {
                     NULL as stress_level,
                     ml.created_at
                 FROM mentorship_logs ml
-                JOIN students s ON s.id = ml.student_id
-                JOIN users m ON m.id = ml.mentor_id)
+                LEFT JOIN students s ON s.id = ml.student_id
+                LEFT JOIN users m ON m.id = ml.mentor_id)
 
                 UNION ALL
                 
@@ -351,10 +351,10 @@ exports.getAllActivities = async (req, res) => {
                     CAST(mfi.id AS CHAR) as log_id,
                     mfi.created_at as date,
                     mfi.main_issue as mentor_notes,
-                    s.name as student_name,
-                    m.name as mentor_name,
-                    CAST(m.id AS CHAR) as mentor_id,
-                    m.place as mentor_place,
+                    COALESCE(s.name, 'Unknown Student') as student_name,
+                    COALESCE(m.name, 'Unknown Mentor') as mentor_name,
+                    CAST(mfi.mentor_id AS CHAR) as mentor_id,
+                    COALESCE(m.place, 'N/A') as mentor_place,
                     'Faculty Call' as type,
                     'Faculty Interaction' as source,
                     NULL as understanding_level,
@@ -362,8 +362,8 @@ exports.getAllActivities = async (req, res) => {
                     NULL as stress_level,
                     mfi.created_at
                 FROM mentor_faculty_interactions mfi
-                JOIN students s ON s.id = mfi.student_id
-                JOIN users m ON m.id = mfi.mentor_id)
+                LEFT JOIN students s ON s.id = mfi.student_id
+                LEFT JOIN users m ON m.id = mfi.mentor_id)
                 
                 UNION ALL
                 
@@ -371,10 +371,10 @@ exports.getAllActivities = async (req, res) => {
                     CAST(fil.id AS CHAR) as log_id,
                     COALESCE(fil.created_at, fil.date) as date,
                     fil.notes as mentor_notes,
-                    s.name as student_name,
-                    m.name as mentor_name,
-                    CAST(m.id AS CHAR) as mentor_id,
-                    m.place as mentor_place,
+                    COALESCE(s.name, 'Unknown Student') as student_name,
+                    COALESCE(m.name, 'Unknown Mentor') as mentor_name,
+                    CAST(fil.mentor_id AS CHAR) as mentor_id,
+                    COALESCE(m.place, 'N/A') as mentor_place,
                     'Faculty Tracking' as type,
                     'Faculty Tracking' as source,
                     NULL as understanding_level,
@@ -382,8 +382,8 @@ exports.getAllActivities = async (req, res) => {
                     NULL as stress_level,
                     fil.created_at
                 FROM faculty_interaction_logs fil
-                JOIN students s ON s.id = fil.student_id
-                JOIN users m ON m.id = fil.mentor_id)
+                LEFT JOIN students s ON s.id = fil.student_id
+                LEFT JOIN users m ON m.id = fil.mentor_id)
             ) as activities
             WHERE 1=1
         `;
@@ -882,26 +882,6 @@ exports.getMentors = async (req, res) => {
 
 // @desc    Toggle Course Completed status for a student
 // @route   PUT /api/mentor-head/students/:studentId/course-complete
-// @desc    Get Daily Summary (Mentors and Students)
-// @route   GET /api/mentor-head/daily-summary
-exports.getDailySummary = async (req, res) => {
-    try {
-        const [mentors] = await db.query("SELECT id, name, role FROM users WHERE role = 'mentor' AND status = 'active'");
-        const [students] = await db.query("SELECT id, name, mentor_id FROM students WHERE status = 'active'");
-
-        res.status(200).json({
-            success: true,
-            data: {
-                mentors,
-                students
-            }
-        });
-    } catch (error) {
-        console.error('Error in getDailySummary:', error);
-        res.status(500).json({ success: false, message: error.message });
-    }
-};
-
 exports.toggleCourseCompleted = async (req, res) => {
     try {
         const { studentId } = req.params;
@@ -924,33 +904,48 @@ exports.toggleCourseCompleted = async (req, res) => {
 // @route   GET /api/mentor-head/dashboard
 exports.getMentorHeadDashboard = async (req, res) => {
     try {
-        const [mentors] = await db.query("SELECT COUNT(*) as count FROM users WHERE role = 'mentor' AND status = 'active'");
-        const [interactions] = await db.query("SELECT COUNT(*) as count FROM student_interaction_logs WHERE DATE(created_at) = CURDATE()");
-        const [criticalStudents] = await db.query("SELECT COUNT(*) as count FROM students WHERE performance_status = 'Critical' AND status = 'active'");
-        const [pendingApprovals] = await db.query("SELECT COUNT(*) as count FROM users WHERE status = 'pending'");
-
-        // Today's activities snippet
-        const [todayActivities] = await db.query(`
-            SELECT s.name as student_name, m.name as mentor_name, logs.created_at, logs.mentor_notes
-            FROM student_interaction_logs logs
-            JOIN students s ON s.id = logs.student_id
-            JOIN users m ON m.id = logs.mentor_id
-            WHERE DATE(logs.created_at) = CURDATE()
-            ORDER BY logs.created_at DESC LIMIT 5
+        // Frontend expects an array of mentors to calculate stats
+        const [mentors] = await db.query(`
+            SELECT 
+                u.id, 
+                u.name, 
+                u.status,
+                (SELECT COUNT(*) FROM student_interaction_logs WHERE mentor_id = u.id) as completed_count
+            FROM users u 
+            WHERE u.role = 'mentor' AND u.status = 'active'
         `);
 
         res.status(200).json({
             success: true,
-            data: {
-                totalMentors: mentors[0].count,
-                totalInteractions: interactions[0].count,
-                criticalStudents: criticalStudents[0].count,
-                pendingApprovals: pendingApprovals[0].count,
-                recentActivities: todayActivities
-            }
+            data: mentors
         });
     } catch (error) {
         console.error('Error in getMentorHeadDashboard:', error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+// @desc    Get Daily Summary (Mentors and Students)
+// @route   GET /api/mentor-head/daily-summary
+exports.getDailySummary = async (req, res) => {
+    try {
+        const [totalRes] = await db.query("SELECT COUNT(*) as count FROM students WHERE status = 'active'");
+        const [checkedRes] = await db.query("SELECT COUNT(DISTINCT student_id) as count FROM student_interaction_logs WHERE DATE(created_at) = CURDATE()");
+        
+        const totalStudents = totalRes[0].count;
+        const checkedToday = checkedRes[0].count;
+        const remaining = totalStudents - checkedToday;
+
+        res.status(200).json({
+            success: true,
+            data: {
+                totalStudents,
+                checkedToday,
+                remaining: remaining > 0 ? remaining : 0
+            }
+        });
+    } catch (error) {
+        console.error('Error in getDailySummary:', error);
         res.status(500).json({ success: false, message: error.message });
     }
 };
@@ -960,7 +955,13 @@ exports.getMentorHeadDashboard = async (req, res) => {
 exports.getExamAnalytics = async (req, res) => {
     try {
         const [rows] = await db.query(`
-            SELECT subject, AVG(marks) as avg_marks, MAX(marks) as max_marks, COUNT(*) as total_students
+            SELECT 
+                subject, 
+                AVG(marks) as avg_marks, 
+                AVG(total) as avg_total,
+                (AVG(marks) / AVG(total) * 100) as percentage,
+                MAX(marks) as max_marks, 
+                COUNT(*) as total_students
             FROM student_marks
             GROUP BY subject
         `);
