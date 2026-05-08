@@ -279,7 +279,7 @@ exports.getAllActivities = async (req, res) => {
                     'Quick Log' as source,
                     CAST(sil.self_clarity AS CHAR) as understanding_level,
                     CAST(sil.confidence AS CHAR) as student_confidence,
-                    CAST(sil.focus_level AS CHAR) as stress_level,
+                    CAST(sil.exam_anxiety AS CHAR) as stress_level,
                     sil.created_at
                 FROM student_interaction_logs sil
                 JOIN students s ON s.id = sil.student_id

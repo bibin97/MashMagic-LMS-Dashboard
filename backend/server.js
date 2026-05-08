@@ -361,6 +361,18 @@ const startServer = async () => {
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 );`,
 
+                `CREATE TABLE IF NOT EXISTS student_marks (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    student_id INT NOT NULL,
+                    faculty_id INT,
+                    subject VARCHAR(100),
+                    term VARCHAR(50),
+                    marks DECIMAL(5,2),
+                    total DECIMAL(5,2),
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (student_id) REFERENCES students(id)
+                );`,
+
                 // Performance Indexes
                 'CREATE INDEX IF NOT EXISTS idx_users_role_status ON users(role, status);',
                 'CREATE INDEX IF NOT EXISTS idx_students_user_id ON students(user_id);',
