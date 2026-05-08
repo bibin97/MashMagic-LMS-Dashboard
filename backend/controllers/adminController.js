@@ -342,16 +342,80 @@ async function cleanupStudentDependencies(studentId) {
 // @route   GET /api/admin/student-logs
 const getAllStudentLogs = async (req, res) => {
     try {
-        // Build query with filters if needed, but for now just get all
+        // We use UNION ALL to combine logs from multiple tables:
+        // 1. student_interaction_logs (Legacy/Quick Connect)
+        // 2. mentor_session_logs (Detailed Session Log)
+        // 3. mentor_session_reports (Interaction Hub Reports)
+        // 4. mentorship_logs (General Mentorship)
+        
         const [rows] = await db.query(`
-            SELECT logs.*, m.name as mentor_name, s.name as student_name
+            SELECT 
+                'Interaction Hub' as source,
+                r.id, r.mentor_id, r.student_id, r.created_at,
+                m.name as mentor_name, s.name as student_name,
+                r.session_type as session_number,
+                JSON_UNQUOTE(JSON_EXTRACT(r.report_data, '$.notes')) as mentor_notes,
+                JSON_UNQUOTE(JSON_EXTRACT(r.report_data, '$.understanding_level')) as understanding_level,
+                JSON_UNQUOTE(JSON_EXTRACT(r.report_data, '$.confidence')) as student_confidence,
+                NULL as stress_level,
+                NULL as screenshot_url
+            FROM mentor_session_reports r
+            LEFT JOIN users m ON r.mentor_id = m.id
+            JOIN students s ON r.student_id = s.id
+
+            UNION ALL
+
+            SELECT 
+                'Session Log' as source,
+                l.id, l.mentor_id, l.student_id, l.created_at,
+                m.name as mentor_name, s.name as student_name,
+                'S-Log' as session_number,
+                CONCAT(l.main_issue, ': ', l.action_type) as mentor_notes,
+                l.understanding_after_session as understanding_level,
+                l.session_quality_rating as student_confidence,
+                l.stress_level as stress_level,
+                NULL as screenshot_url
+            FROM mentor_session_logs l
+            LEFT JOIN users m ON l.mentor_id = m.id
+            JOIN students s ON l.student_id = s.id
+
+            UNION ALL
+
+            SELECT 
+                'Quick Log' as source,
+                logs.id, logs.mentor_id, logs.student_id, logs.created_at,
+                m.name as mentor_name, s.name as student_name,
+                logs.session_number,
+                logs.mentor_notes,
+                logs.self_clarity as understanding_level,
+                logs.confidence as student_confidence,
+                logs.exam_anxiety as stress_level,
+                logs.screenshot_url
             FROM student_interaction_logs logs
             LEFT JOIN users m ON logs.mentor_id = m.id
             JOIN students s ON logs.student_id = s.id
-            ORDER BY logs.created_at DESC
+
+            UNION ALL
+
+            SELECT 
+                'Mentorship' as source,
+                ml.id, ml.mentor_id, ml.student_id, ml.created_at,
+                m.name as mentor_name, s.name as student_name,
+                'M-Log' as session_number,
+                ml.action_details as mentor_notes,
+                NULL as understanding_level,
+                NULL as student_confidence,
+                NULL as stress_level,
+                NULL as screenshot_url
+            FROM mentorship_logs ml
+            LEFT JOIN users m ON ml.mentor_id = m.id
+            JOIN students s ON ml.student_id = s.id
+
+            ORDER BY created_at DESC
         `);
         res.status(200).json({ success: true, data: rows });
     } catch (error) {
+        console.error("GET_ALL_STUDENT_LOGS_ERROR:", error);
         res.status(500).json({ success: false, message: error.message });
     }
 };
@@ -361,14 +425,32 @@ const getAllStudentLogs = async (req, res) => {
 const getAllFacultyLogs = async (req, res) => {
     try {
         const [rows] = await db.query(`
-            SELECT logs.*, m.name as mentor_name, s.name as student_name
-            FROM faculty_interaction_logs logs
+            SELECT 
+                logs.id, logs.mentor_id, logs.student_id, logs.created_at,
+                m.name as mentor_name, s.name as student_name,
+                logs.subject, logs.faculty_name, logs.main_issue as notes,
+                logs.interaction_quality_rating as student_performance,
+                logs.connection_method, logs.action_plan
+            FROM mentor_faculty_interactions logs
             LEFT JOIN users m ON logs.mentor_id = m.id
             JOIN students s ON logs.student_id = s.id
-            ORDER BY logs.created_at DESC
+            
+            UNION ALL
+
+            SELECT 
+                l.id, l.mentor_id, l.student_id, l.created_at,
+                m.name as mentor_name, s.name as student_name,
+                NULL as subject, NULL as faculty_name, l.notes,
+                NULL as student_performance, NULL as connection_method, NULL as action_plan
+            FROM faculty_interaction_logs l
+            LEFT JOIN users m ON l.mentor_id = m.id
+            JOIN students s ON l.student_id = s.id
+            
+            ORDER BY created_at DESC
         `);
         res.status(200).json({ success: true, data: rows });
     } catch (error) {
+        console.error("GET_ALL_FACULTY_LOGS_ERROR:", error);
         res.status(500).json({ success: false, message: error.message });
     }
 };

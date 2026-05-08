@@ -157,6 +157,18 @@ const submitSessionReport = async (req, res) => {
             [newPriority, session_type, today, student_id]
         );
 
+        // Notify Admin of new session report
+        try {
+            const [[student]] = await db.query('SELECT name FROM students WHERE id = ?', [student_id]);
+            await db.query('INSERT INTO admin_notifications (message, related_id, action_type) VALUES (?, ?, ?)', [
+                `<b>Interaction Hub:</b> Mentor <b>${req.user.name}</b> completed a <b>${session_type}</b> session with <b>${student?.name || student_id}</b>.`,
+                student_id,
+                'mentor_session_report'
+            ]);
+        } catch (nErr) {
+            console.error("Notification Error:", nErr.message);
+        }
+
         res.status(200).json({ success: true, message: 'Report submitted and student state updated' });
     } catch (error) {
         console.error('Submit Session Report Error:', error);

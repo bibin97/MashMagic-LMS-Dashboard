@@ -213,6 +213,18 @@ const createInteraction = async (req, res) => {
 
         await db.query(query, values);
 
+        // Notify Admin of new mentor-faculty interaction
+        try {
+            const [[student]] = await db.query('SELECT name FROM students WHERE id = ?', [student_id]);
+            await db.query('INSERT INTO admin_notifications (message, related_id, action_type) VALUES (?, ?, ?)', [
+                `<b>Faculty Tracking:</b> Mentor <b>${req.user.name}</b> logged an interaction with Faculty <b>${faculty_name}</b> regarding <b>${student?.name || student_id}</b>.`,
+                student_id,
+                'mentor_faculty_interaction'
+            ]);
+        } catch (nErr) {
+            console.error("Notification Error:", nErr.message);
+        }
+
         res.status(201).json({ success: true, message: "Interaction log submitted successfully" });
     } catch (error) {
         console.error("Create Interaction Error:", error);

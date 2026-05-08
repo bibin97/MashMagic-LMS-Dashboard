@@ -767,6 +767,18 @@ const createMentorshipLog = async (req, res) => {
             action_type, action_details, follow_up_required ? 1 : 0, follow_up_date || null,
             priority, student_status
         ]);
+        
+        // Notify Admin of new mentorship log
+        try {
+            const [[student]] = await db.query('SELECT name FROM students WHERE id = ?', [student_id]);
+            await db.query('INSERT INTO admin_notifications (message, related_id, action_type) VALUES (?, ?, ?)', [
+                `<b>Mentorship Log:</b> Mentor <b>${req.user.name}</b> submitted a mentorship report for <b>${student?.name || student_id}</b>.`,
+                student_id,
+                'mentorship_log'
+            ]);
+        } catch (nErr) {
+            console.error("Notification Error:", nErr.message);
+        }
 
         res.status(201).json({ success: true, message: "Mentorship session logged successfully" });
     } catch (error) {

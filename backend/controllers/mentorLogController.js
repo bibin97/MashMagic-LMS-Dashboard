@@ -109,6 +109,18 @@ const createLog = async (req, res) => {
 
         await db.query(query, values);
 
+        // Notify Admin of new session log
+        try {
+            const [[student]] = await db.query('SELECT name FROM students WHERE id = ?', [student_id]);
+            await db.query('INSERT INTO admin_notifications (message, related_id, action_type) VALUES (?, ?, ?)', [
+                `<b>New Session Log:</b> Mentor <b>${req.user.name}</b> submitted a session report for <b>${student?.name || student_id}</b>.`,
+                student_id,
+                'mentor_session_log'
+            ]);
+        } catch (nErr) {
+            console.error("Notification Error:", nErr.message);
+        }
+
         res.status(201).json({ success: true, message: "Interaction log submitted successfully" });
     } catch (error) {
         console.error("Create Log Error:", error);
