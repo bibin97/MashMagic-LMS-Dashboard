@@ -268,18 +268,18 @@ exports.getAllActivities = async (req, res) => {
         let query = `
             SELECT * FROM (
                 (SELECT 
-                    sil.id as log_id,
+                    CAST(sil.id AS CHAR) as log_id,
                     COALESCE(sil.created_at, sil.date) as date,
                     sil.mentor_notes,
                     s.name as student_name,
                     m.name as mentor_name,
-                    m.id as mentor_id,
+                    CAST(m.id AS CHAR) as mentor_id,
                     m.place as mentor_place,
                     'Quick Log' as type,
                     'Quick Log' as source,
                     CAST(sil.self_clarity AS CHAR) as understanding_level,
                     CAST(sil.confidence AS CHAR) as student_confidence,
-                    CAST(sil.exam_anxiety AS CHAR) as stress_level,
+                    CAST(sil.focus_level AS CHAR) as stress_level,
                     sil.created_at
                 FROM student_interaction_logs sil
                 JOIN students s ON s.id = sil.student_id
@@ -288,12 +288,12 @@ exports.getAllActivities = async (req, res) => {
                 UNION ALL
                 
                 (SELECT 
-                    msl.id as log_id,
+                    CAST(msl.id AS CHAR) as log_id,
                     msl.created_at as date,
                     CONCAT(msl.main_issue, ': ', msl.action_type) as mentor_notes,
                     s.name as student_name,
                     m.name as mentor_name,
-                    m.id as mentor_id,
+                    CAST(m.id AS CHAR) as mentor_id,
                     m.place as mentor_place,
                     'Session Log' as type,
                     'Session Log' as source,
@@ -308,12 +308,12 @@ exports.getAllActivities = async (req, res) => {
                 UNION ALL
 
                 (SELECT 
-                    msr.id as log_id,
+                    CAST(msr.id AS CHAR) as log_id,
                     msr.created_at as date,
                     JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.notes')) as mentor_notes,
                     s.name as student_name,
                     m.name as mentor_name,
-                    m.id as mentor_id,
+                    CAST(m.id AS CHAR) as mentor_id,
                     m.place as mentor_place,
                     CONCAT('Hub: ', msr.session_type) as type,
                     'Interaction Hub' as source,
@@ -328,12 +328,12 @@ exports.getAllActivities = async (req, res) => {
                 UNION ALL
 
                 (SELECT 
-                    ml.id as log_id,
+                    CAST(ml.id AS CHAR) as log_id,
                     ml.created_at as date,
                     ml.action_details as mentor_notes,
                     s.name as student_name,
                     m.name as mentor_name,
-                    m.id as mentor_id,
+                    CAST(m.id AS CHAR) as mentor_id,
                     m.place as mentor_place,
                     'Mentorship' as type,
                     'Mentorship' as source,
@@ -348,12 +348,12 @@ exports.getAllActivities = async (req, res) => {
                 UNION ALL
                 
                 (SELECT 
-                    mfi.id as log_id,
+                    CAST(mfi.id AS CHAR) as log_id,
                     mfi.created_at as date,
                     mfi.main_issue as mentor_notes,
                     s.name as student_name,
                     m.name as mentor_name,
-                    m.id as mentor_id,
+                    CAST(m.id AS CHAR) as mentor_id,
                     m.place as mentor_place,
                     'Faculty Call' as type,
                     'Faculty Interaction' as source,
@@ -368,12 +368,12 @@ exports.getAllActivities = async (req, res) => {
                 UNION ALL
                 
                 (SELECT 
-                    fil.id as log_id,
+                    CAST(fil.id AS CHAR) as log_id,
                     COALESCE(fil.created_at, fil.date) as date,
                     fil.notes as mentor_notes,
                     s.name as student_name,
                     m.name as mentor_name,
-                    m.id as mentor_id,
+                    CAST(m.id AS CHAR) as mentor_id,
                     m.place as mentor_place,
                     'Faculty Tracking' as type,
                     'Faculty Tracking' as source,

@@ -155,9 +155,16 @@ const startServer = async () => {
                 'ALTER TABLE students ADD COLUMN country VARCHAR(100) NULL;',
                 'ALTER TABLE students ADD COLUMN total_fees DECIMAL(10,2) DEFAULT 0.00;',
                 'ALTER TABLE students ADD COLUMN total_paid DECIMAL(10,2) DEFAULT 0.00;',
+                'ALTER TABLE users ADD COLUMN place VARCHAR(255) NULL;',
+                'ALTER TABLE users ADD COLUMN registeredBy INT NULL;',
+                'ALTER TABLE users ADD COLUMN profile_pic TEXT NULL;',
+                
                 'ALTER TABLE students ADD COLUMN priority_category ENUM("High", "Medium", "Stable") DEFAULT "Stable";',
                 'ALTER TABLE students ADD COLUMN last_session_type ENUM("DEEP", "MEDIUM", "QUICK") NULL;',
                 'ALTER TABLE students ADD COLUMN last_session_date DATE NULL;',
+                'ALTER TABLE students ADD COLUMN mentor_name VARCHAR(100) NULL;',
+                'ALTER TABLE students ADD COLUMN roll_number VARCHAR(50) NULL;',
+                'ALTER TABLE students ADD COLUMN registration_number VARCHAR(100) NULL;',
 
                 `CREATE TABLE IF NOT EXISTS daily_assignments (
                     id INT AUTO_INCREMENT PRIMARY KEY,
