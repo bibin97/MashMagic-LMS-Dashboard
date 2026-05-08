@@ -272,7 +272,14 @@ exports.getAllActivities = async (req, res) => {
                 (SELECT 
                     CAST(msr.id AS CHAR) as log_id,
                     msr.created_at as date,
-                    CONVERT(JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.notes')) USING utf8mb4) as mentor_notes,
+                    CONVERT(COALESCE(
+                        JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.notes')), 
+                        JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.action_plan')),
+                        JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.next_task')),
+                        JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.study_status')),
+                        JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.main_problem')),
+                        msr.session_type
+                    ) USING utf8mb4) as mentor_notes,
                     CONVERT(COALESCE(s.name, 'Unknown Student') USING utf8mb4) as student_name,
                     CONVERT(COALESCE(m.name, 'Unknown Mentor') USING utf8mb4) as mentor_name,
                     CAST(msr.mentor_id AS CHAR) as mentor_id,

@@ -353,8 +353,15 @@ const getAllStudentLogs = async (req, res) => {
                 'Interaction Hub' as source,
                 r.id, r.mentor_id, r.student_id, r.created_at,
                 m.name as mentor_name, s.name as student_name,
-                r.session_type as session_number,
-                JSON_UNQUOTE(JSON_EXTRACT(r.report_data, '$.notes')) as mentor_notes,
+                JSON_UNQUOTE(JSON_EXTRACT(r.report_data, '$.session_type')) as session_number,
+                COALESCE(
+                    JSON_UNQUOTE(JSON_EXTRACT(r.report_data, '$.notes')), 
+                    JSON_UNQUOTE(JSON_EXTRACT(r.report_data, '$.action_plan')),
+                    JSON_UNQUOTE(JSON_EXTRACT(r.report_data, '$.next_task')),
+                    JSON_UNQUOTE(JSON_EXTRACT(r.report_data, '$.study_status')),
+                    JSON_UNQUOTE(JSON_EXTRACT(r.report_data, '$.main_problem')),
+                    r.session_type
+                ) as mentor_notes,
                 JSON_UNQUOTE(JSON_EXTRACT(r.report_data, '$.understanding_level')) as understanding_level,
                 JSON_UNQUOTE(JSON_EXTRACT(r.report_data, '$.confidence')) as student_confidence,
                 NULL as stress_level,

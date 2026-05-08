@@ -71,7 +71,16 @@ const getDashboardStats = async (req, res) => {
              JOIN students s ON msl.student_id = s.id
              JOIN users u ON msl.mentor_id = u.id)
             UNION ALL
-            (SELECT 'Hub Report' as type, JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.notes')) as mentor_notes, s.name as student_name, u.name as origin_name, msr.created_at as date
+            (SELECT 'Hub Report' as type, 
+                     COALESCE(
+                         JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.notes')), 
+                         JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.action_plan')),
+                         JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.next_task')),
+                         JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.study_status')),
+                         JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.main_problem')),
+                         msr.session_type
+                     ) as mentor_notes, 
+                     s.name as student_name, u.name as origin_name, msr.created_at as date
              FROM mentor_session_reports msr
              JOIN students s ON msr.student_id = s.id
              JOIN users u ON msr.mentor_id = u.id)
