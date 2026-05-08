@@ -385,6 +385,51 @@ const startServer = async () => {
                     FOREIGN KEY (faculty_id) REFERENCES users(id)
                 );`,
 
+                `CREATE TABLE IF NOT EXISTS mentor_session_logs (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    student_id INT NOT NULL,
+                    mentor_id INT NOT NULL,
+                    main_issue VARCHAR(255),
+                    action_type VARCHAR(100),
+                    understanding_after_session INT,
+                    session_quality_rating INT,
+                    stress_level INT,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (student_id) REFERENCES students(id),
+                    FOREIGN KEY (mentor_id) REFERENCES users(id)
+                );`,
+
+                `CREATE TABLE IF NOT EXISTS mentorship_logs (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    student_id INT NOT NULL,
+                    mentor_id INT NOT NULL,
+                    action_details TEXT,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (student_id) REFERENCES students(id),
+                    FOREIGN KEY (mentor_id) REFERENCES users(id)
+                );`,
+
+                `CREATE TABLE IF NOT EXISTS mentor_faculty_interactions (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    student_id INT NOT NULL,
+                    mentor_id INT NOT NULL,
+                    main_issue TEXT,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (student_id) REFERENCES students(id),
+                    FOREIGN KEY (mentor_id) REFERENCES users(id)
+                );`,
+
+                `CREATE TABLE IF NOT EXISTS faculty_interaction_logs (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    student_id INT NOT NULL,
+                    mentor_id INT NOT NULL,
+                    notes TEXT,
+                    date DATE,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (student_id) REFERENCES students(id),
+                    FOREIGN KEY (mentor_id) REFERENCES users(id)
+                );`,
+
                 // Performance Indexes
                 'CREATE INDEX IF NOT EXISTS idx_users_role_status ON users(role, status);',
                 'CREATE INDEX IF NOT EXISTS idx_students_user_id ON students(user_id);',
