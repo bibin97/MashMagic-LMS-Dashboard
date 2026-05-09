@@ -968,11 +968,44 @@ const getStudentAcademicSchedule = async (req, res) => {
     }
 };
 
+// @desc    Update student's academic schedule
+// @route   POST /api/mentor/students/:id/schedule
+const updateStudentAcademicSchedule = async (req, res) => {
+    const connection = await db.getConnection();
+    try {
+        await connection.beginTransaction();
+        const studentId = req.params.id;
+        const { schedules } = req.body; // Array of {day_of_week, start_time, end_time, subject, faculty_id}
+
+        // 1. Delete existing schedules
+        await connection.query('DELETE FROM faculty_schedules WHERE student_id = ?', [studentId]);
+
+        // 2. Insert new schedules
+        if (schedules && Array.isArray(schedules) && schedules.length > 0) {
+            for (const s of schedules) {
+                await connection.query(`
+                    INSERT INTO faculty_schedules (student_id, day_of_week, start_time, end_time, subject, faculty_id)
+                    VALUES (?, ?, ?, ?, ?, ?)
+                `, [studentId, s.day_of_week, s.start_time, s.end_time, s.subject, s.faculty_id]);
+            }
+        }
+
+        await connection.commit();
+        res.status(200).json({ success: true, message: "Academic schedule updated successfully" });
+    } catch (error) {
+        await connection.rollback();
+        res.status(500).json({ success: false, message: error.message });
+    } finally {
+        connection.release();
+    }
+};
+
 module.exports = {
     getMentorDashboard,
     getMentorStudents,
     getStudentDetails,
     getStudentAcademicSchedule,
+    updateStudentAcademicSchedule,
     getMentorTasks,
     completeMentorTask: processMentorTaskCompletion,
     getMentorTimetable,
@@ -982,7 +1015,6 @@ module.exports = {
     createStudentLog,
     getStudentLogs,
     toggleStudentConnection,
-    getStudentAcademicSchedule,
     updateAcademicSessionReminder,
     completeAcademicSession,
     getAcademicSchedule,

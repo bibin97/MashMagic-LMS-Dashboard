@@ -40,6 +40,7 @@ router.get('/dashboard', getMentorDashboard);
 router.get('/students', getMentorStudents);
 router.get('/students/:id', getStudentDetails);
 router.get('/students/:id/schedule', getStudentAcademicSchedule);
+router.post('/students/:id/schedule', updateStudentAcademicSchedule);
 router.get('/tasks', getMentorTasks);
 router.put('/tasks/:id/complete', upload.single('proof'), completeMentorTask);
 router.get('/timetable', getMentorTimetable);
