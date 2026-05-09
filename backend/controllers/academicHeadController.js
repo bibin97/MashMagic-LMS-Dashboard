@@ -1183,7 +1183,29 @@ module.exports = {
                 await db.query(userUpdateQuery, userParams);
             }
 
-            await db.query('INSERT INTO admin_notifications (message) VALUES (?)', [`Academic Head (${req.user.name}) updated student profile for: ${student.name}`]);
+            // --- SYNC FACULTY SCHEDULES ---
+            // 1. Delete existing schedules
+            await db.query('DELETE FROM faculty_schedules WHERE student_id = ?', [id]);
+
+            // 2. Insert new schedules from finalSubjects
+            if (finalSubjects && Array.isArray(finalSubjects) && finalSubjects.length > 0) {
+                for (const sub of finalSubjects) {
+                    const days = sub.days || (sub.day ? [sub.day] : []);
+                    for (const day of days) {
+                        if (sub.facultyId && day && sub.startTime && sub.endTime) {
+                            await db.query(`
+                                INSERT INTO faculty_schedules (
+                                    faculty_id, student_id, subject, day_of_week, start_time, end_time, hourly_rate
+                                ) VALUES (?, ?, ?, ?, ?, ?, ?)
+                            `, [
+                                sub.facultyId, id, sub.subject, day, sub.startTime, sub.endTime, sub.hourlyRate || 0
+                            ]);
+                        }
+                    }
+                }
+            }
+
+            await db.query('INSERT INTO admin_notifications (message) VALUES (?)', [`Academic Head (${req.user.name}) updated student profile and sync'd schedule for: ${student.name}`]);
             res.status(200).json({ success: true, message: 'Student profile updated successfully' });
         } catch (error) { 
             console.error("EDIT_STUDENT_ERROR:", error);

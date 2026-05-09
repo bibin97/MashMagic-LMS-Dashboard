@@ -255,7 +255,10 @@ exports.getMentorInteractionLogs = async (req, res) => {
 
         // 2. Fetch Faculty Logs (Logs from Mentors about Faculty)
         let facultyQuery = `
-            SELECT fil.*, COALESCE(fil.created_at, fil.date) as sort_date, s.name as student_name, m.name as mentor_name, 'Faculty' as type
+            SELECT fil.*, COALESCE(fil.created_at, fil.date) as sort_date, 
+                   CONVERT(s.name USING utf8mb4) as student_name, 
+                   CONVERT(m.name USING utf8mb4) as mentor_name, 
+                   'Faculty' as type
             FROM faculty_interaction_logs fil
             JOIN students s ON fil.student_id = s.id
             JOIN users m ON fil.mentor_id = m.id
@@ -506,7 +509,7 @@ exports.getMentorDetails = async (req, res) => {
         }
 
         const [assignedStudents] = await db.query(
-            'SELECT id, name, grade, course, subject, onboarding_status, faculty_name, is_shifted, shifted_from FROM students WHERE mentor_id = ?',
+            'SELECT id, name, grade, course, subject, onboarding_status, faculty_name FROM students WHERE mentor_id = ?',
             [mentorId]
         );
 

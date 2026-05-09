@@ -22,7 +22,7 @@ const Timetable = () => {
   const [rescheduleMode, setRescheduleMode] = useState(false);
   const [isBulkMode, setIsBulkMode] = useState(false);
   const [bulkSessions, setBulkSessions] = useState([]);
-  const [studentSchedule, setStudentSchedule] = useState([]);
+  const [studentSchedule, setStudentSchedule] = useState(null);
   const [selectedSlot, setSelectedSlot] = useState(null);
   const [showScheduleModal, setShowScheduleModal] = useState(false);
   const [editScheduleData, setEditScheduleData] = useState([]);
@@ -127,7 +127,7 @@ const Timetable = () => {
           setIsScheduleLoading(true);
           const res = await api.get(`/mentor/students/${formData.student_id}/schedule`);
           const schedule = res.data.data;
-          setStudentSchedule(schedule);
+          setStudentSchedule(schedule || []);
           
           const dayName = new Date(formData.date).toLocaleDateString('en-GB', { weekday: 'long' });
           const todaySlot = schedule.find(slot => slot.day_of_week === dayName);
@@ -145,11 +145,12 @@ const Timetable = () => {
           }
         } catch (error) {
           console.error("Failed to fetch student schedule");
+          setStudentSchedule([]);
         } finally {
           setIsScheduleLoading(false);
         }
       } else {
-        setStudentSchedule([]);
+        setStudentSchedule(null);
       }
     };
     autoPopulate();
@@ -726,16 +727,20 @@ const Timetable = () => {
                         className="w-full p-4 bg-white border border-emerald-200 rounded-2xl text-[11px] font-black text-emerald-700 outline-none focus:ring-4 ring-emerald-500/10 transition-all cursor-pointer"
                       >
                         <option value="">Auto-fill from registered schedule...</option>
-                        {studentSchedule.map((slot, idx) => (
-                          <option key={idx} value={idx}>
-                             {slot.subject} | {(slot.start_time || '').substring(0, 5)} - {(slot.end_time || '').substring(0, 5)} (Faculty: {slot.faculty_name})
-                          </option>
-                        ))}
+                        {studentSchedule && studentSchedule.map((slot, idx) => {
+                          const currentDay = new Date(formData.date).toLocaleDateString('en-GB', { weekday: 'long' });
+                          if (slot.day_of_week !== currentDay) return null;
+                          return (
+                            <option key={idx} value={idx}>
+                               {slot.subject} | {(slot.start_time || '').substring(0, 5)} - {(slot.end_time || '').substring(0, 5)} ({slot.faculty_name})
+                            </option>
+                          );
+                        })}
                       </select>
                     </div>
                   )}
 
-                  {!editingSession && !isScheduleLoading && studentSchedule.length === 0 && formData.student_id && (
+                  {!editingSession && !isScheduleLoading && studentSchedule !== null && studentSchedule.length === 0 && formData.student_id && (
                     <div className="bg-rose-50 p-6 rounded-[2rem] border border-rose-100 flex items-center justify-between">
                        <p className="text-[10px] font-black text-rose-600 uppercase tracking-widest">No registration schedule found for this student</p>
                        <button
@@ -808,21 +813,20 @@ const Timetable = () => {
                       >
                         <option value="">Select Faculty</option>
                         {(() => {
-                          const assignedIds = new Set(studentSchedule.map(s => String(s.faculty_id)));
+                          const assignedIds = new Set((studentSchedule || []).map(s => String(s.faculty_id)));
                           const assigned = faculties.filter(f => assignedIds.has(String(f.id)));
                           const others = faculties.filter(f => !assignedIds.has(String(f.id)));
                           
                           return (
                             <>
-                              {assigned.length > 0 && (
+                              {assigned.length > 0 ? (
                                 <optgroup label="Assigned to Student">
                                   {assigned.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
                                 </optgroup>
-                              )}
-                              {others.length > 0 && (
-                                <optgroup label="Other Faculties">
-                                  {others.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
-                                </optgroup>
+                              ) : !formData.student_id ? (
+                                faculties.map(f => <option key={f.id} value={f.id}>{f.name}</option>)
+                              ) : (
+                                <option disabled>No faculties assigned to this student</option>
                               )}
                             </>
                           );

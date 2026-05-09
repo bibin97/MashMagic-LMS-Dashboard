@@ -965,7 +965,7 @@ const getStudentAcademicSchedule = async (req, res) => {
         const [schedules] = await db.query(`
             SELECT fs.*, u.name as faculty_name 
             FROM faculty_schedules fs
-            JOIN users u ON fs.faculty_id = u.id
+            LEFT JOIN users u ON fs.faculty_id = u.id
             WHERE fs.student_id = ?
         `, [studentId]);
         
