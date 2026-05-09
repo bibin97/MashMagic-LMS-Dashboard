@@ -92,7 +92,7 @@ const approveUser = async (req, res) => {
         await db.query(`
             DELETE FROM admin_notifications 
             WHERE related_id = ? 
-            AND action_type IN ('student_registration', 'faculty_registration', 'mentor_registration', 'faculty_onboarding', 'mentor_head_onboarding')
+            AND action_type IN ('student_registration', 'faculty_registration', 'mentor_registration', 'ssc_registration', 'faculty_onboarding', 'mentor_head_onboarding')
         `, [id]);
 
         await db.query('INSERT INTO admin_notifications (message) VALUES (?)', [
@@ -219,7 +219,7 @@ const rejectUser = async (req, res) => {
         await db.query(`
             DELETE FROM admin_notifications 
             WHERE related_id = ? 
-            AND action_type IN ('student_registration', 'faculty_registration', 'mentor_registration', 'faculty_onboarding', 'mentor_head_onboarding')
+            AND action_type IN ('student_registration', 'faculty_registration', 'mentor_registration', 'ssc_registration', 'faculty_onboarding', 'mentor_head_onboarding')
         `, [id]);
 
         res.status(200).json({ success: true, message: "Registration rejected" });
@@ -525,13 +525,9 @@ const getAdminNotifications = async (req, res) => {
         let params = [];
 
         if (role === 'mentor_head') {
-            // Mentor Head sees: 
-            // 1. Mentor activities (mentorship_report, fraud_alert)
-            // 2. Admin actions (Student/Staff updates)
-            query += ` WHERE action_type IN ('mentorship_report', 'fraud_alert', 'student_registration', 'mentor_registration')
-                       OR message LIKE '%Student Updated%'
-                       OR message LIKE '%Staff Updated%'
-                       OR message LIKE '%System Action%'`;
+            // Mentor Head ONLY sees Mentor-related notifications
+            query += ` WHERE action_type IN ('mentorship_report', 'fraud_alert', 'mentor_registration')
+                       OR (action_type = 'staff_update' AND message LIKE '%Mentor%')`;
         }
 
         query += ' ORDER BY created_at DESC LIMIT 100';
@@ -594,8 +590,10 @@ const updateStudentForAdmin = async (req, res) => {
             return res.status(404).json({ success: false, message: "Student not found" });
         }
 
-        await db.query('INSERT INTO admin_notifications (message) VALUES (?)', [
-            `<b>Student Updated:</b> Profile of <b>${oldStudent?.name || id}</b> has been modified.`
+        await db.query('INSERT INTO admin_notifications (message, action_type, related_id) VALUES (?, ?, ?)', [
+            `<b>Student Updated:</b> Profile of <b>${oldStudent?.name || id}</b> has been modified.`,
+            'student_update',
+            id
         ]);
         res.status(200).json({ success: true, message: "Student updated successfully" });
     } catch (error) {
@@ -621,8 +619,10 @@ const updateUserForAdmin = async (req, res) => {
             return res.status(404).json({ success: false, message: "User not found" });
         }
 
-        await db.query('INSERT INTO admin_notifications (message) VALUES (?)', [
-            `<b>Staff Updated:</b> ${role} <b>${oldUser?.name || id}</b> details were updated.`
+        await db.query('INSERT INTO admin_notifications (message, action_type, related_id) VALUES (?, ?, ?)', [
+            `<b>Staff Updated:</b> ${role} <b>${oldUser?.name || id}</b> details were updated.`,
+            'staff_update',
+            id
         ]);
         res.status(200).json({ success: true, message: "User updated successfully" });
     } catch (error) {

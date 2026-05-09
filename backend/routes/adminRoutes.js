@@ -65,7 +65,7 @@ router.put('/students/:id', requireRole('super_admin', 'sub_admin'), updateStude
 router.get('/notifications', requireRole('super_admin', 'sub_admin', 'mentor_head'), getAdminNotifications);
 router.put('/notifications/:id/read', requireRole('super_admin', 'sub_admin', 'mentor_head'), markNotificationRead);
 router.delete('/notifications/:id', requireRole('super_admin', 'sub_admin', 'mentor_head'), deleteNotification);
-router.delete('/notifications/clear-all', requireRole('super_admin', 'sub_admin'), clearAllNotifications);
+router.delete('/notifications/clear-all', requireRole('super_admin', 'sub_admin', 'mentor_head'), clearAllNotifications);
 
 // Super Admin ONLY actions
 router.use(requireRole('super_admin'));

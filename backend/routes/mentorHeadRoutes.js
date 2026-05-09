@@ -41,6 +41,7 @@ router.get('/dashboard', getDashboardStats);
 router.get('/activities', getAllActivities);
 router.get('/mentor/:mentorId/students', getMentorStudents);
 router.get('/mentor/:mentorId/details', getMentorDetails);
+router.get('/dropdowns', getDropdownData);
 
 // Monitoring Architecture Routes
 router.get('/mentor-activity', getMentorActivityDashboard);

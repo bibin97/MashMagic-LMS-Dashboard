@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
+import { useAuth } from '../../context/AuthContext';
 import { 
     User, Mail, GraduationCap, BookOpen, Clock, 
     CheckCircle, ArrowLeft, Plus, Trash2, 
@@ -19,6 +20,11 @@ const DAYS_LIST = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Satu
 const EditStudent = () => {
     const { id } = useParams();
     const navigate = useNavigate();
+    const { user } = useAuth();
+    
+    // Determine API base path based on role
+    const basePath = user?.role === 'mentor_head' ? '/mentor-head' : '/academic-head';
+    
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     
@@ -56,8 +62,8 @@ const EditStudent = () => {
         try {
             setLoading(true);
             const [dropdownRes, studentRes] = await Promise.all([
-                api.get('/academic-head/dropdowns'),
-                api.get(`/academic-head/students`)
+                api.get(`${basePath}/dropdowns`),
+                api.get(`${basePath}/students`)
             ]);
 
             setMentors(dropdownRes.data.data.mentors);
@@ -100,7 +106,7 @@ const EditStudent = () => {
                 }
             } else {
                 toast.error("Student not found");
-                navigate('/academic-head/students');
+                navigate(`${basePath}/students`);
             }
         } catch (error) {
             toast.error("Failed to load student data");
@@ -152,14 +158,14 @@ const EditStudent = () => {
         e.preventDefault();
         try {
             setSaving(true);
-            const res = await api.put(`/academic-head/students/${id}`, {
+            const res = await api.put(`${basePath}/students/${id}`, {
                 ...formData,
                 selectedSubjects: selectedSubjects
             });
 
             if (res.data.success) {
                 toast.success("Student profile updated successfully");
-                navigate('/academic-head/students');
+                navigate(`${basePath}/students`);
             }
         } catch (error) {
             toast.error(error.response?.data?.message || "Failed to update student");
@@ -182,7 +188,7 @@ const EditStudent = () => {
             {/* Navigation Header */}
             <div className="flex items-center justify-between mb-10 py-6">
                 <button 
-                    onClick={() => navigate('/academic-head/students')}
+                    onClick={() => navigate(`${basePath}/students`)}
                     className="flex items-center gap-2 text-slate-600 hover:text-[#008080] transition-colors"
                 >
                     <ArrowLeft size={20} />
@@ -495,7 +501,7 @@ const EditStudent = () => {
 
                 {/* Form Actions */}
                 <div className="flex flex-col sm:flex-row items-center justify-end gap-6 pt-10">
-                    <button type="button" onClick={() => navigate('/academic-head/students')} className="w-full sm:w-auto px-10 py-5 rounded-[24px] border border-slate-200 text-slate-600 text-xs font-black uppercase tracking-widest hover:bg-slate-50 transition-all">
+                    <button type="button" onClick={() => navigate(`${basePath}/students`)} className="w-full sm:w-auto px-10 py-5 rounded-[24px] border border-slate-200 text-slate-600 text-xs font-black uppercase tracking-widest hover:bg-slate-50 transition-all">
                         Discard Changes
                     </button>
                     <button disabled={saving} type="submit" className="w-full sm:w-auto px-12 py-5 rounded-[24px] bg-slate-900 text-white text-xs font-black uppercase tracking-[0.25em] shadow-2xl hover:bg-[#008080] hover:-translate-y-1 transition-all flex items-center justify-center gap-4 disabled:opacity-50">

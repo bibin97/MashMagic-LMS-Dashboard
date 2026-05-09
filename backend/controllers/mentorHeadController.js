@@ -47,7 +47,7 @@ exports.registerMentor = async (req, res) => {
 
         // Notify Admin
         const msg = `<span class="font-bold text-blue-600">${req.user.name}</span> <span class="text-xs bg-blue-100 text-blue-800 px-1 rounded">(Mentor Head)</span> added <span class="font-bold text-indigo-600">${name}</span> <span class="text-xs bg-indigo-100 text-indigo-800 px-1 rounded">(Mentor)</span>`;
-        await db.query('INSERT INTO admin_notifications (message) VALUES (?)', [msg]);
+        await db.query('INSERT INTO admin_notifications (message, related_id, action_type) VALUES (?, ?, ?)', [msg, mentorId, 'mentor_registration']);
 
         res.status(201).json({
             success: true,
@@ -153,7 +153,8 @@ exports.getMentorInteractionLogs = async (req, res) => {
                 (SELECT 
                     CAST(sil.id AS CHAR) as id,
                     COALESCE(sil.created_at, sil.date) as sort_date,
-                    s.name as student_name, m.name as mentor_name,
+                    CONVERT(s.name USING utf8mb4) as student_name, 
+                    CONVERT(m.name USING utf8mb4) as mentor_name,
                     CONVERT(sil.mentor_notes USING utf8mb4) as mentor_notes,
                     sil.mentor_id, sil.student_id, sil.date,
                     'Student Call' as category, 'Quick' as sub_type,
@@ -176,7 +177,8 @@ exports.getMentorInteractionLogs = async (req, res) => {
                 (SELECT 
                     CAST(msl.id AS CHAR) as id,
                     msl.created_at as sort_date,
-                    s.name as student_name, m.name as mentor_name,
+                    CONVERT(s.name USING utf8mb4) as student_name, 
+                    CONVERT(m.name USING utf8mb4) as mentor_name,
                     CONVERT(msl.action_detail USING utf8mb4) as mentor_notes,
                     msl.mentor_id, msl.student_id, msl.date,
                     'Student Call' as category, 'Session' as sub_type,
@@ -199,7 +201,8 @@ exports.getMentorInteractionLogs = async (req, res) => {
                 (SELECT 
                     CAST(msr.id AS CHAR) as id,
                     msr.created_at as sort_date,
-                    s.name as student_name, m.name as mentor_name,
+                    CONVERT(s.name USING utf8mb4) as student_name, 
+                    CONVERT(m.name USING utf8mb4) as mentor_name,
                     CONVERT(COALESCE(
                         JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.notes')), 
                         JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.action_plan')),
@@ -232,7 +235,8 @@ exports.getMentorInteractionLogs = async (req, res) => {
                 (SELECT 
                     CAST(ml.id AS CHAR) as id,
                     ml.created_at as sort_date,
-                    s.name as student_name, m.name as mentor_name,
+                    CONVERT(s.name USING utf8mb4) as student_name, 
+                    CONVERT(m.name USING utf8mb4) as mentor_name,
                     CONVERT(ml.action_details USING utf8mb4) as mentor_notes,
                     ml.mentor_id, ml.student_id, DATE(ml.created_at) as date,
                     'Mentorship' as category, 'General' as sub_type,
@@ -1116,6 +1120,25 @@ exports.deleteInteractionLog = async (req, res) => {
         });
     } catch (error) {
         console.error('Error in deleteInteractionLog:', error);
+        res.status(500).json({ success: false, message: "Server Error", error: error.message });
+    }
+};
+
+// @desc    Get dropdown data for student editing
+// @route   GET /api/mentor-head/dropdowns
+exports.getDropdownData = async (req, res) => {
+    try {
+        const [mentors] = await db.query('SELECT id, name FROM users WHERE role = "mentor" AND status = "active"');
+        const [faculties] = await db.query('SELECT id, name FROM users WHERE role = "faculty" AND status = "active"');
+        res.status(200).json({
+            success: true,
+            data: {
+                mentors,
+                faculties
+            }
+        });
+    } catch (error) {
+        console.error('Error in getDropdownData:', error);
         res.status(500).json({ success: false, message: "Server Error", error: error.message });
     }
 };

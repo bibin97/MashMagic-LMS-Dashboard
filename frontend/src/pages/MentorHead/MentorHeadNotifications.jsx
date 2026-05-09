@@ -65,6 +65,24 @@ const MentorHeadNotifications = () => {
     }
   };
 
+  const clearAllNotifications = async () => {
+    if (!window.confirm("Are you sure you want to clear all notifications? This action cannot be undone.")) return;
+    
+    try {
+      const token = sessionStorage.getItem('token');
+      const res = await axios.delete('/api/admin/notifications/clear-all', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.data.success) {
+        setNotifications([]);
+        toast.success("All notifications cleared");
+      }
+    } catch (error) {
+      console.error('Error clearing notifications:', error);
+      toast.error("Failed to clear notifications");
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -85,12 +103,23 @@ const MentorHeadNotifications = () => {
             Real-time alerts for student registrations, mentorship reports, and system flags
           </p>
         </div>
-        <button 
-          onClick={fetchNotifications}
-          className="p-4 bg-slate-50 text-slate-400 rounded-2xl hover:bg-[#008080]/10 hover:text-[#008080] transition-all"
-        >
-          <RefreshCw size={20} />
-        </button>
+        <div className="flex items-center gap-4">
+          {notifications.length > 0 && (
+            <button 
+              onClick={clearAllNotifications}
+              className="flex items-center gap-2 px-6 py-4 bg-rose-50 text-rose-600 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-rose-600 hover:text-white transition-all border border-rose-100"
+            >
+              <Trash2 size={16} />
+              Clear All
+            </button>
+          )}
+          <button 
+            onClick={fetchNotifications}
+            className="p-4 bg-slate-50 text-slate-400 rounded-2xl hover:bg-[#008080]/10 hover:text-[#008080] transition-all"
+          >
+            <RefreshCw size={20} />
+          </button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 gap-4">
