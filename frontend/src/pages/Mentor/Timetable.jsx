@@ -26,6 +26,7 @@ const Timetable = () => {
   const [selectedSlot, setSelectedSlot] = useState(null);
   const [showScheduleModal, setShowScheduleModal] = useState(false);
   const [editScheduleData, setEditScheduleData] = useState([]);
+  const [isScheduleLoading, setIsScheduleLoading] = useState(false);
 
   // Filters
   const [filters, setFilters] = useState({
@@ -123,6 +124,7 @@ const Timetable = () => {
     const autoPopulate = async () => {
       if (formData.student_id && !editingSession) {
         try {
+          setIsScheduleLoading(true);
           const res = await api.get(`/mentor/students/${formData.student_id}/schedule`);
           const schedule = res.data.data;
           setStudentSchedule(schedule);
@@ -143,6 +145,8 @@ const Timetable = () => {
           }
         } catch (error) {
           console.error("Failed to fetch student schedule");
+        } finally {
+          setIsScheduleLoading(false);
         }
       } else {
         setStudentSchedule([]);
@@ -729,7 +733,7 @@ const Timetable = () => {
                     </div>
                   )}
 
-                  {!editingSession && studentSchedule.length === 0 && formData.student_id && (
+                  {!editingSession && !isScheduleLoading && studentSchedule.length === 0 && formData.student_id && (
                     <div className="bg-rose-50 p-6 rounded-[2rem] border border-rose-100 flex items-center justify-between">
                        <p className="text-[10px] font-black text-rose-600 uppercase tracking-widest">No registration schedule found for this student</p>
                        <button
