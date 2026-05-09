@@ -77,7 +77,7 @@ const Timetable = () => {
 
   const fetchFaculties = async () => {
     try {
-      const res = await api.get('/academic-head/faculties-all');
+      const res = await api.get('/mentor/faculties-all');
       setFaculties(res.data.data);
     } catch (error) {
       console.error("Failed to load faculties");
@@ -146,7 +146,7 @@ const Timetable = () => {
               start_time: todaySlot.start_time.substring(0, 5),
               end_time: todaySlot.end_time.substring(0, 5),
               chapter: todaySlot.subject || '',
-              faculty_id: todaySlot.faculty_id,
+              faculty_id: String(todaySlot.faculty_id),
               faculty_name: todaySlot.faculty_name
             }));
             toast.success(`Auto-populated ${todaySlot.day_of_week} schedule`);
@@ -678,7 +678,7 @@ const Timetable = () => {
                               start_time: slot.start_time.substring(0, 5),
                               end_time: slot.end_time.substring(0, 5),
                               chapter: slot.subject || '',
-                              faculty_id: slot.faculty_id,
+                              faculty_id: String(slot.faculty_id),
                               faculty_name: slot.faculty_name
                             });
                             setSelectedSlot(idx);

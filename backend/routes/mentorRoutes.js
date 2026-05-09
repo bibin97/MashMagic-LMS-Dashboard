@@ -62,5 +62,7 @@ router.post('/timetable/batch', createBatchTimetable);
 router.post('/exams/submit', submitExamResult);
 router.post('/mentorship-log', createMentorshipLog);
 router.get('/mentorship-logs/:studentId', getMentorshipLogs);
+router.get('/faculties-all', require('../controllers/mentorHeadController').getFaculties);
+
 
 module.exports = router;

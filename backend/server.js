@@ -32,6 +32,7 @@ app.use('/api/student', studentRoutes);
 app.use('/api/mentor-logs', require('./routes/mentorLogRoutes'));
 app.use('/api/faculty-tracking', require('./routes/facultyTrackingRoutes'));
 app.use('/api/mentor-interactions', require('./routes/mentorInteractionRoutes'));
+app.use('/api/ssc', require('./routes/sscRoutes'));
 
 // Basic Route
 app.get('/', (req, res) => {

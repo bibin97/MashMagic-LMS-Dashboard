@@ -148,25 +148,48 @@ const getStudentDetails = async (req, res) => {
         try {
             const [logs] = await db.query(`
                 SELECT * FROM (
-                    SELECT sil.id, sil.date, sil.mentor_notes as details, 'Quick Log' as type, sil.created_at
+                    SELECT 
+                        sil.id, sil.date, 
+                        CONVERT(sil.mentor_notes USING utf8mb4) as details, 
+                        CONVERT('Quick Log' USING utf8mb4) as type, 
+                        sil.created_at
                     FROM student_interaction_logs sil 
                     WHERE sil.student_id = ?
                     
                     UNION ALL
                     
-                    SELECT msl.id, DATE(msl.created_at) as date, CONCAT(msl.main_issue, ': ', msl.action_type) as details, 'Session Log' as type, msl.created_at
+                    SELECT 
+                        msl.id, DATE(msl.created_at) as date, 
+                        CONVERT(CONCAT(msl.main_issue, ': ', msl.action_type) USING utf8mb4) as details, 
+                        CONVERT('Session Log' USING utf8mb4) as type, 
+                        msl.created_at
                     FROM mentor_session_logs msl
                     WHERE msl.student_id = ?
 
                     UNION ALL
 
-                    SELECT msr.id, DATE(msr.created_at) as date, JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.notes')) as details, CONCAT('Hub: ', msr.session_type) as type, msr.created_at
+                    SELECT 
+                        msr.id, DATE(msr.created_at) as date, 
+                        CONVERT(COALESCE(
+                            JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.notes')), 
+                            JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.action_plan')),
+                            JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.next_task')),
+                            JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.study_status')),
+                            JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.main_problem')),
+                            msr.session_type
+                        ) USING utf8mb4) as details, 
+                        CONVERT(CONCAT('Hub: ', msr.session_type) USING utf8mb4) as type, 
+                        msr.created_at
                     FROM mentor_session_reports msr
                     WHERE msr.student_id = ?
 
                     UNION ALL
 
-                    SELECT ml.id, DATE(ml.created_at) as date, ml.action_details as details, 'Mentorship' as type, ml.created_at
+                    SELECT 
+                        ml.id, DATE(ml.created_at) as date, 
+                        CONVERT(ml.action_details USING utf8mb4) as details, 
+                        CONVERT('Mentorship' USING utf8mb4) as type, 
+                        ml.created_at
                     FROM mentorship_logs ml
                     WHERE ml.student_id = ?
                 ) as combined_logs
@@ -175,22 +198,22 @@ const getStudentDetails = async (req, res) => {
             studentLogs = logs;
         } catch (logErr) {
             console.error("LOG_QUERY_ERROR:", logErr);
-            // If UNION fails, try without mentorship_logs as it might be the culprit
+            // If UNION fails, try with minimal columns and conversion
             const [logs] = await db.query(`
                 SELECT * FROM (
-                    SELECT sil.id, sil.date, sil.mentor_notes as details, 'Quick Log' as type, sil.created_at
+                    SELECT sil.id, sil.date, CONVERT(sil.mentor_notes USING utf8mb4) as details, CONVERT('Quick Log' USING utf8mb4) as type, sil.created_at
                     FROM student_interaction_logs sil 
                     WHERE sil.student_id = ?
                     
                     UNION ALL
                     
-                    SELECT l.id, DATE(l.created_at) as date, CONCAT(l.main_issue, ': ', l.action_type) as details, 'Session Log' as type, l.created_at
+                    SELECT l.id, DATE(l.created_at) as date, CONVERT(CONCAT(l.main_issue, ': ', l.action_type) USING utf8mb4) as details, CONVERT('Session Log' USING utf8mb4) as type, l.created_at
                     FROM mentor_session_logs l
                     WHERE l.student_id = ?
 
                     UNION ALL
 
-                    SELECT msr.id, DATE(msr.created_at) as date, JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.notes')) as details, CONCAT('Hub: ', msr.session_type) as type, msr.created_at
+                    SELECT msr.id, DATE(msr.created_at) as date, CONVERT(JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.notes')) USING utf8mb4) as details, CONVERT(CONCAT('Hub: ', msr.session_type) USING utf8mb4) as type, msr.created_at
                     FROM mentor_session_reports msr
                     WHERE msr.student_id = ?
                 ) as combined_logs

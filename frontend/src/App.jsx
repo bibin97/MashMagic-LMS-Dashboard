@@ -9,6 +9,7 @@ import MentorLayout from './components/Mentor/MentorLayout';
 import FacultyLayout from './components/Faculty/FacultyLayout';
 import MentorHeadLayout from './components/MentorHead/MentorHeadLayout';
 import AcademicHeadLayout from './components/AcademicHead/AcademicHeadLayout';
+import SSCLayout from './components/SSC/SSCLayout';
 
 // Auth Pages
 import Login from './pages/Login';
@@ -86,6 +87,9 @@ import CheckingSection from './pages/AcademicHead/CheckingSection';
 import AcademicLiveMonitoring from './pages/AcademicHead/LiveMonitoring';
 import EditStudent from './pages/AcademicHead/EditStudent';
 import EditFaculty from './pages/AcademicHead/EditFaculty';
+
+// SSC Pages
+import SSCDashboard from './pages/SSC/SSCDashboard';
 
 function App() {
   return (
@@ -170,6 +174,17 @@ function App() {
             <Route path="faculty-logs" element={<FacultyLogsAcademic />} />
             <Route path="checking" element={<CheckingSection />} />
             <Route path="live-monitoring" element={<AcademicLiveMonitoring />} />
+            <Route path="profile" element={<AdminProfile />} />
+          </Route>
+
+          {/* SSC System */}
+          <Route path="/ssc" element={
+            <ProtectedRoute allowedRoles={['ssc']}>
+              <SSCLayout />
+            </ProtectedRoute>
+          }>
+            <Route index element={<Navigate to="/ssc/dashboard" replace />} />
+            <Route path="dashboard" element={<SSCDashboard />} />
             <Route path="profile" element={<AdminProfile />} />
           </Route>
 

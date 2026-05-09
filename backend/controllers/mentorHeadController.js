@@ -147,7 +147,7 @@ exports.getMentorStudents = async (req, res) => {
 exports.getMentorInteractionLogs = async (req, res) => {
     try {
         const { mentor_id, mentor_name, date } = req.query;
-        // 1. Fetch Student Logs (Merged from student_interaction_logs and mentor_session_reports)
+        // 1. Fetch Student Logs (Merged from all possible student log sources)
         let studentQuery = `
             SELECT * FROM (
                 (SELECT 
@@ -159,10 +159,40 @@ exports.getMentorInteractionLogs = async (req, res) => {
                     'Student Call' as category, 'Quick' as sub_type,
                     sil.connected_today, sil.self_clarity, sil.confidence, sil.exam_anxiety,
                     sil.motivation_level, sil.mentor_action_needed, sil.confusing_topic,
-                    sil.created_at
+                    sil.created_at,
+                    sil.connection_method, sil.can_solve_independently, sil.homework_status,
+                    sil.homework_difficulty, sil.revision_quality, sil.focus_level,
+                    sil.student_requests, sil.parent_update_priority,
+                    NULL as main_issue, NULL as secondary_issue, NULL as weak_subject,
+                    NULL as action_type, NULL as action_detail, NULL as followup_required,
+                    NULL as followup_date, NULL as student_status, NULL as session_quality_rating,
+                    NULL as understanding_after_session
                 FROM student_interaction_logs sil
                 JOIN students s ON sil.student_id = s.id
                 JOIN users m ON sil.mentor_id = m.id)
+
+                UNION ALL
+
+                (SELECT 
+                    CAST(msl.id AS CHAR) as id,
+                    msl.created_at as sort_date,
+                    s.name as student_name, m.name as mentor_name,
+                    CONVERT(msl.action_detail USING utf8mb4) as mentor_notes,
+                    msl.mentor_id, msl.student_id, msl.date,
+                    'Student Call' as category, 'Session' as sub_type,
+                    TRUE as connected_today, NULL as self_clarity, msl.session_quality_rating as confidence, msl.stress_level as exam_anxiety,
+                    NULL as motivation_level, msl.action_detail as mentor_action_needed, msl.main_issue as confusing_topic,
+                    msl.created_at,
+                    msl.connection_method, NULL as can_solve_independently, msl.homework_status,
+                    NULL as homework_difficulty, msl.revision_done as revision_quality, msl.focus_level,
+                    NULL as student_requests, 'Medium' as parent_update_priority,
+                    msl.main_issue, msl.secondary_issue, msl.weak_subject,
+                    msl.action_type, msl.action_detail, msl.followup_required,
+                    msl.followup_date, msl.student_status, msl.session_quality_rating,
+                    msl.understanding_after_session
+                FROM mentor_session_logs msl
+                JOIN students s ON msl.student_id = s.id
+                JOIN users m ON msl.mentor_id = m.id)
 
                 UNION ALL
 
@@ -185,15 +215,45 @@ exports.getMentorInteractionLogs = async (req, res) => {
                     CAST(JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.confidence')) AS CHAR) as confidence,
                     NULL as exam_anxiety, NULL as motivation_level, NULL as mentor_action_needed,
                     JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.confusing_topic')) as confusing_topic,
-                    msr.created_at
+                    msr.created_at,
+                    'Hub' as connection_method, NULL as can_solve_independently, NULL as homework_status,
+                    NULL as homework_difficulty, NULL as revision_quality, NULL as focus_level,
+                    NULL as student_requests, 'Medium' as parent_update_priority,
+                    NULL as main_issue, NULL as secondary_issue, NULL as weak_subject,
+                    NULL as action_type, NULL as action_detail, NULL as followup_required,
+                    NULL as followup_date, NULL as student_status, NULL as session_quality_rating,
+                    NULL as understanding_after_session
                 FROM mentor_session_reports msr
                 JOIN students s ON msr.student_id = s.id
                 JOIN users m ON msr.mentor_id = m.id)
+
+                UNION ALL
+
+                (SELECT 
+                    CAST(ml.id AS CHAR) as id,
+                    ml.created_at as sort_date,
+                    s.name as student_name, m.name as mentor_name,
+                    CONVERT(ml.action_details USING utf8mb4) as mentor_notes,
+                    ml.mentor_id, ml.student_id, DATE(ml.created_at) as date,
+                    'Mentorship' as category, 'General' as sub_type,
+                    TRUE as connected_today, NULL as self_clarity, NULL as confidence, NULL as exam_anxiety,
+                    NULL as motivation_level, ml.action_details as mentor_action_needed, NULL as confusing_topic,
+                    ml.created_at,
+                    'Mentorship' as connection_method, NULL as can_solve_independently, ml.homework_status,
+                    NULL as homework_difficulty, NULL as revision_quality, ml.focus_rating as focus_level,
+                    NULL as student_requests, ml.priority as parent_update_priority,
+                    NULL as main_issue, NULL as secondary_issue, NULL as weak_subject,
+                    NULL as action_type, ml.action_details as action_detail, NULL as followup_required,
+                    NULL as followup_date, ml.student_status as student_status, NULL as session_quality_rating,
+                    NULL as understanding_after_session
+                FROM mentorship_logs ml
+                JOIN students s ON ml.student_id = s.id
+                JOIN users m ON ml.mentor_id = m.id)
             ) as combined_student_logs
             WHERE 1=1
         `;
 
-        // 2. Fetch Faculty Logs
+        // 2. Fetch Faculty Logs (Logs from Mentors about Faculty)
         let facultyQuery = `
             SELECT fil.*, COALESCE(fil.created_at, fil.date) as sort_date, s.name as student_name, m.name as mentor_name, 'Faculty' as type
             FROM faculty_interaction_logs fil
@@ -241,6 +301,7 @@ exports.getMentorInteractionLogs = async (req, res) => {
         res.status(500).json({ success: false, message: "Server Error", error: error.message });
     }
 };
+
 
 // @desc    Get all intelligence reports submitted by faculties
 // @route   GET /api/mentor-head/faculty-intelligence

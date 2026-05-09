@@ -60,50 +60,53 @@ const getDashboardStats = async (req, res) => {
         `, [today]);
 
         // 3. Activity Feed (Merged Intelligence from all logs)
+        // Normalized with CONVERT to avoid collation issues in UNION
         const [activityFeed] = await db.query(`
-            (SELECT 'Quick Log' as type, sil.mentor_notes, s.name as student_name, u.name as origin_name, sil.created_at as date
-             FROM student_interaction_logs sil
-             JOIN students s ON sil.student_id = s.id
-             JOIN users u ON sil.mentor_id = u.id)
-            UNION ALL
-            (SELECT 'Session Log' as type, CONCAT(msl.main_issue, ': ', msl.action_type) as mentor_notes, s.name as student_name, u.name as origin_name, msl.created_at as date
-             FROM mentor_session_logs msl
-             JOIN students s ON msl.student_id = s.id
-             JOIN users u ON msl.mentor_id = u.id)
-            UNION ALL
-            (SELECT 'Hub Report' as type, 
-                     COALESCE(
-                         JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.notes')), 
-                         JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.action_plan')),
-                         JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.next_task')),
-                         JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.study_status')),
-                         JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.main_problem')),
-                         msr.session_type
-                     ) as mentor_notes, 
-                     s.name as student_name, u.name as origin_name, msr.created_at as date
-             FROM mentor_session_reports msr
-             JOIN students s ON msr.student_id = s.id
-             JOIN users u ON msr.mentor_id = u.id)
-            UNION ALL
-            (SELECT 'Mentorship' as type, ml.action_details as mentor_notes, s.name as student_name, u.name as origin_name, ml.created_at as date
-             FROM mentorship_logs ml
-             JOIN students s ON ml.student_id = s.id
-             JOIN users u ON ml.mentor_id = u.id)
-            UNION ALL
-            (SELECT 'Faculty Interaction' as type, fil.notes as mentor_notes, s.name as student_name, u.name as origin_name, fil.created_at as date
-             FROM faculty_interaction_logs fil
-             JOIN students s ON fil.student_id = s.id
-             JOIN users u ON fil.mentor_id = u.id)
-            UNION ALL
-            (SELECT 'Staff Call' as type, mfi.main_issue as mentor_notes, s.name as student_name, u.name as origin_name, mfi.created_at as date
-             FROM mentor_faculty_interactions mfi
-             JOIN students s ON mfi.student_id = s.id
-             JOIN users u ON mfi.mentor_id = u.id)
-            UNION ALL
-            (SELECT 'Intelligence' as type, r.remarks as mentor_notes, s.name as student_name, u.name as origin_name, r.created_at as date
-             FROM student_reports r 
-             JOIN students s ON r.student_id = s.id 
-             JOIN users u ON r.faculty_id = u.id)
+            SELECT * FROM (
+                (SELECT 'Quick Log' as type, CONVERT(sil.mentor_notes USING utf8mb4) as mentor_notes, s.name as student_name, u.name as origin_name, sil.created_at as date
+                 FROM student_interaction_logs sil
+                 JOIN students s ON sil.student_id = s.id
+                 JOIN users u ON sil.mentor_id = u.id)
+                UNION ALL
+                (SELECT 'Session Log' as type, CONVERT(CONCAT(msl.main_issue, ': ', msl.action_type) USING utf8mb4) as mentor_notes, s.name as student_name, u.name as origin_name, msl.created_at as date
+                 FROM mentor_session_logs msl
+                 JOIN students s ON msl.student_id = s.id
+                 JOIN users u ON msl.mentor_id = u.id)
+                UNION ALL
+                (SELECT 'Hub Report' as type, 
+                         CONVERT(COALESCE(
+                             JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.notes')), 
+                             JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.action_plan')),
+                             JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.next_task')),
+                             JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.study_status')),
+                             JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.main_problem')),
+                             msr.session_type
+                         ) USING utf8mb4) as mentor_notes, 
+                         s.name as student_name, u.name as origin_name, msr.created_at as date
+                 FROM mentor_session_reports msr
+                 JOIN students s ON msr.student_id = s.id
+                 JOIN users u ON msr.mentor_id = u.id)
+                UNION ALL
+                (SELECT 'Mentorship' as type, CONVERT(ml.action_details USING utf8mb4) as mentor_notes, s.name as student_name, u.name as origin_name, ml.created_at as date
+                 FROM mentorship_logs ml
+                 JOIN students s ON ml.student_id = s.id
+                 JOIN users u ON ml.mentor_id = u.id)
+                UNION ALL
+                (SELECT 'Faculty Interaction' as type, CONVERT(fil.notes USING utf8mb4) as mentor_notes, s.name as student_name, u.name as origin_name, fil.created_at as date
+                 FROM faculty_interaction_logs fil
+                 JOIN students s ON fil.student_id = s.id
+                 JOIN users u ON fil.mentor_id = u.id)
+                UNION ALL
+                (SELECT 'Staff Call' as type, CONVERT(mfi.main_issue USING utf8mb4) as mentor_notes, s.name as student_name, u.name as origin_name, mfi.created_at as date
+                 FROM mentor_faculty_interactions mfi
+                 JOIN students s ON mfi.student_id = s.id
+                 JOIN users u ON mfi.mentor_id = u.id)
+                UNION ALL
+                (SELECT 'Intelligence' as type, CONVERT(COALESCE(r.remarks, r.report_text, 'No details') USING utf8mb4) as mentor_notes, s.name as student_name, u.name as origin_name, r.created_at as date
+                 FROM student_reports r 
+                 JOIN students s ON r.student_id = s.id 
+                 JOIN users u ON r.faculty_id = u.id)
+            ) as combined_logs
             ORDER BY date DESC
             LIMIT 20
         `);
@@ -115,10 +118,10 @@ const getDashboardStats = async (req, res) => {
                     totalStudents,
                     totalFaculties,
                     totalMentors,
-                    todaySessions: schedule.length
+                    todaySessions: (schedule || []).length
                 },
-                schedule,
-                activityFeed
+                schedule: schedule || [],
+                activityFeed: activityFeed || []
             }
         });
     } catch (error) {
@@ -126,6 +129,7 @@ const getDashboardStats = async (req, res) => {
         res.status(500).json({ success: false, message: "Server Error", error: error.message });
     }
 };
+
 
 // @desc    Get all faculty session logs and reports
 // @route   GET /api/academic-head/faculty-logs
@@ -443,32 +447,55 @@ const getStudentInteractionLogs = async (req, res) => {
     try {
         const [rows] = await db.query(`
             SELECT * FROM (
-                SELECT sil.id, sil.created_at, sil.mentor_notes, s.name as student_name, u.name as mentor_name, 'Quick Log' as source,
-                       sil.self_clarity, sil.confidence, sil.focus_level, sil.homework_status, sil.connection_method, sil.parent_update_priority, sil.mentor_action_needed, sil.confusing_topic, sil.motivation_level, sil.exam_anxiety, sil.revision_quality
+                SELECT 
+                    sil.id, sil.created_at, 
+                    CONVERT(sil.mentor_notes USING utf8mb4) as mentor_notes, 
+                    s.name as student_name, u.name as mentor_name, 
+                    CONVERT('Quick Log' USING utf8mb4) as source,
+                    sil.self_clarity, sil.confidence, sil.focus_level, sil.homework_status, sil.connection_method, sil.parent_update_priority, sil.mentor_action_needed, sil.confusing_topic, sil.motivation_level, sil.exam_anxiety, sil.revision_quality
                 FROM student_interaction_logs sil
                 JOIN students s ON sil.student_id = s.id
                 JOIN users u ON sil.mentor_id = u.id
                 
                 UNION ALL
                 
-                SELECT msl.id, msl.created_at, CONCAT(msl.main_issue, ': ', msl.action_type) as mentor_notes, s.name as student_name, u.name as mentor_name, 'Session Log' as source,
-                       msl.understanding_after_session as self_clarity, msl.session_quality_rating as confidence, msl.focus_rating as focus_level, msl.homework_status, 'Session' as connection_method, 'Medium' as parent_update_priority, msl.action_details as mentor_action_needed, msl.main_issue as confusing_topic, msl.consistency_rating as motivation_level, msl.stress_level as exam_anxiety, NULL as revision_quality
+                SELECT 
+                    msl.id, msl.created_at, 
+                    CONVERT(CONCAT(msl.main_issue, ': ', msl.action_type) USING utf8mb4) as mentor_notes, 
+                    s.name as student_name, u.name as mentor_name, 
+                    CONVERT('Session Log' USING utf8mb4) as source,
+                    msl.understanding_after_session as self_clarity, msl.session_quality_rating as confidence, msl.focus_rating as focus_level, msl.homework_status, 'Session' as connection_method, 'Medium' as parent_update_priority, msl.action_details as mentor_action_needed, msl.main_issue as confusing_topic, msl.consistency_rating as motivation_level, msl.stress_level as exam_anxiety, NULL as revision_quality
                 FROM mentor_session_logs msl
                 JOIN students s ON msl.student_id = s.id
                 JOIN users u ON msl.mentor_id = u.id
 
                 UNION ALL
 
-                SELECT msr.id, msr.created_at, JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.notes')) as mentor_notes, s.name as student_name, u.name as mentor_name, CONCAT('Hub: ', msr.session_type) as source,
-                       JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.understanding_level')) as self_clarity, JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.confidence')) as confidence, NULL as focus_level, NULL as homework_status, 'Hub' as connection_method, 'Medium' as parent_update_priority, NULL as mentor_action_needed, NULL as confusing_topic, NULL as motivation_level, NULL as exam_anxiety, NULL as revision_quality
+                SELECT 
+                    msr.id, msr.created_at, 
+                    CONVERT(COALESCE(
+                        JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.notes')), 
+                        JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.action_plan')),
+                        JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.next_task')),
+                        JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.study_status')),
+                        JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.main_problem')),
+                        msr.session_type
+                    ) USING utf8mb4) as mentor_notes, 
+                    s.name as student_name, u.name as mentor_name, 
+                    CONVERT(CONCAT('Hub: ', msr.session_type) USING utf8mb4) as source,
+                    JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.understanding_level')) as self_clarity, JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.confidence')) as confidence, NULL as focus_level, NULL as homework_status, 'Hub' as connection_method, 'Medium' as parent_update_priority, NULL as mentor_action_needed, NULL as confusing_topic, NULL as motivation_level, NULL as exam_anxiety, NULL as revision_quality
                 FROM mentor_session_reports msr
                 JOIN students s ON msr.student_id = s.id
                 JOIN users u ON msr.mentor_id = u.id
 
                 UNION ALL
 
-                SELECT ml.id, ml.created_at, ml.action_details as mentor_notes, s.name as student_name, u.name as mentor_name, 'Mentorship' as source,
-                       NULL as self_clarity, NULL as confidence, ml.focus_rating as focus_level, ml.homework_status, 'Mentorship' as connection_method, ml.priority as parent_update_priority, ml.action_details as mentor_action_needed, ml.main_issue as confusing_topic, ml.consistency_rating as motivation_level, NULL as exam_anxiety, NULL as revision_quality
+                SELECT 
+                    ml.id, ml.created_at, 
+                    CONVERT(ml.action_details USING utf8mb4) as mentor_notes, 
+                    s.name as student_name, u.name as mentor_name, 
+                    CONVERT('Mentorship' USING utf8mb4) as source,
+                    NULL as self_clarity, NULL as confidence, ml.focus_rating as focus_level, ml.homework_status, 'Mentorship' as connection_method, ml.priority as parent_update_priority, ml.action_details as mentor_action_needed, ml.main_issue as confusing_topic, ml.consistency_rating as motivation_level, NULL as exam_anxiety, NULL as revision_quality
                 FROM mentorship_logs ml
                 JOIN students s ON ml.student_id = s.id
                 JOIN users u ON ml.mentor_id = u.id
@@ -481,6 +508,7 @@ const getStudentInteractionLogs = async (req, res) => {
         res.status(500).json({ success: false, message: "Server Error", error: error.message });
     }
 };
+
 
 // @desc    Get all faculty interaction logs (Mentor & Faculty logs)
 // @route   GET /api/academic-head/faculty-interaction-logs

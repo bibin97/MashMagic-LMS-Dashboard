@@ -23,7 +23,7 @@ const register = async (req, res) => {
         }
 
         // ROLE EXISTENCE LOGIC (Restriction for single high-level roles)
-        const restrictedRoles = ['super_admin', 'mentor_head', 'academic_head'];
+        const restrictedRoles = ['super_admin', 'mentor_head', 'academic_head', 'ssc'];
         
         if (restrictedRoles.includes(targetRole)) {
             const [existingRole] = await db.query('SELECT id FROM users WHERE role = ?', [targetRole]);
@@ -236,7 +236,7 @@ const login = async (req, res) => {
                 return res.status(403).json({ success: false, message: "Unauthorized: Only Mentor Department staff can login here." });
             }
         } else if (department === 'academic_dept') {
-            if (dbRole !== 'faculty' && dbRole !== 'academichead') {
+            if (dbRole !== 'faculty' && dbRole !== 'academichead' && dbRole !== 'ssc') {
                 return res.status(403).json({ success: false, message: "Unauthorized: Only Academic Department staff can login here." });
             }
         }
