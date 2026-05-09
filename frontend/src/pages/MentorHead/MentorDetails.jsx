@@ -35,7 +35,9 @@ const MentorDetails = () => {
  }
  } catch (error) {
  console.error('Error details:', error);
- toast.error("Failed to fetch mentor details");
+ const msg = error.response?.data?.message || "Failed to fetch mentor details";
+ const detail = error.response?.data?.error || "";
+ toast.error(`${msg}: ${detail}`);
  } finally {
  setLoading(false);
  }
@@ -291,7 +293,7 @@ const MentorDetails = () => {
  <div className="p-10 border-b border-slate-100 flex flex-col md:flex-row justify-between items-center gap-8 bg-slate-50/20">
  <div className="flex items-center gap-6">
  <div className="w-16 h-16 bg-white rounded-3xl flex items-center justify-center text-[#008080] shadow-xl shadow-slate-200/50">
- <GraduationCap size={32} />
+ <    GraduationCap size={32} />
  </div>
  <div>
  <h3 className="text-2xl font-black text-slate-900 tracking-tight leading-none mb-1">Assigned Students & Faculty</h3>

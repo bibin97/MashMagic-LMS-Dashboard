@@ -752,21 +752,40 @@ exports.getMentorActivityDashboard = async (req, res) => {
 exports.getMentorMonitoringDetails = async (req, res) => {
     try {
         const { mentorId } = req.params;
-        const [mentorProfile] = await db.query('SELECT id, name, phone_number, place FROM users WHERE id = ?', [mentorId]);
-        if (mentorProfile.length === 0) return res.status(404).json({ success: false, message: 'Mentor not found' });
+        
+        // 1. Mentor Profile
+        let mentorProfile;
+        try {
+            [mentorProfile] = await db.query('SELECT id, name, phone_number, place FROM users WHERE id = ?', [mentorId]);
+            if (mentorProfile.length === 0) return res.status(404).json({ success: false, message: 'Mentor not found in Monitoring' });
+        } catch (err) {
+            return res.status(500).json({ success: false, message: "Error in Monitoring Profile Query", error: err.message });
+        }
 
-        const [assignedStudents] = await db.query(`
-            SELECT s.id, s.name, s.course, s.grade, s.onboarding_status, s.faculty_name, s.is_shifted, s.shifted_from,
-                   CASE WHEN EXISTS(SELECT 1 FROM student_interaction_logs sil WHERE sil.student_id = s.id AND sil.date = CURDATE() AND sil.connected_today = TRUE) THEN 1 ELSE 0 END AS connected_today
-            FROM students s
-            WHERE s.mentor_id = ?
-        `, [mentorId]);
+        // 2. Assigned Students with Today's Connection Status
+        let assignedStudents;
+        try {
+            [assignedStudents] = await db.query(`
+                SELECT s.id, s.name, s.course, s.grade, s.onboarding_status, s.faculty_name, s.is_shifted, s.shifted_from,
+                       CASE WHEN EXISTS(SELECT 1 FROM student_interaction_logs sil WHERE sil.student_id = s.id AND sil.date = CURDATE() AND sil.connected_today = TRUE) THEN 1 ELSE 0 END AS connected_today
+                FROM students s
+                WHERE s.mentor_id = ?
+            `, [mentorId]);
+        } catch (err) {
+            return res.status(500).json({ success: false, message: "Error in Monitoring Students Query", error: err.message });
+        }
 
-        const [monthlyStats] = await db.query(`
-            SELECT COUNT(DISTINCT CONCAT(student_id, date)) as total_connections 
-            FROM student_interaction_logs 
-            WHERE mentor_id = ? AND MONTH(date) = MONTH(CURDATE()) AND YEAR(date) = YEAR(CURDATE())
-        `, [mentorId]);
+        // 3. Monthly Stats
+        let monthlyStats;
+        try {
+            [monthlyStats] = await db.query(`
+                SELECT COUNT(DISTINCT CONCAT(student_id, date)) as total_connections 
+                FROM student_interaction_logs 
+                WHERE mentor_id = ? AND MONTH(date) = MONTH(CURDATE()) AND YEAR(date) = YEAR(CURDATE())
+            `, [mentorId]);
+        } catch (err) {
+            return res.status(500).json({ success: false, message: "Error in Monitoring Stats Query", error: err.message });
+        }
 
         res.status(200).json({
             success: true,
@@ -778,7 +797,8 @@ exports.getMentorMonitoringDetails = async (req, res) => {
             }
         });
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        console.error('Monitoring Error:', error);
+        res.status(500).json({ success: false, message: "Monitoring Server Error", error: error.message });
     }
 };
 
