@@ -27,7 +27,8 @@ const {
     editMentor,
     deleteMentor,
     toggleCourseCompleted,
-    deleteInteractionLog
+    deleteInteractionLog,
+    getDropdownData
 } = require('../controllers/mentorHeadController');
 const { requireAuth } = require('../middleware/authMiddleware');
 const { requireRole } = require('../middleware/roleMiddleware');

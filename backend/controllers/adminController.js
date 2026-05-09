@@ -525,9 +525,7 @@ const getAdminNotifications = async (req, res) => {
         let params = [];
 
         if (role === 'mentor_head') {
-            // Mentor Head ONLY sees Mentor-related notifications
-            query += ` WHERE action_type IN ('mentorship_report', 'fraud_alert', 'mentor_registration')
-                       OR (action_type = 'staff_update' AND message LIKE '%Mentor%')`;
+            query += " WHERE action_type IN ('mentorship_report', 'fraud_alert', 'mentor_registration') OR (action_type = 'staff_update' AND message LIKE '%Mentor%')";
         }
 
         query += ' ORDER BY created_at DESC LIMIT 100';

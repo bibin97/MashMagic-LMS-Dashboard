@@ -157,13 +157,17 @@ exports.getMentorInteractionLogs = async (req, res) => {
                     CONVERT(m.name USING utf8mb4) as mentor_name,
                     CONVERT(sil.mentor_notes USING utf8mb4) as mentor_notes,
                     sil.mentor_id, sil.student_id, sil.date,
-                    'Student Call' as category, 'Quick' as sub_type,
+                    CONVERT('Student Call' USING utf8mb4) as category, 
+                    CONVERT('Quick' USING utf8mb4) as sub_type,
                     sil.connected_today, sil.self_clarity, sil.confidence, sil.exam_anxiety,
-                    sil.motivation_level, sil.mentor_action_needed, sil.confusing_topic,
+                    sil.motivation_level, CONVERT(sil.mentor_action_needed USING utf8mb4) as mentor_action_needed, 
+                    CONVERT(sil.confusing_topic USING utf8mb4) as confusing_topic,
                     sil.created_at,
-                    sil.connection_method, sil.can_solve_independently, sil.homework_status,
+                    CONVERT(sil.connection_method USING utf8mb4) as connection_method, 
+                    sil.can_solve_independently, sil.homework_status,
                     sil.homework_difficulty, sil.revision_quality, sil.focus_level,
-                    sil.student_requests, sil.parent_update_priority,
+                    CONVERT(sil.student_requests USING utf8mb4) as student_requests, 
+                    CONVERT(sil.parent_update_priority USING utf8mb4) as parent_update_priority,
                     NULL as main_issue, NULL as secondary_issue, NULL as weak_subject,
                     NULL as action_type, NULL as action_detail, NULL as followup_required,
                     NULL as followup_date, NULL as student_status, NULL as session_quality_rating,
@@ -181,16 +185,24 @@ exports.getMentorInteractionLogs = async (req, res) => {
                     CONVERT(m.name USING utf8mb4) as mentor_name,
                     CONVERT(msl.action_detail USING utf8mb4) as mentor_notes,
                     msl.mentor_id, msl.student_id, msl.date,
-                    'Student Call' as category, 'Session' as sub_type,
+                    CONVERT('Student Call' USING utf8mb4) as category, 
+                    CONVERT('Session' USING utf8mb4) as sub_type,
                     TRUE as connected_today, NULL as self_clarity, msl.session_quality_rating as confidence, msl.stress_level as exam_anxiety,
-                    NULL as motivation_level, msl.action_detail as mentor_action_needed, msl.main_issue as confusing_topic,
+                    NULL as motivation_level, CONVERT(msl.action_detail USING utf8mb4) as mentor_action_needed, 
+                    CONVERT(msl.main_issue USING utf8mb4) as confusing_topic,
                     msl.created_at,
-                    msl.connection_method, NULL as can_solve_independently, msl.homework_status,
+                    CONVERT(msl.connection_method USING utf8mb4) as connection_method, 
+                    NULL as can_solve_independently, msl.homework_status,
                     NULL as homework_difficulty, msl.revision_done as revision_quality, msl.focus_level,
-                    NULL as student_requests, 'Medium' as parent_update_priority,
-                    msl.main_issue, msl.secondary_issue, msl.weak_subject,
-                    msl.action_type, msl.action_detail, msl.followup_required,
-                    msl.followup_date, msl.student_status, msl.session_quality_rating,
+                    NULL as student_requests, CONVERT('Medium' USING utf8mb4) as parent_update_priority,
+                    CONVERT(msl.main_issue USING utf8mb4) as main_issue, 
+                    CONVERT(msl.secondary_issue USING utf8mb4) as secondary_issue, 
+                    CONVERT(msl.weak_subject USING utf8mb4) as weak_subject,
+                    CONVERT(msl.action_type USING utf8mb4) as action_type, 
+                    CONVERT(msl.action_detail USING utf8mb4) as action_detail, 
+                    msl.followup_required,
+                    msl.followup_date, CONVERT(msl.student_status USING utf8mb4) as student_status, 
+                    msl.session_quality_rating,
                     msl.understanding_after_session
                 FROM mentor_session_logs msl
                 JOIN students s ON msl.student_id = s.id
@@ -212,23 +224,25 @@ exports.getMentorInteractionLogs = async (req, res) => {
                         msr.session_type
                     ) USING utf8mb4) as mentor_notes,
                     msr.mentor_id, msr.student_id, DATE(msr.created_at) as date,
-                    'Interaction Hub' as category, msr.session_type as sub_type,
+                    CONVERT('Interaction Hub' USING utf8mb4) as category, 
+                    CONVERT(msr.session_type USING utf8mb4) as sub_type,
                     TRUE as connected_today, 
                     CAST(JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.self_clarity')) AS CHAR) as self_clarity,
                     CAST(JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.confidence')) AS CHAR) as confidence,
                     NULL as exam_anxiety, NULL as motivation_level, NULL as mentor_action_needed,
-                    JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.confusing_topic')) as confusing_topic,
+                    CONVERT(JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.confusing_topic')) USING utf8mb4) as confusing_topic,
                     msr.created_at,
-                    'Hub' as connection_method, NULL as can_solve_independently, NULL as homework_status,
+                    CONVERT('Hub' USING utf8mb4) as connection_method, NULL as can_solve_independently, NULL as homework_status,
                     NULL as homework_difficulty, NULL as revision_quality, NULL as focus_level,
-                    NULL as student_requests, 'Medium' as parent_update_priority,
+                    NULL as student_requests, CONVERT('Medium' USING utf8mb4) as parent_update_priority,
                     NULL as main_issue, NULL as secondary_issue, NULL as weak_subject,
                     NULL as action_type, NULL as action_detail, NULL as followup_required,
                     NULL as followup_date, NULL as student_status, NULL as session_quality_rating,
                     NULL as understanding_after_session
                 FROM mentor_session_reports msr
                 JOIN students s ON msr.student_id = s.id
-                JOIN users m ON msr.mentor_id = m.id)
+                JOIN users m ON msr.mentor_id = m.id
+                WHERE JSON_VALID(msr.report_data))
 
                 UNION ALL
 
@@ -239,16 +253,17 @@ exports.getMentorInteractionLogs = async (req, res) => {
                     CONVERT(m.name USING utf8mb4) as mentor_name,
                     CONVERT(ml.action_details USING utf8mb4) as mentor_notes,
                     ml.mentor_id, ml.student_id, DATE(ml.created_at) as date,
-                    'Mentorship' as category, 'General' as sub_type,
+                    CONVERT('Mentorship' USING utf8mb4) as category, 
+                    CONVERT('General' USING utf8mb4) as sub_type,
                     TRUE as connected_today, NULL as self_clarity, NULL as confidence, NULL as exam_anxiety,
-                    NULL as motivation_level, ml.action_details as mentor_action_needed, NULL as confusing_topic,
+                    NULL as motivation_level, CONVERT(ml.action_details USING utf8mb4) as mentor_action_needed, NULL as confusing_topic,
                     ml.created_at,
-                    'Mentorship' as connection_method, NULL as can_solve_independently, ml.homework_status,
+                    CONVERT('Mentorship' USING utf8mb4) as connection_method, NULL as can_solve_independently, ml.homework_status,
                     NULL as homework_difficulty, NULL as revision_quality, ml.focus_rating as focus_level,
-                    NULL as student_requests, ml.priority as parent_update_priority,
+                    NULL as student_requests, CONVERT(ml.priority USING utf8mb4) as parent_update_priority,
                     NULL as main_issue, NULL as secondary_issue, NULL as weak_subject,
-                    NULL as action_type, ml.action_details as action_detail, NULL as followup_required,
-                    NULL as followup_date, ml.student_status as student_status, NULL as session_quality_rating,
+                    NULL as action_type, CONVERT(ml.action_details USING utf8mb4) as action_detail, NULL as followup_required,
+                    NULL as followup_date, CONVERT(ml.student_status USING utf8mb4) as student_status, NULL as session_quality_rating,
                     NULL as understanding_after_session
                 FROM mentorship_logs ml
                 JOIN students s ON ml.student_id = s.id
@@ -316,7 +331,9 @@ exports.getMentorInteractionLogs = async (req, res) => {
 exports.getFacultyIntelligenceLogs = async (req, res) => {
     try {
         const [reports] = await db.query(`
-            SELECT r.*, s.name as student_name, u.name as faculty_name
+            SELECT r.*, 
+                   CONVERT(s.name USING utf8mb4) as student_name, 
+                   CONVERT(u.name USING utf8mb4) as faculty_name
             FROM student_reports r
             JOIN students s ON r.student_id = s.id
             JOIN users u ON r.faculty_id = u.id
