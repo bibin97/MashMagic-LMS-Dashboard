@@ -603,7 +603,7 @@ exports.getMentorDetails = async (req, res) => {
 
         // Parallel queries
         const [mentorProfile] = await db.query(
-            'SELECT id, name, phone_number, place, status, createdAt as created_at FROM users WHERE id = ? AND role = "mentor"',
+            'SELECT id, name, phone_number, place, status, created_at FROM users WHERE id = ? AND role = "mentor"',
             [mentorId]
         );
 
@@ -635,7 +635,7 @@ exports.getMentorDetails = async (req, res) => {
                 SELECT msr.id, DATE(msr.created_at) as date, JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.notes')) as details, s.name as student_name, CONCAT('Hub: ', msr.session_type) as type, msr.created_at
                 FROM mentor_session_reports msr
                 JOIN students s ON s.id = msr.student_id
-                WHERE msr.mentor_id = ?
+                WHERE msr.mentor_id = ? AND JSON_VALID(msr.report_data)
 
                 UNION ALL
 
@@ -1006,7 +1006,7 @@ exports.deleteStudent = async (req, res) => {
 
 exports.getFaculties = async (req, res) => {
     try {
-        const [rows] = await db.query('SELECT id, name, email, phone_number, place, status, createdAt FROM users WHERE role = "faculty" ORDER BY name ASC');
+        const [rows] = await db.query('SELECT id, name, email, phone_number, place, status, created_at FROM users WHERE role = "faculty" ORDER BY name ASC');
         res.status(200).json({ success: true, data: rows });
     } catch (error) { res.status(500).json({ success: false, message: error.message }); }
 };
