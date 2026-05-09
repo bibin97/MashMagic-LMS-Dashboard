@@ -64,44 +64,6 @@ exports.registerMentor = async (req, res) => {
 // @route   PUT /api/mentor-head/mentors/:mentorId
 // @access  Private (Mentor Head)
 // Consolidated version of editMentor moved to bottom for cleanliness, or just kept here. I'll keep one here and remove the others.
-exports.editMentor = async (req, res) => {
-    try {
-        const id = req.params.mentorId || req.params.id;
-        const { name, email, phone_number, place, password } = req.body;
-
-        if (!name || !email || !phone_number) {
-            return res.status(400).json({ success: false, message: "Name, email, and phone number are required fields" });
-        }
-
-        const [existingPhone] = await db.query('SELECT id FROM users WHERE phone_number = ? AND id != ?', [phone_number, id]);
-        const [existingEmail] = await db.query('SELECT id FROM users WHERE email = ? AND id != ?', [email, id]);
-
-        if (existingPhone.length > 0) return res.status(400).json({ success: false, message: "Phone number already in use" });
-        if (existingEmail.length > 0) return res.status(400).json({ success: false, message: "Email already in use" });
-
-        let query = 'UPDATE users SET name = ?, email = ?, phone_number = ?, place = ?';
-        let params = [name, email, phone_number, place || ''];
-
-        if (password) {
-            const salt = await bcrypt.genSalt(10);
-            const hashedPassword = await bcrypt.hash(password, salt);
-            query += ', password = ?';
-            params.push(hashedPassword);
-        }
-
-        query += ' WHERE id = ? AND role = "mentor"';
-        params.push(id);
-
-        const [result] = await db.query(query, params);
-        if (result.affectedRows === 0) return res.status(404).json({ success: false, message: "Mentor not found" });
-
-        await db.query('INSERT INTO admin_notifications (message) VALUES (?)', [`Mentor Head (${req.user.name}) updated mentor: ${name}`]);
-        res.status(200).json({ success: true, message: "Mentor updated successfully" });
-    } catch (error) {
-        console.error('Error updating mentor:', error);
-        res.status(500).json({ success: false, message: "Server Error", error: error.message });
-    }
-};
 
 
 // @desc    Get mentor's completed student interactions
@@ -956,24 +918,40 @@ exports.getDailySummary = async (req, res) => {
 // @route   PUT /api/mentor-head/mentors/:mentorId
 exports.editMentor = async (req, res) => {
     try {
-        const { mentorId } = req.params;
-        const { name, phone_number, place } = req.body;
-        const mentorHeadName = req.user.name || 'Mentor Head';
+        const id = req.params.mentorId || req.params.id;
+        const { name, email, phone_number, place, password } = req.body;
 
-        const [result] = await db.query(
-            'UPDATE users SET name = ?, phone_number = ?, place = ? WHERE id = ? AND role = "mentor"',
-            [name, phone_number, place, mentorId]
-        );
+        if (!name || !email || !phone_number) {
+            return res.status(400).json({ success: false, message: "Name, email, and phone number are required fields" });
+        }
 
-        if (result.affectedRows === 0) return res.status(404).json({ success: false, message: 'Mentor not found' });
+        const [existingPhone] = await db.query('SELECT id FROM users WHERE phone_number = ? AND id != ?', [phone_number, id]);
+        const [existingEmail] = await db.query('SELECT id FROM users WHERE email = ? AND id != ?', [email, id]);
 
-        // Notify Admin
-        const msg = `${mentorHeadName} updated details for mentor: ${name}`;
-        await db.query('INSERT INTO admin_notifications (message) VALUES (?)', [msg]);
+        if (existingPhone.length > 0) return res.status(400).json({ success: false, message: "Phone number already in use" });
+        if (existingEmail.length > 0) return res.status(400).json({ success: false, message: "Email already in use" });
 
-        res.status(200).json({ success: true, message: 'Mentor updated successfully' });
+        let query = 'UPDATE users SET name = ?, email = ?, phone_number = ?, place = ?';
+        let params = [name, email, phone_number, place || ''];
+
+        if (password) {
+            const salt = await bcrypt.genSalt(10);
+            const hashedPassword = await bcrypt.hash(password, salt);
+            query += ', password = ?';
+            params.push(hashedPassword);
+        }
+
+        query += ' WHERE id = ? AND role = "mentor"';
+        params.push(id);
+
+        const [result] = await db.query(query, params);
+        if (result.affectedRows === 0) return res.status(404).json({ success: false, message: "Mentor not found" });
+
+        await db.query('INSERT INTO admin_notifications (message) VALUES (?)', [`Mentor Head (${req.user.name}) updated mentor: ${name}`]);
+        res.status(200).json({ success: true, message: "Mentor updated successfully" });
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        console.error('Error updating mentor:', error);
+        res.status(500).json({ success: false, message: "Server Error", error: error.message });
     }
 };
 

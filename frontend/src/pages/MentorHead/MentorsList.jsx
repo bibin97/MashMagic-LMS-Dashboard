@@ -291,8 +291,85 @@ const MentorsList = () => {
  </div>
  )}
 
- {/* Edit Modal */}
- {/* ... already there ... */}
+  {/* Edit Mentor Modal */}
+  {isEditModalOpen && (
+    <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
+      <div className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-lg overflow-hidden animate-in slide-in-from-bottom-4 duration-300">
+        <div className="px-8 py-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+          <h2 className="text-lg font-black text-slate-900 flex items-center gap-3 uppercase tracking-tight">
+            <Edit2 size={20} className="text-[#008080]" /> Reconfigure Account
+          </h2>
+          <button onClick={() => setIsEditModalOpen(false)} className="text-slate-600 hover:text-slate-900 transition-colors">
+            <X size={20} />
+          </button>
+        </div>
+        <div className="p-8 space-y-6">
+          <div className="grid grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Mentor Name</label>
+              <input
+                type="text"
+                value={editingMentor.name}
+                onChange={(e) => setEditingMentor({ ...editingMentor, name: e.target.value })}
+                className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold outline-none focus:ring-2 focus:ring-[#008080] transition-all"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Phone Identity</label>
+              <input
+                type="text"
+                value={editingMentor.phone_number}
+                onChange={(e) => setEditingMentor({ ...editingMentor, phone_number: e.target.value })}
+                className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold outline-none focus:ring-2 focus:ring-[#008080] transition-all"
+              />
+            </div>
+          </div>
+          <div className="space-y-2">
+            <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Email Address</label>
+            <input
+              type="email"
+              value={editingMentor.email}
+              onChange={(e) => setEditingMentor({ ...editingMentor, email: e.target.value })}
+              className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold outline-none focus:ring-2 focus:ring-[#008080] transition-all"
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Geographic Location</label>
+            <input
+              type="text"
+              value={editingMentor.place}
+              onChange={(e) => setEditingMentor({ ...editingMentor, place: e.target.value })}
+              className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold outline-none focus:ring-2 focus:ring-[#008080] transition-all"
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Security Update (Optional)</label>
+            <input
+              type="password"
+              placeholder="LEAVE BLANK TO RETAIN CURRENT"
+              value={editingMentor.password}
+              onChange={(e) => setEditingMentor({ ...editingMentor, password: e.target.value })}
+              className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold outline-none focus:ring-2 focus:ring-rose-200 transition-all uppercase placeholder:text-[9px]"
+            />
+          </div>
+        </div>
+        <div className="px-8 py-6 border-t border-slate-100 bg-slate-50 flex justify-end gap-3">
+          <button
+            onClick={() => setIsEditModalOpen(false)}
+            className="px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-600 hover:bg-slate-100 transition-all"
+          >
+            Abort Sync
+          </button>
+          <button
+            onClick={handleUpdateMentor}
+            className="px-8 py-3 bg-[#008080] text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-[#008080]/30 hover:-translate-y-0.5 active:scale-95 transition-all"
+          >
+            Commit Updates
+          </button>
+        </div>
+      </div>
+    </div>
+  )}
 
  {/* Student View Modal */}
  {isStudentModalOpen && selectedMentorForView && (
