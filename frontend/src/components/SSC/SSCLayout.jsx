@@ -20,11 +20,9 @@ const SSCLayout = () => {
 
   const navItems = [
     { path: '/ssc/dashboard', icon: <LayoutDashboard size={18} />, label: 'Dashboard' },
-    { path: '/ssc/students', icon: <GraduationCap size={18} />, label: 'Student Tracking' },
-    { path: '/ssc/mentors', icon: <Users size={18} />, label: 'Mentor Coordination' },
-    { path: '/ssc/interactions', icon: <MessageSquare size={18} />, label: 'Success Logs' },
-    { path: '/ssc/schedules', icon: <Calendar size={18} />, label: 'Academic Flow' },
-    { path: '/ssc/approvals', icon: <ShieldCheck size={18} />, label: 'Performance Audit' },
+    { path: '/ssc/students', icon: <Users size={18} />, label: 'Student List' },
+    { path: '/ssc/timetable', icon: <Clock size={18} />, label: 'Timetable Area' },
+    { path: '/ssc/academic-schedule', icon: <Calendar size={18} />, label: 'Academic Schedule' },
   ];
 
   return (

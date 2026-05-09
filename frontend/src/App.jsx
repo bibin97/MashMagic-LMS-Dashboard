@@ -90,6 +90,10 @@ import EditFaculty from './pages/AcademicHead/EditFaculty';
 
 // SSC Pages
 import SSCDashboard from './pages/SSC/SSCDashboard';
+import SSCStudentList from './pages/SSC/StudentList';
+import SSCTimetable from './pages/SSC/Timetable';
+import SSCAcademicSchedule from './pages/SSC/AcademicSchedule';
+import SSCInteractionLogs from './pages/SSC/InteractionLogs';
 
 function App() {
   return (
@@ -185,6 +189,11 @@ function App() {
           }>
             <Route index element={<Navigate to="/ssc/dashboard" replace />} />
             <Route path="dashboard" element={<SSCDashboard />} />
+            <Route path="students" element={<SSCStudentList />} />
+            <Route path="students/:id" element={<StudentDetails />} />
+            <Route path="interaction-logs" element={<SSCInteractionLogs />} />
+            <Route path="timetable" element={<SSCTimetable />} />
+            <Route path="academic-schedule" element={<SSCAcademicSchedule />} />
             <Route path="profile" element={<AdminProfile />} />
           </Route>
 

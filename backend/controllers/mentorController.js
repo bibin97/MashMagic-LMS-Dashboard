@@ -121,8 +121,8 @@ const getMentorStudents = async (req, res) => {
             ) THEN 1 ELSE 0 END as connected_today,
             s.onboarding_status
             FROM students s 
-            WHERE s.mentor_id = ?
-        `, [mentorId]);
+            ${req.user.role === 'ssc' ? '' : 'WHERE s.mentor_id = ?'}
+        `, req.user.role === 'ssc' ? [] : [mentorId]);
         res.status(200).json({ success: true, data: rows });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
@@ -136,10 +136,13 @@ const getStudentDetails = async (req, res) => {
         const mentorId = req.user.id;
         const studentId = req.params.id;
 
-        const [student] = await db.query('SELECT * FROM students WHERE id = ? AND mentor_id = ?', [studentId, mentorId]);
+        const [student] = await db.query(
+            `SELECT * FROM students WHERE id = ? ${req.user.role === 'ssc' ? '' : 'AND mentor_id = ?'}`,
+            req.user.role === 'ssc' ? [studentId] : [studentId, mentorId]
+        );
 
         if (!student.length) {
-            return res.status(404).json({ success: false, message: "Student not found or not assigned to you" });
+            return res.status(404).json({ success: false, message: req.user.role === 'ssc' ? "Student not found" : "Student not found or not assigned to you" });
         }
 
         const [timetable] = await db.query('SELECT * FROM mentor_timetable WHERE student_id = ? ORDER BY date ASC, start_time ASC', [studentId]);
@@ -808,17 +811,15 @@ const getDailyHours = async (req, res) => {
 const getAcademicSchedule = async (req, res) => {
     try {
         const mentorId = req.user.id;
-        console.log(`[AcademicSchedule] Fetching for Mentor ID: ${mentorId}`);
-
         const [rows] = await db.query(`
             SELECT fs.*, u.name as faculty_name, s.name as student_name, s.id as student_id
             FROM faculty_sessions fs
             JOIN users u ON fs.faculty_id = u.id
             JOIN session_attendance sa ON fs.id = sa.session_id
             JOIN students s ON sa.student_id = s.id
-            WHERE s.mentor_id = ?
+            ${req.user.role === 'ssc' ? '' : 'WHERE s.mentor_id = ?'}
             ORDER BY fs.date DESC, fs.start_time ASC
-        `, [mentorId]);
+        `, req.user.role === 'ssc' ? [] : [mentorId]);
         res.status(200).json({ success: true, data: rows });
     } catch (error) {
         console.error("Academic Schedule Error Detail:", error);
