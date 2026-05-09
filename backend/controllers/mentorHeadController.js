@@ -118,13 +118,13 @@ exports.getMentorStudents = async (req, res) => {
                 logs.log_id,
                 logs.type
             FROM (
-                SELECT id as log_id, student_id, date, 'Quick' as type FROM student_interaction_logs WHERE mentor_id = ?
+                SELECT id as log_id, student_id, date, CONVERT('Quick' USING utf8mb4) as type FROM student_interaction_logs WHERE mentor_id = ?
                 UNION ALL
-                SELECT id as log_id, student_id, DATE(created_at) as date, 'Session' as type FROM mentor_session_logs WHERE mentor_id = ?
+                SELECT id as log_id, student_id, DATE(created_at) as date, CONVERT('Session' USING utf8mb4) as type FROM mentor_session_logs WHERE mentor_id = ?
                 UNION ALL
-                SELECT id as log_id, student_id, DATE(created_at) as date, 'Hub' as type FROM mentor_session_reports WHERE mentor_id = ?
+                SELECT id as log_id, student_id, DATE(created_at) as date, CONVERT('Hub' USING utf8mb4) as type FROM mentor_session_reports WHERE mentor_id = ?
                 UNION ALL
-                SELECT id as log_id, student_id, DATE(created_at) as date, 'Mentorship' as type FROM mentorship_logs WHERE mentor_id = ?
+                SELECT id as log_id, student_id, DATE(created_at) as date, CONVERT('Mentorship' USING utf8mb4) as type FROM mentorship_logs WHERE mentor_id = ?
             ) as logs
             JOIN students s ON s.id = logs.student_id
             ORDER BY logs.date DESC
@@ -631,28 +631,28 @@ exports.getMentorDetails = async (req, res) => {
         try {
             [interactionLogs] = await db.query(
                 `SELECT * FROM (
-                    SELECT sil.id, sil.student_id, sil.date, sil.mentor_notes as details, s.name as student_name, 'Quick Log' as type, sil.created_at
+                    SELECT sil.id, sil.student_id, sil.date, CONVERT(sil.mentor_notes USING utf8mb4) as details, CONVERT(s.name USING utf8mb4) as student_name, CONVERT('Quick Log' USING utf8mb4) as type, sil.created_at
                     FROM student_interaction_logs sil 
                     JOIN students s ON s.id = sil.student_id 
                     WHERE sil.mentor_id = ?
                     
                     UNION ALL
                     
-                    SELECT msl.id, msl.student_id, DATE(msl.created_at) as date, CONCAT(msl.main_issue, ': ', msl.action_type) as details, s.name as student_name, 'Session Log' as type, msl.created_at
+                    SELECT msl.id, msl.student_id, DATE(msl.created_at) as date, CONVERT(CONCAT(msl.main_issue, ': ', msl.action_type) USING utf8mb4) as details, CONVERT(s.name USING utf8mb4) as student_name, CONVERT('Session Log' USING utf8mb4) as type, msl.created_at
                     FROM mentor_session_logs msl
                     JOIN students s ON s.id = msl.student_id
                     WHERE msl.mentor_id = ?
                     
                     UNION ALL
                     
-                    SELECT msr.id, msr.student_id, DATE(msr.created_at) as date, JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.notes')) as details, s.name as student_name, CONCAT('Hub: ', msr.session_type) as type, msr.created_at
+                    SELECT msr.id, msr.student_id, DATE(msr.created_at) as date, CONVERT(JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.notes')) USING utf8mb4) as details, CONVERT(s.name USING utf8mb4) as student_name, CONVERT(CONCAT('Hub: ', msr.session_type) USING utf8mb4) as type, msr.created_at
                     FROM mentor_session_reports msr
                     JOIN students s ON s.id = msr.student_id
                     WHERE msr.mentor_id = ? AND JSON_VALID(msr.report_data)
                     
                     UNION ALL
                     
-                    SELECT ml.id, ml.student_id, DATE(ml.created_at) as date, ml.action_details as details, s.name as student_name, 'Mentorship' as type, ml.created_at
+                    SELECT ml.id, ml.student_id, DATE(ml.created_at) as date, CONVERT(ml.action_details USING utf8mb4) as details, CONVERT(s.name USING utf8mb4) as student_name, CONVERT('Mentorship' USING utf8mb4) as type, ml.created_at
                     FROM mentorship_logs ml
                     JOIN students s ON s.id = ml.student_id
                     WHERE ml.mentor_id = ?
@@ -669,14 +669,14 @@ exports.getMentorDetails = async (req, res) => {
         try {
             [facultyLogs] = await db.query(
                 `SELECT * FROM (
-                    SELECT fil.id, fil.student_id, fil.date, fil.notes as details, s.name as student_name, 'Tracking' as type, fil.created_at
+                    SELECT fil.id, fil.student_id, fil.date, CONVERT(fil.notes USING utf8mb4) as details, CONVERT(s.name USING utf8mb4) as student_name, CONVERT('Tracking' USING utf8mb4) as type, fil.created_at
                     FROM faculty_interaction_logs fil 
                     JOIN students s ON s.id = fil.student_id 
                     WHERE fil.mentor_id = ?
                     
                     UNION ALL
                     
-                    SELECT mfi.id, mfi.student_id, DATE(mfi.created_at) as date, mfi.main_issue as details, s.name as student_name, 'Interaction' as type, mfi.created_at
+                    SELECT mfi.id, mfi.student_id, DATE(mfi.created_at) as date, CONVERT(mfi.main_issue USING utf8mb4) as details, CONVERT(s.name USING utf8mb4) as student_name, CONVERT('Interaction' USING utf8mb4) as type, mfi.created_at
                     FROM mentor_faculty_interactions mfi
                     JOIN students s ON s.id = mfi.student_id
                     WHERE mfi.mentor_id = ?
