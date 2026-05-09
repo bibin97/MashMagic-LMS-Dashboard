@@ -198,7 +198,8 @@ const Navbar = ({ onMenuClick }) => {
       'mentor_head': '/mentor-head/profile',
       'academic_head': '/academic-head/profile',
       'mentor': '/mentor/profile',
-      'faculty': '/faculty/profile'
+      'faculty': '/faculty/profile',
+      'ssc': '/ssc/profile'
     };
     const path = rolePaths[user?.role];
     if (path) {

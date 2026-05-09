@@ -10,7 +10,8 @@ import {
   UserCheck,
   Calendar,
   MessageSquare,
-  ShieldCheck
+  ShieldCheck,
+  Clock
 } from 'lucide-react';
 
 const SSCLayout = () => {
