@@ -336,9 +336,9 @@ exports.getMentorInteractionLogs = async (req, res) => {
                     CAST(fil.mentor_id AS CHAR) as mentor_id,
                     CONVERT('Intelligence' USING utf8mb4) as category,
                     CONVERT(fil.notes USING utf8mb4) as remarks,
-                    CONVERT(fil.action_plan USING utf8mb4) as action_plan,
-                    CAST(fil.followup_required AS CHAR) as followup_required,
-                    CAST(fil.followup_date AS CHAR) as followup_date,
+                    NULL as action_plan,
+                    NULL as followup_required,
+                    NULL as followup_date,
                     DATE(fil.date) as date
                 FROM faculty_interaction_logs fil
                 JOIN students s ON fil.student_id = s.id
