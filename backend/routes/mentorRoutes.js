@@ -25,6 +25,7 @@ const {
     createMentorshipLog,
     getMentorshipLogs,
     getStudentAcademicSchedule,
+    updateStudentAcademicSchedule,
     updateAcademicSessionReminder,
     completeAcademicSession
 } = require('../controllers/mentorController');
