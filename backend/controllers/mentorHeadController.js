@@ -294,19 +294,74 @@ exports.getMentorInteractionLogs = async (req, res) => {
                 FROM mentorship_logs ml
                 JOIN students s ON ml.student_id = s.id
                 JOIN users m ON ml.mentor_id = m.id)
+
+                UNION ALL
+
+                (SELECT 
+                    CAST(r.id AS CHAR) as id,
+                    r.created_at as sort_date,
+                    CONVERT(s.name USING utf8mb4) as student_name, 
+                    CONVERT(f.name USING utf8mb4) as mentor_name,
+                    CONVERT(r.remarks USING utf8mb4) as mentor_notes,
+                    CAST(r.faculty_id AS CHAR) as mentor_id, 
+                    CAST(r.student_id AS CHAR) as student_id, 
+                    DATE(r.created_at) as date,
+                    CONVERT('Faculty Intel' USING utf8mb4) as category, 
+                    CONVERT(r.type USING utf8mb4) as sub_type,
+                    '1' as connected_today, NULL as self_clarity, NULL as confidence, NULL as exam_anxiety,
+                    NULL as motivation_level, CONVERT(r.action_taken USING utf8mb4) as mentor_action_needed, NULL as confusing_topic,
+                    r.created_at,
+                    CONVERT('Report' USING utf8mb4) as connection_method, NULL as can_solve_independently, 
+                    NULL as homework_status, NULL as homework_difficulty, NULL as revision_quality, 
+                    NULL as focus_level, NULL as student_requests, CONVERT('Low' USING utf8mb4) as parent_update_priority,
+                    NULL as main_issue, NULL as secondary_issue, NULL as weak_subject,
+                    NULL as action_type, CONVERT(r.remarks USING utf8mb4) as action_detail, NULL as followup_required,
+                    CAST(r.follow_up_date AS CHAR) as followup_date, CONVERT(r.status USING utf8mb4) as student_status, NULL as session_quality_rating,
+                    NULL as understanding_after_session
+                FROM student_reports r
+                JOIN students s ON r.student_id = s.id
+                JOIN users f ON r.faculty_id = f.id)
             ) as combined_student_logs
             WHERE 1=1
         `;
 
         // 2. Fetch Faculty Logs (Logs from Mentors about Faculty)
         let facultyQuery = `
-            SELECT fil.*, COALESCE(fil.created_at, fil.date) as sort_date, 
-                   CONVERT(s.name USING utf8mb4) as student_name, 
-                   CONVERT(m.name USING utf8mb4) as mentor_name, 
-                   'Faculty' as type
-            FROM faculty_interaction_logs fil
-            JOIN students s ON fil.student_id = s.id
-            JOIN users m ON fil.mentor_id = m.id
+            SELECT * FROM (
+                (SELECT 
+                    CAST(fil.id AS CHAR) as id, 
+                    COALESCE(fil.created_at, fil.date) as sort_date, 
+                    CONVERT(s.name USING utf8mb4) as student_name, 
+                    CONVERT(m.name USING utf8mb4) as mentor_name, 
+                    CAST(fil.mentor_id AS CHAR) as mentor_id,
+                    CONVERT('Intelligence' USING utf8mb4) as category,
+                    CONVERT(fil.notes USING utf8mb4) as remarks,
+                    CONVERT(fil.action_plan USING utf8mb4) as action_plan,
+                    CAST(fil.followup_required AS CHAR) as followup_required,
+                    CAST(fil.followup_date AS CHAR) as followup_date,
+                    DATE(fil.date) as date
+                FROM faculty_interaction_logs fil
+                JOIN students s ON fil.student_id = s.id
+                JOIN users m ON fil.mentor_id = m.id)
+
+                UNION ALL
+
+                (SELECT 
+                    CAST(mfi.id AS CHAR) as id,
+                    mfi.created_at as sort_date,
+                    CONVERT(s.name USING utf8mb4) as student_name,
+                    CONVERT(m.name USING utf8mb4) as mentor_name,
+                    CAST(mfi.mentor_id AS CHAR) as mentor_id,
+                    CONVERT('Faculty Tracking' USING utf8mb4) as category,
+                    CONVERT(mfi.main_issue USING utf8mb4) as remarks,
+                    CONVERT(mfi.action_plan USING utf8mb4) as action_plan,
+                    CAST(mfi.followup_required AS CHAR) as followup_required,
+                    CAST(mfi.followup_date AS CHAR) as followup_date,
+                    DATE(mfi.date) as date
+                FROM mentor_faculty_interactions mfi
+                JOIN students s ON mfi.student_id = s.id
+                JOIN users m ON mfi.mentor_id = m.id)
+            ) as combined_faculty_logs
             WHERE 1=1
         `;
         let studentParams = [];
