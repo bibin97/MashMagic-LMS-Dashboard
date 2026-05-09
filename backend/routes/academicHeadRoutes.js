@@ -4,6 +4,7 @@ const {
     getDropdownData,
     registerStudent,
     registerFaculty,
+    registerSSC,
     getDashboardStats,
     getAllFacultyActivity,
     getStudentInteractionLogs,
@@ -57,6 +58,7 @@ router.get('/dropdowns', getDropdownData);
 router.get('/available-faculties', getAvailableFaculties);
 router.post('/register-student', registerStudent);
 router.post('/register-faculty', registerFaculty);
+router.post('/register-ssc', registerSSC);
 
 // Checking Section
 router.get('/live-class-evaluations', getLiveClassEvaluations);

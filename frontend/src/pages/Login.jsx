@@ -35,7 +35,7 @@ const Login = () => {
   // Map sub-roles for better selection
   const subRoles = {
     'admin': ['Super Admin', 'Sub Admin'],
-    'academic': ['Academic Head', 'Faculty'],
+    'academic': ['Academic Head', 'Success Coordinator (SSC)', 'Faculty'],
     'mentor': ['Mentor Head', 'Mentor']
   };
 
@@ -48,7 +48,10 @@ const Login = () => {
 
     setLoading(true);
     try {
-      const finalRole = role.toLowerCase().replace(' ', '_');
+      let finalRole = role.toLowerCase().replace(' ', '_');
+      // Normalize SSC role mapping
+      if (role === 'Success Coordinator (SSC)') finalRole = 'ssc';
+
       // Map frontend dept to backend department parameter
       const deptMap = {
         'admin': 'admin',
@@ -79,6 +82,7 @@ const Login = () => {
         else if (finalRole === 'mentor') navigate('/mentor/dashboard');
         else if (finalRole === 'faculty_head') navigate('/faculty-head/dashboard');
         else if (finalRole === 'faculty') navigate('/faculty/dashboard');
+        else if (finalRole === 'ssc') navigate('/ssc/dashboard');
       }
     } catch (error) {
       toast.error(error.response?.data?.message || 'Authentication Failed');
@@ -308,7 +312,7 @@ const Login = () => {
                     </button>
                   </div>
 
-                  {(role === 'Super Admin' || role === 'Academic Head' || role === 'Mentor Head') && (
+                  {(role === 'Super Admin' || role === 'Academic Head' || role === 'Mentor Head') && role !== 'Success Coordinator (SSC)' && (
                     <div className="flex justify-center pt-2 border-t border-white/5">
                       <button 
                         type="button"

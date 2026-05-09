@@ -395,8 +395,6 @@ const registerFaculty = async (req, res) => {
         const passwordToHash = (password && password.trim() !== '') ? password.trim() : (phone_number || "faculty123");
         const hashedPassword = await bcrypt.hash(passwordToHash, salt);
 
-        // Faculty registration starts as PENDING when created by Academic Head (to follow standard approval flow if needed)
-        // Or ACTIVE if desired - project seems to use 'pending' for notification logic.
         const userId = await User.create({
             name,
             email: email?.trim() || null,
@@ -440,6 +438,53 @@ const registerFaculty = async (req, res) => {
         res.status(500).json({ success: false, message: "Internal server error during registration" });
     }
 };
+
+// @desc    Register a new Student Success Coordinator (SSC)
+// @route   POST /api/academic-head/register-ssc
+const registerSSC = async (req, res) => {
+    try {
+        const { name, email, phone_number, place, password } = req.body;
+        const requesterId = req.user?.id;
+
+        if (!requesterId) {
+            return res.status(401).json({ success: false, message: "User session invalid. Please re-login." });
+        }
+
+        const salt = await bcrypt.genSalt(10);
+        const passwordToHash = (password && password.trim() !== '') ? password.trim() : (phone_number || "ssc123");
+        const hashedPassword = await bcrypt.hash(passwordToHash, salt);
+
+        const userId = await User.create({
+            name,
+            email: email?.trim() || null,
+            phone_number: phone_number?.trim() || null,
+            place,
+            password: hashedPassword,
+            role: 'ssc',
+            status: 'pending',
+            isApproved: 0,
+            registeredBy: requesterId
+        });
+
+        // Notify Admin
+        const msg = `<b>Staff Onboarding:</b> <span style="color:#008080">${req.user.name}</span> added new SSC <b>${name}</b>. <span style="color:#f59e0b">(Pending Approval)</span>`;
+        await db.query('INSERT INTO admin_notifications (message, related_id, action_type) VALUES (?, ?, ?)', [msg, userId, 'ssc_registration']);
+
+        res.status(201).json({
+            success: true,
+            message: "SSC account created successfully. Pending Admin approval.",
+            userId
+        });
+    } catch (error) {
+        console.error('[SSC REG] ERROR:', error);
+        if (error.code === 'ER_DUP_ENTRY') {
+            return res.status(400).json({ success: false, message: "Email or Phone already exists." });
+        }
+        res.status(500).json({ success: false, message: "Internal server error during registration" });
+    }
+};
+
+exports.registerSSC = registerSSC;
 
 // @desc    Get all student interaction logs (Mentor logs)
 // @route   GET /api/academic-head/student-interaction-logs
@@ -980,6 +1025,7 @@ module.exports = {
     getDropdownData,
     registerStudent,
     registerFaculty,
+    registerSSC,
     getDashboardStats,
     getAllFacultyActivity,
     getStudentInteractionLogs,

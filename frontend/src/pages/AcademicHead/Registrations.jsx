@@ -40,6 +40,10 @@ const Registrations = () => {
     isSyllabusDropdownOpen: false, isLangDropdownOpen: false
   });
 
+  const [sscForm, setSscForm] = useState({
+    name: '', email: '', phone_number: '', place: '', password: '', confirmPassword: ''
+  });
+
   const LANG_OPTIONS = [
     { id: 'ENG', label: 'ENG(100%)' },
     { id: 'BL-AD', label: 'BILINGUAL ADVANCE' },
@@ -156,6 +160,7 @@ const Registrations = () => {
 
   const handleStudentChange = (e) => setStudentForm({ ...studentForm, [e.target.name]: e.target.value });
   const handleFacultyChange = (e) => setFacultyForm({ ...facultyForm, [e.target.name]: e.target.value });
+  const handleSSCChange = (e) => setSscForm({ ...sscForm, [e.target.name]: e.target.value });
 
   const addSubjectRow = () => {
     setSelectedSubjects([...selectedSubjects, { 
@@ -218,8 +223,27 @@ const Registrations = () => {
         });
         fetchDropdowns();
       }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const submitSSC = async (e) => {
+    e.preventDefault();
+    if (sscForm.password && sscForm.password !== sscForm.confirmPassword) {
+      return toast.error("Passwords do not match!");
+    }
+    setLoading(true);
+    try {
+      const res = await api.post('/academic-head/register-ssc', sscForm);
+      if (res.data.success) {
+        toast.success('SSC Account Created Successfully!');
+        setSscForm({
+          name: '', email: '', phone_number: '', place: '', password: '', confirmPassword: ''
+        });
+      }
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to register faculty');
+      toast.error(error.response?.data?.message || 'Failed to register SSC');
     } finally {
       setLoading(false);
     }
@@ -243,7 +267,8 @@ const Registrations = () => {
         <div className="flex gap-2 mb-8 bg-slate-200/50 p-1.5 rounded-2xl w-fit mx-auto shadow-inner">
           {[
             { id: 'student', label: 'Student' },
-            { id: 'faculty', label: 'Faculty Registration' }
+            { id: 'faculty', label: 'Faculty Registration' },
+            { id: 'ssc', label: 'Success Coordinator (SSC)' }
           ].map((tab) => (
             <button
               key={tab.id}
@@ -932,6 +957,81 @@ const Registrations = () => {
                 {loading ? 'Processing...' : 'Securely Onboard Faculty'}
                 {!loading && <CheckCircle size={16} />}
               </button>
+            </form>
+          )}
+
+          {activeTab === 'ssc' && (
+            <form onSubmit={submitSSC} className="space-y-8 animate-in fade-in slide-in-from-left-4 duration-500 pb-10">
+              <div className="flex items-center gap-4 mb-8">
+                <div className="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-2xl flex items-center justify-center shadow-sm">
+                  <UserPlus size={24} />
+                </div>
+                <div>
+                  <h2 className="text-xl font-black text-slate-800 uppercase tracking-tight">SSC Onboarding</h2>
+                  <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">Register Student Success Coordinator</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Full Name</label>
+                  <div className="relative group">
+                    <User size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
+                    <input type="text" name="name" required value={sscForm.name} onChange={handleSSCChange} className="w-full p-4 pl-12 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 ring-indigo-500/10 transition-all text-black" placeholder="Enter full name" />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Email Address</label>
+                  <div className="relative group">
+                    <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
+                    <input type="email" name="email" required value={sscForm.email} onChange={handleSSCChange} className="w-full p-4 pl-12 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 ring-indigo-500/10 transition-all text-black" placeholder="email@example.com" />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Phone Number</label>
+                  <div className="relative group">
+                    <Phone size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
+                    <input type="tel" name="phone_number" required value={sscForm.phone_number} onChange={handleSSCChange} className="w-full p-4 pl-12 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 ring-indigo-500/10 transition-all text-black" placeholder="Contact number" />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Place / City</label>
+                  <div className="relative group">
+                    <MapPin size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
+                    <input type="text" name="place" required value={sscForm.place} onChange={handleSSCChange} className="w-full p-4 pl-12 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 ring-indigo-500/10 transition-all text-black" placeholder="Work location" />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Login Password</label>
+                  <div className="relative group">
+                    <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
+                    <input type="password" name="password" required value={sscForm.password} onChange={handleSSCChange} className="w-full p-4 pl-12 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 ring-indigo-500/10 transition-all text-black" placeholder="••••••••" />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Confirm Password</label>
+                  <div className="relative group">
+                    <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
+                    <input type="password" name="confirmPassword" required value={sscForm.confirmPassword} onChange={handleSSCChange} className="w-full p-4 pl-12 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 ring-indigo-500/10 transition-all text-black" placeholder="••••••••" />
+                  </div>
+                </div>
+              </div>
+
+              <div className="pt-8 flex justify-end">
+                <button 
+                  disabled={loading} 
+                  type="submit" 
+                  className="px-10 py-5 bg-indigo-600 text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] hover:bg-slate-900 transition-all shadow-xl shadow-indigo-100 active:scale-95 disabled:opacity-50 flex items-center gap-3"
+                >
+                  {loading ? 'Processing...' : 'Complete SSC Registration'}
+                  {!loading && <CheckCircle size={18} />}
+                </button>
+              </div>
             </form>
           )}
         </div>
