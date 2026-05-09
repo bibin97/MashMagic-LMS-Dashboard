@@ -35,7 +35,7 @@ const Login = () => {
   // Map sub-roles for better selection
   const subRoles = {
     'admin': ['Super Admin', 'Sub Admin'],
-    'academic': ['Academic Head', 'Success Coordinator (SSC)', 'Faculty'],
+    'academic': ['Academic Head', 'SSC', 'Faculty'],
     'mentor': ['Mentor Head', 'Mentor']
   };
 
@@ -50,7 +50,7 @@ const Login = () => {
     try {
       let finalRole = role.toLowerCase().replace(' ', '_');
       // Normalize SSC role mapping
-      if (role === 'Success Coordinator (SSC)') finalRole = 'ssc';
+      if (role === 'SSC') finalRole = 'ssc';
 
       // Map frontend dept to backend department parameter
       const deptMap = {
@@ -312,7 +312,7 @@ const Login = () => {
                     </button>
                   </div>
 
-                  {(role === 'Super Admin' || role === 'Academic Head' || role === 'Mentor Head') && role !== 'Success Coordinator (SSC)' && (
+                  {(role === 'Super Admin' || role === 'Academic Head' || role === 'Mentor Head') && role !== 'SSC' && (
                     <div className="flex justify-center pt-2 border-t border-white/5">
                       <button 
                         type="button"

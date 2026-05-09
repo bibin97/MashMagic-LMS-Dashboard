@@ -1,12 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
-import {
-  CalendarClock, CheckCircle, XCircle, Clock, ChevronRight,
-  MessageSquare, Plus, Filter, Calendar, Users,
-  MoreVertical, Edit2, Trash2, AlertTriangle, Info,
-  ArrowRight, MapPin, Search, ChevronDown, Clock3, Target, FileText,
-  CalendarDays, UserCheck, AlertCircle
-} from 'lucide-react';
+import { Users, Clock, Calendar, Search, Plus, Filter, Target, Trash2, Edit2, CheckCircle, XCircle, AlertCircle, RefreshCcw, Save, CalendarClock, ChevronDown, Info } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 import { premiumConfirm } from '../../utils/premiumConfirm';
@@ -23,8 +17,9 @@ const Timetable = () => {
     total: 0, completed: 0, cancelled: 0, postponed: 0, upcoming: 0
   });
   const [loading, setLoading] = useState(true);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [showModal, setShowModal] = useState(false);
   const [editingSession, setEditingSession] = useState(null);
+  const [rescheduleMode, setRescheduleMode] = useState(false);
   const [isBulkMode, setIsBulkMode] = useState(false);
   const [bulkSessions, setBulkSessions] = useState([]);
   const [studentSchedule, setStudentSchedule] = useState([]);
@@ -112,7 +107,6 @@ const Timetable = () => {
 
   const fetchStudents = async () => {
     try {
-      // If user is academic_head or super_admin, fetch all students
       const endpoint = (user?.role === 'academic_head' || user?.role === 'super_admin')
         ? `/academic-head/students-all${filters.mentor_id ? `?mentor_id=${filters.mentor_id}` : ''}`
         : '/mentor/students';
@@ -122,11 +116,6 @@ const Timetable = () => {
       console.error("Failed to load students");
     }
   };
-
-  const filteredStudents = students.filter(s =>
-    s.name?.toLowerCase().includes(studentSearch.toLowerCase()) ||
-    s.student_id?.toString().toLowerCase().includes(studentSearch.toLowerCase())
-  );
   
   useEffect(() => {
     const autoPopulate = async () => {
@@ -136,7 +125,6 @@ const Timetable = () => {
           const schedule = res.data.data;
           setStudentSchedule(schedule);
           
-          // Auto-populate if there's a schedule for SELECTED day of week
           const dayName = new Date(formData.date).toLocaleDateString('en-GB', { weekday: 'long' });
           const todaySlot = schedule.find(slot => slot.day_of_week === dayName);
           
@@ -163,6 +151,7 @@ const Timetable = () => {
 
   const handleCreateOpen = () => {
     setEditingSession(null);
+    setRescheduleMode(false);
     setIsBulkMode(false);
     setBulkSessions([]);
     setFormData({
@@ -178,11 +167,12 @@ const Timetable = () => {
       faculty_id: null,
       faculty_name: ''
     });
-    setIsModalOpen(true);
+    setShowModal(true);
   };
   
   const handleBulkOpen = () => {
     setEditingSession(null);
+    setRescheduleMode(false);
     setIsBulkMode(true);
     setBulkSessions([]);
     setFormData({
@@ -198,10 +188,11 @@ const Timetable = () => {
       faculty_id: null,
       faculty_name: ''
     });
-    setIsModalOpen(true);
+    setShowModal(true);
   };
 
   const handleEditOpen = (session) => {
+    setRescheduleMode(false);
     setEditingSession(session);
     setFormData({
       student_id: session.student_id,
@@ -210,14 +201,34 @@ const Timetable = () => {
       end_time: (session.end_time || '11:00').substring(0, 5),
       chapter: session.chapter || '',
       session_type: session.session_type || 'Regular Class',
-      status: session.status,
+      status: session.status || 'Scheduled',
       status_reason: session.status_reason || '',
       notes: session.notes || '',
-      faculty_id: session.faculty_id || null,
+      faculty_id: String(session.faculty_id || ''),
       faculty_name: session.faculty_name || '',
       session_mode: session.session_mode || 'Online'
     });
-    setIsModalOpen(true);
+    setShowModal(true);
+  };
+
+  const handleRescheduleOpen = (session) => {
+    setRescheduleMode(true);
+    setEditingSession(session);
+    setFormData({
+      student_id: session.student_id,
+      date: new Date(session.date).toISOString().split('T')[0],
+      start_time: (session.start_time || '10:00').substring(0, 5),
+      end_time: (session.end_time || '11:00').substring(0, 5),
+      chapter: session.chapter || '',
+      session_type: session.session_type || 'Regular Class',
+      status: session.status || 'Scheduled',
+      status_reason: session.status_reason || '',
+      notes: session.notes || '',
+      faculty_id: String(session.faculty_id || ''),
+      faculty_name: session.faculty_name || '',
+      session_mode: session.session_mode || 'Online'
+    });
+    setShowModal(true);
   };
 
   const handleDelete = async (sessionParam) => {
@@ -263,7 +274,9 @@ const Timetable = () => {
           await api.post('/mentor/timetable', formData);
           toast.success("Session created");
         }
-        setIsModalOpen(false);
+        setShowModal(false);
+        setEditingSession(null);
+        setRescheduleMode(false);
         fetchTimetable();
       } catch (error) {
         toast.error(error.response?.data?.message || "Operation failed");
@@ -280,7 +293,7 @@ const Timetable = () => {
           sessions: bulkSessions
         });
         toast.success(`${bulkSessions.length} sessions scheduled successfully`);
-        setIsModalOpen(false);
+        setShowModal(false);
         fetchTimetable();
       } catch (error) {
         toast.error(error.response?.data?.message || "Batch operation failed");
@@ -374,7 +387,7 @@ const Timetable = () => {
             onClick={() => setQuickFilter('this_month')}
             className="hidden lg:flex items-center gap-2 px-6 py-4 bg-slate-50 text-slate-600 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-100 transition-all border border-slate-100"
           >
-            <CalendarDays size={16} /> This Month
+            <Calendar size={16} /> This Month
           </button>
           <button
             onClick={handleBulkOpen}
@@ -396,7 +409,7 @@ const Timetable = () => {
           { label: 'Total Logs', value: summary.total, icon: Calendar, color: 'text-slate-900', bg: 'bg-white border-slate-100' },
           { label: 'Concluded', value: summary.completed, icon: CheckCircle, color: 'text-emerald-600', bg: 'bg-emerald-50/50 border-emerald-100/50' },
           { label: 'Outstanding', value: summary.upcoming, icon: Clock, color: 'text-[#008080]', bg: 'bg-[#008080]/10 border-[#008080]/50' },
-          { label: 'Reconfigured', value: summary.postponed, icon: AlertTriangle, color: 'text-amber-600', bg: 'bg-amber-50/50 border-amber-100/50' },
+          { label: 'Reconfigured', value: summary.postponed, icon: AlertCircle, color: 'text-amber-600', bg: 'bg-amber-50/50 border-amber-100/50' },
           { label: 'Aborted', value: summary.cancelled, icon: XCircle, color: 'text-rose-600', bg: 'bg-rose-50/50 border-rose-100/50' },
         ].map((stat, i) => (
           <div key={i} className={`${stat.bg} p-8 rounded-[2.5rem] border shadow-sm flex flex-col items-center text-center group hover:shadow-xl hover:-translate-y-2 transition-all duration-500`}>
@@ -534,12 +547,12 @@ const Timetable = () => {
 
                 <div className="flex flex-wrap items-center gap-8 flex-grow">
                   <div className="flex items-center gap-3 bg-slate-50/50 px-5 py-3 rounded-2xl border border-slate-100 transition-colors group-hover:bg-[#008080]/10">
-                    <Calendar className="text-[#008080]" size={16} />
+                    <Calendar size={16} className="text-[#008080]" />
                     <span className="text-xs font-black text-slate-700 ">{new Date(session.date).toLocaleDateString('en-GB')}</span>
                   </div>
 
                   <div className="flex items-center gap-3 bg-slate-50/50 px-5 py-3 rounded-2xl border border-slate-100 transition-colors group-hover:bg-[#008080]/10">
-                    <Clock className="text-[#008080]" size={16} />
+                    <Clock size={16} className="text-[#008080]" />
                     <span className="text-xs font-black text-slate-700 tracking-tighter">
                       {(session.start_time || '00:00').substring(0, 5)} - {(session.end_time || '00:00').substring(0, 5)}
                     </span>
@@ -557,13 +570,22 @@ const Timetable = () => {
                   </div>
                   <div className="flex gap-3">
                     <button
+                      onClick={() => handleRescheduleOpen(session)}
+                      title="Quick Reschedule"
+                      className="w-11 h-11 bg-slate-50 text-indigo-600 rounded-[1rem] flex items-center justify-center hover:bg-indigo-600 hover:text-white transition-all duration-500 active:scale-90 shadow-sm"
+                    >
+                      <RefreshCcw size={16} />
+                    </button>
+                    <button
                       onClick={() => handleEditOpen(session)}
+                      title="Full Edit"
                       className="w-11 h-11 bg-slate-50 text-[#008080] rounded-[1rem] flex items-center justify-center hover:bg-[#008080] hover:text-white transition-all duration-500 active:scale-90 shadow-sm"
                     >
                       <Edit2 size={16} />
                     </button>
                     <button
                       onClick={() => handleDelete(session)}
+                      title="Delete Session"
                       className="w-11 h-11 bg-slate-50 text-rose-600 rounded-[1rem] flex items-center justify-center hover:bg-rose-600 hover:text-white transition-all duration-500 active:scale-90 shadow-sm"
                     >
                       <Trash2 size={16} />
@@ -580,71 +602,103 @@ const Timetable = () => {
                 <Target size={48} />
               </div>
               <h3 className="text-xl font-black text-slate-900 tracking-tight uppercase">Timeline Void Discovery</h3>
-              <p className="text-[10px] font-bold text-slate-600 max-w-sm mt-3 uppercase tracking-widest leading-relaxed">No sessions found for the current filter parameters. Adjust your timeline or student selection.</p>
             </div>
           )}
         </div>
       )}
 
-      {isModalOpen && (
+      {showModal && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[9999] flex items-center justify-center p-4">
           <div className="bg-white rounded-[3rem] shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
-            <div className="sticky top-0 bg-white/80 backdrop-blur-xl px-10 py-6 border-b border-slate-100 flex justify-between items-center z-10">
+            <div className="flex items-center justify-between p-8 border-b border-slate-50">
               <div>
-                <h2 className="text-xl font-black text-slate-900 tracking-tight uppercase">
-                  {editingSession ? 'Reconfigure Session' : isBulkMode ? 'Bulk Timeline Generation' : 'Deploy New Session'}
+                <h2 className="text-2xl font-black text-slate-900 tracking-tight uppercase">
+                  {rescheduleMode ? 'Quick Reschedule' : (editingSession ? 'Reconfigure Session' : 'Anchor New Session')}
                 </h2>
-                <p className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] mt-1">Master Scheduling Module</p>
+                <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mt-1">
+                  {rescheduleMode ? 'Adjusting session timeline only' : (editingSession ? 'Updating existing timeline parameters' : 'Calibrating a new educational trajectory')}
+                </p>
               </div>
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="w-12 h-12 bg-slate-50 text-slate-600 rounded-2xl flex items-center justify-center hover:bg-slate-100 hover:text-slate-600 transition-all active:scale-90"
-              >
+              <button onClick={() => { setShowModal(false); setEditingSession(null); setRescheduleMode(false); }} className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-400 hover:bg-rose-50 hover:text-rose-500 transition-all active:scale-90 shadow-inner">
                 <XCircle size={24} />
               </button>
             </div>
 
             <form onSubmit={handleSubmit} className="p-10 space-y-12">
-              <div className="space-y-6">
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                  <h3 className="text-xs font-black text-[#008080] uppercase tracking-[0.2em] flex items-center gap-2">
-                    <Info size={16} /> SECTION 1: Parameters
-                  </h3>
-                  {formData.student_id && !editingSession && (
-                    (() => {
-                      const student = students.find(s => s.id == formData.student_id);
-                      const nextSessionNum = (student?.session_count || 0) + 1;
-                      if (nextSessionNum % 5 === 0) {
-                        return (
-                          <div className="bg-rose-50 border border-rose-100 px-4 py-2 rounded-xl flex items-center gap-3 animate-pulse">
-                            <AlertCircle className="text-rose-600" size={14} />
-                            <span className="text-[9px] font-black text-rose-600 uppercase tracking-widest ">
-                              Milestone Alert: Next session (#{nextSessionNum}) requires an exam assessment
-                            </span>
-                          </div>
-                        );
-                      }
-                      return null;
-                    })()
-                  )}
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Student Select *</label>
-                    <select
-                      required
-                      value={formData.student_id}
-                      onChange={(e) => setFormData({ ...formData, student_id: e.target.value })}
-                      disabled={!!editingSession}
-                      className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none disabled:opacity-50"
-                    >
-                      <option value="">Choose Student</option>
-                      {students.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
-                    </select>
+              {rescheduleMode ? (
+                <div className="space-y-6">
+                  <div className="bg-indigo-50 p-6 rounded-[2rem] border border-indigo-100 flex items-center gap-4">
+                    <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-indigo-600 shadow-sm">
+                      <Calendar size={24} />
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest">Student</p>
+                      <p className="text-base font-black text-indigo-900">{editingSession?.student_name}</p>
+                    </div>
                   </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Session Date *</label>
-                    <div className="relative">
+                  <div className="space-y-4">
+                    <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">New Target Date *</label>
+                    <input
+                      type="date"
+                      required
+                      value={formData.date}
+                      onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                      className="w-full p-6 bg-slate-50 border border-slate-100 rounded-[2rem] text-lg font-black focus:bg-white focus:ring-8 ring-indigo-500/10 transition-all outline-none"
+                    />
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-8">
+                  {/* Registration Slot Helper */}
+                  {studentSchedule.length > 0 && !editingSession && (
+                    <div className="bg-emerald-50 p-6 rounded-[2rem] border border-emerald-100 space-y-3">
+                      <label className="text-[10px] font-black text-emerald-600 uppercase tracking-widest ml-1 flex items-center gap-2">
+                         <Info size={14} /> Registered Academic Slot Reference
+                      </label>
+                      <select
+                        onChange={(e) => {
+                          const idx = e.target.value;
+                          if (idx === "") return;
+                          const slot = studentSchedule[idx];
+                          setFormData({
+                            ...formData,
+                            start_time: (slot.start_time || '10:00').substring(0, 5),
+                            end_time: (slot.end_time || '11:00').substring(0, 5),
+                            chapter: slot.subject || '',
+                            faculty_id: String(slot.faculty_id),
+                            faculty_name: slot.faculty_name
+                          });
+                          setSelectedSlot(idx);
+                        }}
+                        className="w-full p-4 bg-white border border-emerald-200 rounded-2xl text-[11px] font-black text-emerald-700 outline-none focus:ring-4 ring-emerald-500/10 transition-all cursor-pointer"
+                      >
+                        <option value="">Auto-fill from registered schedule...</option>
+                        {studentSchedule.map((slot, idx) => (
+                          <option key={idx} value={idx}>
+                             {slot.subject} | {(slot.start_time || '').substring(0, 5)} - {(slot.end_time || '').substring(0, 5)} | {slot.day_of_week} (Faculty: {slot.faculty_name})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Student Selection *</label>
+                      <select
+                        required
+                        disabled={!!editingSession}
+                        value={formData.student_id || ''}
+                        onChange={(e) => setFormData({ ...formData, student_id: e.target.value })}
+                        className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none disabled:opacity-50"
+                      >
+                        <option value="">Select Student</option>
+                        {students.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+                      </select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Session Date *</label>
                       <input
                         type="date"
                         required
@@ -652,182 +706,159 @@ const Timetable = () => {
                         onChange={(e) => setFormData({ ...formData, date: e.target.value })}
                         className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
                       />
-                      {formData.date && (
-                        <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
-                          <span className="text-[10px] bg-white border border-slate-100 px-3 py-1 rounded-lg font-black text-[#008080] shadow-sm">
-                            {new Date(formData.date).toLocaleDateString('en-GB')}
-                          </span>
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Start Time *</label>
+                      <input
+                        type="time"
+                        required={!isBulkMode}
+                        value={formData.start_time}
+                        onChange={(e) => setFormData({ ...formData, start_time: e.target.value })}
+                        className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">End Time *</label>
+                      <input
+                        type="time"
+                        required={!isBulkMode}
+                        value={formData.end_time}
+                        onChange={(e) => setFormData({ ...formData, end_time: e.target.value })}
+                        className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Faculty Assignment *</label>
+                      <select
+                        required
+                        value={formData.faculty_id || ''}
+                        onChange={(e) => {
+                          const fac = faculties.find(f => f.id == e.target.value);
+                          setFormData({ ...formData, faculty_id: e.target.value, faculty_name: fac?.name || '' });
+                        }}
+                        className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
+                      >
+                        <option value="">Select Faculty</option>
+                        {(() => {
+                          const assignedIds = new Set(studentSchedule.map(s => String(s.faculty_id)));
+                          const assigned = faculties.filter(f => assignedIds.has(String(f.id)));
+                          const others = faculties.filter(f => !assignedIds.has(String(f.id)));
+                          
+                          return (
+                            <>
+                              {assigned.length > 0 && (
+                                <optgroup label="Assigned to Student">
+                                  {assigned.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
+                                </optgroup>
+                              )}
+                              {others.length > 0 && (
+                                <optgroup label="Other Faculties">
+                                  {others.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
+                                </optgroup>
+                              )}
+                            </>
+                          );
+                        })()}
+                      </select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Topic / Chapter</label>
+                      <input
+                        type="text"
+                        value={formData.chapter}
+                        onChange={(e) => setFormData({ ...formData, chapter: e.target.value })}
+                        placeholder="Enter topic name"
+                        className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
+                      />
+                    </div>
+
+                    {editingSession && (
+                      <div className="col-span-full grid grid-cols-1 md:grid-cols-2 gap-8 pt-8 border-t border-slate-100">
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-black text-[#008080] uppercase tracking-widest ml-1">Update Operational Status</label>
+                          <select
+                            value={formData.status}
+                            onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                            className="w-full p-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] outline-none focus:ring-4 ring-slate-200 transition-all cursor-pointer shadow-xl shadow-slate-200"
+                          >
+                            {['Scheduled', 'Completed', 'Postponed', 'Cancelled', 'Faculty Cancelled', 'Student Cancelled', 'No Show'].map(s => (
+                              <option key={s} value={s}>{s.toUpperCase()}</option>
+                            ))}
+                          </select>
                         </div>
-                      )}
-                    </div>
-                  </div>
-
-                  {studentSchedule.length > 0 && (
-                    <div className="space-y-2 col-span-full">
-                      <label className="text-[10px] font-black text-[#008080] uppercase tracking-widest ml-1">
-                        Registered Academic Slot (Select to Auto-fill Faculty & Times)
-                      </label>
-                      <div className="relative group">
-                        <select
-                          onChange={(e) => {
-                            const idx = e.target.value;
-                            if (idx === "") return;
-                            const slot = studentSchedule[idx];
-                            setFormData({
-                              ...formData,
-                              start_time: slot.start_time.substring(0, 5),
-                              end_time: slot.end_time.substring(0, 5),
-                              chapter: slot.subject || '',
-                              faculty_id: String(slot.faculty_id),
-                              faculty_name: slot.faculty_name
-                            });
-                            setSelectedSlot(idx);
-                          }}
-                          className="w-full p-4 bg-emerald-50 border border-emerald-100 rounded-2xl text-[11px] font-black text-emerald-700 focus:ring-4 ring-emerald-500/10 outline-none appearance-none transition-all cursor-pointer"
-                        >
-                          <option value="">Select a registered time slot...</option>
-                          {studentSchedule.map((slot, idx) => (
-                            <option key={idx} value={idx}>
-                              {slot.day_of_week} | {(slot.start_time || '').substring(0, 5)} - {(slot.end_time || '').substring(0, 5)} | {slot.subject} (Faculty: {slot.faculty_name})
-                            </option>
-                          ))}
-                        </select>
-                        <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-emerald-600 pointer-events-none" size={14} />
-                      </div>
-                      <p className="text-[9px] font-medium text-emerald-600 mt-1 pl-1 italic">
-                        * Auto-fills all session parameters from registration data.
-                      </p>
-                    </div>
-                  )}
-
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Start Time *</label>
-                    <input
-                      type="time"
-                      required={!isBulkMode}
-                      value={formData.start_time}
-                      onChange={(e) => setFormData({ ...formData, start_time: e.target.value })}
-                      className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">End Time *</label>
-                    <input
-                      type="time"
-                      required={!isBulkMode}
-                      value={formData.end_time}
-                      onChange={(e) => setFormData({ ...formData, end_time: e.target.value })}
-                      className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Faculty Assignment *</label>
-                    <select
-                      required
-                      value={formData.faculty_id || ''}
-                      onChange={(e) => {
-                        const fac = faculties.find(f => f.id == e.target.value);
-                        setFormData({ ...formData, faculty_id: e.target.value, faculty_name: fac?.name || '' });
-                      }}
-                      className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
-                    >
-                      <option value="">Select Faculty</option>
-                      {faculties.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
-                    </select>
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Topic / Chapter</label>
-                    <input
-                      type="text"
-                      value={formData.chapter}
-                      onChange={(e) => setFormData({ ...formData, chapter: e.target.value })}
-                      placeholder="Enter topic name"
-                      className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
-                    />
-                  </div>
-
-                  {editingSession && (
-                    <div className="col-span-full grid grid-cols-1 md:grid-cols-2 gap-8 pt-8 border-t border-slate-100">
-                      <div className="space-y-2">
-                        <label className="text-[10px] font-black text-[#008080] uppercase tracking-widest ml-1">Update Operational Status</label>
-                        <select
-                          value={formData.status}
-                          onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                          className="w-full p-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] outline-none focus:ring-4 ring-slate-200 transition-all cursor-pointer shadow-xl shadow-slate-200"
-                        >
-                          {['Scheduled', 'Completed', 'Postponed', 'Cancelled', 'Faculty Cancelled', 'Student Cancelled', 'No Show'].map(s => (
-                            <option key={s} value={s}>{s.toUpperCase()}</option>
-                          ))}
-                        </select>
-                      </div>
-                      <div className="space-y-2">
-                        <label className="text-[10px] font-black text-rose-500 uppercase tracking-widest ml-1">Official Reason for Change *</label>
-                        <textarea
-                          required={['Postponed', 'Cancelled', 'Faculty Cancelled', 'Student Cancelled'].includes(formData.status)}
-                          value={formData.status_reason}
-                          onChange={(e) => setFormData({ ...formData, status_reason: e.target.value })}
-                          rows="2"
-                          className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-rose-500/10 transition-all outline-none"
-                          placeholder="Mandatory for postponement or cancellation: Type the specific reason here..."
-                        ></textarea>
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {isBulkMode && (
-                  <div className="pt-6 border-t border-slate-50">
-                    <button
-                      type="button"
-                      onClick={addToBatch}
-                      className="w-full py-4 bg-emerald-50 text-emerald-600 border border-emerald-100 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] hover:bg-emerald-600 hover:text-white transition-all flex items-center justify-center gap-3"
-                    >
-                      <Plus size={16} /> Add This Session to Timeline
-                    </button>
-
-                    {bulkSessions.length > 0 && (
-                      <div className="mt-8 space-y-3">
-                        <div className="flex items-center justify-between px-2">
-                          <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Staged Timeline ({bulkSessions.length})</h4>
-                          <button type="button" onClick={() => setBulkSessions([])} className="text-[10px] font-black text-rose-500 uppercase">Clear All</button>
-                        </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                          {bulkSessions.map((session, index) => (
-                            <div key={index} className="flex items-center justify-between p-4 bg-slate-50 border border-slate-100 rounded-2xl group hover:border-[#008080] transition-all">
-                              <div className="flex items-center gap-4">
-                                <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center text-[#008080] font-black text-[10px] shadow-sm">
-                                  {index + 1}
-                                </div>
-                                <div>
-                                  <p className="text-[11px] font-black text-slate-800">{new Date(session.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })}</p>
-                                  <p className="text-[9px] font-bold text-slate-500">{session.start_time} - {session.end_time}</p>
-                                </div>
-                              </div>
-                              <button type="button" onClick={() => removeFromBatch(index)} className="p-2 text-slate-300 hover:text-rose-500 opacity-0 group-hover:opacity-100 transition-all">
-                                <Trash2 size={14} />
-                              </button>
-                            </div>
-                          ))}
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-black text-rose-500 uppercase tracking-widest ml-1">Official Reason for Change *</label>
+                          <textarea
+                            required={['Postponed', 'Cancelled', 'Faculty Cancelled', 'Student Cancelled'].includes(formData.status)}
+                            value={formData.status_reason}
+                            onChange={(e) => setFormData({ ...formData, status_reason: e.target.value })}
+                            rows="2"
+                            className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-rose-500/10 transition-all outline-none"
+                            placeholder="Reason for change..."
+                          ></textarea>
                         </div>
                       </div>
                     )}
                   </div>
-                )}
-              </div>
+
+                  {isBulkMode && (
+                    <div className="pt-6 border-t border-slate-50">
+                      <button
+                        type="button"
+                        onClick={addToBatch}
+                        className="w-full py-4 bg-emerald-50 text-emerald-600 border border-emerald-100 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] hover:bg-emerald-600 hover:text-white transition-all flex items-center justify-center gap-3"
+                      >
+                        <Plus size={16} /> Add This Session to Timeline
+                      </button>
+
+                      {bulkSessions.length > 0 && (
+                        <div className="mt-8 space-y-3">
+                          <div className="flex items-center justify-between px-2">
+                            <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Staged Timeline ({bulkSessions.length})</h4>
+                            <button type="button" onClick={() => setBulkSessions([])} className="text-[10px] font-black text-rose-500 uppercase">Clear All</button>
+                          </div>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            {bulkSessions.map((session, index) => (
+                              <div key={index} className="flex items-center justify-between p-4 bg-slate-50 border border-slate-100 rounded-2xl group hover:border-[#008080] transition-all">
+                                <div className="flex items-center gap-4">
+                                  <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center text-[#008080] font-black text-[10px] shadow-sm">
+                                    {index + 1}
+                                  </div>
+                                  <div>
+                                    <p className="text-[11px] font-black text-slate-800">{new Date(session.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })}</p>
+                                    <p className="text-[9px] font-bold text-slate-500">{session.start_time} - {session.end_time}</p>
+                                  </div>
+                                </div>
+                                <button type="button" onClick={() => removeFromBatch(index)} className="p-2 text-slate-300 hover:text-rose-500 opacity-0 group-hover:opacity-100 transition-all">
+                                  <Trash2 size={14} />
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
 
               <div className="flex flex-col md:flex-row gap-4 pt-10 border-t border-slate-50">
                 <button
-                  type="submit"
-                  className="flex-1 bg-slate-900 text-white p-5 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-slate-200 hover:shadow-2xl transition-all h-16 "
+                  type="button"
+                  onClick={() => { setShowModal(false); setEditingSession(null); setRescheduleMode(false); }}
+                  className="flex-1 py-4 bg-slate-50 text-slate-600 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-100 transition-all"
                 >
-                  {editingSession ? 'Execute Update' : isBulkMode ? `Deploy ${bulkSessions.length} Sessions` : 'Initialize Session'}
+                  Cancel
                 </button>
                 <button
-                  type="button"
-                  onClick={() => setIsModalOpen(false)}
-                  className="flex-1 bg-slate-50 text-slate-600 p-5 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-slate-100 transition-all h-16"
+                  type="submit"
+                  className={`flex-[2] py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest text-white transition-all shadow-xl active:scale-[0.98] flex items-center justify-center gap-3 ${rescheduleMode ? 'bg-indigo-600 hover:bg-indigo-700 shadow-indigo-200' : 'bg-[#008080] hover:bg-[#006666] shadow-[#008080]/30'}`}
                 >
-                  Cancel Operation
+                  {rescheduleMode ? <RefreshCcw size={16} /> : (editingSession ? <RefreshCcw size={16} /> : <Plus size={16} />)}
+                  {rescheduleMode ? 'Apply Reschedule' : (editingSession ? 'Update Session' : isBulkMode ? 'Finalize Timeline Deployment' : 'Anchor New Session')}
                 </button>
               </div>
             </form>

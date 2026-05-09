@@ -41,13 +41,28 @@ const getDashboardStats = async (req, res) => {
     try {
         const today = new Date().toISOString().split('T')[0];
 
+        // Helper to run query safely
+        const safeQuery = async (query, params, label) => {
+            try {
+                const [result] = await db.query(query, params);
+                return result;
+            } catch (err) {
+                console.error(`[Academic Head Dashboard Error] ${label}:`, err.message);
+                return [];
+            }
+        };
+
         // 1. Basic Stats
-        const [[{ totalStudents }]] = await db.query('SELECT COUNT(*) as totalStudents FROM students WHERE status = "active"');
-        const [[{ totalFaculties }]] = await db.query('SELECT COUNT(*) as totalFaculties FROM users WHERE role = "faculty" AND status = "active"');
-        const [[{ totalMentors }]] = await db.query('SELECT COUNT(*) as totalMentors FROM users WHERE role = "mentor" AND status = "active"');
+        const studentsStats = await safeQuery('SELECT COUNT(*) as totalStudents FROM students WHERE status = "active"', [], 'totalStudents');
+        const facultiesStats = await safeQuery('SELECT COUNT(*) as totalFaculties FROM users WHERE role = "faculty" AND status = "active"', [], 'totalFaculties');
+        const mentorsStats = await safeQuery('SELECT COUNT(*) as totalMentors FROM users WHERE role = "mentor" AND status = "active"', [], 'totalMentors');
+
+        const totalStudents = studentsStats[0]?.totalStudents || 0;
+        const totalFaculties = facultiesStats[0]?.totalFaculties || 0;
+        const totalMentors = mentorsStats[0]?.totalMentors || 0;
 
         // 2. Today's Schedule
-        const [schedule] = await db.query(`
+        const schedule = await safeQuery(`
             SELECT 
                 tt.id, tt.start_time, tt.end_time, tt.chapter, tt.status,
                 s.name as student_name, s.subject,
@@ -57,23 +72,23 @@ const getDashboardStats = async (req, res) => {
             LEFT JOIN users u ON s.faculty_id = u.id
             WHERE tt.date = ?
             ORDER BY tt.start_time ASC
-        `, [today]);
+        `, [today], 'schedule');
 
         // 3. Activity Feed (Merged Intelligence from all logs)
         // Normalized with CONVERT to avoid collation issues in UNION
-        const [activityFeed] = await db.query(`
+        const activityFeed = await safeQuery(`
             SELECT * FROM (
-                (SELECT 'Quick Log' as type, CONVERT(sil.mentor_notes USING utf8mb4) as mentor_notes, s.name as student_name, u.name as origin_name, sil.created_at as date
+                (SELECT CONVERT('Quick Log' USING utf8mb4) as type, CONVERT(sil.mentor_notes USING utf8mb4) as mentor_notes, CONVERT(s.name USING utf8mb4) as student_name, CONVERT(u.name USING utf8mb4) as origin_name, sil.created_at as date
                  FROM student_interaction_logs sil
                  JOIN students s ON sil.student_id = s.id
                  JOIN users u ON sil.mentor_id = u.id)
                 UNION ALL
-                (SELECT 'Session Log' as type, CONVERT(CONCAT(msl.main_issue, ': ', msl.action_type) USING utf8mb4) as mentor_notes, s.name as student_name, u.name as origin_name, msl.created_at as date
+                (SELECT CONVERT('Session Log' USING utf8mb4) as type, CONVERT(CONCAT(msl.main_issue, ': ', msl.action_type) USING utf8mb4) as mentor_notes, CONVERT(s.name USING utf8mb4) as student_name, CONVERT(u.name USING utf8mb4) as origin_name, msl.created_at as date
                  FROM mentor_session_logs msl
                  JOIN students s ON msl.student_id = s.id
                  JOIN users u ON msl.mentor_id = u.id)
                 UNION ALL
-                (SELECT 'Hub Report' as type, 
+                (SELECT CONVERT('Hub Report' USING utf8mb4) as type, 
                          CONVERT(COALESCE(
                              JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.notes')), 
                              JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.action_plan')),
@@ -82,34 +97,35 @@ const getDashboardStats = async (req, res) => {
                              JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.main_problem')),
                              msr.session_type
                          ) USING utf8mb4) as mentor_notes, 
-                         s.name as student_name, u.name as origin_name, msr.created_at as date
+                         CONVERT(s.name USING utf8mb4) as student_name, CONVERT(u.name USING utf8mb4) as origin_name, msr.created_at as date
                  FROM mentor_session_reports msr
                  JOIN students s ON msr.student_id = s.id
-                 JOIN users u ON msr.mentor_id = u.id)
+                 JOIN users u ON msr.mentor_id = u.id
+                 WHERE msr.report_data IS NOT NULL AND JSON_VALID(msr.report_data))
                 UNION ALL
-                (SELECT 'Mentorship' as type, CONVERT(ml.action_details USING utf8mb4) as mentor_notes, s.name as student_name, u.name as origin_name, ml.created_at as date
+                (SELECT CONVERT('Mentorship' USING utf8mb4) as type, CONVERT(ml.action_details USING utf8mb4) as mentor_notes, CONVERT(s.name USING utf8mb4) as student_name, CONVERT(u.name USING utf8mb4) as origin_name, ml.created_at as date
                  FROM mentorship_logs ml
                  JOIN students s ON ml.student_id = s.id
                  JOIN users u ON ml.mentor_id = u.id)
                 UNION ALL
-                (SELECT 'Faculty Interaction' as type, CONVERT(fil.notes USING utf8mb4) as mentor_notes, s.name as student_name, u.name as origin_name, fil.created_at as date
+                (SELECT CONVERT('Faculty Interaction' USING utf8mb4) as type, CONVERT(fil.notes USING utf8mb4) as mentor_notes, CONVERT(s.name USING utf8mb4) as student_name, CONVERT(u.name USING utf8mb4) as origin_name, fil.created_at as date
                  FROM faculty_interaction_logs fil
                  JOIN students s ON fil.student_id = s.id
                  JOIN users u ON fil.mentor_id = u.id)
                 UNION ALL
-                (SELECT 'Staff Call' as type, CONVERT(mfi.main_issue USING utf8mb4) as mentor_notes, s.name as student_name, u.name as origin_name, mfi.created_at as date
+                (SELECT CONVERT('Staff Call' USING utf8mb4) as type, CONVERT(mfi.main_issue USING utf8mb4) as mentor_notes, CONVERT(s.name USING utf8mb4) as student_name, CONVERT(u.name USING utf8mb4) as origin_name, mfi.created_at as date
                  FROM mentor_faculty_interactions mfi
                  JOIN students s ON mfi.student_id = s.id
                  JOIN users u ON mfi.mentor_id = u.id)
                 UNION ALL
-                (SELECT 'Intelligence' as type, CONVERT(COALESCE(r.remarks, r.report_text, 'No details') USING utf8mb4) as mentor_notes, s.name as student_name, u.name as origin_name, r.created_at as date
+                (SELECT CONVERT('Intelligence' USING utf8mb4) as type, CONVERT(COALESCE(r.remarks, r.report_text, 'No details') USING utf8mb4) as mentor_notes, CONVERT(s.name USING utf8mb4) as student_name, CONVERT(u.name USING utf8mb4) as origin_name, r.created_at as date
                  FROM student_reports r 
                  JOIN students s ON r.student_id = s.id 
                  JOIN users u ON r.faculty_id = u.id)
             ) as combined_logs
             ORDER BY date DESC
             LIMIT 20
-        `);
+        `, [], 'activityFeed');
 
         res.status(200).json({
             success: true,
@@ -125,10 +141,12 @@ const getDashboardStats = async (req, res) => {
             }
         });
     } catch (error) {
-        console.error('Error in getDashboardStats:', error);
-        res.status(500).json({ success: false, message: "Server Error", error: error.message });
+        console.error('FATAL ERROR in getDashboardStats:', error);
+        res.status(500).json({ success: false, message: "Dashboard Critical Error", error: error.message });
     }
 };
+
+
 
 
 // @desc    Get all faculty session logs and reports

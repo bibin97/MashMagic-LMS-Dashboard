@@ -268,7 +268,7 @@ const Registrations = () => {
           {[
             { id: 'student', label: 'Student' },
             { id: 'faculty', label: 'Faculty Registration' },
-            { id: 'ssc', label: 'Success Coordinator (SSC)' }
+            { id: 'ssc', label: 'SSC' }
           ].map((tab) => (
             <button
               key={tab.id}
