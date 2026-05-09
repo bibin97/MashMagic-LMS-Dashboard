@@ -57,6 +57,7 @@ router.get('/exam-analytics', getExamAnalytics);
 
 // Student Management for Mentor Head (Unified)
 router.get('/students-all', getStudents);
+router.get('/students', getStudents);
 router.put('/students/:id', editStudent);
 router.delete('/students/:id', deleteStudent);
 router.put('/students/:studentId/course-complete', toggleCourseCompleted);
@@ -71,10 +72,7 @@ router.get('/faculties-all', getFaculties);
 router.put('/faculties/:id', editFaculty);
 router.delete('/faculties/:id', deleteFaculty);
 
-// Student Management for Mentor Head (Unified)
-router.get('/students-all', getStudents);
-router.put('/students/:id', editStudent);
-router.delete('/students/:id', deleteStudent);
+
 
 // Mentor Management for Mentor Head (Unified)
 router.get('/mentors-all', getMentors);
