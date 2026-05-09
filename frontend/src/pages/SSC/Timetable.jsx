@@ -586,13 +586,15 @@ const Timetable = () => {
                 <div className="flex flex-wrap items-center gap-8 flex-grow">
                   <div className="flex items-center gap-3 bg-slate-50/50 px-5 py-3 rounded-2xl border border-slate-100 transition-colors group-hover:bg-[#008080]/10">
                     <Calendar size={16} className="text-[#008080]" />
-                    <span className="text-xs font-black text-slate-700 ">{new Date(session.date).toLocaleDateString('en-GB')}</span>
+                    <span className="text-xs font-black text-slate-700 ">
+                      {new Date(session.date).toLocaleDateString('en-GB', { weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric' })}
+                    </span>
                   </div>
 
                   <div className="flex items-center gap-3 bg-slate-50/50 px-5 py-3 rounded-2xl border border-slate-100 transition-colors group-hover:bg-[#008080]/10">
                     <Clock size={16} className="text-[#008080]" />
                     <span className="text-xs font-black text-slate-700 tracking-tighter">
-                      {(session.start_time || '00:00').substring(0, 5)} - {(session.end_time || '00:00').substring(0, 5)}
+                      {new Date(`2000-01-01T${session.start_time}`).toLocaleString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })} - {new Date(`2000-01-01T${session.end_time}`).toLocaleString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}
                     </span>
                   </div>
 

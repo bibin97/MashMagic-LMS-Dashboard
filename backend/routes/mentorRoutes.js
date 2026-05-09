@@ -35,7 +35,7 @@ const { upload } = require('../config/cloudinary');
 
 // Apply middleware to all routes
 router.use(requireAuth);
-router.use(requireRole(['mentor', 'ssc']));
+router.use(requireRole('mentor', 'ssc'));
 
 router.get('/dashboard', getMentorDashboard);
 router.get('/students', getMentorStudents);
