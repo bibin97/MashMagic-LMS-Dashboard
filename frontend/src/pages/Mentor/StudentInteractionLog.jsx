@@ -89,7 +89,8 @@ const StudentInteractionLog = () => {
        attendance: 'Attended',
        immediate_concern: 'No',
        motivation_given: 'Yes',
-       next_session_type: 'QUICK'
+       next_session_type: 'QUICK',
+       quick_notes: ''
      });
    } else {
      // Simple Tuition Tracking
@@ -125,8 +126,8 @@ const StudentInteractionLog = () => {
           return;
         }
       } else if (sessionType === 'QUICK') {
-        if (!formData.study_status) {
-          toast.error("Today's Study Status is mandatory");
+        if (!formData.study_status || !formData.quick_notes) {
+          toast.error("Today's Study Status and Session Notes are mandatory");
           setLoading(false);
           return;
         }
@@ -632,6 +633,19 @@ const StudentInteractionLog = () => {
                     </button>
                   ))}
                 </div>
+              </div>
+
+              <div className="space-y-3">
+                 <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">5. Quick Interaction Notes (Compulsory)</label>
+                 <textarea 
+                    name="quick_notes" 
+                    rows="3" 
+                    required 
+                    value={formData.quick_notes} 
+                    onChange={handleChange} 
+                    className="w-full p-6 bg-slate-50 border border-slate-100 rounded-[2rem] text-sm font-bold outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-200" 
+                    placeholder="Enter brief session summary or key observation..."
+                 ></textarea>
               </div>
             </div>
           )}
