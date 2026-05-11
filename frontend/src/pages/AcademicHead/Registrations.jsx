@@ -19,7 +19,8 @@ const Registrations = () => {
     schoolName: '', preferredLanguage: '', country: '',
     totalFees: '', totalPaid: '', nextInstallmentDate: '', 
     admissionType: 'new', registrationNumber: '', meetingLink: '',
-    enrollmentType: 'mentorship'
+    enrollmentType: 'mentorship',
+    commonStartTime: '', commonEndTime: ''
   });
 
   const [selectedSubjects, setSelectedSubjects] = useState([
@@ -62,6 +63,13 @@ const Registrations = () => {
   const DAYS_LIST = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
   const coursesList = ["Mission X", "Classmate", "Crash 45", "Bright Bridge", "Magic Revision"];
   const SYLLABUS_OPTIONS = ["CBSE", "STATE", "ICSE", "IGCSE", "IB"];
+
+  const TIME_SLOTS = [];
+  for (let h = 5; h <= 23; h++) {
+    for (let m of ['00', '30']) {
+      TIME_SLOTS.push(`${h.toString().padStart(2, '0')}:${m}`);
+    }
+  }
 
   const fetchTimeoutRef = useRef(null);
 
@@ -133,10 +141,20 @@ const Registrations = () => {
     setSelectedSubjects(newSubjects);
     const row = newSubjects[index];
     const hasSubject = Array.isArray(row.subject) ? row.subject.length > 0 : !!row.subject;
-    if (hasSubject && row.days && row.days.length > 0 && row.startTime && row.endTime) {
-      fetchAvailableFaculties(index, row.subject, row.days, row.startTime, row.endTime);
+    if (hasSubject && row.days && row.days.length > 0 && studentForm.commonStartTime && studentForm.commonEndTime) {
+      fetchAvailableFaculties(index, row.subject, row.days, studentForm.commonStartTime, studentForm.commonEndTime);
     }
   };
+
+  useEffect(() => {
+    // If common times change, refresh availability for all valid rows
+    selectedSubjects.forEach((row, idx) => {
+      const hasSubject = Array.isArray(row.subject) ? row.subject.length > 0 : !!row.subject;
+      if (hasSubject && row.days && row.days.length > 0 && studentForm.commonStartTime && studentForm.commonEndTime) {
+        fetchAvailableFaculties(idx, row.subject, row.days, studentForm.commonStartTime, studentForm.commonEndTime);
+      }
+    });
+  }, [studentForm.commonStartTime, studentForm.commonEndTime]);
 
   const handleLanguageToggle = (langId) => {
     setFacultyForm(prev => {
@@ -184,7 +202,12 @@ const Registrations = () => {
     }
     setLoading(true);
     try {
-      const res = await api.post('/academic-head/register-student', { ...studentForm, selectedSubjects });
+      const subjectsWithTimes = selectedSubjects.map(s => ({
+        ...s,
+        startTime: studentForm.commonStartTime,
+        endTime: studentForm.commonEndTime
+      }));
+      const res = await api.post('/academic-head/register-student', { ...studentForm, selectedSubjects: subjectsWithTimes });
       if (res.data.success) {
         toast.success('Student Registered Successfully!');
         setStudentForm({
@@ -487,6 +510,48 @@ const Registrations = () => {
                   </button>
                 </div>
 
+                <div className="bg-slate-50 p-8 rounded-[2rem] border border-slate-100 space-y-8">
+                  <div className="flex items-center gap-4 mb-2">
+                    <div className="w-10 h-10 bg-[#008080]/10 text-[#008080] rounded-xl flex items-center justify-center">
+                      <Clock size={20} />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-black text-slate-800 uppercase tracking-tight">Global Session Timing</h3>
+                      <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Applied to all subjects and days</p>
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="flex flex-col gap-2">
+                      <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Daily Start Time</label>
+                      <select 
+                        required 
+                        name="commonStartTime"
+                        value={studentForm.commonStartTime} 
+                        onChange={handleStudentChange}
+                        className="w-full p-4 bg-white border border-slate-200 rounded-xl text-xs font-bold outline-none focus:ring-4 ring-[#008080]/10 appearance-none"
+                      >
+                        <option value="">Select Time</option>
+                        {TIME_SLOTS.map(t => <option key={t} value={t}>{t}</option>)}
+                      </select>
+                    </div>
+
+                    <div className="flex flex-col gap-2">
+                      <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Daily End Time</label>
+                      <select 
+                        required 
+                        name="commonEndTime"
+                        value={studentForm.commonEndTime} 
+                        onChange={handleStudentChange}
+                        className="w-full p-4 bg-white border border-slate-200 rounded-xl text-xs font-bold outline-none focus:ring-4 ring-[#008080]/10 appearance-none"
+                      >
+                        <option value="">Select Time</option>
+                        {TIME_SLOTS.map(t => <option key={t} value={t}>{t}</option>)}
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
                 <div className="space-y-6">
                   {selectedSubjects.map((row, idx) => (
                     <div key={idx} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-sm relative animate-in slide-in-from-right-2 duration-300 items-end">
@@ -615,16 +680,6 @@ const Registrations = () => {
                       </div>
 
                       <div className="flex flex-col gap-2">
-                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Start Time</label>
-                        <input type="time" required value={row.startTime} onChange={(e) => handleSubjectChange(idx, 'startTime', e.target.value)} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-xs font-bold outline-none focus:ring-2 focus:ring-[#008080]" />
-                      </div>
-
-                      <div className="flex flex-col gap-2">
-                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">End Time</label>
-                        <input type="time" required value={row.endTime} onChange={(e) => handleSubjectChange(idx, 'endTime', e.target.value)} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-xs font-bold outline-none focus:ring-2 focus:ring-[#008080]" />
-                      </div>
-
-                      <div className="flex flex-col gap-2">
                         <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Faculty Rate (₹)</label>
                         <input 
                           type="number" 
@@ -637,11 +692,16 @@ const Registrations = () => {
 
                       <div className="flex flex-col gap-2">
                         <label className="text-[10px] font-black text-[#008080] uppercase tracking-widest ml-1">Faculty</label>
-                        <select required value={row.facultyId} onChange={(e) => handleSubjectChange(idx, 'facultyId', e.target.value)} className="w-full p-3 bg-[#008080]/5 border border-[#008080]/20 rounded-xl text-xs font-bold outline-none focus:ring-2 focus:ring-[#008080] appearance-none">
+                        <select 
+                          required 
+                          value={row.facultyId} 
+                          onChange={(e) => handleSubjectChange(idx, 'facultyId', e.target.value)} 
+                          className="w-full p-3 bg-[#008080]/5 border border-[#008080]/20 rounded-xl text-xs font-bold outline-none focus:ring-2 focus:ring-[#008080] appearance-none"
+                        >
                           <option value="" disabled>
-                            {(!row.days || row.days.length === 0 || !row.startTime || !row.endTime) ? 'Select Time' : row.availableFaculties.length === 0 ? 'None' : 'Select Faculty'}
+                            {(!row.days || row.days.length === 0 || !studentForm.commonStartTime || !studentForm.commonEndTime) ? 'Select Time Above' : row.availableFaculties?.length === 0 ? 'No Free Faculty' : 'Select Free Faculty'}
                           </option>
-                          {row.availableFaculties.map(f => (
+                          {row.availableFaculties?.map(f => (
                             <option key={f.id} value={f.id}>{f.name}</option>
                           ))}
                         </select>

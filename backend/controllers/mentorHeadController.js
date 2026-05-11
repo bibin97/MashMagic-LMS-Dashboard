@@ -1336,7 +1336,7 @@ exports.deleteInteractionLog = async (req, res) => {
 exports.getDropdownData = async (req, res) => {
     try {
         const [mentors] = await db.query('SELECT id, name FROM users WHERE role = "mentor" AND status = "active"');
-        const [faculties] = await db.query('SELECT id, name FROM users WHERE role = "faculty" AND status = "active"');
+        const [faculties] = await db.query('SELECT id, name, subject FROM users WHERE role = "faculty" AND status = "active"');
         res.status(200).json({
             success: true,
             data: {
