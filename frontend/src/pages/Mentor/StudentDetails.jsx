@@ -4,6 +4,7 @@ import api from '../../services/api';
 import { ArrowLeft, User, Phone, BookOpen, Clock, Calendar, CheckSquare, MessageSquare, History, Contact } from 'lucide-react';
 import toast from 'react-hot-toast';
 import StatusBadge from '../../components/Mentor/StatusBadge';
+import { useAuth } from '../../context/AuthContext';
 
 const StudentDetails = () => {
  const { id } = useParams();
@@ -11,6 +12,11 @@ const StudentDetails = () => {
  const [student, setStudent] = useState(null);
  const [loading, setLoading] = useState(true);
  const [activeTab, setActiveTab] = useState('info'); // info, timetable, logs
+ const { user } = useAuth();
+ const isSSC = user?.role === 'ssc';
+
+ const backPath = isSSC ? '/ssc/students' : '/mentor/students';
+ const backLabel = isSSC ? 'Back to Student Directory' : 'Back to My Students';
 
  const handleUpdateStatus = async (sessionId, currentSession, newStatus) => {
  try {
@@ -49,10 +55,10 @@ const StudentDetails = () => {
  return (
  <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
  <button
- onClick={() => navigate('/mentor/students')}
+ onClick={() => navigate(backPath)}
  className="flex items-center gap-2 text-slate-600 hover:text-[#008080] font-black text-[10px] uppercase tracking-widest transition-colors mb-6"
  >
- <ArrowLeft size={16} /> Back to My Students
+ <ArrowLeft size={16} /> {backLabel}
  </button>
 
  {/* Profile Header */}
@@ -111,7 +117,7 @@ const StudentDetails = () => {
  { id: 'info', label: 'Detailed Info', icon: <User size={14} /> },
  { id: 'timetable', label: 'Session Timetable', icon: <Clock size={14} /> },
  { id: 'logs', label: 'Student Interactions', icon: <History size={14} /> }
- ].map((tab) => (
+ ].filter(tab => !(isSSC && tab.id === 'logs')).map((tab) => (
  <button
  key={tab.id}
  onClick={() => setActiveTab(tab.id)}
@@ -215,7 +221,7 @@ const StudentDetails = () => {
  </div>
  )}
 
- {activeTab === 'logs' && (
+ {activeTab === 'logs' && !isSSC && (
  <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
  <section className="space-y-6">
  <h3 className="text-lg font-black text-slate-800 flex items-center gap-3">
