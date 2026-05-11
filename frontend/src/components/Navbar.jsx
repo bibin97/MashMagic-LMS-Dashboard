@@ -516,7 +516,7 @@ const Navbar = ({ onMenuClick }) => {
                   <button onClick={handleProfileClick} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-[12px] transition-colors">
                     <User className="w-4 h-4" /> My Profile
                   </button>
-                  <button className="w-full flex items-center gap-2 px-3 py-2 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-[12px] transition-colors">
+                  <button onClick={handleProfileClick} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-[12px] transition-colors">
                     <Settings className="w-4 h-4" /> Account Settings
                   </button>
                 </div>

@@ -305,9 +305,41 @@ const updateProfilePic = async (req, res) => {
     }
 };
 
+const changePassword = async (req, res) => {
+    try {
+        const { currentPassword, newPassword } = req.body;
+        const userId = req.user.id;
+
+        if (!currentPassword || !newPassword) {
+            return res.status(400).json({ success: false, message: "Current and new password are required" });
+        }
+
+        const [rows] = await db.query('SELECT password FROM users WHERE id = ?', [userId]);
+        if (rows.length === 0) {
+            return res.status(404).json({ success: false, message: "User not found" });
+        }
+
+        const isMatch = await bcrypt.compare(currentPassword, rows[0].password);
+        if (!isMatch) {
+            return res.status(401).json({ success: false, message: "The current password you entered is incorrect" });
+        }
+
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+        await db.query('UPDATE users SET password = ? WHERE id = ?', [hashedPassword, userId]);
+
+        res.status(200).json({ success: true, message: "Security credentials updated successfully" });
+    } catch (error) {
+        console.error("Change Password Error:", error);
+        res.status(500).json({ success: false, message: "Internal Server Error" });
+    }
+};
+
 exports.register = register;
 exports.mentorSignup = mentorSignup;
 exports.facultySignup = facultySignup;
 exports.login = login;
 exports.checkSuperAdminExists = checkSuperAdminExists;
 exports.updateProfilePic = updateProfilePic;
+exports.changePassword = changePassword;
