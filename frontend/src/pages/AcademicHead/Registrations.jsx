@@ -65,11 +65,15 @@ const Registrations = () => {
   const SYLLABUS_OPTIONS = ["CBSE", "STATE", "ICSE", "IGCSE", "IB"];
 
   const TIME_SLOTS = [];
-  for (let h = 5; h <= 23; h++) {
+  for (let h = 8; h <= 22; h++) {
     for (let m of ['00', '30']) {
-      TIME_SLOTS.push(`${h.toString().padStart(2, '0')}:${m}`);
+      if (h === 22 && m === '30') continue; // Stop at 10:00 PM
+      const hour = h > 12 ? h - 12 : h;
+      const ampm = h >= 12 ? 'PM' : 'AM';
+      TIME_SLOTS.push(`${hour.toString().padStart(2, '0')}:${m} ${ampm}`);
     }
   }
+  TIME_SLOTS.push("10:00 PM");
 
   const fetchTimeoutRef = useRef(null);
 
@@ -204,8 +208,8 @@ const Registrations = () => {
     try {
       const subjectsWithTimes = selectedSubjects.map(s => ({
         ...s,
-        startTime: studentForm.commonStartTime,
-        endTime: studentForm.commonEndTime
+        startTime: s.startTime || studentForm.commonStartTime,
+        endTime: s.endTime || studentForm.commonEndTime
       }));
       const res = await api.post('/academic-head/register-student', { ...studentForm, selectedSubjects: subjectsWithTimes });
       if (res.data.success) {
@@ -677,6 +681,32 @@ const Registrations = () => {
                             </button>
                           </div>
                         )}
+                      </div>
+
+                      <div className="flex flex-col gap-2">
+                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Start Time</label>
+                        <select 
+                          required 
+                          value={row.startTime} 
+                          onChange={(e) => handleSubjectChange(idx, 'startTime', e.target.value)} 
+                          className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-[10px] font-black outline-none focus:ring-2 focus:ring-[#008080] appearance-none"
+                        >
+                          <option value="">Start</option>
+                          {TIME_SLOTS.map(t => <option key={t} value={t}>{t}</option>)}
+                        </select>
+                      </div>
+
+                      <div className="flex flex-col gap-2">
+                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">End Time</label>
+                        <select 
+                          required 
+                          value={row.endTime} 
+                          onChange={(e) => handleSubjectChange(idx, 'endTime', e.target.value)} 
+                          className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-[10px] font-black outline-none focus:ring-2 focus:ring-[#008080] appearance-none"
+                        >
+                          <option value="">End</option>
+                          {TIME_SLOTS.map(t => <option key={t} value={t}>{t}</option>)}
+                        </select>
                       </div>
 
                       <div className="flex flex-col gap-2">

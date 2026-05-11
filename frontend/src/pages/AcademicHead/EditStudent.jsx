@@ -17,6 +17,17 @@ const SUBJECT_OPTIONS = [
 
 const DAYS_LIST = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
+const TIME_SLOTS = [];
+for (let h = 8; h <= 22; h++) {
+    for (let m of ['00', '30']) {
+        if (h === 22 && m === '30') continue;
+        const hour = h > 12 ? h - 12 : h;
+        const ampm = h >= 12 ? 'PM' : 'AM';
+        TIME_SLOTS.push(`${hour.toString().padStart(2, '0')}:${m} ${ampm}`);
+    }
+}
+TIME_SLOTS.push("10:00 PM");
+
 const EditStudent = () => {
     const { id } = useParams();
     const navigate = useNavigate();
@@ -419,13 +430,29 @@ const EditStudent = () => {
                                     )}
                                 </div>
 
-                                <div className="flex flex-col gap-2">
+                                <div className="flex flex-col gap-2 relative">
                                     <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest ml-1">Start Time</label>
-                                    <input type="time" value={row.startTime} onChange={(e) => handleSubjectChange(idx, 'startTime', e.target.value)} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-[10px] font-black outline-none focus:ring-2 focus:ring-[#008080]" />
+                                    <select 
+                                        required 
+                                        value={row.startTime} 
+                                        onChange={(e) => handleSubjectChange(idx, 'startTime', e.target.value)} 
+                                        className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-[10px] font-black outline-none focus:ring-2 focus:ring-[#008080] appearance-none"
+                                    >
+                                        <option value="">Start</option>
+                                        {TIME_SLOTS.map(t => <option key={t} value={t}>{t}</option>)}
+                                    </select>
                                 </div>
-                                <div className="flex flex-col gap-2">
+                                <div className="flex flex-col gap-2 relative">
                                     <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest ml-1">End Time</label>
-                                    <input type="time" value={row.endTime} onChange={(e) => handleSubjectChange(idx, 'endTime', e.target.value)} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-[10px] font-black outline-none focus:ring-2 focus:ring-[#008080]" />
+                                    <select 
+                                        required 
+                                        value={row.endTime} 
+                                        onChange={(e) => handleSubjectChange(idx, 'endTime', e.target.value)} 
+                                        className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-[10px] font-black outline-none focus:ring-2 focus:ring-[#008080] appearance-none"
+                                    >
+                                        <option value="">End</option>
+                                        {TIME_SLOTS.map(t => <option key={t} value={t}>{t}</option>)}
+                                    </select>
                                 </div>
                                 <div className="flex flex-col gap-2">
                                     <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest ml-1">Faculty Rate (₹)</label>

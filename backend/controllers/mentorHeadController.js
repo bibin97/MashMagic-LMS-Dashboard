@@ -209,11 +209,11 @@ exports.getFacultyInteractionLogs = async (req, res) => {
         const { student_id, faculty_id, mentor_id, startDate, endDate } = req.query;
         let params = [];
 
-        const baseWhere = (tableAlias, studentCol = 'student_id', mentorCol = 'mentor_id', dateCol = 'created_at', facultyCol = 'faculty_id') => {
+        const baseWhere = (tableAlias, studentCol = 'student_id', mentorCol = 'mentor_id', dateCol = 'created_at', facultyCol = 'faculty_id', includeStudent = true, includeMentor = true, includeFaculty = true) => {
             let clause = 'WHERE 1=1';
-            if (student_id) clause += ` AND ${tableAlias}.${studentCol} = ?`;
-            if (mentor_id) clause += ` AND ${tableAlias}.${mentorCol} = ?`;
-            if (faculty_id) clause += ` AND ${tableAlias}.${facultyCol} = ?`;
+            if (student_id && includeStudent) clause += ` AND ${tableAlias}.${studentCol} = ?`;
+            if (mentor_id && includeMentor) clause += ` AND ${tableAlias}.${mentorCol} = ?`;
+            if (faculty_id && includeFaculty) clause += ` AND ${tableAlias}.${facultyCol} = ?`;
             if (startDate) clause += ` AND ${tableAlias}.${dateCol} >= ?`;
             if (endDate) clause += ` AND ${tableAlias}.${dateCol} <= ?`;
             return clause;
@@ -271,7 +271,7 @@ exports.getFacultyInteractionLogs = async (req, res) => {
                 FROM student_reports sr
                 LEFT JOIN students s ON sr.student_id = s.id
                 LEFT JOIN users f ON sr.faculty_id = f.id
-                ${baseWhere('sr', 'student_id', 'faculty_id', 'created_at', 'faculty_id')}
+                ${baseWhere('sr', 'student_id', 'faculty_id', 'created_at', 'faculty_id', true, false, true)}
             ) as unified_faculty_logs
             ORDER BY created_at DESC
         `;

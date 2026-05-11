@@ -14,6 +14,8 @@ const {
     uncheckStudent,
     getDailySummary,
     getAllStudents,
+    getStudentInteractionLogs,
+    getFacultyInteractionLogs,
     getMentorInteractionLogs,
     getFacultyIntelligenceLogs,
     getExamAnalytics,

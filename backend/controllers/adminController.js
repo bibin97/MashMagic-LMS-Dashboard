@@ -344,24 +344,26 @@ const getAllStudentLogs = async (req, res) => {
     try {
         const { student_id, mentor_id, startDate, endDate } = req.query;
         let whereClause = 'WHERE 1=1';
-        let params = [];
+        if (student_id) whereClause += ' AND student_id = ?';
+        if (mentor_id) whereClause += ' AND mentor_id = ?';
+        if (startDate) whereClause += ' AND created_at >= ?';
+        if (endDate) whereClause += ' AND created_at <= ?';
 
-        if (student_id) {
-            whereClause += ' AND student_id = ?';
-            params = [student_id, student_id, student_id, student_id];
-        }
-        if (mentor_id) {
-            whereClause += ' AND mentor_id = ?';
-            params = params.length ? [...params, mentor_id, mentor_id, mentor_id, mentor_id] : [mentor_id, mentor_id, mentor_id, mentor_id];
-        }
-        if (startDate) {
-            whereClause += ' AND created_at >= ?';
-            params = params.length ? [...params, startDate, startDate, startDate, startDate] : [startDate, startDate, startDate, startDate];
-        }
-        if (endDate) {
-            whereClause += ' AND created_at <= ?';
-            params = params.length ? [...params, endDate + ' 23:59:59', endDate + ' 23:59:59', endDate + ' 23:59:59', endDate + ' 23:59:59'] : [endDate + ' 23:59:59', endDate + ' 23:59:59', endDate + ' 23:59:59', endDate + ' 23:59:59'];
-        }
+        const buildParams = () => {
+            let p = [];
+            if (student_id) p.push(student_id);
+            if (mentor_id) p.push(mentor_id);
+            if (startDate) p.push(startDate);
+            if (endDate) p.push(endDate + ' 23:59:59');
+            return p;
+        };
+
+        const params = [
+            ...buildParams(),
+            ...buildParams(),
+            ...buildParams(),
+            ...buildParams()
+        ];
 
         const [rows] = await db.query(`
             SELECT 
@@ -467,11 +469,11 @@ const getAllFacultyLogs = async (req, res) => {
         // 3. student_reports (Faculty reporting on Students - Intelligence)
         // 4. faculty_sessions (Actual teaching sessions)
 
-        const baseWhere = (tableAlias, studentCol = 'student_id', mentorCol = 'mentor_id', dateCol = 'created_at', facultyCol = 'faculty_id') => {
+        const baseWhere = (tableAlias, studentCol = 'student_id', mentorCol = 'mentor_id', dateCol = 'created_at', facultyCol = 'faculty_id', includeStudent = true, includeMentor = true, includeFaculty = true) => {
             let clause = 'WHERE 1=1';
-            if (student_id) clause += ` AND ${tableAlias}.${studentCol} = ?`;
-            if (mentor_id) clause += ` AND ${tableAlias}.${mentorCol} = ?`;
-            if (faculty_id) clause += ` AND ${tableAlias}.${facultyCol} = ?`;
+            if (student_id && includeStudent) clause += ` AND ${tableAlias}.${studentCol} = ?`;
+            if (mentor_id && includeMentor) clause += ` AND ${tableAlias}.${mentorCol} = ?`;
+            if (faculty_id && includeFaculty) clause += ` AND ${tableAlias}.${facultyCol} = ?`;
             
             if (startDate) {
                 clause += ` AND ${tableAlias}.${dateCol} >= ?`;
@@ -540,7 +542,7 @@ const getAllFacultyLogs = async (req, res) => {
                 FROM student_reports sr
                 LEFT JOIN students s ON sr.student_id = s.id
                 LEFT JOIN users f ON sr.faculty_id = f.id
-                ${baseWhere('sr', 'student_id', 'faculty_id', 'created_at', 'faculty_id')}
+                ${baseWhere('sr', 'student_id', 'faculty_id', 'created_at', 'faculty_id', true, false, true)}
 
                 UNION ALL
 
@@ -555,7 +557,7 @@ const getAllFacultyLogs = async (req, res) => {
                     f.name as faculty_name, fs.faculty_id
                 FROM faculty_sessions fs
                 LEFT JOIN users f ON fs.faculty_id = f.id
-                ${baseWhere('fs', 'faculty_id', 'faculty_id', 'created_at', 'faculty_id')}
+                ${baseWhere('fs', 'faculty_id', 'faculty_id', 'created_at', 'faculty_id', false, false, true)}
             ) as unified_faculty_logs
             ORDER BY created_at DESC
         `;

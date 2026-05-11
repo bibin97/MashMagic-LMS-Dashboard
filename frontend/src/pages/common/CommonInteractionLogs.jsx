@@ -3,7 +3,7 @@ import api from '../../services/api';
 import { 
     ScrollText, Search, User, Clock, Calendar, 
     ChevronLeft, ChevronRight, History, ExternalLink, 
-    ArrowLeft, Users, ShieldAlert, CheckSquare, Filter
+    ArrowLeft, Users, ShieldAlert, CheckSquare, Filter, BookOpen
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
