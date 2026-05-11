@@ -3,9 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import {
   Users, User, Mail, Phone, Calendar,
-  Clock, List, ChevronDown, ChevronUp, Search,
-  Briefcase, GraduationCap, ArrowRight, ExternalLink,
-  Filter, Activity, Edit2, Trash2, X, Save, BookOpen, MapPin, ShieldCheck
+  Filter, Activity, Edit2, Trash2, X, Save, BookOpen, MapPin, ShieldCheck, Eye
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { premiumConfirm } from '../../utils/premiumConfirm';
@@ -15,6 +13,8 @@ const FacultyDirectory = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState('newest');
+  const [selectedFaculty, setSelectedFaculty] = useState(null);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const navigate = useNavigate();
 
   const LANG_OPTIONS = [
@@ -226,15 +226,25 @@ const FacultyDirectory = () => {
                       <td className="px-8 py-6">
                         <div className="flex items-center justify-end gap-2">
                           <button 
+                            onClick={() => {
+                              setSelectedFaculty(faculty);
+                              setIsDetailModalOpen(true);
+                            }}
+                            className="w-10 h-10 bg-white text-[#008080] rounded-xl flex items-center justify-center hover:bg-[#008080] hover:text-white transition-all shadow-sm border border-slate-100"
+                            title="View Full Profile"
+                          >
+                            <Eye size={18} />
+                          </button>
+                          <button 
                             onClick={() => handleEditFaculty(faculty)}
-                            className="w-10 h-10 bg-slate-50 text-slate-600 rounded-xl flex items-center justify-center hover:bg-[#008080] hover:text-white transition-all shadow-sm border border-slate-100"
+                            className="w-10 h-10 bg-white text-slate-600 rounded-xl flex items-center justify-center hover:bg-[#008080] hover:text-white transition-all shadow-sm border border-slate-100"
                             title="Edit Profile"
                           >
                             <Edit2 size={18} />
                           </button>
                           <button 
                             onClick={() => handleDeleteFaculty(faculty)}
-                            className="w-10 h-10 bg-slate-50 text-rose-500 rounded-xl flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all shadow-sm border border-slate-100"
+                            className="w-10 h-10 bg-white text-rose-500 rounded-xl flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all shadow-sm border border-slate-100"
                             title="Delete Faculty"
                           >
                             <Trash2 size={18} />
@@ -249,6 +259,91 @@ const FacultyDirectory = () => {
           )}
         </div>
       </div>
+      {/* Faculty Detail Modal */}
+      {isDetailModalOpen && selectedFaculty && (
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4 animate-in fade-in duration-300">
+          <div className="bg-white rounded-[3.5rem] shadow-2xl w-full max-w-2xl overflow-hidden animate-in slide-in-from-bottom-8 duration-500">
+            <div className="px-10 py-8 border-b border-slate-50 flex justify-between items-center bg-slate-50/50">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-[#008080] text-white rounded-2xl flex items-center justify-center font-black text-xl shadow-lg">
+                  {selectedFaculty.name.charAt(0)}
+                </div>
+                <div>
+                  <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight leading-none mb-1">Faculty Identity</h2>
+                  <p className="text-[10px] font-black text-[#008080] uppercase tracking-widest">Live Credential Audit</p>
+                </div>
+              </div>
+              <button 
+                onClick={() => setIsDetailModalOpen(false)}
+                className="w-12 h-12 flex items-center justify-center bg-white rounded-2xl text-slate-400 hover:text-slate-900 shadow-sm border border-slate-100 transition-all"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <div className="p-10 space-y-10">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                <div className="space-y-6">
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Full Name</span>
+                    <p className="text-lg font-black text-slate-900 uppercase">{selectedFaculty.name}</p>
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Primary Email</span>
+                    <p className="text-sm font-bold text-slate-700">{selectedFaculty.email}</p>
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Academic Status</span>
+                    <div className="flex items-center gap-2 mt-1">
+                      <div className={`w-2 h-2 rounded-full ${selectedFaculty.status === 'active' ? 'bg-emerald-500' : 'bg-amber-500'}`}></div>
+                      <p className="text-xs font-black text-slate-900 uppercase tracking-widest">{selectedFaculty.status}</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="space-y-6">
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Onboarding Date</span>
+                    <p className="text-sm font-black text-slate-900 uppercase tracking-widest">
+                      {new Date(selectedFaculty.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })}
+                    </p>
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Subject Expertise</span>
+                    <div className="flex flex-wrap gap-2">
+                      {selectedFaculty.subject?.split(',').map((sub, idx) => (
+                        <span key={idx} className="px-3 py-1 bg-[#008080]/10 text-[#008080] rounded-lg text-[9px] font-black uppercase tracking-widest border border-[#008080]/20">
+                          {sub.trim()}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="p-8 bg-slate-50 rounded-[2.5rem] border border-slate-100 flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-emerald-600 shadow-sm">
+                    <ShieldCheck size={24} />
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Authorization</p>
+                    <p className="text-xs font-black text-slate-900 uppercase">Verified Faculty Account</p>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => {
+                    setIsDetailModalOpen(false);
+                    handleEditFaculty(selectedFaculty);
+                  }}
+                  className="px-6 py-3 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-[#008080] transition-all"
+                >
+                  Edit Profile
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );

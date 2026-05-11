@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
  Users, Search, Edit2, Trash2, X, Save,
- ShieldCheck, Activity, MapPin, Phone, Mail, Calendar
+ ShieldCheck, Activity, MapPin, Phone, Mail, Calendar, Eye
 } from 'lucide-react';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
@@ -15,6 +15,8 @@ const MentorsList = () => {
  // Edit Modal States
  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
  const [editingMentor, setEditingMentor] = useState(null);
+ const [selectedMentorForDetail, setSelectedMentorForDetail] = useState(null);
+ const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
 
  // Inline Student View States
  const [expandedMentorId, setExpandedMentorId] = useState(null);
@@ -105,7 +107,7 @@ const MentorsList = () => {
 
  return (
     <>
-      <div className="space-y-8 animate-in fade-in duration-700">
+      <div className="space-y-8 animate-in fade-in duration-700 p-4 md:p-8">
         {/* Header */}
         <div className="bg-white p-10 rounded-[3rem] border border-slate-100 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
           <div>
@@ -158,7 +160,7 @@ const MentorsList = () => {
                     <div className="w-14 h-14 bg-gradient-to-br from-[#008080] to-purple-600 rounded-2xl flex items-center justify-center text-white text-xl font-black shadow-lg shadow-[#008080] shrink-0 group-hover:scale-105 transition-transform">
                       {mentor.name.charAt(0)}
                     </div>
-                    <div className="flex flex-col min-w-0">
+                    <div className="flex flex-col min-w-0 flex-1">
                       <div className="flex items-center gap-3">
                         <h3 className="text-lg font-black text-slate-900 group-hover:text-[#008080] transition-colors uppercase truncate">{mentor.name}</h3>
                         <div className={`px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest ${mentor.status === 'active' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-amber-50 text-amber-600 border border-amber-100'}`}>
@@ -175,13 +177,8 @@ const MentorsList = () => {
                           <Mail size={10} className="text-slate-600" />
                           <span className="text-[9px] font-bold text-slate-600">{mentor.email}</span>
                         </div>
-                        <div className="flex items-center gap-1.5">
-                          <Phone size={10} className="text-slate-500" />
-                          <span className="text-[9px] font-bold text-slate-600">{mentor.phone_number}</span>
-                        </div>
                       </div>
 
-                      {/* Expand Option Below Name Section */}
                       <button
                         onClick={() => handleViewStudents(mentor)}
                         className="flex items-center gap-2 mt-3 w-fit group/btn"
@@ -193,6 +190,34 @@ const MentorsList = () => {
                           </span>
                           <div className="h-0.5 w-0 group-hover/btn:w-full bg-[#008080] transition-all duration-300"></div>
                         </div>
+                      </button>
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex items-center gap-2">
+                      <button 
+                        onClick={() => {
+                          setSelectedMentorForDetail(mentor);
+                          setIsDetailModalOpen(true);
+                        }}
+                        className="w-10 h-10 bg-slate-50 text-[#008080] rounded-xl flex items-center justify-center hover:bg-[#008080] hover:text-white transition-all shadow-sm border border-slate-100"
+                        title="View Full Profile"
+                      >
+                        <Eye size={18} />
+                      </button>
+                      <button 
+                        onClick={() => handleEdit(mentor)}
+                        className="w-10 h-10 bg-slate-50 text-slate-600 rounded-xl flex items-center justify-center hover:bg-[#008080] hover:text-white transition-all shadow-sm border border-slate-100"
+                        title="Edit Mentor"
+                      >
+                        <Edit2 size={18} />
+                      </button>
+                      <button 
+                        onClick={() => handleDelete(mentor.id, mentor.name)}
+                        className="w-10 h-10 bg-slate-50 text-rose-500 rounded-xl flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all shadow-sm border border-slate-100"
+                        title="Delete Mentor"
+                      >
+                        <Trash2 size={18} />
                       </button>
                     </div>
                   </div>
@@ -215,14 +240,6 @@ const MentorsList = () => {
                       </div>
                     ) : mentorStudents.length > 0 ? (
                       <div className="space-y-3">
-                        {/* Table Header for the inline list */}
-                        <div className="hidden lg:grid grid-cols-5 gap-4 px-6 mb-2">
-                          <span className="text-[8px] font-black text-slate-600 uppercase tracking-widest">Student / ID</span>
-                          <span className="text-[8px] font-black text-slate-600 uppercase tracking-widest text-center">Faculty</span>
-                          <span className="text-[8px] font-black text-slate-600 uppercase tracking-widest text-center">Mentor</span>
-                          <span className="text-[8px] font-black text-slate-600 uppercase tracking-widest text-center invisible">Metadata</span>
-                          <span className="text-[8px] font-black text-slate-600 uppercase tracking-widest text-right">Performance Status</span>
-                        </div>
                         {mentorStudents.map((student) => (
                           <div key={student.id} className="p-4 bg-slate-50 border border-slate-100 rounded-[2rem] hover:bg-white hover:border-[#008080] hover:shadow-xl transition-all duration-300 group/student">
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 items-center gap-6">
@@ -283,6 +300,84 @@ const MentorsList = () => {
             </div>
           )}
         </div>
+
+        {/* Mentor Detail Modal */}
+        {isDetailModalOpen && selectedMentorForDetail && (
+          <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4 animate-in fade-in duration-300">
+            <div className="bg-white rounded-[3.5rem] shadow-2xl w-full max-w-xl overflow-hidden animate-in slide-in-from-bottom-8 duration-500">
+              <div className="px-10 py-8 border-b border-slate-50 flex justify-between items-center bg-slate-50/50">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-[#008080] to-purple-600 text-white rounded-2xl flex items-center justify-center font-black text-xl shadow-lg">
+                    {selectedMentorForDetail.name.charAt(0)}
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight leading-none mb-1">Mentor Identity</h2>
+                    <p className="text-[10px] font-black text-[#008080] uppercase tracking-widest">Academic Faculty Profile</p>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => setIsDetailModalOpen(false)}
+                  className="w-12 h-12 flex items-center justify-center bg-white rounded-2xl text-slate-400 hover:text-slate-900 shadow-sm border border-slate-100 transition-all"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              <div className="p-10 space-y-10">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                  <div className="space-y-6">
+                    <div className="flex flex-col gap-1">
+                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Full Name</span>
+                      <p className="text-lg font-black text-slate-900 uppercase">{selectedMentorForDetail.name}</p>
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Contact Number</span>
+                      <p className="text-sm font-bold text-slate-700">{selectedMentorForDetail.phone_number}</p>
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Operational Pulse</span>
+                      <div className="flex items-center gap-2 mt-1">
+                        <div className={`w-2 h-2 rounded-full ${selectedMentorForDetail.status === 'active' ? 'bg-emerald-500' : 'bg-amber-500'}`}></div>
+                        <p className="text-xs font-black text-slate-900 uppercase tracking-widest">{selectedMentorForDetail.status}</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="space-y-6">
+                    <div className="flex flex-col gap-1">
+                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Primary Email</span>
+                      <p className="text-sm font-bold text-slate-700">{selectedMentorForDetail.email}</p>
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Geographic Location</span>
+                      <p className="text-sm font-black text-slate-900 uppercase tracking-widest">{selectedMentorForDetail.place || 'Not Specified'}</p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="p-8 bg-slate-50 rounded-[2.5rem] border border-slate-100 flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-[#008080] shadow-sm">
+                      <ShieldCheck size={24} />
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Administrative Role</p>
+                      <p className="text-xs font-black text-slate-900 uppercase tracking-widest">Verified Academic Mentor</p>
+                    </div>
+                  </div>
+                  <button 
+                    onClick={() => {
+                      setIsDetailModalOpen(false);
+                      handleEdit(selectedMentorForDetail);
+                    }}
+                    className="px-6 py-3 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-[#008080] transition-all"
+                  >
+                    Edit Profile
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Edit Modal */}
         {isEditModalOpen && editingMentor && (

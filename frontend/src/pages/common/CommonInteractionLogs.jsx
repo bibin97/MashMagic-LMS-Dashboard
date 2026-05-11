@@ -155,45 +155,80 @@ const CommonInteractionLogs = ({ role }) => {
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-                    {loading ? (
-                        [...Array(8)].map((_, i) => <div key={i} className="h-48 bg-slate-100 rounded-[3.5rem] animate-pulse"></div>)
-                    ) : filteredEntities.length > 0 ? (
-                        filteredEntities.map(entity => (
-                            <button 
-                                key={entity.id} 
-                                onClick={() => handleEntityClick(entity)}
-                                className="group bg-white/80 backdrop-blur-sm p-10 rounded-[3.5rem] border border-slate-100 shadow-sm hover:shadow-2xl hover:shadow-[#008080]/10 hover:border-[#008080]/30 transition-all text-left flex flex-col justify-between h-56 relative overflow-hidden"
-                            >
-                                <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${activeTab === 'student' ? 'from-[#008080]/10' : 'from-purple-600/10'} to-transparent rounded-full -mr-16 -mt-16 transition-transform group-hover:scale-150 duration-1000`}></div>
-                                <div>
-                                    <div className="flex justify-between items-start mb-4">
-                                        <div className={`w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-300 font-black text-lg border border-slate-100 group-hover:text-white transition-all group-hover:scale-110 ${activeTab === 'student' ? 'group-hover:bg-[#008080]' : 'group-hover:bg-purple-600'}`}>
-                                            {entity.name?.charAt(0)}
-                                        </div>
-                                        <div className="flex flex-col items-end">
-                                            <span className={`text-[8px] font-black uppercase tracking-widest ${activeTab === 'student' ? 'text-[#008080]' : 'text-purple-600'}`}>{entity.course || entity.role}</span>
-                                            <span className="text-[10px] font-black text-slate-900">{entity.grade || (entity.status === 'active' ? 'Operational' : 'Inactive')}</span>
-                                        </div>
-                                    </div>
-                                    <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight truncate leading-none mb-2">{entity.name}</h3>
-                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] truncate">{entity.registration_number || entity.email || `ID-${entity.id}`}</p>
-                                </div>
-                                <div className="flex items-center justify-between pt-4 border-t border-slate-50">
-                                    <div className="flex items-center gap-2">
-                                        <History size={14} className={activeTab === 'student' ? 'text-[#008080]' : 'text-purple-600'} />
-                                        <span className="text-[9px] font-black text-slate-500 uppercase tracking-[0.15em]">Access Timeline</span>
-                                    </div>
-                                    <ArrowLeft size={18} className="text-slate-300 rotate-180 group-hover:text-slate-900 transition-all transform group-hover:translate-x-2" />
-                                </div>
-                            </button>
-                        ))
-                    ) : (
-                        <div className="col-span-full py-40 text-center bg-slate-50/50 rounded-[4rem] border-2 border-dashed border-slate-200">
-                            <History size={48} className="text-slate-200 mx-auto mb-6" />
-                            <p className="text-slate-400 font-black text-[11px] uppercase tracking-[0.3em]">No entity matches detected in current search matrix.</p>
-                        </div>
-                    )}
+                {/* Enhanced Entity List (Transitioned from Grid to List) */}
+                <div className="bg-white/80 backdrop-blur-md rounded-[3rem] border border-slate-100 shadow-xl shadow-slate-200/30 overflow-hidden">
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left border-collapse">
+                            <thead>
+                                <tr className="bg-slate-50/50 border-b border-slate-100">
+                                    <th className="px-10 py-8 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Entity Identity</th>
+                                    <th className="px-10 py-8 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Academic Matrix</th>
+                                    <th className="px-10 py-8 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Status Pulse</th>
+                                    <th className="px-10 py-8 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] text-right">Audit Access</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-50">
+                                {loading ? (
+                                    [...Array(6)].map((_, i) => (
+                                        <tr key={i} className="animate-pulse">
+                                            <td colSpan="4" className="px-10 py-10"><div className="h-12 bg-slate-100 rounded-2xl w-full"></div></td>
+                                        </tr>
+                                    ))
+                                ) : filteredEntities.length > 0 ? (
+                                    filteredEntities.map(entity => (
+                                        <tr 
+                                            key={entity.id} 
+                                            onClick={() => handleEntityClick(entity)}
+                                            className="group hover:bg-[#008080]/5 transition-all cursor-pointer"
+                                        >
+                                            <td className="px-10 py-6">
+                                                <div className="flex items-center gap-6">
+                                                    <div className={`w-14 h-14 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-400 font-black text-xl border border-slate-100 group-hover:text-white transition-all group-hover:scale-110 shadow-sm ${activeTab === 'student' ? 'group-hover:bg-[#008080]' : 'group-hover:bg-purple-600'}`}>
+                                                        {entity.name?.charAt(0)}
+                                                    </div>
+                                                    <div className="flex flex-col">
+                                                        <h3 className="text-base font-black text-slate-900 uppercase tracking-tight leading-none mb-1 group-hover:text-[#008080] transition-colors">{entity.name}</h3>
+                                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{entity.registration_number || entity.email || `ID-${entity.id}`}</p>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td className="px-10 py-6">
+                                                <div className="flex flex-col">
+                                                    <span className={`text-[10px] font-black uppercase tracking-widest ${activeTab === 'student' ? 'text-[#008080]' : 'text-purple-600'}`}>
+                                                        {entity.course || entity.role || 'General'}
+                                                    </span>
+                                                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                                                        {entity.grade ? `Grade ${entity.grade}` : 'Staff Faculty'}
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            <td className="px-10 py-6">
+                                                <div className="flex items-center gap-3">
+                                                    <div className={`w-2 h-2 rounded-full ${entity.status === 'active' || activeTab === 'student' ? 'bg-emerald-500 animate-pulse' : 'bg-slate-300'}`}></div>
+                                                    <span className="text-[10px] font-black text-slate-700 uppercase tracking-widest">
+                                                        {entity.status === 'active' ? 'Operational' : (activeTab === 'student' ? 'Active Account' : 'Inactive')}
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            <td className="px-10 py-6 text-right">
+                                                <button className={`inline-flex items-center gap-3 px-6 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all shadow-sm border border-slate-100 bg-white ${activeTab === 'student' ? 'text-[#008080] group-hover:bg-[#008080] group-hover:text-white' : 'text-purple-600 group-hover:bg-purple-600 group-hover:text-white'}`}>
+                                                    Access Timeline
+                                                    <ArrowLeft size={14} className="rotate-180 group-hover:translate-x-1 transition-transform" />
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))
+                                ) : (
+                                    <tr>
+                                        <td colSpan="4" className="px-10 py-40 text-center">
+                                            <History size={48} className="text-slate-200 mx-auto mb-6" />
+                                            <p className="text-slate-400 font-black text-[11px] uppercase tracking-[0.3em]">No entity matches detected in current search matrix.</p>
+                                        </td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         );

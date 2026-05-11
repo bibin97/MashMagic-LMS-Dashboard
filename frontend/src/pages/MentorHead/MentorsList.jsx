@@ -14,7 +14,10 @@ import {
  Trash2,
  X,
  GraduationCap,
- BookOpen
+ BookOpen,
+ Eye,
+ ShieldCheck,
+ Mail
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
@@ -28,6 +31,10 @@ const MentorsList = () => {
  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
  const [editingMentor, setEditingMentor] = useState({ id: '', name: '', email: '', phone_number: '', place: '', password: '' });
  
+ // Detail Modal States
+ const [selectedMentorForDetail, setSelectedMentorForDetail] = useState(null);
+ const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+
  // Student View Modal States
  const [isStudentModalOpen, setIsStudentModalOpen] = useState(false);
  const [selectedMentorForView, setSelectedMentorForView] = useState(null);
@@ -38,7 +45,6 @@ const MentorsList = () => {
  const fetchMentors = async () => {
  try {
  const token = sessionStorage.getItem('token');
- // Fetching from the new activity dashboard endpoint which has progress logic
  const res = await axios.get('/api/mentor-head/mentor-activity', {
  headers: { Authorization: `Bearer ${token}` }
  });
@@ -68,9 +74,8 @@ const MentorsList = () => {
  const handleUpdateMentor = async () => {
  try {
  const token = sessionStorage.getItem('token');
- // Using the actual server endpoint that handles edit
  const payload = { ...editingMentor };
- if (!payload.password) delete payload.password; // Don't send empty password
+ if (!payload.password) delete payload.password;
 
  const res = await axios.put(`/api/mentor-head/mentors/${editingMentor.id}`, payload, {
  headers: { Authorization: `Bearer ${token}` }
@@ -128,14 +133,15 @@ const MentorsList = () => {
 
  if (loading) {
  return (
- <div className="flex items-center justify-center h-64">
+ <div className="flex flex-col items-center justify-center h-64 gap-4">
  <Loader2 className="w-8 h-8 text-[#008080] animate-spin" />
+ <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest animate-pulse">Syncing Database...</p>
  </div>
  );
  }
 
  return (
- <div className="space-y-8">
+ <div className="space-y-8 p-4 md:p-8">
  {/* Page Title */}
  <div className="bg-white p-10 rounded-[3rem] border border-slate-100 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
  <div>
@@ -179,11 +185,11 @@ const MentorsList = () => {
     </div>
   </div>
 
- <div className="bg-white rounded-[2rem] border border-slate-100 shadow-sm overflow-hidden">
+ <div className="bg-white rounded-[2rem] border border-slate-100 shadow-sm overflow-hidden shadow-xl shadow-slate-200/40">
  <div className="overflow-x-auto">
  <table className="w-full text-left border-collapse">
  <thead>
- <tr className="bg-slate-50 border-b border-slate-100">
+ <tr className="bg-slate-50/50 border-b border-slate-100">
  <th className="p-6 text-[10px] font-black text-slate-600 uppercase tracking-widest min-w-[200px]">Mentor</th>
  <th className="p-6 text-[10px] font-black text-slate-600 uppercase tracking-widest text-center">Total Students</th>
  <th className="p-6 text-[10px] font-black text-slate-600 uppercase tracking-widest text-center">Connected Today</th>
@@ -202,20 +208,21 @@ const MentorsList = () => {
  <tr className="hover:bg-slate-50/50 transition-colors group">
  <td className="p-6">
  <div className="flex items-center gap-4">
- <div className="w-10 h-10 bg-gradient-to-br from-[#008080] via-[#008080] to-purple-700 rounded-xl flex items-center justify-center text-white font-black shadow-lg shadow-[#008080] group-hover:scale-110 transition-transform">
+ <div className="w-10 h-10 bg-gradient-to-br from-[#008080] via-[#008080] to-purple-700 rounded-xl flex items-center justify-center text-white font-black shadow-lg shadow-[#008080] group-hover:scale-110 transition-transform uppercase">
  {mentor.mentor_name.charAt(0)}
  </div>
  <div className="flex flex-col">
- <span className="text-sm font-black text-slate-900 group-hover:text-[#008080] transition-colors">{mentor.mentor_name}</span>
+ <span className="text-sm font-black text-slate-900 group-hover:text-[#008080] transition-colors uppercase">{mentor.mentor_name}</span>
+ <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">ID: {mentor.mentor_id}</span>
  </div>
  </div>
  </td>
  <td className="p-6 text-center">
  <button 
  onClick={() => handleViewStudents(mentor)}
- className="text-sm font-black text-slate-600 bg-slate-100 px-3 py-1 rounded-lg border border-slate-200 hover:bg-slate-200 hover:border-slate-300 transition-all cursor-pointer"
+ className="text-[10px] font-black text-slate-600 bg-white px-3 py-1.5 rounded-lg border border-slate-100 hover:bg-[#008080] hover:text-white hover:border-[#008080] transition-all cursor-pointer shadow-sm"
  >
- {total}
+ {total} STUDENTS
  </button>
  </td>
  <td className="p-6 text-center">
@@ -225,7 +232,7 @@ const MentorsList = () => {
  </td>
  <td className="p-6">
  <div className="flex items-center gap-4">
- <div className="flex-1 h-3 bg-slate-100 rounded-full overflow-hidden border border-slate-200 shadow-inner">
+ <div className="flex-1 h-2.5 bg-slate-100 rounded-full overflow-hidden border border-slate-200 shadow-inner">
  <div
  className="h-full bg-gradient-to-r from-emerald-400 to-[#008080] transition-all duration-1000"
  style={{ width: `${progress}%` }}
@@ -241,32 +248,43 @@ const MentorsList = () => {
  <button
  onClick={(e) => {
  e.stopPropagation();
+ setSelectedMentorForDetail(mentor);
+ setIsDetailModalOpen(true);
+ }}
+ className="p-2.5 bg-white border border-slate-100 rounded-xl text-[#008080] hover:bg-[#008080] hover:text-white transition-all shadow-sm"
+ title="Quick View"
+ >
+ <Eye size={18} />
+ </button>
+ <button
+ onClick={(e) => {
+ e.stopPropagation();
  navigate(`/mentor-head/mentors/${mentor.mentor_id}`);
  }}
- className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-widest text-[#008080] hover:bg-[#008080]/10 hover:border-[#008080] transition-all shadow-sm"
- title="View Profile"
+ className="p-2.5 bg-white border border-slate-100 rounded-xl text-purple-600 hover:bg-purple-600 hover:text-white transition-all shadow-sm"
+ title="Full Dashboard"
  >
- View
+ <LayoutDashboard size={18} />
  </button>
  <button
  onClick={(e) => {
  e.stopPropagation();
  handleEdit(mentor);
  }}
- className="p-2 border border-slate-200 bg-white rounded-xl text-[#008080] hover:bg-[#008080]/10 transition-colors shadow-sm"
+ className="p-2.5 bg-white border border-slate-100 rounded-xl text-slate-600 hover:bg-slate-900 hover:text-white transition-all shadow-sm"
  title="Edit Mentor"
  >
- <Edit2 size={16} />
+ <Edit2 size={18} />
  </button>
  <button
  onClick={(e) => {
  e.stopPropagation();
  handleDelete(mentor.mentor_id, mentor.mentor_name);
  }}
- className="p-2 border border-slate-200 bg-white rounded-xl text-rose-600 hover:bg-rose-50 transition-colors shadow-sm"
+ className="p-2.5 bg-white border border-slate-100 rounded-xl text-rose-600 hover:bg-rose-600 hover:text-white transition-all shadow-sm"
  title="Delete Mentor"
  >
- <Trash2 size={16} />
+ <Trash2 size={18} />
  </button>
  </div>
  </td>
@@ -289,6 +307,92 @@ const MentorsList = () => {
  No mentors found matching your current filters. Try expanding your search.
  </p>
  </div>
+ )}
+
+ {/* Mentor Detail Modal */}
+ {isDetailModalOpen && selectedMentorForDetail && (
+   <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4 animate-in fade-in duration-300">
+     <div className="bg-white rounded-[3.5rem] shadow-2xl w-full max-w-xl overflow-hidden animate-in slide-in-from-bottom-8 duration-500">
+       <div className="px-10 py-8 border-b border-slate-50 flex justify-between items-center bg-slate-50/50">
+         <div className="flex items-center gap-4">
+           <div className="w-12 h-12 bg-gradient-to-br from-[#008080] to-purple-600 text-white rounded-2xl flex items-center justify-center font-black text-xl shadow-lg uppercase">
+             {selectedMentorForDetail.mentor_name.charAt(0)}
+           </div>
+           <div>
+             <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight leading-none mb-1">Mentor Identity</h2>
+             <p className="text-[10px] font-black text-[#008080] uppercase tracking-widest">Admin Control Profile</p>
+           </div>
+         </div>
+         <button 
+           onClick={() => setIsDetailModalOpen(false)}
+           className="w-12 h-12 flex items-center justify-center bg-white rounded-2xl text-slate-400 hover:text-slate-900 shadow-sm border border-slate-100 transition-all"
+         >
+           <X size={20} />
+         </button>
+       </div>
+
+       <div className="p-10 space-y-10">
+         <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+           <div className="space-y-6">
+             <div className="flex flex-col gap-1">
+               <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Full Name</span>
+               <p className="text-lg font-black text-slate-900 uppercase">{selectedMentorForDetail.mentor_name}</p>
+             </div>
+             <div className="flex flex-col gap-1">
+               <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Contact Number</span>
+               <p className="text-sm font-bold text-slate-700">{selectedMentorForDetail.phone_number || 'No Phone Data'}</p>
+             </div>
+             <div className="flex flex-col gap-1">
+               <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Operational Pulse</span>
+               <div className="flex items-center gap-2 mt-1">
+                 <div className={`w-2 h-2 rounded-full ${selectedMentorForDetail.status === 'active' || selectedMentorForDetail.isActive === 1 ? 'bg-emerald-500' : 'bg-amber-500'}`}></div>
+                 <p className="text-xs font-black text-slate-900 uppercase tracking-widest">{selectedMentorForDetail.status || 'Active'}</p>
+               </div>
+             </div>
+           </div>
+           <div className="space-y-6">
+             <div className="flex flex-col gap-1">
+               <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Primary Email</span>
+               <p className="text-sm font-bold text-slate-700">{selectedMentorForDetail.email || 'No Email Registered'}</p>
+             </div>
+             <div className="flex flex-col gap-1">
+               <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Geographic Location</span>
+               <p className="text-sm font-black text-slate-900 uppercase tracking-widest">{selectedMentorForDetail.place || 'Not Specified'}</p>
+             </div>
+           </div>
+         </div>
+         
+         <div className="p-8 bg-slate-50 rounded-[2.5rem] border border-slate-100 flex items-center justify-between">
+           <div className="flex items-center gap-4">
+             <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-[#008080] shadow-sm">
+               <ShieldCheck size={24} />
+             </div>
+             <div>
+               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Administrative Role</p>
+               <p className="text-xs font-black text-slate-900 uppercase tracking-widest">Verified Mentor Faculty</p>
+             </div>
+           </div>
+           <div className="flex gap-2">
+             <button 
+               onClick={() => {
+                 setIsDetailModalOpen(false);
+                 handleEdit(selectedMentorForDetail);
+               }}
+               className="px-6 py-3 bg-white border border-slate-200 text-slate-900 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-100 transition-all"
+             >
+               Edit
+             </button>
+             <button 
+               onClick={() => navigate(`/mentor-head/mentors/${selectedMentorForDetail.mentor_id}`)}
+               className="px-6 py-3 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-[#008080] transition-all"
+             >
+               Full Dashboard
+             </button>
+           </div>
+         </div>
+       </div>
+     </div>
+   </div>
  )}
 
   {/* Edit Mentor Modal */}
@@ -374,7 +478,7 @@ const MentorsList = () => {
  {/* Student View Modal */}
  {isStudentModalOpen && selectedMentorForView && (
  <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
- <div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-2xl overflow-hidden animate-in slide-in-from-bottom-4 duration-300">
+ <div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-2xl overflow-hidden animate-in slide-in-from-bottom-4 duration-300 border border-white/20">
  <div className="px-8 py-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
  <h2 className="text-lg font-black text-slate-900 flex items-center gap-3 ">
  <Users size={20} className="text-[#008080]" /> Students: {selectedMentorForView.mentor_name.toUpperCase()}
