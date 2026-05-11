@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { UserPlus, User, GraduationCap, MapPin, Mail, Phone, Lock, BookOpen, Clock, Calendar, CheckCircle, ShieldCheck } from 'lucide-react';
+import { UserPlus, User, GraduationCap, MapPin, Mail, Phone, Lock, BookOpen, Clock, Calendar, CheckCircle, ShieldCheck, Trash2 } from 'lucide-react';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
 
@@ -785,7 +785,7 @@ const Registrations = () => {
                           }}
                           className="text-rose-500 hover:text-rose-700 p-2 transition-colors"
                         >
-                          <ShieldAlert size={20} />
+                          <Trash2 size={20} />
                         </button>
                       </div>
                     </div>

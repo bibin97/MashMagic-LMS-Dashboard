@@ -166,7 +166,7 @@ const getPendingUsers = async (req, res) => {
 
         // 2. Fetch students specifically from the students table
         const [students] = await db.query(`
-            SELECT s.id, s.name, s.email, COALESCE(s.phone_number, s.contact) as phone_number, 'student' as role, NULL as place, s.status, s.createdAt as created_at,
+            SELECT s.id, s.name, s.email, COALESCE(s.phone_number, s.contact) as phone_number, 'student' as role, NULL as place, s.status, s.created_at as created_at,
                    rb.name as registered_by_name
             FROM students s
             LEFT JOIN users rb ON s.registeredBy = rb.id
