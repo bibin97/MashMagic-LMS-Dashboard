@@ -205,6 +205,23 @@ const getAvailableFaculties = async (req, res) => {
             return res.status(400).json({ success: false, message: "Missing day/time configurations" });
         }
         
+        // Helper to convert 12h (10:00 AM) to 24h (10:00:00) for safe comparison
+        const to24h = (timeStr) => {
+            if (!timeStr) return null;
+            const time = timeStr.toUpperCase().trim();
+            const match = time.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/);
+            if (!match) return time; // Fallback if format is different
+            
+            let [_, hours, minutes, modifier] = match;
+            hours = parseInt(hours);
+            if (hours === 12) {
+                hours = modifier === 'AM' ? 0 : 12;
+            } else if (modifier === 'PM') {
+                hours += 12;
+            }
+            return `${hours.toString().padStart(2, '0')}:${minutes}:00`;
+        };
+
         let query = `
             SELECT u.id, u.name, u.subject 
             FROM users u
@@ -222,8 +239,11 @@ const getAvailableFaculties = async (req, res) => {
         }
 
         // Exclude faculties who have a schedule conflict in ANY of the requested slots
+        // We use STR_TO_DATE for robust comparison if times are stored as strings in 12h
         const conflictConditions = dayConfigs.map(() => 
-            `(fs.day_of_week = ? AND fs.start_time < ? AND fs.end_time > ?)`
+            `(fs.day_of_week = ? AND 
+               STR_TO_DATE(fs.start_time, '%h:%i %p') < STR_TO_DATE(?, '%h:%i %p') AND 
+               STR_TO_DATE(fs.end_time, '%h:%i %p') > STR_TO_DATE(?, '%h:%i %p'))`
         ).join(' OR ');
 
         query += `
@@ -235,10 +255,6 @@ const getAvailableFaculties = async (req, res) => {
         `;
         
         dayConfigs.forEach(c => {
-            // MySQL time comparison works well with HH:MM AM/PM if we are careful, 
-            // but the query expects HH:MM:SS or similar usually. 
-            // However, the existing code used startTime/endTime directly.
-            // We should ensure the values are compared correctly.
             params.push(c.day, c.endTime, c.startTime);
         });
 
