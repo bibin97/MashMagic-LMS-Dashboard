@@ -64,7 +64,7 @@ const Registrations = () => {
     "Business Studies", "Economics", "Computer Science", "Arabic", "French"
   ];
 
-  const DAYS_LIST = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+  const DAYS_LIST = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
   const coursesList = ["Mission X", "Classmate", "Crash 45", "Bright Bridge", "Magic Revision"];
   const SYLLABUS_OPTIONS = ["CBSE", "STATE", "ICSE", "IGCSE", "IB"];
 
@@ -626,7 +626,10 @@ const Registrations = () => {
                           </div>
                           
                           {row.isDayDropdownOpen && (
-                            <div className="absolute top-[100%] left-0 w-[320px] md:w-[400px] bg-white border border-slate-100 rounded-2xl shadow-2xl z-[100] mt-1 p-4 animate-in fade-in zoom-in-95 duration-200">
+                            <div 
+                              className="absolute top-[100%] left-0 w-[320px] md:w-[400px] bg-white border border-slate-100 rounded-2xl shadow-2xl z-[100] mt-1 p-4 animate-in fade-in zoom-in-95 duration-200"
+                              onClick={(e) => e.stopPropagation()}
+                            >
                               <div className="space-y-3">
                                 {DAYS_LIST.map(day => {
                                   const configIdx = row.dayConfigs?.findIndex(c => c.day === day);
