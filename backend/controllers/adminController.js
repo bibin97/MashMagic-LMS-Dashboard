@@ -342,12 +342,27 @@ async function cleanupStudentDependencies(studentId) {
 // @route   GET /api/admin/student-logs
 const getAllStudentLogs = async (req, res) => {
     try {
-        // We use UNION ALL to combine logs from multiple tables:
-        // 1. student_interaction_logs (Legacy/Quick Connect)
-        // 2. mentor_session_logs (Detailed Session Log)
-        // 3. mentor_session_reports (Interaction Hub Reports)
-        // 4. mentorship_logs (General Mentorship)
-        
+        const { student_id, mentor_id, startDate, endDate } = req.query;
+        let whereClause = 'WHERE 1=1';
+        let params = [];
+
+        if (student_id) {
+            whereClause += ' AND student_id = ?';
+            params = [student_id, student_id, student_id, student_id];
+        }
+        if (mentor_id) {
+            whereClause += ' AND mentor_id = ?';
+            params = params.length ? [...params, mentor_id, mentor_id, mentor_id, mentor_id] : [mentor_id, mentor_id, mentor_id, mentor_id];
+        }
+        if (startDate) {
+            whereClause += ' AND created_at >= ?';
+            params = params.length ? [...params, startDate, startDate, startDate, startDate] : [startDate, startDate, startDate, startDate];
+        }
+        if (endDate) {
+            whereClause += ' AND created_at <= ?';
+            params = params.length ? [...params, endDate + ' 23:59:59', endDate + ' 23:59:59', endDate + ' 23:59:59', endDate + ' 23:59:59'] : [endDate + ' 23:59:59', endDate + ' 23:59:59', endDate + ' 23:59:59', endDate + ' 23:59:59'];
+        }
+
         const [rows] = await db.query(`
             SELECT 
                 'Interaction Hub' as source,
@@ -365,10 +380,13 @@ const getAllStudentLogs = async (req, res) => {
                 CAST(JSON_UNQUOTE(JSON_EXTRACT(r.report_data, '$.self_clarity')) AS CHAR) as understanding_level,
                 CAST(JSON_UNQUOTE(JSON_EXTRACT(r.report_data, '$.confidence')) AS CHAR) as student_confidence,
                 NULL as stress_level,
+                r.is_flagged,
+                r.flag_reason,
                 NULL as screenshot_url
             FROM mentor_session_reports r
             LEFT JOIN users m ON r.mentor_id = m.id
             JOIN students s ON r.student_id = s.id
+            ${whereClause.replace(/student_id/g, 'r.student_id').replace(/mentor_id/g, 'r.mentor_id').replace(/created_at/g, 'r.created_at')}
 
             UNION ALL
 
@@ -381,10 +399,13 @@ const getAllStudentLogs = async (req, res) => {
                 CAST(l.understanding_after_session AS CHAR) as understanding_level,
                 CAST(l.session_quality_rating AS CHAR) as student_confidence,
                 CAST(l.stress_level AS CHAR) as stress_level,
+                NULL as is_flagged,
+                NULL as flag_reason,
                 NULL as screenshot_url
             FROM mentor_session_logs l
             LEFT JOIN users m ON l.mentor_id = m.id
             JOIN students s ON l.student_id = s.id
+            ${whereClause.replace(/student_id/g, 'l.student_id').replace(/mentor_id/g, 'l.mentor_id').replace(/created_at/g, 'l.created_at')}
 
             UNION ALL
 
@@ -397,10 +418,13 @@ const getAllStudentLogs = async (req, res) => {
                 CAST(logs.self_clarity AS CHAR) as understanding_level,
                 CAST(logs.confidence AS CHAR) as student_confidence,
                 CAST(logs.exam_anxiety AS CHAR) as stress_level,
+                NULL as is_flagged,
+                NULL as flag_reason,
                 logs.screenshot_url
             FROM student_interaction_logs logs
             LEFT JOIN users m ON logs.mentor_id = m.id
             JOIN students s ON logs.student_id = s.id
+            ${whereClause.replace(/student_id/g, 'logs.student_id').replace(/mentor_id/g, 'logs.mentor_id').replace(/created_at/g, 'logs.created_at')}
 
             UNION ALL
 
@@ -413,13 +437,16 @@ const getAllStudentLogs = async (req, res) => {
                 NULL as understanding_level,
                 NULL as student_confidence,
                 NULL as stress_level,
+                NULL as is_flagged,
+                NULL as flag_reason,
                 NULL as screenshot_url
             FROM mentorship_logs ml
             LEFT JOIN users m ON ml.mentor_id = m.id
             JOIN students s ON ml.student_id = s.id
+            ${whereClause.replace(/student_id/g, 'ml.student_id').replace(/mentor_id/g, 'ml.mentor_id').replace(/created_at/g, 'ml.created_at')}
 
             ORDER BY created_at DESC
-        `);
+        `, params);
         res.status(200).json({ success: true, data: rows });
     } catch (error) {
         console.error("GET_ALL_STUDENT_LOGS_ERROR:", error);
@@ -427,34 +454,121 @@ const getAllStudentLogs = async (req, res) => {
     }
 };
 
-// @desc    Get all faculty logs
+// @desc    Get all faculty logs (Unified Audit)
 // @route   GET /api/admin/faculty-logs
 const getAllFacultyLogs = async (req, res) => {
     try {
-        const [rows] = await db.query(`
-            SELECT 
-                logs.id, logs.mentor_id, logs.student_id, logs.created_at,
-                m.name as mentor_name, s.name as student_name,
-                logs.subject, logs.faculty_name, logs.main_issue as notes,
-                logs.interaction_quality_rating as student_performance,
-                logs.connection_method, logs.action_plan
-            FROM mentor_faculty_interactions logs
-            LEFT JOIN users m ON logs.mentor_id = m.id
-            JOIN students s ON logs.student_id = s.id
-            
-            UNION ALL
+        const { student_id, faculty_id, mentor_id, startDate, endDate } = req.query;
+        let params = [];
 
-            SELECT 
-                l.id, l.mentor_id, l.student_id, l.created_at,
-                m.name as mentor_name, s.name as student_name,
-                NULL as subject, NULL as faculty_name, l.notes,
-                NULL as student_performance, NULL as connection_method, NULL as action_plan
-            FROM faculty_interaction_logs l
-            LEFT JOIN users m ON l.mentor_id = m.id
-            JOIN students s ON l.student_id = s.id
+        // We will build a unified query that pulls from:
+        // 1. mentor_faculty_interactions (Mentors logging calls with Faculty)
+        // 2. faculty_interaction_logs (Mentors tracking Faculty status)
+        // 3. student_reports (Faculty reporting on Students - Intelligence)
+        // 4. faculty_sessions (Actual teaching sessions)
+
+        const baseWhere = (tableAlias, studentCol = 'student_id', mentorCol = 'mentor_id', dateCol = 'created_at', facultyCol = 'faculty_id') => {
+            let clause = 'WHERE 1=1';
+            if (student_id) clause += ` AND ${tableAlias}.${studentCol} = ?`;
+            if (mentor_id) clause += ` AND ${tableAlias}.${mentorCol} = ?`;
+            if (faculty_id) clause += ` AND ${tableAlias}.${facultyCol} = ?`;
             
+            if (startDate) {
+                clause += ` AND ${tableAlias}.${dateCol} >= ?`;
+            }
+            if (endDate) {
+                clause += ` AND ${tableAlias}.${dateCol} <= ?`;
+            }
+            return clause;
+        };
+
+        const getParams = (includeStudent = true, includeMentor = true, includeFaculty = true) => {
+            let p = [];
+            if (student_id && includeStudent) p.push(student_id);
+            if (mentor_id && includeMentor) p.push(mentor_id);
+            if (faculty_id && includeFaculty) p.push(faculty_id);
+            if (startDate) p.push(startDate);
+            if (endDate) p.push(endDate + ' 23:59:59');
+            return p;
+        };
+
+        const query = `
+            SELECT * FROM (
+                -- 1. Mentors logging interactions with Faculty
+                SELECT 
+                    mfi.id, mfi.created_at, mfi.mentor_id, mfi.student_id,
+                    m.name as mentor_name, s.name as student_name,
+                    CONVERT('Faculty Call' USING utf8mb4) as source,
+                    CONVERT(mfi.main_issue USING utf8mb4) as notes,
+                    NULL as understanding_level, NULL as student_confidence, NULL as stress_level,
+                    mfi.is_flagged, mfi.flag_reason,
+                    f.name as faculty_name, mfi.faculty_id
+                FROM mentor_faculty_interactions mfi
+                LEFT JOIN users m ON mfi.mentor_id = m.id
+                LEFT JOIN students s ON mfi.student_id = s.id
+                LEFT JOIN users f ON mfi.faculty_id = f.id
+                ${baseWhere('mfi')}
+
+                UNION ALL
+
+                -- 2. Mentors tracking Faculty
+                SELECT 
+                    fil.id, fil.created_at, fil.mentor_id, fil.student_id,
+                    m.name as mentor_name, s.name as student_name,
+                    CONVERT('Faculty Tracking' USING utf8mb4) as source,
+                    CONVERT(fil.notes USING utf8mb4) as notes,
+                    NULL as understanding_level, NULL as student_confidence, NULL as stress_level,
+                    0 as is_flagged, NULL as flag_reason,
+                    f.name as faculty_name, fil.faculty_id
+                FROM faculty_interaction_logs fil
+                LEFT JOIN users m ON fil.mentor_id = m.id
+                LEFT JOIN students s ON fil.student_id = s.id
+                LEFT JOIN users f ON fil.faculty_id = f.id
+                ${baseWhere('fil')}
+
+                UNION ALL
+
+                -- 3. Faculty Intelligence Reports
+                SELECT 
+                    sr.id, sr.created_at, NULL as mentor_id, sr.student_id,
+                    NULL as mentor_name, s.name as student_name,
+                    CONVERT('Faculty Intelligence' USING utf8mb4) as source,
+                    CONVERT(sr.remarks USING utf8mb4) as notes,
+                    NULL as understanding_level, NULL as student_confidence, NULL as stress_level,
+                    0 as is_flagged, NULL as flag_reason,
+                    f.name as faculty_name, sr.faculty_id
+                FROM student_reports sr
+                LEFT JOIN students s ON sr.student_id = s.id
+                LEFT JOIN users f ON sr.faculty_id = f.id
+                ${baseWhere('sr', 'student_id', 'faculty_id', 'created_at', 'faculty_id')}
+
+                UNION ALL
+
+                -- 4. Actual Faculty Sessions
+                SELECT 
+                    fs.id, fs.created_at, NULL as mentor_id, NULL as student_id,
+                    NULL as mentor_name, NULL as student_name,
+                    CONVERT('Faculty Session' USING utf8mb4) as source,
+                    CONVERT(fs.topic USING utf8mb4) as notes,
+                    NULL as understanding_level, NULL as student_confidence, NULL as stress_level,
+                    0 as is_flagged, NULL as flag_reason,
+                    f.name as faculty_name, fs.faculty_id
+                FROM faculty_sessions fs
+                LEFT JOIN users f ON fs.faculty_id = f.id
+                ${baseWhere('fs', 'faculty_id', 'faculty_id', 'created_at', 'faculty_id')}
+            ) as unified_faculty_logs
             ORDER BY created_at DESC
-        `);
+        `;
+
+        // Flatten params for UNION ALL
+        const allParams = [
+            ...getParams(true, true, true), // mfi
+            ...getParams(true, true, true), // fil
+            ...getParams(true, false, true), // sr (no mentor_id, using faculty_id twice for logic)
+            ...getParams(false, false, true) // fs (no student/mentor id)
+        ];
+
+        const [rows] = await db.query(query, allParams);
         res.status(200).json({ success: true, data: rows });
     } catch (error) {
         console.error("GET_ALL_FACULTY_LOGS_ERROR:", error);

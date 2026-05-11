@@ -21,6 +21,7 @@ import AccountSettings from './pages/common/AccountSettings';
 
 // Admin Pages
 import Dashboard from './pages/admin/Dashboard';
+import AuditLogs from './pages/admin/AuditLogs';
 import Students from './pages/admin/Students';
 import Mentors from './pages/admin/Mentors';
 import Faculties from './pages/admin/Faculties';
@@ -36,7 +37,7 @@ import AdminLiveMonitoring from './pages/admin/LiveMonitoring';
 // Mentor Panel Pages
 import MentorDashboard from './pages/Mentor/MentorDashboard';
 import MyStudents from './pages/Mentor/MyStudents';
-import StudentDetails from './pages/Mentor/StudentDetails';
+import StudentDetails from './pages/common/StudentDetails';
 import MyTasks from './pages/Mentor/MyTasks';
 import Timetable from './pages/Mentor/Timetable';
 import StudentInteractionLog from './pages/Mentor/StudentInteractionLog';
@@ -128,8 +129,10 @@ function App() {
             <Route path="reports" element={<Reports />} />
             <Route path="mentor-head-report" element={<DailyMentorHeadReport />} />
             <Route path="logs" element={<InteractionLogs />} />
+            <Route path="audit-logs" element={<AuditLogs />} />
             <Route path="approvals" element={<Approvals />} />
             <Route path="admin-management" element={<AdminManagement />} />
+            <Route path="students/:id" element={<StudentDetails />} />
             <Route path="live-monitoring" element={<AdminLiveMonitoring />} />
             <Route path="profile" element={<AdminProfile />} />
             <Route path="account-settings" element={<AccountSettings />} />
@@ -149,6 +152,7 @@ function App() {
             <Route path="mentors" element={<MentorsList />} />
             <Route path="mentors/:id" element={<MentorDetails />} />
             <Route path="students" element={<StudentsListAcademic role="mentor_head" />} />
+            <Route path="students/:id" element={<StudentDetails />} />
             <Route path="edit-student/:id" element={<EditStudent />} />
             <Route path="faculties" element={<FacultyDirectoryMentorHead />} />
             <Route path="course-completed" element={<CourseCompletedTracker />} />
@@ -170,6 +174,7 @@ function App() {
             <Route path="actions" element={<AcademicActions />} />
             <Route path="faculties" element={<FacultyDirectory />} />
             <Route path="students" element={<StudentsListAcademic role="academic_head" />} />
+            <Route path="students/:id" element={<StudentDetails />} />
             <Route path="edit-student/:id" element={<EditStudent />} />
             <Route path="edit-faculty/:id" element={<EditFaculty />} />
             <Route path="mentors" element={<MentorsListAcademic />} />

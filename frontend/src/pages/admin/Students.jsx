@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import DataTable from '../../components/DataTable';
 import Modal from '../../components/Modal';
 import api from '../../services/api';
@@ -9,6 +10,7 @@ import { useAuth } from '../../context/AuthContext';
 import { sortStudentsByOption } from '../../components/StudentListFilterDropdown';
 
 const Students = () => {
+ const navigate = useNavigate();
  const { user } = useAuth();
  const isSuperAdmin = user?.role === 'super_admin';
  const [students, setStudents] = useState([]);
@@ -79,18 +81,8 @@ const Students = () => {
     document.body.removeChild(link);
   };
 
- const handleView = async (student) => {
- setSelectedStudent(student);
- setDailyHours([]);
- setIsModalOpen(true);
- try {
- const res = await api.get(`/admin/daily-hours/${student.id}`);
- if (res.data.success) {
- setDailyHours(res.data.data);
- }
- } catch (error) {
- console.error("Failed to fetch daily hours");
- }
+ const handleView = (student) => {
+  navigate(`/admin/students/${student.id}`);
  };
 
  const handleEdit = (student) => {
@@ -341,70 +333,7 @@ const Students = () => {
  </form>
  </Modal>
 
- <Modal
- isOpen={isModalOpen}
- onClose={() => setIsModalOpen(false)}
- title="Student Academic Profile"
- size="lg"
- >
- {selectedStudent && (
- <div className="flex flex-col gap-10">
- <div className="flex items-center gap-8 p-8 bg-[#008080]/5 rounded-[32px] border border-[#008080]/10 shadow-[0_10px_30px_rgba(20,184,166,0.05)]">
- <div className="w-24 h-24 bg-gradient-to-br from-[#006666] to-[#008080] text-white rounded-[28px] flex items-center justify-center text-4xl font-black shadow-xl shadow-[#008080]/20 relative overflow-hidden group">
- <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-500"></div>
- <span className="relative z-10">{selectedStudent.name.charAt(0)}</span>
- </div>
- <div className="flex flex-col gap-2">
- <h3 className="text-3xl font-black text-slate-900 tracking-tight">{selectedStudent.name}</h3>
- <p className="text-slate-600 font-bold text-xs uppercase tracking-widest">{selectedStudent.email || 'System user without email'}</p>
- <div className="mt-3 flex items-center gap-3">
- <span className={`px-4 py-1.5 rounded-full text-[10px] font-black tracking-widest border-2 ${selectedStudent.status === 'active' ? 'border-emerald-100/50 bg-emerald-100/30 text-emerald-600' : 'border-rose-100/50 bg-rose-100/30 text-rose-600'}`}>
- PROTOCOL: {selectedStudent.status.toUpperCase()}
- </span>
- <span className="w-2 h-2 rounded-full bg-slate-200"></span>
- <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">{selectedStudent.registration_number}</span>
- </div>
- </div>
- </div>
 
- <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
- <InfoGroup label="Current Grade" value={selectedStudent.grade} />
- <InfoGroup label="Subject Focus" value={selectedStudent.subject} />
- <InfoGroup label="Academic Mentor" value={selectedStudent.mentor} />
- <InfoGroup label="Lead Faculty" value={selectedStudent.faculty} />
- <InfoGroup label="Learning Timetable" value={selectedStudent.timetable} />
- <InfoGroup label="Next Payment Due" value={selectedStudent.nextInstallment} highlight />
- </div>
-
- <div className="mt-2 border-t border-slate-100 pt-6">
- <h4 className="text-xs font-black text-slate-600 uppercase tracking-widest mb-4">Daily Logged Hours (Mentor)</h4>
- <div className="max-h-40 overflow-y-auto space-y-2 pr-2">
- {dailyHours.length > 0 ? dailyHours.map((log) => (
- <div key={log.id} className="flex justify-between items-center bg-white p-4 rounded-[18px] border border-slate-100/50 shadow-sm hover:border-[#008080]/20 transition-all group">
- <div className="flex items-center gap-3">
- <div className="w-1.5 h-1.5 rounded-full bg-[#008080]"></div>
- <span className="text-[11px] font-black text-slate-500 uppercase tracking-widest">{new Date(log.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</span>
- </div>
- <span className="text-sm font-black text-[#008080] bg-[#008080]/5 px-3 py-1 rounded-full">{log.hours} <span className="text-[10px] uppercase ml-0.5">Hrs</span></span>
- </div>
- )) : (
- <p className="text-sm text-slate-600 font-medium ">No hours logged yet.</p>
- )}
- </div>
- </div>
-
- <div className="flex justify-end gap-3 pt-10 border-t border-slate-100/50">
- <button className="px-8 py-4 rounded-[18px] border border-slate-100 text-[11px] font-black uppercase tracking-widest text-slate-600 hover:text-slate-600 hover:bg-slate-50 transition-all" onClick={() => setIsModalOpen(false)}>Exit Dashboard</button>
- <button 
- className="px-10 py-4 rounded-[18px] bg-gradient-to-br from-[#006666] to-[#008080] text-white text-[11px] font-black uppercase tracking-[0.2em] hover:shadow-lg hover:shadow-[#008080]/30 hover:-translate-y-1 transition-all shadow-md shadow-[#008080]/20"
- onClick={() => handleEdit(selectedStudent)}
- >
- Reconfigure Profile
- </button>
- </div>
- </div>
- )}
- </Modal>
  </div>
  );
 };

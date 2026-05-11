@@ -112,6 +112,7 @@ const getMentorDashboard = async (req, res) => {
 const getMentorStudents = async (req, res) => {
     try {
         const mentorId = req.user.id;
+        const isPrivileged = ['super_admin', 'admin', 'mentor_head', 'academic_head', 'ssc'].includes(req.user.role);
         const [rows] = await db.query(`
             SELECT s.*, 
             m.name as mentor_name,
@@ -127,8 +128,8 @@ const getMentorStudents = async (req, res) => {
             s.onboarding_status
             FROM students s 
             LEFT JOIN users m ON s.mentor_id = m.id
-            ${req.user.role === 'ssc' ? '' : 'WHERE s.mentor_id = ?'}
-        `, req.user.role === 'ssc' ? [] : [mentorId]);
+            ${isPrivileged ? '' : 'WHERE s.mentor_id = ?'}
+        `, isPrivileged ? [] : [mentorId]);
         res.status(200).json({ success: true, data: rows });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
@@ -142,9 +143,10 @@ const getStudentDetails = async (req, res) => {
         const mentorId = req.user.id;
         const studentId = req.params.id;
 
+        const isPrivileged = ['super_admin', 'admin', 'mentor_head', 'academic_head', 'ssc'].includes(req.user.role);
         const [student] = await db.query(
-            `SELECT * FROM students WHERE id = ? ${req.user.role === 'ssc' ? '' : 'AND mentor_id = ?'}`,
-            req.user.role === 'ssc' ? [studentId] : [studentId, mentorId]
+            `SELECT * FROM students WHERE id = ? ${isPrivileged ? '' : 'AND mentor_id = ?'}`,
+            isPrivileged ? [studentId] : [studentId, mentorId]
         );
 
         if (!student.length) {
@@ -249,9 +251,9 @@ const getStudentDetails = async (req, res) => {
                 session_quality_rating,
                 created_at
             FROM mentor_session_logs
-            WHERE student_id = ? AND mentor_id = ?
+            WHERE student_id = ? ${isPrivileged ? '' : 'AND mentor_id = ?'}
             ORDER BY created_at DESC
-        `, [studentId, mentorId]);
+        `, isPrivileged ? [studentId] : [studentId, mentorId]);
 
         res.status(200).json({
             success: true,

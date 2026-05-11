@@ -103,6 +103,193 @@ exports.getMentorStudents = async (req, res) => {
         res.status(500).json({ success: false, message: "Server Error", error: error.message });
     }
 };
+// @desc    Get all student logs (Unified Audit for Mentor Head)
+// @route   GET /api/mentor-head/student-logs
+exports.getStudentInteractionLogs = async (req, res) => {
+    try {
+        const { student_id, mentor_id, startDate, endDate } = req.query;
+        let params = [];
+
+        const baseWhere = (tableAlias, studentCol = 'student_id', mentorCol = 'mentor_id', dateCol = 'created_at') => {
+            let clause = 'WHERE 1=1';
+            if (student_id) clause += ` AND ${tableAlias}.${studentCol} = ?`;
+            if (mentor_id) clause += ` AND ${tableAlias}.${mentorCol} = ?`;
+            if (startDate) clause += ` AND ${tableAlias}.${dateCol} >= ?`;
+            if (endDate) clause += ` AND ${tableAlias}.${dateCol} <= ?`;
+            return clause;
+        };
+
+        const getParams = () => {
+            let p = [];
+            if (student_id) p.push(student_id);
+            if (mentor_id) p.push(mentor_id);
+            if (startDate) p.push(startDate);
+            if (endDate) p.push(endDate + ' 23:59:59');
+            return p;
+        };
+
+        const query = `
+            SELECT * FROM (
+                SELECT 
+                    sil.id, sil.created_at, sil.mentor_id, sil.student_id,
+                    m.name as mentor_name, s.name as student_name,
+                    CONVERT('Quick Log' USING utf8mb4) as source,
+                    CONVERT(sil.mentor_notes USING utf8mb4) as notes,
+                    CAST(sil.self_clarity AS CHAR) as understanding_level,
+                    CAST(sil.confidence AS CHAR) as student_confidence,
+                    CAST(sil.exam_anxiety AS CHAR) as stress_level,
+                    0 as is_flagged, NULL as flag_reason
+                FROM student_interaction_logs sil
+                LEFT JOIN users m ON sil.mentor_id = m.id
+                LEFT JOIN students s ON sil.student_id = s.id
+                ${baseWhere('sil', 'student_id', 'mentor_id', 'created_at')}
+
+                UNION ALL
+
+                SELECT 
+                    msl.id, msl.created_at, msl.mentor_id, msl.student_id,
+                    m.name as mentor_name, s.name as student_name,
+                    CONVERT('Session Log' USING utf8mb4) as source,
+                    CONVERT(CONCAT(msl.main_issue, ': ', msl.action_type) USING utf8mb4) as notes,
+                    CAST(msl.understanding_after_session AS CHAR) as understanding_level,
+                    CAST(msl.session_quality_rating AS CHAR) as student_confidence,
+                    CAST(msl.stress_level AS CHAR) as stress_level,
+                    0 as is_flagged, NULL as flag_reason
+                FROM mentor_session_logs msl
+                LEFT JOIN users m ON msl.mentor_id = m.id
+                LEFT JOIN students s ON msl.student_id = s.id
+                ${baseWhere('msl', 'student_id', 'mentor_id', 'created_at')}
+
+                UNION ALL
+
+                SELECT 
+                    msr.id, msr.created_at, msr.mentor_id, msr.student_id,
+                    m.name as mentor_name, s.name as student_name,
+                    CONVERT(CONCAT('Hub: ', msr.session_type) USING utf8mb4) as source,
+                    CONVERT(COALESCE(JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.notes')), msr.session_type) USING utf8mb4) as notes,
+                    CAST(JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.understanding_level')) AS CHAR) as understanding_level,
+                    CAST(JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.confidence')) AS CHAR) as student_confidence,
+                    NULL as stress_level,
+                    msr.is_flagged, msr.flag_reason
+                FROM mentor_session_reports msr
+                LEFT JOIN users m ON msr.mentor_id = m.id
+                LEFT JOIN students s ON msr.student_id = s.id
+                ${baseWhere('msr', 'student_id', 'mentor_id', 'created_at')}
+
+                UNION ALL
+
+                SELECT 
+                    ml.id, ml.created_at, ml.mentor_id, ml.student_id,
+                    m.name as mentor_name, s.name as student_name,
+                    CONVERT('Mentorship' USING utf8mb4) as source,
+                    CONVERT(ml.action_details USING utf8mb4) as notes,
+                    NULL as understanding_level, NULL as student_confidence, NULL as stress_level,
+                    0 as is_flagged, NULL as flag_reason
+                FROM mentorship_logs ml
+                LEFT JOIN users m ON ml.mentor_id = m.id
+                LEFT JOIN students s ON ml.student_id = s.id
+                ${baseWhere('ml', 'student_id', 'mentor_id', 'created_at')}
+            ) as unified_logs
+            ORDER BY created_at DESC
+        `;
+
+        const allParams = [...getParams(), ...getParams(), ...getParams(), ...getParams()];
+        const [rows] = await db.query(query, allParams);
+        res.status(200).json({ success: true, data: rows });
+    } catch (error) {
+        console.error("GET_STUDENT_LOGS_ERROR:", error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+// @desc    Get all faculty logs (Unified Audit for Mentor Head)
+// @route   GET /api/mentor-head/faculty-logs
+exports.getFacultyInteractionLogs = async (req, res) => {
+    try {
+        const { student_id, faculty_id, mentor_id, startDate, endDate } = req.query;
+        let params = [];
+
+        const baseWhere = (tableAlias, studentCol = 'student_id', mentorCol = 'mentor_id', dateCol = 'created_at', facultyCol = 'faculty_id') => {
+            let clause = 'WHERE 1=1';
+            if (student_id) clause += ` AND ${tableAlias}.${studentCol} = ?`;
+            if (mentor_id) clause += ` AND ${tableAlias}.${mentorCol} = ?`;
+            if (faculty_id) clause += ` AND ${tableAlias}.${facultyCol} = ?`;
+            if (startDate) clause += ` AND ${tableAlias}.${dateCol} >= ?`;
+            if (endDate) clause += ` AND ${tableAlias}.${dateCol} <= ?`;
+            return clause;
+        };
+
+        const getParams = (includeStudent = true, includeMentor = true, includeFaculty = true) => {
+            let p = [];
+            if (student_id && includeStudent) p.push(student_id);
+            if (mentor_id && includeMentor) p.push(mentor_id);
+            if (faculty_id && includeFaculty) p.push(faculty_id);
+            if (startDate) p.push(startDate);
+            if (endDate) p.push(endDate + ' 23:59:59');
+            return p;
+        };
+
+        const query = `
+            SELECT * FROM (
+                SELECT 
+                    mfi.id, mfi.created_at, mfi.mentor_id, mfi.student_id,
+                    m.name as mentor_name, s.name as student_name,
+                    CONVERT('Faculty Call' USING utf8mb4) as source,
+                    CONVERT(mfi.main_issue USING utf8mb4) as notes,
+                    mfi.is_flagged, mfi.flag_reason,
+                    f.name as faculty_name, mfi.faculty_id
+                FROM mentor_faculty_interactions mfi
+                LEFT JOIN users m ON mfi.mentor_id = m.id
+                LEFT JOIN students s ON mfi.student_id = s.id
+                LEFT JOIN users f ON mfi.faculty_id = f.id
+                ${baseWhere('mfi')}
+
+                UNION ALL
+
+                SELECT 
+                    fil.id, fil.created_at, fil.mentor_id, fil.student_id,
+                    m.name as mentor_name, s.name as student_name,
+                    CONVERT('Faculty Tracking' USING utf8mb4) as source,
+                    CONVERT(fil.notes USING utf8mb4) as notes,
+                    0 as is_flagged, NULL as flag_reason,
+                    f.name as faculty_name, fil.faculty_id
+                FROM faculty_interaction_logs fil
+                LEFT JOIN users m ON fil.mentor_id = m.id
+                LEFT JOIN students s ON fil.student_id = s.id
+                LEFT JOIN users f ON fil.faculty_id = f.id
+                ${baseWhere('fil')}
+
+                UNION ALL
+
+                SELECT 
+                    sr.id, sr.created_at, NULL as mentor_id, sr.student_id,
+                    NULL as mentor_name, s.name as student_name,
+                    CONVERT('Faculty Intelligence' USING utf8mb4) as source,
+                    CONVERT(sr.remarks USING utf8mb4) as notes,
+                    0 as is_flagged, NULL as flag_reason,
+                    f.name as faculty_name, sr.faculty_id
+                FROM student_reports sr
+                LEFT JOIN students s ON sr.student_id = s.id
+                LEFT JOIN users f ON sr.faculty_id = f.id
+                ${baseWhere('sr', 'student_id', 'faculty_id', 'created_at', 'faculty_id')}
+            ) as unified_faculty_logs
+            ORDER BY created_at DESC
+        `;
+
+        const allParams = [
+            ...getParams(true, true, true),
+            ...getParams(true, true, true),
+            ...getParams(true, false, true)
+        ];
+
+        const [rows] = await db.query(query, allParams);
+        res.status(200).json({ success: true, data: rows });
+    } catch (error) {
+        console.error("GET_FACULTY_LOGS_ERROR:", error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
 // @desc    Get all mentor interaction logs (Student & Faculty calls)
 // @route   GET /api/mentor-head/mentor-logs
 // @access  Private (Mentor Head)

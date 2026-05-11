@@ -39,7 +39,7 @@ const { requireRole } = require('../middleware/roleMiddleware');
 
 // All routes require academic_head role
 router.use(requireAuth);
-router.use(requireRole('academic_head'));
+router.use(requireRole('academic_head', 'super_admin'));
 
 router.get('/dashboard', getDashboardStats);
 router.get('/exam-analytics', getExamAnalytics);
@@ -49,8 +49,8 @@ router.get('/documents', getAcademicDocuments);
 router.post('/documents', uploadAcademicDocument);
 router.delete('/documents/:id', deleteAcademicDocument);
 router.get('/faculty-activity-logs', getAllFacultyActivity);
-router.get('/student-interaction-logs', getStudentInteractionLogs);
-router.get('/faculty-interaction-logs', getFacultyInteractionLogs);
+router.get('/student-logs', getStudentInteractionLogs);
+router.get('/faculty-logs', getFacultyInteractionLogs);
 router.get('/faculty-checks', getDailyFacultyChecks);
 router.post('/sessions/:sessionId/check', checkFacultySessionToday);
 router.delete('/sessions/:sessionId/uncheck', uncheckFacultySession);

@@ -35,7 +35,7 @@ const { requireRole } = require('../middleware/roleMiddleware');
 
 // All routes require mentor_head role
 router.use(requireAuth);
-router.use(requireRole('mentor_head'));
+router.use(requireRole('mentor_head', 'super_admin'));
 
 router.post('/register-mentor', registerMentor);
 router.get('/dashboard', getDashboardStats);
@@ -63,6 +63,8 @@ router.delete('/students/:id', deleteStudent);
 router.put('/students/:studentId/course-complete', toggleCourseCompleted);
 
 // Intelligence Hub Routes
+router.get('/student-logs', getStudentInteractionLogs);
+router.get('/faculty-logs', getFacultyInteractionLogs);
 router.get('/mentor-logs', getMentorInteractionLogs);
 router.get('/faculty-intelligence', getFacultyIntelligenceLogs);
 router.delete('/logs/:id', deleteInteractionLog);

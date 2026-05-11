@@ -33,38 +33,37 @@ const { requireAuth } = require('../middleware/authMiddleware');
 const { requireRole } = require('../middleware/roleMiddleware');
 const { upload } = require('../config/cloudinary');
 
-// Apply middleware to all routes
+// Apply basic auth to all routes
 router.use(requireAuth);
-router.use(requireRole('mentor', 'ssc'));
 
-router.get('/dashboard', getMentorDashboard);
-router.get('/students', getMentorStudents);
-router.get('/students/:id', getStudentDetails);
-router.get('/students/:id/schedule', getStudentAcademicSchedule);
-router.post('/students/:id/schedule', updateStudentAcademicSchedule);
-router.get('/tasks', getMentorTasks);
-router.put('/tasks/:id/complete', upload.single('proof'), completeMentorTask);
-router.get('/timetable', getMentorTimetable);
-router.post('/timetable', createSession);
-router.put('/timetable/:id', updateSession);
-router.delete('/timetable/:id', deleteSession);
-router.post('/student-log', createStudentLog);
-router.get('/student-logs', getStudentLogs);
-router.post('/daily-hours', logDailyHours);
-router.get('/daily-hours/:studentId', getDailyHours);
-router.get('/students/:studentId/daily-updates', getStudentDailyUpdates);
-router.put('/students/:studentId/connection', toggleStudentConnection);
-router.put('/students/:studentId/onboard', completeOnboarding);
-router.get('/exams/pending', getPendingExams);
-router.get('/exams/history', getExamHistory);
-router.get('/academic-schedule', getAcademicSchedule);
-router.put('/academic-schedule/:id/reminder', updateAcademicSessionReminder);
-router.put('/academic-schedule/:id/complete', completeAcademicSession);
-router.post('/timetable/batch', createBatchTimetable);
-router.post('/exams/submit', submitExamResult);
-router.post('/mentorship-log', createMentorshipLog);
-router.get('/mentorship-logs/:studentId', getMentorshipLogs);
-router.get('/faculties-all', require('../controllers/mentorHeadController').getFaculties);
+router.get('/dashboard', requireRole('mentor', 'ssc'), getMentorDashboard);
+router.get('/students', requireRole('mentor', 'ssc', 'super_admin', 'admin', 'mentor_head', 'academic_head'), getMentorStudents);
+router.get('/students/:id', requireRole('mentor', 'ssc', 'super_admin', 'admin', 'mentor_head', 'academic_head'), getStudentDetails);
+router.get('/students/:id/schedule', requireRole('mentor', 'ssc', 'super_admin', 'admin', 'mentor_head', 'academic_head'), getStudentAcademicSchedule);
+router.post('/students/:id/schedule', requireRole('mentor', 'ssc', 'super_admin', 'admin'), updateStudentAcademicSchedule);
+router.get('/tasks', requireRole('mentor'), getMentorTasks);
+router.put('/tasks/:id/complete', requireRole('mentor'), upload.single('proof'), completeMentorTask);
+router.get('/timetable', requireRole('mentor', 'super_admin', 'admin', 'mentor_head'), getMentorTimetable);
+router.post('/timetable', requireRole('mentor', 'super_admin', 'admin'), createSession);
+router.put('/timetable/:id', requireRole('mentor', 'super_admin', 'admin'), updateSession);
+router.delete('/timetable/:id', requireRole('mentor', 'super_admin', 'admin'), deleteSession);
+router.post('/student-log', requireRole('mentor', 'ssc'), createStudentLog);
+router.get('/student-logs', requireRole('mentor', 'ssc', 'super_admin', 'admin'), getStudentLogs);
+router.post('/daily-hours', requireRole('mentor'), logDailyHours);
+router.get('/daily-hours/:studentId', requireRole('mentor', 'super_admin', 'admin'), getDailyHours);
+router.get('/students/:studentId/daily-updates', requireRole('mentor', 'ssc', 'super_admin', 'admin'), getStudentDailyUpdates);
+router.put('/students/:studentId/connection', requireRole('mentor', 'ssc'), toggleStudentConnection);
+router.put('/students/:studentId/onboard', requireRole('mentor', 'ssc', 'super_admin', 'admin'), completeOnboarding);
+router.get('/exams/pending', requireRole('mentor'), getPendingExams);
+router.get('/exams/history', requireRole('mentor'), getExamHistory);
+router.get('/academic-schedule', requireRole('mentor'), getAcademicSchedule);
+router.put('/academic-schedule/:id/reminder', requireRole('mentor'), updateAcademicSessionReminder);
+router.put('/academic-schedule/:id/complete', requireRole('mentor'), completeAcademicSession);
+router.post('/timetable/batch', requireRole('mentor', 'ssc', 'super_admin', 'admin'), createBatchTimetable);
+router.post('/exams/submit', requireRole('mentor'), submitExamResult);
+router.post('/mentorship-log', requireRole('mentor', 'ssc'), createMentorshipLog);
+router.get('/mentorship-logs/:studentId', requireRole('mentor', 'ssc', 'super_admin', 'admin'), getMentorshipLogs);
+router.get('/faculties-all', requireRole('mentor', 'ssc', 'super_admin', 'admin', 'mentor_head'), require('../controllers/mentorHeadController').getFaculties);
 
 
 module.exports = router;

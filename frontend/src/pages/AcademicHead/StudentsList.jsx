@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import {
 	Users, Search, Filter, Edit2, Trash2, X, Save,
-	GraduationCap, BookOpen, Clock, Activity, Calendar
+	GraduationCap, BookOpen, Clock, Activity, Calendar, Eye
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
@@ -41,6 +41,10 @@ const StudentsList = ({ role = 'academic_head' }) => {
 
 	const handleEdit = (student) => {
 		navigate(`${apiPath}/edit-student/${student.id}`);
+	};
+
+	const handleView = (student) => {
+		navigate(`${apiPath}/students/${student.id}`);
 	};
 
 	const handleDelete = async (studentParam) => {
@@ -197,6 +201,13 @@ const StudentsList = ({ role = 'academic_head' }) => {
 									</td>
 									<td className="px-8 py-6 text-right">
 										<div className="flex items-center justify-end gap-2">
+											<button
+												onClick={() => handleView(student)}
+												className="p-2.5 bg-white border-2 border-slate-200 rounded-xl text-slate-400 hover:border-[#008080] hover:text-[#008080] transition-all shadow-sm"
+												title="View Details"
+											>
+												<Eye size={16} />
+											</button>
 											<button
 												onClick={() => handleEdit(student)}
 												className="p-2.5 bg-white border-2 border-[#008080]/40 rounded-xl text-[#008080] hover:bg-[#008080] hover:text-white transition-all shadow-sm group/edit"

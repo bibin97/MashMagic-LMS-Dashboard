@@ -34,11 +34,11 @@ const getDailyAssignments = async (req, res) => {
 const generateAssignments = async (mentor_id) => {
     // 1. Fetch all students under this mentor who are Mentorship or Both
     const [students] = await db.query(
-        `SELECT id, name, priority_category, enrollment_type 
+        `SELECT id, name, priority_category, enrollment_type, badge 
          FROM students 
          WHERE mentor_id = ? 
          AND (LOWER(enrollment_type) = 'mentorship' OR LOWER(enrollment_type) = 'both')
-         AND onboarding_status = 'completed'
+         AND status != 'inactive'
          ORDER BY id ASC`,
         [mentor_id]
     );
@@ -50,9 +50,11 @@ const generateAssignments = async (mentor_id) => {
     const refDate = new Date('2024-01-01');
     const today = new Date();
     const diffTime = Math.abs(today - refDate);
-    const dayNumber = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    const dayNumber = Math.floor(diffTime / (1000 * 60 * 60 * 24)); // Use floor for stability
     
-    const shiftValue = 5;
+    // User requested 15 students per day out of total 25+. 
+    // Shift by 15 every day to ensure everyone is covered in rotation.
+    const shiftValue = 15;
     const startIndex = (dayNumber * shiftValue) % students.length;
 
     // Create a circular array based on rotation
@@ -61,7 +63,7 @@ const generateAssignments = async (mentor_id) => {
         rotatedStudents.push(students[(startIndex + i) % students.length]);
     }
 
-    // 3. Priority Override
+    // 3. Priority Split
     const highPriority = rotatedStudents.filter(s => s.priority_category === 'High');
     const mediumPriority = rotatedStudents.filter(s => s.priority_category === 'Medium');
     const others = rotatedStudents.filter(s => !['High', 'Medium'].includes(s.priority_category));
@@ -75,7 +77,7 @@ const generateAssignments = async (mentor_id) => {
     for (let i = 0; i < highPriority.length && deep.length < 5; i++) {
         deep.push({ ...highPriority[i], sessionType: 'DEEP', status: 'PENDING' });
     }
-    // Priority 2: Fill remaining with rotation
+    // Priority 2: Fill remaining with rotation pool
     while (deep.length < 5 && others.length > 0) {
         const student = others.shift();
         deep.push({ ...student, sessionType: 'DEEP', status: 'PENDING' });
@@ -97,11 +99,13 @@ const generateAssignments = async (mentor_id) => {
         quick.push({ ...student, sessionType: 'QUICK', status: 'PENDING' });
     }
 
-    // Remaining pool if still under quota
+    // 4. Backfill Quota: If we still don't have 15 students but have more in pools
+    // Fill Quick with remaining medium priority if any
     while (quick.length < 5 && mediumPriority.length > 0) {
         quick.push({ ...mediumPriority.shift(), sessionType: 'QUICK', status: 'PENDING' });
     }
 
+    // Final merge
     return [...deep, ...medium, ...quick];
 };
 

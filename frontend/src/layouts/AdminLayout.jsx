@@ -57,7 +57,9 @@ const AdminLayout = () => {
  { path: '/admin/reports', icon: <FileText size={20} />, label: 'Reports', perm: 'reports' },
  { path: '/admin/live-monitoring', icon: <Target size={20} />, label: 'Live Classes', perm: 'monitoring' },
  { path: '/admin/mentor-head-report', icon: <Target size={20} />, label: 'Mentor Head Report', perm: 'reports' },
- { path: '/admin/logs', icon: <ScrollText size={20} />, label: 'Logs', perm: 'logs' },
+   { path: '/admin/logs', icon: <ScrollText size={20} />, label: 'Interaction Logs', perm: 'logs' },
+  { path: '/admin/audit-logs', icon: <FileText size={20} />, label: 'Audit Trail', perm: 'logs' },
+
  ].filter(item => {
     // Main Admin has full access
     if (user?.role === 'super_admin') return true;

@@ -239,7 +239,7 @@ const StudentInteractionLog = () => {
             <div className={`w-2 h-2 rounded-full ${statusFilter === 'pending' ? 'bg-white animate-pulse' : 'bg-rose-500'}`}></div>
             Awaiting Interaction ({activeTab === 'tuition' ? 
               allStudents.filter(s => isSilverCategory(s) && !s.connected_today).length :
-              assignedStudents.filter(s => s.status !== 'COMPLETED').length
+              assignedStudents.filter(s => s.status !== 'COMPLETED' && (activeTab === 'both' ? isDiamondCategory(s) : isGoldCategory(s))).length
             })
           </button>
           <button
@@ -249,7 +249,7 @@ const StudentInteractionLog = () => {
             <div className={`w-2 h-2 rounded-full ${statusFilter === 'completed' ? 'bg-white animate-pulse' : 'bg-emerald-500'}`}></div>
             Completed Today ({activeTab === 'tuition' ? 
               allStudents.filter(s => isSilverCategory(s) && s.connected_today).length :
-              assignedStudents.filter(s => s.status === 'COMPLETED').length
+              assignedStudents.filter(s => s.status === 'COMPLETED' && (activeTab === 'both' ? isDiamondCategory(s) : isGoldCategory(s))).length
             })
           </button>
         </div>
@@ -277,7 +277,8 @@ const StudentInteractionLog = () => {
                     {(assignedStudents.length > 0 ? assignedStudents : [])
                        .filter(s => {
                          const matchesStatus = statusFilter === 'completed' ? s.status === 'COMPLETED' : s.status !== 'COMPLETED';
-                         return matchesStatus;
+                         const matchesTab = activeTab === 'both' ? isDiamondCategory(s) : isGoldCategory(s);
+                         return matchesStatus && matchesTab;
                        })
                        .map(student => {
                          const sessionType = student.sessionType || 'QUICK';
@@ -317,7 +318,8 @@ const StudentInteractionLog = () => {
                        })}
                     {assignedStudents.filter(s => {
                         const matchesStatus = statusFilter === 'completed' ? s.status === 'COMPLETED' : s.status !== 'COMPLETED';
-                        return matchesStatus;
+                        const matchesTab = activeTab === 'both' ? isDiamondCategory(s) : isGoldCategory(s);
+                        return matchesStatus && matchesTab;
                     }).length === 0 && (
                       <div className="col-span-full py-20 text-center bg-slate-50/50 rounded-[3rem] border border-dashed border-slate-200 animate-in fade-in zoom-in duration-500">
                          <p className="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">All students in your today's fleet are {statusFilter === 'pending' ? 'accounted for' : 'awaiting action'}.</p>
