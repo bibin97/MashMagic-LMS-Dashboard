@@ -238,25 +238,6 @@ const Navbar = ({ onMenuClick }) => {
     }
   };
 
-  const handleProfileClick = () => {
-    setIsProfileOpen(false);
-    const rolePaths = {
-      'super_admin': '/admin/profile',
-      'admin': '/admin/profile',
-      'mentor_head': '/mentor-head/profile',
-      'academic_head': '/academic-head/profile',
-      'mentor': '/mentor/profile',
-      'faculty': '/faculty/profile',
-      'ssc': '/ssc/profile'
-    };
-    const path = rolePaths[user?.role];
-    if (path) {
-      navigate(path);
-    } else {
-      toast.error('Profile route not defined for this role');
-    }
-  };
-
   const unreadCount = notifications.filter(n => !n.is_read).length;
 
   return (
