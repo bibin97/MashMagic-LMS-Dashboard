@@ -200,6 +200,44 @@ const Navbar = ({ onMenuClick }) => {
     navigate('/login');
   };
 
+  const handleSettingsClick = () => {
+    setIsProfileOpen(false);
+    const rolePaths = {
+      'super_admin': '/admin/profile',
+      'admin': '/admin/profile',
+      'mentor_head': '/mentor-head/profile',
+      'academic_head': '/academic-head/profile',
+      'mentor': '/mentor/profile',
+      'faculty': '/faculty/profile',
+      'ssc': '/ssc/profile'
+    };
+    const path = rolePaths[user?.role];
+    if (path) {
+      navigate(`${path}#security`);
+    } else {
+      toast.error('Settings route not defined');
+    }
+  };
+
+  const handleProfileClick = () => {
+    setIsProfileOpen(false);
+    const rolePaths = {
+      'super_admin': '/admin/profile',
+      'admin': '/admin/profile',
+      'mentor_head': '/mentor-head/profile',
+      'academic_head': '/academic-head/profile',
+      'mentor': '/mentor/profile',
+      'faculty': '/faculty/profile',
+      'ssc': '/ssc/profile'
+    };
+    const path = rolePaths[user?.role];
+    if (path) {
+      navigate(path);
+    } else {
+      toast.error('Profile route not defined for this role');
+    }
+  };
+
   const handleProfileClick = () => {
     setIsProfileOpen(false);
     const rolePaths = {
@@ -516,7 +554,7 @@ const Navbar = ({ onMenuClick }) => {
                   <button onClick={handleProfileClick} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-[12px] transition-colors">
                     <User className="w-4 h-4" /> My Profile
                   </button>
-                  <button onClick={handleProfileClick} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-[12px] transition-colors">
+                  <button onClick={handleSettingsClick} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-[12px] transition-colors">
                     <Settings className="w-4 h-4" /> Account Settings
                   </button>
                 </div>

@@ -1,4 +1,5 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { User, Mail, Shield, Smartphone, Lock, AlertCircle, Activity, Camera, Loader2, CheckCircle2 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../services/api';
@@ -11,6 +12,15 @@ const ProfileConsole = () => {
 	const [passwordData, setPasswordData] = useState({ current: '', new: '', confirm: '' });
 	const [updatingPassword, setUpdatingPassword] = useState(false);
 	const fileInputRef = useRef(null);
+	const location = useLocation();
+
+	useEffect(() => {
+		if (location.hash === '#security') {
+			setShowPasswordModal(true);
+			// Optional: Clear hash after opening to avoid re-opening on reload if not desired
+			// window.history.replaceState(null, '', window.location.pathname);
+		}
+	}, [location]);
 
 	const handlePasswordChange = async (e) => {
 		e.preventDefault();
