@@ -318,7 +318,7 @@ const CommonInteractionLogs = ({ role }) => {
                                                     {new Date(log.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}
                                                 </span>
                                                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">
-                                                    {new Date(log.created_at).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
+                                                    {new Date(log.created_at).toLocaleDateString('en-GB', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' }).replace(/,/g, '')}
                                                 </span>
                                             </div>
                                         </div>
@@ -404,7 +404,6 @@ const MetricLine = ({ label, value, max = 100, color, invert }) => {
     if (isNaN(numValue)) return null;
     
     const percentage = (numValue / max) * 100;
-    const finalDisplayPercentage = invert ? 100 - percentage : percentage;
 
     return (
         <div className="space-y-2">
