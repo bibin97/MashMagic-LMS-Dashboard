@@ -620,7 +620,9 @@ const Registrations = () => {
                             className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-[10px] font-black uppercase tracking-widest text-slate-700 cursor-pointer flex justify-between items-center"
                           >
                             <span className="truncate">
-                              {row.dayConfigs && row.dayConfigs.length > 0 ? row.dayConfigs.map(c => c.day.substring(0, 3)).join(', ') : 'Add Days'}
+                               {row.dayConfigs && row.dayConfigs.length > 0 
+                                ? row.dayConfigs.map(c => `${c.day.substring(0, 3)} ${c.startTime || ''}${c.startTime && c.endTime ? ' - ' : ''}${c.endTime || ''}`).join(', ') 
+                                : 'Add Days'}
                             </span>
                             <span className="text-slate-400">▼</span>
                           </div>
@@ -680,6 +682,18 @@ const Registrations = () => {
                                   );
                                 })}
                               </div>
+                              <button 
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  const newSubjects = [...selectedSubjects];
+                                  newSubjects[idx].isDayDropdownOpen = false;
+                                  setSelectedSubjects(newSubjects);
+                                }}
+                                className="w-full mt-4 bg-[#008080] text-white py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-[#008080]/20 hover:scale-[1.02] transition-all"
+                              >
+                                Done
+                              </button>
                             </div>
                           )}
                         </div>
