@@ -153,34 +153,47 @@ const blockUser = async (req, res) => {
 // @access  Private (super_admin, admin)
 const getPendingUsers = async (req, res) => {
     try {
+        // 1. Fetch non-student users (Faculties, Mentors, SSCs, etc.)
         const [users] = await db.query(`
             SELECT u.id, u.name, u.email, u.phone_number, u.role, u.place, u.status, u.createdAt as created_at,
                    rb.name as registered_by_name
             FROM users u
             LEFT JOIN users rb ON u.registeredBy = rb.id
-            WHERE (u.status = "pending" OR u.isApproved = 0) AND u.status != 'rejected'
+            WHERE (u.status = "pending" OR u.isApproved = 0) 
+            AND u.status != 'rejected'
+            AND u.role != 'student'
         `);
 
-        // Attempt to fetch students with status pending
-        let students = [];
-        try {
-            const [studentRows] = await db.query(`
-                SELECT s.id, s.name, s.email, COALESCE(s.phone_number, s.contact) as phone_number, 'student' as role, NULL as place, s.status, s.createdAt as created_at,
-                       rb.name as registered_by_name
-                FROM students s
-                LEFT JOIN users rb ON s.registeredBy = rb.id
-                WHERE (s.status = 'pending' OR s.isApproved = 0) AND s.status != 'rejected'
-            `);
-            students = studentRows;
-        } catch (e) {
-            console.error("Warning: 'status' or 'isApproved' column issue in students table.", e.message);
-        }
+        // 2. Fetch students specifically from the students table
+        const [students] = await db.query(`
+            SELECT s.id, s.name, s.email, COALESCE(s.phone_number, s.contact) as phone_number, 'student' as role, NULL as place, s.status, s.createdAt as created_at,
+                   rb.name as registered_by_name
+            FROM students s
+            LEFT JOIN users rb ON s.registeredBy = rb.id
+            WHERE (s.status = 'pending' OR s.isApproved = 0) 
+            AND s.status != 'rejected'
+        `);
 
+        // 3. Combine and ensure uniqueness by ID and Role
         const combined = [...users, ...students];
-        const enrichedRows = combined.map(r => ({ ...r, created_at: r.created_at || new Date() }));
+        
+        // Use a Map to filter duplicates by ID + Role combo
+        const uniqueMap = new Map();
+        combined.forEach(item => {
+            const key = `${item.role}_${item.id}`;
+            if (!uniqueMap.has(key)) {
+                uniqueMap.set(key, item);
+            }
+        });
 
-        res.status(200).json({ success: true, count: enrichedRows.length, data: enrichedRows });
+        const uniqueRows = Array.from(uniqueMap.values()).map(r => ({
+            ...r,
+            created_at: r.created_at || new Date()
+        }));
+
+        res.status(200).json({ success: true, count: uniqueRows.length, data: uniqueRows });
     } catch (error) {
+        console.error("GET_PENDING_USERS_ERROR:", error);
         res.status(500).json({ success: false, message: "Server Error", error: error.message });
     }
 };

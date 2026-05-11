@@ -731,25 +731,25 @@ const Registrations = () => {
                                 </div>
                                 <div className="flex-1 grid grid-cols-2 gap-4 w-full">
                                   <div className="relative">
-                                    <select 
+                                    <input 
+                                      type="text"
+                                      placeholder="Start (e.g. 10:00 AM)"
                                       value={config.startTime}
                                       onChange={(e) => handleDayTimeChange(idx, dIdx, 'startTime', e.target.value)}
-                                      className="w-full bg-slate-50 p-3 rounded-xl text-[10px] font-black uppercase tracking-widest outline-none border border-slate-100 focus:border-[#008080] appearance-none"
-                                    >
-                                      {TIME_SLOTS.map(t => <option key={t} value={t}>{t}</option>)}
-                                    </select>
+                                      className="w-full bg-slate-50 p-3 rounded-xl text-[10px] font-black uppercase tracking-widest outline-none border border-slate-100 focus:border-[#008080]"
+                                    />
                                     <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-300">
                                       <Clock size={12} />
                                     </div>
                                   </div>
                                   <div className="relative">
-                                    <select 
+                                    <input 
+                                      type="text"
+                                      placeholder="End (e.g. 11:00 AM)"
                                       value={config.endTime}
                                       onChange={(e) => handleDayTimeChange(idx, dIdx, 'endTime', e.target.value)}
-                                      className="w-full bg-slate-50 p-3 rounded-xl text-[10px] font-black uppercase tracking-widest outline-none border border-slate-100 focus:border-[#008080] appearance-none"
-                                    >
-                                      {TIME_SLOTS.map(t => <option key={t} value={t}>{t}</option>)}
-                                    </select>
+                                      className="w-full bg-slate-50 p-3 rounded-xl text-[10px] font-black uppercase tracking-widest outline-none border border-slate-100 focus:border-[#008080]"
+                                    />
                                     <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-300">
                                       <Clock size={12} />
                                     </div>
