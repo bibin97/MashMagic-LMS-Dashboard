@@ -18,14 +18,24 @@ exports.registerMentor = async (req, res) => {
         }
 
         // Check if mentor already exists
-        const [existingPhone] = await db.query('SELECT id FROM users WHERE phone_number = ?', [phone_number]);
-        const [existingEmail] = await db.query('SELECT id FROM users WHERE email = ?', [email]);
+        const emailCheck = email?.trim() || null;
+        const phoneCheck = phone_number?.trim() || null;
 
-        if (existingPhone.length > 0) {
-            return res.status(400).json({ success: false, message: "Mentor already registered with this phone number" });
-        }
-        if (existingEmail.length > 0) {
-            return res.status(400).json({ success: false, message: "Mentor already registered with this email" });
+        if (emailCheck || phoneCheck) {
+            let checkQuery = 'SELECT id FROM users WHERE 1=0';
+            let checkParams = [];
+            if (emailCheck) {
+                checkQuery += ' OR email = ?';
+                checkParams.push(emailCheck);
+            }
+            if (phoneCheck) {
+                checkQuery += ' OR phone_number = ?';
+                checkParams.push(phoneCheck);
+            }
+            const [existing] = await db.query(checkQuery, checkParams);
+            if (existing.length > 0) {
+                return res.status(400).json({ success: false, message: "Mentor already registered with this Email or Phone number." });
+            }
         }
 
         // Hash password

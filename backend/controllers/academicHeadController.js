@@ -307,11 +307,37 @@ const registerStudent = async (req, res) => {
         const passwordToHash = (password && password.trim() !== '') ? password.trim() : "student123";
         const hashedPassword = await bcrypt.hash(passwordToHash, salt);
 
-        // Check if user already exists (ONLY if email is provided)
-        if (email && email.trim() !== '') {
-            const [existingUser] = await db.query('SELECT id FROM users WHERE email = ?', [email]);
-            if (existingUser.length > 0) {
-                return res.status(400).json({ success: false, message: "Email already registered as a user/student." });
+        // Check if student already exists in users or students table
+        const contactCheck = contact ? contact.trim() : null;
+        const emailCheck = (email && email.trim() !== '') ? email.trim() : null;
+
+        if (emailCheck || contactCheck) {
+            let userCheckQuery = 'SELECT id FROM users WHERE 1=0';
+            let studentCheckQuery = 'SELECT id FROM students WHERE 1=0';
+            let checkParams = [];
+            let studentParams = [];
+
+            if (emailCheck) {
+                userCheckQuery += ' OR email = ?';
+                studentCheckQuery += ' OR email = ?';
+                checkParams.push(emailCheck);
+                studentParams.push(emailCheck);
+            }
+            if (contactCheck) {
+                userCheckQuery += ' OR phone_number = ?';
+                studentCheckQuery += ' OR contact = ?';
+                checkParams.push(contactCheck);
+                studentParams.push(contactCheck);
+            }
+
+            const [existingUsers] = await db.query(userCheckQuery, checkParams);
+            const [existingStudents] = await db.query(studentCheckQuery, studentParams);
+
+            if (existingUsers.length > 0 || existingStudents.length > 0) {
+                return res.status(400).json({ 
+                    success: false, 
+                    message: `Student already registered with this ${emailCheck && contactCheck ? 'Email or Contact' : (emailCheck ? 'Email' : 'Contact')}.` 
+                });
             }
         }
 
@@ -442,6 +468,27 @@ const registerFaculty = async (req, res) => {
             return res.status(401).json({ success: false, message: "User session invalid. Please re-login." });
         }
 
+        // Check if faculty already exists
+        const emailCheck = email?.trim() || null;
+        const phoneCheck = phone_number?.trim() || null;
+
+        if (emailCheck || phoneCheck) {
+            let checkQuery = 'SELECT id FROM users WHERE 1=0';
+            let checkParams = [];
+            if (emailCheck) {
+                checkQuery += ' OR email = ?';
+                checkParams.push(emailCheck);
+            }
+            if (phoneCheck) {
+                checkQuery += ' OR phone_number = ?';
+                checkParams.push(phoneCheck);
+            }
+            const [existing] = await db.query(checkQuery, checkParams);
+            if (existing.length > 0) {
+                return res.status(400).json({ success: false, message: "Faculty already registered with this Email or Phone number." });
+            }
+        }
+
         const salt = await bcrypt.genSalt(10);
         const passwordToHash = (password && password.trim() !== '') ? password.trim() : (phone_number || "faculty123");
         const hashedPassword = await bcrypt.hash(passwordToHash, salt);
@@ -499,6 +546,27 @@ const registerSSC = async (req, res) => {
 
         if (!requesterId) {
             return res.status(401).json({ success: false, message: "User session invalid. Please re-login." });
+        }
+
+        // Check if SSC already exists
+        const emailCheck = email?.trim() || null;
+        const phoneCheck = phone_number?.trim() || null;
+
+        if (emailCheck || phoneCheck) {
+            let checkQuery = 'SELECT id FROM users WHERE 1=0';
+            let checkParams = [];
+            if (emailCheck) {
+                checkQuery += ' OR email = ?';
+                checkParams.push(emailCheck);
+            }
+            if (phoneCheck) {
+                checkQuery += ' OR phone_number = ?';
+                checkParams.push(phoneCheck);
+            }
+            const [existing] = await db.query(checkQuery, checkParams);
+            if (existing.length > 0) {
+                return res.status(400).json({ success: false, message: "SSC already registered with this Email or Phone number." });
+            }
         }
 
         const salt = await bcrypt.genSalt(10);

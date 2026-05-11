@@ -181,13 +181,17 @@ const getPendingUsers = async (req, res) => {
             AND s.status != 'rejected'
         `);
 
-        // 3. Combine and ensure uniqueness by ID and Role
+        // 3. Combine and ensure uniqueness
         const combined = [...users, ...students];
         
-        // Use a Map to filter duplicates by ID + Role combo
+        // Use a Map to filter duplicates by Email (or Name if email is missing)
+        // This handles cases where the same person might be registered multiple times with different IDs
         const uniqueMap = new Map();
         combined.forEach(item => {
-            const key = `${item.role}_${item.id}`;
+            const key = (item.email && item.email.trim() !== '') 
+                ? item.email.toLowerCase().trim() 
+                : `${item.role}_${item.name.toLowerCase().trim()}`;
+                
             if (!uniqueMap.has(key)) {
                 uniqueMap.set(key, item);
             }

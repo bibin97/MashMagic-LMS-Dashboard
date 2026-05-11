@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import {
  Activity,
  CheckCircle,
@@ -150,7 +150,7 @@ const Approvals = () => {
  <div className="flex items-center gap-2">
  <Calendar size={12} className="text-[#008080] opacity-60" />
  <span className="text-[10px] font-black text-slate-600 uppercase tracking-[0.1em]">
- LOGGED_{new Date(user.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+ LOGGED_{new Date(user.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })} | {new Date(user.created_at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: true })}
  </span>
  </div>
  </div>
