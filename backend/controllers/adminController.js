@@ -154,8 +154,14 @@ const blockUser = async (req, res) => {
 const getPendingUsers = async (req, res) => {
     try {
         // 1. Fetch non-student users (Faculties, Mentors, SSCs, etc.)
+        // We use a robust check for the timestamp column name in users table
+        const [tableInfo] = await db.query('SHOW COLUMNS FROM users');
+        const hasCreatedAt = tableInfo.some(c => c.Field === 'createdAt');
+        const hasCreatedAtSnake = tableInfo.some(c => c.Field === 'created_at');
+        const userTimeCol = hasCreatedAt ? 'u.createdAt' : (hasCreatedAtSnake ? 'u.created_at' : 'u.id');
+
         const [users] = await db.query(`
-            SELECT u.id, u.name, u.email, u.phone_number, u.role, NULL as place, u.status, u.createdAt as created_at,
+            SELECT u.id, u.name, u.email, u.phone_number, u.role, u.place, u.status, ${userTimeCol} as created_at,
                    rb.name as registered_by_name
             FROM users u
             LEFT JOIN users rb ON u.registeredBy = rb.id
@@ -165,8 +171,9 @@ const getPendingUsers = async (req, res) => {
         `);
 
         // 2. Fetch students specifically from the students table
+        // Students table uses created_at and contact (not phone_number)
         const [students] = await db.query(`
-            SELECT s.id, s.name, s.email, COALESCE(s.phone_number, s.contact) as phone_number, 'student' as role, NULL as place, s.status, s.created_at as created_at,
+            SELECT s.id, s.name, s.email, s.contact as phone_number, 'student' as role, NULL as place, s.status, s.created_at as created_at,
                    rb.name as registered_by_name
             FROM students s
             LEFT JOIN users rb ON s.registeredBy = rb.id
