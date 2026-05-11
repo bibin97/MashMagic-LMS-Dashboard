@@ -136,7 +136,7 @@ const Tasks = () => {
  }, { 
  name: task.title, 
  title: 'Delete Task', 
- message: `Are you sure you want to remove the task: "${task.title}"?`,
+ message: `Are you sure you want to permanently delete the task "${task.title}"? This action will remove it from the database forever and cannot be recovered.`,
  type: 'danger'
  });
  };

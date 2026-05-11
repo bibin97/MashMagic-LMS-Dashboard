@@ -60,7 +60,7 @@ const StudentsList = ({ role = 'academic_head' }) => {
 		}, {
 			name: name,
 			title: 'Delete Student Record',
-			message: `Are you sure you want to permanently purge ${name}'s record from the system?`,
+			message: `Are you sure you want to permanently delete student ${name}? This action will remove all their data from the database forever and cannot be undone.`,
 			type: 'danger'
 		});
 	};

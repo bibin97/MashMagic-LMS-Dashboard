@@ -116,7 +116,7 @@ const StaffManagement = () => {
  }, { 
  name: member.name, 
  title: 'Remove Staff Member', 
- message: `Permanently deleting ${member.name} (${member.role.replace('_', ' ')}). This action cannot be undone.`,
+ message: `Are you sure you want to permanently delete staff member ${member.name}? This action will remove all their data from the database forever and cannot be undone.`,
  type: 'danger'
  });
  };

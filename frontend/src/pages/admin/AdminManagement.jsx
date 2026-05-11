@@ -129,7 +129,7 @@ const AdminManagement = () => {
  }, { 
  name: name,
  title: 'Delete Admin Account', 
- message: `You are about to permanently delete the admin account for ${name}. This will revoke all their management privileges.`,
+ message: `Are you sure you want to permanently delete the admin account for ${name}? This action will remove all their data from the database forever and cannot be undone.`,
  type: 'danger'
  });
  };

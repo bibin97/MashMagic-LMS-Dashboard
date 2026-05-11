@@ -165,7 +165,7 @@ const Mentors = () => {
  }, { 
  name: mentor.name, 
  title: 'Permanent Deletion', 
- message: `Are you sure you want to delete ${mentor.name}? Their personal profile will be removed forever.`,
+ message: `Are you sure you want to permanently delete mentor ${mentor.name}? This action will remove all their data from the database forever and cannot be undone.`,
  type: 'danger'
  });
  };

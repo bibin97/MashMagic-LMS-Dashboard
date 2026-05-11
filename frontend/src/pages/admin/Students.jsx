@@ -159,7 +159,7 @@ const Students = () => {
  }, { 
  name: student.name, 
  title: 'Permanent Deletion', 
- message: `Deleting student ${student.name} is a permanent action. All profile data will legacy.`,
+ message: `Are you sure you want to permanently delete student ${student.name}? This action will remove all their data from the database forever and cannot be undone.`,
  type: 'danger'
  });
  };

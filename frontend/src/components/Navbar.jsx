@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
 import { toast } from 'react-hot-toast';
+import { premiumConfirm } from '../utils/premiumConfirm';
 
 const Navbar = ({ onMenuClick }) => {
   const { user, logout } = useAuth();
@@ -176,13 +177,22 @@ const Navbar = ({ onMenuClick }) => {
   };
 
   const clearAllNotifications = async () => {
-    try {
-      const token = sessionStorage.getItem('token');
-      await axios.delete('/api/admin/notifications/clear-all', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setNotifications([]);
-    } catch (error) {}
+    premiumConfirm(async () => {
+      try {
+        const token = sessionStorage.getItem('token');
+        await axios.delete('/api/admin/notifications/clear-all', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        setNotifications([]);
+        toast.success("All notifications cleared");
+      } catch (error) {
+        toast.error("Failed to clear notifications");
+      }
+    }, {
+      title: 'Clear Notifications',
+      message: 'Are you sure you want to permanently clear all notifications? This action will remove all alerts from the database forever and cannot be undone.',
+      type: 'danger'
+    });
   };
 
   const handleLogout = () => {

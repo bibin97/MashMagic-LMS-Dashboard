@@ -253,7 +253,7 @@ const Timetable = () => {
     }, {
       name: `${name}'s Session`,
       title: 'Delete Scheduled Session',
-      message: `Are you sure you want to permanently remove this session from the timeline?`,
+      message: `Are you sure you want to permanently delete this session? This action will remove it from the database forever and cannot be undone.`,
       type: 'danger'
     });
   };

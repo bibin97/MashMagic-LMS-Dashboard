@@ -12,6 +12,7 @@ import {
   Info
 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { premiumConfirm } from '../../utils/premiumConfirm';
 
 const MentorHeadNotifications = () => {
   const [notifications, setNotifications] = useState([]);
@@ -66,21 +67,25 @@ const MentorHeadNotifications = () => {
   };
 
   const clearAllNotifications = async () => {
-    if (!window.confirm("Are you sure you want to clear all notifications? This action cannot be undone.")) return;
-    
-    try {
-      const token = sessionStorage.getItem('token');
-      const res = await axios.delete('/api/admin/notifications/clear-all', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      if (res.data.success) {
-        setNotifications([]);
-        toast.success("All notifications cleared");
+    premiumConfirm(async () => {
+      try {
+        const token = sessionStorage.getItem('token');
+        const res = await axios.delete('/api/admin/notifications/clear-all', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (res.data.success) {
+          setNotifications([]);
+          toast.success("All notifications cleared");
+        }
+      } catch (error) {
+        console.error('Error clearing notifications:', error);
+        toast.error("Failed to clear notifications");
       }
-    } catch (error) {
-      console.error('Error clearing notifications:', error);
-      toast.error("Failed to clear notifications");
-    }
+    }, {
+      title: 'Clear Notifications',
+      message: 'Are you sure you want to permanently clear all notifications? This action will remove all alerts from the database and cannot be undone.',
+      type: 'danger'
+    });
   };
 
   if (loading) {

@@ -152,7 +152,7 @@ const Faculties = () => {
  }, { 
  name: faculty.name, 
  title: 'Permanent Deletion', 
- message: `Permanently deleting ${faculty.name}. This will clear their assignment profile.`,
+ message: `Are you sure you want to permanently delete faculty member ${faculty.name}? This action will remove all their data from the database forever and cannot be undone.`,
  type: 'danger'
  });
  };

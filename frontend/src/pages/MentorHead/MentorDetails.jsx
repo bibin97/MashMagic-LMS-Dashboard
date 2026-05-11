@@ -112,7 +112,7 @@ const MentorDetails = () => {
  }, { 
  name: studentName,
  title: 'Delete Student Record', 
- message: `Are you sure you want to permanently remove ${studentName} from the registry?`,
+ message: `Are you sure you want to permanently delete student ${studentName}? This action will remove all their data from the database forever and cannot be undone.`,
  type: 'danger'
  });
  };

@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
+import { premiumConfirm } from '../../utils/premiumConfirm';
 
 const MentorHeadInteractions = () => {
   const [activeTab, setActiveTab] = useState('mentors');
@@ -59,21 +60,24 @@ const MentorHeadInteractions = () => {
   };
 
   const handleDeleteLog = async (log) => {
-    const confirmMessage = "Are you sure you want to permanently delete this interaction log? This action will remove it from the database forever.";
-    if (!window.confirm(confirmMessage)) return;
+    premiumConfirm(async () => {
+      try {
+        const source = log.category || (activeTab === 'faculties' ? 'Intelligence' : 'student_interaction_logs');
+        const response = await api.delete(`/mentor-head/logs/${log.id}?source=${source}`);
 
-    try {
-      const source = log.category || (activeTab === 'faculties' ? 'Intelligence' : 'student_interaction_logs');
-      const response = await api.delete(`/mentor-head/logs/${log.id}?source=${source}`);
-
-      if (response.data.success) {
-        toast.success("Log deleted successfully");
-        fetchLogs();
+        if (response.data.success) {
+          toast.success("Log deleted successfully");
+          fetchLogs();
+        }
+      } catch (error) {
+        console.error("Error deleting log:", error);
+        toast.error(error.response?.data?.message || "Failed to delete interaction log");
       }
-    } catch (error) {
-      console.error("Error deleting log:", error);
-      toast.error(error.response?.data?.message || "Failed to delete interaction log");
-    }
+    }, {
+      title: 'Permanent Deletion',
+      message: "Are you sure you want to permanently delete this interaction log? This action will remove it from the database forever.",
+      type: 'danger'
+    });
   };
 
   const combinedMentorLogs = [

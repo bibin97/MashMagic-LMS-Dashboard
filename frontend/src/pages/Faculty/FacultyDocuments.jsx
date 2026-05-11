@@ -81,7 +81,7 @@ const FacultyDocuments = () => {
  }, {
  name: title,
  title: 'Delete Asset',
- message: `Are you sure you want to permanently delete the document "${title}"?`,
+ message: `Are you sure you want to permanently delete the document "${title}"? This action will remove it from the database forever and cannot be recovered.`,
  type: 'danger'
  });
  };
