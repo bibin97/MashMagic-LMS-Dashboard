@@ -17,6 +17,7 @@ import Signup from './pages/Signup';
 
 // Common Pages
 import AdminProfile from './pages/common/Profile';
+import AccountSettings from './pages/common/AccountSettings';
 
 // Admin Pages
 import Dashboard from './pages/admin/Dashboard';
@@ -131,6 +132,7 @@ function App() {
             <Route path="admin-management" element={<AdminManagement />} />
             <Route path="live-monitoring" element={<AdminLiveMonitoring />} />
             <Route path="profile" element={<AdminProfile />} />
+            <Route path="account-settings" element={<AccountSettings />} />
           </Route>
 
           {/* Mentor Head System */}
@@ -154,6 +156,7 @@ function App() {
             <Route path="interactions" element={<MentorHeadInteractions />} />
             <Route path="notifications" element={<MentorHeadNotifications />} />
             <Route path="profile" element={<AdminProfile />} />
+            <Route path="account-settings" element={<AccountSettings />} />
           </Route>
 
           {/* Academic Head System */}
@@ -180,6 +183,7 @@ function App() {
             <Route path="checking" element={<CheckingSection />} />
             <Route path="live-monitoring" element={<AcademicLiveMonitoring />} />
             <Route path="profile" element={<AdminProfile />} />
+            <Route path="account-settings" element={<AccountSettings />} />
           </Route>
 
           {/* SSC System */}
@@ -196,6 +200,7 @@ function App() {
             <Route path="timetable" element={<SSCTimetable />} />
             <Route path="academic-schedule" element={<SSCAcademicSchedule />} />
             <Route path="profile" element={<AdminProfile />} />
+            <Route path="account-settings" element={<AccountSettings />} />
           </Route>
 
           {/* Faculty System */}
@@ -216,6 +221,7 @@ function App() {
             <Route path="tasks" element={<FacultyTasks />} />
             <Route path="notifications" element={<FacultyNotifications />} />
             <Route path="profile" element={<AdminProfile />} />
+            <Route path="account-settings" element={<AccountSettings />} />
           </Route>
 
           {/* Mentor System */}
@@ -236,6 +242,7 @@ function App() {
             <Route path="students-data" element={<StudentsData />} />
             <Route path="academic-schedule" element={<AcademicSchedule />} />
             <Route path="profile" element={<AdminProfile />} />
+            <Route path="account-settings" element={<AccountSettings />} />
           </Route>
 
           {/* Root Redirection */}

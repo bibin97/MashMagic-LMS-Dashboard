@@ -336,6 +336,38 @@ const changePassword = async (req, res) => {
     }
 };
 
+const updateProfile = async (req, res) => {
+    try {
+        const { name, email, phone_number, place } = req.body;
+        const userId = req.user.id;
+
+        if (!name) {
+            return res.status(400).json({ success: false, message: "Name is required" });
+        }
+
+        // Update in users table
+        await db.query(
+            'UPDATE users SET name = ?, email = ?, phone_number = ?, place = ? WHERE id = ?',
+            [name, email, phone_number, place, userId]
+        );
+
+        // Also update in students table if linked
+        await db.query(
+            'UPDATE students SET name = ?, email = ?, phone_number = ?, place = ? WHERE user_id = ?',
+            [name, email, phone_number, place, userId]
+        );
+
+        res.status(200).json({ 
+            success: true, 
+            message: "Profile metadata updated successfully",
+            user: { name, email, phone_number, place }
+        });
+    } catch (error) {
+        console.error("Update Profile Error:", error);
+        res.status(500).json({ success: false, message: "Internal Server Error" });
+    }
+};
+
 exports.register = register;
 exports.mentorSignup = mentorSignup;
 exports.facultySignup = facultySignup;
@@ -343,3 +375,4 @@ exports.login = login;
 exports.checkSuperAdminExists = checkSuperAdminExists;
 exports.updateProfilePic = updateProfilePic;
 exports.changePassword = changePassword;
+exports.updateProfile = updateProfile;

@@ -203,17 +203,17 @@ const Navbar = ({ onMenuClick }) => {
   const handleSettingsClick = () => {
     setIsProfileOpen(false);
     const rolePaths = {
-      'super_admin': '/admin/profile',
-      'admin': '/admin/profile',
-      'mentor_head': '/mentor-head/profile',
-      'academic_head': '/academic-head/profile',
-      'mentor': '/mentor/profile',
-      'faculty': '/faculty/profile',
-      'ssc': '/ssc/profile'
+      'super_admin': '/admin/account-settings',
+      'admin': '/admin/account-settings',
+      'mentor_head': '/mentor-head/account-settings',
+      'academic_head': '/academic-head/account-settings',
+      'mentor': '/mentor/account-settings',
+      'faculty': '/faculty/account-settings',
+      'ssc': '/ssc/account-settings'
     };
     const path = rolePaths[user?.role];
     if (path) {
-      navigate(`${path}#security`);
+      navigate(path);
     } else {
       toast.error('Settings route not defined');
     }
