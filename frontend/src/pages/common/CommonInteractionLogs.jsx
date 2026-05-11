@@ -67,9 +67,10 @@ const CommonInteractionLogs = ({ role }) => {
         try {
             let params = new URLSearchParams();
             if (selectedStudent) {
-                // If it's faculty tab, the "selectedStudent" state actually holds the faculty object
+                // Support both .id and .student_id / .faculty_id for maximum compatibility
+                const entityId = selectedStudent.id || selectedStudent.student_id || selectedStudent.faculty_id;
                 const idKey = activeTab === 'student' ? 'student_id' : 'faculty_id';
-                params.append(idKey, selectedStudent.id);
+                if (entityId) params.append(idKey, entityId);
             }
             
             if (mentorFilter !== 'all') params.append('mentor_id', mentorFilter);
@@ -251,7 +252,11 @@ const CommonInteractionLogs = ({ role }) => {
                             <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{selectedStudent.registration_number || `MM-${selectedStudent.id}`}</span>
                         </div>
                         <h1 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tighter uppercase leading-none">
-                            {selectedStudent.name} <span className="text-slate-300 font-light mx-2">|</span> <span className={`${activeTab === 'student' ? 'text-[#008080]' : 'text-purple-600'}`}>{activeTab === 'student' ? 'Mentorship' : 'Academic'}</span>
+                            {selectedStudent.name || 'Unknown Entity'} 
+                            <span className="text-slate-300 font-light mx-4">|</span> 
+                            <span className={`${activeTab === 'student' ? 'text-[#008080]' : 'text-purple-600'}`}>
+                                {activeTab === 'student' ? 'Mentorship Audit' : 'Academic Audit'}
+                            </span>
                         </h1>
                     </div>
                 </div>
