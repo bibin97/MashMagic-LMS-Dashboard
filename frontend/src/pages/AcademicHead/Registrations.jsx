@@ -626,23 +626,53 @@ const Registrations = () => {
                           </div>
                           
                           {row.isDayDropdownOpen && (
-                            <div className="absolute top-[100%] left-0 w-full bg-white border border-slate-100 rounded-2xl shadow-2xl z-[100] mt-1 p-3 animate-in fade-in zoom-in-95 duration-200">
-                              <div className="grid grid-cols-2 gap-2">
+                            <div className="absolute top-[100%] left-0 w-[320px] md:w-[400px] bg-white border border-slate-100 rounded-2xl shadow-2xl z-[100] mt-1 p-4 animate-in fade-in zoom-in-95 duration-200">
+                              <div className="space-y-3">
                                 {DAYS_LIST.map(day => {
-                                  const isSelected = row.dayConfigs?.some(c => c.day === day);
+                                  const configIdx = row.dayConfigs?.findIndex(c => c.day === day);
+                                  const isSelected = configIdx !== -1;
                                   return (
                                     <div 
                                       key={day} 
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleDayToggle(idx, day);
-                                      }}
-                                      className={`flex items-center gap-2 p-2.5 rounded-xl cursor-pointer transition-colors ${isSelected ? 'bg-[#008080]/10 text-[#008080]' : 'hover:bg-slate-50 text-slate-600'}`}
+                                      className={`p-3 rounded-2xl transition-all border ${isSelected ? 'bg-[#008080]/5 border-[#008080]/20' : 'hover:bg-slate-50 border-transparent'}`}
+                                      onClick={(e) => e.stopPropagation()}
                                     >
-                                      <div className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${isSelected ? 'bg-[#008080] border-[#008080]' : 'border-slate-300'}`}>
-                                        {isSelected && <CheckCircle size={10} className="text-white" />}
+                                      <div className="flex items-center justify-between mb-2">
+                                        <div 
+                                          className="flex items-center gap-3 cursor-pointer"
+                                          onClick={() => handleDayToggle(idx, day)}
+                                        >
+                                          <div className={`w-5 h-5 rounded-lg border flex items-center justify-center transition-colors ${isSelected ? 'bg-[#008080] border-[#008080]' : 'border-slate-300'}`}>
+                                            {isSelected && <CheckCircle size={12} className="text-white" />}
+                                          </div>
+                                          <span className={`text-[11px] font-black uppercase tracking-tight ${isSelected ? 'text-[#008080]' : 'text-slate-600'}`}>{day}</span>
+                                        </div>
+                                        {isSelected && (
+                                          <div className="flex items-center gap-1">
+                                            <div className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse"></div>
+                                            <span className="text-[8px] font-black text-emerald-500 uppercase tracking-widest">Configured</span>
+                                          </div>
+                                        )}
                                       </div>
-                                      <span className="text-[9px] font-black uppercase tracking-tight">{day}</span>
+
+                                      {isSelected && (
+                                        <div className="grid grid-cols-2 gap-2 mt-2 animate-in slide-in-from-top-1 duration-300">
+                                          <input 
+                                            type="text"
+                                            placeholder="Start"
+                                            value={row.dayConfigs[configIdx].startTime}
+                                            onChange={(e) => handleDayTimeChange(idx, configIdx, 'startTime', e.target.value)}
+                                            className="w-full bg-white p-2 rounded-xl text-[9px] font-black uppercase tracking-widest outline-none border border-slate-200 focus:border-[#008080]"
+                                          />
+                                          <input 
+                                            type="text"
+                                            placeholder="End"
+                                            value={row.dayConfigs[configIdx].endTime}
+                                            onChange={(e) => handleDayTimeChange(idx, configIdx, 'endTime', e.target.value)}
+                                            className="w-full bg-white p-2 rounded-xl text-[9px] font-black uppercase tracking-widest outline-none border border-slate-200 focus:border-[#008080]"
+                                          />
+                                        </div>
+                                      )}
                                     </div>
                                   );
                                 })}
@@ -669,52 +699,6 @@ const Registrations = () => {
                           </select>
                         </div>
                       </div>
-
-                      {/* Day Specific Time Slots */}
-                      {row.dayConfigs && row.dayConfigs.length > 0 && (
-                        <div className="bg-slate-50/80 p-6 rounded-[2rem] border border-slate-100 animate-in fade-in slide-in-from-top-2 duration-500">
-                          <h4 className="text-[9px] font-black text-slate-400 uppercase tracking-[0.3em] mb-4 ml-2">Day-Specific Time Windows</h4>
-                          <div className="space-y-4">
-                            {row.dayConfigs.map((config, dIdx) => (
-                              <div key={config.day} className="flex flex-col md:flex-row items-center gap-4 bg-white p-4 rounded-2xl border border-slate-100 shadow-sm transition-all hover:shadow-md">
-                                <div className="w-full md:w-32">
-                                  <span className="text-xs font-black text-slate-900 uppercase tracking-tight">{config.day}</span>
-                                </div>
-                                <div className="flex-1 grid grid-cols-2 gap-4 w-full">
-                                  <div className="relative">
-                                    <input 
-                                      type="text"
-                                      placeholder="Start (e.g. 10:00 AM)"
-                                      value={config.startTime}
-                                      onChange={(e) => handleDayTimeChange(idx, dIdx, 'startTime', e.target.value)}
-                                      className="w-full bg-slate-50 p-3 rounded-xl text-[10px] font-black uppercase tracking-widest outline-none border border-slate-100 focus:border-[#008080]"
-                                    />
-                                    <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-300">
-                                      <Clock size={12} />
-                                    </div>
-                                  </div>
-                                  <div className="relative">
-                                    <input 
-                                      type="text"
-                                      placeholder="End (e.g. 11:00 AM)"
-                                      value={config.endTime}
-                                      onChange={(e) => handleDayTimeChange(idx, dIdx, 'endTime', e.target.value)}
-                                      className="w-full bg-slate-50 p-3 rounded-xl text-[10px] font-black uppercase tracking-widest outline-none border border-slate-100 focus:border-[#008080]"
-                                    />
-                                    <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-300">
-                                      <Clock size={12} />
-                                    </div>
-                                  </div>
-                                </div>
-                                <div className="flex items-center gap-2 md:w-32 justify-end">
-                                   <div className="text-[10px] font-black text-emerald-500 uppercase tracking-widest">Active</div>
-                                   <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
 
                       <div className="flex justify-between items-center pt-4 border-t border-slate-50">
                         <div className="flex items-center gap-4">
