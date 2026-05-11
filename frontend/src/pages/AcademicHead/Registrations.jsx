@@ -19,8 +19,7 @@ const Registrations = () => {
     schoolName: '', preferredLanguage: '', country: '',
     totalFees: '', totalPaid: '', nextInstallmentDate: '', 
     admissionType: 'new', registrationNumber: '', meetingLink: '',
-    enrollmentType: 'mentorship',
-    commonStartTime: '', commonEndTime: ''
+    enrollmentType: 'mentorship'
   });
 
   const [selectedSubjects, setSelectedSubjects] = useState([
@@ -155,8 +154,8 @@ const Registrations = () => {
     } else {
       newSubjects[index].dayConfigs = [...currentConfigs, { 
         day, 
-        startTime: studentForm.commonStartTime || '', 
-        endTime: studentForm.commonEndTime || '' 
+        startTime: '', 
+        endTime: '' 
       }];
     }
     setSelectedSubjects(newSubjects);
@@ -180,15 +179,7 @@ const Registrations = () => {
     }
   };
 
-  useEffect(() => {
-    // If common times change, update any configs that don't have a time yet or refresh availability
-    selectedSubjects.forEach((row, idx) => {
-      const hasSubject = Array.isArray(row.subject) ? row.subject.length > 0 : !!row.subject;
-      if (hasSubject && row.dayConfigs && row.dayConfigs.length > 0) {
-        fetchAvailableFaculties(idx, row.subject, row.dayConfigs);
-      }
-    });
-  }, [studentForm.commonStartTime, studentForm.commonEndTime]);
+
 
   const handleLanguageToggle = (langId) => {
     setFacultyForm(prev => {
@@ -551,47 +542,7 @@ const Registrations = () => {
                   </button>
                 </div>
 
-                <div className="bg-slate-50 p-8 rounded-[2rem] border border-slate-100 space-y-8">
-                  <div className="flex items-center gap-4 mb-2">
-                    <div className="w-10 h-10 bg-[#008080]/10 text-[#008080] rounded-xl flex items-center justify-center">
-                      <Clock size={20} />
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-black text-slate-800 uppercase tracking-tight">Global Session Timing</h3>
-                      <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Applied to all subjects and days</p>
-                    </div>
-                  </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="flex flex-col gap-2">
-                      <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Daily Start Time</label>
-                      <select 
-                        required 
-                        name="commonStartTime"
-                        value={studentForm.commonStartTime} 
-                        onChange={handleStudentChange}
-                        className="w-full p-4 bg-white border border-slate-200 rounded-xl text-xs font-bold outline-none focus:ring-4 ring-[#008080]/10 appearance-none"
-                      >
-                        <option value="">Select Time</option>
-                        {TIME_SLOTS.map(t => <option key={t} value={t}>{t}</option>)}
-                      </select>
-                    </div>
 
-                    <div className="flex flex-col gap-2">
-                      <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Daily End Time</label>
-                      <select 
-                        required 
-                        name="commonEndTime"
-                        value={studentForm.commonEndTime} 
-                        onChange={handleStudentChange}
-                        className="w-full p-4 bg-white border border-slate-200 rounded-xl text-xs font-bold outline-none focus:ring-4 ring-[#008080]/10 appearance-none"
-                      >
-                        <option value="">Select Time</option>
-                        {TIME_SLOTS.map(t => <option key={t} value={t}>{t}</option>)}
-                      </select>
-                    </div>
-                  </div>
-                </div>
 
                 <div className="space-y-6">
                   {selectedSubjects.map((row, idx) => (
