@@ -67,10 +67,11 @@ const CommonInteractionLogs = ({ role }) => {
         try {
             let params = new URLSearchParams();
             if (selectedStudent) {
-                // Support both .id and .student_id / .faculty_id for maximum compatibility
-                const entityId = selectedStudent.id || selectedStudent.student_id || selectedStudent.faculty_id;
+                // Prioritize database integer ID, fall back to other common ID keys
+                const entityId = selectedStudent.id || selectedStudent._id || selectedStudent.student_id || selectedStudent.faculty_id;
                 const idKey = activeTab === 'student' ? 'student_id' : 'faculty_id';
                 if (entityId) params.append(idKey, entityId);
+                console.log(`FETCH_LOGS: Using ${idKey}=${entityId} for ${selectedStudent.name}`);
             }
             
             if (mentorFilter !== 'all') params.append('mentor_id', mentorFilter);
@@ -432,7 +433,20 @@ const CommonInteractionLogs = ({ role }) => {
                     <p className="text-slate-400 font-bold text-[10px] uppercase tracking-[0.3em] mt-3 max-w-md mx-auto leading-loose">
                         No historical interaction packets detected within the current filter coordinates. Initiate a new search or clear the filter stack.
                     </p>
-                    <button onClick={resetFilters} className="mt-12 px-14 py-5 bg-slate-900 text-white rounded-[2rem] text-[10px] font-black uppercase tracking-[0.2em] hover:bg-[#008080] hover:shadow-2xl hover:shadow-[#008080]/30 hover:-translate-y-1 transition-all shadow-xl">Purge Filters</button>
+                    
+                    <div className="mt-8 mb-10 p-6 bg-slate-50 rounded-2xl border border-slate-100 max-w-sm mx-auto">
+                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3">Diagnostic Telemetry</p>
+                        <div className="space-y-2 text-left">
+                            <div className="flex justify-between"><span className="text-[8px] font-bold text-slate-400 uppercase">Target ID:</span> <span className="text-[9px] font-black text-slate-700">{selectedStudent?.id || 'NULL'}</span></div>
+                            <div className="flex justify-between"><span className="text-[8px] font-bold text-slate-400 uppercase">Identity:</span> <span className="text-[9px] font-black text-slate-700">{selectedStudent?.name}</span></div>
+                            <div className="flex justify-between"><span className="text-[8px] font-bold text-slate-400 uppercase">Filter:</span> <span className="text-[9px] font-black text-slate-700">{dateFilter} / Mentor: {mentorFilter}</span></div>
+                        </div>
+                    </div>
+
+                    <div className="flex flex-col md:flex-row items-center justify-center gap-4">
+                        <button onClick={resetFilters} className="px-10 py-5 bg-slate-900 text-white rounded-[2rem] text-[10px] font-black uppercase tracking-[0.2em] hover:bg-[#008080] hover:shadow-2xl hover:shadow-[#008080]/30 transition-all shadow-xl">Purge Filters</button>
+                        <button onClick={fetchLogs} className="px-10 py-5 bg-white text-slate-900 border border-slate-200 rounded-[2rem] text-[10px] font-black uppercase tracking-[0.2em] hover:border-[#008080] transition-all">Re-Sync Stream</button>
+                    </div>
                 </div>
             )}
         </div>

@@ -25,9 +25,14 @@ const Registrations = () => {
 
   const [selectedSubjects, setSelectedSubjects] = useState([
     { 
-      subject: '', days: [], startTime: '', endTime: '', facultyId: '', 
-      facultyName: '', hourlyRate: '', availableFaculties: [], 
-      isDayDropdownOpen: false, isSubjectDropdownOpen: false 
+      subject: '', 
+      dayConfigs: [], // Array of { day: string, startTime: string, endTime: string }
+      facultyId: '', 
+      facultyName: '', 
+      hourlyRate: '', 
+      availableFaculties: [], 
+      isDayDropdownOpen: false, 
+      isSubjectDropdownOpen: false 
     }
   ]);
 
@@ -96,16 +101,22 @@ const Registrations = () => {
     }
   };
 
-  const fetchAvailableFaculties = async (index, subject, days, startTime, endTime) => {
+  const fetchAvailableFaculties = async (index, subject, dayConfigs) => {
     const subjectsToFetch = Array.isArray(subject) ? subject : (subject ? [subject] : []);
-    if (subjectsToFetch.length === 0 || !days || days.length === 0 || !startTime || !endTime) return;
+    if (subjectsToFetch.length === 0 || !dayConfigs || dayConfigs.length === 0) return;
+    
+    // Check if all configs have day, startTime and endTime
+    const isValid = dayConfigs.every(c => c.day && c.startTime && c.endTime);
+    if (!isValid) return;
+
     try {
       const subjectParam = subjectsToFetch.join(',');
-      const res = await api.get(`/academic-head/available-faculties?subject=${subjectParam}&days=${days.join(',')}&startTime=${startTime}&endTime=${endTime}`);
+      // Send dayConfigs as JSON string for complex availability checking
+      const configsParam = encodeURIComponent(JSON.stringify(dayConfigs));
+      const res = await api.get(`/academic-head/available-faculties?subject=${subjectParam}&dayConfigs=${configsParam}`);
       if (res.data.success) {
         setSelectedSubjects(prev => {
           const newSubjects = [...prev];
-          // Ensure the row still exists in case user deleted it while fetching
           if (newSubjects[index]) {
             newSubjects[index].availableFaculties = res.data.data;
           }
@@ -136,26 +147,45 @@ const Registrations = () => {
 
   const handleDayToggle = (index, day) => {
     const newSubjects = [...selectedSubjects];
-    const currentDays = newSubjects[index].days || [];
-    if (currentDays.includes(day)) {
-      newSubjects[index].days = currentDays.filter(d => d !== day);
+    const currentConfigs = newSubjects[index].dayConfigs || [];
+    const exists = currentConfigs.find(c => c.day === day);
+    
+    if (exists) {
+      newSubjects[index].dayConfigs = currentConfigs.filter(c => c.day !== day);
     } else {
-      newSubjects[index].days = [...currentDays, day];
+      newSubjects[index].dayConfigs = [...currentConfigs, { 
+        day, 
+        startTime: studentForm.commonStartTime || '', 
+        endTime: studentForm.commonEndTime || '' 
+      }];
     }
     setSelectedSubjects(newSubjects);
+    
     const row = newSubjects[index];
     const hasSubject = Array.isArray(row.subject) ? row.subject.length > 0 : !!row.subject;
-    if (hasSubject && row.days && row.days.length > 0 && studentForm.commonStartTime && studentForm.commonEndTime) {
-      fetchAvailableFaculties(index, row.subject, row.days, studentForm.commonStartTime, studentForm.commonEndTime);
+    if (hasSubject && row.dayConfigs.length > 0) {
+      fetchAvailableFaculties(index, row.subject, row.dayConfigs);
+    }
+  };
+
+  const handleDayTimeChange = (subjectIdx, dayIdx, field, value) => {
+    const newSubjects = [...selectedSubjects];
+    newSubjects[subjectIdx].dayConfigs[dayIdx][field] = value;
+    setSelectedSubjects(newSubjects);
+    
+    const row = newSubjects[subjectIdx];
+    const hasSubject = Array.isArray(row.subject) ? row.subject.length > 0 : !!row.subject;
+    if (hasSubject && row.dayConfigs.length > 0) {
+      fetchAvailableFaculties(subjectIdx, row.subject, row.dayConfigs);
     }
   };
 
   useEffect(() => {
-    // If common times change, refresh availability for all valid rows
+    // If common times change, update any configs that don't have a time yet or refresh availability
     selectedSubjects.forEach((row, idx) => {
       const hasSubject = Array.isArray(row.subject) ? row.subject.length > 0 : !!row.subject;
-      if (hasSubject && row.days && row.days.length > 0 && studentForm.commonStartTime && studentForm.commonEndTime) {
-        fetchAvailableFaculties(idx, row.subject, row.days, studentForm.commonStartTime, studentForm.commonEndTime);
+      if (hasSubject && row.dayConfigs && row.dayConfigs.length > 0) {
+        fetchAvailableFaculties(idx, row.subject, row.dayConfigs);
       }
     });
   }, [studentForm.commonStartTime, studentForm.commonEndTime]);
@@ -187,15 +217,13 @@ const Registrations = () => {
   const addSubjectRow = () => {
     setSelectedSubjects([...selectedSubjects, { 
       subject: '', 
-      days: [], 
-      startTime: '', 
-      endTime: '', 
+      dayConfigs: [], 
       facultyId: '', 
       facultyName: '', 
       hourlyRate: '', 
       availableFaculties: [],
       isDayDropdownOpen: false, 
-      isSubjectDropdownOpen: false // Track subject dropdown state per row
+      isSubjectDropdownOpen: false 
     }]);
   };
 
@@ -206,12 +234,21 @@ const Registrations = () => {
     }
     setLoading(true);
     try {
-      const subjectsWithTimes = selectedSubjects.map(s => ({
-        ...s,
-        startTime: s.startTime || studentForm.commonStartTime,
-        endTime: s.endTime || studentForm.commonEndTime
-      }));
-      const res = await api.post('/academic-head/register-student', { ...studentForm, selectedSubjects: subjectsWithTimes });
+      const flattenedSubjects = [];
+      selectedSubjects.forEach(s => {
+        if (s.dayConfigs && s.dayConfigs.length > 0) {
+          s.dayConfigs.forEach(config => {
+            flattenedSubjects.push({
+              ...s,
+              day: config.day,
+              startTime: config.startTime,
+              endTime: config.endTime,
+              days: [config.day] // For backward compatibility with some controller logic
+            });
+          });
+        }
+      });
+      const res = await api.post('/academic-head/register-student', { ...studentForm, selectedSubjects: flattenedSubjects });
       if (res.data.success) {
         toast.success('Student Registered Successfully!');
         setStudentForm({
@@ -223,7 +260,7 @@ const Registrations = () => {
           admissionType: 'new', registrationNumber: '', meetingLink: '',
           enrollmentType: 'mentorship'
         });
-        setSelectedSubjects([{ subject: '', days: [], startTime: '', endTime: '', facultyId: '', facultyName: '', hourlyRate: '', availableFaculties: [] }]);
+        setSelectedSubjects([{ subject: '', dayConfigs: [], facultyId: '', facultyName: '', hourlyRate: '', availableFaculties: [] }]);
       }
     } catch (error) {
       toast.error(error.response?.data?.message || 'Failed to register student');
@@ -558,183 +595,198 @@ const Registrations = () => {
 
                 <div className="space-y-6">
                   {selectedSubjects.map((row, idx) => (
-                    <div key={idx} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-sm relative animate-in slide-in-from-right-2 duration-300 items-end">
-                      {/* Custom Subject Dropdown (Multiple Selection) */}
-                      <div className="flex flex-col gap-2 relative">
-                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Subjects</label>
-                        <div 
-                          onClick={() => {
-                            const newSubjects = [...selectedSubjects];
-                            newSubjects[idx].isSubjectDropdownOpen = !newSubjects[idx].isSubjectDropdownOpen;
-                            setSelectedSubjects(newSubjects);
-                          }}
-                          className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-xs font-bold text-slate-700 cursor-pointer flex justify-between items-center min-h-[42px]"
-                        >
-                          <span className="truncate">
-                            {Array.isArray(row.subject) && row.subject.length > 0 
-                                ? row.subject.join(', ') 
-                                : (typeof row.subject === 'string' && row.subject ? row.subject : 'Select Subjects')}
-                          </span>
-                          <span className="text-slate-400">▼</span>
+                    <div key={idx} className="bg-white p-8 rounded-[3rem] border border-slate-100 shadow-xl shadow-slate-200/20 relative animate-in slide-in-from-right-4 duration-500 space-y-8">
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-start">
+                        {/* Custom Subject Dropdown (Multiple Selection) */}
+                        <div className="flex flex-col gap-2 relative">
+                          <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Subjects</label>
+                          <div 
+                            onClick={() => {
+                              const newSubjects = [...selectedSubjects];
+                              newSubjects[idx].isSubjectDropdownOpen = !newSubjects[idx].isSubjectDropdownOpen;
+                              setSelectedSubjects(newSubjects);
+                            }}
+                            className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold text-slate-700 cursor-pointer flex justify-between items-center"
+                          >
+                            <span className="truncate">
+                              {Array.isArray(row.subject) && row.subject.length > 0 
+                                  ? row.subject.join(', ') 
+                                  : (typeof row.subject === 'string' && row.subject ? row.subject : 'Select Subjects')}
+                            </span>
+                            <span className="text-slate-400">▼</span>
+                          </div>
+
+                          {row.isSubjectDropdownOpen && (
+                            <div className="absolute top-[100%] left-0 w-full bg-white border border-slate-100 rounded-2xl shadow-2xl z-[110] mt-1 p-3 max-h-60 overflow-y-auto animate-in fade-in zoom-in-95 duration-200">
+                              {SUBJECT_OPTIONS.map(sub => {
+                                const isSelected = Array.isArray(row.subject) ? row.subject.includes(sub) : row.subject === sub;
+                                return (
+                                  <div 
+                                    key={sub} 
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      const newSubjects = [...selectedSubjects];
+                                      let current = Array.isArray(newSubjects[idx].subject) 
+                                          ? newSubjects[idx].subject 
+                                          : (newSubjects[idx].subject ? [newSubjects[idx].subject] : []);
+                                      
+                                      if (current.includes(sub)) {
+                                          current = current.filter(s => s !== sub);
+                                      } else {
+                                          current = [...current, sub];
+                                      }
+                                      newSubjects[idx].subject = current;
+                                      setSelectedSubjects(newSubjects);
+                                      
+                                      // Trigger debounced faculty fetch
+                                      if (fetchTimeoutRef.current) clearTimeout(fetchTimeoutRef.current);
+                                      fetchTimeoutRef.current = setTimeout(() => {
+                                        fetchAvailableFaculties(idx, newSubjects[idx].subject, newSubjects[idx].dayConfigs);
+                                      }, 500);
+                                    }}
+                                    className={`flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all ${isSelected ? 'bg-[#008080]/10 text-[#008080]' : 'hover:bg-slate-50 text-slate-600'}`}
+                                  >
+                                    <div className={`w-5 h-5 rounded-lg border flex items-center justify-center transition-colors ${isSelected ? 'bg-[#008080] border-[#008080]' : 'border-slate-300'}`}>
+                                      {isSelected && <CheckCircle size={12} className="text-white" />}
+                                    </div>
+                                    <span className="text-[11px] font-bold uppercase tracking-tight">{sub}</span>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          )}
                         </div>
 
-                        {row.isSubjectDropdownOpen && (
-                          <div className="absolute top-[100%] left-0 w-full bg-white border border-slate-100 rounded-xl shadow-2xl z-[110] mt-1 p-2 max-h-60 overflow-y-auto animate-in fade-in zoom-in-95 duration-200">
-                            {SUBJECT_OPTIONS.map(sub => {
-                              const isSelected = Array.isArray(row.subject) ? row.subject.includes(sub) : row.subject === sub;
-                              return (
-                                <div 
-                                  key={sub} 
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    const newSubjects = [...selectedSubjects];
-                                    let current = Array.isArray(newSubjects[idx].subject) 
-                                        ? newSubjects[idx].subject 
-                                        : (newSubjects[idx].subject ? [newSubjects[idx].subject] : []);
-                                    
-                                    if (current.includes(sub)) {
-                                        current = current.filter(s => s !== sub);
-                                    } else {
-                                        current = [...current, sub];
-                                    }
-                                    newSubjects[idx].subject = current;
-                                    setSelectedSubjects(newSubjects);
-                                    
-                                    // Trigger debounced faculty fetch
-                                    const r = newSubjects[idx];
-                                    if (fetchTimeoutRef.current) clearTimeout(fetchTimeoutRef.current);
-                                    
-                                    fetchTimeoutRef.current = setTimeout(() => {
-                                      if (r.subject.length > 0 && r.days && r.days.length > 0 && r.startTime && r.endTime) {
-                                        fetchAvailableFaculties(idx, r.subject, r.days, r.startTime, r.endTime);
-                                      }
-                                    }, 500);
-                                  }}
-                                  className={`flex items-center gap-3 p-2.5 rounded-xl cursor-pointer transition-all ${isSelected ? 'bg-[#008080]/10 text-[#008080]' : 'hover:bg-slate-50 text-slate-600'}`}
-                                >
-                                  <div className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${isSelected ? 'bg-[#008080] border-[#008080]' : 'border-slate-300'}`}>
-                                    {isSelected && <CheckCircle size={10} className="text-white" />}
-                                  </div>
-                                  <span className="text-[11px] font-bold uppercase">{sub}</span>
-                                </div>
-                              );
-                            })}
-                            {/* Clear All Option */}
-                            <div 
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                const newSubjects = [...selectedSubjects];
-                                newSubjects[idx].subject = [];
-                                setSelectedSubjects(newSubjects);
-                              }}
-                              className="mt-2 p-2 text-center text-[10px] font-black text-rose-500 uppercase tracking-widest hover:bg-rose-50 rounded-lg cursor-pointer transition-colors border border-dashed border-rose-200"
-                            >
-                              Clear All
-                            </div>
+                        {/* Days Picker (Dropdown to toggle) */}
+                        <div className="flex flex-col gap-2 relative">
+                          <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Assigned Days</label>
+                          <div 
+                            onClick={() => {
+                              const newSubjects = [...selectedSubjects];
+                              newSubjects[idx].isDayDropdownOpen = !newSubjects[idx].isDayDropdownOpen;
+                              setSelectedSubjects(newSubjects);
+                            }}
+                            className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-[10px] font-black uppercase tracking-widest text-slate-700 cursor-pointer flex justify-between items-center"
+                          >
+                            <span className="truncate">
+                              {row.dayConfigs && row.dayConfigs.length > 0 ? row.dayConfigs.map(c => c.day.substring(0, 3)).join(', ') : 'Add Days'}
+                            </span>
+                            <span className="text-slate-400">▼</span>
                           </div>
-                        )}
+                          
+                          {row.isDayDropdownOpen && (
+                            <div className="absolute top-[100%] left-0 w-full bg-white border border-slate-100 rounded-2xl shadow-2xl z-[100] mt-1 p-3 animate-in fade-in zoom-in-95 duration-200">
+                              <div className="grid grid-cols-2 gap-2">
+                                {DAYS_LIST.map(day => {
+                                  const isSelected = row.dayConfigs?.some(c => c.day === day);
+                                  return (
+                                    <div 
+                                      key={day} 
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleDayToggle(idx, day);
+                                      }}
+                                      className={`flex items-center gap-2 p-2.5 rounded-xl cursor-pointer transition-colors ${isSelected ? 'bg-[#008080]/10 text-[#008080]' : 'hover:bg-slate-50 text-slate-600'}`}
+                                    >
+                                      <div className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${isSelected ? 'bg-[#008080] border-[#008080]' : 'border-slate-300'}`}>
+                                        {isSelected && <CheckCircle size={10} className="text-white" />}
+                                      </div>
+                                      <span className="text-[9px] font-black uppercase tracking-tight">{day}</span>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Faculty Selector */}
+                        <div className="flex flex-col gap-2">
+                          <label className="text-[10px] font-black text-[#008080] uppercase tracking-widest ml-1">Assigned Faculty</label>
+                          <select 
+                            required 
+                            value={row.facultyId} 
+                            onChange={(e) => handleSubjectChange(idx, 'facultyId', e.target.value)} 
+                            className="w-full p-4 bg-[#008080]/5 border border-[#008080]/20 rounded-2xl text-xs font-bold outline-none focus:ring-4 ring-[#008080]/10 appearance-none"
+                          >
+                            <option value="" disabled>
+                              {(row.dayConfigs?.length === 0) ? 'Select Days First' : row.availableFaculties?.length === 0 ? 'No Matching Faculty' : 'Select Free Faculty'}
+                            </option>
+                            {row.availableFaculties?.map(f => (
+                              <option key={f.id} value={f.id}>{f.name}</option>
+                            ))}
+                          </select>
+                        </div>
                       </div>
 
-                      <div className="flex flex-col gap-2 relative">
-                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Days</label>
-                        <div 
-                          onClick={() => {
-                            const newSubjects = [...selectedSubjects];
-                            newSubjects[idx].isDayDropdownOpen = !newSubjects[idx].isDayDropdownOpen;
-                            setSelectedSubjects(newSubjects);
-                          }}
-                          className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-700 cursor-pointer flex justify-between items-center min-h-[42px]"
-                        >
-                          <span className="truncate max-w-[120px]">
-                            {row.days && row.days.length > 0 ? row.days.map(d => d.substring(0, 3)).join(', ') : 'Select Days'}
-                          </span>
-                          <span className="text-slate-400">▼</span>
-                        </div>
-                        
-                        {row.isDayDropdownOpen && (
-                          <div className="absolute top-[100%] left-0 w-full bg-white border border-slate-100 rounded-xl shadow-2xl z-[100] mt-1 p-2 max-h-48 overflow-y-auto animate-in fade-in zoom-in-95 duration-200">
-                            {DAYS_LIST.map(day => (
-                              <div 
-                                key={day} 
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleDayToggle(idx, day);
-                                }}
-                                className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer transition-colors ${row.days?.includes(day) ? 'bg-[#008080]/10 text-[#008080]' : 'hover:bg-slate-50 text-slate-600'}`}
-                              >
-                                <div className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${row.days?.includes(day) ? 'bg-[#008080] border-[#008080]' : 'border-slate-300'}`}>
-                                  {row.days?.includes(day) && <CheckCircle size={10} className="text-white" />}
+                      {/* Day Specific Time Slots */}
+                      {row.dayConfigs && row.dayConfigs.length > 0 && (
+                        <div className="bg-slate-50/80 p-6 rounded-[2rem] border border-slate-100 animate-in fade-in slide-in-from-top-2 duration-500">
+                          <h4 className="text-[9px] font-black text-slate-400 uppercase tracking-[0.3em] mb-4 ml-2">Day-Specific Time Windows</h4>
+                          <div className="space-y-4">
+                            {row.dayConfigs.map((config, dIdx) => (
+                              <div key={config.day} className="flex flex-col md:flex-row items-center gap-4 bg-white p-4 rounded-2xl border border-slate-100 shadow-sm transition-all hover:shadow-md">
+                                <div className="w-full md:w-32">
+                                  <span className="text-xs font-black text-slate-900 uppercase tracking-tight">{config.day}</span>
                                 </div>
-                                <span className="text-[10px] font-black uppercase">{day}</span>
+                                <div className="flex-1 grid grid-cols-2 gap-4 w-full">
+                                  <div className="relative">
+                                    <select 
+                                      value={config.startTime}
+                                      onChange={(e) => handleDayTimeChange(idx, dIdx, 'startTime', e.target.value)}
+                                      className="w-full bg-slate-50 p-3 rounded-xl text-[10px] font-black uppercase tracking-widest outline-none border border-slate-100 focus:border-[#008080] appearance-none"
+                                    >
+                                      {TIME_SLOTS.map(t => <option key={t} value={t}>{t}</option>)}
+                                    </select>
+                                    <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-300">
+                                      <Clock size={12} />
+                                    </div>
+                                  </div>
+                                  <div className="relative">
+                                    <select 
+                                      value={config.endTime}
+                                      onChange={(e) => handleDayTimeChange(idx, dIdx, 'endTime', e.target.value)}
+                                      className="w-full bg-slate-50 p-3 rounded-xl text-[10px] font-black uppercase tracking-widest outline-none border border-slate-100 focus:border-[#008080] appearance-none"
+                                    >
+                                      {TIME_SLOTS.map(t => <option key={t} value={t}>{t}</option>)}
+                                    </select>
+                                    <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-300">
+                                      <Clock size={12} />
+                                    </div>
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-2 md:w-32 justify-end">
+                                   <div className="text-[10px] font-black text-emerald-500 uppercase tracking-widest">Active</div>
+                                   <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
+                                </div>
                               </div>
                             ))}
-                            <button 
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                const newSubjects = [...selectedSubjects];
-                                newSubjects[idx].isDayDropdownOpen = false;
-                                setSelectedSubjects(newSubjects);
-                              }}
-                              className="w-full mt-2 p-2 bg-slate-900 text-white rounded-lg text-[9px] font-black uppercase tracking-widest"
-                            >
-                              Apply
-                            </button>
                           </div>
-                        )}
-                      </div>
+                        </div>
+                      )}
 
-                      <div className="flex flex-col gap-2">
-                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Start Time</label>
-                        <select 
-                          required 
-                          value={row.startTime} 
-                          onChange={(e) => handleSubjectChange(idx, 'startTime', e.target.value)} 
-                          className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-[10px] font-black outline-none focus:ring-2 focus:ring-[#008080] appearance-none"
+                      <div className="flex justify-between items-center pt-4 border-t border-slate-50">
+                        <div className="flex items-center gap-4">
+                           <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Hourly Rate:</label>
+                           <input 
+                              type="number" 
+                              value={row.hourlyRate} 
+                              onChange={(e) => handleSubjectChange(idx, 'hourlyRate', e.target.value)}
+                              className="w-24 p-2 bg-slate-50 border border-slate-100 rounded-lg text-xs font-bold outline-none focus:ring-2 focus:ring-[#008080]" 
+                              placeholder="₹ 500"
+                           />
+                        </div>
+                        <button 
+                          type="button" 
+                          onClick={() => {
+                            const newSubjects = [...selectedSubjects];
+                            newSubjects.splice(idx, 1);
+                            setSelectedSubjects(newSubjects);
+                          }}
+                          className="text-rose-500 hover:text-rose-700 p-2 transition-colors"
                         >
-                          <option value="">Start</option>
-                          {TIME_SLOTS.map(t => <option key={t} value={t}>{t}</option>)}
-                        </select>
-                      </div>
-
-                      <div className="flex flex-col gap-2">
-                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">End Time</label>
-                        <select 
-                          required 
-                          value={row.endTime} 
-                          onChange={(e) => handleSubjectChange(idx, 'endTime', e.target.value)} 
-                          className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-[10px] font-black outline-none focus:ring-2 focus:ring-[#008080] appearance-none"
-                        >
-                          <option value="">End</option>
-                          {TIME_SLOTS.map(t => <option key={t} value={t}>{t}</option>)}
-                        </select>
-                      </div>
-
-                      <div className="flex flex-col gap-2">
-                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Faculty Rate (₹)</label>
-                        <input 
-                          type="number" 
-                          placeholder="e.g. 500"
-                          value={row.hourlyRate} 
-                          onChange={(e) => handleSubjectChange(idx, 'hourlyRate', e.target.value)} 
-                          className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-xs font-bold outline-none focus:ring-2 focus:ring-[#008080]" 
-                        />
-                      </div>
-
-                      <div className="flex flex-col gap-2">
-                        <label className="text-[10px] font-black text-[#008080] uppercase tracking-widest ml-1">Faculty</label>
-                        <select 
-                          required 
-                          value={row.facultyId} 
-                          onChange={(e) => handleSubjectChange(idx, 'facultyId', e.target.value)} 
-                          className="w-full p-3 bg-[#008080]/5 border border-[#008080]/20 rounded-xl text-xs font-bold outline-none focus:ring-2 focus:ring-[#008080] appearance-none"
-                        >
-                          <option value="" disabled>
-                            {(!row.days || row.days.length === 0 || !studentForm.commonStartTime || !studentForm.commonEndTime) ? 'Select Time Above' : row.availableFaculties?.length === 0 ? 'No Free Faculty' : 'Select Free Faculty'}
-                          </option>
-                          {row.availableFaculties?.map(f => (
-                            <option key={f.id} value={f.id}>{f.name}</option>
-                          ))}
-                        </select>
+                          <ShieldAlert size={20} />
+                        </button>
                       </div>
                     </div>
                   ))}

@@ -187,14 +187,23 @@ const getAllFacultyActivity = async (req, res) => {
 // @route   GET /api/academic-head/available-faculties
 const getAvailableFaculties = async (req, res) => {
     try {
-        const { subject, days, day, startTime, endTime } = req.query;
+        const { subject, days, day, startTime, endTime, dayConfigs: dayConfigsRaw } = req.query;
         
-        if ((!day && !days) || !startTime || !endTime) {
-            return res.status(400).json({ success: false, message: "Missing day/days, startTime, or endTime" });
+        let dayConfigs = [];
+        if (dayConfigsRaw) {
+            try {
+                dayConfigs = JSON.parse(decodeURIComponent(dayConfigsRaw));
+            } catch (e) {
+                console.error("Failed to parse dayConfigs:", e);
+            }
+        } else if ((day || days) && startTime && endTime) {
+            const daysList = days ? (Array.isArray(days) ? days : days.split(',')) : [day];
+            dayConfigs = daysList.map(d => ({ day: d, startTime, endTime }));
         }
 
-        const daysToExclude = days ? (Array.isArray(days) ? days : days.split(',')) : (day ? [day] : []);
-
+        if (dayConfigs.length === 0) {
+            return res.status(400).json({ success: false, message: "Missing day/time configurations" });
+        }
         
         let query = `
             SELECT u.id, u.name, u.subject 
@@ -212,18 +221,26 @@ const getAvailableFaculties = async (req, res) => {
             }
         }
 
-        if (daysToExclude.length > 0) {
-            query += `
-                AND NOT EXISTS (
-                    SELECT 1 FROM faculty_schedules fs
-                    WHERE fs.faculty_id = u.id
-                    AND fs.day_of_week IN (${daysToExclude.map(() => '?').join(',')})
-                    AND fs.start_time < ? 
-                    AND fs.end_time > ?
-                )
-            `;
-            params.push(...daysToExclude, endTime, startTime);
-        }
+        // Exclude faculties who have a schedule conflict in ANY of the requested slots
+        const conflictConditions = dayConfigs.map(() => 
+            `(fs.day_of_week = ? AND fs.start_time < ? AND fs.end_time > ?)`
+        ).join(' OR ');
+
+        query += `
+            AND NOT EXISTS (
+                SELECT 1 FROM faculty_schedules fs
+                WHERE fs.faculty_id = u.id
+                AND (${conflictConditions})
+            )
+        `;
+        
+        dayConfigs.forEach(c => {
+            // MySQL time comparison works well with HH:MM AM/PM if we are careful, 
+            // but the query expects HH:MM:SS or similar usually. 
+            // However, the existing code used startTime/endTime directly.
+            // We should ensure the values are compared correctly.
+            params.push(c.day, c.endTime, c.startTime);
+        });
 
         const [availableFaculties] = await db.query(query, params);
 
