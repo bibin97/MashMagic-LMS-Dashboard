@@ -205,20 +205,6 @@ const MentorsList = () => {
                       >
                         <Eye size={18} />
                       </button>
-                      <button 
-                        onClick={() => handleEdit(mentor)}
-                        className="w-10 h-10 bg-slate-50 text-slate-600 rounded-xl flex items-center justify-center hover:bg-[#008080] hover:text-white transition-all shadow-sm border border-slate-100"
-                        title="Edit Mentor"
-                      >
-                        <Edit2 size={18} />
-                      </button>
-                      <button 
-                        onClick={() => handleDelete(mentor.id, mentor.name)}
-                        className="w-10 h-10 bg-slate-50 text-rose-500 rounded-xl flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all shadow-sm border border-slate-100"
-                        title="Delete Mentor"
-                      >
-                        <Trash2 size={18} />
-                      </button>
                     </div>
                   </div>
                 </div>
@@ -364,93 +350,14 @@ const MentorsList = () => {
                       <p className="text-xs font-black text-slate-900 uppercase tracking-widest">Verified Academic Mentor</p>
                     </div>
                   </div>
-                  <button 
-                    onClick={() => {
-                      setIsDetailModalOpen(false);
-                      handleEdit(selectedMentorForDetail);
-                    }}
-                    className="px-6 py-3 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-[#008080] transition-all"
-                  >
-                    Edit Profile
-                  </button>
                 </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Edit Modal */}
-        {isEditModalOpen && editingMentor && (
-          <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
-            <div className="bg-white rounded-[3rem] shadow-2xl w-full max-w-lg overflow-hidden animate-in slide-in-from-bottom-4 duration-300">
-              <div className="px-8 py-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
-                <h2 className="text-lg font-black text-slate-900 flex items-center gap-3 ">
-                  <Edit2 size={20} className="text-[#008080]" /> Edit Mentor Profile
-                </h2>
-                <button onClick={() => setIsEditModalOpen(false)} className="w-10 h-10 flex items-center justify-center bg-white rounded-xl text-slate-600 hover:text-slate-600 hover:shadow-md transition-all">
-                  <X size={20} />
-                </button>
-              </div>
-              <div className="p-8 space-y-6">
-                <div>
-                  <label className="block text-[10px] font-black text-slate-600 uppercase tracking-widest mb-2 ml-1">Full Name</label>
-                  <input
-                    type="text"
-                    value={editingMentor.name}
-                    onChange={(e) => setEditingMentor(prev => ({ ...prev, name: e.target.value }))}
-                    className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-xs font-bold rounded-2xl px-5 py-4 focus:outline-none focus:ring-4 focus:ring-[#008080] focus:border-[#008080] transition-all"
-                  />
-                </div>
-                <div>
-                  <label className="block text-[10px] font-black text-slate-600 uppercase tracking-widest mb-2 ml-1">Email Address</label>
-                  <input
-                    type="email"
-                    value={editingMentor.email}
-                    onChange={(e) => setEditingMentor(prev => ({ ...prev, email: e.target.value }))}
-                    className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-xs font-bold rounded-2xl px-5 py-4 focus:outline-none focus:ring-4 focus:ring-[#008080] focus:border-[#008080] transition-all"
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-[10px] font-black text-slate-600 uppercase tracking-widest mb-2 ml-1">Phone Number</label>
-                    <input
-                      type="text"
-                      value={editingMentor.phone_number}
-                      onChange={(e) => setEditingMentor(prev => ({ ...prev, phone_number: e.target.value }))}
-                      className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-xs font-bold rounded-2xl px-5 py-4 focus:outline-none focus:ring-4 focus:ring-[#008080] focus:border-[#008080] transition-all"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-[10px] font-black text-slate-600 uppercase tracking-widest mb-2 ml-1">Place / Location</label>
-                    <input
-                      type="text"
-                      value={editingMentor.place || ''}
-                      onChange={(e) => setEditingMentor(prev => ({ ...prev, place: e.target.value }))}
-                      className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-xs font-bold rounded-2xl px-5 py-4 focus:outline-none focus:ring-4 focus:ring-[#008080] focus:border-[#008080] transition-all"
-                    />
-                  </div>
-                </div>
-              </div>
-              <div className="px-8 py-6 border-t border-slate-100 bg-slate-50/50 flex justify-end gap-3">
-                <button
-                  onClick={() => setIsEditModalOpen(false)}
-                  className="px-8 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest text-slate-600 hover:text-slate-600 hover:bg-slate-100 transition-all"
-                >
-                  Discard
-                </button>
-                <button
-                  onClick={handleUpdate}
-                  className="px-8 py-3.5 bg-[#008080] text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-[#008080]/30 hover:bg-[#008080] hover:-translate-y-0.5 active:scale-95 transition-all flex items-center gap-2"
-                >
-                  <Save size={16} /> Update Profile
-                </button>
               </div>
             </div>
           </div>
         )}
       </div>
     </>
- );
+  );
 };
 
 export default MentorsList;

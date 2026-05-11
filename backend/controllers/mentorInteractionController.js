@@ -5,6 +5,15 @@ const getDailyAssignments = async (req, res) => {
         const mentor_id = req.user.id;
         const today = new Date().toISOString().split('T')[0];
 
+        // Fetch current eligible students to check if we need to refresh
+        const [currentStudents] = await db.query(
+            `SELECT id FROM students 
+             WHERE mentor_id = ? 
+             AND (LOWER(enrollment_type) = 'mentorship' OR LOWER(enrollment_type) = 'both')
+             AND status != 'inactive'`,
+            [mentor_id]
+        );
+
         // Check if assignments already exist for today
         const [existing] = await db.query(
             'SELECT assignments FROM daily_assignments WHERE mentor_id = ? AND date = ?',
@@ -12,7 +21,13 @@ const getDailyAssignments = async (req, res) => {
         );
 
         if (existing.length > 0) {
-            return res.status(200).json({ success: true, data: existing[0].assignments });
+            const savedAssignments = JSON.parse(existing[0].assignments);
+            // If total students changed significantly, regenerate to include new ones
+            if (savedAssignments.length < 15 && currentStudents.length > savedAssignments.length) {
+                // Regenerate
+            } else {
+                return res.status(200).json({ success: true, data: savedAssignments });
+            }
         }
 
         // Generate new assignments
@@ -63,46 +78,31 @@ const generateAssignments = async (mentor_id) => {
         rotatedStudents.push(students[(startIndex + i) % students.length]);
     }
 
-    // 3. Priority Split
-    const highPriority = rotatedStudents.filter(s => s.priority_category === 'High');
-    const mediumPriority = rotatedStudents.filter(s => s.priority_category === 'Medium');
-    const others = rotatedStudents.filter(s => !['High', 'Medium'].includes(s.priority_category));
+    // 3. Select the top 15 students for today's rotation
+    const poolSize = Math.min(rotatedStudents.length, 15);
+    const selectedForToday = rotatedStudents.slice(0, poolSize);
 
     const deep = [];
     const medium = [];
     const quick = [];
 
-    // Fill Deep (max 5)
-    // Priority 1: High priority students
-    for (let i = 0; i < highPriority.length && deep.length < 5; i++) {
-        deep.push({ ...highPriority[i], sessionType: 'DEEP', status: 'PENDING' });
-    }
-    // Priority 2: Fill remaining with rotation pool
-    while (deep.length < 5 && others.length > 0) {
-        const student = others.shift();
-        deep.push({ ...student, sessionType: 'DEEP', status: 'PENDING' });
-    }
+    // 4. Distribute into session types (5 Deep, 5 Medium, 5 Quick)
+    // We prioritize based on their category, but ensure the slots are filled
+    const high = selectedForToday.filter(s => s.priority_category === 'High');
+    const med = selectedForToday.filter(s => s.priority_category === 'Medium');
+    const low = selectedForToday.filter(s => !['High', 'Medium'].includes(s.priority_category));
 
-    // Fill Medium (max 5)
-    // Priority 1: Medium priority students
-    while (medium.length < 5 && mediumPriority.length > 0) {
-        medium.push({ ...mediumPriority.shift(), sessionType: 'MEDIUM', status: 'PENDING' });
-    }
-    // Priority 2: Fill remaining with others
-    while (medium.length < 5 && others.length > 0) {
-        medium.push({ ...others.shift(), sessionType: 'MEDIUM', status: 'PENDING' });
-    }
+    const combinedPool = [...high, ...med, ...low];
 
-    // Fill Quick (max 5)
-    while (quick.length < 5 && others.length > 0) {
-        const student = others.shift();
-        quick.push({ ...student, sessionType: 'QUICK', status: 'PENDING' });
-    }
-
-    // 4. Backfill Quota: If we still don't have 15 students but have more in pools
-    // Fill Quick with remaining medium priority if any
-    while (quick.length < 5 && mediumPriority.length > 0) {
-        quick.push({ ...mediumPriority.shift(), sessionType: 'QUICK', status: 'PENDING' });
+    for (let i = 0; i < combinedPool.length; i++) {
+        const student = combinedPool[i];
+        if (deep.length < 5) {
+            deep.push({ ...student, sessionType: 'DEEP', status: 'PENDING' });
+        } else if (medium.length < 5) {
+            medium.push({ ...student, sessionType: 'MEDIUM', status: 'PENDING' });
+        } else if (quick.length < 5) {
+            quick.push({ ...student, sessionType: 'QUICK', status: 'PENDING' });
+        }
     }
 
     // Final merge

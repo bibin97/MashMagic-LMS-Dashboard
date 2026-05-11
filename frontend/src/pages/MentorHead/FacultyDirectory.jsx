@@ -115,7 +115,6 @@ const FacultyDirectory = () => {
  <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Phone</th>
  <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Place</th>
  <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Status</th>
- <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest text-right">Actions</th>
  </tr>
  </thead>
  <tbody className="divide-y divide-slate-50">
@@ -159,28 +158,10 @@ const FacultyDirectory = () => {
  {faculty.status || 'active'}
  </span>
  </td>
- <td className="px-8 py-6 text-right">
- <div className="flex items-center justify-end gap-2">
- <button
- onClick={() => handleEdit(faculty)}
- className="p-2.5 bg-white border border-slate-200 rounded-xl text-[#008080] hover:bg-[#008080]/10 transition-all shadow-sm"
- title="Edit"
- >
- <Edit2 size={16} />
- </button>
- <button
- onClick={() => handleDelete(faculty.id, faculty.name)}
- className="p-2.5 bg-white border border-slate-200 rounded-xl text-rose-600 hover:bg-rose-50 transition-all shadow-sm"
- title="Delete"
- >
- <Trash2 size={16} />
- </button>
- </div>
- </td>
  </tr>
  )) : (
  <tr>
- <td colSpan={6} className="px-8 py-20 text-center">
+ <td colSpan={5} className="px-8 py-20 text-center">
  <p className="text-slate-600 font-black text-[10px] uppercase tracking-[0.3em]">System empty or no faculty found</p>
  </td>
  </tr>
@@ -189,76 +170,6 @@ const FacultyDirectory = () => {
  </table>
  </div>
  </div>
-
- {/* Edit Modal */}
- {isEditModalOpen && editingFaculty && (
- <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
- <div className="bg-white rounded-[3rem] shadow-2xl w-full max-w-lg overflow-hidden animate-in slide-in-from-bottom-4 duration-300">
- <div className="px-8 py-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
- <h2 className="text-lg font-black text-slate-900 flex items-center gap-3 ">
- <Edit2 size={20} className="text-emerald-600" /> Edit Faculty Profile
- </h2>
- <button onClick={() => setIsEditModalOpen(false)} className="w-10 h-10 flex items-center justify-center bg-white rounded-xl text-slate-600 hover:text-slate-600 hover:shadow-md transition-all">
- <X size={20} />
- </button>
- </div>
- <div className="p-8 space-y-6">
- <div>
- <label className="block text-[10px] font-black text-slate-600 uppercase tracking-widest mb-2 ml-1">Full Name</label>
- <input
- type="text"
- value={editingFaculty.name}
- onChange={(e) => setEditingFaculty(prev => ({ ...prev, name: e.target.value }))}
- className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-xs font-bold rounded-2xl px-5 py-4 focus:outline-none focus:ring-4 focus:ring-emerald-50 focus:border-emerald-300 transition-all"
- />
- </div>
- <div>
- <label className="block text-[10px] font-black text-slate-600 uppercase tracking-widest mb-2 ml-1">Email Address</label>
- <input
- type="email"
- value={editingFaculty.email}
- onChange={(e) => setEditingFaculty(prev => ({ ...prev, email: e.target.value }))}
- className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-xs font-bold rounded-2xl px-5 py-4 focus:outline-none focus:ring-4 focus:ring-emerald-50 focus:border-emerald-300 transition-all"
- />
- </div>
- <div className="grid grid-cols-2 gap-6">
- <div>
- <label className="block text-[10px] font-black text-slate-600 uppercase tracking-widest mb-2 ml-1">Phone Number</label>
- <input
- type="text"
- value={editingFaculty.phone_number}
- onChange={(e) => setEditingFaculty(prev => ({ ...prev, phone_number: e.target.value }))}
- className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-xs font-bold rounded-2xl px-5 py-4 focus:outline-none focus:ring-4 focus:ring-emerald-50 focus:border-emerald-300 transition-all"
- />
- </div>
- <div>
- <label className="block text-[10px] font-black text-slate-600 uppercase tracking-widest mb-2 ml-1">Place / Location</label>
- <input
- type="text"
- value={editingFaculty.place || ''}
- onChange={(e) => setEditingFaculty(prev => ({ ...prev, place: e.target.value }))}
- className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-xs font-bold rounded-2xl px-5 py-4 focus:outline-none focus:ring-4 focus:ring-emerald-50 focus:border-emerald-300 transition-all"
- />
- </div>
- </div>
- </div>
- <div className="px-8 py-6 border-t border-slate-100 bg-slate-50/50 flex justify-end gap-3">
- <button
- onClick={() => setIsEditModalOpen(false)}
- className="px-8 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest text-slate-600 hover:text-slate-600 hover:bg-slate-100 transition-all"
- >
- Discard
- </button>
- <button
- onClick={handleUpdate}
- className="px-8 py-3.5 bg-emerald-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-emerald-100 hover:bg-emerald-700 hover:-translate-y-0.5 active:scale-95 transition-all flex items-center gap-2"
- >
- <Save size={16} /> Update Record
- </button>
- </div>
- </div>
- </div>
- )}
  </div>
  );
 };

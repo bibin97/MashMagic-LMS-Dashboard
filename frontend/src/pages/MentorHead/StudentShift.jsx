@@ -21,7 +21,7 @@ const StudentShift = () => {
  const token = sessionStorage.getItem('token');
  const [studentsRes, mentorsRes] = await Promise.all([
  axios.get('/api/mentor-head/all-students', { headers: { Authorization: `Bearer ${token}` } }),
- axios.get('/api/mentor-head/dashboard', { headers: { Authorization: `Bearer ${token}` } })
+ axios.get('/api/mentor-head/mentors-all', { headers: { Authorization: `Bearer ${token}` } })
  ]);
 
  if (studentsRes.data.success) {
@@ -131,7 +131,7 @@ const StudentShift = () => {
  )}
  </h4>
  <p className="text-[10px] uppercase font-black tracking-widest text-slate-600 mt-1">
- Current Mentor: {mentors.find(m => m.mentor_id === student.mentor_id)?.mentor_name || 'None'}
+ Current Mentor: {mentors.find(m => m.id === student.mentor_id)?.name || 'None'}
  </p>
  </div>
  </div>
@@ -180,8 +180,8 @@ const StudentShift = () => {
  className="w-full p-4 bg-white border border-slate-200 rounded-2xl text-sm font-bold text-slate-700 outline-none focus:ring-4 ring-[#008080] shadow-sm"
  >
  <option value="" disabled>-- Choose a Mentor --</option>
- {mentors.filter(m => m.mentor_id !== selectedStudent?.mentor_id).map(m => (
- <option key={m.mentor_id} value={m.mentor_id}>{m.mentor_name} ({m.total_assigned_students} students)</option>
+ {mentors.filter(m => m.id !== selectedStudent?.mentor_id).map(m => (
+ <option key={m.id} value={m.id}>{m.name} ({m.studentCount} students)</option>
  ))}
  </select>
  </div>

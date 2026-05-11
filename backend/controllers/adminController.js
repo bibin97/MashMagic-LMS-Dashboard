@@ -155,7 +155,7 @@ const getPendingUsers = async (req, res) => {
     try {
         // 1. Fetch non-student users (Faculties, Mentors, SSCs, etc.)
         const [users] = await db.query(`
-            SELECT u.id, u.name, u.email, u.phone_number, u.role, u.place, u.status, u.createdAt as created_at,
+            SELECT u.id, u.name, u.email, u.phone_number, u.role, NULL as place, u.status, u.createdAt as created_at,
                    rb.name as registered_by_name
             FROM users u
             LEFT JOIN users rb ON u.registeredBy = rb.id

@@ -153,7 +153,6 @@ function App() {
             <Route path="mentors/:id" element={<MentorDetails />} />
             <Route path="students" element={<StudentsListAcademic role="mentor_head" />} />
             <Route path="students/:id" element={<StudentDetails />} />
-            <Route path="edit-student/:id" element={<EditStudent />} />
             <Route path="faculties" element={<FacultyDirectoryMentorHead />} />
             <Route path="course-completed" element={<CourseCompletedTracker />} />
             <Route path="tasks" element={<MentorHeadTasks />} />

@@ -208,20 +208,24 @@ const StudentsList = ({ role = 'academic_head' }) => {
 											>
 												<Eye size={16} />
 											</button>
-											<button
-												onClick={() => handleEdit(student)}
-												className="p-2.5 bg-white border-2 border-[#008080]/40 rounded-xl text-[#008080] hover:bg-[#008080] hover:text-white transition-all shadow-sm group/edit"
-												title="Edit Student"
-											>
-												<Edit2 size={16} />
-											</button>
-											<button
-												onClick={() => handleDelete(student)}
-												className="p-2.5 bg-white border-2 border-rose-200 rounded-xl text-rose-600 hover:bg-rose-600 hover:text-white transition-all shadow-sm"
-												title="Delete Student"
-											>
-												<Trash2 size={16} />
-											</button>
+											{role === 'academic_head' && (
+												<>
+													<button
+														onClick={() => handleEdit(student)}
+														className="p-2.5 bg-white border-2 border-[#008080]/40 rounded-xl text-[#008080] hover:bg-[#008080] hover:text-white transition-all shadow-sm group/edit"
+														title="Edit Student"
+													>
+														<Edit2 size={16} />
+													</button>
+													<button
+														onClick={() => handleDelete(student)}
+														className="p-2.5 bg-white border-2 border-rose-200 rounded-xl text-rose-600 hover:bg-rose-600 hover:text-white transition-all shadow-sm"
+														title="Delete Student"
+													>
+														<Trash2 size={16} />
+													</button>
+												</>
+											)}
 										</div>
 									</td>
 								</tr>
