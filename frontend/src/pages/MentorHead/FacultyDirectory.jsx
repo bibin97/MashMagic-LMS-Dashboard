@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
- Users, Search, Edit2, Trash2, X, Save,
+ Users, Search, Edit2, Trash2, X, Save, Eye,
  ShieldCheck, Activity, MapPin, Phone, Mail, Calendar, Briefcase
 } from 'lucide-react';
 import api from '../../services/api';
@@ -11,8 +11,8 @@ const FacultyDirectory = () => {
  const [faculties, setFaculties] = useState([]);
  const [loading, setLoading] = useState(true);
  const [searchTerm, setSearchTerm] = useState('');
- const [isEditModalOpen, setIsEditModalOpen] = useState(false);
- const [editingFaculty, setEditingFaculty] = useState(null);
+ const [selectedFaculty, setSelectedFaculty] = useState(null);
+ const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
 
  useEffect(() => {
  fetchFaculties();
@@ -29,43 +29,6 @@ const FacultyDirectory = () => {
  } finally {
  setLoading(false);
  }
- };
-
- const handleEdit = (faculty) => {
- setEditingFaculty({ ...faculty });
- setIsEditModalOpen(true);
- };
-
- const handleUpdate = async () => {
- try {
- const res = await api.put(`/mentor-head/faculties/${editingFaculty.id}`, editingFaculty);
- if (res.data.success) {
- toast.success("Faculty profile updated");
- setIsEditModalOpen(false);
- fetchFaculties();
- }
- } catch (error) {
- toast.error(error.response?.data?.message || "Update failed");
- }
- };
-
- const handleDelete = async (id, name) => {
- premiumConfirm(async () => {
- try {
- const res = await api.delete(`/mentor-head/faculties/${id}`);
- if (res.data.success) {
- toast.success("Faculty record deleted");
- fetchFaculties();
- }
- } catch (error) {
- toast.error(error.response?.data?.message || "Delete failed");
- }
- }, {
- name: name,
- title: 'Delete Faculty Record',
- message: `Are you sure you want to permanently delete the faculty record for ${name}?`,
- type: 'danger'
- });
  };
 
  const filteredFaculties = faculties.filter(f =>
@@ -115,6 +78,7 @@ const FacultyDirectory = () => {
  <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Phone</th>
  <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Place</th>
  <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Status</th>
+ <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest text-right">Actions</th>
  </tr>
  </thead>
  <tbody className="divide-y divide-slate-50">
@@ -158,10 +122,22 @@ const FacultyDirectory = () => {
  {faculty.status || 'active'}
  </span>
  </td>
+ <td className="px-8 py-6 text-right">
+ <button
+ onClick={() => {
+ setSelectedFaculty(faculty);
+ setIsDetailModalOpen(true);
+ }}
+ className="p-2.5 bg-white border border-slate-200 rounded-xl text-[#008080] hover:bg-[#008080]/10 transition-all shadow-sm"
+ title="View Profile"
+ >
+ <Eye size={16} />
+ </button>
+ </td>
  </tr>
  )) : (
  <tr>
- <td colSpan={5} className="px-8 py-20 text-center">
+ <td colSpan={6} className="px-8 py-20 text-center">
  <p className="text-slate-600 font-black text-[10px] uppercase tracking-[0.3em]">System empty or no faculty found</p>
  </td>
  </tr>
@@ -170,6 +146,81 @@ const FacultyDirectory = () => {
  </table>
  </div>
  </div>
+
+ {/* Faculty Detail Modal */}
+ {isDetailModalOpen && selectedFaculty && (
+ <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4 animate-in fade-in duration-300">
+ <div className="bg-white rounded-[3.5rem] shadow-2xl w-full max-w-2xl overflow-hidden animate-in slide-in-from-bottom-8 duration-500">
+ <div className="px-10 py-8 border-b border-slate-50 flex justify-between items-center bg-slate-50/50">
+ <div className="flex items-center gap-4">
+ <div className="w-12 h-12 bg-emerald-600 text-white rounded-2xl flex items-center justify-center font-black text-xl shadow-lg uppercase">
+ {selectedFaculty.name.charAt(0)}
+ </div>
+ <div>
+ <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight leading-none mb-1">Faculty Identity</h2>
+ <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">Academic Professional Profile</p>
+ </div>
+ </div>
+ <button
+ onClick={() => setIsDetailModalOpen(false)}
+ className="w-12 h-12 flex items-center justify-center bg-white rounded-2xl text-slate-400 hover:text-slate-900 shadow-sm border border-slate-100 transition-all"
+ >
+ <X size={20} />
+ </button>
+ </div>
+
+ <div className="p-10 space-y-10">
+ <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+ <div className="space-y-6">
+ <div className="flex flex-col gap-1">
+ <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Full Name</span>
+ <p className="text-lg font-black text-slate-900 uppercase">{selectedFaculty.name}</p>
+ </div>
+ <div className="flex flex-col gap-1">
+ <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Contact Email</span>
+ <p className="text-sm font-bold text-slate-700">{selectedFaculty.email || 'N/A'}</p>
+ </div>
+ <div className="flex flex-col gap-1">
+ <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Phone Number</span>
+ <p className="text-sm font-bold text-slate-700">{selectedFaculty.phone_number || 'N/A'}</p>
+ </div>
+ </div>
+ <div className="space-y-6">
+ <div className="flex flex-col gap-1">
+ <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Operational Pulse</span>
+ <div className="flex items-center gap-2 mt-1">
+ <div className={`w-2 h-2 rounded-full ${String(selectedFaculty.status || 'active').toLowerCase() === 'active' ? 'bg-emerald-500' : 'bg-rose-500'}`}></div>
+ <p className="text-xs font-black text-slate-900 uppercase tracking-widest">{selectedFaculty.status || 'ACTIVE'}</p>
+ </div>
+ </div>
+ <div className="flex flex-col gap-1">
+ <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Geographic Location</span>
+ <p className="text-sm font-black text-slate-900 uppercase tracking-widest">{selectedFaculty.place || 'Not Specified'}</p>
+ </div>
+ </div>
+ </div>
+
+ <div className="p-8 bg-slate-50 rounded-[2.5rem] border border-slate-100 flex items-center justify-between">
+ <div className="flex items-center gap-4">
+ <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-emerald-600 shadow-sm">
+ <ShieldCheck size={24} />
+ </div>
+ <div>
+ <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Administrative Role</p>
+ <p className="text-xs font-black text-slate-900 uppercase">Verified Teaching Faculty</p>
+ </div>
+ </div>
+ <button
+ onClick={() => setIsDetailModalOpen(false)}
+ className="px-8 py-3.5 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-emerald-700 transition-all shadow-lg"
+ >
+ Close Registry
+ </button>
+ </div>
+ </div>
+ </div>
+ </div>
+ )}
  </div>
  );
 };

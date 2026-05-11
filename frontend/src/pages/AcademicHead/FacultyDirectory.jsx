@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import {
-  Users, User, Mail, Phone, Calendar,
+  Users, User, Mail, Phone, Calendar, Search,
   Filter, Activity, Edit2, Trash2, X, Save, BookOpen, MapPin, ShieldCheck, Eye
 } from 'lucide-react';
 import toast from 'react-hot-toast';
