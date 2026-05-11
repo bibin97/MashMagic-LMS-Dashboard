@@ -68,7 +68,8 @@ const StudentInteractionLog = () => {
        student_response: 'Positive / motivated',
        followup_required: 'No',
        followup_when: 'Tomorrow',
-       priority_tag: 'Stable'
+       priority_tag: 'Stable',
+       next_session_type: 'MEDIUM'
      });
    } else if (type === 'MEDIUM') {
      setFormData({
@@ -78,7 +79,8 @@ const StudentInteractionLog = () => {
        issue_category: 'Academic',
        quick_guidance: '',
        next_task: '',
-       upgrade_to_deep: 'No'
+       upgrade_to_deep: 'No',
+       next_session_type: 'QUICK'
      });
    } else if (type === 'QUICK') {
      setFormData({
@@ -86,7 +88,8 @@ const StudentInteractionLog = () => {
        study_status: 'Studied properly',
        attendance: 'Attended',
        immediate_concern: 'No',
-       motivation_given: 'Yes'
+       motivation_given: 'Yes',
+       next_session_type: 'QUICK'
      });
    } else {
      // Simple Tuition Tracking
@@ -110,7 +113,7 @@ const StudentInteractionLog = () => {
     try {
       // Validation Rules from Product Document
       if (sessionType === 'DEEP') {
-        if (!formData.action_plan || !formData.main_problem || !formData.root_cause || !formData.guidance_given) {
+        if (!formData.action_plan || !formData.main_problem || !formData.root_cause || !formData.mentor_guidance) {
           toast.error("Please fill all mandatory fields (Problem, Root Cause, Guidance, and Action Plan)");
           setLoading(false);
           return;
@@ -142,6 +145,7 @@ const StudentInteractionLog = () => {
        await api.post('/mentor-interactions/submit-report', {
          student_id: selectedStudent.id,
          session_type: sessionType,
+         next_session_type: formData.next_session_type,
          report_data: formData
        });
      }
@@ -603,6 +607,34 @@ const StudentInteractionLog = () => {
               </div>
            </div>
          )}
+
+          {/* Next Session Priority */}
+          {(sessionType === 'DEEP' || sessionType === 'MEDIUM' || sessionType === 'QUICK') && (
+            <div className="p-8 bg-slate-900 rounded-[3rem] border border-slate-800 space-y-6">
+              <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+                <div>
+                  <h4 className="text-lg font-black text-white uppercase tracking-tight">Next Priority Level</h4>
+                  <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Select the intensity for the next interaction</p>
+                </div>
+                <div className="flex gap-2 p-1.5 bg-white/10 rounded-2xl">
+                  {[
+                    { id: 'DEEP', label: 'Deep', color: 'bg-rose-500' },
+                    { id: 'MEDIUM', label: 'Medium', color: 'bg-amber-500' },
+                    { id: 'QUICK', label: 'Quick', color: 'bg-blue-500' }
+                  ].map(opt => (
+                    <button
+                      key={opt.id}
+                      type="button"
+                      onClick={() => setFormData({...formData, next_session_type: opt.id})}
+                      className={`px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${formData.next_session_type === opt.id ? `${opt.color} text-white shadow-lg` : 'text-slate-400 hover:text-white'}`}
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
 
          <div className="pt-8">
            <button

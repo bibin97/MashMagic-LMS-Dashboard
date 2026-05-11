@@ -63,7 +63,8 @@ const generateAssignments = async (mentor_id) => {
 
     // 3. Priority Override
     const highPriority = rotatedStudents.filter(s => s.priority_category === 'High');
-    const others = rotatedStudents.filter(s => s.priority_category !== 'High');
+    const mediumPriority = rotatedStudents.filter(s => s.priority_category === 'Medium');
+    const others = rotatedStudents.filter(s => !['High', 'Medium'].includes(s.priority_category));
 
     const deep = [];
     const medium = [];
@@ -75,15 +76,19 @@ const generateAssignments = async (mentor_id) => {
         deep.push({ ...highPriority[i], sessionType: 'DEEP', status: 'PENDING' });
     }
     // Priority 2: Fill remaining with rotation
-    for (let i = 0; i < others.length && deep.length < 5; i++) {
+    while (deep.length < 5 && others.length > 0) {
         const student = others.shift();
         deep.push({ ...student, sessionType: 'DEEP', status: 'PENDING' });
     }
 
     // Fill Medium (max 5)
+    // Priority 1: Medium priority students
+    while (medium.length < 5 && mediumPriority.length > 0) {
+        medium.push({ ...mediumPriority.shift(), sessionType: 'MEDIUM', status: 'PENDING' });
+    }
+    // Priority 2: Fill remaining with others
     while (medium.length < 5 && others.length > 0) {
-        const student = others.shift();
-        medium.push({ ...student, sessionType: 'MEDIUM', status: 'PENDING' });
+        medium.push({ ...others.shift(), sessionType: 'MEDIUM', status: 'PENDING' });
     }
 
     // Fill Quick (max 5)
@@ -92,13 +97,18 @@ const generateAssignments = async (mentor_id) => {
         quick.push({ ...student, sessionType: 'QUICK', status: 'PENDING' });
     }
 
+    // Remaining pool if still under quota
+    while (quick.length < 5 && mediumPriority.length > 0) {
+        quick.push({ ...mediumPriority.shift(), sessionType: 'QUICK', status: 'PENDING' });
+    }
+
     return [...deep, ...medium, ...quick];
 };
 
 const submitSessionReport = async (req, res) => {
     try {
         const mentor_id = req.user.id;
-        const { student_id, session_type, report_data } = req.body;
+        const { student_id, session_type, next_session_type, report_data } = req.body;
 
         if (!student_id || !session_type || !report_data) {
             return res.status(400).json({ success: false, message: 'Missing required fields' });
@@ -107,6 +117,11 @@ const submitSessionReport = async (req, res) => {
         // 4. Fraud Check (Module 7)
         let isFlagged = 0;
         let flagReason = null;
+
+        const [history] = await db.query(
+            'SELECT report_data FROM mentor_session_reports WHERE student_id = ? ORDER BY created_at DESC LIMIT 1',
+            [student_id]
+        );
 
         if (history.length > 0) {
             const lastReport = JSON.parse(history[0].report_data);
@@ -154,49 +169,17 @@ const submitSessionReport = async (req, res) => {
             );
         }
 
-        // 7. Priority Upgrade/Downgrade Logic (Auto Intelligence)
-        let newPriority = null; // Default to null (keep current)
+        // 7. Priority Logic (Manual Priority from Mentor)
+        // Set priority based on mentor's selection for the next interaction type
         const [[currentStudent]] = await db.query('SELECT priority_category FROM students WHERE id = ?', [student_id]);
         let currentP = currentStudent?.priority_category || 'Stable';
+        let finalPriority = currentP;
 
-        // --- UPGRADE LOGIC ---
-        let triggerUpgrade = false;
+        if (next_session_type === 'DEEP') finalPriority = 'High';
+        else if (next_session_type === 'MEDIUM') finalPriority = 'Medium';
+        else if (next_session_type === 'QUICK') finalPriority = 'Stable';
 
-        // Condition A: Immediate Flags
-        if (session_type === 'QUICK' && report_data.immediate_concern === 'Yes') triggerUpgrade = true;
-        if (session_type === 'MEDIUM' && report_data.upgrade_to_deep === 'Yes') triggerUpgrade = true;
-        if (session_type === 'DEEP' && (report_data.priority_tag === 'High' || report_data.student_response === 'Not responsive')) triggerUpgrade = true;
-
-        // Condition B: Consecutive Poor Progress (Medium Sessions)
-        const mediumReports = history.filter(h => h.session_type === 'MEDIUM');
-        if (session_type === 'MEDIUM' && report_data.progress === 'Poor') {
-            if (mediumReports.length > 0 && JSON.parse(mediumReports[0].report_data).progress === 'Poor') {
-                triggerUpgrade = true; // 2 consecutive Poor
-            }
-        }
-
-        if (triggerUpgrade) {
-            newPriority = 'High';
-        } 
-        
-        // --- DOWNGRADE LOGIC ---
-        else {
-            // Trigger if Stable performance for 5-7 days (Good progress in all recent sessions)
-            const recentGoodSessions = history.filter(h => {
-                try {
-                    const data = typeof h.report_data === 'string' ? JSON.parse(h.report_data) : h.report_data;
-                    return data.progress === 'Good' || data.student_status === 'On Track' || data.study_status === 'Studied properly';
-                } catch(e) { return false; }
-            });
-
-            if (recentGoodSessions.length >= 5) {
-                if (currentP === 'High') newPriority = 'Medium';
-                else if (currentP === 'Medium') newPriority = 'Stable';
-            }
-        }
-
-        // Final Priority Update
-        const finalPriority = newPriority || currentP;
+        // Note: Automatic intelligence is bypassed as per mentor's manual override requirement.
 
         await db.query(
             'UPDATE students SET priority_category = ?, last_session_type = ?, last_session_date = ? WHERE id = ?',
