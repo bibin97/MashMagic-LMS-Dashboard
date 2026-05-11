@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { User, Mail, Shield, Smartphone, Lock, AlertCircle, Activity, Camera, Loader2, CheckCircle2 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../services/api';
@@ -8,40 +8,25 @@ import toast from 'react-hot-toast';
 const ProfileConsole = () => {
 	const { user, updateUser } = useAuth();
 	const [uploading, setUploading] = useState(false);
-	const [showPasswordModal, setShowPasswordModal] = useState(false);
-	const [passwordData, setPasswordData] = useState({ current: '', new: '', confirm: '' });
-	const [updatingPassword, setUpdatingPassword] = useState(false);
 	const fileInputRef = useRef(null);
 	const location = useLocation();
+	const navigate = useNavigate();
 
-	useEffect(() => {
-		if (location.hash === '#security') {
-			setShowPasswordModal(true);
-			// Optional: Clear hash after opening to avoid re-opening on reload if not desired
-			// window.history.replaceState(null, '', window.location.pathname);
-		}
-	}, [location]);
-
-	const handlePasswordChange = async (e) => {
-		e.preventDefault();
-		if (passwordData.new !== passwordData.confirm) return toast.error("New passwords do not match");
-		if (passwordData.new.length < 6) return toast.error("Password must be at least 6 characters");
-		
-		try {
-			setUpdatingPassword(true);
-			const res = await api.put('/auth/change-password', {
-				currentPassword: passwordData.current,
-				newPassword: passwordData.new
-			});
-			if (res.data.success) {
-				toast.success("Security credentials updated!");
-				setShowPasswordModal(false);
-				setPasswordData({ current: '', new: '', confirm: '' });
-			}
-		} catch (error) {
-			toast.error(error.response?.data?.message || "Protocol update failed");
-		} finally {
-			setUpdatingPassword(false);
+	const handleSettingsClick = () => {
+		const rolePaths = {
+			'super_admin': '/admin/account-settings',
+			'admin': '/admin/account-settings',
+			'mentor_head': '/mentor-head/account-settings',
+			'academic_head': '/academic-head/account-settings',
+			'mentor': '/mentor/account-settings',
+			'faculty': '/faculty/account-settings',
+			'ssc': '/ssc/account-settings'
+		};
+		const path = rolePaths[user?.role];
+		if (path) {
+			navigate(path);
+		} else {
+			toast.error('Settings route not defined');
 		}
 	};
 
@@ -270,72 +255,14 @@ const ProfileConsole = () => {
 							<Lock size={12} /> Account Security
 						</h4>
 						<button 
-							onClick={() => setShowPasswordModal(true)}
+							onClick={handleSettingsClick}
 							className="w-full py-4 bg-white text-rose-600 border border-rose-200 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-rose-600 hover:text-white transition-all shadow-sm"
 						>
-							Modify Access Key
+							Manage Profile & Credentials
 						</button>
 					</div>
 				</div>
 			</div>
-
-			{/* Password Change Modal */}
-			{showPasswordModal && (
-				<div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-300">
-					<div className="bg-white w-full max-w-md rounded-[3rem] p-10 shadow-2xl border border-white/20 animate-in zoom-in-95 duration-300">
-						<div className="flex justify-between items-center mb-8">
-							<h3 className="text-2xl font-black text-slate-900 uppercase tracking-tighter">Security Update</h3>
-							<button onClick={() => setShowPasswordModal(false)} className="p-2 hover:bg-slate-100 rounded-xl transition-colors">
-								<Activity size={20} className="rotate-45" />
-							</button>
-						</div>
-
-						<form onSubmit={handlePasswordChange} className="space-y-5">
-							<div className="space-y-2">
-								<label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Current Access Key</label>
-								<input 
-									type="password" 
-									required
-									value={passwordData.current}
-									onChange={(e) => setPasswordData({...passwordData, current: e.target.value})}
-									className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold focus:ring-4 focus:ring-[#008080]/10 outline-none transition-all"
-									placeholder="••••••••"
-								/>
-							</div>
-							<div className="space-y-2">
-								<label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">New Access Key</label>
-								<input 
-									type="password" 
-									required
-									value={passwordData.new}
-									onChange={(e) => setPasswordData({...passwordData, new: e.target.value})}
-									className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold focus:ring-4 focus:ring-[#008080]/10 outline-none transition-all"
-									placeholder="••••••••"
-								/>
-							</div>
-							<div className="space-y-2">
-								<label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Confirm New Key</label>
-								<input 
-									type="password" 
-									required
-									value={passwordData.confirm}
-									onChange={(e) => setPasswordData({...passwordData, confirm: e.target.value})}
-									className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold focus:ring-4 focus:ring-[#008080]/10 outline-none transition-all"
-									placeholder="••••••••"
-								/>
-							</div>
-
-							<button 
-								type="submit" 
-								disabled={updatingPassword}
-								className="w-full py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-[#008080] transition-all shadow-xl shadow-slate-900/20 disabled:opacity-50 mt-4"
-							>
-								{updatingPassword ? 'Synchronizing Security Data...' : 'Confirm Protocol Update'}
-							</button>
-						</form>
-					</div>
-				</div>
-			)}
 		</div>
 	);
 };
