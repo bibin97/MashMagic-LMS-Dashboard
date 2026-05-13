@@ -271,7 +271,7 @@ const MentorsList = () => {
  e.stopPropagation();
  handleEdit(mentor);
  }}
- className="p-2.5 bg-white border border-slate-100 rounded-xl text-slate-600 hover:bg-slate-900 hover:text-white transition-all shadow-sm"
+ className="p-2.5 bg-white border border-slate-100 rounded-xl text-blue-600 hover:bg-blue-600 hover:text-white transition-all shadow-sm"
  title="Edit Mentor"
  >
  <Edit2 size={18} />
@@ -384,7 +384,7 @@ const MentorsList = () => {
              </button>
              <button 
                onClick={() => navigate(`/mentor-head/mentors/${selectedMentorForDetail.mentor_id}`)}
-               className="px-6 py-3 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-[#008080] transition-all"
+               className="px-10 py-4 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-[#008080] transition-all shadow-lg flex-1"
              >
                Full Dashboard
              </button>

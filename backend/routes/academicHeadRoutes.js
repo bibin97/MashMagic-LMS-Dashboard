@@ -33,7 +33,9 @@ const {
     deleteMentor,
     saveExamPlan,
     getLiveMonitoring,
-    getAvailableFaculties
+    getAvailableFaculties,
+    getStaff,
+    syncLegacyData
 } = require('../controllers/academicHeadController');
 const { requireAuth } = require('../middleware/authMiddleware');
 const { requireRole } = require('../middleware/roleMiddleware');
@@ -79,8 +81,10 @@ router.delete('/students/:id', deleteStudent);
 router.get('/students-all', getStudents);
 router.get('/students', getStudents);
 router.get('/mentors-all', getMentors);
+router.get('/staff', getStaff);
 router.get('/live-monitoring', getLiveMonitoring);
 router.put('/mentors/:id', editMentor);
 router.delete('/mentors/:id', deleteMentor);
+router.post('/sync-legacy-data', syncLegacyData);
 
 module.exports = router;

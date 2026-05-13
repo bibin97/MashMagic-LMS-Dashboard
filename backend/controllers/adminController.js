@@ -5,8 +5,8 @@ const db = require('../config/db');
 const getAdminDashboardSummary = async (req, res) => {
     try {
         const [[{count: students}]] = await db.query('SELECT COUNT(*) as count FROM students');
-        const [[{count: mentors}]] = await db.query('SELECT COUNT(*) as count FROM users WHERE role = "mentor"');
-        const [[{count: faculties}]] = await db.query('SELECT COUNT(*) as count FROM users WHERE role = "faculty"');
+        const [[{count: mentors}]] = await db.query('SELECT COUNT(*) as count FROM mentors');
+        const [[{count: faculties}]] = await db.query('SELECT COUNT(*) as count FROM faculties');
         const [[{count: pending}]] = await db.query('SELECT COUNT(*) as count FROM users WHERE (status = "pending" OR isApproved = 0) AND status != "rejected"');
 
         res.status(200).json({
@@ -135,7 +135,20 @@ const blockUser = async (req, res) => {
         }
 
         if (result.affectedRows === 0) {
-            return res.status(404).json({ success: false, message: "User/Student not found" });
+            // Final check: try mentors or faculties tables directly
+            const tables = ['mentors', 'faculties'];
+            for (const table of tables) {
+                const [[row]] = await db.query(`SELECT name FROM ${table} WHERE id = ?`, [id]);
+                if (row) {
+                    nameRow = row;
+                    [result] = await db.query(`UPDATE ${table} SET status = "inactive" WHERE id = ?`, [id]);
+                    break;
+                }
+            }
+        }
+
+        if (!nameRow || result.affectedRows === 0) {
+            return res.status(404).json({ success: false, message: "User/Staff not found" });
         }
 
         await db.query('INSERT INTO admin_notifications (message) VALUES (?)', [
@@ -284,8 +297,10 @@ const deleteUser = async (req, res) => {
                 } catch (e) {}
             }
 
-            // Final User Delete
+            // Final User Delete from central and specific tables
             await db.query('DELETE FROM users WHERE id = ?', [id]);
+            if (userRole === 'mentor') await db.query('DELETE FROM mentors WHERE id = ?', [id]);
+            if (userRole === 'faculty') await db.query('DELETE FROM faculties WHERE id = ?', [id]);
             
             try {
                 await db.query('INSERT INTO admin_notifications (message) VALUES (?)', [
@@ -696,6 +711,7 @@ const updateStudentForAdmin = async (req, res) => {
 
         const [[oldStudent]] = await db.query('SELECT name FROM students WHERE id = ?', [id]);
 
+        // Update ONLY in students table as requested
         const [result] = await db.query(
             'UPDATE students SET name = ?, email = ?, contact = ?, grade = ?, subject = ?, time_table = ?, next_installment_date = ?, status = ?, course_completed = ? WHERE id = ?',
             [name, email, phone_number, grade, subject, timetable, nextInstallment, status, req.body.course_completed || 0, id]
@@ -723,19 +739,31 @@ const updateUserForAdmin = async (req, res) => {
         const { id } = req.params;
         const { name, email, phone_number, status, role } = req.body;
 
-        const [[oldUser]] = await db.query('SELECT name FROM users WHERE id = ?', [id]);
+        let result;
+        const staffRoles = ['mentor', 'faculty'];
+        const headRoles = ['mentor_head', 'academic_head', 'ssc', 'super_admin', 'sub_admin'];
 
-        const [result] = await db.query(
-            'UPDATE users SET name = ?, email = ?, phone_number = ?, status = ?, role = ? WHERE id = ?',
-            [name, email, phone_number, status, role, id]
-        );
+        if (staffRoles.includes(role)) {
+            const targetTable = role === 'mentor' ? 'mentors' : 'faculties';
+            [result] = await db.query(
+                `UPDATE ${targetTable} SET name = ?, email = ?, phone_number = ?, status = ? WHERE id = ?`,
+                [name, email, phone_number, status, id]
+            );
+        } else if (headRoles.includes(role)) {
+            [result] = await db.query(
+                'UPDATE users SET name = ?, email = ?, phone_number = ?, status = ?, role = ? WHERE id = ?',
+                [name, email, phone_number, status, role, id]
+            );
+        } else {
+            return res.status(400).json({ success: false, message: "Invalid role for update" });
+        }
 
         if (result.affectedRows === 0) {
-            return res.status(404).json({ success: false, message: "User not found" });
+            return res.status(404).json({ success: false, message: "User/Staff not found in the target table" });
         }
 
         await db.query('INSERT INTO admin_notifications (message, action_type, related_id) VALUES (?, ?, ?)', [
-            `<b>Staff Updated:</b> ${role} <b>${oldUser?.name || id}</b> details were updated.`,
+            `<b>Staff Updated:</b> ${role} <b>${name || id}</b> details were updated.`,
             'staff_update',
             id
         ]);
@@ -1112,8 +1140,8 @@ module.exports = {
                 SELECT 
                     u.name as mentor_name,
                     (SELECT COUNT(*) FROM students s WHERE s.mentor_id = u.id AND s.status = 'active') as student_count
-                FROM users u
-                WHERE u.role = 'mentor' AND u.status = 'active'
+                FROM mentors u
+                WHERE u.status = 'active'
                 HAVING student_count > 0
                 ORDER BY student_count DESC
             `);
@@ -1225,10 +1253,10 @@ module.exports = {
                     s.registration_number,
                     m.name as mentor_name
                 FROM faculty_sessions fs
-                JOIN users u ON fs.faculty_id = u.id
+                JOIN faculties u ON fs.faculty_id = u.id
                 JOIN session_attendance sa ON fs.id = sa.session_id
                 JOIN students s ON sa.student_id = s.id
-                LEFT JOIN users m ON s.mentor_id = m.id
+                LEFT JOIN mentors m ON s.mentor_id = m.id
                 WHERE fs.date = CURDATE()
                 ORDER BY fs.start_time ASC
             `);

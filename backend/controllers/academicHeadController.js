@@ -54,8 +54,8 @@ const getDashboardStats = async (req, res) => {
 
         // 1. Basic Stats - Counting all except rejected to ensure new registrations show up immediately
         const studentsStats = await safeQuery('SELECT COUNT(*) as totalStudents FROM students WHERE status != "rejected"', [], 'totalStudents');
-        const facultiesStats = await safeQuery('SELECT COUNT(*) as totalFaculties FROM users WHERE role = "faculty" AND status != "rejected"', [], 'totalFaculties');
-        const mentorsStats = await safeQuery('SELECT COUNT(*) as totalMentors FROM users WHERE role = "mentor" AND status != "rejected"', [], 'totalMentors');
+        const facultiesStats = await safeQuery('SELECT COUNT(*) as totalFaculties FROM faculties WHERE status != "rejected"', [], 'totalFaculties');
+        const mentorsStats = await safeQuery('SELECT COUNT(*) as totalMentors FROM mentors WHERE status != "rejected"', [], 'totalMentors');
 
         const totalStudents = studentsStats[0]?.totalStudents || 0;
         const totalFaculties = facultiesStats[0]?.totalFaculties || 0;
@@ -69,7 +69,7 @@ const getDashboardStats = async (req, res) => {
                 u.name as faculty_name
             FROM mentor_timetable tt
             JOIN students s ON tt.student_id = s.id
-            LEFT JOIN users u ON s.faculty_id = u.id
+            LEFT JOIN faculties u ON s.faculty_id = u.id
             WHERE tt.date = ?
             ORDER BY tt.start_time ASC
         `, [today], 'schedule');
@@ -81,12 +81,12 @@ const getDashboardStats = async (req, res) => {
                 (SELECT CONVERT('Quick Log' USING utf8mb4) as type, CONVERT(sil.mentor_notes USING utf8mb4) as mentor_notes, CONVERT(s.name USING utf8mb4) as student_name, CONVERT(u.name USING utf8mb4) as origin_name, sil.created_at as date
                  FROM student_interaction_logs sil
                  JOIN students s ON sil.student_id = s.id
-                 JOIN users u ON sil.mentor_id = u.id)
+                 JOIN mentors u ON sil.mentor_id = u.id)
                 UNION ALL
                 (SELECT CONVERT('Session Log' USING utf8mb4) as type, CONVERT(CONCAT(msl.main_issue, ': ', msl.action_type) USING utf8mb4) as mentor_notes, CONVERT(s.name USING utf8mb4) as student_name, CONVERT(u.name USING utf8mb4) as origin_name, msl.created_at as date
                  FROM mentor_session_logs msl
                  JOIN students s ON msl.student_id = s.id
-                 JOIN users u ON msl.mentor_id = u.id)
+                 JOIN mentors u ON msl.mentor_id = u.id)
                 UNION ALL
                 (SELECT CONVERT('Hub Report' USING utf8mb4) as type, 
                          CONVERT(COALESCE(
@@ -100,28 +100,28 @@ const getDashboardStats = async (req, res) => {
                          CONVERT(s.name USING utf8mb4) as student_name, CONVERT(u.name USING utf8mb4) as origin_name, msr.created_at as date
                  FROM mentor_session_reports msr
                  JOIN students s ON msr.student_id = s.id
-                 JOIN users u ON msr.mentor_id = u.id
+                 JOIN mentors u ON msr.mentor_id = u.id
                  WHERE msr.report_data IS NOT NULL AND JSON_VALID(msr.report_data))
                 UNION ALL
                 (SELECT CONVERT('Mentorship' USING utf8mb4) as type, CONVERT(ml.action_details USING utf8mb4) as mentor_notes, CONVERT(s.name USING utf8mb4) as student_name, CONVERT(u.name USING utf8mb4) as origin_name, ml.created_at as date
                  FROM mentorship_logs ml
                  JOIN students s ON ml.student_id = s.id
-                 JOIN users u ON ml.mentor_id = u.id)
+                 JOIN mentors u ON ml.mentor_id = u.id)
                 UNION ALL
                 (SELECT CONVERT('Faculty Interaction' USING utf8mb4) as type, CONVERT(fil.notes USING utf8mb4) as mentor_notes, CONVERT(s.name USING utf8mb4) as student_name, CONVERT(u.name USING utf8mb4) as origin_name, fil.created_at as date
                  FROM faculty_interaction_logs fil
                  JOIN students s ON fil.student_id = s.id
-                 JOIN users u ON fil.mentor_id = u.id)
+                 JOIN mentors u ON fil.mentor_id = u.id)
                 UNION ALL
                 (SELECT CONVERT('Staff Call' USING utf8mb4) as type, CONVERT(mfi.main_issue USING utf8mb4) as mentor_notes, CONVERT(s.name USING utf8mb4) as student_name, CONVERT(u.name USING utf8mb4) as origin_name, mfi.created_at as date
                  FROM mentor_faculty_interactions mfi
                  JOIN students s ON mfi.student_id = s.id
-                 JOIN users u ON mfi.mentor_id = u.id)
+                 JOIN mentors u ON mfi.mentor_id = u.id)
                 UNION ALL
                 (SELECT CONVERT('Intelligence' USING utf8mb4) as type, CONVERT(COALESCE(r.remarks, r.report_text, 'No details') USING utf8mb4) as mentor_notes, CONVERT(s.name USING utf8mb4) as student_name, CONVERT(u.name USING utf8mb4) as origin_name, r.created_at as date
                  FROM student_reports r 
                  JOIN students s ON r.student_id = s.id 
-                 JOIN users u ON r.faculty_id = u.id)
+                 JOIN faculties u ON r.faculty_id = u.id)
             ) as combined_logs
             ORDER BY date DESC
             LIMIT 20
@@ -157,7 +157,7 @@ const getAllFacultyActivity = async (req, res) => {
         const [sessions] = await db.query(`
             SELECT s.*, u.name as faculty_name 
             FROM faculty_sessions s
-            JOIN users u ON s.faculty_id = u.id
+            JOIN faculties u ON s.faculty_id = u.id
             ORDER BY s.date DESC
         `);
 
@@ -166,7 +166,7 @@ const getAllFacultyActivity = async (req, res) => {
             SELECT r.*, s.name as student_name, u.name as faculty_name
             FROM student_reports r
             JOIN students s ON r.student_id = s.id
-            JOIN users u ON r.faculty_id = u.id
+            JOIN faculties u ON r.faculty_id = u.id
             ORDER BY r.created_at DESC
         `);
 
@@ -183,10 +183,46 @@ const getAllFacultyActivity = async (req, res) => {
     }
 };
 
+// Helper function for automatic legacy data synchronization
+const performAutoSync = async () => {
+    try {
+        // Sync Mentors
+        const [mentorsToSync] = await db.query('SELECT * FROM users WHERE role = "mentor"');
+        console.log(`[AUTO-SYNC] Found ${mentorsToSync.length} mentors in users table`);
+        for (const m of mentorsToSync) {
+            await db.query(`
+                INSERT INTO mentors (id, name, email, phone_number, place, status, createdAt)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+                ON DUPLICATE KEY UPDATE status = VALUES(status)
+            `, [m.id, m.name, m.email, m.phone_number, m.place, m.status, m.created_at || new Date()]);
+        }
+
+        // Sync Faculties
+        const [facultiesToSync] = await db.query('SELECT * FROM users WHERE role = "faculty"');
+        console.log(`[AUTO-SYNC] Found ${facultiesToSync.length} faculties in users table`);
+        for (const f of facultiesToSync) {
+            const subject = f.subject || f.primary_subject || null;
+            await db.query(`
+                INSERT INTO faculties (id, name, email, phone_number, place, status, subject, createdAt)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                ON DUPLICATE KEY UPDATE 
+                    subject = VALUES(subject),
+                    status = VALUES(status)
+            `, [f.id, f.name, f.email, f.phone_number, f.place, f.status, subject, f.created_at || new Date()]);
+        }
+        console.log(`[AUTO-SYNC] Completed successfully`);
+    } catch (error) {
+        console.error("AUTO_SYNC_ERROR:", error.message);
+    }
+};
+
 // @desc    Get available faculties for a specific day and time slot
 // @route   GET /api/academic-head/available-faculties
 const getAvailableFaculties = async (req, res) => {
     try {
+        // Trigger auto-sync to ensure data is fresh
+        await performAutoSync();
+
         const { subject, days, day, startTime, endTime, dayConfigs: dayConfigsRaw } = req.query;
         
         let dayConfigs = [];
@@ -222,45 +258,37 @@ const getAvailableFaculties = async (req, res) => {
             return `${hours.toString().padStart(2, '0')}:${minutes}:00`;
         };
 
-        let query = `
-            SELECT u.id, u.name, u.subject 
-            FROM users u
-            WHERE u.role = 'faculty' AND u.status = 'active'
-        `;
-        let params = [];
-
-        if (subject && subject !== 'All Subjects') {
-            const subjectList = subject.split(',');
-            if (subjectList.length > 0) {
-                const subjectConditions = subjectList.map(() => `FIND_IN_SET(?, u.subject) > 0`).join(' OR ');
-                query += ` AND (${subjectConditions}) `;
-                params.push(...subjectList);
-            }
-        }
-
-        // Exclude faculties who have a schedule conflict in ANY of the requested slots
-        // We use STR_TO_DATE for robust comparison if times are stored as strings in 12h
         const conflictConditions = dayConfigs.map(() => 
             `(fs.day_of_week = ? AND 
                STR_TO_DATE(fs.start_time, '%h:%i %p') < STR_TO_DATE(?, '%h:%i %p') AND 
                STR_TO_DATE(fs.end_time, '%h:%i %p') > STR_TO_DATE(?, '%h:%i %p'))`
         ).join(' OR ');
 
-        query += `
-            AND NOT EXISTS (
-                SELECT 1 FROM faculty_schedules fs
-                WHERE fs.faculty_id = u.id
-                AND (${conflictConditions})
-            )
-        `;
-        
+        let params = [];
         dayConfigs.forEach(c => {
             params.push(c.day, c.endTime, c.startTime);
         });
 
-        const [availableFaculties] = await db.query(query, params);
+        let query = `
+            SELECT u.id, u.name, u.subject,
+            EXISTS (
+                SELECT 1 FROM faculty_schedules fs
+                WHERE fs.faculty_id = u.id
+                AND (${conflictConditions})
+            ) as hasConflict
+            FROM faculties u
+            WHERE u.status = 'active'
+        `;
+        
+        const [faculties] = await db.query(query, params);
 
-        res.status(200).json({ success: true, data: availableFaculties });
+        // Map to include a clearer availability flag
+        const results = faculties.map(f => ({
+            ...f,
+            isAvailable: !f.hasConflict
+        }));
+
+        res.status(200).json({ success: true, data: results });
     } catch (error) {
         console.error('Error in getAvailableFaculties:', error);
         res.status(500).json({ success: false, message: "Server Error" });
@@ -271,9 +299,15 @@ const getAvailableFaculties = async (req, res) => {
 // @route   GET /api/academic-head/dropdowns
 const getDropdownData = async (req, res) => {
     try {
-        const [mentors] = await db.query('SELECT id, name FROM users WHERE role = "mentor" AND status = "active"');
+        // Trigger auto-sync to ensure dropdowns are populated
+        await performAutoSync();
+        
+        const [mentors] = await db.query('SELECT id, name FROM mentors WHERE status = "active"');
         const [mentorHeads] = await db.query('SELECT id, name FROM users WHERE role = "mentor_head" AND status = "active"');
-        const [faculties] = await db.query('SELECT id, name, subject FROM users WHERE role = "faculty" AND status = "active"');
+        const [faculties] = await db.query('SELECT id, name, subject FROM faculties WHERE status = "active"');
+        
+        console.log(`[DEBUG] Dropdowns - Mentors: ${mentors.length}, Faculties: ${faculties.length}, MentorHeads: ${mentorHeads.length}`);
+        
         res.status(200).json({
             success: true,
             data: {
@@ -315,47 +349,53 @@ const registerStudent = async (req, res) => {
         const regNumCheck = (registrationNumber && registrationNumber.trim() !== '') ? registrationNumber.trim() : null;
 
         if (emailCheck || contactCheck || regNumCheck) {
-            let userCheckQuery = 'SELECT id, email, phone_number, role FROM users WHERE 1=0';
-            let studentCheckQuery = 'SELECT id, email, contact, registration_number FROM students WHERE 1=0';
-            let checkParams = [];
-            let studentParams = [];
-
+            // Check users, mentors, faculties, students
+            const tables = ['users', 'mentors', 'faculties', 'students'];
+            let conditions = [];
+            let params = [];
+            
             if (emailCheck) {
-                userCheckQuery += ' OR email = ?';
-                studentCheckQuery += ' OR email = ?';
-                checkParams.push(emailCheck);
-                studentParams.push(emailCheck);
+                conditions.push('email = ?');
+                params.push(emailCheck);
             }
             if (contactCheck) {
-                userCheckQuery += ' OR phone_number = ?';
-                studentCheckQuery += ' OR contact = ?';
-                checkParams.push(contactCheck);
-                studentParams.push(contactCheck);
+                conditions.push('phone_number = ?');
+                params.push(contactCheck);
             }
-            if (regNumCheck) {
-                studentCheckQuery += ' OR registration_number = ?';
-                studentParams.push(regNumCheck);
-            }
-
-            const [existingUsers] = await connection.query(userCheckQuery, checkParams);
-            const [existingStudents] = await connection.query(studentCheckQuery, studentParams);
-
-            if (existingUsers.length > 0 || existingStudents.length > 0) {
-                let duplicateField = '';
-                if (regNumCheck && existingStudents.some(s => s.registration_number === regNumCheck)) {
-                    duplicateField = 'Student ID (Registration Number)';
-                } else if (emailCheck && (existingUsers.some(u => u.email === emailCheck) || existingStudents.some(s => s.email === emailCheck))) {
-                    duplicateField = 'Email';
-                } else if (contactCheck && (existingUsers.some(u => u.phone_number === contactCheck) || existingStudents.some(s => s.contact === contactCheck))) {
-                    duplicateField = 'Contact Number';
+            // Contact field in students is 'contact', in others is 'phone_number'
+            // We'll handle this by checking students separately or using a more dynamic approach
+            
+            for (const table of tables) {
+                let checkQuery = '';
+                let checkParams = [];
+                let whereParts = [];
+                
+                if (emailCheck) {
+                    whereParts.push('email = ?');
+                    checkParams.push(emailCheck);
                 }
-
-                if (duplicateField) {
-                    connection.release();
-                    return res.status(400).json({ 
-                        success: false, 
-                        message: `Registration Failed: A student is already registered with this ${duplicateField}.` 
-                    });
+                
+                if (contactCheck) {
+                    const phoneCol = table === 'students' ? 'contact' : 'phone_number';
+                    whereParts.push(`${phoneCol} = ?`);
+                    checkParams.push(contactCheck);
+                }
+                
+                if (table === 'students' && regNumCheck) {
+                    whereParts.push('registration_number = ?');
+                    checkParams.push(regNumCheck);
+                }
+                
+                if (whereParts.length > 0) {
+                    checkQuery = `SELECT id FROM ${table} WHERE ${whereParts.join(' OR ')}`;
+                    const [existing] = await connection.query(checkQuery, checkParams);
+                    if (existing.length > 0) {
+                        connection.release();
+                        return res.status(400).json({ 
+                            success: false, 
+                            message: `Registration Failed: A record already exists in ${table} with these details.` 
+                        });
+                    }
                 }
             }
         }
@@ -377,7 +417,7 @@ const registerStudent = async (req, res) => {
         let primarySubject = null;
 
         if (mentorId) {
-            const [mRows] = await connection.query('SELECT name FROM users WHERE id = ?', [mentorId]);
+            const [mRows] = await connection.query('SELECT name FROM mentors WHERE id = ?', [mentorId]);
             if (mRows.length) mentorName = mRows[0].name;
         }
 
@@ -528,19 +568,18 @@ const registerFaculty = async (req, res) => {
         const phoneCheck = phone_number?.trim() || null;
 
         if (emailCheck || phoneCheck) {
-            let checkQuery = 'SELECT id FROM users WHERE 1=0';
-            let checkParams = [];
-            if (emailCheck) {
-                checkQuery += ' OR email = ?';
-                checkParams.push(emailCheck);
-            }
-            if (phoneCheck) {
-                checkQuery += ' OR phone_number = ?';
-                checkParams.push(phoneCheck);
-            }
-            const [existing] = await db.query(checkQuery, checkParams);
-            if (existing.length > 0) {
-                return res.status(400).json({ success: false, message: "Faculty already registered with this Email or Phone number." });
+            const tables = ['users', 'mentors', 'faculties', 'students'];
+            for (const table of tables) {
+                const phoneCol = table === 'students' ? 'contact' : 'phone_number';
+                let conditions = [];
+                let params = [];
+                if (emailCheck) { conditions.push('email = ?'); params.push(emailCheck); }
+                if (phoneCheck) { conditions.push(`${phoneCol} = ?`); params.push(phoneCheck); }
+                
+                const [existing] = await db.query(`SELECT id FROM ${table} WHERE ${conditions.join(' OR ')}`, params);
+                if (existing.length > 0) {
+                    return res.status(400).json({ success: false, message: `Record already exists in ${table} with this Email or Phone number.` });
+                }
             }
         }
 
@@ -606,19 +645,18 @@ const registerSSC = async (req, res) => {
         const phoneCheck = phone_number?.trim() || null;
 
         if (emailCheck || phoneCheck) {
-            let checkQuery = 'SELECT id FROM users WHERE 1=0';
-            let checkParams = [];
-            if (emailCheck) {
-                checkQuery += ' OR email = ?';
-                checkParams.push(emailCheck);
-            }
-            if (phoneCheck) {
-                checkQuery += ' OR phone_number = ?';
-                checkParams.push(phoneCheck);
-            }
-            const [existing] = await db.query(checkQuery, checkParams);
-            if (existing.length > 0) {
-                return res.status(400).json({ success: false, message: "SSC already registered with this Email or Phone number." });
+            const tables = ['users', 'mentors', 'faculties', 'students'];
+            for (const table of tables) {
+                const phoneCol = table === 'students' ? 'contact' : 'phone_number';
+                let conditions = [];
+                let params = [];
+                if (emailCheck) { conditions.push('email = ?'); params.push(emailCheck); }
+                if (phoneCheck) { conditions.push(`${phoneCol} = ?`); params.push(phoneCheck); }
+                
+                const [existing] = await db.query(`SELECT id FROM ${table} WHERE ${conditions.join(' OR ')}`, params);
+                if (existing.length > 0) {
+                    return res.status(400).json({ success: false, message: `Record already exists in ${table} with this Email or Phone number.` });
+                }
             }
         }
 
@@ -694,7 +732,7 @@ const getStudentInteractionLogs = async (req, res) => {
                     CAST(sil.exam_anxiety AS CHAR) as stress_level,
                     0 as is_flagged, NULL as flag_reason
                 FROM student_interaction_logs sil
-                LEFT JOIN users m ON sil.mentor_id = m.id
+                LEFT JOIN mentors m ON sil.mentor_id = m.id
                 LEFT JOIN students s ON sil.student_id = s.id
                 ${baseWhere('sil')}
 
@@ -711,7 +749,7 @@ const getStudentInteractionLogs = async (req, res) => {
                     CAST(msl.stress_level AS CHAR) as stress_level,
                     0 as is_flagged, NULL as flag_reason
                 FROM mentor_session_logs msl
-                LEFT JOIN users m ON msl.mentor_id = m.id
+                LEFT JOIN mentors m ON msl.mentor_id = m.id
                 LEFT JOIN students s ON msl.student_id = s.id
                 ${baseWhere('msl')}
 
@@ -728,7 +766,7 @@ const getStudentInteractionLogs = async (req, res) => {
                     NULL as stress_level,
                     msr.is_flagged, msr.flag_reason
                 FROM mentor_session_reports msr
-                LEFT JOIN users m ON msr.mentor_id = m.id
+                LEFT JOIN mentors m ON msr.mentor_id = m.id
                 LEFT JOIN students s ON msr.student_id = s.id
                 ${baseWhere('msr')}
 
@@ -743,7 +781,7 @@ const getStudentInteractionLogs = async (req, res) => {
                     NULL as understanding_level, NULL as student_confidence, NULL as stress_level,
                     0 as is_flagged, NULL as flag_reason
                 FROM mentorship_logs ml
-                LEFT JOIN users m ON ml.mentor_id = m.id
+                LEFT JOIN mentors m ON ml.mentor_id = m.id
                 LEFT JOIN students s ON ml.student_id = s.id
                 ${baseWhere('ml')}
             ) as unified_logs
@@ -795,9 +833,9 @@ const getFacultyInteractionLogs = async (req, res) => {
                     mfi.is_flagged, mfi.flag_reason,
                     f.name as faculty_name, mfi.faculty_id
                 FROM mentor_faculty_interactions mfi
-                LEFT JOIN users m ON mfi.mentor_id = m.id
+                LEFT JOIN mentors m ON mfi.mentor_id = m.id
                 LEFT JOIN students s ON mfi.student_id = s.id
-                LEFT JOIN users f ON mfi.faculty_id = f.id
+                LEFT JOIN faculties f ON mfi.faculty_id = f.id
                 ${baseWhere('mfi')}
 
                 UNION ALL
@@ -810,9 +848,9 @@ const getFacultyInteractionLogs = async (req, res) => {
                     0 as is_flagged, NULL as flag_reason,
                     f.name as faculty_name, fil.faculty_id
                 FROM faculty_interaction_logs fil
-                LEFT JOIN users m ON fil.mentor_id = m.id
+                LEFT JOIN mentors m ON fil.mentor_id = m.id
                 LEFT JOIN students s ON fil.student_id = s.id
-                LEFT JOIN users f ON fil.faculty_id = f.id
+                LEFT JOIN faculties f ON fil.faculty_id = f.id
                 ${baseWhere('fil')}
 
                 UNION ALL
@@ -826,7 +864,7 @@ const getFacultyInteractionLogs = async (req, res) => {
                     f.name as faculty_name, sr.faculty_id
                 FROM student_reports sr
                 LEFT JOIN students s ON sr.student_id = s.id
-                LEFT JOIN users f ON sr.faculty_id = f.id
+                LEFT JOIN faculties f ON sr.faculty_id = f.id
                 ${baseWhere('sr', 'student_id', 'faculty_id', 'created_at', 'faculty_id', true, false, true)}
 
                 UNION ALL
@@ -840,7 +878,7 @@ const getFacultyInteractionLogs = async (req, res) => {
                     f.name as faculty_name, fs.faculty_id
                 FROM faculty_sessions fs
                 JOIN session_attendance sa ON fs.id = sa.session_id
-                LEFT JOIN users f ON fs.faculty_id = f.id
+                LEFT JOIN faculties f ON fs.faculty_id = f.id
                 ${baseWhere('fs', 'student_id', 'faculty_id', 'created_at', 'faculty_id', false, false, true)}
             ) as unified_faculty_logs
             ORDER BY created_at DESC
@@ -916,7 +954,7 @@ const getAcademicActions = async (req, res) => {
         const mentorIds = [...new Set(pendingMilestones.map(m => m.mentor_id))].filter(Boolean);
         let mentors = {};
         if (mentorIds.length > 0) {
-            const [mentorRows] = await db.query('SELECT id, name FROM users WHERE id IN (?)', [mentorIds]);
+            const [mentorRows] = await db.query('SELECT id, name FROM mentors WHERE id IN (?)', [mentorIds]);
             mentorRows.forEach(m => mentors[m.id] = m.name);
         }
 
@@ -1027,8 +1065,7 @@ const getFacultyDirectory = async (req, res) => {
                 id, name, email, phone_number, status, place, createdAt as created_at,
                 faculty_id_card, section, syllabus, languages_proficiency, qualification, 
                 experience, availability, hourly_rate, teaching_mode, joining_date, remarks, subject
-            FROM users 
-            WHERE role = "faculty" 
+            FROM faculties 
         `;
 
         if (sortBy === 'newest') {
@@ -1177,7 +1214,7 @@ const getLiveClassEvaluations = async (req, res) => {
         const [evals] = await db.query(`
             SELECT e.*, uf.name as faculty_name 
             FROM live_class_feedbacks e
-            JOIN users uf ON e.faculty_id = uf.id
+            JOIN faculties uf ON e.faculty_id = uf.id
             ORDER BY e.created_at DESC
         `);
         res.status(200).json({ success: true, data: evals });
@@ -1227,7 +1264,7 @@ const getPendingFacultyLogs = async (req, res) => {
         const [logs] = await db.query(`
             SELECT f.*, u.name as faculty_name, s.name as student_name
             FROM faculty_interaction_logs f
-            LEFT JOIN users u ON f.faculty_id = u.id
+            LEFT JOIN faculties u ON f.faculty_id = u.id
             LEFT JOIN students s ON f.student_id = s.id
             ORDER BY f.created_at DESC
         `);
@@ -1321,7 +1358,7 @@ module.exports = {
                 teaching_mode, joining_date, remarks, primary_subject, secondary_subjects
             } = req.body;
 
-            const [[user]] = await db.query('SELECT name FROM users WHERE id = ?', [id]);
+            const [[user]] = await db.query('SELECT name FROM faculties WHERE id = ?', [id]);
             if (!user) return res.status(404).json({ success: false, message: "Faculty not found" });
 
             // Logic to merge subjects into a single comma-separated string for DB
@@ -1332,7 +1369,7 @@ module.exports = {
             const languagesJson = languages_proficiency ? JSON.stringify(languages_proficiency) : null;
 
             await db.query(`
-                UPDATE users SET 
+                UPDATE faculties SET 
                     name = ?, email = ?, phone_number = ?, place = ?,
                     faculty_id_card = ?, section = ?, syllabus = ?, languages_proficiency = ?,
                     qualification = ?, experience = ?, availability = ?, hourly_rate = ?,
@@ -1356,8 +1393,8 @@ module.exports = {
     deleteFaculty: async (req, res) => {
         try {
             const { id } = req.params;
-            const [[user]] = await db.query('SELECT name FROM users WHERE id = ?', [id]);
-            await db.query('DELETE FROM users WHERE id = ?', [id]);
+            const [[user]] = await db.query('SELECT name FROM faculties WHERE id = ?', [id]);
+            await db.query('DELETE FROM faculties WHERE id = ?', [id]);
             await db.query('INSERT INTO admin_notifications (message) VALUES (?)', [`Academic Head (${req.user.name}) deleted faculty: ${user.name}`]);
             res.status(200).json({ success: true, message: 'Faculty deleted' });
         } catch (error) { res.status(500).json({ success: false, message: error.message }); }
@@ -1479,8 +1516,8 @@ module.exports = {
             const [[student]] = await db.query(`
                 SELECT s.*, u_m.name as mentor_name, u_f.name as faculty_name
                 FROM students s
-                LEFT JOIN users u_m ON s.mentor_id = u_m.id
-                LEFT JOIN users u_f ON s.faculty_id = u_f.id
+                LEFT JOIN mentors u_m ON s.mentor_id = u_m.id
+                LEFT JOIN faculties u_f ON s.faculty_id = u_f.id
                 WHERE s.id = ?
             `, [id]);
 
@@ -1501,8 +1538,8 @@ module.exports = {
                 SELECT s.*, u_m.name as mentor_name, u_f.name as faculty_name,
                 (SELECT AVG(CAST(score AS DECIMAL(10,2))) FROM student_exams WHERE student_id = s.id AND status = 'Completed') as avg_score
                 FROM students s
-                LEFT JOIN users u_m ON s.mentor_id = u_m.id
-                LEFT JOIN users u_f ON s.faculty_id = u_f.id
+                LEFT JOIN mentors u_m ON s.mentor_id = u_m.id
+                LEFT JOIN faculties u_f ON s.faculty_id = u_f.id
                 WHERE 1=1
             `;
             const params = [];
@@ -1566,8 +1603,7 @@ module.exports = {
             const [rows] = await db.query(`
                 SELECT u.id, u.name, u.email, u.phone_number, u.place, u.status, u.createdAt,
                 (SELECT COUNT(*) FROM students WHERE mentor_id = u.id) as studentCount
-                FROM users u
-                WHERE u.role = 'mentor'
+                FROM mentors u
                 ORDER BY u.name ASC
             `);
             res.status(200).json({ success: true, data: rows });
@@ -1577,8 +1613,8 @@ module.exports = {
         try {
             const { id } = req.params;
             const { name, email, phone_number, place } = req.body;
-            const [[user]] = await db.query('SELECT name FROM users WHERE id = ?', [id]);
-            await db.query('UPDATE users SET name = ?, email = ?, phone_number = ?, place = ? WHERE id = ?', [name, email, phone_number, place, id]);
+            const [[user]] = await db.query('SELECT name FROM mentors WHERE id = ?', [id]);
+            await db.query('UPDATE mentors SET name = ?, email = ?, phone_number = ?, place = ? WHERE id = ?', [name, email, phone_number, place, id]);
             await db.query('INSERT INTO admin_notifications (message) VALUES (?)', [`Academic Head (${req.user.name}) edited mentor: ${user.name}`]);
             res.status(200).json({ success: true, message: 'Mentor profile updated' });
         } catch (error) { res.status(500).json({ success: false, message: error.message }); }
@@ -1586,8 +1622,8 @@ module.exports = {
     deleteMentor: async (req, res) => {
         try {
             const { id } = req.params;
-            const [[user]] = await db.query('SELECT name FROM users WHERE id = ?', [id]);
-            await db.query('DELETE FROM users WHERE id = ?', [id]);
+            const [[user]] = await db.query('SELECT name FROM mentors WHERE id = ?', [id]);
+            await db.query('DELETE FROM mentors WHERE id = ?', [id]);
             await db.query('INSERT INTO admin_notifications (message) VALUES (?)', [`Academic Head (${req.user.name}) deleted mentor: ${user.name}`]);
             res.status(200).json({ success: true, message: 'Mentor profile purged' });
         } catch (error) { res.status(500).json({ success: false, message: error.message }); }
@@ -1603,10 +1639,10 @@ module.exports = {
                     s.registration_number,
                     m.name as mentor_name
                 FROM faculty_sessions fs
-                JOIN users u ON fs.faculty_id = u.id
+                JOIN faculties u ON fs.faculty_id = u.id
                 JOIN session_attendance sa ON fs.id = sa.session_id
                 JOIN students s ON sa.student_id = s.id
-                LEFT JOIN users m ON s.mentor_id = m.id
+                LEFT JOIN mentors m ON s.mentor_id = m.id
                 WHERE fs.date = CURDATE()
                 ORDER BY fs.start_time ASC
             `);
@@ -1616,7 +1652,60 @@ module.exports = {
             res.status(500).json({ success: false, message: error.message });
         }
     },
-    getAvailableFaculties
+    getLiveMonitoring,
+    getAvailableFaculties,
+    getStaff: async (req, res) => {
+        try {
+            const [users] = await db.query('SELECT id, name, email, phone_number as phone, role, status FROM users WHERE role NOT IN ("student")');
+            const [mentors] = await db.query('SELECT id, name, email, phone_number as phone, "mentor" as role, status FROM mentors');
+            const [faculties] = await db.query('SELECT id, name, email, phone_number as phone, "faculty" as role, status FROM faculties');
+            
+            const staff = [...users, ...mentors, ...faculties];
+            res.status(200).json({ success: true, data: staff });
+        } catch (error) {
+            console.error('getStaff error:', error);
+            res.status(500).json({ success: false, message: error.message });
+        }
+    },
+    syncLegacyData: async (req, res) => {
+        try {
+            // 1. Sync Mentors
+            const [mentorsToSync] = await db.query('SELECT * FROM users WHERE role = "mentor"');
+            let mentorCount = 0;
+            for (const m of mentorsToSync) {
+                const [result] = await db.query(`
+                    INSERT IGNORE INTO mentors (id, name, email, phone_number, place, status, createdAt)
+                    VALUES (?, ?, ?, ?, ?, ?, ?)
+                `, [m.id, m.name, m.email, m.phone_number, m.place, m.status, m.created_at || new Date()]);
+                if (result.affectedRows > 0) mentorCount++;
+            }
+
+            // 2. Sync Faculties
+            const [facultiesToSync] = await db.query('SELECT * FROM users WHERE role = "faculty"');
+            let facultyCount = 0;
+            for (const f of facultiesToSync) {
+                // Ensure subject is synced (Legacy users might have 'primary_subject' or 'subject' column)
+                const subject = f.subject || f.primary_subject || null;
+                const [result] = await db.query(`
+                    INSERT INTO faculties (id, name, email, phone_number, place, status, subject, createdAt)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                    ON DUPLICATE KEY UPDATE 
+                        subject = VALUES(subject),
+                        status = VALUES(status)
+                `, [f.id, f.name, f.email, f.phone_number, f.place, f.status, subject, f.created_at || new Date()]);
+                if (result.affectedRows > 0) facultyCount++;
+            }
+
+            res.status(200).json({ 
+                success: true, 
+                message: "Legacy data synced successfully",
+                synced: { mentors: mentorCount, faculties: facultyCount }
+            });
+        } catch (error) {
+            console.error("SYNC_ERROR:", error);
+            res.status(500).json({ success: false, message: error.message });
+        }
+    }
 };
 
 

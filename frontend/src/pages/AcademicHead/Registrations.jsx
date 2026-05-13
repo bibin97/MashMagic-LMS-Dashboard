@@ -813,10 +813,16 @@ const Registrations = () => {
                             className="w-full p-4 bg-[#008080]/5 border border-[#008080]/20 rounded-2xl text-xs font-bold outline-none focus:ring-4 ring-[#008080]/10 appearance-none"
                           >
                             <option value="" disabled>
-                              {(row.dayConfigs?.length === 0) ? 'Select Days First' : row.availableFaculties?.length === 0 ? 'No Matching Faculty' : 'Select Free Faculty'}
+                              {(row.dayConfigs?.length === 0) ? 'Select Days First' : 'Select Faculty'}
                             </option>
                             {row.availableFaculties?.map(f => (
-                              <option key={f.id} value={f.id}>{f.name}</option>
+                              <option 
+                                key={f.id} 
+                                value={f.id} 
+                                style={{ color: f.isAvailable ? 'inherit' : '#ef4444' }}
+                              >
+                                {f.name} {!f.isAvailable ? ' (NOT AVAILABLE)' : ''} {f.subject ? ` - [${f.subject}]` : ''}
+                              </option>
                             ))}
                           </select>
                         </div>

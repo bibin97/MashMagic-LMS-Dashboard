@@ -5,7 +5,7 @@ import Modal from '../../components/Modal';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
 import { premiumConfirm } from '../../utils/premiumConfirm';
-import { Eye, Edit2, Ban, Trash2, Filter, Download, Search, UserPlus } from 'lucide-react';
+import { Eye, Edit2, Ban, Trash2, Filter, Download, Search, UserPlus, CheckCircle, Clock } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { sortStudentsByOption } from '../../components/StudentListFilterDropdown';
 

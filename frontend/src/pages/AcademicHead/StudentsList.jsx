@@ -208,7 +208,7 @@ const StudentsList = ({ role = 'academic_head' }) => {
 											>
 												<Eye size={16} />
 											</button>
-											{(role === 'academic_head' || role === 'mentor_head') && (
+											{role === 'academic_head' && (
 												<>
 													<button
 														onClick={() => handleEdit(student)}

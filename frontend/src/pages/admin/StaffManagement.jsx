@@ -16,6 +16,7 @@ const StaffManagement = () => {
  const [sortBy, setSortBy] = useState('newest');
  const [selectedMember, setSelectedMember] = useState(null);
  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+ const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
  const [editFormData, setEditFormData] = useState({
  name: '',
  email: '',
@@ -31,7 +32,8 @@ const StaffManagement = () => {
  const fetchStaff = async () => {
  try {
  setLoading(true);
- const response = await api.get('/admin/staff');
+  const apiPath = user?.role === 'academic_head' ? '/academic-head/staff' : '/admin/staff';
+  const response = await api.get(apiPath);
  setStaff(response.data.data);
  setFilteredStaff(response.data.data);
  setLoading(false);
@@ -77,6 +79,12 @@ const StaffManagement = () => {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  };
+
+  const handleView = (member) => {
+    setSelectedMember(member);
+    setIsDetailModalOpen(true);
+    toast.success(`Accessing profile for ${member.name}`);
   };
 
  const handleEdit = (member) => {
@@ -166,17 +174,74 @@ const StaffManagement = () => {
  </div>
 
  <DataTable
- columns={columns}
- data={sortedStaff}
- loading={loading}
- onSearch={handleSearch}
- onExport={handleExport}
- onView={handleView}
- onViewFilter={(row) => !['mentor', 'faculty'].includes(row.role)}
- onDelete={isSuperAdmin ? handleDelete : undefined}
- onEdit={isSuperAdmin ? handleEdit : undefined}
- searchPlaceholder="Search by name, email or role..."
- />
+  columns={columns}
+  data={sortedStaff}
+  loading={loading}
+  onSearch={handleSearch}
+  onExport={handleExport}
+  onView={handleView}
+  onViewFilter={(row) => ['sub_admin', 'mentor_head', 'academic_head', 'ssc', 'super_admin'].includes(row.role)}
+  onDelete={isSuperAdmin ? handleDelete : undefined}
+  onEdit={isSuperAdmin ? handleEdit : undefined}
+  searchPlaceholder="Search by name, email or role..."
+  />
+
+  {/* Staff Detail Modal */}
+  <Modal
+    isOpen={isDetailModalOpen}
+    onClose={() => setIsDetailModalOpen(false)}
+    title="Staff Member Profile"
+    size="md"
+  >
+    {selectedMember && (
+      <div className="flex flex-col gap-8">
+        <div className="flex items-center gap-6 p-6 bg-slate-50 rounded-3xl border border-slate-100">
+          <div className="w-20 h-20 bg-[#008080] text-white rounded-[24px] flex items-center justify-center text-3xl font-black shadow-lg">
+            {selectedMember.name.charAt(0)}
+          </div>
+          <div className="flex flex-col">
+            <h3 className="text-2xl font-black text-slate-900 leading-tight uppercase">{selectedMember.name}</h3>
+            <div className="flex items-center gap-2 mt-1">
+              <span className="px-3 py-1 bg-[#008080]/10 text-[#008080] rounded-lg text-[10px] font-black uppercase tracking-widest border border-[#008080]/20">
+                {selectedMember.role.replace('_', ' ')}
+              </span>
+              <span className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border ${selectedMember.status === 'active' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-rose-50 text-rose-600 border-rose-100'}`}>
+                {selectedMember.status}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 gap-4">
+          <div className="p-5 bg-white border border-slate-100 rounded-2xl flex items-center gap-4">
+            <Mail className="text-slate-400" size={20} />
+            <div className="flex flex-col">
+              <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Email Address</span>
+              <span className="text-sm font-bold text-slate-700">{selectedMember.email || 'N/A'}</span>
+            </div>
+          </div>
+          <div className="p-5 bg-white border border-slate-100 rounded-2xl flex items-center gap-4">
+            <Phone className="text-slate-400" size={20} />
+            <div className="flex flex-col">
+              <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Contact Number</span>
+              <span className="text-sm font-bold text-slate-700">{selectedMember.phone || 'N/A'}</span>
+            </div>
+          </div>
+          <div className="p-5 bg-white border border-slate-100 rounded-2xl flex items-center gap-4">
+            <ShieldCheck className="text-slate-400" size={20} />
+            <div className="flex flex-col">
+              <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">System Access</span>
+              <span className="text-sm font-bold text-slate-700">Level: {selectedMember.role.toUpperCase()}</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex justify-end gap-3 mt-4">
+          <button className="px-8 py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-[#008080] transition-all shadow-lg" onClick={() => setIsDetailModalOpen(false)}>Close Profile</button>
+        </div>
+      </div>
+    )}
+  </Modal>
 
  <Modal
  isOpen={isEditModalOpen}

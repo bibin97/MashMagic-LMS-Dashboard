@@ -22,19 +22,30 @@ exports.registerMentor = async (req, res) => {
         const phoneCheck = phone_number?.trim() || null;
 
         if (emailCheck || phoneCheck) {
-            let checkQuery = 'SELECT id FROM users WHERE 1=0';
-            let checkParams = [];
+            let conditions = [];
+            let params = [];
+            
             if (emailCheck) {
-                checkQuery += ' OR email = ?';
-                checkParams.push(emailCheck);
+                conditions.push('email = ?');
+                params.push(emailCheck);
             }
             if (phoneCheck) {
-                checkQuery += ' OR phone_number = ?';
-                checkParams.push(phoneCheck);
+                conditions.push('phone_number = ?');
+                params.push(phoneCheck);
             }
-            const [existing] = await db.query(checkQuery, checkParams);
-            if (existing.length > 0) {
-                return res.status(400).json({ success: false, message: "Mentor already registered with this Email or Phone number." });
+
+            const whereClause = conditions.join(' OR ');
+            
+            // Check all tables for duplicates
+            const tables = ['users', 'mentors', 'faculties', 'students'];
+            for (const table of tables) {
+                const [existing] = await db.query(`SELECT id FROM ${table} WHERE ${whereClause}`, params);
+                if (existing.length > 0) {
+                    return res.status(400).json({ 
+                        success: false, 
+                        message: `Record already exists in ${table} with this Email or Phone number.` 
+                    });
+                }
             }
         }
 
@@ -149,7 +160,7 @@ exports.getStudentInteractionLogs = async (req, res) => {
                     CAST(sil.exam_anxiety AS CHAR) as stress_level,
                     0 as is_flagged, NULL as flag_reason
                 FROM student_interaction_logs sil
-                LEFT JOIN users m ON sil.mentor_id = m.id
+                LEFT JOIN mentors m ON sil.mentor_id = m.id
                 LEFT JOIN students s ON sil.student_id = s.id
                 ${baseWhere('sil', 'student_id', 'mentor_id', 'created_at')}
 
@@ -166,7 +177,7 @@ exports.getStudentInteractionLogs = async (req, res) => {
                     CAST(msl.stress_level AS CHAR) as stress_level,
                     0 as is_flagged, NULL as flag_reason
                 FROM mentor_session_logs msl
-                LEFT JOIN users m ON msl.mentor_id = m.id
+                LEFT JOIN mentors m ON msl.mentor_id = m.id
                 LEFT JOIN students s ON msl.student_id = s.id
                 ${baseWhere('msl', 'student_id', 'mentor_id', 'created_at')}
 
@@ -183,7 +194,7 @@ exports.getStudentInteractionLogs = async (req, res) => {
                     NULL as stress_level,
                     msr.is_flagged, msr.flag_reason
                 FROM mentor_session_reports msr
-                LEFT JOIN users m ON msr.mentor_id = m.id
+                LEFT JOIN mentors m ON msr.mentor_id = m.id
                 LEFT JOIN students s ON msr.student_id = s.id
                 ${baseWhere('msr', 'student_id', 'mentor_id', 'created_at')}
 
@@ -198,7 +209,7 @@ exports.getStudentInteractionLogs = async (req, res) => {
                     NULL as understanding_level, NULL as student_confidence, NULL as stress_level,
                     0 as is_flagged, NULL as flag_reason
                 FROM mentorship_logs ml
-                LEFT JOIN users m ON ml.mentor_id = m.id
+                LEFT JOIN mentors m ON ml.mentor_id = m.id
                 LEFT JOIN students s ON ml.student_id = s.id
                 ${baseWhere('ml', 'student_id', 'mentor_id', 'created_at')}
             ) as unified_logs
@@ -251,9 +262,9 @@ exports.getFacultyInteractionLogs = async (req, res) => {
                     mfi.is_flagged, mfi.flag_reason,
                     f.name as faculty_name, mfi.faculty_id
                 FROM mentor_faculty_interactions mfi
-                LEFT JOIN users m ON mfi.mentor_id = m.id
+                LEFT JOIN mentors m ON mfi.mentor_id = m.id
                 LEFT JOIN students s ON mfi.student_id = s.id
-                LEFT JOIN users f ON mfi.faculty_id = f.id
+                LEFT JOIN faculties f ON mfi.faculty_id = f.id
                 ${baseWhere('mfi')}
 
                 UNION ALL
@@ -266,9 +277,9 @@ exports.getFacultyInteractionLogs = async (req, res) => {
                     0 as is_flagged, NULL as flag_reason,
                     f.name as faculty_name, fil.faculty_id
                 FROM faculty_interaction_logs fil
-                LEFT JOIN users m ON fil.mentor_id = m.id
+                LEFT JOIN mentors m ON fil.mentor_id = m.id
                 LEFT JOIN students s ON fil.student_id = s.id
-                LEFT JOIN users f ON fil.faculty_id = f.id
+                LEFT JOIN faculties f ON fil.faculty_id = f.id
                 ${baseWhere('fil')}
 
                 UNION ALL
@@ -282,7 +293,7 @@ exports.getFacultyInteractionLogs = async (req, res) => {
                     f.name as faculty_name, sr.faculty_id
                 FROM student_reports sr
                 LEFT JOIN students s ON sr.student_id = s.id
-                LEFT JOIN users f ON sr.faculty_id = f.id
+                LEFT JOIN faculties f ON sr.faculty_id = f.id
                 ${baseWhere('sr', 'student_id', 'faculty_id', 'created_at', 'faculty_id', true, false, true)}
             ) as unified_faculty_logs
             ORDER BY created_at DESC
@@ -344,7 +355,7 @@ exports.getMentorInteractionLogs = async (req, res) => {
                     NULL as understanding_after_session
                 FROM student_interaction_logs sil
                 JOIN students s ON sil.student_id = s.id
-                JOIN users m ON sil.mentor_id = m.id)
+                JOIN mentors m ON sil.mentor_id = m.id)
 
                 UNION ALL
 
@@ -387,7 +398,7 @@ exports.getMentorInteractionLogs = async (req, res) => {
                     CAST(msl.understanding_after_session AS CHAR) as understanding_after_session
                 FROM mentor_session_logs msl
                 JOIN students s ON msl.student_id = s.id
-                JOIN users m ON msl.mentor_id = m.id)
+                JOIN mentors m ON msl.mentor_id = m.id)
 
                 UNION ALL
 
@@ -424,7 +435,7 @@ exports.getMentorInteractionLogs = async (req, res) => {
                     NULL as understanding_after_session
                 FROM mentor_session_reports msr
                 JOIN students s ON msr.student_id = s.id
-                JOIN users m ON msr.mentor_id = m.id
+                JOIN mentors m ON msr.mentor_id = m.id
                 WHERE JSON_VALID(msr.report_data))
 
                 UNION ALL
@@ -454,7 +465,7 @@ exports.getMentorInteractionLogs = async (req, res) => {
                     NULL as understanding_after_session
                 FROM mentorship_logs ml
                 JOIN students s ON ml.student_id = s.id
-                JOIN users m ON ml.mentor_id = m.id)
+                JOIN mentors m ON ml.mentor_id = m.id)
 
                 UNION ALL
 
@@ -481,7 +492,7 @@ exports.getMentorInteractionLogs = async (req, res) => {
                     NULL as understanding_after_session
                 FROM student_reports r
                 JOIN students s ON r.student_id = s.id
-                JOIN users f ON r.faculty_id = f.id)
+                JOIN faculties f ON r.faculty_id = f.id)
             ) as combined_student_logs
             WHERE 1=1
         `;
@@ -503,7 +514,7 @@ exports.getMentorInteractionLogs = async (req, res) => {
                     DATE(fil.date) as date
                 FROM faculty_interaction_logs fil
                 JOIN students s ON fil.student_id = s.id
-                JOIN users m ON fil.mentor_id = m.id)
+                JOIN mentors m ON fil.mentor_id = m.id)
 
                 UNION ALL
 
@@ -521,7 +532,7 @@ exports.getMentorInteractionLogs = async (req, res) => {
                     DATE(mfi.date) as date
                 FROM mentor_faculty_interactions mfi
                 JOIN students s ON mfi.student_id = s.id
-                JOIN users m ON mfi.mentor_id = m.id)
+                JOIN mentors m ON mfi.mentor_id = m.id)
             ) as combined_faculty_logs
             WHERE 1=1
         `;
@@ -578,7 +589,7 @@ exports.getFacultyIntelligenceLogs = async (req, res) => {
                    CONVERT(u.name USING utf8mb4) as faculty_name
             FROM student_reports r
             JOIN students s ON r.student_id = s.id
-            JOIN users u ON r.faculty_id = u.id
+            JOIN faculties u ON r.faculty_id = u.id
             ORDER BY r.created_at DESC
         `);
 
@@ -616,7 +627,7 @@ exports.getAllActivities = async (req, res) => {
                     sil.created_at
                 FROM student_interaction_logs sil
                 LEFT JOIN students s ON s.id = sil.student_id
-                LEFT JOIN users m ON m.id = sil.mentor_id)
+                LEFT JOIN mentors m ON m.id = sil.mentor_id)
                 
                 UNION ALL
                 
@@ -636,7 +647,7 @@ exports.getAllActivities = async (req, res) => {
                     msl.created_at
                 FROM mentor_session_logs msl
                 LEFT JOIN students s ON s.id = msl.student_id
-                LEFT JOIN users m ON m.id = msl.mentor_id)
+                LEFT JOIN mentors m ON m.id = msl.mentor_id)
 
                 UNION ALL
 
@@ -663,7 +674,7 @@ exports.getAllActivities = async (req, res) => {
                     msr.created_at
                 FROM mentor_session_reports msr
                 LEFT JOIN students s ON s.id = msr.student_id
-                LEFT JOIN users m ON m.id = msr.mentor_id
+                LEFT JOIN mentors m ON m.id = msr.mentor_id
                 WHERE JSON_VALID(msr.report_data))
 
                 UNION ALL
@@ -684,7 +695,7 @@ exports.getAllActivities = async (req, res) => {
                     ml.created_at
                 FROM mentorship_logs ml
                 LEFT JOIN students s ON s.id = ml.student_id
-                LEFT JOIN users m ON m.id = ml.mentor_id)
+                LEFT JOIN mentors m ON m.id = ml.mentor_id)
 
                 UNION ALL
                 
@@ -704,7 +715,7 @@ exports.getAllActivities = async (req, res) => {
                     mfi.created_at
                 FROM mentor_faculty_interactions mfi
                 LEFT JOIN students s ON s.id = mfi.student_id
-                LEFT JOIN users m ON m.id = mfi.mentor_id)
+                LEFT JOIN mentors m ON m.id = mfi.mentor_id)
                 
                 UNION ALL
                 
@@ -724,7 +735,7 @@ exports.getAllActivities = async (req, res) => {
                     fil.created_at
                 FROM faculty_interaction_logs fil
                 LEFT JOIN students s ON s.id = fil.student_id
-                LEFT JOIN users m ON m.id = fil.mentor_id)
+                LEFT JOIN mentors m ON m.id = fil.mentor_id)
             ) as activities
             WHERE 1=1
         `;
@@ -766,7 +777,7 @@ exports.getMentorDetails = async (req, res) => {
         let mentorProfile;
         try {
             [mentorProfile] = await db.query(
-                'SELECT id, name, phone_number, place, status, createdAt as created_at FROM users WHERE id = ? AND role = "mentor"',
+                'SELECT id, name, phone_number, place, status, createdAt as created_at FROM mentors WHERE id = ?',
                 [mentorId]
             );
             if (mentorProfile.length === 0) {
@@ -879,8 +890,8 @@ exports.getMentorActivityDashboard = async (req, res) => {
                 (SELECT COUNT(*) FROM students WHERE mentor_id = u.id) AS total_assigned_students,
                 (SELECT COUNT(DISTINCT student_id) FROM student_interaction_logs WHERE mentor_id = u.id AND date = CURDATE() AND connected_today = TRUE) AS students_connected_today,
                 (SELECT COUNT(*) FROM tasks WHERE mentor_id = u.id AND status = 'Completed' AND DATE(created_at) = CURDATE()) AS tasks_completed_today
-            FROM users u
-            WHERE u.role IN ('mentor', 'Mentor')
+            FROM mentors u
+            WHERE 1=1
         `;
         const [mentors] = await db.query(query);
 
@@ -917,7 +928,7 @@ exports.getMentorMonitoringDetails = async (req, res) => {
         // 1. Mentor Profile
         let mentorProfile;
         try {
-            [mentorProfile] = await db.query('SELECT id, name, phone_number, place FROM users WHERE id = ?', [mentorId]);
+            [mentorProfile] = await db.query('SELECT id, name, phone_number, place FROM mentors WHERE id = ?', [mentorId]);
             if (mentorProfile.length === 0) return res.status(404).json({ success: false, message: 'Mentor not found in Monitoring' });
         } catch (err) {
             return res.status(500).json({ success: false, message: "Error in Monitoring Profile Query", error: err.message });
@@ -984,7 +995,7 @@ exports.shiftStudent = async (req, res) => {
         const [oldMentorRes] = await db.query('SELECT mentor_name FROM students WHERE id = ?', [studentId]);
         const oldMentorName = oldMentorRes.length > 0 ? oldMentorRes[0].mentor_name : 'Unknown';
 
-        const [mentor] = await db.query('SELECT name FROM users WHERE id = ?', [newMentorId]);
+        const [mentor] = await db.query('SELECT name FROM mentors WHERE id = ?', [newMentorId]);
         if (mentor.length === 0) return res.status(404).json({ success: false, message: 'Mentor not found' });
         const mentorName = mentor[0].name;
 
@@ -1025,7 +1036,7 @@ exports.getDailyStudentChecks = async (req, res) => {
                 (SELECT COUNT(*) FROM student_interaction_logs WHERE student_id = s.id) AS total_interaction_count,
                 (SELECT COUNT(*) FROM student_verification WHERE student_id = s.id) AS total_check_count
             FROM students s
-            LEFT JOIN users u ON s.mentor_id = u.id
+            LEFT JOIN mentors u ON s.mentor_id = u.id
         `;
         const [students] = await db.query(query);
         res.status(200).json({ success: true, data: students });
@@ -1124,15 +1135,17 @@ exports.editMentor = async (req, res) => {
             return res.status(400).json({ success: false, message: "Name, email, and phone number are required fields" });
         }
 
-        const [existingPhone] = await db.query('SELECT id FROM users WHERE phone_number = ? AND id != ?', [phone_number, id]);
-        const [existingEmail] = await db.query('SELECT id FROM users WHERE email = ? AND id != ?', [email, id]);
+        const [existingPhone] = await db.query('SELECT id FROM mentors WHERE phone_number = ? AND id != ?', [phone_number, id]);
+        const [existingEmail] = await db.query('SELECT id FROM mentors WHERE email = ? AND id != ?', [email, id]);
 
         if (existingPhone.length > 0) return res.status(400).json({ success: false, message: "Phone number already in use" });
         if (existingEmail.length > 0) return res.status(400).json({ success: false, message: "Email already in use" });
 
-        let query = 'UPDATE users SET name = ?, email = ?, phone_number = ?, place = ?';
+        let query = 'UPDATE mentors SET name = ?, email = ?, phone_number = ?, place = ?';
         let params = [name, email, phone_number, place || ''];
-
+        
+        // Note: Password update for mentors should ideally sync with 'users' if they log in via unified auth,
+        // but for now we follow the existing pattern in the role-specific table.
         if (password) {
             const salt = await bcrypt.genSalt(10);
             const hashedPassword = await bcrypt.hash(password, salt);
@@ -1140,7 +1153,7 @@ exports.editMentor = async (req, res) => {
             params.push(hashedPassword);
         }
 
-        query += ' WHERE id = ? AND role = "mentor"';
+        query += ' WHERE id = ?';
         params.push(id);
 
         const [result] = await db.query(query, params);
@@ -1161,13 +1174,15 @@ exports.deleteMentor = async (req, res) => {
         const { mentorId } = req.params;
         const mentorHeadName = req.user.name || 'Mentor Head';
 
-        const [mentor] = await db.query('SELECT name FROM users WHERE id = ? AND role = "mentor"', [mentorId]);
+        const [mentor] = await db.query('SELECT name FROM mentors WHERE id = ?', [mentorId]);
         if (mentor.length === 0) return res.status(404).json({ success: false, message: 'Mentor not found' });
 
         const mentorName = mentor[0].name;
 
         await db.query('UPDATE students SET mentor_id = NULL WHERE mentor_id = ?', [mentorId]);
-        await db.query('DELETE FROM users WHERE id = ? AND role = "mentor"', [mentorId]);
+        await db.query('DELETE FROM mentors WHERE id = ?', [mentorId]);
+        // Also delete from users if shared identity
+        await db.query('DELETE FROM users WHERE email = (SELECT email FROM (SELECT email FROM mentors WHERE id = ?) as t)', [mentorId]);
 
         const msg = `${mentorHeadName} deleted mentor: ${mentorName}`;
         try {
@@ -1315,7 +1330,7 @@ exports.deleteStudent = async (req, res) => {
 
 exports.getFaculties = async (req, res) => {
     try {
-        const [rows] = await db.query('SELECT id, name, email, phone_number, place, status, createdAt FROM users WHERE role = "faculty" ORDER BY name ASC');
+        const [rows] = await db.query('SELECT id, name, email, phone_number, place, status, createdAt FROM faculties ORDER BY name ASC');
         res.status(200).json({ success: true, data: rows });
     } catch (error) { res.status(500).json({ success: false, message: error.message }); }
 };
@@ -1326,8 +1341,8 @@ exports.getStudents = async (req, res) => {
         let query = `
             SELECT s.*, m.name as mentor_name, f.name as faculty_name 
             FROM students s 
-            LEFT JOIN users m ON s.mentor_id = m.id 
-            LEFT JOIN users f ON s.faculty_id = f.id
+            LEFT JOIN mentors m ON s.mentor_id = m.id 
+            LEFT JOIN faculties f ON s.faculty_id = f.id
             WHERE 1=1
         `;
         let params = [];
@@ -1377,8 +1392,8 @@ exports.editFaculty = async (req, res) => {
     try {
         const { id } = req.params;
         const { name, email, phone_number, place } = req.body;
-        const [[user]] = await db.query('SELECT name FROM users WHERE id = ?', [id]);
-        await db.query('UPDATE users SET name = ?, email = ?, phone_number = ?, place = ? WHERE id = ?', [name, email, phone_number, place, id]);
+        const [[user]] = await db.query('SELECT name FROM faculties WHERE id = ?', [id]);
+        await db.query('UPDATE faculties SET name = ?, email = ?, phone_number = ?, place = ? WHERE id = ?', [name, email, phone_number, place, id]);
         await db.query('INSERT INTO admin_notifications (message) VALUES (?)', [`Mentor Head (${req.user.name}) edited faculty: ${user.name}`]);
         res.status(200).json({ success: true, message: 'Faculty updated' });
     } catch (error) { res.status(500).json({ success: false, message: error.message }); }
@@ -1387,8 +1402,9 @@ exports.editFaculty = async (req, res) => {
 exports.deleteFaculty = async (req, res) => {
     try {
         const { id } = req.params;
-        const [[user]] = await db.query('SELECT name FROM users WHERE id = ?', [id]);
-        await db.query('DELETE FROM users WHERE id = ?', [id]);
+        const [[user]] = await db.query('SELECT name FROM faculties WHERE id = ?', [id]);
+        await db.query('DELETE FROM faculties WHERE id = ?', [id]);
+        await db.query('DELETE FROM users WHERE email = (SELECT email FROM (SELECT email FROM faculties WHERE id = ?) as t)', [id]);
         await db.query('INSERT INTO admin_notifications (message) VALUES (?)', [`Mentor Head (${req.user.name}) deleted faculty: ${user.name}`]);
         res.status(200).json({ success: true, message: 'Faculty deleted' });
     } catch (error) { res.status(500).json({ success: false, message: error.message }); }
@@ -1399,7 +1415,7 @@ exports.getMentors = async (req, res) => {
         const [rows] = await db.query(`
             SELECT u.id, u.name, u.email, u.phone_number, u.place, u.status,
             (SELECT COUNT(*) FROM students WHERE mentor_id = u.id) as studentCount
-            FROM users u WHERE u.role = 'mentor' ORDER BY u.name ASC
+            FROM mentors u ORDER BY u.name ASC
         `);
         res.status(200).json({ success: true, data: rows });
     } catch (error) { res.status(500).json({ success: false, message: error.message }); }
@@ -1436,8 +1452,8 @@ exports.getDashboardStats = async (req, res) => {
                 u.name, 
                 u.status,
                 (SELECT COUNT(*) FROM student_interaction_logs WHERE mentor_id = u.id) as completed_count
-            FROM users u 
-            WHERE u.role = 'mentor' AND u.status = 'active'
+            FROM mentors u 
+            WHERE u.status = 'active'
         `);
 
         res.status(200).json({
@@ -1481,8 +1497,8 @@ exports.getStudentById = async (req, res) => {
         const [[student]] = await db.query(`
             SELECT s.*, u_m.name as mentor_name, u_f.name as faculty_name
             FROM students s
-            LEFT JOIN users u_m ON s.mentor_id = u_m.id
-            LEFT JOIN users u_f ON s.faculty_id = u_f.id
+            LEFT JOIN mentors u_m ON s.mentor_id = u_m.id
+            LEFT JOIN faculties u_f ON s.faculty_id = u_f.id
             WHERE s.id = ?
         `, [id]);
 
@@ -1594,8 +1610,8 @@ exports.deleteInteractionLog = async (req, res) => {
 // @route   GET /api/mentor-head/dropdowns
 exports.getDropdownData = async (req, res) => {
     try {
-        const [mentors] = await db.query('SELECT id, name FROM users WHERE role = "mentor" AND status = "active"');
-        const [faculties] = await db.query('SELECT id, name, subject FROM users WHERE role = "faculty" AND status = "active"');
+        const [mentors] = await db.query('SELECT id, name FROM mentors WHERE status = "active"');
+        const [faculties] = await db.query('SELECT id, name, subject FROM faculties WHERE status = "active"');
         res.status(200).json({
             success: true,
             data: {

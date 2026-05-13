@@ -231,20 +231,20 @@ const FacultyDirectory = () => {
                               setIsDetailModalOpen(true);
                             }}
                             className="w-10 h-10 bg-white text-[#008080] rounded-xl flex items-center justify-center hover:bg-[#008080] hover:text-white transition-all shadow-sm border border-slate-100"
-                            title="View Full Profile"
+                            title="Quick View"
                           >
                             <Eye size={18} />
                           </button>
                           <button 
                             onClick={() => handleEditFaculty(faculty)}
-                            className="w-10 h-10 bg-white text-slate-600 rounded-xl flex items-center justify-center hover:bg-[#008080] hover:text-white transition-all shadow-sm border border-slate-100"
-                            title="Edit Profile"
+                            className="w-10 h-10 bg-white text-blue-600 rounded-xl flex items-center justify-center hover:bg-blue-600 hover:text-white transition-all shadow-sm border border-slate-100"
+                            title="Edit Faculty"
                           >
                             <Edit2 size={18} />
                           </button>
                           <button 
                             onClick={() => handleDeleteFaculty(faculty)}
-                            className="w-10 h-10 bg-white text-rose-500 rounded-xl flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all shadow-sm border border-slate-100"
+                            className="w-10 h-10 bg-white text-rose-600 rounded-xl flex items-center justify-center hover:bg-rose-600 hover:text-white transition-all shadow-sm border border-slate-100"
                             title="Delete Faculty"
                           >
                             <Trash2 size={18} />
@@ -330,15 +330,6 @@ const FacultyDirectory = () => {
                     <p className="text-xs font-black text-slate-900 uppercase">Verified Faculty Account</p>
                   </div>
                 </div>
-                <button 
-                  onClick={() => {
-                    setIsDetailModalOpen(false);
-                    handleEditFaculty(selectedFaculty);
-                  }}
-                  className="px-6 py-3 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-[#008080] transition-all"
-                >
-                  Edit Profile
-                </button>
               </div>
             </div>
           </div>

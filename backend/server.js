@@ -53,56 +53,6 @@ const startServer = async () => {
         // Test database connection
         const [rows] = await pool.query('SELECT 1');
         console.log('✅ Database connected successfully');
-        
-        // --- START OF CUSTOM MIGRATION ---
-        try {
-            console.log('📦 Starting Mentor/Faculty Migration...');
-            const [tables] = await pool.query('SHOW TABLES');
-            const tableList = tables.map(t => Object.values(t)[0]);
-
-            if (!tableList.includes('mentors')) {
-                await pool.query('CREATE TABLE mentors LIKE users');
-                console.log('✔ Mentors table structure created.');
-            }
-            if (!tableList.includes('faculties')) {
-                await pool.query('CREATE TABLE faculties LIKE users');
-                console.log('✔ Faculties table structure created.');
-            }
-
-            // Move Mentor data
-            const [mentorsInUsers] = await pool.query('SELECT COUNT(*) as count FROM users WHERE role = "mentor"');
-            if (mentorsInUsers[0].count > 0) {
-                await pool.query('INSERT IGNORE INTO mentors SELECT * FROM users WHERE role = "mentor"');
-                console.log(`✔ ${mentorsInUsers[0].count} mentors migrated.`);
-                await pool.query('DELETE FROM users WHERE role = "mentor"');
-            }
-
-            // Move Faculty data
-            const [facultiesInUsers] = await pool.query('SELECT COUNT(*) as count FROM users WHERE role = "faculty"');
-            if (facultiesInUsers[0].count > 0) {
-                await pool.query('INSERT IGNORE INTO faculties SELECT * FROM users WHERE role = "faculty"');
-                console.log(`✔ ${facultiesInUsers[0].count} faculties migrated.`);
-                await pool.query('DELETE FROM users WHERE role = "faculty"');
-            }
-
-            // Move Student data (ensuring email/password/role/status etc are in students table)
-            const [studentsInUsers] = await pool.query('SELECT COUNT(*) as count FROM users WHERE role = "student"');
-            if (studentsInUsers[0].count > 0) {
-                // We update existing student rows in 'students' table with login info from 'users'
-                await pool.query(`
-                    UPDATE students s 
-                    JOIN users u ON s.user_id = u.id OR s.email = u.email
-                    SET s.email = u.email, s.password = u.password, s.status = u.status, s.isApproved = u.isApproved 
-                    WHERE u.role = "student"
-                `);
-                console.log(`✔ ${studentsInUsers[0].count} students login info synced.`);
-                await pool.query('DELETE FROM users WHERE role = "student"');
-            }
-            console.log('✅ Migration process completed.');
-        } catch (migErr) {
-            console.error('❌ Migration logic error:', migErr.message);
-        }
-        // --- END OF CUSTOM MIGRATION ---
 
         // Automatic DB Schema Expansion for live environments
         try {
