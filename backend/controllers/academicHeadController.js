@@ -246,14 +246,15 @@ const getAcademicActions = async (req, res) => {
                 m.name as mentor_name,
                 MAX(e.portions) as portions, MAX(e.chapter) as chapter, 
                 MAX(e.exam_type) as exam_type, MAX(e.scheduled_date) as scheduled_date
-            FROM mentor_session_reports r
+            FROM mentor_timetable r
             JOIN students s ON r.student_id = s.id
             JOIN mentors m ON s.mentor_id = m.id
             LEFT JOIN student_exams e ON r.student_id = e.student_id AND r.session_number = e.milestone_session
-            WHERE (CAST(r.session_number AS UNSIGNED) % 5 = 0)
+            WHERE (r.session_number % 5 = 0)
+            AND r.status = 'Completed'
             AND (e.id IS NULL OR e.status = 'Pending')
             GROUP BY r.student_id, r.session_number, s.name, m.name
-            ORDER BY MAX(r.created_at) DESC
+            ORDER BY MAX(r.date) DESC
         `);
 
         // 2. Fetch Daily Logs (Faculty sessions today)
@@ -450,8 +451,17 @@ const syncLegacyData = async (req, res) => {
 
 const saveExamPlan = async (req, res) => {
     try {
-        const { student_id, milestone, portions, scheduled_date } = req.body;
-        await db.query('INSERT INTO student_exams (student_id, milestone_session, portions, scheduled_date, status) VALUES (?, ?, ?, ?, "Pending") ON DUPLICATE KEY UPDATE portions = VALUES(portions), scheduled_date = VALUES(scheduled_date)', [student_id, milestone, portions, scheduled_date]);
+        const { student_id, milestone, portions, chapter, exam_type, scheduled_date } = req.body;
+        await db.query(`
+            INSERT INTO student_exams 
+                (student_id, milestone_session, portions, chapter, exam_type, scheduled_date, status) 
+            VALUES (?, ?, ?, ?, ?, ?, "Pending") 
+            ON DUPLICATE KEY UPDATE 
+                portions = VALUES(portions), 
+                chapter = VALUES(chapter), 
+                exam_type = VALUES(exam_type), 
+                scheduled_date = VALUES(scheduled_date)
+        `, [student_id, milestone, portions, chapter, exam_type, scheduled_date]);
         res.status(200).json({ success: true, message: "Saved" });
     } catch (e) { res.status(500).json({ success: false, message: e.message }); }
 };

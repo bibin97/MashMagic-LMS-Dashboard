@@ -165,6 +165,11 @@ const startServer = async () => {
                 'ALTER TABLE students ADD COLUMN last_session_date DATE NULL;',
                 'ALTER TABLE students ADD COLUMN performance_status ENUM("Excellent", "Good", "Average", "Critical") DEFAULT "Good";',
                 'ALTER TABLE students ADD COLUMN course_completed TINYINT(1) DEFAULT 0;',
+                
+                'ALTER TABLE student_exams ADD COLUMN chapter VARCHAR(255) NULL;',
+                'ALTER TABLE student_exams ADD COLUMN portions TEXT NULL;',
+                'ALTER TABLE student_exams ADD COLUMN exam_type VARCHAR(100) NULL;',
+                'ALTER TABLE student_exams ADD COLUMN scheduled_date DATE NULL;',
 
                 // Reordering Columns for Students Table
                 'ALTER TABLE students MODIFY COLUMN registration_number VARCHAR(100) AFTER id;',
