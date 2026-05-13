@@ -250,7 +250,7 @@ const getAcademicActions = async (req, res) => {
             JOIN students s ON r.student_id = s.id
             JOIN mentors m ON s.mentor_id = m.id
             LEFT JOIN student_exams e ON r.student_id = e.student_id AND r.session_number = e.milestone_session
-            WHERE (r.session_number % 5 = 0 OR r.session_number % 10 = 0)
+            WHERE (CAST(r.session_number AS UNSIGNED) % 5 = 0)
             AND (e.id IS NULL OR e.status = 'Pending')
             GROUP BY r.student_id, r.session_number, s.name, m.name
             ORDER BY MAX(r.created_at) DESC
