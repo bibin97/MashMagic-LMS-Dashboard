@@ -3,7 +3,8 @@ import api from '../../services/api';
 import { 
     ScrollText, Search, User, Clock, Calendar, 
     ChevronLeft, ChevronRight, History, ExternalLink, 
-    ArrowLeft, Users, ShieldAlert, CheckSquare, Filter, BookOpen
+    ArrowLeft, Users, ShieldAlert, CheckSquare, Filter, BookOpen,
+    ChevronDown
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -19,180 +20,150 @@ const CommonInteractionLogs = ({ role }) => {
     const [customRange, setCustomRange] = useState({ start: '', end: '' });
     const [mentorFilter, setMentorFilter] = useState('all');
     const [mentors, setMentors] = useState([]);
-    const [logTypeTab, setLogTypeTab] = useState('QUICK'); // 'QUICK', 'MEDIUM', 'DEEP'
     const [expandedLogId, setExpandedLogId] = useState(null);
 
-    const baseApi = role === 'super_admin' ? '/admin' : (role === 'mentor_head' ? '/mentor-head' : '/academic-head');
+    useEffect(() => {
+        fetchEntities();
+        fetchMentors();
+    }, [activeTab]);
 
     useEffect(() => {
-        if (viewMode === 'list') {
-            fetchEntities();
-        } else {
+        if (viewMode === 'detail' && selectedStudent) {
             fetchLogs();
         }
-        fetchMentors();
-    }, [viewMode, activeTab, selectedStudent, dateFilter, customRange, mentorFilter]);
-
-    const fetchEntities = async () => {
-        setLoading(true);
-        try {
-            let endpoint = '';
-            if (activeTab === 'student') {
-                endpoint = role === 'super_admin' ? '/admin/students' : `${baseApi}/students-all`;
-            } else {
-                // Standardize faculty endpoint across roles
-                endpoint = role === 'super_admin' ? '/admin/faculties' : (role === 'mentor_head' ? '/mentor-head/faculties-all' : '/academic-head/faculties');
-            }
-            
-            const res = await api.get(endpoint);
-            setEntities(res.data.data || []);
-        } catch (error) {
-            toast.error(`Failed to fetch ${activeTab} directory`);
-        } finally {
-            setLoading(false);
-        }
-    };
+    }, [viewMode, selectedStudent, dateFilter, customRange, mentorFilter]);
 
     const fetchMentors = async () => {
         try {
-            const endpoint = role === 'super_admin' ? '/admin/users' : `${baseApi}/mentors-all`;
-            const res = await api.get(endpoint);
-            const users = res.data.data || [];
-            setMentors(role === 'super_admin' ? users.filter(u => u.role === 'mentor') : users);
+            const res = await api.get('/admin/mentors');
+            setMentors(res.data.data || []);
         } catch (error) {
-            console.error("Failed to fetch mentors list");
+            console.error("Error fetching mentors:", error);
+        }
+    };
+
+    const fetchEntities = async () => {
+        try {
+            setLoading(true);
+            const endpoint = activeTab === 'student' ? '/admin/students' : '/admin/mentors';
+            const res = await api.get(endpoint);
+            setEntities(res.data.data || []);
+        } catch (error) {
+            toast.error(`Failed to load ${activeTab}s`);
+        } finally {
+            setLoading(false);
         }
     };
 
     const fetchLogs = async () => {
-        setLoading(true);
         try {
-            let params = new URLSearchParams();
-            if (selectedStudent) {
-                // Prioritize database integer ID, fall back to other common ID keys
-                const entityId = selectedStudent.id || selectedStudent._id || selectedStudent.student_id || selectedStudent.faculty_id;
-                const idKey = activeTab === 'student' ? 'student_id' : 'faculty_id';
-                if (entityId) params.append(idKey, entityId);
-                console.log(`FETCH_LOGS: Using ${idKey}=${entityId} for ${selectedStudent.name}`);
-            }
-            
-            if (mentorFilter !== 'all') params.append('mentor_id', mentorFilter);
-            
-            if (dateFilter === 'today') {
-                const today = new Date().toISOString().split('T')[0];
-                params.append('startDate', today);
-                params.append('endDate', today);
-            } else if (dateFilter === 'week') {
-                const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-                params.append('startDate', weekAgo);
-            } else if (dateFilter === 'month') {
-                const monthAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-                params.append('startDate', monthAgo);
-            } else if (dateFilter === 'custom' && customRange.start && customRange.end) {
-                params.append('startDate', customRange.start);
-                params.append('endDate', customRange.end);
-            }
+            setLoading(true);
+            const params = {
+                dateFilter,
+                startDate: customRange.start,
+                endDate: customRange.end,
+                mentorId: mentorFilter !== 'all' ? mentorFilter : undefined
+            };
 
-            // Standardize endpoint for logs
-            const logEndpoint = activeTab === 'student' ? `${baseApi}/student-logs` : `${baseApi}/faculty-logs`;
-            const res = await api.get(`${logEndpoint}?${params.toString()}`);
-            setLogs(res.data.data);
+            const endpoint = activeTab === 'student' 
+                ? `/admin/logs/student/${selectedStudent.id}`
+                : `/admin/logs/mentor/${selectedStudent.id}`;
+
+            const res = await api.get(endpoint, { params });
+            setLogs(res.data.data || []);
         } catch (error) {
-            toast.error("Audit sync failed");
+            toast.error("Failed to load interaction history");
         } finally {
             setLoading(false);
         }
-    };
-
-    const filteredEntities = entities.filter(e => 
-        (e.name || '').toLowerCase().includes(searchTerm.toLowerCase()) || 
-        (e.registration_number || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (e.email || '').toLowerCase().includes(searchTerm.toLowerCase())
-    );
-
-    const handleEntityClick = (entity) => {
-        setSelectedStudent(entity);
-        setViewMode('detail');
     };
 
     const resetFilters = () => {
         setDateFilter('all');
         setCustomRange({ start: '', end: '' });
         setMentorFilter('all');
-        setSearchTerm('');
     };
+
+    const filteredEntities = entities.filter(e => 
+        (e.name?.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (e.email?.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (e.registration_number?.toLowerCase().includes(searchTerm.toLowerCase()))
+    );
 
     if (viewMode === 'list') {
         return (
-            <div className="space-y-10 animate-in fade-in duration-500 pb-20">
-                <header className="bg-white/80 backdrop-blur-xl p-10 md:p-14 rounded-[3.5rem] border border-white/60 shadow-xl shadow-slate-200/40 flex flex-col md:flex-row justify-between items-center gap-10">
-                    <div className="text-center md:text-left">
-                        <h1 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tighter uppercase leading-none mb-4">Audit Intelligence Hub</h1>
-                        <p className="text-slate-500 text-[11px] font-black uppercase tracking-[0.3em] flex items-center justify-center md:justify-start gap-3 mt-1">
-                            <span className={`w-2.5 h-2.5 rounded-full ${activeTab === 'student' ? 'bg-[#008080]' : 'bg-purple-600'} animate-pulse shadow-lg`}></span>
-                            Centralized Administrative Oversight
-                        </p>
+            <div className="space-y-8 animate-in fade-in duration-700">
+                <div className="bg-white/70 backdrop-blur-xl p-10 rounded-[40px] border border-white/60 shadow-xl flex flex-col md:flex-row justify-between items-center gap-8">
+                    <div>
+                        <h2 className="text-4xl font-black text-slate-900 tracking-tighter leading-none mb-3 uppercase">Interaction Archive</h2>
+                        <p className="text-slate-600 text-[10px] font-black uppercase tracking-[0.25em]">Centralized monitoring of academic & mentorship logs</p>
                     </div>
-                    <div className="flex bg-slate-100/50 p-2 rounded-[2.5rem] border border-slate-200/50 backdrop-blur-sm">
-                        <button onClick={() => { setActiveTab('student'); setViewMode('list'); setSelectedStudent(null); }} className={`px-10 py-4 rounded-[2rem] text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'student' ? 'bg-[#008080] text-white shadow-2xl shadow-[#008080]/30' : 'text-slate-500 hover:text-slate-900'}`}>Student Logs</button>
-                        <button onClick={() => { setActiveTab('faculty'); setViewMode('list'); setSelectedStudent(null); }} className={`px-10 py-4 rounded-[2rem] text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'faculty' ? 'bg-purple-600 text-white shadow-2xl shadow-purple-600/30' : 'text-slate-500 hover:text-slate-900'}`}>Faculty Logs</button>
-                    </div>
-                </header>
-
-                <div className="flex flex-col md:flex-row gap-6 items-center">
-                    <div className="flex-1 relative group w-full">
-                        <Search size={22} className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#008080] transition-colors" />
-                        <input 
-                            type="text" 
-                            placeholder={`Identify ${activeTab} by name, identifier or contact matrix...`} 
-                            className="w-full bg-white/80 p-6 pl-16 rounded-[2.5rem] border border-slate-100 shadow-sm outline-none focus:ring-4 focus:ring-[#008080]/5 focus:border-[#008080]/20 font-bold text-slate-700 transition-all backdrop-blur-sm"
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                        />
-                    </div>
-                    <div className="bg-white/80 backdrop-blur-sm px-10 py-6 rounded-[2.5rem] border border-slate-100 shadow-sm flex items-center gap-4">
-                        <Users size={22} className={activeTab === 'student' ? 'text-[#008080]' : 'text-purple-600'} />
-                        <div className="flex flex-col">
-                            <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Entity Count</span>
-                            <span className="text-xl font-black text-slate-900 leading-none">{entities.length}</span>
-                        </div>
+                    <div className="flex gap-2 p-1.5 bg-slate-100 rounded-2xl w-full md:w-auto">
+                        <button 
+                            onClick={() => setActiveTab('student')}
+                            className={`flex-1 md:flex-none px-8 py-3.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'student' ? 'bg-white text-[#008080] shadow-md' : 'text-slate-500 hover:text-slate-700'}`}
+                        >
+                            Student Focus
+                        </button>
+                        <button 
+                            onClick={() => setActiveTab('faculty')}
+                            className={`flex-1 md:flex-none px-8 py-3.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'faculty' ? 'bg-white text-purple-600 shadow-md' : 'text-slate-500 hover:text-slate-700'}`}
+                        >
+                            Faculty Nexus
+                        </button>
                     </div>
                 </div>
 
-                {/* Enhanced Entity List (Transitioned from Grid to List) */}
-                <div className="bg-white/80 backdrop-blur-md rounded-[3rem] border border-slate-100 shadow-xl shadow-slate-200/30 overflow-hidden">
+                <div className="bg-white rounded-[40px] border border-slate-100 shadow-2xl overflow-hidden">
+                    <div className="p-8 border-b border-slate-50 flex flex-col md:flex-row justify-between items-center gap-6">
+                        <div className="relative w-full md:w-96 group">
+                            <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#008080] transition-colors" size={18} />
+                            <input 
+                                type="text"
+                                placeholder={`Search ${activeTab}s by name, email or ID...`}
+                                className="w-full pl-16 pr-8 py-5 bg-slate-50 rounded-[2rem] border border-slate-100 text-xs font-bold focus:bg-white focus:ring-4 focus:ring-[#008080]/5 outline-none transition-all"
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                            />
+                        </div>
+                        <div className="flex items-center gap-3">
+                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Active Matrix:</span>
+                            <span className="px-4 py-1.5 bg-slate-50 text-slate-600 rounded-lg text-[10px] font-black border border-slate-100">{filteredEntities.length} Entities</span>
+                        </div>
+                    </div>
+
                     <div className="overflow-x-auto">
                         <table className="w-full text-left border-collapse">
                             <thead>
-                                <tr className="bg-slate-50/50 border-b border-slate-100">
-                                    <th className="px-10 py-8 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Entity Identity</th>
-                                    <th className="px-10 py-8 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Academic Matrix</th>
-                                    <th className="px-10 py-8 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Status Pulse</th>
-                                    <th className="px-10 py-8 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] text-right">Audit Access</th>
+                                <tr className="bg-slate-50/50">
+                                    <th className="px-10 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Identify</th>
+                                    <th className="px-10 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Metadata</th>
+                                    <th className="px-10 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Operational Status</th>
+                                    <th className="px-10 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest text-right">Actions</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-50">
                                 {loading ? (
-                                    [...Array(6)].map((_, i) => (
-                                        <tr key={i} className="animate-pulse">
-                                            <td colSpan="4" className="px-10 py-10"><div className="h-12 bg-slate-100 rounded-2xl w-full"></div></td>
-                                        </tr>
-                                    ))
+                                    <tr>
+                                        <td colSpan="4" className="px-10 py-20 text-center">
+                                            <div className="w-10 h-10 border-4 border-[#008080] border-t-transparent rounded-full animate-spin mx-auto"></div>
+                                        </td>
+                                    </tr>
                                 ) : filteredEntities.length > 0 ? (
-                                    filteredEntities.map(entity => (
+                                    filteredEntities.map((entity) => (
                                         <tr 
                                             key={entity.id} 
-                                            onClick={() => handleEntityClick(entity)}
-                                            className="group hover:bg-[#008080]/5 transition-all cursor-pointer"
+                                            className="group hover:bg-slate-50/50 transition-colors cursor-pointer"
+                                            onClick={() => { setSelectedStudent(entity); setViewMode('detail'); }}
                                         >
                                             <td className="px-10 py-6">
-                                                <div className="flex items-center gap-6">
-                                                    <div className={`w-14 h-14 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-400 font-black text-xl border border-slate-100 group-hover:text-white transition-all group-hover:scale-110 shadow-sm ${activeTab === 'student' ? 'group-hover:bg-[#008080]' : 'group-hover:bg-purple-600'}`}>
+                                                <div className="flex items-center gap-4">
+                                                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-white font-black text-lg shadow-lg ${activeTab === 'student' ? 'bg-[#008080]' : 'bg-purple-600'}`}>
                                                         {entity.name?.charAt(0)}
                                                     </div>
-                                                    <div className="flex flex-col">
-                                                        <h3 className="text-base font-black text-slate-900 uppercase tracking-tight leading-none mb-1 group-hover:text-[#008080] transition-colors">{entity.name}</h3>
-                                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{entity.registration_number || entity.email || `ID-${entity.id}`}</p>
+                                                    <div>
+                                                        <p className="text-sm font-black text-slate-900 uppercase tracking-tight">{entity.name}</p>
+                                                        <p className="text-[10px] font-bold text-slate-400">{entity.email}</p>
                                                     </div>
                                                 </div>
                                             </td>
@@ -318,30 +289,6 @@ const CommonInteractionLogs = ({ role }) => {
                 </div>
             )}
 
-            {/* Session Type Tabs */}
-            <div className="flex gap-4 p-2 bg-slate-100/50 rounded-[2.5rem] border border-slate-200/50 backdrop-blur-sm w-fit mx-auto md:mx-0">
-                {[
-                    { id: 'QUICK', label: 'Quick Sessions', color: '#008080' },
-                    { id: 'MEDIUM', label: 'Medium Sessions', color: '#8B5CF6' },
-                    { id: 'DEEP', label: 'Deep Sessions', color: '#EC4899' }
-                ].map(tab => (
-                    <button
-                        key={tab.id}
-                        onClick={() => setLogTypeTab(tab.id)}
-                        className={`px-10 py-5 rounded-[2rem] text-[10px] font-black uppercase tracking-widest transition-all ${
-                            logTypeTab === tab.id 
-                            ? 'bg-slate-900 text-white shadow-2xl' 
-                            : 'text-slate-500 hover:text-slate-900'
-                        }`}
-                    >
-                        <span className="flex items-center gap-3">
-                            <div className="w-2 h-2 rounded-full" style={{ backgroundColor: tab.color }}></div>
-                            {tab.label}
-                        </span>
-                    </button>
-                ))}
-            </div>
-
             {loading ? (
                 <div className="flex flex-col items-center justify-center py-40 gap-8">
                     <div className="w-16 h-16 border-4 border-[#008080] border-t-transparent rounded-full animate-spin shadow-[0_0_20px_rgba(0,128,128,0.2)]"></div>
@@ -350,133 +297,132 @@ const CommonInteractionLogs = ({ role }) => {
                         <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Compiling historical data packets from encrypted storage</p>
                     </div>
                 </div>
-            ) : logs.filter(l => l.session_type === logTypeTab).length > 0 ? (
-                <div className="grid grid-cols-1 gap-4">
-                    {logs.filter(l => l.session_type === logTypeTab).map((log) => (
-                        <div 
-                            key={log.id} 
-                            onClick={() => setExpandedLogId(expandedLogId === log.id ? null : log.id)}
-                            className={`bg-white/90 backdrop-blur-sm p-4 md:p-6 rounded-[2rem] border transition-all cursor-pointer relative overflow-hidden group ${
-                                expandedLogId === log.id 
-                                ? 'ring-2 ring-[#008080] border-transparent shadow-xl' 
-                                : 'border-slate-100 shadow-sm hover:shadow-md hover:border-[#008080]/30'
-                            }`}
-                        >
-                            <div className="flex items-center justify-between gap-6">
-                                {/* Compact Header: Date, Time, Coordinator */}
-                                <div className="flex items-center gap-4">
-                                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-white shrink-0 shadow-md ${
-                                        logTypeTab === 'QUICK' ? 'bg-[#008080]' : (logTypeTab === 'MEDIUM' ? 'bg-purple-600' : 'bg-pink-600')
-                                    }`}>
-                                        <Clock size={18} />
-                                    </div>
-                                    <div className="flex flex-col">
-                                        <span className="text-[10px] font-black text-slate-900 leading-none mb-1">
-                                            {new Date(log.created_at).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }).toUpperCase()}
-                                        </span>
-                                        <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tight">
-                                            {new Date(log.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}
-                                        </span>
-                                    </div>
+            ) : logs.length > 0 ? (
+                <div className="space-y-16">
+                    {['QUICK', 'MEDIUM', 'DEEP'].map(type => {
+                        const typeLogs = logs.filter(l => (l.session_type || l.type || 'QUICK').toUpperCase() === type);
+                        if (typeLogs.length === 0) return null;
+
+                        return (
+                            <div key={type} className="space-y-8">
+                                <div className="flex items-center gap-6">
+                                    <div className={`w-2 h-10 rounded-full ${
+                                        type === 'QUICK' ? 'bg-[#008080]' : (type === 'MEDIUM' ? 'bg-purple-600' : 'bg-pink-600')
+                                    }`}></div>
+                                    <h3 className="text-2xl font-black text-slate-900 uppercase tracking-tight flex items-center gap-4">
+                                        {type} SESSIONS
+                                        <span className="text-xs font-bold text-slate-400">({typeLogs.length} Sequences)</span>
+                                    </h3>
+                                    <div className="h-[1px] flex-1 bg-slate-100"></div>
                                 </div>
 
-                                <div className="flex-1 hidden md:block">
-                                    <p className="text-[11px] font-medium text-slate-600 truncate max-w-[400px]">
-                                        {log.report_data ? (typeof log.report_data === 'string' ? JSON.parse(log.report_data).observation : log.report_data.observation) : (log.mentor_notes || log.notes || 'No notes.')}
-                                    </p>
-                                </div>
+                                <div className="grid grid-cols-1 gap-4">
+                                    {typeLogs.map((log) => (
+                                        <div 
+                                            key={log.id} 
+                                            onClick={() => setExpandedLogId(expandedLogId === log.id ? null : log.id)}
+                                            className={`bg-white/90 backdrop-blur-sm p-4 md:p-6 rounded-[2rem] border transition-all cursor-pointer relative overflow-hidden group ${
+                                                expandedLogId === log.id 
+                                                ? 'ring-2 ring-[#008080] border-transparent shadow-xl' 
+                                                : 'border-slate-100 shadow-sm hover:shadow-md hover:border-[#008080]/30'
+                                            }`}
+                                        >
+                                            <div className="flex items-center justify-between gap-6">
+                                                <div className="flex items-center gap-4">
+                                                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-white shrink-0 shadow-md ${
+                                                        type === 'QUICK' ? 'bg-[#008080]' : (type === 'MEDIUM' ? 'bg-purple-600' : 'bg-pink-600')
+                                                    }`}>
+                                                        <Clock size={18} />
+                                                    </div>
+                                                    <div className="flex flex-col">
+                                                        <span className="text-[10px] font-black text-slate-900 leading-none mb-1">
+                                                            {new Date(log.created_at).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }).toUpperCase()}
+                                                        </span>
+                                                        <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tight">
+                                                            {new Date(log.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}
+                                                        </span>
+                                                    </div>
+                                                </div>
 
-                                <div className="flex items-center gap-3">
-                                    <div className="text-right">
-                                        <p className="text-[9px] font-black text-slate-900 uppercase leading-none">{log.mentor_name || 'System'}</p>
-                                        <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Coordinator</p>
-                                    </div>
-                                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-transform ${expandedLogId === log.id ? 'rotate-180 bg-slate-900 text-white' : 'bg-slate-100 text-slate-400'}`}>
-                                        <ChevronDown size={14} />
-                                    </div>
-                                </div>
-                            </div>
+                                                <div className="flex-1 hidden md:block">
+                                                    <p className="text-[11px] font-medium text-slate-600 truncate max-w-[400px]">
+                                                        {log.report_data ? (typeof log.report_data === 'string' ? JSON.parse(log.report_data).observation : log.report_data.observation) : (log.mentor_notes || log.notes || log.remarks || 'No notes.')}
+                                                    </p>
+                                                </div>
 
-                            {/* Expandable Content Area */}
-                            {expandedLogId === log.id && (
-                                <div className="mt-6 pt-6 border-t border-slate-100 animate-in slide-in-from-top-4 duration-300">
-                                    <div className="space-y-6">
-                                        <div>
-                                            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3">Qualitative Narrative</p>
-                                            <p className="text-sm font-medium text-slate-700 leading-relaxed italic p-6 bg-slate-50 rounded-[1.5rem] border border-slate-100">
-                                                "{log.report_data ? (typeof log.report_data === 'string' ? JSON.parse(log.report_data).observation : log.report_data.observation) : (log.mentor_notes || log.notes || 'No qualitative data provided.')}"
-                                            </p>
-                                        </div>
-
-                                        {log.report_data && (
-                                            <div>
-                                                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3">Session Metrics & Insights</p>
-                                                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                                                    {Object.entries(typeof log.report_data === 'string' ? JSON.parse(log.report_data) : log.report_data).map(([key, val]) => {
-                                                        if (['observation', 'action_plan'].includes(key)) return null;
-                                                        return (
-                                                            <div key={key} className="p-4 bg-white border border-slate-100 rounded-2xl flex flex-col gap-1 shadow-sm">
-                                                                <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">{key.replace(/_/g, ' ')}</span>
-                                                                <span className="text-[10px] font-black text-[#008080] uppercase">{String(val)}</span>
-                                                            </div>
-                                                        );
-                                                    })}
+                                                <div className="flex items-center gap-3">
+                                                    <div className="text-right">
+                                                        <p className="text-[9px] font-black text-slate-900 uppercase leading-none">{log.mentor_name || 'System'}</p>
+                                                        <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Coordinator</p>
+                                                    </div>
+                                                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-transform ${expandedLogId === log.id ? 'rotate-180 bg-slate-900 text-white' : 'bg-slate-100 text-slate-400'}`}>
+                                                        <ChevronDown size={14} />
+                                                    </div>
                                                 </div>
                                             </div>
-                                        )}
 
-                                        {(log.action_plan || (log.report_data && (typeof log.report_data === 'string' ? JSON.parse(log.report_data).action_plan : log.report_data.action_plan))) && (
-                                            <div className="p-6 bg-emerald-50/50 border border-emerald-100 rounded-[1.5rem]">
-                                                <p className="text-[9px] font-black text-emerald-600 uppercase tracking-widest mb-2">Strategy & Action Plan</p>
-                                                <p className="text-xs font-bold text-emerald-800 leading-relaxed">
-                                                    {log.action_plan || (typeof log.report_data === 'string' ? JSON.parse(log.report_data).action_plan : log.report_data.action_plan)}
-                                                </p>
-                                            </div>
-                                        )}
-                                    </div>
+                                            {expandedLogId === log.id && (
+                                                <div className="mt-6 pt-6 border-t border-slate-100 animate-in slide-in-from-top-4 duration-300">
+                                                    <div className="space-y-6">
+                                                        <div>
+                                                            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3">Qualitative Narrative</p>
+                                                            <div className="text-sm font-medium text-slate-700 leading-relaxed italic p-6 bg-slate-50 rounded-[1.5rem] border border-slate-100">
+                                                                "{log.report_data ? (typeof log.report_data === 'string' ? JSON.parse(log.report_data).observation : log.report_data.observation) : (log.mentor_notes || log.notes || log.remarks || 'No qualitative data provided.')}"
+                                                            </div>
+                                                        </div>
+
+                                                        {log.report_data && (
+                                                            <div>
+                                                                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3">Session Metrics & Insights</p>
+                                                                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                                                                    {Object.entries(typeof log.report_data === 'string' ? JSON.parse(log.report_data) : log.report_data).map(([key, val]) => {
+                                                                        if (['observation', 'action_plan'].includes(key)) return null;
+                                                                        return (
+                                                                            <div key={key} className="p-4 bg-white border border-slate-100 rounded-2xl flex flex-col gap-1 shadow-sm">
+                                                                                <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">{key.replace(/_/g, ' ')}</span>
+                                                                                <span className="text-[10px] font-black text-[#008080] uppercase">{String(val)}</span>
+                                                                            </div>
+                                                                        );
+                                                                    })}
+                                                                </div>
+                                                            </div>
+                                                        )}
+                                                        
+                                                        <div className="flex items-center gap-8 pl-4">
+                                                            {log.self_clarity !== undefined && (
+                                                                <div className="flex flex-col">
+                                                                    <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Clarity</span>
+                                                                    <span className="text-sm font-black text-slate-900">{log.self_clarity}%</span>
+                                                                </div>
+                                                            )}
+                                                            {log.confidence !== undefined && (
+                                                                <div className="flex flex-col">
+                                                                    <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Confidence</span>
+                                                                    <span className="text-sm font-black text-[#008080]">{log.confidence}/5</span>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))}
                                 </div>
-                            )}
-                        </div>
-                    ))}
+                            </div>
+                        );
+                    })}
                 </div>
             ) : (
                 <div className="py-60 text-center bg-white/50 backdrop-blur-sm rounded-[5rem] border-2 border-dashed border-slate-200 animate-in zoom-in duration-1000">
                     <div className="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center text-slate-200 mx-auto mb-8 border border-slate-100 shadow-inner">
                         <History size={48} />
                     </div>
-                    <h3 className="text-2xl font-black text-slate-900 uppercase tracking-tight">Timeline Silence</h3>
+                    <h3 className="text-2xl font-black text-slate-900 uppercase tracking-tight">No Sessions Found</h3>
                     <p className="text-slate-400 font-bold text-[10px] uppercase tracking-[0.3em] mt-3 max-w-md mx-auto leading-loose">
-                        No {logTypeTab} sessions detected for this student in the current audit window.
+                        No interaction sequences discovered in the current matrix for this student.
                     </p>
-                    
-                    <div className="mt-8 flex items-center justify-center gap-4">
-                        <button onClick={resetFilters} className="px-10 py-5 bg-slate-900 text-white rounded-[2rem] text-[10px] font-black uppercase tracking-[0.2em] hover:bg-[#008080] transition-all">Purge Filters</button>
-                        <button onClick={fetchLogs} className="px-10 py-5 bg-white text-slate-900 border border-slate-200 rounded-[2rem] text-[10px] font-black uppercase tracking-[0.2em] hover:border-[#008080] transition-all">Re-Sync Stream</button>
-                    </div>
                 </div>
             )}
-        </div>
-    );
-};
-
-const MetricLine = ({ label, value, max = 100, color, invert }) => {
-    const numValue = parseFloat(value);
-    if (isNaN(numValue)) return null;
-    
-    const percentage = (numValue / max) * 100;
-
-    return (
-        <div className="space-y-2">
-            <div className="flex justify-between items-end">
-                <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">{label}</span>
-                <span className="text-[11px] font-black text-slate-900 tracking-tighter">{numValue}{max === 5 ? '/5' : '%'}</span>
-            </div>
-            <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
-                <div 
-                    className="h-full rounded-full transition-all duration-[1.5s] ease-out" 
-                    style={{ width: `${percentage}%`, backgroundColor: color }}
-                ></div>
-            </div>
         </div>
     );
 };

@@ -29,11 +29,8 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
     const hasPermission = allowedRoles.some(role => normalizeRole(role) === userRoleNormalized);
 
     if (!hasPermission) {
-      console.warn(`Access Denied: Role '${user?.role || storedRole}' not in allowed list [${allowedRoles}]`);
-
       // Redirect to appropriate dashboard based on role to avoid login loop
       const r = userRoleNormalized;
-      console.log(`[ProtectedRoute] Unauthorized access attempt by ${r}. Redirecting to respective dashboard.`);
 
       if (r === 'admin' || r === 'superadmin' || r === 'subadmin') return <Navigate to="/admin/dashboard" replace />;
       if (r === 'mentorhead') return <Navigate to="/mentor-head/dashboard" replace />;
