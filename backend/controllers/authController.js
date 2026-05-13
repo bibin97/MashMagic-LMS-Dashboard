@@ -199,11 +199,11 @@ const facultySignup = async (req, res) => {
 // @route   POST /api/auth/login
 const login = async (req, res) => {
     try {
-        const { email, phone_number, identifier: reqIdentifier, password } = req.body;
+        const { email, phone_number, identifier: reqIdentifier, password, role: requestedRole, department } = req.body;
         const identifier = (reqIdentifier || email || phone_number)?.trim();
 
-        if (!identifier || !password) {
-            return res.status(400).json({ success: false, message: "Please provide credentials" });
+        if (!identifier || !password || !department || !requestedRole) {
+            return res.status(400).json({ success: false, message: "All security protocols (Credentials, Department, Role) are required." });
         }
 
         // Try lookup with normalized identifier
@@ -223,8 +223,16 @@ const login = async (req, res) => {
             return res.status(401).json({ success: false, message: "Invalid credentials" });
         }
 
-        // Department Role Validation (Flexible with underscores)
-        const { department } = req.body;
+        // Strict Role Match Check
+        if (user.role !== requestedRole) {
+            console.log(`[LOGIN REJECTED] Role Mismatch: User ${identifier} is ${user.role}, but tried to login as ${requestedRole}`);
+            return res.status(403).json({ 
+                success: false, 
+                message: `Unauthorized: Your account is registered as ${user.role.replace('_', ' ').toUpperCase()}, but you are attempting to login as ${requestedRole.replace('_', ' ').toUpperCase()}. Please select the correct role.` 
+            });
+        }
+
+        // Department Hierarchy Validation (Safeguard)
         const dbRole = user.role.toLowerCase().replace('_', '');
 
         if (department === 'admin') {
