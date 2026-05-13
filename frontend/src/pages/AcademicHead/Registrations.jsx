@@ -142,7 +142,7 @@ const Registrations = () => {
 
   const fetchDropdowns = async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       const res = await api.get('/academic-head/dropdowns', {
         headers: { Authorization: `Bearer ${token}` }
       });

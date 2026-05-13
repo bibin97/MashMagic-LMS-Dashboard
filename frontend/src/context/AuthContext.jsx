@@ -10,22 +10,22 @@ export const AuthProvider = ({ children }) => {
  useEffect(() => {
  const initializeAuth = () => {
  try {
- const token = localStorage.getItem('token');
- const storedUser = localStorage.getItem('user');
- const storedRole = localStorage.getItem('role');
+ const token = sessionStorage.getItem('token');
+ const storedUser = sessionStorage.getItem('user');
+ const storedRole = sessionStorage.getItem('role');
 
  if (token && storedUser) {
  const parsedUser = JSON.parse(storedUser);
  // Ensure role is present in state
  setUser({ ...parsedUser, role: storedRole || parsedUser.role });
  } else {
- localStorage.removeItem('token');
- localStorage.removeItem('user');
- localStorage.removeItem('role');
+ sessionStorage.removeItem('token');
+ sessionStorage.removeItem('user');
+ sessionStorage.removeItem('role');
  }
  } catch (error) {
  console.error("Auth initialization failed:", error);
- localStorage.clear();
+ sessionStorage.clear();
  } finally {
  setLoading(false);
  }
@@ -53,9 +53,9 @@ export const AuthProvider = ({ children }) => {
  }
 
  // Persistence
- localStorage.setItem('token', data.token);
- localStorage.setItem('role', role);
- localStorage.setItem('user', JSON.stringify({ ...data.user, role }));
+ sessionStorage.setItem('token', data.token);
+ sessionStorage.setItem('role', role);
+ sessionStorage.setItem('user', JSON.stringify({ ...data.user, role }));
 
  const userData = { ...data.user, role };
  setUser(userData);
@@ -68,23 +68,23 @@ export const AuthProvider = ({ children }) => {
 
  const setAuthData = (data) => {
  const role = data.role || data.user?.role || '';
- localStorage.setItem('token', data.token);
- localStorage.setItem('role', role);
- localStorage.setItem('user', JSON.stringify({ ...data.user, role }));
+ sessionStorage.setItem('token', data.token);
+ sessionStorage.setItem('role', role);
+ sessionStorage.setItem('user', JSON.stringify({ ...data.user, role }));
  setUser({ ...data.user, role });
  };
 
  const logout = () => {
- localStorage.removeItem('token');
- localStorage.removeItem('user');
- localStorage.removeItem('role');
+ sessionStorage.removeItem('token');
+ sessionStorage.removeItem('user');
+ sessionStorage.removeItem('role');
  setUser(null);
  };
 
  const updateUser = (updatedData) => {
     const newUser = { ...user, ...updatedData };
     setUser(newUser);
-    localStorage.setItem('user', JSON.stringify(newUser));
+    sessionStorage.setItem('user', JSON.stringify(newUser));
   };
 
  return (
