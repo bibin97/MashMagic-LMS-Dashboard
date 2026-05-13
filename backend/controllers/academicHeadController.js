@@ -240,20 +240,20 @@ const getFacultyInteractionLogs = async (req, res) => {
 const getAcademicActions = async (req, res) => {
     try {
         // 1. Fetch Milestones (Students needing exam plans)
-        // Logic: Students in mentor_session_reports where session_number is multiple of 5 and no entry in student_exams for that milestone
         const [milestones] = await db.query(`
             SELECT 
                 r.student_id, s.name as student_name, r.session_number as milestone,
                 m.name as mentor_name,
-                e.portions, e.chapter, e.exam_type, e.scheduled_date
+                MAX(e.portions) as portions, MAX(e.chapter) as chapter, 
+                MAX(e.exam_type) as exam_type, MAX(e.scheduled_date) as scheduled_date
             FROM mentor_session_reports r
             JOIN students s ON r.student_id = s.id
             JOIN mentors m ON s.mentor_id = m.id
             LEFT JOIN student_exams e ON r.student_id = e.student_id AND r.session_number = e.milestone_session
-            WHERE r.session_number % 5 = 0
-            AND e.id IS NULL OR e.status = 'Pending'
-            GROUP BY r.student_id, r.session_number
-            ORDER BY r.created_at DESC
+            WHERE (r.session_number % 5 = 0 OR r.session_number % 10 = 0)
+            AND (e.id IS NULL OR e.status = 'Pending')
+            GROUP BY r.student_id, r.session_number, s.name, m.name
+            ORDER BY MAX(r.created_at) DESC
         `);
 
         // 2. Fetch Daily Logs (Faculty sessions today)
