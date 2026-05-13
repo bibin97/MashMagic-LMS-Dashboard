@@ -55,9 +55,7 @@ exports.registerMentor = async (req, res) => {
             registeredBy: req.user.id
         });
 
-        // Notify Admin
-        const msg = `<span class="font-bold text-blue-600">${req.user.name}</span> <span class="text-xs bg-blue-100 text-blue-800 px-1 rounded">(Mentor Head)</span> added <span class="font-bold text-indigo-600">${name}</span> <span class="text-xs bg-indigo-100 text-indigo-800 px-1 rounded">(Mentor)</span>`;
-        await db.query('INSERT INTO admin_notifications (message, related_id, action_type) VALUES (?, ?, ?)', [msg, mentorId, 'mentor_registration']);
+
 
         res.status(201).json({
             success: true,

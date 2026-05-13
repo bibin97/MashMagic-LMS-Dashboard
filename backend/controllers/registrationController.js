@@ -116,12 +116,7 @@ const registerMentor = async (req, res) => {
 
         const userId = userResult.insertId;
 
-        // Notify Admin
-        await db.query('INSERT INTO admin_notifications (message, related_id, action_type) VALUES (?, ?, ?)', [
-            `<b>Mentor Application:</b> ${name} has requested access. <span style="color:#F59E0B">Pending Admin Approval</span>.`,
-            userId,
-            'mentor_registration'
-        ]);
+
 
         // 3. Generate Token
         const token = jwt.sign(
@@ -175,12 +170,7 @@ const registerFaculty = async (req, res) => {
 
         const userId = userResult.insertId;
 
-        // Notify Admin
-        await db.query('INSERT INTO admin_notifications (message, related_id, action_type) VALUES (?, ?, ?)', [
-            `<b>Faculty Application:</b> ${name} has requested access. <span style="color:#F59E0B">Pending Admin Approval</span>.`,
-            userId,
-            'faculty_registration'
-        ]);
+
 
         // 3. Generate Token
         const token = jwt.sign(

@@ -310,10 +310,11 @@ const registerStudent = async (req, res) => {
         // Check if student already exists in users or students table
         const contactCheck = contact ? contact.trim() : null;
         const emailCheck = (email && email.trim() !== '') ? email.trim() : null;
+        const regNumCheck = (registrationNumber && registrationNumber.trim() !== '') ? registrationNumber.trim() : null;
 
-        if (emailCheck || contactCheck) {
-            let userCheckQuery = 'SELECT id FROM users WHERE 1=0';
-            let studentCheckQuery = 'SELECT id FROM students WHERE 1=0';
+        if (emailCheck || contactCheck || regNumCheck) {
+            let userCheckQuery = 'SELECT id, email, phone_number, role FROM users WHERE 1=0';
+            let studentCheckQuery = 'SELECT id, email, contact, registration_number FROM students WHERE 1=0';
             let checkParams = [];
             let studentParams = [];
 
@@ -329,14 +330,24 @@ const registerStudent = async (req, res) => {
                 checkParams.push(contactCheck);
                 studentParams.push(contactCheck);
             }
+            if (regNumCheck) {
+                // Also check registration_number in students table
+                studentCheckQuery += ' OR registration_number = ?';
+                studentParams.push(regNumCheck);
+            }
 
             const [existingUsers] = await db.query(userCheckQuery, checkParams);
             const [existingStudents] = await db.query(studentCheckQuery, studentParams);
 
             if (existingUsers.length > 0 || existingStudents.length > 0) {
+                let duplicateField = '';
+                if (existingStudents.some(s => s.registration_number === regNumCheck)) duplicateField = 'Student ID (Registration Number)';
+                else if (existingUsers.some(u => u.email === emailCheck) || existingStudents.some(s => s.email === emailCheck)) duplicateField = 'Email';
+                else if (existingUsers.some(u => u.phone_number === contactCheck) || existingStudents.some(s => s.contact === contactCheck)) duplicateField = 'Contact Number';
+
                 return res.status(400).json({ 
                     success: false, 
-                    message: `Student already registered with this ${emailCheck && contactCheck ? 'Email or Contact' : (emailCheck ? 'Email' : 'Contact')}.` 
+                    message: `Registration Failed: A student is already registered with this ${duplicateField || 'identifier'}.` 
                 });
             }
         }
@@ -518,9 +529,7 @@ const registerFaculty = async (req, res) => {
             secondary_subjects
         });
 
-        // Notify Admin
-        const msg = `<b>Staff Onboarding:</b> <span style="color:#008080">${req.user.name}</span> added new faculty <b>${name}</b>. <span style="color:#f59e0b">(Pending Approval)</span>`;
-        await db.query('INSERT INTO admin_notifications (message, related_id, action_type) VALUES (?, ?, ?)', [msg, userId, 'faculty_registration']);
+
 
         console.log(`[FACULTY REG] SUCCESS! New Faculty ID: ${userId} | Status: PENDING`);
         res.status(201).json({
@@ -585,9 +594,7 @@ const registerSSC = async (req, res) => {
             registeredBy: requesterId
         });
 
-        // Notify Admin
-        const msg = `<b>Staff Onboarding:</b> <span style="color:#008080">${req.user.name}</span> added new SSC <b>${name}</b>. <span style="color:#f59e0b">(Pending Approval)</span>`;
-        await db.query('INSERT INTO admin_notifications (message, related_id, action_type) VALUES (?, ?, ?)', [msg, userId, 'ssc_registration']);
+
 
         res.status(201).json({
             success: true,
