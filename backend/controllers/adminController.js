@@ -400,7 +400,7 @@ const getAllStudentLogs = async (req, res) => {
                 CONVERT(r.flag_reason USING utf8mb4) COLLATE utf8mb4_unicode_ci as flag_reason,
                 NULL as screenshot_url
             FROM mentor_session_reports r
-            LEFT JOIN mentors m ON r.mentor_id = m.id
+            LEFT JOIN users m ON r.mentor_id = m.id AND m.role = 'mentor'
             JOIN students s ON r.student_id = s.id
             ${whereClause.replace(/student_id/g, 'r.student_id').replace(/mentor_id/g, 'r.mentor_id').replace(/created_at/g, 'r.created_at')}
 
@@ -421,7 +421,7 @@ const getAllStudentLogs = async (req, res) => {
                 NULL as flag_reason,
                 NULL as screenshot_url
             FROM mentor_session_logs l
-            LEFT JOIN mentors m ON l.mentor_id = m.id
+            LEFT JOIN users m ON l.mentor_id = m.id AND m.role = 'mentor'
             JOIN students s ON l.student_id = s.id
             ${whereClause.replace(/student_id/g, 'l.student_id').replace(/mentor_id/g, 'l.mentor_id').replace(/created_at/g, 'l.created_at')}
 
@@ -442,7 +442,7 @@ const getAllStudentLogs = async (req, res) => {
                 NULL as flag_reason,
                 CONVERT(logs.screenshot_url USING utf8mb4) COLLATE utf8mb4_unicode_ci as screenshot_url
             FROM student_interaction_logs logs
-            LEFT JOIN mentors m ON logs.mentor_id = m.id
+            LEFT JOIN users m ON logs.mentor_id = m.id AND m.role = 'mentor'
             JOIN students s ON logs.student_id = s.id
             ${whereClause.replace(/student_id/g, 'logs.student_id').replace(/mentor_id/g, 'logs.mentor_id').replace(/created_at/g, 'logs.created_at')}
 
@@ -463,7 +463,7 @@ const getAllStudentLogs = async (req, res) => {
                 NULL as flag_reason,
                 NULL as screenshot_url
             FROM mentorship_logs ml
-            LEFT JOIN mentors m ON ml.mentor_id = m.id
+            LEFT JOIN users m ON ml.mentor_id = m.id AND m.role = 'mentor'
             JOIN students s ON ml.student_id = s.id
             ${whereClause.replace(/student_id/g, 'ml.student_id').replace(/mentor_id/g, 'ml.mentor_id').replace(/created_at/g, 'ml.created_at')}
 

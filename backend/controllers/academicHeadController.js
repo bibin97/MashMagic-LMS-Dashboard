@@ -31,37 +31,37 @@ const getDashboardStats = async (req, res) => {
                 u.name as faculty_name
             FROM mentor_timetable tt
             JOIN students s ON tt.student_id = s.id
-            LEFT JOIN faculties u ON s.faculty_id = u.id
+            LEFT JOIN users u ON s.faculty_id = u.id AND u.role = 'faculty'
             WHERE tt.date = ?
             ORDER BY tt.start_time ASC
         `, [today], 'schedule');
 
         const activityFeed = await safeQuery(`
             SELECT * FROM (
-                (SELECT CONVERT('Quick Log' USING utf8mb4) COLLATE utf8mb4_unicode_ci as type, CONVERT(sil.mentor_notes USING utf8mb4) COLLATE utf8mb4_unicode_ci as mentor_notes, CONVERT(s.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as student_name, CONVERT(u.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as origin_name, sil.created_at as date
-                 FROM student_interaction_logs sil
-                 JOIN students s ON sil.student_id = s.id
-                 JOIN mentors u ON sil.mentor_id = u.id)
-                UNION ALL
-                (SELECT CONVERT('Session Log' USING utf8mb4) COLLATE utf8mb4_unicode_ci as type, CONVERT(CONCAT(msl.main_issue, ': ', msl.action_type) USING utf8mb4) COLLATE utf8mb4_unicode_ci as mentor_notes, CONVERT(s.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as student_name, CONVERT(u.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as origin_name, msl.created_at as date
-                 FROM mentor_session_logs msl
-                 JOIN students s ON msl.student_id = s.id
-                 JOIN mentors u ON msl.mentor_id = u.id)
-                UNION ALL
-                (SELECT CONVERT('Hub Report' USING utf8mb4) COLLATE utf8mb4_unicode_ci as type, 
-                         CONVERT(COALESCE(
-                             JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.notes')), 
-                             JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.action_plan')),
-                             JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.next_task')),
-                             JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.study_status')),
-                             JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.main_problem')),
-                             msr.session_type
-                         ) USING utf8mb4) COLLATE utf8mb4_unicode_ci as mentor_notes, 
-                         CONVERT(s.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as student_name, CONVERT(u.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as origin_name, msr.created_at as date
-                 FROM mentor_session_reports msr
-                 JOIN students s ON msr.student_id = s.id
-                 JOIN mentors u ON msr.mentor_id = u.id
-                 WHERE msr.report_data IS NOT NULL AND JSON_VALID(msr.report_data))
+                 (SELECT CONVERT('Quick Log' USING utf8mb4) COLLATE utf8mb4_unicode_ci as type, CONVERT(sil.mentor_notes USING utf8mb4) COLLATE utf8mb4_unicode_ci as mentor_notes, CONVERT(s.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as student_name, CONVERT(u.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as origin_name, sil.created_at as date
+                  FROM student_interaction_logs sil
+                  JOIN students s ON sil.student_id = s.id
+                  JOIN users u ON sil.mentor_id = u.id WHERE u.role = 'mentor')
+                 UNION ALL
+                 (SELECT CONVERT('Session Log' USING utf8mb4) COLLATE utf8mb4_unicode_ci as type, CONVERT(CONCAT(msl.main_issue, ': ', msl.action_type) USING utf8mb4) COLLATE utf8mb4_unicode_ci as mentor_notes, CONVERT(s.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as student_name, CONVERT(u.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as origin_name, msl.created_at as date
+                  FROM mentor_session_logs msl
+                  JOIN students s ON msl.student_id = s.id
+                  JOIN users u ON msl.mentor_id = u.id WHERE u.role = 'mentor')
+                 UNION ALL
+                 (SELECT CONVERT('Hub Report' USING utf8mb4) COLLATE utf8mb4_unicode_ci as type, 
+                          CONVERT(COALESCE(
+                              JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.notes')), 
+                              JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.action_plan')),
+                              JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.next_task')),
+                              JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.study_status')),
+                              JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.main_problem')),
+                              msr.session_type
+                          ) USING utf8mb4) COLLATE utf8mb4_unicode_ci as mentor_notes, 
+                          CONVERT(s.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as student_name, CONVERT(u.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as origin_name, msr.created_at as date
+                  FROM mentor_session_reports msr
+                  JOIN students s ON msr.student_id = s.id
+                  JOIN users u ON msr.mentor_id = u.id WHERE u.role = 'mentor'
+                  AND msr.report_data IS NOT NULL AND JSON_VALID(msr.report_data))
                 UNION ALL
                 (SELECT CONVERT('Mentorship' USING utf8mb4) COLLATE utf8mb4_unicode_ci as type, CONVERT(ml.action_details USING utf8mb4) COLLATE utf8mb4_unicode_ci as mentor_notes, CONVERT(s.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as student_name, CONVERT(u.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as origin_name, ml.created_at as date
                  FROM mentorship_logs ml
@@ -248,7 +248,7 @@ const getAcademicActions = async (req, res) => {
                 MAX(e.exam_type) as exam_type, MAX(e.scheduled_date) as scheduled_date
             FROM mentor_timetable r
             JOIN students s ON r.student_id = s.id
-            JOIN mentors m ON s.mentor_id = m.id
+            JOIN users m ON s.mentor_id = m.id AND m.role = 'mentor'
             LEFT JOIN student_exams e ON r.student_id = e.student_id AND r.session_number = e.milestone_session
             WHERE (r.session_number % 5 = 0)
             AND r.status = 'Completed'
@@ -344,7 +344,7 @@ const submitLiveClassEvaluation = async (req, res) => {
 
 const getPendingFacultyLogs = async (req, res) => {
     try {
-        const [rows] = await db.query('SELECT f.*, u.name as faculty_name FROM faculty_interaction_logs f JOIN faculties u ON f.faculty_id = u.id WHERE verification_status = "Pending" ORDER BY f.created_at DESC');
+        const [rows] = await db.query('SELECT f.*, u.name as faculty_name FROM faculty_interaction_logs f JOIN users u ON f.faculty_id = u.id WHERE u.role = "faculty" AND verification_status = "Pending" ORDER BY f.created_at DESC');
         res.status(200).json({ success: true, data: rows });
     } catch (e) { res.status(500).json({ success: false, message: e.message }); }
 };
@@ -430,17 +430,15 @@ const deleteMentor = async (req, res) => {
 
 const getLiveMonitoring = async (req, res) => {
     try {
-        const [rows] = await db.query('SELECT fs.*, u.name as faculty_name, s.name as student_name FROM faculty_sessions fs JOIN faculties u ON fs.faculty_id = u.id JOIN session_attendance sa ON fs.id = sa.session_id JOIN students s ON sa.student_id = s.id WHERE fs.date = CURDATE()');
+        const [rows] = await db.query('SELECT fs.*, u.name as faculty_name, s.name as student_name FROM faculty_sessions fs JOIN users u ON fs.faculty_id = u.id JOIN session_attendance sa ON fs.id = sa.session_id JOIN students s ON sa.student_id = s.id WHERE u.role = "faculty" AND fs.date = CURDATE()');
         res.status(200).json({ success: true, data: rows });
     } catch (e) { res.status(500).json({ success: false, message: e.message }); }
 };
 
 const getStaff = async (req, res) => {
     try {
-        const [us] = await db.query('SELECT id, name, email, phone_number as phone, role FROM users WHERE role != "student"');
-        const [ms] = await db.query('SELECT id, name, email, phone_number as phone, "mentor" as role FROM mentors');
-        const [fs] = await db.query('SELECT id, name, email, phone_number as phone, "faculty" as role FROM faculties');
-        res.status(200).json({ success: true, data: [...us, ...ms, ...fs] });
+        const [rows] = await db.query('SELECT id, name, email, phone_number as phone, role, status FROM users WHERE role IN ("mentor", "faculty", "ssc", "admin", "academic_head", "mentor_head") ORDER BY name ASC');
+        res.status(200).json({ success: true, data: rows });
     } catch (e) { res.status(500).json({ success: false, message: e.message }); }
 };
 

@@ -160,7 +160,7 @@ exports.getStudentInteractionLogs = async (req, res) => {
                     CAST(sil.exam_anxiety AS CHAR) as stress_level,
                     0 as is_flagged, NULL as flag_reason
                 FROM student_interaction_logs sil
-                LEFT JOIN mentors m ON sil.mentor_id = m.id
+                LEFT JOIN users m ON sil.mentor_id = m.id AND m.role = 'mentor'
                 LEFT JOIN students s ON sil.student_id = s.id
                 ${baseWhere('sil')}
 
@@ -177,7 +177,7 @@ exports.getStudentInteractionLogs = async (req, res) => {
                     CAST(msl.stress_level AS CHAR) as stress_level,
                     0 as is_flagged, NULL as flag_reason
                 FROM mentor_session_logs msl
-                LEFT JOIN mentors m ON msl.mentor_id = m.id
+                LEFT JOIN users m ON msl.mentor_id = m.id AND m.role = 'mentor'
                 LEFT JOIN students s ON msl.student_id = s.id
                 ${baseWhere('msl', 'student_id', 'mentor_id', 'created_at')}
 
@@ -194,7 +194,7 @@ exports.getStudentInteractionLogs = async (req, res) => {
                     NULL as stress_level,
                     msr.is_flagged, msr.flag_reason
                 FROM mentor_session_reports msr
-                LEFT JOIN mentors m ON msr.mentor_id = m.id
+                LEFT JOIN users m ON msr.mentor_id = m.id AND m.role = 'mentor'
                 LEFT JOIN students s ON msr.student_id = s.id
                 ${baseWhere('msr', 'student_id', 'mentor_id', 'created_at')}
 
@@ -209,7 +209,7 @@ exports.getStudentInteractionLogs = async (req, res) => {
                     NULL as understanding_level, NULL as student_confidence, NULL as stress_level,
                     0 as is_flagged, NULL as flag_reason
                 FROM mentorship_logs ml
-                LEFT JOIN mentors m ON ml.mentor_id = m.id
+                LEFT JOIN users m ON ml.mentor_id = m.id AND m.role = 'mentor'
                 LEFT JOIN students s ON ml.student_id = s.id
                 ${baseWhere('ml', 'student_id', 'mentor_id', 'created_at')}
             ) as unified_logs
@@ -277,9 +277,9 @@ exports.getFacultyInteractionLogs = async (req, res) => {
                     0 as is_flagged, NULL as flag_reason,
                     f.name as faculty_name, fil.faculty_id
                 FROM faculty_interaction_logs fil
-                LEFT JOIN mentors m ON fil.mentor_id = m.id
+                LEFT JOIN users f ON fil.faculty_id = f.id AND f.role = 'faculty'
                 LEFT JOIN students s ON fil.student_id = s.id
-                LEFT JOIN faculties f ON fil.faculty_id = f.id
+                LEFT JOIN users m ON fil.mentor_id = m.id AND m.role = 'mentor'
                 ${baseWhere('fil')}
 
                 UNION ALL
