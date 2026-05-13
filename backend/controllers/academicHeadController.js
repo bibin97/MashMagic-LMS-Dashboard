@@ -239,9 +239,43 @@ const getFacultyInteractionLogs = async (req, res) => {
 
 const getAcademicActions = async (req, res) => {
     try {
-        const [rows] = await db.query('SELECT * FROM admin_notifications ORDER BY created_at DESC LIMIT 50');
-        res.status(200).json({ success: true, data: rows });
-    } catch (e) { res.status(500).json({ success: false, message: e.message }); }
+        // 1. Fetch Milestones (Students needing exam plans)
+        // Logic: Students in mentor_session_reports where session_number is multiple of 5 and no entry in student_exams for that milestone
+        const [milestones] = await db.query(`
+            SELECT 
+                r.student_id, s.name as student_name, r.session_number as milestone,
+                m.name as mentor_name,
+                e.portions, e.chapter, e.exam_type, e.scheduled_date
+            FROM mentor_session_reports r
+            JOIN students s ON r.student_id = s.id
+            JOIN mentors m ON s.mentor_id = m.id
+            LEFT JOIN student_exams e ON r.student_id = e.student_id AND r.session_number = e.milestone_session
+            WHERE r.session_number % 5 = 0
+            AND e.id IS NULL OR e.status = 'Pending'
+            GROUP BY r.student_id, r.session_number
+            ORDER BY r.created_at DESC
+        `);
+
+        // 2. Fetch Daily Logs (Faculty sessions today)
+        const [dailyLogs] = await db.query(`
+            SELECT fs.*, f.name as faculty_name 
+            FROM faculty_sessions fs
+            JOIN faculties f ON fs.faculty_id = f.id
+            WHERE fs.date = CURDATE()
+            ORDER BY fs.start_time ASC
+        `);
+
+        res.status(200).json({ 
+            success: true, 
+            data: { 
+                milestones: milestones || [], 
+                dailyLogs: dailyLogs || [] 
+            } 
+        });
+    } catch (e) {
+        console.error("GET_ACADEMIC_ACTIONS_ERROR:", e);
+        res.status(500).json({ success: false, message: e.message });
+    }
 };
 
 const getDailyFacultyChecks = async (req, res) => {
@@ -396,9 +430,9 @@ const getLiveMonitoring = async (req, res) => {
 
 const getStaff = async (req, res) => {
     try {
-        const [us] = await db.query('SELECT id, name, email, role FROM users WHERE role != "student"');
-        const [ms] = await db.query('SELECT id, name, email, "mentor" as role FROM mentors');
-        const [fs] = await db.query('SELECT id, name, email, "faculty" as role FROM faculties');
+        const [us] = await db.query('SELECT id, name, email, phone_number as phone, role FROM users WHERE role != "student"');
+        const [ms] = await db.query('SELECT id, name, email, phone_number as phone, "mentor" as role FROM mentors');
+        const [fs] = await db.query('SELECT id, name, email, phone_number as phone, "faculty" as role FROM faculties');
         res.status(200).json({ success: true, data: [...us, ...ms, ...fs] });
     } catch (e) { res.status(500).json({ success: false, message: e.message }); }
 };
