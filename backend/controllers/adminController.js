@@ -463,7 +463,7 @@ const getAllStudentLogs = async (req, res) => {
                 NULL as flag_reason,
                 NULL as screenshot_url
             FROM mentorship_logs ml
-            LEFT JOIN users m ON ml.mentor_id = m.id
+            LEFT JOIN mentors m ON ml.mentor_id = m.id
             JOIN students s ON ml.student_id = s.id
             ${whereClause.replace(/student_id/g, 'ml.student_id').replace(/mentor_id/g, 'ml.mentor_id').replace(/created_at/g, 'ml.created_at')}
 
@@ -1060,9 +1060,9 @@ const getStaffMembers = async (req, res) => {
         const query = `
             SELECT id, name, email, phone_number as phone, role, status, createdAt as created_at FROM users
             UNION ALL
-            SELECT id, name, email, phone as phone, role, status, createdAt as created_at FROM mentors
+            SELECT id, name, email, phone_number as phone, role, status, createdAt as created_at FROM mentors
             UNION ALL
-            SELECT id, name, email, phone as phone, role, status, createdAt as created_at FROM faculties
+            SELECT id, name, email, phone_number as phone, role, status, createdAt as created_at FROM faculties
             ORDER BY role ASC, name ASC
         `;
         const [rows] = await db.query(query);

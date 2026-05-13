@@ -2,7 +2,110 @@ const db = require('../config/db');
 const bcrypt = require('bcrypt');
 const User = require('../models/userModel');
 
-// @desc    Get exam analytics
+// @desc    Get dashboard metrics and today's schedule
+const getDashboardStats = async (req, res) => {
+    try {
+        const today = new Date().toISOString().split('T')[0];
+        const safeQuery = async (query, params, label) => {
+            try {
+                const [result] = await db.query(query, params);
+                return result;
+            } catch (err) {
+                console.error(`[Academic Head Dashboard Error] ${label}:`, err.message);
+                return [];
+            }
+        };
+
+        const studentsStats = await safeQuery('SELECT COUNT(*) as totalStudents FROM students WHERE status != "rejected"', [], 'totalStudents');
+        const facultiesStats = await safeQuery('SELECT COUNT(*) as totalFaculties FROM faculties WHERE status != "rejected"', [], 'totalFaculties');
+        const mentorsStats = await safeQuery('SELECT COUNT(*) as totalMentors FROM mentors WHERE status != "rejected"', [], 'totalMentors');
+
+        const totalStudents = studentsStats[0]?.totalStudents || 0;
+        const totalFaculties = facultiesStats[0]?.totalFaculties || 0;
+        const totalMentors = mentorsStats[0]?.totalMentors || 0;
+
+        const schedule = await safeQuery(`
+            SELECT 
+                tt.id, tt.start_time, tt.end_time, tt.chapter, tt.status,
+                s.name as student_name, s.subject,
+                u.name as faculty_name
+            FROM mentor_timetable tt
+            JOIN students s ON tt.student_id = s.id
+            LEFT JOIN faculties u ON s.faculty_id = u.id
+            WHERE tt.date = ?
+            ORDER BY tt.start_time ASC
+        `, [today], 'schedule');
+
+        const activityFeed = await safeQuery(`
+            SELECT * FROM (
+                (SELECT CONVERT('Quick Log' USING utf8mb4) COLLATE utf8mb4_unicode_ci as type, CONVERT(sil.mentor_notes USING utf8mb4) COLLATE utf8mb4_unicode_ci as mentor_notes, CONVERT(s.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as student_name, CONVERT(u.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as origin_name, sil.created_at as date
+                 FROM student_interaction_logs sil
+                 JOIN students s ON sil.student_id = s.id
+                 JOIN mentors u ON sil.mentor_id = u.id)
+                UNION ALL
+                (SELECT CONVERT('Session Log' USING utf8mb4) COLLATE utf8mb4_unicode_ci as type, CONVERT(CONCAT(msl.main_issue, ': ', msl.action_type) USING utf8mb4) COLLATE utf8mb4_unicode_ci as mentor_notes, CONVERT(s.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as student_name, CONVERT(u.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as origin_name, msl.created_at as date
+                 FROM mentor_session_logs msl
+                 JOIN students s ON msl.student_id = s.id
+                 JOIN mentors u ON msl.mentor_id = u.id)
+                UNION ALL
+                (SELECT CONVERT('Hub Report' USING utf8mb4) COLLATE utf8mb4_unicode_ci as type, 
+                         CONVERT(COALESCE(
+                             JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.notes')), 
+                             JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.action_plan')),
+                             JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.next_task')),
+                             JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.study_status')),
+                             JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.main_problem')),
+                             msr.session_type
+                         ) USING utf8mb4) COLLATE utf8mb4_unicode_ci as mentor_notes, 
+                         CONVERT(s.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as student_name, CONVERT(u.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as origin_name, msr.created_at as date
+                 FROM mentor_session_reports msr
+                 JOIN students s ON msr.student_id = s.id
+                 JOIN mentors u ON msr.mentor_id = u.id
+                 WHERE msr.report_data IS NOT NULL AND JSON_VALID(msr.report_data))
+                UNION ALL
+                (SELECT CONVERT('Mentorship' USING utf8mb4) COLLATE utf8mb4_unicode_ci as type, CONVERT(ml.action_details USING utf8mb4) COLLATE utf8mb4_unicode_ci as mentor_notes, CONVERT(s.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as student_name, CONVERT(u.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as origin_name, ml.created_at as date
+                 FROM mentorship_logs ml
+                 JOIN students s ON ml.student_id = s.id
+                 JOIN mentors u ON ml.mentor_id = u.id)
+                UNION ALL
+                (SELECT CONVERT('Faculty Interaction' USING utf8mb4) COLLATE utf8mb4_unicode_ci as type, CONVERT(fil.notes USING utf8mb4) COLLATE utf8mb4_unicode_ci as mentor_notes, CONVERT(s.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as student_name, CONVERT(u.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as origin_name, fil.created_at as date
+                 FROM faculty_interaction_logs fil
+                 JOIN students s ON fil.student_id = s.id
+                 JOIN mentors u ON fil.mentor_id = u.id)
+                UNION ALL
+                (SELECT CONVERT('Staff Call' USING utf8mb4) COLLATE utf8mb4_unicode_ci as type, CONVERT(mfi.main_issue USING utf8mb4) COLLATE utf8mb4_unicode_ci as mentor_notes, CONVERT(s.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as student_name, CONVERT(u.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as origin_name, mfi.created_at as date
+                 FROM mentor_faculty_interactions mfi
+                 JOIN students s ON mfi.student_id = s.id
+                 JOIN mentors u ON mfi.mentor_id = u.id)
+                UNION ALL
+                 (SELECT CONVERT('Intelligence' USING utf8mb4) COLLATE utf8mb4_unicode_ci as type, CONVERT(COALESCE(r.remarks, 'No details') USING utf8mb4) COLLATE utf8mb4_unicode_ci as mentor_notes, CONVERT(s.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as student_name, CONVERT(u.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as origin_name, r.created_at as date
+                  FROM student_reports r 
+                  JOIN students s ON r.student_id = s.id 
+                  JOIN faculties u ON r.faculty_id = u.id)
+            ) as combined_logs
+            ORDER BY date DESC
+            LIMIT 20
+        `, [], 'activityFeed');
+
+        res.status(200).json({
+            success: true,
+            data: {
+                stats: {
+                    totalStudents,
+                    totalFaculties,
+                    totalMentors,
+                    todaySessions: (schedule || []).length
+                },
+                schedule: schedule || [],
+                activityFeed: activityFeed || []
+            }
+        });
+    } catch (error) {
+        console.error('FATAL ERROR in getDashboardStats:', error);
+        res.status(500).json({ success: false, message: "Dashboard Critical Error", error: error.message });
+    }
+};
+
 const getExamAnalytics = async (req, res) => {
     try {
         const { student_id } = req.query;
@@ -14,35 +117,12 @@ const getExamAnalytics = async (req, res) => {
     } catch (error) { res.status(500).json({ success: false, message: error.message }); }
 };
 
-const getDashboardStats = async (req, res) => {
-    try {
-        const today = new Date().toISOString().split('T')[0];
-        const safeQuery = async (q, p, l) => { try { const [r] = await db.query(q, p); return r; } catch (e) { console.error(`[AH Dashboard Error] ${l}:`, e.message); return []; } };
-
-        const students = await safeQuery('SELECT COUNT(*) as c FROM students WHERE status != "rejected"', [], 'students');
-        const faculties = await safeQuery('SELECT COUNT(*) as c FROM faculties WHERE status != "rejected"', [], 'faculties');
-        const mentors = await safeQuery('SELECT COUNT(*) as c FROM mentors WHERE status != "rejected"', [], 'mentors');
-
-        const schedule = await safeQuery('SELECT tt.*, s.name as student_name, u.name as faculty_name FROM mentor_timetable tt JOIN students s ON tt.student_id = s.id LEFT JOIN faculties u ON s.faculty_id = u.id WHERE tt.date = ? ORDER BY tt.start_time ASC', [today], 'schedule');
-
-        const activityFeed = await safeQuery(`
-            SELECT * FROM (
-                (SELECT 'Quick Log' as type, sil.mentor_notes, s.name as student_name, m.name as origin_name, sil.created_at as date FROM student_interaction_logs sil JOIN students s ON sil.student_id = s.id JOIN mentors m ON sil.mentor_id = m.id)
-                UNION ALL
-                (SELECT 'Session Log' as type, msl.main_issue as mentor_notes, s.name as student_name, m.name as origin_name, msl.created_at as date FROM mentor_session_logs msl JOIN students s ON msl.student_id = s.id JOIN mentors m ON msl.mentor_id = m.id)
-            ) as logs ORDER BY date DESC LIMIT 20
-        `, [], 'activity');
-
-        res.status(200).json({ success: true, data: { stats: { totalStudents: students[0]?.c || 0, totalFaculties: faculties[0]?.c || 0, totalMentors: mentors[0]?.c || 0, todaySessions: schedule.length }, schedule, activityFeed } });
-    } catch (error) { res.status(500).json({ success: false, message: error.message }); }
-};
-
 const getAllFacultyActivity = async (req, res) => {
     try {
         const [sessions] = await db.query('SELECT s.*, u.name as faculty_name FROM faculty_sessions s JOIN faculties u ON s.faculty_id = u.id ORDER BY s.date DESC');
         const [reports] = await db.query('SELECT r.*, s.name as student_name, u.name as faculty_name FROM student_reports r JOIN students s ON r.student_id = s.id JOIN faculties u ON r.faculty_id = u.id ORDER BY r.created_at DESC');
         res.status(200).json({ success: true, data: { sessions, reports } });
-    } catch (error) { res.status(500).json({ success: false, message: error.message }); }
+    } catch (error) { res.status(500).json({ success: false, message: "Server Error", error: error.message }); }
 };
 
 const performAutoSync = async () => {
@@ -57,8 +137,15 @@ const performAutoSync = async () => {
 const getAvailableFaculties = async (req, res) => {
     try {
         await performAutoSync();
-        const [rows] = await db.query('SELECT id, name, subject FROM faculties WHERE status = "active"');
-        res.status(200).json({ success: true, data: rows.map(r => ({ ...r, isAvailable: true })) });
+        const { days, day, startTime, endTime } = req.query;
+        const daysList = days ? (Array.isArray(days) ? days : days.split(',')) : [day];
+        
+        const conflictConditions = daysList.map(() => `(fs.day_of_week = ? AND STR_TO_DATE(fs.start_time, '%h:%i %p') < STR_TO_DATE(?, '%h:%i %p') AND STR_TO_DATE(fs.end_time, '%h:%i %p') > STR_TO_DATE(?, '%h:%i %p'))`).join(' OR ');
+        let params = [];
+        daysList.forEach(d => params.push(d, endTime, startTime));
+
+        const [faculties] = await db.query(`SELECT u.id, u.name, u.subject, EXISTS (SELECT 1 FROM faculty_schedules fs WHERE fs.faculty_id = u.id AND (${conflictConditions})) as hasConflict FROM faculties u WHERE u.status = 'active'`, params);
+        res.status(200).json({ success: true, data: faculties.map(f => ({ ...f, isAvailable: !f.hasConflict })) });
     } catch (error) { res.status(500).json({ success: false, message: error.message }); }
 };
 
@@ -106,13 +193,39 @@ const registerSSC = async (req, res) => {
 
 const getStudentInteractionLogs = async (req, res) => {
     try {
-        const [rows] = await db.query(`
-            SELECT sil.id, sil.created_at, 'Quick' as source, sil.mentor_notes as notes, m.name as mentor_name, s.name as student_name 
-            FROM student_interaction_logs sil 
-            JOIN mentors m ON sil.mentor_id = m.id 
-            JOIN students s ON sil.student_id = s.id 
-            ORDER BY created_at DESC
-        `);
+        const { student_id, mentor_id, startDate, endDate } = req.query;
+        let params = [];
+        const baseWhere = (tableAlias, dateCol = 'created_at') => {
+            let clause = 'WHERE 1=1';
+            if (student_id) { clause += ` AND ${tableAlias}.student_id = ?`; params.push(student_id); }
+            if (mentor_id) { clause += ` AND ${tableAlias}.mentor_id = ?`; params.push(mentor_id); }
+            if (startDate) { clause += ` AND ${tableAlias}.${dateCol} >= ?`; params.push(startDate); }
+            if (endDate) { clause += ` AND ${tableAlias}.${dateCol} <= ?`; params.push(endDate + ' 23:59:59'); }
+            return clause;
+        };
+
+        const query = `
+            SELECT * FROM (
+                SELECT sil.id, sil.created_at, CONVERT('Quick' USING utf8mb4) COLLATE utf8mb4_unicode_ci as source, CONVERT(sil.mentor_notes USING utf8mb4) COLLATE utf8mb4_unicode_ci as notes, m.name as mentor_name, s.name as student_name 
+                FROM student_interaction_logs sil 
+                JOIN mentors m ON sil.mentor_id = m.id 
+                JOIN students s ON sil.student_id = s.id 
+                ${baseWhere('sil')}
+                UNION ALL
+                SELECT msl.id, msl.created_at, CONVERT('Session' USING utf8mb4) COLLATE utf8mb4_unicode_ci as source, CONVERT(msl.main_issue USING utf8mb4) COLLATE utf8mb4_unicode_ci as notes, m.name as mentor_name, s.name as student_name 
+                FROM mentor_session_logs msl 
+                JOIN mentors m ON msl.mentor_id = m.id 
+                JOIN students s ON msl.student_id = s.id 
+                ${baseWhere('msl')}
+            ) as logs ORDER BY created_at DESC
+        `;
+        // Since baseWhere pushes to params, we need to handle UNION parameters carefully. 
+        // For simplicity in this rewrite, I'll reset params and just pass what's needed.
+        let finalParams = [];
+        const getP = () => { let p = []; if(student_id) p.push(student_id); if(mentor_id) p.push(mentor_id); if(startDate) p.push(startDate); if(endDate) p.push(endDate + ' 23:59:59'); return p; };
+        finalParams = [...getP(), ...getP()];
+
+        const [rows] = await db.query(query, finalParams);
         res.status(200).json({ success: true, data: rows });
     } catch (e) { res.status(500).json({ success: false, message: e.message }); }
 };
@@ -240,21 +353,21 @@ const deleteStudent = async (req, res) => {
 
 const getStudentById = async (req, res) => {
     try {
-        const [[s]] = await db.query('SELECT * FROM students WHERE id = ?', [req.params.id]);
+        const [[s]] = await db.query('SELECT s.*, m.name as mentor_name, f.name as faculty_name FROM students s LEFT JOIN mentors m ON s.mentor_id = m.id LEFT JOIN faculties f ON s.faculty_id = f.id WHERE s.id = ?', [req.params.id]);
         res.status(200).json({ success: true, data: s });
     } catch (e) { res.status(500).json({ success: false, message: e.message }); }
 };
 
 const getStudents = async (req, res) => {
     try {
-        const [rows] = await db.query('SELECT * FROM students ORDER BY name ASC');
+        const [rows] = await db.query('SELECT s.*, m.name as mentor_name, f.name as faculty_name FROM students s LEFT JOIN mentors m ON s.mentor_id = m.id LEFT JOIN faculties f ON s.faculty_id = f.id ORDER BY s.name ASC');
         res.status(200).json({ success: true, data: rows });
     } catch (e) { res.status(500).json({ success: false, message: e.message }); }
 };
 
 const getMentors = async (req, res) => {
     try {
-        const [rows] = await db.query('SELECT * FROM mentors ORDER BY name ASC');
+        const [rows] = await db.query('SELECT m.*, (SELECT COUNT(*) FROM students WHERE mentor_id = m.id) as studentCount FROM mentors m ORDER BY m.name ASC');
         res.status(200).json({ success: true, data: rows });
     } catch (e) { res.status(500).json({ success: false, message: e.message }); }
 };

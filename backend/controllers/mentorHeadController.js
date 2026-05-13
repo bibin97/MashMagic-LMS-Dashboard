@@ -149,6 +149,29 @@ exports.getStudentInteractionLogs = async (req, res) => {
 
         const query = `
             SELECT * FROM (
+                SELECT 
+                    sil.id, sil.created_at, sil.mentor_id, sil.student_id,
+                    m.name as mentor_name, s.name as student_name,
+                    CONVERT('Quick Log' USING utf8mb4) COLLATE utf8mb4_unicode_ci as source,
+                    'QUICK' as session_type,
+                    CONVERT(sil.mentor_notes USING utf8mb4) COLLATE utf8mb4_unicode_ci as notes,
+                    CAST(sil.self_clarity AS CHAR) as understanding_level,
+                    CAST(sil.confidence AS CHAR) as student_confidence,
+                    CAST(sil.exam_anxiety AS CHAR) as stress_level,
+                    0 as is_flagged, NULL as flag_reason
+                FROM student_interaction_logs sil
+                LEFT JOIN mentors m ON sil.mentor_id = m.id
+                LEFT JOIN students s ON sil.student_id = s.id
+                ${baseWhere('sil')}
+
+                UNION ALL
+
+                SELECT 
+                    msl.id, msl.created_at, msl.mentor_id, msl.student_id,
+                    m.name as mentor_name, s.name as student_name,
+                    CONVERT('Session Log' USING utf8mb4) COLLATE utf8mb4_unicode_ci as source,
+                    'MEDIUM' as session_type,
+                    CONVERT(CONCAT(msl.main_issue, ': ', msl.action_type) USING utf8mb4) COLLATE utf8mb4_unicode_ci as notes,
                     CAST(msl.understanding_after_session AS CHAR) as understanding_level,
                     CAST(msl.session_quality_rating AS CHAR) as student_confidence,
                     CAST(msl.stress_level AS CHAR) as stress_level,
