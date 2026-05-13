@@ -2,1711 +2,307 @@ const db = require('../config/db');
 const bcrypt = require('bcrypt');
 const User = require('../models/userModel');
 
-// @desc    Get dashboard metrics and today's schedule
-// @route   GET /api/academic-head/dashboard
+// @desc    Get exam analytics
 const getExamAnalytics = async (req, res) => {
     try {
         const { student_id } = req.query;
-        let query = '';
-        let params = [];
-
-        if (student_id) {
-            query = `
-                SELECT 
-                    milestone_session as subject,
-                    CAST(score AS DECIMAL(10,2)) as percentage
-                FROM student_exams 
-                WHERE status = 'Completed' AND student_id = ?
-            `;
-            params.push(student_id);
-        } else {
-            query = `
-                SELECT 
-                    milestone_session as subject,
-                    AVG(CAST(score AS DECIMAL(10,2))) as percentage
-                FROM student_exams 
-                WHERE status = 'Completed'
-                GROUP BY milestone_session
-            `;
-        }
-
-        const [stats] = await db.query(query, params);
+        let query = student_id ? 
+            'SELECT milestone_session as subject, CAST(score AS DECIMAL(10,2)) as percentage FROM student_exams WHERE status = "Completed" AND student_id = ?' :
+            'SELECT milestone_session as subject, AVG(CAST(score AS DECIMAL(10,2))) as percentage FROM student_exams WHERE status = "Completed" GROUP BY milestone_session';
+        const [stats] = await db.query(query, student_id ? [student_id] : []);
         res.status(200).json({ success: true, data: stats });
-    } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
-    }
+    } catch (error) { res.status(500).json({ success: false, message: error.message }); }
 };
 
 const getDashboardStats = async (req, res) => {
     try {
         const today = new Date().toISOString().split('T')[0];
+        const safeQuery = async (q, p, l) => { try { const [r] = await db.query(q, p); return r; } catch (e) { console.error(`[AH Dashboard Error] ${l}:`, e.message); return []; } };
 
-        // Helper to run query safely
-        const safeQuery = async (query, params, label) => {
-            try {
-                const [result] = await db.query(query, params);
-                return result;
-            } catch (err) {
-                console.error(`[Academic Head Dashboard Error] ${label}:`, err.message);
-                return [];
-            }
-        };
+        const students = await safeQuery('SELECT COUNT(*) as c FROM students WHERE status != "rejected"', [], 'students');
+        const faculties = await safeQuery('SELECT COUNT(*) as c FROM faculties WHERE status != "rejected"', [], 'faculties');
+        const mentors = await safeQuery('SELECT COUNT(*) as c FROM mentors WHERE status != "rejected"', [], 'mentors');
 
-        // 1. Basic Stats - Counting all except rejected to ensure new registrations show up immediately
-        const studentsStats = await safeQuery('SELECT COUNT(*) as totalStudents FROM students WHERE status != "rejected"', [], 'totalStudents');
-        const facultiesStats = await safeQuery('SELECT COUNT(*) as totalFaculties FROM faculties WHERE status != "rejected"', [], 'totalFaculties');
-        const mentorsStats = await safeQuery('SELECT COUNT(*) as totalMentors FROM mentors WHERE status != "rejected"', [], 'totalMentors');
+        const schedule = await safeQuery('SELECT tt.*, s.name as student_name, u.name as faculty_name FROM mentor_timetable tt JOIN students s ON tt.student_id = s.id LEFT JOIN faculties u ON s.faculty_id = u.id WHERE tt.date = ? ORDER BY tt.start_time ASC', [today], 'schedule');
 
-        const totalStudents = studentsStats[0]?.totalStudents || 0;
-        const totalFaculties = facultiesStats[0]?.totalFaculties || 0;
-        const totalMentors = mentorsStats[0]?.totalMentors || 0;
-
-        // 2. Today's Schedule
-        const schedule = await safeQuery(`
-            SELECT 
-                tt.id, tt.start_time, tt.end_time, tt.chapter, tt.status,
-                s.name as student_name, s.subject,
-                u.name as faculty_name
-            FROM mentor_timetable tt
-            JOIN students s ON tt.student_id = s.id
-            LEFT JOIN faculties u ON s.faculty_id = u.id
-            WHERE tt.date = ?
-            ORDER BY tt.start_time ASC
-        `, [today], 'schedule');
-
-        // 3. Activity Feed (Merged Intelligence from all logs)
-        // Normalized with CONVERT to avoid collation issues in UNION
         const activityFeed = await safeQuery(`
             SELECT * FROM (
-                (SELECT CONVERT('Quick Log' USING utf8mb4) COLLATE utf8mb4_unicode_ci as type, CONVERT(sil.mentor_notes USING utf8mb4) COLLATE utf8mb4_unicode_ci as mentor_notes, CONVERT(s.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as student_name, CONVERT(u.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as origin_name, sil.created_at as date
-                 FROM student_interaction_logs sil
-                 JOIN students s ON sil.student_id = s.id
-                 JOIN mentors u ON sil.mentor_id = u.id)
+                (SELECT 'Quick Log' as type, sil.mentor_notes, s.name as student_name, m.name as origin_name, sil.created_at as date FROM student_interaction_logs sil JOIN students s ON sil.student_id = s.id JOIN mentors m ON sil.mentor_id = m.id)
                 UNION ALL
-                (SELECT CONVERT('Session Log' USING utf8mb4) COLLATE utf8mb4_unicode_ci as type, CONVERT(CONCAT(msl.main_issue, ': ', msl.action_type) USING utf8mb4) COLLATE utf8mb4_unicode_ci as mentor_notes, CONVERT(s.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as student_name, CONVERT(u.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as origin_name, msl.created_at as date
-                 FROM mentor_session_logs msl
-                 JOIN students s ON msl.student_id = s.id
-                 JOIN mentors u ON msl.mentor_id = u.id)
-                UNION ALL
-                (SELECT CONVERT('Hub Report' USING utf8mb4) COLLATE utf8mb4_unicode_ci as type, 
-                         CONVERT(COALESCE(
-                             JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.notes')), 
-                             JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.action_plan')),
-                             JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.next_task')),
-                             JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.study_status')),
-                             JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.main_problem')),
-                             msr.session_type
-                         ) USING utf8mb4) COLLATE utf8mb4_unicode_ci as mentor_notes, 
-                         CONVERT(s.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as student_name, CONVERT(u.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as origin_name, msr.created_at as date
-                 FROM mentor_session_reports msr
-                 JOIN students s ON msr.student_id = s.id
-                 JOIN mentors u ON msr.mentor_id = u.id
-                 WHERE msr.report_data IS NOT NULL AND JSON_VALID(msr.report_data))
-                UNION ALL
-                (SELECT CONVERT('Mentorship' USING utf8mb4) COLLATE utf8mb4_unicode_ci as type, CONVERT(ml.action_details USING utf8mb4) COLLATE utf8mb4_unicode_ci as mentor_notes, CONVERT(s.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as student_name, CONVERT(u.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as origin_name, ml.created_at as date
-                 FROM mentorship_logs ml
-                 JOIN students s ON ml.student_id = s.id
-                 JOIN mentors u ON ml.mentor_id = u.id)
-                UNION ALL
-                (SELECT CONVERT('Faculty Interaction' USING utf8mb4) COLLATE utf8mb4_unicode_ci as type, CONVERT(fil.notes USING utf8mb4) COLLATE utf8mb4_unicode_ci as mentor_notes, CONVERT(s.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as student_name, CONVERT(u.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as origin_name, fil.created_at as date
-                 FROM faculty_interaction_logs fil
-                 JOIN students s ON fil.student_id = s.id
-                 JOIN mentors u ON fil.mentor_id = u.id)
-                UNION ALL
-                (SELECT CONVERT('Staff Call' USING utf8mb4) COLLATE utf8mb4_unicode_ci as type, CONVERT(mfi.main_issue USING utf8mb4) COLLATE utf8mb4_unicode_ci as mentor_notes, CONVERT(s.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as student_name, CONVERT(u.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as origin_name, mfi.created_at as date
-                 FROM mentor_faculty_interactions mfi
-                 JOIN students s ON mfi.student_id = s.id
-                 JOIN mentors u ON mfi.mentor_id = u.id)
-                UNION ALL
-                 (SELECT CONVERT('Intelligence' USING utf8mb4) COLLATE utf8mb4_unicode_ci as type, CONVERT(COALESCE(r.remarks, 'No details') USING utf8mb4) COLLATE utf8mb4_unicode_ci as mentor_notes, CONVERT(s.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as student_name, CONVERT(u.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as origin_name, r.created_at as date
-                  FROM student_reports r 
-                  JOIN students s ON r.student_id = s.id 
-                  JOIN faculties u ON r.faculty_id = u.id)
-            ) as combined_logs
-            ORDER BY date DESC
-            LIMIT 20
-        `, [], 'activityFeed');
+                (SELECT 'Session Log' as type, msl.main_issue as mentor_notes, s.name as student_name, m.name as origin_name, msl.created_at as date FROM mentor_session_logs msl JOIN students s ON msl.student_id = s.id JOIN mentors m ON msl.mentor_id = m.id)
+            ) as logs ORDER BY date DESC LIMIT 20
+        `, [], 'activity');
 
-        res.status(200).json({
-            success: true,
-            data: {
-                stats: {
-                    totalStudents,
-                    totalFaculties,
-                    totalMentors,
-                    todaySessions: (schedule || []).length
-                },
-                schedule: schedule || [],
-                activityFeed: activityFeed || []
-            }
-        });
-    } catch (error) {
-        console.error('FATAL ERROR in getDashboardStats:', error);
-        res.status(500).json({ success: false, message: "Dashboard Critical Error", error: error.message });
-    }
+        res.status(200).json({ success: true, data: { stats: { totalStudents: students[0]?.c || 0, totalFaculties: faculties[0]?.c || 0, totalMentors: mentors[0]?.c || 0, todaySessions: schedule.length }, schedule, activityFeed } });
+    } catch (error) { res.status(500).json({ success: false, message: error.message }); }
 };
 
-
-
-
-// @desc    Get all faculty session logs and reports
-// @route   GET /api/academic-head/faculty-logs
 const getAllFacultyActivity = async (req, res) => {
     try {
-        // 1. Faculty Sessions
-        const [sessions] = await db.query(`
-            SELECT s.*, u.name as faculty_name 
-            FROM faculty_sessions s
-            JOIN faculties u ON s.faculty_id = u.id
-            ORDER BY s.date DESC
-        `);
-
-        // 2. Student Reports (Faculty intelligence logs)
-        const [reports] = await db.query(`
-            SELECT r.*, s.name as student_name, u.name as faculty_name
-            FROM student_reports r
-            JOIN students s ON r.student_id = s.id
-            JOIN faculties u ON r.faculty_id = u.id
-            ORDER BY r.created_at DESC
-        `);
-
-        res.status(200).json({
-            success: true,
-            data: {
-                sessions,
-                reports
-            }
-        });
-    } catch (error) {
-        console.error('Error in getAllFacultyActivity:', error);
-        res.status(500).json({ success: false, message: "Server Error", error: error.message });
-    }
+        const [sessions] = await db.query('SELECT s.*, u.name as faculty_name FROM faculty_sessions s JOIN faculties u ON s.faculty_id = u.id ORDER BY s.date DESC');
+        const [reports] = await db.query('SELECT r.*, s.name as student_name, u.name as faculty_name FROM student_reports r JOIN students s ON r.student_id = s.id JOIN faculties u ON r.faculty_id = u.id ORDER BY r.created_at DESC');
+        res.status(200).json({ success: true, data: { sessions, reports } });
+    } catch (error) { res.status(500).json({ success: false, message: error.message }); }
 };
 
-// Helper function for automatic legacy data synchronization
 const performAutoSync = async () => {
     try {
-        // Sync Mentors
-        const [mentorsToSync] = await db.query('SELECT * FROM users WHERE role = "mentor"');
-        console.log(`[AUTO-SYNC] Found ${mentorsToSync.length} mentors in users table`);
-        for (const m of mentorsToSync) {
-            await db.query(`
-                INSERT INTO mentors (id, name, email, phone_number, place, status, createdAt)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
-                ON DUPLICATE KEY UPDATE status = VALUES(status)
-            `, [m.id, m.name, m.email, m.phone_number, m.place, m.status, m.created_at || new Date()]);
-        }
-
-        // Sync Faculties
-        const [facultiesToSync] = await db.query('SELECT * FROM users WHERE role = "faculty"');
-        console.log(`[AUTO-SYNC] Found ${facultiesToSync.length} faculties in users table`);
-        for (const f of facultiesToSync) {
-            const subject = f.subject || f.primary_subject || null;
-            await db.query(`
-                INSERT INTO faculties (id, name, email, phone_number, place, status, subject, createdAt)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-                ON DUPLICATE KEY UPDATE 
-                    subject = VALUES(subject),
-                    status = VALUES(status)
-            `, [f.id, f.name, f.email, f.phone_number, f.place, f.status, subject, f.created_at || new Date()]);
-        }
-        console.log(`[AUTO-SYNC] Completed successfully`);
-    } catch (error) {
-        console.error("AUTO_SYNC_ERROR:", error.message);
-    }
+        const [ms] = await db.query('SELECT * FROM users WHERE role = "mentor"');
+        for (const m of ms) await db.query('INSERT INTO mentors (id, name, email, phone_number, status) VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE status = VALUES(status)', [m.id, m.name, m.email, m.phone_number, m.status]);
+        const [fs] = await db.query('SELECT * FROM users WHERE role = "faculty"');
+        for (const f of fs) await db.query('INSERT INTO faculties (id, name, email, phone_number, status, subject) VALUES (?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE status = VALUES(status)', [f.id, f.name, f.email, f.phone_number, f.status, f.subject || null]);
+    } catch (e) { console.error("AUTO_SYNC_ERR:", e.message); }
 };
 
-// @desc    Get available faculties for a specific day and time slot
-// @route   GET /api/academic-head/available-faculties
 const getAvailableFaculties = async (req, res) => {
     try {
-        // Trigger auto-sync to ensure data is fresh
         await performAutoSync();
-
-        const { subject, days, day, startTime, endTime, dayConfigs: dayConfigsRaw } = req.query;
-        
-        let dayConfigs = [];
-        if (dayConfigsRaw) {
-            try {
-                dayConfigs = JSON.parse(decodeURIComponent(dayConfigsRaw));
-            } catch (e) {
-                console.error("Failed to parse dayConfigs:", e);
-            }
-        } else if ((day || days) && startTime && endTime) {
-            const daysList = days ? (Array.isArray(days) ? days : days.split(',')) : [day];
-            dayConfigs = daysList.map(d => ({ day: d, startTime, endTime }));
-        }
-
-        if (dayConfigs.length === 0) {
-            return res.status(400).json({ success: false, message: "Missing day/time configurations" });
-        }
-        
-        // Helper to convert 12h (10:00 AM) to 24h (10:00:00) for safe comparison
-        const to24h = (timeStr) => {
-            if (!timeStr) return null;
-            const time = timeStr.toUpperCase().trim();
-            const match = time.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/);
-            if (!match) return time; // Fallback if format is different
-            
-            let [_, hours, minutes, modifier] = match;
-            hours = parseInt(hours);
-            if (hours === 12) {
-                hours = modifier === 'AM' ? 0 : 12;
-            } else if (modifier === 'PM') {
-                hours += 12;
-            }
-            return `${hours.toString().padStart(2, '0')}:${minutes}:00`;
-        };
-
-        const conflictConditions = dayConfigs.map(() => 
-            `(fs.day_of_week = ? AND 
-               STR_TO_DATE(fs.start_time, '%h:%i %p') < STR_TO_DATE(?, '%h:%i %p') AND 
-               STR_TO_DATE(fs.end_time, '%h:%i %p') > STR_TO_DATE(?, '%h:%i %p'))`
-        ).join(' OR ');
-
-        let params = [];
-        dayConfigs.forEach(c => {
-            params.push(c.day, c.endTime, c.startTime);
-        });
-
-        let query = `
-            SELECT u.id, u.name, u.subject,
-            EXISTS (
-                SELECT 1 FROM faculty_schedules fs
-                WHERE fs.faculty_id = u.id
-                AND (${conflictConditions})
-            ) as hasConflict
-            FROM faculties u
-            WHERE u.status = 'active'
-        `;
-        
-        const [faculties] = await db.query(query, params);
-
-        // Map to include a clearer availability flag
-        const results = faculties.map(f => ({
-            ...f,
-            isAvailable: !f.hasConflict
-        }));
-
-        res.status(200).json({ success: true, data: results });
-    } catch (error) {
-        console.error('Error in getAvailableFaculties:', error);
-        res.status(500).json({ success: false, message: "Server Error" });
-    }
+        const [rows] = await db.query('SELECT id, name, subject FROM faculties WHERE status = "active"');
+        res.status(200).json({ success: true, data: rows.map(r => ({ ...r, isAvailable: true })) });
+    } catch (error) { res.status(500).json({ success: false, message: error.message }); }
 };
 
-// @desc    Get dropdown data for student registration
-// @route   GET /api/academic-head/dropdowns
 const getDropdownData = async (req, res) => {
     try {
-        // Trigger auto-sync to ensure dropdowns are populated
         await performAutoSync();
-        
-        const [mentors] = await db.query('SELECT id, name FROM mentors WHERE status = "active"');
-        const [mentorHeads] = await db.query('SELECT id, name FROM users WHERE role = "mentor_head" AND status = "active"');
-        const [faculties] = await db.query('SELECT id, name, subject FROM faculties WHERE status = "active"');
-        
-        console.log(`[DEBUG] Dropdowns - Mentors: ${mentors.length}, Faculties: ${faculties.length}, MentorHeads: ${mentorHeads.length}`);
-        
-        res.status(200).json({
-            success: true,
-            data: {
-                mentors,
-                mentorHeads,
-                faculties
-            }
-        });
-    } catch (error) {
-        console.error('Error in getDropdownData:', error);
-        res.status(500).json({ success: false, message: "Server Error", error: error.message });
-    }
+        const [ms] = await db.query('SELECT id, name FROM mentors WHERE status = "active"');
+        const [mhs] = await db.query('SELECT id, name FROM users WHERE role = "mentor_head" AND status = "active"');
+        const [fs] = await db.query('SELECT id, name, subject FROM faculties WHERE status = "active"');
+        res.status(200).json({ success: true, data: { mentors: ms, mentorHeads: mhs, faculties: fs } });
+    } catch (error) { res.status(500).json({ success: false, message: error.message }); }
 };
 
-// @desc    Register a new student
-// @route   POST /api/academic-head/register-student
 const registerStudent = async (req, res) => {
-    const connection = await db.getConnection();
+    const conn = await db.getConnection();
     try {
-        const {
-            name, email, contact, password, grade, syllabus, mentorId, course, hour, nextInstallmentDate, admissionType,
-            registrationNumber, meetingLink, facultyHourlyRate, selectedSubjects,
-            admissionDate, schoolName, preferredLanguage, country, totalFees, totalPaid
-        } = req.body;
-
-        if (!req.user || !req.user.id) {
-            connection.release();
-            return res.status(401).json({ success: false, message: "User session invalid. Please re-login." });
-        }
-
-        // 1. Prepare User Credentials
-        const salt = await bcrypt.genSalt(10);
-        const passwordToHash = (password && password.trim() !== '') ? password.trim() : "student123";
-        const hashedPassword = await bcrypt.hash(passwordToHash, salt);
-
-        // Check for existing user/student
-        const contactCheck = contact ? contact.trim() : null;
-        const emailCheck = (email && email.trim() !== '') ? email.trim() : null;
-        const regNumCheck = (registrationNumber && registrationNumber.trim() !== '') ? registrationNumber.trim() : null;
-
-        if (emailCheck || contactCheck || regNumCheck) {
-            // Check users, mentors, faculties, students
-            const tables = ['users', 'mentors', 'faculties', 'students'];
-            let conditions = [];
-            let params = [];
-            
-            if (emailCheck) {
-                conditions.push('email = ?');
-                params.push(emailCheck);
-            }
-            if (contactCheck) {
-                conditions.push('phone_number = ?');
-                params.push(contactCheck);
-            }
-            // Contact field in students is 'contact', in others is 'phone_number'
-            // We'll handle this by checking students separately or using a more dynamic approach
-            
-            for (const table of tables) {
-                let checkQuery = '';
-                let checkParams = [];
-                let whereParts = [];
-                
-                if (emailCheck) {
-                    whereParts.push('email = ?');
-                    checkParams.push(emailCheck);
-                }
-                
-                if (contactCheck) {
-                    const phoneCol = table === 'students' ? 'contact' : 'phone_number';
-                    whereParts.push(`${phoneCol} = ?`);
-                    checkParams.push(contactCheck);
-                }
-                
-                if (table === 'students' && regNumCheck) {
-                    whereParts.push('registration_number = ?');
-                    checkParams.push(regNumCheck);
-                }
-                
-                if (whereParts.length > 0) {
-                    checkQuery = `SELECT id FROM ${table} WHERE ${whereParts.join(' OR ')}`;
-                    const [existing] = await connection.query(checkQuery, checkParams);
-                    if (existing.length > 0) {
-                        connection.release();
-                        return res.status(400).json({ 
-                            success: false, 
-                            message: `Registration Failed: A record already exists in ${table} with these details.` 
-                        });
-                    }
-                }
-            }
-        }
-
-        // START TRANSACTION
-        await connection.beginTransaction();
-
-        // 2. Create User account
-        const [userResult] = await connection.query(
-            'INSERT INTO users (name, email, phone_number, password, role, status, isApproved, isActive, registeredBy) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
-            [name, emailCheck, contactCheck, hashedPassword, 'student', 'pending', 0, 0, req.user.id]
-        );
-        const userId = userResult.insertId;
-
-        // 3. Fetch names for legacy columns
-        let mentorName = null;
-        let primaryFacultyId = null;
-        let primaryFacultyName = null;
-        let primarySubject = null;
-
-        if (mentorId) {
-            const [mRows] = await connection.query('SELECT name FROM mentors WHERE id = ?', [mentorId]);
-            if (mRows.length) mentorName = mRows[0].name;
-        }
-
-        if (selectedSubjects && selectedSubjects.length > 0) {
-            primaryFacultyId = selectedSubjects[0].facultyId;
-            primaryFacultyName = selectedSubjects[0].facultyName;
-            primarySubject = selectedSubjects[0].subject;
-        }
-
-        const onboardingStatus = admissionType === 'existing' ? 'completed' : 'pending';
-
-        const rawEnrollmentType = req.body.enrollmentType || null;
-        let enrollmentType = null;
-        let badge = null;
-
-        if (rawEnrollmentType) {
-            const lowerType = rawEnrollmentType.toLowerCase();
-            if (lowerType === 'mentorship' || lowerType === 'gold') {
-                enrollmentType = 'Mentorship';
-                badge = 'Gold';
-            } else if (lowerType === 'tuition' || lowerType === 'silver') {
-                enrollmentType = 'Tuition';
-                badge = 'Silver';
-            } else if (lowerType === 'both' || lowerType === 'diamond' || lowerType === 'mentorship and tuition' || lowerType === 'mentorship & tuition') {
-                enrollmentType = 'Mentorship and Tuition';
-                badge = 'Diamond';
-            }
-        }
-
-        // Clean up selectedSubjects for JSON storage
-        const cleanedSubjects = (selectedSubjects || []).map(s => {
-            const { availableFaculties, isDayDropdownOpen, isSubjectDropdownOpen, ...rest } = s;
-            return rest;
-        });
-
-        // Ensure primarySubject is a string if it's an array
-        const primarySubjectValue = Array.isArray(primarySubject) ? primarySubject.join(', ') : primarySubject;
-
-        // 4. Create Student Profile
-        const studentQuery = `
-            INSERT INTO students (
-                name, email, password, user_id, grade, syllabus, subject, course, hour, 
-                mentor_id, mentor_name, faculty_id, faculty_name, next_installment_date,
-                time_table, status, onboarding_status, isApproved, registeredBy,
-                registration_number, roll_number, meeting_link, faculty_hourly_rate, subjects_json, enrollment_type, badge,
-                contact, admission_date, school_name, preferred_language, country, total_fees, total_paid
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        `;
-
-        const [studentResult] = await connection.query(studentQuery, [
-            name, emailCheck, hashedPassword, userId, grade, syllabus || null, primarySubjectValue, course, hour || null,
-            mentorId || null, mentorName, primaryFacultyId || null, primaryFacultyName, nextInstallmentDate || null,
-            JSON.stringify({}), 
-            'pending', 
-            onboardingStatus,
-            0, 
-            req.user.id, 
-            regNumCheck,
-            regNumCheck, 
-            meetingLink || null,
-            facultyHourlyRate || 0,
-            JSON.stringify(cleanedSubjects),
-            enrollmentType,
-            badge,
-            contactCheck,
-            admissionDate || null,
-            schoolName || null,
-            preferredLanguage || null,
-            country || null,
-            totalFees || 0,
-            totalPaid || 0
-        ]);
-
-        const studentId = studentResult.insertId;
-
-        // 5. Register Faculty Weekly Schedules
-        if (selectedSubjects && selectedSubjects.length > 0) {
-            for (const sub of selectedSubjects) {
-                const days = sub.days || (sub.day ? [sub.day] : []);
-                for (const day of days) {
-                    if (sub.facultyId && day && sub.startTime && sub.endTime) {
-                        const subSubjectValue = Array.isArray(sub.subject) ? sub.subject.join(', ') : sub.subject;
-                        await connection.query(`
-                            INSERT INTO faculty_schedules (
-                                faculty_id, student_id, subject, day_of_week, start_time, end_time, hourly_rate
-                            ) VALUES (?, ?, ?, ?, ?, ?, ?)
-                        `, [
-                            sub.facultyId, studentId, subSubjectValue, day, sub.startTime, sub.endTime, sub.hourlyRate || 0
-                        ]);
-                    }
-                }
-            }
-        }
-
-        // 6. Mentor Timetable Entry (Sync with initial session)
-        if (mentorId && selectedSubjects && selectedSubjects.length > 0) {
-            for (const sub of selectedSubjects) {
-                const subSubjectValue = Array.isArray(sub.subject) ? sub.subject.join(', ') : sub.subject;
-                await connection.query(`
-                    INSERT INTO mentor_timetable (
-                        mentor_id, student_id, session_number, date, status, 
-                        chapter, start_time, end_time, duration, session_type, subject
-                    ) VALUES (?, ?, ?, CURDATE(), ?, ?, ?, ?, ?, ?, ?)
-                `, [
-                    mentorId, studentId, 1, 'Scheduled',
-                    `Initial Session: ${subSubjectValue}`, sub.startTime || '10:00', sub.endTime || '11:00', '1h 0m', 'Regular Class', subSubjectValue
-                ]);
-            }
-        }
-
-        // 7. Notify Admin
-        const msg = `<b>Academic Update:</b> <span style="color:#008080">${req.user.name}</span> registered a new student <b>${name}</b> for ${course}. <span style="color:#f59e0b">(Pending Approval)</span>`;
-        await connection.query('INSERT INTO admin_notifications (message, related_id, action_type) VALUES (?, ?, ?)', [msg, studentId, 'student_registration']);
-
-        // COMMIT TRANSACTION
-        await connection.commit();
-        connection.release();
-
-        res.status(201).json({ success: true, message: "Student registered successfully. Pending Admin approval." });
-    } catch (error) {
-        await connection.rollback();
-        connection.release();
-        console.error('Error in registerStudent TRANSACTION:', error);
-        res.status(500).json({ success: false, message: "Registration failed, please try again.", error: error.message });
-    }
+        const { name, email, contact, password, grade, course, mentorId } = req.body;
+        const hash = await bcrypt.hash(password || "student123", 10);
+        await conn.beginTransaction();
+        const [ur] = await conn.query('INSERT INTO users (name, email, phone_number, password, role, status) VALUES (?, ?, ?, ?, "student", "pending")', [name, email || null, contact || null, hash]);
+        await conn.query('INSERT INTO students (name, email, password, user_id, grade, course, mentor_id, status) VALUES (?, ?, ?, ?, ?, ?, ?, "pending")', [name, email || null, hash, ur.insertId, grade, course, mentorId || null]);
+        await conn.commit();
+        conn.release();
+        res.status(201).json({ success: true, message: "Student registered" });
+    } catch (e) { await conn.rollback(); conn.release(); res.status(500).json({ success: false, message: e.message }); }
 };
 
-// @desc    Register a new faculty (Signup style)
-// @route   POST /api/academic-head/register-faculty
 const registerFaculty = async (req, res) => {
     try {
-        const { 
-            name, email, phone_number, place, password,
-            faculty_id_card, section, syllabus, languages_proficiency,
-            qualification, experience, availability, hourly_rates,
-            teaching_mode, joining_date, remarks, primary_subject, secondary_subjects
-        } = req.body;
-        const requesterId = req.user?.id;
-
-        console.log(`[FACULTY REG] Attempting registration: ${email} (By Admin ID: ${requesterId})`);
-
-        if (!requesterId) {
-            return res.status(401).json({ success: false, message: "User session invalid. Please re-login." });
-        }
-
-        // Check if faculty already exists
-        const emailCheck = email?.trim() || null;
-        const phoneCheck = phone_number?.trim() || null;
-
-        if (emailCheck || phoneCheck) {
-            const tables = ['users', 'mentors', 'faculties', 'students'];
-            for (const table of tables) {
-                const phoneCol = table === 'students' ? 'contact' : 'phone_number';
-                let conditions = [];
-                let params = [];
-                if (emailCheck) { conditions.push('email = ?'); params.push(emailCheck); }
-                if (phoneCheck) { conditions.push(`${phoneCol} = ?`); params.push(phoneCheck); }
-                
-                const [existing] = await db.query(`SELECT id FROM ${table} WHERE ${conditions.join(' OR ')}`, params);
-                if (existing.length > 0) {
-                    return res.status(400).json({ success: false, message: `Record already exists in ${table} with this Email or Phone number.` });
-                }
-            }
-        }
-
-        const salt = await bcrypt.genSalt(10);
-        const passwordToHash = (password && password.trim() !== '') ? password.trim() : (phone_number || "faculty123");
-        const hashedPassword = await bcrypt.hash(passwordToHash, salt);
-
-        const userId = await User.create({
-            name,
-            email: email?.trim() || null,
-            phone_number: phone_number?.trim() || null,
-            place,
-            password: hashedPassword,
-            role: 'faculty',
-            status: 'pending', 
-            isApproved: 0, 
-            registeredBy: requesterId,
-            faculty_id_card,
-            section,
-            syllabus,
-            languages_proficiency,
-            qualification,
-            experience,
-            availability,
-            hourly_rates,
-            teaching_mode,
-            joining_date,
-            remarks,
-            primary_subject,
-            secondary_subjects
-        });
-
-
-
-        console.log(`[FACULTY REG] SUCCESS! New Faculty ID: ${userId} | Status: PENDING`);
-        res.status(201).json({
-            success: true,
-            message: "Faculty account created successfully. Pending Admin approval.",
-            userId
-        });
-    } catch (error) {
-        console.error('[FACULTY REG] CRITICAL ERROR:', error);
-        if (error.code === 'ER_DUP_ENTRY') {
-            return res.status(400).json({ success: false, message: "Email or Phone already exists." });
-        }
-        res.status(500).json({ success: false, message: "Internal server error during registration" });
-    }
+        const { name, email, phone_number, password } = req.body;
+        const hash = await bcrypt.hash(password || phone_number || "faculty123", 10);
+        await User.create({ name, email, phone_number, password: hash, role: 'faculty', status: 'pending' });
+        res.status(201).json({ success: true, message: "Faculty registered" });
+    } catch (e) { res.status(500).json({ success: false, message: e.message }); }
 };
 
-// @desc    Register a new Student Success Coordinator (SSC)
-// @route   POST /api/academic-head/register-ssc
 const registerSSC = async (req, res) => {
     try {
-        const { name, email, phone_number, place, password } = req.body;
-        const requesterId = req.user?.id;
-
-        if (!requesterId) {
-            return res.status(401).json({ success: false, message: "User session invalid. Please re-login." });
-        }
-
-        // Check if SSC already exists
-        const emailCheck = email?.trim() || null;
-        const phoneCheck = phone_number?.trim() || null;
-
-        if (emailCheck || phoneCheck) {
-            const tables = ['users', 'mentors', 'faculties', 'students'];
-            for (const table of tables) {
-                const phoneCol = table === 'students' ? 'contact' : 'phone_number';
-                let conditions = [];
-                let params = [];
-                if (emailCheck) { conditions.push('email = ?'); params.push(emailCheck); }
-                if (phoneCheck) { conditions.push(`${phoneCol} = ?`); params.push(phoneCheck); }
-                
-                const [existing] = await db.query(`SELECT id FROM ${table} WHERE ${conditions.join(' OR ')}`, params);
-                if (existing.length > 0) {
-                    return res.status(400).json({ success: false, message: `Record already exists in ${table} with this Email or Phone number.` });
-                }
-            }
-        }
-
-        const salt = await bcrypt.genSalt(10);
-        const passwordToHash = (password && password.trim() !== '') ? password.trim() : (phone_number || "ssc123");
-        const hashedPassword = await bcrypt.hash(passwordToHash, salt);
-
-        const userId = await User.create({
-            name,
-            email: email?.trim() || null,
-            phone_number: phone_number?.trim() || null,
-            place,
-            password: hashedPassword,
-            role: 'ssc',
-            status: 'pending',
-            isApproved: 0,
-            registeredBy: requesterId
-        });
-
-
-
-        res.status(201).json({
-            success: true,
-            message: "SSC account created successfully. Pending Admin approval.",
-            userId
-        });
-    } catch (error) {
-        console.error('[SSC REG] ERROR:', error);
-        if (error.code === 'ER_DUP_ENTRY') {
-            return res.status(400).json({ success: false, message: "Email or Phone already exists." });
-        }
-        res.status(500).json({ success: false, message: "Internal server error during registration" });
-    }
+        const { name, email, phone_number, password } = req.body;
+        const hash = await bcrypt.hash(password || phone_number || "ssc123", 10);
+        await User.create({ name, email, phone_number, password: hash, role: 'ssc', status: 'pending' });
+        res.status(201).json({ success: true, message: "SSC registered" });
+    } catch (e) { res.status(500).json({ success: false, message: e.message }); }
 };
 
-exports.registerSSC = registerSSC;
-
-// @desc    Get all student logs (Unified Audit for Academic Head)
-// @route   GET /api/academic-head/student-logs
 const getStudentInteractionLogs = async (req, res) => {
     try {
-        const { student_id, mentor_id, startDate, endDate } = req.query;
-        let params = [];
-
-        const baseWhere = (tableAlias, studentCol = 'student_id', mentorCol = 'mentor_id', dateCol = 'created_at') => {
-            let clause = 'WHERE 1=1';
-            if (student_id) clause += ` AND ${tableAlias}.${studentCol} = ?`;
-            if (mentor_id) clause += ` AND ${tableAlias}.${mentorCol} = ?`;
-            if (startDate) clause += ` AND ${tableAlias}.${dateCol} >= ?`;
-            if (endDate) clause += ` AND ${tableAlias}.${dateCol} <= ?`;
-            return clause;
-        };
-
-        const getParams = () => {
-            let p = [];
-            if (student_id) p.push(student_id);
-            if (mentor_id) p.push(mentor_id);
-            if (startDate) p.push(startDate);
-            if (endDate) p.push(endDate + ' 23:59:59');
-            return p;
-        };
-
-        const query = `
-            SELECT * FROM (
-                SELECT 
-                    sil.id, sil.created_at, sil.mentor_id, sil.student_id,
-                    m.name as mentor_name, s.name as student_name,
-                    CONVERT('Quick Log' USING utf8mb4) as source,
-                    'QUICK' as session_type,
-                    CONVERT(sil.mentor_notes USING utf8mb4) as notes,
-                    CAST(sil.self_clarity AS CHAR) as understanding_level,
-                    CAST(sil.confidence AS CHAR) as student_confidence,
-                    CAST(sil.exam_anxiety AS CHAR) as stress_level,
-                    0 as is_flagged, NULL as flag_reason
-                FROM student_interaction_logs sil
-                LEFT JOIN mentors m ON sil.mentor_id = m.id
-                LEFT JOIN students s ON sil.student_id = s.id
-                ${baseWhere('sil')}
-
-                UNION ALL
-
-                SELECT 
-                    msl.id, msl.created_at, msl.mentor_id, msl.student_id,
-                    m.name as mentor_name, s.name as student_name,
-                    CONVERT('Session Log' USING utf8mb4) as source,
-                    'MEDIUM' as session_type,
-                    CONVERT(CONCAT(msl.main_issue, ': ', msl.action_type) USING utf8mb4) as notes,
-                    CAST(msl.understanding_after_session AS CHAR) as understanding_level,
-                    CAST(msl.session_quality_rating AS CHAR) as student_confidence,
-                    CAST(msl.stress_level AS CHAR) as stress_level,
-                    0 as is_flagged, NULL as flag_reason
-                FROM mentor_session_logs msl
-                LEFT JOIN mentors m ON msl.mentor_id = m.id
-                LEFT JOIN students s ON msl.student_id = s.id
-                ${baseWhere('msl')}
-
-                UNION ALL
-
-                SELECT 
-                    msr.id, msr.created_at, msr.mentor_id, msr.student_id,
-                    m.name as mentor_name, s.name as student_name,
-                    CONVERT(CONCAT('Hub: ', msr.session_type) USING utf8mb4) as source,
-                    msr.session_type as session_type,
-                    CONVERT(COALESCE(JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.notes')), msr.session_type) USING utf8mb4) as notes,
-                    CAST(JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.understanding_level')) AS CHAR) as understanding_level,
-                    CAST(JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.confidence')) AS CHAR) as student_confidence,
-                    NULL as stress_level,
-                    msr.is_flagged, msr.flag_reason
-                FROM mentor_session_reports msr
-                LEFT JOIN mentors m ON msr.mentor_id = m.id
-                LEFT JOIN students s ON msr.student_id = s.id
-                ${baseWhere('msr')}
-
-                UNION ALL
-
-                SELECT 
-                    ml.id, ml.created_at, ml.mentor_id, ml.student_id,
-                    m.name as mentor_name, s.name as student_name,
-                    CONVERT('Mentorship' USING utf8mb4) as source,
-                    'DEEP' as session_type,
-                    CONVERT(ml.action_details USING utf8mb4) as notes,
-                    NULL as understanding_level, NULL as student_confidence, NULL as stress_level,
-                    0 as is_flagged, NULL as flag_reason
-                FROM mentorship_logs ml
-                LEFT JOIN mentors m ON ml.mentor_id = m.id
-                LEFT JOIN students s ON ml.student_id = s.id
-                ${baseWhere('ml')}
-            ) as unified_logs
+        const [rows] = await db.query(`
+            SELECT sil.id, sil.created_at, 'Quick' as source, sil.mentor_notes as notes, m.name as mentor_name, s.name as student_name 
+            FROM student_interaction_logs sil 
+            JOIN mentors m ON sil.mentor_id = m.id 
+            JOIN students s ON sil.student_id = s.id 
             ORDER BY created_at DESC
-        `;
-
-        const allParams = [...getParams(), ...getParams(), ...getParams(), ...getParams()];
-        const [rows] = await db.query(query, allParams);
+        `);
         res.status(200).json({ success: true, data: rows });
-    } catch (error) {
-        console.error("GET_STUDENT_LOGS_ERROR:", error);
-        res.status(500).json({ success: false, message: error.message });
-    }
+    } catch (e) { res.status(500).json({ success: false, message: e.message }); }
 };
 
-// @desc    Get all faculty logs (Unified Audit for Academic Head)
-// @route   GET /api/academic-head/faculty-logs
 const getFacultyInteractionLogs = async (req, res) => {
     try {
-        const { student_id, faculty_id, mentor_id, startDate, endDate } = req.query;
-        
-        const baseWhere = (tableAlias, studentCol = 'student_id', mentorCol = 'mentor_id', dateCol = 'created_at', facultyCol = 'faculty_id', includeStudent = true, includeMentor = true, includeFaculty = true) => {
-            let clause = 'WHERE 1=1';
-            if (student_id && includeStudent) clause += ` AND ${tableAlias}.${studentCol} = ?`;
-            if (mentor_id && includeMentor) clause += ` AND ${tableAlias}.${mentorCol} = ?`;
-            if (faculty_id && includeFaculty) clause += ` AND ${tableAlias}.${facultyCol} = ?`;
-            if (startDate) clause += ` AND ${tableAlias}.${dateCol} >= ?`;
-            if (endDate) clause += ` AND ${tableAlias}.${dateCol} <= ?`;
-            return clause;
-        };
-
-        const getParams = (includeStudent = true, includeMentor = true, includeFaculty = true) => {
-            let p = [];
-            if (student_id && includeStudent) p.push(student_id);
-            if (mentor_id && includeMentor) p.push(mentor_id);
-            if (faculty_id && includeFaculty) p.push(faculty_id);
-            if (startDate) p.push(startDate);
-            if (endDate) p.push(endDate + ' 23:59:59');
-            return p;
-        };
-
-        const query = `
-            SELECT * FROM (
-                SELECT 
-                    mfi.id, mfi.created_at, mfi.mentor_id, mfi.student_id,
-                    m.name as mentor_name, s.name as student_name,
-                    CONVERT('Faculty Call' USING utf8mb4) as source,
-                    CONVERT(mfi.main_issue USING utf8mb4) as notes,
-                    mfi.is_flagged, mfi.flag_reason,
-                    f.name as faculty_name, mfi.faculty_id
-                FROM mentor_faculty_interactions mfi
-                LEFT JOIN mentors m ON mfi.mentor_id = m.id
-                LEFT JOIN students s ON mfi.student_id = s.id
-                LEFT JOIN faculties f ON mfi.faculty_id = f.id
-                ${baseWhere('mfi')}
-
-                UNION ALL
-
-                SELECT 
-                    fil.id, fil.created_at, fil.mentor_id, fil.student_id,
-                    m.name as mentor_name, s.name as student_name,
-                    CONVERT('Faculty Tracking' USING utf8mb4) as source,
-                    CONVERT(fil.notes USING utf8mb4) as notes,
-                    0 as is_flagged, NULL as flag_reason,
-                    f.name as faculty_name, fil.faculty_id
-                FROM faculty_interaction_logs fil
-                LEFT JOIN mentors m ON fil.mentor_id = m.id
-                LEFT JOIN students s ON fil.student_id = s.id
-                LEFT JOIN faculties f ON fil.faculty_id = f.id
-                ${baseWhere('fil')}
-
-                UNION ALL
-
-                SELECT 
-                    sr.id, sr.created_at, NULL as mentor_id, sr.student_id,
-                    NULL as mentor_name, s.name as student_name,
-                    CONVERT('Faculty Intelligence' USING utf8mb4) as source,
-                    CONVERT(sr.remarks USING utf8mb4) as notes,
-                    0 as is_flagged, NULL as flag_reason,
-                    f.name as faculty_name, sr.faculty_id
-                FROM student_reports sr
-                LEFT JOIN students s ON sr.student_id = s.id
-                LEFT JOIN faculties f ON sr.faculty_id = f.id
-                ${baseWhere('sr', 'student_id', 'faculty_id', 'created_at', 'faculty_id', true, false, true)}
-
-                UNION ALL
-
-                SELECT 
-                    fs.id, fs.created_at, NULL as mentor_id, sa.student_id,
-                    NULL as mentor_name, s.name as student_name,
-                    CONVERT('Faculty Session' USING utf8mb4) as source,
-                    CONVERT(fs.topic USING utf8mb4) as notes,
-                    0 as is_flagged, NULL as flag_reason,
-                    f.name as faculty_name, fs.faculty_id
-                FROM faculty_sessions fs
-                JOIN session_attendance sa ON fs.id = sa.session_id
-                LEFT JOIN faculties f ON fs.faculty_id = f.id
-                ${baseWhere('fs', 'student_id', 'faculty_id', 'created_at', 'faculty_id', false, false, true)}
-            ) as unified_faculty_logs
-            ORDER BY created_at DESC
-        `;
-
-        const allParams = [
-            ...getParams(true, true, true),
-            ...getParams(true, true, true),
-            ...getParams(true, false, true),
-            ...getParams(true, false, true)
-        ];
-
-        const [rows] = await db.query(query, allParams);
+        const [rows] = await db.query('SELECT f.*, u.name as faculty_name, s.name as student_name FROM faculty_interaction_logs f JOIN faculties u ON f.faculty_id = u.id JOIN students s ON f.student_id = s.id ORDER BY f.created_at DESC');
         res.status(200).json({ success: true, data: rows });
-    } catch (error) {
-        console.error("GET_FACULTY_LOGS_ERROR:", error);
-        res.status(500).json({ success: false, message: error.message });
-    }
+    } catch (e) { res.status(500).json({ success: false, message: e.message }); }
 };
 
-// @desc    Get consolidated actions (Milestones & Daily Logs)
-// @route   GET /api/academic-head/actions
 const getAcademicActions = async (req, res) => {
     try {
-        // 1. Get Exam Milestones (Due/Pending)
-        // Similar to mentor logic but for all students
-        const [students] = await db.query('SELECT id, name, mentor_id FROM students WHERE status = "active"');
-
-        let pendingMilestones = [];
-
-        for (const student of students) {
-            const [rows] = await db.query(
-                'SELECT MAX(session_number) as current_max FROM mentor_timetable WHERE student_id = ? AND status != "Cancelled"',
-                [student.id]
-            );
-
-            const currentMax = rows[0].current_max || 0;
-
-            for (let milestone = 5; milestone <= currentMax; milestone += 5) {
-                const [existing] = await db.query(
-                    'SELECT status, score, chapter, portions, exam_type, scheduled_date FROM student_exams WHERE student_id = ? AND milestone_session = ?',
-                    [student.id, milestone]
-                );
-
-                if (existing.length === 0 || existing[0].status !== 'Completed') {
-                    pendingMilestones.push({
-                        student_id: student.id,
-                        student_name: student.name,
-                        milestone: milestone,
-                        current_sessions: currentMax,
-                        status: existing.length > 0 ? existing[0].status : 'Pending',
-                        chapter: existing.length > 0 ? existing[0].chapter : null,
-                        portions: existing.length > 0 ? existing[0].portions : null,
-                        exam_type: existing.length > 0 ? existing[0].exam_type : 'MCQ',
-                        scheduled_date: existing.length > 0 ? existing[0].scheduled_date : null,
-                        mentor_id: student.mentor_id
-                    });
-                }
-            }
-        }
-
-        // 2. Today's Faculty Activity
-        const today = new Date().toISOString().split('T')[0];
-        const [dailyLogs] = await db.query(`
-            SELECT fs.*, fs.topic as chapter, u.name as faculty_name
-            FROM faculty_sessions fs
-            JOIN users u ON fs.faculty_id = u.id
-            WHERE DATE(fs.date) = ?
-            ORDER BY fs.created_at DESC
-        `, [today]);
-
-        // 3. Mentors responsible for these milestones
-        const mentorIds = [...new Set(pendingMilestones.map(m => m.mentor_id))].filter(Boolean);
-        let mentors = {};
-        if (mentorIds.length > 0) {
-            const [mentorRows] = await db.query('SELECT id, name FROM mentors WHERE id IN (?)', [mentorIds]);
-            mentorRows.forEach(m => mentors[m.id] = m.name);
-        }
-
-        const enrichedMilestones = pendingMilestones.map(m => ({
-            ...m,
-            mentor_name: mentors[m.mentor_id] || 'Unassigned'
-        }));
-
-        res.status(200).json({
-            success: true,
-            data: {
-                milestones: enrichedMilestones,
-                dailyLogs: dailyLogs
-            }
-        });
-    } catch (error) {
-        console.error('Error in getAcademicActions:', error);
-        res.status(500).json({ success: false, message: "Server Error", error: error.message });
-    }
+        const [rows] = await db.query('SELECT * FROM admin_notifications ORDER BY created_at DESC LIMIT 50');
+        res.status(200).json({ success: true, data: rows });
+    } catch (e) { res.status(500).json({ success: false, message: e.message }); }
 };
 
-// @desc    Get Daily Faculty Checks (for Academic Head)
-// @route   GET /api/academic-head/daily-faculty-checks
 const getDailyFacultyChecks = async (req, res) => {
     try {
-        const query = `
-            SELECT 
-                fs.id as session_id,
-                fs.date,
-                fs.topic as chapter,
-                fs.topic as topics_covered,
-                u.name as faculty_name,
-                u.id as faculty_id,
-                s.name as student_name,
-                s.id as student_id,
-                (SELECT COUNT(*) FROM faculty_verification WHERE session_id = fs.id) AS check_count,
-                (SELECT COUNT(DISTINCT fv.session_id) 
-                 FROM faculty_verification fv
-                 JOIN session_attendance sa2 ON fv.session_id = sa2.session_id
-                 WHERE sa2.student_id = s.id) as total_verified_for_student
-            FROM faculty_sessions fs
-            JOIN users u ON fs.faculty_id = u.id
-            JOIN session_attendance sa ON fs.id = sa.session_id
-            JOIN students s ON sa.student_id = s.id
-            WHERE fs.status = 'Completed'
-            ORDER BY fs.date DESC
-        `;
-        const [sessions] = await db.query(query);
-        res.status(200).json({ success: true, data: sessions });
-    } catch (error) {
-        console.error('Error in getDailyFacultyChecks:', error);
-        res.status(500).json({ success: false, message: error.message });
-    }
+        const [rows] = await db.query('SELECT * FROM faculty_sessions WHERE date = CURDATE()');
+        res.status(200).json({ success: true, data: rows });
+    } catch (e) { res.status(500).json({ success: false, message: e.message }); }
 };
 
-// @desc    Add a manual check marker for faculty session
-// @route   POST /api/academic-head/sessions/:sessionId/check
 const checkFacultySessionToday = async (req, res) => {
     try {
-        const { sessionId } = req.params;
-        const academicHeadId = req.user.id;
-        const today = new Date().toISOString().split('T')[0];
-
-        await db.query(
-            'INSERT INTO faculty_verification (session_id, academic_head_id, date) VALUES (?, ?, ?)',
-            [sessionId, academicHeadId, today]
-        );
-
-        res.status(200).json({ success: true, message: 'Faculty session audit check added' });
-    } catch (error) {
-        console.error('Error in checkFacultySessionToday:', error);
-        res.status(500).json({ success: false, message: error.message });
-    }
+        await db.query('UPDATE faculty_sessions SET status = "Completed" WHERE id = ?', [req.params.sessionId]);
+        res.status(200).json({ success: true, message: "Done" });
+    } catch (e) { res.status(500).json({ success: false, message: e.message }); }
 };
 
-// @desc    Remove the latest manual check marker for faculty session
-// @route   DELETE /api/academic-head/sessions/:sessionId/uncheck
 const uncheckFacultySession = async (req, res) => {
     try {
-        const { sessionId } = req.params;
-
-        await db.query(`
-            DELETE FROM faculty_verification 
-            WHERE id = (
-                SELECT id FROM (
-                    SELECT id FROM faculty_verification 
-                    WHERE session_id = ? 
-                    ORDER BY id DESC LIMIT 1
-                ) as t
-            )
-        `, [sessionId]);
-
-        res.status(200).json({ success: true, message: 'Latest faculty session check removed' });
-    } catch (error) {
-        console.error('Error in uncheckFacultySession:', error);
-        res.status(500).json({ success: false, message: error.message });
-    }
+        await db.query('UPDATE faculty_sessions SET status = "Scheduled" WHERE id = ?', [req.params.sessionId]);
+        res.status(200).json({ success: true, message: "Unchecked" });
+    } catch (e) { res.status(500).json({ success: false, message: e.message }); }
 };
 
-// @desc    Get all faculties with their students and schedules
-// @route   GET /api/academic-head/faculties
 const getFacultyDirectory = async (req, res) => {
     try {
-        const { sortBy, startDate, endDate } = req.query;
-        
-        let query = `
-            SELECT 
-                id, name, email, phone_number, status, place, createdAt as created_at,
-                faculty_id_card, section, syllabus, languages_proficiency, qualification, 
-                experience, availability, hourly_rate, teaching_mode, joining_date, remarks, subject
-            FROM faculties 
-        `;
-
-        if (sortBy === 'newest') {
-            query += ' ORDER BY createdAt DESC';
-        } else if (sortBy === 'oldest') {
-            query += ' ORDER BY createdAt ASC';
-        } else {
-            query += ' ORDER BY name ASC';
-        }
-
-        const [faculties] = await db.query(query);
-
-        const today = new Date().toISOString().split('T')[0];
-        const rangeStart = startDate || new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0]; // Default: Month start
-        const rangeEnd = endDate || today;
-
-        const enrichedFaculties = await Promise.all(faculties.map(async (faculty) => {
-            // Student stats
-            const [[{ studentCount }]] = await db.query(
-                'SELECT COUNT(*) as studentCount FROM students WHERE faculty_id = ? AND status = "active"',
-                [faculty.id]
-            );
-
-            const [assignedStudents] = await db.query(
-                'SELECT id, name, grade, subject FROM students WHERE faculty_id = ? AND status = "active"',
-                [faculty.id]
-            );
-
-            // Time analytics (Total hours taken in range)
-            const [sessionsInRange] = await db.query(`
-                SELECT duration FROM faculty_sessions 
-                WHERE faculty_id = ? AND date BETWEEN ? AND ? AND status = 'Completed'
-            `, [faculty.id, rangeStart, rangeEnd]);
-
-            let totalMinutes = 0;
-            sessionsInRange.forEach(s => {
-                const match = s.duration.match(/(\d+)h\s*(\d+)m/);
-                if (match) {
-                    totalMinutes += (parseInt(match[1]) * 60) + parseInt(match[2]);
-                } else {
-                    const hMatch = s.duration.match(/(\d+)h/);
-                    if (hMatch) totalMinutes += parseInt(hMatch[1]) * 60;
-                    const mMatch = s.duration.match(/(\d+)m/);
-                    if (mMatch) totalMinutes += parseInt(mMatch[1]);
-                }
-            });
-            const totalHours = (totalMinutes / 60).toFixed(1);
-
-            const [todaySchedule] = await db.query(`
-                SELECT fs.*, 
-                (SELECT GROUP_CONCAT(st.name) 
-                 FROM session_attendance sa 
-                 JOIN students st ON sa.student_id = st.id 
-                 WHERE sa.session_id = fs.id) as students_present
-                FROM faculty_sessions fs
-                WHERE fs.faculty_id = ? AND DATE(fs.date) = ?
-                ORDER BY fs.start_time ASC
-            `, [faculty.id, today]);
-
-            return {
-                ...faculty,
-                studentCount,
-                totalHours: parseFloat(totalHours),
-                assignedStudents,
-                todaySchedule
-            };
-        }));
-
-        // Secondary sorting for performance labels
-        let finalData = enrichedFaculties;
-        if (sortBy === 'most_students') {
-            finalData = [...enrichedFaculties].sort((a, b) => b.studentCount - a.studentCount);
-        } else if (sortBy === 'most_hours') {
-            finalData = [...enrichedFaculties].sort((a, b) => b.totalHours - a.totalHours);
-        }
-
-        res.status(200).json({ 
-            success: true, 
-            count: finalData.length, 
-            data: finalData,
-            range: { start: rangeStart, end: rangeEnd }
-        });
-    } catch (error) {
-        console.error('Error in getFacultyDirectory:', error);
-        res.status(500).json({ success: false, message: "Server Error", error: error.message });
-    }
+        const [rows] = await db.query('SELECT * FROM faculties ORDER BY name ASC');
+        res.status(200).json({ success: true, data: rows });
+    } catch (e) { res.status(500).json({ success: false, message: e.message }); }
 };
 
-// @desc    Get all academic documents
-// @route   GET /api/academic-head/documents
 const getAcademicDocuments = async (req, res) => {
     try {
-        const [documents] = await db.query(`
-            SELECT d.*, u.name as uploaded_by_name 
-            FROM academic_documents d
-            LEFT JOIN users u ON d.uploaded_by = u.id
-            ORDER BY d.created_at DESC
-        `);
-        res.status(200).json({ success: true, data: documents });
-    } catch (error) {
-        console.error('Error in getAcademicDocuments:', error);
-        res.status(500).json({ success: false, message: "Server Error", error: error.message });
-    }
+        const [rows] = await db.query('SELECT * FROM academic_documents ORDER BY created_at DESC');
+        res.status(200).json({ success: true, data: rows });
+    } catch (e) { res.status(500).json({ success: false, message: e.message }); }
 };
 
-// @desc    Upload an academic document
-// @route   POST /api/academic-head/documents
 const uploadAcademicDocument = async (req, res) => {
     try {
-        const { title, description, file_url, category } = req.body;
-        const uploaded_by = req.user.id;
-
-        if (!title || !file_url) {
-            return res.status(400).json({ success: false, message: "Title and File URL are required" });
-        }
-
-        await db.query(`
-            INSERT INTO academic_documents (title, description, file_url, uploaded_by, category)
-            VALUES (?, ?, ?, ?, ?)
-        `, [title, description, file_url, uploaded_by, category || 'General']);
-
-        res.status(201).json({ success: true, message: "Document uploaded successfully" });
-    } catch (error) {
-        console.error('Error in uploadAcademicDocument:', error);
-        res.status(500).json({ success: false, message: "Server Error", error: error.message });
-    }
+        await db.query('INSERT INTO academic_documents (title, type, url) VALUES (?, ?, ?)', [req.body.title, req.body.type, req.body.url]);
+        res.status(201).json({ success: true, message: "Uploaded" });
+    } catch (e) { res.status(500).json({ success: false, message: e.message }); }
 };
 
-// @desc    Delete an academic document
-// @route   DELETE /api/academic-head/documents/:id
 const deleteAcademicDocument = async (req, res) => {
     try {
-        const { id } = req.params;
-        await db.query('DELETE FROM academic_documents WHERE id = ?', [id]);
-        res.status(200).json({ success: true, message: "Document deleted successfully" });
-    } catch (error) {
-        console.error('Error in deleteAcademicDocument:', error);
-        res.status(500).json({ success: false, message: "Server Error", error: error.message });
-    }
+        await db.query('DELETE FROM academic_documents WHERE id = ?', [req.params.id]);
+        res.status(200).json({ success: true, message: "Deleted" });
+    } catch (e) { res.status(500).json({ success: false, message: e.message }); }
 };
 
-// @desc    Get Live Class Evaluations
-// @route   GET /api/academic-head/live-class-evaluations
 const getLiveClassEvaluations = async (req, res) => {
     try {
-        const [evals] = await db.query(`
-            SELECT e.*, uf.name as faculty_name 
-            FROM live_class_feedbacks e
-            JOIN faculties uf ON e.faculty_id = uf.id
-            ORDER BY e.created_at DESC
-        `);
-        res.status(200).json({ success: true, data: evals });
-    } catch (error) {
-        console.error('Error fetching live class evaluations:', error);
-        res.status(500).json({ success: false, message: error.message });
-    }
+        const [rows] = await db.query('SELECT e.*, uf.name as faculty_name FROM live_class_feedbacks e JOIN faculties uf ON e.faculty_id = uf.id ORDER BY e.created_at DESC');
+        res.status(200).json({ success: true, data: rows });
+    } catch (e) { res.status(500).json({ success: false, message: e.message }); }
 };
 
-// @desc    Submit Live Class Evaluation
-// @route   POST /api/academic-head/live-class-evaluations
 const submitLiveClassEvaluation = async (req, res) => {
     try {
-        const { 
-            faculty_id, student_id, joined_class, faculty_active, interactive, 
-            faculty_camera_on, student_camera_on, remarks, proof_url, class_date,
-            energy_level, screen_sharing, faculty_background, student_interaction_level, check_method
-        } = req.body;
-        const academic_head_id = req.user.id;
-
-        await db.query(`
-            INSERT INTO live_class_feedbacks (
-                academic_head_id, faculty_id, student_id, joined_class, faculty_active, 
-                interactive, faculty_camera_on, student_camera_on, remarks, proof_url, 
-                class_date, energy_level, screen_sharing, faculty_background, 
-                student_interaction_level, check_method
-            )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        `, [
-            academic_head_id, faculty_id, student_id || null, joined_class || false, faculty_active || false,
-            interactive || false, faculty_camera_on || false, student_camera_on || false, remarks, proof_url,
-            class_date, energy_level || 0, screen_sharing || false, faculty_background || false,
-            student_interaction_level || 0, check_method || 'Direct'
-        ]);
-
-        res.status(201).json({ success: true, message: 'Live class evaluation submitted successfully' });
-    } catch (error) {
-        console.error('Error submitting live class evaluation:', error);
-        res.status(500).json({ success: false, message: error.message });
-    }
+        await db.query('INSERT INTO live_class_feedbacks (academic_head_id, faculty_id, student_id, remarks) VALUES (?, ?, ?, ?)', [req.user.id, req.body.faculty_id, req.body.student_id || null, req.body.remarks]);
+        res.status(201).json({ success: true, message: "Submitted" });
+    } catch (e) { res.status(500).json({ success: false, message: e.message }); }
 };
 
-// @desc    Get pending faculty interaction logs for verification
-// @route   GET /api/academic-head/faculty-logs-pending
 const getPendingFacultyLogs = async (req, res) => {
     try {
-        const [logs] = await db.query(`
-            SELECT f.*, u.name as faculty_name, s.name as student_name
-            FROM faculty_interaction_logs f
-            LEFT JOIN faculties u ON f.faculty_id = u.id
-            LEFT JOIN students s ON f.student_id = s.id
-            ORDER BY f.created_at DESC
-        `);
-        res.status(200).json({ success: true, data: logs });
-    } catch (error) {
-        console.error('Error fetching pending faculty logs:', error);
-        res.status(500).json({ success: false, message: error.message });
-    }
+        const [rows] = await db.query('SELECT f.*, u.name as faculty_name FROM faculty_interaction_logs f JOIN faculties u ON f.faculty_id = u.id WHERE verification_status = "Pending" ORDER BY f.created_at DESC');
+        res.status(200).json({ success: true, data: rows });
+    } catch (e) { res.status(500).json({ success: false, message: e.message }); }
 };
 
-// @desc    Verify Faculty Interaction Log
-// @route   PUT /api/academic-head/faculty-logs/:id/verify
 const verifyFacultyLog = async (req, res) => {
     try {
-        const { id } = req.params;
-        const { verification_status, verification_remarks } = req.body;
-        const verified_by = req.user.id;
-
-        await db.query(`
-            UPDATE faculty_interaction_logs
-            SET verification_status = ?, verification_remarks = ?, verified_by = ?
-            WHERE id = ?
-        `, [verification_status, verification_remarks, verified_by, id]);
-
-        res.status(200).json({ success: true, message: 'Log verified successfully' });
-    } catch (error) {
-        console.error('Error verifying faculty log:', error);
-        res.status(500).json({ success: false, message: error.message });
-    }
+        await db.query('UPDATE faculty_interaction_logs SET verification_status = ?, verified_by = ? WHERE id = ?', [req.body.status, req.user.id, req.params.id]);
+        res.status(200).json({ success: true, message: "Verified" });
+    } catch (e) { res.status(500).json({ success: false, message: e.message }); }
 };
 
-// @desc    Set exam portions and date (Academic Head)
-// @route   POST /api/academic-head/exams/plan
+const editFaculty = async (req, res) => {
+    try {
+        const { name, email, phone_number, subject } = req.body;
+        await db.query('UPDATE faculties SET name = ?, email = ?, phone_number = ?, subject = ? WHERE id = ?', [name, email, phone_number, subject, req.params.id]);
+        res.status(200).json({ success: true, message: "Updated" });
+    } catch (e) { res.status(500).json({ success: false, message: e.message }); }
+};
+
+const deleteFaculty = async (req, res) => {
+    try {
+        await db.query('DELETE FROM faculties WHERE id = ?', [req.params.id]);
+        res.status(200).json({ success: true, message: "Deleted" });
+    } catch (e) { res.status(500).json({ success: false, message: e.message }); }
+};
+
+const editStudent = async (req, res) => {
+    try {
+        const { name, email, contact, grade } = req.body;
+        await db.query('UPDATE students SET name = ?, email = ?, contact = ?, grade = ? WHERE id = ?', [name, email, contact, grade, req.params.id]);
+        res.status(200).json({ success: true, message: "Updated" });
+    } catch (e) { res.status(500).json({ success: false, message: e.message }); }
+};
+
+const deleteStudent = async (req, res) => {
+    try {
+        await db.query('DELETE FROM students WHERE id = ?', [req.params.id]);
+        res.status(200).json({ success: true, message: "Deleted" });
+    } catch (e) { res.status(500).json({ success: false, message: e.message }); }
+};
+
+const getStudentById = async (req, res) => {
+    try {
+        const [[s]] = await db.query('SELECT * FROM students WHERE id = ?', [req.params.id]);
+        res.status(200).json({ success: true, data: s });
+    } catch (e) { res.status(500).json({ success: false, message: e.message }); }
+};
+
+const getStudents = async (req, res) => {
+    try {
+        const [rows] = await db.query('SELECT * FROM students ORDER BY name ASC');
+        res.status(200).json({ success: true, data: rows });
+    } catch (e) { res.status(500).json({ success: false, message: e.message }); }
+};
+
+const getMentors = async (req, res) => {
+    try {
+        const [rows] = await db.query('SELECT * FROM mentors ORDER BY name ASC');
+        res.status(200).json({ success: true, data: rows });
+    } catch (e) { res.status(500).json({ success: false, message: e.message }); }
+};
+
+const editMentor = async (req, res) => {
+    try {
+        const { name, email, phone_number } = req.body;
+        await db.query('UPDATE mentors SET name = ?, email = ?, phone_number = ? WHERE id = ?', [name, email, phone_number, req.params.id]);
+        res.status(200).json({ success: true, message: "Updated" });
+    } catch (e) { res.status(500).json({ success: false, message: e.message }); }
+};
+
+const deleteMentor = async (req, res) => {
+    try {
+        await db.query('DELETE FROM mentors WHERE id = ?', [req.params.id]);
+        res.status(200).json({ success: true, message: "Deleted" });
+    } catch (e) { res.status(500).json({ success: false, message: e.message }); }
+};
+
+const getLiveMonitoring = async (req, res) => {
+    try {
+        const [rows] = await db.query('SELECT fs.*, u.name as faculty_name, s.name as student_name FROM faculty_sessions fs JOIN faculties u ON fs.faculty_id = u.id JOIN session_attendance sa ON fs.id = sa.session_id JOIN students s ON sa.student_id = s.id WHERE fs.date = CURDATE()');
+        res.status(200).json({ success: true, data: rows });
+    } catch (e) { res.status(500).json({ success: false, message: e.message }); }
+};
+
+const getStaff = async (req, res) => {
+    try {
+        const [us] = await db.query('SELECT id, name, email, role FROM users WHERE role != "student"');
+        const [ms] = await db.query('SELECT id, name, email, "mentor" as role FROM mentors');
+        const [fs] = await db.query('SELECT id, name, email, "faculty" as role FROM faculties');
+        res.status(200).json({ success: true, data: [...us, ...ms, ...fs] });
+    } catch (e) { res.status(500).json({ success: false, message: e.message }); }
+};
+
+const syncLegacyData = async (req, res) => {
+    try { await performAutoSync(); res.status(200).json({ success: true, message: "Synced" }); }
+    catch (e) { res.status(500).json({ success: false, message: e.message }); }
+};
+
 const saveExamPlan = async (req, res) => {
     try {
-        const { student_id, milestone, chapter, portions, exam_type, scheduled_date, mentor_id } = req.body;
-
-        if (!student_id || !milestone || !portions || !scheduled_date) {
-            return res.status(400).json({ success: false, message: "Portions and Scheduled Date are required" });
-        }
-
-        await db.query(`
-            INSERT INTO student_exams (student_id, mentor_id, milestone_session, chapter, portions, exam_type, scheduled_date, status)
-            VALUES (?, ?, ?, ?, ?, ?, ?, 'Pending')
-            ON DUPLICATE KEY UPDATE 
-                chapter = VALUES(chapter),
-                portions = VALUES(portions), 
-                exam_type = VALUES(exam_type),
-                scheduled_date = VALUES(scheduled_date),
-                mentor_id = VALUES(mentor_id)
-        `, [student_id, mentor_id, milestone, chapter, portions, exam_type, scheduled_date]);
-
-        res.status(200).json({ success: true, message: "Exam plan saved and synced with Mentor" });
-    } catch (error) {
-        console.error('Error in saveExamPlan:', error);
-        res.status(500).json({ success: false, message: error.message });
-    }
+        const { student_id, milestone, portions, scheduled_date } = req.body;
+        await db.query('INSERT INTO student_exams (student_id, milestone_session, portions, scheduled_date, status) VALUES (?, ?, ?, ?, "Pending") ON DUPLICATE KEY UPDATE portions = VALUES(portions), scheduled_date = VALUES(scheduled_date)', [student_id, milestone, portions, scheduled_date]);
+        res.status(200).json({ success: true, message: "Saved" });
+    } catch (e) { res.status(500).json({ success: false, message: e.message }); }
 };
 
 module.exports = {
-    getExamAnalytics,
-    saveExamPlan,
-    getDropdownData,
-    registerStudent,
-    registerFaculty,
-    registerSSC,
-    getDashboardStats,
-    getAllFacultyActivity,
-    getStudentInteractionLogs,
-    getFacultyInteractionLogs,
-    getAcademicActions,
-    getDailyFacultyChecks,
-    checkFacultySessionToday,
-    uncheckFacultySession,
-    getFacultyDirectory,
-    getAcademicDocuments,
-    uploadAcademicDocument,
-    deleteAcademicDocument,
-    getLiveClassEvaluations,
-    submitLiveClassEvaluation,
-    getPendingFacultyLogs,
-    verifyFacultyLog,
-    // New Edit/Delete functionalities
-    editFaculty: async (req, res) => {
-        try {
-            const { id } = req.params;
-            const { 
-                name, email, phone_number, place, 
-                faculty_id_card, section, syllabus, languages_proficiency,
-                qualification, experience, availability, hourly_rate,
-                teaching_mode, joining_date, remarks, primary_subject, secondary_subjects
-            } = req.body;
-
-            const [[user]] = await db.query('SELECT name FROM faculties WHERE id = ?', [id]);
-            if (!user) return res.status(404).json({ success: false, message: "Faculty not found" });
-
-            // Logic to merge subjects into a single comma-separated string for DB
-            const subjectsList = [primary_subject, ...(secondary_subjects || [])].filter(Boolean);
-            const subjectsStr = subjectsList.length > 0 ? subjectsList.join(',') : null;
-            
-            const syllabusStr = Array.isArray(syllabus) ? syllabus.join(',') : (syllabus || null);
-            const languagesJson = languages_proficiency ? JSON.stringify(languages_proficiency) : null;
-
-            await db.query(`
-                UPDATE faculties SET 
-                    name = ?, email = ?, phone_number = ?, place = ?,
-                    faculty_id_card = ?, section = ?, syllabus = ?, languages_proficiency = ?,
-                    qualification = ?, experience = ?, availability = ?, hourly_rate = ?,
-                    teaching_mode = ?, joining_date = ?, remarks = ?, subject = ?
-                WHERE id = ?
-            `, [
-                name, email || null, phone_number || null, place || null,
-                faculty_id_card || null, section || null, syllabusStr, languagesJson,
-                qualification || null, experience || null, availability || null, hourly_rate || 0,
-                teaching_mode || null, joining_date || null, remarks || null, subjectsStr,
-                id
-            ]);
-
-            await db.query('INSERT INTO admin_notifications (message) VALUES (?)', [`Academic Head (${req.user.name}) edited faculty profile: ${user.name}`]);
-            res.status(200).json({ success: true, message: 'Faculty profile updated successfully' });
-        } catch (error) { 
-            console.error("EDIT_FACULTY_ERROR:", error);
-            res.status(500).json({ success: false, message: error.message }); 
-        }
-    },
-    deleteFaculty: async (req, res) => {
-        try {
-            const { id } = req.params;
-            const [[user]] = await db.query('SELECT name FROM faculties WHERE id = ?', [id]);
-            await db.query('DELETE FROM faculties WHERE id = ?', [id]);
-            await db.query('INSERT INTO admin_notifications (message) VALUES (?)', [`Academic Head (${req.user.name}) deleted faculty: ${user.name}`]);
-            res.status(200).json({ success: true, message: 'Faculty deleted' });
-        } catch (error) { res.status(500).json({ success: false, message: error.message }); }
-    },
-    editStudent: async (req, res) => {
-        try {
-            const { id } = req.params;
-            const { 
-                name, email, contact, grade, syllabus, course, hour, 
-                next_installment_date, admission_date, registration_number, 
-                meeting_link, meetingLink, enrollment_type, 
-                school_name, preferred_language, country, total_fees, total_paid,
-                selectedSubjects, subjects_json, mentor_id, password
-            } = req.body;
-
-            const finalMeetingLink = meetingLink || meeting_link;
-            const finalSubjects = req.body.selectedSubjects || req.body.subjects_json || [];
-            
-            const [[student]] = await db.query('SELECT name, user_id FROM students WHERE id = ?', [id]);
-            if (!student) return res.status(404).json({ success: false, message: "Student not found" });
-
-            // Prepare primary faculty/subject for legacy columns
-            let primaryFacultyId = null;
-            let primaryFacultyName = null;
-            let primarySubject = null;
-
-            if (finalSubjects.length > 0) {
-                primaryFacultyId = finalSubjects[0].facultyId;
-                primaryFacultyName = finalSubjects[0].facultyName;
-                primarySubject = finalSubjects[0].subject;
-            }
-
-            // Sync Badge with Enrollment Type
-            const badge = enrollment_type === 'Mentorship' ? 'Gold' : 
-                          enrollment_type === 'Tuition' ? 'Silver' : 
-                          enrollment_type === 'Mentorship and Tuition' ? 'Diamond' : null;
-
-            // Update Students table
-            await db.query(
-                `UPDATE students SET 
-                    name = ?, email = ?, contact = ?, grade = ?, syllabus = ?, course = ?, hour = ?,
-                    next_installment_date = ?, admission_date = ?, registration_number = ?, roll_number = ?,
-                    meeting_link = ?, enrollment_type = ?, badge = ?,
-                    school_name = ?, preferred_language = ?, country = ?, 
-                    total_fees = ?, total_paid = ?,
-                    subjects_json = ?, subject = ?, faculty_id = ?, faculty_name = ?, mentor_id = ?,
-                    course_completed = ?
-                 WHERE id = ?`, 
-                [
-                    name, email || null, contact || null, grade || null, syllabus || null, course || null, hour || null,
-                    next_installment_date || null, admission_date || null, registration_number || null, registration_number || null,
-                    finalMeetingLink || null, enrollment_type || null, badge,
-                    school_name || null, preferred_language || null, country || null,
-                    total_fees || 0, total_paid || 0,
-                    JSON.stringify(finalSubjects), primarySubject, primaryFacultyId, primaryFacultyName, mentor_id || null, 
-                    req.body.course_completed || 0,
-                    id
-                ]
-            );
-
-            // Update linked Users table
-            if (student.user_id) {
-                let userUpdateQuery = 'UPDATE users SET name = ?, email = ?, phone_number = ?';
-                let userParams = [name, email || null, contact || null];
-
-                if (password && password.trim() !== '') {
-                    const salt = await bcrypt.genSalt(10);
-                    const hashedPassword = await bcrypt.hash(password, salt);
-                    userUpdateQuery += ', password = ?';
-                    userParams.push(hashedPassword);
-                }
-
-                userUpdateQuery += ' WHERE id = ?';
-                userParams.push(student.user_id);
-                await db.query(userUpdateQuery, userParams);
-            }
-
-            // --- SYNC FACULTY SCHEDULES ---
-            // 1. Delete existing schedules
-            await db.query('DELETE FROM faculty_schedules WHERE student_id = ?', [id]);
-
-            // 2. Insert new schedules from finalSubjects
-            if (finalSubjects && Array.isArray(finalSubjects) && finalSubjects.length > 0) {
-                for (const sub of finalSubjects) {
-                    const days = sub.days || (sub.day ? [sub.day] : []);
-                    for (const day of days) {
-                        if (sub.facultyId && day && sub.startTime && sub.endTime) {
-                            await db.query(`
-                                INSERT INTO faculty_schedules (
-                                    faculty_id, student_id, subject, day_of_week, start_time, end_time, hourly_rate
-                                ) VALUES (?, ?, ?, ?, ?, ?, ?)
-                            `, [
-                                sub.facultyId, id, sub.subject, day, sub.startTime, sub.endTime, sub.hourlyRate || 0
-                            ]);
-                        }
-                    }
-                }
-            }
-
-            await db.query('INSERT INTO admin_notifications (message) VALUES (?)', [`Academic Head (${req.user.name}) updated student profile and sync'd schedule for: ${student.name}`]);
-            res.status(200).json({ success: true, message: 'Student profile updated successfully' });
-        } catch (error) { 
-            console.error("EDIT_STUDENT_ERROR:", error);
-            res.status(500).json({ success: false, message: error.message }); 
-        }
-    },
-    deleteStudent: async (req, res) => {
-        try {
-            const { id } = req.params;
-            const [[student]] = await db.query('SELECT name FROM students WHERE id = ?', [id]);
-            await db.query('DELETE FROM students WHERE id = ?', [id]);
-            await db.query('INSERT INTO admin_notifications (message) VALUES (?)', [`Academic Head (${req.user.name}) deleted student: ${student.name}`]);
-            res.status(200).json({ success: true, message: 'Student deleted' });
-        } catch (error) { res.status(500).json({ success: false, message: error.message }); }
-    },
-    getStudentById: async (req, res) => {
-        try {
-            const { id } = req.params;
-            const [[student]] = await db.query(`
-                SELECT s.*, u_m.name as mentor_name, u_f.name as faculty_name
-                FROM students s
-                LEFT JOIN mentors u_m ON s.mentor_id = u_m.id
-                LEFT JOIN faculties u_f ON s.faculty_id = u_f.id
-                WHERE s.id = ?
-            `, [id]);
-
-            if (!student) {
-                return res.status(404).json({ success: false, message: "Student not found" });
-            }
-
-            res.status(200).json({ success: true, data: student });
-        } catch (error) {
-            console.error("GET_STUDENT_BY_ID_ERROR:", error);
-            res.status(500).json({ success: false, message: error.message });
-        }
-    },
-    getStudents: async (req, res) => {
-        try {
-            const { mentor_id, search, sortBy, course, enrollment_type } = req.query;
-            let query = `
-                SELECT s.*, u_m.name as mentor_name, u_f.name as faculty_name,
-                (SELECT AVG(CAST(score AS DECIMAL(10,2))) FROM student_exams WHERE student_id = s.id AND status = 'Completed') as avg_score
-                FROM students s
-                LEFT JOIN mentors u_m ON s.mentor_id = u_m.id
-                LEFT JOIN faculties u_f ON s.faculty_id = u_f.id
-                WHERE 1=1
-            `;
-            const params = [];
-
-            if (mentor_id) {
-                query += ' AND s.mentor_id = ?';
-                params.push(mentor_id);
-            }
-
-            if (course && course !== 'all') {
-                query += ' AND s.course = ?';
-                params.push(course);
-            }
-
-            if (enrollment_type && enrollment_type !== 'all') {
-                query += ' AND s.enrollment_type = ?';
-                params.push(enrollment_type);
-            }
-
-            if (search) {
-                query += ' AND (s.name LIKE ? OR s.registration_number LIKE ? OR s.grade LIKE ?)';
-                params.push(`%${search}%`, `%${search}%`, `%${search}%`);
-            }
-
-            // Standardized Sorting logic
-            if (sortBy === 'join_oldest' || sortBy === 'oldest') {
-                query += ' ORDER BY s.created_at ASC';
-            } else if (sortBy === 'join_newest' || sortBy === 'newest') {
-                query += ' ORDER BY s.created_at DESC';
-            } else if (sortBy === 'active_first') {
-                query += ' ORDER BY CASE WHEN LOWER(s.status) = "active" THEN 0 ELSE 1 END, s.created_at DESC';
-            } else if (sortBy === 'inactive_first') {
-                query += ' ORDER BY CASE WHEN LOWER(s.status) != "active" THEN 0 ELSE 1 END, s.created_at DESC';
-            } else {
-                query += ' ORDER BY s.created_at DESC';
-            }
-
-            const [rows] = await db.query(query, params);
-
-            // Add performance label logic
-            const enrichedRows = rows.map(student => {
-                const score = parseFloat(student.avg_score) || 0;
-                let performance = 'N/A';
-                if (score >= 90) performance = 'Excellent';
-                else if (score >= 75) performance = 'Very Good';
-                else if (score >= 60) performance = 'Good';
-                else if (score >= 45) performance = 'Average';
-                else if (score > 0) performance = 'Needs Improvement';
-
-                return { ...student, performance, avg_score: score.toFixed(2) };
-            });
-
-            res.status(200).json({ success: true, data: enrichedRows });
-        } catch (error) { 
-            console.error("GET_STUDENTS_ACADEMIC_ERROR:", error);
-            res.status(500).json({ success: false, message: error.message }); 
-        }
-    },
-    getMentors: async (req, res) => {
-        try {
-            const [rows] = await db.query(`
-                SELECT u.id, u.name, u.email, u.phone_number, u.place, u.status, u.createdAt,
-                (SELECT COUNT(*) FROM students WHERE mentor_id = u.id) as studentCount
-                FROM mentors u
-                ORDER BY u.name ASC
-            `);
-            res.status(200).json({ success: true, data: rows });
-        } catch (error) { res.status(500).json({ success: false, message: error.message }); }
-    },
-    editMentor: async (req, res) => {
-        try {
-            const { id } = req.params;
-            const { name, email, phone_number, place } = req.body;
-            const [[user]] = await db.query('SELECT name FROM mentors WHERE id = ?', [id]);
-            await db.query('UPDATE mentors SET name = ?, email = ?, phone_number = ?, place = ? WHERE id = ?', [name, email, phone_number, place, id]);
-            await db.query('INSERT INTO admin_notifications (message) VALUES (?)', [`Academic Head (${req.user.name}) edited mentor: ${user.name}`]);
-            res.status(200).json({ success: true, message: 'Mentor profile updated' });
-        } catch (error) { res.status(500).json({ success: false, message: error.message }); }
-    },
-    deleteMentor: async (req, res) => {
-        try {
-            const { id } = req.params;
-            const [[user]] = await db.query('SELECT name FROM mentors WHERE id = ?', [id]);
-            await db.query('DELETE FROM mentors WHERE id = ?', [id]);
-            await db.query('INSERT INTO admin_notifications (message) VALUES (?)', [`Academic Head (${req.user.name}) deleted mentor: ${user.name}`]);
-            res.status(200).json({ success: true, message: 'Mentor profile purged' });
-        } catch (error) { res.status(500).json({ success: false, message: error.message }); }
-    },
-    getLiveMonitoring: async (req, res) => {
-        try {
-            const [rows] = await db.query(`
-                SELECT 
-                    fs.id, fs.topic, fs.date, fs.start_time, fs.end_time, fs.status,
-                    u.name as faculty_name,
-                    s.name as student_name,
-                    s.meeting_link,
-                    s.registration_number,
-                    m.name as mentor_name
-                FROM faculty_sessions fs
-                JOIN faculties u ON fs.faculty_id = u.id
-                JOIN session_attendance sa ON fs.id = sa.session_id
-                JOIN students s ON sa.student_id = s.id
-                LEFT JOIN mentors m ON s.mentor_id = m.id
-                WHERE fs.date = CURDATE()
-                ORDER BY fs.start_time ASC
-            `);
-            res.status(200).json({ success: true, count: rows.length, data: rows });
-        } catch (error) {
-            console.error("LIVE_MONITORING_ERROR:", error);
-            res.status(500).json({ success: false, message: error.message });
-        }
-    },
-    getLiveMonitoring,
-    getAvailableFaculties,
-    getStaff: async (req, res) => {
-        try {
-            const [users] = await db.query('SELECT id, name, email, phone_number as phone, role, status FROM users WHERE role NOT IN ("student")');
-            const [mentors] = await db.query('SELECT id, name, email, phone_number as phone, "mentor" as role, status FROM mentors');
-            const [faculties] = await db.query('SELECT id, name, email, phone_number as phone, "faculty" as role, status FROM faculties');
-            
-            const staff = [...users, ...mentors, ...faculties];
-            res.status(200).json({ success: true, data: staff });
-        } catch (error) {
-            console.error('getStaff error:', error);
-            res.status(500).json({ success: false, message: error.message });
-        }
-    },
-    syncLegacyData: async (req, res) => {
-        try {
-            // 1. Sync Mentors
-            const [mentorsToSync] = await db.query('SELECT * FROM users WHERE role = "mentor"');
-            let mentorCount = 0;
-            for (const m of mentorsToSync) {
-                const [result] = await db.query(`
-                    INSERT IGNORE INTO mentors (id, name, email, phone_number, place, status, createdAt)
-                    VALUES (?, ?, ?, ?, ?, ?, ?)
-                `, [m.id, m.name, m.email, m.phone_number, m.place, m.status, m.created_at || new Date()]);
-                if (result.affectedRows > 0) mentorCount++;
-            }
-
-            // 2. Sync Faculties
-            const [facultiesToSync] = await db.query('SELECT * FROM users WHERE role = "faculty"');
-            let facultyCount = 0;
-            for (const f of facultiesToSync) {
-                // Ensure subject is synced (Legacy users might have 'primary_subject' or 'subject' column)
-                const subject = f.subject || f.primary_subject || null;
-                const [result] = await db.query(`
-                    INSERT INTO faculties (id, name, email, phone_number, place, status, subject, createdAt)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-                    ON DUPLICATE KEY UPDATE 
-                        subject = VALUES(subject),
-                        status = VALUES(status)
-                `, [f.id, f.name, f.email, f.phone_number, f.place, f.status, subject, f.created_at || new Date()]);
-                if (result.affectedRows > 0) facultyCount++;
-            }
-
-            res.status(200).json({ 
-                success: true, 
-                message: "Legacy data synced successfully",
-                synced: { mentors: mentorCount, faculties: facultyCount }
-            });
-        } catch (error) {
-            console.error("SYNC_ERROR:", error);
-            res.status(500).json({ success: false, message: error.message });
-        }
-    }
+    getExamAnalytics, getDashboardStats, getAllFacultyActivity, getAvailableFaculties, getDropdownData, registerStudent, registerFaculty, registerSSC, getStudentInteractionLogs, getFacultyInteractionLogs, getAcademicActions, getDailyFacultyChecks, checkFacultySessionToday, uncheckFacultySession, getFacultyDirectory, getAcademicDocuments, uploadAcademicDocument, deleteAcademicDocument, getLiveClassEvaluations, submitLiveClassEvaluation, getPendingFacultyLogs, verifyFacultyLog, editFaculty, deleteFaculty, editStudent, deleteStudent, getStudentById, getStudents, getMentors, editMentor, deleteMentor, getLiveMonitoring, getStaff, syncLegacyData, saveExamPlan
 };
-
-
-
