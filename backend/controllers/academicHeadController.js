@@ -341,14 +341,20 @@ const registerStudent = async (req, res) => {
 
             if (existingUsers.length > 0 || existingStudents.length > 0) {
                 let duplicateField = '';
-                if (existingStudents.some(s => s.registration_number === regNumCheck)) duplicateField = 'Student ID (Registration Number)';
-                else if (existingUsers.some(u => u.email === emailCheck) || existingStudents.some(s => s.email === emailCheck)) duplicateField = 'Email';
-                else if (existingUsers.some(u => u.phone_number === contactCheck) || existingStudents.some(s => s.contact === contactCheck)) duplicateField = 'Contact Number';
+                if (regNumCheck && existingStudents.some(s => s.registration_number === regNumCheck)) {
+                    duplicateField = 'Student ID (Registration Number)';
+                } else if (emailCheck && (existingUsers.some(u => u.email === emailCheck) || existingStudents.some(s => s.email === emailCheck))) {
+                    duplicateField = 'Email';
+                } else if (contactCheck && (existingUsers.some(u => u.phone_number === contactCheck) || existingStudents.some(s => s.contact === contactCheck))) {
+                    duplicateField = 'Contact Number';
+                }
 
-                return res.status(400).json({ 
-                    success: false, 
-                    message: `Registration Failed: A student is already registered with this ${duplicateField || 'identifier'}.` 
-                });
+                if (duplicateField) {
+                    return res.status(400).json({ 
+                        success: false, 
+                        message: `Registration Failed: A student is already registered with this ${duplicateField}.` 
+                    });
+                }
             }
         }
 
@@ -387,9 +393,9 @@ const registerStudent = async (req, res) => {
                 name, email, password, user_id, grade, syllabus, subject, course, hour, 
                 mentor_id, mentor_name, faculty_id, faculty_name, next_installment_date,
                 time_table, status, onboarding_status, isApproved, registeredBy,
-                registration_number, meeting_link, faculty_hourly_rate, subjects_json, enrollment_type, badge,
+                registration_number, roll_number, meeting_link, faculty_hourly_rate, subjects_json, enrollment_type, badge,
                 contact, admission_date, school_name, preferred_language, country, total_fees, total_paid
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `;
 
         const [studentResult] = await db.query(query, [
@@ -401,6 +407,7 @@ const registerStudent = async (req, res) => {
             0, // Requires approval
             req.user.id, // Registering user ID
             registrationNumber || null,
+            registrationNumber || null, // Map to roll_number as well
             meetingLink || null,
             facultyHourlyRate || 0,
             JSON.stringify(selectedSubjects || []),
@@ -1355,7 +1362,7 @@ module.exports = {
             await db.query(
                 `UPDATE students SET 
                     name = ?, email = ?, contact = ?, grade = ?, syllabus = ?, course = ?, hour = ?,
-                    next_installment_date = ?, admission_date = ?, registration_number = ?,
+                    next_installment_date = ?, admission_date = ?, registration_number = ?, roll_number = ?,
                     meeting_link = ?, enrollment_type = ?, badge = ?,
                     school_name = ?, preferred_language = ?, country = ?, 
                     total_fees = ?, total_paid = ?,
@@ -1363,7 +1370,7 @@ module.exports = {
                  WHERE id = ?`, 
                 [
                     name, email || null, contact || null, grade || null, syllabus || null, course || null, hour || null,
-                    next_installment_date || null, admission_date || null, registration_number || null,
+                    next_installment_date || null, admission_date || null, registration_number || null, registration_number || null,
                     finalMeetingLink || null, enrollment_type || null, badge,
                     school_name || null, preferred_language || null, country || null,
                     total_fees || 0, total_paid || 0,

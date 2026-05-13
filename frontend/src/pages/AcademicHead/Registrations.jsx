@@ -8,6 +8,49 @@ const Registrations = () => {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
 
+
+  // Dropdowns data
+  const [mentors, setMentors] = useState([]);
+  const [faculties, setFaculties] = useState([]);
+
+  // Forms data
+  const [studentForm, setStudentForm] = useState({
+    name: '', email: '', contact: '', password: '', confirmPassword: '',
+    grade: '', syllabus: '', mentorId: '', course: '', 
+    admissionDate: new Date().toISOString().split('T')[0],
+    schoolName: '', preferredLanguage: '', country: '',
+    totalFees: '', totalPaid: '', nextInstallmentDate: '', 
+    admissionType: 'new', registrationNumber: '', meetingLink: '',
+    enrollmentType: 'mentorship'
+  });
+
+  const [selectedSubjects, setSelectedSubjects] = useState([
+    { 
+      subject: '', 
+      dayConfigs: [], // Array of { day: string, startTime: string, endTime: string }
+      facultyId: '', 
+      facultyName: '', 
+      hourlyRate: '', 
+      availableFaculties: [], 
+      isDayDropdownOpen: false, 
+      isSubjectDropdownOpen: false 
+    }
+  ]);
+
+  const [facultyForm, setFacultyForm] = useState({
+    name: '', email: '', phone_number: '', place: '', password: '', confirmPassword: '',
+    faculty_id_card: '', section: '', syllabus: [], languages_proficiency: [],
+    qualification: '', experience: '', availability: '', hourly_rate: '',
+    teaching_mode: 'Both', joining_date: new Date().toISOString().split('T')[0], 
+    remarks: '', primary_subject: '', secondary_subjects: [],
+    isSecondaryDropdownOpen: false, isSectionDropdownOpen: false,
+    isSyllabusDropdownOpen: false, isLangDropdownOpen: false
+  });
+
+  const [sscForm, setSscForm] = useState({
+    name: '', email: '', phone_number: '', place: '', password: '', confirmPassword: ''
+  });
+
   // Refs for clicking outside
   const secondaryRef = useRef(null);
   const sectionRef = useRef(null);
@@ -60,48 +103,6 @@ const Registrations = () => {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [selectedSubjects]);
-
-  // Dropdowns data
-  const [mentors, setMentors] = useState([]);
-  const [faculties, setFaculties] = useState([]);
-
-  // Forms data
-  const [studentForm, setStudentForm] = useState({
-    name: '', email: '', contact: '', password: '', confirmPassword: '',
-    grade: '', syllabus: '', mentorId: '', course: '', 
-    admissionDate: new Date().toISOString().split('T')[0],
-    schoolName: '', preferredLanguage: '', country: '',
-    totalFees: '', totalPaid: '', nextInstallmentDate: '', 
-    admissionType: 'new', registrationNumber: '', meetingLink: '',
-    enrollmentType: 'mentorship'
-  });
-
-  const [selectedSubjects, setSelectedSubjects] = useState([
-    { 
-      subject: '', 
-      dayConfigs: [], // Array of { day: string, startTime: string, endTime: string }
-      facultyId: '', 
-      facultyName: '', 
-      hourlyRate: '', 
-      availableFaculties: [], 
-      isDayDropdownOpen: false, 
-      isSubjectDropdownOpen: false 
-    }
-  ]);
-
-  const [facultyForm, setFacultyForm] = useState({
-    name: '', email: '', phone_number: '', place: '', password: '', confirmPassword: '',
-    faculty_id_card: '', section: '', syllabus: [], languages_proficiency: [],
-    qualification: '', experience: '', availability: '', hourly_rate: '',
-    teaching_mode: 'Both', joining_date: new Date().toISOString().split('T')[0], 
-    remarks: '', primary_subject: '', secondary_subjects: [],
-    isSecondaryDropdownOpen: false, isSectionDropdownOpen: false,
-    isSyllabusDropdownOpen: false, isLangDropdownOpen: false
-  });
-
-  const [sscForm, setSscForm] = useState({
-    name: '', email: '', phone_number: '', place: '', password: '', confirmPassword: ''
-  });
 
   const LANG_OPTIONS = [
     { id: 'ENG', label: 'ENG(100%)' },

@@ -1239,7 +1239,7 @@ exports.editStudent = async (req, res) => {
         await db.query(
             `UPDATE students SET 
                 name = ?, email = ?, contact = ?, grade = ?, syllabus = ?, course = ?, hour = ?,
-                next_installment_date = ?, admission_date = ?, registration_number = ?,
+                next_installment_date = ?, admission_date = ?, registration_number = ?, roll_number = ?,
                 meeting_link = ?, enrollment_type = ?, badge = ?,
                 school_name = ?, preferred_language = ?, country = ?, 
                 total_fees = ?, total_paid = ?,
@@ -1247,7 +1247,7 @@ exports.editStudent = async (req, res) => {
              WHERE id = ?`, 
             [
                 name, email || null, contact || null, grade || null, syllabus || null, course || null, hour || null,
-                next_installment_date || null, admission_date || null, registration_number || null,
+                next_installment_date || null, admission_date || null, registration_number || null, registration_number || null,
                 finalMeetingLink || null, enrollment_type || null, badge,
                 school_name || null, preferred_language || null, country || null,
                 total_fees || 0, total_paid || 0,
