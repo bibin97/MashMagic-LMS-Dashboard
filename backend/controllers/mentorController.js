@@ -31,22 +31,22 @@ const getMentorDashboard = async (req, res) => {
 
         const recentInteractions = await safeQuery(`
             SELECT * FROM (
-                (SELECT sil.created_at, s.name as student_name, 'Quick' as type, sil.mentor_notes as remarks, sil.self_clarity, sil.confidence
+                (SELECT sil.created_at, CONVERT(s.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as student_name, CONVERT('Quick' USING utf8mb4) COLLATE utf8mb4_unicode_ci as type, CONVERT(sil.mentor_notes USING utf8mb4) COLLATE utf8mb4_unicode_ci as remarks, sil.self_clarity, sil.confidence
                  FROM student_interaction_logs sil
                  JOIN students s ON sil.student_id = s.id
                  WHERE sil.mentor_id = ?)
                 UNION ALL
-                (SELECT msl.created_at, s.name as student_name, 'Session' as type, CONCAT(msl.main_issue, ': ', msl.action_type) as remarks, msl.understanding_after_session as self_clarity, msl.session_quality_rating as confidence
+                (SELECT msl.created_at, CONVERT(s.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as student_name, CONVERT('Session' USING utf8mb4) COLLATE utf8mb4_unicode_ci as type, CONVERT(CONCAT(msl.main_issue, ': ', msl.action_type) USING utf8mb4) COLLATE utf8mb4_unicode_ci as remarks, msl.understanding_after_session as self_clarity, msl.session_quality_rating as confidence
                  FROM mentor_session_logs msl
                  JOIN students s ON msl.student_id = s.id
                  WHERE msl.mentor_id = ?)
                 UNION ALL
-                (SELECT msr.created_at, s.name as student_name, msr.session_type as type, JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.notes')) as remarks, NULL as self_clarity, NULL as confidence
+                (SELECT msr.created_at, CONVERT(s.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as student_name, CONVERT(msr.session_type USING utf8mb4) COLLATE utf8mb4_unicode_ci as type, CONVERT(JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.notes')) USING utf8mb4) COLLATE utf8mb4_unicode_ci as remarks, NULL as self_clarity, NULL as confidence
                  FROM mentor_session_reports msr
                  JOIN students s ON msr.student_id = s.id
                  WHERE msr.mentor_id = ?)
                 UNION ALL
-                (SELECT ml.created_at, s.name as student_name, 'Mentorship' as type, ml.action_details as remarks, NULL as self_clarity, NULL as confidence
+                (SELECT ml.created_at, CONVERT(s.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as student_name, CONVERT('Mentorship' USING utf8mb4) COLLATE utf8mb4_unicode_ci as type, CONVERT(ml.action_details USING utf8mb4) COLLATE utf8mb4_unicode_ci as remarks, NULL as self_clarity, NULL as confidence
                  FROM mentorship_logs ml
                  JOIN students s ON ml.student_id = s.id
                  WHERE ml.mentor_id = ?)
@@ -161,8 +161,8 @@ const getStudentDetails = async (req, res) => {
                 SELECT * FROM (
                     SELECT 
                         sil.id, sil.date, 
-                        CONVERT(sil.mentor_notes USING utf8mb4) as details, 
-                        CONVERT('Quick Log' USING utf8mb4) as type, 
+                        CONVERT(sil.mentor_notes USING utf8mb4) COLLATE utf8mb4_unicode_ci as details, 
+                        CONVERT('Quick Log' USING utf8mb4) COLLATE utf8mb4_unicode_ci as type, 
                         sil.created_at
                     FROM student_interaction_logs sil 
                     WHERE sil.student_id = ?
@@ -171,8 +171,8 @@ const getStudentDetails = async (req, res) => {
                     
                     SELECT 
                         msl.id, DATE(msl.created_at) as date, 
-                        CONVERT(CONCAT(msl.main_issue, ': ', msl.action_type) USING utf8mb4) as details, 
-                        CONVERT('Session Log' USING utf8mb4) as type, 
+                        CONVERT(CONCAT(msl.main_issue, ': ', msl.action_type) USING utf8mb4) COLLATE utf8mb4_unicode_ci as details, 
+                        CONVERT('Session Log' USING utf8mb4) COLLATE utf8mb4_unicode_ci as type, 
                         msl.created_at
                     FROM mentor_session_logs msl
                     WHERE msl.student_id = ?
@@ -188,8 +188,8 @@ const getStudentDetails = async (req, res) => {
                             JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.study_status')),
                             JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.main_problem')),
                             msr.session_type
-                        ) USING utf8mb4) as details, 
-                        CONVERT(CONCAT('Hub: ', msr.session_type) USING utf8mb4) as type, 
+                        ) USING utf8mb4) COLLATE utf8mb4_unicode_ci as details, 
+                        CONVERT(CONCAT('Hub: ', msr.session_type) USING utf8mb4) COLLATE utf8mb4_unicode_ci as type, 
                         msr.created_at
                     FROM mentor_session_reports msr
                     WHERE msr.student_id = ?
@@ -198,8 +198,8 @@ const getStudentDetails = async (req, res) => {
 
                     SELECT 
                         ml.id, DATE(ml.created_at) as date, 
-                        CONVERT(ml.action_details USING utf8mb4) as details, 
-                        CONVERT('Mentorship' USING utf8mb4) as type, 
+                        CONVERT(ml.action_details USING utf8mb4) COLLATE utf8mb4_unicode_ci as details, 
+                        CONVERT('Mentorship' USING utf8mb4) COLLATE utf8mb4_unicode_ci as type, 
                         ml.created_at
                     FROM mentorship_logs ml
                     WHERE ml.student_id = ?

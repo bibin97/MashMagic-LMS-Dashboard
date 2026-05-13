@@ -78,17 +78,17 @@ const getDashboardStats = async (req, res) => {
         // Normalized with CONVERT to avoid collation issues in UNION
         const activityFeed = await safeQuery(`
             SELECT * FROM (
-                (SELECT CONVERT('Quick Log' USING utf8mb4) as type, CONVERT(sil.mentor_notes USING utf8mb4) as mentor_notes, CONVERT(s.name USING utf8mb4) as student_name, CONVERT(u.name USING utf8mb4) as origin_name, sil.created_at as date
+                (SELECT CONVERT('Quick Log' USING utf8mb4) COLLATE utf8mb4_unicode_ci as type, CONVERT(sil.mentor_notes USING utf8mb4) COLLATE utf8mb4_unicode_ci as mentor_notes, CONVERT(s.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as student_name, CONVERT(u.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as origin_name, sil.created_at as date
                  FROM student_interaction_logs sil
                  JOIN students s ON sil.student_id = s.id
                  JOIN mentors u ON sil.mentor_id = u.id)
                 UNION ALL
-                (SELECT CONVERT('Session Log' USING utf8mb4) as type, CONVERT(CONCAT(msl.main_issue, ': ', msl.action_type) USING utf8mb4) as mentor_notes, CONVERT(s.name USING utf8mb4) as student_name, CONVERT(u.name USING utf8mb4) as origin_name, msl.created_at as date
+                (SELECT CONVERT('Session Log' USING utf8mb4) COLLATE utf8mb4_unicode_ci as type, CONVERT(CONCAT(msl.main_issue, ': ', msl.action_type) USING utf8mb4) COLLATE utf8mb4_unicode_ci as mentor_notes, CONVERT(s.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as student_name, CONVERT(u.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as origin_name, msl.created_at as date
                  FROM mentor_session_logs msl
                  JOIN students s ON msl.student_id = s.id
                  JOIN mentors u ON msl.mentor_id = u.id)
                 UNION ALL
-                (SELECT CONVERT('Hub Report' USING utf8mb4) as type, 
+                (SELECT CONVERT('Hub Report' USING utf8mb4) COLLATE utf8mb4_unicode_ci as type, 
                          CONVERT(COALESCE(
                              JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.notes')), 
                              JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.action_plan')),
@@ -96,32 +96,32 @@ const getDashboardStats = async (req, res) => {
                              JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.study_status')),
                              JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.main_problem')),
                              msr.session_type
-                         ) USING utf8mb4) as mentor_notes, 
-                         CONVERT(s.name USING utf8mb4) as student_name, CONVERT(u.name USING utf8mb4) as origin_name, msr.created_at as date
+                         ) USING utf8mb4) COLLATE utf8mb4_unicode_ci as mentor_notes, 
+                         CONVERT(s.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as student_name, CONVERT(u.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as origin_name, msr.created_at as date
                  FROM mentor_session_reports msr
                  JOIN students s ON msr.student_id = s.id
                  JOIN mentors u ON msr.mentor_id = u.id
                  WHERE msr.report_data IS NOT NULL AND JSON_VALID(msr.report_data))
                 UNION ALL
-                (SELECT CONVERT('Mentorship' USING utf8mb4) as type, CONVERT(ml.action_details USING utf8mb4) as mentor_notes, CONVERT(s.name USING utf8mb4) as student_name, CONVERT(u.name USING utf8mb4) as origin_name, ml.created_at as date
+                (SELECT CONVERT('Mentorship' USING utf8mb4) COLLATE utf8mb4_unicode_ci as type, CONVERT(ml.action_details USING utf8mb4) COLLATE utf8mb4_unicode_ci as mentor_notes, CONVERT(s.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as student_name, CONVERT(u.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as origin_name, ml.created_at as date
                  FROM mentorship_logs ml
                  JOIN students s ON ml.student_id = s.id
                  JOIN mentors u ON ml.mentor_id = u.id)
                 UNION ALL
-                (SELECT CONVERT('Faculty Interaction' USING utf8mb4) as type, CONVERT(fil.notes USING utf8mb4) as mentor_notes, CONVERT(s.name USING utf8mb4) as student_name, CONVERT(u.name USING utf8mb4) as origin_name, fil.created_at as date
+                (SELECT CONVERT('Faculty Interaction' USING utf8mb4) COLLATE utf8mb4_unicode_ci as type, CONVERT(fil.notes USING utf8mb4) COLLATE utf8mb4_unicode_ci as mentor_notes, CONVERT(s.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as student_name, CONVERT(u.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as origin_name, fil.created_at as date
                  FROM faculty_interaction_logs fil
                  JOIN students s ON fil.student_id = s.id
                  JOIN mentors u ON fil.mentor_id = u.id)
                 UNION ALL
-                (SELECT CONVERT('Staff Call' USING utf8mb4) as type, CONVERT(mfi.main_issue USING utf8mb4) as mentor_notes, CONVERT(s.name USING utf8mb4) as student_name, CONVERT(u.name USING utf8mb4) as origin_name, mfi.created_at as date
+                (SELECT CONVERT('Staff Call' USING utf8mb4) COLLATE utf8mb4_unicode_ci as type, CONVERT(mfi.main_issue USING utf8mb4) COLLATE utf8mb4_unicode_ci as mentor_notes, CONVERT(s.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as student_name, CONVERT(u.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as origin_name, mfi.created_at as date
                  FROM mentor_faculty_interactions mfi
                  JOIN students s ON mfi.student_id = s.id
                  JOIN mentors u ON mfi.mentor_id = u.id)
                 UNION ALL
-                (SELECT CONVERT('Intelligence' USING utf8mb4) as type, CONVERT(COALESCE(r.remarks, r.report_text, 'No details') USING utf8mb4) as mentor_notes, CONVERT(s.name USING utf8mb4) as student_name, CONVERT(u.name USING utf8mb4) as origin_name, r.created_at as date
-                 FROM student_reports r 
-                 JOIN students s ON r.student_id = s.id 
-                 JOIN faculties u ON r.faculty_id = u.id)
+                 (SELECT CONVERT('Intelligence' USING utf8mb4) COLLATE utf8mb4_unicode_ci as type, CONVERT(COALESCE(r.remarks, 'No details') USING utf8mb4) COLLATE utf8mb4_unicode_ci as mentor_notes, CONVERT(s.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as student_name, CONVERT(u.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as origin_name, r.created_at as date
+                  FROM student_reports r 
+                  JOIN students s ON r.student_id = s.id 
+                  JOIN faculties u ON r.faculty_id = u.id)
             ) as combined_logs
             ORDER BY date DESC
             LIMIT 20
