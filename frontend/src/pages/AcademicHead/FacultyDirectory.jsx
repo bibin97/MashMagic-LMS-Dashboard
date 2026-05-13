@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import {
   Users, User, Mail, Phone, Calendar, Search,
-  Filter, Activity, Edit2, Trash2, X, Save, BookOpen, MapPin, ShieldCheck, Eye
+  Filter, Activity, Edit2, Trash2, X, Save, BookOpen, MapPin, ShieldCheck, Eye, GraduationCap
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { premiumConfirm } from '../../utils/premiumConfirm';
