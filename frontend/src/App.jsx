@@ -188,6 +188,7 @@ function App() {
             <Route path="student-logs" element={<StudentLogsAcademic />} />
             <Route path="faculty-logs" element={<FacultyLogsAcademic />} />
             <Route path="checking" element={<CheckingSection />} />
+            <Route path="live-monitoring" element={<AcademicLiveMonitoring />} />
             <Route path="profile" element={<AdminProfile />} />
             <Route path="account-settings" element={<AccountSettings />} />
           </Route>
