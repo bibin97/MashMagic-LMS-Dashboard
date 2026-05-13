@@ -19,6 +19,7 @@ const CommonInteractionLogs = ({ role }) => {
     const [customRange, setCustomRange] = useState({ start: '', end: '' });
     const [mentorFilter, setMentorFilter] = useState('all');
     const [mentors, setMentors] = useState([]);
+    const [logTypeTab, setLogTypeTab] = useState('QUICK'); // 'QUICK', 'MEDIUM', 'DEEP'
 
     const baseApi = role === 'super_admin' ? '/admin' : (role === 'mentor_head' ? '/mentor-head' : '/academic-head');
 
@@ -316,6 +317,30 @@ const CommonInteractionLogs = ({ role }) => {
                 </div>
             )}
 
+            {/* Session Type Tabs */}
+            <div className="flex gap-4 p-2 bg-slate-100/50 rounded-[2.5rem] border border-slate-200/50 backdrop-blur-sm w-fit mx-auto md:mx-0">
+                {[
+                    { id: 'QUICK', label: 'Quick Sessions', color: '#008080' },
+                    { id: 'MEDIUM', label: 'Medium Sessions', color: '#8B5CF6' },
+                    { id: 'DEEP', label: 'Deep Sessions', color: '#EC4899' }
+                ].map(tab => (
+                    <button
+                        key={tab.id}
+                        onClick={() => setLogTypeTab(tab.id)}
+                        className={`px-10 py-5 rounded-[2rem] text-[10px] font-black uppercase tracking-widest transition-all ${
+                            logTypeTab === tab.id 
+                            ? 'bg-slate-900 text-white shadow-2xl' 
+                            : 'text-slate-500 hover:text-slate-900'
+                        }`}
+                    >
+                        <span className="flex items-center gap-3">
+                            <div className="w-2 h-2 rounded-full" style={{ backgroundColor: tab.color }}></div>
+                            {tab.label}
+                        </span>
+                    </button>
+                ))}
+            </div>
+
             {loading ? (
                 <div className="flex flex-col items-center justify-center py-40 gap-8">
                     <div className="w-16 h-16 border-4 border-[#008080] border-t-transparent rounded-full animate-spin shadow-[0_0_20px_rgba(0,128,128,0.2)]"></div>
@@ -324,100 +349,58 @@ const CommonInteractionLogs = ({ role }) => {
                         <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Compiling historical data packets from encrypted storage</p>
                     </div>
                 </div>
-            ) : logs.length > 0 ? (
-                <div className="space-y-12 relative">
-                    <div className="absolute left-[31px] md:left-[39px] top-4 bottom-0 w-1 bg-gradient-to-b from-[#008080]/20 via-purple-500/20 to-transparent z-0 rounded-full"></div>
-                    {logs.map((log, index) => (
-                        <div key={log.id} className="relative z-10 flex flex-col md:flex-row gap-10 group">
-                            {/* Timestamp Component */}
-                            <div className="flex flex-row md:flex-col items-center gap-6 md:w-20 pt-4">
-                                <div className={`w-16 h-16 md:w-20 md:h-20 rounded-[2.5rem] border-8 border-white shadow-2xl flex items-center justify-center text-white transition-transform group-hover:scale-110 duration-500 ${log.is_flagged ? 'bg-rose-500 animate-pulse' : (activeTab === 'student' ? 'bg-[#008080]' : 'bg-purple-600')}`}>
-                                    {log.is_flagged ? <ShieldAlert size={28} /> : (activeTab === 'student' ? <History size={28} /> : <BookOpen size={28} />)}
-                                </div>
-                                <div className="md:text-center">
-                                    <p className="text-sm font-black text-slate-900 leading-none mb-1">{new Date(log.created_at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }).toUpperCase()}</p>
-                                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{new Date(log.created_at).toLocaleDateString('en-GB', { weekday: 'short' })}</p>
-                                </div>
-                            </div>
-
-                            {/* Interaction Packet Card */}
-                            <div className="flex-1 bg-white/90 backdrop-blur-sm p-10 md:p-14 rounded-[4rem] border border-slate-100 shadow-sm group-hover:shadow-3xl group-hover:shadow-slate-200 group-hover:border-[#008080]/30 transition-all relative overflow-hidden">
-                                {log.is_flagged && (
-                                    <div className="absolute top-0 right-0 bg-rose-500 text-white px-10 py-3 rounded-bl-[2.5rem] text-[10px] font-black uppercase tracking-[0.2em] shadow-lg animate-in slide-in-from-right-4 duration-1000">
-                                        ANOMALY DETECTED
+            ) : logs.filter(l => l.session_type === logTypeTab).length > 0 ? (
+                <div className="grid grid-cols-1 gap-6">
+                    {logs.filter(l => l.session_type === logTypeTab).map((log) => (
+                        <div key={log.id} className="bg-white/90 backdrop-blur-sm p-8 md:p-12 rounded-[3.5rem] border border-slate-100 shadow-sm hover:shadow-2xl hover:border-[#008080]/30 transition-all group relative overflow-hidden">
+                            <div className="flex flex-col md:flex-row justify-between gap-8">
+                                {/* Left: DateTime Matrix */}
+                                <div className="flex items-center gap-6 min-w-[200px]">
+                                    <div className={`w-16 h-16 rounded-2xl flex items-center justify-center text-white shrink-0 shadow-lg ${
+                                        logTypeTab === 'QUICK' ? 'bg-[#008080]' : (logTypeTab === 'MEDIUM' ? 'bg-purple-600' : 'bg-pink-600')
+                                    }`}>
+                                        <Clock size={24} />
                                     </div>
-                                )}
-                                
-                                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 mb-12 border-b border-slate-50 pb-8">
-                                    <div className="space-y-3">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 bg-[#008080]/10 rounded-xl flex items-center justify-center text-[#008080]">
-                                                <Clock size={20} />
-                                            </div>
-                                            <div className="flex flex-col">
-                                                <span className="text-[14px] font-black text-slate-900 uppercase tracking-tight leading-none mb-1">
-                                                    {new Date(log.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}
-                                                </span>
-                                                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">
-                                                    {new Date(log.created_at).toLocaleDateString('en-GB', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' }).replace(/,/g, '')}
-                                                </span>
-                                            </div>
-                                        </div>
-                                        <h3 className="text-3xl font-black text-slate-900 tracking-tighter uppercase">{log.source || (activeTab === 'student' ? 'Mentorship Session' : 'Academic Check')}</h3>
-                                    </div>
-                                    <div className="flex items-center gap-5 bg-slate-900 p-6 rounded-[2.5rem] shadow-2xl shadow-slate-900/20 border border-slate-800 group-hover:scale-105 transition-all">
-                                        <div className="w-14 h-14 bg-gradient-to-br from-[#008080] to-teal-400 text-white rounded-[1.5rem] flex items-center justify-center font-black text-xl shadow-lg ring-4 ring-white/10">
-                                            {(log.mentor_name || log.faculty_name || '?').charAt(0)}
-                                        </div>
-                                        <div className="flex flex-col">
-                                            <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1.5">Primary Coordinator</span>
-                                            <span className="text-sm font-black text-white leading-none tracking-tight">{log.mentor_name || log.faculty_name}</span>
-                                        </div>
+                                    <div>
+                                        <p className="text-[10px] font-black text-[#008080] uppercase tracking-widest mb-1">Session Execution</p>
+                                        <h4 className="text-xl font-black text-slate-900 leading-none">
+                                            {new Date(log.created_at).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }).toUpperCase()}
+                                        </h4>
+                                        <p className="text-xs font-bold text-slate-500 mt-1 uppercase tracking-tight">
+                                            {new Date(log.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}
+                                        </p>
                                     </div>
                                 </div>
 
-                                <div className="grid grid-cols-1 lg:grid-cols-3 gap-16">
-                                    <div className="lg:col-span-2 space-y-10">
-                                        <div className="p-10 bg-slate-50/50 rounded-[3rem] border border-slate-100 group-hover:bg-white transition-all relative group/inner">
-                                            <div className="absolute -top-4 left-10 bg-white px-6 py-2 rounded-full border border-slate-100 text-[9px] font-black uppercase tracking-widest text-[#008080] shadow-sm">Qualitative Narrative</div>
-                                            <p className="text-base font-medium text-slate-700 leading-relaxed italic">
-                                                "{log.mentor_notes || log.notes || 'Protocol executed within standard parameters. No significant variances detected.'}"
-                                            </p>
+                                {/* Center: Narrative */}
+                                <div className="flex-1 border-l border-slate-100 pl-8">
+                                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3">Qualitative Narrative</p>
+                                    <p className="text-sm font-medium text-slate-700 leading-relaxed italic">
+                                        "{log.report_data ? (typeof log.report_data === 'string' ? JSON.parse(log.report_data).observation : log.report_data.observation) : (log.mentor_notes || log.notes || 'No qualitative data provided.')}"
+                                    </p>
+                                    {log.report_data && (
+                                        <div className="mt-4 flex flex-wrap gap-2">
+                                            {Object.entries(typeof log.report_data === 'string' ? JSON.parse(log.report_data) : log.report_data).map(([key, val]) => {
+                                                if (['observation', 'action_plan'].includes(key)) return null;
+                                                return (
+                                                    <div key={key} className="px-3 py-1 bg-slate-50 border border-slate-200 rounded-lg flex items-center gap-2">
+                                                        <span className="text-[8px] font-black text-slate-400 uppercase">{key.replace(/_/g, ' ')}:</span>
+                                                        <span className="text-[9px] font-bold text-slate-700 uppercase">{String(val)}</span>
+                                                    </div>
+                                                );
+                                            })}
                                         </div>
-                                        {log.flag_reason && (
-                                            <div className="p-8 bg-rose-50 rounded-[2.5rem] border border-rose-100 flex items-center gap-6 shadow-sm">
-                                                <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-rose-500 shadow-sm border border-rose-100">
-                                                    <ShieldAlert size={24} />
-                                                </div>
-                                                <div>
-                                                    <p className="text-[9px] font-black text-rose-400 uppercase tracking-widest mb-1">Audit Flag Detail</p>
-                                                    <p className="text-sm font-black text-rose-800 uppercase tracking-tight">{log.flag_reason}</p>
-                                                </div>
-                                            </div>
-                                        )}
-                                    </div>
+                                    )}
+                                </div>
 
-                                    <div className="space-y-6">
-                                        <div className="bg-white p-8 rounded-[3rem] border border-slate-100 shadow-sm group-hover:shadow-xl transition-all">
-                                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6 ml-1 flex items-center gap-2">
-                                                <History size={14} className="text-[#008080]" /> Performance Matrix
-                                            </p>
-                                            <div className="space-y-5">
-                                                <MetricLine label="Cognitive Clarity" value={log.understanding_level} color="#10B981" />
-                                                <MetricLine label="Student Confidence" value={log.student_confidence} max={5} color="#008080" />
-                                                <MetricLine label="Anxiety Index" value={log.stress_level} max={5} color="#F43F5E" invert />
-                                            </div>
-                                        </div>
-                                        {log.screenshot_url && (
-                                            <a 
-                                                href={log.screenshot_url} 
-                                                target="_blank" 
-                                                rel="noopener noreferrer"
-                                                className="flex items-center justify-center gap-4 w-full p-6 bg-slate-900 text-white rounded-[2rem] text-[11px] font-black uppercase tracking-[0.2em] hover:bg-[#008080] hover:shadow-2xl hover:shadow-[#008080]/30 hover:-translate-y-1 transition-all group/btn"
-                                            >
-                                                Verify Artifact <ExternalLink size={16} className="group-hover/btn:translate-x-2 transition-transform" />
-                                            </a>
-                                        )}
+                                {/* Right: Coordinator */}
+                                <div className="flex items-center gap-4 bg-slate-50 p-6 rounded-3xl border border-slate-100 min-w-[200px]">
+                                    <div className="w-10 h-10 bg-slate-900 text-white rounded-xl flex items-center justify-center font-black text-xs">
+                                        {(log.mentor_name || 'M').charAt(0)}
+                                    </div>
+                                    <div>
+                                        <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Coordinator</p>
+                                        <p className="text-[11px] font-black text-slate-900 uppercase truncate">{log.mentor_name || 'System Auto'}</p>
                                     </div>
                                 </div>
                             </div>
@@ -431,20 +414,11 @@ const CommonInteractionLogs = ({ role }) => {
                     </div>
                     <h3 className="text-2xl font-black text-slate-900 uppercase tracking-tight">Timeline Silence</h3>
                     <p className="text-slate-400 font-bold text-[10px] uppercase tracking-[0.3em] mt-3 max-w-md mx-auto leading-loose">
-                        No historical interaction packets detected within the current filter coordinates. Initiate a new search or clear the filter stack.
+                        No {logTypeTab} sessions detected for this student in the current audit window.
                     </p>
                     
-                    <div className="mt-8 mb-10 p-6 bg-slate-50 rounded-2xl border border-slate-100 max-w-sm mx-auto">
-                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3">Diagnostic Telemetry</p>
-                        <div className="space-y-2 text-left">
-                            <div className="flex justify-between"><span className="text-[8px] font-bold text-slate-400 uppercase">Target ID:</span> <span className="text-[9px] font-black text-slate-700">{selectedStudent?.id || 'NULL'}</span></div>
-                            <div className="flex justify-between"><span className="text-[8px] font-bold text-slate-400 uppercase">Identity:</span> <span className="text-[9px] font-black text-slate-700">{selectedStudent?.name}</span></div>
-                            <div className="flex justify-between"><span className="text-[8px] font-bold text-slate-400 uppercase">Filter:</span> <span className="text-[9px] font-black text-slate-700">{dateFilter} / Mentor: {mentorFilter}</span></div>
-                        </div>
-                    </div>
-
-                    <div className="flex flex-col md:flex-row items-center justify-center gap-4">
-                        <button onClick={resetFilters} className="px-10 py-5 bg-slate-900 text-white rounded-[2rem] text-[10px] font-black uppercase tracking-[0.2em] hover:bg-[#008080] hover:shadow-2xl hover:shadow-[#008080]/30 transition-all shadow-xl">Purge Filters</button>
+                    <div className="mt-8 flex items-center justify-center gap-4">
+                        <button onClick={resetFilters} className="px-10 py-5 bg-slate-900 text-white rounded-[2rem] text-[10px] font-black uppercase tracking-[0.2em] hover:bg-[#008080] transition-all">Purge Filters</button>
                         <button onClick={fetchLogs} className="px-10 py-5 bg-white text-slate-900 border border-slate-200 rounded-[2rem] text-[10px] font-black uppercase tracking-[0.2em] hover:border-[#008080] transition-all">Re-Sync Stream</button>
                     </div>
                 </div>

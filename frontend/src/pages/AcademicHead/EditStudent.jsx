@@ -12,7 +12,7 @@ import {
 const SUBJECT_OPTIONS = [
     "Mathematics", "Science", "Social Science", "English", "Malayalam", "Hindi",
     "Physics", "Chemistry", "Biology", "Accountancy", "Business Studies",
-    "Economics", "Computer Science", "Arabic", "French", "All Subjects"
+    "Economics", "Computer Science", "Arabic", "French", "IT", "EVS", "All Subjects"
 ];
 
 const DAYS_LIST = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];

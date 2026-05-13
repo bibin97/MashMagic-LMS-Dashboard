@@ -715,13 +715,13 @@ const clearAllNotifications = async (req, res) => {
 const updateStudentForAdmin = async (req, res) => {
     try {
         const { id } = req.params;
-        const { name, grade, subject, timetable, nextInstallment, status } = req.body;
+        const { name, email, phone_number, grade, subject, timetable, nextInstallment, status } = req.body;
 
         const [[oldStudent]] = await db.query('SELECT name FROM students WHERE id = ?', [id]);
 
         const [result] = await db.query(
-            'UPDATE students SET name = ?, grade = ?, subject = ?, time_table = ?, next_installment_date = ?, status = ? WHERE id = ?',
-            [name, grade, subject, timetable, nextInstallment, status, id]
+            'UPDATE students SET name = ?, email = ?, contact = ?, grade = ?, subject = ?, time_table = ?, next_installment_date = ?, status = ? WHERE id = ?',
+            [name, email, phone_number, grade, subject, timetable, nextInstallment, status, id]
         );
 
         if (result.affectedRows === 0) {
@@ -775,7 +775,7 @@ const getAllStudentsForAdmin = async (req, res) => {
         const { startDate, endDate, category, search, sortBy, mentor_id } = req.query;
         let sql = `
             SELECT 
-                id, roll_number, registration_number, name, grade, course, hour, 
+                id, roll_number, registration_number, name, email, contact as phone_number, grade, course, hour, 
                 mentor_name as mentor, faculty_name as faculty, 
                 subject, time_table as timetable, 
                 next_installment_date as nextInstallment, 

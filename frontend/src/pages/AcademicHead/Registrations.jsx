@@ -61,10 +61,10 @@ const Registrations = () => {
   const SUBJECT_OPTIONS = [
     "Mathematics", "Science", "Social Science", "English", "Malayalam", 
     "Hindi", "Physics", "Chemistry", "Biology", "Accountancy", 
-    "Business Studies", "Economics", "Computer Science", "Arabic", "French"
+    "Business Studies", "Economics", "Computer Science", "Arabic", "French", "IT", "EVS"
   ];
 
-  const DAYS_LIST = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+  const DAYS_LIST = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
   const coursesList = ["Mission X", "Classmate", "Crash 45", "Bright Bridge", "Magic Revision"];
   const SYLLABUS_OPTIONS = ["CBSE", "STATE", "ICSE", "IGCSE", "IB"];
 

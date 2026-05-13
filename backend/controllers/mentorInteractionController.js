@@ -21,12 +21,21 @@ const getDailyAssignments = async (req, res) => {
         );
 
         if (existing.length > 0) {
-            const savedAssignments = JSON.parse(existing[0].assignments);
+            let savedAssignments = existing[0].assignments;
+            if (typeof savedAssignments === 'string') {
+                try {
+                    savedAssignments = JSON.parse(savedAssignments);
+                } catch (e) {
+                    console.error("JSON_PARSE_ERROR in getDailyAssignments:", e);
+                    savedAssignments = [];
+                }
+            }
+            
             // If total students changed significantly, regenerate to include new ones
-            if (savedAssignments.length < 15 && currentStudents.length > savedAssignments.length) {
+            if (Array.isArray(savedAssignments) && savedAssignments.length < 15 && currentStudents.length > savedAssignments.length) {
                 // Regenerate
             } else {
-                return res.status(200).json({ success: true, data: savedAssignments });
+                return res.status(200).json({ success: true, data: savedAssignments || [] });
             }
         }
 
@@ -128,9 +137,16 @@ const submitSessionReport = async (req, res) => {
         );
 
         if (history.length > 0) {
-            const lastReport = JSON.parse(history[0].report_data);
+            let lastReport = history[0].report_data;
+            if (typeof lastReport === 'string') {
+                try {
+                    lastReport = JSON.parse(lastReport);
+                } catch (e) {
+                    lastReport = {};
+                }
+            }
             const currentPlan = report_data.action_plan || '';
-            const lastPlan = lastReport.action_plan || '';
+            const lastPlan = lastReport?.action_plan || '';
 
             if (currentPlan && currentPlan === lastPlan && currentPlan.length > 10) {
                 isFlagged = 1;

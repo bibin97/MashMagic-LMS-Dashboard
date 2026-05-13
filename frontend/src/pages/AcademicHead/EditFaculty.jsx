@@ -11,7 +11,7 @@ import {
 const SUBJECT_OPTIONS = [
     "Mathematics", "Science", "Social Science", "English", "Malayalam", 
     "Hindi", "Physics", "Chemistry", "Biology", "Accountancy", 
-    "Business Studies", "Economics", "Computer Science", "Arabic", "French"
+    "Business Studies", "Economics", "Computer Science", "Arabic", "French", "IT", "EVS"
 ];
 
 const LANG_OPTIONS = [
