@@ -105,42 +105,49 @@ const StudentsList = ({ role = 'academic_head' }) => {
 	return (
 		<div className="space-y-8 animate-in fade-in duration-700">
 			{/* Header */}
-			<div className="bg-white p-10 rounded-[3rem] border border-slate-100 shadow-sm flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
-				<div>
-					<h2 className="text-3xl lg:text-4xl font-black text-slate-900 tracking-tighter uppercase leading-none">Student Directory</h2>
-					<p className="text-slate-600 text-[10px] font-bold uppercase tracking-widest mt-2 flex items-center gap-2">
-						<GraduationCap size={14} className="text-[#008080]" />
-						Comprehensive database of all enrolled students across all courses and mentors
-					</p>
-				</div>
+			<div className="bg-white p-6 md:p-10 rounded-[3rem] border border-slate-100 shadow-sm space-y-8">
+				<div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
+					<div className="max-w-md">
+						<h2 className="text-3xl lg:text-4xl font-black text-slate-900 tracking-tighter uppercase leading-none">Student Directory</h2>
+						<p className="text-slate-600 text-[10px] font-bold uppercase tracking-widest mt-2 flex items-center gap-2">
+							<GraduationCap size={14} className="text-[#008080]" />
+							Comprehensive database of all enrolled students across all courses and mentors
+						</p>
+					</div>
 
-				<div className="flex flex-col md:flex-row gap-4 w-full lg:w-auto">
-					<div className="relative group flex-1 md:flex-none">
+					<div className="relative group w-full lg:w-96">
 						<Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#008080] transition-colors" size={18} />
 						<input
 							type="text"
 							placeholder="SEARCH BY NAME OR REG #..."
-							className="pl-14 pr-8 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold uppercase tracking-[0.1em] focus:ring-4 ring-[#008080]/10 w-full md:w-80 shadow-sm transition-all outline-none focus:bg-white"
+							className="pl-14 pr-8 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold uppercase tracking-[0.1em] focus:ring-4 ring-[#008080]/10 w-full shadow-sm transition-all outline-none focus:bg-white"
 							value={searchTerm}
 							onChange={(e) => setSearchTerm(e.target.value)}
 						/>
 					</div>
+				</div>
+
+				{/* Filters Row */}
+				<div className="flex flex-wrap items-center gap-4 pt-6 border-t border-slate-50">
+					<div className="flex items-center gap-2 bg-slate-100/50 px-4 py-2 rounded-xl">
+						<Activity size={12} className="text-[#008080]" />
+						<span className="text-[9px] font-black uppercase text-slate-500 tracking-widest">Quick Filters:</span>
+					</div>
+
 					<select
 						value={filterCourse}
 						onChange={(e) => setFilterCourse(e.target.value)}
-						className="px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-black uppercase tracking-widest text-slate-600 outline-none focus:ring-4 ring-[#008080]/10 transition-all cursor-pointer shadow-sm"
+						className="px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-black uppercase tracking-widest text-slate-600 outline-none focus:ring-4 ring-[#008080]/10 transition-all cursor-pointer shadow-sm hover:bg-white"
 					>
 						<option value="all">All Courses</option>
 						{coursesList.map(c => <option key={c} value={c}>{c}</option>)}
 					</select>
-					<StudentListFilterDropdown value={sortBy} onChange={setSortBy} />
 
-					{/* Mentor Filter */}
 					<div className="relative">
 						<select 
 							value={filterMentor}
 							onChange={(e) => setFilterMentor(e.target.value)}
-							className="h-14 pl-6 pr-12 rounded-2xl bg-slate-50 border border-slate-100 text-[10px] font-black uppercase tracking-widest outline-none focus:ring-4 ring-[#008080]/10 focus:border-[#008080] transition-all appearance-none cursor-pointer min-w-[160px] shadow-sm"
+							className="h-14 pl-6 pr-12 rounded-2xl bg-slate-50 border border-slate-100 text-[10px] font-black uppercase tracking-widest outline-none focus:ring-4 ring-[#008080]/10 focus:border-[#008080] transition-all appearance-none cursor-pointer min-w-[160px] shadow-sm hover:bg-white"
 						>
 							<option value="all">All Mentors</option>
 							{mentors.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
@@ -148,17 +155,20 @@ const StudentsList = ({ role = 'academic_head' }) => {
 						<Users size={14} className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
 					</div>
 
-					{/* Faculty Filter */}
 					<div className="relative">
 						<select 
 							value={filterFaculty}
 							onChange={(e) => setFilterFaculty(e.target.value)}
-							className="h-14 pl-6 pr-12 rounded-2xl bg-slate-50 border border-slate-100 text-[10px] font-black uppercase tracking-widest outline-none focus:ring-4 ring-[#008080]/10 focus:border-[#008080] transition-all appearance-none cursor-pointer min-w-[160px] shadow-sm"
+							className="h-14 pl-6 pr-12 rounded-2xl bg-slate-50 border border-slate-100 text-[10px] font-black uppercase tracking-widest outline-none focus:ring-4 ring-[#008080]/10 focus:border-[#008080] transition-all appearance-none cursor-pointer min-w-[160px] shadow-sm hover:bg-white"
 						>
 							<option value="all">All Faculties</option>
 							{faculties.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
 						</select>
 						<Activity size={14} className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+					</div>
+
+					<div className="lg:ml-auto">
+						<StudentListFilterDropdown value={sortBy} onChange={setSortBy} />
 					</div>
 				</div>
 			</div>
