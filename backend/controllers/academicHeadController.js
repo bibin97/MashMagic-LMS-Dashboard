@@ -144,7 +144,7 @@ const getAvailableFaculties = async (req, res) => {
         let params = [];
         daysList.forEach(d => params.push(d, endTime, startTime));
 
-        const [faculties] = await db.query(`SELECT u.id, u.name, u.subject, EXISTS (SELECT 1 FROM faculty_schedules fs WHERE fs.faculty_id = u.id AND (${conflictConditions})) as hasConflict FROM faculties u WHERE u.status = 'active'`, params);
+        const [faculties] = await db.query(`SELECT u.id, u.name, u.subject, EXISTS (SELECT 1 FROM faculty_schedules fs WHERE fs.faculty_id = u.id AND (${conflictConditions})) as hasConflict FROM users u WHERE u.role = 'faculty' AND u.status = 'active'`, params);
         res.status(200).json({ success: true, data: faculties.map(f => ({ ...f, isAvailable: !f.hasConflict })) });
     } catch (error) { res.status(500).json({ success: false, message: error.message }); }
 };
@@ -154,7 +154,7 @@ const getDropdownData = async (req, res) => {
         await performAutoSync();
         const [ms] = await db.query('SELECT id, name FROM mentors WHERE status = "active"');
         const [mhs] = await db.query('SELECT id, name FROM users WHERE role = "mentor_head" AND status = "active"');
-        const [fs] = await db.query('SELECT id, name, subject FROM faculties WHERE status = "active"');
+        const [fs] = await db.query('SELECT id, name, subject FROM users WHERE role = "faculty" AND status = "active"');
         res.status(200).json({ success: true, data: { mentors: ms, mentorHeads: mhs, faculties: fs } });
     } catch (error) { res.status(500).json({ success: false, message: error.message }); }
 };
@@ -408,7 +408,7 @@ const getStudents = async (req, res) => {
 
 const getMentors = async (req, res) => {
     try {
-        const [rows] = await db.query('SELECT m.*, (SELECT COUNT(*) FROM students WHERE mentor_id = m.id) as studentCount FROM mentors m ORDER BY m.name ASC');
+        const [rows] = await db.query('SELECT m.*, (SELECT COUNT(*) FROM students WHERE mentor_id = m.id) as studentCount FROM users m WHERE m.role = "mentor" ORDER BY m.name ASC');
         res.status(200).json({ success: true, data: rows });
     } catch (e) { res.status(500).json({ success: false, message: e.message }); }
 };
