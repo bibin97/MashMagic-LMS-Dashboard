@@ -4,7 +4,7 @@ import {
     ScrollText, Search, User, Clock, Calendar, 
     ChevronLeft, ChevronRight, History, ExternalLink, 
     ArrowLeft, Users, ShieldAlert, CheckSquare, Filter, BookOpen,
-    ChevronDown
+    ChevronDown, SlidersHorizontal, X
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -21,6 +21,7 @@ const CommonInteractionLogs = ({ role }) => {
     const [mentorFilter, setMentorFilter] = useState('all');
     const [mentors, setMentors] = useState([]);
     const [expandedLogId, setExpandedLogId] = useState(null);
+    const [showFilterPanel, setShowFilterPanel] = useState(false);
 
     // Dynamic API prefix based on role
     const getApiPrefix = () => {
@@ -44,7 +45,6 @@ const CommonInteractionLogs = ({ role }) => {
 
     const fetchMentors = async () => {
         try {
-            // Both mentor_head and academic_head use mentors-all
             const endpoint = (role === 'mentor_head' || role === 'academic_head') 
                 ? `${apiPrefix}/mentors-all` 
                 : `${apiPrefix}/mentors`;
@@ -62,7 +62,6 @@ const CommonInteractionLogs = ({ role }) => {
             if (activeTab === 'student') {
                 endpoint = (role === 'mentor_head' || role === 'academic_head') ? `${apiPrefix}/students-all` : `${apiPrefix}/students`;
             } else {
-                // Admin/Super Admin use /admin/faculties for Faculty Nexus
                 if (role !== 'mentor_head' && role !== 'academic_head') {
                     endpoint = `${apiPrefix}/faculties`;
                 } else {
@@ -87,7 +86,6 @@ const CommonInteractionLogs = ({ role }) => {
                 endDate: customRange.end,
                 mentor_id: mentorFilter !== 'all' ? mentorFilter : undefined,
                 student_id: activeTab === 'student' ? selectedStudent.id : undefined,
-                mentorId: activeTab === 'faculty' ? selectedStudent.id : undefined,
                 faculty_id: activeTab === 'faculty' ? selectedStudent.id : undefined
             };
 
@@ -95,7 +93,6 @@ const CommonInteractionLogs = ({ role }) => {
             if (activeTab === 'student') {
                 endpoint = `${apiPrefix}/student-logs`;
             } else {
-                // Admin and Academic Head use faculty-logs, Mentor Head uses mentor-logs
                 if (role === 'mentor_head') {
                     endpoint = `${apiPrefix}/mentor-logs`;
                 } else {
@@ -116,6 +113,7 @@ const CommonInteractionLogs = ({ role }) => {
         setDateFilter('all');
         setCustomRange({ start: '', end: '' });
         setMentorFilter('all');
+        setShowFilterPanel(false);
     };
 
     const filteredEntities = entities.filter(e => 
@@ -269,56 +267,86 @@ const CommonInteractionLogs = ({ role }) => {
                     </div>
                 </div>
 
-                <div className="flex flex-wrap items-center gap-4 bg-white/50 p-2 rounded-[2.5rem] border border-slate-100 backdrop-blur-sm">
-                    <div className="flex items-center gap-2 pl-4 pr-2">
-                        <Filter size={16} className="text-slate-400" />
-                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Filter Matrix</span>
-                    </div>
-                    <select 
-                        value={dateFilter} 
-                        onChange={(e) => setDateFilter(e.target.value)}
-                        className="bg-white px-8 py-4 rounded-[1.8rem] border border-slate-100 shadow-sm text-[10px] font-black uppercase tracking-widest outline-none focus:ring-4 focus:ring-[#008080]/5 cursor-pointer hover:bg-slate-50 transition-all"
+                <div className="flex items-center gap-4">
+                    <button 
+                        onClick={() => setShowFilterPanel(!showFilterPanel)}
+                        className={`flex items-center gap-3 px-8 py-4 rounded-[2rem] text-[10px] font-black uppercase tracking-widest transition-all shadow-sm border ${showFilterPanel ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-600 border-slate-100 hover:border-[#008080]'}`}
                     >
-                        <option value="all">Full History</option>
-                        <option value="today">Today's Cycle</option>
-                        <option value="week">Past 7 Cycles</option>
-                        <option value="month">Last 30 Cycles</option>
-                        <option value="custom">Custom Range</option>
-                    </select>
-
-                    <select 
-                        value={mentorFilter} 
-                        onChange={(e) => setMentorFilter(e.target.value)}
-                        className="bg-white px-8 py-4 rounded-[1.8rem] border border-slate-100 shadow-sm text-[10px] font-black uppercase tracking-widest outline-none focus:ring-4 focus:ring-[#008080]/5 cursor-pointer hover:bg-slate-50 transition-all"
-                    >
-                        <option value="all">Global Mentor View</option>
-                        {mentors.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
-                    </select>
+                        <SlidersHorizontal size={16} />
+                        Custom Filter
+                    </button>
+                    
+                    { (dateFilter !== 'all' || mentorFilter !== 'all') && (
+                        <button 
+                            onClick={resetFilters}
+                            className="flex items-center gap-2 px-4 py-4 rounded-[1.5rem] bg-rose-50 text-rose-600 border border-rose-100 text-[9px] font-black uppercase tracking-widest hover:bg-rose-600 hover:text-white transition-all"
+                        >
+                            <X size={14} />
+                            Reset
+                        </button>
+                    ) }
                 </div>
             </header>
 
-            {dateFilter === 'custom' && (
-                <div className="flex flex-col md:flex-row gap-6 p-10 bg-white rounded-[3.5rem] border border-slate-100 shadow-xl animate-in slide-in-from-top-6 duration-700">
-                    <div className="flex-1">
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3 block ml-4">Audit Start Point</label>
-                        <input 
-                            type="date" 
-                            className="w-full bg-slate-50 p-5 rounded-[1.8rem] border border-slate-100 text-xs font-black uppercase tracking-widest focus:bg-white focus:ring-4 ring-[#008080]/5 outline-none transition-all"
-                            value={customRange.start}
-                            onChange={(e) => setCustomRange({...customRange, start: e.target.value})}
-                        />
+            {showFilterPanel && (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-10 bg-slate-900 rounded-[3.5rem] shadow-2xl animate-in slide-in-from-top-6 duration-700">
+                    <div>
+                        <label className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 block ml-2">Time Horizon</label>
+                        <select 
+                            value={dateFilter} 
+                            onChange={(e) => setDateFilter(e.target.value)}
+                            className="w-full bg-white/10 p-5 rounded-[1.8rem] border border-white/10 text-xs font-black uppercase tracking-widest text-white outline-none focus:ring-4 focus:ring-white/5 cursor-pointer hover:bg-white/20 transition-all"
+                        >
+                            <option value="all" className="text-slate-900">Full History</option>
+                            <option value="today" className="text-slate-900">Today's Cycle</option>
+                            <option value="week" className="text-slate-900">Past 7 Cycles</option>
+                            <option value="month" className="text-slate-900">Last 30 Cycles</option>
+                            <option value="custom" className="text-slate-900">Custom Range</option>
+                        </select>
                     </div>
-                    <div className="flex items-center justify-center pt-6 text-slate-200">
-                        <ChevronRight size={32} className="rotate-90 md:rotate-0" />
-                    </div>
-                    <div className="flex-1">
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3 block ml-4">Audit Termination Point</label>
-                        <input 
-                            type="date" 
-                            className="w-full bg-slate-50 p-5 rounded-[1.8rem] border border-slate-100 text-xs font-black uppercase tracking-widest focus:bg-white focus:ring-4 ring-[#008080]/5 outline-none transition-all"
-                            value={customRange.end}
-                            onChange={(e) => setCustomRange({...customRange, end: e.target.value})}
-                        />
+
+                    {dateFilter === 'custom' ? (
+                        <div className="flex gap-4 items-end">
+                            <div className="flex-1">
+                                <label className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 block ml-2">Start</label>
+                                <input 
+                                    type="date" 
+                                    className="w-full bg-white/10 p-5 rounded-[1.8rem] border border-white/10 text-xs font-black uppercase tracking-widest text-white outline-none focus:ring-4 focus:ring-white/5 transition-all"
+                                    value={customRange.start}
+                                    onChange={(e) => setCustomRange({...customRange, start: e.target.value})}
+                                />
+                            </div>
+                            <div className="flex-1">
+                                <label className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 block ml-2">End</label>
+                                <input 
+                                    type="date" 
+                                    className="w-full bg-white/10 p-5 rounded-[1.8rem] border border-white/10 text-xs font-black uppercase tracking-widest text-white outline-none focus:ring-4 focus:ring-white/5 transition-all"
+                                    value={customRange.end}
+                                    onChange={(e) => setCustomRange({...customRange, end: e.target.value})}
+                                />
+                            </div>
+                        </div>
+                    ) : (
+                        <div>
+                            <label className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 block ml-2">Coordinator View</label>
+                            <select 
+                                value={mentorFilter} 
+                                onChange={(e) => setMentorFilter(e.target.value)}
+                                className="w-full bg-white/10 p-5 rounded-[1.8rem] border border-white/10 text-xs font-black uppercase tracking-widest text-white outline-none focus:ring-4 focus:ring-white/5 cursor-pointer hover:bg-white/20 transition-all"
+                            >
+                                <option value="all" className="text-slate-900">Global View</option>
+                                {mentors.map(m => <option key={m.id} value={m.id} className="text-slate-900">{m.name}</option>)}
+                            </select>
+                        </div>
+                    )}
+
+                    <div className="flex items-end pb-1 pl-4">
+                        <button 
+                            onClick={() => setShowFilterPanel(false)}
+                            className="text-[9px] font-black text-[#008080] uppercase tracking-widest hover:text-white transition-colors"
+                        >
+                            Collapse Panel
+                        </button>
                     </div>
                 </div>
             )}
