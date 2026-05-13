@@ -24,7 +24,6 @@ const AcademicHeadLayout = () => {
  { path: '/academic-head/students', icon: <GraduationCap size={18} />, label: 'Students' },
  { path: '/academic-head/mentors', icon: <Users size={18} />, label: 'Mentors' },
  { path: '/academic-head/faculties', icon: <Briefcase size={18} />, label: 'Faculties' },
- { path: '/academic-head/live-monitoring', icon: <Activity size={18} />, label: 'Live Monitoring' },
   { path: '/academic-head/staff', icon: <Users size={18} />, label: 'Workforce Directory' },
  { path: '/academic-head/tasks', icon: <Briefcase size={18} />, label: 'Workforce Tasks' },
  { path: '/academic-head/checking', icon: <ShieldAlert size={18} />, label: 'Institutional Audit' },
