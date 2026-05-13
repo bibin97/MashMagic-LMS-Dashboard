@@ -9,7 +9,7 @@ const api = axios.create({
 // Request interceptor to add token
 api.interceptors.request.use(
     (config) => {
-        const token = sessionStorage.getItem('token');
+        const token = localStorage.getItem('token');
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }
@@ -38,9 +38,9 @@ api.interceptors.response.use(
         if (status === 401 || isExpired) {
             console.warn(`[AUTH EXPIRED] Status ${status}: clearing session`);
             
-            sessionStorage.removeItem('token');
-            sessionStorage.removeItem('user');
-            sessionStorage.removeItem('role');
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            localStorage.removeItem('role');
             
             // Optional: notify user or redirect
             // window.location.href = '/login'; 

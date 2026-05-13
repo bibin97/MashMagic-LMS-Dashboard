@@ -33,11 +33,15 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
 
       // Redirect to appropriate dashboard based on role to avoid login loop
       const r = userRoleNormalized;
+      console.log(`[ProtectedRoute] Unauthorized access attempt by ${r}. Redirecting to respective dashboard.`);
+
       if (r === 'admin' || r === 'superadmin' || r === 'subadmin') return <Navigate to="/admin/dashboard" replace />;
       if (r === 'mentorhead') return <Navigate to="/mentor-head/dashboard" replace />;
+      if (r === 'academichead') return <Navigate to="/academic-head/dashboard" replace />;
       if (r === 'mentor') return <Navigate to="/mentor/dashboard" replace />;
       if (r === 'faculty') return <Navigate to="/faculty/dashboard" replace />;
       if (r === 'student') return <Navigate to="/student/dashboard" replace />;
+      if (r === 'ssc') return <Navigate to="/ssc/dashboard" replace />;
 
       return <Navigate to="/login" replace />;
     }
