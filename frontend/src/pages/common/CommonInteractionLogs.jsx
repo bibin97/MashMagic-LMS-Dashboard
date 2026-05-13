@@ -22,20 +22,33 @@ const CommonInteractionLogs = ({ role }) => {
     const [mentors, setMentors] = useState([]);
     const [expandedLogId, setExpandedLogId] = useState(null);
 
+    // Dynamic API prefix based on role
+    const getApiPrefix = () => {
+        if (role === 'mentor_head') return '/mentor-head';
+        if (role === 'academic_head') return '/academic-head';
+        if (role === 'ssc') return '/ssc';
+        return '/admin';
+    };
+    const apiPrefix = getApiPrefix();
+
     useEffect(() => {
         fetchEntities();
         fetchMentors();
-    }, [activeTab]);
+    }, [activeTab, role]);
 
     useEffect(() => {
         if (viewMode === 'detail' && selectedStudent) {
             fetchLogs();
         }
-    }, [viewMode, selectedStudent, dateFilter, customRange, mentorFilter]);
+    }, [viewMode, selectedStudent, dateFilter, customRange, mentorFilter, role]);
 
     const fetchMentors = async () => {
         try {
-            const res = await api.get('/admin/mentors');
+            // Both mentor_head and academic_head use mentors-all
+            const endpoint = (role === 'mentor_head' || role === 'academic_head') 
+                ? `${apiPrefix}/mentors-all` 
+                : `${apiPrefix}/mentors`;
+            const res = await api.get(endpoint);
             setMentors(res.data.data || []);
         } catch (error) {
             console.error("Error fetching mentors:", error);
@@ -45,7 +58,17 @@ const CommonInteractionLogs = ({ role }) => {
     const fetchEntities = async () => {
         try {
             setLoading(true);
-            const endpoint = activeTab === 'student' ? '/admin/students' : '/admin/mentors';
+            let endpoint;
+            if (activeTab === 'student') {
+                endpoint = (role === 'mentor_head' || role === 'academic_head') ? `${apiPrefix}/students-all` : `${apiPrefix}/students`;
+            } else {
+                // Admin/Super Admin use /admin/faculties for Faculty Nexus
+                if (role !== 'mentor_head' && role !== 'academic_head') {
+                    endpoint = `${apiPrefix}/faculties`;
+                } else {
+                    endpoint = (role === 'mentor_head' || role === 'academic_head') ? `${apiPrefix}/mentors-all` : `${apiPrefix}/mentors`;
+                }
+            }
             const res = await api.get(endpoint);
             setEntities(res.data.data || []);
         } catch (error) {
@@ -62,12 +85,23 @@ const CommonInteractionLogs = ({ role }) => {
                 dateFilter,
                 startDate: customRange.start,
                 endDate: customRange.end,
-                mentorId: mentorFilter !== 'all' ? mentorFilter : undefined
+                mentor_id: mentorFilter !== 'all' ? mentorFilter : undefined,
+                student_id: activeTab === 'student' ? selectedStudent.id : undefined,
+                mentorId: activeTab === 'faculty' ? selectedStudent.id : undefined,
+                faculty_id: activeTab === 'faculty' ? selectedStudent.id : undefined
             };
 
-            const endpoint = activeTab === 'student' 
-                ? `/admin/logs/student/${selectedStudent.id}`
-                : `/admin/logs/mentor/${selectedStudent.id}`;
+            let endpoint;
+            if (activeTab === 'student') {
+                endpoint = `${apiPrefix}/student-logs`;
+            } else {
+                // Admin and Academic Head use faculty-logs, Mentor Head uses mentor-logs
+                if (role === 'mentor_head') {
+                    endpoint = `${apiPrefix}/mentor-logs`;
+                } else {
+                    endpoint = `${apiPrefix}/faculty-logs`;
+                }
+            }
 
             const res = await api.get(endpoint, { params });
             setLogs(res.data.data || []);
@@ -173,7 +207,7 @@ const CommonInteractionLogs = ({ role }) => {
                                                         {entity.course || entity.role || 'General'}
                                                     </span>
                                                     <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
-                                                        {entity.grade ? `Grade ${entity.grade}` : 'Staff Faculty'}
+                                                        {entity.grade ? `Grade ${entity.grade}` : (entity.role === 'faculty' ? 'Teaching Faculty' : 'Staff/Coord')}
                                                     </span>
                                                 </div>
                                             </td>
@@ -223,7 +257,7 @@ const CommonInteractionLogs = ({ role }) => {
                         <div className="flex items-center gap-3 mb-2">
                             <span className="px-3 py-1 bg-[#008080]/10 text-[#008080] rounded-lg text-[8px] font-black uppercase tracking-widest border border-[#008080]/20">Audit Active</span>
                             <span className="text-slate-300">/</span>
-                            <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{selectedStudent.registration_number || `MM-${selectedStudent.id}`}</span>
+                            <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{selectedStudent.registration_number || selectedStudent.id}</span>
                         </div>
                         <h1 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tighter uppercase leading-none">
                             {selectedStudent.name || 'Unknown Entity'} 
@@ -299,15 +333,15 @@ const CommonInteractionLogs = ({ role }) => {
                 </div>
             ) : logs.length > 0 ? (
                 <div className="space-y-16">
-                    {['QUICK', 'MEDIUM', 'DEEP'].map(type => {
-                        const typeLogs = logs.filter(l => (l.session_type || l.type || 'QUICK').toUpperCase() === type);
+                    {['QUICK', 'MEDIUM', 'DEEP', 'FACULTY CALL', 'SESSION LOG', 'FACULTY TRACKING'].map(type => {
+                        const typeLogs = logs.filter(l => (l.session_type || l.type || l.source || 'QUICK').toUpperCase().includes(type));
                         if (typeLogs.length === 0) return null;
 
                         return (
                             <div key={type} className="space-y-8">
                                 <div className="flex items-center gap-6">
                                     <div className={`w-2 h-10 rounded-full ${
-                                        type === 'QUICK' ? 'bg-[#008080]' : (type === 'MEDIUM' ? 'bg-purple-600' : 'bg-pink-600')
+                                        type.includes('QUICK') ? 'bg-[#008080]' : (type.includes('MEDIUM') || type.includes('SESSION') ? 'bg-purple-600' : 'bg-pink-600')
                                     }`}></div>
                                     <h3 className="text-2xl font-black text-slate-900 uppercase tracking-tight flex items-center gap-4">
                                         {type} SESSIONS
@@ -330,23 +364,23 @@ const CommonInteractionLogs = ({ role }) => {
                                             <div className="flex items-center justify-between gap-6">
                                                 <div className="flex items-center gap-4">
                                                     <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-white shrink-0 shadow-md ${
-                                                        type === 'QUICK' ? 'bg-[#008080]' : (type === 'MEDIUM' ? 'bg-purple-600' : 'bg-pink-600')
+                                                        type.includes('QUICK') ? 'bg-[#008080]' : (type.includes('MEDIUM') || type.includes('SESSION') ? 'bg-purple-600' : 'bg-pink-600')
                                                     }`}>
                                                         <Clock size={18} />
                                                     </div>
                                                     <div className="flex flex-col">
                                                         <span className="text-[10px] font-black text-slate-900 leading-none mb-1">
-                                                            {new Date(log.created_at).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }).toUpperCase()}
+                                                            {new Date(log.created_at || log.date).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }).toUpperCase()}
                                                         </span>
                                                         <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tight">
-                                                            {new Date(log.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}
+                                                            {new Date(log.created_at || log.date).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}
                                                         </span>
                                                     </div>
                                                 </div>
 
                                                 <div className="flex-1 hidden md:block">
                                                     <p className="text-[11px] font-medium text-slate-600 truncate max-w-[400px]">
-                                                        {log.report_data ? (typeof log.report_data === 'string' ? JSON.parse(log.report_data).observation : log.report_data.observation) : (log.mentor_notes || log.notes || log.remarks || 'No notes.')}
+                                                        {log.mentor_notes || log.notes || log.remarks || 'No descriptive data captured.'}
                                                     </p>
                                                 </div>
 
@@ -367,38 +401,34 @@ const CommonInteractionLogs = ({ role }) => {
                                                         <div>
                                                             <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3">Qualitative Narrative</p>
                                                             <div className="text-sm font-medium text-slate-700 leading-relaxed italic p-6 bg-slate-50 rounded-[1.5rem] border border-slate-100">
-                                                                "{log.report_data ? (typeof log.report_data === 'string' ? JSON.parse(log.report_data).observation : log.report_data.observation) : (log.mentor_notes || log.notes || log.remarks || 'No qualitative data provided.')}"
+                                                                "{log.mentor_notes || log.notes || log.remarks || 'No qualitative narrative provided for this sequence.'}"
                                                             </div>
                                                         </div>
 
-                                                        {log.report_data && (
-                                                            <div>
-                                                                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3">Session Metrics & Insights</p>
-                                                                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                                                                    {Object.entries(typeof log.report_data === 'string' ? JSON.parse(log.report_data) : log.report_data).map(([key, val]) => {
-                                                                        if (['observation', 'action_plan'].includes(key)) return null;
-                                                                        return (
-                                                                            <div key={key} className="p-4 bg-white border border-slate-100 rounded-2xl flex flex-col gap-1 shadow-sm">
-                                                                                <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">{key.replace(/_/g, ' ')}</span>
-                                                                                <span className="text-[10px] font-black text-[#008080] uppercase">{String(val)}</span>
-                                                                            </div>
-                                                                        );
-                                                                    })}
-                                                                </div>
-                                                            </div>
-                                                        )}
+                                                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                                                            {Object.entries(log).map(([key, val]) => {
+                                                                if (['mentor_notes', 'notes', 'remarks', 'student_id', 'mentor_id', 'id', 'created_at', 'date', 'student_name', 'mentor_name', 'source', 'type', 'session_type', 'session_number'].includes(key)) return null;
+                                                                if (val === null || val === undefined || val === '') return null;
+                                                                return (
+                                                                    <div key={key} className="p-4 bg-white border border-slate-100 rounded-2xl flex flex-col gap-1 shadow-sm">
+                                                                        <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">{key.replace(/_/g, ' ')}</span>
+                                                                        <span className="text-[10px] font-black text-[#008080] uppercase">{String(val)}</span>
+                                                                    </div>
+                                                                );
+                                                            })}
+                                                        </div>
                                                         
                                                         <div className="flex items-center gap-8 pl-4">
-                                                            {log.self_clarity !== undefined && (
+                                                            {log.understanding_level !== undefined && log.understanding_level !== null && (
                                                                 <div className="flex flex-col">
-                                                                    <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Clarity</span>
-                                                                    <span className="text-sm font-black text-slate-900">{log.self_clarity}%</span>
+                                                                    <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Understanding</span>
+                                                                    <span className="text-sm font-black text-slate-900">{log.understanding_level}%</span>
                                                                 </div>
                                                             )}
-                                                            {log.confidence !== undefined && (
+                                                            {log.student_confidence !== undefined && log.student_confidence !== null && (
                                                                 <div className="flex flex-col">
                                                                     <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Confidence</span>
-                                                                    <span className="text-sm font-black text-[#008080]">{log.confidence}/5</span>
+                                                                    <span className="text-sm font-black text-[#008080]">{log.student_confidence}/5</span>
                                                                 </div>
                                                             )}
                                                         </div>
@@ -419,7 +449,7 @@ const CommonInteractionLogs = ({ role }) => {
                     </div>
                     <h3 className="text-2xl font-black text-slate-900 uppercase tracking-tight">No Sessions Found</h3>
                     <p className="text-slate-400 font-bold text-[10px] uppercase tracking-[0.3em] mt-3 max-w-md mx-auto leading-loose">
-                        No interaction sequences discovered in the current matrix for this student.
+                        No interaction sequences discovered in the current matrix for this entity.
                     </p>
                 </div>
             )}
