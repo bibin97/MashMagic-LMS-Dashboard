@@ -6,6 +6,60 @@ import toast from 'react-hot-toast';
 const Registrations = () => {
   const [activeTab, setActiveTab] = useState('student');
   const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
+
+  // Refs for clicking outside
+  const secondaryRef = useRef(null);
+  const sectionRef = useRef(null);
+  const syllabusRef = useRef(null);
+  const langRef = useRef(null);
+  const subRefs = useRef([]);
+  const dayRefs = useRef([]);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      // Faculty form dropdowns
+      if (secondaryRef.current && !secondaryRef.current.contains(event.target)) {
+        setFacultyForm(prev => ({ ...prev, isSecondaryDropdownOpen: false }));
+      }
+      if (sectionRef.current && !sectionRef.current.contains(event.target)) {
+        setFacultyForm(prev => ({ ...prev, isSectionDropdownOpen: false }));
+      }
+      if (syllabusRef.current && !syllabusRef.current.contains(event.target)) {
+        setFacultyForm(prev => ({ ...prev, isSyllabusDropdownOpen: false }));
+      }
+      if (langRef.current && !langRef.current.contains(event.target)) {
+        setFacultyForm(prev => ({ ...prev, isLangDropdownOpen: false }));
+      }
+
+      // Student registration row dropdowns
+      let updated = false;
+      const newSubjects = selectedSubjects.map((row, idx) => {
+        const subContainer = subRefs.current[idx];
+        const dayContainer = dayRefs.current[idx];
+        let newRow = { ...row };
+        
+        let rowUpdated = false;
+        if (subContainer && !subContainer.contains(event.target) && row.isSubjectDropdownOpen) {
+          newRow.isSubjectDropdownOpen = false;
+          rowUpdated = true;
+        }
+        if (dayContainer && !dayContainer.contains(event.target) && row.isDayDropdownOpen) {
+          newRow.isDayDropdownOpen = false;
+          rowUpdated = true;
+        }
+        if (rowUpdated) updated = true;
+        return newRow;
+      });
+
+      if (updated) {
+        setSelectedSubjects(newSubjects);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [selectedSubjects]);
 
   // Dropdowns data
   const [mentors, setMentors] = useState([]);
@@ -549,7 +603,7 @@ const Registrations = () => {
                     <div key={idx} className="bg-white p-8 rounded-[3rem] border border-slate-100 shadow-xl shadow-slate-200/20 relative animate-in slide-in-from-right-4 duration-500 space-y-8">
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-start">
                         {/* Custom Subject Dropdown (Multiple Selection) */}
-                        <div className="flex flex-col gap-2 relative">
+                        <div className="flex flex-col gap-2 relative" ref={el => subRefs.current[idx] = el}>
                           <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Subjects</label>
                           <div 
                             onClick={() => {
@@ -621,7 +675,7 @@ const Registrations = () => {
                         </div>
 
                         {/* Days Picker (Dropdown to toggle) */}
-                        <div className="flex flex-col gap-2 relative">
+                        <div className="flex flex-col gap-2 relative" ref={el => dayRefs.current[idx] = el}>
                           <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Assigned Days</label>
                           <div 
                             onClick={() => {
@@ -836,7 +890,7 @@ const Registrations = () => {
                     </select>
                   </div>
 
-                  <div className="flex flex-col gap-2 relative">
+                  <div className="flex flex-col gap-2 relative" ref={secondaryRef}>
                     <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Secondary Subjects</label>
                     <div 
                       onClick={() => setFacultyForm(prev => ({ ...prev, isSecondaryDropdownOpen: !prev.isSecondaryDropdownOpen }))}
@@ -885,7 +939,7 @@ const Registrations = () => {
                     <input type="text" name="faculty_id_card" value={facultyForm.faculty_id_card} onChange={handleFacultyChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-emerald-100 font-bold" placeholder="FAC-ID-001" />
                   </div>
 
-                  <div className="flex flex-col gap-2 relative">
+                  <div className="flex flex-col gap-2 relative" ref={sectionRef}>
                     <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Section Coverage</label>
                     <div 
                       onClick={() => setFacultyForm(prev => ({ ...prev, isSectionDropdownOpen: !prev.isSectionDropdownOpen }))}
@@ -973,7 +1027,7 @@ const Registrations = () => {
                 </div>
 
                 <div className="flex flex-col gap-4 bg-slate-50 p-6 rounded-3xl border border-slate-100">
-                  <div className="flex flex-col gap-2 relative">
+                  <div className="flex flex-col gap-2 relative" ref={syllabusRef}>
                     <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Syllabus Expertise</label>
                     <div 
                       onClick={() => setFacultyForm(prev => ({ ...prev, isSyllabusDropdownOpen: !prev.isSyllabusDropdownOpen }))}
@@ -1008,7 +1062,7 @@ const Registrations = () => {
                     )}
                   </div>
 
-                  <div className="flex flex-col gap-2 relative">
+                  <div className="flex flex-col gap-2 relative" ref={langRef}>
                     <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Language Proficiency</label>
                     <div 
                       onClick={() => setFacultyForm(prev => ({ ...prev, isLangDropdownOpen: !prev.isLangDropdownOpen }))}

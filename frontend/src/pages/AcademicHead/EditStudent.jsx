@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
@@ -64,6 +64,40 @@ const EditStudent = () => {
     const [selectedSubjects, setSelectedSubjects] = useState([]);
     const [mentors, setMentors] = useState([]);
     const [faculties, setFaculties] = useState([]);
+    
+    // Refs for clicking outside
+    const subRefs = useRef([]);
+    const dayRefs = useRef([]);
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            let updated = false;
+            const newSubjects = selectedSubjects.map((row, idx) => {
+                const subContainer = subRefs.current[idx];
+                const dayContainer = dayRefs.current[idx];
+                let newRow = { ...row };
+                
+                let rowUpdated = false;
+                if (subContainer && !subContainer.contains(event.target) && row.isSubjectDropdownOpen) {
+                    newRow.isSubjectDropdownOpen = false;
+                    rowUpdated = true;
+                }
+                if (dayContainer && !dayContainer.contains(event.target) && row.isDayDropdownOpen) {
+                    newRow.isDayDropdownOpen = false;
+                    rowUpdated = true;
+                }
+                if (rowUpdated) updated = true;
+                return newRow;
+            });
+
+            if (updated) {
+                setSelectedSubjects(newSubjects);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, [selectedSubjects]);
 
     useEffect(() => {
         fetchInitialData();
@@ -320,7 +354,7 @@ const EditStudent = () => {
                         {selectedSubjects.map((row, idx) => (
                             <div key={idx} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 bg-white p-8 rounded-[40px] border border-slate-100 shadow-sm relative animate-in slide-in-from-bottom-4 duration-300 items-end">
                                 {/* Custom Subject Dropdown (Multiple Selection) */}
-                                <div className="flex flex-col gap-2 relative">
+                                <div className="flex flex-col gap-2 relative" ref={el => subRefs.current[idx] = el}>
                                     <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest ml-1">Academic Subjects</label>
                                     <div 
                                         onClick={() => {
@@ -385,7 +419,7 @@ const EditStudent = () => {
                                 </div>
 
                                 {/* Custom Days Dropdown */}
-                                <div className="flex flex-col gap-2 relative">
+                                <div className="flex flex-col gap-2 relative" ref={el => dayRefs.current[idx] = el}>
                                     <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest ml-1">Session Days</label>
                                     <div 
                                         onClick={() => {

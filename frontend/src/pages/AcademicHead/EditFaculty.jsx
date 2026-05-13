@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
@@ -56,6 +56,32 @@ const EditFaculty = () => {
         isSyllabusDropdownOpen: false,
         isLangDropdownOpen: false
     });
+
+    // Refs for clicking outside
+    const secondaryRef = useRef(null);
+    const sectionRef = useRef(null);
+    const syllabusRef = useRef(null);
+    const langRef = useRef(null);
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (secondaryRef.current && !secondaryRef.current.contains(event.target)) {
+                setFormData(prev => ({ ...prev, isSecondaryDropdownOpen: false }));
+            }
+            if (sectionRef.current && !sectionRef.current.contains(event.target)) {
+                setFormData(prev => ({ ...prev, isSectionDropdownOpen: false }));
+            }
+            if (syllabusRef.current && !syllabusRef.current.contains(event.target)) {
+                setFormData(prev => ({ ...prev, isSyllabusDropdownOpen: false }));
+            }
+            if (langRef.current && !langRef.current.contains(event.target)) {
+                setFormData(prev => ({ ...prev, isLangDropdownOpen: false }));
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
 
     useEffect(() => {
         fetchFacultyData();
@@ -245,7 +271,7 @@ const EditFaculty = () => {
                                 </select>
                             </div>
 
-                            <div className="flex flex-col gap-2 relative">
+                            <div className="flex flex-col gap-2 relative" ref={secondaryRef}>
                                 <label className="text-[10px] font-black uppercase tracking-widest opacity-60">Secondary Subject Expertise</label>
                                 <div onClick={() => toggleDropdown('isSecondaryDropdownOpen')} className="w-full p-4 bg-white/5 border border-white/10 rounded-2xl text-sm font-bold cursor-pointer flex justify-between items-center">
                                     <span className="truncate max-w-[300px]">{formData.secondary_subjects?.length > 0 ? formData.secondary_subjects.join(', ') : 'Select Secondary Subjects'}</span>
@@ -269,7 +295,7 @@ const EditFaculty = () => {
 
                         {/* Section & Syllabus */}
                         <div className="space-y-6">
-                            <div className="flex flex-col gap-2 relative">
+                            <div className="flex flex-col gap-2 relative" ref={sectionRef}>
                                 <label className="text-[10px] font-black uppercase tracking-widest opacity-60">Section Coverage</label>
                                 <div onClick={() => toggleDropdown('isSectionDropdownOpen')} className="w-full p-4 bg-white/5 border border-white/10 rounded-2xl text-sm font-bold cursor-pointer flex justify-between items-center">
                                     <span className="truncate">{formData.section || 'Select Sections'}</span>
@@ -290,7 +316,7 @@ const EditFaculty = () => {
                                 )}
                             </div>
 
-                            <div className="flex flex-col gap-2 relative">
+                            <div className="flex flex-col gap-2 relative" ref={syllabusRef}>
                                 <label className="text-[10px] font-black uppercase tracking-widest opacity-60">Syllabus Expertise</label>
                                 <div onClick={() => toggleDropdown('isSyllabusDropdownOpen')} className="w-full p-4 bg-white/5 border border-white/10 rounded-2xl text-sm font-bold cursor-pointer flex justify-between items-center">
                                     <span className="truncate">{formData.syllabus?.length > 0 ? formData.syllabus.join(', ') : 'Select Syllabus'}</span>
@@ -314,7 +340,7 @@ const EditFaculty = () => {
                     </div>
 
                     <div className="pt-6 border-t border-white/10">
-                        <div className="flex flex-col gap-2 relative max-w-md">
+                        <div className="flex flex-col gap-2 relative max-w-md" ref={langRef}>
                             <label className="text-[10px] font-black uppercase tracking-widest opacity-60">Language Proficiency</label>
                             <div onClick={() => toggleDropdown('isLangDropdownOpen')} className="w-full p-4 bg-white/5 border border-white/10 rounded-2xl text-sm font-bold cursor-pointer flex justify-between items-center">
                                 <span className="truncate">{formData.languages_proficiency?.length > 0 ? formData.languages_proficiency.map(id => LANG_OPTIONS.find(l => l.id === id)?.label || id).join(', ') : 'Select Languages'}</span>
