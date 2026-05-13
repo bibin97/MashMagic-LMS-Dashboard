@@ -108,13 +108,13 @@ const EditStudent = () => {
             setLoading(true);
             const [dropdownRes, studentRes] = await Promise.all([
                 api.get(`${basePath}/dropdowns`),
-                api.get(`${basePath}/students`)
+                api.get(`${basePath}/students/${id}`)
             ]);
 
             setMentors(dropdownRes.data.data.mentors);
             setFaculties(dropdownRes.data.data.faculties);
 
-            const student = studentRes.data.data.find(s => s.id.toString() === id);
+            const student = studentRes.data.data;
             
             if (student) {
                 setFormData({
@@ -144,7 +144,26 @@ const EditStudent = () => {
                         const parsed = typeof student.subjects_json === 'string' 
                             ? JSON.parse(student.subjects_json) 
                             : student.subjects_json;
-                        setSelectedSubjects(Array.isArray(parsed) ? parsed.map(s => ({...s, isDayDropdownOpen: false, isSubjectDropdownOpen: false})) : []);
+                        
+                        if (Array.isArray(parsed)) {
+                            // Convert old format (days array + single startTime/endTime) to dayConfigs
+                            const formatted = parsed.map(s => {
+                                const configs = s.dayConfigs || (s.days || []).map(d => ({
+                                    day: d,
+                                    startTime: s.startTime || '',
+                                    endTime: s.endTime || ''
+                                }));
+                                return {
+                                    ...s,
+                                    dayConfigs: configs,
+                                    isDayDropdownOpen: false,
+                                    isSubjectDropdownOpen: false
+                                };
+                            });
+                            setSelectedSubjects(formatted);
+                        } else {
+                            setSelectedSubjects([]);
+                        }
                     } catch (e) {
                         setSelectedSubjects([]);
                     }
@@ -167,7 +186,7 @@ const EditStudent = () => {
 
     const addSubjectRow = () => {
         setSelectedSubjects([...selectedSubjects, { 
-            subject: '', days: [], startTime: '', endTime: '', hourlyRate: '', facultyId: '', facultyName: '',
+            subject: '', dayConfigs: [], hourlyRate: '', facultyId: '', facultyName: '',
             isDayDropdownOpen: false, isSubjectDropdownOpen: false 
         }]);
     };
@@ -190,22 +209,48 @@ const EditStudent = () => {
 
     const handleDayToggle = (index, day) => {
         const newSubjects = [...selectedSubjects];
-        const currentDays = newSubjects[index].days || [];
-        if (currentDays.includes(day)) {
-            newSubjects[index].days = currentDays.filter(d => d !== day);
+        const currentConfigs = newSubjects[index].dayConfigs || [];
+        const exists = currentConfigs.find(c => c.day === day);
+        
+        if (exists) {
+            newSubjects[index].dayConfigs = currentConfigs.filter(c => c.day !== day);
         } else {
-            newSubjects[index].days = [...currentDays, day];
+            newSubjects[index].dayConfigs = [...currentConfigs, { 
+                day, 
+                startTime: '', 
+                endTime: '' 
+            }];
         }
+        setSelectedSubjects(newSubjects);
+    };
+
+    const handleDayTimeChange = (subjectIdx, dayIdx, field, value) => {
+        const newSubjects = [...selectedSubjects];
+        newSubjects[subjectIdx].dayConfigs[dayIdx][field] = value;
         setSelectedSubjects(newSubjects);
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            setSaving(true);
+            const flattenedSubjects = [];
+            selectedSubjects.forEach(s => {
+                if (s.dayConfigs && s.dayConfigs.length > 0) {
+                    s.dayConfigs.forEach(config => {
+                        flattenedSubjects.push({
+                            ...s,
+                            day: config.day,
+                            startTime: config.startTime,
+                            endTime: config.endTime,
+                            days: [config.day] // Backward compatibility
+                        });
+                    });
+                }
+            });
+
             const res = await api.put(`${basePath}/students/${id}`, {
                 ...formData,
-                selectedSubjects: selectedSubjects
+                selectedSubjects: flattenedSubjects
             });
 
             if (res.data.success) {
@@ -418,9 +463,9 @@ const EditStudent = () => {
                                     )}
                                 </div>
 
-                                {/* Custom Days Dropdown */}
+                                {/* Custom Days Dropdown (Matches Registration) */}
                                 <div className="flex flex-col gap-2 relative" ref={el => dayRefs.current[idx] = el}>
-                                    <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest ml-1">Session Days</label>
+                                    <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest ml-1">Session Configuration (Days & Time)</label>
                                     <div 
                                         onClick={() => {
                                             const newSubjects = [...selectedSubjects];
@@ -429,75 +474,113 @@ const EditStudent = () => {
                                         }}
                                         className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-[10px] font-black uppercase text-slate-800 cursor-pointer flex justify-between items-center"
                                     >
-                                        <span className="truncate">{row.days?.length > 0 ? row.days.map(d => d.substring(0, 3)).join(', ') : 'Select Days'}</span>
+                                        <span className="truncate">
+                                            {row.dayConfigs?.length > 0 
+                                                ? row.dayConfigs.map(d => `${d.day.substring(0,3)} ${d.startTime || ''}`).join(', ') 
+                                                : 'Configure Days & Time'}
+                                        </span>
                                         <span>▼</span>
                                     </div>
                                     {row.isDayDropdownOpen && (
-                                        <div className="absolute top-[100%] left-0 w-full bg-white border border-slate-100 rounded-2xl shadow-2xl z-[120] mt-1 p-2 animate-in fade-in zoom-in-95 duration-200">
-                                            {DAYS_LIST.map(day => (
-                                                <div 
-                                                    key={day} 
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        handleDayToggle(idx, day);
-                                                    }}
-                                                    className={`flex items-center gap-3 p-2 rounded-xl cursor-pointer ${row.days?.includes(day) ? 'bg-[#008080]/10 text-[#008080]' : 'hover:bg-slate-50 text-slate-600'}`}
-                                                >
-                                                    <div className={`w-4 h-4 rounded border flex items-center justify-center ${row.days?.includes(day) ? 'bg-[#008080] border-[#008080]' : 'border-slate-300'}`}>
-                                                        {row.days?.includes(day) && <CheckCircle size={10} className="text-white" />}
-                                                    </div>
-                                                    <span className="text-[9px] font-black uppercase">{day}</span>
-                                                </div>
-                                            ))}
+                                        <div className="absolute top-[100%] left-0 w-[300px] bg-white border border-slate-100 rounded-2xl shadow-2xl z-[120] mt-1 p-3 animate-in fade-in zoom-in-95 duration-200" onClick={e => e.stopPropagation()}>
+                                            <div className="space-y-2 max-h-60 overflow-y-auto pr-1">
+                                                {DAYS_LIST.map(day => {
+                                                    const configIdx = row.dayConfigs?.findIndex(c => c.day === day);
+                                                    const isSelected = configIdx !== -1;
+                                                    return (
+                                                        <div key={day} className={`p-2 rounded-xl border ${isSelected ? 'bg-[#008080]/5 border-[#008080]/20' : 'border-transparent'}`}>
+                                                            <div className="flex items-center gap-3 mb-1 cursor-pointer" onClick={() => handleDayToggle(idx, day)}>
+                                                                <div className={`w-4 h-4 rounded border flex items-center justify-center ${isSelected ? 'bg-[#008080] border-[#008080]' : 'border-slate-300'}`}>
+                                                                    {isSelected && <CheckCircle size={10} className="text-white" />}
+                                                                </div>
+                                                                <span className="text-[10px] font-black uppercase">{day}</span>
+                                                            </div>
+                                                            {isSelected && (
+                                                                <div className="grid grid-cols-2 gap-2 mt-2">
+                                                                    <div className="relative group/time">
+                                                                        <input 
+                                                                            type="text" 
+                                                                            placeholder="10:00 AM"
+                                                                            value={row.dayConfigs[configIdx].startTime}
+                                                                            onChange={(e) => handleDayTimeChange(idx, configIdx, 'startTime', e.target.value)}
+                                                                            className="w-full p-2 pr-7 bg-white border border-slate-200 rounded-lg text-[9px] font-bold outline-none focus:border-[#008080]"
+                                                                        />
+                                                                        <div className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[#008080] cursor-pointer" onClick={(e) => {
+                                                                            document.querySelectorAll('.time-picker-dropdown').forEach(el => el.classList.add('hidden'));
+                                                                            const picker = e.currentTarget.nextElementSibling;
+                                                                            picker.classList.toggle('hidden');
+                                                                        }}>
+                                                                            <Clock size={10} />
+                                                                        </div>
+                                                                        <div className="time-picker-dropdown hidden absolute top-full left-0 w-full bg-white border border-slate-100 rounded-lg shadow-2xl z-[150] mt-1 p-1 max-h-32 overflow-y-auto animate-in fade-in zoom-in-95 duration-200">
+                                                                            {TIME_SLOTS.map(t => (
+                                                                                <div key={t} onClick={() => {
+                                                                                    handleDayTimeChange(idx, configIdx, 'startTime', t);
+                                                                                    document.querySelectorAll('.time-picker-dropdown').forEach(el => el.classList.add('hidden'));
+                                                                                }} className="p-1.5 hover:bg-[#008080]/10 rounded-md text-[9px] font-black cursor-pointer transition-colors uppercase">
+                                                                                    {t}
+                                                                                </div>
+                                                                            ))}
+                                                                        </div>
+                                                                    </div>
+                                                                    <div className="relative group/time">
+                                                                        <input 
+                                                                            type="text" 
+                                                                            placeholder="11:00 AM"
+                                                                            value={row.dayConfigs[configIdx].endTime}
+                                                                            onChange={(e) => handleDayTimeChange(idx, configIdx, 'endTime', e.target.value)}
+                                                                            className="w-full p-2 pr-7 bg-white border border-slate-200 rounded-lg text-[9px] font-bold outline-none focus:border-[#008080]"
+                                                                        />
+                                                                        <div className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[#008080] cursor-pointer" onClick={(e) => {
+                                                                            document.querySelectorAll('.time-picker-dropdown').forEach(el => el.classList.add('hidden'));
+                                                                            const picker = e.currentTarget.nextElementSibling;
+                                                                            picker.classList.toggle('hidden');
+                                                                        }}>
+                                                                            <Clock size={10} />
+                                                                        </div>
+                                                                        <div className="time-picker-dropdown hidden absolute top-full left-0 w-full bg-white border border-slate-100 rounded-lg shadow-2xl z-[150] mt-1 p-1 max-h-32 overflow-y-auto animate-in fade-in zoom-in-95 duration-200">
+                                                                            {TIME_SLOTS.map(t => (
+                                                                                <div key={t} onClick={() => {
+                                                                                    handleDayTimeChange(idx, configIdx, 'endTime', t);
+                                                                                    document.querySelectorAll('.time-picker-dropdown').forEach(el => el.classList.add('hidden'));
+                                                                                }} className="p-1.5 hover:bg-[#008080]/10 rounded-md text-[9px] font-black cursor-pointer transition-colors uppercase">
+                                                                                    {t}
+                                                                                </div>
+                                                                            ))}
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
                                             <button 
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
+                                                type="button"
+                                                onClick={() => {
                                                     const newSubjects = [...selectedSubjects];
                                                     newSubjects[idx].isDayDropdownOpen = false;
                                                     setSelectedSubjects(newSubjects);
                                                 }}
-                                                className="w-full mt-2 p-2 bg-slate-900 text-white rounded-xl text-[9px] font-black uppercase"
+                                                className="w-full mt-3 p-2 bg-slate-900 text-white rounded-xl text-[9px] font-black uppercase tracking-widest"
                                             >
-                                                Apply
+                                                Apply Config
                                             </button>
                                         </div>
                                     )}
                                 </div>
 
-                                <div className="flex flex-col gap-2 relative">
-                                    <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest ml-1">Start Time</label>
-                                    <select 
-                                        required 
-                                        value={row.startTime} 
-                                        onChange={(e) => handleSubjectChange(idx, 'startTime', e.target.value)} 
-                                        className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-[10px] font-black outline-none focus:ring-2 focus:ring-[#008080] appearance-none"
-                                    >
-                                        <option value="">Start</option>
-                                        {TIME_SLOTS.map(t => <option key={t} value={t}>{t}</option>)}
-                                    </select>
-                                </div>
-                                <div className="flex flex-col gap-2 relative">
-                                    <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest ml-1">End Time</label>
-                                    <select 
-                                        required 
-                                        value={row.endTime} 
-                                        onChange={(e) => handleSubjectChange(idx, 'endTime', e.target.value)} 
-                                        className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-[10px] font-black outline-none focus:ring-2 focus:ring-[#008080] appearance-none"
-                                    >
-                                        <option value="">End</option>
-                                        {TIME_SLOTS.map(t => <option key={t} value={t}>{t}</option>)}
-                                    </select>
-                                </div>
-                                <div className="flex flex-col gap-2">
-                                    <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest ml-1">Faculty Rate (₹)</label>
-                                    <input type="number" value={row.hourlyRate} onChange={(e) => handleSubjectChange(idx, 'hourlyRate', e.target.value)} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-[10px] font-black outline-none focus:ring-2 focus:ring-[#008080]" />
-                                </div>
                                 <div className="flex flex-col gap-2">
                                     <label className="text-[9px] font-black text-[#008080] uppercase tracking-widest ml-1">Assigned Faculty</label>
                                     <select value={row.facultyId} onChange={(e) => handleSubjectChange(idx, 'facultyId', e.target.value)} className="w-full p-4 bg-[#008080]/5 border border-[#008080]/20 rounded-2xl text-[10px] font-black outline-none focus:ring-2 focus:ring-[#008080] appearance-none text-[#008080]">
                                         <option value="">Select Faculty</option>
                                         {faculties.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
                                     </select>
+                                </div>
+
+                                <div className="flex flex-col gap-2">
+                                    <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest ml-1">Faculty Rate (₹)</label>
+                                    <input type="number" value={row.hourlyRate} onChange={(e) => handleSubjectChange(idx, 'hourlyRate', e.target.value)} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-[10px] font-black outline-none focus:ring-2 focus:ring-[#008080]" />
                                 </div>
 
                                 <button type="button" onClick={() => removeSubjectRow(idx)} className="absolute top-4 right-4 w-10 h-10 flex items-center justify-center bg-rose-50 text-rose-500 rounded-full hover:bg-rose-500 hover:text-white transition-all shadow-sm">

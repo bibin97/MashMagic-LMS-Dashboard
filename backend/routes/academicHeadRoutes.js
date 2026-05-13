@@ -26,6 +26,7 @@ const {
     deleteFaculty,
     editStudent,
     deleteStudent,
+    getStudentById,
     getStudents,
     getMentors,
     editMentor,
@@ -68,6 +69,7 @@ router.get('/faculty-logs-pending', getPendingFacultyLogs);
 router.put('/faculty-logs/:id/verify', verifyFacultyLog);
 
 // New Management Routes
+router.get('/students/:id', getStudentById);
 router.put('/faculties/:id', editFaculty);
 router.delete('/faculties/:id', deleteFaculty);
 router.put('/students/:id', editStudent);

@@ -20,6 +20,7 @@ const CommonInteractionLogs = ({ role }) => {
     const [mentorFilter, setMentorFilter] = useState('all');
     const [mentors, setMentors] = useState([]);
     const [logTypeTab, setLogTypeTab] = useState('QUICK'); // 'QUICK', 'MEDIUM', 'DEEP'
+    const [expandedLogId, setExpandedLogId] = useState(null);
 
     const baseApi = role === 'super_admin' ? '/admin' : (role === 'mentor_head' ? '/mentor-head' : '/academic-head');
 
@@ -350,60 +351,91 @@ const CommonInteractionLogs = ({ role }) => {
                     </div>
                 </div>
             ) : logs.filter(l => l.session_type === logTypeTab).length > 0 ? (
-                <div className="grid grid-cols-1 gap-6">
+                <div className="grid grid-cols-1 gap-4">
                     {logs.filter(l => l.session_type === logTypeTab).map((log) => (
-                        <div key={log.id} className="bg-white/90 backdrop-blur-sm p-8 md:p-12 rounded-[3.5rem] border border-slate-100 shadow-sm hover:shadow-2xl hover:border-[#008080]/30 transition-all group relative overflow-hidden">
-                            <div className="flex flex-col md:flex-row justify-between gap-8">
-                                {/* Left: DateTime Matrix */}
-                                <div className="flex items-center gap-6 min-w-[200px]">
-                                    <div className={`w-16 h-16 rounded-2xl flex items-center justify-center text-white shrink-0 shadow-lg ${
+                        <div 
+                            key={log.id} 
+                            onClick={() => setExpandedLogId(expandedLogId === log.id ? null : log.id)}
+                            className={`bg-white/90 backdrop-blur-sm p-4 md:p-6 rounded-[2rem] border transition-all cursor-pointer relative overflow-hidden group ${
+                                expandedLogId === log.id 
+                                ? 'ring-2 ring-[#008080] border-transparent shadow-xl' 
+                                : 'border-slate-100 shadow-sm hover:shadow-md hover:border-[#008080]/30'
+                            }`}
+                        >
+                            <div className="flex items-center justify-between gap-6">
+                                {/* Compact Header: Date, Time, Coordinator */}
+                                <div className="flex items-center gap-4">
+                                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-white shrink-0 shadow-md ${
                                         logTypeTab === 'QUICK' ? 'bg-[#008080]' : (logTypeTab === 'MEDIUM' ? 'bg-purple-600' : 'bg-pink-600')
                                     }`}>
-                                        <Clock size={24} />
+                                        <Clock size={18} />
                                     </div>
-                                    <div>
-                                        <p className="text-[10px] font-black text-[#008080] uppercase tracking-widest mb-1">Session Execution</p>
-                                        <h4 className="text-xl font-black text-slate-900 leading-none">
+                                    <div className="flex flex-col">
+                                        <span className="text-[10px] font-black text-slate-900 leading-none mb-1">
                                             {new Date(log.created_at).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }).toUpperCase()}
-                                        </h4>
-                                        <p className="text-xs font-bold text-slate-500 mt-1 uppercase tracking-tight">
+                                        </span>
+                                        <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tight">
                                             {new Date(log.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}
-                                        </p>
+                                        </span>
                                     </div>
                                 </div>
 
-                                {/* Center: Narrative */}
-                                <div className="flex-1 border-l border-slate-100 pl-8">
-                                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3">Qualitative Narrative</p>
-                                    <p className="text-sm font-medium text-slate-700 leading-relaxed italic">
-                                        "{log.report_data ? (typeof log.report_data === 'string' ? JSON.parse(log.report_data).observation : log.report_data.observation) : (log.mentor_notes || log.notes || 'No qualitative data provided.')}"
+                                <div className="flex-1 hidden md:block">
+                                    <p className="text-[11px] font-medium text-slate-600 truncate max-w-[400px]">
+                                        {log.report_data ? (typeof log.report_data === 'string' ? JSON.parse(log.report_data).observation : log.report_data.observation) : (log.mentor_notes || log.notes || 'No notes.')}
                                     </p>
-                                    {log.report_data && (
-                                        <div className="mt-4 flex flex-wrap gap-2">
-                                            {Object.entries(typeof log.report_data === 'string' ? JSON.parse(log.report_data) : log.report_data).map(([key, val]) => {
-                                                if (['observation', 'action_plan'].includes(key)) return null;
-                                                return (
-                                                    <div key={key} className="px-3 py-1 bg-slate-50 border border-slate-200 rounded-lg flex items-center gap-2">
-                                                        <span className="text-[8px] font-black text-slate-400 uppercase">{key.replace(/_/g, ' ')}:</span>
-                                                        <span className="text-[9px] font-bold text-slate-700 uppercase">{String(val)}</span>
-                                                    </div>
-                                                );
-                                            })}
-                                        </div>
-                                    )}
                                 </div>
 
-                                {/* Right: Coordinator */}
-                                <div className="flex items-center gap-4 bg-slate-50 p-6 rounded-3xl border border-slate-100 min-w-[200px]">
-                                    <div className="w-10 h-10 bg-slate-900 text-white rounded-xl flex items-center justify-center font-black text-xs">
-                                        {(log.mentor_name || 'M').charAt(0)}
+                                <div className="flex items-center gap-3">
+                                    <div className="text-right">
+                                        <p className="text-[9px] font-black text-slate-900 uppercase leading-none">{log.mentor_name || 'System'}</p>
+                                        <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Coordinator</p>
                                     </div>
-                                    <div>
-                                        <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Coordinator</p>
-                                        <p className="text-[11px] font-black text-slate-900 uppercase truncate">{log.mentor_name || 'System Auto'}</p>
+                                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-transform ${expandedLogId === log.id ? 'rotate-180 bg-slate-900 text-white' : 'bg-slate-100 text-slate-400'}`}>
+                                        <ChevronDown size={14} />
                                     </div>
                                 </div>
                             </div>
+
+                            {/* Expandable Content Area */}
+                            {expandedLogId === log.id && (
+                                <div className="mt-6 pt-6 border-t border-slate-100 animate-in slide-in-from-top-4 duration-300">
+                                    <div className="space-y-6">
+                                        <div>
+                                            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3">Qualitative Narrative</p>
+                                            <p className="text-sm font-medium text-slate-700 leading-relaxed italic p-6 bg-slate-50 rounded-[1.5rem] border border-slate-100">
+                                                "{log.report_data ? (typeof log.report_data === 'string' ? JSON.parse(log.report_data).observation : log.report_data.observation) : (log.mentor_notes || log.notes || 'No qualitative data provided.')}"
+                                            </p>
+                                        </div>
+
+                                        {log.report_data && (
+                                            <div>
+                                                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3">Session Metrics & Insights</p>
+                                                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                                                    {Object.entries(typeof log.report_data === 'string' ? JSON.parse(log.report_data) : log.report_data).map(([key, val]) => {
+                                                        if (['observation', 'action_plan'].includes(key)) return null;
+                                                        return (
+                                                            <div key={key} className="p-4 bg-white border border-slate-100 rounded-2xl flex flex-col gap-1 shadow-sm">
+                                                                <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">{key.replace(/_/g, ' ')}</span>
+                                                                <span className="text-[10px] font-black text-[#008080] uppercase">{String(val)}</span>
+                                                            </div>
+                                                        );
+                                                    })}
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {(log.action_plan || (log.report_data && (typeof log.report_data === 'string' ? JSON.parse(log.report_data).action_plan : log.report_data.action_plan))) && (
+                                            <div className="p-6 bg-emerald-50/50 border border-emerald-100 rounded-[1.5rem]">
+                                                <p className="text-[9px] font-black text-emerald-600 uppercase tracking-widest mb-2">Strategy & Action Plan</p>
+                                                <p className="text-xs font-bold text-emerald-800 leading-relaxed">
+                                                    {log.action_plan || (typeof log.report_data === 'string' ? JSON.parse(log.report_data).action_plan : log.report_data.action_plan)}
+                                                </p>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     ))}
                 </div>

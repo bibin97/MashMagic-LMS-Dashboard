@@ -190,11 +190,11 @@ const Registrations = () => {
       newSubjects[index].facultyName = faculty ? faculty.name : '';
     }
     setSelectedSubjects(newSubjects);
-    if (['subject', 'days', 'startTime', 'endTime'].includes(field)) {
+    if (['subject', 'dayConfigs'].includes(field)) {
       const row = newSubjects[index];
       const hasSubject = Array.isArray(row.subject) ? row.subject.length > 0 : !!row.subject;
-      if (hasSubject && row.days && row.days.length > 0 && row.startTime && row.endTime) {
-        fetchAvailableFaculties(index, row.subject, row.days, row.startTime, row.endTime);
+      if (hasSubject && row.dayConfigs && row.dayConfigs.length > 0) {
+        fetchAvailableFaculties(index, row.subject, row.dayConfigs);
       }
     }
   };
@@ -729,20 +729,58 @@ const Registrations = () => {
 
                                       {isSelected && (
                                         <div className="grid grid-cols-2 gap-2 mt-2 animate-in slide-in-from-top-1 duration-300">
-                                          <input 
-                                            type="text"
-                                            placeholder="Start"
-                                            value={row.dayConfigs[configIdx].startTime}
-                                            onChange={(e) => handleDayTimeChange(idx, configIdx, 'startTime', e.target.value)}
-                                            className="w-full bg-white p-2 rounded-xl text-[9px] font-black uppercase tracking-widest outline-none border border-slate-200 focus:border-[#008080]"
-                                          />
-                                          <input 
-                                            type="text"
-                                            placeholder="End"
-                                            value={row.dayConfigs[configIdx].endTime}
-                                            onChange={(e) => handleDayTimeChange(idx, configIdx, 'endTime', e.target.value)}
-                                            className="w-full bg-white p-2 rounded-xl text-[9px] font-black uppercase tracking-widest outline-none border border-slate-200 focus:border-[#008080]"
-                                          />
+                                          <div className="relative group/time">
+                                            <input 
+                                              type="text"
+                                              placeholder="Start"
+                                              value={row.dayConfigs[configIdx].startTime}
+                                              onChange={(e) => handleDayTimeChange(idx, configIdx, 'startTime', e.target.value)}
+                                              className="w-full bg-white p-2 pr-7 rounded-xl text-[9px] font-black uppercase tracking-widest outline-none border border-slate-200 focus:border-[#008080]"
+                                            />
+                                            <div className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[#008080] cursor-pointer" onClick={(e) => {
+                                              document.querySelectorAll('.time-picker-dropdown').forEach(el => el.classList.add('hidden'));
+                                              const picker = e.currentTarget.nextElementSibling;
+                                              picker.classList.toggle('hidden');
+                                            }}>
+                                              <Clock size={12} />
+                                            </div>
+                                            <div className="time-picker-dropdown hidden absolute top-full left-0 w-full bg-white border border-slate-100 rounded-xl shadow-2xl z-[150] mt-1 p-1 max-h-40 overflow-y-auto animate-in fade-in zoom-in-95 duration-200">
+                                              {TIME_SLOTS.map(t => (
+                                                <div key={t} onClick={() => {
+                                                  handleDayTimeChange(idx, configIdx, 'startTime', t);
+                                                  document.querySelectorAll('.time-picker-dropdown').forEach(el => el.classList.add('hidden'));
+                                                }} className="p-2 hover:bg-[#008080]/10 rounded-lg text-[9px] font-black cursor-pointer transition-colors uppercase">
+                                                  {t}
+                                                </div>
+                                              ))}
+                                            </div>
+                                          </div>
+                                          <div className="relative group/time">
+                                            <input 
+                                              type="text"
+                                              placeholder="End"
+                                              value={row.dayConfigs[configIdx].endTime}
+                                              onChange={(e) => handleDayTimeChange(idx, configIdx, 'endTime', e.target.value)}
+                                              className="w-full bg-white p-2 pr-7 rounded-xl text-[9px] font-black uppercase tracking-widest outline-none border border-slate-200 focus:border-[#008080]"
+                                            />
+                                            <div className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[#008080] cursor-pointer" onClick={(e) => {
+                                              document.querySelectorAll('.time-picker-dropdown').forEach(el => el.classList.add('hidden'));
+                                              const picker = e.currentTarget.nextElementSibling;
+                                              picker.classList.toggle('hidden');
+                                            }}>
+                                              <Clock size={12} />
+                                            </div>
+                                            <div className="time-picker-dropdown hidden absolute top-full left-0 w-full bg-white border border-slate-100 rounded-xl shadow-2xl z-[150] mt-1 p-1 max-h-40 overflow-y-auto animate-in fade-in zoom-in-95 duration-200">
+                                              {TIME_SLOTS.map(t => (
+                                                <div key={t} onClick={() => {
+                                                  handleDayTimeChange(idx, configIdx, 'endTime', t);
+                                                  document.querySelectorAll('.time-picker-dropdown').forEach(el => el.classList.add('hidden'));
+                                                }} className="p-2 hover:bg-[#008080]/10 rounded-lg text-[9px] font-black cursor-pointer transition-colors uppercase">
+                                                  {t}
+                                                </div>
+                                              ))}
+                                            </div>
+                                          </div>
                                         </div>
                                       )}
                                     </div>

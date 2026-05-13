@@ -1437,6 +1437,28 @@ exports.getDailySummary = async (req, res) => {
     }
 };
 
+exports.getStudentById = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const [[student]] = await db.query(`
+            SELECT s.*, u_m.name as mentor_name, u_f.name as faculty_name
+            FROM students s
+            LEFT JOIN users u_m ON s.mentor_id = u_m.id
+            LEFT JOIN users u_f ON s.faculty_id = u_f.id
+            WHERE s.id = ?
+        `, [id]);
+
+        if (!student) {
+            return res.status(404).json({ success: false, message: "Student not found" });
+        }
+
+        res.status(200).json({ success: true, data: student });
+    } catch (error) {
+        console.error("GET_STUDENT_BY_ID_ERROR:", error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
 // @desc    Get Exam Analytics
 // @route   GET /api/mentor-head/exam-analytics
 exports.getExamAnalytics = async (req, res) => {

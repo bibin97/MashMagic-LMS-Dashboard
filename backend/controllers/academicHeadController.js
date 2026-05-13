@@ -52,10 +52,10 @@ const getDashboardStats = async (req, res) => {
             }
         };
 
-        // 1. Basic Stats
-        const studentsStats = await safeQuery('SELECT COUNT(*) as totalStudents FROM students WHERE status = "active"', [], 'totalStudents');
-        const facultiesStats = await safeQuery('SELECT COUNT(*) as totalFaculties FROM users WHERE role = "faculty" AND status = "active"', [], 'totalFaculties');
-        const mentorsStats = await safeQuery('SELECT COUNT(*) as totalMentors FROM users WHERE role = "mentor" AND status = "active"', [], 'totalMentors');
+        // 1. Basic Stats - Counting all except rejected to ensure new registrations show up immediately
+        const studentsStats = await safeQuery('SELECT COUNT(*) as totalStudents FROM students WHERE status != "rejected"', [], 'totalStudents');
+        const facultiesStats = await safeQuery('SELECT COUNT(*) as totalFaculties FROM users WHERE role = "faculty" AND status != "rejected"', [], 'totalFaculties');
+        const mentorsStats = await safeQuery('SELECT COUNT(*) as totalMentors FROM users WHERE role = "mentor" AND status != "rejected"', [], 'totalMentors');
 
         const totalStudents = studentsStats[0]?.totalStudents || 0;
         const totalFaculties = facultiesStats[0]?.totalFaculties || 0;
@@ -1337,7 +1337,7 @@ module.exports = {
             } = req.body;
 
             const finalMeetingLink = meetingLink || meeting_link;
-            const finalSubjects = selectedSubjects || subjects_json || [];
+            const finalSubjects = req.body.selectedSubjects || req.body.subjects_json || [];
             
             const [[student]] = await db.query('SELECT name, user_id FROM students WHERE id = ?', [id]);
             if (!student) return res.status(404).json({ success: false, message: "Student not found" });
@@ -1433,6 +1433,27 @@ module.exports = {
             await db.query('INSERT INTO admin_notifications (message) VALUES (?)', [`Academic Head (${req.user.name}) deleted student: ${student.name}`]);
             res.status(200).json({ success: true, message: 'Student deleted' });
         } catch (error) { res.status(500).json({ success: false, message: error.message }); }
+    },
+    getStudentById: async (req, res) => {
+        try {
+            const { id } = req.params;
+            const [[student]] = await db.query(`
+                SELECT s.*, u_m.name as mentor_name, u_f.name as faculty_name
+                FROM students s
+                LEFT JOIN users u_m ON s.mentor_id = u_m.id
+                LEFT JOIN users u_f ON s.faculty_id = u_f.id
+                WHERE s.id = ?
+            `, [id]);
+
+            if (!student) {
+                return res.status(404).json({ success: false, message: "Student not found" });
+            }
+
+            res.status(200).json({ success: true, data: student });
+        } catch (error) {
+            console.error("GET_STUDENT_BY_ID_ERROR:", error);
+            res.status(500).json({ success: false, message: error.message });
+        }
     },
     getStudents: async (req, res) => {
         try {

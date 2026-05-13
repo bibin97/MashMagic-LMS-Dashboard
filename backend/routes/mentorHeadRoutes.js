@@ -28,6 +28,7 @@ const {
     getStudents,
     editMentor,
     deleteMentor,
+    getStudentById,
     toggleCourseCompleted,
     deleteInteractionLog,
     getDropdownData
@@ -60,6 +61,7 @@ router.get('/exam-analytics', getExamAnalytics);
 // Student Management for Mentor Head (Unified)
 router.get('/students-all', getStudents);
 router.get('/students', getStudents);
+router.get('/students/:id', getStudentById);
 router.put('/students/:id', editStudent);
 router.delete('/students/:id', deleteStudent);
 router.put('/students/:studentId/course-complete', toggleCourseCompleted);

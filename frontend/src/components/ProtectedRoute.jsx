@@ -21,8 +21,8 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
 
   // Role-based authorization
   if (allowedRoles && allowedRoles.length > 0) {
-    // Read role from state or fallback to sessionStorage
-    const storedRole = sessionStorage.getItem('role');
+    // Read role from state or fallback to localStorage
+    const storedRole = localStorage.getItem('role');
     const normalizeRole = (r) => (r || '').toLowerCase().replace(/_/g, '').trim();
     const userRoleNormalized = normalizeRole(user?.role || storedRole);
 
