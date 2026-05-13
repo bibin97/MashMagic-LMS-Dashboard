@@ -25,6 +25,7 @@ const CommonInteractionLogs = ({ role }) => {
     const [listDateFilter, setListDateFilter] = useState('all');
     const [listCustomRange, setListCustomRange] = useState({ start: '', end: '' });
     const [showListFilter, setShowListFilter] = useState(false);
+    const [selectedLogTab, setSelectedLogTab] = useState('QUICK');
 
     // Dynamic API prefix based on role
     const getApiPrefix = () => {
@@ -368,61 +369,43 @@ const CommonInteractionLogs = ({ role }) => {
             </header>
 
             {showFilterPanel && (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-10 bg-slate-900 rounded-[3.5rem] shadow-2xl animate-in slide-in-from-top-6 duration-700">
-                    <div>
-                        <label className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 block ml-2">Time Horizon</label>
-                        <select 
-                            value={dateFilter} 
-                            onChange={(e) => setDateFilter(e.target.value)}
-                            className="w-full bg-white/10 p-5 rounded-[1.8rem] border border-white/10 text-xs font-black uppercase tracking-widest text-white outline-none focus:ring-4 focus:ring-white/5 cursor-pointer hover:bg-white/20 transition-all"
-                        >
-                            <option value="all" className="text-slate-900">Full History</option>
-                            <option value="today" className="text-slate-900">Today's Cycle</option>
-                            <option value="week" className="text-slate-900">Past 7 Cycles</option>
-                            <option value="month" className="text-slate-900">Last 30 Cycles</option>
-                            <option value="custom" className="text-slate-900">Custom Range</option>
-                        </select>
+                <div className="flex flex-col md:flex-row gap-8 p-10 bg-slate-900 rounded-[3.5rem] shadow-2xl animate-in slide-in-from-top-6 duration-700 items-end">
+                    <div className="flex-1 w-full">
+                        <label className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 block ml-2">Start Boundary</label>
+                        <div className="relative group">
+                            <Calendar size={16} className="absolute left-5 top-1/2 -translate-y-1/2 text-white/40 group-focus-within:text-[#008080] transition-colors" />
+                            <input 
+                                type="date" 
+                                className="w-full bg-white/10 p-5 pl-14 rounded-[1.8rem] border border-white/10 text-xs font-black uppercase tracking-widest text-white outline-none focus:ring-4 focus:ring-white/5 transition-all"
+                                value={customRange.start}
+                                onChange={(e) => {
+                                    setCustomRange({...customRange, start: e.target.value});
+                                    setDateFilter('custom');
+                                }}
+                            />
+                        </div>
                     </div>
 
-                    {dateFilter === 'custom' ? (
-                        <div className="flex gap-4 items-end">
-                            <div className="flex-1">
-                                <label className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 block ml-2">Start</label>
-                                <input 
-                                    type="date" 
-                                    className="w-full bg-white/10 p-5 rounded-[1.8rem] border border-white/10 text-xs font-black uppercase tracking-widest text-white outline-none focus:ring-4 focus:ring-white/5 transition-all"
-                                    value={customRange.start}
-                                    onChange={(e) => setCustomRange({...customRange, start: e.target.value})}
-                                />
-                            </div>
-                            <div className="flex-1">
-                                <label className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 block ml-2">End</label>
-                                <input 
-                                    type="date" 
-                                    className="w-full bg-white/10 p-5 rounded-[1.8rem] border border-white/10 text-xs font-black uppercase tracking-widest text-white outline-none focus:ring-4 focus:ring-white/5 transition-all"
-                                    value={customRange.end}
-                                    onChange={(e) => setCustomRange({...customRange, end: e.target.value})}
-                                />
-                            </div>
+                    <div className="flex-1 w-full">
+                        <label className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 block ml-2">End Boundary</label>
+                        <div className="relative group">
+                            <Calendar size={16} className="absolute left-5 top-1/2 -translate-y-1/2 text-white/40 group-focus-within:text-[#008080] transition-colors" />
+                            <input 
+                                type="date" 
+                                className="w-full bg-white/10 p-5 pl-14 rounded-[1.8rem] border border-white/10 text-xs font-black uppercase tracking-widest text-white outline-none focus:ring-4 focus:ring-white/5 transition-all"
+                                value={customRange.end}
+                                onChange={(e) => {
+                                    setCustomRange({...customRange, end: e.target.value});
+                                    setDateFilter('custom');
+                                }}
+                            />
                         </div>
-                    ) : (
-                        <div>
-                            <label className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 block ml-2">Coordinator View</label>
-                            <select 
-                                value={mentorFilter} 
-                                onChange={(e) => setMentorFilter(e.target.value)}
-                                className="w-full bg-white/10 p-5 rounded-[1.8rem] border border-white/10 text-xs font-black uppercase tracking-widest text-white outline-none focus:ring-4 focus:ring-white/5 cursor-pointer hover:bg-white/20 transition-all"
-                            >
-                                <option value="all" className="text-slate-900">Global View</option>
-                                {mentors.map(m => <option key={m.id} value={m.id} className="text-slate-900">{m.name}</option>)}
-                            </select>
-                        </div>
-                    )}
+                    </div>
 
-                    <div className="flex items-end pb-1 pl-4">
+                    <div className="pb-1 px-4">
                         <button 
                             onClick={() => setShowFilterPanel(false)}
-                            className="text-[9px] font-black text-[#008080] uppercase tracking-widest hover:text-white transition-colors"
+                            className="text-[9px] font-black text-[#008080] uppercase tracking-widest hover:text-white transition-colors h-12"
                         >
                             Collapse Panel
                         </button>
@@ -439,115 +422,166 @@ const CommonInteractionLogs = ({ role }) => {
                     </div>
                 </div>
             ) : logs.length > 0 ? (
-                <div className="space-y-16">
-                    {['QUICK', 'MEDIUM', 'DEEP', 'FACULTY CALL', 'SESSION LOG', 'FACULTY TRACKING'].map(type => {
-                        const typeLogs = logs.filter(l => (l.session_type || l.type || l.source || 'QUICK').toUpperCase().includes(type));
-                        if (typeLogs.length === 0) return null;
+                <div className="space-y-10">
+                    {/* Interaction Type Tabs */}
+                    <div className="flex gap-4 bg-slate-100/50 p-2 rounded-[2rem] w-fit">
+                        {['QUICK', 'MEDIUM', 'DEEP'].map(tab => (
+                            <button
+                                key={tab}
+                                onClick={() => setSelectedLogTab(tab)}
+                                className={`px-10 py-4 rounded-[1.5rem] font-black text-xs uppercase tracking-[0.2em] transition-all ${
+                                    selectedLogTab === tab 
+                                    ? 'bg-slate-900 text-white shadow-xl scale-105' 
+                                    : 'text-slate-400 hover:text-slate-600'
+                                }`}
+                            >
+                                {tab}
+                            </button>
+                        ))}
+                        {logs.some(l => !['QUICK', 'MEDIUM', 'DEEP'].includes((l.session_type || l.type || l.source || '').toUpperCase())) && (
+                            <button
+                                onClick={() => setSelectedLogTab('OTHERS')}
+                                className={`px-10 py-4 rounded-[1.5rem] font-black text-xs uppercase tracking-[0.2em] transition-all ${
+                                    selectedLogTab === 'OTHERS' 
+                                    ? 'bg-slate-900 text-white shadow-xl scale-105' 
+                                    : 'text-slate-400 hover:text-slate-600'
+                                }`}
+                            >
+                                OTHERS
+                            </button>
+                        )}
+                    </div>
 
-                        return (
-                            <div key={type} className="space-y-8">
-                                <div className="flex items-center gap-6">
-                                    <div className={`w-2 h-10 rounded-full ${
-                                        type.includes('QUICK') ? 'bg-[#008080]' : (type.includes('MEDIUM') || type.includes('SESSION') ? 'bg-purple-600' : 'bg-pink-600')
-                                    }`}></div>
-                                    <h3 className="text-2xl font-black text-slate-900 uppercase tracking-tight flex items-center gap-4">
-                                        {type} SESSIONS
-                                        <span className="text-xs font-bold text-slate-400">({typeLogs.length} Sequences)</span>
-                                    </h3>
-                                    <div className="h-[1px] flex-1 bg-slate-100"></div>
-                                </div>
+                    <div className="grid grid-cols-1 gap-6">
+                        {logs.filter(log => {
+                            const type = (log.session_type || log.type || log.source || 'QUICK').toUpperCase();
+                            if (selectedLogTab === 'OTHERS') return !['QUICK', 'MEDIUM', 'DEEP'].includes(type);
+                            return type.includes(selectedLogTab);
+                        }).length > 0 ? (
+                            logs.filter(log => {
+                                const type = (log.session_type || log.type || log.source || 'QUICK').toUpperCase();
+                                if (selectedLogTab === 'OTHERS') return !['QUICK', 'MEDIUM', 'DEEP'].includes(type);
+                                return type.includes(selectedLogTab);
+                            }).map((log) => (
+                                <div 
+                                    key={log.id} 
+                                    className={`bg-white rounded-[2.5rem] border transition-all relative overflow-hidden group ${
+                                        expandedLogId === log.id 
+                                        ? 'ring-4 ring-slate-900/5 border-slate-900 shadow-2xl' 
+                                        : 'border-slate-100 shadow-sm hover:shadow-xl hover:border-slate-300'
+                                    }`}
+                                >
+                                    <div 
+                                        onClick={() => setExpandedLogId(expandedLogId === log.id ? null : log.id)}
+                                        className="p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-8 cursor-pointer"
+                                    >
+                                        {/* Date & Time Highlight */}
+                                        <div className="flex items-center gap-6 shrink-0">
+                                            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-white shadow-lg ${
+                                                selectedLogTab === 'QUICK' ? 'bg-[#008080]' : selectedLogTab === 'MEDIUM' ? 'bg-purple-600' : 'bg-pink-600'
+                                            }`}>
+                                                <CalendarClock size={24} strokeWidth={2.5} />
+                                            </div>
+                                            <div className="flex flex-col">
+                                                <span className="text-sm font-black text-slate-900 leading-none mb-1.5 uppercase tracking-tight bg-slate-100 px-3 py-1 rounded-lg">
+                                                    {new Date(log.created_at || log.date).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' })}
+                                                </span>
+                                                <span className="text-[10px] font-bold text-[#008080] uppercase tracking-widest pl-1">
+                                                    {new Date(log.created_at || log.date).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}
+                                                </span>
+                                            </div>
+                                        </div>
 
-                                <div className="grid grid-cols-1 gap-4">
-                                    {typeLogs.map((log) => (
-                                        <div 
-                                            key={log.id} 
-                                            onClick={() => setExpandedLogId(expandedLogId === log.id ? null : log.id)}
-                                            className={`bg-white/90 backdrop-blur-sm p-4 md:p-6 rounded-[2rem] border transition-all cursor-pointer relative overflow-hidden group ${
-                                                expandedLogId === log.id 
-                                                ? 'ring-2 ring-[#008080] border-transparent shadow-xl' 
-                                                : 'border-slate-100 shadow-sm hover:shadow-md hover:border-[#008080]/30'
-                                            }`}
-                                        >
-                                            <div className="flex items-center justify-between gap-6">
-                                                <div className="flex items-center gap-4">
-                                                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-white shrink-0 shadow-md ${
-                                                        type.includes('QUICK') ? 'bg-[#008080]' : (type.includes('MEDIUM') || type.includes('SESSION') ? 'bg-purple-600' : 'bg-pink-600')
-                                                    }`}>
-                                                        <Clock size={18} />
-                                                    </div>
-                                                    <div className="flex flex-col">
-                                                        <span className="text-[10px] font-black text-slate-900 leading-none mb-1">
-                                                            {new Date(log.created_at || log.date).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }).toUpperCase()}
-                                                        </span>
-                                                        <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tight">
-                                                            {new Date(log.created_at || log.date).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}
-                                                        </span>
-                                                    </div>
+                                        {/* Mentor Identity */}
+                                        <div className="flex-1 border-x border-slate-100 px-8 hidden md:block">
+                                            <div className="flex items-center gap-4">
+                                                <div className="w-10 h-10 bg-slate-900 rounded-full flex items-center justify-center text-white text-xs font-black shadow-lg">
+                                                    {log.mentor_name?.charAt(0) || 'M'}
                                                 </div>
-
-                                                <div className="flex-1 hidden md:block">
-                                                    <p className="text-[11px] font-medium text-slate-600 truncate max-w-[400px]">
-                                                        {log.mentor_notes || log.notes || log.remarks || 'No descriptive data captured.'}
-                                                    </p>
-                                                </div>
-
-                                                <div className="flex items-center gap-3">
-                                                    <div className="text-right">
-                                                        <p className="text-[9px] font-black text-slate-900 uppercase leading-none">{log.mentor_name || 'System'}</p>
-                                                        <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Coordinator</p>
-                                                    </div>
-                                                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-transform ${expandedLogId === log.id ? 'rotate-180 bg-slate-900 text-white' : 'bg-slate-100 text-slate-400'}`}>
-                                                        <ChevronDown size={14} />
-                                                    </div>
+                                                <div>
+                                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1.5">Conducted By</p>
+                                                    <p className="text-sm font-black text-slate-900 uppercase tracking-tight group-hover:text-[#008080] transition-colors">{log.mentor_name || 'Academic Mentor'}</p>
                                                 </div>
                                             </div>
+                                        </div>
 
-                                            {expandedLogId === log.id && (
-                                                <div className="mt-6 pt-6 border-t border-slate-100 animate-in slide-in-from-top-4 duration-300">
-                                                    <div className="space-y-6">
-                                                        <div>
-                                                            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3">Qualitative Narrative</p>
-                                                            <div className="text-sm font-medium text-slate-700 leading-relaxed italic p-6 bg-slate-50 rounded-[1.5rem] border border-slate-100">
-                                                                "{log.mentor_notes || log.notes || log.remarks || 'No qualitative narrative provided for this sequence.'}"
-                                                            </div>
-                                                        </div>
+                                        {/* Status & Actions */}
+                                        <div className="flex items-center gap-6">
+                                            <div className="text-right hidden sm:block">
+                                                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Status</p>
+                                                <span className="px-3 py-1 bg-emerald-50 text-emerald-600 rounded-full text-[9px] font-black uppercase border border-emerald-100">Synchronized</span>
+                                            </div>
+                                            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-500 ${
+                                                expandedLogId === log.id 
+                                                ? 'bg-slate-900 text-white rotate-180 scale-110 shadow-xl shadow-slate-900/20' 
+                                                : 'bg-slate-50 text-slate-400 group-hover:bg-slate-100'
+                                            }`}>
+                                                <ChevronDown size={20} strokeWidth={3} />
+                                            </div>
+                                        </div>
+                                    </div>
 
-                                                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                                                            {Object.entries(log).map(([key, val]) => {
-                                                                if (['mentor_notes', 'notes', 'remarks', 'student_id', 'mentor_id', 'id', 'created_at', 'date', 'student_name', 'mentor_name', 'source', 'type', 'session_type', 'session_number'].includes(key)) return null;
-                                                                if (val === null || val === undefined || val === '') return null;
-                                                                return (
-                                                                    <div key={key} className="p-4 bg-white border border-slate-100 rounded-2xl flex flex-col gap-1 shadow-sm">
-                                                                        <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">{key.replace(/_/g, ' ')}</span>
-                                                                        <span className="text-[10px] font-black text-[#008080] uppercase">{String(val)}</span>
-                                                                    </div>
-                                                                );
-                                                            })}
+                                    {/* Expanded Content (Accordion) */}
+                                    {expandedLogId === log.id && (
+                                        <div className="px-8 pb-8 animate-in slide-in-from-top-4 duration-500">
+                                            <div className="pt-8 border-t border-slate-100 space-y-8">
+                                                {/* Narrative Section */}
+                                                <div className="relative">
+                                                    <div className="absolute -left-4 top-0 bottom-0 w-1 bg-slate-900 rounded-full opacity-10"></div>
+                                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                                                        <ScrollText size={12} /> Detailed Narrative
+                                                    </p>
+                                                    <div className="text-sm font-bold text-slate-700 leading-relaxed p-8 bg-slate-50 rounded-[2rem] border border-slate-100 relative shadow-inner">
+                                                        <div className="absolute top-4 left-4 opacity-5">
+                                                            <svg width="40" height="40" viewBox="0 0 24 24" fill="currentColor"><path d="M14.017 21L14.017 18C14.017 16.8954 14.9124 16 16.017 16H19.017C20.1216 16 21.017 16.8954 21.017 18V21C21.017 22.1046 20.1216 23 19.017 23H16.017C14.9124 23 14.017 22.1046 14.017 21ZM14.017 21V18C14.017 16.8954 14.9124 16 16.017 16H19.017C20.1216 16 21.017 16.8954 21.017 18V21C21.017 22.1046 20.1216 23 19.017 23H16.017C14.9124 23 14.017 22.1046 14.017 21ZM3 18C3 16.8954 3.89543 16 5 16H8C9.10457 16 10 16.8954 10 18V21C10 22.1046 9.10457 23 8 23H5C3.89543 23 3 22.1046 3 21V18ZM3 18V16C3 13.7909 4.79086 12 7 12H10V14H7C5.89543 14 5 14.8954 5 16V18H3Z"/></svg>
                                                         </div>
-                                                        
-                                                        <div className="flex items-center gap-8 pl-4">
-                                                            {log.understanding_level !== undefined && log.understanding_level !== null && (
-                                                                <div className="flex flex-col">
-                                                                    <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Understanding</span>
-                                                                    <span className="text-sm font-black text-slate-900">{log.understanding_level}%</span>
-                                                                </div>
-                                                            )}
-                                                            {log.student_confidence !== undefined && log.student_confidence !== null && (
-                                                                <div className="flex flex-col">
-                                                                    <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Confidence</span>
-                                                                    <span className="text-sm font-black text-[#008080]">{log.student_confidence}/5</span>
-                                                                </div>
-                                                            )}
-                                                        </div>
+                                                        {log.mentor_notes || log.notes || log.remarks || 'No qualitative narrative provided for this sequence.'}
                                                     </div>
                                                 </div>
-                                            )}
+
+                                                {/* Metrics Grid */}
+                                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                                    {Object.entries(log).map(([key, val]) => {
+                                                        if (['mentor_notes', 'notes', 'remarks', 'student_id', 'mentor_id', 'id', 'created_at', 'date', 'student_name', 'mentor_name', 'source', 'type', 'session_type', 'session_number'].includes(key)) return null;
+                                                        if (val === null || val === undefined || val === '') return null;
+                                                        return (
+                                                            <div key={key} className="p-5 bg-white border border-slate-100 rounded-3xl flex flex-col gap-1.5 shadow-sm hover:border-[#008080]/30 transition-colors">
+                                                                <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{key.replace(/_/g, ' ')}</span>
+                                                                <span className="text-xs font-black text-[#008080] uppercase truncate">{String(val)}</span>
+                                                            </div>
+                                                        );
+                                                    })}
+                                                    {log.understanding_level !== undefined && log.understanding_level !== null && (
+                                                        <div className="p-5 bg-emerald-50 border border-emerald-100 rounded-3xl flex flex-col gap-1.5 shadow-sm">
+                                                            <span className="text-[9px] font-black text-emerald-600 uppercase tracking-widest">Knowledge Grip</span>
+                                                            <span className="text-lg font-black text-emerald-700">{log.understanding_level}%</span>
+                                                        </div>
+                                                    )}
+                                                    {log.student_confidence !== undefined && log.student_confidence !== null && (
+                                                        <div className="p-5 bg-slate-900 border border-slate-800 rounded-3xl flex flex-col gap-1.5 shadow-sm text-white">
+                                                            <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Self Confidence</span>
+                                                            <div className="flex items-center gap-2">
+                                                                <span className="text-lg font-black">{log.student_confidence}</span>
+                                                                <div className="flex gap-0.5">
+                                                                    {[...Array(5)].map((_, i) => (
+                                                                        <div key={i} className={`w-1.5 h-1.5 rounded-full ${i < log.student_confidence ? 'bg-[#008080]' : 'bg-white/20'}`}></div>
+                                                                    ))}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
                                         </div>
-                                    ))}
+                                    )}
                                 </div>
+                            ))
+                        ) : (
+                            <div className="py-32 text-center bg-slate-50 rounded-[3rem] border-2 border-dashed border-slate-200">
+                                <p className="text-slate-400 font-black text-xs uppercase tracking-[0.2em]">No {selectedLogTab} sequences identified for this timeline</p>
                             </div>
-                        );
-                    })}
+                        )}
+                    </div>
                 </div>
             ) : (
                 <div className="py-60 text-center bg-white/50 backdrop-blur-sm rounded-[5rem] border-2 border-dashed border-slate-200 animate-in zoom-in duration-1000">
