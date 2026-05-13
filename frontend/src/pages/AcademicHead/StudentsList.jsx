@@ -15,6 +15,10 @@ const StudentsList = ({ role = 'academic_head' }) => {
 	const [searchTerm, setSearchTerm] = useState('');
 	const [filterCourse, setFilterCourse] = useState('all');
 	const [sortBy, setSortBy] = useState('join_newest');
+	const [mentors, setMentors] = useState([]);
+	const [faculties, setFaculties] = useState([]);
+	const [filterMentor, setFilterMentor] = useState('all');
+	const [filterFaculty, setFilterFaculty] = useState('all');
 
 	// Base API path based on role
 	const apiPath = role === 'mentor_head' ? '/mentor-head' : '/academic-head';
@@ -23,12 +27,28 @@ const StudentsList = ({ role = 'academic_head' }) => {
 	const coursesList = ["Mission X", "Classmate", "Crash 45", "Bright Bridge", "Magic Revision"];
 
 	useEffect(() => {
+		fetchDropdownData();
+	}, []);
+
+	useEffect(() => {
 		fetchStudents();
-	}, [role, searchTerm, sortBy, filterCourse]);
+	}, [role, searchTerm, sortBy, filterCourse, filterMentor, filterFaculty]);
+
+	const fetchDropdownData = async () => {
+		try {
+			const res = await api.get(`${apiPath}/dropdown-data`);
+			if (res.data.success) {
+				setMentors(res.data.data.mentors || []);
+				setFaculties(res.data.data.faculties || []);
+			}
+		} catch (error) { console.error("Dropdown fetch error:", error); }
+	};
 
 	const fetchStudents = async () => {
 		try {
-			const res = await api.get(`${apiPath}/students-all?search=${searchTerm}&sortBy=${sortBy}&course=${filterCourse}`);
+			const mentorParam = filterMentor !== 'all' ? `&mentor_id=${filterMentor}` : '';
+			const facultyParam = filterFaculty !== 'all' ? `&faculty_id=${filterFaculty}` : '';
+			const res = await api.get(`${apiPath}/students-all?search=${searchTerm}&sortBy=${sortBy}&course=${filterCourse}${mentorParam}${facultyParam}`);
 			if (res.data.success) {
 				setStudents(res.data.data);
 			}
@@ -114,6 +134,32 @@ const StudentsList = ({ role = 'academic_head' }) => {
 						{coursesList.map(c => <option key={c} value={c}>{c}</option>)}
 					</select>
 					<StudentListFilterDropdown value={sortBy} onChange={setSortBy} />
+
+					{/* Mentor Filter */}
+					<div className="relative">
+						<select 
+							value={filterMentor}
+							onChange={(e) => setFilterMentor(e.target.value)}
+							className="h-14 pl-6 pr-12 rounded-2xl bg-slate-50 border border-slate-100 text-[10px] font-black uppercase tracking-widest outline-none focus:ring-4 ring-[#008080]/10 focus:border-[#008080] transition-all appearance-none cursor-pointer min-w-[160px] shadow-sm"
+						>
+							<option value="all">All Mentors</option>
+							{mentors.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
+						</select>
+						<Users size={14} className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+					</div>
+
+					{/* Faculty Filter */}
+					<div className="relative">
+						<select 
+							value={filterFaculty}
+							onChange={(e) => setFilterFaculty(e.target.value)}
+							className="h-14 pl-6 pr-12 rounded-2xl bg-slate-50 border border-slate-100 text-[10px] font-black uppercase tracking-widest outline-none focus:ring-4 ring-[#008080]/10 focus:border-[#008080] transition-all appearance-none cursor-pointer min-w-[160px] shadow-sm"
+						>
+							<option value="all">All Faculties</option>
+							{faculties.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
+						</select>
+						<Activity size={14} className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+					</div>
 				</div>
 			</div>
 

@@ -394,7 +394,13 @@ const getStudentById = async (req, res) => {
 
 const getStudents = async (req, res) => {
     try {
-        const [rows] = await db.query('SELECT s.*, m.name as mentor_name, f.name as faculty_name FROM students s LEFT JOIN mentors m ON s.mentor_id = m.id LEFT JOIN faculties f ON s.faculty_id = f.id ORDER BY s.name ASC');
+        const { mentor_id, faculty_id } = req.query;
+        let sql = 'SELECT s.*, m.name as mentor_name, f.name as faculty_name FROM students s LEFT JOIN mentors m ON s.mentor_id = m.id LEFT JOIN faculties f ON s.faculty_id = f.id WHERE 1=1';
+        let params = [];
+        if (mentor_id) { sql += ' AND s.mentor_id = ?'; params.push(mentor_id); }
+        if (faculty_id) { sql += ' AND s.faculty_id = ?'; params.push(faculty_id); }
+        sql += ' ORDER BY s.name ASC';
+        const [rows] = await db.query(sql, params);
         res.status(200).json({ success: true, data: rows });
     } catch (e) { res.status(500).json({ success: false, message: e.message }); }
 };

@@ -1337,7 +1337,7 @@ exports.getFaculties = async (req, res) => {
 
 exports.getStudents = async (req, res) => {
     try {
-        const { mentor_id, search, sortBy, course, enrollment_type } = req.query;
+        const { mentor_id, faculty_id, search, sortBy, course, enrollment_type } = req.query;
         let query = `
             SELECT s.*, m.name as mentor_name, f.name as faculty_name 
             FROM students s 
@@ -1350,6 +1350,11 @@ exports.getStudents = async (req, res) => {
         if (mentor_id) {
             query += ' AND s.mentor_id = ?';
             params.push(mentor_id);
+        }
+
+        if (faculty_id) {
+            query += ' AND s.faculty_id = ?';
+            params.push(faculty_id);
         }
 
         if (course && course !== 'all') {

@@ -805,6 +805,11 @@ const getAllStudentsForAdmin = async (req, res) => {
             params.push(mentor_id);
         }
 
+        if (req.query.faculty_id) {
+            sql += ' AND faculty_id = ?';
+            params.push(req.query.faculty_id);
+        }
+
         if (startDate) {
             sql += ' AND created_at >= ?';
             params.push(startDate);

@@ -18,6 +18,10 @@ const Students = () => {
  const [loading, setLoading] = useState(true);
  const [searchTerm, setSearchTerm] = useState('');
  const [sortBy, setSortBy] = useState('newest'); // 'newest' or 'oldest'
+ const [filterMentor, setFilterMentor] = useState('all');
+ const [filterFaculty, setFilterFaculty] = useState('all');
+ const [mentorsList, setMentorsList] = useState([]);
+ const [facultiesList, setFacultiesList] = useState([]);
 
  const [selectedStudent, setSelectedStudent] = useState(null);
  const [isModalOpen, setIsModalOpen] = useState(false);
