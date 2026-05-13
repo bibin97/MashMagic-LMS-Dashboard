@@ -379,11 +379,12 @@ const getAllStudentLogs = async (req, res) => {
 
         const [rows] = await db.query(`
             SELECT 
-                'Interaction Hub' as source,
+                CONVERT('Interaction Hub' USING utf8mb4) COLLATE utf8mb4_unicode_ci as source,
                 r.id, r.mentor_id, r.student_id, r.created_at,
-                m.name as mentor_name, s.name as student_name,
+                CONVERT(m.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as mentor_name, 
+                CONVERT(s.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as student_name,
                 CAST(r.session_type AS CHAR) as session_number,
-                r.session_type as session_type,
+                CONVERT(r.session_type USING utf8mb4) COLLATE utf8mb4_unicode_ci as session_type,
                 CONVERT(COALESCE(
                     JSON_UNQUOTE(JSON_EXTRACT(r.report_data, '$.notes')), 
                     JSON_UNQUOTE(JSON_EXTRACT(r.report_data, '$.action_plan')),
@@ -391,27 +392,28 @@ const getAllStudentLogs = async (req, res) => {
                     JSON_UNQUOTE(JSON_EXTRACT(r.report_data, '$.study_status')),
                     JSON_UNQUOTE(JSON_EXTRACT(r.report_data, '$.main_problem')),
                     r.session_type
-                ) USING utf8mb4) as mentor_notes,
+                ) USING utf8mb4) COLLATE utf8mb4_unicode_ci as mentor_notes,
                 CAST(JSON_UNQUOTE(JSON_EXTRACT(r.report_data, '$.self_clarity')) AS CHAR) as understanding_level,
                 CAST(JSON_UNQUOTE(JSON_EXTRACT(r.report_data, '$.confidence')) AS CHAR) as student_confidence,
                 NULL as stress_level,
                 r.is_flagged,
-                r.flag_reason,
+                CONVERT(r.flag_reason USING utf8mb4) COLLATE utf8mb4_unicode_ci as flag_reason,
                 NULL as screenshot_url
             FROM mentor_session_reports r
-            LEFT JOIN users m ON r.mentor_id = m.id
+            LEFT JOIN mentors m ON r.mentor_id = m.id
             JOIN students s ON r.student_id = s.id
             ${whereClause.replace(/student_id/g, 'r.student_id').replace(/mentor_id/g, 'r.mentor_id').replace(/created_at/g, 'r.created_at')}
 
             UNION ALL
 
             SELECT 
-                'Session Log' as source,
+                CONVERT('Session Log' USING utf8mb4) COLLATE utf8mb4_unicode_ci as source,
                 l.id, l.mentor_id, l.student_id, l.created_at,
-                m.name as mentor_name, s.name as student_name,
-                'S-Log' as session_number,
-                'MEDIUM' as session_type,
-                CONVERT(CONCAT(l.main_issue, ': ', l.action_type) USING utf8mb4) as mentor_notes,
+                CONVERT(m.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as mentor_name, 
+                CONVERT(s.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as student_name,
+                CONVERT('S-Log' USING utf8mb4) COLLATE utf8mb4_unicode_ci as session_number,
+                CONVERT('MEDIUM' USING utf8mb4) COLLATE utf8mb4_unicode_ci as session_type,
+                CONVERT(CONCAT(l.main_issue, ': ', l.action_type) USING utf8mb4) COLLATE utf8mb4_unicode_ci as mentor_notes,
                 CAST(l.understanding_after_session AS CHAR) as understanding_level,
                 CAST(l.session_quality_rating AS CHAR) as student_confidence,
                 CAST(l.stress_level AS CHAR) as stress_level,
@@ -419,37 +421,39 @@ const getAllStudentLogs = async (req, res) => {
                 NULL as flag_reason,
                 NULL as screenshot_url
             FROM mentor_session_logs l
-            LEFT JOIN users m ON l.mentor_id = m.id
+            LEFT JOIN mentors m ON l.mentor_id = m.id
             JOIN students s ON l.student_id = s.id
             ${whereClause.replace(/student_id/g, 'l.student_id').replace(/mentor_id/g, 'l.mentor_id').replace(/created_at/g, 'l.created_at')}
 
             UNION ALL
 
             SELECT 
-                'Quick Log' as source,
+                CONVERT('Quick Log' USING utf8mb4) COLLATE utf8mb4_unicode_ci as source,
                 logs.id, logs.mentor_id, logs.student_id, logs.created_at,
-                m.name as mentor_name, s.name as student_name,
-                'Q-Log' as session_number,
-                'QUICK' as session_type,
-                CONVERT(logs.mentor_notes USING utf8mb4) as mentor_notes,
+                CONVERT(m.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as mentor_name, 
+                CONVERT(s.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as student_name,
+                CONVERT('Q-Log' USING utf8mb4) COLLATE utf8mb4_unicode_ci as session_number,
+                CONVERT('QUICK' USING utf8mb4) COLLATE utf8mb4_unicode_ci as session_type,
+                CONVERT(logs.mentor_notes USING utf8mb4) COLLATE utf8mb4_unicode_ci as mentor_notes,
                 CAST(logs.self_clarity AS CHAR) as understanding_level,
                 CAST(logs.confidence AS CHAR) as student_confidence,
                 CAST(logs.exam_anxiety AS CHAR) as stress_level,
                 NULL as is_flagged,
                 NULL as flag_reason,
-                logs.screenshot_url
+                CONVERT(logs.screenshot_url USING utf8mb4) COLLATE utf8mb4_unicode_ci as screenshot_url
             FROM student_interaction_logs logs
-            LEFT JOIN users m ON logs.mentor_id = m.id
+            LEFT JOIN mentors m ON logs.mentor_id = m.id
             JOIN students s ON logs.student_id = s.id
             ${whereClause.replace(/student_id/g, 'logs.student_id').replace(/mentor_id/g, 'logs.mentor_id').replace(/created_at/g, 'logs.created_at')}
 
             UNION ALL
 
             SELECT 
-                'Mentorship' as source,
+                CONVERT('Mentorship' USING utf8mb4) COLLATE utf8mb4_unicode_ci as source,
                 ml.id, ml.mentor_id, ml.student_id, ml.created_at,
-                m.name as mentor_name, s.name as student_name,
-                'M-Log' as session_number,
+                CONVERT(m.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as mentor_name, 
+                CONVERT(s.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as student_name,
+                CONVERT('M-Log' USING utf8mb4) COLLATE utf8mb4_unicode_ci as session_number,
                 'DEEP' as session_type,
                 CONVERT(ml.action_details USING utf8mb4) as mentor_notes,
                 NULL as understanding_level,
@@ -515,16 +519,17 @@ const getAllFacultyLogs = async (req, res) => {
                 -- 1. Mentors logging interactions with Faculty
                 SELECT 
                     mfi.id, mfi.created_at, mfi.mentor_id, mfi.student_id,
-                    m.name as mentor_name, s.name as student_name,
-                    CONVERT('Faculty Call' USING utf8mb4) as source,
-                    CONVERT(mfi.main_issue USING utf8mb4) as notes,
+                    CONVERT(m.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as mentor_name, 
+                    CONVERT(s.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as student_name,
+                    CONVERT('Faculty Call' USING utf8mb4) COLLATE utf8mb4_unicode_ci as source,
+                    CONVERT(mfi.main_issue USING utf8mb4) COLLATE utf8mb4_unicode_ci as notes,
                     NULL as understanding_level, NULL as student_confidence, NULL as stress_level,
-                    mfi.is_flagged, mfi.flag_reason,
-                    f.name as faculty_name, mfi.faculty_id
+                    mfi.is_flagged, CONVERT(mfi.flag_reason USING utf8mb4) COLLATE utf8mb4_unicode_ci as flag_reason,
+                    CONVERT(f.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as faculty_name, mfi.faculty_id
                 FROM mentor_faculty_interactions mfi
-                LEFT JOIN users m ON mfi.mentor_id = m.id
+                LEFT JOIN mentors m ON mfi.mentor_id = m.id
                 LEFT JOIN students s ON mfi.student_id = s.id
-                LEFT JOIN users f ON mfi.faculty_id = f.id
+                LEFT JOIN faculties f ON mfi.faculty_id = f.id
                 ${baseWhere('mfi')}
 
                 UNION ALL
@@ -532,16 +537,17 @@ const getAllFacultyLogs = async (req, res) => {
                 -- 2. Mentors tracking Faculty
                 SELECT 
                     fil.id, fil.created_at, fil.mentor_id, fil.student_id,
-                    m.name as mentor_name, s.name as student_name,
-                    CONVERT('Faculty Tracking' USING utf8mb4) as source,
-                    CONVERT(fil.notes USING utf8mb4) as notes,
+                    CONVERT(m.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as mentor_name, 
+                    CONVERT(s.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as student_name,
+                    CONVERT('Faculty Tracking' USING utf8mb4) COLLATE utf8mb4_unicode_ci as source,
+                    CONVERT(fil.notes USING utf8mb4) COLLATE utf8mb4_unicode_ci as notes,
                     NULL as understanding_level, NULL as student_confidence, NULL as stress_level,
                     0 as is_flagged, NULL as flag_reason,
-                    f.name as faculty_name, fil.faculty_id
+                    CONVERT(f.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as faculty_name, fil.faculty_id
                 FROM faculty_interaction_logs fil
-                LEFT JOIN users m ON fil.mentor_id = m.id
+                LEFT JOIN mentors m ON fil.mentor_id = m.id
                 LEFT JOIN students s ON fil.student_id = s.id
-                LEFT JOIN users f ON fil.faculty_id = f.id
+                LEFT JOIN faculties f ON fil.faculty_id = f.id
                 ${baseWhere('fil')}
 
                 UNION ALL
@@ -549,15 +555,15 @@ const getAllFacultyLogs = async (req, res) => {
                 -- 3. Faculty Intelligence Reports
                 SELECT 
                     sr.id, sr.created_at, NULL as mentor_id, sr.student_id,
-                    NULL as mentor_name, s.name as student_name,
-                    CONVERT('Faculty Intelligence' USING utf8mb4) as source,
-                    CONVERT(sr.remarks USING utf8mb4) as notes,
+                    NULL as mentor_name, CONVERT(s.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as student_name,
+                    CONVERT('Faculty Intelligence' USING utf8mb4) COLLATE utf8mb4_unicode_ci as source,
+                    CONVERT(sr.remarks USING utf8mb4) COLLATE utf8mb4_unicode_ci as notes,
                     NULL as understanding_level, NULL as student_confidence, NULL as stress_level,
                     0 as is_flagged, NULL as flag_reason,
-                    f.name as faculty_name, sr.faculty_id
+                    CONVERT(f.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as faculty_name, sr.faculty_id
                 FROM student_reports sr
                 LEFT JOIN students s ON sr.student_id = s.id
-                LEFT JOIN users f ON sr.faculty_id = f.id
+                LEFT JOIN faculties f ON sr.faculty_id = f.id
                 ${baseWhere('sr', 'student_id', 'faculty_id', 'created_at', 'faculty_id', true, false, true)}
 
                 UNION ALL

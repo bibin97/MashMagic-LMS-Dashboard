@@ -94,18 +94,18 @@ exports.getMentorStudents = async (req, res) => {
 
         const query = `
             SELECT 
-                s.name as student_name, 
+                CONVERT(s.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as student_name, 
                 logs.date,
                 logs.log_id,
                 logs.type
             FROM (
-                SELECT id as log_id, student_id, date, CONVERT('Quick' USING utf8mb4) as type FROM student_interaction_logs WHERE mentor_id = ?
+                SELECT id as log_id, student_id, date, CONVERT('Quick' USING utf8mb4) COLLATE utf8mb4_unicode_ci as type FROM student_interaction_logs WHERE mentor_id = ?
                 UNION ALL
-                SELECT id as log_id, student_id, DATE(created_at) as date, CONVERT('Session' USING utf8mb4) as type FROM mentor_session_logs WHERE mentor_id = ?
+                SELECT id as log_id, student_id, DATE(created_at) as date, CONVERT('Session' USING utf8mb4) COLLATE utf8mb4_unicode_ci as type FROM mentor_session_logs WHERE mentor_id = ?
                 UNION ALL
-                SELECT id as log_id, student_id, DATE(created_at) as date, CONVERT('Hub' USING utf8mb4) as type FROM mentor_session_reports WHERE mentor_id = ?
+                SELECT id as log_id, student_id, DATE(created_at) as date, CONVERT('Hub' USING utf8mb4) COLLATE utf8mb4_unicode_ci as type FROM mentor_session_reports WHERE mentor_id = ?
                 UNION ALL
-                SELECT id as log_id, student_id, DATE(created_at) as date, CONVERT('Mentorship' USING utf8mb4) as type FROM mentorship_logs WHERE mentor_id = ?
+                SELECT id as log_id, student_id, DATE(created_at) as date, CONVERT('Mentorship' USING utf8mb4) COLLATE utf8mb4_unicode_ci as type FROM mentorship_logs WHERE mentor_id = ?
             ) as logs
             JOIN students s ON s.id = logs.student_id
             ORDER BY logs.date DESC
@@ -149,29 +149,6 @@ exports.getStudentInteractionLogs = async (req, res) => {
 
         const query = `
             SELECT * FROM (
-                SELECT 
-                    sil.id, sil.created_at, sil.mentor_id, sil.student_id,
-                    m.name as mentor_name, s.name as student_name,
-                    CONVERT('Quick Log' USING utf8mb4) as source,
-                    'QUICK' as session_type,
-                    CONVERT(sil.mentor_notes USING utf8mb4) as notes,
-                    CAST(sil.self_clarity AS CHAR) as understanding_level,
-                    CAST(sil.confidence AS CHAR) as student_confidence,
-                    CAST(sil.exam_anxiety AS CHAR) as stress_level,
-                    0 as is_flagged, NULL as flag_reason
-                FROM student_interaction_logs sil
-                LEFT JOIN mentors m ON sil.mentor_id = m.id
-                LEFT JOIN students s ON sil.student_id = s.id
-                ${baseWhere('sil', 'student_id', 'mentor_id', 'created_at')}
-
-                UNION ALL
-
-                SELECT 
-                    msl.id, msl.created_at, msl.mentor_id, msl.student_id,
-                    m.name as mentor_name, s.name as student_name,
-                    CONVERT('Session Log' USING utf8mb4) as source,
-                    'MEDIUM' as session_type,
-                    CONVERT(CONCAT(msl.main_issue, ': ', msl.action_type) USING utf8mb4) as notes,
                     CAST(msl.understanding_after_session AS CHAR) as understanding_level,
                     CAST(msl.session_quality_rating AS CHAR) as student_confidence,
                     CAST(msl.stress_level AS CHAR) as stress_level,
