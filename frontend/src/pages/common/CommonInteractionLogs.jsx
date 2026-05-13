@@ -4,7 +4,7 @@ import {
     ScrollText, Search, User, Clock, Calendar, 
     ChevronLeft, ChevronRight, History, ExternalLink, 
     ArrowLeft, Users, ShieldAlert, CheckSquare, Filter, BookOpen,
-    ChevronDown, SlidersHorizontal, X
+    ChevronDown, SlidersHorizontal, X, SortAsc, CalendarClock
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -22,6 +22,9 @@ const CommonInteractionLogs = ({ role }) => {
     const [mentors, setMentors] = useState([]);
     const [expandedLogId, setExpandedLogId] = useState(null);
     const [showFilterPanel, setShowFilterPanel] = useState(false);
+    const [listDateFilter, setListDateFilter] = useState('all');
+    const [listCustomRange, setListCustomRange] = useState({ start: '', end: '' });
+    const [showListFilter, setShowListFilter] = useState(false);
 
     // Dynamic API prefix based on role
     const getApiPrefix = () => {
@@ -35,7 +38,7 @@ const CommonInteractionLogs = ({ role }) => {
     useEffect(() => {
         fetchEntities();
         fetchMentors();
-    }, [activeTab, role]);
+    }, [activeTab, role, listDateFilter, listCustomRange]);
 
     useEffect(() => {
         if (viewMode === 'detail' && selectedStudent) {
@@ -59,6 +62,12 @@ const CommonInteractionLogs = ({ role }) => {
         try {
             setLoading(true);
             let endpoint;
+            const params = {
+                startDate: listDateFilter === 'custom' ? listCustomRange.start : undefined,
+                endDate: listDateFilter === 'custom' ? listCustomRange.end : undefined,
+                dateFilter: listDateFilter !== 'all' ? listDateFilter : undefined
+            };
+
             if (activeTab === 'student') {
                 endpoint = (role === 'mentor_head' || role === 'academic_head') ? `${apiPrefix}/students-all` : `${apiPrefix}/students`;
             } else {
@@ -68,7 +77,7 @@ const CommonInteractionLogs = ({ role }) => {
                     endpoint = (role === 'mentor_head' || role === 'academic_head') ? `${apiPrefix}/mentors-all` : `${apiPrefix}/mentors`;
                 }
             }
-            const res = await api.get(endpoint);
+            const res = await api.get(endpoint, { params });
             setEntities(res.data.data || []);
         } catch (error) {
             toast.error(`Failed to load ${activeTab}s`);
@@ -116,6 +125,12 @@ const CommonInteractionLogs = ({ role }) => {
         setShowFilterPanel(false);
     };
 
+    const resetListFilters = () => {
+        setListDateFilter('all');
+        setListCustomRange({ start: '', end: '' });
+        setShowListFilter(false);
+    };
+
     const filteredEntities = entities.filter(e => 
         (e.name?.toLowerCase().includes(searchTerm.toLowerCase())) ||
         (e.email?.toLowerCase().includes(searchTerm.toLowerCase())) ||
@@ -132,13 +147,13 @@ const CommonInteractionLogs = ({ role }) => {
                     </div>
                     <div className="flex gap-2 p-1.5 bg-slate-100 rounded-2xl w-full md:w-auto">
                         <button 
-                            onClick={() => setActiveTab('student')}
+                            onClick={() => { setActiveTab('student'); resetListFilters(); }}
                             className={`flex-1 md:flex-none px-8 py-3.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'student' ? 'bg-white text-[#008080] shadow-md' : 'text-slate-500 hover:text-slate-700'}`}
                         >
                             Student Focus
                         </button>
                         <button 
-                            onClick={() => setActiveTab('faculty')}
+                            onClick={() => { setActiveTab('faculty'); resetListFilters(); }}
                             className={`flex-1 md:flex-none px-8 py-3.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'faculty' ? 'bg-white text-purple-600 shadow-md' : 'text-slate-500 hover:text-slate-700'}`}
                         >
                             Faculty Nexus
@@ -148,21 +163,79 @@ const CommonInteractionLogs = ({ role }) => {
 
                 <div className="bg-white rounded-[40px] border border-slate-100 shadow-2xl overflow-hidden">
                     <div className="p-8 border-b border-slate-50 flex flex-col md:flex-row justify-between items-center gap-6">
-                        <div className="relative w-full md:w-96 group">
-                            <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#008080] transition-colors" size={18} />
-                            <input 
-                                type="text"
-                                placeholder={`Search ${activeTab}s by name, email or ID...`}
-                                className="w-full pl-16 pr-8 py-5 bg-slate-50 rounded-[2rem] border border-slate-100 text-xs font-bold focus:bg-white focus:ring-4 focus:ring-[#008080]/5 outline-none transition-all"
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                            />
+                        <div className="flex flex-1 items-center gap-4">
+                            <div className="relative flex-1 max-w-md group">
+                                <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#008080] transition-colors" size={18} />
+                                <input 
+                                    type="text"
+                                    placeholder={`Search ${activeTab}s by name, email or ID...`}
+                                    className="w-full pl-16 pr-8 py-5 bg-slate-50 rounded-[2rem] border border-slate-100 text-xs font-bold focus:bg-white focus:ring-4 focus:ring-[#008080]/5 outline-none transition-all"
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                />
+                            </div>
+                            
+                            <div className="flex items-center gap-2">
+                                <button 
+                                    onClick={() => setShowListFilter(!showListFilter)}
+                                    className={`flex items-center gap-3 px-6 py-4 rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all border ${showListFilter ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-600 border-slate-100 hover:border-[#008080]'}`}
+                                >
+                                    <CalendarClock size={16} />
+                                    Date Filter
+                                </button>
+                                { listDateFilter !== 'all' && (
+                                    <button 
+                                        onClick={resetListFilters}
+                                        className="w-12 h-12 flex items-center justify-center rounded-2xl bg-rose-50 text-rose-600 border border-rose-100 hover:bg-rose-600 hover:text-white transition-all"
+                                    >
+                                        <X size={18} />
+                                    </button>
+                                ) }
+                            </div>
                         </div>
+
                         <div className="flex items-center gap-3">
                             <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Active Matrix:</span>
                             <span className="px-4 py-1.5 bg-slate-50 text-slate-600 rounded-lg text-[10px] font-black border border-slate-100">{filteredEntities.length} Entities</span>
                         </div>
                     </div>
+
+                    {showListFilter && (
+                        <div className="px-8 py-6 bg-slate-50 border-b border-slate-100 animate-in slide-in-from-top-4 duration-500">
+                            <div className="flex flex-wrap items-center gap-4">
+                                <div className="flex items-center gap-2">
+                                    <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest mr-2">Time Matrix:</span>
+                                    {['all', 'today', 'week', 'month', 'custom'].map((opt) => (
+                                        <button
+                                            key={opt}
+                                            onClick={() => setListDateFilter(opt)}
+                                            className={`px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${listDateFilter === opt ? 'bg-[#008080] text-white shadow-md' : 'bg-white text-slate-500 border border-slate-100 hover:border-[#008080]/30'}`}
+                                        >
+                                            {opt.replace('all', 'Global')}
+                                        </button>
+                                    ))}
+                                </div>
+                                
+                                {listDateFilter === 'custom' && (
+                                    <div className="flex items-center gap-3 animate-in fade-in zoom-in duration-300">
+                                        <input 
+                                            type="date"
+                                            className="bg-white px-4 py-2 rounded-xl border border-slate-100 text-[10px] font-black uppercase tracking-widest outline-none focus:ring-4 focus:ring-[#008080]/5"
+                                            value={listCustomRange.start}
+                                            onChange={(e) => setListCustomRange({...listCustomRange, start: e.target.value})}
+                                        />
+                                        <span className="text-slate-300">to</span>
+                                        <input 
+                                            type="date"
+                                            className="bg-white px-4 py-2 rounded-xl border border-slate-100 text-[10px] font-black uppercase tracking-widest outline-none focus:ring-4 focus:ring-[#008080]/5"
+                                            value={listCustomRange.end}
+                                            onChange={(e) => setListCustomRange({...listCustomRange, end: e.target.value})}
+                                        />
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
 
                     <div className="overflow-x-auto">
                         <table className="w-full text-left border-collapse">
@@ -230,6 +303,12 @@ const CommonInteractionLogs = ({ role }) => {
                                         <td colSpan="4" className="px-10 py-40 text-center">
                                             <History size={48} className="text-slate-200 mx-auto mb-6" />
                                             <p className="text-slate-400 font-black text-[11px] uppercase tracking-[0.3em]">No entity matches detected in current search matrix.</p>
+                                            <button 
+                                                onClick={resetListFilters}
+                                                className="mt-4 px-6 py-2 bg-slate-900 text-white rounded-xl text-[9px] font-black uppercase tracking-widest"
+                                            >
+                                                Clear Matrix Filters
+                                            </button>
                                         </td>
                                     </tr>
                                 )}

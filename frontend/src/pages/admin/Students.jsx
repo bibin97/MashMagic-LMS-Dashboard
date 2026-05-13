@@ -30,7 +30,8 @@ const Students = () => {
  subject: '',
  timetable: '',
  nextInstallment: '',
- status: ''
+ status: '',
+ course_completed: 0
  });
  const [dailyHours, setDailyHours] = useState([]);
 
@@ -97,7 +98,8 @@ const Students = () => {
  subject: student.subject,
  timetable: student.timetable,
  nextInstallment: student.nextInstallment ? student.nextInstallment.split('T')[0] : '',
- status: student.status
+ status: student.status,
+ course_completed: student.course_completed || 0
  });
  setIsEditModalOpen(true);
  };
@@ -348,6 +350,20 @@ const Students = () => {
  value={editFormData.nextInstallment}
  onChange={(e) => setEditFormData({ ...editFormData, nextInstallment: e.target.value })}
  />
+ </div>
+ <div className="flex flex-col gap-2">
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest pl-2">Course Status</label>
+ <button
+ type="button"
+ onClick={() => setEditFormData({ ...editFormData, course_completed: editFormData.course_completed === 1 ? 0 : 1 })}
+ className={`p-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border-2 flex items-center justify-center gap-3 ${editFormData.course_completed === 1 ? 'bg-emerald-500 border-emerald-500 text-white shadow-lg' : 'bg-slate-50 border-slate-100 text-slate-400'}`}
+ >
+ {editFormData.course_completed === 1 ? (
+ <><CheckCircle size={14} /> Completed</>
+ ) : (
+ <><Clock size={14} /> In Progress</>
+ )}
+ </button>
  </div>
  <div className="col-span-2 flex flex-col gap-2">
  <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest pl-2">Status</label>

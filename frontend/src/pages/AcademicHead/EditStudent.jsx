@@ -58,7 +58,8 @@ const EditStudent = () => {
         total_fees: '',
         total_paid: '',
         mentor_id: '',
-        password: ''
+        password: '',
+        course_completed: 0
     });
 
     const [selectedSubjects, setSelectedSubjects] = useState([]);
@@ -136,7 +137,8 @@ const EditStudent = () => {
                     total_fees: student.total_fees || '',
                     total_paid: student.total_paid || '',
                     mentor_id: student.mentor_id || '',
-                    password: ''
+                    password: '',
+                    course_completed: student.course_completed || 0
                 });
 
                 if (student.subjects_json) {
@@ -625,7 +627,7 @@ const EditStudent = () => {
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8 border-t border-slate-100 pt-8">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-8 border-t border-slate-100 pt-8">
                         <div className="flex flex-col gap-2">
                             <label className="text-[10px] font-black text-slate-700 uppercase tracking-widest ml-1">Assigned Academic Mentor</label>
                             <select name="mentor_id" value={formData.mentor_id} onChange={handleInputChange} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold appearance-none outline-none">
@@ -638,6 +640,22 @@ const EditStudent = () => {
                             <div className="relative">
                                 <LinkIcon size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#008080]" />
                                 <input type="text" name="meeting_link" value={formData.meeting_link} onChange={handleInputChange} className="w-full p-4 pl-12 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none" placeholder="meet.google.com/..." />
+                            </div>
+                        </div>
+                        <div className="flex flex-col gap-2">
+                            <label className="text-[10px] font-black text-slate-700 uppercase tracking-widest ml-1">Course Status</label>
+                            <div className="flex items-center gap-4 h-full">
+                                <button
+                                    type="button"
+                                    onClick={() => setFormData({...formData, course_completed: formData.course_completed === 1 ? 0 : 1})}
+                                    className={`flex items-center gap-3 px-6 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border-2 ${formData.course_completed === 1 ? 'bg-emerald-500 border-emerald-500 text-white shadow-lg shadow-emerald-500/20' : 'bg-white border-slate-100 text-slate-400 hover:border-emerald-500/30'}`}
+                                >
+                                    {formData.course_completed === 1 ? (
+                                        <><CheckCircle size={16} strokeWidth={3} /> Graduated / Completed</>
+                                    ) : (
+                                        <><Clock size={16} strokeWidth={3} /> In Progress / Active</>
+                                    )}
+                                </button>
                             </div>
                         </div>
                     </div>

@@ -1366,7 +1366,8 @@ module.exports = {
                     meeting_link = ?, enrollment_type = ?, badge = ?,
                     school_name = ?, preferred_language = ?, country = ?, 
                     total_fees = ?, total_paid = ?,
-                    subjects_json = ?, subject = ?, faculty_id = ?, faculty_name = ?, mentor_id = ?
+                    subjects_json = ?, subject = ?, faculty_id = ?, faculty_name = ?, mentor_id = ?,
+                    course_completed = ?
                  WHERE id = ?`, 
                 [
                     name, email || null, contact || null, grade || null, syllabus || null, course || null, hour || null,
@@ -1375,6 +1376,7 @@ module.exports = {
                     school_name || null, preferred_language || null, country || null,
                     total_fees || 0, total_paid || 0,
                     JSON.stringify(finalSubjects), primarySubject, primaryFacultyId, primaryFacultyName, mentor_id || null, 
+                    req.body.course_completed || 0,
                     id
                 ]
             );

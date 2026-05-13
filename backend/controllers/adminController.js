@@ -697,8 +697,8 @@ const updateStudentForAdmin = async (req, res) => {
         const [[oldStudent]] = await db.query('SELECT name FROM students WHERE id = ?', [id]);
 
         const [result] = await db.query(
-            'UPDATE students SET name = ?, email = ?, contact = ?, grade = ?, subject = ?, time_table = ?, next_installment_date = ?, status = ? WHERE id = ?',
-            [name, email, phone_number, grade, subject, timetable, nextInstallment, status, id]
+            'UPDATE students SET name = ?, email = ?, contact = ?, grade = ?, subject = ?, time_table = ?, next_installment_date = ?, status = ?, course_completed = ? WHERE id = ?',
+            [name, email, phone_number, grade, subject, timetable, nextInstallment, status, req.body.course_completed || 0, id]
         );
 
         if (result.affectedRows === 0) {
