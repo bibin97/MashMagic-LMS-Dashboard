@@ -170,34 +170,7 @@ const getPendingUsers = async (req, res) => {
             AND u.role != 'student'
         `);
 
-        // 2. Fetch students specifically from the students table
-        // Students table uses created_at and contact (not phone_number)
-        const [students] = await db.query(`
-            SELECT s.id, s.name, s.email, s.contact as phone_number, 'student' as role, NULL as place, s.status, s.created_at as created_at,
-                   rb.name as registered_by_name
-            FROM students s
-            LEFT JOIN users rb ON s.registeredBy = rb.id
-            WHERE (s.status = 'pending' OR s.isApproved = 0) 
-            AND s.status != 'rejected'
-        `);
-
-        // 3. Combine and ensure uniqueness
-        const combined = [...users, ...students];
-        
-        // Use a Map to filter duplicates by Email (or Name if email is missing)
-        // This handles cases where the same person might be registered multiple times with different IDs
-        const uniqueMap = new Map();
-        combined.forEach(item => {
-            const key = (item.email && item.email.trim() !== '') 
-                ? item.email.toLowerCase().trim() 
-                : `${item.role}_${item.name.toLowerCase().trim()}`;
-                
-            if (!uniqueMap.has(key)) {
-                uniqueMap.set(key, item);
-            }
-        });
-
-        const uniqueRows = Array.from(uniqueMap.values()).map(r => ({
+        const uniqueRows = users.map(r => ({
             ...r,
             created_at: r.created_at || new Date()
         }));
