@@ -36,7 +36,7 @@ const StudentsList = ({ role = 'academic_head' }) => {
 
 	const fetchDropdownData = async () => {
 		try {
-			const res = await api.get(`${apiPath}/dropdown-data`);
+			const res = await api.get(`${apiPath}/dropdowns`);
 			if (res.data.success) {
 				setMentors(res.data.data.mentors || []);
 				setFaculties(res.data.data.faculties || []);
