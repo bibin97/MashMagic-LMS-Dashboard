@@ -179,7 +179,6 @@ function App() {
             <Route path="edit-student/:id" element={<EditStudent />} />
             <Route path="edit-faculty/:id" element={<EditFaculty />} />
             <Route path="mentors" element={<MentorsListAcademic />} />
-            <Route path="staff" element={<StaffManagement />} />
             <Route path="documents" element={<Documents />} />
             <Route path="faculty-audit" element={<FacultyAudit />} />
             <Route path="registrations" element={<Registrations />} />
