@@ -383,10 +383,23 @@ const registerStudent = async (req, res) => {
 
         const onboardingStatus = admissionType === 'existing' ? 'completed' : 'pending';
 
-        const enrollmentType = req.body.enrollmentType || null;
-        const badge = enrollmentType === 'Mentorship' ? 'Gold' : 
-                      enrollmentType === 'Tuition' ? 'Silver' : 
-                      enrollmentType === 'Mentorship and Tuition' ? 'Diamond' : null;
+        const rawEnrollmentType = req.body.enrollmentType || null;
+        let enrollmentType = null;
+        let badge = null;
+
+        if (rawEnrollmentType) {
+            const lowerType = rawEnrollmentType.toLowerCase();
+            if (lowerType === 'mentorship' || lowerType === 'gold') {
+                enrollmentType = 'Mentorship';
+                badge = 'Gold';
+            } else if (lowerType === 'tuition' || lowerType === 'silver') {
+                enrollmentType = 'Tuition';
+                badge = 'Silver';
+            } else if (lowerType === 'both' || lowerType === 'diamond' || lowerType === 'mentorship and tuition' || lowerType === 'mentorship & tuition') {
+                enrollmentType = 'Mentorship and Tuition';
+                badge = 'Diamond';
+            }
+        }
 
         const query = `
             INSERT INTO students (
@@ -398,8 +411,17 @@ const registerStudent = async (req, res) => {
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `;
 
+        // Ensure primarySubject is a string if it's an array
+        const primarySubjectValue = Array.isArray(primarySubject) ? primarySubject.join(', ') : primarySubject;
+
+        // Clean up selectedSubjects for JSON storage (remove large UI-only fields)
+        const cleanedSubjects = (selectedSubjects || []).map(s => {
+            const { availableFaculties, isDayDropdownOpen, isSubjectDropdownOpen, ...rest } = s;
+            return rest;
+        });
+
         const [studentResult] = await db.query(query, [
-            name, email, hashedPassword, userId, grade, syllabus || null, primarySubject, course, hour,
+            name, email, hashedPassword, userId, grade, syllabus || null, primarySubjectValue, course, hour || null,
             mentorId || null, mentorName, primaryFacultyId || null, primaryFacultyName, nextInstallmentDate || null,
             JSON.stringify({}), // Empty timetable initially
             'pending', // Set to pending for approval
@@ -410,7 +432,7 @@ const registerStudent = async (req, res) => {
             registrationNumber || null, // Map to roll_number as well
             meetingLink || null,
             facultyHourlyRate || 0,
-            JSON.stringify(selectedSubjects || []),
+            JSON.stringify(cleanedSubjects),
             enrollmentType,
             badge,
             contact || null,
@@ -430,12 +452,13 @@ const registerStudent = async (req, res) => {
                 const days = sub.days || (sub.day ? [sub.day] : []);
                 for (const day of days) {
                     if (sub.facultyId && day && sub.startTime && sub.endTime) {
+                        const subSubjectValue = Array.isArray(sub.subject) ? sub.subject.join(', ') : sub.subject;
                         await db.query(`
                             INSERT INTO faculty_schedules (
                                 faculty_id, student_id, subject, day_of_week, start_time, end_time, hourly_rate
                             ) VALUES (?, ?, ?, ?, ?, ?, ?)
                         `, [
-                            sub.facultyId, studentId, sub.subject, day, sub.startTime, sub.endTime, sub.hourlyRate || 0
+                            sub.facultyId, studentId, subSubjectValue, day, sub.startTime, sub.endTime, sub.hourlyRate || 0
                         ]);
                     }
                 }

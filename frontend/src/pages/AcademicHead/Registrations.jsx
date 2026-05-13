@@ -21,7 +21,7 @@ const Registrations = () => {
     schoolName: '', preferredLanguage: '', country: '',
     totalFees: '', totalPaid: '', nextInstallmentDate: '', 
     admissionType: 'new', registrationNumber: '', meetingLink: '',
-    enrollmentType: 'mentorship'
+    enrollmentType: 'Mentorship'
   });
 
   const [selectedSubjects, setSelectedSubjects] = useState([
@@ -304,7 +304,7 @@ const Registrations = () => {
           schoolName: '', preferredLanguage: '', country: '',
           totalFees: '', totalPaid: '', nextInstallmentDate: '', 
           admissionType: 'new', registrationNumber: '', meetingLink: '',
-          enrollmentType: 'mentorship'
+          enrollmentType: 'Mentorship'
         });
         setSelectedSubjects([{ subject: '', dayConfigs: [], facultyId: '', facultyName: '', hourlyRate: '', availableFaculties: [] }]);
       }
@@ -563,9 +563,9 @@ const Registrations = () => {
                 <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Enrollment Plan</label>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   {[
-                    { id: 'mentorship', label: 'Mentorship only', icon: '🥇' },
-                    { id: 'tuition', label: 'Tuition only', icon: '🥈' },
-                    { id: 'both', label: 'Mentorship & Tuition', icon: '💎' }
+                    { id: 'Mentorship', label: 'Mentorship only', icon: '🥇' },
+                    { id: 'Tuition', label: 'Tuition only', icon: '🥈' },
+                    { id: 'Mentorship and Tuition', label: 'Mentorship & Tuition', icon: '💎' }
                   ].map((plan) => (
                     <button
                       key={plan.id}
