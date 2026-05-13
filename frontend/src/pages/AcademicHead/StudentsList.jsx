@@ -14,7 +14,7 @@ const StudentsList = ({ role = 'academic_head' }) => {
 	const [loading, setLoading] = useState(true);
 	const [searchTerm, setSearchTerm] = useState('');
 	const [filterCourse, setFilterCourse] = useState('all');
-	const [sortBy, setSortBy] = useState('newest');
+	const [sortBy, setSortBy] = useState('join_newest');
 
 	// Base API path based on role
 	const apiPath = role === 'mentor_head' ? '/mentor-head' : '/academic-head';
@@ -24,11 +24,11 @@ const StudentsList = ({ role = 'academic_head' }) => {
 
 	useEffect(() => {
 		fetchStudents();
-	}, [role, searchTerm, sortBy]);
+	}, [role, searchTerm, sortBy, filterCourse]);
 
 	const fetchStudents = async () => {
 		try {
-			const res = await api.get(`${apiPath}/students-all?search=${searchTerm}&sortBy=${sortBy}`);
+			const res = await api.get(`${apiPath}/students-all?search=${searchTerm}&sortBy=${sortBy}&course=${filterCourse}`);
 			if (res.data.success) {
 				setStudents(res.data.data);
 			}

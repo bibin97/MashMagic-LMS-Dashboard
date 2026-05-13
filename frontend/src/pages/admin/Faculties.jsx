@@ -223,6 +223,11 @@ const Faculties = () => {
  loading={loading}
  onSearch={handleSearch}
  onExport={handleExport}
+ onView={handleView}
+ onEdit={isSuperAdmin ? handleEdit : undefined}
+ onDelete={isSuperAdmin ? handleDelete : undefined}
+ onApprove={isSuperAdmin ? handleApprove : undefined}
+ onBlock={isSuperAdmin ? handleBlock : undefined}
  searchPlaceholder="Search leads by name or email..."
  />
 

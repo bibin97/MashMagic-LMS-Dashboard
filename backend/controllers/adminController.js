@@ -864,8 +864,44 @@ const createSubAdmin = async (req, res) => {
         res.status(500).json({ success: false, message: error.message });
     }
 };
+// @desc    Create Staff Member (Mentor, Faculty, Head, etc.)
+// @route   POST /api/admin/staff
+const createStaffMember = async (req, res) => {
+    try {
+        if (req.user.role !== 'admin' && req.user.role !== 'super_admin') {
+            return res.status(403).json({ success: false, message: "Access Denied. Authority insufficient." });
+        }
 
-// @desc    Update Sub Admin
+        const { name, email, password, phone_number, role, status, permissions } = req.body;
+
+        if (!name || !email || !password || !role) {
+            return res.status(400).json({ success: false, message: "Name, Email, Password and Role are required" });
+        }
+
+        // Security check: cannot create super_admin or student here
+        if (['super_admin', 'student'].includes(role)) {
+            return res.status(400).json({ success: false, message: "Invalid role for this operation" });
+        }
+
+        const [existing] = await db.query('SELECT id FROM users WHERE email = ?', [email]);
+        if (existing.length > 0) {
+            return res.status(400).json({ success: false, message: "Email already registered" });
+        }
+
+        const bcrypt = require('bcrypt');
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
+
+        const [result] = await db.query(
+            'INSERT INTO users (name, email, password, phone_number, role, status, isActive, createdBy, permissions) VALUES (?, ?, ?, ?, ?, ?, 1, ?, ?)',
+            [name, email, hashedPassword, phone_number, role, status || 'active', req.user.id, permissions ? JSON.stringify(permissions) : null]
+        );
+
+        res.status(201).json({ success: true, message: `${role} created successfully`, id: result.insertId });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
 // @route   PUT /api/admin/sub-admins/:id
 const updateSubAdmin = async (req, res) => {
     try {
@@ -941,7 +977,7 @@ const deleteSubAdmin = async (req, res) => {
 const getAllMentorsForAdmin = async (req, res) => {
     try {
         const { startDate, endDate, category } = req.query;
-        let whereClauses = ["u.role = 'mentor'", "u.status = 'active'"];
+        let whereClauses = ["u.role = 'mentor'"];
         let params = [];
 
         if (startDate) {
@@ -968,8 +1004,8 @@ const getAllMentorsForAdmin = async (req, res) => {
                 (SELECT COUNT(*) FROM student_interaction_logs sil WHERE sil.mentor_id = u.id) as logsReportCount,
                 (SELECT COUNT(DISTINCT s.faculty_id) FROM students s WHERE s.mentor_id = u.id AND s.faculty_id IS NOT NULL AND s.status = 'active') as facultyCount,
                 (SELECT COUNT(*) FROM students s WHERE s.mentor_id = u.id AND LOWER(s.performance_status) = 'critical' AND s.status = 'active') as criticalStudentsCount
-            FROM users u
-            WHERE ${whereClauses.join(' AND ')}
+            FROM mentors u
+            WHERE ${whereClauses.join(' AND ').replace(/u\.role = 'mentor' AND? /g, '')}
             ORDER BY u.name ASC
         `;
         const [rows] = await db.query(query, params);
@@ -988,9 +1024,11 @@ const getAllMentorsForAdmin = async (req, res) => {
 const getStaffMembers = async (req, res) => {
     try {
         const query = `
-            SELECT id, name, email, phone_number as phone, role, status, createdAt as created_at
-            FROM users
-            WHERE role NOT IN ('student', 'sub_admin', 'super_admin') AND status = 'active'
+            SELECT id, name, email, phone_number as phone, role, status, createdAt as created_at FROM users
+            UNION ALL
+            SELECT id, name, email, phone as phone, role, status, createdAt as created_at FROM mentors
+            UNION ALL
+            SELECT id, name, email, phone as phone, role, status, createdAt as created_at FROM faculties
             ORDER BY role ASC, name ASC
         `;
         const [rows] = await db.query(query);
@@ -1009,8 +1047,8 @@ const getAllFacultiesForAdmin = async (req, res) => {
                 u.id, u.name, u.email, u.phone_number as phone, u.status,
                 (SELECT COUNT(*) FROM students s WHERE s.faculty_id = u.id AND s.status = 'active') as studentsUnder,
                 (SELECT COUNT(DISTINCT s.mentor_id) FROM students s WHERE s.faculty_id = u.id AND s.mentor_id IS NOT NULL AND s.status = 'active') as mentorsUnder
-            FROM users u
-            WHERE u.role = 'faculty' AND u.status = 'active'
+            FROM faculties u
+            WHERE 1=1
             ORDER BY u.name ASC
         `;
         const [rows] = await db.query(query);

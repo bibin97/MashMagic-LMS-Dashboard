@@ -53,6 +53,56 @@ const startServer = async () => {
         // Test database connection
         const [rows] = await pool.query('SELECT 1');
         console.log('✅ Database connected successfully');
+        
+        // --- START OF CUSTOM MIGRATION ---
+        try {
+            console.log('📦 Starting Mentor/Faculty Migration...');
+            const [tables] = await pool.query('SHOW TABLES');
+            const tableList = tables.map(t => Object.values(t)[0]);
+
+            if (!tableList.includes('mentors')) {
+                await pool.query('CREATE TABLE mentors LIKE users');
+                console.log('✔ Mentors table structure created.');
+            }
+            if (!tableList.includes('faculties')) {
+                await pool.query('CREATE TABLE faculties LIKE users');
+                console.log('✔ Faculties table structure created.');
+            }
+
+            // Move Mentor data
+            const [mentorsInUsers] = await pool.query('SELECT COUNT(*) as count FROM users WHERE role = "mentor"');
+            if (mentorsInUsers[0].count > 0) {
+                await pool.query('INSERT IGNORE INTO mentors SELECT * FROM users WHERE role = "mentor"');
+                console.log(`✔ ${mentorsInUsers[0].count} mentors migrated.`);
+                await pool.query('DELETE FROM users WHERE role = "mentor"');
+            }
+
+            // Move Faculty data
+            const [facultiesInUsers] = await pool.query('SELECT COUNT(*) as count FROM users WHERE role = "faculty"');
+            if (facultiesInUsers[0].count > 0) {
+                await pool.query('INSERT IGNORE INTO faculties SELECT * FROM users WHERE role = "faculty"');
+                console.log(`✔ ${facultiesInUsers[0].count} faculties migrated.`);
+                await pool.query('DELETE FROM users WHERE role = "faculty"');
+            }
+
+            // Move Student data (ensuring email/password/role/status etc are in students table)
+            const [studentsInUsers] = await pool.query('SELECT COUNT(*) as count FROM users WHERE role = "student"');
+            if (studentsInUsers[0].count > 0) {
+                // We update existing student rows in 'students' table with login info from 'users'
+                await pool.query(`
+                    UPDATE students s 
+                    JOIN users u ON s.user_id = u.id OR s.email = u.email
+                    SET s.email = u.email, s.password = u.password, s.status = u.status, s.isApproved = u.isApproved 
+                    WHERE u.role = "student"
+                `);
+                console.log(`✔ ${studentsInUsers[0].count} students login info synced.`);
+                await pool.query('DELETE FROM users WHERE role = "student"');
+            }
+            console.log('✅ Migration process completed.');
+        } catch (migErr) {
+            console.error('❌ Migration logic error:', migErr.message);
+        }
+        // --- END OF CUSTOM MIGRATION ---
 
         // Automatic DB Schema Expansion for live environments
         try {
@@ -163,11 +213,24 @@ const startServer = async () => {
                 'ALTER TABLE students ADD COLUMN priority_category ENUM("High", "Medium", "Stable") DEFAULT "Stable";',
                 'ALTER TABLE students ADD COLUMN last_session_type ENUM("DEEP", "MEDIUM", "QUICK") NULL;',
                 'ALTER TABLE students ADD COLUMN last_session_date DATE NULL;',
-                'ALTER TABLE students ADD COLUMN mentor_name VARCHAR(100) NULL;',
-                'ALTER TABLE students ADD COLUMN roll_number VARCHAR(50) NULL;',
-                'ALTER TABLE students ADD COLUMN registration_number VARCHAR(100) NULL;',
                 'ALTER TABLE students ADD COLUMN performance_status ENUM("Excellent", "Good", "Average", "Critical") DEFAULT "Good";',
                 'ALTER TABLE students ADD COLUMN course_completed TINYINT(1) DEFAULT 0;',
+
+                // Reordering Columns for Students Table
+                'ALTER TABLE students MODIFY COLUMN registration_number VARCHAR(100) AFTER id;',
+                'ALTER TABLE students MODIFY COLUMN name VARCHAR(255) AFTER registration_number;',
+                'ALTER TABLE students MODIFY COLUMN email VARCHAR(255) AFTER name;',
+                'ALTER TABLE students MODIFY COLUMN password VARCHAR(255) AFTER email;',
+                'ALTER TABLE students MODIFY COLUMN grade VARCHAR(100) AFTER password;',
+                'ALTER TABLE students MODIFY COLUMN subject VARCHAR(100) AFTER grade;',
+                'ALTER TABLE students MODIFY COLUMN course VARCHAR(100) AFTER subject;',
+                'ALTER TABLE students MODIFY COLUMN mentor_id INT AFTER course;',
+                'ALTER TABLE students MODIFY COLUMN mentor_name VARCHAR(100) AFTER mentor_id;',
+                'ALTER TABLE students MODIFY COLUMN faculty_id INT AFTER mentor_name;',
+                'ALTER TABLE students MODIFY COLUMN faculty_name VARCHAR(100) AFTER faculty_id;',
+                
+                // Move less important columns to the end
+                'ALTER TABLE students MODIFY COLUMN roll_number VARCHAR(50) AFTER profile_pic;',
 
                 `CREATE TABLE IF NOT EXISTS daily_assignments (
                     id INT AUTO_INCREMENT PRIMARY KEY,

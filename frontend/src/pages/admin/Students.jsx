@@ -279,10 +279,10 @@ const Students = () => {
         onSearch={handleSearch}
         onExport={handleExport}
         onView={handleView}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
-        onApprove={handleApprove}
-        onBlock={handleBlock}
+        onEdit={isSuperAdmin ? handleEdit : undefined}
+        onDelete={isSuperAdmin ? handleDelete : undefined}
+        onApprove={isSuperAdmin ? handleApprove : undefined}
+        onBlock={isSuperAdmin ? handleBlock : undefined}
         searchPlaceholder="Search by name, email or reg #"
       />
 

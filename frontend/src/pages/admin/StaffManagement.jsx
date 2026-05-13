@@ -171,6 +171,8 @@ const StaffManagement = () => {
  loading={loading}
  onSearch={handleSearch}
  onExport={handleExport}
+ onView={handleView}
+ onViewFilter={(row) => !['mentor', 'faculty'].includes(row.role)}
  onDelete={isSuperAdmin ? handleDelete : undefined}
  onEdit={isSuperAdmin ? handleEdit : undefined}
  searchPlaceholder="Search by name, email or role..."
@@ -239,6 +241,9 @@ const StaffManagement = () => {
  <option value="faculty">Faculty</option>
  <option value="mentor_head">Mentor Head</option>
  <option value="academic_head">Academic Head</option>
+ <option value="ssc">SSC</option>
+ <option value="super_admin">Super Admin</option>
+ <option value="sub_admin">Sub Admin</option>
  </select>
  </div>
  </div>

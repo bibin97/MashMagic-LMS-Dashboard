@@ -14,6 +14,11 @@ const DataTable = ({
  onBlock,
  onDelete,
  onEdit,
+ onViewFilter,
+ onEditFilter,
+ onDeleteFilter,
+ onApproveFilter,
+ onBlockFilter,
  searchPlaceholder = "Search records...",
  filterValue,
  onFilterChange,
@@ -124,7 +129,7 @@ const DataTable = ({
  {hasActions && (
  <td className="px-8 py-6 text-center">
  <div className="flex justify-center items-center gap-2">
- {onView && (
+ {onView && (onViewFilter ? onViewFilter(row) : true) && (
  <button
  className="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-[#008080] hover:bg-[#008080]/10 rounded-[12px] transition-all hover:scale-110 active:scale-95"
  onClick={() => onView(row)}
@@ -134,7 +139,7 @@ const DataTable = ({
  </button>
  )}
 
- {onEdit && (
+ {onEdit && (onEditFilter ? onEditFilter(row) : true) && (
  <button
  className="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-[#008080] hover:bg-[#008080]/10 rounded-[12px] transition-all hover:scale-110 active:scale-95"
  onClick={() => onEdit(row)}
@@ -144,7 +149,7 @@ const DataTable = ({
  </button>
  )}
 
- {onApprove && row.status !== 'active' && (
+ {onApprove && row.status !== 'active' && (onApproveFilter ? onApproveFilter(row) : true) && (
  <button
  className="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-[12px] transition-all hover:scale-110 active:scale-95"
  onClick={() => onApprove(row)}
@@ -154,7 +159,7 @@ const DataTable = ({
  </button>
  )}
 
- {onBlock && row.status !== 'blocked' && (
+ {onBlock && row.status !== 'blocked' && (onBlockFilter ? onBlockFilter(row) : true) && (
  <button
  className="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-[#F59E0B] hover:bg-[#F59E0B]/10 rounded-[12px] transition-all hover:scale-110 active:scale-95"
  onClick={() => onBlock(row)}
@@ -164,7 +169,7 @@ const DataTable = ({
  </button>
  )}
 
- {onDelete && (
+ {onDelete && (onDeleteFilter ? onDeleteFilter(row) : true) && (
  <button
  className="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-[12px] transition-all hover:scale-110 active:scale-95"
  onClick={() => onDelete(row)}
@@ -209,7 +214,7 @@ const DataTable = ({
  {columns[0].render ? columns[0].render(row) : row[columns[0].accessor]}
  </div>
  </div>
- {onView && (
+ {onView && (onViewFilter ? onViewFilter(row) : true) && (
  <div className="pl-4">
  <button 
  className="w-10 h-10 flex items-center justify-center bg-[#008080]/10 text-[#008080] rounded-xl"
@@ -236,23 +241,23 @@ const DataTable = ({
  {/* Action Row */}
  {(onEdit || onApprove || onBlock || onDelete) && (
  <div className="flex items-center gap-2 pt-4 justify-end">
- {onEdit && (
+ {onEdit && (onEditFilter ? onEditFilter(row) : true) && (
  <button className="flex-1 py-3 px-4 rounded-xl bg-slate-50 text-slate-500 text-[10px] font-black uppercase tracking-widest border border-slate-100 flex items-center justify-center gap-2" onClick={() => onEdit(row)}>
  <Pencil size={14} /> Edit
  </button>
  )}
- {onApprove && row.status !== 'active' && (
+ {onApprove && row.status !== 'active' && (onApproveFilter ? onApproveFilter(row) : true) && (
  <button className="flex-1 py-3 px-4 rounded-xl bg-emerald-50 text-emerald-600 text-[10px] font-black uppercase tracking-widest border border-emerald-100 flex items-center justify-center gap-2" onClick={() => onApprove(row)}>
  <CheckCircle size={14} /> Approve
  </button>
  )}
  <div className="flex gap-2">
- {onBlock && row.status !== 'blocked' && (
+ {onBlock && row.status !== 'blocked' && (onBlockFilter ? onBlockFilter(row) : true) && (
  <button className="w-10 h-10 flex items-center justify-center bg-amber-50 text-amber-600 rounded-xl border border-amber-100" onClick={() => onBlock(row)}>
  <Ban size={16} />
  </button>
  )}
- {onDelete && (
+ {onDelete && (onDeleteFilter ? onDeleteFilter(row) : true) && (
  <button className="w-10 h-10 flex items-center justify-center bg-rose-50 text-rose-600 rounded-xl border border-rose-100" onClick={() => onDelete(row)}>
  <Trash2 size={16} />
  </button>

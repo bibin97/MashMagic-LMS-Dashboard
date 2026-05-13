@@ -1322,19 +1322,55 @@ exports.getFaculties = async (req, res) => {
 
 exports.getStudents = async (req, res) => {
     try {
-        const { mentor_id } = req.query;
-        let query = 'SELECT s.*, m.name as mentor_name, f.name as faculty_name FROM students s LEFT JOIN users m ON s.mentor_id = m.id LEFT JOIN users f ON s.faculty_id = f.id';
+        const { mentor_id, search, sortBy, course, enrollment_type } = req.query;
+        let query = `
+            SELECT s.*, m.name as mentor_name, f.name as faculty_name 
+            FROM students s 
+            LEFT JOIN users m ON s.mentor_id = m.id 
+            LEFT JOIN users f ON s.faculty_id = f.id
+            WHERE 1=1
+        `;
         let params = [];
         
         if (mentor_id) {
-            query += ' WHERE s.mentor_id = ?';
+            query += ' AND s.mentor_id = ?';
             params.push(mentor_id);
         }
-        
-        query += ' ORDER BY s.created_at DESC';
+
+        if (course && course !== 'all') {
+            query += ' AND s.course = ?';
+            params.push(course);
+        }
+
+        if (enrollment_type && enrollment_type !== 'all') {
+            query += ' AND s.enrollment_type = ?';
+            params.push(enrollment_type);
+        }
+
+        if (search) {
+            query += ' AND (s.name LIKE ? OR s.registration_number LIKE ? OR s.grade LIKE ?)';
+            params.push(`%${search}%`, `%${search}%`, `%${search}%`);
+        }
+
+        // Standardized Sorting logic
+        if (sortBy === 'join_oldest' || sortBy === 'oldest') {
+            query += ' ORDER BY s.created_at ASC';
+        } else if (sortBy === 'join_newest' || sortBy === 'newest') {
+            query += ' ORDER BY s.created_at DESC';
+        } else if (sortBy === 'active_first') {
+            query += ' ORDER BY CASE WHEN LOWER(s.status) = "active" THEN 0 ELSE 1 END, s.created_at DESC';
+        } else if (sortBy === 'inactive_first') {
+            query += ' ORDER BY CASE WHEN LOWER(s.status) != "active" THEN 0 ELSE 1 END, s.created_at DESC';
+        } else {
+            query += ' ORDER BY s.created_at DESC';
+        }
+
         const [rows] = await db.query(query, params);
         res.status(200).json({ success: true, data: rows });
-    } catch (error) { res.status(500).json({ success: false, message: error.message }); }
+    } catch (error) { 
+        console.error("GET_STUDENTS_MENTOR_ERROR:", error);
+        res.status(500).json({ success: false, message: error.message }); 
+    }
 };
 
 exports.editFaculty = async (req, res) => {

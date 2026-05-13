@@ -291,6 +291,7 @@ const getDropdownData = async (req, res) => {
 // @desc    Register a new student
 // @route   POST /api/academic-head/register-student
 const registerStudent = async (req, res) => {
+    const connection = await db.getConnection();
     try {
         const {
             name, email, contact, password, grade, syllabus, mentorId, course, hour, nextInstallmentDate, admissionType,
@@ -299,15 +300,16 @@ const registerStudent = async (req, res) => {
         } = req.body;
 
         if (!req.user || !req.user.id) {
+            connection.release();
             return res.status(401).json({ success: false, message: "User session invalid. Please re-login." });
         }
 
-        // 1. Create User account for student first (Only if password/email provided or using defaults)
+        // 1. Prepare User Credentials
         const salt = await bcrypt.genSalt(10);
         const passwordToHash = (password && password.trim() !== '') ? password.trim() : "student123";
         const hashedPassword = await bcrypt.hash(passwordToHash, salt);
 
-        // Check if student already exists in users or students table
+        // Check for existing user/student
         const contactCheck = contact ? contact.trim() : null;
         const emailCheck = (email && email.trim() !== '') ? email.trim() : null;
         const regNumCheck = (registrationNumber && registrationNumber.trim() !== '') ? registrationNumber.trim() : null;
@@ -331,13 +333,12 @@ const registerStudent = async (req, res) => {
                 studentParams.push(contactCheck);
             }
             if (regNumCheck) {
-                // Also check registration_number in students table
                 studentCheckQuery += ' OR registration_number = ?';
                 studentParams.push(regNumCheck);
             }
 
-            const [existingUsers] = await db.query(userCheckQuery, checkParams);
-            const [existingStudents] = await db.query(studentCheckQuery, studentParams);
+            const [existingUsers] = await connection.query(userCheckQuery, checkParams);
+            const [existingStudents] = await connection.query(studentCheckQuery, studentParams);
 
             if (existingUsers.length > 0 || existingStudents.length > 0) {
                 let duplicateField = '';
@@ -350,6 +351,7 @@ const registerStudent = async (req, res) => {
                 }
 
                 if (duplicateField) {
+                    connection.release();
                     return res.status(400).json({ 
                         success: false, 
                         message: `Registration Failed: A student is already registered with this ${duplicateField}.` 
@@ -358,20 +360,24 @@ const registerStudent = async (req, res) => {
             }
         }
 
-        const [userResult] = await db.query(
+        // START TRANSACTION
+        await connection.beginTransaction();
+
+        // 2. Create User account
+        const [userResult] = await connection.query(
             'INSERT INTO users (name, email, phone_number, password, role, status, isApproved, isActive, registeredBy) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
-            [name, (email && email.trim() !== '') ? email : null, contact || null, hashedPassword, 'student', 'pending', 0, 0, req.user.id]
+            [name, emailCheck, contactCheck, hashedPassword, 'student', 'pending', 0, 0, req.user.id]
         );
         const userId = userResult.insertId;
 
-        // 2. Fetch names for legacy columns
+        // 3. Fetch names for legacy columns
         let mentorName = null;
         let primaryFacultyId = null;
         let primaryFacultyName = null;
         let primarySubject = null;
 
         if (mentorId) {
-            const [mRows] = await db.query('SELECT name FROM users WHERE id = ?', [mentorId]);
+            const [mRows] = await connection.query('SELECT name FROM users WHERE id = ?', [mentorId]);
             if (mRows.length) mentorName = mRows[0].name;
         }
 
@@ -401,7 +407,17 @@ const registerStudent = async (req, res) => {
             }
         }
 
-        const query = `
+        // Clean up selectedSubjects for JSON storage
+        const cleanedSubjects = (selectedSubjects || []).map(s => {
+            const { availableFaculties, isDayDropdownOpen, isSubjectDropdownOpen, ...rest } = s;
+            return rest;
+        });
+
+        // Ensure primarySubject is a string if it's an array
+        const primarySubjectValue = Array.isArray(primarySubject) ? primarySubject.join(', ') : primarySubject;
+
+        // 4. Create Student Profile
+        const studentQuery = `
             INSERT INTO students (
                 name, email, password, user_id, grade, syllabus, subject, course, hour, 
                 mentor_id, mentor_name, faculty_id, faculty_name, next_installment_date,
@@ -411,31 +427,22 @@ const registerStudent = async (req, res) => {
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `;
 
-        // Ensure primarySubject is a string if it's an array
-        const primarySubjectValue = Array.isArray(primarySubject) ? primarySubject.join(', ') : primarySubject;
-
-        // Clean up selectedSubjects for JSON storage (remove large UI-only fields)
-        const cleanedSubjects = (selectedSubjects || []).map(s => {
-            const { availableFaculties, isDayDropdownOpen, isSubjectDropdownOpen, ...rest } = s;
-            return rest;
-        });
-
-        const [studentResult] = await db.query(query, [
-            name, email, hashedPassword, userId, grade, syllabus || null, primarySubjectValue, course, hour || null,
+        const [studentResult] = await connection.query(studentQuery, [
+            name, emailCheck, hashedPassword, userId, grade, syllabus || null, primarySubjectValue, course, hour || null,
             mentorId || null, mentorName, primaryFacultyId || null, primaryFacultyName, nextInstallmentDate || null,
-            JSON.stringify({}), // Empty timetable initially
-            'pending', // Set to pending for approval
+            JSON.stringify({}), 
+            'pending', 
             onboardingStatus,
-            0, // Requires approval
-            req.user.id, // Registering user ID
-            registrationNumber || null,
-            registrationNumber || null, // Map to roll_number as well
+            0, 
+            req.user.id, 
+            regNumCheck,
+            regNumCheck, 
             meetingLink || null,
             facultyHourlyRate || 0,
             JSON.stringify(cleanedSubjects),
             enrollmentType,
             badge,
-            contact || null,
+            contactCheck,
             admissionDate || null,
             schoolName || null,
             preferredLanguage || null,
@@ -446,14 +453,14 @@ const registerStudent = async (req, res) => {
 
         const studentId = studentResult.insertId;
 
-        // 3. Register Faculty Weekly Schedules
+        // 5. Register Faculty Weekly Schedules
         if (selectedSubjects && selectedSubjects.length > 0) {
             for (const sub of selectedSubjects) {
                 const days = sub.days || (sub.day ? [sub.day] : []);
                 for (const day of days) {
                     if (sub.facultyId && day && sub.startTime && sub.endTime) {
                         const subSubjectValue = Array.isArray(sub.subject) ? sub.subject.join(', ') : sub.subject;
-                        await db.query(`
+                        await connection.query(`
                             INSERT INTO faculty_schedules (
                                 faculty_id, student_id, subject, day_of_week, start_time, end_time, hourly_rate
                             ) VALUES (?, ?, ?, ?, ?, ?, ?)
@@ -465,29 +472,36 @@ const registerStudent = async (req, res) => {
             }
         }
 
-        // Schedule first session for each faculty if mentor exists
+        // 6. Mentor Timetable Entry (Sync with initial session)
         if (mentorId && selectedSubjects && selectedSubjects.length > 0) {
             for (const sub of selectedSubjects) {
-                await db.query(`
+                const subSubjectValue = Array.isArray(sub.subject) ? sub.subject.join(', ') : sub.subject;
+                await connection.query(`
                     INSERT INTO mentor_timetable (
                         mentor_id, student_id, session_number, date, status, 
-                        chapter, start_time, end_time, duration, session_type
-                    ) VALUES (?, ?, ?, CURDATE(), ?, ?, ?, ?, ?, ?)
+                        chapter, start_time, end_time, duration, session_type, subject
+                    ) VALUES (?, ?, ?, CURDATE(), ?, ?, ?, ?, ?, ?, ?)
                 `, [
                     mentorId, studentId, 1, 'Scheduled',
-                    `Initial Session: ${sub.subject}`, sub.startTime || '10:00', sub.endTime || '11:00', '1h 0m', 'Regular Class'
+                    `Initial Session: ${subSubjectValue}`, sub.startTime || '10:00', sub.endTime || '11:00', '1h 0m', 'Regular Class', subSubjectValue
                 ]);
             }
         }
 
-        // Notify Admin
+        // 7. Notify Admin
         const msg = `<b>Academic Update:</b> <span style="color:#008080">${req.user.name}</span> registered a new student <b>${name}</b> for ${course}. <span style="color:#f59e0b">(Pending Approval)</span>`;
-        await db.query('INSERT INTO admin_notifications (message, related_id, action_type) VALUES (?, ?, ?)', [msg, studentId, 'student_registration']);
+        await connection.query('INSERT INTO admin_notifications (message, related_id, action_type) VALUES (?, ?, ?)', [msg, studentId, 'student_registration']);
+
+        // COMMIT TRANSACTION
+        await connection.commit();
+        connection.release();
 
         res.status(201).json({ success: true, message: "Student registered successfully. Pending Admin approval." });
     } catch (error) {
-        console.error('Error in registerStudent:', error);
-        res.status(500).json({ success: false, message: "Server Error", error: error.message });
+        await connection.rollback();
+        connection.release();
+        console.error('Error in registerStudent TRANSACTION:', error);
+        res.status(500).json({ success: false, message: "Registration failed, please try again.", error: error.message });
     }
 };
 
@@ -1482,7 +1496,7 @@ module.exports = {
     },
     getStudents: async (req, res) => {
         try {
-            const { mentor_id, search, sortBy } = req.query;
+            const { mentor_id, search, sortBy, course, enrollment_type } = req.query;
             let query = `
                 SELECT s.*, u_m.name as mentor_name, u_f.name as faculty_name,
                 (SELECT AVG(CAST(score AS DECIMAL(10,2))) FROM student_exams WHERE student_id = s.id AND status = 'Completed') as avg_score
@@ -1498,13 +1512,30 @@ module.exports = {
                 params.push(mentor_id);
             }
 
-            if (search) {
-                query += ' AND (s.name LIKE ? OR s.registration_number LIKE ?)';
-                params.push(`%${search}%`, `%${search}%`);
+            if (course && course !== 'all') {
+                query += ' AND s.course = ?';
+                params.push(course);
             }
 
-            if (sortBy === 'oldest') {
+            if (enrollment_type && enrollment_type !== 'all') {
+                query += ' AND s.enrollment_type = ?';
+                params.push(enrollment_type);
+            }
+
+            if (search) {
+                query += ' AND (s.name LIKE ? OR s.registration_number LIKE ? OR s.grade LIKE ?)';
+                params.push(`%${search}%`, `%${search}%`, `%${search}%`);
+            }
+
+            // Standardized Sorting logic
+            if (sortBy === 'join_oldest' || sortBy === 'oldest') {
                 query += ' ORDER BY s.created_at ASC';
+            } else if (sortBy === 'join_newest' || sortBy === 'newest') {
+                query += ' ORDER BY s.created_at DESC';
+            } else if (sortBy === 'active_first') {
+                query += ' ORDER BY CASE WHEN LOWER(s.status) = "active" THEN 0 ELSE 1 END, s.created_at DESC';
+            } else if (sortBy === 'inactive_first') {
+                query += ' ORDER BY CASE WHEN LOWER(s.status) != "active" THEN 0 ELSE 1 END, s.created_at DESC';
             } else {
                 query += ' ORDER BY s.created_at DESC';
             }
@@ -1525,7 +1556,10 @@ module.exports = {
             });
 
             res.status(200).json({ success: true, data: enrichedRows });
-        } catch (error) { res.status(500).json({ success: false, message: error.message }); }
+        } catch (error) { 
+            console.error("GET_STUDENTS_ACADEMIC_ERROR:", error);
+            res.status(500).json({ success: false, message: error.message }); 
+        }
     },
     getMentors: async (req, res) => {
         try {

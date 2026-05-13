@@ -1,22 +1,52 @@
 const db = require('../config/db');
 
 const User = {
-    // Find user by email or phone number
+    // Find user by email or phone number across all relevant tables
     findByIdentifier: async (identifier) => {
-        const [rows] = await db.query(
+        // Check users table (Admins)
+        let [rows] = await db.query(
             'SELECT * FROM users WHERE email = ? OR phone_number = ?',
             [identifier, identifier]
         );
-        return rows[0];
+        if (rows.length > 0) return rows[0];
+
+        // Check mentors table
+        [rows] = await db.query(
+            'SELECT * FROM mentors WHERE email = ? OR phone_number = ?',
+            [identifier, identifier]
+        );
+        if (rows.length > 0) return rows[0];
+
+        // Check faculties table
+        [rows] = await db.query(
+            'SELECT * FROM faculties WHERE email = ? OR phone_number = ?',
+            [identifier, identifier]
+        );
+        if (rows.length > 0) return rows[0];
+
+        // Check students table
+        [rows] = await db.query(
+            'SELECT * FROM students WHERE email = ? OR phone_number = ?',
+            [identifier, identifier]
+        );
+        if (rows.length > 0) return { ...rows[0], role: 'student' }; // Ensure role is 'student'
+
+        return null;
     },
 
-    // Create a new user
+    // Create a new user in the appropriate table
     create: async (userData) => {
         const {
             name, phone_number = null, place = null, email = null,
             password, role = 'user', status = 'pending',
             registeredBy = null, isApproved = 0, enrollment_type = null, badge = null
         } = userData;
+
+        // Determine target table
+        let targetTable = 'users';
+        if (role === 'mentor') targetTable = 'mentors';
+        else if (role === 'faculty') targetTable = 'faculties';
+        else if (role === 'student') targetTable = 'students';
  
         const subjectsList = [userData.primary_subject, ...(userData.secondary_subjects || [])].filter(Boolean);
         const subjectValue = subjectsList.length > 0 ? subjectsList.join(',') : ((userData.subjects && Array.isArray(userData.subjects)) ? userData.subjects.join(',') : (userData.subject || null));
@@ -24,7 +54,7 @@ const User = {
         const hourlyRateValue = Array.isArray(userData.hourly_rates) ? userData.hourly_rates.join(',') : (userData.hourly_rate || 0);
 
         const [result] = await db.query(
-            `INSERT INTO users (
+            `INSERT INTO ${targetTable} (
                 name, phone_number, place, email, password, role, status, isApproved, isActive, 
                 grade, subject, course, hour, mentor_name, faculty_name, next_installment_date, 
                 time_table, enrollment_type, badge, meeting_link, registeredBy,
@@ -44,10 +74,21 @@ const User = {
         return result.insertId;
     },
 
-    // Find user by ID
+    // Find user by ID across all relevant tables
     findById: async (id) => {
-        const [rows] = await db.query('SELECT * FROM users WHERE id = ?', [id]);
-        return rows[0];
+        let [rows] = await db.query('SELECT * FROM users WHERE id = ?', [id]);
+        if (rows.length > 0) return rows[0];
+
+        [rows] = await db.query('SELECT * FROM mentors WHERE id = ?', [id]);
+        if (rows.length > 0) return rows[0];
+
+        [rows] = await db.query('SELECT * FROM faculties WHERE id = ?', [id]);
+        if (rows.length > 0) return rows[0];
+
+        [rows] = await db.query('SELECT * FROM students WHERE id = ?', [id]);
+        if (rows.length > 0) return { ...rows[0], role: 'student' };
+
+        return null;
     }
 };
 
