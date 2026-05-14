@@ -1240,9 +1240,11 @@ exports.editStudent = async (req, res) => {
         let primarySubject = null;
 
         if (finalSubjects.length > 0) {
-            primaryFacultyId = finalSubjects[0].facultyId;
-            primaryFacultyName = finalSubjects[0].facultyName;
-            primarySubject = Array.isArray(finalSubjects[0].subject) ? finalSubjects[0].subject.join(', ') : finalSubjects[0].subject;
+            primaryFacultyId = finalSubjects[0].facultyId || null;
+            primaryFacultyName = finalSubjects[0].facultyName || null;
+            primarySubject = Array.isArray(finalSubjects[0].subject) 
+                ? (finalSubjects[0].subject.length > 0 ? finalSubjects[0].subject.join(', ') : null) 
+                : (finalSubjects[0].subject || null);
         }
 
         // Sync Badge with Enrollment Type
@@ -1267,7 +1269,7 @@ exports.editStudent = async (req, res) => {
                 finalMeetingLink || null, enrollment_type || null, badge,
                 school_name || null, preferred_language || null, country || null,
                 total_fees || 0, total_paid || 0,
-                JSON.stringify(finalSubjects), primarySubject, primaryFacultyId, primaryFacultyName, mentor_id || null, 
+                JSON.stringify(finalSubjects), primarySubject || null, primaryFacultyId || null, primaryFacultyName || null, mentor_id || null, 
                 req.body.course_completed || 0,
                 id
             ]
@@ -1295,7 +1297,9 @@ exports.editStudent = async (req, res) => {
 
         if (finalSubjects && Array.isArray(finalSubjects) && finalSubjects.length > 0) {
             for (const sub of finalSubjects) {
-                const subjectStr = Array.isArray(sub.subject) ? sub.subject.join(', ') : sub.subject;
+                const subjectStr = Array.isArray(sub.subject) 
+                    ? (sub.subject.length > 0 ? sub.subject.join(', ') : null) 
+                    : (sub.subject || null);
                 
                 if (sub.dayConfigs && Array.isArray(sub.dayConfigs) && sub.dayConfigs.length > 0) {
                     for (const config of sub.dayConfigs) {
