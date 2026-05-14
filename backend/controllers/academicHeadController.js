@@ -396,7 +396,7 @@ const editStudent = async (req, res) => {
         if (finalSubjects.length > 0) {
             primaryFacultyId = finalSubjects[0].facultyId;
             primaryFacultyName = finalSubjects[0].facultyName;
-            primarySubject = finalSubjects[0].subject;
+            primarySubject = Array.isArray(finalSubjects[0].subject) ? finalSubjects[0].subject.join(', ') : finalSubjects[0].subject;
         }
 
         // Sync Badge with Enrollment Type
@@ -449,16 +449,32 @@ const editStudent = async (req, res) => {
 
         if (finalSubjects && Array.isArray(finalSubjects) && finalSubjects.length > 0) {
             for (const sub of finalSubjects) {
-                const days = sub.days || (sub.day ? [sub.day] : []);
-                for (const day of days) {
-                    if (sub.facultyId && day && sub.startTime && sub.endTime) {
-                        await db.query(`
-                            INSERT INTO faculty_schedules (
-                                faculty_id, student_id, subject, day_of_week, start_time, end_time, hourly_rate
-                            ) VALUES (?, ?, ?, ?, ?, ?, ?)
-                        `, [
-                            sub.facultyId, id, sub.subject, day, sub.startTime, sub.endTime, sub.hourlyRate || 0
-                        ]);
+                const subjectStr = Array.isArray(sub.subject) ? sub.subject.join(', ') : sub.subject;
+                
+                if (sub.dayConfigs && Array.isArray(sub.dayConfigs) && sub.dayConfigs.length > 0) {
+                    for (const config of sub.dayConfigs) {
+                        if (sub.facultyId && config.day && config.startTime && config.endTime) {
+                            await db.query(`
+                                INSERT INTO faculty_schedules (
+                                    faculty_id, student_id, subject, day_of_week, start_time, end_time, hourly_rate
+                                ) VALUES (?, ?, ?, ?, ?, ?, ?)
+                            `, [
+                                sub.facultyId, id, subjectStr, config.day, config.startTime, config.endTime, sub.hourlyRate || 0
+                            ]);
+                        }
+                    }
+                } else {
+                    const days = sub.days || (sub.day ? [sub.day] : []);
+                    for (const day of days) {
+                        if (sub.facultyId && day && sub.startTime && sub.endTime) {
+                            await db.query(`
+                                INSERT INTO faculty_schedules (
+                                    faculty_id, student_id, subject, day_of_week, start_time, end_time, hourly_rate
+                                ) VALUES (?, ?, ?, ?, ?, ?, ?)
+                            `, [
+                                sub.facultyId, id, subjectStr, day, sub.startTime, sub.endTime, sub.hourlyRate || 0
+                            ]);
+                        }
                     }
                 }
             }

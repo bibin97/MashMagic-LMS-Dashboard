@@ -235,24 +235,9 @@ const EditStudent = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const flattenedSubjects = [];
-            selectedSubjects.forEach(s => {
-                if (s.dayConfigs && s.dayConfigs.length > 0) {
-                    s.dayConfigs.forEach(config => {
-                        flattenedSubjects.push({
-                            ...s,
-                            day: config.day,
-                            startTime: config.startTime,
-                            endTime: config.endTime,
-                            days: [config.day] // Backward compatibility
-                        });
-                    });
-                }
-            });
-
             const res = await api.put(`${basePath}/students/${id}`, {
                 ...formData,
-                selectedSubjects: flattenedSubjects
+                selectedSubjects: selectedSubjects
             });
 
             if (res.data.success) {
