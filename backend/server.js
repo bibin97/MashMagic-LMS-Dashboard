@@ -165,6 +165,8 @@ const startServer = async () => {
                 'ALTER TABLE students ADD COLUMN last_session_date DATE NULL;',
                 'ALTER TABLE students ADD COLUMN performance_status ENUM("Excellent", "Good", "Average", "Critical") DEFAULT "Good";',
                 'ALTER TABLE students ADD COLUMN course_completed TINYINT(1) DEFAULT 0;',
+                'ALTER TABLE faculty_schedules MODIFY COLUMN start_time VARCHAR(20) NULL;',
+                'ALTER TABLE faculty_schedules MODIFY COLUMN end_time VARCHAR(20) NULL;',
                 
                 'ALTER TABLE student_exams ADD COLUMN chapter VARCHAR(255) NULL;',
                 'ALTER TABLE student_exams ADD COLUMN portions TEXT NULL;',
@@ -376,8 +378,8 @@ const startServer = async () => {
                     student_id INT NOT NULL,
                     subject VARCHAR(100),
                     day_of_week ENUM('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'),
-                    start_time TIME,
-                    end_time TIME,
+                    start_time VARCHAR(20),
+                    end_time VARCHAR(20),
                     hourly_rate DECIMAL(10,2),
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 );`,

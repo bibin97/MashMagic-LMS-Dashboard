@@ -1217,27 +1217,6 @@ exports.getExamAnalytics = async (req, res) => {
     }
 };
 
-// Utility to convert AM/PM time to 24-hour format for MySQL
-const convertTo24Hour = (timeStr) => {
-    if (!timeStr) return null;
-    const t = timeStr.trim();
-    if (!t) return null;
-
-    // Already 24h format?
-    if (/^\d{1,2}:\d{2}(:\d{2})?$/.test(t)) return t;
-
-    // AM/PM format
-    const match = t.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
-    if (!match) return t;
-
-    let [_, hours, minutes, ampm] = match;
-    hours = parseInt(hours);
-    if (ampm.toUpperCase() === 'PM' && hours < 12) hours += 12;
-    if (ampm.toUpperCase() === 'AM' && hours === 12) hours = 0;
-
-    return `${hours.toString().padStart(2, '0')}:${minutes}:00`;
-};
-
 exports.editStudent = async (req, res) => {
     try {
         const { id } = req.params;
@@ -1325,14 +1304,12 @@ exports.editStudent = async (req, res) => {
                 if (sub.dayConfigs && Array.isArray(sub.dayConfigs) && sub.dayConfigs.length > 0) {
                     for (const config of sub.dayConfigs) {
                         if (sub.facultyId && config.day && config.startTime && config.endTime) {
-                            const startTime24 = convertTo24Hour(config.startTime);
-                            const endTime24 = convertTo24Hour(config.endTime);
                             await db.query(`
                                 INSERT INTO faculty_schedules (
                                     faculty_id, student_id, subject, day_of_week, start_time, end_time, hourly_rate
                                 ) VALUES (?, ?, ?, ?, ?, ?, ?)
                             `, [
-                                sub.facultyId, id, subjectStr, config.day, startTime24, endTime24, sub.hourlyRate || 0
+                                sub.facultyId, id, subjectStr, config.day, config.startTime, config.endTime, sub.hourlyRate || 0
                             ]);
                         }
                     }
@@ -1340,14 +1317,12 @@ exports.editStudent = async (req, res) => {
                     const days = sub.days || (sub.day ? [sub.day] : []);
                     for (const day of days) {
                         if (sub.facultyId && day && sub.startTime && sub.endTime) {
-                            const startTime24 = convertTo24Hour(sub.startTime);
-                            const endTime24 = convertTo24Hour(sub.endTime);
                             await db.query(`
                                 INSERT INTO faculty_schedules (
                                     faculty_id, student_id, subject, day_of_week, start_time, end_time, hourly_rate
                                 ) VALUES (?, ?, ?, ?, ?, ?, ?)
                             `, [
-                                sub.facultyId, id, subjectStr, day, startTime24, endTime24, sub.hourlyRate || 0
+                                sub.facultyId, id, subjectStr, day, sub.startTime, sub.endTime, sub.hourlyRate || 0
                             ]);
                         }
                     }
