@@ -373,10 +373,103 @@ const deleteFaculty = async (req, res) => {
 
 const editStudent = async (req, res) => {
     try {
-        const { name, email, contact, grade } = req.body;
-        await db.query('UPDATE students SET name = ?, email = ?, contact = ?, grade = ? WHERE id = ?', [name, email, contact, grade, req.params.id]);
-        res.status(200).json({ success: true, message: "Updated" });
-    } catch (e) { res.status(500).json({ success: false, message: e.message }); }
+        const { id } = req.params;
+        const { 
+            name, email, contact, grade, syllabus, course, hour, 
+            next_installment_date, admission_date, registration_number, 
+            meeting_link, meetingLink, enrollment_type, 
+            school_name, preferred_language, country, total_fees, total_paid,
+            selectedSubjects, subjects_json, mentor_id, password
+        } = req.body;
+
+        const finalMeetingLink = meetingLink || meeting_link;
+        const finalSubjects = selectedSubjects || subjects_json || [];
+        
+        const [[student]] = await db.query('SELECT name, user_id FROM students WHERE id = ?', [id]);
+        if (!student) return res.status(404).json({ success: false, message: "Student not found" });
+
+        // Prepare primary faculty/subject for legacy columns
+        let primaryFacultyId = null;
+        let primaryFacultyName = null;
+        let primarySubject = null;
+
+        if (finalSubjects.length > 0) {
+            primaryFacultyId = finalSubjects[0].facultyId;
+            primaryFacultyName = finalSubjects[0].facultyName;
+            primarySubject = finalSubjects[0].subject;
+        }
+
+        // Sync Badge with Enrollment Type
+        const badge = enrollment_type === 'Mentorship Only' ? 'Gold' : 
+                      enrollment_type === 'Tuition Only' ? 'Silver' : 
+                      (enrollment_type === 'Mentorship & Tuition' || enrollment_type === 'Mentorship and Tuition') ? 'Diamond' : null;
+
+        // Update Students table
+        await db.query(
+            `UPDATE students SET 
+                name = ?, email = ?, contact = ?, grade = ?, syllabus = ?, course = ?, hour = ?,
+                next_installment_date = ?, admission_date = ?, registration_number = ?, roll_number = ?,
+                meeting_link = ?, enrollment_type = ?, badge = ?,
+                school_name = ?, preferred_language = ?, country = ?, 
+                total_fees = ?, total_paid = ?,
+                subjects_json = ?, subject = ?, faculty_id = ?, faculty_name = ?, mentor_id = ?,
+                course_completed = ?
+             WHERE id = ?`, 
+            [
+                name, email || null, contact || null, grade || null, syllabus || null, course || null, hour || null,
+                next_installment_date || null, admission_date || null, registration_number || null, registration_number || null,
+                finalMeetingLink || null, enrollment_type || null, badge,
+                school_name || null, preferred_language || null, country || null,
+                total_fees || 0, total_paid || 0,
+                JSON.stringify(finalSubjects), primarySubject, primaryFacultyId, primaryFacultyName, mentor_id || null, 
+                req.body.course_completed || 0,
+                id
+            ]
+        );
+
+        // Update linked Users table
+        if (student.user_id) {
+            let userUpdateQuery = 'UPDATE users SET name = ?, email = ?, phone_number = ?';
+            let userParams = [name, email || null, contact || null];
+
+            if (password && password.trim() !== '') {
+                const salt = await bcrypt.genSalt(10);
+                const hashedPassword = await bcrypt.hash(password, salt);
+                userUpdateQuery += ', password = ?';
+                userParams.push(hashedPassword);
+            }
+
+            userUpdateQuery += ' WHERE id = ?';
+            userParams.push(student.user_id);
+            await db.query(userUpdateQuery, userParams);
+        }
+
+        // --- SYNC FACULTY SCHEDULES ---
+        await db.query('DELETE FROM faculty_schedules WHERE student_id = ?', [id]);
+
+        if (finalSubjects && Array.isArray(finalSubjects) && finalSubjects.length > 0) {
+            for (const sub of finalSubjects) {
+                const days = sub.days || (sub.day ? [sub.day] : []);
+                for (const day of days) {
+                    if (sub.facultyId && day && sub.startTime && sub.endTime) {
+                        await db.query(`
+                            INSERT INTO faculty_schedules (
+                                faculty_id, student_id, subject, day_of_week, start_time, end_time, hourly_rate
+                            ) VALUES (?, ?, ?, ?, ?, ?, ?)
+                        `, [
+                            sub.facultyId, id, sub.subject, day, sub.startTime, sub.endTime, sub.hourlyRate || 0
+                        ]);
+                    }
+                }
+            }
+        }
+
+        await db.query('INSERT INTO admin_notifications (message) VALUES (?)', [`Academic Head (${req.user ? req.user.name : 'Unknown'}) updated student profile and sync'd schedule for: ${student.name}`]);
+        res.status(200).json({ success: true, message: 'Student profile updated successfully' });
+    } catch (error) { 
+        console.error("EDIT_STUDENT_ERROR:", error);
+        res.status(500).json({ success: false, message: error.message }); 
+    }
 };
 
 const deleteStudent = async (req, res) => {
