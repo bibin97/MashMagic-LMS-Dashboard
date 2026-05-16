@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../../services/api';
-import { ArrowLeft, User, Phone, BookOpen, Clock, Calendar, CheckSquare, MessageSquare, History, Contact } from 'lucide-react';
+import { ArrowLeft, User, Phone, BookOpen, Clock, Calendar, CheckSquare, MessageSquare, History, Contact, ClipboardList, TrendingUp } from 'lucide-react';
 import toast from 'react-hot-toast';
 import StatusBadge from '../../components/Mentor/StatusBadge';
 import { useAuth } from '../../context/AuthContext';
@@ -11,7 +11,7 @@ const StudentDetails = () => {
  const navigate = useNavigate();
  const [student, setStudent] = useState(null);
  const [loading, setLoading] = useState(true);
- const [activeTab, setActiveTab] = useState('info'); // info, timetable, logs
+ const [activeTab, setActiveTab] = useState('info'); // info, timetable, logs, portal, academic
  const { user } = useAuth();
  const isSSC = user?.role === 'ssc';
 
@@ -116,7 +116,9 @@ const StudentDetails = () => {
  {[
  { id: 'info', label: 'Detailed Info', icon: <User size={14} /> },
  { id: 'timetable', label: 'Session Timetable', icon: <Clock size={14} /> },
- { id: 'logs', label: 'Student Interactions', icon: <History size={14} /> }
+ { id: 'logs', label: 'Student Interactions', icon: <History size={14} /> },
+ { id: 'portal', label: 'Portal Activity', icon: <ClipboardList size={14} /> },
+ { id: 'academic', label: 'Academic Performance', icon: <TrendingUp size={14} /> }
  ].filter(tab => !(isSSC && tab.id === 'logs')).map((tab) => (
  <button
  key={tab.id}
@@ -306,6 +308,126 @@ const StudentDetails = () => {
  </section>
  </div>
  )}
+
+ {activeTab === 'portal' && (
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <div className="flex items-center justify-between">
+        <h3 className="text-lg font-black text-slate-900 border-b-2 border-teal-500 pb-2 flex items-center gap-3">
+          <ClipboardList size={20} className="text-teal-500" /> Student Portal Streams
+        </h3>
+        <span className="px-4 py-1.5 bg-teal-50 text-teal-600 rounded-full text-[10px] font-black uppercase tracking-widest border border-teal-100">
+          {student.dailyUpdates?.length || 0} Entries Recorded
+        </span>
+      </div>
+
+      <div className="relative space-y-6">
+        {student.dailyUpdates?.length > 0 && (
+          <div className="absolute left-[27px] top-4 bottom-4 w-1 bg-slate-100 rounded-full hidden md:block" />
+        )}
+        
+        {student.dailyUpdates?.map((update, idx) => (
+          <div key={update.id} className="relative flex flex-col md:flex-row gap-6 animate-in slide-in-from-bottom-4 duration-500" style={{ animationDelay: `${idx * 100}ms` }}>
+            <div className="hidden md:flex w-14 h-14 bg-white rounded-2xl border-4 border-slate-50 items-center justify-center text-teal-500 shadow-sm relative z-10">
+              <Calendar size={20} />
+            </div>
+            <div className="flex-1 bg-slate-50/50 hover:bg-white transition-all border border-slate-100 p-8 rounded-[32px] group hover:shadow-xl hover:shadow-slate-200/50">
+              <div className="flex flex-col md:flex-row justify-between mb-4 gap-2">
+                <div className="flex items-center gap-3">
+                  <div className="bg-slate-900 text-white px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest ">
+                    {update.formatted_date}
+                  </div>
+                  <div className="flex items-center gap-1.5 text-slate-600 font-bold text-xs bg-white px-4 py-1.5 rounded-xl border border-slate-100">
+                    <Clock size={14} className="text-teal-500" />
+                    {update.formatted_time}
+                  </div>
+                </div>
+              </div>
+              <p className="text-slate-600 font-bold leading-relaxed whitespace-pre-wrap">{update.data_content}</p>
+            </div>
+          </div>
+        ))}
+        {(!student.dailyUpdates || student.dailyUpdates.length === 0) && (
+          <div className="text-center py-20 bg-slate-50 rounded-[3rem] border border-dashed border-slate-200">
+            <p className="text-slate-400 font-black uppercase tracking-widest text-[10px]">No activity logs transmitted from student portal yet.</p>
+          </div>
+        )}
+      </div>
+    </div>
+  )}
+
+  {activeTab === 'academic' && (
+    <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      {/* Marks Section */}
+      <section className="space-y-6">
+        <h3 className="text-lg font-black text-slate-900 border-b-2 border-indigo-500 pb-2 flex items-center gap-3">
+          <TrendingUp size={20} className="text-indigo-500" /> Exam & Assessment Scores
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {student.marks?.map((mark) => (
+            <div key={mark.id} className="p-6 bg-white rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-md transition-all group relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-indigo-50 rounded-full -mr-12 -mt-12 opacity-50 group-hover:scale-125 transition-transform" />
+              <div className="relative z-10">
+                <div className="flex justify-between items-start mb-4">
+                  <span className="text-[10px] font-black bg-indigo-600 text-white px-3 py-1 rounded-full uppercase">{mark.term || 'Test'}</span>
+                  <span className="text-[10px] font-black text-slate-400 uppercase">{mark.exam_date ? new Date(mark.exam_date).toLocaleDateString('en-GB') : ''}</span>
+                </div>
+                <h4 className="text-base font-black text-slate-900 mb-1">{mark.subject}</h4>
+                <div className="flex items-end gap-2 mt-4">
+                  <span className="text-4xl font-black text-slate-900 tracking-tighter">{mark.marks}</span>
+                  <span className="text-slate-400 font-bold mb-1">/ {mark.total}</span>
+                </div>
+                <div className="mt-4 pt-4 border-t border-slate-50 flex justify-between items-center">
+                  <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Grade Achieved</span>
+                  <span className="text-lg font-black text-indigo-600">{mark.grade || 'N/A'}</span>
+                </div>
+              </div>
+            </div>
+          ))}
+          {(!student.marks || student.marks.length === 0) && (
+            <div className="col-span-full text-center py-10 bg-slate-50 rounded-[2rem] text-slate-400 text-[10px] font-black uppercase tracking-widest">No exam records available.</div>
+          )}
+        </div>
+      </section>
+
+      {/* Attendance Section */}
+      <section className="space-y-6">
+        <h3 className="text-lg font-black text-slate-900 border-b-2 border-emerald-500 pb-2 flex items-center gap-3">
+          <CheckSquare size={20} className="text-emerald-500" /> Attendance History
+        </h3>
+        <div className="overflow-hidden rounded-[2rem] border border-slate-100 shadow-sm">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="bg-slate-50/50">
+                <th className="py-5 px-6 text-[10px] font-black text-slate-500 uppercase tracking-widest">Date</th>
+                <th className="py-5 px-6 text-[10px] font-black text-slate-500 uppercase tracking-widest">Topic / Session</th>
+                <th className="py-5 px-6 text-[10px] font-black text-slate-500 uppercase tracking-widest">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {student.attendance?.map((att) => (
+                <tr key={att.id} className="border-t border-slate-50 hover:bg-slate-50/50 transition-colors">
+                  <td className="py-5 px-6 text-sm font-bold text-slate-600">{new Date(att.date).toLocaleDateString('en-GB')}</td>
+                  <td className="py-5 px-6 text-sm font-bold text-slate-900">{att.topic}</td>
+                  <td className="py-5 px-6">
+                    <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${
+                      att.status === 'Present' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-rose-50 text-rose-600 border border-rose-100'
+                    }`}>
+                      {att.status}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+              {(!student.attendance || student.attendance.length === 0) && (
+                <tr>
+                  <td colSpan="3" className="py-10 text-center text-slate-400 text-[10px] font-black uppercase tracking-widest">No attendance records found.</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  )}
  </div>
  </div>
  );

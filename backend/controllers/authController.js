@@ -247,6 +247,10 @@ const login = async (req, res) => {
             if (dbRole !== 'faculty' && dbRole !== 'academichead' && dbRole !== 'ssc') {
                 return res.status(403).json({ success: false, message: "Unauthorized: Only Academic Department staff can login here." });
             }
+        } else if (department === 'student_dept') {
+            if (dbRole !== 'student') {
+                return res.status(403).json({ success: false, message: "Unauthorized: Only students can login here." });
+            }
         }
 
         console.log(`[LOGIN SUCCESS] User: ${identifier} | Role: ${user.role}`);

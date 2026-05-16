@@ -255,13 +255,35 @@ const getStudentDetails = async (req, res) => {
             ORDER BY created_at DESC
         `, isPrivileged ? [studentId] : [studentId, mentorId]);
 
+        const [dailyUpdates] = await db.query(`
+            SELECT *, 
+            DATE_FORMAT(registration_date, '%d-%m-%Y') as formatted_date,
+            DATE_FORMAT(registration_time, '%l:%i %p') as formatted_time
+            FROM student_daily_updates 
+            WHERE student_id = ? 
+            ORDER BY registration_date DESC, registration_time DESC
+        `, [studentId]);
+
+        const [marks] = await db.query('SELECT * FROM student_marks WHERE student_id = ? ORDER BY created_at DESC', [studentId]);
+
+        const [attendance] = await db.query(`
+            SELECT a.*, s.topic, s.date 
+            FROM session_attendance a
+            JOIN faculty_sessions s ON a.session_id = s.id
+            WHERE a.student_id = ?
+            ORDER BY s.date DESC
+        `, [studentId]);
+
         res.status(200).json({
             success: true,
             data: {
                 ...student[0],
                 timetable,
                 studentLogs,
-                mentorshipLogs
+                mentorshipLogs,
+                dailyUpdates,
+                marks,
+                attendance
             }
         });
     } catch (error) {
