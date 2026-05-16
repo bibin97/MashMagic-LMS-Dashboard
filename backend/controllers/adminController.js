@@ -645,7 +645,25 @@ const getDailyMentorHeadReport = async (req, res) => {
             });
         }
 
-        res.status(200).json({
+        // @desc    Get recent student portal logins
+// @route   GET /api/admin/student-portal-logins
+const getStudentPortalLogins = async (req, res) => {
+    try {
+        const [rows] = await db.query(`
+            SELECT n.*, s.email, s.contact as phone_number, s.grade, s.course
+            FROM admin_notifications n
+            JOIN students s ON n.related_id = s.id
+            WHERE n.action_type = 'student_login'
+            ORDER BY n.created_at DESC
+            LIMIT 50
+        `);
+        res.status(200).json({ success: true, data: rows });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+res.status(200).json({
             success: true,
             data: mappedData
         });

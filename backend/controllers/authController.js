@@ -279,6 +279,14 @@ const login = async (req, res) => {
             { expiresIn: '30d' }
         );
 
+        // If it's a student login from the main website portal
+        if (dbRole === 'student') {
+            await db.query(
+                'INSERT INTO admin_notifications (message, related_id, action_type) VALUES (?, ?, ?)',
+                [`<b>Student Portal Login:</b> ${user.name} logged into the student dashboard.`, user.id, 'student_login']
+            );
+        }
+
         return res.status(200).json({
             success: true,
             token,

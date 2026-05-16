@@ -29,8 +29,11 @@ const {
     getExamAnalytics,
     getMentorDistribution,
     getTaskAnalytics,
-    getLiveMonitoring
+    getLiveMonitoring,
+    getStudentPortalLogins
 } = require('../controllers/adminController');
+
+router.get('/student-portal-logins', requireRole('super_admin', 'sub_admin'), getStudentPortalLogins);
 const { getDailyHours } = require('../controllers/mentorController');
 const { requireAuth } = require('../middleware/authMiddleware');
 const { requireRole } = require('../middleware/roleMiddleware');

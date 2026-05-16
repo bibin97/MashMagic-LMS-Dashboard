@@ -223,10 +223,62 @@ const getFaculties = async (req, res) => {
     }
 };
 
+// @desc    Register a lead from public website contact form
+// @route   POST /api/register/public-lead
+const publicLeadRegistration = async (req, res) => {
+    try {
+        const {
+            studentName,
+            parentName,
+            email,
+            phone,
+            whatsapp,
+            grade,
+            subject,
+            location
+        } = req.body;
+
+        if (!studentName || !phone) {
+            return res.status(400).json({ success: false, message: "Name and Phone are required" });
+        }
+
+        const query = `
+            INSERT INTO public_leads (
+                student_name, parent_name, email, phone, whatsapp, grade, subject, location, status, created_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'Pending', NOW())
+        `;
+
+        const [result] = await db.query(query, [
+            studentName, parentName, email, phone, whatsapp, grade, subject, location
+        ]);
+
+        // Notify Admin
+        await db.query('INSERT INTO admin_notifications (message, related_id, action_type) VALUES (?, ?, ?)', [
+            `<b>New Public Lead:</b> ${studentName} (${grade}) registered via website.`,
+            result.insertId,
+            'public_lead'
+        ]);
+
+        res.status(201).json({
+            success: true,
+            message: "Registration successful! Our team will contact you soon.",
+            leadId: result.insertId
+        });
+    } catch (error) {
+        console.error("Public Lead Registration Error:", error);
+        res.status(500).json({
+            success: false,
+            message: "Failed to process registration",
+            error: error.message
+        });
+    }
+};
+
 module.exports = {
     registerStudent,
     registerMentor,
     registerFaculty,
     getMentors,
-    getFaculties
+    getFaculties,
+    publicLeadRegistration
 };

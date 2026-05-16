@@ -861,17 +861,43 @@ const getStudentDailyUpdates = async (req, res) => {
     try {
         const mentorId = req.user.id;
         const { studentId } = req.params;
-        const [rows] = await db.query(`
+
+        // 1. Daily Updates from Student Portal
+        const [dailyUpdates] = await db.query(`
             SELECT *, 
             DATE_FORMAT(registration_date, '%d-%m-%Y') as formatted_date,
             DATE_FORMAT(registration_time, '%l:%i %p') as formatted_time
             FROM student_daily_updates 
-            WHERE student_id = ? AND mentor_id = ? 
+            WHERE student_id = ? 
             ORDER BY registration_date DESC, registration_time DESC
-        `, [studentId, mentorId]);
-        res.status(200).json({ success: true, data: rows });
+        `, [studentId]);
+
+        // 2. Exam Marks
+        const [marks] = await db.query(`
+            SELECT * FROM student_marks 
+            WHERE student_id = ? 
+            ORDER BY created_at DESC
+        `, [studentId]);
+
+        // 3. Attendance History
+        const [attendance] = await db.query(`
+            SELECT a.*, s.topic, s.date 
+            FROM session_attendance a
+            JOIN faculty_sessions s ON a.session_id = s.id
+            WHERE a.student_id = ?
+            ORDER BY s.date DESC
+        `, [studentId]);
+
+        res.status(200).json({ 
+            success: true, 
+            data: {
+                dailyUpdates,
+                marks,
+                attendance
+            }
+        });
     } catch (error) {
-        console.error("Error fetching student daily updates:", error);
+        console.error("Error fetching student comprehensive data:", error);
         res.status(500).json({ success: false, message: error.message });
     }
 };
