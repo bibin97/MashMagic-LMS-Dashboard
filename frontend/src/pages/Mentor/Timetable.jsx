@@ -428,21 +428,9 @@ const Timetable = () => {
         <div className="flex items-center gap-4">
           <button
             onClick={() => setQuickFilter('this_month')}
-            className="hidden lg:flex items-center gap-2 px-6 py-4 bg-slate-50 text-slate-600 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-100 transition-all border border-slate-100"
+            className="flex items-center gap-2 px-6 py-4 bg-slate-50 text-slate-600 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-100 transition-all border border-slate-100"
           >
             <Calendar size={16} /> This Month
-          </button>
-          <button
-            onClick={handleBulkOpen}
-            className="hidden md:flex items-center justify-center gap-3 bg-slate-900 text-white px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-slate-200 hover:-translate-y-1 transition-all active:scale-95"
-          >
-            <CalendarClock size={18} /> Bulk Schedule
-          </button>
-          <button
-            onClick={handleCreateOpen}
-            className="flex items-center justify-center gap-3 bg-[#008080] text-white px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-[#008080]/30 hover:bg-[#008080] hover:-translate-y-1 transition-all active:scale-95 "
-          >
-            <Plus size={18} /> Create Session
           </button>
         </div>
       </div>
@@ -610,29 +598,6 @@ const Timetable = () => {
                 <div className="flex items-center gap-6 pl-8 md:border-l border-slate-100">
                   <div className={`px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest border ${getStatusColor(session.status)} shadow-sm whitespace-nowrap`}>
                     {session.status}
-                  </div>
-                  <div className="flex gap-3">
-                    <button
-                      onClick={() => handleRescheduleOpen(session)}
-                      title="Quick Reschedule"
-                      className="w-11 h-11 bg-slate-50 text-indigo-600 rounded-[1rem] flex items-center justify-center hover:bg-indigo-600 hover:text-white transition-all duration-500 active:scale-90 shadow-sm"
-                    >
-                      <RefreshCcw size={16} />
-                    </button>
-                    <button
-                      onClick={() => handleEditOpen(session)}
-                      title="Full Edit"
-                      className="w-11 h-11 bg-slate-50 text-[#008080] rounded-[1rem] flex items-center justify-center hover:bg-[#008080] hover:text-white transition-all duration-500 active:scale-90 shadow-sm"
-                    >
-                      <Edit2 size={16} />
-                    </button>
-                    <button
-                      onClick={() => handleDelete(session)}
-                      title="Delete Session"
-                      className="w-11 h-11 bg-slate-50 text-rose-600 rounded-[1rem] flex items-center justify-center hover:bg-rose-600 hover:text-white transition-all duration-500 active:scale-90 shadow-sm"
-                    >
-                      <Trash2 size={16} />
-                    </button>
                   </div>
                 </div>
               </div>

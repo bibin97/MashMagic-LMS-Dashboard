@@ -17,6 +17,9 @@ const Mentors = () => {
  const [selectedMentor, setSelectedMentor] = useState(null);
  const [mentorStudents, setMentorStudents] = useState([]);
  const [loadingStudents, setLoadingStudents] = useState(false);
+ const [selectedStudentForExams, setSelectedStudentForExams] = useState(null);
+ const [studentExams, setStudentExams] = useState([]);
+ const [loadingExams, setLoadingExams] = useState(false);
  const [isModalOpen, setIsModalOpen] = useState(false);
  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
  const [editFormData, setEditFormData] = useState({
@@ -86,14 +89,36 @@ const Mentors = () => {
    document.body.removeChild(link);
  };
 
+ const handleSelectStudent = async (student) => {
+   setSelectedStudentForExams(student);
+   setLoadingExams(true);
+   try {
+     const res = await api.get(`/admin/students/${student.id}/exams`);
+     if (res.data.success) {
+       setStudentExams(res.data.data);
+     }
+   } catch (error) {
+     console.error("Failed to fetch student exams", error);
+     setStudentExams([]);
+   } finally {
+     setLoadingExams(false);
+   }
+ };
+
  const handleView = async (mentor) => {
  setSelectedMentor(mentor);
  setIsModalOpen(true);
  setLoadingStudents(true);
+ setSelectedStudentForExams(null);
+ setStudentExams([]);
  try {
  const res = await api.get(`/admin/students?mentor_id=${mentor.id}`);
  if (res.data.success) {
- setMentorStudents(res.data.data);
+ const students = res.data.data;
+ setMentorStudents(students);
+ if (students.length > 0) {
+   handleSelectStudent(students[0]);
+ }
  }
  } catch (error) {
  console.error("Failed to fetch mentor students");
@@ -339,38 +364,82 @@ const Mentors = () => {
  </div>
 
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
- <div className="bg-white border border-slate-100 rounded-2xl p-6">
- <h5 className="text-xs font-bold text-slate-600 uppercase tracking-widest mb-4">Assigned Students</h5>
- <div className="space-y-3 max-h-[300px] overflow-y-auto pr-2">
+ <div className="bg-white border border-slate-100 rounded-2xl p-6 flex flex-col h-[420px]">
+ <h5 className="text-xs font-bold text-slate-600 uppercase tracking-widest mb-4 shrink-0">Assigned Students ({mentorStudents.length})</h5>
+ <div className="space-y-3 overflow-y-auto pr-2 grow">
  {loadingStudents ? (
- <div className="text-center py-4 text-[10px] font-black text-slate-600 animate-pulse">FETCHING STUDENTS...</div>
- ) : mentorStudents.length > 0 ? mentorStudents.map((student) => (
- <div key={student.id} className="flex justify-between items-center p-5 rounded-[24px] bg-slate-50/50 border border-slate-100/50 hover:bg-white hover:border-[#008080]/30 hover:shadow-lg hover:shadow-[#008080]/5 transition-all cursor-default group">
+ <div className="text-center py-8 text-[10px] font-black text-slate-600 animate-pulse">FETCHING STUDENTS...</div>
+ ) : mentorStudents.length > 0 ? mentorStudents.map((student) => {
+ const isSelected = selectedStudentForExams?.id === student.id;
+ return (
+ <div key={student.id} onClick={() => handleSelectStudent(student)} className={`flex justify-between items-center p-5 rounded-[24px] border transition-all cursor-pointer group ${isSelected ? 'bg-[#008080]/10 border-[#008080]/30 shadow-md shadow-[#008080]/5' : 'bg-slate-50/50 border-slate-100/50 hover:bg-white hover:border-[#008080]/30 hover:shadow-lg hover:shadow-[#008080]/5'}`}>
  <div className="flex flex-col gap-1">
- <span className="text-sm font-black text-slate-700 group-hover:text-[#008080] transition-colors leading-none">{student.name}</span>
- <span className="text-[9px] font-bold text-slate-300 uppercase tracking-widest leading-none">REG: {student.registration_number || 'UNKNOWN'}</span>
+ <span className={`text-sm font-black transition-colors leading-none ${isSelected ? 'text-[#008080]' : 'text-slate-700 group-hover:text-[#008080]'}`}>{student.name}</span>
+ <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-none">REG: {student.registration_number || 'UNKNOWN'}</span>
  </div>
  <div className="flex flex-col items-end gap-1">
- <span className="text-[10px] font-black text-[#008080] bg-[#008080]/5 px-2.5 py-1 rounded-lg uppercase leading-none">{student.course}</span>
- <span className="text-[9px] font-bold text-slate-600 uppercase tracking-widest opacity-60 leading-none">{student.grade} GRADE</span>
+ <span className="text-[10px] font-black text-[#008080] bg-[#008080]/5 px-2.5 py-1 rounded-lg uppercase leading-none">{student.course || 'N/A'}</span>
+ <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest opacity-80 leading-none">{student.grade ? `${student.grade} GRADE` : ''}</span>
  </div>
  </div>
- )) : (
- <div className="text-center py-4 text-[10px] font-black text-slate-300 uppercase tracking-widest">No students assigned</div>
+ );
+ }) : (
+ <div className="text-center py-8 text-[10px] font-black text-slate-300 uppercase tracking-widest">No students assigned</div>
  )}
  </div>
  </div>
- <div className="bg-white border border-slate-100 rounded-2xl p-6">
- <h5 className="text-xs font-bold text-slate-600 uppercase tracking-widest mb-4">Immediate Deliverables</h5>
- <div className="space-y-3">
- {[...Array(4)].map((_, i) => (
- <div key={i} className="flex justify-between items-center p-3 rounded-xl border border-slate-50 hover:bg-slate-50 transition-all cursor-default group">
- <span className="text-sm font-semibold text-slate-700 group-hover:text-amber-600 transition-colors">Assessment {i + 1}</span>
- <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold uppercase transition-all ${i === 0 ? 'bg-amber-100 text-amber-600' : 'bg-emerald-100 text-emerald-600'}`}>
- {i === 0 ? 'Pending' : 'Done'}
+ <div className="bg-white border border-slate-100 rounded-2xl p-6 flex flex-col h-[420px]">
+ <div className="flex justify-between items-center mb-4 shrink-0">
+ <h5 className="text-xs font-bold text-slate-600 uppercase tracking-widest">Immediate Deliverables</h5>
+ {selectedStudentForExams && (
+ <span className="text-[10px] font-black text-[#008080] bg-[#008080]/5 px-2.5 py-1 rounded-lg uppercase truncate max-w-[180px]">
+ {selectedStudentForExams.name}
+ </span>
+ )}
+ </div>
+ <div className="space-y-3 overflow-y-auto pr-2 grow">
+ {loadingExams ? (
+ <div className="text-center py-8 text-[10px] font-black text-slate-600 animate-pulse">FETCHING ASSESSMENTS...</div>
+ ) : !selectedStudentForExams ? (
+ <div className="text-center py-8 text-[10px] font-black text-slate-300 uppercase tracking-widest">Select a student to view deliverables</div>
+ ) : studentExams.length > 0 ? (
+ studentExams.map((exam, i) => (
+ <div key={i} className="flex flex-col gap-2 p-4 rounded-2xl border border-slate-100 bg-slate-50/30 hover:bg-white hover:shadow-md hover:border-[#008080]/20 transition-all cursor-default group">
+ <div className="flex justify-between items-center">
+ <span className="text-sm font-bold text-slate-800 group-hover:text-[#008080] transition-colors">
+ Assessment {i + 1} <span className="text-[10px] font-normal text-slate-400">(Milestone {exam.milestone})</span>
+ </span>
+ <span className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all ${exam.status === 'Completed' ? 'bg-emerald-100 text-emerald-700 border border-emerald-200' : exam.status === 'Postponed' ? 'bg-amber-100 text-amber-700 border border-amber-200' : 'bg-blue-100 text-blue-700 border border-blue-200'}`}>
+ {exam.status || 'Pending'}
  </span>
  </div>
- ))}
+ {(exam.chapter || exam.portions || exam.score != null) && (
+ <div className="flex flex-col gap-1 mt-1 pt-2 border-t border-slate-100 text-xs text-slate-600">
+ {exam.chapter && (
+ <div className="flex justify-between">
+ <span className="font-semibold text-slate-400 text-[10px] uppercase tracking-wider">Chapter:</span>
+ <span className="font-medium text-slate-700">{exam.chapter}</span>
+ </div>
+ )}
+ {exam.portions && (
+ <div className="flex justify-between">
+ <span className="font-semibold text-slate-400 text-[10px] uppercase tracking-wider">Portions:</span>
+ <span className="font-medium text-slate-700">{exam.portions}</span>
+ </div>
+ )}
+ {exam.score != null && (
+ <div className="flex justify-between">
+ <span className="font-semibold text-slate-400 text-[10px] uppercase tracking-wider">Score:</span>
+ <span className="font-bold text-emerald-600">{exam.score}%</span>
+ </div>
+ )}
+ </div>
+ )}
+ </div>
+ ))
+ ) : (
+ <div className="text-center py-8 text-[10px] font-black text-slate-300 uppercase tracking-widest">No assessments found</div>
+ )}
  </div>
  </div>
  </div>

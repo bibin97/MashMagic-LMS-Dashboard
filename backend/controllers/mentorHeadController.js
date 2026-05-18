@@ -1359,10 +1359,13 @@ exports.getStudents = async (req, res) => {
     try {
         const { mentor_id, faculty_id, search, sortBy, course, enrollment_type } = req.query;
         let query = `
-            SELECT s.*, m.name as mentor_name, f.name as faculty_name 
+            SELECT s.*, m.name as mentor_name, 
+            (SELECT GROUP_CONCAT(DISTINCT u.name SEPARATOR ', ') 
+             FROM faculty_schedules fs 
+             JOIN users u ON fs.faculty_id = u.id 
+             WHERE fs.student_id = s.id) as faculty_name 
             FROM students s 
             LEFT JOIN mentors m ON s.mentor_id = m.id 
-            LEFT JOIN faculties f ON s.faculty_id = f.id
             WHERE 1=1
         `;
         let params = [];
@@ -1373,8 +1376,8 @@ exports.getStudents = async (req, res) => {
         }
 
         if (faculty_id) {
-            query += ' AND s.faculty_id = ?';
-            params.push(faculty_id);
+            query += ' AND (s.faculty_id = ? OR EXISTS (SELECT 1 FROM faculty_schedules fs WHERE fs.student_id = s.id AND fs.faculty_id = ?))';
+            params.push(faculty_id, faculty_id);
         }
 
         if (course && course !== 'all') {
@@ -1520,10 +1523,13 @@ exports.getStudentById = async (req, res) => {
     try {
         const { id } = req.params;
         const [[student]] = await db.query(`
-            SELECT s.*, u_m.name as mentor_name, u_f.name as faculty_name
+            SELECT s.*, u_m.name as mentor_name,
+            (SELECT GROUP_CONCAT(DISTINCT u.name SEPARATOR ', ') 
+             FROM faculty_schedules fs 
+             JOIN users u ON fs.faculty_id = u.id 
+             WHERE fs.student_id = s.id) as faculty_name
             FROM students s
             LEFT JOIN mentors u_m ON s.mentor_id = u_m.id
-            LEFT JOIN faculties u_f ON s.faculty_id = u_f.id
             WHERE s.id = ?
         `, [id]);
 

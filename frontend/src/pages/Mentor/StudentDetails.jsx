@@ -197,6 +197,7 @@ const StudentDetails = () => {
  <td className="py-6 px-4">
  <div className="flex items-center gap-3">
  <StatusBadge status={session.status} />
+ {['super_admin', 'admin', 'ssc'].includes(user?.role) && (
  <select 
  className="text-[10px] font-black uppercase tracking-widest bg-slate-100 border-none rounded-lg p-1 outline-none cursor-pointer hover:bg-slate-200 transition-colors"
  value={session.status}
@@ -208,6 +209,7 @@ const StudentDetails = () => {
  <option value="Absent">Absent</option>
  <option value="Cancelled">Cancel</option>
  </select>
+ )}
  </div>
  </td>
  </tr>

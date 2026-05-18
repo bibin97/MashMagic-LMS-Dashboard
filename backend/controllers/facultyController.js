@@ -8,10 +8,12 @@ const getDashboard = async (req, res) => {
         const facultyId = req.user.id;
 
         // 1. Total Assigned Students
-        const [[{ totalStudents }]] = await db.query(
-            'SELECT COUNT(*) as totalStudents FROM students WHERE faculty_id = ?',
-            [facultyId]
-        );
+        const [[{ totalStudents }]] = await db.query(`
+            SELECT COUNT(DISTINCT s.id) as totalStudents 
+            FROM students s 
+            WHERE s.faculty_id = ? 
+               OR EXISTS (SELECT 1 FROM faculty_schedules fs WHERE fs.student_id = s.id AND fs.faculty_id = ?)
+        `, [facultyId, facultyId]);
 
         // 2. Pending Reports (Open reports)
         const [[{ pendingReports }]] = await db.query(
@@ -39,11 +41,12 @@ const getDashboard = async (req, res) => {
 
         // 6. Performance Overview (Distribution of students across performance statuses)
         const [performanceData] = await db.query(`
-            SELECT performance_status as status, COUNT(*) as count 
-            FROM students 
-            WHERE faculty_id = ? 
-            GROUP BY performance_status
-        `, [facultyId]);
+            SELECT s.performance_status as status, COUNT(DISTINCT s.id) as count 
+            FROM students s 
+            WHERE s.faculty_id = ? 
+               OR EXISTS (SELECT 1 FROM faculty_schedules fs WHERE fs.student_id = s.id AND fs.faculty_id = ?)
+            GROUP BY s.performance_status
+        `, [facultyId, facultyId]);
 
         // 7. Attendance Overview (Averaged attendance over the last 7 days from session_attendance)
         const [attendanceData] = await db.query(`
@@ -86,10 +89,11 @@ const getStudents = async (req, res) => {
     try {
         const facultyId = req.user.id;
         const [students] = await db.query(`
-            SELECT id, name, roll_number, department, attendance_percentage, performance_status, status, created_at, badge, enrollment_type
-            FROM students
-            WHERE faculty_id = ?
-        `, [facultyId]);
+            SELECT DISTINCT s.id, s.name, s.roll_number, s.department, s.attendance_percentage, s.performance_status, s.status, s.created_at, s.badge, s.enrollment_type
+            FROM students s
+            WHERE s.faculty_id = ? 
+               OR EXISTS (SELECT 1 FROM faculty_schedules fs WHERE fs.student_id = s.id AND fs.faculty_id = ?)
+        `, [facultyId, facultyId]);
 
         res.status(200).json({ success: true, count: students.length, data: students });
     } catch (error) {
@@ -105,7 +109,11 @@ const getStudentProfile = async (req, res) => {
         const studentId = req.params.id;
 
         // Verify assignment
-        const [check] = await db.query('SELECT * FROM students WHERE id = ? AND faculty_id = ?', [studentId, facultyId]);
+        const [check] = await db.query(`
+            SELECT 1 FROM students s 
+            WHERE s.id = ? 
+              AND (s.faculty_id = ? OR EXISTS (SELECT 1 FROM faculty_schedules fs WHERE fs.student_id = s.id AND fs.faculty_id = ?))
+        `, [studentId, facultyId, facultyId]);
         if (check.length === 0) return res.status(403).json({ success: false, message: "Student not assigned to you" });
 
         const [student] = await db.query('SELECT * FROM students WHERE id = ?', [studentId]);
@@ -394,9 +402,10 @@ const getStudentExamScores = async (req, res) => {
             SELECT m.*, s.name as student_name
             FROM student_marks m
             JOIN students s ON m.student_id = s.id
-            WHERE s.faculty_id = ?
+            WHERE s.faculty_id = ? 
+               OR EXISTS (SELECT 1 FROM faculty_schedules fs WHERE fs.student_id = s.id AND fs.faculty_id = ?)
             ORDER BY m.exam_date DESC, m.created_at DESC
-        `, [facultyId]);
+        `, [facultyId, facultyId]);
         res.status(200).json({ success: true, data: rows });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
