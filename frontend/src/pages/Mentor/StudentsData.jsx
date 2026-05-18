@@ -69,7 +69,7 @@ const StudentsData = () => {
             Student Tracking Gateway
           </h1>
           <p className="text-[10px] font-black text-slate-600 uppercase tracking-[0.4em] mt-2">
-            Monitor daily progress and task compliance protocols
+            Monitor daily progress and task completion
           </p>
         </div>
         
@@ -77,7 +77,7 @@ const StudentsData = () => {
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-teal-500 transition-colors" size={18} />
           <input 
             type="text" 
-            placeholder="Search student identity..." 
+            placeholder="Search student name..." 
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pl-12 pr-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-700 outline-none focus:bg-white focus:ring-8 focus:ring-teal-500/5 transition-all"
@@ -200,7 +200,7 @@ const StudentsData = () => {
                   </div>
                   <div className="flex gap-2">
                     <span className="text-[10px] font-black text-slate-600 uppercase bg-slate-50 px-4 py-1.5 rounded-full border border-slate-100">
-                      {selectedStudent.registration_number || 'UNOFFICIAL-NODE'}
+                      {selectedStudent.registration_number || 'Not Provided'}
                     </span>
                   </div>
                 </div>
@@ -209,7 +209,7 @@ const StudentsData = () => {
                   {updatesLoading ? (
                     <div className="flex flex-col items-center justify-center h-64 space-y-4">
                       <div className="w-12 h-12 border-4 border-teal-500/20 border-t-teal-500 rounded-full animate-spin" />
-                      <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Decrypting Data...</p>
+                      <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Loading Data...</p>
                     </div>
                   ) : (
                     <>
@@ -219,7 +219,7 @@ const StudentsData = () => {
                             <div className="flex flex-col items-center justify-center h-80 text-center p-12 bg-slate-50/50 rounded-[32px] border border-slate-100">
                               <TrendingUp className="text-slate-200 mb-6" size={64} />
                               <h4 className="text-lg font-black text-slate-900 tracking-tighter uppercase mb-2">No activity recorded</h4>
-                              <p className="text-sm font-bold text-slate-600 max-w-xs">No portal submissions found for this identity.</p>
+                              <p className="text-sm font-bold text-slate-600 max-w-xs">No activity found for this student.</p>
                             </div>
                           ) : (
                             <div className="relative space-y-8">
@@ -253,7 +253,7 @@ const StudentsData = () => {
                             <div className="flex flex-col items-center justify-center h-80 text-center p-12 bg-slate-50/50 rounded-[32px] border border-slate-100">
                               <GraduationCap className="text-slate-200 mb-6" size={64} />
                               <h4 className="text-lg font-black text-slate-900 tracking-tighter uppercase mb-2">No Mark Records</h4>
-                              <p className="text-sm font-bold text-slate-600 max-w-xs">No academic scores found for this identity.</p>
+                              <p className="text-sm font-bold text-slate-600 max-w-xs">No exam marks found for this student.</p>
                             </div>
                           ) : (
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -326,7 +326,7 @@ const StudentsData = () => {
               <div className="w-32 h-32 bg-slate-50 rounded-full flex items-center justify-center mb-8 relative z-10 transition-transform duration-700 group-hover:scale-110">
                 <Users className="text-slate-200" size={64} />
               </div>
-              <h3 className="text-2xl font-black text-slate-900 tracking-tighter uppercase mb-4 relative z-10">Select a Student Identity</h3>
+              <h3 className="text-2xl font-black text-slate-900 tracking-tighter uppercase mb-4 relative z-10">Select a Student</h3>
               <p className="text-sm font-bold text-slate-600 max-w-sm leading-relaxed relative z-10">
                 Choose a student from the sidebar to visualize their daily activity stream and tracking metrics.
               </p>

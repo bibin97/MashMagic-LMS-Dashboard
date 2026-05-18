@@ -42,7 +42,7 @@ const Login = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     if (!email || !password || !dept || !role) {
-      toast.error('Please fill in all security protocols');
+      toast.error('Please fill in all required fields');
       return;
     }
 
@@ -95,12 +95,12 @@ const Login = () => {
     e.preventDefault();
     
     if (!regData.fullName || !email || !password || !regData.phone || !regData.place) {
-      toast.error('All authentication parameters are required');
+      toast.error('All fields are required');
       return;
     }
 
     setLoading(true);
-    toast.loading('Initiating Identity Creation...');
+    toast.loading('Registering Account...');
     
     try {
       const finalRole = role.toLowerCase().replace(' ', '_');
@@ -131,7 +131,7 @@ const Login = () => {
       }
     } catch (error) {
       toast.dismiss();
-      toast.error(error.response?.data?.message || 'Identity Creation Failed');
+      toast.error(error.response?.data?.message || 'Registration Failed');
     } finally {
       setLoading(false);
     }
@@ -160,11 +160,11 @@ const Login = () => {
             </div>
 
             <h1 className="text-4xl font-black text-white leading-[1.1] mb-6 tracking-tight max-w-md mx-auto">
-              The Secure Gateway to <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0d9488] to-[#2dd4bf]">Learning Excellence.</span>
+              Welcome to <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0d9488] to-[#2dd4bf]">MashMagic Portal.</span>
             </h1>
             <p className="text-slate-600 text-lg leading-relaxed max-w-sm font-medium mx-auto">
-              Enterprise-grade management system designed for institutional growth and academic precision.
+              Manage your academic activities, mentorships, and student progress seamlessly.
             </p>
           </div>
 
@@ -195,10 +195,10 @@ const Login = () => {
           {/* Heading Section */}
           <div className="mb-4">
             <h2 className="text-3xl font-black text-[#0d9488] mb-1 tracking-tight uppercase drop-shadow-md">
-              Establish Connection
+              Account Login
             </h2>
             <p className="text-[#f8ba2b] text-[9px] font-black uppercase tracking-[0.3em] opacity-90">
-              Security Protocol Activated
+              Please enter your details to sign in
             </p>
           </div>
 
@@ -226,7 +226,7 @@ const Login = () => {
               <form onSubmit={handleLogin} className="space-y-4">
                 {/* Role Selector */}
                 <div className="space-y-3">
-                  <label className="text-slate-300 text-[11px] font-black uppercase tracking-[0.2em] pl-1 drop-shadow-sm">System Authorization Role</label>
+                  <label className="text-slate-300 text-[11px] font-black uppercase tracking-[0.2em] pl-1 drop-shadow-sm">Select Your Role</label>
                   <div className="flex flex-wrap gap-2">
                     {dept && subRoles[dept].map(r => (
                       <button
@@ -247,7 +247,7 @@ const Login = () => {
 
                 {/* Credential ID */}
                 <div className="space-y-2">
-                  <label className="text-slate-300 text-[11px] font-black uppercase tracking-[0.2em] pl-1 drop-shadow">Authorized Identification</label>
+                  <label className="text-slate-300 text-[11px] font-black uppercase tracking-[0.2em] pl-1 drop-shadow">Email Address</label>
                   <div className="relative group">
                     <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-[#0d9488] transition-colors pointer-events-none">
                       <User size={18} />
@@ -256,7 +256,7 @@ const Login = () => {
                       type="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      placeholder="verified-id@mashmagic.com"
+                      placeholder="name@example.com"
                       className="w-full bg-white text-slate-900 rounded-2xl pl-12 pr-6 py-3 text-sm font-black outline-none border-b-4 border-slate-200 focus:border-[#0d9488] transition-all shadow-[0_10px_20px_-10px_rgba(0,0,0,0.1)] placeholder:text-slate-300 cursor-text"
                     />
                   </div>
@@ -264,7 +264,7 @@ const Login = () => {
 
                 {/* Security Key */}
                 <div className="space-y-2">
-                  <label className="text-slate-300 text-[11px] font-black uppercase tracking-[0.2em] pl-1 drop-shadow">Security Access Phrase</label>
+                  <label className="text-slate-300 text-[11px] font-black uppercase tracking-[0.2em] pl-1 drop-shadow">Password</label>
                   <div className="relative group">
                     <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-[#0d9488] transition-colors pointer-events-none">
                       <Lock size={18} />
@@ -301,14 +301,14 @@ const Login = () => {
                         <Check className="absolute w-3 h-3 text-white scale-0 peer-checked:scale-100 transition-transform duration-300 left-[4px]" />
                       </div>
                       <span className="text-[11px] font-black text-slate-600 group-hover:text-emerald-400 transition-colors uppercase tracking-widest">
-                        Persistent Mode
+                        Remember Me
                       </span>
                     </label>
                     <button
                       type="button"
                       className="text-[11px] font-black text-[#f8ba2b] hover:text-yellow-400 transition-colors tracking-widest uppercase underline underline-offset-4"
                     >
-                      Restore Access?
+                      Forgot Password?
                     </button>
                   </div>
 
@@ -320,7 +320,7 @@ const Login = () => {
                         className="text-[11px] text-[#0d9488] font-black tracking-[0.15em] uppercase hover:text-[#14b8a6] transition-all flex items-center gap-2 group"
                       >
                         <div className="w-1.5 h-1.5 rounded-full bg-[#0d9488] group-hover:animate-ping" />
-                        Create {role} Identity
+                        Create {role} Account
                       </button>
                     </div>
                   )}
@@ -331,7 +331,7 @@ const Login = () => {
                   disabled={loading}
                   className="w-full mt-2 py-4 bg-[#f8ba2b] hover:bg-[#eab308] text-black font-black rounded-2xl transition-all duration-300 transform active:scale-95 shadow-xl shadow-yellow-500/20 flex items-center justify-center gap-4 group relative overflow-hidden"
                 >
-                  <span className="relative uppercase tracking-[0.3em] text-xs">{loading ? 'AUTHENTICATING...' : 'INITIATE CONNECTION'}</span>
+                  <span className="relative uppercase tracking-[0.3em] text-xs">{loading ? 'SIGNING IN...' : 'SIGN IN'}</span>
                   {!loading && <ShieldCheck className="relative w-5 h-5 group-hover:scale-110 transition-transform" />}
                 </button>
               </form>
@@ -339,7 +339,7 @@ const Login = () => {
           ) : (
             <div className="relative transition-all duration-300">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-4xl font-black text-white tracking-[0.1em] uppercase drop-shadow-lg">Identity Setup</h2>
+                <h2 className="text-4xl font-black text-white tracking-[0.1em] uppercase drop-shadow-lg">Create Account</h2>
                 <button 
                   onClick={() => setIsRegistering(false)}
                   className="p-3 rounded-xl bg-white/5 hover:bg-white/10 text-[#0d9488] transition-all border border-white/5"
@@ -350,7 +350,7 @@ const Login = () => {
 
               <form onSubmit={handleRegister} className="space-y-3">
                 <div className="space-y-2">
-                  <label className="text-slate-300 text-[11px] font-black uppercase tracking-[0.2em] pl-1">Legal Full Name</label>
+                  <label className="text-slate-300 text-[11px] font-black uppercase tracking-[0.2em] pl-1">Full Name</label>
                   <div className="relative group">
                     <User size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-[#0d9488] transition-colors pointer-events-none" />
                     <input 
@@ -364,7 +364,7 @@ const Login = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-slate-300 text-[11px] font-black uppercase tracking-[0.2em] pl-1">Protocol Email Address</label>
+                  <label className="text-slate-300 text-[11px] font-black uppercase tracking-[0.2em] pl-1">Email Address</label>
                   <div className="relative group">
                     <ShieldCheck size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-[#0d9488] transition-colors pointer-events-none" />
                     <input 
@@ -379,7 +379,7 @@ const Login = () => {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <label className="text-slate-300 text-[11px] font-black uppercase tracking-[0.2em] pl-1">Communication Line</label>
+                    <label className="text-slate-300 text-[11px] font-black uppercase tracking-[0.2em] pl-1">Phone Number</label>
                     <div className="relative group">
                       <ShieldCheck size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-[#0d9488] transition-colors pointer-events-none" />
                       <input 
@@ -392,7 +392,7 @@ const Login = () => {
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <label className="text-slate-300 text-[11px] font-black uppercase tracking-[0.2em] pl-1">Operational Area</label>
+                    <label className="text-slate-300 text-[11px] font-black uppercase tracking-[0.2em] pl-1">Location / Place</label>
                     <div className="relative group">
                       <Building2 size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-[#0d9488] transition-colors pointer-events-none" />
                       <input 
@@ -407,7 +407,7 @@ const Login = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-slate-300 text-[11px] font-black uppercase tracking-[0.2em] pl-1">Secure Access Key</label>
+                  <label className="text-slate-300 text-[11px] font-black uppercase tracking-[0.2em] pl-1">Password</label>
                   <div className="relative group">
                     <Lock size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-[#0d9488] transition-colors pointer-events-none" />
                     <input 
@@ -446,7 +446,7 @@ const Login = () => {
             </div>
             <div className="text-center space-y-2">
               <p className="text-[10px] text-[#f8ba2b] font-black uppercase tracking-[0.3em] drop-shadow">
-                Secured by MashMagic Enterprise Encryption
+                Secured by MashMagic LMS Portal
               </p>
               <p className="text-[10px] text-slate-600 font-bold tracking-widest uppercase">
                 Developed by <a href="https://linkedin.com/in/bibinthankachan" target="_blank" rel="noopener noreferrer" className="text-[#f8ba2b] hover:text-yellow-400 hover:underline transition-all font-black">Bibin Thankachan</a>

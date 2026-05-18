@@ -335,7 +335,7 @@ const StudentDetails = () => {
  <div className="absolute top-0 right-0 w-40 h-40 bg-[#008080]/10 rounded-full -mr-20 -mt-20 blur-3xl"></div>
  <div className="relative">
  <h3 className="text-2xl font-black tracking-tight ">Submit Report</h3>
- <p className="text-[10px] font-black uppercase tracking-[0.2em] opacity-60">MashMagic Academic Engine</p>
+ <p className="text-[10px] font-black uppercase tracking-[0.2em] opacity-60">MashMagic Academic Platform</p>
  </div>
  <button onClick={() => setIsReportModalOpen(false)} className="text-slate-600 hover:text-white transition-colors relative">
  <ChevronLeft size={24} className="rotate-90" />
@@ -396,13 +396,13 @@ const StudentDetails = () => {
  onClick={() => setIsReportModalOpen(false)}
  className="flex-1 py-5 bg-slate-100 text-slate-900 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-200 transition-all"
  >
- Abort
+ Cancel
  </button>
  <button
  type="submit"
  className="flex-[2] py-5 bg-[#008080] text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-[#008080] transition-all shadow-xl shadow-[#008080]/30"
  >
- Push to System
+ Save Report
  </button>
  </div>
  </form>

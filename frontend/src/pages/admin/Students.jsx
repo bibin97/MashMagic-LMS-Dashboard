@@ -168,7 +168,7 @@ const Students = () => {
 
   const columns = [
     {
-      header: 'Student Identification',
+      header: 'Student Name & ID',
       accessor: 'name',
       render: (row) => (
         <div className="flex flex-col gap-0.5">
@@ -207,7 +207,7 @@ const Students = () => {
       )
     },
     { 
-      header: 'Mentorship Node', 
+      header: 'Assigned Mentor & Faculty', 
       render: (row) => (
         <div className="flex flex-col gap-0.5">
           <span className="text-[11px] font-black text-slate-700 truncate max-w-[120px]">{row.mentor || 'Not Assigned'}</span>
@@ -216,7 +216,7 @@ const Students = () => {
       )
     },
     {
-      header: 'Network Status',
+      header: 'Status',
       width: '120px',
       render: (row) => (
         <span className={`inline-flex items-center justify-center min-w-[80px] px-4 py-2 rounded-full text-[9px] font-black uppercase tracking-[0.15em] shadow-sm border transition-all ${row.status === 'active' 
@@ -235,21 +235,21 @@ const Students = () => {
           <h2 className="text-4xl font-black text-slate-900 tracking-tighter leading-none mb-3 ">Student Enrollment</h2>
           <p className="text-slate-600 text-[11px] font-black uppercase tracking-[0.25em] flex items-center justify-center md:justify-start gap-3 mt-1">
             <span className="w-2 h-2 rounded-full bg-[#008080] animate-pulse shadow-[0_0_10px_rgba(20,184,166,0.5)]"></span>
-            Cross-functional Academic Database Nexus
+            Comprehensive list of all registered students
           </p>
         </div>
         
         <div className="flex flex-col sm:flex-row items-center gap-5">
           <div className="flex items-center gap-4 bg-slate-50/50 px-8 py-5 rounded-[24px] border border-slate-100/50 shadow-inner group">
-            <span className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] leading-none whitespace-nowrap">Sort Engine</span>
+            <span className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] leading-none whitespace-nowrap">Sort By</span>
             <div className="w-px h-10 bg-slate-200"></div>
             <select 
               value={sortBy} 
               onChange={(e) => setSortBy(e.target.value)}
               className="bg-transparent border-none text-xs font-black uppercase tracking-[0.1em] text-slate-800 outline-none focus:ring-0 cursor-pointer "
             >
-              <option value="newest">Latest Optimized</option>
-              <option value="oldest">Legacy Priority</option>
+              <option value="newest">Newest First</option>
+              <option value="oldest">Oldest First</option>
             </select>
           </div>
         </div>
@@ -265,7 +265,7 @@ const Students = () => {
         </div>
         
         <div className="bg-white/70 backdrop-blur-md p-8 rounded-[35px] border border-white/60 shadow-sm flex flex-col gap-2 group transition-all hover:bg-white hover:shadow-md">
-          <span className="text-[10px] font-black text-[#10B981] uppercase tracking-widest">Active Pulse</span>
+          <span className="text-[10px] font-black text-[#10B981] uppercase tracking-widest">Active Students</span>
           <div className="flex items-end gap-3 font-black text-slate-900 tracking-tighter">
             <span className="text-4xl leading-none">{students.filter(s => s.status === 'active').length}</span>
             <div className="flex items-center gap-1.5 mb-1 bg-[#10B981]/10 px-2 py-0.5 rounded-full">
@@ -294,7 +294,7 @@ const Students = () => {
  <Modal
  isOpen={isEditModalOpen}
  onClose={() => setIsEditModalOpen(false)}
- title="Reconfigure Student Artifact"
+ title="Edit Student Details"
  size="lg"
  >
  <form onSubmit={handleEditSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
@@ -391,8 +391,8 @@ const Students = () => {
  />
  </div>
  <div className="col-span-2 flex justify-end gap-3 pt-8 pb-4">
- <button type="button" className="px-8 py-4 rounded-[18px] border border-slate-100 text-[11px] font-black uppercase tracking-widest text-slate-600 hover:text-slate-600 hover:bg-slate-50 transition-all font-sans" onClick={() => setIsEditModalOpen(false)}>Abort Change</button>
- <button type="submit" className="px-10 py-4 rounded-[18px] bg-gradient-to-br from-[#006666] to-[#008080] text-white text-[11px] font-black uppercase tracking-[0.2em] hover:shadow-lg hover:shadow-[#008080]/30 hover:-translate-y-1 transition-all shadow-md shadow-[#008080]/20 font-sans">Commit Data Refresh</button>
+ <button type="button" className="px-8 py-4 rounded-[18px] border border-slate-100 text-[11px] font-black uppercase tracking-widest text-slate-600 hover:text-slate-600 hover:bg-slate-50 transition-all font-sans" onClick={() => setIsEditModalOpen(false)}>Cancel</button>
+ <button type="submit" className="px-10 py-4 rounded-[18px] bg-gradient-to-br from-[#006666] to-[#008080] text-white text-[11px] font-black uppercase tracking-[0.2em] hover:shadow-lg hover:shadow-[#008080]/30 hover:-translate-y-1 transition-all shadow-md shadow-[#008080]/20 font-sans">Save Changes</button>
  </div>
  </form>
  </Modal>

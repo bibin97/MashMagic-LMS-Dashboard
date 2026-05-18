@@ -152,10 +152,10 @@ const ProfileConsole = () => {
 
 				<div className="flex gap-4 relative z-10 shrink-0">
 					<div className="bg-slate-50 px-8 py-5 rounded-[32px] border border-slate-100 text-center flex flex-col items-center justify-center">
-						<p className="text-[9px] font-black text-slate-600 uppercase tracking-[0.2em] mb-1">Status Verification</p>
+						<p className="text-[9px] font-black text-slate-600 uppercase tracking-[0.2em] mb-1">Account Status</p>
 						<div className="flex items-center gap-2">
 							<CheckCircle2 size={14} className="text-emerald-500" />
-							<p className="text-xs font-black text-emerald-600 uppercase tracking-tighter">Identity Authenticated</p>
+							<p className="text-xs font-black text-emerald-600 uppercase tracking-tighter">Active & Verified</p>
 						</div>
 					</div>
 				</div>
@@ -169,14 +169,14 @@ const ProfileConsole = () => {
 							<div className="w-10 h-10 bg-[#008080]/10 rounded-xl flex items-center justify-center text-[#008080]">
 								<User size={20} />
 							</div>
-							Consolidated Identity Profile
+							User Profile Details
 						</h3>
 
 						<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-							<DetailBlock icon={User} label="User Designation" value={user?.name} />
-							<DetailBlock icon={Mail} label="Access Channel" value={user?.email} />
-							<DetailBlock icon={Smartphone} label="Mobile Authority" value={user?.phone_number} />
-							<DetailBlock icon={Shield} label="Security Clearance" value={user?.role?.toUpperCase()} color="text-[#008080]" />
+							<DetailBlock icon={User} label="Full Name" value={user?.name} />
+							<DetailBlock icon={Mail} label="Email Address" value={user?.email} />
+							<DetailBlock icon={Smartphone} label="Phone Number" value={user?.phone_number} />
+							<DetailBlock icon={Shield} label="System Role" value={user?.role?.toUpperCase()} color="text-[#008080]" />
 						</div>
 					</div>
 
@@ -187,16 +187,16 @@ const ProfileConsole = () => {
 							<div className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center text-white">
 								<Lock size={20} />
 							</div>
-							Infrastructure Security
+							System Security
 						</h3>
 						<div className="flex items-start gap-6 bg-white/5 p-8 rounded-[32px] border border-white/10 relative z-10">
 							<div className="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center text-[#008080] shrink-0">
 								<AlertCircle size={24} />
 							</div>
 							<div>
-								<h4 className="text-lg font-black text-white uppercase mb-2">Protocol Monitoring Active</h4>
+								<h4 className="text-lg font-black text-white uppercase mb-2">Secure Account</h4>
 								<p className="text-slate-400 text-[10px] font-bold leading-relaxed uppercase tracking-tight">
-									This console is protected by multi-layer encryption. Any unauthorized modification attempts are logged. Profile metadata updates require system level authentication.
+									Your account is protected by standard security encryption. All changes to your profile and credentials are securely logged.
 								</p>
 							</div>
 						</div>
@@ -207,25 +207,25 @@ const ProfileConsole = () => {
 				<div className="space-y-8">
 					<div className="bg-[#008080] p-10 rounded-[48px] shadow-2xl shadow-[#008080]/30 text-white relative overflow-hidden">
 						<div className="absolute top-0 left-0 w-32 h-32 bg-white/10 rounded-full -ml-16 -mt-16 blur-2xl"></div>
-						<h4 className="text-[10px] font-black uppercase tracking-[0.3em] mb-6 opacity-70">Infrastructure Health</h4>
+						<h4 className="text-[10px] font-black uppercase tracking-[0.3em] mb-6 opacity-70">System Overview</h4>
 						<div className="space-y-6 relative z-10">
 							<div className="flex justify-between items-end border-b border-white/10 pb-4">
 								<div>
-									<p className="text-[10px] font-black uppercase opacity-60">System Tier</p>
+									<p className="text-[10px] font-black uppercase opacity-60">Access Level</p>
 									<p className="text-lg font-black uppercase">{user?.role?.split('_')[0] || 'Standard'}</p>
 								</div>
 								<Shield size={24} className="opacity-40" />
 							</div>
 							<div className="flex justify-between items-end border-b border-white/10 pb-4">
 								<div>
-									<p className="text-[10px] font-black uppercase opacity-60">Access Auth</p>
+									<p className="text-[10px] font-black uppercase opacity-60">Authentication</p>
 									<p className="text-lg font-black uppercase">Verified</p>
 								</div>
 								<Lock size={24} className="opacity-40" />
 							</div>
 						</div>
 						<div className="mt-10 p-4 bg-white/10 rounded-[28px] border border-white/10 text-center relative z-10">
-							<p className="text-[10px] font-black uppercase tracking-[0.2em] animate-pulse">Node Latency: Optimal (18ms)</p>
+							<p className="text-[10px] font-black uppercase tracking-[0.2em] animate-pulse">System Status: Online</p>
 						</div>
 					</div>
 
@@ -241,8 +241,8 @@ const ProfileConsole = () => {
 										<Activity size={18} />
 									</div>
 									<div>
-										<p className="text-[10px] font-black text-slate-900 uppercase tracking-tight">{i === 1 ? 'System Handshake' : 'Encrypted Access'}</p>
-										<p className="text-[9px] font-bold text-slate-600 uppercase">{new Date().toLocaleDateString()} • Node #{i}04</p>
+										<p className="text-[10px] font-black text-slate-900 uppercase tracking-tight">{i === 1 ? 'Login Session' : 'Profile Access'}</p>
+										<p className="text-[9px] font-bold text-slate-600 uppercase">{new Date().toLocaleDateString()} • IP Log #{i}04</p>
 									</div>
 								</div>
 							))}

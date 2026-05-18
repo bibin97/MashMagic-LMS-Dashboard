@@ -85,12 +85,12 @@ const AccountSettings = () => {
                         <ArrowLeft size={16} /> Return to Profile
                     </button>
                     <h1 className="text-4xl font-black text-slate-900 tracking-tighter uppercase leading-none">Account Configuration</h1>
-                    <p className="text-slate-500 text-[10px] font-black uppercase tracking-[0.3em] mt-3">Advanced Management Protocol</p>
+                    <p className="text-slate-500 text-[10px] font-black uppercase tracking-[0.3em] mt-3">Manage your profile and security settings</p>
                 </div>
                 <div className="flex items-center gap-4 px-6 py-4 bg-emerald-50 rounded-[28px] border border-emerald-100">
                     <ShieldCheck className="text-emerald-500" size={24} />
                     <div>
-                        <p className="text-[10px] font-black text-emerald-900 uppercase leading-none mb-1">Encrypted Access</p>
+                        <p className="text-[10px] font-black text-emerald-900 uppercase leading-none mb-1">Account Access</p>
                         <p className="text-[9px] font-bold text-emerald-600 uppercase tracking-widest">Auth Level: {user?.role?.toUpperCase()}</p>
                     </div>
                 </div>
@@ -106,13 +106,13 @@ const AccountSettings = () => {
                             <div className="w-10 h-10 bg-[#008080]/10 rounded-xl flex items-center justify-center text-[#008080]">
                                 <User size={20} />
                             </div>
-                            Identity Metadata
+                            Personal Details
                         </h3>
 
                         <form onSubmit={handleProfileUpdate} className="space-y-6 relative z-10">
                             <div className="grid grid-cols-1 gap-6">
                                 <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Full Legal Name</label>
+                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Full Name</label>
                                     <div className="relative">
                                         <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
                                         <input 
@@ -126,7 +126,7 @@ const AccountSettings = () => {
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Access Email Channel</label>
+                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Email Address</label>
                                     <div className="relative">
                                         <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
                                         <input 
@@ -141,7 +141,7 @@ const AccountSettings = () => {
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div className="space-y-2">
-                                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Mobile Authority</label>
+                                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Phone Number</label>
                                         <div className="relative">
                                             <Smartphone className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
                                             <input 
@@ -154,7 +154,7 @@ const AccountSettings = () => {
                                         </div>
                                     </div>
                                     <div className="space-y-2">
-                                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Geographic Node</label>
+                                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Location</label>
                                         <div className="relative">
                                             <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
                                             <input 
@@ -190,12 +190,12 @@ const AccountSettings = () => {
                             <div className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center text-white">
                                 <KeyRound size={20} />
                             </div>
-                            Security Protocol Update
+                            Change Password
                         </h3>
 
                         <form onSubmit={handlePasswordChange} className="space-y-6 relative z-10">
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Current Access Key</label>
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Current Password</label>
                                 <div className="relative">
                                     <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
                                     <input 
@@ -210,7 +210,7 @@ const AccountSettings = () => {
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">New Security Key</label>
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">New Password</label>
                                 <div className="relative">
                                     <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
                                     <input 
@@ -225,7 +225,7 @@ const AccountSettings = () => {
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Confirm New Key</label>
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Confirm New Password</label>
                                 <div className="relative">
                                     <ShieldCheck className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
                                     <input 
@@ -234,7 +234,7 @@ const AccountSettings = () => {
                                         value={passwordData.confirm}
                                         onChange={(e) => setPasswordData({...passwordData, confirm: e.target.value})}
                                         className="w-full pl-12 pr-4 py-4 bg-white/5 border border-white/10 rounded-2xl text-sm font-bold text-white focus:ring-4 focus:ring-[#008080]/20 outline-none transition-all placeholder:text-slate-600"
-                                        placeholder="Confirm security key"
+                                        placeholder="Confirm new password"
                                     />
                                 </div>
                             </div>
@@ -245,7 +245,7 @@ const AccountSettings = () => {
                                 className="w-full mt-6 py-5 bg-[#008080] text-white rounded-3xl text-xs font-black uppercase tracking-[0.2em] hover:bg-[#009090] transition-all shadow-xl shadow-[#008080]/20 flex items-center justify-center gap-3 active:scale-95 disabled:opacity-50"
                             >
                                 {updatingPassword ? <Loader2 className="animate-spin" size={18} /> : <KeyRound size={18} />}
-                                {updatingPassword ? 'Updating Credentials...' : 'Revise Access Protocol'}
+                                {updatingPassword ? 'Updating Credentials...' : 'Update Password'}
                             </button>
                         </form>
                     </div>

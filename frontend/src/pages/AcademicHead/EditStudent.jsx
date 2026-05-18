@@ -621,7 +621,7 @@ const EditStudent = () => {
                             </select>
                         </div>
                         <div className="flex flex-col gap-2">
-                            <label className="text-[10px] font-black text-slate-700 uppercase tracking-widest ml-1">Live Session Protocol (Link)</label>
+                            <label className="text-[10px] font-black text-slate-700 uppercase tracking-widest ml-1">Live Session Link</label>
                             <div className="relative">
                                 <LinkIcon size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#008080]" />
                                 <input type="text" name="meeting_link" value={formData.meeting_link} onChange={handleInputChange} className="w-full p-4 pl-12 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none" placeholder="meet.google.com/..." />
@@ -655,11 +655,11 @@ const EditStudent = () => {
                         {saving ? (
                             <>
                                 <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                                Synchronizing...
+                                Saving...
                             </>
                         ) : (
                             <>
-                                Commit Profile Update <CheckCircle size={18} strokeWidth={3} />
+                                Save Profile Update <CheckCircle size={18} strokeWidth={3} />
                             </>
                         )}
                     </button>

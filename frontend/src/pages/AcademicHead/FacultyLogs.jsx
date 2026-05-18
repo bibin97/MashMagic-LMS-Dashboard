@@ -67,13 +67,13 @@ const FacultyLogs = () => {
  onClick={() => setActiveTab('mentor')}
  className={`px-6 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${isMentorTab ? 'bg-white text-[#008080] shadow-sm border border-slate-100' : 'text-slate-600'}`}
  >
- Mentor Audit
+ Mentor Logs
  </button>
  <button
  onClick={() => setActiveTab('faculty')}
  className={`px-6 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${!isMentorTab ? 'bg-white text-[#008080] shadow-sm border border-slate-100' : 'text-slate-600'}`}
  >
- Faculty Intake
+ Faculty Logs
  </button>
  </div>
 
@@ -94,7 +94,7 @@ const FacultyLogs = () => {
  {loading ? (
  <div className="flex flex-col items-center justify-center p-32 space-y-4">
  <div className="w-14 h-14 border-4 border-[#008080] border-t-transparent rounded-full animate-spin"></div>
- <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest animate-pulse">Ingesting Session Intel...</p>
+ <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest animate-pulse">Loading Logs...</p>
  </div>
  ) : isMentorTab ? (
  /* Mentor Audit View */
@@ -121,7 +121,7 @@ const FacultyLogs = () => {
  </div>
  <div className="text-right flex flex-col items-end gap-2">
  <div className="bg-[#008080] text-white px-4 py-1.5 rounded-xl text-[8px] font-black uppercase tracking-widest shadow-lg shadow-[#008080]/30 ">
- Audit By {log.mentor_name}
+ Logged By {log.mentor_name}
  </div>
  <p className="text-[8px] font-black text-slate-600 uppercase tracking-widest flex items-center gap-1 ">
  <Calendar size={10} /> {new Date(log.created_at).toLocaleDateString()}
@@ -156,7 +156,7 @@ const FacultyLogs = () => {
  <div className="bg-slate-50/50 p-6 rounded-[2rem] border border-slate-100/30">
  <div className="flex items-center gap-3 mb-3">
  <Layers size={14} className="text-[#008080]" />
- <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest ">Core Intel Registry</p>
+ <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest ">Topics Covered</p>
  </div>
  <p className="text-xs text-slate-600 font-bold leading-relaxed line-clamp-2 ">
  {log.topics_covered}
@@ -188,12 +188,12 @@ const FacultyLogs = () => {
  <table className="w-full text-left">
  <thead>
  <tr className="bg-slate-50/80 border-b border-slate-100">
- <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest ">Temporal Stamp</th>
- <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest ">Faculty Unit</th>
+ <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest ">Date</th>
+ <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest ">Faculty</th>
  <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest ">Focus Chapter</th>
  <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest ">Schedule</th>
- <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest ">Chronometry</th>
- <th className="px-8 py-6 text-right text-[10px] font-black text-slate-600 uppercase tracking-widest ">Audit</th>
+ <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest ">Duration</th>
+ <th className="px-8 py-6 text-right text-[10px] font-black text-slate-600 uppercase tracking-widest ">Actions</th>
  </tr>
  </thead>
  <tbody className="divide-y divide-slate-50">
@@ -202,7 +202,7 @@ const FacultyLogs = () => {
  <td className="px-8 py-6">
  <div className="flex flex-col">
  <span className="text-[10px] font-black text-slate-900 tracking-tight">{new Date(log.date).toLocaleDateString()}</span>
- <span className="text-[8px] font-bold text-slate-600 uppercase tracking-[0.2em] mt-1">Registry Lock</span>
+ <span className="text-[8px] font-bold text-slate-600 uppercase tracking-[0.2em] mt-1">Confirmed</span>
  </div>
  </td>
  <td className="px-8 py-6">
@@ -229,7 +229,7 @@ const FacultyLogs = () => {
  </td>
  <td className="px-8 py-6 text-right">
  <button className="px-6 py-2.5 bg-slate-900 text-white rounded-xl text-[9px] font-black uppercase tracking-widest shadow-xl shadow-slate-200/50 hover:bg-[#008080] transition-all opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0">
- Manifest
+ View
  </button>
  </td>
  </tr>
@@ -238,7 +238,7 @@ const FacultyLogs = () => {
  </table>
  {filteredLogs.length === 0 && (
  <div className="p-20 text-center">
- <p className="text-xs font-black text-slate-600 uppercase tracking-widest ">Audit Stream Exhausted - No Intake Logs Found</p>
+ <p className="text-xs font-black text-slate-600 uppercase tracking-widest ">No logs found</p>
  </div>
  )}
  </div>
@@ -255,9 +255,9 @@ const FacultyLogs = () => {
  <GraduationCap size={32} />
  </div>
  <div>
- <h2 className="text-2xl font-black tracking-tight uppercase">Session intelligence Deep-Dive</h2>
+ <h2 className="text-2xl font-black tracking-tight uppercase">Session Details</h2>
  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/70 mt-1 flex items-center gap-2">
- <User size={12} /> Audit By: {selectedLog.mentor_name} • Faculty Unit: {selectedLog.faculty_name}
+ <User size={12} /> Logged By: {selectedLog.mentor_name} • Faculty: {selectedLog.faculty_name}
  </p>
  </div>
  </div>
@@ -274,7 +274,7 @@ const FacultyLogs = () => {
  <div className="space-y-10">
  <div className="space-y-4">
  <h4 className="text-[10px] font-black text-slate-600 uppercase tracking-widest flex items-center gap-2 h-10 border-b border-slate-50 ">
- <BookOpen size={14} className="text-[#008080]" /> Academic Content Intake
+ <BookOpen size={14} className="text-[#008080]" /> Academic Content
  </h4>
  <div className="bg-slate-50 p-8 rounded-[3.5rem] border border-slate-100/50">
  <p className="text-[8px] font-black text-[#008080] uppercase tracking-widest mb-2 ">Faculty Syllabus Coverage:</p>
@@ -298,7 +298,7 @@ const FacultyLogs = () => {
  <div className="space-y-10">
  <div className="space-y-4">
  <h4 className="text-[10px] font-black text-slate-600 uppercase tracking-widest flex items-center gap-2 h-10 border-b border-slate-50 ">
- <Activity size={14} className="text-rose-500" /> Session Audit & Findings
+ <Activity size={14} className="text-rose-500" /> Session Findings
  </h4>
  <div className="space-y-6">
  <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100">
@@ -320,7 +320,7 @@ const FacultyLogs = () => {
  </div>
  <div>
  <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest ">Verification Document</p>
- <p className="text-xs font-bold text-slate-900 ">Audit Proof Attachment</p>
+ <p className="text-xs font-bold text-slate-900 ">Proof Attachment</p>
  </div>
  </div>
  <a href={selectedLog.screenshot_url} target="_blank" rel="noreferrer" className="bg-slate-900 text-white p-4 rounded-2xl hover:bg-[#008080] transition-all active:scale-90">
@@ -337,7 +337,7 @@ const FacultyLogs = () => {
  onClick={() => setSelectedLog(null)}
  className="px-12 py-5 bg-slate-900 text-white rounded-[2rem] text-[10px] font-black uppercase tracking-[0.2em] shadow-xl hover:-translate-y-1 transition-all "
  >
- Secure Content Portal
+ Close
  </button>
  </div>
  </div>

@@ -420,8 +420,8 @@ const Timetable = () => {
             <CalendarClock size={28} />
           </div>
           <div>
-            <h1 className="text-3xl font-black text-slate-900 tracking-tighter uppercase ">Academic Scheduling</h1>
-            <p className="text-[10px] font-bold text-slate-600 uppercase tracking-[0.2em] mt-1">Master Control for Student Sessions & Timetables</p>
+            <h1 className="text-3xl font-black text-slate-900 tracking-tighter uppercase ">Timetable Management</h1>
+            <p className="text-[10px] font-bold text-slate-600 uppercase tracking-[0.2em] mt-1">View student class schedules</p>
           </div>
         </div>
 
@@ -437,11 +437,11 @@ const Timetable = () => {
 
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-6">
         {[
-          { label: 'Total Logs', value: summary.total, icon: Calendar, color: 'text-slate-900', bg: 'bg-white border-slate-100' },
-          { label: 'Concluded', value: summary.completed, icon: CheckCircle, color: 'text-emerald-600', bg: 'bg-emerald-50/50 border-emerald-100/50' },
-          { label: 'Outstanding', value: summary.upcoming, icon: Clock, color: 'text-[#008080]', bg: 'bg-[#008080]/10 border-[#008080]/50' },
-          { label: 'Reconfigured', value: summary.postponed, icon: AlertCircle, color: 'text-amber-600', bg: 'bg-amber-50/50 border-amber-100/50' },
-          { label: 'Aborted', value: summary.cancelled, icon: XCircle, color: 'text-rose-600', bg: 'bg-rose-50/50 border-rose-100/50' },
+          { label: 'Total Sessions', value: summary.total, icon: Calendar, color: 'text-slate-900', bg: 'bg-white border-slate-100' },
+          { label: 'Completed', value: summary.completed, icon: CheckCircle, color: 'text-emerald-600', bg: 'bg-emerald-50/50 border-emerald-100/50' },
+          { label: 'Upcoming', value: summary.upcoming, icon: Clock, color: 'text-[#008080]', bg: 'bg-[#008080]/10 border-[#008080]/50' },
+          { label: 'Postponed', value: summary.postponed, icon: AlertCircle, color: 'text-amber-600', bg: 'bg-amber-50/50 border-amber-100/50' },
+          { label: 'Cancelled', value: summary.cancelled, icon: XCircle, color: 'text-rose-600', bg: 'bg-rose-50/50 border-rose-100/50' },
         ].map((stat, i) => (
           <div key={i} className={`${stat.bg} p-8 rounded-[2.5rem] border shadow-sm flex flex-col items-center text-center group hover:shadow-xl hover:-translate-y-2 transition-all duration-500`}>
             <div className={`w-10 h-10 ${stat.bg.replace('/50', '')} rounded-xl flex items-center justify-center mb-4 text-slate-600 group-hover:scale-110 transition-transform`}>
@@ -464,7 +464,7 @@ const Timetable = () => {
                 onChange={(e) => setFilters({ ...filters, student_id: e.target.value })}
                 className="w-full pl-12 pr-4 py-4 bg-slate-50 border-none rounded-2xl text-[11px] font-black text-slate-700 focus:bg-white focus:ring-4 ring-[#008080]/10 outline-none appearance-none transition-all cursor-pointer"
               >
-                <option value="">Global Student View (All)</option>
+                <option value="">All Students</option>
                 {students.map(s => (
                   <option key={s.id} value={s.id}>{s.name} ({s.student_id})</option>
                 ))}
@@ -474,7 +474,7 @@ const Timetable = () => {
           </div>
 
           <div className="w-[200px]">
-            <label className="text-[8px] font-black text-slate-600 uppercase tracking-[0.2em] pl-1 mb-2 block">Temporal Batch (Month)</label>
+            <label className="text-[8px] font-black text-slate-600 uppercase tracking-[0.2em] pl-1 mb-2 block">Filter by Month</label>
             <div className="relative group">
               <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#008080] transition-colors" size={16} />
               <select
@@ -496,7 +496,7 @@ const Timetable = () => {
                 className="w-full pl-12 pr-4 py-4 bg-slate-50 border-none rounded-2xl text-[11px] font-black text-slate-700 focus:bg-white focus:ring-4 ring-[#008080]/10 outline-none appearance-none transition-all cursor-pointer"
               >
                 <option value="">Select Target Month</option>
-                <option value="full">Full Academic Timeline</option>
+                <option value="full">All Months</option>
                 {Array.from({ length: 12 }, (_, i) => {
                   const d = new Date();
                   d.setMonth(d.getMonth() - i);
@@ -510,13 +510,13 @@ const Timetable = () => {
           </div>
 
           <div className="w-[200px]">
-            <label className="text-[8px] font-black text-slate-600 uppercase tracking-[0.2em] pl-1 mb-2 block">Status segregation</label>
+            <label className="text-[8px] font-black text-slate-600 uppercase tracking-[0.2em] pl-1 mb-2 block">Filter by Status</label>
             <select
               value={filters.status}
               onChange={(e) => setFilters({ ...filters, status: e.target.value })}
               className="w-full px-5 py-4 bg-slate-50 border-none rounded-2xl text-[11px] font-black text-slate-700 focus:bg-white focus:ring-4 ring-[#008080]/10 outline-none cursor-pointer"
             >
-              <option value="">Global Operations</option>
+              <option value="">All Statuses</option>
               {['Scheduled', 'Completed', 'Postponed', 'Cancelled', 'Faculty Cancelled', 'Student Cancelled', 'No Show'].map(s => <option key={s} value={s}>{s}</option>)}
             </select>
           </div>
@@ -525,7 +525,7 @@ const Timetable = () => {
             onClick={() => setFilters({ ...filters, student_id: '', status: '', start_date: formatDate(new Date(new Date().getFullYear(), new Date().getMonth(), 1)), end_date: formatDate(new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0)) })}
             className="px-8 py-4 bg-slate-900 text-white text-[10px] font-black uppercase tracking-widest rounded-2xl hover:bg-[#008080] shadow-xl shadow-slate-100 transition-all active:scale-95 "
           >
-            Reset Timeline
+            Reset Filters
           </button>
         </div>
 
@@ -554,7 +554,7 @@ const Timetable = () => {
       {loading ? (
         <div className="flex flex-col items-center justify-center p-32 space-y-4 bg-white rounded-[3rem] border border-slate-100 shadow-sm">
           <div className="w-16 h-16 border-4 border-[#008080] border-t-transparent rounded-full animate-spin"></div>
-          <p className="text-[10px] font-black text-slate-600 uppercase tracking-[0.3em] animate-pulse">Syncing session stream...</p>
+          <p className="text-[10px] font-black text-slate-600 uppercase tracking-[0.3em] animate-pulse">Loading sessions...</p>
         </div>
       ) : (
         <div className="space-y-4">
@@ -609,7 +609,7 @@ const Timetable = () => {
               <div className="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center text-slate-200 mb-8 border border-slate-100 shadow-inner">
                 <Target size={48} />
               </div>
-              <h3 className="text-xl font-black text-slate-900 tracking-tight uppercase">Timeline Void Discovery</h3>
+              <h3 className="text-xl font-black text-slate-900 tracking-tight uppercase">No sessions found matching your criteria.</h3>
             </div>
           )}
         </div>
@@ -621,10 +621,10 @@ const Timetable = () => {
             <div className="flex items-center justify-between p-8 border-b border-slate-50">
               <div>
                 <h2 className="text-2xl font-black text-slate-900 tracking-tight uppercase">
-                  {rescheduleMode ? 'Quick Reschedule' : (editingSession ? 'Reconfigure Session' : 'Anchor New Session')}
+                  {rescheduleMode ? 'Quick Reschedule' : (editingSession ? 'Edit Session' : 'Create New Session')}
                 </h2>
                 <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mt-1">
-                  {rescheduleMode ? 'Adjusting session timeline only' : (editingSession ? 'Updating existing timeline parameters' : 'Calibrating a new educational trajectory')}
+                  {rescheduleMode ? 'Change session date' : (editingSession ? 'Modify existing session details' : 'Schedule a new class session')}
                 </p>
               </div>
               <button onClick={() => { setShowModal(false); setEditingSession(null); setRescheduleMode(false); }} className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-400 hover:bg-rose-50 hover:text-rose-500 transition-all active:scale-90 shadow-inner">
@@ -811,7 +811,7 @@ const Timetable = () => {
                     {editingSession && (
                       <div className="col-span-full grid grid-cols-1 md:grid-cols-2 gap-8 pt-8 border-t border-slate-100">
                         <div className="space-y-2">
-                          <label className="text-[10px] font-black text-[#008080] uppercase tracking-widest ml-1">Update Operational Status</label>
+                          <label className="text-[10px] font-black text-[#008080] uppercase tracking-widest ml-1">Status</label>
                           <select
                             value={formData.status}
                             onChange={(e) => setFormData({ ...formData, status: e.target.value })}
@@ -823,7 +823,7 @@ const Timetable = () => {
                           </select>
                         </div>
                         <div className="space-y-2">
-                          <label className="text-[10px] font-black text-rose-500 uppercase tracking-widest ml-1">Official Reason for Change *</label>
+                          <label className="text-[10px] font-black text-rose-500 uppercase tracking-widest ml-1">Reason for Status Change *</label>
                           <textarea
                             required={['Postponed', 'Cancelled', 'Faculty Cancelled', 'Student Cancelled'].includes(formData.status)}
                             value={formData.status_reason}
@@ -844,13 +844,13 @@ const Timetable = () => {
                         onClick={addToBatch}
                         className="w-full py-4 bg-emerald-50 text-emerald-600 border border-emerald-100 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] hover:bg-emerald-600 hover:text-white transition-all flex items-center justify-center gap-3"
                       >
-                        <Plus size={16} /> Add This Session to Timeline
+                        <Plus size={16} /> Add Session to List
                       </button>
 
                       {bulkSessions.length > 0 && (
                         <div className="mt-8 space-y-3">
                           <div className="flex items-center justify-between px-2">
-                            <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Staged Timeline ({bulkSessions.length})</h4>
+                            <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Sessions to Schedule ({bulkSessions.length})</h4>
                             <button type="button" onClick={() => setBulkSessions([])} className="text-[10px] font-black text-rose-500 uppercase">Clear All</button>
                           </div>
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -891,7 +891,7 @@ const Timetable = () => {
                   className={`flex-[2] py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest text-white transition-all shadow-xl active:scale-[0.98] flex items-center justify-center gap-3 ${rescheduleMode ? 'bg-indigo-600 hover:bg-indigo-700 shadow-indigo-200' : 'bg-[#008080] hover:bg-[#006666] shadow-[#008080]/30'}`}
                 >
                   {rescheduleMode ? <RefreshCcw size={16} /> : (editingSession ? <RefreshCcw size={16} /> : <Plus size={16} />)}
-                  {rescheduleMode ? 'Apply Reschedule' : (editingSession ? 'Update Session' : isBulkMode ? 'Finalize Timeline Deployment' : 'Anchor New Session')}
+                  {rescheduleMode ? 'Apply Reschedule' : (editingSession ? 'Update Session' : isBulkMode ? 'Schedule All Sessions' : 'Create New Session')}
                 </button>
               </div>
             </form>
@@ -1007,7 +1007,7 @@ const Timetable = () => {
                 onClick={handleScheduleSubmit}
                 className="flex-[2] py-4 bg-[#008080] text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-[#008080]/30 hover:bg-[#006666] transition-all flex items-center justify-center gap-2"
               >
-                <Save size={18} /> Deploy Registration Timetable
+                <Save size={18} /> Save Registration Schedule
               </button>
             </div>
           </div>

@@ -78,7 +78,7 @@ const SessionCard = ({ session, isLive, isPast }) => (
         rel="noopener noreferrer"
         className="group/btn block w-full text-center bg-white text-[#008080] py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] mb-6 hover:shadow-xl transition-all active:scale-95 border border-white/50"
       >
-        Launch Protocol <span className="ml-2 transition-transform group-hover/btn:translate-x-1 inline-block">→</span>
+        Join Session <span className="ml-2 transition-transform group-hover/btn:translate-x-1 inline-block">→</span>
       </a>
     )}
 
@@ -104,7 +104,7 @@ const MilestoneAlert = ({ count, navigate }) => (
       <div>
         <h3 className="text-2xl font-black text-slate-800 tracking-tight uppercase leading-none mb-2">Priority Conflict Detected</h3>
         <p className="text-[11px] font-bold text-rose-500 uppercase tracking-[0.2em] leading-relaxed max-w-lg">
-          System identify <span className="underline decoration-2">{count} assessment sequences</span> awaiting evaluation. Immediate clearance required for compliance.
+          There are <span className="underline decoration-2">{count} pending assessments</span> awaiting evaluation. Immediate clearance required for compliance.
         </p>
       </div>
     </div>
@@ -112,7 +112,7 @@ const MilestoneAlert = ({ count, navigate }) => (
       onClick={() => navigate('/mentor/exams')}
       className="w-full lg:w-auto flex items-center justify-center gap-4 bg-slate-900 border border-slate-800 text-white px-10 py-5 rounded-[20px] text-[10px] font-black uppercase tracking-[0.25em] shadow-xl hover:bg-slate-800 hover:-translate-y-1 transition-all active:scale-95 group/btn relative z-10"
     >
-      Execute Assessment Log <ChevronRight size={18} className="transition-transform group-hover/btn:translate-x-1" />
+      Evaluate Assessments <ChevronRight size={18} className="transition-transform group-hover/btn:translate-x-1" />
     </button>
   </div>
 );
@@ -153,7 +153,7 @@ const MentorDashboard = () => {
           <h2 className="text-4xl font-black text-slate-900 tracking-tighter leading-none mb-3 ">Mentor Oversight</h2>
           <p className="text-slate-600 text-[10px] font-black uppercase tracking-[0.2em] flex items-center justify-center md:justify-start gap-2">
             <div className="w-1.5 h-1.5 rounded-full bg-[#008080] animate-pulse"></div>
-            Real-time trajectory tracking & academic audit pulse
+            Monitor student progress and academic performance
           </p>
         </div>
         <div className="flex items-center gap-4 bg-slate-50/50 px-6 py-4 rounded-[20px] border border-slate-100/50 shadow-inner">
@@ -180,13 +180,13 @@ const MentorDashboard = () => {
           color="bg-[#6366F1]"
         />
         <StatCard
-          title="Action Pendency"
+          title="Pending Tasks"
           value={stats.pendingTasks}
           icon={ListTodo}
           color="bg-[#F59E0B]"
         />
         <StatCard
-          title="Protocol Success"
+          title="Completed Tasks"
           value={stats.completedTasks}
           icon={CheckCircle2}
           color="bg-[#10B981]"
@@ -198,7 +198,7 @@ const MentorDashboard = () => {
           color="bg-[#008080]"
         />
         <StatCard
-          title="Faculty Nexus"
+          title="Faculty Interactions"
           value={stats.totalFacultyInteractions}
           icon={Users}
           color="bg-[#EC4899]"
@@ -207,8 +207,8 @@ const MentorDashboard = () => {
 
       <div className="bg-white/70 backdrop-blur-xl p-10 md:p-12 rounded-[32px] border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.04)] relative overflow-hidden">
         <div className="mb-16">
-          <h2 className="text-3xl font-black text-slate-900 tracking-tighter uppercase leading-none mb-3">Academic Session Intel</h2>
-          <p className="text-slate-600 text-[10px] font-black uppercase tracking-[0.25em]">Multi-tier synchronization of high-impact learning squads</p>
+          <h2 className="text-3xl font-black text-slate-900 tracking-tighter uppercase leading-none mb-3">Academic Sessions & Activity</h2>
+          <p className="text-slate-600 text-[10px] font-black uppercase tracking-[0.25em]">Overview of live classes, recent interactions, and upcoming schedules</p>
         </div>
 
         <div className="space-y-20">
@@ -216,7 +216,7 @@ const MentorDashboard = () => {
             <div className="flex items-center gap-6">
               <div className="w-1.5 h-10 bg-[#008080] rounded-full animate-pulse shadow-[0_0_15px_rgba(20,184,166,0.3)]"></div>
               <h3 className="text-xl font-black text-slate-800 uppercase tracking-tight flex items-center gap-4">
-                Active Protocols
+                Active Sessions
                 {stats.liveSessions?.length > 0 && (
                   <div className="flex items-center gap-2 px-3 py-1 bg-[#008080]/10 border border-[#008080]/20 rounded-full">
                     <div className="w-1.5 h-1.5 rounded-full bg-[#008080] animate-ping"></div>
@@ -234,7 +234,7 @@ const MentorDashboard = () => {
               ) : (
                 <div className="col-span-full py-16 text-center bg-slate-50/50 rounded-[32px] border border-dashed border-slate-200 group transition-all duration-700">
                   <Activity className="mx-auto text-slate-200 mb-4 group-hover:text-[#008080] transition-colors" size={48} strokeWidth={1} />
-                  <p className="text-slate-600 text-[10px] font-black uppercase tracking-[0.25em] ">No active protocols detected in this sector</p>
+                  <p className="text-slate-600 text-[10px] font-black uppercase tracking-[0.25em] ">No active sessions found.</p>
                 </div>
               )}
             </div>
@@ -243,7 +243,7 @@ const MentorDashboard = () => {
           <div className="space-y-10">
             <div className="flex items-center gap-6">
               <div className="w-1.5 h-10 bg-indigo-500 rounded-full"></div>
-              <h3 className="text-xl font-black text-slate-800 uppercase tracking-tight">Recent Intelligence</h3>
+              <h3 className="text-xl font-black text-slate-800 uppercase tracking-tight">Recent Interactions</h3>
               <div className="h-[1px] flex-1 bg-slate-100 opacity-50"></div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -252,7 +252,7 @@ const MentorDashboard = () => {
                   <div key={`log-${idx}`} className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm hover:shadow-md transition-all group">
                     <div className="flex justify-between items-start mb-4">
                       <div className="px-3 py-1 bg-slate-50 text-[9px] font-black uppercase tracking-widest text-slate-600 rounded-full border border-slate-100">
-                        {log.type} PROTOCOL
+                        {log.type}
                       </div>
                       <span className="text-[10px] font-bold text-slate-400 uppercase">
                         {new Date(log.created_at).toLocaleDateString('en-GB')}
@@ -278,7 +278,7 @@ const MentorDashboard = () => {
                 ))
               ) : (
                 <div className="col-span-full py-12 text-center bg-slate-50/50 rounded-3xl border border-dashed border-slate-200">
-                  <p className="text-slate-600 text-[10px] font-black uppercase tracking-widest">No recent intelligence logs found</p>
+                  <p className="text-slate-600 text-[10px] font-black uppercase tracking-widest">No recent interactions found.</p>
                 </div>
               )}
             </div>
@@ -287,7 +287,7 @@ const MentorDashboard = () => {
           <div className="space-y-10">
             <div className="flex items-center gap-6">
               <div className="w-1.5 h-10 bg-slate-200 rounded-full"></div>
-              <h3 className="text-xl font-black text-slate-800 uppercase tracking-tight">Future Sequences</h3>
+              <h3 className="text-xl font-black text-slate-800 uppercase tracking-tight">Upcoming Sessions</h3>
               <div className="h-[1px] flex-1 bg-slate-100 opacity-50"></div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -316,7 +316,7 @@ const MentorDashboard = () => {
                 ))
               ) : (
                 <div className="col-span-full py-12 text-center bg-slate-50/50 rounded-3xl border border-dashed border-slate-200">
-                  <p className="text-slate-600 text-[10px] font-black uppercase tracking-widest ">No historical session data discovered</p>
+                  <p className="text-slate-600 text-[10px] font-black uppercase tracking-widest ">No past sessions found.</p>
                 </div>
               )}
             </div>

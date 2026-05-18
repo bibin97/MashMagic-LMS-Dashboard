@@ -56,10 +56,10 @@ const AuditLogs = () => {
         <div className="space-y-10 animate-in fade-in duration-700 pb-20">
             <header className="bg-white p-10 md:p-14 rounded-[3.5rem] border border-slate-100 shadow-sm flex flex-col md:flex-row justify-between items-center gap-10">
                 <div>
-                    <h1 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tighter uppercase leading-none mb-4">System Audit Trail</h1>
+                    <h1 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tighter uppercase leading-none mb-4">System Notifications & Logs</h1>
                     <p className="text-slate-500 text-[11px] font-black uppercase tracking-[0.3em] flex items-center gap-3">
                         <ShieldCheck size={16} className="text-[#008080]" />
-                        Real-time monitoring of SSC, Mentor, and Faculty operations
+                        Monitor recent system activities and notifications
                     </p>
                 </div>
                 <div className="flex gap-4">
@@ -73,7 +73,7 @@ const AuditLogs = () => {
                         onClick={handleClearAll}
                         className="px-8 py-4 bg-rose-50 text-rose-600 rounded-[1.5rem] border border-rose-100 text-[10px] font-black uppercase tracking-widest hover:bg-rose-500 hover:text-white transition-all shadow-sm"
                     >
-                        Purge Audit History
+                        Clear All Notifications
                     </button>
                 </div>
             </header>
@@ -83,7 +83,7 @@ const AuditLogs = () => {
                     <Search size={22} className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#008080] transition-colors" />
                     <input 
                         type="text" 
-                        placeholder="Search audit events by keyword or entity..." 
+                        placeholder="Search notifications..." 
                         className="w-full bg-white p-6 pl-16 rounded-[2.5rem] border border-slate-100 shadow-sm outline-none focus:ring-4 focus:ring-[#008080]/5 font-bold text-slate-700 transition-all"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
@@ -94,8 +94,8 @@ const AuditLogs = () => {
                     onChange={(e) => setTypeFilter(e.target.value)}
                     className="bg-white px-10 py-6 rounded-[2.5rem] border border-slate-100 shadow-sm text-[10px] font-black uppercase tracking-widest outline-none focus:ring-4 focus:ring-[#008080]/5 cursor-pointer"
                 >
-                    <option value="all">All Event Types</option>
-                    <option value="mentor_session_report">Interaction Hub</option>
+                    <option value="all">All Notifications</option>
+                    <option value="mentor_session_report">Mentor Session Reports</option>
                     <option value="fraud_alert">Security Alerts</option>
                     <option value="mentor_registration">Registrations</option>
                     <option value="staff_update">System Updates</option>
@@ -107,10 +107,10 @@ const AuditLogs = () => {
                     <table className="w-full text-left">
                         <thead>
                             <tr className="bg-slate-50/50 border-b border-slate-100">
-                                <th className="px-10 py-8 text-[10px] font-black text-slate-600 uppercase tracking-widest">Temporal Signature</th>
-                                <th className="px-10 py-8 text-[10px] font-black text-slate-600 uppercase tracking-widest">Event Protocol</th>
-                                <th className="px-10 py-8 text-[10px] font-black text-slate-600 uppercase tracking-widest">Classification</th>
-                                <th className="px-10 py-8 text-[10px] font-black text-slate-600 uppercase tracking-widest text-right">Integrity</th>
+                                <th className="px-10 py-8 text-[10px] font-black text-slate-600 uppercase tracking-widest">Date & Time</th>
+                                <th className="px-10 py-8 text-[10px] font-black text-slate-600 uppercase tracking-widest">Message / Details</th>
+                                <th className="px-10 py-8 text-[10px] font-black text-slate-600 uppercase tracking-widest">Category</th>
+                                <th className="px-10 py-8 text-[10px] font-black text-slate-600 uppercase tracking-widest text-right">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-50">
@@ -150,7 +150,7 @@ const AuditLogs = () => {
                                             <div className="flex items-center justify-end gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
                                                 {!log.is_read && (
                                                     <button className="text-[9px] font-black text-[#008080] uppercase tracking-widest flex items-center gap-2 hover:underline">
-                                                        Acknowledge
+                                                        Mark as Read
                                                     </button>
                                                 )}
                                                 <button className="p-2 text-rose-500 hover:bg-rose-50 rounded-lg transition-colors">
@@ -164,7 +164,7 @@ const AuditLogs = () => {
                                 <tr>
                                     <td colSpan="4" className="px-10 py-40 text-center">
                                         <ShieldCheck size={48} className="text-slate-100 mx-auto mb-6" />
-                                        <p className="text-slate-400 font-black text-[11px] uppercase tracking-[0.4em]">Audit matrix is currently clear of anomalous entries.</p>
+                                        <p className="text-slate-400 font-black text-[11px] uppercase tracking-[0.4em]">No notifications found.</p>
                                     </td>
                                 </tr>
                             )}

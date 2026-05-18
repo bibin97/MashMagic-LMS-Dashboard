@@ -157,7 +157,7 @@ const CommonInteractionLogs = ({ role }) => {
                             onClick={() => { setActiveTab('faculty'); resetListFilters(); }}
                             className={`flex-1 md:flex-none px-8 py-3.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'faculty' ? 'bg-white text-purple-600 shadow-md' : 'text-slate-500 hover:text-slate-700'}`}
                         >
-                            Faculty Nexus
+                            Faculty Focus
                         </button>
                     </div>
                 </div>
@@ -196,7 +196,7 @@ const CommonInteractionLogs = ({ role }) => {
                         </div>
 
                         <div className="flex items-center gap-3">
-                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Active Matrix:</span>
+                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Count:</span>
                             <span className="px-4 py-1.5 bg-slate-50 text-slate-600 rounded-lg text-[10px] font-black border border-slate-100">{filteredEntities.length} Entities</span>
                         </div>
                     </div>
@@ -205,7 +205,7 @@ const CommonInteractionLogs = ({ role }) => {
                         <div className="px-8 py-6 bg-slate-50 border-b border-slate-100 animate-in slide-in-from-top-4 duration-500">
                             <div className="flex flex-wrap items-center gap-4">
                                 <div className="flex items-center gap-2">
-                                    <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest mr-2">Time Matrix:</span>
+                                    <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest mr-2">Time Filter:</span>
                                     {['all', 'today', 'week', 'month', 'custom'].map((opt) => (
                                         <button
                                             key={opt}
@@ -242,9 +242,9 @@ const CommonInteractionLogs = ({ role }) => {
                         <table className="w-full text-left border-collapse">
                             <thead>
                                 <tr className="bg-slate-50/50">
-                                    <th className="px-10 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Identify</th>
-                                    <th className="px-10 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Metadata</th>
-                                    <th className="px-10 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Operational Status</th>
+                                    <th className="px-10 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Name</th>
+                                    <th className="px-10 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Details</th>
+                                    <th className="px-10 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Status</th>
                                     <th className="px-10 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest text-right">Actions</th>
                                 </tr>
                             </thead>
@@ -287,7 +287,7 @@ const CommonInteractionLogs = ({ role }) => {
                                                 <div className="flex items-center gap-3">
                                                     <div className={`w-2 h-2 rounded-full ${entity.status === 'active' || activeTab === 'student' ? 'bg-emerald-500 animate-pulse' : 'bg-slate-300'}`}></div>
                                                     <span className="text-[10px] font-black text-slate-700 uppercase tracking-widest">
-                                                        {entity.status === 'active' ? 'Operational' : (activeTab === 'student' ? 'Active Account' : 'Inactive')}
+                                                        {entity.status === 'active' ? 'Active' : (activeTab === 'student' ? 'Active Account' : 'Inactive')}
                                                     </span>
                                                 </div>
                                             </td>
@@ -303,12 +303,12 @@ const CommonInteractionLogs = ({ role }) => {
                                     <tr>
                                         <td colSpan="4" className="px-10 py-40 text-center">
                                             <History size={48} className="text-slate-200 mx-auto mb-6" />
-                                            <p className="text-slate-400 font-black text-[11px] uppercase tracking-[0.3em]">No entity matches detected in current search matrix.</p>
+                                            <p className="text-slate-400 font-black text-[11px] uppercase tracking-[0.3em]">No records found matching your search.</p>
                                             <button 
                                                 onClick={resetListFilters}
                                                 className="mt-4 px-6 py-2 bg-slate-900 text-white rounded-xl text-[9px] font-black uppercase tracking-widest"
                                             >
-                                                Clear Matrix Filters
+                                                Clear Filters
                                             </button>
                                         </td>
                                     </tr>
@@ -333,7 +333,7 @@ const CommonInteractionLogs = ({ role }) => {
                     </button>
                     <div>
                         <div className="flex items-center gap-3 mb-2">
-                            <span className="px-3 py-1 bg-[#008080]/10 text-[#008080] rounded-lg text-[8px] font-black uppercase tracking-widest border border-[#008080]/20">Audit Active</span>
+                            <span className="px-3 py-1 bg-[#008080]/10 text-[#008080] rounded-lg text-[8px] font-black uppercase tracking-widest border border-[#008080]/20">Active Audit</span>
                             <span className="text-slate-300">/</span>
                             <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{selectedStudent.registration_number || selectedStudent.id}</span>
                         </div>
@@ -371,7 +371,7 @@ const CommonInteractionLogs = ({ role }) => {
             {showFilterPanel && (
                 <div className="flex flex-col md:flex-row gap-8 p-10 bg-slate-900 rounded-[3.5rem] shadow-2xl animate-in slide-in-from-top-6 duration-700 items-end">
                     <div className="flex-1 w-full">
-                        <label className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 block ml-2">Start Boundary</label>
+                        <label className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 block ml-2">Start Date</label>
                         <div className="relative group">
                             <Calendar size={16} className="absolute left-5 top-1/2 -translate-y-1/2 text-white/40 group-focus-within:text-[#008080] transition-colors" />
                             <input 
@@ -387,7 +387,7 @@ const CommonInteractionLogs = ({ role }) => {
                     </div>
 
                     <div className="flex-1 w-full">
-                        <label className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 block ml-2">End Boundary</label>
+                        <label className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 block ml-2">End Date</label>
                         <div className="relative group">
                             <Calendar size={16} className="absolute left-5 top-1/2 -translate-y-1/2 text-white/40 group-focus-within:text-[#008080] transition-colors" />
                             <input 
@@ -417,8 +417,8 @@ const CommonInteractionLogs = ({ role }) => {
                 <div className="flex flex-col items-center justify-center py-40 gap-8">
                     <div className="w-16 h-16 border-4 border-[#008080] border-t-transparent rounded-full animate-spin shadow-[0_0_20px_rgba(0,128,128,0.2)]"></div>
                     <div className="text-center">
-                        <p className="text-[11px] font-black text-slate-900 uppercase tracking-[0.4em] mb-2">Decrypting Interaction Stream</p>
-                        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Compiling historical data packets from encrypted storage</p>
+                        <p className="text-[11px] font-black text-slate-900 uppercase tracking-[0.4em] mb-2">Loading Interaction History</p>
+                        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Fetching records from the database</p>
                     </div>
                 </div>
             ) : logs.length > 0 ? (
@@ -529,13 +529,13 @@ const CommonInteractionLogs = ({ role }) => {
                                                 <div className="relative">
                                                     <div className="absolute -left-4 top-0 bottom-0 w-1 bg-slate-900 rounded-full opacity-10"></div>
                                                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
-                                                        <ScrollText size={12} /> Detailed Narrative
+                                                        <ScrollText size={12} /> Detailed Notes
                                                     </p>
                                                     <div className="text-sm font-bold text-slate-700 leading-relaxed p-8 bg-slate-50 rounded-[2rem] border border-slate-100 relative shadow-inner">
                                                         <div className="absolute top-4 left-4 opacity-5">
                                                             <svg width="40" height="40" viewBox="0 0 24 24" fill="currentColor"><path d="M14.017 21L14.017 18C14.017 16.8954 14.9124 16 16.017 16H19.017C20.1216 16 21.017 16.8954 21.017 18V21C21.017 22.1046 20.1216 23 19.017 23H16.017C14.9124 23 14.017 22.1046 14.017 21ZM14.017 21V18C14.017 16.8954 14.9124 16 16.017 16H19.017C20.1216 16 21.017 16.8954 21.017 18V21C21.017 22.1046 20.1216 23 19.017 23H16.017C14.9124 23 14.017 22.1046 14.017 21ZM3 18C3 16.8954 3.89543 16 5 16H8C9.10457 16 10 16.8954 10 18V21C10 22.1046 9.10457 23 8 23H5C3.89543 23 3 22.1046 3 21V18ZM3 18V16C3 13.7909 4.79086 12 7 12H10V14H7C5.89543 14 5 14.8954 5 16V18H3Z"/></svg>
                                                         </div>
-                                                        {log.mentor_notes || log.notes || log.remarks || 'No qualitative narrative provided for this sequence.'}
+                                                        {log.mentor_notes || log.notes || log.remarks || 'No notes provided for this session.'}
                                                     </div>
                                                 </div>
 
@@ -553,7 +553,7 @@ const CommonInteractionLogs = ({ role }) => {
                                                     })}
                                                     {log.understanding_level !== undefined && log.understanding_level !== null && (
                                                         <div className="p-5 bg-emerald-50 border border-emerald-100 rounded-3xl flex flex-col gap-1.5 shadow-sm">
-                                                            <span className="text-[9px] font-black text-emerald-600 uppercase tracking-widest">Knowledge Grip</span>
+                                                            <span className="text-[9px] font-black text-emerald-600 uppercase tracking-widest">Understanding Level</span>
                                                             <span className="text-lg font-black text-emerald-700">{log.understanding_level}%</span>
                                                         </div>
                                                     )}
@@ -590,7 +590,7 @@ const CommonInteractionLogs = ({ role }) => {
                     </div>
                     <h3 className="text-2xl font-black text-slate-900 uppercase tracking-tight">No Sessions Found</h3>
                     <p className="text-slate-400 font-bold text-[10px] uppercase tracking-[0.3em] mt-3 max-w-md mx-auto leading-loose">
-                        No interaction sequences discovered in the current matrix for this entity.
+                        No interaction logs found for this user.
                     </p>
                 </div>
             )}

@@ -147,7 +147,7 @@ const Dashboard = () => {
         <h2 className="text-4xl font-black text-slate-900 tracking-tighter leading-none mb-3">Workspace Overview</h2>
         <div className="flex items-center gap-3">
           <div className="px-3 py-1 bg-[#008080]/10 rounded-lg border border-[#008080]/20">
-            <p className="text-[#008080] text-[10px] font-black uppercase tracking-[0.2em]">Operational Pulse: Active</p>
+            <p className="text-[#008080] text-[10px] font-black uppercase tracking-[0.2em]">System Status: Active</p>
           </div>
         </div>
       </div>
@@ -173,7 +173,7 @@ const Dashboard = () => {
           trend={-2}
         />
         <StatCard
-          title="Pending Ops"
+          title="Pending Approvals"
           value={stats.pendingApprovals}
           icon={<UserPlus size={24} />}
           trend={18}
@@ -190,8 +190,8 @@ const Dashboard = () => {
                 <Activity size={20} />
               </div>
               <div>
-                <h4 className="text-xl font-black text-slate-800 tracking-tight">Task Velocity</h4>
-                <p className="text-[10px] text-slate-600 font-bold uppercase tracking-widest mt-1">Resource allocation & completion</p>
+                <h4 className="text-xl font-black text-slate-800 tracking-tight">Task Performance</h4>
+                <p className="text-[10px] text-slate-600 font-bold uppercase tracking-widest mt-1">Tasks assigned vs completed</p>
               </div>
             </div>
             <div className="flex items-center gap-6">
@@ -290,8 +290,8 @@ const Dashboard = () => {
                 <Users size={20} />
               </div>
               <div>
-                <h4 className="text-xl font-black text-slate-800 tracking-tight">Workforce Load</h4>
-                <p className="text-[10px] text-slate-600 font-bold uppercase tracking-widest mt-1">Student-to-Mentor mapping</p>
+                <h4 className="text-xl font-black text-slate-800 tracking-tight">Student Distribution</h4>
+                <p className="text-[10px] text-slate-600 font-bold uppercase tracking-widest mt-1">Students assigned per mentor</p>
               </div>
             </div>
 
@@ -378,7 +378,7 @@ const Dashboard = () => {
                 </span>
               </div>
               <div className="flex flex-col gap-0.5 text-right">
-                <span className="text-[10px] uppercase font-bold text-slate-600 tracking-wider">Avg Loading</span>
+                <span className="text-[10px] uppercase font-bold text-slate-600 tracking-wider">Avg Students</span>
                 <span className="text-base font-bold text-slate-900">
                   {mentorDistribution.length > 0
                     ? Math.round(mentorDistribution.reduce((acc, d) => acc + d.value, 0) / mentorDistribution.length)
@@ -395,8 +395,8 @@ const Dashboard = () => {
                   <ListTodo size={20} />
                 </div>
                 <div>
-                  <h4 className="text-xl font-black text-slate-800 tracking-tight">Daily Audit Pulse</h4>
-                  <p className="text-[10px] text-slate-600 font-bold uppercase tracking-widest mt-1">Mentor Head tracking</p>
+                  <h4 className="text-xl font-black text-slate-800 tracking-tight">Daily Student Checks</h4>
+                  <p className="text-[10px] text-slate-600 font-bold uppercase tracking-widest mt-1">Student tracking by Mentor Head</p>
                 </div>
               </div>
             </div>
@@ -461,8 +461,8 @@ const Dashboard = () => {
               <TrendingUp size={20} />
             </div>
             <div>
-              <h4 className="text-xl font-black text-slate-800 tracking-tight">Academic Momentum</h4>
-              <p className="text-[10px] text-slate-600 font-bold uppercase tracking-widest mt-1">Success rate analytics</p>
+              <h4 className="text-xl font-black text-slate-800 tracking-tight">Exam Performance Trends</h4>
+              <p className="text-[10px] text-slate-600 font-bold uppercase tracking-widest mt-1">Average score percentages</p>
             </div>
           </div>
         </div>

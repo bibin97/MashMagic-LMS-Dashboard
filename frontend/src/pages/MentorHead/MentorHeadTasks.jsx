@@ -145,8 +145,8 @@ const MentorHeadTasks = () => {
  <ListTodo size={24} />
  </div>
  <div>
- <h1 className="text-2xl font-black text-slate-900 tracking-tight uppercase ">Assigned Protocols</h1>
- <p className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] mt-1">Operational directiives and tasks for Mentors</p>
+ <h1 className="text-2xl font-black text-slate-900 tracking-tight uppercase ">Assigned Tasks</h1>
+ <p className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] mt-1">Manage and track tasks assigned to Mentors</p>
  </div>
  </div>
 
@@ -183,7 +183,7 @@ const MentorHeadTasks = () => {
  <AlertTriangle size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#008080] transition-colors" />
  <input
  type="text"
- placeholder="Scan protocols by title..."
+ placeholder="Search tasks by title..."
  className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-3 pl-12 pr-4 text-xs font-bold outline-none focus:bg-white focus:ring-4 focus:ring-[#008080]/50 focus:border-[#008080] transition-all placeholder:text-slate-600"
  value={searchQuery}
  onChange={(e) => setSearchQuery(e.target.value)}
@@ -209,11 +209,11 @@ const MentorHeadTasks = () => {
  <table className="w-full text-left border-collapse">
  <thead>
  <tr className="bg-slate-50/50 border-b border-slate-100">
- <th className="p-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Protocol Matrix</th>
+ <th className="p-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Task Details</th>
  <th className="p-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Personnel Assigned</th>
- <th className="p-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Temporal Status</th>
- <th className="p-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Origin Authority</th>
- <th className="p-6 text-[10px] font-black text-slate-600 uppercase tracking-widest text-right">Operations</th>
+ <th className="p-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Status & Deadline</th>
+ <th className="p-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Assigned By</th>
+ <th className="p-6 text-[10px] font-black text-slate-600 uppercase tracking-widest text-right">Actions</th>
  </tr>
  </thead>
  <tbody className="divide-y divide-slate-50">
@@ -230,7 +230,7 @@ const MentorHeadTasks = () => {
  <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center border-4 border-white shadow-inner">
  <ListTodo size={40} className="text-slate-300" />
  </div>
- <p className="font-black text-[10px] uppercase tracking-[0.2em] text-slate-500">No active tasks detected in the sectors</p>
+ <p className="font-black text-[10px] uppercase tracking-[0.2em] text-slate-500">No active tasks found.</p>
  </div>
  </td>
  </tr>
@@ -266,7 +266,7 @@ const MentorHeadTasks = () => {
  <div className="flex flex-col gap-1.5">
  <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border border-current w-fit ${style.text}`}>
  <div className="w-1.5 h-1.5 rounded-full bg-current animate-pulse" />
- {task.status === 'Completed' ? 'Fulfilled' : (isOverdue ? 'Overdue' : 'Active')}
+ {task.status === 'Completed' ? 'Completed' : (isOverdue ? 'Overdue' : 'Active')}
  </div>
  {task.status === 'Completed' && (
  <div className="flex flex-col gap-1">
@@ -282,7 +282,7 @@ const MentorHeadTasks = () => {
  rel="noopener noreferrer" 
  className="text-[9px] font-black text-[#008080] hover:underline uppercase tracking-widest bg-[#008080]/5 px-2 py-0.5 rounded w-fit"
  >
- View Evidence
+ View Attachment
  </a>
  )}
  </div>
@@ -295,7 +295,7 @@ const MentorHeadTasks = () => {
  </td>
  <td className="p-6">
  <span className="text-[10px] font-black text-slate-500 uppercase tracking-tighter block">{task.assigner_name || 'ADMIN'}</span>
- <span className="text-[9px] font-bold text-slate-600 uppercase opacity-60">System Authority</span>
+ <span className="text-[9px] font-bold text-slate-600 uppercase opacity-60">Administrator</span>
  </td>
   <td className="p-6 text-right">
  <div className="flex items-center justify-end gap-2 opactiy-0 group-hover:opacity-100 transition-opacity">
@@ -325,7 +325,7 @@ const MentorHeadTasks = () => {
  <button
  onClick={() => handleDelete(task)}
  className="w-10 h-10 rounded-xl flex items-center justify-center text-slate-300 hover:text-rose-600 hover:bg-rose-50 transition-all border border-transparent hover:border-rose-100"
- title="Erase Trace"
+ title="Delete Task"
  >
  <AlertCircle size={18} />
  </button>
@@ -339,7 +339,7 @@ const MentorHeadTasks = () => {
  </table>
  </div>
  <div className="p-6 bg-slate-50/50 border-t border-slate-100 flex justify-between items-center mt-auto">
- <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Sector Logged: {filteredTasks.length} Protocols Active</span>
+ <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Total Tasks: {filteredTasks.length}</span>
  <div className="flex gap-2">
  <button className="px-4 py-2 bg-white border border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-600 cursor-not-allowed">Previous</button>
  <button className="px-4 py-2 bg-[#008080] text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-[#008080]/30 ">Page 01</button>
@@ -396,7 +396,7 @@ const MentorHeadTasks = () => {
  </select>
  </div>
  <div className="flex flex-col gap-2">
- <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Fulfillment Deadline</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Deadline</label>
  <div className="relative">
  <Calendar size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600" />
  <input
@@ -411,7 +411,7 @@ const MentorHeadTasks = () => {
  </div>
 
  <div className="flex flex-col gap-3">
- <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Priority Categorization</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Priority</label>
  <div className="grid grid-cols-3 gap-3">
  {['Low', 'Medium', 'High'].map((p) => (
  <button
@@ -435,7 +435,7 @@ const MentorHeadTasks = () => {
  type="submit"
  className="w-full bg-[#008080] text-white p-4 rounded-2xl font-black text-sm hover:bg-slate-900 transition-all shadow-xl shadow-[#008080]/30 mt-2 flex items-center justify-center gap-2 group"
  >
- <span>Authorize and Issue Task</span>
+ <span>Assign Task</span>
  <AlertTriangle size={18} className="transition-transform group-hover:scale-110" />
  </button>
  </form>

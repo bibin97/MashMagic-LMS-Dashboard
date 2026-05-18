@@ -143,7 +143,7 @@ const Tasks = () => {
 
  const columns = [
  {
- header: 'Task Objective', accessor: 'title', render: (row) => (
+ header: 'Task Title', accessor: 'title', render: (row) => (
  <div className="flex flex-col">
  <span className="font-bold text-slate-900">{row.title}</span>
  <span className="text-xs text-slate-600 font-medium truncate max-w-[200px]">{row.description}</span>
@@ -225,7 +225,7 @@ const Tasks = () => {
  <div className="flex flex-col gap-10 pb-10">
  <div className="bg-white/70 backdrop-blur-xl p-10 rounded-[32px] border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.04)] flex flex-col md:flex-row justify-between items-center gap-8">
  <div className="text-center md:text-left">
- <h2 className="text-4xl font-black text-slate-900 tracking-tighter leading-none mb-3 ">Operations Hub</h2>
+ <h2 className="text-4xl font-black text-slate-900 tracking-tighter leading-none mb-3 ">Tasks Management</h2>
  <p className="text-slate-600 text-[10px] font-black uppercase tracking-[0.2em] flex items-center justify-center md:justify-start gap-2">
  <div className="w-1.5 h-1.5 rounded-full bg-[#008080] animate-pulse"></div>
  Coordinate and track educational tasks for the mentor network
@@ -237,7 +237,7 @@ const Tasks = () => {
  className="bg-gradient-to-br from-[#006666] to-[#008080] text-white px-8 py-5 rounded-[20px] font-black text-[10px] uppercase tracking-[0.2em] hover:shadow-xl hover:shadow-[#008080]/40 hover:-translate-y-1 transition-all flex items-center gap-3"
  >
  <Plus size={18} strokeWidth={3} />
- <span>Issue New Mission</span>
+ <span>Assign New Task</span>
  </button>
  )}
  </div>
@@ -268,24 +268,24 @@ const Tasks = () => {
  >
  <form onSubmit={handleSubmit} className="flex flex-col gap-6">
  <div className="flex flex-col gap-2">
- <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] ml-1">Mission Objective</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] ml-1">Task Title</label>
  <input
  type="text"
  required
  className="p-5 bg-slate-50/50 border border-slate-100/50 rounded-2xl text-[13px] outline-none focus:bg-white focus:ring-4 focus:ring-[#008080]/5 focus:border-[#008080] transition-all font-black uppercase tracking-widest text-slate-700 placeholder:text-slate-300 shadow-inner"
- placeholder="OBJECTIVE IDENTIFIER..."
+ placeholder="ENTER TASK TITLE..."
  value={formData.title}
  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
  />
  </div>
 
  <div className="flex flex-col gap-2">
- <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] ml-1">Strategic Parameters</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] ml-1">Task Description</label>
  <textarea
  rows="4"
  required
  className="p-5 bg-slate-50/50 border border-slate-100/50 rounded-2xl text-[13px] outline-none focus:bg-white focus:ring-4 focus:ring-[#008080]/5 focus:border-[#008080] transition-all font-bold text-slate-600 placeholder:text-slate-300 shadow-inner resize-none "
- placeholder="Specify detailed engagement protocols..."
+ placeholder="Specify detailed task instructions..."
  value={formData.description}
  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
  />
@@ -293,7 +293,7 @@ const Tasks = () => {
 
  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
  <div className="flex flex-col gap-2">
- <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] ml-1">Designated Personnel</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] ml-1">Assignee</label>
  <select
  required
  className="p-5 bg-slate-50/50 border border-slate-100/50 rounded-2xl text-[10px] outline-none focus:bg-white focus:ring-4 focus:ring-[#008080]/5 focus:border-[#008080] transition-all font-black uppercase tracking-[0.1em] appearance-none cursor-pointer shadow-inner"
@@ -326,7 +326,7 @@ const Tasks = () => {
  </select>
  </div>
  <div className="flex flex-col gap-2">
- <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] ml-1">Temporal Deadline</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] ml-1">Deadline</label>
  <div className="relative">
  <Calendar size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-[#008080] opacity-50" />
  <input
@@ -341,7 +341,7 @@ const Tasks = () => {
  </div>
 
  <div className="flex flex-col gap-4">
- <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] ml-1">Priority Categorization</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] ml-1">Priority</label>
  <div className="grid grid-cols-3 gap-4">
  {['Low', 'Medium', 'High'].map((p) => (
  <button
@@ -365,7 +365,7 @@ const Tasks = () => {
  type="submit"
  className="w-full bg-slate-900 text-white p-6 rounded-[24px] font-black text-[11px] uppercase tracking-[0.3em] hover:bg-slate-800 transition-all shadow-2xl shadow-slate-900/10 mt-4 flex items-center justify-center gap-4 group "
  >
- <span>Authorize and Issue Mission Protocol</span>
+ <span>Create Task</span>
  <div className="w-1.5 h-1.5 rounded-full bg-[#008080] group-hover:animate-ping"></div>
  </button>
  </form>

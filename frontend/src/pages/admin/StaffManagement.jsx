@@ -133,7 +133,7 @@ const StaffManagement = () => {
  { header: 'Full Name', accessor: 'name' },
  { header: 'Email', accessor: 'email' },
  {
- header: 'Operational Role',
+ header: 'Staff Role',
  accessor: 'role',
  render: (row) => (
  <span className="px-5 py-2.5 bg-slate-50 border border-slate-100 rounded-[18px] text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 shadow-sm group-hover:bg-white group-hover:border-[#008080]/20 transition-all">
@@ -142,7 +142,7 @@ const StaffManagement = () => {
  )
  },
  {
- header: 'Access State',
+ header: 'Status',
  accessor: 'status',
  render: (row) => (
  <span className={`px-6 py-2.5 rounded-[20px] text-[10px] font-black uppercase tracking-[0.2em] border shadow-sm transition-all hover:scale-105 active:scale-95 ${row.status === 'active' 
@@ -158,16 +158,16 @@ const StaffManagement = () => {
  <div className="flex flex-col gap-10 pb-10">
  <div className="bg-white/70 backdrop-blur-xl p-12 rounded-[40px] border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.04)] flex flex-col md:flex-row justify-between items-center gap-10">
  <div className="text-center md:text-left">
- <h2 className="text-4xl font-black text-slate-900 tracking-tighter leading-none mb-3 ">Institutional Authority</h2>
+ <h2 className="text-4xl font-black text-slate-900 tracking-tighter leading-none mb-3 ">Staff Directory</h2>
  <p className="text-slate-600 text-[11px] font-black uppercase tracking-[0.25em] flex items-center justify-center md:justify-start gap-3 mt-1">
  <div className="w-2 h-2 rounded-full bg-[#008080] animate-pulse"></div>
- Managing Core Operational Nodes & Team Architecture
+ Manage all staff members and their system access roles
  </p>
  </div>
  <div className="bg-slate-900 px-8 py-5 rounded-[24px] border border-slate-800 shadow-2xl flex items-center gap-5 group hover:translate-x-1 transition-all">
  <ShieldCheck className="text-[#008080]" size={20} strokeWidth={2.5} />
  <div className="flex flex-col">
- <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] leading-none mb-1">Total Personnel</span>
+ <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] leading-none mb-1">Total Staff</span>
  <span className="text-2xl font-black text-white leading-none tabular-nums tracking-tighter">{staff.length}</span>
  </div>
  </div>
@@ -246,7 +246,7 @@ const StaffManagement = () => {
  <Modal
  isOpen={isEditModalOpen}
  onClose={() => setIsEditModalOpen(false)}
- title="Modify Staff Credentials"
+ title="Edit Staff Details"
  size="md"
  >
  <form onSubmit={handleUpdate} className="flex flex-col gap-6">
@@ -294,7 +294,7 @@ const StaffManagement = () => {
 
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <div className="flex flex-col gap-2">
- <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest pl-1">Operational Role</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest pl-1">Staff Role</label>
  <div className="relative">
  <Briefcase size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600" />
  <select
@@ -341,7 +341,7 @@ const StaffManagement = () => {
  type="submit"
  className="px-8 py-3 rounded-2xl bg-[#008080] text-white text-sm font-bold hover:bg-[#008080] transition-all shadow-lg shadow-[#008080]/30 active:scale-95"
  >
- Commit Changes
+ Save Changes
  </button>
  </div>
  </form>

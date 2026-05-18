@@ -35,7 +35,7 @@ export const premiumConfirm = (callback, { name = '', title = '', message = '', 
  {title || (isDanger ? 'Critical Decision' : 'Confirm Action')}
  </p>
  <p className="text-[11px] font-bold text-slate-400 uppercase tracking-[0.2em] leading-relaxed">
- {message || `Execute protocol for ${name}?`}
+ {message || `Confirm action for ${name}?`}
  </p>
  </div>
  </div>
@@ -45,7 +45,7 @@ export const premiumConfirm = (callback, { name = '', title = '', message = '', 
  onClick={() => toast.dismiss(t.id)}
  className="px-6 py-4 rounded-[20px] bg-slate-50 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-all border border-slate-100"
  >
- Abort
+ Cancel
  </button>
  <button
  onClick={() => {
@@ -54,7 +54,7 @@ export const premiumConfirm = (callback, { name = '', title = '', message = '', 
  }}
  className={`px-6 py-4 ${confirmBtnClass} text-white text-[10px] font-black uppercase tracking-widest rounded-[20px] transition-all shadow-xl active:scale-95`}
  >
- {isDanger ? 'Confirm' : 'Authorize'}
+ {isDanger ? 'Confirm' : 'Proceed'}
  </button>
  </div>
  </div>

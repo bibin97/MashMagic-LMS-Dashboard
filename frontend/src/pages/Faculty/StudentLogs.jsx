@@ -62,7 +62,7 @@ const StudentLogs = () => {
  <div className="flex flex-col md:flex-row justify-between items-center gap-8">
  <div>
  <h2 className="text-3xl font-black text-slate-900 tracking-tighter uppercase ">Student Logs</h2>
- <p className="text-slate-600 text-[10px] font-black uppercase tracking-[0.2em] mt-2">Mentor-submitted session intelligence</p>
+ <p className="text-slate-600 text-[10px] font-black uppercase tracking-[0.2em] mt-2">Mentor-submitted session logs</p>
  </div>
 
  <div className="w-full md:w-auto flex flex-col sm:flex-row gap-4">
@@ -178,7 +178,7 @@ const StudentLogs = () => {
  <BookOpen size={32} />
  </div>
  <div>
- <h2 className="text-2xl font-black text-slate-900 tracking-tight ">Session Intelligence Report</h2>
+ <h2 className="text-2xl font-black text-slate-900 tracking-tight ">Session Report</h2>
  <p className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] mt-1">{viewingLog.student_name} • Session #{viewingLog.session_number}</p>
  </div>
  </div>
@@ -203,7 +203,7 @@ const StudentLogs = () => {
  <p className="text-sm font-black text-slate-900 uppercase">{viewingLog.engagement_level}</p>
  </div>
  <div className="bg-slate-50 p-6 rounded-3xl border border-slate-100">
- <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest mb-1">Risk Vector</p>
+ <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest mb-1">Risk Level</p>
  <div className="flex items-center gap-2">
  <div className={`w-2 h-2 rounded-full ${viewingLog.risk_level === 'High' ? 'bg-rose-500 animate-pulse' : viewingLog.risk_level === 'Medium' ? 'bg-amber-400' : 'bg-emerald-400'}`}></div>
  <span className={`text-[10px] font-black uppercase tracking-widest ${viewingLog.risk_level === 'High' ? 'text-rose-600' : 'text-slate-700'}`}>
@@ -245,17 +245,17 @@ const StudentLogs = () => {
  <div className="space-y-8">
  <div className="relative pl-8 border-l-2 border-slate-100">
  <div className="absolute -left-2 top-0 w-4 h-4 bg-rose-500 rounded-full border-4 border-white shadow-sm"></div>
- <h4 className="text-[10px] font-black text-slate-600 uppercase tracking-widest mb-2">Operational Roadblocks</h4>
+ <h4 className="text-[10px] font-black text-slate-600 uppercase tracking-widest mb-2">Issues Reported</h4>
  <p className="text-sm text-slate-600 font-medium leading-relaxed bg-rose-50/30 p-4 rounded-2xl border border-rose-100/30">
- {viewingLog.issues_reported || 'Zero anomalies detected during session execution.'}
+ {viewingLog.issues_reported || 'No issues reported during this session.'}
  </p>
  </div>
 
  <div className="relative pl-8 border-l-2 border-slate-100">
  <div className="absolute -left-2 top-0 w-4 h-4 bg-amber-500 rounded-full border-4 border-white shadow-sm"></div>
- <h4 className="text-[10px] font-black text-slate-600 uppercase tracking-widest mb-2">Strategic Roadmap</h4>
+ <h4 className="text-[10px] font-black text-slate-600 uppercase tracking-widest mb-2">Remedial Plan</h4>
  <p className="text-sm text-slate-600 font-medium leading-relaxed bg-amber-50/30 p-4 rounded-2xl border border-amber-100/30">
- {viewingLog.remedial_plan || 'Maintaining current academic trajectory with no adjustments needed.'}
+ {viewingLog.remedial_plan || 'Maintaining current academic progress with no adjustments needed.'}
  </p>
  </div>
  </div>
@@ -286,7 +286,7 @@ const StudentLogs = () => {
  rel="noreferrer"
  className="relative bg-white text-slate-900 px-8 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-black/20 "
  >
- Inspect Proof
+ View Attachment
  </a>
  )}
  </div>

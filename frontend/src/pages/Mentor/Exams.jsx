@@ -229,7 +229,7 @@ const Exams = () => {
  onClick={() => handleOpenSubmit(exam)}
  className="px-10 py-6 bg-slate-900 text-white rounded-[2rem] text-[11px] font-black uppercase tracking-[0.2em] shadow-2xl shadow-[#008080] hover:bg-rose-600 hover:-translate-y-1 transition-all active:scale-95 flex items-center justify-center gap-3 w-full xl:w-fit group-hover:scale-105"
  >
- Record Protocol Result <ArrowRight size={20} />
+ Record Exam Result <ArrowRight size={20} />
  </button>
  </div>
  ))}
@@ -256,7 +256,7 @@ const Exams = () => {
  <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Student</th>
  <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Recorded Date</th>
  <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Score / Insight</th>
- <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest text-center">Protocol Status</th>
+ <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest text-center">Status</th>
  </tr>
  </thead>
  <tbody className="divide-y divide-slate-50">
@@ -308,7 +308,7 @@ const Exams = () => {
  <div className="p-10 border-b border-slate-50 flex justify-between items-center bg-[#008080] text-white relative h-32">
  <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16"></div>
  <div className="relative z-10">
- <h2 className="text-2xl font-black tracking-tight uppercase">Assessment Protocol</h2>
+ <h2 className="text-2xl font-black tracking-tight uppercase">Assessment Status</h2>
  <p className="text-[9px] font-black uppercase tracking-[0.2em] text-white/70 mt-1 flex items-center gap-2">
  <GraduationCap size={12} /> Milestone #{selectedExam?.milestone} • {selectedExam?.student_name}
  </p>
@@ -385,7 +385,7 @@ const Exams = () => {
  </div>
  </div>
  <div className="space-y-3">
- <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 ">Reason for Protocol Shift *</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 ">Reason for Postponement *</label>
  <div className="relative group">
  <FileText className="absolute left-5 top-5 text-slate-300 group-focus-within:text-amber-500 transition-colors" size={20} />
  <textarea
@@ -411,7 +411,7 @@ const Exams = () => {
  }`}
  >
  <GraduationCap size={18} />
- {formData.type === 'Complete' ? 'Authorize Completion' : 'Authorize Protocol Shift'}
+ {formData.type === 'Complete' ? 'Submit Result' : 'Submit Postponement'}
  </button>
  </form>
  </div>

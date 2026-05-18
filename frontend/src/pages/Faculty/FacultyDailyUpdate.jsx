@@ -138,7 +138,7 @@ const FacultyDailyUpdate = () => {
       <div className="space-y-10 animate-in fade-in duration-700">
         <div className="bg-white/70 backdrop-blur-xl p-10 rounded-[32px] border border-white/60 shadow-sm flex justify-between items-center">
           <div>
-            <h2 className="text-4xl font-black text-slate-900 tracking-tighter uppercase leading-none mb-3">Daily Class Protocol</h2>
+            <h2 className="text-4xl font-black text-slate-900 tracking-tighter uppercase leading-none mb-3">Daily Class Update</h2>
             <p className="text-slate-600 text-[10px] font-black uppercase tracking-[0.2em] flex items-center gap-2">
               <div className="w-1.5 h-1.5 rounded-full bg-[#008080] animate-pulse"></div>
               MANDATORY UPDATE FOR ALL STUDENTS
@@ -432,7 +432,7 @@ const FacultyDailyUpdate = () => {
            disabled={submitting}
            className="flex-[2] py-5 bg-slate-900 text-white rounded-[24px] font-black text-xs uppercase tracking-widest flex items-center justify-center gap-3 shadow-2xl shadow-slate-900/20 active:scale-95 transition-all"
          >
-            {submitting ? "INITIALIZING UPLOAD..." : "SUBMIT CLASS UPDATE"} <CheckCircle2 size={18} />
+            {submitting ? "SUBMITTING..." : "SUBMIT CLASS UPDATE"} <CheckCircle2 size={18} />
          </button>
       </div>
     </div>

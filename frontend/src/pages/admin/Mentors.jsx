@@ -230,7 +230,7 @@ const Mentors = () => {
   <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
     <div className="flex flex-col">
       <h2 className="text-4xl font-black text-slate-900 tracking-tighter leading-none mb-3 ">Mentor Network</h2>
-      <p className="text-slate-600 text-[10px] font-black uppercase tracking-[0.2em]">Operational lead directory & performance audit</p>
+      <p className="text-slate-600 text-[10px] font-black uppercase tracking-[0.2em]">Manage and monitor all mentors and their student assignments</p>
     </div>
     
     <div className="flex items-center gap-4 bg-white/70 backdrop-blur-md px-6 py-4 rounded-[20px] border border-white/60 shadow-sm group">
@@ -257,7 +257,7 @@ const Mentors = () => {
     </div>
     
     <div className="bg-white/70 backdrop-blur-md p-8 rounded-[35px] border border-white/60 shadow-sm flex flex-col gap-2 group transition-all hover:bg-white hover:shadow-md">
-      <span className="text-[10px] font-black text-[#10B981] uppercase tracking-widest">Active Pulse</span>
+      <span className="text-[10px] font-black text-[#10B981] uppercase tracking-widest">Active Mentors</span>
       <div className="flex items-end gap-3 font-black text-slate-900 tracking-tighter">
         <span className="text-4xl leading-none">{mentors.filter(m => m.status === 'active').length}</span>
         <div className="flex items-center gap-1.5 mb-1 bg-[#10B981]/10 px-2 py-0.5 rounded-full">
@@ -328,8 +328,8 @@ const Mentors = () => {
  </select>
  </div>
  <div className="flex justify-end gap-3 mt-8">
- <button type="button" className="px-8 py-3.5 rounded-2xl border border-slate-100 text-[10px] font-black uppercase tracking-widest text-slate-600 hover:text-slate-600 hover:bg-slate-50 transition-all" onClick={() => setIsEditModalOpen(false)}>Dismiss</button>
- <button type="submit" className="px-10 py-3.5 rounded-2xl bg-gradient-to-br from-[#006666] to-[#008080] text-white text-[10px] font-black uppercase tracking-[0.2em] hover:shadow-lg hover:shadow-[#008080]/30 hover:-translate-y-1 transition-all shadow-md shadow-[#008080]/20">Update Network Profile</button>
+ <button type="button" className="px-8 py-3.5 rounded-2xl border border-slate-100 text-[10px] font-black uppercase tracking-widest text-slate-600 hover:text-slate-600 hover:bg-slate-50 transition-all" onClick={() => setIsEditModalOpen(false)}>Cancel</button>
+ <button type="submit" className="px-10 py-3.5 rounded-2xl bg-gradient-to-br from-[#006666] to-[#008080] text-white text-[10px] font-black uppercase tracking-[0.2em] hover:shadow-lg hover:shadow-[#008080]/30 hover:-translate-y-1 transition-all shadow-md shadow-[#008080]/20">Save Changes</button>
  </div>
  </form>
  </Modal>
@@ -337,7 +337,7 @@ const Mentors = () => {
  <Modal
  isOpen={isModalOpen}
  onClose={() => setIsModalOpen(false)}
- title="Performance Analytics Profile"
+ title="Mentor Performance & Student Details"
  size="lg"
  >
  {selectedMentor && (
@@ -445,8 +445,8 @@ const Mentors = () => {
  </div>
 
  <div className="flex justify-end gap-3 pt-10 border-t border-slate-100/50">
- <button className="px-8 py-4 rounded-[20px] border border-slate-100 text-[10px] font-black uppercase tracking-widest text-slate-600 hover:text-slate-600 hover:bg-slate-100 transition-all" onClick={() => setIsModalOpen(false)}>Exit Analysis</button>
- <button className="px-10 py-4 rounded-[20px] bg-gradient-to-br from-[#006666] to-[#008080] text-white text-[10px] font-black uppercase tracking-[0.2em] hover:shadow-lg hover:shadow-[#008080]/30 transition-all shadow-md shadow-[#008080]/20">Broadcast Protocol</button>
+ <button className="px-8 py-4 rounded-[20px] border border-slate-100 text-[10px] font-black uppercase tracking-widest text-slate-600 hover:text-slate-600 hover:bg-slate-100 transition-all" onClick={() => setIsModalOpen(false)}>Close</button>
+ <button className="px-10 py-4 rounded-[20px] bg-gradient-to-br from-[#006666] to-[#008080] text-white text-[10px] font-black uppercase tracking-[0.2em] hover:shadow-lg hover:shadow-[#008080]/30 transition-all shadow-md shadow-[#008080]/20">Send Message</button>
  </div>
  </div>
  )}

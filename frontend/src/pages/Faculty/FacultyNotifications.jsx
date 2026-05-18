@@ -39,10 +39,10 @@ const FacultyNotifications = () => {
  const res = await axios.put(`/faculty/notifications/${id}/read`);
  if (res.data.success) {
  setNotifications(notifications.map(n => n.id === id ? { ...n, is_read: 1 } : n));
- toast.success("Push acknowledged");
+ toast.success("Notification marked as read");
  }
  } catch (error) {
- toast.error("Handshake failed");
+ toast.error("Failed to mark as read");
  }
  };
 
@@ -125,12 +125,12 @@ const FacultyNotifications = () => {
  </p>
  <div className="mt-6 flex items-center gap-4">
  <span className="text-[10px] font-black text-[#008080] uppercase tracking-widest px-4 py-1.5 bg-[#008080]/10 rounded-full">
- Source: Platform Engine
+ Source: System
  </span>
  {notif.is_read && (
  <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest flex items-center gap-2">
  <CheckCircle2 size={12} />
- Acknowledged
+ Read
  </span>
  )}
  </div>
@@ -146,7 +146,7 @@ const FacultyNotifications = () => {
  <div className="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center text-slate-200 mx-auto mb-8">
  <BellOff size={48} />
  </div>
- <h3 className="text-2xl font-black text-slate-900 tracking-tight ">Frequency Silent</h3>
+ <h3 className="text-2xl font-black text-slate-900 tracking-tight ">No Notifications</h3>
  <p className="text-slate-600 font-bold uppercase tracking-widest text-[10px] mt-2">No active notifications in this category</p>
  </div>
  )}

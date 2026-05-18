@@ -72,8 +72,7 @@ const FacultyDashboard = () => {
         <div className="text-center md:text-left">
           <h2 className="text-4xl font-black text-slate-900 tracking-tighter leading-none mb-3 ">Faculty Oversight</h2>
           <p className="text-slate-600 text-[10px] font-black uppercase tracking-[0.2em] flex items-center justify-center md:justify-start gap-2">
-            <div className="w-1.5 h-1.5 rounded-full bg-[#008080] animate-pulse"></div>
-            Real-time trajectory tracking & academic resource management
+            Monitor student progress and academic performance
           </p>
         </div>
         <div className="flex items-center gap-4 bg-slate-50/50 px-6 py-4 rounded-[20px] border border-slate-100/50 shadow-inner">
@@ -89,7 +88,7 @@ const FacultyDashboard = () => {
           value={stats?.badges?.totalStudents || 0}
           icon={Users}
           color="bg-[#008080]"
-          trend="+2 Network Growth"
+          trend="+2 Active Students"
         />
         <StatCard
           title="Pending Reports"
@@ -110,7 +109,7 @@ const FacultyDashboard = () => {
           color="bg-[#10B981]"
         />
         <StatCard
-          title="Protocol Pendency"
+          title="Pending Tasks"
           value={stats?.badges?.pendingTasks || 0}
           icon={AlertCircle}
           color="bg-[#F59E0B]"
@@ -177,7 +176,7 @@ const FacultyDashboard = () => {
         <div className="bg-white/80 backdrop-blur-xl p-10 md:p-12 rounded-[40px] border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.04)] hover:shadow-xl transition-all duration-700">
           <div className="flex items-center justify-between mb-10">
             <div>
-              <h3 className="text-xl font-black text-slate-900 tracking-tight">Attendance Pipeline</h3>
+              <h3 className="text-xl font-black text-slate-900 tracking-tight">Attendance Overview</h3>
               <p className="text-slate-600 text-[10px] font-black uppercase tracking-widest mt-1">7-Day Attendance Trend (%)</p>
             </div>
             <div className="w-12 h-12 bg-rose-50 rounded-2xl flex items-center justify-center text-rose-500">
@@ -226,15 +225,15 @@ const FacultyDashboard = () => {
         <div className="absolute top-0 right-0 w-96 h-96 bg-[#008080]/20 rounded-full -mr-48 -mt-48 blur-[100px] transition-all duration-1000 group-hover:scale-150"></div>
         <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-10">
           <div className="text-center lg:text-left">
-            <h2 className="text-4xl font-black text-white tracking-tighter uppercase leading-none mb-4">Academic Engine Pulse</h2>
-            <p className="text-slate-500 font-black uppercase tracking-[0.4em] text-[10px]">Unified Operations Protocol Integrated</p>
+            <h2 className="text-4xl font-black text-white tracking-tighter uppercase leading-none mb-4">System Status</h2>
+            <p className="text-slate-500 font-black uppercase tracking-[0.4em] text-[10px]">All systems operating normally</p>
           </div>
           <div className="flex flex-col sm:flex-row gap-5 w-full lg:w-auto">
             <button className="bg-gradient-to-br from-[#006666] to-[#008080] text-white px-10 py-5 rounded-[20px] font-black text-[10px] uppercase tracking-[0.2em] hover:shadow-xl hover:shadow-[#008080]/40 hover:-translate-y-1 transition-all">
-              Generate Audit Report
+              Generate Summary Report
             </button>
             <button className="bg-slate-800 text-white px-10 py-5 rounded-[20px] font-black text-[10px] uppercase tracking-[0.2em] hover:bg-slate-700 transition-all">
-              Sync Compliance Log
+              Sync Attendance Log
             </button>
           </div>
         </div>

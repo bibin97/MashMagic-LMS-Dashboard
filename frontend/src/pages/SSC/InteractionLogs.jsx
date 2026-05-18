@@ -208,7 +208,7 @@ const SSCInteractionLogs = () => {
            <h1 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tighter uppercase leading-none mb-4">SSC Success Logs</h1>
            <p className="text-slate-600 text-[11px] font-black uppercase tracking-[0.3em] mt-3 flex items-center gap-3 justify-center md:justify-start">
              <div className="w-2 h-2 rounded-full bg-[#008080] animate-ping"></div>
-             Decision-Driven Mentorship Engine
+             Decision-Driven Mentorship Platform
            </p>
          </div>
           <div className="flex gap-4">
@@ -275,7 +275,7 @@ const SSCInteractionLogs = () => {
          {assignedLoading ? (
            <div className="flex flex-col items-center justify-center py-40 gap-4">
              <Loader2 size={40} className="animate-spin text-[#008080]" />
-             <p className="text-xs font-black text-slate-400 uppercase tracking-widest">Rotating Engines...</p>
+             <p className="text-xs font-black text-slate-400 uppercase tracking-widest">Loading Data...</p>
            </div>
          ) : (
            <div className="space-y-10 animate-in fade-in duration-500">
@@ -628,7 +628,7 @@ const SSCInteractionLogs = () => {
              disabled={loading}
              className={`w-full p-6 rounded-[2.5rem] font-black text-sm uppercase tracking-[0.3em] shadow-2xl transition-all disabled:opacity-50 flex items-center justify-center gap-4 active:scale-[0.98] ${sessionType === 'DEEP' ? 'bg-rose-600 text-white shadow-rose-200 hover:-translate-y-1' : sessionType === 'MEDIUM' ? 'bg-amber-500 text-white shadow-amber-200 hover:-translate-y-1' : sessionType === 'QUICK' ? 'bg-blue-600 text-white shadow-blue-200 hover:-translate-y-1' : 'bg-slate-900 text-white hover:-translate-y-1'}`}
            >
-             {loading ? 'Processing Protocol...' : 'Finalize Interaction & Sync State'}
+             {loading ? 'Saving Interaction...' : 'Save Interaction'}
              {!loading && <CheckCircle2 size={24} />}
            </button>
          </div>
@@ -640,8 +640,8 @@ const SSCInteractionLogs = () => {
            <div className="w-20 h-20 bg-emerald-500 text-white rounded-full flex items-center justify-center mx-auto mb-6 shadow-2xl shadow-emerald-200">
              <CheckCircle2 size={40} strokeWidth={3} />
            </div>
-           <h2 className="text-3xl font-black text-emerald-900 mb-2 uppercase tracking-tight">Protocol Synchronized!</h2>
-           <p className="text-emerald-600 font-bold text-xs uppercase tracking-widest mb-10">The student's performance state has been updated in the intelligence engine.</p>
+           <h2 className="text-3xl font-black text-emerald-900 mb-2 uppercase tracking-tight">Interaction Saved!</h2>
+           <p className="text-emerald-600 font-bold text-xs uppercase tracking-widest mb-10">The student's interaction log has been updated successfully.</p>
            <button
              onClick={() => { setSelectedStudent(null); setSubmitted(false); }}
              className="px-12 py-5 bg-emerald-600 text-white rounded-[2rem] text-xs font-black uppercase tracking-[0.2em] hover:bg-emerald-700 hover:shadow-xl transition-all active:scale-95"

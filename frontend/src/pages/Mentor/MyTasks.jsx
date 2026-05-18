@@ -70,17 +70,17 @@ const MyTasks = () => {
  <ListTodo size={36} strokeWidth={2.5} />
  </div>
  <div>
- <h1 className="text-5xl font-black text-slate-900 tracking-tighter uppercase leading-none mb-3">Task Protocol</h1>
+ <h1 className="text-5xl font-black text-slate-900 tracking-tighter uppercase leading-none mb-3">My Tasks</h1>
  <p className="text-slate-600 text-[11px] font-black uppercase tracking-[0.3em] flex items-center gap-3 mt-1">
  <div className="w-2 h-2 rounded-full bg-[#008080] animate-pulse"></div>
- Operational Directives & Action Items
+ Assigned Tasks & Action Items
  </p>
  </div>
  </div>
  </header>
 
  {loading ? (
- <div className="text-center p-20 text-slate-600 font-bold animate-pulse">Synchronizing Agent Tasks...</div>
+ <div className="text-center p-20 text-slate-600 font-bold animate-pulse">Loading Tasks...</div>
  ) : (
  <div className="flex flex-col gap-4">
  {tasks.map((task) => {
@@ -158,7 +158,7 @@ const MyTasks = () => {
  rel="noopener noreferrer"
  className="text-[9px] font-black text-[#008080] hover:underline uppercase tracking-widest bg-[#008080]/5 px-2 py-1 rounded-md"
  >
- View Evidence
+ View Attachment
  </a>
  )}
  </div>
@@ -171,7 +171,7 @@ const MyTasks = () => {
  {tasks.length === 0 && (
  <div className="py-20 bg-white rounded-[2.5rem] border border-dashed border-slate-200 flex flex-col items-center justify-center shadow-sm">
  <CheckCircle size={40} className="text-emerald-100 mb-4" />
- <p className="text-slate-600 font-bold">Protocol Clear. No active tasks detected.</p>
+ <p className="text-slate-600 font-bold">No active tasks found.</p>
  </div>
  )}
  </div>

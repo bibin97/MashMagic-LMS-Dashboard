@@ -76,7 +76,7 @@ const StudentDetails = () => {
     if (loading) return (
         <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
             <div className="w-12 h-12 border-4 border-[#008080] border-t-transparent rounded-full animate-spin"></div>
-            <p className="text-slate-600 font-black text-[10px] uppercase tracking-widest animate-pulse">Accessing Encrypted Profile...</p>
+            <p className="text-slate-600 font-black text-[10px] uppercase tracking-widest animate-pulse">Loading Student Profile...</p>
         </div>
     );
     
@@ -217,13 +217,13 @@ const StudentDetails = () => {
                                 <div className="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center shadow-sm">
                                     <MessageSquare size={20} />
                                 </div>
-                                <h3 className="text-xl font-black text-slate-900 tracking-tight">System Intelligence & Notes</h3>
+                                <h3 className="text-xl font-black text-slate-900 tracking-tight">Enrollment Summary</h3>
                             </div>
                             
                             <div className="space-y-6">
                                 <div className="p-8 bg-slate-900 text-white rounded-[2.5rem] border border-slate-800 shadow-2xl relative overflow-hidden group">
                                     <div className="absolute top-0 right-0 w-32 h-32 bg-[#008080]/20 rounded-full -mr-16 -mt-16 blur-2xl group-hover:scale-150 transition-transform duration-700"></div>
-                                    <p className="text-[10px] font-black text-[#008080] uppercase tracking-[0.2em] mb-4">Internal Enrollment Narrative</p>
+                                    <p className="text-[10px] font-black text-[#008080] uppercase tracking-[0.2em] mb-4">Enrollment Notes</p>
                                     <p className="text-sm font-medium leading-relaxed text-slate-300">
                                         {student.time_table || student.timetable_summary || 'Standard operation procedures apply for this profile. Academic progress is monitored weekly.'}
                                     </p>
@@ -247,9 +247,9 @@ const StudentDetails = () => {
                 {activeTab === 'timetable' && (
                     <div className="space-y-8">
                         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                            <h3 className="text-2xl font-black text-slate-900 tracking-tight">Academic Roadmap (Sessions)</h3>
+                            <h3 className="text-2xl font-black text-slate-900 tracking-tight">Session Timetable</h3>
                             <div className="flex items-center gap-2 px-4 py-2 bg-slate-50 rounded-xl text-[10px] font-black text-slate-500 uppercase tracking-widest border border-slate-100">
-                                <Clock size={12} /> Real-time Sync
+                                <Clock size={12} /> Live Schedule
                             </div>
                         </div>
 
@@ -258,10 +258,10 @@ const StudentDetails = () => {
                                 <thead>
                                     <tr className="bg-slate-50/50">
                                         <th className="py-6 px-8 text-[10px] font-black text-slate-600 uppercase tracking-widest">#Sess</th>
-                                        <th className="py-6 px-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">Date / Chronology</th>
-                                        <th className="py-6 px-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">Timing Schedule</th>
+                                        <th className="py-6 px-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">Date</th>
+                                        <th className="py-6 px-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">Time</th>
                                         <th className="py-6 px-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">Topics Covered</th>
-                                        <th className="py-6 px-8 text-[10px] font-black text-slate-600 uppercase tracking-widest text-right">Status Control</th>
+                                        <th className="py-6 px-8 text-[10px] font-black text-slate-600 uppercase tracking-widest text-right">Status</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-100">
@@ -364,7 +364,7 @@ const StudentDetails = () => {
 
                                         {log.screenshot_url && (
                                             <a href={log.screenshot_url} target="_blank" rel="noopener noreferrer" className="block mt-6 text-[10px] font-black text-[#008080] hover:underline uppercase tracking-widest bg-[#008080]/5 w-fit px-4 py-2 rounded-xl transition-all hover:bg-[#008080]/10">
-                                                View Evidence Artifact
+                                                View Attachment
                                             </a>
                                         )}
                                     </div>
@@ -413,13 +413,13 @@ const StudentDetails = () => {
 
                                         {log.screenshot_url && (
                                             <a href={log.screenshot_url} target="_blank" rel="noopener noreferrer" className="block mt-4 text-[10px] font-black text-purple-500 hover:underline uppercase tracking-widest bg-purple-50 w-fit px-4 py-2 rounded-xl">
-                                                Review Academic Proof
+                                                View Attachment
                                             </a>
                                         )}
                                     </div>
                                 )) : (
                                     <div className="py-32 text-center bg-slate-50/50 rounded-[3rem] border border-dashed border-slate-200">
-                                        <p className="text-slate-400 font-black text-[10px] uppercase tracking-widest">No faculty logs indexed.</p>
+                                        <p className="text-slate-400 font-black text-[10px] uppercase tracking-widest">No faculty logs found.</p>
                                     </div>
                                 )}
                             </div>
@@ -434,7 +434,7 @@ const StudentDetails = () => {
 const InfoItem = ({ label, value }) => (
     <div className="p-6 bg-slate-50/50 rounded-[2.5rem] border border-slate-100 hover:bg-white hover:shadow-lg hover:shadow-slate-200/40 transition-all group">
         <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1.5 group-hover:text-[#008080] transition-colors">{label}</p>
-        <p className="text-sm font-black text-slate-800 tracking-tight">{value || 'Not Indexed'}</p>
+        <p className="text-sm font-black text-slate-800 tracking-tight">{value || 'Not Specified'}</p>
     </div>
 );
 

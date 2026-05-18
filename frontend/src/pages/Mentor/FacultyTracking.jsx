@@ -122,9 +122,9 @@ const FacultyTracking = () => {
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-center gap-8">
         <div>
-          <h2 className="text-4xl font-black text-slate-900 tracking-tighter uppercase leading-none mb-3">Faculty Log Intelligence</h2>
+          <h2 className="text-4xl font-black text-slate-900 tracking-tighter uppercase leading-none mb-3">Faculty Log Overview</h2>
           <p className="text-slate-600 text-[10px] font-black uppercase tracking-[0.2em] flex items-center gap-2">
-            <Activity size={14} className="text-[#008080]" /> STUDENT PERFORMANCE PIPELINE
+            <Activity size={14} className="text-[#008080]" /> STUDENT PERFORMANCE TRACKER
           </p>
         </div>
 
@@ -223,7 +223,7 @@ const FacultyTracking = () => {
                             </div>
 
                             <div className="bg-slate-50/50 p-6 rounded-[24px] border border-slate-100">
-                               <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Homework Protocol</p>
+                               <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Homework Status</p>
                                <p className="text-sm font-bold text-slate-800 mb-2">{log.homework_given ? 'YES' : 'NO'}</p>
                                <p className="text-xs text-slate-500 font-medium leading-relaxed italic">"{log.homework_details || 'N/A'}"</p>
                             </div>
@@ -256,7 +256,7 @@ const FacultyTracking = () => {
                          {/* Files */}
                          {log.faculty_files && JSON.parse(log.faculty_files).length > 0 && (
                            <div className="pt-6 border-t border-slate-50">
-                              <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-4">Evidence & Attachments</p>
+                              <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-4">Attachments</p>
                               <div className="flex flex-wrap gap-4">
                                  {JSON.parse(log.faculty_files).map((file, idx) => (
                                    <a 
@@ -319,7 +319,7 @@ const FacultyTracking = () => {
              {logs.filter(l => !l.todays_observation).length === 0 && (
                <div className="col-span-full py-20 text-center bg-white rounded-[40px] border border-slate-100">
                   <CheckCircle2 size={64} className="mx-auto text-emerald-100 mb-6" />
-                  <h3 className="text-2xl font-black text-slate-900 uppercase">Pipeline Clear</h3>
+                  <h3 className="text-2xl font-black text-slate-900 uppercase">All Reviewed</h3>
                   <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px] mt-2">All faculty logs have been successfully reviewed.</p>
                </div>
              )}
@@ -330,7 +330,7 @@ const FacultyTracking = () => {
         {activeTab === 'interaction' && (
           <div className="space-y-10">
              <div className="flex justify-between items-center">
-                <h3 className="text-2xl font-black text-slate-900 uppercase tracking-tighter">Strategic Interactions</h3>
+                <h3 className="text-2xl font-black text-slate-900 uppercase tracking-tighter">Student Interactions</h3>
                 <div className="flex items-center gap-4">
                    <div className="flex items-center gap-2 px-4 py-2 bg-rose-50 text-rose-600 rounded-xl text-[10px] font-black uppercase tracking-widest border border-rose-100">
                       <TrendingUp size={14} /> HIGH PRIORITY
@@ -358,7 +358,7 @@ const FacultyTracking = () => {
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                            <div className="space-y-2">
-                              <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Core Diagnostic</p>
+                              <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Core Issue</p>
                               <p className="text-sm font-bold text-slate-800 leading-relaxed italic">"{item.main_issue}"</p>
                            </div>
                            <div className="space-y-2">
@@ -371,7 +371,7 @@ const FacultyTracking = () => {
                      <div className="lg:w-[400px] bg-slate-50 p-8 rounded-[32px] flex flex-col justify-between">
                         <div className="space-y-6">
                            <div>
-                              <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Strategic Action Plan</p>
+                              <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Action Plan</p>
                               <p className="text-sm font-bold text-slate-800 uppercase leading-snug">{item.action_plan}</p>
                            </div>
                            <div className="flex items-center justify-between">
@@ -393,7 +393,7 @@ const FacultyTracking = () => {
                                 <div key={v} className={`w-2 h-2 rounded-full ${v <= item.interaction_quality_rating ? 'bg-[#008080]' : 'bg-slate-200'}`}></div>
                               ))}
                            </div>
-                           <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Quality KPI</span>
+                           <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Quality Rating</span>
                         </div>
                      </div>
                   </div>
@@ -411,7 +411,7 @@ const FacultyTracking = () => {
            <div className="bg-white rounded-[40px] shadow-2xl w-full max-w-2xl overflow-hidden animate-in zoom-in slide-in-from-bottom-10 duration-500">
               <div className="p-10 border-b border-slate-50 flex justify-between items-center">
                  <div>
-                    <h3 className="text-2xl font-black text-slate-900 uppercase tracking-tighter">Strategic Review</h3>
+                    <h3 className="text-2xl font-black text-slate-900 uppercase tracking-tighter">Mentor Review</h3>
                     <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mt-1">Analyzing log for {selectedLog.student_name}</p>
                  </div>
                  <button onClick={() => setIsReviewModalOpen(false)} className="w-12 h-12 bg-slate-50 text-slate-600 rounded-2xl flex items-center justify-center hover:bg-slate-100">
@@ -479,8 +479,8 @@ const FacultyTracking = () => {
            <div className="bg-white rounded-[40px] shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto animate-in zoom-in slide-in-from-bottom-10 duration-500">
               <div className="p-10 border-b border-slate-50 flex justify-between items-center sticky top-0 bg-white/80 backdrop-blur-xl z-10">
                  <div>
-                    <h3 className="text-2xl font-black text-slate-900 uppercase tracking-tighter">Strategic Interaction Log</h3>
-                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mt-1">Issue Resolution Pipeline • {selectedLog.student_name}</p>
+                    <h3 className="text-2xl font-black text-slate-900 uppercase tracking-tighter">Interaction Log</h3>
+                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mt-1">Issue Resolution Tracker • {selectedLog.student_name}</p>
                  </div>
                  <button onClick={() => setIsInteractionModalOpen(false)} className="w-12 h-12 bg-slate-50 text-slate-600 rounded-2xl flex items-center justify-center hover:bg-slate-100">
                     <X size={24} />
@@ -627,7 +627,7 @@ const FacultyTracking = () => {
                    onClick={handleInteractionSubmit}
                    className="w-full py-6 bg-slate-900 text-white rounded-[28px] font-black text-xs uppercase tracking-[0.3em] flex items-center justify-center gap-3 shadow-2xl active:scale-95 transition-all"
                  >
-                    FINALIZE INTERACTION & LOG ACTION <CheckCircle2 size={20} />
+                    SAVE INTERACTION <CheckCircle2 size={20} />
                  </button>
               </div>
            </div>

@@ -151,10 +151,10 @@ const AdminManagement = () => {
  <ShieldCheck className="text-white" size={36} strokeWidth={2.5} />
  </div>
  <div>
- <h2 className="text-5xl font-black text-slate-900 tracking-tighter leading-none mb-3 ">Administrative Authority</h2>
+ <h2 className="text-5xl font-black text-slate-900 tracking-tighter leading-none mb-3 ">Sub-Admin Management</h2>
  <p className="text-slate-600 text-[11px] font-black uppercase tracking-[0.25em] flex items-center justify-center md:justify-start gap-3 mt-1">
  <div className="w-2 h-2 rounded-full bg-[#008080] animate-pulse"></div>
- System Access Control & Protocol Management
+ Manage sub-admin accounts and their system permissions
  </p>
  </div>
  </div>
@@ -164,7 +164,7 @@ const AdminManagement = () => {
  className="bg-gradient-to-br from-slate-800 to-slate-900 text-[#008080] px-10 py-6 rounded-[24px] font-black text-[11px] uppercase tracking-[0.3em] flex items-center gap-4 hover:shadow-2xl hover:shadow-slate-900/20 hover:-translate-y-1 transition-all group"
  >
  <UserPlus size={20} strokeWidth={3} className="group-hover:scale-110 transition-transform" />
- <span>Authorize Sub-Admin</span>
+ <span>Add Sub-Admin</span>
  </button>
  </div>
 
@@ -173,11 +173,11 @@ const AdminManagement = () => {
  <table className="w-full text-left border-collapse">
  <thead>
  <tr className="bg-slate-50/40 border-b border-slate-100/50">
- <th className="p-8 text-[11px] font-black text-slate-600 uppercase tracking-[0.2em] ">Authority Profile</th>
- <th className="p-8 text-[11px] font-black text-slate-600 uppercase tracking-[0.2em] ">Contact Vector</th>
- <th className="p-8 text-[11px] font-black text-slate-600 uppercase tracking-[0.2em] ">Access State</th>
- <th className="p-8 text-[11px] font-black text-slate-600 uppercase tracking-[0.2em] ">Activation Epoch</th>
- <th className="p-8 text-[11px] font-black text-slate-600 uppercase tracking-[0.2em] text-right">Verification Protocol</th>
+ <th className="p-8 text-[11px] font-black text-slate-600 uppercase tracking-[0.2em] ">Admin Name</th>
+ <th className="p-8 text-[11px] font-black text-slate-600 uppercase tracking-[0.2em] ">Contact Details</th>
+ <th className="p-8 text-[11px] font-black text-slate-600 uppercase tracking-[0.2em] ">Status</th>
+ <th className="p-8 text-[11px] font-black text-slate-600 uppercase tracking-[0.2em] ">Created Date</th>
+ <th className="p-8 text-[11px] font-black text-slate-600 uppercase tracking-[0.2em] text-right">Actions</th>
  </tr>
  </thead>
  <tbody className="divide-y divide-slate-50">
@@ -192,7 +192,7 @@ const AdminManagement = () => {
  <span className="text-lg font-black text-slate-800 block tracking-tighter leading-none uppercase group-hover:text-[#008080] transition-colors mb-2">{admin.name}</span>
  <div className="flex items-center gap-2">
  <Lock size={12} className="text-[#008080] opacity-60" />
- <span className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em]">Management Node</span>
+ <span className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em]">Sub-Admin</span>
  </div>
  </div>
  </div>
@@ -356,7 +356,7 @@ const AdminManagement = () => {
 
  {/* Permissions Header */}
  <div className="md:col-span-2 pt-4 border-t border-slate-100 flex items-center justify-between">
- <h4 className="text-[11px] font-black text-slate-900 uppercase tracking-[0.2em]">Authority Delegation & Permissions</h4>
+ <h4 className="text-[11px] font-black text-slate-900 uppercase tracking-[0.2em]">Sub-Admin Permissions</h4>
  <div className="flex items-center gap-3 bg-slate-50 px-4 py-2 rounded-xl border border-slate-100">
  <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest">Full Access Control</span>
  <button
@@ -415,7 +415,7 @@ const AdminManagement = () => {
  {isSubmitting ? (
  <Loader2 className="animate-spin" size={18} />
  ) : (
- <span>{editingAdmin ? "Update Admin" : "Authorize Creation"}</span>
+ <span>{editingAdmin ? "Update Admin" : "Create Sub-Admin"}</span>
  )}
  </button>
  </div>
