@@ -806,10 +806,13 @@ const getAllStudentsForAdmin = async (req, res) => {
             SELECT 
                 id, roll_number, registration_number, name, email, contact as phone_number, grade, course, hour, 
                 mentor_name as mentor, 
-                (SELECT GROUP_CONCAT(DISTINCT u.name SEPARATOR ', ') 
-                 FROM faculty_schedules fs 
-                 JOIN faculties u ON fs.faculty_id = u.id 
-                 WHERE fs.student_id = students.id) as faculty, 
+                COALESCE(
+                    (SELECT GROUP_CONCAT(DISTINCT u.name SEPARATOR ', ') 
+                     FROM faculty_schedules fs 
+                     JOIN faculties u ON fs.faculty_id = u.id 
+                     WHERE fs.student_id = students.id),
+                    students.faculty_name
+                ) as faculty, 
                 subject, time_table as timetable, 
                 next_installment_date as nextInstallment, 
                 status, onboarding_status, 

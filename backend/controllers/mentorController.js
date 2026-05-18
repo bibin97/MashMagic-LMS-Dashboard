@@ -151,10 +151,13 @@ const getMentorStudents = async (req, res) => {
         const [rows] = await db.query(`
             SELECT s.*, 
             m.name as mentor_name,
-            (SELECT GROUP_CONCAT(DISTINCT u.name SEPARATOR ', ') 
-             FROM faculty_schedules fs 
-             JOIN faculties u ON fs.faculty_id = u.id 
-             WHERE fs.student_id = s.id) as faculty_names,
+            COALESCE(
+                (SELECT GROUP_CONCAT(DISTINCT u.name SEPARATOR ', ') 
+                 FROM faculty_schedules fs 
+                 JOIN faculties u ON fs.faculty_id = u.id 
+                 WHERE fs.student_id = s.id),
+                s.faculty_name
+            ) as faculty_names,
             (SELECT COUNT(*) FROM mentor_timetable mt WHERE mt.student_id = s.id AND mt.status != 'Cancelled') as session_count,
             CASE WHEN EXISTS (
                 SELECT 1 FROM student_interaction_logs sil 

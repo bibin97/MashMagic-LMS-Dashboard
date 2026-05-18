@@ -6,11 +6,10 @@ const getDailyAssignments = async (req, res) => {
         const today = new Date().toISOString().split('T')[0];
 
         const [currentStudents] = await db.query(
-            `SELECT id FROM students 
+            `SELECT id, onboarding_status FROM students 
              WHERE mentor_id = ? 
              AND (LOWER(enrollment_type) IN ('mentorship', 'mentorship only', 'mentorship & tuition', 'mentorship and tuition', 'both'))
-             AND status != 'inactive'
-             AND (onboarding_status != 'pending' OR onboarding_status IS NULL)`,
+             AND status != 'inactive'`,
             [mentor_id]
         );
 
@@ -31,8 +30,12 @@ const getDailyAssignments = async (req, res) => {
                 }
             }
             
-            // If total students changed significantly, regenerate to include new ones
-            if (Array.isArray(savedAssignments) && savedAssignments.length < 15 && currentStudents.length > savedAssignments.length) {
+            // Check if any pending onboarding student is missing from savedAssignments
+            const savedIds = new Set((savedAssignments || []).map(a => a.id));
+            const hasMissingOnboarding = currentStudents.some(s => s.onboarding_status === 'pending' && !savedIds.has(s.id));
+
+            // If total students changed significantly or missing onboarding students, regenerate to include new ones
+            if (hasMissingOnboarding || (Array.isArray(savedAssignments) && savedAssignments.length < 15 && currentStudents.length > savedAssignments.length)) {
                 // Regenerate
             } else {
                 return res.status(200).json({ success: true, data: savedAssignments || [] });
@@ -57,12 +60,11 @@ const getDailyAssignments = async (req, res) => {
 
 const generateAssignments = async (mentor_id, today) => {
     const [students] = await db.query(
-        `SELECT id, name, priority_category, enrollment_type, badge 
+        `SELECT id, name, priority_category, enrollment_type, badge, onboarding_status 
          FROM students 
          WHERE mentor_id = ? 
          AND (LOWER(enrollment_type) IN ('mentorship', 'mentorship only', 'mentorship & tuition', 'mentorship and tuition', 'both'))
          AND status != 'inactive'
-         AND (onboarding_status != 'pending' OR onboarding_status IS NULL)
          ORDER BY id ASC`,
         [mentor_id]
     );
@@ -75,7 +77,7 @@ const generateAssignments = async (mentor_id, today) => {
         // If mentor has 15 or fewer students (e.g. 12 students), all students are included daily
         selectedForToday = [...students];
     } else {
-        // Mentor has > 15 students. Implement the exact carryover + rotation logic requested by user.
+        // Mentor has > 15 students. Implement carryover + onboarding priority + rotation logic.
         let carryOverStudents = [];
         let lastAssignedId = null;
 
@@ -120,9 +122,17 @@ const generateAssignments = async (mentor_id, today) => {
             nextStartIndex = (dayNumber * 15) % students.length;
         }
 
-        // Fill selectedForToday starting with carryOverStudents
-        selectedForToday = [...carryOverStudents];
-        const carryOverSet = new Set(carryOverStudents.map(s => s.id));
+        // Fill selectedForToday starting with onboarding students first, then carryOverStudents
+        const onboardingStudents = students.filter(s => s.onboarding_status === 'pending');
+        selectedForToday = [...onboardingStudents];
+        const carryOverSet = new Set(onboardingStudents.map(s => s.id));
+
+        for (const s of carryOverStudents) {
+            if (!carryOverSet.has(s.id)) {
+                selectedForToday.push(s);
+                carryOverSet.add(s.id);
+            }
+        }
 
         // Now pick new students from rotation until we reach exactly 15 students
         let currIdx = nextStartIndex;
@@ -143,17 +153,20 @@ const generateAssignments = async (mentor_id, today) => {
     const medium = [];
     const quick = [];
 
-    // Prioritize based on priority_category, but ensure all selected students get a slot
-    const high = selectedForToday.filter(s => s.priority_category === 'High');
-    const med = selectedForToday.filter(s => s.priority_category === 'Medium');
-    const low = selectedForToday.filter(s => !['High', 'Medium'].includes(s.priority_category));
+    // Prioritize onboarding students first (they must be DEEP sessions), then High, Medium, Low
+    const onboardingPool = selectedForToday.filter(s => s.onboarding_status === 'pending');
+    const high = selectedForToday.filter(s => s.onboarding_status !== 'pending' && s.priority_category === 'High');
+    const med = selectedForToday.filter(s => s.onboarding_status !== 'pending' && s.priority_category === 'Medium');
+    const low = selectedForToday.filter(s => s.onboarding_status !== 'pending' && !['High', 'Medium'].includes(s.priority_category));
 
-    const combinedPool = [...high, ...med, ...low];
+    const combinedPool = [...onboardingPool, ...high, ...med, ...low];
 
-    // Allocate evenly: first 5 to Deep, next 5 to Medium, rest to Quick
+    // Allocate: Onboarding students go to Deep. Then fill Deep up to 5, Medium up to 5, rest Quick.
     for (let i = 0; i < combinedPool.length; i++) {
         const student = combinedPool[i];
-        if (deep.length < 5) {
+        if (student.onboarding_status === 'pending') {
+            deep.push({ ...student, sessionType: 'DEEP', status: 'PENDING' });
+        } else if (deep.length < 5) {
             deep.push({ ...student, sessionType: 'DEEP', status: 'PENDING' });
         } else if (medium.length < 5) {
             medium.push({ ...student, sessionType: 'MEDIUM', status: 'PENDING' });

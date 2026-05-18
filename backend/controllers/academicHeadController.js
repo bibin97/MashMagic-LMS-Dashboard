@@ -503,10 +503,13 @@ const getStudentById = async (req, res) => {
     try {
         const [[s]] = await db.query(`
             SELECT s.*, m.name as mentor_name, 
-            (SELECT GROUP_CONCAT(DISTINCT u.name SEPARATOR ', ') 
-             FROM faculty_schedules fs 
-             JOIN faculties u ON fs.faculty_id = u.id 
-             WHERE fs.student_id = s.id) as faculty_name 
+            COALESCE(
+                (SELECT GROUP_CONCAT(DISTINCT u.name SEPARATOR ', ') 
+                 FROM faculty_schedules fs 
+                 JOIN faculties u ON fs.faculty_id = u.id 
+                 WHERE fs.student_id = s.id),
+                s.faculty_name
+            ) as faculty_name 
             FROM students s 
             LEFT JOIN mentors m ON s.mentor_id = m.id 
             WHERE s.id = ?
@@ -520,10 +523,13 @@ const getStudents = async (req, res) => {
         const { mentor_id, faculty_id } = req.query;
         let sql = `
             SELECT s.*, m.name as mentor_name, 
-            (SELECT GROUP_CONCAT(DISTINCT u.name SEPARATOR ', ') 
-             FROM faculty_schedules fs 
-             JOIN faculties u ON fs.faculty_id = u.id 
-             WHERE fs.student_id = s.id) as faculty_name 
+            COALESCE(
+                (SELECT GROUP_CONCAT(DISTINCT u.name SEPARATOR ', ') 
+                 FROM faculty_schedules fs 
+                 JOIN faculties u ON fs.faculty_id = u.id 
+                 WHERE fs.student_id = s.id),
+                s.faculty_name
+            ) as faculty_name 
             FROM students s 
             LEFT JOIN mentors m ON s.mentor_id = m.id 
             WHERE 1=1
