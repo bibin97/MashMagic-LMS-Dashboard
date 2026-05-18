@@ -209,9 +209,36 @@ const Students = () => {
     { 
       header: 'Assigned Mentor & Faculty', 
       render: (row) => (
-        <div className="flex flex-col gap-0.5">
-          <span className="text-[11px] font-black text-slate-700 truncate max-w-[120px]">{row.mentor || 'Not Assigned'}</span>
-          <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wide truncate max-w-[120px]">{row.faculty || 'No Faculty'}</span>
+        <div className="flex flex-col gap-1">
+          <span className="text-[11px] font-black text-slate-700 truncate max-w-[120px]">
+            {row.mentor || 'Not Assigned'}
+          </span>
+          {row.faculty ? (
+            <button 
+              type="button" 
+              onClick={(e) => { 
+                e.stopPropagation(); 
+                toast((t) => (
+                  <div className="flex flex-col gap-2 p-1 min-w-[220px]">
+                    <p className="text-[10px] font-black text-[#008080] uppercase tracking-widest border-b pb-1">Assigned Faculties</p>
+                    <div className="flex flex-col gap-1.5 text-xs font-bold text-slate-700 max-h-[250px] overflow-y-auto pr-1">
+                      {row.faculty.split(',').map((f, i) => (
+                        <div key={i} className="flex items-center gap-2 bg-slate-50 p-2.5 rounded-xl border border-slate-100 shadow-sm">
+                          <span className="w-2 h-2 rounded-full bg-[#008080] shrink-0"></span>
+                          <span className="font-black text-slate-800">{f.trim()}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ), { duration: 4000 }); 
+              }}
+              className="text-[10px] font-black text-[#008080] hover:text-[#006666] underline uppercase tracking-widest cursor-pointer text-left block"
+            >
+              View Faculties ({row.faculty.split(',').length})
+            </button>
+          ) : (
+            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wide truncate max-w-[120px]">No Faculty</span>
+          )}
         </div>
       )
     },

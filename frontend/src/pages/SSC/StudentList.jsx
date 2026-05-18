@@ -48,10 +48,35 @@ const StudentRow = ({ student, navigate }) => {
         <div className="flex-1 min-w-0">
           <p className="text-[8px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Faculty Experts</p>
           <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-indigo-500"></div>
-            <p className="text-[11px] font-black text-slate-800 uppercase truncate max-w-[150px]" title={student.faculty_names}>
-              {student.faculty_names || 'None Assigned'}
-            </p>
+            <div className="w-2 h-2 rounded-full bg-indigo-500 shrink-0"></div>
+            {student.faculty_names ? (
+              <button 
+                type="button" 
+                onClick={(e) => { 
+                  e.stopPropagation(); 
+                  toast((t) => (
+                    <div className="flex flex-col gap-2 p-1 min-w-[220px]">
+                      <p className="text-[10px] font-black text-[#008080] uppercase tracking-widest border-b pb-1">Assigned Faculties</p>
+                      <div className="flex flex-col gap-1.5 text-xs font-bold text-slate-700 max-h-[250px] overflow-y-auto pr-1">
+                        {student.faculty_names.split(',').map((f, i) => (
+                          <div key={i} className="flex items-center gap-2 bg-slate-50 p-2.5 rounded-xl border border-slate-100 shadow-sm">
+                            <span className="w-2 h-2 rounded-full bg-[#008080] shrink-0"></span>
+                            <span className="font-black text-slate-800">{f.trim()}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ), { duration: 4000 }); 
+                }}
+                className="text-[11px] font-black text-[#008080] hover:text-[#006666] underline uppercase tracking-widest cursor-pointer text-left block"
+              >
+                View Faculties ({student.faculty_names.split(',').length})
+              </button>
+            ) : (
+              <p className="text-[11px] font-black text-slate-800 uppercase truncate max-w-[150px]">
+                None Assigned
+              </p>
+            )}
           </div>
         </div>
       </div>

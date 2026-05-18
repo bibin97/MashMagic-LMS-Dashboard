@@ -244,14 +244,39 @@ const StudentsList = ({ role = 'academic_head' }) => {
 										</div>
 									</td>
 									<td className="px-8 py-6">
-										<div className="space-y-1.5">
+										<div className="space-y-2">
 											<div className="flex items-center gap-2">
 												<div className="w-1.5 h-1.5 rounded-full bg-[#008080]"></div>
 												<span className="text-[10px] font-black text-slate-700 uppercase">Mentor: {student.mentor_name || 'N/A'}</span>
 											</div>
 											<div className="flex items-center gap-2">
-												<div className="w-1.5 h-1.5 rounded-full bg-purple-500"></div>
-												<span className="text-[10px] font-black text-slate-700 uppercase">Faculty: {student.faculty_name || 'N/A'}</span>
+												<div className="w-1.5 h-1.5 rounded-full bg-purple-500 shrink-0"></div>
+												{student.faculty_name ? (
+													<button 
+														type="button" 
+														onClick={(e) => { 
+															e.stopPropagation(); 
+															toast((t) => (
+																<div className="flex flex-col gap-2 p-1 min-w-[220px]">
+																	<p className="text-[10px] font-black text-[#008080] uppercase tracking-widest border-b pb-1">Assigned Faculties</p>
+																	<div className="flex flex-col gap-1.5 text-xs font-bold text-slate-700 max-h-[250px] overflow-y-auto pr-1">
+																		{student.faculty_name.split(',').map((f, i) => (
+																			<div key={i} className="flex items-center gap-2 bg-slate-50 p-2.5 rounded-xl border border-slate-100 shadow-sm">
+																				<span className="w-2 h-2 rounded-full bg-[#008080] shrink-0"></span>
+																				<span className="font-black text-slate-800">{f.trim()}</span>
+																			</div>
+																		))}
+																	</div>
+																</div>
+															), { duration: 4000 }); 
+														}}
+														className="text-[10px] font-black text-[#008080] hover:text-[#006666] underline uppercase tracking-widest cursor-pointer text-left block"
+													>
+														View Faculties ({student.faculty_name.split(',').length})
+													</button>
+												) : (
+													<span className="text-[10px] font-black text-slate-700 uppercase">Faculty: N/A</span>
+												)}
 											</div>
 										</div>
 									</td>

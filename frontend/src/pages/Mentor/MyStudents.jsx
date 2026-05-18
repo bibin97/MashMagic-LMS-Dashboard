@@ -38,7 +38,7 @@ const StudentRow = ({ student, navigate, handleToggleConnection, handleCompleteO
       </div>
 
       {/* Stats Area */}
-      <div className="flex items-center gap-10 px-8 py-3 bg-slate-50/50 rounded-2xl border border-slate-100/50 w-full lg:w-auto">
+      <div className="flex items-center gap-8 px-8 py-3 bg-slate-50/50 rounded-2xl border border-slate-100/50 w-full lg:w-auto">
         <div className="text-center">
           <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Hours</p>
           <p className="text-sm font-black text-slate-700 leading-none">{student.hour || '0'} Hrs</p>
@@ -49,6 +49,36 @@ const StudentRow = ({ student, navigate, handleToggleConnection, handleCompleteO
           <p className={`text-xs font-black leading-none ${student.connected_today ? 'text-emerald-500' : 'text-slate-400'}`}>
             {student.connected_today ? 'Connected' : 'Offline'}
           </p>
+        </div>
+        <div className="w-[1px] h-8 bg-slate-200"></div>
+        <div className="text-center">
+          <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Faculties</p>
+          {student.faculty_names ? (
+            <button 
+              type="button" 
+              onClick={(e) => { 
+                e.stopPropagation(); 
+                toast((t) => (
+                  <div className="flex flex-col gap-2 p-1 min-w-[220px]">
+                    <p className="text-[10px] font-black text-[#008080] uppercase tracking-widest border-b pb-1">Assigned Faculties</p>
+                    <div className="flex flex-col gap-1.5 text-xs font-bold text-slate-700 max-h-[250px] overflow-y-auto pr-1">
+                      {student.faculty_names.split(',').map((f, i) => (
+                        <div key={i} className="flex items-center gap-2 bg-slate-50 p-2.5 rounded-xl border border-slate-100 shadow-sm">
+                          <span className="w-2 h-2 rounded-full bg-[#008080] shrink-0"></span>
+                          <span className="font-black text-slate-800">{f.trim()}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ), { duration: 4000 }); 
+              }}
+              className="text-[11px] font-black text-[#008080] hover:text-[#006666] underline uppercase tracking-widest cursor-pointer block"
+            >
+              View ({student.faculty_names.split(',').length})
+            </button>
+          ) : (
+            <p className="text-[11px] font-black text-slate-400 uppercase leading-none mt-1">N/A</p>
+          )}
         </div>
       </div>
 
