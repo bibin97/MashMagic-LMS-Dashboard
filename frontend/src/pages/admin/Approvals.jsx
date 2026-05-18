@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
  Activity,
  CheckCircle,
@@ -18,234 +18,244 @@ import toast from 'react-hot-toast';
 import { premiumConfirm } from '../../utils/premiumConfirm';
 
 const Approvals = () => {
- const [pendingUsers, setPendingUsers] = useState([]);
- const [loading, setLoading] = useState(true);
+  const [pendingUsers, setPendingUsers] = useState([]);
+  const [portalLogins, setPortalLogins] = useState([]);
+  const [loading, setLoading] = useState(true);
 
- useEffect(() => {
- fetchPendingUsers();
- }, []);
+  useEffect(() => {
+    fetchAllData();
+  }, []);
 
- const fetchPendingUsers = async () => {
- try {
- const res = await api.get('/admin/pending-users');
- if (res.data.success) {
- setPendingUsers(res.data.data);
- }
- } catch (error) {
- console.error('Error fetching pending users:', error);
- toast.error("Failed to load pending approvals");
- } finally {
- setLoading(false);
- }
- };
+  const fetchAllData = async () => {
+    setLoading(true);
+    try {
+      const [pendingRes, portalRes] = await Promise.all([
+        api.get('/admin/pending-users'),
+        api.get('/admin/student-portal-logins')
+      ]);
+      if (pendingRes.data.success) setPendingUsers(pendingRes.data.data);
+      if (portalRes.data.success) setPortalLogins(portalRes.data.data);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      toast.error("Failed to load dashboard data");
+    } finally {
+      setLoading(false);
+    }
+  };
 
- const handleApprove = async (id, role) => {
- try {
- await api.put(`/admin/approve/${id}`, { role });
- toast.success(`${role === 'student' ? 'Student' : 'User'} approved successfully`);
- setPendingUsers(prev => prev.filter(user => !(user.id === id && user.role === role)));
- // Trigger notification refresh for 'at the spot' feel
- if (window.refetchNotifications) window.refetchNotifications();
- } catch (error) {
- console.error('Approve error:', error);
- toast.error("Failed to approve user");
- }
- };
+  const handleApprove = async (id, role) => {
+    try {
+      await api.put(`/admin/approve/${id}`, { role });
+      toast.success(`${role === 'student' ? 'Student' : 'User'} approved successfully`);
+      setPendingUsers(prev => prev.filter(user => !(user.id === id && user.role === role)));
+      // Trigger notification refresh
+      if (window.refetchNotifications) window.refetchNotifications();
+    } catch (error) {
+      console.error('Approve error:', error);
+      toast.error("Failed to approve user");
+    }
+  };
 
- const handleReject = async (id, role, name = 'this user') => {
- premiumConfirm(async () => {
- try {
- await api.put(`/admin/reject/${id}`, { role });
- toast.success(`${role === 'student' ? 'Student' : 'User'} rejected successfully`);
- setPendingUsers(prev => prev.filter(user => !(user.id === id && user.role === role)));
- // Trigger notification refresh
- if (window.refetchNotifications) window.refetchNotifications();
- } catch (error) {
- console.error('Reject error:', error);
- toast.error("Failed to reject user");
- }
- }, { 
- name: name,
- title: 'Reject Registration', 
- message: `Are you sure you want to reject this ${role === 'student' ? 'student' : 'user'}? They will not be able to access the platform.`,
- type: 'danger'
- });
- };
+  const handleReject = async (id, role, name = 'this user') => {
+    premiumConfirm(async () => {
+      try {
+        await api.put(`/admin/reject/${id}`, { role });
+        toast.success(`${role === 'student' ? 'Student' : 'User'} rejected successfully`);
+        setPendingUsers(prev => prev.filter(user => !(user.id === id && user.role === role)));
+        if (window.refetchNotifications) window.refetchNotifications();
+      } catch (error) {
+        console.error('Reject error:', error);
+        toast.error("Failed to reject user");
+      }
+    }, { 
+      name: name,
+      title: 'Reject Registration', 
+      message: `Are you sure you want to reject this ${role === 'student' ? 'student' : 'user'}?`,
+      type: 'danger'
+    });
+  };
 
- const getRoleBadgeStyle = (role) => {
- switch (role) {
- case 'academic_head':
- return 'bg-purple-50 text-purple-700 border-purple-200';
- case 'mentor_head':
- return 'bg-[#008080]/10 text-[#008080] border-[#008080]/20';
- case 'faculty':
- return 'bg-emerald-50 text-emerald-700 border-emerald-200';
- case 'mentor':
- return 'bg-[#008080]/10 text-[#008080] border-[#008080]/20';
- case 'student':
- return 'bg-slate-100 text-slate-600 border-slate-200';
- default:
- return 'bg-gray-50 text-gray-700 border-gray-200';
- }
- };
+  const getRoleBadgeStyle = (role) => {
+    switch (role) {
+      case 'academic_head': return 'bg-purple-50 text-purple-700 border-purple-200';
+      case 'mentor_head': return 'bg-[#008080]/10 text-[#008080] border-[#008080]/20';
+      case 'faculty': return 'bg-emerald-50 text-emerald-700 border-emerald-200';
+      case 'mentor': return 'bg-[#008080]/10 text-[#008080] border-[#008080]/20';
+      case 'student': return 'bg-slate-100 text-slate-600 border-slate-200';
+      default: return 'bg-gray-50 text-gray-700 border-gray-200';
+    }
+  };
 
- if (loading) {
- return (
- <div className="flex items-center justify-center h-64">
- <Loader2 className="w-8 h-8 text-[#008080] animate-spin" />
- </div>
- );
- }
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="w-8 h-8 text-[#008080] animate-spin" />
+      </div>
+    );
+  }
 
- return (
- <div className="space-y-8">
- <div className="bg-white/70 backdrop-blur-xl p-12 rounded-[40px] border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.04)] flex flex-col md:flex-row justify-between items-center gap-10">
- <div className="text-center md:text-left">
- <div className="flex flex-col md:flex-row items-center gap-8">
- <div className="w-20 h-20 bg-[#008080] rounded-[28px] shadow-2xl shadow-[#008080]/30 flex items-center justify-center group hover:rotate-12 transition-transform duration-700">
- <Shield className="text-white" size={36} strokeWidth={2.5} />
- </div>
- <div>
- <h2 className="text-4xl font-black text-slate-900 tracking-tighter leading-none mb-3">Pending Approvals</h2>
- <p className="text-slate-600 text-[10px] font-black uppercase tracking-[0.2em] flex items-center justify-center md:justify-start gap-3 mt-1">
- <div className="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></div>
- Secure Admission & Staff Activation Matrix
- </p>
- </div>
- </div>
- </div>
- <div className="bg-slate-900 px-10 py-6 rounded-[32px] border border-slate-800 shadow-2xl flex items-center gap-6 group hover:translate-x-2 transition-all">
- <div className="flex flex-col">
- <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] leading-none mb-2">Unverified Nodes</span>
- <span className="text-3xl font-black text-white leading-none tabular-nums tracking-tighter">{pendingUsers.length}</span>
- </div>
- <div className="w-px h-10 bg-slate-800"></div>
- <Activity className="text-[#008080] animate-pulse" size={24} strokeWidth={3} />
- </div>
- </div>
+  return (
+    <div className="space-y-8">
+      {/* Header */}
+      <div className="bg-white/70 backdrop-blur-xl p-12 rounded-[40px] border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.04)] flex flex-col md:flex-row justify-between items-center gap-10">
+        <div className="text-center md:text-left">
+          <div className="flex flex-col md:flex-row items-center gap-8">
+            <div className="w-20 h-20 bg-[#008080] rounded-[28px] shadow-2xl shadow-[#008080]/30 flex items-center justify-center">
+              <Shield className="text-white" size={36} strokeWidth={2.5} />
+            </div>
+            <div>
+              <h2 className="text-4xl font-black text-slate-900 tracking-tighter leading-none mb-3">Verification Hub</h2>
+              <p className="text-slate-600 text-[10px] font-black uppercase tracking-[0.2em] flex items-center justify-center md:justify-start gap-3 mt-1">
+                <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                Staff Approvals & Portal Activity Monitoring
+              </p>
+            </div>
+          </div>
+        </div>
+        <div className="flex gap-4">
+          <div className="bg-slate-900 px-8 py-4 rounded-[28px] border border-slate-800 shadow-2xl flex items-center gap-4">
+            <div className="flex flex-col">
+              <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none mb-1">Pending</span>
+              <span className="text-2xl font-black text-white leading-none">{pendingUsers.length}</span>
+            </div>
+            <Activity className="text-amber-500" size={20} />
+          </div>
+          <div className="bg-[#008080] px-8 py-4 rounded-[28px] border border-[#008080] shadow-2xl flex items-center gap-4">
+            <div className="flex flex-col">
+              <span className="text-[10px] font-black text-white/50 uppercase tracking-widest leading-none mb-1">Active Now</span>
+              <span className="text-2xl font-black text-white leading-none">{portalLogins.length}</span>
+            </div>
+            <ArrowUpRight className="text-white" size={20} />
+          </div>
+        </div>
+      </div>
 
- <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden flex flex-col min-h-[500px]">
- {pendingUsers.length > 0 ? (
- <div className="overflow-x-auto">
- <table className="w-full text-left border-collapse">
- <thead>
- <tr className="bg-slate-50/40 border-b border-slate-100/50">
- <th className="p-8 text-[11px] font-black text-slate-600 uppercase tracking-[0.2em] ">Candidate Identity</th>
- <th className="p-8 text-[11px] font-black text-slate-600 uppercase tracking-[0.2em] ">Designation Vector</th>
- <th className="p-8 text-[11px] font-black text-slate-600 uppercase tracking-[0.2em] ">Authorizing Node</th>
- <th className="p-8 text-[11px] font-black text-slate-600 uppercase tracking-[0.2em] ">Communications</th>
- <th className="p-8 text-[11px] font-black text-slate-600 uppercase tracking-[0.2em] text-right">Verification Protocol</th>
- </tr>
- </thead>
- <tbody className="divide-y divide-slate-50">
- {pendingUsers.map((user) => (
- <tr key={`${user.role}-${user.id}`} className="hover:bg-slate-50/50 transition-all group">
- <td className="p-8">
- <div className="flex items-center gap-5">
- <div className="w-16 h-16 bg-white rounded-[24px] flex items-center justify-center text-slate-600 font-black border border-slate-100 group-hover:border-[#008080] group-hover:text-[#008080] group-hover:translate-x-1 group-hover:-translate-y-1 transition-all shadow-sm">
- {user.name.charAt(0).toUpperCase()}
- </div>
- <div>
- <span className="text-lg font-black text-slate-800 block tracking-tight leading-none group-hover:text-[#008080] transition-colors mb-2 uppercase">{user.name}</span>
- <div className="flex items-center gap-2">
- <Calendar size={12} className="text-[#008080] opacity-60" />
- <span className="text-[10px] font-black text-slate-600 uppercase tracking-[0.1em]">
- LOGGED_{new Date(user.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })} | {new Date(user.created_at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: true })}
- </span>
- </div>
- </div>
- </div>
- </td>
- <td className="p-8">
- <span className={`inline-flex items-center gap-2.5 px-6 py-2.5 rounded-[20px] text-[10px] font-black uppercase tracking-[0.2em] border shadow-sm transition-all group-hover:scale-105 active:scale-95 ${getRoleBadgeStyle(user.role)}`}>
- <div className={`w-2 h-2 rounded-full ${user.role === 'student' ? 'bg-slate-400' : 'bg-current animate-pulse'}`} />
- {user.role.replace('_', ' ')}
- </span>
- </td>
- <td className="p-8">
- <div className="flex items-center gap-4">
- <div className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center text-[#008080] border border-slate-100 group-hover:bg-white transition-all">
- <UserCheck size={16} strokeWidth={2.5} />
- </div>
- <div>
- <span className="text-xs font-black text-slate-800 block uppercase tracking-tight ">{user.registered_by_name || 'Autonomous Registry'}</span>
- <span className="text-[9px] font-black text-slate-600 uppercase tracking-[0.15em] mt-0.5 block">Authorized Registrar</span>
- </div>
- </div>
- </td>
- <td className="p-8">
- <div className="flex flex-col gap-1">
- <div className="flex items-center gap-2">
- <Mail size={12} className="text-slate-300" />
- <span className="text-[11px] font-bold text-slate-500 lowercase tracking-wide truncate max-w-[150px]">{user.email || 'NODATA'}</span>
- </div>
- <div className="flex items-center gap-2">
- <Phone size={12} className="text-slate-300" />
- <span className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em]">
- {user.phone_number || 'OFFLINE'}
- </span>
- </div>
- </div>
- </td>
- <td className="p-8 text-right">
- <div className="flex items-center justify-end gap-3 translate-x-4 opacity-0 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-500">
- <button
- onClick={() => handleReject(user.id, user.role, user.name)}
- className="w-12 h-12 rounded-[18px] flex items-center justify-center bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white transition-all border border-rose-100 hover:border-rose-600 shadow-sm hover:shadow-rose-500/30 active:scale-90"
- title="Reject Application"
- >
- <XCircle size={22} strokeWidth={2.5} />
- </button>
- <button
- onClick={() => handleApprove(user.id, user.role)}
- className="w-12 h-12 rounded-[18px] flex items-center justify-center bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white transition-all border border-emerald-100 hover:border-emerald-600 shadow-sm hover:shadow-emerald-500/30 active:scale-95 group/btn"
- title="Approve & Activate"
- >
- <CheckCircle size={22} strokeWidth={2.5} className="group-hover/btn:scale-110 transition-transform" />
- </button>
- </div>
- </td>
- </tr>
- ))}
- </tbody>
- </table>
- </div>
- ) : (
- <div className="flex flex-col items-center justify-center flex-1 py-20 text-center">
- <div className="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center text-slate-200 mb-6 border-4 border-white shadow-inner">
- <CheckCircle size={48} />
- </div>
- <h3 className="text-2xl font-black text-slate-900 tracking-tight">Pipeline Clear</h3>
- <p className="text-slate-600 text-xs font-bold uppercase tracking-[0.2em] mt-3">
- All registration requests have been processed
- </p>
- </div>
- )}
- </div>
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+        {/* Pending Approvals Table */}
+        <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden flex flex-col">
+          <div className="p-8 border-b border-slate-50 flex items-center justify-between bg-slate-50/30">
+            <h3 className="text-xl font-black text-slate-900 tracking-tight flex items-center gap-3">
+              <UserCheck className="text-[#008080]" />
+              STAFF APPROVALS
+            </h3>
+            <span className="px-3 py-1 bg-white border border-slate-200 rounded-full text-[10px] font-black text-slate-400 uppercase tracking-widest">
+              Action Required
+            </span>
+          </div>
+          
+          <div className="flex-1 min-h-[400px]">
+            {pendingUsers.length > 0 ? (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left">
+                  <tbody className="divide-y divide-slate-50">
+                    {pendingUsers.map((user) => (
+                      <tr key={`${user.role}-${user.id}`} className="hover:bg-slate-50/50 transition-all group">
+                        <td className="p-6">
+                          <div className="flex items-center gap-4">
+                            <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-slate-400 font-black border border-slate-100 group-hover:text-[#008080] transition-all">
+                              {user.name.charAt(0)}
+                            </div>
+                            <div>
+                              <span className="text-sm font-black text-slate-800 block uppercase tracking-tight">{user.name}</span>
+                              <span className={`text-[9px] font-black uppercase tracking-widest mt-0.5 inline-block ${user.role === 'student' ? 'text-slate-400' : 'text-[#008080]'}`}>
+                                {user.role.replace('_', ' ')}
+                              </span>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="p-6 text-right">
+                          <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button onClick={() => handleReject(user.id, user.role, user.name)} className="p-2.5 rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white transition-all">
+                              <XCircle size={18} />
+                            </button>
+                            <button onClick={() => handleApprove(user.id, user.role)} className="p-2.5 rounded-xl bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white transition-all">
+                              <CheckCircle size={18} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center py-20 text-slate-400">
+                <CheckCircle size={32} className="mb-4 opacity-20" />
+                <p className="text-[10px] font-black uppercase tracking-widest">No pending staff</p>
+              </div>
+            )}
+          </div>
+        </div>
 
- <div className="bg-slate-950 rounded-[2.5rem] p-10 text-white relative overflow-hidden border border-white/5">
- <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
- <div className="max-w-md">
- <h3 className="text-2xl font-black mb-2 tracking-tight text-[#008080]">Security Protocol Enforcement</h3>
- <p className="text-slate-600 text-sm font-bold leading-relaxed">
- Every account activated here gains immediate access to their designated tools.
- Rejected records are permanently archived in the system to prevent spam.
- </p>
- </div>
- <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
- <div className="bg-gradient-to-br from-[#008080] to-[#008080] p-6 rounded-3xl w-full md:w-44 text-center shadow-lg shadow-[#008080]/20 border border-white/10 group hover:scale-105 transition-all">
- <span className="text-[10px] font-black text-white/50 uppercase tracking-widest block mb-1">Active Today</span>
- <span className="text-3xl font-black text-white tracking-tighter">0</span>
- </div>
- <div className="bg-gradient-to-br from-[#008080] to-[#008080] p-6 rounded-3xl w-full md:w-44 text-center shadow-lg shadow-[#008080]/20 border border-white/10 group hover:scale-105 transition-all">
- <span className="text-[10px] font-black text-white/50 uppercase tracking-widest block mb-1">Rejected Today</span>
- <span className="text-3xl font-black text-white tracking-tighter">0</span>
- </div>
- </div>
- </div>
- </div>
- </div>
- );
+        {/* Student Portal Activity (Portal Logins) */}
+        <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden flex flex-col">
+          <div className="p-8 border-b border-slate-50 flex items-center justify-between bg-[#008080]/5">
+            <h3 className="text-xl font-black text-slate-900 tracking-tight flex items-center gap-3">
+              <Activity className="text-[#008080]" />
+              STUDENT PORTAL ACTIVITY
+            </h3>
+            <span className="px-3 py-1 bg-white border border-slate-200 rounded-full text-[10px] font-black text-[#008080] uppercase tracking-widest">
+              Live Logs
+            </span>
+          </div>
+
+          <div className="flex-1 min-h-[400px]">
+            {portalLogins.length > 0 ? (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left">
+                  <tbody className="divide-y divide-slate-50">
+                    {portalLogins.map((log) => (
+                      <tr key={log.id} className="hover:bg-slate-50/50 transition-all group">
+                        <td className="p-6">
+                          <div className="flex items-center gap-4">
+                            <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-[#008080] font-black border border-slate-100">
+                              <User size={20} />
+                            </div>
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <span className="text-sm font-black text-slate-800 block uppercase tracking-tight">
+                                  {log.message.replace('<b>Student Portal Login:</b> ', '').replace(' logged into the student dashboard.', '')}
+                                </span>
+                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                              </div>
+                              <div className="flex items-center gap-3 mt-0.5">
+                                <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1">
+                                  <Calendar size={10} />
+                                  {new Date(log.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                </span>
+                                <span className="text-[9px] font-black text-[#008080] uppercase tracking-widest">
+                                  {log.grade} | {log.course}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="p-6 text-right">
+                          <div className="flex flex-col items-end gap-1">
+                            <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1">
+                              <Mail size={10} /> {log.email || 'N/A'}
+                            </span>
+                            <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1">
+                              <Phone size={10} /> {log.phone_number || 'N/A'}
+                            </span>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center py-20 text-slate-400">
+                <Activity size={32} className="mb-4 opacity-20" />
+                <p className="text-[10px] font-black uppercase tracking-widest">No recent portal activity</p>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 };
 
 export default Approvals;

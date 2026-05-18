@@ -5,12 +5,12 @@ const getDailyAssignments = async (req, res) => {
         const mentor_id = req.user.id;
         const today = new Date().toISOString().split('T')[0];
 
-        // Fetch current eligible students to check if we need to refresh
         const [currentStudents] = await db.query(
             `SELECT id FROM students 
              WHERE mentor_id = ? 
-             AND (LOWER(enrollment_type) = 'mentorship' OR LOWER(enrollment_type) = 'both')
-             AND status != 'inactive'`,
+             AND (LOWER(enrollment_type) IN ('mentorship', 'mentorship only', 'mentorship & tuition', 'mentorship and tuition', 'both'))
+             AND status != 'inactive'
+             AND (onboarding_status != 'pending' OR onboarding_status IS NULL)`,
             [mentor_id]
         );
 
@@ -56,13 +56,13 @@ const getDailyAssignments = async (req, res) => {
 };
 
 const generateAssignments = async (mentor_id) => {
-    // 1. Fetch all students under this mentor who are Mentorship or Both
     const [students] = await db.query(
         `SELECT id, name, priority_category, enrollment_type, badge 
          FROM students 
          WHERE mentor_id = ? 
-         AND (LOWER(enrollment_type) = 'mentorship' OR LOWER(enrollment_type) = 'both')
+         AND (LOWER(enrollment_type) IN ('mentorship', 'mentorship only', 'mentorship & tuition', 'mentorship and tuition', 'both'))
          AND status != 'inactive'
+         AND (onboarding_status != 'pending' OR onboarding_status IS NULL)
          ORDER BY id ASC`,
         [mentor_id]
     );

@@ -55,12 +55,11 @@ const StudentRow = ({ student, navigate, handleToggleConnection, handleCompleteO
       {/* Quick Actions */}
       <div className="flex items-center gap-3 w-full lg:w-auto shrink-0" onClick={(e) => e.stopPropagation()}>
         {isPending ? (
-          <button
-            onClick={(e) => handleCompleteOnboarding(student, e)}
-            className="flex-1 lg:flex-none flex items-center justify-center gap-3 bg-amber-500 text-white px-8 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-amber-200 hover:bg-amber-600 transition-all active:scale-95"
+          <div
+            className="flex-1 lg:flex-none flex items-center justify-center gap-3 bg-amber-50 text-amber-600 px-8 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest border border-amber-200"
           >
-            <Calendar size={16} /> Setup
-          </button>
+            <Clock size={16} /> Awaiting SSC Setup
+          </div>
         ) : (
           <>
             <button

@@ -645,7 +645,16 @@ const getDailyMentorHeadReport = async (req, res) => {
             });
         }
 
-        // @desc    Get recent student portal logins
+        res.status(200).json({
+            success: true,
+            data: mappedData
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+// @desc    Get recent student portal logins
 // @route   GET /api/admin/student-portal-logins
 const getStudentPortalLogins = async (req, res) => {
     try {
@@ -658,15 +667,6 @@ const getStudentPortalLogins = async (req, res) => {
             LIMIT 50
         `);
         res.status(200).json({ success: true, data: rows });
-    } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
-    }
-};
-
-res.status(200).json({
-            success: true,
-            data: mappedData
-        });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
@@ -1141,6 +1141,7 @@ module.exports = {
     deleteSubAdmin,
     updateStudentForAdmin,
     updateUserForAdmin,
+    getStudentPortalLogins,
     // @desc    Get exam analytics for graphs
     getExamAnalytics: async (req, res) => {
         try {

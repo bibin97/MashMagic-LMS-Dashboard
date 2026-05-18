@@ -162,9 +162,29 @@ const StudentInteractionLog = () => {
    }
  };
 
- const isDiamondCategory = (s) => s.badge === 'Diamond' || (s.enrollment_type && s.enrollment_type.toLowerCase() === 'both');
- const isGoldCategory = (s) => (s.badge === 'Gold' || (s.enrollment_type && s.enrollment_type.toLowerCase() === 'mentorship')) && !isDiamondCategory(s);
- const isSilverCategory = (s) => !isDiamondCategory(s) && !isGoldCategory(s);
+ const isDiamondCategory = (s) => {
+    if (!s) return false;
+    const badge = s.badge?.toLowerCase();
+    const type = s.enrollment_type?.toLowerCase();
+    return badge === 'diamond' || 
+           type === 'both' || 
+           type === 'mentorship and tuition' || 
+           type === 'mentorship & tuition' || 
+           type === 'mentorship + tuition' ||
+           (type && type.includes('mentorship') && type.includes('tuition'));
+  };
+
+ const isGoldCategory = (s) => {
+    if (!s) return false;
+    if (isDiamondCategory(s)) return false;
+    const badge = s.badge?.toLowerCase();
+    const type = s.enrollment_type?.toLowerCase();
+    return badge === 'gold' || 
+           type === 'mentorship' || 
+           type === 'mentorship only';
+  };
+
+ const isSilverCategory = (s) => s.onboarding_status !== 'pending' && !isDiamondCategory(s) && !isGoldCategory(s);
 
  const getSessionIcon = (type) => {
    switch(type) {

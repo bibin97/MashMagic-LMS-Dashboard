@@ -5,6 +5,7 @@ const db = require('../config/db');
 const getMentorDashboard = async (req, res) => {
     try {
         const mentorId = req.user.id;
+        const role = req.user.role;
 
         // Helper to run query safely
         const safeQuery = async (query, params, label) => {
@@ -16,6 +17,40 @@ const getMentorDashboard = async (req, res) => {
                 return [];
             }
         };
+
+        if (role === 'ssc') {
+            const studentCount = await safeQuery('SELECT COUNT(*) as count FROM students WHERE status = "active"', [], 'ssc_studentCount');
+            const totalCount = await safeQuery('SELECT COUNT(*) as count FROM students', [], 'ssc_totalCount');
+            const mentorCount = await safeQuery('SELECT COUNT(*) as count FROM users WHERE role = "mentor" AND status = "active"', [], 'ssc_mentorCount');
+            const onboardedCount = await safeQuery('SELECT COUNT(*) as count FROM students WHERE onboarding_status = "completed"', [], 'ssc_onboardedCount');
+            const pendingCount = await safeQuery('SELECT COUNT(*) as count FROM students WHERE onboarding_status = "pending"', [], 'ssc_pendingCount');
+
+            const activeStudents = studentCount[0]?.count || 0;
+            const mentorsSyncing = mentorCount[0]?.count || 0;
+            const onboarded = onboardedCount[0]?.count || 0;
+            const total = totalCount[0]?.count || 0;
+            const pendingReviews = pendingCount[0]?.count || 0;
+
+            const successRate = total > 0 ? `${((onboarded / total) * 100).toFixed(0)}%` : '0%';
+
+            const recentInteractions = await safeQuery(`
+                SELECT sil.created_at, CONVERT(s.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as student_name, CONVERT('Quick' USING utf8mb4) COLLATE utf8mb4_unicode_ci as type, CONVERT(sil.mentor_notes USING utf8mb4) COLLATE utf8mb4_unicode_ci as remarks
+                FROM student_interaction_logs sil
+                JOIN students s ON sil.student_id = s.id
+                ORDER BY sil.created_at DESC LIMIT 5
+            `, [], 'ssc_recentInteractions');
+
+            return res.status(200).json({
+                success: true,
+                data: {
+                    activeStudents,
+                    mentorsSyncing,
+                    successRate,
+                    pendingReviews,
+                    recentInteractions
+                }
+            });
+        }
 
         const studentCount = await safeQuery('SELECT COUNT(*) as count FROM students WHERE mentor_id = ?', [mentorId], 'studentCount');
         const sessionCount = await safeQuery('SELECT COUNT(*) as count FROM mentor_timetable WHERE mentor_id = ?', [mentorId], 'sessionCount');
@@ -396,12 +431,20 @@ const getMentorTimetable = async (req, res) => {
 // @route   POST /api/mentor/timetable
 const createSession = async (req, res) => {
     try {
-        const mentorId = req.user.id;
+        const loggedInUserId = req.user.id;
+        const loggedInUserRole = req.user.role;
         const {
             student_id, date, start_time, end_time,
             chapter, session_type, status, status_reason, notes,
             faculty_id, faculty_name, session_mode
         } = req.body;
+
+        // Resolve student's actual mentor_id
+        const [[studentObj]] = await db.query('SELECT mentor_id FROM students WHERE id = ?', [student_id]);
+        if (!studentObj) {
+            return res.status(404).json({ success: false, message: "Student not found" });
+        }
+        const targetMentorId = studentObj.mentor_id;
 
         // 1. Conflict Check for Mentor
         const [conflicts] = await db.query(`
@@ -411,7 +454,7 @@ const createSession = async (req, res) => {
             AND (
                 (start_time < ? AND end_time > ?)
             )
-        `, [mentorId, date, end_time, start_time]);
+        `, [targetMentorId, date, end_time, start_time]);
 
         if (conflicts.length > 0) {
             return res.status(400).json({ success: false, message: "Time conflict detected with another session." });
@@ -438,7 +481,7 @@ const createSession = async (req, res) => {
                 faculty_id, faculty_name, session_mode
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `, [
-            mentorId, student_id, session_number, date, start_time, end_time,
+            targetMentorId, student_id, session_number, date, start_time, end_time,
             duration, chapter, session_type, status || 'Scheduled', status_reason, notes,
             faculty_id || null, faculty_name || null, session_mode || 'Online'
         ]);
@@ -453,13 +496,21 @@ const createSession = async (req, res) => {
 // @route   PUT /api/mentor/timetable/:id
 const updateSession = async (req, res) => {
     try {
-        const mentorId = req.user.id;
+        const loggedInUserId = req.user.id;
+        const loggedInUserRole = req.user.role;
         const sessionId = req.params.id;
         const {
             date, start_time, end_time,
             chapter, session_type, status, status_reason, notes,
             faculty_id, faculty_name, session_mode
         } = req.body;
+
+        // Get existing session to find the mentor_id
+        const [[existingSession]] = await db.query('SELECT mentor_id FROM mentor_timetable WHERE id = ?', [sessionId]);
+        if (!existingSession) {
+            return res.status(404).json({ success: false, message: "Session not found" });
+        }
+        const targetMentorId = existingSession.mentor_id;
 
         // Conflict check excluding current session
         const [conflicts] = await db.query(`
@@ -469,7 +520,7 @@ const updateSession = async (req, res) => {
             AND (
                 (start_time < ? AND end_time > ?)
             )
-        `, [mentorId, date, sessionId, end_time, start_time]);
+        `, [targetMentorId, date, sessionId, end_time, start_time]);
 
         if (conflicts.length > 0) {
             return res.status(400).json({ success: false, message: "Time conflict detected." });
@@ -482,18 +533,26 @@ const updateSession = async (req, res) => {
         const diffMins = Math.round(diffMs / 60000);
         const duration = `${Math.floor(diffMins / 60)}h ${diffMins % 60}m`;
 
-        await db.query(`
+        let query = `
             UPDATE mentor_timetable 
             SET date = ?, start_time = ?, end_time = ?, duration = ?, chapter = ?, 
                 session_type = ?, status = ?, status_reason = ?, notes = ?,
                 faculty_id = ?, faculty_name = ?, session_mode = ?
-            WHERE id = ? AND mentor_id = ?
-        `, [
+            WHERE id = ?
+        `;
+        let params = [
             date, start_time, end_time, duration, chapter, 
             session_type, status, status_reason, notes,
             faculty_id || null, faculty_name || null, session_mode || 'Online',
-            sessionId, mentorId
-        ]);
+            sessionId
+        ];
+
+        if (loggedInUserRole === 'mentor') {
+            query += ' AND mentor_id = ?';
+            params.push(loggedInUserId);
+        }
+
+        await db.query(query, params);
 
         res.status(200).json({ success: true, message: "Session updated" });
     } catch (error) {
@@ -504,10 +563,19 @@ const updateSession = async (req, res) => {
 // @desc    Delete session
 const deleteSession = async (req, res) => {
     try {
-        const mentorId = req.user.id;
+        const loggedInUserId = req.user.id;
+        const loggedInUserRole = req.user.role;
         const sessionId = req.params.id;
 
-        const [result] = await db.query('DELETE FROM mentor_timetable WHERE id = ? AND mentor_id = ?', [sessionId, mentorId]);
+        let query = 'DELETE FROM mentor_timetable WHERE id = ?';
+        let params = [sessionId];
+
+        if (loggedInUserRole === 'mentor') {
+            query += ' AND mentor_id = ?';
+            params.push(loggedInUserId);
+        }
+
+        const [result] = await db.query(query, params);
 
         if (result.affectedRows === 0) {
             return res.status(404).json({ success: false, message: "Session not found" });
@@ -648,16 +716,22 @@ const toggleStudentConnection = async (req, res) => {
 // @route   PUT /api/mentor/students/:id/onboard
 const completeOnboarding = async (req, res) => {
     try {
-        const mentorId = req.user.id;
+        const loggedInUserId = req.user.id;
+        const loggedInUserRole = req.user.role;
         const { studentId } = req.params;
 
-        const [result] = await db.query(
-            'UPDATE students SET onboarding_status = "completed" WHERE id = ? AND mentor_id = ?',
-            [studentId, mentorId]
-        );
+        let query = 'UPDATE students SET onboarding_status = "completed" WHERE id = ?';
+        let params = [studentId];
+
+        if (loggedInUserRole === 'mentor') {
+            query += ' AND mentor_id = ?';
+            params.push(loggedInUserId);
+        }
+
+        const [result] = await db.query(query, params);
 
         if (result.affectedRows === 0) {
-            return res.status(404).json({ success: false, message: "Student not found or not assigned to you" });
+            return res.status(404).json({ success: false, message: "Student not found or permission denied" });
         }
 
         res.status(200).json({ success: true, message: "Student onboarding completed" });
@@ -672,12 +746,25 @@ const createBatchTimetable = async (req, res) => {
     const connection = await db.getConnection();
     try {
         await connection.beginTransaction();
-        const mentorId = req.user.id;
+        const loggedInUserId = req.user.id;
+        const loggedInUserRole = req.user.role;
         const { student_id, sessions } = req.body;
 
         if (!sessions || !Array.isArray(sessions) || sessions.length === 0) {
             return res.status(400).json({ success: false, message: "No sessions provided" });
         }
+
+        // Get student's actual mentor_id
+        const [[studentObj]] = await connection.query(
+            'SELECT mentor_id FROM students WHERE id = ?',
+            [student_id]
+        );
+
+        if (!studentObj) {
+            return res.status(404).json({ success: false, message: "Student not found" });
+        }
+
+        const actualMentorId = studentObj.mentor_id;
 
         // 1. Get starting session number
         const [lastSession] = await connection.query(
@@ -704,17 +791,22 @@ const createBatchTimetable = async (req, res) => {
                     faculty_id, faculty_name, session_mode
                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'Scheduled', ?, ?, ?, ?)
             `, [
-                mentorId, student_id, currentSessionNum++, date, start_time, end_time,
+                actualMentorId, student_id, currentSessionNum++, date, start_time, end_time,
                 duration, chapter, session_type || 'Regular Class', notes || '',
                 faculty_id || null, faculty_name || null, session_mode || 'Online'
             ]);
         }
 
-        // 3. Mark student as onboarded if not already
-        await connection.query(
-            'UPDATE students SET onboarding_status = "completed" WHERE id = ? AND mentor_id = ?',
-            [student_id, mentorId]
-        );
+        // 3. Mark student as onboarded
+        let updateQuery = 'UPDATE students SET onboarding_status = "completed" WHERE id = ?';
+        let updateParams = [student_id];
+
+        if (loggedInUserRole === 'mentor') {
+            updateQuery += ' AND mentor_id = ?';
+            updateParams.push(loggedInUserId);
+        }
+
+        await connection.query(updateQuery, updateParams);
 
         await connection.commit();
         res.status(201).json({ success: true, message: "Timetable created and onboarding completed" });

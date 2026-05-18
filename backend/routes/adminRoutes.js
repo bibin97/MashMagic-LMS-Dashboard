@@ -1,5 +1,8 @@
 const express = require('express');
 const router = express.Router();
+const { requireAuth } = require('../middleware/authMiddleware');
+const { requireRole } = require('../middleware/roleMiddleware');
+const { getDailyHours } = require('../controllers/mentorController');
 const {
     getAdminDashboardSummary,
     getUsers,
@@ -33,12 +36,9 @@ const {
     getStudentPortalLogins
 } = require('../controllers/adminController');
 
-router.get('/student-portal-logins', requireRole('super_admin', 'sub_admin'), getStudentPortalLogins);
-const { getDailyHours } = require('../controllers/mentorController');
-const { requireAuth } = require('../middleware/authMiddleware');
-const { requireRole } = require('../middleware/roleMiddleware');
-
 router.use(requireAuth);
+
+router.get('/student-portal-logins', requireRole('super_admin', 'sub_admin'), getStudentPortalLogins);
 
 // General view access for admin and super_admin
 router.get('/dashboard-summary', requireRole('super_admin', 'sub_admin'), getAdminDashboardSummary);
