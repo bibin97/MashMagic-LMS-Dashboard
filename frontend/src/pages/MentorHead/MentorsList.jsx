@@ -35,9 +35,8 @@ const MentorsList = () => {
  const [selectedMentorForDetail, setSelectedMentorForDetail] = useState(null);
  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
 
- // Student View Modal States
- const [isStudentModalOpen, setIsStudentModalOpen] = useState(false);
- const [selectedMentorForView, setSelectedMentorForView] = useState(null);
+ // Student View States
+ const [expandedMentorId, setExpandedMentorId] = useState(null);
  const [mentorStudents, setMentorStudents] = useState([]);
  const [loadingStudents, setLoadingStudents] = useState(false);
 
@@ -113,8 +112,12 @@ const MentorsList = () => {
  };
 
  const handleViewStudents = async (mentor) => {
- setSelectedMentorForView(mentor);
- setIsStudentModalOpen(true);
+ if (expandedMentorId === mentor.mentor_id) {
+ setExpandedMentorId(null);
+ setMentorStudents([]);
+ return;
+ }
+ setExpandedMentorId(mentor.mentor_id);
  setLoadingStudents(true);
  try {
  const token = sessionStorage.getItem('token');
@@ -289,6 +292,54 @@ const MentorsList = () => {
  </div>
  </td>
  </tr>
+ {expandedMentorId === mentor.mentor_id && (
+   <tr className="bg-slate-50/80 border-b border-slate-100">
+     <td colSpan="5" className="p-8">
+       <div className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-inner animate-in fade-in slide-in-from-top-2 duration-300">
+         <div className="flex items-center justify-between pb-4 border-b border-slate-100 mb-6">
+           <h4 className="text-sm font-black text-slate-900 flex items-center gap-2 uppercase tracking-tight">
+             <Users size={16} className="text-[#008080]" /> Assigned Students: {mentor.mentor_name.toUpperCase()} ({mentorStudents.length})
+           </h4>
+           <button 
+             onClick={() => setExpandedMentorId(null)}
+             className="text-slate-400 hover:text-slate-600 p-1 rounded-lg hover:bg-slate-50 transition-all"
+           >
+             <X size={18} />
+           </button>
+         </div>
+         {loadingStudents ? (
+           <div className="text-center py-12 font-black text-slate-400 animate-pulse uppercase tracking-widest text-xs">
+             Loading Assigned Students...
+           </div>
+         ) : mentorStudents.length > 0 ? (
+           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+             {mentorStudents.map((student) => (
+               <div key={student.id} className="p-4 bg-slate-50 border border-slate-100 rounded-2xl flex flex-col gap-3 group hover:bg-white hover:border-[#008080] hover:shadow-lg transition-all">
+                 <div className="flex items-center gap-3">
+                   <div className="w-8 h-8 bg-[#008080] text-white rounded-lg flex items-center justify-center text-xs font-black shadow-md uppercase shrink-0">
+                     {student.name.charAt(0)}
+                   </div>
+                   <div className="flex flex-col min-w-0">
+                     <span className="text-xs font-black text-slate-900 uppercase truncate">{student.name}</span>
+                     <span className="text-[8px] font-bold text-slate-500 uppercase tracking-widest truncate">{student.registration_number || 'REG-PENDING'}</span>
+                   </div>
+                 </div>
+                 <div className="flex flex-wrap gap-2 mt-auto">
+                   <span className="text-[8px] font-black bg-white border border-slate-200 px-2 py-0.5 rounded-md text-slate-600 uppercase">{student.course || 'N/A'}</span>
+                   <span className="text-[8px] font-black bg-white border border-slate-200 px-2 py-0.5 rounded-md text-slate-600 uppercase">Grade {student.grade || 'N/A'}</span>
+                 </div>
+               </div>
+             ))}
+           </div>
+         ) : (
+           <div className="text-center py-12 text-slate-400 font-black text-[10px] uppercase tracking-widest">
+             No students assigned to this mentor
+           </div>
+         )}
+       </div>
+     </td>
+   </tr>
+ )}
  </React.Fragment>
  );
  })}
@@ -475,56 +526,7 @@ const MentorsList = () => {
     </div>
   )}
 
- {/* Student View Modal */}
- {isStudentModalOpen && selectedMentorForView && (
- <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
- <div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-2xl overflow-hidden animate-in slide-in-from-bottom-4 duration-300 border border-white/20">
- <div className="px-8 py-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
- <h2 className="text-lg font-black text-slate-900 flex items-center gap-3 ">
- <Users size={20} className="text-[#008080]" /> Students: {selectedMentorForView.mentor_name.toUpperCase()}
- </h2>
- <button onClick={() => setIsStudentModalOpen(false)} className="text-slate-600 hover:text-slate-600 transition-colors">
- <X size={20} />
- </button>
- </div>
- <div className="p-8 max-h-[60vh] overflow-y-auto">
- {loadingStudents ? (
- <div className="text-center py-10 font-black text-slate-600 animate-pulse uppercase tracking-widest">Loading Mentor Registry...</div>
- ) : mentorStudents.length > 0 ? (
- <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
- {mentorStudents.map((student) => (
- <div key={student.id} className="p-4 bg-slate-50 border border-slate-100 rounded-2xl flex flex-col gap-3 group hover:bg-white hover:border-[#008080] hover:shadow-lg transition-all">
- <div className="flex items-center gap-3">
- <div className="w-8 h-8 bg-[#008080] text-white rounded-lg flex items-center justify-center text-xs font-black shadow-md uppercase">
- {student.name.charAt(0)}
- </div>
- <div className="flex flex-col">
- <span className="text-xs font-black text-slate-900 uppercase ">{student.name}</span>
- <span className="text-[8px] font-bold text-slate-600 uppercase tracking-widest">{student.registration_number || 'REG-PENDING'}</span>
- </div>
- </div>
- <div className="flex flex-wrap gap-2">
- <span className="text-[8px] font-black bg-white border border-slate-200 px-2 py-0.5 rounded-md text-slate-600 uppercase ">{student.course}</span>
- <span className="text-[8px] font-black bg-white border border-slate-200 px-2 py-0.5 rounded-md text-slate-600 uppercase">Grade {student.grade}</span>
- </div>
- </div>
- ))}
- </div>
- ) : (
- <div className="text-center py-10 text-slate-600 font-black text-[10px] uppercase tracking-widest">No students found</div>
- )}
- </div>
- <div className="px-8 py-6 border-t border-slate-100 bg-slate-50 flex justify-end">
- <button
- onClick={() => setIsStudentModalOpen(false)}
- className="px-10 py-3 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all shadow-lg"
- >
- Close Registry
- </button>
- </div>
- </div>
- </div>
- )}
+
  </div>
  );
 };

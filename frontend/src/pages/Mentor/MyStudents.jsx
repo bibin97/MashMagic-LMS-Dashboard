@@ -8,114 +8,133 @@ import StudentListFilterDropdown, { sortStudentsByOption } from '../../component
 const StudentRow = ({ student, navigate, handleToggleConnection, handleCompleteOnboarding, handleLogHoursClick }) => {
   const isPending = student.onboarding_status === 'pending';
   const isNew = student.onboarding_status === 'completed' && (!student.session_count || student.session_count < 5);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   return (
     <div
       onClick={() => navigate(`/mentor/students/${student.id}`)}
-      className={`group relative bg-white border border-slate-100 rounded-[2rem] p-5 flex flex-col lg:flex-row items-center gap-6 transition-all duration-500 hover:shadow-2xl hover:-translate-y-1 cursor-pointer ${isPending ? 'border-amber-100 bg-amber-50/10' : ''}`}
+      className={`group relative bg-white border border-slate-100 rounded-[2rem] p-5 flex flex-col gap-6 transition-all duration-500 hover:shadow-2xl hover:-translate-y-1 cursor-pointer ${isPending ? 'border-amber-100 bg-amber-50/10' : ''}`}
     >
-      {/* Student Profile Info */}
-      <div className="flex items-center gap-5 flex-1 min-w-0 w-full">
-        <div className={`w-16 h-16 rounded-2xl flex items-center justify-center shrink-0 border transition-all duration-500 ${isPending ? 'bg-amber-100 border-amber-200 text-amber-600' : 'bg-slate-50 border-slate-100 text-[#008080] group-hover:bg-[#008080] group-hover:text-white group-hover:border-[#008080]'}`}>
-          <User size={28} strokeWidth={2.5} />
-        </div>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 flex-wrap">
-            <h3 className="text-lg font-black text-slate-900 truncate leading-none">{student.name}</h3>
-            {isNew && (
-              <span className="px-3 py-1 bg-emerald-500 text-white text-[8px] font-black uppercase tracking-widest rounded-full shadow-lg shadow-emerald-200 animate-pulse">New Member</span>
-            )}
-            {isPending && (
-              <span className="px-3 py-1 bg-amber-500 text-white text-[8px] font-black uppercase tracking-widest rounded-full">Onboarding</span>
-            )}
+      <div className="flex flex-col lg:flex-row items-center gap-6 w-full">
+        {/* Student Profile Info */}
+        <div className="flex items-center gap-5 flex-1 min-w-0 w-full">
+          <div className={`w-16 h-16 rounded-2xl flex items-center justify-center shrink-0 border transition-all duration-500 ${isPending ? 'bg-amber-100 border-amber-200 text-amber-600' : 'bg-slate-50 border-slate-100 text-[#008080] group-hover:bg-[#008080] group-hover:text-white group-hover:border-[#008080]'}`}>
+            <User size={28} strokeWidth={2.5} />
           </div>
-          <div className="flex items-center gap-3 mt-2">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">ID: MM-{student.id.toString().padStart(4, '0')}</span>
-            <span className="w-1 h-1 rounded-full bg-slate-200"></span>
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{student.course || 'Technical Course'}</span>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h3 className="text-lg font-black text-slate-900 truncate leading-none">{student.name}</h3>
+              {isNew && (
+                <span className="px-3 py-1 bg-emerald-500 text-white text-[8px] font-black uppercase tracking-widest rounded-full shadow-lg shadow-emerald-200 animate-pulse">New Member</span>
+              )}
+              {isPending && (
+                <span className="px-3 py-1 bg-amber-500 text-white text-[8px] font-black uppercase tracking-widest rounded-full">Onboarding</span>
+              )}
+            </div>
+            <div className="flex items-center gap-3 mt-2">
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">ID: MM-{student.id.toString().padStart(4, '0')}</span>
+              <span className="w-1 h-1 rounded-full bg-slate-200"></span>
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{student.course || 'Technical Course'}</span>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Stats Area */}
-      <div className="flex items-center gap-8 px-8 py-3 bg-slate-50/50 rounded-2xl border border-slate-100/50 w-full lg:w-auto">
-        <div className="text-center">
-          <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Hours</p>
-          <p className="text-sm font-black text-slate-700 leading-none">{student.hour || '0'} Hrs</p>
+        {/* Stats Area */}
+        <div className="flex items-center gap-8 px-8 py-3 bg-slate-50/50 rounded-2xl border border-slate-100/50 w-full lg:w-auto">
+          <div className="text-center">
+            <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Hours</p>
+            <p className="text-sm font-black text-slate-700 leading-none">{student.hour || '0'} Hrs</p>
+          </div>
+          <div className="w-[1px] h-8 bg-slate-200"></div>
+          <div className="text-center">
+            <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Status</p>
+            <p className={`text-xs font-black leading-none ${student.connected_today ? 'text-emerald-500' : 'text-slate-400'}`}>
+              {student.connected_today ? 'Connected' : 'Offline'}
+            </p>
+          </div>
+          <div className="w-[1px] h-8 bg-slate-200"></div>
+          <div className="text-center">
+            <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Faculties</p>
+            {student.faculty_names ? (
+              <button 
+                type="button" 
+                onClick={(e) => { 
+                  e.stopPropagation(); 
+                  setIsExpanded(!isExpanded);
+                }}
+                className="text-[11px] font-black text-[#008080] hover:text-[#006666] underline uppercase tracking-widest cursor-pointer block"
+              >
+                View ({student.faculty_names.split(',').length})
+              </button>
+            ) : (
+              <p className="text-[11px] font-black text-slate-400 uppercase leading-none mt-1">N/A</p>
+            )}
+          </div>
         </div>
-        <div className="w-[1px] h-8 bg-slate-200"></div>
-        <div className="text-center">
-          <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Status</p>
-          <p className={`text-xs font-black leading-none ${student.connected_today ? 'text-emerald-500' : 'text-slate-400'}`}>
-            {student.connected_today ? 'Connected' : 'Offline'}
-          </p>
-        </div>
-        <div className="w-[1px] h-8 bg-slate-200"></div>
-        <div className="text-center">
-          <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Faculties</p>
-          {student.faculty_names ? (
-            <button 
-              type="button" 
-              onClick={(e) => { 
-                e.stopPropagation(); 
-                toast((t) => (
-                  <div className="flex flex-col gap-2 p-1 min-w-[220px]">
-                    <p className="text-[10px] font-black text-[#008080] uppercase tracking-widest border-b pb-1">Assigned Faculties</p>
-                    <div className="flex flex-col gap-1.5 text-xs font-bold text-slate-700 max-h-[250px] overflow-y-auto pr-1">
-                      {student.faculty_names.split(',').map((f, i) => (
-                        <div key={i} className="flex items-center gap-2 bg-slate-50 p-2.5 rounded-xl border border-slate-100 shadow-sm">
-                          <span className="w-2 h-2 rounded-full bg-[#008080] shrink-0"></span>
-                          <span className="font-black text-slate-800">{f.trim()}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ), { duration: 4000 }); 
-              }}
-              className="text-[11px] font-black text-[#008080] hover:text-[#006666] underline uppercase tracking-widest cursor-pointer block"
+
+        {/* Quick Actions */}
+        <div className="flex items-center gap-3 w-full lg:w-auto shrink-0" onClick={(e) => e.stopPropagation()}>
+          {isPending ? (
+            <div
+              className="flex-1 lg:flex-none flex items-center justify-center gap-3 bg-amber-50 text-amber-600 px-8 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest border border-amber-200"
             >
-              View ({student.faculty_names.split(',').length})
-            </button>
+              <Clock size={16} /> Awaiting SSC Setup
+            </div>
           ) : (
-            <p className="text-[11px] font-black text-slate-400 uppercase leading-none mt-1">N/A</p>
+            <>
+              <button
+                onClick={(e) => handleToggleConnection(student.id, student.connected_today, e)}
+                className={`flex-1 lg:flex-none p-4 rounded-2xl border transition-all flex items-center justify-center gap-2 ${student.connected_today ? 'bg-emerald-500 text-white border-emerald-600 shadow-lg shadow-emerald-200' : 'bg-white border-slate-100 text-slate-400 hover:border-[#008080] hover:text-[#008080]'}`}
+                title="Toggle Attendance"
+              >
+                <CheckCircle2 size={18} strokeWidth={3} />
+                <span className="lg:hidden text-[10px] font-black uppercase">Presence</span>
+              </button>
+              <button
+                onClick={() => navigate('/mentor/interaction-logs', { state: { studentId: student.id } })}
+                className="flex-1 lg:flex-none p-4 bg-slate-50 text-slate-600 border border-slate-100 rounded-2xl hover:bg-[#008080] hover:text-white hover:border-[#008080] transition-all group/btn"
+                title="Interaction Log"
+              >
+                <Activity size={18} strokeWidth={2.5} className="group-hover/btn:scale-110 transition-transform" />
+              </button>
+              <button
+                onClick={(e) => handleLogHoursClick(student, e)}
+                className="flex-[2] lg:flex-none flex items-center justify-center gap-3 bg-slate-900 text-white px-8 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-slate-200 hover:shadow-2xl transition-all active:scale-95"
+              >
+                <Clock size={16} /> Log Hours
+              </button>
+            </>
           )}
         </div>
       </div>
 
-      {/* Quick Actions */}
-      <div className="flex items-center gap-3 w-full lg:w-auto shrink-0" onClick={(e) => e.stopPropagation()}>
-        {isPending ? (
-          <div
-            className="flex-1 lg:flex-none flex items-center justify-center gap-3 bg-amber-50 text-amber-600 px-8 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest border border-amber-200"
-          >
-            <Clock size={16} /> Awaiting SSC Setup
+      {/* Sub Row for Faculties */}
+      {isExpanded && student.faculty_names && (
+        <div onClick={(e) => e.stopPropagation()} className="w-full mt-2 pt-6 border-t border-slate-100 animate-in fade-in slide-in-from-top-2 duration-300 cursor-default">
+          <div className="flex items-center justify-between pb-4 mb-4 pl-2 border-b border-slate-50">
+            <h4 className="text-xs font-black text-slate-900 flex items-center gap-2 uppercase tracking-tight">
+              <span className="w-2 h-2 rounded-full bg-[#008080]"></span> Assigned Faculties: {student.name.toUpperCase()}
+            </h4>
+            <button 
+              type="button"
+              onClick={(e) => { e.stopPropagation(); setIsExpanded(false); }}
+              className="text-slate-400 hover:text-slate-600 p-1 rounded-lg hover:bg-slate-50 transition-all cursor-pointer"
+            >
+              <span className="text-[10px] font-black uppercase text-slate-400 hover:text-slate-600">Close</span>
+            </button>
           </div>
-        ) : (
-          <>
-            <button
-              onClick={(e) => handleToggleConnection(student.id, student.connected_today, e)}
-              className={`flex-1 lg:flex-none p-4 rounded-2xl border transition-all flex items-center justify-center gap-2 ${student.connected_today ? 'bg-emerald-500 text-white border-emerald-600 shadow-lg shadow-emerald-200' : 'bg-white border-slate-100 text-slate-400 hover:border-[#008080] hover:text-[#008080]'}`}
-              title="Toggle Attendance"
-            >
-              <CheckCircle2 size={18} strokeWidth={3} />
-              <span className="lg:hidden text-[10px] font-black uppercase">Presence</span>
-            </button>
-            <button
-              onClick={() => navigate('/mentor/interaction-logs', { state: { studentId: student.id } })}
-              className="flex-1 lg:flex-none p-4 bg-slate-50 text-slate-600 border border-slate-100 rounded-2xl hover:bg-[#008080] hover:text-white hover:border-[#008080] transition-all group/btn"
-              title="Interaction Log"
-            >
-              <Activity size={18} strokeWidth={2.5} className="group-hover/btn:scale-110 transition-transform" />
-            </button>
-            <button
-              onClick={(e) => handleLogHoursClick(student, e)}
-              className="flex-[2] lg:flex-none flex items-center justify-center gap-3 bg-slate-900 text-white px-8 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-slate-200 hover:shadow-2xl transition-all active:scale-95"
-            >
-              <Clock size={16} /> Log Hours
-            </button>
-          </>
-        )}
-      </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+            {student.faculty_names.split(',').map((f, i) => (
+              <div key={i} className="flex items-center gap-3 bg-slate-50 p-4 rounded-2xl border border-slate-100 shadow-sm hover:bg-white hover:border-[#008080]/30 transition-all group">
+                <div className="w-8 h-8 bg-[#008080]/10 text-[#008080] rounded-xl flex items-center justify-center font-black text-xs uppercase shrink-0 group-hover:bg-[#008080] group-hover:text-white transition-all">
+                  {f.trim().charAt(0)}
+                </div>
+                <span className="text-xs font-black text-slate-800 uppercase tracking-tight truncate">{f.trim()}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

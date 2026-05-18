@@ -22,7 +22,13 @@ const DataTable = ({
  searchPlaceholder = "Search records...",
  filterValue,
  onFilterChange,
+ renderSubRow,
+ expandedRowId,
+ onToggleExpand,
 }) => {
+ const [internalExpandedId, setInternalExpandedId] = useState(null);
+ const currentExpandedId = expandedRowId !== undefined ? expandedRowId : internalExpandedId;
+ const handleToggle = onToggleExpand || ((id) => setInternalExpandedId(currentExpandedId === id ? null : id));
  const useFilterDropdown = filterValue !== undefined && onFilterChange;
  const hasActions = onView || onEdit || onApprove || onBlock || onDelete;
  return (
@@ -119,11 +125,14 @@ const DataTable = ({
  </td>
  </tr>
  ) : (
- data.map((row, rowIndex) => (
- <tr key={rowIndex} className="group hover:bg-[#F8FAFC]/80 transition-all duration-300">
+ data.map((row, rowIndex) => {
+ const isExpanded = currentExpandedId === (row.id !== undefined ? row.id : rowIndex);
+ return (
+ <React.Fragment key={row.id !== undefined ? row.id : rowIndex}>
+ <tr className="group hover:bg-[#F8FAFC]/80 transition-all duration-300">
  {columns.map((col, colIndex) => (
  <td key={colIndex} className="px-8 py-6 whitespace-nowrap text-sm text-slate-600 font-bold">
- {col.render ? col.render(row) : row[col.accessor]}
+ {col.render ? col.render(row, { isExpanded, onToggle: () => handleToggle(row.id !== undefined ? row.id : rowIndex) }) : row[col.accessor]}
  </td>
  ))}
  {hasActions && (
@@ -182,7 +191,16 @@ const DataTable = ({
  </td>
  )}
  </tr>
- ))
+ {isExpanded && renderSubRow && (
+   <tr className="bg-slate-50/80 border-b border-slate-100">
+     <td colSpan={columns.length + (hasActions ? 1 : 0)} className="p-8">
+       {renderSubRow(row, () => handleToggle(row.id !== undefined ? row.id : rowIndex))}
+     </td>
+   </tr>
+ )}
+ </React.Fragment>
+ );
+ })
  )}
  </tbody>
  </table>
@@ -204,14 +222,16 @@ const DataTable = ({
  ) : data.length === 0 ? (
  <div className="px-8 py-20 text-center text-slate-400 font-bold uppercase tracking-widest text-[10px]">No records detected</div>
  ) : (
- data.map((row, rowIndex) => (
- <div key={rowIndex} className="p-6 space-y-5 animate-in fade-in slide-in-from-bottom-2 duration-300">
+ data.map((row, rowIndex) => {
+ const isExpanded = currentExpandedId === (row.id !== undefined ? row.id : rowIndex);
+ return (
+ <div key={row.id !== undefined ? row.id : rowIndex} className="p-6 space-y-5 animate-in fade-in slide-in-from-bottom-2 duration-300">
  {/* Primary Info (First Column) */}
  <div className="flex items-center justify-between">
  <div className="flex-1 overflow-hidden">
  <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{columns[0].header}</div>
  <div className="font-bold text-slate-900 truncate">
- {columns[0].render ? columns[0].render(row) : row[columns[0].accessor]}
+ {columns[0].render ? columns[0].render(row, { isExpanded, onToggle: () => handleToggle(row.id !== undefined ? row.id : rowIndex) }) : row[columns[0].accessor]}
  </div>
  </div>
  {onView && (onViewFilter ? onViewFilter(row) : true) && (
@@ -232,7 +252,7 @@ const DataTable = ({
  <div key={colIndex} className="overflow-hidden">
  <div className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1 truncate">{col.header}</div>
  <div className="text-[11px] font-black text-slate-700 truncate">
- {col.render ? col.render(row) : row[col.accessor] || '---'}
+ {col.render ? col.render(row, { isExpanded, onToggle: () => handleToggle(row.id !== undefined ? row.id : rowIndex) }) : row[col.accessor] || '---'}
  </div>
  </div>
  ))}
@@ -265,8 +285,16 @@ const DataTable = ({
  </div>
  </div>
  )}
+
+ {/* Sub Row for Mobile */}
+ {isExpanded && renderSubRow && (
+   <div className="mt-4 pt-4 border-t border-slate-200">
+     {renderSubRow(row, () => handleToggle(row.id !== undefined ? row.id : rowIndex))}
+   </div>
+ )}
  </div>
- ))
+ );
+ })
  )}
  </div>
 

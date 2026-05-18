@@ -15,12 +15,12 @@ const Mentors = () => {
  const [loading, setLoading] = useState(true);
  const [sortBy, setSortBy] = useState('newest');
  const [selectedMentor, setSelectedMentor] = useState(null);
+ const [expandedRowId, setExpandedRowId] = useState(null);
  const [mentorStudents, setMentorStudents] = useState([]);
  const [loadingStudents, setLoadingStudents] = useState(false);
  const [selectedStudentForExams, setSelectedStudentForExams] = useState(null);
  const [studentExams, setStudentExams] = useState([]);
  const [loadingExams, setLoadingExams] = useState(false);
- const [isModalOpen, setIsModalOpen] = useState(false);
  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
  const [editFormData, setEditFormData] = useState({
  name: '',
@@ -198,7 +198,26 @@ const Mentors = () => {
  const columns = [
  { header: 'Mentor Name', accessor: 'name' },
  { header: 'Email ID', accessor: 'email' },
- { header: 'Assigned Students', accessor: 'studentsCount' },
+ { 
+   header: 'Assigned Students', 
+   accessor: 'studentsCount',
+   render: (row, { isExpanded, onToggle }) => (
+     <button 
+       type="button" 
+       onClick={(e) => { 
+         e.stopPropagation(); 
+         if (!isExpanded) {
+           handleViewInline(row);
+         } else {
+           onToggle();
+         }
+       }}
+       className="text-[10px] font-black text-slate-600 bg-white px-3 py-1.5 rounded-lg border border-slate-100 hover:bg-[#008080] hover:text-white hover:border-[#008080] transition-all cursor-pointer shadow-sm flex items-center gap-1.5"
+     >
+       {row.studentsCount} STUDENTS
+     </button>
+   )
+ },
  {
  header: 'Performance Level',
  accessor: 'completionRate',
@@ -275,6 +294,103 @@ const Mentors = () => {
   onSearch={handleSearch}
   onExport={handleExport}
   onView={handleView}
+  expandedRowId={expandedRowId}
+  onToggleExpand={(id) => setExpandedRowId(expandedRowId === id ? null : id)}
+  renderSubRow={(mentor, onClose) => (
+    <div className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-inner animate-in fade-in slide-in-from-top-2 duration-300">
+      <div className="flex items-center justify-between pb-4 border-b border-slate-100 mb-6 pl-2">
+        <h4 className="text-sm font-black text-slate-900 flex items-center gap-2 uppercase tracking-tight">
+          <Users size={16} className="text-[#008080]" /> Assigned Students & Deliverables: {mentor.name.toUpperCase()}
+        </h4>
+        <button 
+          onClick={onClose}
+          className="text-slate-400 hover:text-slate-600 p-1 rounded-lg hover:bg-slate-50 transition-all"
+        >
+          <span className="text-xs font-black uppercase text-slate-400 hover:text-slate-600">Close</span>
+        </button>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+        <div className="bg-slate-50/50 border border-slate-100 rounded-2xl p-6 flex flex-col h-[350px]">
+          <h5 className="text-xs font-bold text-slate-600 uppercase tracking-widest mb-4 shrink-0">Assigned Students ({mentorStudents.length})</h5>
+          <div className="space-y-3 overflow-y-auto pr-2 grow">
+            {loadingStudents ? (
+              <div className="text-center py-8 text-[10px] font-black text-slate-600 animate-pulse">FETCHING STUDENTS...</div>
+            ) : mentorStudents.length > 0 ? mentorStudents.map((student) => {
+              const isSelected = selectedStudentForExams?.id === student.id;
+              return (
+                <div key={student.id} onClick={() => handleSelectStudent(student)} className={`flex justify-between items-center p-4 rounded-2xl border transition-all cursor-pointer group ${isSelected ? 'bg-[#008080]/10 border-[#008080]/30 shadow-md shadow-[#008080]/5' : 'bg-white border-slate-100 hover:border-[#008080]/30 hover:shadow-md'}`}>
+                  <div className="flex flex-col gap-1">
+                    <span className={`text-xs font-black transition-colors leading-none ${isSelected ? 'text-[#008080]' : 'text-slate-700 group-hover:text-[#008080]'}`}>{student.name}</span>
+                    <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest leading-none">REG: {student.registration_number || 'UNKNOWN'}</span>
+                  </div>
+                  <div className="flex flex-col items-end gap-1">
+                    <span className="text-[9px] font-black text-[#008080] bg-[#008080]/5 px-2 py-0.5 rounded-lg uppercase leading-none">{student.course || 'N/A'}</span>
+                    <span className="text-[8px] font-bold text-slate-500 uppercase tracking-widest opacity-80 leading-none">{student.grade ? `${student.grade} GRADE` : ''}</span>
+                  </div>
+                </div>
+              );
+            }) : (
+              <div className="text-center py-8 text-[10px] font-black text-slate-300 uppercase tracking-widest">No students assigned</div>
+            )}
+          </div>
+        </div>
+        <div className="bg-slate-50/50 border border-slate-100 rounded-2xl p-6 flex flex-col h-[350px]">
+          <div className="flex justify-between items-center mb-4 shrink-0">
+            <h5 className="text-xs font-bold text-slate-600 uppercase tracking-widest">Immediate Deliverables</h5>
+            {selectedStudentForExams && (
+              <span className="text-[10px] font-black text-[#008080] bg-[#008080]/5 px-2.5 py-1 rounded-lg uppercase truncate max-w-[180px]">
+                {selectedStudentForExams.name}
+              </span>
+            )}
+          </div>
+          <div className="space-y-3 overflow-y-auto pr-2 grow">
+            {loadingExams ? (
+              <div className="text-center py-8 text-[10px] font-black text-slate-600 animate-pulse">FETCHING ASSESSMENTS...</div>
+            ) : !selectedStudentForExams ? (
+              <div className="text-center py-8 text-[10px] font-black text-slate-300 uppercase tracking-widest">Select a student to view deliverables</div>
+            ) : studentExams.length > 0 ? (
+              studentExams.map((exam, i) => (
+                <div key={i} className="flex flex-col gap-2 p-4 rounded-2xl border border-slate-100 bg-white hover:shadow-md hover:border-[#008080]/20 transition-all cursor-default group">
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs font-bold text-slate-800 group-hover:text-[#008080] transition-colors">
+                      Assessment {i + 1} <span className="text-[9px] font-normal text-slate-400">(Milestone {exam.milestone})</span>
+                    </span>
+                    <span className={`px-2 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-wider transition-all ${exam.status === 'Completed' ? 'bg-emerald-100 text-emerald-700 border border-emerald-200' : exam.status === 'Postponed' ? 'bg-amber-100 text-amber-700 border border-amber-200' : 'bg-blue-100 text-blue-700 border border-blue-200'}`}>
+                      {exam.status || 'Pending'}
+                    </span>
+                  </div>
+                  {(exam.chapter || exam.portions || exam.score != null) && (
+                    <div className="flex flex-col gap-1 mt-1 pt-2 border-t border-slate-100 text-[11px] text-slate-600">
+                      {exam.chapter && (
+                        <div className="flex justify-between">
+                          <span className="font-semibold text-slate-400 text-[9px] uppercase tracking-wider">Chapter:</span>
+                          <span className="font-medium text-slate-700">{exam.chapter}</span>
+                        </div>
+                      )}
+                      {exam.portions && (
+                        <div className="flex justify-between">
+                          <span className="font-semibold text-slate-400 text-[9px] uppercase tracking-wider">Portions:</span>
+                          <span className="font-medium text-slate-700">{exam.portions}</span>
+                        </div>
+                      )}
+                      {exam.score != null && (
+                        <div className="flex justify-between">
+                          <span className="font-semibold text-slate-400 text-[9px] uppercase tracking-wider">Score:</span>
+                          <span className="font-bold text-emerald-600">{exam.score}%</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              ))
+            ) : (
+              <div className="text-center py-8 text-[10px] font-black text-slate-300 uppercase tracking-widest">No assessments found</div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  )}
   searchPlaceholder="Filter mentors by name or email..."
   />
 
@@ -334,123 +450,7 @@ const Mentors = () => {
  </form>
  </Modal>
 
- <Modal
- isOpen={isModalOpen}
- onClose={() => setIsModalOpen(false)}
- title="Mentor Performance & Student Details"
- size="lg"
- >
- {selectedMentor && (
- <div className="flex flex-col gap-10">
- <div className="flex items-center gap-8 p-8 bg-[#008080]/5 rounded-[32px] border border-[#008080]/10 shadow-[0_10px_30px_rgba(20,184,166,0.05)]">
- <div className="w-24 h-24 bg-gradient-to-br from-[#006666] to-[#008080] text-white rounded-[28px] flex items-center justify-center text-4xl font-black shadow-xl shadow-[#008080]/20">
- {selectedMentor.name.charAt(0)}
- </div>
- <div className="flex flex-col gap-2">
- <h3 className="text-3xl font-black text-slate-900 tracking-tight">{selectedMentor.name}</h3>
- <p className="text-slate-600 font-bold text-[10px] uppercase tracking-widest leading-none">{selectedMentor.email}</p>
- <div className="mt-3">
- <span className="px-4 py-1.5 bg-white/70 border border-[#008080]/20 rounded-xl text-[10px] font-black text-[#008080] shadow-sm uppercase tracking-widest">
- NETWORK_ID: {selectedMentor.id.toString().padStart(4, '0')}
- </span>
- </div>
- </div>
- </div>
 
- <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
- <MentorStat label="Active Students" value={selectedMentor.studentsCount} icon={<Users size={18} />} color="teal" />
- <MentorStat label="Total Tasks" value={selectedMentor.tasksAssigned} icon={<ListTodo size={18} />} color="yellow" />
- <MentorStat label="Success Rate" value={`${selectedMentor.completionRate}%`} icon={<TrendingUp size={18} />} color="emerald" />
- </div>
-
- <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
- <div className="bg-white border border-slate-100 rounded-2xl p-6 flex flex-col h-[420px]">
- <h5 className="text-xs font-bold text-slate-600 uppercase tracking-widest mb-4 shrink-0">Assigned Students ({mentorStudents.length})</h5>
- <div className="space-y-3 overflow-y-auto pr-2 grow">
- {loadingStudents ? (
- <div className="text-center py-8 text-[10px] font-black text-slate-600 animate-pulse">FETCHING STUDENTS...</div>
- ) : mentorStudents.length > 0 ? mentorStudents.map((student) => {
- const isSelected = selectedStudentForExams?.id === student.id;
- return (
- <div key={student.id} onClick={() => handleSelectStudent(student)} className={`flex justify-between items-center p-5 rounded-[24px] border transition-all cursor-pointer group ${isSelected ? 'bg-[#008080]/10 border-[#008080]/30 shadow-md shadow-[#008080]/5' : 'bg-slate-50/50 border-slate-100/50 hover:bg-white hover:border-[#008080]/30 hover:shadow-lg hover:shadow-[#008080]/5'}`}>
- <div className="flex flex-col gap-1">
- <span className={`text-sm font-black transition-colors leading-none ${isSelected ? 'text-[#008080]' : 'text-slate-700 group-hover:text-[#008080]'}`}>{student.name}</span>
- <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-none">REG: {student.registration_number || 'UNKNOWN'}</span>
- </div>
- <div className="flex flex-col items-end gap-1">
- <span className="text-[10px] font-black text-[#008080] bg-[#008080]/5 px-2.5 py-1 rounded-lg uppercase leading-none">{student.course || 'N/A'}</span>
- <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest opacity-80 leading-none">{student.grade ? `${student.grade} GRADE` : ''}</span>
- </div>
- </div>
- );
- }) : (
- <div className="text-center py-8 text-[10px] font-black text-slate-300 uppercase tracking-widest">No students assigned</div>
- )}
- </div>
- </div>
- <div className="bg-white border border-slate-100 rounded-2xl p-6 flex flex-col h-[420px]">
- <div className="flex justify-between items-center mb-4 shrink-0">
- <h5 className="text-xs font-bold text-slate-600 uppercase tracking-widest">Immediate Deliverables</h5>
- {selectedStudentForExams && (
- <span className="text-[10px] font-black text-[#008080] bg-[#008080]/5 px-2.5 py-1 rounded-lg uppercase truncate max-w-[180px]">
- {selectedStudentForExams.name}
- </span>
- )}
- </div>
- <div className="space-y-3 overflow-y-auto pr-2 grow">
- {loadingExams ? (
- <div className="text-center py-8 text-[10px] font-black text-slate-600 animate-pulse">FETCHING ASSESSMENTS...</div>
- ) : !selectedStudentForExams ? (
- <div className="text-center py-8 text-[10px] font-black text-slate-300 uppercase tracking-widest">Select a student to view deliverables</div>
- ) : studentExams.length > 0 ? (
- studentExams.map((exam, i) => (
- <div key={i} className="flex flex-col gap-2 p-4 rounded-2xl border border-slate-100 bg-slate-50/30 hover:bg-white hover:shadow-md hover:border-[#008080]/20 transition-all cursor-default group">
- <div className="flex justify-between items-center">
- <span className="text-sm font-bold text-slate-800 group-hover:text-[#008080] transition-colors">
- Assessment {i + 1} <span className="text-[10px] font-normal text-slate-400">(Milestone {exam.milestone})</span>
- </span>
- <span className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all ${exam.status === 'Completed' ? 'bg-emerald-100 text-emerald-700 border border-emerald-200' : exam.status === 'Postponed' ? 'bg-amber-100 text-amber-700 border border-amber-200' : 'bg-blue-100 text-blue-700 border border-blue-200'}`}>
- {exam.status || 'Pending'}
- </span>
- </div>
- {(exam.chapter || exam.portions || exam.score != null) && (
- <div className="flex flex-col gap-1 mt-1 pt-2 border-t border-slate-100 text-xs text-slate-600">
- {exam.chapter && (
- <div className="flex justify-between">
- <span className="font-semibold text-slate-400 text-[10px] uppercase tracking-wider">Chapter:</span>
- <span className="font-medium text-slate-700">{exam.chapter}</span>
- </div>
- )}
- {exam.portions && (
- <div className="flex justify-between">
- <span className="font-semibold text-slate-400 text-[10px] uppercase tracking-wider">Portions:</span>
- <span className="font-medium text-slate-700">{exam.portions}</span>
- </div>
- )}
- {exam.score != null && (
- <div className="flex justify-between">
- <span className="font-semibold text-slate-400 text-[10px] uppercase tracking-wider">Score:</span>
- <span className="font-bold text-emerald-600">{exam.score}%</span>
- </div>
- )}
- </div>
- )}
- </div>
- ))
- ) : (
- <div className="text-center py-8 text-[10px] font-black text-slate-300 uppercase tracking-widest">No assessments found</div>
- )}
- </div>
- </div>
- </div>
-
- <div className="flex justify-end gap-3 pt-10 border-t border-slate-100/50">
- <button className="px-8 py-4 rounded-[20px] border border-slate-100 text-[10px] font-black uppercase tracking-widest text-slate-600 hover:text-slate-600 hover:bg-slate-100 transition-all" onClick={() => setIsModalOpen(false)}>Close</button>
- <button className="px-10 py-4 rounded-[20px] bg-gradient-to-br from-[#006666] to-[#008080] text-white text-[10px] font-black uppercase tracking-[0.2em] hover:shadow-lg hover:shadow-[#008080]/30 transition-all shadow-md shadow-[#008080]/20">Send Message</button>
- </div>
- </div>
- )}
- </Modal>
  </div>
  );
 };

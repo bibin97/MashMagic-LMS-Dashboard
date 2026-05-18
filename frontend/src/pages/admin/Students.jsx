@@ -24,6 +24,7 @@ const Students = () => {
  const [facultiesList, setFacultiesList] = useState([]);
 
  const [selectedStudent, setSelectedStudent] = useState(null);
+ const [expandedRowId, setExpandedRowId] = useState(null);
  const [isModalOpen, setIsModalOpen] = useState(false);
  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
  const [editFormData, setEditFormData] = useState({
@@ -208,7 +209,7 @@ const Students = () => {
     },
     { 
       header: 'Assigned Mentor & Faculty', 
-      render: (row) => (
+      render: (row, { isExpanded, onToggle }) => (
         <div className="flex flex-col gap-1">
           <span className="text-[11px] font-black text-slate-700 truncate max-w-[120px]">
             {row.mentor || 'Not Assigned'}
@@ -218,19 +219,7 @@ const Students = () => {
               type="button" 
               onClick={(e) => { 
                 e.stopPropagation(); 
-                toast((t) => (
-                  <div className="flex flex-col gap-2 p-1 min-w-[220px]">
-                    <p className="text-[10px] font-black text-[#008080] uppercase tracking-widest border-b pb-1">Assigned Faculties</p>
-                    <div className="flex flex-col gap-1.5 text-xs font-bold text-slate-700 max-h-[250px] overflow-y-auto pr-1">
-                      {row.faculty.split(',').map((f, i) => (
-                        <div key={i} className="flex items-center gap-2 bg-slate-50 p-2.5 rounded-xl border border-slate-100 shadow-sm">
-                          <span className="w-2 h-2 rounded-full bg-[#008080] shrink-0"></span>
-                          <span className="font-black text-slate-800">{f.trim()}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ), { duration: 4000 }); 
+                onToggle(); 
               }}
               className="text-[10px] font-black text-[#008080] hover:text-[#006666] underline uppercase tracking-widest cursor-pointer text-left block"
             >
@@ -314,6 +303,33 @@ const Students = () => {
         onDelete={isSuperAdmin ? handleDelete : undefined}
         onApprove={isSuperAdmin ? handleApprove : undefined}
         onBlock={isSuperAdmin ? handleBlock : undefined}
+        expandedRowId={expandedRowId}
+        onToggleExpand={(id) => setExpandedRowId(expandedRowId === id ? null : id)}
+        renderSubRow={(student, onClose) => (
+          <div className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-inner animate-in fade-in slide-in-from-top-2 duration-300">
+            <div className="flex items-center justify-between pb-4 border-b border-slate-100 mb-4 pl-2">
+              <h4 className="text-xs font-black text-slate-900 flex items-center gap-2 uppercase tracking-tight">
+                <span className="w-2 h-2 rounded-full bg-[#008080]"></span> Assigned Faculties: {student.name.toUpperCase()}
+              </h4>
+              <button 
+                onClick={onClose}
+                className="text-slate-400 hover:text-slate-600 p-1 rounded-lg hover:bg-slate-50 transition-all"
+              >
+                <span className="text-[10px] font-black uppercase text-slate-400 hover:text-slate-600">Close</span>
+              </button>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+              {student.faculty.split(',').map((f, i) => (
+                <div key={i} className="flex items-center gap-3 bg-slate-50 p-4 rounded-2xl border border-slate-100 shadow-sm hover:bg-white hover:border-[#008080]/30 transition-all group">
+                  <div className="w-8 h-8 bg-[#008080]/10 text-[#008080] rounded-xl flex items-center justify-center font-black text-xs uppercase shrink-0 group-hover:bg-[#008080] group-hover:text-white transition-all">
+                    {f.trim().charAt(0)}
+                  </div>
+                  <span className="text-xs font-black text-slate-800 uppercase tracking-tight truncate">{f.trim()}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
         searchPlaceholder="Search by name, email or reg #"
       />
 

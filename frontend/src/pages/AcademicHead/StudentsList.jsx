@@ -19,6 +19,7 @@ const StudentsList = ({ role = 'academic_head' }) => {
 	const [faculties, setFaculties] = useState([]);
 	const [filterMentor, setFilterMentor] = useState('all');
 	const [filterFaculty, setFilterFaculty] = useState('all');
+	const [expandedStudentId, setExpandedStudentId] = useState(null);
 
 	// Base API path based on role
 	const apiPath = role === 'mentor_head' ? '/mentor-head' : '/academic-head';
@@ -208,108 +209,127 @@ const StudentsList = ({ role = 'academic_head' }) => {
 						</thead>
 						<tbody className="divide-y divide-slate-50">
 							{filteredStudents.length > 0 ? filteredStudents.map((student) => (
-								<tr key={student.id} className="hover:bg-[#008080]/10/20 transition-all group">
-									<td className="px-8 py-6">
-										<div className="flex items-center gap-4">
-											<div className="w-12 h-12 bg-gradient-to-br from-slate-100 to-slate-200 rounded-2xl flex items-center justify-center text-slate-600 font-black shadow-inner group-hover:from-[#008080] group-hover:to-[#008080] group-hover:text-white transition-all transform group-hover:scale-110">
-												{student.name.charAt(0)}
+								<React.Fragment key={student.id}>
+									<tr className="hover:bg-[#008080]/10/20 transition-all group">
+										<td className="px-8 py-6">
+											<div className="flex items-center gap-4">
+												<div className="w-12 h-12 bg-gradient-to-br from-slate-100 to-slate-200 rounded-2xl flex items-center justify-center text-slate-600 font-black shadow-inner group-hover:from-[#008080] group-hover:to-[#008080] group-hover:text-white transition-all transform group-hover:scale-110">
+													{student.name.charAt(0)}
+												</div>
+												<div>
+													<div className="flex items-center gap-2">
+														<div className="text-sm font-black text-slate-900 group-hover:text-[#008080] transition-colors uppercase flex-shrink-0">{student.name}</div>
+
+														{/* Student Badge System */}
+														{student.badge === 'Gold' && <span title="Mentorship Plan" className="text-lg cursor-help">🥇</span>}
+														{student.badge === 'Silver' && <span title="Tuition Plan" className="text-lg cursor-help">🥈</span>}
+														{student.badge === 'Diamond' && <span title="Mentorship & Tuition Plan" className="text-lg cursor-help">💎</span>}
+
+														{student.course_completed === 1 && (
+															<span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-600 border border-emerald-200 text-[9px] font-black uppercase tracking-widest whitespace-nowrap">
+																<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>
+																Course Completed
+															</span>
+														)}
+													</div>
+													<div className="text-[10px] font-bold text-slate-600 uppercase tracking-widest mt-0.5">
+														Joined {new Date(student.created_at).toLocaleDateString()}
+														{student.registration_number && <span className="ml-2 pl-2 border-l border-slate-200">Reg: <span className="text-slate-900 font-black">{student.registration_number}</span></span>}
+													</div>
+												</div>
 											</div>
-											<div>
+										</td>
+										<td className="px-8 py-6">
+											<div className="flex flex-col">
+												<span className="text-xs font-black text-slate-700 uppercase tracking-widest">{student.course}</span>
+												<span className="text-[10px] font-bold text-[#008080] uppercase mt-0.5">{student.grade}</span>
+											</div>
+										</td>
+										<td className="px-8 py-6">
+											<div className="space-y-2">
 												<div className="flex items-center gap-2">
-													<div className="text-sm font-black text-slate-900 group-hover:text-[#008080] transition-colors uppercase flex-shrink-0">{student.name}</div>
-
-													{/* Student Badge System */}
-													{student.badge === 'Gold' && <span title="Mentorship Plan" className="text-lg cursor-help">🥇</span>}
-													{student.badge === 'Silver' && <span title="Tuition Plan" className="text-lg cursor-help">🥈</span>}
-													{student.badge === 'Diamond' && <span title="Mentorship & Tuition Plan" className="text-lg cursor-help">💎</span>}
-
-													{student.course_completed === 1 && (
-														<span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-600 border border-emerald-200 text-[9px] font-black uppercase tracking-widest whitespace-nowrap">
-															<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>
-															Course Completed
-														</span>
+													<div className="w-1.5 h-1.5 rounded-full bg-[#008080]"></div>
+													<span className="text-[10px] font-black text-slate-700 uppercase">Mentor: {student.mentor_name || 'N/A'}</span>
+												</div>
+												<div className="flex items-center gap-2">
+													<div className="w-1.5 h-1.5 rounded-full bg-purple-500 shrink-0"></div>
+													{student.faculty_name ? (
+														<button 
+															type="button" 
+															onClick={(e) => { 
+																e.stopPropagation(); 
+																setExpandedStudentId(expandedStudentId === student.id ? null : student.id);
+															}}
+															className="text-[10px] font-black text-[#008080] hover:text-[#006666] underline uppercase tracking-widest cursor-pointer text-left block"
+														>
+															View Faculties ({student.faculty_name.split(',').length})
+														</button>
+													) : (
+														<span className="text-[10px] font-black text-slate-700 uppercase">Faculty: N/A</span>
 													)}
 												</div>
-												<div className="text-[10px] font-bold text-slate-600 uppercase tracking-widest mt-0.5">
-													Joined {new Date(student.created_at).toLocaleDateString()}
-													{student.registration_number && <span className="ml-2 pl-2 border-l border-slate-200">Reg: <span className="text-slate-900 font-black">{student.registration_number}</span></span>}
-												</div>
 											</div>
-										</div>
-									</td>
-									<td className="px-8 py-6">
-										<div className="flex flex-col">
-											<span className="text-xs font-black text-slate-700 uppercase tracking-widest">{student.course}</span>
-											<span className="text-[10px] font-bold text-[#008080] uppercase mt-0.5">{student.grade}</span>
-										</div>
-									</td>
-									<td className="px-8 py-6">
-										<div className="space-y-2">
-											<div className="flex items-center gap-2">
-												<div className="w-1.5 h-1.5 rounded-full bg-[#008080]"></div>
-												<span className="text-[10px] font-black text-slate-700 uppercase">Mentor: {student.mentor_name || 'N/A'}</span>
-											</div>
-											<div className="flex items-center gap-2">
-												<div className="w-1.5 h-1.5 rounded-full bg-purple-500 shrink-0"></div>
-												{student.faculty_name ? (
-													<button 
-														type="button" 
-														onClick={(e) => { 
-															e.stopPropagation(); 
-															toast((t) => (
-																<div className="flex flex-col gap-2 p-1 min-w-[220px]">
-																	<p className="text-[10px] font-black text-[#008080] uppercase tracking-widest border-b pb-1">Assigned Faculties</p>
-																	<div className="flex flex-col gap-1.5 text-xs font-bold text-slate-700 max-h-[250px] overflow-y-auto pr-1">
-																		{student.faculty_name.split(',').map((f, i) => (
-																			<div key={i} className="flex items-center gap-2 bg-slate-50 p-2.5 rounded-xl border border-slate-100 shadow-sm">
-																				<span className="w-2 h-2 rounded-full bg-[#008080] shrink-0"></span>
-																				<span className="font-black text-slate-800">{f.trim()}</span>
-																			</div>
-																		))}
-																	</div>
-																</div>
-															), { duration: 4000 }); 
-														}}
-														className="text-[10px] font-black text-[#008080] hover:text-[#006666] underline uppercase tracking-widest cursor-pointer text-left block"
-													>
-														View Faculties ({student.faculty_name.split(',').length})
-													</button>
-												) : (
-													<span className="text-[10px] font-black text-slate-700 uppercase">Faculty: N/A</span>
+										</td>
+										<td className="px-8 py-6 text-right">
+											<div className="flex items-center justify-end gap-2">
+												<button
+													onClick={() => handleView(student)}
+													className="p-2.5 bg-white border-2 border-slate-200 rounded-xl text-slate-400 hover:border-[#008080] hover:text-[#008080] transition-all shadow-sm"
+													title="View Details"
+												>
+													<Eye size={16} />
+												</button>
+												{role === 'academic_head' && (
+													<>
+														<button
+															onClick={() => handleEdit(student)}
+															className="p-2.5 bg-white border-2 border-[#008080]/40 rounded-xl text-[#008080] hover:bg-[#008080] hover:text-white transition-all shadow-sm group/edit"
+															title="Edit Student"
+														>
+															<Edit2 size={16} />
+														</button>
+														<button
+															onClick={() => handleDelete(student)}
+															className="p-2.5 bg-white border-2 border-rose-200 rounded-xl text-rose-600 hover:bg-rose-600 hover:text-white transition-all shadow-sm"
+															title="Delete Student"
+														>
+															<Trash2 size={16} />
+														</button>
+													</>
 												)}
 											</div>
-										</div>
-									</td>
-									<td className="px-8 py-6 text-right">
-										<div className="flex items-center justify-end gap-2">
-											<button
-												onClick={() => handleView(student)}
-												className="p-2.5 bg-white border-2 border-slate-200 rounded-xl text-slate-400 hover:border-[#008080] hover:text-[#008080] transition-all shadow-sm"
-												title="View Details"
-											>
-												<Eye size={16} />
-											</button>
-											{role === 'academic_head' && (
-												<>
-													<button
-														onClick={() => handleEdit(student)}
-														className="p-2.5 bg-white border-2 border-[#008080]/40 rounded-xl text-[#008080] hover:bg-[#008080] hover:text-white transition-all shadow-sm group/edit"
-														title="Edit Student"
-													>
-														<Edit2 size={16} />
-													</button>
-													<button
-														onClick={() => handleDelete(student)}
-														className="p-2.5 bg-white border-2 border-rose-200 rounded-xl text-rose-600 hover:bg-rose-600 hover:text-white transition-all shadow-sm"
-														title="Delete Student"
-													>
-														<Trash2 size={16} />
-													</button>
-												</>
-											)}
-										</div>
-									</td>
-								</tr>
+										</td>
+									</tr>
+									{expandedStudentId === student.id && (
+										<tr className="bg-slate-50/80 border-b border-slate-100">
+											<td colSpan="4" className="p-8">
+												<div className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-inner animate-in fade-in slide-in-from-top-2 duration-300">
+													<div className="flex items-center justify-between pb-4 border-b border-slate-100 mb-4 pl-2">
+														<h4 className="text-xs font-black text-slate-900 flex items-center gap-2 uppercase tracking-tight">
+															<span className="w-2 h-2 rounded-full bg-[#008080]"></span> Assigned Faculties: {student.name.toUpperCase()}
+														</h4>
+														<button 
+															onClick={() => setExpandedStudentId(null)}
+															className="text-slate-400 hover:text-slate-600 p-1 rounded-lg hover:bg-slate-50 transition-all"
+														>
+															<span className="text-[10px] font-black uppercase text-slate-400 hover:text-slate-600">Close</span>
+														</button>
+													</div>
+													<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+														{student.faculty_name.split(',').map((f, i) => (
+															<div key={i} className="flex items-center gap-3 bg-slate-50 p-4 rounded-2xl border border-slate-100 shadow-sm hover:bg-white hover:border-[#008080]/30 transition-all group">
+																<div className="w-8 h-8 bg-[#008080]/10 text-[#008080] rounded-xl flex items-center justify-center font-black text-xs uppercase shrink-0 group-hover:bg-[#008080] group-hover:text-white transition-all">
+																	{f.trim().charAt(0)}
+																</div>
+																<span className="text-xs font-black text-slate-800 uppercase tracking-tight truncate">{f.trim()}</span>
+															</div>
+														))}
+													</div>
+												</div>
+											</td>
+										</tr>
+									)}
+								</React.Fragment>
 							)) : (
 								<tr>
 									<td colSpan="4" className="px-8 py-20 text-center">
