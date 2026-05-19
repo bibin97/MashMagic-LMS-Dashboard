@@ -137,7 +137,7 @@ const StudentsData = () => {
                         </p>
                         {isOnboarding && (
                           <span className="px-2 py-0.5 bg-amber-500/10 text-amber-600 text-[7px] font-black uppercase rounded-lg border border-amber-500/20">
-                            Onboarding
+                            New Student
                           </span>
                         )}
                         {isNew && (

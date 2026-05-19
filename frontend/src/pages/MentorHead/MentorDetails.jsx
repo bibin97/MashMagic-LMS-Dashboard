@@ -395,7 +395,7 @@ const MentorDetails = () => {
  </td>
  <td className="px-10 py-8">
  <span className={`px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest ${s.onboarding_status === 'completed' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-amber-50 text-amber-600 border border-amber-100'}`}>
- {s.onboarding_status === 'completed' ? 'Active' : 'Onboarding'}
+ {s.onboarding_status === 'completed' ? 'Active' : 'New Student'}
  </span>
  </td>
  <td className="px-10 py-8 text-right">

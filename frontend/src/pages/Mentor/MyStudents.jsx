@@ -28,7 +28,7 @@ const StudentRow = ({ student, navigate, handleToggleConnection, handleCompleteO
                 <span className="px-3 py-1 bg-emerald-500 text-white text-[8px] font-black uppercase tracking-widest rounded-full shadow-lg shadow-emerald-200 animate-pulse">New Member</span>
               )}
               {isPending && (
-                <span className="px-3 py-1 bg-amber-500 text-white text-[8px] font-black uppercase tracking-widest rounded-full">Onboarding</span>
+                <span className="px-3 py-1 bg-amber-500 text-white text-[8px] font-black uppercase tracking-widest rounded-full">New Student</span>
               )}
             </div>
             <div className="flex items-center gap-3 mt-2">

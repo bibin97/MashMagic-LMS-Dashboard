@@ -113,7 +113,7 @@ const StudentDetails = () => {
                         <div className="flex flex-wrap gap-2">
                             {student.onboarding_status === 'pending' && (
                                 <span className="px-3 py-1 bg-rose-50 text-rose-600 rounded-xl text-[9px] font-black uppercase tracking-widest border border-rose-100 shadow-sm">
-                                    Onboarding Pending
+                                    {isSSC ? 'Onboarding Pending' : 'New Student'}
                                 </span>
                             )}
                             {student.status === 'active' ? (
