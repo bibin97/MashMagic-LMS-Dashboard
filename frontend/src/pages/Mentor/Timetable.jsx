@@ -6,6 +6,35 @@ import { useNavigate } from 'react-router-dom';
 import { premiumConfirm } from '../../utils/premiumConfirm';
 import { useAuth } from '../../context/AuthContext';
 
+const formatTo24hTime = (timeStr) => {
+  if (!timeStr) return '10:00';
+  let cleanTime = timeStr.trim().toLowerCase().replace('.', ':');
+  
+  const isPM = cleanTime.includes('pm');
+  const isAM = cleanTime.includes('am');
+  cleanTime = cleanTime.replace('am', '').replace('pm', '').trim();
+  
+  const parts = cleanTime.split(':');
+  if (parts.length >= 1) {
+    let hours = parseInt(parts[0], 10);
+    let minutes = parts.length > 1 ? parseInt(parts[1], 10) : 0;
+    
+    if (isNaN(hours)) return '10:00';
+    if (isNaN(minutes)) minutes = 0;
+    
+    if (isPM && hours < 12) {
+      hours += 12;
+    } else if (isAM && hours === 12) {
+      hours = 0;
+    }
+    
+    const hoursStr = String(hours).padStart(2, '0');
+    const minsStr = String(minutes).padStart(2, '0');
+    return `${hoursStr}:${minsStr}`;
+  }
+  return '10:00';
+};
+
 const Timetable = () => {
   const { user } = useAuth();
   const [sessions, setSessions] = useState([]);
@@ -132,8 +161,8 @@ const Timetable = () => {
           if (todaySlot) {
             setFormData(prev => ({
               ...prev,
-              start_time: todaySlot.start_time.substring(0, 5),
-              end_time: todaySlot.end_time.substring(0, 5),
+              start_time: formatTo24hTime(todaySlot.start_time),
+              end_time: formatTo24hTime(todaySlot.end_time),
               chapter: todaySlot.subject || '',
               faculty_id: String(todaySlot.faculty_id),
               faculty_name: todaySlot.faculty_name
@@ -676,8 +705,8 @@ const Timetable = () => {
                           const slot = studentSchedule[idx];
                           setFormData({
                             ...formData,
-                            start_time: (slot.start_time || '10:00').substring(0, 5),
-                            end_time: (slot.end_time || '11:00').substring(0, 5),
+                            start_time: formatTo24hTime(slot.start_time),
+                            end_time: formatTo24hTime(slot.end_time),
                             chapter: slot.subject || '',
                             faculty_id: String(slot.faculty_id),
                             faculty_name: slot.faculty_name

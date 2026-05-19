@@ -26,8 +26,8 @@ import {
   Pie,
   Cell,
   Legend,
-  LineChart,
-  Line
+  AreaChart,
+  Area
 } from 'recharts';
 import StatCard from '../../components/StatCard';
 import api from '../../services/api';
@@ -481,42 +481,57 @@ const Dashboard = () => {
           <div className="w-full h-[350px] relative">
             {isMounted && (
               <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
-                <LineChart data={examData.length > 0 ? examData : []} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
+                <AreaChart data={examData.length > 0 ? examData : []} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="colorSuccess" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#008080" stopOpacity={0.4}/>
+                      <stop offset="95%" stopColor="#008080" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                   <XAxis
                     dataKey={examData.length > 0 ? "subject" : "month"}
                     fontSize={11}
-                    fontWeight={600}
-                    tick={{ fill: '#94a3b8' }}
+                    fontWeight={800}
+                    tick={{ fill: '#64748b' }}
                     axisLine={false}
                     tickLine={false}
+                    dy={10}
                   />
                   <YAxis
                     fontSize={11}
-                    fontWeight={600}
+                    fontWeight={800}
                     tick={{ fill: '#94a3b8' }}
                     axisLine={false}
                     tickLine={false}
                     domain={[0, 100]}
+                    width={30}
                   />
                   <Tooltip
                     contentStyle={{
                       borderRadius: '16px',
                       border: 'none',
-                      boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)',
-                      padding: '12px'
+                      boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)',
+                      padding: '12px',
+                      backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                      color: '#fff',
+                      fontSize: '12px',
+                      fontWeight: 'bold'
                     }}
+                    itemStyle={{ color: '#0fb5b5' }}
                   />
-                  <Line
+                  <Area
                     name="Success %"
                     type="monotone"
                     dataKey={examData.length > 0 ? "percentage" : "score"}
                     stroke="#008080"
-                    strokeWidth={5}
-                    dot={{ fill: '#white', r: 7, strokeWidth: 4, stroke: '#008080' }}
-                    activeDot={{ r: 10, strokeWidth: 0, fill: '#008080' }}
+                    strokeWidth={4}
+                    fillOpacity={1}
+                    fill="url(#colorSuccess)"
+                    dot={{ fill: '#fff', r: 6, strokeWidth: 3, stroke: '#008080' }}
+                    activeDot={{ r: 8, strokeWidth: 0, fill: '#008080' }}
                   />
-                </LineChart>
+                </AreaChart>
               </ResponsiveContainer>
             )}
           </div>
