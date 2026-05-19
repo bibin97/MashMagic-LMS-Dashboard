@@ -844,7 +844,7 @@ const Timetable = () => {
                     <div className="space-y-2">
                       <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Faculty Assignment *</label>
                       <select
-                        required
+                        required={!isBulkMode}
                         value={formData.faculty_id || ''}
                         onChange={(e) => {
                           const fac = faculties.find(f => f.id == e.target.value);
