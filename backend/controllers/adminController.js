@@ -398,7 +398,8 @@ const getAllStudentLogs = async (req, res) => {
                 NULL as stress_level,
                 r.is_flagged,
                 CONVERT(r.flag_reason USING utf8mb4) COLLATE utf8mb4_unicode_ci as flag_reason,
-                NULL as screenshot_url
+                NULL as screenshot_url,
+                r.report_data as report_data
             FROM mentor_session_reports r
             LEFT JOIN users m ON r.mentor_id = m.id AND m.role = 'mentor'
             JOIN students s ON r.student_id = s.id
@@ -419,7 +420,8 @@ const getAllStudentLogs = async (req, res) => {
                 CAST(l.stress_level AS CHAR) as stress_level,
                 NULL as is_flagged,
                 NULL as flag_reason,
-                NULL as screenshot_url
+                NULL as screenshot_url,
+                NULL as report_data
             FROM mentor_session_logs l
             LEFT JOIN users m ON l.mentor_id = m.id AND m.role = 'mentor'
             JOIN students s ON l.student_id = s.id
@@ -440,7 +442,8 @@ const getAllStudentLogs = async (req, res) => {
                 CAST(logs.exam_anxiety AS CHAR) as stress_level,
                 NULL as is_flagged,
                 NULL as flag_reason,
-                CONVERT(logs.screenshot_url USING utf8mb4) COLLATE utf8mb4_unicode_ci as screenshot_url
+                CONVERT(logs.screenshot_url USING utf8mb4) COLLATE utf8mb4_unicode_ci as screenshot_url,
+                NULL as report_data
             FROM student_interaction_logs logs
             LEFT JOIN users m ON logs.mentor_id = m.id AND m.role = 'mentor'
             JOIN students s ON logs.student_id = s.id
@@ -461,7 +464,8 @@ const getAllStudentLogs = async (req, res) => {
                 NULL as stress_level,
                 NULL as is_flagged,
                 NULL as flag_reason,
-                NULL as screenshot_url
+                NULL as screenshot_url,
+                NULL as report_data
             FROM mentorship_logs ml
             LEFT JOIN users m ON ml.mentor_id = m.id AND m.role = 'mentor'
             JOIN students s ON ml.student_id = s.id
@@ -849,7 +853,7 @@ const getAllStudentsForAdmin = async (req, res) => {
         } else if (category === 'Archived Records') {
             sql += ' AND status IN ("inactive", "rejected", "completed")';
         } else {
-            sql += ' AND status NOT IN ("rejected", "pending")';
+            sql += ' AND status != "rejected"';
         }
 
         if (search) {
@@ -1131,6 +1135,50 @@ const getAllFacultiesForAdmin = async (req, res) => {
     }
 };
 
+const getFacultyDetailsForAdmin = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        // 1. Get faculty basic info
+        const [faculties] = await db.query(
+            'SELECT id, name, email, phone_number as phone, status, subject FROM faculties WHERE id = ?',
+            [id]
+        );
+
+        if (faculties.length === 0) {
+            return res.status(404).json({ success: false, message: "Faculty not found" });
+        }
+
+        const faculty = faculties[0];
+
+        // 2. Get students taught by this faculty with their subjects & schedules
+        const [students] = await db.query(`
+            SELECT DISTINCT 
+                s.id as student_id, 
+                s.name as student_name, 
+                s.grade, 
+                s.course,
+                COALESCE(fs.subject, s.subject) as subject,
+                fs.day_of_week, 
+                fs.start_time, 
+                fs.end_time
+            FROM students s
+            LEFT JOIN faculty_schedules fs ON fs.student_id = s.id AND fs.faculty_id = ?
+            WHERE (s.faculty_id = ? OR fs.faculty_id = ?) AND s.status = 'active'
+        `, [id, id, id]);
+
+        res.status(200).json({
+            success: true,
+            data: {
+                faculty,
+                students
+            }
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
 module.exports = {
     getAdminDashboardSummary,
     getUsers,
@@ -1150,6 +1198,7 @@ module.exports = {
     getAllStudentsForAdmin,
     getAllMentorsForAdmin,
     getAllFacultiesForAdmin,
+    getFacultyDetailsForAdmin,
     getStaffMembers,
     getSubAdmins,
     createSubAdmin,

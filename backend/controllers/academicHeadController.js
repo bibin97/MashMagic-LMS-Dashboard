@@ -165,8 +165,8 @@ const registerStudent = async (req, res) => {
         const { name, email, contact, password, grade, course, mentorId } = req.body;
         const hash = await bcrypt.hash(password || "student123", 10);
         await conn.beginTransaction();
-        const [ur] = await conn.query('INSERT INTO users (name, email, phone_number, password, role, status) VALUES (?, ?, ?, ?, "student", "pending")', [name, email || null, contact || null, hash]);
-        await conn.query('INSERT INTO students (name, email, password, user_id, grade, course, mentor_id, status) VALUES (?, ?, ?, ?, ?, ?, ?, "pending")', [name, email || null, hash, ur.insertId, grade, course, mentorId || null]);
+        const [ur] = await conn.query('INSERT INTO users (name, email, phone_number, password, role, status, isApproved, isActive) VALUES (?, ?, ?, ?, "student", "active", 1, 1)', [name, email || null, contact || null, hash]);
+        await conn.query('INSERT INTO students (name, email, password, user_id, grade, course, mentor_id, status, isApproved) VALUES (?, ?, ?, ?, ?, ?, ?, "active", 1)', [name, email || null, hash, ur.insertId, grade, course, mentorId || null]);
         await conn.commit();
         conn.release();
         res.status(201).json({ success: true, message: "Student registered" });
@@ -532,7 +532,7 @@ const getStudents = async (req, res) => {
             ) as faculty_name 
             FROM students s 
             LEFT JOIN mentors m ON s.mentor_id = m.id 
-            WHERE s.status NOT IN ('pending', 'rejected')
+            WHERE s.status != 'rejected'
         `;
         let params = [];
         if (mentor_id) { sql += ' AND s.mentor_id = ?'; params.push(mentor_id); }
@@ -548,7 +548,7 @@ const getStudents = async (req, res) => {
 
 const getMentors = async (req, res) => {
     try {
-        const [rows] = await db.query('SELECT m.*, (SELECT COUNT(*) FROM students WHERE mentor_id = m.id) as studentCount FROM mentors m ORDER BY m.name ASC');
+        const [rows] = await db.query('SELECT m.*, (SELECT COUNT(*) FROM students WHERE mentor_id = m.id AND status != "rejected") as studentCount FROM mentors m ORDER BY m.name ASC');
         res.status(200).json({ success: true, data: rows });
     } catch (e) { res.status(500).json({ success: false, message: e.message }); }
 };

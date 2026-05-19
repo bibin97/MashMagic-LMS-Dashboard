@@ -22,6 +22,7 @@ const {
     getAllStudentsForAdmin,
     getAllMentorsForAdmin,
     getAllFacultiesForAdmin,
+    getFacultyDetailsForAdmin,
     getStaffMembers,
     getSubAdmins,
     createSubAdmin,
@@ -49,6 +50,7 @@ router.get('/students', requireRole('super_admin', 'sub_admin'), getAllStudentsF
 router.get('/students/:id/exams', requireRole('super_admin', 'sub_admin'), getStudentExamsForAdmin);
 router.get('/mentors', requireRole('super_admin', 'sub_admin'), getAllMentorsForAdmin);
 router.get('/faculties', requireRole('super_admin', 'sub_admin'), getAllFacultiesForAdmin);
+router.get('/faculties/:id/details', requireRole('super_admin', 'sub_admin'), getFacultyDetailsForAdmin);
 router.get('/staff', requireRole('super_admin', 'sub_admin'), getStaffMembers);
 router.get('/users/:id', requireRole('super_admin', 'sub_admin'), getUserById);
 router.get('/student-logs', requireRole('super_admin', 'sub_admin'), getAllStudentLogs);

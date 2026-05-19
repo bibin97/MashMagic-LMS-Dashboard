@@ -16,6 +16,8 @@ const Faculties = () => {
  const [sortBy, setSortBy] = useState('newest');
  const [selectedFaculty, setSelectedFaculty] = useState(null);
  const [isModalOpen, setIsModalOpen] = useState(false);
+ const [detailLoading, setDetailLoading] = useState(false);
+ const [facultyDetail, setFacultyDetail] = useState(null);
  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
  const [editFormData, setEditFormData] = useState({
  name: '',
@@ -84,10 +86,20 @@ const Faculties = () => {
     document.body.removeChild(link);
   };
 
- const handleView = (faculty) => {
- setSelectedFaculty(faculty);
- setIsModalOpen(true);
- };
+  const handleView = async (faculty) => {
+    setSelectedFaculty(faculty);
+    setIsModalOpen(true);
+    setDetailLoading(true);
+    setFacultyDetail(null);
+    try {
+      const response = await api.get(`/admin/faculties/${faculty.id}/details`);
+      setFacultyDetail(response.data.data);
+    } catch (error) {
+      toast.error("Failed to fetch faculty details");
+    } finally {
+      setDetailLoading(false);
+    }
+  };
 
  const handleEdit = (faculty) => {
  setSelectedFaculty(faculty);
@@ -283,74 +295,125 @@ const Faculties = () => {
  </form>
  </Modal>
 
- <Modal
- isOpen={isModalOpen}
- onClose={() => setIsModalOpen(false)}
- title="Faculty Profile & Managed Mentors"
- size="lg"
- >
- {selectedFaculty && (
- <div className="flex flex-col gap-10">
- <div className="flex items-center gap-8 p-8 bg-[#008080]/5 rounded-[32px] border border-[#008080]/10 shadow-[0_10px_30px_rgba(20,184,166,0.05)]">
- <div className="w-24 h-24 bg-gradient-to-br from-[#006666] to-[#008080] text-white rounded-[28px] flex items-center justify-center text-4xl font-black shadow-xl shadow-[#008080]/20">
- {selectedFaculty.name.charAt(0)}
- </div>
- <div className="flex flex-col gap-2">
- <h3 className="text-3xl font-black text-slate-900 tracking-tight leading-none ">{selectedFaculty.name}</h3>
- <p className="text-slate-600 font-bold text-[10px] uppercase tracking-widest">{selectedFaculty.email}</p>
- <div className="mt-3 flex gap-2">
- <span className="px-4 py-1.5 bg-[#F59E0B]/10 rounded-xl text-[9px] font-bold text-[#F59E0B] border border-[#F59E0B]/20 uppercase tracking-[0.15em]">
- Tuition Faculty
- </span>
- <span className="px-4 py-1.5 bg-[#008080]/10 rounded-xl text-[9px] font-bold text-[#008080] border border-[#008080]/20 uppercase tracking-[0.15em]">
- Status: Verified
- </span>
- </div>
- </div>
- </div>
+  <Modal
+  isOpen={isModalOpen}
+  onClose={() => { setIsModalOpen(false); setFacultyDetail(null); }}
+  title="Faculty Profile"
+  size="lg"
+  >
+  {selectedFaculty && (
+  <div className="flex flex-col gap-8">
+  <div className="flex items-center gap-8 p-8 bg-[#008080]/5 rounded-[32px] border border-[#008080]/10 shadow-[0_10px_30px_rgba(20,184,166,0.05)]">
+  <div className="w-24 h-24 bg-gradient-to-br from-[#006666] to-[#008080] text-white rounded-[28px] flex items-center justify-center text-4xl font-black shadow-xl shadow-[#008080]/20">
+  {selectedFaculty.name.charAt(0)}
+  </div>
+  <div className="flex flex-col gap-2">
+  <h3 className="text-3xl font-black text-slate-900 tracking-tight leading-none ">{selectedFaculty.name}</h3>
+  <p className="text-slate-600 font-bold text-[10px] uppercase tracking-widest">{selectedFaculty.email}</p>
+  <div className="mt-3 flex gap-2">
+  <span className="px-4 py-1.5 bg-[#F59E0B]/10 rounded-xl text-[9px] font-bold text-[#F59E0B] border border-[#F59E0B]/20 uppercase tracking-[0.15em]">
+  Tuition Faculty
+  </span>
+  <span className={`px-4 py-1.5 rounded-xl text-[9px] font-bold border uppercase tracking-[0.15em] ${
+    selectedFaculty.status === 'active' 
+      ? 'bg-emerald-50 text-emerald-600 border-emerald-100' 
+      : selectedFaculty.status === 'inactive'
+      ? 'bg-amber-50 text-amber-600 border-amber-100'
+      : 'bg-rose-50 text-rose-600 border-rose-100'
+  }`}>
+  Status: {selectedFaculty.status === 'active' ? 'Active' : selectedFaculty.status === 'inactive' ? 'Backup' : 'Left'}
+  </span>
+  </div>
+  </div>
+  </div>
 
- <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
- <div className="p-8 bg-white border border-slate-100 rounded-[32px] flex items-center gap-6 hover:border-[#008080]/20 hover:shadow-lg transition-all group overflow-hidden relative">
- <div className="absolute top-0 right-0 w-24 h-24 bg-[#008080]/5 rounded-bl-[48px] -mr-8 -mt-8 group-hover:scale-125 transition-transform duration-500"></div>
- <div className="p-4 bg-[#008080]/5 text-[#008080] rounded-[20px] shadow-sm relative z-10 border border-[#008080]/10">
- <UserSquare2 size={24} />
- </div>
- <div className="relative z-10">
- <p className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] leading-none mb-2">Mentors Managed</p>
- <h4 className="text-3xl font-black text-slate-800 tracking-tighter leading-none">{selectedFaculty.mentorsUnder}</h4>
- </div>
- </div>
- <div className="p-8 bg-white border border-slate-100 rounded-[32px] flex items-center gap-6 hover:border-[#F59E0B]/20 hover:shadow-lg transition-all group overflow-hidden relative">
- <div className="absolute top-0 right-0 w-24 h-24 bg-[#F59E0B]/5 rounded-bl-[48px] -mr-8 -mt-8 group-hover:scale-125 transition-transform duration-500"></div>
- <div className="p-4 bg-[#F59E0B]/5 text-[#F59E0B] rounded-[20px] shadow-sm relative z-10 border border-[#F59E0B]/10">
- <GraduationCap size={24} />
- </div>
- <div className="relative z-10">
- <p className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] leading-none mb-2">Enrolled Students</p>
- <h4 className="text-3xl font-black text-slate-800 tracking-tighter leading-none">{selectedFaculty.studentsUnder}</h4>
- </div>
- </div>
- </div>
+  <div className="bg-white border border-slate-100 rounded-[32px] p-8 space-y-6 shadow-sm">
+    <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">Registration Details</h4>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="flex flex-col gap-1.5">
+        <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Full Name</span>
+        <span className="text-sm font-bold text-slate-800">{selectedFaculty.name}</span>
+      </div>
+      <div className="flex flex-col gap-1.5">
+        <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Email Address</span>
+        <span className="text-sm font-bold text-slate-800">{selectedFaculty.email || 'N/A'}</span>
+      </div>
+      <div className="flex flex-col gap-1.5">
+        <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Direct Contact / Phone</span>
+        <span className="text-sm font-bold text-slate-800">{selectedFaculty.phone || 'N/A'}</span>
+      </div>
+      <div className="flex flex-col gap-1.5">
+        <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Registered Subject</span>
+        <span className="text-sm font-bold text-slate-800">{selectedFaculty.subject || 'N/A'}</span>
+      </div>
+    </div>
+  </div>
 
- <div className="space-y-4">
- <h5 className="text-[10px] font-bold text-slate-600 uppercase tracking-[0.2em]">Assignment Roster</h5>
- <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
- {[...Array(selectedFaculty.mentorsUnder)].map((_, i) => (
- <div key={i} className="flex justify-between items-center p-4 bg-white border border-slate-100 rounded-2xl hover:border-[#008080] transition-all group">
- <span className="text-sm font-bold text-slate-700 group-hover:text-[#008080]">Mentor {String.fromCharCode(65 + i)}</span>
- <span className="text-[10px] font-black text-slate-600 bg-slate-50 px-2 py-1 rounded-md">Assigned</span>
- </div>
- ))}
- </div>
- </div>
+  {detailLoading ? (
+    <div className="flex flex-col items-center justify-center py-10 gap-3">
+      <div className="w-8 h-8 border-4 border-[#008080] border-t-transparent rounded-full animate-spin"></div>
+      <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Fetching assignment roster...</p>
+    </div>
+  ) : facultyDetail ? (
+    <div className="space-y-6">
+      <div className="p-8 bg-white border border-slate-100 rounded-[32px] flex items-center gap-6 hover:border-[#F59E0B]/20 hover:shadow-lg transition-all group overflow-hidden relative">
+        <div className="absolute top-0 right-0 w-24 h-24 bg-[#F59E0B]/5 rounded-bl-[48px] -mr-8 -mt-8 group-hover:scale-125 transition-transform duration-500"></div>
+        <div className="p-4 bg-[#F59E0B]/5 text-[#F59E0B] rounded-[20px] shadow-sm relative z-10 border border-[#F59E0B]/10">
+          <GraduationCap size={24} />
+        </div>
+        <div className="relative z-10">
+          <p className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] leading-none mb-2">Enrolled Students</p>
+          <h4 className="text-3xl font-black text-slate-800 tracking-tighter leading-none">{facultyDetail.students?.length || 0}</h4>
+        </div>
+      </div>
 
- <div className="flex justify-end gap-3 pt-10 border-t border-slate-100/50">
- <button className="px-8 py-4 rounded-[20px] border border-slate-100 text-[10px] font-black uppercase tracking-widest text-slate-600 hover:text-slate-600 hover:bg-slate-50 transition-all font-sans" onClick={() => setIsModalOpen(false)}>Close</button>
- <button className="px-10 py-4 rounded-[20px] bg-gradient-to-br from-[#006666] to-[#008080] text-white text-[10px] font-black uppercase tracking-[0.2em] hover:shadow-lg hover:shadow-[#008080]/30 hover:-translate-y-1 transition-all shadow-md shadow-[#008080]/20 font-sans">Send Message</button>
- </div>
- </div>
- )}
- </Modal>
+      <div className="space-y-4">
+        <h5 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] pl-1">Student & Subject Roster</h5>
+        {facultyDetail.students && facultyDetail.students.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {facultyDetail.students.map((student, idx) => (
+              <div key={idx} className="p-6 bg-slate-50 border border-slate-100 rounded-3xl flex flex-col gap-3 shadow-inner hover:border-[#008080]/30 hover:bg-white transition-all">
+                <div className="flex justify-between items-center border-b border-slate-100 pb-2">
+                  <span className="text-sm font-black text-slate-800 uppercase tracking-tight">{student.student_name}</span>
+                  <span className="px-2.5 py-1 bg-[#008080]/10 text-[#008080] border border-[#008080]/20 rounded-lg text-[8px] font-black uppercase tracking-widest">
+                    {student.grade || 'Grade N/A'}
+                  </span>
+                </div>
+                <div className="grid grid-cols-2 gap-3 text-left">
+                  <div className="flex flex-col">
+                    <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Subject Taught</span>
+                    <span className="text-xs font-bold text-slate-700 uppercase">{student.subject || 'N/A'}</span>
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Course Group</span>
+                    <span className="text-xs font-bold text-slate-700 uppercase">{student.course || 'N/A'}</span>
+                  </div>
+                </div>
+                {student.day_of_week && (
+                  <div className="flex items-center gap-2 mt-1 text-[9px] font-bold text-slate-500 bg-white p-2 rounded-xl border border-slate-100">
+                    <span className="text-[#008080] uppercase tracking-wider">{student.day_of_week}</span>
+                    <span className="text-slate-300">|</span>
+                    <span>{student.start_time} - {student.end_time}</span>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="p-8 text-center bg-slate-50 border border-slate-100 rounded-[2rem]">
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">No active students assigned to this faculty</p>
+          </div>
+        )}
+      </div>
+    </div>
+  ) : null}
+
+  <div className="flex justify-end gap-3 pt-6 border-t border-slate-100/50">
+  <button className="px-8 py-4 rounded-[20px] border border-slate-100 text-[10px] font-black uppercase tracking-widest text-slate-600 hover:text-slate-600 hover:bg-slate-50 transition-all font-sans" onClick={() => { setIsModalOpen(false); setFacultyDetail(null); }}>Close</button>
+  </div>
+  </div>
+  )}
+  </Modal>
  </div>
  );
 };

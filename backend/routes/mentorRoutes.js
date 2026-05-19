@@ -27,7 +27,8 @@ const {
     getStudentAcademicSchedule,
     updateStudentAcademicSchedule,
     updateAcademicSessionReminder,
-    completeAcademicSession
+    completeAcademicSession,
+    getMentors
 } = require('../controllers/mentorController');
 const { requireAuth } = require('../middleware/authMiddleware');
 const { requireRole } = require('../middleware/roleMiddleware');
@@ -44,9 +45,9 @@ router.post('/students/:id/schedule', requireRole('ssc', 'super_admin', 'admin')
 router.get('/tasks', requireRole('mentor'), getMentorTasks);
 router.put('/tasks/:id/complete', requireRole('mentor'), upload.single('proof'), completeMentorTask);
 router.get('/timetable', requireRole('mentor', 'super_admin', 'admin', 'mentor_head', 'ssc'), getMentorTimetable);
-router.post('/timetable', requireRole('super_admin', 'admin', 'ssc'), createSession);
-router.put('/timetable/:id', requireRole('super_admin', 'admin', 'ssc'), updateSession);
-router.delete('/timetable/:id', requireRole('super_admin', 'admin', 'ssc'), deleteSession);
+router.post('/timetable', requireRole('ssc'), createSession);
+router.put('/timetable/:id', requireRole('ssc'), updateSession);
+router.delete('/timetable/:id', requireRole('ssc'), deleteSession);
 router.post('/student-log', requireRole('mentor', 'ssc'), createStudentLog);
 router.get('/student-logs', requireRole('mentor', 'ssc', 'super_admin', 'admin'), getStudentLogs);
 router.post('/daily-hours', requireRole('mentor'), logDailyHours);
@@ -59,11 +60,12 @@ router.get('/exams/history', requireRole('mentor'), getExamHistory);
 router.get('/academic-schedule', requireRole('mentor', 'ssc'), getAcademicSchedule);
 router.put('/academic-schedule/:id/reminder', requireRole('mentor', 'ssc'), updateAcademicSessionReminder);
 router.put('/academic-schedule/:id/complete', requireRole('mentor', 'ssc'), completeAcademicSession);
-router.post('/timetable/batch', requireRole('ssc', 'super_admin', 'admin'), createBatchTimetable);
+router.post('/timetable/batch', requireRole('ssc'), createBatchTimetable);
 router.post('/exams/submit', requireRole('mentor'), submitExamResult);
 router.post('/mentorship-log', requireRole('mentor', 'ssc'), createMentorshipLog);
 router.get('/mentorship-logs/:studentId', requireRole('mentor', 'ssc', 'super_admin', 'admin'), getMentorshipLogs);
 router.get('/faculties-all', requireRole('mentor', 'ssc', 'super_admin', 'admin', 'mentor_head'), require('../controllers/mentorHeadController').getFaculties);
+router.get('/mentors-all', requireRole('mentor', 'ssc', 'super_admin', 'admin', 'mentor_head', 'academic_head'), getMentors);
 
 
 module.exports = router;

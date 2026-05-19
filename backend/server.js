@@ -52,6 +52,26 @@ const syncStudentsOnStart = async () => {
     try {
         console.log('🔄 Synchronizing students with user approval status...');
 
+        // 0. Auto-approve all pending students (bypassing student approval system)
+        const [userApproveRes] = await pool.query(`
+            UPDATE users 
+            SET status = 'active', isApproved = 1, isActive = 1
+            WHERE role = 'student' AND (status = 'pending' OR isApproved = 0)
+        `);
+        const [studentApproveRes] = await pool.query(`
+            UPDATE students 
+            SET status = 'active', isApproved = 1
+            WHERE status = 'pending' OR isApproved = 0
+        `);
+        const [notifDeleteRes] = await pool.query(`
+            DELETE FROM admin_notifications 
+            WHERE action_type = 'student_registration'
+        `);
+        if (userApproveRes.affectedRows > 0 || studentApproveRes.affectedRows > 0) {
+            console.log(`✅ Auto-approved ${userApproveRes.affectedRows} pending student users and ${studentApproveRes.affectedRows} student profiles on start.`);
+            console.log(`✅ Cleared ${notifDeleteRes.affectedRows} student registration notifications.`);
+        }
+
         // 1. Sync Approved Students
         // If a student's matching user is active/approved, set the student to active/approved
         const [approveResult] = await pool.query(`

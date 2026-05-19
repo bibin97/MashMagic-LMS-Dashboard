@@ -33,15 +33,8 @@ const Timetable = () => {
     student_id: '',
     mentor_id: '',
     status: '',
-    start_date: (() => {
-      const d = new Date();
-      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-01`;
-    })(),
-    end_date: (() => {
-      const d = new Date();
-      const lastDay = new Date(d.getFullYear(), d.getMonth() + 1, 0);
-      return `${lastDay.getFullYear()}-${String(lastDay.getMonth() + 1).padStart(2, '0')}-${String(lastDay.getDate()).padStart(2, '0')}`;
-    })()
+    start_date: '',
+    end_date: ''
   });
 
   // Form State
@@ -62,13 +55,17 @@ const Timetable = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetchTimetable();
+    fetchTimetable(true);
+    const interval = setInterval(() => {
+      fetchTimetable(false);
+    }, 10000); // Silent background auto-polling every 10 seconds for on-the-spot sync
+    return () => clearInterval(interval);
   }, [filters]);
 
   useEffect(() => {
     fetchStudents();
     fetchFaculties();
-    if (user?.role === 'academic_head' || user?.role === 'super_admin') {
+    if (user?.role === 'academic_head' || user?.role === 'super_admin' || user?.role === 'ssc') {
       fetchMentors();
     }
   }, [user, filters.mentor_id]);
@@ -84,16 +81,16 @@ const Timetable = () => {
 
   const fetchMentors = async () => {
     try {
-      const res = await api.get('/academic-head/mentors-all');
+      const res = await api.get('/mentor/mentors-all');
       setMentors(res.data.data);
     } catch (error) {
       console.error("Failed to load mentors");
     }
   };
 
-  const fetchTimetable = async () => {
+  const fetchTimetable = async (showLoading = true) => {
     try {
-      setLoading(true);
+      if (showLoading) setLoading(true);
       const params = new URLSearchParams();
       Object.entries(filters).forEach(([key, value]) => {
         if (value) params.append(key, value);
@@ -102,9 +99,9 @@ const Timetable = () => {
       setSessions(res.data.data);
       setSummary(res.data.summary);
     } catch (error) {
-      toast.error("Failed to load timetable");
+      if (showLoading) toast.error("Failed to load timetable");
     } finally {
-      setLoading(false);
+      if (showLoading) setLoading(false);
     }
   };
 
@@ -485,6 +482,24 @@ const Timetable = () => {
             </div>
           </div>
 
+          <div className="flex-1 min-w-[240px]">
+            <label className="text-[8px] font-black text-slate-600 uppercase tracking-[0.2em] pl-1 mb-2 block">Filter by Mentor</label>
+            <div className="relative group">
+              <Users className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#008080] transition-colors" size={16} />
+              <select
+                value={filters.mentor_id}
+                onChange={(e) => setFilters({ ...filters, mentor_id: e.target.value })}
+                className="w-full pl-12 pr-4 py-4 bg-slate-50 border-none rounded-2xl text-[11px] font-black text-slate-700 focus:bg-white focus:ring-4 ring-[#008080]/10 outline-none appearance-none transition-all cursor-pointer"
+              >
+                <option value="">All Mentors</option>
+                {mentors.map(m => (
+                  <option key={m.id} value={m.id}>{m.name}</option>
+                ))}
+              </select>
+              <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-600 pointer-events-none" size={14} />
+            </div>
+          </div>
+
           <div className="w-[200px]">
             <label className="text-[8px] font-black text-slate-600 uppercase tracking-[0.2em] pl-1 mb-2 block">Filter by Month</label>
             <div className="relative group">
@@ -534,7 +549,7 @@ const Timetable = () => {
           </div>
 
           <button
-            onClick={() => setFilters({ ...filters, student_id: '', status: '', start_date: formatDate(new Date(new Date().getFullYear(), new Date().getMonth(), 1)), end_date: formatDate(new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0)) })}
+            onClick={() => setFilters({ student_id: '', mentor_id: '', status: '', start_date: '', end_date: '' })}
             className="px-8 py-4 bg-slate-900 text-white text-[10px] font-black uppercase tracking-widest rounded-2xl hover:bg-[#008080] shadow-xl shadow-slate-100 transition-all active:scale-95 "
           >
             Reset Filters

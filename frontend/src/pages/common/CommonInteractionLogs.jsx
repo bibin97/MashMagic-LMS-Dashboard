@@ -8,6 +8,40 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
+const DEEP_QUESTION_LABELS = {
+    student_status_before: 'Student Status Before Session',
+    main_problem: 'Main Problem/Concern Raised',
+    root_cause: 'Root Cause of the Problem',
+    mentor_guidance: 'Mentor Guidance / Advice Provided',
+    action_plan: 'Agreed Action Plan / Next Steps',
+    student_response: 'Student Response / Motivation Level',
+    followup_required: 'Is Follow-up Required?',
+    followup_when: 'Follow-up Date / Timeline',
+    priority_tag: 'Priority Level (Category)',
+    next_session_type: 'Next Session Scheduled Type'
+};
+
+const MEDIUM_QUESTION_LABELS = {
+    progress: 'Current Progress Status',
+    class_attendance: 'Class Attendance Status',
+    issue_found: 'Any Issues Found?',
+    issue_category: 'Issue Category',
+    quick_guidance: 'Quick Guidance Provided',
+    next_task: 'Next Task / Action Required',
+    upgrade_to_deep: 'Should Upgrade to DEEP Session?',
+    next_session_type: 'Next Session Scheduled Type'
+};
+
+const QUICK_QUESTION_LABELS = {
+    availability: 'Call Availability Status',
+    study_status: 'Today\'s Study Status',
+    attendance: 'Attendance Confirmed',
+    immediate_concern: 'Any Immediate Concerns?',
+    motivation_given: 'Motivation/Encouragement Given?',
+    quick_notes: 'Session Discussion Notes',
+    next_session_type: 'Next Session Scheduled Type'
+};
+
 const CommonInteractionLogs = ({ role }) => {
     const [viewMode, setViewMode] = useState('list'); // 'list' or 'detail'
     const [activeTab, setActiveTab] = useState('student'); // 'student' or 'faculty'
@@ -119,6 +153,119 @@ const CommonInteractionLogs = ({ role }) => {
         }
     };
 
+    const exportToCSV = async (studentId = null) => {
+        const loadingToast = toast.loading("Preparing CSV export...");
+        try {
+            const params = {
+                dateFilter: studentId ? dateFilter : listDateFilter,
+                startDate: studentId 
+                    ? (dateFilter === 'custom' ? customRange.start : undefined)
+                    : (listDateFilter === 'custom' ? listCustomRange.start : undefined),
+                endDate: studentId 
+                    ? (dateFilter === 'custom' ? customRange.end : undefined)
+                    : (listDateFilter === 'custom' ? listCustomRange.end : undefined),
+                student_id: studentId || undefined,
+                mentor_id: studentId && mentorFilter !== 'all' ? mentorFilter : undefined
+            };
+
+            let endpoint;
+            if (activeTab === 'student') {
+                endpoint = `${apiPrefix}/student-logs`;
+            } else {
+                endpoint = role === 'mentor_head' ? `${apiPrefix}/mentor-logs` : `${apiPrefix}/faculty-logs`;
+            }
+
+            const res = await api.get(endpoint, { params });
+            const exportData = res.data.data || [];
+
+            if (exportData.length === 0) {
+                toast.dismiss(loadingToast);
+                toast.error("No logs found to export");
+                return;
+            }
+
+            // Convert to CSV
+            const headers = [
+                "ID", "Date", "Student Name", "Mentor/Faculty Name", 
+                "Source/Type", "Session Type", "Notes/Remarks", 
+                "Understanding Level (%)", "Confidence (1-5)", "Stress Level",
+                "Is Flagged", "Flag Reason", "Detailed Questionnaire Responses"
+            ];
+
+            const csvRows = [headers.join(",")];
+
+            for (const item of exportData) {
+                // Parse report_data for Questionnaire Answers
+                let reportAnswersStr = "";
+                if (item.report_data) {
+                    try {
+                        const parsed = typeof item.report_data === 'string' ? JSON.parse(item.report_data) : item.report_data;
+                        reportAnswersStr = Object.entries(parsed)
+                            .map(([k, v]) => {
+                                let label = k.replace(/_/g, ' ');
+                                label = label.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+                                const sessionTypeUpper = (item.session_type || '').toUpperCase();
+                                if (sessionTypeUpper === 'DEEP' && DEEP_QUESTION_LABELS[k]) {
+                                    label = DEEP_QUESTION_LABELS[k];
+                                } else if (sessionTypeUpper === 'MEDIUM' && MEDIUM_QUESTION_LABELS[k]) {
+                                    label = MEDIUM_QUESTION_LABELS[k];
+                                } else if (sessionTypeUpper === 'QUICK' && QUICK_QUESTION_LABELS[k]) {
+                                    label = QUICK_QUESTION_LABELS[k];
+                                }
+                                return `${label}: ${v}`;
+                            })
+                            .join(" | ");
+                    } catch (e) {}
+                }
+
+                // escape quotes and clean newlines
+                const cleanStr = (val) => {
+                    if (val === null || val === undefined) return "";
+                    return String(val).replace(/"/g, '""').replace(/\r?\n|\r/g, " ");
+                };
+
+                const row = [
+                    cleanStr(item.id),
+                    cleanStr(item.created_at || item.date),
+                    `"${cleanStr(item.student_name)}"`,
+                    `"${cleanStr(item.mentor_name || item.faculty_name)}"`,
+                    `"${cleanStr(item.source || item.type)}"`,
+                    `"${cleanStr(item.session_type)}"`,
+                    `"${cleanStr(item.mentor_notes || item.notes || item.remarks)}"`,
+                    cleanStr(item.understanding_level),
+                    cleanStr(item.student_confidence),
+                    cleanStr(item.stress_level),
+                    item.is_flagged ? "Yes" : "No",
+                    `"${cleanStr(item.flag_reason)}"`,
+                    `"${cleanStr(reportAnswersStr)}"`
+                ];
+                csvRows.push(row.join(","));
+            }
+
+            const csvContent = csvRows.join("\n");
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.setAttribute("href", url);
+            
+            const fileName = studentId 
+                ? `${selectedStudent?.name || 'student'}_interaction_logs.csv` 
+                : `all_student_interaction_logs.csv`;
+                
+            link.setAttribute("download", fileName.toLowerCase().replace(/\s+/g, "_"));
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            toast.dismiss(loadingToast);
+            toast.success("CSV exported successfully");
+        } catch (error) {
+            console.error("Export failed:", error);
+            toast.dismiss(loadingToast);
+            toast.error("Failed to export logs");
+        }
+    };
+
     const resetFilters = () => {
         setDateFilter('all');
         setCustomRange({ start: '', end: '' });
@@ -183,6 +330,12 @@ const CommonInteractionLogs = ({ role }) => {
                                 >
                                     <CalendarClock size={16} />
                                     Date Filter
+                                </button>
+                                <button 
+                                    onClick={() => exportToCSV()}
+                                    className="flex items-center gap-3 px-6 py-4 rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all border bg-[#008080] text-white border-[#008080] hover:bg-[#006666] active:scale-95 shadow-sm"
+                                >
+                                    Export Logs
                                 </button>
                                 { listDateFilter !== 'all' && (
                                     <button 
@@ -348,6 +501,12 @@ const CommonInteractionLogs = ({ role }) => {
                 </div>
 
                 <div className="flex items-center gap-4">
+                    <button 
+                        onClick={() => exportToCSV(selectedStudent.id)}
+                        className="flex items-center gap-3 px-8 py-4 rounded-[2rem] text-[10px] font-black uppercase tracking-widest transition-all shadow-sm border bg-[#008080] text-white border-[#008080] hover:bg-[#006666] active:scale-95"
+                    >
+                        Export Timeline
+                    </button>
                     <button 
                         onClick={() => setShowFilterPanel(!showFilterPanel)}
                         className={`flex items-center gap-3 px-8 py-4 rounded-[2rem] text-[10px] font-black uppercase tracking-widest transition-all shadow-sm border ${showFilterPanel ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-600 border-slate-100 hover:border-[#008080]'}`}
@@ -538,6 +697,51 @@ const CommonInteractionLogs = ({ role }) => {
                                                         {log.mentor_notes || log.notes || log.remarks || 'No notes provided for this session.'}
                                                     </div>
                                                 </div>
+
+                                                {/* Questionnaire Section */}
+                                                {(() => {
+                                                    let parsedReportData = null;
+                                                    if (log.report_data) {
+                                                        try {
+                                                            parsedReportData = typeof log.report_data === 'string' ? JSON.parse(log.report_data) : log.report_data;
+                                                        } catch (e) {
+                                                            console.error("Failed to parse report_data:", e);
+                                                        }
+                                                    }
+                                                    if (!parsedReportData) return null;
+                                                    return (
+                                                        <div className="space-y-4">
+                                                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                                                                <BookOpen size={12} /> Questionnaire Responses
+                                                            </p>
+                                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                                {Object.entries(parsedReportData).map(([key, val]) => {
+                                                                    if (['notes', 'quick_notes', 'notes_text'].includes(key)) return null; 
+                                                                    let label = key.replace(/_/g, ' ');
+                                                                    label = label.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+                                                                    
+                                                                    const sessionTypeUpper = (log.session_type || '').toUpperCase();
+                                                                    if (sessionTypeUpper === 'DEEP' && DEEP_QUESTION_LABELS[key]) {
+                                                                        label = DEEP_QUESTION_LABELS[key];
+                                                                    } else if (sessionTypeUpper === 'MEDIUM' && MEDIUM_QUESTION_LABELS[key]) {
+                                                                        label = MEDIUM_QUESTION_LABELS[key];
+                                                                    } else if (sessionTypeUpper === 'QUICK' && QUICK_QUESTION_LABELS[key]) {
+                                                                        label = QUICK_QUESTION_LABELS[key];
+                                                                    }
+                                                                    
+                                                                    if (val === null || val === undefined || val === '') return null;
+
+                                                                    return (
+                                                                        <div key={key} className="p-6 bg-slate-50 border border-slate-100 rounded-3xl flex flex-col gap-2 shadow-inner">
+                                                                            <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{label}</span>
+                                                                            <span className="text-sm font-bold text-slate-800 leading-relaxed">{String(val)}</span>
+                                                                        </div>
+                                                                    );
+                                                                })}
+                                                            </div>
+                                                        </div>
+                                                    );
+                                                })()}
 
                                                 {/* Metrics Grid */}
                                                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

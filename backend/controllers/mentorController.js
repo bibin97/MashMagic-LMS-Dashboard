@@ -19,7 +19,7 @@ const getMentorDashboard = async (req, res) => {
         };
 
         if (role === 'ssc') {
-            const studentCount = await safeQuery('SELECT COUNT(*) as count FROM students WHERE status = "active"', [], 'ssc_studentCount');
+            const studentCount = await safeQuery('SELECT COUNT(*) as count FROM students WHERE status != "rejected"', [], 'ssc_studentCount');
             const totalCount = await safeQuery('SELECT COUNT(*) as count FROM students', [], 'ssc_totalCount');
             const mentorCount = await safeQuery('SELECT COUNT(*) as count FROM users WHERE role = "mentor" AND status = "active"', [], 'ssc_mentorCount');
             const onboardedCount = await safeQuery('SELECT COUNT(*) as count FROM students WHERE onboarding_status = "completed"', [], 'ssc_onboardedCount');
@@ -52,7 +52,7 @@ const getMentorDashboard = async (req, res) => {
             });
         }
 
-        const studentCount = await safeQuery('SELECT COUNT(*) as count FROM students WHERE mentor_id = ?', [mentorId], 'studentCount');
+        const studentCount = await safeQuery('SELECT COUNT(*) as count FROM students WHERE mentor_id = ? AND status != "rejected"', [mentorId], 'studentCount');
         const sessionCount = await safeQuery('SELECT COUNT(*) as count FROM mentor_timetable WHERE mentor_id = ?', [mentorId], 'sessionCount');
         const pendingTasks = await safeQuery('SELECT COUNT(*) as count FROM tasks WHERE assigned_to = ? AND status != "Completed"', [mentorId], 'pendingTasks');
         const completedTasks = await safeQuery('SELECT COUNT(*) as count FROM tasks WHERE assigned_to = ? AND status = "Completed"', [mentorId], 'completedTasks');
@@ -166,7 +166,7 @@ const getMentorStudents = async (req, res) => {
             s.onboarding_status
             FROM students s 
             LEFT JOIN users m ON s.mentor_id = m.id
-            WHERE s.status NOT IN ('pending', 'rejected') ${isPrivileged ? '' : 'AND s.mentor_id = ?'}
+            WHERE s.status != 'rejected' ${isPrivileged ? '' : 'AND s.mentor_id = ?'}
         `, isPrivileged ? [] : [mentorId]);
         res.status(200).json({ success: true, data: rows });
     } catch (error) {
@@ -376,7 +376,7 @@ const processMentorTaskCompletion = async (req, res) => {
 const getMentorTimetable = async (req, res) => {
     try {
         const mentorId = req.user.id;
-        const { student_id, status, start_date, end_date } = req.query;
+        const { student_id, mentor_id, status, start_date, end_date } = req.query;
 
         let query = `
             SELECT t.*, s.name as student_name 
@@ -389,6 +389,9 @@ const getMentorTimetable = async (req, res) => {
         if (req.user.role === 'mentor') {
             query += ' AND t.mentor_id = ?';
             params.push(mentorId);
+        } else if (mentor_id) {
+            query += ' AND t.mentor_id = ?';
+            params.push(mentor_id);
         }
 
         if (student_id) {
@@ -827,7 +830,7 @@ const createBatchTimetable = async (req, res) => {
 const getPendingExams = async (req, res) => {
     try {
         const mentorId = req.user.id;
-        const [students] = await db.query('SELECT id, name FROM students WHERE mentor_id = ? AND status = "active"', [mentorId]);
+        const [students] = await db.query('SELECT id, name FROM students WHERE mentor_id = ? AND status != "rejected"', [mentorId]);
         let pendingExams = [];
         for (const student of students) {
             const [rows] = await db.query('SELECT MAX(session_number) as current_max FROM mentor_timetable WHERE student_id = ? AND status != "Cancelled"', [student.id]);
@@ -1152,6 +1155,15 @@ const updateStudentAcademicSchedule = async (req, res) => {
     }
 };
 
+const getMentors = async (req, res) => {
+    try {
+        const [rows] = await db.query("SELECT id, name FROM users WHERE role = 'mentor' ORDER BY name ASC");
+        res.status(200).json({ success: true, data: rows });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
 module.exports = {
     getMentorDashboard,
     getMentorStudents,
@@ -1179,5 +1191,6 @@ module.exports = {
     getDailyHours,
     getStudentDailyUpdates,
     createMentorshipLog,
-    getMentorshipLogs
+    getMentorshipLogs,
+    getMentors
 };

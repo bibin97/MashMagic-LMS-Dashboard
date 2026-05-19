@@ -33,15 +33,8 @@ const Timetable = () => {
     student_id: '',
     mentor_id: '',
     status: '',
-    start_date: (() => {
-      const d = new Date();
-      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-01`;
-    })(),
-    end_date: (() => {
-      const d = new Date();
-      const lastDay = new Date(d.getFullYear(), d.getMonth() + 1, 0);
-      return `${lastDay.getFullYear()}-${String(lastDay.getMonth() + 1).padStart(2, '0')}-${String(lastDay.getDate()).padStart(2, '0')}`;
-    })()
+    start_date: '',
+    end_date: ''
   });
 
   // Form State
@@ -62,7 +55,11 @@ const Timetable = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetchTimetable();
+    fetchTimetable(true);
+    const interval = setInterval(() => {
+      fetchTimetable(false);
+    }, 10000); // Silent background auto-polling every 10 seconds
+    return () => clearInterval(interval);
   }, [filters]);
 
   useEffect(() => {
@@ -91,9 +88,9 @@ const Timetable = () => {
     }
   };
 
-  const fetchTimetable = async () => {
+  const fetchTimetable = async (showLoading = true) => {
     try {
-      setLoading(true);
+      if (showLoading) setLoading(true);
       const params = new URLSearchParams();
       Object.entries(filters).forEach(([key, value]) => {
         if (value) params.append(key, value);
@@ -102,9 +99,9 @@ const Timetable = () => {
       setSessions(res.data.data);
       setSummary(res.data.summary);
     } catch (error) {
-      toast.error("Failed to load timetable");
+      if (showLoading) toast.error("Failed to load timetable");
     } finally {
-      setLoading(false);
+      if (showLoading) setLoading(false);
     }
   };
 
@@ -522,7 +519,7 @@ const Timetable = () => {
           </div>
 
           <button
-            onClick={() => setFilters({ ...filters, student_id: '', status: '', start_date: formatDate(new Date(new Date().getFullYear(), new Date().getMonth(), 1)), end_date: formatDate(new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0)) })}
+            onClick={() => setFilters({ ...filters, student_id: '', status: '', start_date: '', end_date: '' })}
             className="px-8 py-4 bg-slate-900 text-white text-[10px] font-black uppercase tracking-widest rounded-2xl hover:bg-[#008080] shadow-xl shadow-slate-100 transition-all active:scale-95 "
           >
             Reset Filters
@@ -658,7 +655,7 @@ const Timetable = () => {
               ) : (
                 <div className="space-y-8">
                   {/* Registration Slot Helper */}
-                  {studentSchedule.length > 0 && !editingSession && (
+                  {studentSchedule && studentSchedule.length > 0 && !editingSession && (
                     <div className="bg-emerald-50 p-6 rounded-[2rem] border border-emerald-100 space-y-3">
                       <div className="flex items-center justify-between px-1">
                         <label className="text-[10px] font-black text-emerald-600 uppercase tracking-widest flex items-center gap-2">

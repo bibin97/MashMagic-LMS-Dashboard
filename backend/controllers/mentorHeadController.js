@@ -158,7 +158,8 @@ exports.getStudentInteractionLogs = async (req, res) => {
                     CAST(sil.self_clarity AS CHAR) as understanding_level,
                     CAST(sil.confidence AS CHAR) as student_confidence,
                     CAST(sil.exam_anxiety AS CHAR) as stress_level,
-                    0 as is_flagged, NULL as flag_reason
+                    0 as is_flagged, NULL as flag_reason,
+                    NULL as report_data
                 FROM student_interaction_logs sil
                 LEFT JOIN users m ON sil.mentor_id = m.id AND m.role = 'mentor'
                 LEFT JOIN students s ON sil.student_id = s.id
@@ -175,7 +176,8 @@ exports.getStudentInteractionLogs = async (req, res) => {
                     CAST(msl.understanding_after_session AS CHAR) as understanding_level,
                     CAST(msl.session_quality_rating AS CHAR) as student_confidence,
                     CAST(msl.stress_level AS CHAR) as stress_level,
-                    0 as is_flagged, NULL as flag_reason
+                    0 as is_flagged, NULL as flag_reason,
+                    NULL as report_data
                 FROM mentor_session_logs msl
                 LEFT JOIN users m ON msl.mentor_id = m.id AND m.role = 'mentor'
                 LEFT JOIN students s ON msl.student_id = s.id
@@ -192,7 +194,8 @@ exports.getStudentInteractionLogs = async (req, res) => {
                     CAST(JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.understanding_level')) AS CHAR) as understanding_level,
                     CAST(JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.confidence')) AS CHAR) as student_confidence,
                     NULL as stress_level,
-                    msr.is_flagged, msr.flag_reason
+                    msr.is_flagged, msr.flag_reason,
+                    msr.report_data as report_data
                 FROM mentor_session_reports msr
                 LEFT JOIN users m ON msr.mentor_id = m.id AND m.role = 'mentor'
                 LEFT JOIN students s ON msr.student_id = s.id
@@ -207,7 +210,8 @@ exports.getStudentInteractionLogs = async (req, res) => {
                     'DEEP' as session_type,
                     CONVERT(ml.action_details USING utf8mb4) as notes,
                     NULL as understanding_level, NULL as student_confidence, NULL as stress_level,
-                    0 as is_flagged, NULL as flag_reason
+                    0 as is_flagged, NULL as flag_reason,
+                    NULL as report_data
                 FROM mentorship_logs ml
                 LEFT JOIN users m ON ml.mentor_id = m.id AND m.role = 'mentor'
                 LEFT JOIN students s ON ml.student_id = s.id
@@ -887,7 +891,7 @@ exports.getMentorActivityDashboard = async (req, res) => {
                 u.email,
                 u.phone_number,
                 u.place,
-                (SELECT COUNT(*) FROM students WHERE mentor_id = u.id) AS total_assigned_students,
+                (SELECT COUNT(*) FROM students WHERE mentor_id = u.id AND status != 'rejected') AS total_assigned_students,
                 (SELECT COUNT(DISTINCT student_id) FROM student_interaction_logs WHERE mentor_id = u.id AND date = CURDATE() AND connected_today = TRUE) AS students_connected_today,
                 (SELECT COUNT(*) FROM tasks WHERE mentor_id = u.id AND status = 'Completed' AND DATE(created_at) = CURDATE()) AS tasks_completed_today
             FROM mentors u
@@ -899,7 +903,7 @@ exports.getMentorActivityDashboard = async (req, res) => {
         const mentorsWithStudents = await Promise.all(mentors.map(async (mentor) => {
             try {
                 const [students] = await db.query(
-                    'SELECT id, name, grade, course, faculty_name, is_shifted, shifted_from FROM students WHERE mentor_id = ?',
+                    'SELECT id, name, grade, course, faculty_name, is_shifted, shifted_from FROM students WHERE mentor_id = ? AND status != "rejected"',
                     [mentor.mentor_id]
                 );
                 return {
@@ -941,7 +945,7 @@ exports.getMentorMonitoringDetails = async (req, res) => {
                 SELECT s.id, s.name, s.course, s.grade, s.onboarding_status, s.faculty_name, s.is_shifted, s.shifted_from,
                        CASE WHEN EXISTS(SELECT 1 FROM student_interaction_logs sil WHERE sil.student_id = s.id AND sil.date = CURDATE() AND sil.connected_today = TRUE) THEN 1 ELSE 0 END AS connected_today
                 FROM students s
-                WHERE s.mentor_id = ?
+                WHERE s.mentor_id = ? AND s.status != 'rejected'
             `, [mentorId]);
         } catch (err) {
             return res.status(500).json({ success: false, message: "Error in Monitoring Students Query", error: err.message });
@@ -1094,7 +1098,7 @@ exports.getDailySummary = async (req, res) => {
     try {
         const today = new Date().toISOString().split('T')[0];
 
-        const [[{ totalStudents }]] = await db.query('SELECT COUNT(*) AS totalStudents FROM students WHERE status = "active"');
+        const [[{ totalStudents }]] = await db.query('SELECT COUNT(*) AS totalStudents FROM students WHERE status != "rejected"');
         const [[{ checkedToday }]] = await db.query(`
             SELECT COUNT(DISTINCT student_id) as checkedToday FROM (
                 SELECT student_id FROM student_interaction_logs WHERE DATE(created_at) = ?
@@ -1369,7 +1373,7 @@ exports.getStudents = async (req, res) => {
             ) as faculty_name 
             FROM students s 
             LEFT JOIN mentors m ON s.mentor_id = m.id 
-            WHERE 1=1
+            WHERE s.status != 'rejected'
         `;
         let params = [];
         
@@ -1445,7 +1449,7 @@ exports.getMentors = async (req, res) => {
     try {
         const [rows] = await db.query(`
             SELECT u.id, u.name, u.email, u.phone_number, u.place, u.status,
-            (SELECT COUNT(*) FROM students WHERE mentor_id = u.id) as studentCount
+            (SELECT COUNT(*) FROM students WHERE mentor_id = u.id AND status != 'rejected') as studentCount
             FROM mentors u ORDER BY u.name ASC
         `);
         res.status(200).json({ success: true, data: rows });
@@ -1501,7 +1505,7 @@ exports.getDashboardStats = async (req, res) => {
 // @route   GET /api/mentor-head/daily-summary
 exports.getDailySummary = async (req, res) => {
     try {
-        const [totalRes] = await db.query("SELECT COUNT(*) as count FROM students WHERE status = 'active'");
+        const [totalRes] = await db.query("SELECT COUNT(*) as count FROM students WHERE status != 'rejected'");
         const [checkedRes] = await db.query("SELECT COUNT(DISTINCT student_id) as count FROM student_interaction_logs WHERE DATE(created_at) = CURDATE()");
         
         const totalStudents = totalRes[0].count;

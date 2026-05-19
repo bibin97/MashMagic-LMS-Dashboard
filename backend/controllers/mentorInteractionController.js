@@ -300,7 +300,7 @@ const getWeeklyCoverage = async (req, res) => {
                 MAX(r.created_at) as last_interaction
             FROM students s
             LEFT JOIN mentor_session_reports r ON s.id = r.student_id AND r.created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)
-            WHERE s.status = 'active'
+            WHERE s.status != 'rejected'
             GROUP BY s.id
             ORDER BY deep_count ASC, medium_count ASC
         `;

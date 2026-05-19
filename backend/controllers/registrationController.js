@@ -26,8 +26,8 @@ const registerStudent = async (req, res) => {
         const query = `
             INSERT INTO students (
                 name, grade, subject, course, hour, 
-                time_table, mentor_name, faculty_name, next_installment_date, enrollment_type, badge
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                time_table, mentor_name, faculty_name, next_installment_date, enrollment_type, badge, status, isApproved
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', 1)
         `;
 
         const [studentResult] = await db.query(query, [
@@ -46,11 +46,10 @@ const registerStudent = async (req, res) => {
 
         const studentId = studentResult.insertId;
 
-        // Notify Admin
-        await db.query('INSERT INTO admin_notifications (message, related_id, action_type) VALUES (?, ?, ?)', [
+        // Notify Admin (Informational only, no action_type to require approval)
+        await db.query('INSERT INTO admin_notifications (message, related_id, action_type) VALUES (?, ?, NULL)', [
             `<b>New Student Registration:</b> ${name} registered for <b>${course}</b> (${grade}).`,
-            studentId,
-            'student_registration'
+            studentId
         ]);
 
         // Automatically insert initial session into mentor_timetable if mentor exists
