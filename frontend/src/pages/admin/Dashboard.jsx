@@ -9,7 +9,10 @@ import {
   TrendingUp,
   ListTodo,
   CheckCircle2,
-  ChevronLeft
+  ChevronLeft,
+  Clock,
+  Mail,
+  User
 } from 'lucide-react';
 import {
   BarChart,
@@ -45,6 +48,7 @@ const Dashboard = () => {
   const [examData, setExamData] = useState([]);
   const [mentorDistribution, setMentorDistribution] = useState([]);
   const [taskPerformance, setTaskPerformance] = useState([]);
+  const [portalLogins, setPortalLogins] = useState([]);
   const [taskFilter, setTaskFilter] = useState('today');
   const [loading, setLoading] = useState(true);
   const [isMounted, setIsMounted] = useState(false);
@@ -56,13 +60,14 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const [userRes, studentRes, reportRes, examRes, distRes, taskRes] = await Promise.all([
+        const [userRes, studentRes, reportRes, examRes, distRes, taskRes, portalRes] = await Promise.all([
           api.get('/admin/users'),
           api.get('/admin/students'),
           api.get('/admin/mentor-head-report'),
           api.get('/admin/exam-analytics'),
           api.get('/admin/mentor-distribution'),
-          api.get(`/admin/task-analytics?range=${taskFilter}`)
+          api.get(`/admin/task-analytics?range=${taskFilter}`),
+          api.get('/admin/student-portal-logins')
         ]);
 
         const users = userRes.data.data || [];
@@ -114,6 +119,10 @@ const Dashboard = () => {
 
         if (taskRes.data.success) {
           setTaskPerformance(taskRes.data.data);
+        }
+
+        if (portalRes.data.success) {
+          setPortalLogins(portalRes.data.data);
         }
 
         setLoading(false);
@@ -453,61 +462,114 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Performance Line Chart Section */}
-      <div className="bg-white/80 backdrop-blur-xl p-8 sm:p-10 rounded-[32px] border border-white/50 shadow-[0_10px_30px_rgba(0,0,0,0.04)]">
-        <div className="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center gap-6 mb-12 w-full">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-gradient-to-br from-[#10B981] to-[#059669] text-white rounded-[16px] flex items-center justify-center shadow-lg shadow-emerald-500/20">
-              <TrendingUp size={20} />
+      {/* Trends & Portal Activity Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Performance Line Chart Section */}
+        <div className="lg:col-span-2 bg-white/80 backdrop-blur-xl p-8 sm:p-10 rounded-[32px] border border-white/50 shadow-[0_10px_30px_rgba(0,0,0,0.04)]">
+          <div className="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center gap-6 mb-12 w-full">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-gradient-to-br from-[#10B981] to-[#059669] text-white rounded-[16px] flex items-center justify-center shadow-lg shadow-emerald-500/20">
+                <TrendingUp size={20} />
+              </div>
+              <div>
+                <h4 className="text-xl font-black text-slate-800 tracking-tight">Exam Performance Trends</h4>
+                <p className="text-[10px] text-slate-600 font-bold uppercase tracking-widest mt-1">Average score percentages</p>
+              </div>
             </div>
-            <div>
-              <h4 className="text-xl font-black text-slate-800 tracking-tight">Exam Performance Trends</h4>
-              <p className="text-[10px] text-slate-600 font-bold uppercase tracking-widest mt-1">Average score percentages</p>
-            </div>
+          </div>
+
+          <div className="w-full h-[350px] relative">
+            {isMounted && (
+              <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
+                <LineChart data={examData.length > 0 ? examData : []} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                  <XAxis
+                    dataKey={examData.length > 0 ? "subject" : "month"}
+                    fontSize={11}
+                    fontWeight={600}
+                    tick={{ fill: '#94a3b8' }}
+                    axisLine={false}
+                    tickLine={false}
+                  />
+                  <YAxis
+                    fontSize={11}
+                    fontWeight={600}
+                    tick={{ fill: '#94a3b8' }}
+                    axisLine={false}
+                    tickLine={false}
+                    domain={[0, 100]}
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      borderRadius: '16px',
+                      border: 'none',
+                      boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)',
+                      padding: '12px'
+                    }}
+                  />
+                  <Line
+                    name="Success %"
+                    type="monotone"
+                    dataKey={examData.length > 0 ? "percentage" : "score"}
+                    stroke="#008080"
+                    strokeWidth={5}
+                    dot={{ fill: '#white', r: 7, strokeWidth: 4, stroke: '#008080' }}
+                    activeDot={{ r: 10, strokeWidth: 0, fill: '#008080' }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            )}
           </div>
         </div>
 
-        <div className="w-full h-[350px] relative">
-          {isMounted && (
-            <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
-              <LineChart data={examData.length > 0 ? examData : []} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                <XAxis
-                  dataKey={examData.length > 0 ? "subject" : "month"}
-                  fontSize={11}
-                  fontWeight={600}
-                  tick={{ fill: '#94a3b8' }}
-                  axisLine={false}
-                  tickLine={false}
-                />
-                <YAxis
-                  fontSize={11}
-                  fontWeight={600}
-                  tick={{ fill: '#94a3b8' }}
-                  axisLine={false}
-                  tickLine={false}
-                  domain={[0, 100]}
-                />
-                <Tooltip
-                  contentStyle={{
-                    borderRadius: '16px',
-                    border: 'none',
-                    boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)',
-                    padding: '12px'
-                  }}
-                />
-                <Line
-                  name="Success %"
-                  type="monotone"
-                  dataKey={examData.length > 0 ? "percentage" : "score"}
-                  stroke="#008080"
-                  strokeWidth={5}
-                  dot={{ fill: '#white', r: 7, strokeWidth: 4, stroke: '#008080' }}
-                  activeDot={{ r: 10, strokeWidth: 0, fill: '#008080' }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          )}
+        {/* Student Portal Activity Section */}
+        <div className="bg-white/80 backdrop-blur-xl p-8 rounded-[32px] border border-white/50 shadow-[0_10px_30px_rgba(0,0,0,0.04)] flex flex-col h-[480px]">
+          <div className="flex items-center gap-4 mb-6">
+            <div className="w-12 h-12 bg-gradient-to-br from-[#008080] to-[#006666] text-white rounded-[16px] flex items-center justify-center shadow-lg shadow-[#008080]/20">
+              <Activity size={20} />
+            </div>
+            <div>
+              <h4 className="text-lg font-black text-slate-800 tracking-tight">Student Portal Activity</h4>
+              <p className="text-[10px] text-slate-600 font-bold uppercase tracking-widest mt-1">Live Logs</p>
+            </div>
+          </div>
+
+          <div className="flex-1 overflow-y-auto custom-scrollbar pr-2 space-y-4">
+            {portalLogins.length > 0 ? (
+              portalLogins.map((log) => (
+                <div key={log.id} className="p-4 bg-slate-50/60 rounded-2xl border border-slate-100 hover:border-[#008080]/20 transition-all flex flex-col gap-2">
+                  <div className="flex items-start justify-between gap-2">
+                    <div>
+                      <span className="text-xs font-black text-slate-800 uppercase tracking-tight block">
+                        {log.message.replace('<b>Student Portal Login:</b> ', '').replace(' logged into the student dashboard.', '')}
+                      </span>
+                      <span className="text-[9px] font-black text-[#008080] uppercase tracking-widest">
+                        {log.grade} | {log.course}
+                      </span>
+                    </div>
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse mt-1" />
+                  </div>
+                  <div className="flex flex-col gap-0.5 border-t border-slate-100 pt-2 text-[9px] font-black text-slate-400 uppercase tracking-widest">
+                    <div className="flex items-center gap-1.5">
+                      <Clock size={10} className="text-slate-400" />
+                      {new Date(log.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </div>
+                    {log.email && (
+                      <div className="flex items-center gap-1.5 mt-0.5">
+                        <Mail size={10} className="text-slate-400" />
+                        {log.email}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="flex flex-col items-center justify-center h-full text-slate-400 py-10">
+                <Activity size={32} className="mb-2 opacity-20" />
+                <p className="text-[10px] font-black uppercase tracking-widest">No recent logins</p>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>

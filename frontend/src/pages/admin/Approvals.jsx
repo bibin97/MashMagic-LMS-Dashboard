@@ -19,7 +19,6 @@ import { premiumConfirm } from '../../utils/premiumConfirm';
 
 const Approvals = () => {
   const [pendingUsers, setPendingUsers] = useState([]);
-  const [portalLogins, setPortalLogins] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -29,12 +28,8 @@ const Approvals = () => {
   const fetchAllData = async () => {
     setLoading(true);
     try {
-      const [pendingRes, portalRes] = await Promise.all([
-        api.get('/admin/pending-users'),
-        api.get('/admin/student-portal-logins')
-      ]);
+      const pendingRes = await api.get('/admin/pending-users');
       if (pendingRes.data.success) setPendingUsers(pendingRes.data.data);
-      if (portalRes.data.success) setPortalLogins(portalRes.data.data);
     } catch (error) {
       console.error('Error fetching data:', error);
       toast.error("Failed to load dashboard data");
@@ -107,7 +102,7 @@ const Approvals = () => {
               <h2 className="text-4xl font-black text-slate-900 tracking-tighter leading-none mb-3">Verification Hub</h2>
               <p className="text-slate-600 text-[10px] font-black uppercase tracking-[0.2em] flex items-center justify-center md:justify-start gap-3 mt-1">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                Staff Approvals & Portal Activity Monitoring
+                Staff Approvals
               </p>
             </div>
           </div>
@@ -120,17 +115,10 @@ const Approvals = () => {
             </div>
             <Activity className="text-amber-500" size={20} />
           </div>
-          <div className="bg-[#008080] px-8 py-4 rounded-[28px] border border-[#008080] shadow-2xl flex items-center gap-4">
-            <div className="flex flex-col">
-              <span className="text-[10px] font-black text-white/50 uppercase tracking-widest leading-none mb-1">Active Now</span>
-              <span className="text-2xl font-black text-white leading-none">{portalLogins.length}</span>
-            </div>
-            <ArrowUpRight className="text-white" size={20} />
-          </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+      <div className="w-full">
         {/* Pending Approvals Table */}
         <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden flex flex-col">
           <div className="p-8 border-b border-slate-50 flex items-center justify-between bg-slate-50/30">
@@ -182,73 +170,6 @@ const Approvals = () => {
               <div className="flex flex-col items-center justify-center py-20 text-slate-400">
                 <CheckCircle size={32} className="mb-4 opacity-20" />
                 <p className="text-[10px] font-black uppercase tracking-widest">No pending staff</p>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Student Portal Activity (Portal Logins) */}
-        <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden flex flex-col">
-          <div className="p-8 border-b border-slate-50 flex items-center justify-between bg-[#008080]/5">
-            <h3 className="text-xl font-black text-slate-900 tracking-tight flex items-center gap-3">
-              <Activity className="text-[#008080]" />
-              STUDENT PORTAL ACTIVITY
-            </h3>
-            <span className="px-3 py-1 bg-white border border-slate-200 rounded-full text-[10px] font-black text-[#008080] uppercase tracking-widest">
-              Live Logs
-            </span>
-          </div>
-
-          <div className="flex-1 min-h-[400px]">
-            {portalLogins.length > 0 ? (
-              <div className="overflow-x-auto">
-                <table className="w-full text-left">
-                  <tbody className="divide-y divide-slate-50">
-                    {portalLogins.map((log) => (
-                      <tr key={log.id} className="hover:bg-slate-50/50 transition-all group">
-                        <td className="p-6">
-                          <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-[#008080] font-black border border-slate-100">
-                              <User size={20} />
-                            </div>
-                            <div>
-                              <div className="flex items-center gap-2">
-                                <span className="text-sm font-black text-slate-800 block uppercase tracking-tight">
-                                  {log.message.replace('<b>Student Portal Login:</b> ', '').replace(' logged into the student dashboard.', '')}
-                                </span>
-                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                              </div>
-                              <div className="flex items-center gap-3 mt-0.5">
-                                <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1">
-                                  <Calendar size={10} />
-                                  {new Date(log.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                </span>
-                                <span className="text-[9px] font-black text-[#008080] uppercase tracking-widest">
-                                  {log.grade} | {log.course}
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="p-6 text-right">
-                          <div className="flex flex-col items-end gap-1">
-                            <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1">
-                              <Mail size={10} /> {log.email || 'N/A'}
-                            </span>
-                            <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1">
-                              <Phone size={10} /> {log.phone_number || 'N/A'}
-                            </span>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            ) : (
-              <div className="flex flex-col items-center justify-center py-20 text-slate-400">
-                <Activity size={32} className="mb-4 opacity-20" />
-                <p className="text-[10px] font-black uppercase tracking-widest">No recent portal activity</p>
               </div>
             )}
           </div>
