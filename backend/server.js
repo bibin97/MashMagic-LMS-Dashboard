@@ -594,6 +594,17 @@ const startServer = async () => {
                 console.log('ℹ️ Dynamic FK drop info:', fkErr.message);
             }
 
+            // Fallback: Try dropping common constraint names directly to be 100% sure
+            const commonFks = ['timetable_ibfk_1', 'timetable_ibfk_2', 'timetable_ibfk_3', 'timetable_ibfk_4'];
+            for (const fk of commonFks) {
+                try {
+                    await pool.query(`ALTER TABLE timetable DROP FOREIGN KEY ${fk}`);
+                    console.log(`✅ Dropped foreign key constraint by name: ${fk}`);
+                } catch (e) {
+                    // Ignore if constraint does not exist
+                }
+            }
+
             console.log('✅ Database schema is up to date');
         } catch (migErr) {
             console.log('Migration check suppressed:', migErr.message);
