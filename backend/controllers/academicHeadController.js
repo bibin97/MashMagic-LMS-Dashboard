@@ -29,7 +29,7 @@ const getDashboardStats = async (req, res) => {
                 tt.id, tt.start_time, tt.end_time, tt.chapter, tt.status,
                 s.name as student_name, s.subject,
                 u.name as faculty_name
-            FROM mentor_timetable tt
+            FROM timetable tt
             JOIN students s ON tt.student_id = s.id
             LEFT JOIN users u ON s.faculty_id = u.id AND u.role = 'faculty'
             WHERE tt.date = ?
@@ -246,7 +246,7 @@ const getAcademicActions = async (req, res) => {
                 m.name as mentor_name,
                 MAX(e.portions) as portions, MAX(e.chapter) as chapter, 
                 MAX(e.exam_type) as exam_type, MAX(e.scheduled_date) as scheduled_date
-            FROM mentor_timetable r
+            FROM timetable r
             JOIN students s ON r.student_id = s.id
             JOIN users m ON s.mentor_id = m.id AND m.role = 'mentor'
             LEFT JOIN student_exams e ON r.student_id = e.student_id AND r.session_number = e.milestone_session

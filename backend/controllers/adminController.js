@@ -282,7 +282,7 @@ const deleteUser = async (req, res) => {
                 'DELETE FROM faculty_verification WHERE academic_head_id = ? OR faculty_id = ?',
                 'DELETE FROM student_interaction_logs WHERE mentor_id = ?',
                 'DELETE FROM daily_hours_log WHERE mentor_id = ?',
-                'DELETE FROM mentor_timetable WHERE mentor_id = ?',
+                'DELETE FROM timetable WHERE mentor_id = ?',
                 'DELETE FROM notifications WHERE user_id = ?',
                 'DELETE FROM live_class_feedbacks WHERE faculty_id = ?',
                 'DELETE FROM activity_logs WHERE user_id = ?',
@@ -341,7 +341,7 @@ async function cleanupStudentDependencies(studentId) {
         'DELETE FROM session_attendance WHERE student_id = ?',
         'DELETE FROM student_reports WHERE student_id = ?',
         'DELETE FROM live_class_feedbacks WHERE student_id = ?',
-        'DELETE FROM mentor_timetable WHERE student_id = ?',
+        'DELETE FROM timetable WHERE student_id = ?',
         'DELETE FROM student_daily_updates WHERE student_id = ?',
         'DELETE FROM faculty_class_updates WHERE student_id = ?'
     ];
@@ -1399,7 +1399,7 @@ module.exports = {
             
             // 2. Fetch current maximum session count from timetable to find upcoming milestones
             const [rows] = await db.query(
-                'SELECT MAX(session_number) as current_max FROM mentor_timetable WHERE student_id = ? AND status != "Cancelled"',
+                'SELECT MAX(session_number) as current_max FROM timetable WHERE student_id = ? AND status != "Cancelled"',
                 [studentId]
             );
             const currentMax = rows[0]?.current_max || 0;

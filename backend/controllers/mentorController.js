@@ -84,14 +84,14 @@ const getMentorDashboard = async (req, res) => {
         }
 
         const studentCount = await safeQuery('SELECT COUNT(*) as count FROM students WHERE mentor_id = ? AND status != "rejected"', [mentorId], 'studentCount');
-        const sessionCount = await safeQuery('SELECT COUNT(*) as count FROM mentor_timetable WHERE mentor_id = ?', [mentorId], 'sessionCount');
+        const sessionCount = await safeQuery('SELECT COUNT(*) as count FROM timetable WHERE mentor_id = ?', [mentorId], 'sessionCount');
         const pendingTasks = await safeQuery('SELECT COUNT(*) as count FROM tasks WHERE assigned_to = ? AND status != "Completed"', [mentorId], 'pendingTasks');
         const completedTasks = await safeQuery('SELECT COUNT(*) as count FROM tasks WHERE assigned_to = ? AND status = "Completed"', [mentorId], 'completedTasks');
         const studentLogsCount = await safeQuery('SELECT COUNT(*) as count FROM student_interaction_logs WHERE mentor_id = ?', [mentorId], 'studentLogsCount');
 
         const sessionStats = await safeQuery(`
             SELECT 
-                (SELECT COUNT(*) FROM mentor_timetable WHERE mentor_id = ? AND status = 'Completed') as completed_sessions,
+                (SELECT COUNT(*) FROM timetable WHERE mentor_id = ? AND status = 'Completed') as completed_sessions,
                 (SELECT COUNT(*) FROM student_interaction_logs WHERE mentor_id = ?) as student_verified_sessions
         `, [mentorId, mentorId], 'sessionStats');
 
@@ -189,7 +189,7 @@ const getMentorStudents = async (req, res) => {
                  WHERE fs.student_id = s.id),
                 s.faculty_name
             ) as faculty_names,
-            (SELECT COUNT(*) FROM mentor_timetable mt WHERE mt.student_id = s.id AND mt.status != 'Cancelled') as session_count,
+            (SELECT COUNT(*) FROM timetable mt WHERE mt.student_id = s.id AND mt.status != 'Cancelled') as session_count,
             CASE WHEN EXISTS (
                 SELECT 1 FROM student_interaction_logs sil 
                 WHERE sil.student_id = s.id AND sil.date = CURDATE() AND sil.connected_today = TRUE
@@ -222,7 +222,7 @@ const getStudentDetails = async (req, res) => {
             return res.status(404).json({ success: false, message: req.user.role === 'ssc' ? "Student not found" : "Student not found or not assigned to you" });
         }
 
-        const [timetable] = await db.query('SELECT * FROM mentor_timetable WHERE student_id = ? ORDER BY date ASC, start_time ASC', [studentId]);
+        const [timetable] = await db.query('SELECT * FROM timetable WHERE student_id = ? ORDER BY date ASC, start_time ASC', [studentId]);
         
         let studentLogs = [];
         try {
@@ -419,10 +419,10 @@ const getMentorTimetable = async (req, res) => {
         debugInfo += `Query Params: student_id=${student_id}, mentor_id=${mentor_id}, status=${status}, start_date=${start_date}, end_date=${end_date}\n`;
 
         try {
-            const [[totSessions]] = await db.query('SELECT COUNT(*) as cnt FROM mentor_timetable');
-            debugInfo += `Raw rows in mentor_timetable: ${totSessions.cnt}\n`;
+            const [[totSessions]] = await db.query('SELECT COUNT(*) as cnt FROM timetable');
+            debugInfo += `Raw rows in timetable: ${totSessions.cnt}\n`;
         } catch (e) {
-            debugInfo += `Error counting mentor_timetable: ${e.message}\n`;
+            debugInfo += `Error counting timetable: ${e.message}\n`;
         }
 
         try {
@@ -433,7 +433,7 @@ const getMentorTimetable = async (req, res) => {
         }
 
         try {
-            const [sampleSessions] = await db.query('SELECT student_id, mentor_id, date, status FROM mentor_timetable LIMIT 5');
+            const [sampleSessions] = await db.query('SELECT student_id, mentor_id, date, status FROM timetable LIMIT 5');
             debugInfo += `Sample sessions from table: ${JSON.stringify(sampleSessions)}\n`;
         } catch (e) {
             debugInfo += `Error fetching sample sessions: ${e.message}\n`;
@@ -442,7 +442,7 @@ const getMentorTimetable = async (req, res) => {
 
         let query = `
             SELECT t.*, s.name as student_name 
-            FROM mentor_timetable t
+            FROM timetable t
             JOIN students s ON t.student_id = s.id
             WHERE 1=1
         `;
@@ -532,7 +532,7 @@ const createSession = async (req, res) => {
 
         // 1. Conflict Check for Mentor
         const [conflicts] = await db.query(`
-            SELECT id FROM mentor_timetable 
+            SELECT id FROM timetable 
             WHERE mentor_id = ? AND date = ? 
             AND status != 'Cancelled'
             AND (
@@ -546,7 +546,7 @@ const createSession = async (req, res) => {
 
         // 2. Auto-generate Session Number per Student
         const [lastSession] = await db.query(
-            'SELECT MAX(session_number) as lastNum FROM mentor_timetable WHERE student_id = ?',
+            'SELECT MAX(session_number) as lastNum FROM timetable WHERE student_id = ?',
             [student_id]
         );
         const session_number = (lastSession[0].lastNum || 0) + 1;
@@ -559,7 +559,7 @@ const createSession = async (req, res) => {
         const duration = `${Math.floor(diffMins / 60)}h ${diffMins % 60}m`;
 
         const [result] = await db.query(`
-            INSERT INTO mentor_timetable (
+            INSERT INTO timetable (
                 mentor_id, student_id, session_number, date, start_time, end_time,
                 duration, chapter, session_type, status, status_reason, notes, 
                 faculty_id, faculty_name, session_mode
@@ -593,7 +593,7 @@ const updateSession = async (req, res) => {
         const formattedEndTime = convertTo24Hour(end_time);
 
         // Get existing session to find the mentor_id
-        const [[existingSession]] = await db.query('SELECT mentor_id FROM mentor_timetable WHERE id = ?', [sessionId]);
+        const [[existingSession]] = await db.query('SELECT mentor_id FROM timetable WHERE id = ?', [sessionId]);
         if (!existingSession) {
             return res.status(404).json({ success: false, message: "Session not found" });
         }
@@ -602,7 +602,7 @@ const updateSession = async (req, res) => {
 
         // Conflict check excluding current session
         const [conflicts] = await db.query(`
-            SELECT id FROM mentor_timetable 
+            SELECT id FROM timetable 
             WHERE mentor_id = ? AND date = ? AND id != ?
             AND status != 'Cancelled'
             AND (
@@ -622,7 +622,7 @@ const updateSession = async (req, res) => {
         const duration = `${Math.floor(diffMins / 60)}h ${diffMins % 60}m`;
 
         let query = `
-            UPDATE mentor_timetable 
+            UPDATE timetable 
             SET date = ?, start_time = ?, end_time = ?, duration = ?, chapter = ?, 
                 session_type = ?, status = ?, status_reason = ?, notes = ?,
                 faculty_id = ?, faculty_name = ?, session_mode = ?
@@ -655,7 +655,7 @@ const deleteSession = async (req, res) => {
         const loggedInUserRole = req.user.role;
         const sessionId = req.params.id;
 
-        let query = 'DELETE FROM mentor_timetable WHERE id = ?';
+        let query = 'DELETE FROM timetable WHERE id = ?';
         let params = [sessionId];
 
         if (loggedInUserRole === 'mentor') {
@@ -856,7 +856,7 @@ const createBatchTimetable = async (req, res) => {
 
         // 1. Get starting session number
         const [lastSession] = await connection.query(
-            'SELECT MAX(session_number) as lastNum FROM mentor_timetable WHERE student_id = ?',
+            'SELECT MAX(session_number) as lastNum FROM timetable WHERE student_id = ?',
             [student_id]
         );
         let currentSessionNum = (lastSession[0].lastNum || 0) + 1;
@@ -876,7 +876,7 @@ const createBatchTimetable = async (req, res) => {
             const duration = `${Math.floor(diffMins / 60)}h ${diffMins % 60}m`;
 
             await connection.query(`
-                INSERT INTO mentor_timetable (
+                INSERT INTO timetable (
                     mentor_id, student_id, session_number, date, start_time, end_time,
                     duration, chapter, session_type, status, notes, 
                     faculty_id, faculty_name, session_mode
@@ -918,7 +918,7 @@ const getPendingExams = async (req, res) => {
         const [students] = await db.query('SELECT id, name FROM students WHERE mentor_id = ? AND status != "rejected"', [mentorId]);
         let pendingExams = [];
         for (const student of students) {
-            const [rows] = await db.query('SELECT MAX(session_number) as current_max FROM mentor_timetable WHERE student_id = ? AND status != "Cancelled"', [student.id]);
+            const [rows] = await db.query('SELECT MAX(session_number) as current_max FROM timetable WHERE student_id = ? AND status != "Cancelled"', [student.id]);
             const currentMax = rows[0].current_max || 0;
             for (let milestone = 5; milestone <= currentMax; milestone += 5) {
                 const [existing] = await db.query('SELECT id, status, score, chapter, portions, exam_type, scheduled_date FROM student_exams WHERE student_id = ? AND milestone_session = ?', [student.id, milestone]);

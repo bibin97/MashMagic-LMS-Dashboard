@@ -110,7 +110,7 @@ const syncStudentsOnStart = async () => {
                     'DELETE FROM session_attendance WHERE student_id = ?',
                     'DELETE FROM student_reports WHERE student_id = ?',
                     'DELETE FROM live_class_feedbacks WHERE student_id = ?',
-                    'DELETE FROM mentor_timetable WHERE student_id = ?',
+                    'DELETE FROM timetable WHERE student_id = ?',
                     'DELETE FROM student_daily_updates WHERE student_id = ?',
                     'DELETE FROM faculty_class_updates WHERE student_id = ?',
                     'DELETE FROM faculty_schedules WHERE student_id = ?'
@@ -131,15 +131,15 @@ const syncStudentsOnStart = async () => {
             }
         }
 
-        // 3. Sync mentor_id in mentor_timetable with the current student's mentor_id
+        // 3. Sync mentor_id in timetable with the current student's mentor_id
         const [timetableSyncRes] = await pool.query(`
-            UPDATE mentor_timetable t
+            UPDATE timetable t
             JOIN students s ON t.student_id = s.id
             SET t.mentor_id = s.mentor_id
             WHERE t.mentor_id IS NULL OR t.mentor_id != s.mentor_id
         `);
         if (timetableSyncRes.affectedRows > 0) {
-            console.log(`✅ Synchronized mentor_id for ${timetableSyncRes.affectedRows} sessions in mentor_timetable.`);
+            console.log(`✅ Synchronized mentor_id for ${timetableSyncRes.affectedRows} sessions in timetable.`);
         }
 
         console.log('✅ Student synchronization and cleanup complete');

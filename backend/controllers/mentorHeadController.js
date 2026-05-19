@@ -1014,7 +1014,7 @@ exports.shiftStudent = async (req, res) => {
         // while the student_id keeps it tied to the student's history.
         await db.query('UPDATE student_interaction_logs SET mentor_id = ? WHERE student_id = ?', [newMentorId, studentId]);
         await db.query('UPDATE faculty_interaction_logs SET mentor_id = ? WHERE student_id = ?', [newMentorId, studentId]);
-        await db.query('UPDATE mentor_timetable SET mentor_id = ? WHERE student_id = ?', [newMentorId, studentId]);
+        await db.query('UPDATE timetable SET mentor_id = ? WHERE student_id = ?', [newMentorId, studentId]);
         await db.query('UPDATE daily_hours_log SET mentor_id = ? WHERE student_id = ?', [newMentorId, studentId]);
 
         // Notify

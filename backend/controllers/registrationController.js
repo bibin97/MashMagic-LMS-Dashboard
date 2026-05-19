@@ -52,7 +52,7 @@ const registerStudent = async (req, res) => {
             studentId
         ]);
 
-        // Automatically insert initial session into mentor_timetable if mentor exists
+        // Automatically insert initial session into timetable if mentor exists
         if (mentor_name) {
             // Attempt to find user id for this mentor name
             const [mentorUsers] = await db.query('SELECT id FROM users WHERE name = ? AND role = "mentor" LIMIT 1', [mentor_name]);
@@ -65,7 +65,7 @@ const registerStudent = async (req, res) => {
 
                 // Insert a placeholder "Scheduled" session
                 await db.query(`
-                    INSERT INTO mentor_timetable (
+                    INSERT INTO timetable (
                         mentor_id, student_id, session_number, date, status, 
                         chapter, start_time, end_time, duration, session_type
                     ) VALUES (?, ?, ?, CURDATE(), ?, ?, ?, ?, ?, ?)
