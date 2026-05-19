@@ -703,50 +703,6 @@ const CommonInteractionLogs = ({ role }) => {
                                 </button>
                             )}
                         </div>
-
-                        {(role === 'super_admin' || role === 'mentor_head') && (
-                            <div className="flex flex-wrap items-center gap-4">
-                                {/* Sort Controls */}
-                                <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-2xl border border-slate-100 shadow-sm">
-                                    <span className="text-[9px] font-black uppercase text-slate-400 tracking-wider mr-2">Sort</span>
-                                    <button 
-                                        onClick={() => setSortOrder('newest')}
-                                        className={`px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-wider transition-all ${sortOrder === 'newest' ? 'bg-[#008080]/15 text-[#008080] border border-[#008080]/20' : 'text-slate-400 hover:text-slate-600 border border-transparent'}`}
-                                    >
-                                        Newest
-                                    </button>
-                                    <button 
-                                        onClick={() => setSortOrder('oldest')}
-                                        className={`px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-wider transition-all ${sortOrder === 'oldest' ? 'bg-[#008080]/15 text-[#008080] border border-[#008080]/20' : 'text-slate-400 hover:text-slate-600 border border-transparent'}`}
-                                    >
-                                        Oldest
-                                    </button>
-                                </div>
-
-                                {/* Staff Type Controls */}
-                                <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-2xl border border-slate-100 shadow-sm">
-                                    <span className="text-[9px] font-black uppercase text-slate-400 tracking-wider mr-2">Conducted By</span>
-                                    <button 
-                                        onClick={() => setStaffTypeFilter('all')}
-                                        className={`px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-wider transition-all ${staffTypeFilter === 'all' ? 'bg-slate-900 text-white shadow-md' : 'text-slate-400 hover:text-slate-600'}`}
-                                    >
-                                        All
-                                    </button>
-                                    <button 
-                                        onClick={() => setStaffTypeFilter('mentor')}
-                                        className={`px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-wider transition-all ${staffTypeFilter === 'mentor' ? 'bg-slate-900 text-white shadow-md' : 'text-slate-400 hover:text-slate-600'}`}
-                                    >
-                                        Mentors
-                                    </button>
-                                    <button 
-                                        onClick={() => setStaffTypeFilter('faculty')}
-                                        className={`px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-wider transition-all ${staffTypeFilter === 'faculty' ? 'bg-slate-900 text-white shadow-md' : 'text-slate-400 hover:text-slate-600'}`}
-                                    >
-                                        Faculties
-                                    </button>
-                                </div>
-                            </div>
-                        )}
                     </div>
  
                     <div className="grid grid-cols-1 gap-6">

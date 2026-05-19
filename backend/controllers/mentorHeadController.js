@@ -151,7 +151,7 @@ exports.getStudentInteractionLogs = async (req, res) => {
             SELECT * FROM (
                 SELECT 
                     sil.id, sil.created_at, sil.mentor_id, sil.student_id,
-                    m.name as mentor_name, s.name as student_name,
+                    COALESCE(m.name, u.name) as mentor_name, s.name as student_name,
                     CONVERT('Quick Log' USING utf8mb4) COLLATE utf8mb4_unicode_ci as source,
                     'QUICK' as session_type,
                     CONVERT(sil.mentor_notes USING utf8mb4) COLLATE utf8mb4_unicode_ci as notes,
@@ -177,15 +177,16 @@ exports.getStudentInteractionLogs = async (req, res) => {
                         'connected_today', sil.connected_today
                     ) as report_data
                 FROM student_interaction_logs sil
-                LEFT JOIN users m ON sil.mentor_id = m.id
+                LEFT JOIN users u ON sil.mentor_id = u.id AND u.role = 'mentor'
+                LEFT JOIN mentors m ON (sil.mentor_id = m.id OR (u.id IS NOT NULL AND (m.phone_number = u.email OR m.email = u.email OR m.name = u.name)))
                 LEFT JOIN students s ON sil.student_id = s.id
                 ${baseWhere('sil')}
-
+ 
                 UNION ALL
-
+ 
                 SELECT 
                     msl.id, msl.created_at, msl.mentor_id, msl.student_id,
-                    m.name as mentor_name, s.name as student_name,
+                    COALESCE(m.name, u.name) as mentor_name, s.name as student_name,
                     CONVERT('Session Log' USING utf8mb4) COLLATE utf8mb4_unicode_ci as source,
                     'MEDIUM' as session_type,
                     CONVERT(CONCAT(msl.main_issue, ': ', msl.action_type) USING utf8mb4) COLLATE utf8mb4_unicode_ci as notes,
@@ -218,15 +219,16 @@ exports.getStudentInteractionLogs = async (req, res) => {
                         'session_quality_rating', msl.session_quality_rating
                     ) as report_data
                 FROM mentor_session_logs msl
-                LEFT JOIN users m ON msl.mentor_id = m.id
+                LEFT JOIN users u ON msl.mentor_id = u.id AND u.role = 'mentor'
+                LEFT JOIN mentors m ON (msl.mentor_id = m.id OR (u.id IS NOT NULL AND (m.phone_number = u.email OR m.email = u.email OR m.name = u.name)))
                 LEFT JOIN students s ON msl.student_id = s.id
                 ${baseWhere('msl', 'student_id', 'mentor_id', 'created_at')}
-
+ 
                 UNION ALL
-
+ 
                 SELECT 
                     msr.id, msr.created_at, msr.mentor_id, msr.student_id,
-                    m.name as mentor_name, s.name as student_name,
+                    COALESCE(m.name, u.name) as mentor_name, s.name as student_name,
                     CONVERT(CONCAT('Hub: ', msr.session_type) USING utf8mb4) as source,
                     msr.session_type as session_type,
                     CONVERT(COALESCE(JSON_UNQUOTE(JSON_EXTRACT(msr.report_data, '$.notes')), msr.session_type) USING utf8mb4) as notes,
@@ -236,15 +238,16 @@ exports.getStudentInteractionLogs = async (req, res) => {
                     msr.is_flagged, msr.flag_reason,
                     msr.report_data as report_data
                 FROM mentor_session_reports msr
-                LEFT JOIN users m ON msr.mentor_id = m.id
+                LEFT JOIN users u ON msr.mentor_id = u.id AND u.role = 'mentor'
+                LEFT JOIN mentors m ON (msr.mentor_id = m.id OR (u.id IS NOT NULL AND (m.phone_number = u.email OR m.email = u.email OR m.name = u.name)))
                 LEFT JOIN students s ON msr.student_id = s.id
                 ${baseWhere('msr', 'student_id', 'mentor_id', 'created_at')}
-
+ 
                 UNION ALL
-
+ 
                 SELECT 
                     ml.id, ml.created_at, ml.mentor_id, ml.student_id,
-                    m.name as mentor_name, s.name as student_name,
+                    COALESCE(m.name, u.name) as mentor_name, s.name as student_name,
                     CONVERT('Mentorship' USING utf8mb4) as source,
                     'DEEP' as session_type,
                     CONVERT(ml.action_details USING utf8mb4) as notes,
@@ -267,7 +270,8 @@ exports.getStudentInteractionLogs = async (req, res) => {
                         'student_status', ml.student_status
                     ) as report_data
                 FROM mentorship_logs ml
-                LEFT JOIN users m ON ml.mentor_id = m.id
+                LEFT JOIN users u ON ml.mentor_id = u.id AND u.role = 'mentor'
+                LEFT JOIN mentors m ON (ml.mentor_id = m.id OR (u.id IS NOT NULL AND (m.phone_number = u.email OR m.email = u.email OR m.name = u.name)))
                 LEFT JOIN students s ON ml.student_id = s.id
                 ${baseWhere('ml', 'student_id', 'mentor_id', 'created_at')}
             ) as unified_logs

@@ -381,7 +381,7 @@ const getAllStudentLogs = async (req, res) => {
             SELECT 
                 CONVERT('Interaction Hub' USING utf8mb4) COLLATE utf8mb4_unicode_ci as source,
                 r.id, r.mentor_id, r.student_id, r.created_at,
-                CONVERT(m.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as mentor_name, 
+                CONVERT(COALESCE(m.name, u.name) USING utf8mb4) COLLATE utf8mb4_unicode_ci as mentor_name, 
                 CONVERT(s.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as student_name,
                 CAST(r.session_type AS CHAR) as session_number,
                 CONVERT(r.session_type USING utf8mb4) COLLATE utf8mb4_unicode_ci as session_type,
@@ -401,7 +401,8 @@ const getAllStudentLogs = async (req, res) => {
                 NULL as screenshot_url,
                 r.report_data as report_data
             FROM mentor_session_reports r
-            LEFT JOIN users m ON r.mentor_id = m.id
+            LEFT JOIN users u ON r.mentor_id = u.id AND u.role = 'mentor'
+            LEFT JOIN mentors m ON (r.mentor_id = m.id OR (u.id IS NOT NULL AND (m.phone_number = u.email OR m.email = u.email OR m.name = u.name)))
             JOIN students s ON r.student_id = s.id
             ${whereClause.replace(/student_id/g, 'r.student_id').replace(/mentor_id/g, 'r.mentor_id').replace(/created_at/g, 'r.created_at')}
 
@@ -410,7 +411,7 @@ const getAllStudentLogs = async (req, res) => {
             SELECT 
                 CONVERT('Session Log' USING utf8mb4) COLLATE utf8mb4_unicode_ci as source,
                 l.id, l.mentor_id, l.student_id, l.created_at,
-                CONVERT(m.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as mentor_name, 
+                CONVERT(COALESCE(m.name, u.name) USING utf8mb4) COLLATE utf8mb4_unicode_ci as mentor_name, 
                 CONVERT(s.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as student_name,
                 CONVERT('S-Log' USING utf8mb4) COLLATE utf8mb4_unicode_ci as session_number,
                 CONVERT('MEDIUM' USING utf8mb4) COLLATE utf8mb4_unicode_ci as session_type,
@@ -446,7 +447,8 @@ const getAllStudentLogs = async (req, res) => {
                     'session_quality_rating', l.session_quality_rating
                 ) as report_data
             FROM mentor_session_logs l
-            LEFT JOIN users m ON l.mentor_id = m.id
+            LEFT JOIN users u ON l.mentor_id = u.id AND u.role = 'mentor'
+            LEFT JOIN mentors m ON (l.mentor_id = m.id OR (u.id IS NOT NULL AND (m.phone_number = u.email OR m.email = u.email OR m.name = u.name)))
             JOIN students s ON l.student_id = s.id
             ${whereClause.replace(/student_id/g, 'l.student_id').replace(/mentor_id/g, 'l.mentor_id').replace(/created_at/g, 'l.created_at')}
 
@@ -455,7 +457,7 @@ const getAllStudentLogs = async (req, res) => {
             SELECT 
                 CONVERT('Quick Log' USING utf8mb4) COLLATE utf8mb4_unicode_ci as source,
                 logs.id, logs.mentor_id, logs.student_id, logs.created_at,
-                CONVERT(m.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as mentor_name, 
+                CONVERT(COALESCE(m.name, u.name) USING utf8mb4) COLLATE utf8mb4_unicode_ci as mentor_name, 
                 CONVERT(s.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as student_name,
                 CONVERT('Q-Log' USING utf8mb4) COLLATE utf8mb4_unicode_ci as session_number,
                 CONVERT('QUICK' USING utf8mb4) COLLATE utf8mb4_unicode_ci as session_type,
@@ -476,15 +478,16 @@ const getAllStudentLogs = async (req, res) => {
                     'revision_quality', logs.revision_quality,
                     'confidence', logs.confidence,
                     'motivation_level', logs.motivation_level,
-                    'exam_anxiety', logs.exam_anxiety,
                     'focus_level', logs.focus_level,
+                    'exam_anxiety', logs.exam_anxiety,
                     'student_requests', logs.student_requests,
                     'parent_update_priority', logs.parent_update_priority,
                     'mentor_action_needed', logs.mentor_action_needed,
                     'connected_today', logs.connected_today
                 ) as report_data
             FROM student_interaction_logs logs
-            LEFT JOIN users m ON logs.mentor_id = m.id
+            LEFT JOIN users u ON logs.mentor_id = u.id AND u.role = 'mentor'
+            LEFT JOIN mentors m ON (logs.mentor_id = m.id OR (u.id IS NOT NULL AND (m.phone_number = u.email OR m.email = u.email OR m.name = u.name)))
             JOIN students s ON logs.student_id = s.id
             ${whereClause.replace(/student_id/g, 'logs.student_id').replace(/mentor_id/g, 'logs.mentor_id').replace(/created_at/g, 'logs.created_at')}
 
@@ -493,7 +496,7 @@ const getAllStudentLogs = async (req, res) => {
             SELECT 
                 CONVERT('Mentorship' USING utf8mb4) COLLATE utf8mb4_unicode_ci as source,
                 ml.id, ml.mentor_id, ml.student_id, ml.created_at,
-                CONVERT(m.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as mentor_name, 
+                CONVERT(COALESCE(m.name, u.name) USING utf8mb4) COLLATE utf8mb4_unicode_ci as mentor_name, 
                 CONVERT(s.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as student_name,
                 CONVERT('M-Log' USING utf8mb4) COLLATE utf8mb4_unicode_ci as session_number,
                 'DEEP' as session_type,
@@ -521,7 +524,8 @@ const getAllStudentLogs = async (req, res) => {
                     'student_status', ml.student_status
                 ) as report_data
             FROM mentorship_logs ml
-            LEFT JOIN users m ON ml.mentor_id = m.id
+            LEFT JOIN users u ON ml.mentor_id = u.id AND u.role = 'mentor'
+            LEFT JOIN mentors m ON (ml.mentor_id = m.id OR (u.id IS NOT NULL AND (m.phone_number = u.email OR m.email = u.email OR m.name = u.name)))
             JOIN students s ON ml.student_id = s.id
             ${whereClause.replace(/student_id/g, 'ml.student_id').replace(/mentor_id/g, 'ml.mentor_id').replace(/created_at/g, 'ml.created_at')}
 
