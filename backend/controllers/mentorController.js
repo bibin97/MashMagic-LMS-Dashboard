@@ -485,8 +485,9 @@ const createSession = async (req, res) => {
         if (!studentObj) {
             return res.status(404).json({ success: false, message: "Student not found" });
         }
-        // Fallback to loggedInUserId (e.g. the SSC/Admin creating it) if mentor_id is null to prevent DB errors
-        const targetMentorId = studentObj.mentor_id || loggedInUserId;
+        // Use student's actual mentor_id; do NOT fallback to SSC/admin user ID
+        // as that would violate FK constraints on mentor_id column
+        const targetMentorId = studentObj.mentor_id || null;
 
         // 1. Conflict Check for Mentor
         const [conflicts] = await db.query(`
@@ -525,7 +526,7 @@ const createSession = async (req, res) => {
         `, [
             targetMentorId, student_id, session_number, date, formattedStartTime, formattedEndTime,
             duration, chapter, session_type, status || 'Scheduled', status_reason, notes,
-            faculty_id || null, faculty_name || null, session_mode || 'Online'
+            (faculty_id ? parseInt(faculty_id) : null), faculty_name || null, session_mode || 'Online'
         ]);
 
         res.status(201).json({ success: true, message: "Session created successfully", id: result.insertId });
@@ -555,8 +556,8 @@ const updateSession = async (req, res) => {
         if (!existingSession) {
             return res.status(404).json({ success: false, message: "Session not found" });
         }
-        // Fallback to loggedInUserId if mentor_id is null
-        const targetMentorId = existingSession.mentor_id || loggedInUserId;
+        // Keep existing mentor_id; do not replace with SSC/admin ID
+        const targetMentorId = existingSession.mentor_id || null;
 
         // Conflict check excluding current session
         const [conflicts] = await db.query(`
@@ -810,7 +811,9 @@ const createBatchTimetable = async (req, res) => {
             return res.status(404).json({ success: false, message: "Student not found" });
         }
 
-        const actualMentorId = studentObj.mentor_id || loggedInUserId;
+        // Use student's actual mentor_id; do NOT fallback to SSC/admin user ID
+        // as that would violate FK constraints on mentor_id column
+        const actualMentorId = studentObj.mentor_id || null;
 
         // 1. Get starting session number
         const [lastSession] = await connection.query(
@@ -842,7 +845,7 @@ const createBatchTimetable = async (req, res) => {
             `, [
                 actualMentorId, student_id, currentSessionNum++, date, formattedStartTime, formattedEndTime,
                 duration, chapter, session_type || 'Regular Class', notes || '',
-                faculty_id || null, faculty_name || null, session_mode || 'Online'
+                (faculty_id ? parseInt(faculty_id) : null), faculty_name || null, session_mode || 'Online'
             ]);
         }
 
