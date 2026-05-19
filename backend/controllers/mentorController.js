@@ -527,7 +527,8 @@ const createSession = async (req, res) => {
         if (!studentObj) {
             return res.status(404).json({ success: false, message: "Student not found" });
         }
-        const targetMentorId = studentObj.mentor_id;
+        // Fallback to loggedInUserId (e.g. the SSC/Admin creating it) if mentor_id is null to prevent DB errors
+        const targetMentorId = studentObj.mentor_id || loggedInUserId;
 
         // 1. Conflict Check for Mentor
         const [conflicts] = await db.query(`
@@ -596,7 +597,8 @@ const updateSession = async (req, res) => {
         if (!existingSession) {
             return res.status(404).json({ success: false, message: "Session not found" });
         }
-        const targetMentorId = existingSession.mentor_id;
+        // Fallback to loggedInUserId if mentor_id is null
+        const targetMentorId = existingSession.mentor_id || loggedInUserId;
 
         // Conflict check excluding current session
         const [conflicts] = await db.query(`
