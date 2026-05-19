@@ -56,6 +56,10 @@ const register = async (req, res) => {
             status = 'active';
             isApproved = 1;
             isActive = 1;
+        } else if (finalRole === 'student') {
+            status = 'active';
+            isApproved = 1;
+            isActive = 1;
         }
 
         const userPayload = {
@@ -94,7 +98,7 @@ const register = async (req, res) => {
         res.status(201).json({
             success: true,
             message: status === 'active'
-                ? "Super Admin created successfully."
+                ? (finalRole === 'super_admin' ? "Super Admin created successfully." : `${finalRole.replace('_', ' ')} registered successfully.`)
                 : `${finalRole.replace('_', ' ')} registration request submitted. Please wait for Admin approval.`,
             userId,
             role: finalRole,
