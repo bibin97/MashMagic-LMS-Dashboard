@@ -401,7 +401,7 @@ const getAllStudentLogs = async (req, res) => {
                 NULL as screenshot_url,
                 r.report_data as report_data
             FROM mentor_session_reports r
-            LEFT JOIN users m ON r.mentor_id = m.id AND m.role = 'mentor'
+            LEFT JOIN users m ON r.mentor_id = m.id
             JOIN students s ON r.student_id = s.id
             ${whereClause.replace(/student_id/g, 'r.student_id').replace(/mentor_id/g, 'r.mentor_id').replace(/created_at/g, 'r.created_at')}
 
@@ -423,7 +423,7 @@ const getAllStudentLogs = async (req, res) => {
                 NULL as screenshot_url,
                 NULL as report_data
             FROM mentor_session_logs l
-            LEFT JOIN users m ON l.mentor_id = m.id AND m.role = 'mentor'
+            LEFT JOIN users m ON l.mentor_id = m.id
             JOIN students s ON l.student_id = s.id
             ${whereClause.replace(/student_id/g, 'l.student_id').replace(/mentor_id/g, 'l.mentor_id').replace(/created_at/g, 'l.created_at')}
 
@@ -445,7 +445,7 @@ const getAllStudentLogs = async (req, res) => {
                 CONVERT(logs.screenshot_url USING utf8mb4) COLLATE utf8mb4_unicode_ci as screenshot_url,
                 NULL as report_data
             FROM student_interaction_logs logs
-            LEFT JOIN users m ON logs.mentor_id = m.id AND m.role = 'mentor'
+            LEFT JOIN users m ON logs.mentor_id = m.id
             JOIN students s ON logs.student_id = s.id
             ${whereClause.replace(/student_id/g, 'logs.student_id').replace(/mentor_id/g, 'logs.mentor_id').replace(/created_at/g, 'logs.created_at')}
 
@@ -467,7 +467,7 @@ const getAllStudentLogs = async (req, res) => {
                 NULL as screenshot_url,
                 NULL as report_data
             FROM mentorship_logs ml
-            LEFT JOIN users m ON ml.mentor_id = m.id AND m.role = 'mentor'
+            LEFT JOIN users m ON ml.mentor_id = m.id
             JOIN students s ON ml.student_id = s.id
             ${whereClause.replace(/student_id/g, 'ml.student_id').replace(/mentor_id/g, 'ml.mentor_id').replace(/created_at/g, 'ml.created_at')}
 

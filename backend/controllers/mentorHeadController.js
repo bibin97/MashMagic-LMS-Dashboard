@@ -161,7 +161,7 @@ exports.getStudentInteractionLogs = async (req, res) => {
                     0 as is_flagged, NULL as flag_reason,
                     NULL as report_data
                 FROM student_interaction_logs sil
-                LEFT JOIN users m ON sil.mentor_id = m.id AND m.role = 'mentor'
+                LEFT JOIN users m ON sil.mentor_id = m.id
                 LEFT JOIN students s ON sil.student_id = s.id
                 ${baseWhere('sil')}
 
@@ -179,7 +179,7 @@ exports.getStudentInteractionLogs = async (req, res) => {
                     0 as is_flagged, NULL as flag_reason,
                     NULL as report_data
                 FROM mentor_session_logs msl
-                LEFT JOIN users m ON msl.mentor_id = m.id AND m.role = 'mentor'
+                LEFT JOIN users m ON msl.mentor_id = m.id
                 LEFT JOIN students s ON msl.student_id = s.id
                 ${baseWhere('msl', 'student_id', 'mentor_id', 'created_at')}
 
@@ -197,7 +197,7 @@ exports.getStudentInteractionLogs = async (req, res) => {
                     msr.is_flagged, msr.flag_reason,
                     msr.report_data as report_data
                 FROM mentor_session_reports msr
-                LEFT JOIN users m ON msr.mentor_id = m.id AND m.role = 'mentor'
+                LEFT JOIN users m ON msr.mentor_id = m.id
                 LEFT JOIN students s ON msr.student_id = s.id
                 ${baseWhere('msr', 'student_id', 'mentor_id', 'created_at')}
 
@@ -213,7 +213,7 @@ exports.getStudentInteractionLogs = async (req, res) => {
                     0 as is_flagged, NULL as flag_reason,
                     NULL as report_data
                 FROM mentorship_logs ml
-                LEFT JOIN users m ON ml.mentor_id = m.id AND m.role = 'mentor'
+                LEFT JOIN users m ON ml.mentor_id = m.id
                 LEFT JOIN students s ON ml.student_id = s.id
                 ${baseWhere('ml', 'student_id', 'mentor_id', 'created_at')}
             ) as unified_logs

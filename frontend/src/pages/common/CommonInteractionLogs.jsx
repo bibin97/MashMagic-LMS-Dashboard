@@ -60,6 +60,8 @@ const CommonInteractionLogs = ({ role }) => {
     const [listCustomRange, setListCustomRange] = useState({ start: '', end: '' });
     const [showListFilter, setShowListFilter] = useState(false);
     const [selectedLogTab, setSelectedLogTab] = useState('ALL');
+    const [sortOrder, setSortOrder] = useState('newest'); // 'newest' or 'oldest'
+    const [staffTypeFilter, setStaffTypeFilter] = useState('all'); // 'all', 'mentor', 'faculty'
 
     // Dynamic API prefix based on role
     const getApiPrefix = () => {
@@ -72,7 +74,11 @@ const CommonInteractionLogs = ({ role }) => {
 
     const groupLogsByDate = (logsList) => {
         const groups = {};
-        const sorted = [...logsList].sort((a, b) => new Date(a.created_at || a.date) - new Date(b.created_at || b.date));
+        const sorted = [...logsList].sort((a, b) => {
+            const dateA = new Date(a.created_at || a.date).getTime();
+            const dateB = new Date(b.created_at || b.date).getTime();
+            return sortOrder === 'newest' ? dateB - dateA : dateA - dateB;
+        });
         
         sorted.forEach(log => {
             const d = new Date(log.created_at || log.date);
@@ -85,6 +91,22 @@ const CommonInteractionLogs = ({ role }) => {
             groups[groupKey].push(log);
         });
         return groups;
+    };
+
+    const isConductedByMentor = (log) => {
+        if (activeTab === 'faculty') {
+            return !!log.mentor_name;
+        }
+        if (!log.mentor_name) return false;
+        return mentors.some(m => m.name && m.name.toLowerCase() === log.mentor_name.toLowerCase());
+    };
+
+    const isConductedByFaculty = (log) => {
+        if (activeTab === 'faculty') {
+            return !log.mentor_name && !!log.faculty_name;
+        }
+        if (!log.mentor_name) return false;
+        return !mentors.some(m => m.name && m.name.toLowerCase() === log.mentor_name.toLowerCase());
     };
 
     useEffect(() => {
@@ -287,6 +309,8 @@ const CommonInteractionLogs = ({ role }) => {
         setDateFilter('all');
         setCustomRange({ start: '', end: '' });
         setMentorFilter('all');
+        setSortOrder('newest');
+        setStaffTypeFilter('all');
         setShowFilterPanel(false);
     };
 
@@ -532,7 +556,7 @@ const CommonInteractionLogs = ({ role }) => {
                         Custom Filter
                     </button>
                     
-                    { (dateFilter !== 'all' || mentorFilter !== 'all') && (
+                    { (dateFilter !== 'all' || mentorFilter !== 'all' || sortOrder !== 'newest' || staffTypeFilter !== 'all') && (
                         <button 
                             onClick={resetFilters}
                             className="flex items-center gap-2 px-4 py-4 rounded-[1.5rem] bg-rose-50 text-rose-600 border border-rose-100 text-[9px] font-black uppercase tracking-widest hover:bg-rose-600 hover:text-white transition-all"
@@ -599,43 +623,94 @@ const CommonInteractionLogs = ({ role }) => {
                 </div>
             ) : logs.length > 0 ? (
                 <div className="space-y-10">
-                    {/* Interaction Type Tabs */}
-                    <div className="flex gap-4 bg-slate-100/50 p-2 rounded-[2rem] w-fit">
-                        {['ALL', 'QUICK', 'MEDIUM', 'DEEP'].map(tab => (
-                            <button
-                                key={tab}
-                                onClick={() => setSelectedLogTab(tab)}
-                                className={`px-10 py-4 rounded-[1.5rem] font-black text-xs uppercase tracking-[0.2em] transition-all ${
-                                    selectedLogTab === tab 
-                                    ? 'bg-slate-900 text-white shadow-xl scale-105' 
-                                    : 'text-slate-400 hover:text-slate-600'
-                                }`}
-                            >
-                                {tab}
-                            </button>
-                        ))}
-                        {logs.some(l => !['QUICK', 'MEDIUM', 'DEEP'].includes((l.session_type || l.type || l.source || '').toUpperCase())) && (
-                            <button
-                                onClick={() => setSelectedLogTab('OTHERS')}
-                                className={`px-10 py-4 rounded-[1.5rem] font-black text-xs uppercase tracking-[0.2em] transition-all ${
-                                    selectedLogTab === 'OTHERS' 
-                                    ? 'bg-slate-900 text-white shadow-xl scale-105' 
-                                    : 'text-slate-400 hover:text-slate-600'
-                                }`}
-                            >
-                                OTHERS
-                            </button>
+                    {/* Interaction Type Tabs and Sort/Filter Controls */}
+                    <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 bg-slate-50 p-4 rounded-[2.5rem]">
+                        <div className="flex flex-wrap gap-3 bg-white p-2 rounded-[2rem] shadow-sm w-fit border border-slate-100">
+                            {['ALL', 'QUICK', 'MEDIUM', 'DEEP'].map(tab => (
+                                <button
+                                    key={tab}
+                                    onClick={() => setSelectedLogTab(tab)}
+                                    className={`px-8 py-3 rounded-[1.5rem] font-black text-[10px] uppercase tracking-[0.15em] transition-all ${
+                                        selectedLogTab === tab 
+                                        ? 'bg-slate-900 text-white shadow-md scale-105' 
+                                        : 'text-slate-400 hover:text-slate-600'
+                                    }`}
+                                >
+                                    {tab}
+                                </button>
+                            ))}
+                            {logs.some(l => !['QUICK', 'MEDIUM', 'DEEP'].includes((l.session_type || l.type || l.source || '').toUpperCase())) && (
+                                <button
+                                    onClick={() => setSelectedLogTab('OTHERS')}
+                                    className={`px-8 py-3 rounded-[1.5rem] font-black text-[10px] uppercase tracking-[0.15em] transition-all ${
+                                        selectedLogTab === 'OTHERS' 
+                                        ? 'bg-slate-900 text-white shadow-md scale-105' 
+                                        : 'text-slate-400 hover:text-slate-600'
+                                    }`}
+                                >
+                                    OTHERS
+                                </button>
+                            )}
+                        </div>
+
+                        {(role === 'super_admin' || role === 'mentor_head') && (
+                            <div className="flex flex-wrap items-center gap-4">
+                                {/* Sort Controls */}
+                                <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-2xl border border-slate-100 shadow-sm">
+                                    <span className="text-[9px] font-black uppercase text-slate-400 tracking-wider mr-2">Sort</span>
+                                    <button 
+                                        onClick={() => setSortOrder('newest')}
+                                        className={`px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-wider transition-all ${sortOrder === 'newest' ? 'bg-[#008080]/15 text-[#008080] border border-[#008080]/20' : 'text-slate-400 hover:text-slate-600 border border-transparent'}`}
+                                    >
+                                        Newest
+                                    </button>
+                                    <button 
+                                        onClick={() => setSortOrder('oldest')}
+                                        className={`px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-wider transition-all ${sortOrder === 'oldest' ? 'bg-[#008080]/15 text-[#008080] border border-[#008080]/20' : 'text-slate-400 hover:text-slate-600 border border-transparent'}`}
+                                    >
+                                        Oldest
+                                    </button>
+                                </div>
+
+                                {/* Staff Type Controls */}
+                                <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-2xl border border-slate-100 shadow-sm">
+                                    <span className="text-[9px] font-black uppercase text-slate-400 tracking-wider mr-2">Conducted By</span>
+                                    <button 
+                                        onClick={() => setStaffTypeFilter('all')}
+                                        className={`px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-wider transition-all ${staffTypeFilter === 'all' ? 'bg-slate-900 text-white shadow-md' : 'text-slate-400 hover:text-slate-600'}`}
+                                    >
+                                        All
+                                    </button>
+                                    <button 
+                                        onClick={() => setStaffTypeFilter('mentor')}
+                                        className={`px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-wider transition-all ${staffTypeFilter === 'mentor' ? 'bg-slate-900 text-white shadow-md' : 'text-slate-400 hover:text-slate-600'}`}
+                                    >
+                                        Mentors
+                                    </button>
+                                    <button 
+                                        onClick={() => setStaffTypeFilter('faculty')}
+                                        className={`px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-wider transition-all ${staffTypeFilter === 'faculty' ? 'bg-slate-900 text-white shadow-md' : 'text-slate-400 hover:text-slate-600'}`}
+                                    >
+                                        Faculties
+                                    </button>
+                                </div>
+                            </div>
                         )}
                     </div>
  
                     <div className="grid grid-cols-1 gap-6">
                         {selectedLogTab === 'ALL' ? (
                             (() => {
-                                const grouped = groupLogsByDate(logs);
+                                const processedLogs = logs.filter(log => {
+                                    if (staffTypeFilter === 'mentor') return isConductedByMentor(log);
+                                    if (staffTypeFilter === 'faculty') return isConductedByFaculty(log);
+                                    return true;
+                                });
+                                const grouped = groupLogsByDate(processedLogs);
                                 const dateKeys = Object.keys(grouped).sort((a, b) => {
                                     const dateA = new Date(a.split(', ')[1].split('/').reverse().join('-'));
                                     const dateB = new Date(b.split(', ')[1].split('/').reverse().join('-'));
-                                    return dateB - dateA;
+                                    return sortOrder === 'newest' ? dateB - dateA : dateA - dateB;
                                 });
 
                                 if (dateKeys.length === 0) {
@@ -670,13 +745,22 @@ const CommonInteractionLogs = ({ role }) => {
                                                                     <span className="inline-block px-3.5 py-2 bg-slate-950 text-white rounded-2xl text-[10px] font-black uppercase tracking-wide shadow-md border border-slate-800">
                                                                         {new Date(log.created_at || log.date).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}
                                                                     </span>
-                                                                    <div className="mt-2 text-[9px] font-black uppercase tracking-widest text-[#008080] leading-none pl-1">
-                                                                        {log.mentor_name || 'Mentor'}
+                                                                    <div className="mt-2 text-[9px] font-black uppercase tracking-widest text-[#008080] leading-tight pl-1 max-w-[120px] break-words">
+                                                                        {(role === 'super_admin' || role === 'mentor_head') 
+                                                                            ? (log.mentor_name || log.faculty_name || 'Not Specified') 
+                                                                            : (log.mentor_name || 'Mentor')}
                                                                     </div>
                                                                 </div>
 
                                                                 {/* Full Details Display */}
-                                                                <div className="flex-1 bg-white rounded-[2.5rem] border border-slate-100 p-8 shadow-sm hover:shadow-xl hover:border-slate-300 transition-all relative overflow-hidden group">
+                                                                <div 
+                                                                    onClick={() => setExpandedLogId(expandedLogId === log.id ? null : log.id)}
+                                                                    className={`flex-1 bg-white rounded-[2.5rem] border transition-all relative overflow-hidden group cursor-pointer p-8 ${
+                                                                        expandedLogId === log.id 
+                                                                        ? 'ring-4 ring-slate-900/5 border-slate-900 shadow-2xl' 
+                                                                        : 'border-slate-100 shadow-sm hover:shadow-xl hover:border-slate-300'
+                                                                    }`}
+                                                                >
                                                                     <div className="flex items-center justify-between mb-4">
                                                                         <span className={`px-4 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest border ${
                                                                             (log.session_type || log.type || '').toUpperCase() === 'DEEP' ? 'bg-rose-50 text-rose-600 border-rose-100' :
@@ -685,69 +769,118 @@ const CommonInteractionLogs = ({ role }) => {
                                                                         }`}>
                                                                             {(log.session_type || log.type || 'QUICK').toUpperCase()}
                                                                         </span>
+                                                                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-500 ${
+                                                                            expandedLogId === log.id 
+                                                                            ? 'bg-slate-900 text-white rotate-180 scale-110 shadow-lg' 
+                                                                            : 'bg-slate-50 text-slate-400 group-hover:bg-slate-100'
+                                                                        }`}>
+                                                                            <ChevronDown size={18} strokeWidth={3} />
+                                                                        </div>
                                                                     </div>
 
-                                                                    {/* Notes */}
-                                                                    <div className="mb-4">
-                                                                        <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Notes</p>
-                                                                        <p className="text-sm font-bold text-slate-700 leading-relaxed italic">
-                                                                            "{log.mentor_notes || log.notes || log.remarks || 'No notes provided.'}"
-                                                                        </p>
-                                                                    </div>
-
-                                                                    {/* Questionnaire answers */}
-                                                                    {(() => {
-                                                                        let parsedReport = null;
-                                                                        if (log.report_data) {
-                                                                            try {
-                                                                                parsedReport = typeof log.report_data === 'string' ? JSON.parse(log.report_data) : log.report_data;
-                                                                            } catch (e) {}
-                                                                        }
-                                                                        if (!parsedReport || Object.keys(parsedReport).length === 0) return null;
-                                                                        return (
-                                                                            <div className="mt-4 pt-4 border-t border-slate-100">
-                                                                                <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-2">Questionnaire Answers</p>
-                                                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                                                                    {Object.entries(parsedReport).map(([k, v]) => {
-                                                                                        if (['notes', 'quick_notes', 'notes_text'].includes(k)) return null;
-                                                                                        if (v === null || v === undefined || v === '') return null;
-                                                                                        let label = k.replace(/_/g, ' ');
-                                                                                        label = label.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
-                                                                                        const sType = (log.session_type || '').toUpperCase();
-                                                                                        if (sType === 'DEEP' && DEEP_QUESTION_LABELS[k]) label = DEEP_QUESTION_LABELS[k];
-                                                                                        else if (sType === 'MEDIUM' && MEDIUM_QUESTION_LABELS[k]) label = MEDIUM_QUESTION_LABELS[k];
-                                                                                        else if (sType === 'QUICK' && QUICK_QUESTION_LABELS[k]) label = QUICK_QUESTION_LABELS[k];
-
-                                                                                        return (
-                                                                                            <div key={k} className="p-4 bg-slate-50 border border-slate-100 rounded-2xl flex flex-col gap-1 shadow-inner">
-                                                                                                <span className="text-[7px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">{label}</span>
-                                                                                                <span className="text-xs font-bold text-slate-800 leading-normal">{String(v)}</span>
-                                                                                            </div>
-                                                                                        );
-                                                                                    })}
+                                                                    {/* Notes Preview when collapsed, or full detail section when expanded */}
+                                                                    {expandedLogId !== log.id ? (
+                                                                        <div className="mb-2">
+                                                                            <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Notes Preview</p>
+                                                                            <p className="text-sm font-bold text-slate-500 leading-relaxed italic truncate">
+                                                                                "{log.mentor_notes || log.notes || log.remarks || 'No notes provided.'}"
+                                                                            </p>
+                                                                        </div>
+                                                                    ) : (
+                                                                        <div className="mt-6 pt-6 border-t border-slate-100 space-y-8 animate-in slide-in-from-top-4 duration-500">
+                                                                            {/* Narrative Section */}
+                                                                            <div className="relative">
+                                                                                <div className="absolute -left-4 top-0 bottom-0 w-1 bg-slate-900 rounded-full opacity-10"></div>
+                                                                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                                                                                    <ScrollText size={12} /> Detailed Notes
+                                                                                </p>
+                                                                                <div className="text-sm font-bold text-slate-700 leading-relaxed p-8 bg-slate-50 rounded-[2rem] border border-slate-100 relative shadow-inner">
+                                                                                    <div className="absolute top-4 left-4 opacity-5">
+                                                                                        <svg width="40" height="40" viewBox="0 0 24 24" fill="currentColor"><path d="M14.017 21L14.017 18C14.017 16.8954 14.9124 16 16.017 16H19.017C20.1216 16 21.017 16.8954 21.017 18V21C21.017 22.1046 20.1216 23 19.017 23H16.017C14.9124 23 14.017 22.1046 14.017 21ZM14.017 21V18C14.017 16.8954 14.9124 16 16.017 16H19.017C20.1216 16 21.017 16.8954 21.017 18V21C21.017 22.1046 20.1216 23 19.017 23H16.017C14.9124 23 14.017 22.1046 14.017 21ZM3 18C3 16.8954 3.89543 16 5 16H8C9.10457 16 10 16.8954 10 18V21C10 22.1046 9.10457 23 8 23H5C3.89543 23 3 22.1046 3 21V18ZM3 18V16C3 13.7909 4.79086 12 7 12H10V14H7C5.89543 14 5 14.8954 5 16V18H3Z"/></svg>
+                                                                                    </div>
+                                                                                    {log.mentor_notes || log.notes || log.remarks || 'No notes provided for this session.'}
                                                                                 </div>
                                                                             </div>
-                                                                        );
-                                                                    })()}
 
-                                                                    {/* Metrics */}
-                                                                    <div className="flex flex-wrap gap-4 mt-6 pt-4 border-t border-slate-50">
-                                                                        {log.understanding_level !== undefined && log.understanding_level !== null && (
-                                                                            <div className="px-3 py-1.5 bg-emerald-50 text-emerald-700 border border-emerald-100 rounded-xl text-[9px] font-black uppercase">
-                                                                                Understanding: {log.understanding_level}%
+                                                                            {/* Questionnaire Section */}
+                                                                            {(() => {
+                                                                                let parsedReportData = null;
+                                                                                if (log.report_data) {
+                                                                                    try {
+                                                                                        parsedReportData = typeof log.report_data === 'string' ? JSON.parse(log.report_data) : log.report_data;
+                                                                                    } catch (e) {
+                                                                                        console.error("Failed to parse report_data:", e);
+                                                                                    }
+                                                                                }
+                                                                                if (!parsedReportData) return null;
+                                                                                return (
+                                                                                    <div className="space-y-4">
+                                                                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                                                                                            <BookOpen size={12} /> Questionnaire Responses
+                                                                                        </p>
+                                                                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                                                            {Object.entries(parsedReportData).map(([key, val]) => {
+                                                                                                if (['notes', 'quick_notes', 'notes_text'].includes(key)) return null; 
+                                                                                                let label = key.replace(/_/g, ' ');
+                                                                                                label = label.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+                                                                                                
+                                                                                                const sessionTypeUpper = (log.session_type || '').toUpperCase();
+                                                                                                if (sessionTypeUpper === 'DEEP' && DEEP_QUESTION_LABELS[key]) {
+                                                                                                    label = DEEP_QUESTION_LABELS[key];
+                                                                                                } else if (sessionTypeUpper === 'MEDIUM' && MEDIUM_QUESTION_LABELS[key]) {
+                                                                                                    label = MEDIUM_QUESTION_LABELS[key];
+                                                                                                } else if (sessionTypeUpper === 'QUICK' && QUICK_QUESTION_LABELS[key]) {
+                                                                                                    label = QUICK_QUESTION_LABELS[key];
+                                                                                                }
+                                                                                                
+                                                                                                if (val === null || val === undefined || val === '') return null;
+
+                                                                                                return (
+                                                                                                    <div key={key} className="p-6 bg-slate-50 border border-slate-100 rounded-3xl flex flex-col gap-2 shadow-inner">
+                                                                                                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{label}</span>
+                                                                                                        <span className="text-sm font-bold text-slate-800 leading-relaxed">{String(val)}</span>
+                                                                                                    </div>
+                                                                                                );
+                                                                                            })}
+                                                                                        </div>
+                                                                                    </div>
+                                                                                );
+                                                                            })()}
+
+                                                                            {/* Metrics Grid */}
+                                                                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                                                                {Object.entries(log).map(([key, val]) => {
+                                                                                    if (['mentor_notes', 'notes', 'remarks', 'student_id', 'mentor_id', 'id', 'created_at', 'date', 'student_name', 'mentor_name', 'source', 'type', 'session_type', 'session_number', 'report_data'].includes(key)) return null;
+                                                                                    if (val === null || val === undefined || val === '') return null;
+                                                                                    return (
+                                                                                        <div key={key} className="p-5 bg-white border border-slate-100 rounded-3xl flex flex-col gap-1.5 shadow-sm hover:border-[#008080]/30 transition-colors">
+                                                                                            <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{key.replace(/_/g, ' ')}</span>
+                                                                                            <span className="text-xs font-black text-[#008080] uppercase truncate">{String(val)}</span>
+                                                                                        </div>
+                                                                                    );
+                                                                                })}
+                                                                                {log.understanding_level !== undefined && log.understanding_level !== null && (
+                                                                                    <div className="p-5 bg-emerald-50 border border-emerald-100 rounded-3xl flex flex-col gap-1.5 shadow-sm">
+                                                                                        <span className="text-[9px] font-black text-emerald-600 uppercase tracking-widest">Understanding Level</span>
+                                                                                        <span className="text-lg font-black text-emerald-700">{log.understanding_level}%</span>
+                                                                                    </div>
+                                                                                )}
+                                                                                {log.student_confidence !== undefined && log.student_confidence !== null && (
+                                                                                    <div className="p-5 bg-slate-900 border border-slate-800 rounded-3xl flex flex-col gap-1.5 shadow-sm text-white">
+                                                                                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Self Confidence</span>
+                                                                                        <div className="flex items-center gap-2">
+                                                                                            <span className="text-lg font-black">{log.student_confidence}</span>
+                                                                                            <div className="flex gap-0.5">
+                                                                                                {[...Array(5)].map((_, i) => (
+                                                                                                    <div key={i} className={`w-1.5 h-1.5 rounded-full ${i < log.student_confidence ? 'bg-[#008080]' : 'bg-white/20'}`}></div>
+                                                                                                ))}
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                )}
                                                                             </div>
-                                                                        )}
-                                                                        {log.student_confidence !== undefined && log.student_confidence !== null && (
-                                                                            <div className="px-3 py-1.5 bg-slate-900 text-white rounded-xl text-[9px] font-black uppercase">
-                                                                                Confidence: {log.student_confidence}/5
-                                                                            </div>
-                                                                        )}
-                                                                        {log.stress_level !== undefined && log.stress_level !== null && (
-                                                                            <div className="px-3 py-1.5 bg-amber-50 text-amber-700 border border-amber-100 rounded-xl text-[9px] font-black uppercase">
-                                                                                Stress: {log.stress_level}
-                                                                            </div>
-                                                                        )}
-                                                                    </div>
+                                                                        </div>
+                                                                    )}
                                                                 </div>
                                                             </div>
                                                         ))}
@@ -761,13 +894,29 @@ const CommonInteractionLogs = ({ role }) => {
                         ) : (
                             logs.filter(log => {
                                 const type = (log.session_type || log.type || log.source || 'QUICK').toUpperCase();
-                                if (selectedLogTab === 'OTHERS') return !['QUICK', 'MEDIUM', 'DEEP'].includes(type);
-                                return type.includes(selectedLogTab);
+                                if (selectedLogTab === 'OTHERS') {
+                                    if (['QUICK', 'MEDIUM', 'DEEP'].includes(type)) return false;
+                                } else {
+                                    if (!type.includes(selectedLogTab)) return false;
+                                }
+                                if (staffTypeFilter === 'mentor') return isConductedByMentor(log);
+                                if (staffTypeFilter === 'faculty') return isConductedByFaculty(log);
+                                return true;
                             }).length > 0 ? (
                                 logs.filter(log => {
                                     const type = (log.session_type || log.type || log.source || 'QUICK').toUpperCase();
-                                    if (selectedLogTab === 'OTHERS') return !['QUICK', 'MEDIUM', 'DEEP'].includes(type);
-                                    return type.includes(selectedLogTab);
+                                    if (selectedLogTab === 'OTHERS') {
+                                        if (['QUICK', 'MEDIUM', 'DEEP'].includes(type)) return false;
+                                    } else {
+                                        if (!type.includes(selectedLogTab)) return false;
+                                    }
+                                    if (staffTypeFilter === 'mentor') return isConductedByMentor(log);
+                                    if (staffTypeFilter === 'faculty') return isConductedByFaculty(log);
+                                    return true;
+                                }).sort((a, b) => {
+                                    const timeA = new Date(a.created_at || a.date).getTime();
+                                    const timeB = new Date(b.created_at || b.date).getTime();
+                                    return sortOrder === 'newest' ? timeB - timeA : timeA - timeB;
                                 }).map((log) => (
                                 <div 
                                     key={log.id} 
@@ -798,15 +947,21 @@ const CommonInteractionLogs = ({ role }) => {
                                             </div>
                                         </div>
 
-                                        {/* Mentor Identity */}
+                                        {/* Mentor/Faculty Identity */}
                                         <div className="flex-1 border-x border-slate-100 px-8 hidden md:block">
                                             <div className="flex items-center gap-4">
                                                 <div className="w-10 h-10 bg-slate-900 rounded-full flex items-center justify-center text-white text-xs font-black shadow-lg">
-                                                    {log.mentor_name?.charAt(0) || 'M'}
+                                                    {((role === 'super_admin' || role === 'mentor_head') 
+                                                        ? (log.mentor_name || log.faculty_name || 'M') 
+                                                        : (log.mentor_name || 'M')).charAt(0)}
                                                 </div>
                                                 <div>
                                                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1.5">Conducted By</p>
-                                                    <p className="text-sm font-black text-slate-900 uppercase tracking-tight group-hover:text-[#008080] transition-colors">{log.mentor_name || 'Academic Mentor'}</p>
+                                                    <p className="text-sm font-black text-slate-900 uppercase tracking-tight group-hover:text-[#008080] transition-colors">
+                                                        {(role === 'super_admin' || role === 'mentor_head') 
+                                                            ? (log.mentor_name || log.faculty_name || 'Not Specified') 
+                                                            : (log.mentor_name || 'Academic Mentor')}
+                                                    </p>
                                                 </div>
                                             </div>
                                         </div>
@@ -893,7 +1048,7 @@ const CommonInteractionLogs = ({ role }) => {
                                                 {/* Metrics Grid */}
                                                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                                                     {Object.entries(log).map(([key, val]) => {
-                                                        if (['mentor_notes', 'notes', 'remarks', 'student_id', 'mentor_id', 'id', 'created_at', 'date', 'student_name', 'mentor_name', 'source', 'type', 'session_type', 'session_number'].includes(key)) return null;
+                                                        if (['mentor_notes', 'notes', 'remarks', 'student_id', 'mentor_id', 'id', 'created_at', 'date', 'student_name', 'mentor_name', 'source', 'type', 'session_type', 'session_number', 'report_data'].includes(key)) return null;
                                                         if (val === null || val === undefined || val === '') return null;
                                                         return (
                                                             <div key={key} className="p-5 bg-white border border-slate-100 rounded-3xl flex flex-col gap-1.5 shadow-sm hover:border-[#008080]/30 transition-colors">
