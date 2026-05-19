@@ -1047,7 +1047,7 @@ const deleteSubAdmin = async (req, res) => {
 const getAllMentorsForAdmin = async (req, res) => {
     try {
         const { startDate, endDate, category } = req.query;
-        let whereClauses = ["u.role = 'mentor'"];
+        let whereClauses = [];
         let params = [];
 
         if (startDate) {
@@ -1065,6 +1065,8 @@ const getAllMentorsForAdmin = async (req, res) => {
             whereClauses.push("u.status != 'active'");
         }
 
+        const whereSQL = whereClauses.length > 0 ? `WHERE ${whereClauses.join(' AND ')}` : '';
+
         const query = `
             SELECT 
                 u.id, u.name, u.email, u.phone_number as phone, u.status, u.createdAt as created_at,
@@ -1073,15 +1075,21 @@ const getAllMentorsForAdmin = async (req, res) => {
                 (SELECT COUNT(*) FROM tasks t WHERE t.assigned_to = u.id AND t.status = 'Completed') as completedTasks,
                 (SELECT COUNT(*) FROM student_interaction_logs sil WHERE sil.mentor_id = u.id) as logsReportCount,
                 (SELECT COUNT(DISTINCT s.faculty_id) FROM students s WHERE s.mentor_id = u.id AND s.faculty_id IS NOT NULL AND s.status = 'active') as facultyCount,
-                (SELECT COUNT(*) FROM students s WHERE s.mentor_id = u.id AND LOWER(s.performance_status) = 'critical' AND s.status = 'active') as criticalStudentsCount
+                (SELECT COUNT(*) FROM students s WHERE s.mentor_id = u.id AND LOWER(s.performance_status) = 'critical' AND s.status = 'active') as criticalStudentsCount,
+                (SELECT COUNT(*) FROM timetable WHERE mentor_id = u.id AND status = 'Completed') as completedSessions,
+                (SELECT COUNT(*) FROM timetable WHERE mentor_id = u.id) as totalSessions
             FROM mentors u
-            WHERE ${whereClauses.join(' AND ').replace(/u\.role = 'mentor' AND? /g, '')}
+            ${whereSQL}
             ORDER BY u.name ASC
         `;
         const [rows] = await db.query(query, params);
+        
+        // Find maximum completed sessions among all mentors to calculate relative percentage
+        const maxCompleted = Math.max(...rows.map(r => r.completedSessions), 0);
+        
         const mappedData = rows.map(row => ({
             ...row,
-            completionRate: row.tasksAssigned > 0 ? Math.round((row.completedTasks / row.tasksAssigned) * 100) : 0
+            completionRate: maxCompleted > 0 ? Math.round((row.completedSessions / maxCompleted) * 100) : 0
         }));
         res.status(200).json({ success: true, count: mappedData.length, data: mappedData });
     } catch (error) {

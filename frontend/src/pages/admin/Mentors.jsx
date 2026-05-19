@@ -218,21 +218,21 @@ const Mentors = () => {
      </button>
    )
  },
- {
- header: 'Performance Level',
- accessor: 'completionRate',
- render: (row) => (
- <div className="flex flex-col gap-1.5 w-32">
- <div className="flex justify-between items-center text-[10px] font-bold text-slate-500 uppercase">
- <span>Rate</span>
- <span className="text-emerald-600">{row.completionRate}%</span>
- </div>
- <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
- <div className="h-full bg-emerald-500 rounded-full shadow-[0_0_8px_rgba(16,185,129,0.3)] transition-all duration-1000" style={{ width: `${row.completionRate}%` }}></div>
- </div>
- </div>
- )
- },
+  {
+  header: 'Performance Level',
+  accessor: 'completionRate',
+  render: (row) => (
+  <div className="flex flex-col gap-1.5 w-32">
+  <div className="flex justify-between items-center text-[10px] font-bold text-slate-500 uppercase">
+  <span>Sessions</span>
+  <span className="text-emerald-600">{row.completedSessions || 0} ({row.completionRate}%)</span>
+  </div>
+  <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
+  <div className="h-full bg-emerald-500 rounded-full shadow-[0_0_8px_rgba(16,185,129,0.3)] transition-all duration-1000" style={{ width: `${row.completionRate}%` }}></div>
+  </div>
+  </div>
+  )
+  },
  {
  header: 'Account Status',
  accessor: 'status',

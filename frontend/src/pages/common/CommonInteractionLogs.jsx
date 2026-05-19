@@ -59,7 +59,7 @@ const CommonInteractionLogs = ({ role }) => {
     const [listDateFilter, setListDateFilter] = useState('all');
     const [listCustomRange, setListCustomRange] = useState({ start: '', end: '' });
     const [showListFilter, setShowListFilter] = useState(false);
-    const [selectedLogTab, setSelectedLogTab] = useState('QUICK');
+    const [selectedLogTab, setSelectedLogTab] = useState('ALL');
 
     // Dynamic API prefix based on role
     const getApiPrefix = () => {
@@ -69,6 +69,23 @@ const CommonInteractionLogs = ({ role }) => {
         return '/admin';
     };
     const apiPrefix = getApiPrefix();
+
+    const groupLogsByDate = (logsList) => {
+        const groups = {};
+        const sorted = [...logsList].sort((a, b) => new Date(a.created_at || a.date) - new Date(b.created_at || b.date));
+        
+        sorted.forEach(log => {
+            const d = new Date(log.created_at || log.date);
+            const weekday = d.toLocaleDateString('en-US', { weekday: 'long' });
+            const dateStr = d.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
+            const groupKey = `${weekday}, ${dateStr}`;
+            if (!groups[groupKey]) {
+                groups[groupKey] = [];
+            }
+            groups[groupKey].push(log);
+        });
+        return groups;
+    };
 
     useEffect(() => {
         fetchEntities();
@@ -584,7 +601,7 @@ const CommonInteractionLogs = ({ role }) => {
                 <div className="space-y-10">
                     {/* Interaction Type Tabs */}
                     <div className="flex gap-4 bg-slate-100/50 p-2 rounded-[2rem] w-fit">
-                        {['QUICK', 'MEDIUM', 'DEEP'].map(tab => (
+                        {['ALL', 'QUICK', 'MEDIUM', 'DEEP'].map(tab => (
                             <button
                                 key={tab}
                                 onClick={() => setSelectedLogTab(tab)}
@@ -610,18 +627,148 @@ const CommonInteractionLogs = ({ role }) => {
                             </button>
                         )}
                     </div>
-
+ 
                     <div className="grid grid-cols-1 gap-6">
-                        {logs.filter(log => {
-                            const type = (log.session_type || log.type || log.source || 'QUICK').toUpperCase();
-                            if (selectedLogTab === 'OTHERS') return !['QUICK', 'MEDIUM', 'DEEP'].includes(type);
-                            return type.includes(selectedLogTab);
-                        }).length > 0 ? (
+                        {selectedLogTab === 'ALL' ? (
+                            (() => {
+                                const grouped = groupLogsByDate(logs);
+                                const dateKeys = Object.keys(grouped).sort((a, b) => {
+                                    const dateA = new Date(a.split(', ')[1].split('/').reverse().join('-'));
+                                    const dateB = new Date(b.split(', ')[1].split('/').reverse().join('-'));
+                                    return dateB - dateA;
+                                });
+
+                                if (dateKeys.length === 0) {
+                                    return (
+                                        <div className="py-32 text-center bg-slate-50 rounded-[3rem] border-2 border-dashed border-slate-200">
+                                            <p className="text-slate-400 font-black text-xs uppercase tracking-[0.2em]">No interactions recorded for this timeline.</p>
+                                        </div>
+                                    );
+                                }
+
+                                return (
+                                    <div className="space-y-12">
+                                        {dateKeys.map(dateKey => {
+                                            const dayLogs = grouped[dateKey];
+                                            return (
+                                                <div key={dateKey} className="space-y-6">
+                                                    {/* Day Header */}
+                                                    <div className="bg-slate-900 text-white px-8 py-5 rounded-[2rem] flex items-center justify-between shadow-xl">
+                                                        <div className="flex items-center gap-3">
+                                                            <Calendar size={18} className="text-[#008080]" />
+                                                            <span className="text-xs font-black uppercase tracking-wider">{dateKey}</span>
+                                                        </div>
+                                                        <span className="text-[10px] font-black text-[#008080] uppercase tracking-widest bg-[#008080]/10 px-4 py-1.5 rounded-xl border border-[#008080]/20">{dayLogs.length} Interactions</span>
+                                                    </div>
+
+                                                    {/* Timeline list of day's logs */}
+                                                    <div className="space-y-4">
+                                                        {dayLogs.map((log) => (
+                                                            <div key={log.id} className="flex flex-col md:flex-row gap-6 pl-4 md:pl-8 relative border-l-2 border-slate-100 py-4 last:border-l-transparent">
+                                                                {/* Exact Time Highlighted */}
+                                                                <div className="shrink-0 w-32 flex flex-col items-start pt-2">
+                                                                    <span className="inline-block px-3.5 py-2 bg-slate-950 text-white rounded-2xl text-[10px] font-black uppercase tracking-wide shadow-md border border-slate-800">
+                                                                        {new Date(log.created_at || log.date).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}
+                                                                    </span>
+                                                                    <div className="mt-2 text-[9px] font-black uppercase tracking-widest text-[#008080] leading-none pl-1">
+                                                                        {log.mentor_name || 'Mentor'}
+                                                                    </div>
+                                                                </div>
+
+                                                                {/* Full Details Display */}
+                                                                <div className="flex-1 bg-white rounded-[2.5rem] border border-slate-100 p-8 shadow-sm hover:shadow-xl hover:border-slate-300 transition-all relative overflow-hidden group">
+                                                                    <div className="flex items-center justify-between mb-4">
+                                                                        <span className={`px-4 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest border ${
+                                                                            (log.session_type || log.type || '').toUpperCase() === 'DEEP' ? 'bg-rose-50 text-rose-600 border-rose-100' :
+                                                                            (log.session_type || log.type || '').toUpperCase() === 'MEDIUM' ? 'bg-purple-50 text-purple-600 border-purple-100' :
+                                                                            'bg-emerald-50 text-[#008080] border-emerald-100'
+                                                                        }`}>
+                                                                            {(log.session_type || log.type || 'QUICK').toUpperCase()}
+                                                                        </span>
+                                                                    </div>
+
+                                                                    {/* Notes */}
+                                                                    <div className="mb-4">
+                                                                        <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Notes</p>
+                                                                        <p className="text-sm font-bold text-slate-700 leading-relaxed italic">
+                                                                            "{log.mentor_notes || log.notes || log.remarks || 'No notes provided.'}"
+                                                                        </p>
+                                                                    </div>
+
+                                                                    {/* Questionnaire answers */}
+                                                                    {(() => {
+                                                                        let parsedReport = null;
+                                                                        if (log.report_data) {
+                                                                            try {
+                                                                                parsedReport = typeof log.report_data === 'string' ? JSON.parse(log.report_data) : log.report_data;
+                                                                            } catch (e) {}
+                                                                        }
+                                                                        if (!parsedReport || Object.keys(parsedReport).length === 0) return null;
+                                                                        return (
+                                                                            <div className="mt-4 pt-4 border-t border-slate-100">
+                                                                                <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-2">Questionnaire Answers</p>
+                                                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                                                                    {Object.entries(parsedReport).map(([k, v]) => {
+                                                                                        if (['notes', 'quick_notes', 'notes_text'].includes(k)) return null;
+                                                                                        if (v === null || v === undefined || v === '') return null;
+                                                                                        let label = k.replace(/_/g, ' ');
+                                                                                        label = label.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+                                                                                        const sType = (log.session_type || '').toUpperCase();
+                                                                                        if (sType === 'DEEP' && DEEP_QUESTION_LABELS[k]) label = DEEP_QUESTION_LABELS[k];
+                                                                                        else if (sType === 'MEDIUM' && MEDIUM_QUESTION_LABELS[k]) label = MEDIUM_QUESTION_LABELS[k];
+                                                                                        else if (sType === 'QUICK' && QUICK_QUESTION_LABELS[k]) label = QUICK_QUESTION_LABELS[k];
+
+                                                                                        return (
+                                                                                            <div key={k} className="p-4 bg-slate-50 border border-slate-100 rounded-2xl flex flex-col gap-1 shadow-inner">
+                                                                                                <span className="text-[7px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">{label}</span>
+                                                                                                <span className="text-xs font-bold text-slate-800 leading-normal">{String(v)}</span>
+                                                                                            </div>
+                                                                                        );
+                                                                                    })}
+                                                                                </div>
+                                                                            </div>
+                                                                        );
+                                                                    })()}
+
+                                                                    {/* Metrics */}
+                                                                    <div className="flex flex-wrap gap-4 mt-6 pt-4 border-t border-slate-50">
+                                                                        {log.understanding_level !== undefined && log.understanding_level !== null && (
+                                                                            <div className="px-3 py-1.5 bg-emerald-50 text-emerald-700 border border-emerald-100 rounded-xl text-[9px] font-black uppercase">
+                                                                                Understanding: {log.understanding_level}%
+                                                                            </div>
+                                                                        )}
+                                                                        {log.student_confidence !== undefined && log.student_confidence !== null && (
+                                                                            <div className="px-3 py-1.5 bg-slate-900 text-white rounded-xl text-[9px] font-black uppercase">
+                                                                                Confidence: {log.student_confidence}/5
+                                                                            </div>
+                                                                        )}
+                                                                        {log.stress_level !== undefined && log.stress_level !== null && (
+                                                                            <div className="px-3 py-1.5 bg-amber-50 text-amber-700 border border-amber-100 rounded-xl text-[9px] font-black uppercase">
+                                                                                Stress: {log.stress_level}
+                                                                            </div>
+                                                                        )}
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                );
+                            })()
+                        ) : (
                             logs.filter(log => {
                                 const type = (log.session_type || log.type || log.source || 'QUICK').toUpperCase();
                                 if (selectedLogTab === 'OTHERS') return !['QUICK', 'MEDIUM', 'DEEP'].includes(type);
                                 return type.includes(selectedLogTab);
-                            }).map((log) => (
+                            }).length > 0 ? (
+                                logs.filter(log => {
+                                    const type = (log.session_type || log.type || log.source || 'QUICK').toUpperCase();
+                                    if (selectedLogTab === 'OTHERS') return !['QUICK', 'MEDIUM', 'DEEP'].includes(type);
+                                    return type.includes(selectedLogTab);
+                                }).map((log) => (
                                 <div 
                                     key={log.id} 
                                     className={`bg-white rounded-[2.5rem] border transition-all relative overflow-hidden group ${
@@ -784,6 +931,7 @@ const CommonInteractionLogs = ({ role }) => {
                             <div className="py-32 text-center bg-slate-50 rounded-[3rem] border-2 border-dashed border-slate-200">
                                 <p className="text-slate-400 font-black text-xs uppercase tracking-[0.2em]">No {selectedLogTab} sequences identified for this timeline</p>
                             </div>
+                        )
                         )}
                     </div>
                 </div>
