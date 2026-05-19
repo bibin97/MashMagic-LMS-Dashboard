@@ -559,7 +559,13 @@ const startServer = async () => {
                 'CREATE INDEX IF NOT EXISTS idx_students_user_id ON students(user_id);',
                 'CREATE INDEX IF NOT EXISTS idx_students_mentor_id ON students(mentor_id);',
                 'CREATE INDEX IF NOT EXISTS idx_students_faculty_id ON students(faculty_id);',
-                'CREATE INDEX IF NOT EXISTS idx_students_status ON students(status);'
+                'CREATE INDEX IF NOT EXISTS idx_students_status ON students(status);',
+
+                // Timetable Automatic Migrations
+                'RENAME TABLE mentor_timetable TO timetable;',
+                'ALTER TABLE timetable ADD COLUMN faculty_id INT NULL;',
+                'ALTER TABLE timetable ADD COLUMN faculty_name VARCHAR(255) NULL;',
+                'ALTER TABLE timetable ADD COLUMN session_mode VARCHAR(50) DEFAULT "Online";'
             ];
             for (const migration of migrations) {
                 try {

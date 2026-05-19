@@ -852,7 +852,7 @@ const createBatchTimetable = async (req, res) => {
             return res.status(404).json({ success: false, message: "Student not found" });
         }
 
-        const actualMentorId = studentObj.mentor_id;
+        const actualMentorId = studentObj.mentor_id || loggedInUserId;
 
         // 1. Get starting session number
         const [lastSession] = await connection.query(
