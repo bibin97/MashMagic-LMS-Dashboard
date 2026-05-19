@@ -39,25 +39,6 @@ app.get('/', (req, res) => {
     res.json({ message: "Welcome to MashMagic Edu Tech API v2 - Permissions Fixed" });
 });
 
-app.get('/api/debug-db', async (req, res) => {
-    try {
-        const [schema] = await pool.query(`
-            SELECT 
-                TABLE_NAME, COLUMN_NAME, CONSTRAINT_NAME, REFERENCED_TABLE_NAME, REFERENCED_COLUMN_NAME
-            FROM
-                INFORMATION_SCHEMA.KEY_COLUMN_USAGE
-            WHERE
-                REFERENCED_TABLE_SCHEMA = ?
-                AND TABLE_NAME = 'timetable'
-        `, [process.env.DB_NAME]);
-        const [columns] = await pool.query("SHOW COLUMNS FROM timetable");
-        const [createTable] = await pool.query("SHOW CREATE TABLE timetable");
-        res.json({ success: true, schema, columns, createTable });
-    } catch (err) {
-        res.json({ success: false, error: err.message });
-    }
-});
-
 // Test Connection and Start Server
 const PORT = process.env.PORT || 5000;
 
@@ -597,6 +578,22 @@ const startServer = async () => {
                     }
                 }
             }
+
+            // Dynamically drop invalid foreign key on timetable.faculty_id if it exists referencing users
+            try {
+                const [fks] = await pool.query(`
+                    SELECT CONSTRAINT_NAME 
+                    FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE 
+                    WHERE TABLE_SCHEMA = ? AND TABLE_NAME = 'timetable' AND COLUMN_NAME = 'faculty_id' AND REFERENCED_TABLE_NAME = 'users'
+                `, [process.env.DB_NAME || 'mashmagic']);
+                for (const fk of fks) {
+                    await pool.query(`ALTER TABLE timetable DROP FOREIGN KEY ${fk.CONSTRAINT_NAME}`);
+                    console.log(`✅ Dynamically dropped invalid foreign key constraint: ${fk.CONSTRAINT_NAME}`);
+                }
+            } catch (fkErr) {
+                console.log('ℹ️ Dynamic FK drop info:', fkErr.message);
+            }
+
             console.log('✅ Database schema is up to date');
         } catch (migErr) {
             console.log('Migration check suppressed:', migErr.message);
