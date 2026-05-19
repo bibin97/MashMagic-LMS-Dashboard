@@ -301,7 +301,6 @@ const Students = () => {
         onView={handleView}
         onEdit={isSuperAdmin ? handleEdit : undefined}
         onDelete={isSuperAdmin ? handleDelete : undefined}
-        onApprove={isSuperAdmin ? handleApprove : undefined}
         onBlock={isSuperAdmin ? handleBlock : undefined}
         expandedRowId={expandedRowId}
         onToggleExpand={(id) => setExpandedRowId(expandedRowId === id ? null : id)}

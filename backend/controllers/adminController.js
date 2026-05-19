@@ -848,6 +848,8 @@ const getAllStudentsForAdmin = async (req, res) => {
             sql += ' AND status = "active"';
         } else if (category === 'Archived Records') {
             sql += ' AND status IN ("inactive", "rejected", "completed")';
+        } else {
+            sql += ' AND status != "rejected"';
         }
 
         if (search) {

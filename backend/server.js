@@ -48,11 +48,82 @@ app.use((err, req, res, next) => {
     res.status(500).json({ success: false, message: "Internal Server Error", error: err.message });
 });
 
+const syncStudentsOnStart = async () => {
+    try {
+        console.log('🔄 Synchronizing students with user approval status...');
+
+        // 1. Sync Approved Students
+        // If a student's matching user is active/approved, set the student to active/approved
+        const [approveResult] = await pool.query(`
+            UPDATE students s
+            JOIN users u ON (s.user_id = u.id OR (s.email IS NOT NULL AND s.email = u.email))
+            SET s.status = 'active', s.isApproved = 1
+            WHERE u.role = 'student' 
+            AND (u.status = 'active' OR u.isApproved = 1)
+            AND (s.status != 'active' OR s.isApproved = 0)
+        `);
+        if (approveResult.affectedRows > 0) {
+            console.log(`✅ Automatically approved ${approveResult.affectedRows} students whose user accounts were already active/approved.`);
+        }
+
+        // 2. Fetch all student records that are rejected (either in students or user table) to clean up and delete
+        const [rejectedStudents] = await pool.query(`
+            SELECT s.id, s.name, s.user_id 
+            FROM students s
+            LEFT JOIN users u ON (s.user_id = u.id OR (s.email IS NOT NULL AND s.email = u.email))
+            WHERE s.status = 'rejected' 
+            OR (u.role = 'student' AND u.status = 'rejected')
+        `);
+
+        if (rejectedStudents.length > 0) {
+            console.log(`🧹 Found ${rejectedStudents.length} rejected students. Commencing clean up and removal...`);
+            
+            for (const student of rejectedStudents) {
+                // Cleanup dependencies
+                const cleanupQueries = [
+                    'DELETE FROM student_interaction_logs WHERE student_id = ?',
+                    'DELETE FROM faculty_interaction_logs WHERE student_id = ?',
+                    'DELETE FROM student_verification WHERE student_id = ?',
+                    'DELETE FROM daily_hours_log WHERE student_id = ?',
+                    'DELETE FROM student_marks WHERE student_id = ?',
+                    'DELETE FROM student_exams WHERE student_id = ?',
+                    'DELETE FROM session_attendance WHERE student_id = ?',
+                    'DELETE FROM student_reports WHERE student_id = ?',
+                    'DELETE FROM live_class_feedbacks WHERE student_id = ?',
+                    'DELETE FROM mentor_timetable WHERE student_id = ?',
+                    'DELETE FROM student_daily_updates WHERE student_id = ?',
+                    'DELETE FROM faculty_class_updates WHERE student_id = ?',
+                    'DELETE FROM faculty_schedules WHERE student_id = ?'
+                ];
+                for (const q of cleanupQueries) {
+                    try { await pool.query(q, [student.id]); } catch (e) {}
+                }
+
+                // Delete student record
+                await pool.query('DELETE FROM students WHERE id = ?', [student.id]);
+
+                // Delete user record if linked
+                if (student.user_id) {
+                    await pool.query('DELETE FROM users WHERE id = ?', [student.user_id]);
+                }
+                
+                console.log(`❌ Removed rejected student: ${student.name}`);
+            }
+        }
+        console.log('✅ Student synchronization and cleanup complete');
+    } catch (err) {
+        console.log('⚠️ Failed to sync students on startup:', err.message);
+    }
+};
+
 const startServer = async () => {
     try {
         // Test database connection
         const [rows] = await pool.query('SELECT 1');
         console.log('✅ Database connected successfully');
+
+        // Execute student synchronization and cleanup
+        await syncStudentsOnStart();
 
         // Automatic DB Schema Expansion for live environments
         try {
