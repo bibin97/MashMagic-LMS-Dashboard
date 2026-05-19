@@ -18,7 +18,21 @@ const DEEP_QUESTION_LABELS = {
     followup_required: 'Is Follow-up Required?',
     followup_when: 'Follow-up Date / Timeline',
     priority_tag: 'Priority Level (Category)',
-    next_session_type: 'Next Session Scheduled Type'
+    next_session_type: 'Next Session Scheduled Type',
+    session_date: 'Session Date',
+    main_issue: 'Main Issue',
+    secondary_issue: 'Secondary Issue',
+    weak_subject: 'Weak Subject',
+    consistency_rating: 'Consistency Rating',
+    focus_rating: 'Focus Rating',
+    effort_level: 'Effort Level',
+    homework_status: 'Homework Status',
+    action_type: 'Action Type',
+    action_details: 'Action Details',
+    follow_up_required: 'Follow-up Required?',
+    follow_up_date: 'Follow-up Date',
+    priority: 'Priority',
+    student_status: 'Student Status'
 };
 
 const MEDIUM_QUESTION_LABELS = {
@@ -29,7 +43,29 @@ const MEDIUM_QUESTION_LABELS = {
     quick_guidance: 'Quick Guidance Provided',
     next_task: 'Next Task / Action Required',
     upgrade_to_deep: 'Should Upgrade to DEEP Session?',
-    next_session_type: 'Next Session Scheduled Type'
+    next_session_type: 'Next Session Scheduled Type',
+    connection_method: 'Connection Method',
+    session_duration_minutes: 'Session Duration (Minutes)',
+    focus_level: 'Focus Level',
+    energy_level: 'Energy Level',
+    stress_level: 'Stress Level',
+    homework_status: 'Homework Status',
+    revision_done: 'Revision Done',
+    doubts_present: 'Doubts Present',
+    main_issue: 'Main Issue',
+    secondary_issue: 'Secondary Issue',
+    weak_subject: 'Weak Subject',
+    problem_clarity: 'Problem Clarity',
+    action_type: 'Action Type',
+    action_detail: 'Action Detail',
+    action_specific: 'Action Specific / Task Assigned',
+    student_engagement: 'Student Engagement',
+    understanding_after_session: 'Understanding After Session',
+    previous_task_status: 'Previous Task Status',
+    followup_required: 'Follow-up Required?',
+    followup_date: 'Follow-up Date',
+    student_status: 'Student Status',
+    session_quality_rating: 'Session Quality Rating'
 };
 
 const QUICK_QUESTION_LABELS = {
@@ -39,7 +75,22 @@ const QUICK_QUESTION_LABELS = {
     immediate_concern: 'Any Immediate Concerns?',
     motivation_given: 'Motivation/Encouragement Given?',
     quick_notes: 'Session Discussion Notes',
-    next_session_type: 'Next Session Scheduled Type'
+    next_session_type: 'Next Session Scheduled Type',
+    connection_method: 'Connection Method',
+    self_clarity: 'Self Clarity',
+    confusing_topic: 'Confusing Topic',
+    can_solve_independently: 'Can Solve Independently?',
+    homework_status: 'Homework Status',
+    homework_difficulty: 'Homework Difficulty',
+    revision_quality: 'Revision Quality',
+    confidence: 'Confidence Level',
+    motivation_level: 'Motivation Level',
+    exam_anxiety: 'Exam Anxiety',
+    focus_level: 'Focus Level',
+    student_requests: 'Student Requests',
+    parent_update_priority: 'Parent Update Priority',
+    mentor_action_needed: 'Mentor Action Needed',
+    connected_today: 'Connected Today?'
 };
 
 const CommonInteractionLogs = ({ role }) => {

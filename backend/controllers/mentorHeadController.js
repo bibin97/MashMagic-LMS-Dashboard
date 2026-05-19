@@ -159,7 +159,23 @@ exports.getStudentInteractionLogs = async (req, res) => {
                     CAST(sil.confidence AS CHAR) as student_confidence,
                     CAST(sil.exam_anxiety AS CHAR) as stress_level,
                     0 as is_flagged, NULL as flag_reason,
-                    NULL as report_data
+                    JSON_OBJECT(
+                        'connection_method', sil.connection_method,
+                        'self_clarity', sil.self_clarity,
+                        'confusing_topic', sil.confusing_topic,
+                        'can_solve_independently', sil.can_solve_independently,
+                        'homework_status', sil.homework_status,
+                        'homework_difficulty', sil.homework_difficulty,
+                        'revision_quality', sil.revision_quality,
+                        'confidence', sil.confidence,
+                        'motivation_level', sil.motivation_level,
+                        'exam_anxiety', sil.exam_anxiety,
+                        'focus_level', sil.focus_level,
+                        'student_requests', sil.student_requests,
+                        'parent_update_priority', sil.parent_update_priority,
+                        'mentor_action_needed', sil.mentor_action_needed,
+                        'connected_today', sil.connected_today
+                    ) as report_data
                 FROM student_interaction_logs sil
                 LEFT JOIN users m ON sil.mentor_id = m.id
                 LEFT JOIN students s ON sil.student_id = s.id
@@ -177,7 +193,30 @@ exports.getStudentInteractionLogs = async (req, res) => {
                     CAST(msl.session_quality_rating AS CHAR) as student_confidence,
                     CAST(msl.stress_level AS CHAR) as stress_level,
                     0 as is_flagged, NULL as flag_reason,
-                    NULL as report_data
+                    JSON_OBJECT(
+                        'connection_method', msl.connection_method,
+                        'session_duration_minutes', msl.session_duration_minutes,
+                        'focus_level', msl.focus_level,
+                        'energy_level', msl.energy_level,
+                        'stress_level', msl.stress_level,
+                        'homework_status', msl.homework_status,
+                        'revision_done', msl.revision_done,
+                        'doubts_present', msl.doubts_present,
+                        'main_issue', msl.main_issue,
+                        'secondary_issue', msl.secondary_issue,
+                        'weak_subject', msl.weak_subject,
+                        'problem_clarity', msl.problem_clarity,
+                        'action_type', msl.action_type,
+                        'action_detail', msl.action_detail,
+                        'action_specific', msl.action_specific,
+                        'student_engagement', msl.student_engagement,
+                        'understanding_after_session', msl.understanding_after_session,
+                        'previous_task_status', msl.previous_task_status,
+                        'followup_required', msl.followup_required,
+                        'followup_date', msl.followup_date,
+                        'student_status', msl.student_status,
+                        'session_quality_rating', msl.session_quality_rating
+                    ) as report_data
                 FROM mentor_session_logs msl
                 LEFT JOIN users m ON msl.mentor_id = m.id
                 LEFT JOIN students s ON msl.student_id = s.id
@@ -211,7 +250,22 @@ exports.getStudentInteractionLogs = async (req, res) => {
                     CONVERT(ml.action_details USING utf8mb4) as notes,
                     NULL as understanding_level, NULL as student_confidence, NULL as stress_level,
                     0 as is_flagged, NULL as flag_reason,
-                    NULL as report_data
+                    JSON_OBJECT(
+                        'session_date', ml.session_date,
+                        'main_issue', ml.main_issue,
+                        'secondary_issue', ml.secondary_issue,
+                        'weak_subject', ml.weak_subject,
+                        'consistency_rating', ml.consistency_rating,
+                        'focus_rating', ml.focus_rating,
+                        'effort_level', ml.effort_level,
+                        'homework_status', ml.homework_status,
+                        'action_type', ml.action_type,
+                        'action_details', ml.action_details,
+                        'follow_up_required', ml.follow_up_required,
+                        'follow_up_date', ml.follow_up_date,
+                        'priority', ml.priority,
+                        'student_status', ml.student_status
+                    ) as report_data
                 FROM mentorship_logs ml
                 LEFT JOIN users m ON ml.mentor_id = m.id
                 LEFT JOIN students s ON ml.student_id = s.id

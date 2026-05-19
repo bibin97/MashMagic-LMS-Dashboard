@@ -421,7 +421,30 @@ const getAllStudentLogs = async (req, res) => {
                 NULL as is_flagged,
                 NULL as flag_reason,
                 NULL as screenshot_url,
-                NULL as report_data
+                JSON_OBJECT(
+                    'connection_method', l.connection_method,
+                    'session_duration_minutes', l.session_duration_minutes,
+                    'focus_level', l.focus_level,
+                    'energy_level', l.energy_level,
+                    'stress_level', l.stress_level,
+                    'homework_status', l.homework_status,
+                    'revision_done', l.revision_done,
+                    'doubts_present', l.doubts_present,
+                    'main_issue', l.main_issue,
+                    'secondary_issue', l.secondary_issue,
+                    'weak_subject', l.weak_subject,
+                    'problem_clarity', l.problem_clarity,
+                    'action_type', l.action_type,
+                    'action_detail', l.action_detail,
+                    'action_specific', l.action_specific,
+                    'student_engagement', l.student_engagement,
+                    'understanding_after_session', l.understanding_after_session,
+                    'previous_task_status', l.previous_task_status,
+                    'followup_required', l.followup_required,
+                    'followup_date', l.followup_date,
+                    'student_status', l.student_status,
+                    'session_quality_rating', l.session_quality_rating
+                ) as report_data
             FROM mentor_session_logs l
             LEFT JOIN users m ON l.mentor_id = m.id
             JOIN students s ON l.student_id = s.id
@@ -443,7 +466,23 @@ const getAllStudentLogs = async (req, res) => {
                 NULL as is_flagged,
                 NULL as flag_reason,
                 CONVERT(logs.screenshot_url USING utf8mb4) COLLATE utf8mb4_unicode_ci as screenshot_url,
-                NULL as report_data
+                JSON_OBJECT(
+                    'connection_method', logs.connection_method,
+                    'self_clarity', logs.self_clarity,
+                    'confusing_topic', logs.confusing_topic,
+                    'can_solve_independently', logs.can_solve_independently,
+                    'homework_status', logs.homework_status,
+                    'homework_difficulty', logs.homework_difficulty,
+                    'revision_quality', logs.revision_quality,
+                    'confidence', logs.confidence,
+                    'motivation_level', logs.motivation_level,
+                    'exam_anxiety', logs.exam_anxiety,
+                    'focus_level', logs.focus_level,
+                    'student_requests', logs.student_requests,
+                    'parent_update_priority', logs.parent_update_priority,
+                    'mentor_action_needed', logs.mentor_action_needed,
+                    'connected_today', logs.connected_today
+                ) as report_data
             FROM student_interaction_logs logs
             LEFT JOIN users m ON logs.mentor_id = m.id
             JOIN students s ON logs.student_id = s.id
@@ -465,7 +504,22 @@ const getAllStudentLogs = async (req, res) => {
                 NULL as is_flagged,
                 NULL as flag_reason,
                 NULL as screenshot_url,
-                NULL as report_data
+                JSON_OBJECT(
+                    'session_date', ml.session_date,
+                    'main_issue', ml.main_issue,
+                    'secondary_issue', ml.secondary_issue,
+                    'weak_subject', ml.weak_subject,
+                    'consistency_rating', ml.consistency_rating,
+                    'focus_rating', ml.focus_rating,
+                    'effort_level', ml.effort_level,
+                    'homework_status', ml.homework_status,
+                    'action_type', ml.action_type,
+                    'action_details', ml.action_details,
+                    'follow_up_required', ml.follow_up_required,
+                    'follow_up_date', ml.follow_up_date,
+                    'priority', ml.priority,
+                    'student_status', ml.student_status
+                ) as report_data
             FROM mentorship_logs ml
             LEFT JOIN users m ON ml.mentor_id = m.id
             JOIN students s ON ml.student_id = s.id
