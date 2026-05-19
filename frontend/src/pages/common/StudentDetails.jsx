@@ -190,7 +190,6 @@ const StudentDetails = () => {
                 ))}
             </div>
 
-            {/* Content Area */}
             <div className="bg-white p-10 rounded-[3.5rem] shadow-xl shadow-slate-200/20 border border-slate-100 min-h-[500px]">
                 {activeTab === 'info' && (
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
@@ -207,11 +206,26 @@ const StudentDetails = () => {
                                 <InfoItem label="Enrollment Type" value={student.enrollment_type || 'Academic'} />
                                 <InfoItem label="Course / Stream" value={student.course} />
                                 <InfoItem label="Grade / Level" value={student.grade} />
+                                <InfoItem label="Syllabus" value={student.syllabus} />
+                                <InfoItem label="School / Institution" value={student.school_name} />
+                                <InfoItem label="Preferred Language" value={student.preferred_language} />
+                                <InfoItem label="Country" value={student.country} />
+                                <InfoItem label="Admission Date" value={student.admission_date ? new Date(student.admission_date).toLocaleDateString('en-GB') : 'N/A'} />
+                                <InfoItem 
+                                    label="Live Session Link" 
+                                    value={
+                                        student.meeting_link ? (
+                                            <a href={student.meeting_link.startsWith('http') ? student.meeting_link : `https://${student.meeting_link}`} target="_blank" rel="noopener noreferrer" className="text-[#008080] hover:underline inline-block truncate max-w-full font-black">
+                                                {student.meeting_link}
+                                            </a>
+                                        ) : 'Not Specified'
+                                    } 
+                                />
                                 <InfoItem label="Assigned Faculty" value={student.faculty_name || 'Not Specified'} />
                                 <InfoItem label="Lead Mentor" value={student.mentor_name || 'Not Specified'} />
                             </div>
                         </section>
-
+ 
                         <section className="space-y-8">
                             <div className="flex items-center gap-4 border-b border-slate-100 pb-4">
                                 <div className="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center shadow-sm">
@@ -237,6 +251,32 @@ const StudentDetails = () => {
                                     <div className="p-6 bg-slate-50 rounded-[2rem] border border-slate-100">
                                         <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Attendance rate</p>
                                         <p className="text-sm font-black text-emerald-600">{student.attendance_percentage || 0}%</p>
+                                    </div>
+                                </div>
+
+                                <div className="pt-4 space-y-6">
+                                    <div className="flex items-center gap-4 border-b border-slate-100 pb-4">
+                                        <div className="w-10 h-10 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center shadow-sm">
+                                            <span className="text-sm font-black">₹</span>
+                                        </div>
+                                        <h3 className="text-xl font-black text-slate-900 tracking-tight">Financial Summary</h3>
+                                    </div>
+                                    
+                                    <div className="grid grid-cols-3 gap-4">
+                                        <div className="p-6 bg-slate-50 rounded-[2rem] border border-slate-100">
+                                            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Fees</p>
+                                            <p className="text-sm font-black text-slate-700">₹{student.total_fees || 0}</p>
+                                        </div>
+                                        <div className="p-6 bg-slate-50 rounded-[2rem] border border-slate-100">
+                                            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Paid</p>
+                                            <p className="text-sm font-black text-emerald-600">₹{student.total_paid || 0}</p>
+                                        </div>
+                                        <div className="p-6 bg-slate-50 rounded-[2rem] border border-slate-100">
+                                            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Balance</p>
+                                            <p className={`text-sm font-black ${(student.total_fees || 0) - (student.total_paid || 0) > 0 ? 'text-rose-600' : 'text-slate-500'}`}>
+                                                ₹{Math.max(0, (student.total_fees || 0) - (student.total_paid || 0))}
+                                            </p>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

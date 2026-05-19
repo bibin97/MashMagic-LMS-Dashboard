@@ -106,7 +106,7 @@ const Approvals = () => {
             <div>
               <h2 className="text-4xl font-black text-slate-900 tracking-tighter leading-none mb-3">Verification Hub</h2>
               <p className="text-slate-600 text-[10px] font-black uppercase tracking-[0.2em] flex items-center justify-center md:justify-start gap-3 mt-1">
-                <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                 Staff Approvals & Portal Activity Monitoring
               </p>
             </div>

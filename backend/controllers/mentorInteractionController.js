@@ -72,80 +72,65 @@ const generateAssignments = async (mentor_id, today) => {
     if (students.length === 0) return [];
 
     let selectedForToday = [];
+    let carryOverStudents = [];
 
-    if (students.length <= 15) {
-        // If mentor has 15 or fewer students (e.g. 12 students), all students are included daily
-        selectedForToday = [...students];
-    } else {
-        // Mentor has > 15 students. Implement carryover + onboarding priority + rotation logic.
-        let carryOverStudents = [];
-        let lastAssignedId = null;
+    // Query the most recent past assignment record for this mentor
+    const [lastRecord] = await db.query(
+        'SELECT assignments, date FROM daily_assignments WHERE mentor_id = ? AND date < ? ORDER BY date DESC LIMIT 1',
+        [mentor_id, today]
+    );
 
-        // Query the most recent past assignment record for this mentor
-        const [lastRecord] = await db.query(
-            'SELECT assignments, date FROM daily_assignments WHERE mentor_id = ? AND date < ? ORDER BY date DESC LIMIT 1',
-            [mentor_id, today]
-        );
-
-        if (lastRecord.length > 0) {
-            let prevAssignments = lastRecord[0].assignments;
-            if (typeof prevAssignments === 'string') {
-                try { prevAssignments = JSON.parse(prevAssignments); } catch(e) { prevAssignments = []; }
-            }
-            if (Array.isArray(prevAssignments) && prevAssignments.length > 0) {
-                // Find students who were NOT completed yesterday/last session
-                const uncompleted = prevAssignments.filter(a => a.status !== 'COMPLETED');
-                const activeStudentMap = new Map(students.map(s => [s.id, s]));
-                
-                for (const a of uncompleted) {
-                    if (activeStudentMap.has(a.id)) {
-                        carryOverStudents.push(activeStudentMap.get(a.id));
-                    }
+    if (lastRecord.length > 0) {
+        let prevAssignments = lastRecord[0].assignments;
+        if (typeof prevAssignments === 'string') {
+            try { prevAssignments = JSON.parse(prevAssignments); } catch(e) { prevAssignments = []; }
+        }
+        if (Array.isArray(prevAssignments) && prevAssignments.length > 0) {
+            // Find students who were NOT completed yesterday/last session
+            const uncompleted = prevAssignments.filter(a => a.status !== 'COMPLETED');
+            const activeStudentMap = new Map(students.map(s => [s.id, s]));
+            
+            for (const a of uncompleted) {
+                if (activeStudentMap.has(a.id)) {
+                    carryOverStudents.push(activeStudentMap.get(a.id));
                 }
-                lastAssignedId = prevAssignments[prevAssignments.length - 1]?.id;
             }
         }
+    }
 
-        // Determine where the next rotation should start in the circular array
-        let nextStartIndex = 0;
-        if (lastAssignedId) {
-            const lastIdx = students.findIndex(s => s.id === lastAssignedId);
-            if (lastIdx !== -1) {
-                nextStartIndex = (lastIdx + 1) % students.length;
-            }
-        } else {
-            // Fallback if no previous record exists
-            const refDate = new Date('2024-01-01');
-            const currentDate = new Date(today);
-            const diffTime = Math.abs(currentDate - refDate);
-            const dayNumber = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-            nextStartIndex = (dayNumber * 15) % students.length;
+    // Determine where the next rotation should start in the circular array
+    // Explicit 10-student shift per day to match: Day 1: 1-15, Day 2: 11-25, Day 3: 21-10, etc.
+    const refDate = new Date('2024-01-01');
+    const currentDate = new Date(today);
+    const diffTime = Math.abs(currentDate - refDate);
+    const dayNumber = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    
+    // Shift by 10 every day.
+    const nextStartIndex = (dayNumber * 10) % students.length;
+
+    // Fill selectedForToday starting with onboarding students first, then carryOverStudents
+    const onboardingStudents = students.filter(s => s.onboarding_status === 'pending');
+    selectedForToday = [...onboardingStudents];
+    const carryOverSet = new Set(onboardingStudents.map(s => s.id));
+
+    for (const s of carryOverStudents) {
+        if (!carryOverSet.has(s.id)) {
+            selectedForToday.push(s);
+            carryOverSet.add(s.id);
         }
+    }
 
-        // Fill selectedForToday starting with onboarding students first, then carryOverStudents
-        const onboardingStudents = students.filter(s => s.onboarding_status === 'pending');
-        selectedForToday = [...onboardingStudents];
-        const carryOverSet = new Set(onboardingStudents.map(s => s.id));
-
-        for (const s of carryOverStudents) {
-            if (!carryOverSet.has(s.id)) {
-                selectedForToday.push(s);
-                carryOverSet.add(s.id);
-            }
+    // Now pick new students from rotation until we reach exactly 15 students
+    let currIdx = nextStartIndex;
+    let attempts = 0;
+    while (selectedForToday.length < 15 && attempts < students.length) {
+        const candidate = students[currIdx];
+        if (!carryOverSet.has(candidate.id)) {
+            selectedForToday.push(candidate);
+            carryOverSet.add(candidate.id);
         }
-
-        // Now pick new students from rotation until we reach exactly 15 students
-        let currIdx = nextStartIndex;
-        let attempts = 0;
-        while (selectedForToday.length < 15 && attempts < students.length) {
-            const candidate = students[currIdx];
-            if (!carryOverSet.has(candidate.id)) {
-                selectedForToday.push(candidate);
-                carryOverSet.add(candidate.id);
-            }
-            currIdx = (currIdx + 1) % students.length;
-            attempts++;
-        }
+        currIdx = (currIdx + 1) % students.length;
+        attempts++;
     }
 
     // 4. Distribute into session types (Deep, Medium, Quick)

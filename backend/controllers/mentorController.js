@@ -166,7 +166,7 @@ const getMentorStudents = async (req, res) => {
             s.onboarding_status
             FROM students s 
             LEFT JOIN users m ON s.mentor_id = m.id
-            ${isPrivileged ? '' : 'WHERE s.mentor_id = ?'}
+            WHERE s.status NOT IN ('pending', 'rejected') ${isPrivileged ? '' : 'AND s.mentor_id = ?'}
         `, isPrivileged ? [] : [mentorId]);
         res.status(200).json({ success: true, data: rows });
     } catch (error) {

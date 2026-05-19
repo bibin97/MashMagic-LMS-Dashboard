@@ -235,10 +235,24 @@ const Students = () => {
       header: 'Status',
       width: '120px',
       render: (row) => (
-        <span className={`inline-flex items-center justify-center min-w-[80px] px-4 py-2 rounded-full text-[9px] font-black uppercase tracking-[0.15em] shadow-sm border transition-all ${row.status === 'active' 
-          ? 'bg-emerald-50 text-emerald-600 border-emerald-100' 
-          : 'bg-rose-50 text-rose-600 border-rose-100 animate-pulse'}`}>
-          {row.status === 'active' ? 'Active' : row.status === 'inactive' ? 'Backup' : row.status === 'pending' ? 'Left' : row.status}
+        <span className={`inline-flex items-center justify-center min-w-[120px] px-4 py-2 rounded-full text-[9px] font-black uppercase tracking-[0.15em] shadow-sm border transition-all ${
+          row.status === 'active' 
+            ? 'bg-emerald-50 text-emerald-600 border-emerald-100' 
+            : row.status === 'pending'
+              ? 'bg-amber-50 text-amber-600 border-amber-100 animate-pulse'
+              : row.status === 'inactive'
+                ? 'bg-slate-50 text-slate-600 border-slate-100'
+                : 'bg-rose-50 text-rose-600 border-rose-100'
+        }`}>
+          {row.status === 'active' 
+            ? 'Active' 
+            : row.status === 'inactive' 
+              ? 'Backup' 
+              : row.status === 'pending' 
+                ? 'Pending Approval' 
+                : row.status === 'left' 
+                  ? 'Left' 
+                  : row.status}
         </span>
       )
     },
@@ -420,7 +434,8 @@ const Students = () => {
  >
   <option value="active">Active</option>
   <option value="inactive">Backup</option>
-  <option value="pending">Left</option>
+  <option value="pending">Pending Approval</option>
+   <option value="left">Left</option>
   <option value="rejected">Rejected</option>
  </select>
  </div>
