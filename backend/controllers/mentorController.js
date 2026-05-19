@@ -409,37 +409,6 @@ const getMentorTimetable = async (req, res) => {
         const mentorId = req.user.id;
         const { student_id, mentor_id, status, start_date, end_date } = req.query;
 
-        // --- DEBUG LOGGING ---
-        const fs = require('fs');
-        const path = require('path');
-        const logFile = path.join(__dirname, '..', 'debug_timetable.log');
-        
-        let debugInfo = `\n--- [${new Date().toISOString()}] getMentorTimetable called ---\n`;
-        debugInfo += `User: ID=${req.user.id}, Role=${req.user.role}, Name=${req.user.name || 'N/A'}\n`;
-        debugInfo += `Query Params: student_id=${student_id}, mentor_id=${mentor_id}, status=${status}, start_date=${start_date}, end_date=${end_date}\n`;
-
-        try {
-            const [[totSessions]] = await db.query('SELECT COUNT(*) as cnt FROM timetable');
-            debugInfo += `Raw rows in timetable: ${totSessions.cnt}\n`;
-        } catch (e) {
-            debugInfo += `Error counting timetable: ${e.message}\n`;
-        }
-
-        try {
-            const [[totStudents]] = await db.query('SELECT COUNT(*) as cnt FROM students');
-            debugInfo += `Raw rows in students: ${totStudents.cnt}\n`;
-        } catch (e) {
-            debugInfo += `Error counting students: ${e.message}\n`;
-        }
-
-        try {
-            const [sampleSessions] = await db.query('SELECT student_id, mentor_id, date, status FROM timetable LIMIT 5');
-            debugInfo += `Sample sessions from table: ${JSON.stringify(sampleSessions)}\n`;
-        } catch (e) {
-            debugInfo += `Error fetching sample sessions: ${e.message}\n`;
-        }
-        // ---------------------
-
         let query = `
             SELECT t.*, s.name as student_name 
             FROM timetable t
@@ -477,18 +446,7 @@ const getMentorTimetable = async (req, res) => {
 
         query += ' ORDER BY t.date DESC, t.start_time DESC';
 
-        debugInfo += `Generated Query: ${query.replace(/\s+/g, ' ')}\n`;
-        debugInfo += `Params: ${JSON.stringify(params)}\n`;
-
         const [rows] = await db.query(query, params);
-
-        debugInfo += `Returned rows count: ${rows.length}\n`;
-        if (rows.length > 0) {
-            debugInfo += `Sample returned row student name: ${rows[0].student_name}\n`;
-        }
-
-        console.log(debugInfo);
-        fs.appendFileSync(logFile, debugInfo);
 
         // Calculate summary
         const summary = {
