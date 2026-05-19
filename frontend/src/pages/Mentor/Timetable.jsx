@@ -313,6 +313,7 @@ const Timetable = () => {
       }
 
       try {
+        console.log("Sending bulk timetable data:", { student_id: formData.student_id, sessions: bulkSessions });
         await api.post('/mentor/timetable/batch', {
           student_id: formData.student_id,
           sessions: bulkSessions
@@ -321,6 +322,10 @@ const Timetable = () => {
         setShowModal(false);
         fetchTimetable();
       } catch (error) {
+        console.error("Batch Timetable Creation Error:", error);
+        if (error.response) {
+            console.error("Error Response Data:", error.response.data);
+        }
         toast.error(error.response?.data?.message || "Batch operation failed");
       }
     }
