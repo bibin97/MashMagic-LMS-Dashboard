@@ -1,5 +1,36 @@
 const db = require('../config/db');
 
+const convertTo24Hour = (timeStr) => {
+    if (!timeStr) return null;
+    timeStr = timeStr.trim().toLowerCase();
+    
+    // If it is already in HH:MM:SS or HH:MM 24-hour format
+    const match24 = timeStr.match(/^(\d{1,2}):(\d{2})(?::(\d{2}))?$/);
+    if (match24) {
+        let hrs = parseInt(match24[1], 10);
+        let mins = parseInt(match24[2], 10);
+        let secs = match24[3] ? parseInt(match24[3], 10) : 0;
+        return `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+    }
+
+    // Match 12-hour format with AM/PM (e.g. "8:00 pm", "10:30 am", "8 pm")
+    const match12 = timeStr.match(/^(\d{1,2})(?::(\d{2}))?\s*(am|pm)$/);
+    if (match12) {
+        let hrs = parseInt(match12[1], 10);
+        let mins = match12[2] ? parseInt(match12[2], 10) : 0;
+        const ampm = match12[3];
+
+        if (ampm === 'pm' && hrs < 12) {
+            hrs += 12;
+        } else if (ampm === 'am' && hrs === 12) {
+            hrs = 0;
+        }
+        return `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:00`;
+    }
+
+    return timeStr;
+};
+
 // @desc    Get mentor dashboard stats
 // @route   GET /api/mentor/dashboard
 const getMentorDashboard = async (req, res) => {
@@ -488,6 +519,9 @@ const createSession = async (req, res) => {
             faculty_id, faculty_name, session_mode
         } = req.body;
 
+        const formattedStartTime = convertTo24Hour(start_time);
+        const formattedEndTime = convertTo24Hour(end_time);
+
         // Resolve student's actual mentor_id
         const [[studentObj]] = await db.query('SELECT mentor_id FROM students WHERE id = ?', [student_id]);
         if (!studentObj) {
@@ -503,7 +537,7 @@ const createSession = async (req, res) => {
             AND (
                 (start_time < ? AND end_time > ?)
             )
-        `, [targetMentorId, date, end_time, start_time]);
+        `, [targetMentorId, date, formattedEndTime, formattedStartTime]);
 
         if (conflicts.length > 0) {
             return res.status(400).json({ success: false, message: "Time conflict detected with another session." });
@@ -517,8 +551,8 @@ const createSession = async (req, res) => {
         const session_number = (lastSession[0].lastNum || 0) + 1;
 
         // 3. Calculate Duration
-        const start = new Date(`1970-01-01T${start_time}`);
-        const end = new Date(`1970-01-01T${end_time}`);
+        const start = new Date(`1970-01-01T${formattedStartTime}`);
+        const end = new Date(`1970-01-01T${formattedEndTime}`);
         const diffMs = end - start;
         const diffMins = Math.round(diffMs / 60000);
         const duration = `${Math.floor(diffMins / 60)}h ${diffMins % 60}m`;
@@ -530,7 +564,7 @@ const createSession = async (req, res) => {
                 faculty_id, faculty_name, session_mode
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `, [
-            targetMentorId, student_id, session_number, date, start_time, end_time,
+            targetMentorId, student_id, session_number, date, formattedStartTime, formattedEndTime,
             duration, chapter, session_type, status || 'Scheduled', status_reason, notes,
             faculty_id || null, faculty_name || null, session_mode || 'Online'
         ]);
@@ -554,6 +588,9 @@ const updateSession = async (req, res) => {
             faculty_id, faculty_name, session_mode
         } = req.body;
 
+        const formattedStartTime = convertTo24Hour(start_time);
+        const formattedEndTime = convertTo24Hour(end_time);
+
         // Get existing session to find the mentor_id
         const [[existingSession]] = await db.query('SELECT mentor_id FROM mentor_timetable WHERE id = ?', [sessionId]);
         if (!existingSession) {
@@ -569,15 +606,15 @@ const updateSession = async (req, res) => {
             AND (
                 (start_time < ? AND end_time > ?)
             )
-        `, [targetMentorId, date, sessionId, end_time, start_time]);
+        `, [targetMentorId, date, sessionId, formattedEndTime, formattedStartTime]);
 
         if (conflicts.length > 0) {
             return res.status(400).json({ success: false, message: "Time conflict detected." });
         }
 
         // Calculate Duration
-        const start = new Date(`1970-01-01T${start_time}`);
-        const end = new Date(`1970-01-01T${end_time}`);
+        const start = new Date(`1970-01-01T${formattedStartTime}`);
+        const end = new Date(`1970-01-01T${formattedEndTime}`);
         const diffMs = end - start;
         const diffMins = Math.round(diffMs / 60000);
         const duration = `${Math.floor(diffMins / 60)}h ${diffMins % 60}m`;
@@ -590,7 +627,7 @@ const updateSession = async (req, res) => {
             WHERE id = ?
         `;
         let params = [
-            date, start_time, end_time, duration, chapter, 
+            date, formattedStartTime, formattedEndTime, duration, chapter, 
             session_type, status, status_reason, notes,
             faculty_id || null, faculty_name || null, session_mode || 'Online',
             sessionId
@@ -826,9 +863,12 @@ const createBatchTimetable = async (req, res) => {
         for (const session of sessions) {
             const { date, start_time, end_time, chapter, session_type, notes, faculty_id, faculty_name, session_mode } = session;
 
+            const formattedStartTime = convertTo24Hour(start_time);
+            const formattedEndTime = convertTo24Hour(end_time);
+
             // Calculate duration
-            const start = new Date(`1970-01-01T${start_time}`);
-            const end = new Date(`1970-01-01T${end_time}`);
+            const start = new Date(`1970-01-01T${formattedStartTime}`);
+            const end = new Date(`1970-01-01T${formattedEndTime}`);
             const diffMs = end - start;
             const diffMins = Math.round(diffMs / 60000);
             const duration = `${Math.floor(diffMins / 60)}h ${diffMins % 60}m`;
@@ -840,7 +880,7 @@ const createBatchTimetable = async (req, res) => {
                     faculty_id, faculty_name, session_mode
                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'Scheduled', ?, ?, ?, ?)
             `, [
-                actualMentorId, student_id, currentSessionNum++, date, start_time, end_time,
+                actualMentorId, student_id, currentSessionNum++, date, formattedStartTime, formattedEndTime,
                 duration, chapter, session_type || 'Regular Class', notes || '',
                 faculty_id || null, faculty_name || null, session_mode || 'Online'
             ]);
