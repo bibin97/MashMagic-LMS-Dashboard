@@ -710,7 +710,7 @@ const Timetable = () => {
               ) : (
                 <div className="space-y-8">
                   {/* Registration Slot Helper */}
-                  {studentSchedule.length > 0 && !editingSession && (
+                  {studentSchedule && studentSchedule.length > 0 && !editingSession && (
                     <div className="bg-emerald-50 p-6 rounded-[2rem] border border-emerald-100 space-y-3">
                       <div className="flex items-center justify-between px-1">
                         <label className="text-[10px] font-black text-emerald-600 uppercase tracking-widest flex items-center gap-2">

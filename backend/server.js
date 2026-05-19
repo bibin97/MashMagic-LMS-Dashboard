@@ -130,6 +130,18 @@ const syncStudentsOnStart = async () => {
                 console.log(`❌ Removed rejected student: ${student.name}`);
             }
         }
+
+        // 3. Sync mentor_id in mentor_timetable with the current student's mentor_id
+        const [timetableSyncRes] = await pool.query(`
+            UPDATE mentor_timetable t
+            JOIN students s ON t.student_id = s.id
+            SET t.mentor_id = s.mentor_id
+            WHERE t.mentor_id IS NULL OR t.mentor_id != s.mentor_id
+        `);
+        if (timetableSyncRes.affectedRows > 0) {
+            console.log(`✅ Synchronized mentor_id for ${timetableSyncRes.affectedRows} sessions in mentor_timetable.`);
+        }
+
         console.log('✅ Student synchronization and cleanup complete');
     } catch (err) {
         console.log('⚠️ Failed to sync students on startup:', err.message);

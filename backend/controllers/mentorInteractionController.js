@@ -38,6 +38,30 @@ const getDailyAssignments = async (req, res) => {
             if (hasMissingOnboarding || (Array.isArray(savedAssignments) && savedAssignments.length < 15 && currentStudents.length > savedAssignments.length)) {
                 // Regenerate
             } else {
+                if (savedAssignments && savedAssignments.length > 0) {
+                    const studentIds = savedAssignments.map(a => a.id);
+                    const [latestStudents] = await db.query(
+                        `SELECT id, name, priority_category, enrollment_type, badge, onboarding_status 
+                         FROM students 
+                         WHERE id IN (?)`,
+                        [studentIds]
+                    );
+                    const studentMap = new Map(latestStudents.map(s => [s.id, s]));
+                    savedAssignments = savedAssignments.map(assignment => {
+                        const latest = studentMap.get(assignment.id);
+                        if (latest) {
+                            return {
+                                ...assignment,
+                                name: latest.name,
+                                priority_category: latest.priority_category,
+                                enrollment_type: latest.enrollment_type,
+                                badge: latest.badge,
+                                onboarding_status: latest.onboarding_status
+                            };
+                        }
+                        return assignment;
+                    });
+                }
                 return res.status(200).json({ success: true, data: savedAssignments || [] });
             }
         }
