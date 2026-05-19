@@ -159,15 +159,7 @@ const Timetable = () => {
           const todaySlot = schedule.find(slot => slot.day_of_week === dayName);
           
           if (todaySlot) {
-            setFormData(prev => ({
-              ...prev,
-              start_time: formatTo24hTime(todaySlot.start_time),
-              end_time: formatTo24hTime(todaySlot.end_time),
-              chapter: todaySlot.subject || '',
-              faculty_id: String(todaySlot.faculty_id),
-              faculty_name: todaySlot.faculty_name
-            }));
-            toast.success(`Auto-populated registration schedule`);
+            toast.success(`Registration schedule available for this day. You can auto-fill from the reference list.`);
           }
         } catch (error) {
           console.error("Failed to fetch student schedule");
@@ -738,65 +730,6 @@ const Timetable = () => {
                 </div>
               ) : (
                 <div className="space-y-8">
-                  {/* Registration Slot Helper */}
-                  {studentSchedule && studentSchedule.length > 0 && !editingSession && (
-                    <div className="bg-emerald-50 p-6 rounded-[2rem] border border-emerald-100 space-y-3">
-                      <div className="flex items-center justify-between px-1">
-                        <label className="text-[10px] font-black text-emerald-600 uppercase tracking-widest flex items-center gap-2">
-                           <Info size={14} /> Registered Academic Slot Reference
-                        </label>
-                        <button
-                          type="button"
-                          onClick={handleScheduleEditOpen}
-                          className="text-[10px] font-black text-emerald-700 hover:text-emerald-900 flex items-center gap-1 uppercase"
-                        >
-                          <Edit2 size={12} /> Edit Registration Timetable
-                        </button>
-                      </div>
-                      <select
-                        onChange={(e) => {
-                          const idx = e.target.value;
-                          if (idx === "") return;
-                          const slot = studentSchedule[idx];
-                          setFormData({
-                            ...formData,
-                            start_time: formatTo24hTime(slot.start_time),
-                            end_time: formatTo24hTime(slot.end_time),
-                            chapter: slot.subject || '',
-                            faculty_id: String(slot.faculty_id),
-                            faculty_name: slot.faculty_name
-                          });
-                          setSelectedSlot(idx);
-                        }}
-                        className="w-full p-4 bg-white border border-emerald-200 rounded-2xl text-[11px] font-black text-emerald-700 outline-none focus:ring-4 ring-emerald-500/10 transition-all cursor-pointer"
-                      >
-                        <option value="">Auto-fill from registered schedule...</option>
-                        {studentSchedule && studentSchedule.map((slot, idx) => {
-                          const currentDay = new Date(formData.date).toLocaleDateString('en-GB', { weekday: 'long' });
-                          if (slot.day_of_week !== currentDay) return null;
-                          return (
-                            <option key={idx} value={idx}>
-                               {slot.subject} | {(slot.start_time || '').substring(0, 5)} - {(slot.end_time || '').substring(0, 5)} ({slot.faculty_name})
-                            </option>
-                          );
-                        })}
-                      </select>
-                    </div>
-                  )}
-
-                  {!editingSession && !isScheduleLoading && studentSchedule !== null && studentSchedule.length === 0 && formData.student_id && (
-                    <div className="bg-rose-50 p-6 rounded-[2rem] border border-rose-100 flex items-center justify-between">
-                       <p className="text-[10px] font-black text-rose-600 uppercase tracking-widest">No registration schedule found for this student</p>
-                       <button
-                          type="button"
-                          onClick={handleScheduleEditOpen}
-                          className="px-4 py-2 bg-rose-600 text-white text-[10px] font-black rounded-xl uppercase"
-                        >
-                          Setup Schedule
-                        </button>
-                    </div>
-                  )}
-
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div className="space-y-2">
                       <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Student Selection *</label>
@@ -822,6 +755,65 @@ const Timetable = () => {
                         className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
                       />
                     </div>
+
+                    {/* Registration Slot Helper */}
+                    {studentSchedule && studentSchedule.length > 0 && !editingSession && (
+                      <div className="md:col-span-2 bg-emerald-50 p-6 rounded-[2rem] border border-emerald-100 space-y-3">
+                        <div className="flex items-center justify-between px-1">
+                          <label className="text-[10px] font-black text-emerald-600 uppercase tracking-widest flex items-center gap-2">
+                             <Info size={14} /> Registered Academic Slot Reference
+                          </label>
+                          <button
+                            type="button"
+                            onClick={handleScheduleEditOpen}
+                            className="text-[10px] font-black text-emerald-700 hover:text-emerald-900 flex items-center gap-1 uppercase"
+                          >
+                            <Edit2 size={12} /> Edit Registration Timetable
+                          </button>
+                        </div>
+                        <select
+                          onChange={(e) => {
+                            const idx = e.target.value;
+                            if (idx === "") return;
+                            const slot = studentSchedule[idx];
+                            setFormData({
+                              ...formData,
+                              start_time: formatTo24hTime(slot.start_time),
+                              end_time: formatTo24hTime(slot.end_time),
+                              chapter: slot.subject || '',
+                              faculty_id: String(slot.faculty_id),
+                              faculty_name: slot.faculty_name
+                            });
+                            setSelectedSlot(idx);
+                          }}
+                          className="w-full p-4 bg-white border border-emerald-200 rounded-2xl text-[11px] font-black text-emerald-700 outline-none focus:ring-4 ring-emerald-500/10 transition-all cursor-pointer"
+                        >
+                          <option value="">Auto-fill from registered schedule...</option>
+                          {studentSchedule && studentSchedule.map((slot, idx) => {
+                            const currentDay = new Date(formData.date).toLocaleDateString('en-GB', { weekday: 'long' });
+                            if (slot.day_of_week !== currentDay) return null;
+                            return (
+                              <option key={idx} value={idx}>
+                                 {slot.subject} | {(slot.start_time || '').substring(0, 5)} - {(slot.end_time || '').substring(0, 5)} ({slot.faculty_name})
+                              </option>
+                            );
+                          })}
+                        </select>
+                      </div>
+                    )}
+
+                    {!editingSession && !isScheduleLoading && studentSchedule !== null && studentSchedule.length === 0 && formData.student_id && (
+                      <div className="md:col-span-2 bg-rose-50 p-6 rounded-[2rem] border border-rose-100 flex items-center justify-between">
+                         <p className="text-[10px] font-black text-rose-600 uppercase tracking-widest">No registration schedule found for this student</p>
+                         <button
+                            type="button"
+                            onClick={handleScheduleEditOpen}
+                            className="px-4 py-2 bg-rose-600 text-white text-[10px] font-black rounded-xl uppercase"
+                          >
+                            Setup Schedule
+                          </button>
+                      </div>
+                    )}
 
                     <div className="space-y-2">
                       <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Start Time *</label>
