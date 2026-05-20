@@ -1332,6 +1332,7 @@ async function syncTimetableToFacultySession(timetableId) {
         }
     } catch (error) {
         console.error('Error in syncTimetableToFacultySession:', error.message);
+        throw new Error('Sync to Academic Schedule failed: ' + error.message);
     }
 }
 
