@@ -15,10 +15,11 @@ const AcademicSchedule = () => {
   const [activeTab, setActiveTab] = useState('today');
   const [selectedSession, setSelectedSession] = useState(null);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
-  const [isReminderModalOpen, setIsReminderModalOpen] = useState(false);
   const [isCompleteModalOpen, setIsCompleteModalOpen] = useState(false);
-  const [reminderData, setReminderData] = useState({ num: 1, remark: '' });
   const [minutesTaken, setMinutesTaken] = useState('');
+
+  // Keep tracking input values for reminder remarks in a local state so they are editable
+  const [reminderRemarks, setReminderRemarks] = useState({ 1: '', 2: '', 3: '' });
 
   useEffect(() => {
     fetchSchedule();
@@ -36,7 +37,12 @@ const AcademicSchedule = () => {
   };
 
   const getFilteredData = () => {
-    const today = new Date().toISOString().split('T')[0];
+    const localToday = new Date();
+    const year = localToday.getFullYear();
+    const month = String(localToday.getMonth() + 1).padStart(2, '0');
+    const day = String(localToday.getDate()).padStart(2, '0');
+    const todayStr = `${year}-${month}-${day}`;
+
     let filtered = schedule.filter(session => {
       const matchesSearch =
         (session.topic || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -46,9 +52,15 @@ const AcademicSchedule = () => {
     });
 
     if (activeTab === 'today') {
-      return filtered.filter(s => s.date.split('T')[0] === today && s.status !== 'Completed');
+      return filtered.filter(s => {
+        const sessionDate = s.date.split('T')[0];
+        return sessionDate === todayStr && s.status !== 'Completed' && s.status !== 'Postponed';
+      });
     } else if (activeTab === 'upcoming') {
-      return filtered.filter(s => s.date.split('T')[0] > today && s.status !== 'Completed');
+      return filtered.filter(s => {
+        const sessionDate = s.date.split('T')[0];
+        return s.status === 'Postponed' || (sessionDate > todayStr && s.status !== 'Completed');
+      });
     } else {
       return filtered.filter(s => s.status === 'Completed');
     }
@@ -56,33 +68,55 @@ const AcademicSchedule = () => {
 
   const currentData = getFilteredData();
 
-  const handleReminder = async () => {
-    if (!reminderData.remark.trim()) return toast.error("Remark is required");
+  const handleReminderSave = async (num, remark) => {
+    if (!remark.trim()) return toast.error("Remark is required");
     try {
       await api.put(`/mentor/academic-schedule/${selectedSession.id}/reminder`, {
-        reminder_num: reminderData.num,
-        remark: reminderData.remark
+        reminder_num: num,
+        remark: remark
       });
-      toast.success(`Reminder ${reminderData.num} recorded`);
-      setIsReminderModalOpen(false);
-      fetchSchedule();
+      toast.success(`Reminder ${num} recorded successfully`);
+      
+      // Update selectedSession locally
+      const updatedSession = { 
+        ...selectedSession, 
+        [`reminder_${num}`]: 1, 
+        [`reminder_${num}_remark`]: remark 
+      };
+      setSelectedSession(updatedSession);
+      
+      // Update main schedule state
+      setSchedule(prev => prev.map(s => s.id === selectedSession.id ? updatedSession : s));
     } catch (error) {
       toast.error("Failed to update reminder");
     }
   };
 
   const handleComplete = async () => {
-    if (!minutesTaken || isNaN(minutesTaken)) return toast.error("Enter valid minutes");
+    if (!minutesTaken || isNaN(minutesTaken) || parseInt(minutesTaken) <= 0) {
+      return toast.error("Enter valid positive minutes");
+    }
     try {
       await api.put(`/mentor/academic-schedule/${selectedSession.id}/complete`, {
         minutes_taken: parseInt(minutesTaken)
       });
       toast.success("Session marked as completed");
       setIsCompleteModalOpen(false);
+      setIsDetailsModalOpen(false);
       fetchSchedule();
     } catch (error) {
       toast.error(error.response?.data?.message || "Failed to complete session");
     }
+  };
+
+  const openDetailsModal = (session) => {
+    setSelectedSession(session);
+    setReminderRemarks({
+      1: session.reminder_1_remark || '',
+      2: session.reminder_2_remark || '',
+      3: session.reminder_3_remark || ''
+    });
+    setIsDetailsModalOpen(true);
   };
 
   if (loading) return (
@@ -214,22 +248,24 @@ const AcademicSchedule = () => {
               )}
               
               <button 
-                onClick={() => { setSelectedSession(session); setIsDetailsModalOpen(true); }}
+                onClick={() => openDetailsModal(session)}
                 className="py-3 bg-white text-slate-700 border border-slate-200 rounded-xl text-[9px] font-black uppercase tracking-widest hover:border-[#008080] hover:text-[#008080] transition-all flex items-center justify-center gap-2"
               >
-                <Bell size={14} /> Reminders
+                <BookOpen size={14} /> Session Details
               </button>
 
-              <button 
-                onClick={() => { setSelectedSession(session); setIsDetailsModalOpen(true); }}
-                className={`py-3 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 ${
-                  session.status === 'Completed' 
-                  ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' 
-                  : 'bg-slate-900 text-white hover:bg-[#008080]'
-                }`}
-              >
-                <CheckSquare size={14} /> {session.status === 'Completed' ? 'Completed' : 'Finish'}
-              </button>
+              {session.status === 'Completed' ? (
+                <div className="py-3 bg-emerald-50 text-emerald-600 border border-emerald-100 rounded-xl text-[9px] font-black uppercase tracking-widest flex items-center justify-center gap-2">
+                  <CheckSquare size={14} /> Completed
+                </div>
+              ) : (
+                <button 
+                  onClick={() => { setSelectedSession(session); setMinutesTaken(''); setIsCompleteModalOpen(true); }}
+                  className="py-3 bg-slate-900 text-white hover:bg-[#008080] rounded-xl text-[9px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2"
+                >
+                  <CheckSquare size={14} /> Class Completed
+                </button>
+              )}
             </div>
           </div>
         ))}
@@ -273,24 +309,48 @@ const AcademicSchedule = () => {
                 </div>
               </div>
 
-              {/* Reminder Section */}
-              <div className="space-y-4">
+              {/* Reminder Section (Direct remark inputs) */}
+              <div className="space-y-6">
                 <h4 className="text-[10px] font-black text-slate-900 uppercase tracking-[0.2em] flex items-center gap-2">
-                  <Bell size={14} className="text-[#008080]" /> Communication Triggers
+                  <Bell size={14} className="text-[#008080]" /> Communication Triggers & Remarks
                 </h4>
-                <div className="grid grid-cols-3 gap-4">
-                  {[1, 2, 3].map(n => (
-                    <button
-                      key={n}
-                      onClick={() => { setReminderData({ num: n, remark: selectedSession[`reminder_${n}_remark`] || '' }); setIsReminderModalOpen(true); }}
-                      className={`p-4 rounded-2xl border transition-all flex flex-col items-center gap-2 ${selectedSession[`reminder_${n}`] ? 'bg-emerald-50 border-emerald-100 text-emerald-600' : 'bg-white border-slate-100 text-slate-400 hover:border-[#008080] hover:text-[#008080]'}`}
-                    >
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center ${selectedSession[`reminder_${n}`] ? 'bg-emerald-600 text-white' : 'bg-slate-50'}`}>
-                        {selectedSession[`reminder_${n}`] ? <CheckSquare size={14} /> : <span className="text-[10px] font-black">{n}</span>}
+                <div className="space-y-4">
+                  {[1, 2, 3].map(n => {
+                    const isSent = selectedSession[`reminder_${n}`];
+                    return (
+                      <div key={n} className={`p-6 rounded-2xl border transition-all ${isSent ? 'bg-emerald-50/50 border-emerald-100' : 'bg-slate-50/50 border-slate-100'} flex flex-col gap-3`}>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black ${isSent ? 'bg-emerald-500 text-white' : 'bg-slate-200 text-slate-600'}`}>
+                              {n}
+                            </div>
+                            <span className="text-[10px] font-black uppercase tracking-widest text-slate-700">Reminder {n}</span>
+                          </div>
+                          <span className={`text-[8px] font-black uppercase px-2.5 py-1 rounded-full ${isSent ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-200 text-slate-600'}`}>
+                            {isSent ? 'Sent' : 'Pending'}
+                          </span>
+                        </div>
+                        
+                        <div className="flex gap-2 items-end">
+                          <div className="flex-1">
+                            <input 
+                              type="text"
+                              value={reminderRemarks[n]}
+                              onChange={(e) => setReminderRemarks(prev => ({ ...prev, [n]: e.target.value }))}
+                              placeholder={`Type remark for Reminder ${n}...`}
+                              className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-bold focus:ring-2 ring-[#008080]/15 outline-none transition-all"
+                            />
+                          </div>
+                          <button
+                            onClick={() => handleReminderSave(n, reminderRemarks[n])}
+                            className="px-4 py-2.5 bg-slate-900 hover:bg-[#008080] text-white rounded-xl text-[9px] font-black uppercase tracking-widest transition-all"
+                          >
+                            Save Note
+                          </button>
+                        </div>
                       </div>
-                      <span className="text-[9px] font-black uppercase">Reminder {n}</span>
-                    </button>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
 
@@ -314,19 +374,20 @@ const AcademicSchedule = () => {
                           <Lock size={12} /> Duration Locked
                         </span>
                       </div>
+                      <p className="text-[9px] font-bold text-slate-400 uppercase mt-2">Only Academic Head can edit duration now</p>
                     </div>
                   </div>
                 ) : (
                   <button
                     onClick={() => { setMinutesTaken(''); setIsCompleteModalOpen(true); }}
-                    className="w-full p-8 bg-slate-900 text-white rounded-[2.5rem] flex items-center justify-between hover:bg-[#008080] transition-all group"
+                    className="w-full p-8 bg-slate-900 text-white rounded-[2.5rem] flex items-center justify-between hover:bg-[#008080] transition-all group animate-pulse"
                   >
                     <div className="flex items-center gap-6">
                       <div className="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center group-hover:bg-white/20 transition-colors">
                         <CheckSquare size={32} />
                       </div>
                       <div className="text-left">
-                        <p className="text-xl font-black uppercase tracking-tighter">Mark as Commenced</p>
+                        <p className="text-xl font-black uppercase tracking-tighter">Mark as Completed</p>
                         <p className="text-[10px] font-bold opacity-60 uppercase tracking-widest">Verify session hours and close phase</p>
                       </div>
                     </div>
@@ -339,36 +400,8 @@ const AcademicSchedule = () => {
         </div>
       )}
 
-      {/* Reminder Action Modal */}
-      {isReminderModalOpen && (
-        <div className="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-[10000] flex items-center justify-center p-4">
-          <div className="bg-white rounded-[2.5rem] shadow-2xl w-full max-md p-10 space-y-8">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-[#008080] text-white rounded-2xl flex items-center justify-center shadow-lg"><Bell size={24} /></div>
-              <div>
-                <h3 className="text-lg font-black text-slate-900 uppercase">Deploy Reminder {reminderData.num}</h3>
-                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Add execution remarks</p>
-              </div>
-            </div>
-            <div className="space-y-2">
-              <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Execution Remarks *</label>
-              <textarea
-                value={reminderData.remark}
-                onChange={(e) => setReminderData({ ...reminderData, remark: e.target.value })}
-                placeholder="Type reminder notes here..."
-                className="w-full p-5 bg-slate-50 border-none rounded-[1.5rem] text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none min-h-[120px]"
-              />
-            </div>
-            <div className="flex gap-4">
-              <button onClick={handleReminder} className="flex-1 py-4 bg-slate-900 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-[#008080] transition-all">Record Note</button>
-              <button onClick={() => setIsReminderModalOpen(false)} className="px-8 py-4 bg-slate-50 text-slate-600 rounded-2xl font-black text-xs uppercase tracking-widest">Close</button>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Completion Modal */}
-      {isCompleteModalOpen && (
+      {isCompleteModalOpen && selectedSession && (
         <div className="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-[10000] flex items-center justify-center p-4">
           <div className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-md p-10 space-y-8">
             <div className="flex items-center gap-4">

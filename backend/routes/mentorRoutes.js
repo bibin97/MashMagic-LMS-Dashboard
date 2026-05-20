@@ -57,9 +57,9 @@ router.put('/students/:studentId/connection', requireRole('mentor', 'ssc'), togg
 router.put('/students/:studentId/onboard', requireRole('mentor', 'ssc', 'super_admin', 'admin'), completeOnboarding);
 router.get('/exams/pending', requireRole('mentor'), getPendingExams);
 router.get('/exams/history', requireRole('mentor'), getExamHistory);
-router.get('/academic-schedule', requireRole('mentor', 'ssc'), getAcademicSchedule);
-router.put('/academic-schedule/:id/reminder', requireRole('mentor', 'ssc'), updateAcademicSessionReminder);
-router.put('/academic-schedule/:id/complete', requireRole('mentor', 'ssc'), completeAcademicSession);
+router.get('/academic-schedule', requireRole('mentor', 'ssc', 'academic_head', 'super_admin'), getAcademicSchedule);
+router.put('/academic-schedule/:id/reminder', requireRole('mentor', 'ssc', 'academic_head', 'super_admin'), updateAcademicSessionReminder);
+router.put('/academic-schedule/:id/complete', requireRole('mentor', 'ssc', 'academic_head', 'super_admin'), completeAcademicSession);
 router.post('/timetable/batch', requireRole('ssc'), createBatchTimetable);
 router.post('/exams/submit', requireRole('mentor'), submitExamResult);
 router.post('/mentorship-log', requireRole('mentor', 'ssc'), createMentorshipLog);

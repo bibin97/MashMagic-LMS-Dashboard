@@ -9,7 +9,9 @@ import {
  Search,
  Filter,
  ArrowUpRight,
- MessageSquare
+ MessageSquare,
+ Lock,
+ XCircle
 } from 'lucide-react';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
@@ -19,6 +21,10 @@ const AcademicHeadFacultyActivity = () => {
  const [loading, setLoading] = useState(true);
  const [activities, setActivities] = useState({ sessions: [], reports: [] });
  const [searchTerm, setSearchTerm] = useState('');
+
+ const [editingSession, setEditingSession] = useState(null);
+ const [isEditMinutesModalOpen, setIsEditMinutesModalOpen] = useState(false);
+ const [newMinutes, setNewMinutes] = useState('');
 
  useEffect(() => {
  fetchActivity();
@@ -36,6 +42,25 @@ const AcademicHeadFacultyActivity = () => {
  setLoading(false);
  }
  };
+
+ const handleEditMinutesSubmit = async (e) => {
+    e.preventDefault();
+    if (!newMinutes || isNaN(newMinutes) || parseInt(newMinutes) <= 0) {
+      return toast.error("Please enter a valid number of minutes");
+    }
+    try {
+      const res = await api.put(`/mentor/academic-schedule/${editingSession.id}/complete`, {
+        minutes_taken: parseInt(newMinutes)
+      });
+      if (res.data.success) {
+        toast.success("Session duration updated successfully");
+        setIsEditMinutesModalOpen(false);
+        fetchActivity();
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to update duration");
+    }
+  };
 
  const filteredData = activities[activeTab].filter(item => {
  const searchStr = searchTerm.toLowerCase();
@@ -151,6 +176,10 @@ const AcademicHeadFacultyActivity = () => {
  <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Attendance</p>
  <p className="text-lg font-black text-slate-900">{item.student_count || 0} Students</p>
  </div>
+ <div>
+ <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Duration</p>
+ <p className="text-sm font-black text-slate-800">{item.minutes_taken ? `${item.minutes_taken} mins` : 'Not recorded'}</p>
+ </div>
  <span className={`inline-block px-4 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest ${item.status === 'Completed' ? 'bg-emerald-500 text-white' : 'bg-amber-500 text-white'}`}>
  {item.status}
  </span>
@@ -168,6 +197,19 @@ const AcademicHeadFacultyActivity = () => {
  </div>
  )}
 
+ {activeTab === 'sessions' && item.status === 'Completed' && (
+    <button 
+      onClick={() => {
+        setEditingSession(item);
+        setNewMinutes(item.minutes_taken || '');
+        setIsEditMinutesModalOpen(true);
+      }}
+      className="mt-2 flex items-center justify-center lg:justify-end gap-2 text-[10px] font-black text-[#008080] uppercase tracking-widest hover:text-slate-900 transition-all group"
+    >
+      <Clock size={14} /> Edit Duration
+    </button>
+  )}
+
  <button className="mt-2 flex items-center justify-center lg:justify-end gap-2 text-[10px] font-black text-[#008080] uppercase tracking-widest hover:text-[#008080] transition-all group">
  Deep Dive Analysis
  <ArrowUpRight size={14} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
@@ -177,8 +219,62 @@ const AcademicHeadFacultyActivity = () => {
  ))
  )}
  </div>
- </div>
- );
+
+  {/* Edit Minutes Modal */}
+  {isEditMinutesModalOpen && editingSession && (
+    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[9999] flex items-center justify-center p-4">
+      <div className="bg-white rounded-[3rem] shadow-2xl w-full max-w-md p-10 space-y-8 animate-in zoom-in duration-200">
+        <div className="flex justify-between items-center">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-[#008080] text-white rounded-2xl flex items-center justify-center shadow-lg">
+              <Lock size={24} />
+            </div>
+            <div>
+              <h3 className="text-lg font-black text-slate-900 uppercase">Override Duration</h3>
+              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Academic Head Override</p>
+            </div>
+          </div>
+          <button 
+            onClick={() => setIsEditMinutesModalOpen(false)}
+            className="w-10 h-10 bg-slate-50 hover:bg-rose-50 text-slate-500 hover:text-rose-600 rounded-xl flex items-center justify-center transition-colors"
+          >
+            <XCircle size={20} />
+          </button>
+        </div>
+
+        <div className="p-5 bg-indigo-50 border border-indigo-100 rounded-2xl">
+          <p className="text-[10px] font-bold text-indigo-700 uppercase leading-relaxed tracking-wider">
+            Editing Session: <span className="font-black">{editingSession.topic}</span><br />
+            Faculty: <span className="font-black">{editingSession.faculty_name}</span>
+          </p>
+        </div>
+
+        <form onSubmit={handleEditMinutesSubmit} className="space-y-6">
+          <div className="space-y-2">
+            <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Session Minutes Taken</label>
+            <div className="relative">
+              <input
+                type="number"
+                value={newMinutes}
+                onChange={(e) => setNewMinutes(e.target.value)}
+                placeholder="e.g. 90"
+                required
+                className="w-full p-5 pl-14 bg-slate-50 border-none rounded-[1.5rem] text-sm font-black focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
+              />
+              <Clock className="absolute left-5 top-1/2 -translate-y-1/2 text-[#008080]" size={20} />
+            </div>
+          </div>
+
+          <div className="flex gap-4">
+            <button type="submit" className="flex-1 py-4 bg-slate-900 hover:bg-[#008080] text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl transition-all">Save Changes</button>
+            <button type="button" onClick={() => setIsEditMinutesModalOpen(false)} className="px-8 py-4 bg-slate-50 text-slate-600 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-slate-100 transition-colors">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )}
+  </div>
+  );
 };
 
 export default AcademicHeadFacultyActivity;

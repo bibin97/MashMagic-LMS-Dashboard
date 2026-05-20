@@ -337,7 +337,14 @@ const Timetable = () => {
       return;
     }
     
-    setBulkSessions([...bulkSessions, { ...formData }]);
+    const updatedSessions = [...bulkSessions, { ...formData }];
+    updatedSessions.sort((a, b) => {
+      if (a.date !== b.date) {
+        return a.date.localeCompare(b.date);
+      }
+      return a.start_time.localeCompare(b.start_time);
+    });
+    setBulkSessions(updatedSessions);
     toast.success("Session added to list");
     setFormData({
       ...formData,

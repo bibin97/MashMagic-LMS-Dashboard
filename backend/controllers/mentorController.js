@@ -529,6 +529,8 @@ const createSession = async (req, res) => {
             (faculty_id ? parseInt(faculty_id) : null), faculty_name || null, session_mode || 'Online'
         ]);
 
+        await syncTimetableToFacultySession(result.insertId);
+
         res.status(201).json({ success: true, message: "Session created successfully", id: result.insertId });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
@@ -601,6 +603,8 @@ const updateSession = async (req, res) => {
 
         await db.query(query, params);
 
+        await syncTimetableToFacultySession(sessionId);
+
         res.status(200).json({ success: true, message: "Session updated" });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
@@ -627,6 +631,8 @@ const deleteSession = async (req, res) => {
         if (result.affectedRows === 0) {
             return res.status(404).json({ success: false, message: "Session not found" });
         }
+
+        await syncTimetableToFacultySession(sessionId);
 
         res.status(200).json({ success: true, message: "Session deleted" });
     } catch (error) {
@@ -823,6 +829,7 @@ const createBatchTimetable = async (req, res) => {
         let currentSessionNum = (lastSession[0].lastNum || 0) + 1;
 
         // 2. Prepare and Insert each session
+        const insertedIds = [];
         for (const session of sessions) {
             const { date, start_time, end_time, chapter, session_type, notes, faculty_id, faculty_name, session_mode } = session;
 
@@ -836,7 +843,7 @@ const createBatchTimetable = async (req, res) => {
             const diffMins = Math.round(diffMs / 60000);
             const duration = `${Math.floor(diffMins / 60)}h ${diffMins % 60}m`;
 
-            await connection.query(`
+            const [result] = await connection.query(`
                 INSERT INTO timetable (
                     mentor_id, student_id, session_number, date, start_time, end_time,
                     duration, chapter, session_type, status, notes, 
@@ -847,6 +854,8 @@ const createBatchTimetable = async (req, res) => {
                 duration, chapter, session_type || 'Regular Class', notes || '',
                 (faculty_id ? parseInt(faculty_id) : null), faculty_name || null, session_mode || 'Online'
             ]);
+
+            insertedIds.push(result.insertId);
         }
 
         // 3. Mark student as onboarded
@@ -861,6 +870,12 @@ const createBatchTimetable = async (req, res) => {
         await connection.query(updateQuery, updateParams);
 
         await connection.commit();
+
+        // Sync to faculty_sessions outside the transaction
+        for (const timetableId of insertedIds) {
+            await syncTimetableToFacultySession(timetableId);
+        }
+
         res.status(201).json({ success: true, message: "Timetable created and onboarding completed" });
     } catch (error) {
         await connection.rollback();
@@ -985,15 +1000,25 @@ const getDailyHours = async (req, res) => {
 const getAcademicSchedule = async (req, res) => {
     try {
         const mentorId = req.user.id;
-        const [rows] = await db.query(`
+        let query = `
             SELECT fs.*, u.name as faculty_name, s.name as student_name, s.id as student_id, s.meeting_link
             FROM faculty_sessions fs
             JOIN users u ON fs.faculty_id = u.id
             JOIN session_attendance sa ON fs.id = sa.session_id
             JOIN students s ON sa.student_id = s.id
-            ${req.user.role === 'ssc' ? '' : 'WHERE s.mentor_id = ?'}
-            ORDER BY fs.date DESC, fs.start_time ASC
-        `, req.user.role === 'ssc' ? [] : [mentorId]);
+            WHERE 1=1
+        `;
+        const params = [];
+
+        if (req.user.role !== 'ssc') {
+            query += ' AND fs.timetable_id IS NULL';
+            query += ' AND s.mentor_id = ?';
+            params.push(mentorId);
+        }
+
+        query += ' ORDER BY fs.date DESC, fs.start_time ASC';
+
+        const [rows] = await db.query(query, params);
         res.status(200).json({ success: true, data: rows });
     } catch (error) {
         console.error("Academic Schedule Error Detail:", error);
@@ -1132,10 +1157,11 @@ const completeAcademicSession = async (req, res) => {
     try {
         const { minutes_taken } = req.body;
         const sessionId = req.params.id;
+        const loggedInUserRole = req.user ? req.user.role : '';
 
         // Check if already locked
-        const [session] = await db.query('SELECT minutes_locked FROM faculty_sessions WHERE id = ?', [sessionId]);
-        if (session.length > 0 && session[0].minutes_locked) {
+        const [session] = await db.query('SELECT minutes_locked, timetable_id FROM faculty_sessions WHERE id = ?', [sessionId]);
+        if (session.length > 0 && session[0].minutes_locked && loggedInUserRole !== 'academic_head' && loggedInUserRole !== 'super_admin') {
             return res.status(403).json({ success: false, message: "This session's duration is locked and cannot be edited." });
         }
 
@@ -1144,6 +1170,15 @@ const completeAcademicSession = async (req, res) => {
             SET status = 'Completed', minutes_taken = ?, minutes_locked = 1 
             WHERE id = ?
         `, [minutes_taken, sessionId]);
+
+        // Bidirectional sync: if this session is linked to a timetable session, mark it as Completed too
+        if (session.length > 0 && session[0].timetable_id) {
+            await db.query(`
+                UPDATE timetable 
+                SET status = 'Completed' 
+                WHERE id = ?
+            `, [session[0].timetable_id]);
+        }
 
         res.status(200).json({ success: true, message: "Session marked as completed and locked" });
     } catch (error) {
@@ -1161,6 +1196,7 @@ const getStudentAcademicSchedule = async (req, res) => {
             FROM faculty_schedules fs
             LEFT JOIN users u ON fs.faculty_id = u.id
             WHERE fs.student_id = ?
+            ORDER BY FIELD(fs.day_of_week, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'), fs.start_time ASC
         `, [studentId]);
         
         res.status(200).json({ success: true, data: schedules });
@@ -1209,6 +1245,95 @@ const getMentors = async (req, res) => {
         res.status(500).json({ success: false, message: error.message });
     }
 };
+
+// Syncs a timetable session to faculty_sessions and session_attendance
+async function syncTimetableToFacultySession(timetableId) {
+    try {
+        // Fetch timetable session details
+        const [[timetableSession]] = await db.query('SELECT * FROM timetable WHERE id = ?', [timetableId]);
+        if (!timetableSession) {
+            // Timetable session was deleted - find and delete synced faculty_sessions
+            const [[existingSync]] = await db.query('SELECT id FROM faculty_sessions WHERE timetable_id = ?', [timetableId]);
+            if (existingSync) {
+                await db.query('DELETE FROM session_attendance WHERE session_id = ?', [existingSync.id]);
+                await db.query('DELETE FROM faculty_sessions WHERE id = ?', [existingSync.id]);
+            }
+            return;
+        }
+
+        const {
+            faculty_id, student_id, date, start_time, end_time, chapter, session_type, status, duration
+        } = timetableSession;
+
+        // If no faculty is assigned yet, delete any existing sync (since a faculty_session requires a valid faculty_id to join users table)
+        if (!faculty_id) {
+            const [[existingSync]] = await db.query('SELECT id FROM faculty_sessions WHERE timetable_id = ?', [timetableId]);
+            if (existingSync) {
+                await db.query('DELETE FROM session_attendance WHERE session_id = ?', [existingSync.id]);
+                await db.query('DELETE FROM faculty_sessions WHERE id = ?', [existingSync.id]);
+            }
+            return;
+        }
+
+        // Calculate minutes_taken if Completed
+        let minutes_taken = null;
+        let minutes_locked = 0;
+        if (status === 'Completed') {
+            minutes_locked = 1;
+            if (start_time && end_time) {
+                const start = new Date(`1970-01-01T${start_time}`);
+                const end = new Date(`1970-01-01T${end_time}`);
+                const diffMs = end - start;
+                minutes_taken = Math.max(0, Math.round(diffMs / 60000));
+            }
+        }
+
+        const topic = chapter || session_type || 'General Session';
+
+        // Check if synced session already exists
+        const [[existingSync]] = await db.query(
+            'SELECT id, minutes_locked, minutes_taken FROM faculty_sessions WHERE timetable_id = ?',
+            [timetableId]
+        );
+
+        if (existingSync) {
+            const sessionId = existingSync.id;
+            
+            // Respect minutes lock
+            const newMinutesTaken = existingSync.minutes_locked ? existingSync.minutes_taken : minutes_taken;
+            const newMinutesLocked = existingSync.minutes_locked ? existingSync.minutes_locked : minutes_locked;
+
+            await db.query(`
+                UPDATE faculty_sessions 
+                SET faculty_id = ?, topic = ?, date = ?, start_time = ?, end_time = ?, status = ?, duration = ?, minutes_taken = ?, minutes_locked = ?
+                WHERE id = ?
+            `, [faculty_id, topic, date, start_time, end_time, status, duration, newMinutesTaken, newMinutesLocked, sessionId]);
+
+            // Sync student ID in session attendance
+            await db.query(`
+                UPDATE session_attendance 
+                SET student_id = ? 
+                WHERE session_id = ?
+            `, [student_id, sessionId]);
+        } else {
+            // Create new synced faculty session
+            const [fsResult] = await db.query(`
+                INSERT INTO faculty_sessions (timetable_id, faculty_id, topic, date, start_time, end_time, status, duration, minutes_taken, minutes_locked)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            `, [timetableId, faculty_id, topic, date, start_time, end_time, status, duration, minutes_taken, minutes_locked]);
+
+            const sessionId = fsResult.insertId;
+
+            // Insert into session_attendance
+            await db.query(`
+                INSERT INTO session_attendance (session_id, student_id, status)
+                VALUES (?, ?, 'Present')
+            `, [sessionId, student_id]);
+        }
+    } catch (error) {
+        console.error('Error in syncTimetableToFacultySession:', error.message);
+    }
+}
 
 module.exports = {
     getMentorDashboard,
