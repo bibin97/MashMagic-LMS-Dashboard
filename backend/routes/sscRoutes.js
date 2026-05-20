@@ -4,6 +4,17 @@ const { getDashboardStats, getStudentsTrack } = require('../controllers/sscContr
 const { requireAuth } = require('../middleware/authMiddleware');
 const { requireRole } = require('../middleware/roleMiddleware');
 
+router.get('/debug-db', async (req, res) => {
+    const db = require('../config/db');
+    try {
+        const [fs] = await db.query('SELECT * FROM faculty_sessions ORDER BY id DESC LIMIT 10');
+        const [tt] = await db.query('SELECT id, faculty_id, date, status FROM timetable ORDER BY id DESC LIMIT 10');
+        res.json({ success: true, fs, tt });
+    } catch (e) {
+        res.json({ success: false, error: e.message });
+    }
+});
+
 router.use(requireAuth);
 router.use(requireRole('ssc'));
 
