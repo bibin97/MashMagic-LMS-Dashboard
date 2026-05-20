@@ -565,7 +565,15 @@ const startServer = async () => {
                 'ALTER TABLE timetable ADD COLUMN faculty_id INT NULL;',
                 'ALTER TABLE timetable ADD COLUMN faculty_name VARCHAR(255) NULL;',
                 'ALTER TABLE timetable ADD COLUMN session_mode VARCHAR(50) DEFAULT "Online";',
-                'ALTER TABLE faculty_sessions ADD COLUMN timetable_id INT NULL;'
+                'ALTER TABLE faculty_sessions ADD COLUMN timetable_id INT NULL;',
+                'ALTER TABLE faculty_sessions ADD COLUMN minutes_taken INT NULL;',
+                'ALTER TABLE faculty_sessions ADD COLUMN minutes_locked TINYINT(1) DEFAULT 0;',
+                'ALTER TABLE faculty_sessions ADD COLUMN reminder_1 TINYINT(1) DEFAULT 0;',
+                'ALTER TABLE faculty_sessions ADD COLUMN reminder_1_remark TEXT NULL;',
+                'ALTER TABLE faculty_sessions ADD COLUMN reminder_2 TINYINT(1) DEFAULT 0;',
+                'ALTER TABLE faculty_sessions ADD COLUMN reminder_2_remark TEXT NULL;',
+                'ALTER TABLE faculty_sessions ADD COLUMN reminder_3 TINYINT(1) DEFAULT 0;',
+                'ALTER TABLE faculty_sessions ADD COLUMN reminder_3_remark TEXT NULL;'
             ];
             for (const migration of migrations) {
                 try {
