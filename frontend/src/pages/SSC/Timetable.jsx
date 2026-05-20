@@ -867,14 +867,18 @@ const Timetable = () => {
                           
                           return (
                             <>
-                              {assigned.length > 0 ? (
+                              {assigned.length > 0 && (
                                 <optgroup label="Assigned to Student">
                                   {assigned.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
                                 </optgroup>
-                              ) : !formData.student_id ? (
-                                faculties.map(f => <option key={f.id} value={f.id}>{f.name}</option>)
-                              ) : (
-                                <option disabled>No faculties assigned to this student</option>
+                              )}
+                              {others.length > 0 && (
+                                <optgroup label={assigned.length > 0 ? "Other Faculties" : "All Faculties"}>
+                                  {others.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
+                                </optgroup>
+                              )}
+                              {faculties.length === 0 && (
+                                <option disabled>No faculties available</option>
                               )}
                             </>
                           );
