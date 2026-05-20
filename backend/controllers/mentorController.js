@@ -1003,9 +1003,9 @@ const getAcademicSchedule = async (req, res) => {
         let query = `
             SELECT fs.*, u.name as faculty_name, s.name as student_name, s.id as student_id, s.meeting_link
             FROM faculty_sessions fs
-            JOIN users u ON fs.faculty_id = u.id
-            JOIN session_attendance sa ON fs.id = sa.session_id
-            JOIN students s ON sa.student_id = s.id
+            LEFT JOIN users u ON fs.faculty_id = u.id
+            LEFT JOIN session_attendance sa ON fs.id = sa.session_id
+            LEFT JOIN students s ON sa.student_id = s.id
             WHERE 1=1
         `;
         const params = [];
