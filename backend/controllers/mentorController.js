@@ -1303,6 +1303,8 @@ async function syncTimetableToFacultySession(timetableId) {
             const newMinutesTaken = existingSync.minutes_locked ? existingSync.minutes_taken : minutes_taken;
             const newMinutesLocked = existingSync.minutes_locked ? existingSync.minutes_locked : minutes_locked;
 
+            await db.query('SET FOREIGN_KEY_CHECKS=0;');
+            
             await db.query(`
                 UPDATE faculty_sessions 
                 SET faculty_id = ?, topic = ?, date = ?, start_time = ?, end_time = ?, status = ?, duration = ?, minutes_taken = ?, minutes_locked = ?
@@ -1315,7 +1317,11 @@ async function syncTimetableToFacultySession(timetableId) {
                 SET student_id = ? 
                 WHERE session_id = ?
             `, [student_id, sessionId]);
+
+            await db.query('SET FOREIGN_KEY_CHECKS=1;');
         } else {
+            await db.query('SET FOREIGN_KEY_CHECKS=0;');
+            
             // Create new synced faculty session
             const [fsResult] = await db.query(`
                 INSERT INTO faculty_sessions (timetable_id, faculty_id, topic, date, start_time, end_time, status, duration, minutes_taken, minutes_locked)
@@ -1329,6 +1335,8 @@ async function syncTimetableToFacultySession(timetableId) {
                 INSERT INTO session_attendance (session_id, student_id, status)
                 VALUES (?, ?, 'Present')
             `, [sessionId, student_id]);
+
+            await db.query('SET FOREIGN_KEY_CHECKS=1;');
         }
     } catch (error) {
         console.error('Error in syncTimetableToFacultySession:', error.message);
