@@ -20,6 +20,7 @@ const getAcademicSchedule = async (req, res) => {
 // @desc    Get dashboard counts (robust summary)
 // @route   GET /api/admin/dashboard-summary
 const getAdminDashboardSummary = async (req, res) => {
+    try {
         const [[{count: students}]] = await db.query('SELECT COUNT(*) as count FROM students');
         const [[{count: mentors}]] = await db.query('SELECT COUNT(*) as count FROM mentors');
         const [[{count: faculties}]] = await db.query('SELECT COUNT(*) as count FROM faculties');
