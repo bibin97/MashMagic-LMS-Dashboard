@@ -147,74 +147,89 @@ const AcademicSchedule = () => {
       </div>
 
       {/* Timetable Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div className="space-y-4">
         {currentData.map((session, idx) => (
-          <div key={idx} className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 group overflow-hidden flex flex-col">
-            {/* Session Card Content */}
-            <div className="p-8 space-y-6 flex-1">
-              <div className="flex items-center justify-between">
-                <div className="px-4 py-1.5 bg-slate-50 rounded-full border border-slate-100 flex items-center gap-2">
-                  <Clock size={12} className="text-[#008080]" />
-                  <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest">
+          <div key={idx} className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-500 group overflow-hidden flex flex-col md:flex-row items-stretch">
+            <div className={`w-3 shrink-0 ${session.status === 'Completed' ? 'bg-emerald-500' : 'bg-amber-500'} opacity-40 group-hover:opacity-100 transition-opacity animate-pulse`}></div>
+            
+            <div className="flex-grow p-6 flex flex-col md:flex-row md:items-center justify-between gap-6">
+              
+              <div className="flex items-center gap-6 min-w-[200px]">
+                <div className="w-14 h-14 bg-slate-50 rounded-[1.5rem] flex items-center justify-center text-slate-600 group-hover:bg-[#008080] group-hover:text-white transition-all duration-700 -rotate-3 group-hover:rotate-0">
+                  <Users size={20} />
+                </div>
+                <div>
+                  <h3 className="text-sm font-black text-slate-900 tracking-tight uppercase">{session.student_name}</h3>
+                  <p className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] mt-1">
+                    Faculty: {session.faculty_name}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-6 flex-grow">
+                <div className="flex items-center gap-3 bg-slate-50/50 px-4 py-2.5 rounded-2xl border border-slate-100 transition-colors group-hover:bg-[#008080]/10">
+                  <Calendar size={14} className="text-[#008080]" />
+                  <span className="text-[11px] font-black text-slate-700 uppercase tracking-widest">
+                    {session.date ? new Date(session.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : 'TBD'}
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-3 bg-slate-50/50 px-4 py-2.5 rounded-2xl border border-slate-100 transition-colors group-hover:bg-[#008080]/10">
+                  <Clock size={14} className="text-[#008080]" />
+                  <span className="text-[11px] font-black text-slate-700 uppercase tracking-widest">
                     {session.start_time ? new Date(`2000-01-01T${session.start_time}`).toLocaleString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }) : 'TBD'}
                   </span>
                 </div>
-                <div className={`w-3 h-3 rounded-full ${session.status === 'Completed' ? 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.4)]' : 'bg-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.4)]'} animate-pulse`}></div>
+
+                <div className="flex flex-col gap-1 min-w-[150px]">
+                  <span className="text-[8px] font-black text-slate-400 uppercase tracking-[0.2em] pl-1">Topic</span>
+                  <p className="text-xs font-black text-slate-900 truncate">{session.topic || 'General Session'}</p>
+                </div>
+
+                {session.status === 'Completed' && (
+                  <div className="px-3 py-1 bg-emerald-50 text-emerald-600 rounded-lg text-[9px] font-black uppercase flex items-center gap-1">
+                    <Timer size={12} /> {session.minutes_taken}m
+                  </div>
+                )}
               </div>
 
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-xl font-black text-slate-900 leading-tight group-hover:text-[#008080] transition-colors">{session.topic || 'General Session'}</h3>
-                  {session.status === 'Completed' && (
-                    <div className="px-3 py-1 bg-emerald-50 text-emerald-600 rounded-lg text-[8px] font-black uppercase flex items-center gap-1">
-                      <Timer size={10} /> {session.minutes_taken}m
-                    </div>
-                  )}
-                </div>
-                <div className="flex items-center gap-2 text-slate-400">
-                  <Users size={12} />
-                  <span className="text-[10px] font-black uppercase tracking-widest">{session.student_name}</span>
-                </div>
-              </div>
-
-              <div className="p-5 bg-slate-50 rounded-2xl border border-slate-100/50 space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Assigned Faculty</span>
-                  <span className="text-[10px] font-black text-slate-700 uppercase">{session.faculty_name}</span>
-                </div>
-                <div className="flex gap-2">
-                  {[1, 2, 3].map(n => (
-                    <div 
-                      key={n}
-                      className={`flex-1 h-1.5 rounded-full ${session[`reminder_${n}`] ? 'bg-emerald-500' : 'bg-slate-200'}`}
-                      title={`Reminder ${n}: ${session[`reminder_${n}_remark`] || 'Not sent'}`}
-                    ></div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Session Card Actions */}
-            <div className="p-4 bg-slate-50/50 border-t border-slate-100">
-              {session.meeting_link ? (
+              <div className="flex items-center gap-3 pl-6 md:border-l border-slate-100">
+                {session.meeting_link && (
+                  <button 
+                    onClick={() => window.open(session.meeting_link, '_blank')}
+                    title="Watch Session"
+                    className={`px-4 h-11 rounded-[1rem] flex items-center justify-center gap-2 font-black uppercase text-[10px] tracking-widest transition-all ${
+                      checkIsLive(session)
+                      ? 'bg-red-500 text-white shadow-[0_0_15px_rgba(239,68,68,0.6)] animate-pulse hover:bg-red-600 hover:scale-[1.05]'
+                      : 'bg-slate-50 text-indigo-600 border border-indigo-100 hover:bg-indigo-600 hover:text-white shadow-sm'
+                    }`}
+                  >
+                    <Activity size={14} /> LIVE
+                  </button>
+                )}
+                
                 <button 
-                  onClick={() => window.open(session.meeting_link, '_blank')}
-                  className={`w-full py-4 rounded-2xl text-[11px] font-black uppercase tracking-widest flex items-center justify-center gap-3 transition-all ${
-                    checkIsLive(session) 
-                    ? 'bg-red-500 text-white border-none shadow-[0_0_20px_rgba(239,68,68,0.6)] animate-pulse hover:bg-red-600 hover:scale-[1.02]' 
-                    : 'bg-white text-indigo-600 border border-indigo-100 hover:bg-indigo-600 hover:text-white shadow-sm'
-                  }`}
+                  onClick={() => { setSelectedSession(session); setIsDetailsModalOpen(true); }}
+                  title="Session Details"
+                  className="w-11 h-11 bg-slate-50 text-slate-700 border border-slate-200 rounded-[1rem] flex items-center justify-center hover:border-[#008080] hover:text-[#008080] transition-all shadow-sm"
                 >
-                  <Activity size={16} /> LIVE
+                  <BookOpen size={16} />
                 </button>
-              ) : (
-                <button 
-                  disabled
-                  className="w-full py-4 bg-slate-100 text-slate-400 border border-slate-200 rounded-2xl text-[10px] font-black uppercase tracking-widest cursor-not-allowed flex items-center justify-center gap-3"
-                >
-                  <XCircle size={16} /> No Live Link
-                </button>
-              )}
+
+                {session.status === 'Completed' ? (
+                  <div title="Completed" className="w-11 h-11 bg-emerald-50 text-emerald-600 border border-emerald-100 rounded-[1rem] flex items-center justify-center shadow-sm">
+                    <CheckSquare size={16} />
+                  </div>
+                ) : (
+                  <button 
+                    onClick={() => { setSelectedSession(session); setMinutesTaken(''); setIsCompleteModalOpen(true); }}
+                    title="Class Completed"
+                    className="w-11 h-11 bg-slate-900 text-white hover:bg-[#008080] rounded-[1rem] flex items-center justify-center transition-all shadow-sm"
+                  >
+                    <CheckSquare size={16} />
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         ))}
