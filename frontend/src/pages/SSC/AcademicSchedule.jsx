@@ -113,7 +113,35 @@ const AcademicSchedule = () => {
       // Update main schedule state
       setSchedule(prev => prev.map(s => s.id === selectedSession.id ? updatedSession : s));
     } catch (error) {
-      toast.error("Failed to update reminder");
+      console.error(error);
+      toast.error(error.response?.data?.message || "Failed to update reminder");
+    }
+  };
+
+  const saveQuickReminder1 = async (session) => {
+    const remark = window.prompt("Enter remark for Reminder 1 (e.g., 'Sent via WhatsApp'):");
+    if (remark === null) return; 
+    if (!remark.trim()) return toast.error("Remark is required");
+    
+    try {
+      await api.put(`/mentor/academic-schedule/${session.id}/reminder`, {
+        reminder_num: 1,
+        remark: remark
+      });
+      toast.success(`Reminder 1 recorded successfully`);
+      
+      const updatedSession = { 
+        ...session, 
+        reminder_1: 1, 
+        reminder_1_remark: remark 
+      };
+      setSchedule(prev => prev.map(s => s.id === session.id ? updatedSession : s));
+      if (selectedSession?.id === session.id) {
+        setSelectedSession(updatedSession);
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error(error.response?.data?.message || "Failed to update reminder");
     }
   };
 
@@ -275,6 +303,20 @@ const AcademicSchedule = () => {
                   </button>
                 )}
                 
+                {!session.reminder_1 ? (
+                  <button 
+                    onClick={() => saveQuickReminder1(session)}
+                    title="Send Reminder 1"
+                    className="px-4 h-11 rounded-[1rem] flex items-center justify-center gap-2 font-black uppercase text-[10px] tracking-widest transition-all bg-amber-50 text-amber-600 border border-amber-100 hover:bg-amber-600 hover:text-white shadow-sm"
+                  >
+                    <Bell size={14} /> R1
+                  </button>
+                ) : (
+                  <div title="Reminder 1 Sent" className="px-4 h-11 rounded-[1rem] flex items-center justify-center gap-2 font-black uppercase text-[10px] tracking-widest transition-all bg-emerald-50 text-emerald-600 border border-emerald-100 shadow-sm cursor-help" onClick={() => toast(`Reminder 1: ${session.reminder_1_remark}`, { icon: 'ℹ️' })}>
+                    <CheckSquare size={14} /> R1
+                  </div>
+                )}
+
                 <button 
                   onClick={() => openDetailsModal(session)}
                   title="Session Details"
@@ -346,7 +388,7 @@ const AcademicSchedule = () => {
                   <Bell size={14} className="text-[#008080]" /> Communication Triggers & Remarks
                 </h4>
                 <div className="space-y-4">
-                  {[1, 2, 3].map(n => {
+                  {[2, 3].map(n => {
                     const isSent = selectedSession[`reminder_${n}`];
                     return (
                       <div key={n} className={`p-6 rounded-2xl border transition-all ${isSent ? 'bg-emerald-50/50 border-emerald-100' : 'bg-slate-50/50 border-slate-100'} flex flex-col gap-3`}>
