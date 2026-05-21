@@ -543,7 +543,6 @@ const createSession = async (req, res) => {
         // 3. (Session number will be updated by recalculation later)
         const session_number = 0;
 
-        const [result] = await db.query(`
         const start = new Date(`1970-01-01T${formattedStartTime}`);
         const end = new Date(`1970-01-01T${formattedEndTime}`);
         const diffMs = end - start;
