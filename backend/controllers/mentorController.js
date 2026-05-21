@@ -507,32 +507,36 @@ const createSession = async (req, res) => {
         const targetMentorId = studentObj.mentor_id || null;
 
         // 1. Conflict Check for Student
-        const [studentConflicts] = await db.query(`
-            SELECT id FROM timetable 
-            WHERE student_id = ? AND date = ? 
-            AND status != 'Cancelled'
-            AND (
-                (start_time < ? AND end_time > ?)
-            )
-        `, [student_id, date, formattedEndTime, formattedStartTime]);
-
-        if (studentConflicts.length > 0) {
-            return res.status(400).json({ success: false, message: "Student has a time conflict with another session." });
-        }
-
-        // 2. Conflict Check for Faculty
-        if (faculty_id) {
-            const [facultyConflicts] = await db.query(`
+        const isTakingTime = !['Postponed', 'Cancelled', 'Faculty Cancelled', 'Student Cancelled', 'No Show'].includes(status || 'Scheduled');
+        
+        if (isTakingTime) {
+            const [studentConflicts] = await db.query(`
                 SELECT id FROM timetable 
-                WHERE faculty_id = ? AND date = ? 
-                AND status != 'Cancelled'
+                WHERE student_id = ? AND date = ? 
+                AND status NOT IN ('Postponed', 'Cancelled', 'Faculty Cancelled', 'Student Cancelled', 'No Show')
                 AND (
                     (start_time < ? AND end_time > ?)
                 )
-            `, [faculty_id, date, formattedEndTime, formattedStartTime]);
+            `, [student_id, date, formattedEndTime, formattedStartTime]);
 
-            if (facultyConflicts.length > 0) {
-                return res.status(400).json({ success: false, message: "Faculty has a time conflict with another session." });
+            if (studentConflicts.length > 0) {
+                return res.status(400).json({ success: false, message: "Student has a time conflict with another session." });
+            }
+
+            // 2. Conflict Check for Faculty
+            if (faculty_id) {
+                const [facultyConflicts] = await db.query(`
+                    SELECT id FROM timetable 
+                    WHERE faculty_id = ? AND date = ? 
+                    AND status NOT IN ('Postponed', 'Cancelled', 'Faculty Cancelled', 'Student Cancelled', 'No Show')
+                    AND (
+                        (start_time < ? AND end_time > ?)
+                    )
+                `, [faculty_id, date, formattedEndTime, formattedStartTime]);
+
+                if (facultyConflicts.length > 0) {
+                    return res.status(400).json({ success: false, message: "Faculty has a time conflict with another session." });
+                }
             }
         }
 
@@ -591,33 +595,38 @@ const updateSession = async (req, res) => {
         // Keep existing mentor_id; do not replace with SSC/admin ID
         const targetMentorId = existingSession.mentor_id || null;
 
-        // Conflict check excluding current session (Student)
-        const [studentConflicts] = await db.query(`
-            SELECT id FROM timetable 
-            WHERE student_id = ? AND date = ? AND id != ?
-            AND status != 'Cancelled'
-            AND (
-                (start_time < ? AND end_time > ?)
-            )
-        `, [existingSession.student_id, date, sessionId, formattedEndTime, formattedStartTime]);
+        // Conflict checks only if the session is active and taking up time
+        const isTakingTime = !['Postponed', 'Cancelled', 'Faculty Cancelled', 'Student Cancelled', 'No Show'].includes(status || 'Scheduled');
 
-        if (studentConflicts.length > 0) {
-            return res.status(400).json({ success: false, message: "Student has a time conflict with another session." });
-        }
-
-        // Conflict check excluding current session (Faculty)
-        if (faculty_id) {
-            const [facultyConflicts] = await db.query(`
+        if (isTakingTime) {
+            // Conflict check excluding current session (Student)
+            const [studentConflicts] = await db.query(`
                 SELECT id FROM timetable 
-                WHERE faculty_id = ? AND date = ? AND id != ?
-                AND status != 'Cancelled'
+                WHERE student_id = ? AND date = ? AND id != ?
+                AND status NOT IN ('Postponed', 'Cancelled', 'Faculty Cancelled', 'Student Cancelled', 'No Show')
                 AND (
                     (start_time < ? AND end_time > ?)
                 )
-            `, [faculty_id, date, sessionId, formattedEndTime, formattedStartTime]);
+            `, [existingSession.student_id, date, sessionId, formattedEndTime, formattedStartTime]);
 
-            if (facultyConflicts.length > 0) {
-                return res.status(400).json({ success: false, message: "Faculty has a time conflict with another session." });
+            if (studentConflicts.length > 0) {
+                return res.status(400).json({ success: false, message: "Student has a time conflict with another session." });
+            }
+
+            // Conflict check excluding current session (Faculty)
+            if (faculty_id) {
+                const [facultyConflicts] = await db.query(`
+                    SELECT id FROM timetable 
+                    WHERE faculty_id = ? AND date = ? AND id != ?
+                    AND status NOT IN ('Postponed', 'Cancelled', 'Faculty Cancelled', 'Student Cancelled', 'No Show')
+                    AND (
+                        (start_time < ? AND end_time > ?)
+                    )
+                `, [faculty_id, date, sessionId, formattedEndTime, formattedStartTime]);
+
+                if (facultyConflicts.length > 0) {
+                    return res.status(400).json({ success: false, message: "Faculty has a time conflict with another session." });
+                }
             }
         }
 
@@ -647,7 +656,11 @@ const updateSession = async (req, res) => {
             params.push(loggedInUserId);
         }
 
-        await db.query(query, params);
+        const [result] = await db.query(query, params);
+
+        if (loggedInUserRole === 'mentor' && result.affectedRows === 0) {
+            return res.status(403).json({ success: false, message: "Not authorized to update this session" });
+        }
 
         await syncTimetableToFacultySession(sessionId);
         await recalculateSessionNumbers(existingSession.student_id);

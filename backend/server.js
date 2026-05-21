@@ -573,7 +573,8 @@ const startServer = async () => {
                 'ALTER TABLE faculty_sessions ADD COLUMN reminder_2 TINYINT(1) DEFAULT 0;',
                 'ALTER TABLE faculty_sessions ADD COLUMN reminder_2_remark TEXT NULL;',
                 'ALTER TABLE faculty_sessions ADD COLUMN reminder_3 TINYINT(1) DEFAULT 0;',
-                'ALTER TABLE faculty_sessions ADD COLUMN reminder_3_remark TEXT NULL;'
+                'ALTER TABLE faculty_sessions ADD COLUMN reminder_3_remark TEXT NULL;',
+                'ALTER TABLE faculty_sessions MODIFY COLUMN status VARCHAR(50) DEFAULT "Scheduled";'
             ];
             for (const migration of migrations) {
                 try {
