@@ -259,6 +259,8 @@ const startServer = async () => {
                 'ALTER TABLE students ADD COLUMN country VARCHAR(100) NULL;',
                 'ALTER TABLE students ADD COLUMN total_fees DECIMAL(10,2) DEFAULT 0.00;',
                 'ALTER TABLE students ADD COLUMN total_paid DECIMAL(10,2) DEFAULT 0.00;',
+                'ALTER TABLE students ADD COLUMN total_hours INT DEFAULT 0;',
+                'ALTER TABLE students ADD COLUMN admission_type VARCHAR(50) DEFAULT "new";',
                 'ALTER TABLE users ADD COLUMN place VARCHAR(255) NULL;',
                 'ALTER TABLE users ADD COLUMN registeredBy INT NULL;',
                 'ALTER TABLE users ADD COLUMN profile_pic TEXT NULL;',
@@ -574,7 +576,7 @@ const startServer = async () => {
                 'ALTER TABLE faculty_sessions ADD COLUMN reminder_2_remark TEXT NULL;',
                 'ALTER TABLE faculty_sessions ADD COLUMN reminder_3 TINYINT(1) DEFAULT 0;',
                 'ALTER TABLE faculty_sessions ADD COLUMN reminder_3_remark TEXT NULL;',
-                'ALTER TABLE faculty_sessions MODIFY COLUMN status VARCHAR(50) DEFAULT "Scheduled";'
+                'ALTER TABLE faculty_sessions MODIFY COLUMN status VARCHAR(50) DEFAULT \'Scheduled\';'
             ];
             for (const migration of migrations) {
                 try {

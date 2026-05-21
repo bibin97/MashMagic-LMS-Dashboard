@@ -302,7 +302,7 @@ const Registrations = () => {
           grade: '', syllabus: '', mentorId: '', course: '', 
           admissionDate: new Date().toISOString().split('T')[0],
           schoolName: '', preferredLanguage: '', country: '',
-          totalFees: '', totalPaid: '', nextInstallmentDate: '', 
+          totalFees: '', totalPaid: '', totalHours: '', nextInstallmentDate: '', 
           admissionType: 'new', registrationNumber: '', meetingLink: '',
           enrollmentType: 'Mentorship'
         });
@@ -488,7 +488,7 @@ const Registrations = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
                 <div className="flex flex-col gap-2">
                   <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Total Fees (INR)</label>
                   <input type="number" name="totalFees" value={studentForm.totalFees} onChange={handleStudentChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-bold" placeholder="E.g. 50000" />
@@ -496,6 +496,10 @@ const Registrations = () => {
                 <div className="flex flex-col gap-2">
                   <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Total Paid (INR)</label>
                   <input type="number" name="totalPaid" value={studentForm.totalPaid} onChange={handleStudentChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-bold" placeholder="E.g. 25000" />
+                </div>
+                <div className="flex flex-col gap-2">
+                  <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Total Hours</label>
+                  <input type="number" name="totalHours" value={studentForm.totalHours || ''} onChange={handleStudentChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-bold" placeholder="E.g. 100" />
                 </div>
               </div>
 
@@ -545,6 +549,7 @@ const Registrations = () => {
                   <select name="admissionType" required value={studentForm.admissionType} onChange={handleStudentChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-bold appearance-none">
                     <option value="new">New Student</option>
                     <option value="existing">Existing Student</option>
+                    <option value="rejoining">Rejoining</option>
                   </select>
                 </div>
                 <div className="flex flex-col gap-2">

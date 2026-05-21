@@ -94,7 +94,7 @@ const AcademicSchedule = () => {
   const currentData = getFilteredData();
 
   const handleReminderSave = async (num, remark) => {
-    if (!remark.trim()) return toast.error("Remark is required");
+    if (!remark.trim()) return toast("Please type a note to save", { icon: "✍️" });
     try {
       await api.put(`/mentor/academic-schedule/${selectedSession.id}/reminder`, {
         reminder_num: num,
@@ -121,7 +121,7 @@ const AcademicSchedule = () => {
   const saveQuickReminder1 = async (session) => {
     const remark = window.prompt("Enter remark for Reminder 1 (e.g., 'Sent via WhatsApp'):");
     if (remark === null) return; 
-    if (!remark.trim()) return toast.error("Remark is required");
+    if (!remark.trim()) return toast("Please type a note to save", { icon: "✍️" });
     
     try {
       await api.put(`/mentor/academic-schedule/${session.id}/reminder`, {

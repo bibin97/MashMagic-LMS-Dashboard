@@ -162,11 +162,38 @@ const getDropdownData = async (req, res) => {
 const registerStudent = async (req, res) => {
     const conn = await db.getConnection();
     try {
-        const { name, email, contact, password, grade, course, mentorId } = req.body;
+        const { 
+            name, email, contact, password, grade, course, mentorId,
+            admissionDate, schoolName, preferredLanguage, country,
+            totalFees, totalPaid, totalHours, nextInstallmentDate,
+            admissionType, registrationNumber, meetingLink, enrollmentType,
+            selectedSubjects
+        } = req.body;
         const hash = await bcrypt.hash(password || "student123", 10);
+        
+        let badge = 'Stable';
+        if (enrollmentType === 'Mentorship') badge = 'Gold';
+        if (enrollmentType === 'Tuition') badge = 'Silver';
+        if (enrollmentType === 'Mentorship and Tuition') badge = 'Diamond';
+
         await conn.beginTransaction();
         const [ur] = await conn.query('INSERT INTO users (name, email, phone_number, password, role, status, isApproved, isActive) VALUES (?, ?, ?, ?, "student", "active", 1, 1)', [name, email || null, contact || null, hash]);
-        await conn.query('INSERT INTO students (name, email, password, user_id, grade, course, mentor_id, status, isApproved, priority_category) VALUES (?, ?, ?, ?, ?, ?, ?, "active", 1, "High")', [name, email || null, hash, ur.insertId, grade, course, mentorId || null]);
+        
+        await conn.query(`
+            INSERT INTO students (
+                name, email, password, user_id, contact, grade, course, mentor_id, 
+                admission_date, school_name, preferred_language, country, 
+                total_fees, total_paid, total_hours, next_installment_date, 
+                admission_type, registration_number, meeting_link, enrollment_type, badge, 
+                subjects_json, status, isApproved, priority_category
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "active", 1, "High")
+        `, [
+            name, email || null, hash, ur.insertId, contact || null, grade, course, mentorId || null,
+            admissionDate || null, schoolName || null, preferredLanguage || null, country || null,
+            totalFees || 0, totalPaid || 0, totalHours || 0, nextInstallmentDate || null,
+            admissionType || 'new', registrationNumber || null, meetingLink || null, enrollmentType || null, badge,
+            selectedSubjects ? JSON.stringify(selectedSubjects) : null
+        ]);
         await conn.commit();
         conn.release();
         res.status(201).json({ success: true, message: "Student registered" });
