@@ -28,7 +28,8 @@ const {
     updateStudentAcademicSchedule,
     updateAcademicSessionReminder,
     completeAcademicSession,
-    getMentors
+    getMentors,
+    recalculateAllSessionNumbers
 } = require('../controllers/mentorController');
 const { requireAuth } = require('../middleware/authMiddleware');
 const { requireRole } = require('../middleware/roleMiddleware');
@@ -45,6 +46,7 @@ router.post('/students/:id/schedule', requireRole('ssc', 'super_admin', 'admin')
 router.get('/tasks', requireRole('mentor'), getMentorTasks);
 router.put('/tasks/:id/complete', requireRole('mentor'), upload.single('proof'), completeMentorTask);
 router.get('/timetable', requireRole('mentor', 'super_admin', 'admin', 'mentor_head', 'ssc'), getMentorTimetable);
+router.get('/recalculate-all', requireRole('super_admin', 'admin', 'ssc'), recalculateAllSessionNumbers);
 router.post('/timetable', requireRole('ssc'), createSession);
 router.put('/timetable/:id', requireRole('ssc'), updateSession);
 router.delete('/timetable/:id', requireRole('ssc'), deleteSession);

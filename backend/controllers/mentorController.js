@@ -482,6 +482,20 @@ const recalculateSessionNumbers = async (studentId, connectionObj = db) => {
     }
 };
 
+// @desc    Recalculate all session numbers for all students (Admin utility)
+// @route   GET /api/mentor/recalculate-all
+const recalculateAllSessionNumbers = async (req, res) => {
+    try {
+        const [students] = await db.query('SELECT id FROM students');
+        for (let s of students) {
+            await recalculateSessionNumbers(s.id);
+        }
+        res.status(200).json({ success: true, message: `Successfully recalculated session numbers for ${students.length} students.` });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
 // @desc    Create new session
 // @route   POST /api/mentor/timetable
 const createSession = async (req, res) => {
@@ -1435,5 +1449,6 @@ module.exports = {
     getStudentDailyUpdates,
     createMentorshipLog,
     getMentorshipLogs,
-    getMentors
+    getMentors,
+    recalculateAllSessionNumbers
 };
