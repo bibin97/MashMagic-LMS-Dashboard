@@ -123,14 +123,15 @@ const generateAssignments = async (mentor_id, today) => {
     }
 
     // Determine where the next rotation should start in the circular array
-    // Explicit 10-student shift per day to match: Day 1: 1-15, Day 2: 11-25, Day 3: 21-10, etc.
+    // Shift by 15 every day so there is no overlap from the previous day. 
+    // E.g. Day 1: 1-15, Day 2: 16-30 (wrapping around if needed).
     const refDate = new Date('2024-01-01');
     const currentDate = new Date(today);
     const diffTime = Math.abs(currentDate - refDate);
     const dayNumber = Math.floor(diffTime / (1000 * 60 * 60 * 24));
     
-    // Shift by 10 every day.
-    const nextStartIndex = (dayNumber * 10) % students.length;
+    // Shift by 15 every day.
+    const nextStartIndex = (dayNumber * 15) % students.length;
 
     // Fill selectedForToday starting with onboarding students first, then carryOverStudents
     const onboardingStudents = students.filter(s => s.onboarding_status === 'pending');
