@@ -171,14 +171,12 @@ const generateAssignments = async (mentor_id, today) => {
 
     const combinedPool = [...onboardingPool, ...high, ...med, ...low];
 
-    // Allocate: Onboarding students go to Deep. Then fill Deep up to 5, Medium up to 5, rest Quick.
+    // Allocate strictly based on priority. Mentors will decide the next session type in their reports.
     for (let i = 0; i < combinedPool.length; i++) {
         const student = combinedPool[i];
-        if (student.onboarding_status === 'pending') {
+        if (student.onboarding_status === 'pending' || student.priority_category === 'High') {
             deep.push({ ...student, sessionType: 'DEEP', status: 'PENDING' });
-        } else if (deep.length < 5) {
-            deep.push({ ...student, sessionType: 'DEEP', status: 'PENDING' });
-        } else if (medium.length < 5) {
+        } else if (student.priority_category === 'Medium') {
             medium.push({ ...student, sessionType: 'MEDIUM', status: 'PENDING' });
         } else {
             quick.push({ ...student, sessionType: 'QUICK', status: 'PENDING' });
