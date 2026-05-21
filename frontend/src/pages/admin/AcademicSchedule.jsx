@@ -8,6 +8,31 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
+const checkIsLive = (session) => {
+  if (!session.start_time || !session.end_time || !session.date) return false;
+  if (session.status === 'Completed') return false;
+  
+  const now = new Date();
+  const sessionDate = new Date(session.date);
+  
+  if (
+    now.getFullYear() !== sessionDate.getFullYear() ||
+    now.getMonth() !== sessionDate.getMonth() ||
+    now.getDate() !== sessionDate.getDate()
+  ) {
+    return false;
+  }
+  
+  const currentMins = now.getHours() * 60 + now.getMinutes();
+  const [startH, startM] = session.start_time.split(':').map(Number);
+  const [endH, endM] = session.end_time.split(':').map(Number);
+  
+  const startMins = startH * 60 + startM;
+  const endMins = endH * 60 + endM;
+  
+  return currentMins >= startMins && currentMins <= endMins;
+};
+
 const AcademicSchedule = () => {
   const [schedule, setSchedule] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -174,9 +199,13 @@ const AcademicSchedule = () => {
               {session.meeting_link ? (
                 <button 
                   onClick={() => window.open(session.meeting_link, '_blank')}
-                  className="w-full py-4 bg-white text-indigo-600 border border-indigo-100 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-indigo-600 hover:text-white transition-all flex items-center justify-center gap-3 shadow-sm group/btn"
+                  className={`w-full py-4 rounded-2xl text-[11px] font-black uppercase tracking-widest flex items-center justify-center gap-3 transition-all ${
+                    checkIsLive(session) 
+                    ? 'bg-red-500 text-white border-none shadow-[0_0_20px_rgba(239,68,68,0.6)] animate-pulse hover:bg-red-600 hover:scale-[1.02]' 
+                    : 'bg-white text-indigo-600 border border-indigo-100 hover:bg-indigo-600 hover:text-white shadow-sm'
+                  }`}
                 >
-                  <Activity size={16} className="group-hover/btn:animate-pulse" /> Check Session Flow
+                  <Activity size={16} /> LIVE
                 </button>
               ) : (
                 <button 

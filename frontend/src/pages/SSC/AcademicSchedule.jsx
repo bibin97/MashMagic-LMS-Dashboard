@@ -8,6 +8,31 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
+const checkIsLive = (session) => {
+  if (!session.start_time || !session.end_time || !session.date) return false;
+  if (session.status === 'Completed') return false;
+  
+  const now = new Date();
+  const sessionDate = new Date(session.date);
+  
+  if (
+    now.getFullYear() !== sessionDate.getFullYear() ||
+    now.getMonth() !== sessionDate.getMonth() ||
+    now.getDate() !== sessionDate.getDate()
+  ) {
+    return false;
+  }
+  
+  const currentMins = now.getHours() * 60 + now.getMinutes();
+  const [startH, startM] = session.start_time.split(':').map(Number);
+  const [endH, endM] = session.end_time.split(':').map(Number);
+  
+  const startMins = startH * 60 + startM;
+  const endMins = endH * 60 + endM;
+  
+  return currentMins >= startMins && currentMins <= endMins;
+};
+
 const AcademicSchedule = () => {
   const [schedule, setSchedule] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -240,9 +265,13 @@ const AcademicSchedule = () => {
                   <button 
                     onClick={() => window.open(session.meeting_link, '_blank')}
                     title="Watch Session"
-                    className="w-11 h-11 bg-slate-50 text-indigo-600 border border-indigo-100 rounded-[1rem] flex items-center justify-center hover:bg-indigo-600 hover:text-white transition-all shadow-sm"
+                    className={`px-4 h-11 rounded-[1rem] flex items-center justify-center gap-2 font-black uppercase text-[10px] tracking-widest transition-all ${
+                      checkIsLive(session)
+                      ? 'bg-red-500 text-white shadow-[0_0_15px_rgba(239,68,68,0.6)] animate-pulse hover:bg-red-600 hover:scale-[1.05]'
+                      : 'bg-slate-50 text-indigo-600 border border-indigo-100 hover:bg-indigo-600 hover:text-white shadow-sm'
+                    }`}
                   >
-                    <Activity size={16} />
+                    <Activity size={14} /> LIVE
                   </button>
                 )}
                 
