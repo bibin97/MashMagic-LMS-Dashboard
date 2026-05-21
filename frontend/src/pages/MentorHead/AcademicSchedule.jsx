@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
 import {
   CalendarClock, Clock, BookOpen, Users,
-  Search, Filter, ChevronRight, Activity,
+  Search, Filter, ChevronRight, Activity, Radio,
   Calendar, AlertCircle, Bell, CheckSquare, MessageSquareText, Lock, 
   ShieldCheck, Timer, XCircle
 } from 'lucide-react';
@@ -193,6 +193,7 @@ const AcademicSchedule = () => {
                 )}
               </div>
 
+              {activeTab !== 'upcoming' && (
               <div className="flex items-center gap-3 pl-6 md:border-l border-slate-100">
                 {session.meeting_link && (
                   <button 
@@ -230,6 +231,7 @@ const AcademicSchedule = () => {
                   </button>
                 )}
               </div>
+              )}
             </div>
           </div>
         ))}

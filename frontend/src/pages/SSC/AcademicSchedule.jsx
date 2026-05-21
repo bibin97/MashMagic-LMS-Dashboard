@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
 import {
   CalendarClock, Clock, BookOpen, Users,
-  Search, Filter, ChevronRight, Activity,
+  Search, Filter, ChevronRight, Activity, Radio,
   Calendar, AlertCircle, Bell, CheckSquare, MessageSquareText, Lock, 
   ShieldCheck, Timer, XCircle
 } from 'lucide-react';
@@ -288,57 +288,59 @@ const AcademicSchedule = () => {
                 )}
               </div>
 
-              <div className="flex items-center gap-3 pl-6 md:border-l border-slate-100">
-                {session.meeting_link && (
-                  <button 
-                    onClick={() => window.open(session.meeting_link, '_blank')}
-                    title="Watch Session"
-                    className={`px-4 h-11 rounded-[1rem] flex items-center justify-center gap-2 font-black uppercase text-[10px] tracking-widest transition-all ${
-                      checkIsLive(session)
-                      ? 'bg-red-500 text-white shadow-[0_0_15px_rgba(239,68,68,0.6)] animate-pulse hover:bg-red-600 hover:scale-[1.05]'
-                      : 'bg-slate-50 text-indigo-600 border border-indigo-100 hover:bg-indigo-600 hover:text-white shadow-sm'
-                    }`}
-                  >
-                    <Activity size={14} /> LIVE
-                  </button>
-                )}
-                
-                {!session.reminder_1 ? (
-                  <button 
-                    onClick={() => saveQuickReminder1(session)}
-                    title="Send Reminder 1"
-                    className="px-4 h-11 rounded-[1rem] flex items-center justify-center gap-2 font-black uppercase text-[10px] tracking-widest transition-all bg-amber-50 text-amber-600 border border-amber-100 hover:bg-amber-600 hover:text-white shadow-sm"
-                  >
-                    <Bell size={14} /> R1
-                  </button>
-                ) : (
-                  <div title="Reminder 1 Sent" className="px-4 h-11 rounded-[1rem] flex items-center justify-center gap-2 font-black uppercase text-[10px] tracking-widest transition-all bg-emerald-50 text-emerald-600 border border-emerald-100 shadow-sm cursor-help" onClick={() => toast(`Reminder 1: ${session.reminder_1_remark}`, { icon: 'ℹ️' })}>
-                    <CheckSquare size={14} /> R1
-                  </div>
-                )}
+              {activeTab !== 'upcoming' && (
+                <div className="flex items-center gap-3 pl-6 md:border-l border-slate-100">
+                  {session.meeting_link && (
+                    <button 
+                      onClick={() => window.open(session.meeting_link, '_blank')}
+                      title="Watch Session"
+                      className={`px-4 h-11 rounded-[1rem] flex items-center justify-center gap-2 font-black uppercase text-[10px] tracking-widest transition-all ${
+                        checkIsLive(session)
+                        ? 'bg-red-500 text-white shadow-[0_0_15px_rgba(239,68,68,0.6)] animate-pulse hover:bg-red-600 hover:scale-[1.05]'
+                        : 'bg-slate-50 text-indigo-600 border border-indigo-100 hover:bg-indigo-600 hover:text-white shadow-sm'
+                      }`}
+                    >
+                      <Activity size={14} /> LIVE
+                    </button>
+                  )}
+                  
+                  {!session.reminder_1 ? (
+                    <button 
+                      onClick={() => saveQuickReminder1(session)}
+                      title="Send Reminder 1"
+                      className="px-4 h-11 rounded-[1rem] flex items-center justify-center gap-2 font-black uppercase text-[10px] tracking-widest transition-all bg-amber-50 text-amber-600 border border-amber-100 hover:bg-amber-600 hover:text-white shadow-sm"
+                    >
+                      <Bell size={14} /> R1
+                    </button>
+                  ) : (
+                    <div title="Reminder 1 Sent" className="px-4 h-11 rounded-[1rem] flex items-center justify-center gap-2 font-black uppercase text-[10px] tracking-widest transition-all bg-emerald-50 text-emerald-600 border border-emerald-100 shadow-sm cursor-help" onClick={() => toast(`Reminder 1: ${session.reminder_1_remark}`, { icon: 'ℹ️' })}>
+                      <CheckSquare size={14} /> R1
+                    </div>
+                  )}
 
-                <button 
-                  onClick={() => openDetailsModal(session)}
-                  title="Session Details"
-                  className="w-11 h-11 bg-slate-50 text-slate-700 border border-slate-200 rounded-[1rem] flex items-center justify-center hover:border-[#008080] hover:text-[#008080] transition-all shadow-sm"
-                >
-                  <BookOpen size={16} />
-                </button>
-
-                {session.status === 'Completed' ? (
-                  <div title="Completed" className="w-11 h-11 bg-emerald-50 text-emerald-600 border border-emerald-100 rounded-[1rem] flex items-center justify-center shadow-sm">
-                    <CheckSquare size={16} />
-                  </div>
-                ) : (
                   <button 
-                    onClick={() => { setSelectedSession(session); setMinutesTaken(''); setIsCompleteModalOpen(true); }}
-                    title="Class Completed"
-                    className="w-11 h-11 bg-slate-900 text-white hover:bg-[#008080] rounded-[1rem] flex items-center justify-center transition-all shadow-sm"
+                    onClick={() => openDetailsModal(session)}
+                    title="Session Details"
+                    className="w-11 h-11 bg-slate-50 text-slate-700 border border-slate-200 rounded-[1rem] flex items-center justify-center hover:border-[#008080] hover:text-[#008080] transition-all shadow-sm"
                   >
-                    <CheckSquare size={16} />
+                    <BookOpen size={16} />
                   </button>
-                )}
-              </div>
+
+                  {session.status === 'Completed' ? (
+                    <div title="Completed" className="w-11 h-11 bg-emerald-50 text-emerald-600 border border-emerald-100 rounded-[1rem] flex items-center justify-center shadow-sm">
+                      <CheckSquare size={16} />
+                    </div>
+                  ) : (
+                    <button 
+                      onClick={() => { setSelectedSession(session); setMinutesTaken(''); setIsCompleteModalOpen(true); }}
+                      title="Class Completed"
+                      className="w-11 h-11 bg-slate-900 text-white hover:bg-[#008080] rounded-[1rem] flex items-center justify-center transition-all shadow-sm"
+                    >
+                      <CheckSquare size={16} />
+                    </button>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         ))}

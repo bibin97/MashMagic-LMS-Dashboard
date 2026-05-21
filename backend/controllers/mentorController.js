@@ -465,6 +465,23 @@ const getMentorTimetable = async (req, res) => {
     }
 };
 
+const recalculateSessionNumbers = async (studentId, connectionObj = db) => {
+    try {
+        const [sessions] = await connectionObj.query(
+            'SELECT id FROM timetable WHERE student_id = ? ORDER BY date ASC, start_time ASC',
+            [studentId]
+        );
+        for (let i = 0; i < sessions.length; i++) {
+            await connectionObj.query(
+                'UPDATE timetable SET session_number = ? WHERE id = ?',
+                [i + 1, sessions[i].id]
+            );
+        }
+    } catch (error) {
+        console.error("Error recalculating session numbers:", error);
+    }
+};
+
 // @desc    Create new session
 // @route   POST /api/mentor/timetable
 const createSession = async (req, res) => {
@@ -489,28 +506,40 @@ const createSession = async (req, res) => {
         // as that would violate FK constraints on mentor_id column
         const targetMentorId = studentObj.mentor_id || null;
 
-        // 1. Conflict Check for Mentor
-        const [conflicts] = await db.query(`
+        // 1. Conflict Check for Student
+        const [studentConflicts] = await db.query(`
             SELECT id FROM timetable 
-            WHERE mentor_id = ? AND date = ? 
+            WHERE student_id = ? AND date = ? 
             AND status != 'Cancelled'
             AND (
                 (start_time < ? AND end_time > ?)
             )
-        `, [targetMentorId, date, formattedEndTime, formattedStartTime]);
+        `, [student_id, date, formattedEndTime, formattedStartTime]);
 
-        if (conflicts.length > 0) {
-            return res.status(400).json({ success: false, message: "Time conflict detected with another session." });
+        if (studentConflicts.length > 0) {
+            return res.status(400).json({ success: false, message: "Student has a time conflict with another session." });
         }
 
-        // 2. Auto-generate Session Number per Student
-        const [lastSession] = await db.query(
-            'SELECT MAX(session_number) as lastNum FROM timetable WHERE student_id = ?',
-            [student_id]
-        );
-        const session_number = (lastSession[0].lastNum || 0) + 1;
+        // 2. Conflict Check for Faculty
+        if (faculty_id) {
+            const [facultyConflicts] = await db.query(`
+                SELECT id FROM timetable 
+                WHERE faculty_id = ? AND date = ? 
+                AND status != 'Cancelled'
+                AND (
+                    (start_time < ? AND end_time > ?)
+                )
+            `, [faculty_id, date, formattedEndTime, formattedStartTime]);
 
-        // 3. Calculate Duration
+            if (facultyConflicts.length > 0) {
+                return res.status(400).json({ success: false, message: "Faculty has a time conflict with another session." });
+            }
+        }
+
+        // 3. (Session number will be updated by recalculation later)
+        const session_number = 0;
+
+        const [result] = await db.query(`
         const start = new Date(`1970-01-01T${formattedStartTime}`);
         const end = new Date(`1970-01-01T${formattedEndTime}`);
         const diffMs = end - start;
@@ -530,6 +559,7 @@ const createSession = async (req, res) => {
         ]);
 
         await syncTimetableToFacultySession(result.insertId);
+        await recalculateSessionNumbers(student_id);
 
         res.status(201).json({ success: true, message: "Session created successfully", id: result.insertId });
     } catch (error) {
@@ -553,26 +583,42 @@ const updateSession = async (req, res) => {
         const formattedStartTime = convertTo24Hour(start_time);
         const formattedEndTime = convertTo24Hour(end_time);
 
-        // Get existing session to find the mentor_id
-        const [[existingSession]] = await db.query('SELECT mentor_id FROM timetable WHERE id = ?', [sessionId]);
+        // Get existing session to find the mentor_id and student_id
+        const [[existingSession]] = await db.query('SELECT mentor_id, student_id FROM timetable WHERE id = ?', [sessionId]);
         if (!existingSession) {
             return res.status(404).json({ success: false, message: "Session not found" });
         }
         // Keep existing mentor_id; do not replace with SSC/admin ID
         const targetMentorId = existingSession.mentor_id || null;
 
-        // Conflict check excluding current session
-        const [conflicts] = await db.query(`
+        // Conflict check excluding current session (Student)
+        const [studentConflicts] = await db.query(`
             SELECT id FROM timetable 
-            WHERE mentor_id = ? AND date = ? AND id != ?
+            WHERE student_id = ? AND date = ? AND id != ?
             AND status != 'Cancelled'
             AND (
                 (start_time < ? AND end_time > ?)
             )
-        `, [targetMentorId, date, sessionId, formattedEndTime, formattedStartTime]);
+        `, [existingSession.student_id, date, sessionId, formattedEndTime, formattedStartTime]);
 
-        if (conflicts.length > 0) {
-            return res.status(400).json({ success: false, message: "Time conflict detected." });
+        if (studentConflicts.length > 0) {
+            return res.status(400).json({ success: false, message: "Student has a time conflict with another session." });
+        }
+
+        // Conflict check excluding current session (Faculty)
+        if (faculty_id) {
+            const [facultyConflicts] = await db.query(`
+                SELECT id FROM timetable 
+                WHERE faculty_id = ? AND date = ? AND id != ?
+                AND status != 'Cancelled'
+                AND (
+                    (start_time < ? AND end_time > ?)
+                )
+            `, [faculty_id, date, sessionId, formattedEndTime, formattedStartTime]);
+
+            if (facultyConflicts.length > 0) {
+                return res.status(400).json({ success: false, message: "Faculty has a time conflict with another session." });
+            }
         }
 
         // Calculate Duration
@@ -604,6 +650,7 @@ const updateSession = async (req, res) => {
         await db.query(query, params);
 
         await syncTimetableToFacultySession(sessionId);
+        await recalculateSessionNumbers(existingSession.student_id);
 
         res.status(200).json({ success: true, message: "Session updated" });
     } catch (error) {
@@ -617,6 +664,11 @@ const deleteSession = async (req, res) => {
         const loggedInUserId = req.user.id;
         const loggedInUserRole = req.user.role;
         const sessionId = req.params.id;
+
+        const [[sessionToDelete]] = await db.query('SELECT student_id FROM timetable WHERE id = ?', [sessionId]);
+        if (!sessionToDelete) {
+            return res.status(404).json({ success: false, message: "Session not found" });
+        }
 
         let query = 'DELETE FROM timetable WHERE id = ?';
         let params = [sessionId];
@@ -633,6 +685,7 @@ const deleteSession = async (req, res) => {
         }
 
         await syncTimetableToFacultySession(sessionId);
+        await recalculateSessionNumbers(sessionToDelete.student_id);
 
         res.status(200).json({ success: true, message: "Session deleted" });
     } catch (error) {
@@ -642,8 +695,6 @@ const deleteSession = async (req, res) => {
 
 // Removed complete/cancel/postpone legacy routes in favor of unified updateSession
 
-// @desc    Create student interaction log
-// @route   POST /api/mentor/student-log
 // @desc    Create student interaction log
 // @route   POST /api/mentor/student-log
 const createStudentLog = async (req, res) => {
@@ -821,12 +872,8 @@ const createBatchTimetable = async (req, res) => {
         // as that would violate FK constraints on mentor_id column
         const actualMentorId = studentObj.mentor_id || null;
 
-        // 1. Get starting session number
-        const [lastSession] = await connection.query(
-            'SELECT MAX(session_number) as lastNum FROM timetable WHERE student_id = ?',
-            [student_id]
-        );
-        let currentSessionNum = (lastSession[0].lastNum || 0) + 1;
+        // 1. (Session numbers will be recalculated after insert)
+        let currentSessionNum = 0;
 
         // 2. Prepare and Insert each session
         const insertedIds = [];
@@ -857,6 +904,9 @@ const createBatchTimetable = async (req, res) => {
 
             insertedIds.push(result.insertId);
         }
+
+        // Recalculate session numbers correctly ordered by date and time
+        await recalculateSessionNumbers(student_id, connection);
 
         // 3. Mark student as onboarded
         let updateQuery = 'UPDATE students SET onboarding_status = "completed" WHERE id = ?';
@@ -1001,11 +1051,12 @@ const getAcademicSchedule = async (req, res) => {
     try {
         const mentorId = req.user.id;
         let query = `
-            SELECT fs.*, u.name as faculty_name, s.name as student_name, s.id as student_id, s.meeting_link
+            SELECT fs.*, u.name as faculty_name, s.name as student_name, s.id as student_id, s.meeting_link, t.session_number
             FROM faculty_sessions fs
             LEFT JOIN faculties u ON fs.faculty_id = u.id
             LEFT JOIN session_attendance sa ON fs.id = sa.session_id
             LEFT JOIN students s ON sa.student_id = s.id
+            LEFT JOIN timetable t ON fs.timetable_id = t.id
             WHERE 1=1
         `;
         const params = [];
