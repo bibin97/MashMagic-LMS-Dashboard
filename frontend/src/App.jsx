@@ -33,7 +33,7 @@ import DailyMentorHeadReport from './pages/admin/DailyMentorHeadReport';
 import AdminManagement from './pages/admin/AdminManagement';
 import StaffManagement from './pages/admin/StaffManagement';
 import AdminLiveMonitoring from './pages/admin/LiveMonitoring';
-import AdminAcademicSchedule from './pages/Admin/AcademicSchedule';
+import AdminAcademicSchedule from './pages/admin/AcademicSchedule';
 
 // Mentor Panel Pages
 import MentorDashboard from './pages/Mentor/MentorDashboard';
