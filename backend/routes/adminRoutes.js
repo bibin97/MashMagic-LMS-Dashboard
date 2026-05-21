@@ -35,12 +35,14 @@ const {
     getTaskAnalytics,
     getLiveMonitoring,
     getStudentPortalLogins,
-    getStudentExamsForAdmin
+    getStudentExamsForAdmin,
+    getAcademicSchedule
 } = require('../controllers/adminController');
 
 router.use(requireAuth);
 
 router.get('/student-portal-logins', requireRole('super_admin', 'sub_admin'), getStudentPortalLogins);
+router.get('/academic-schedule', requireRole('super_admin', 'sub_admin'), getAcademicSchedule);
 
 // General view access for admin and super_admin
 router.get('/dashboard-summary', requireRole('super_admin', 'sub_admin'), getAdminDashboardSummary);

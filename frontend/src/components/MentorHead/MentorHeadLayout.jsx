@@ -13,7 +13,8 @@ import {
  ListTodo, 
  CheckCircle2, 
  Activity,
- Bell 
+ Bell,
+ ScrollText
 } from 'lucide-react';
 
 const MentorHeadLayout = () => {
@@ -31,6 +32,7 @@ const MentorHeadLayout = () => {
  { path: '/mentor-head/faculties', icon: <Briefcase size={18} />, label: 'Faculties' },
  { path: '/mentor-head/tasks', icon: <ListTodo size={18} />, label: 'Tasks' },
  { path: '/mentor-head/course-completed', icon: <CheckCircle2 size={18} />, label: 'Course Completed' },
+ { path: '/mentor-head/academic-schedule', icon: <ScrollText size={18} />, label: 'Academic Schedule' },
  { path: '/mentor-head/interactions', icon: <Activity size={18} />, label: 'Logs' },
  { path: '/mentor-head/notifications', icon: <Bell size={18} />, label: 'Notifications' },
  ];

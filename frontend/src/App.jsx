@@ -33,6 +33,7 @@ import DailyMentorHeadReport from './pages/admin/DailyMentorHeadReport';
 import AdminManagement from './pages/admin/AdminManagement';
 import StaffManagement from './pages/admin/StaffManagement';
 import AdminLiveMonitoring from './pages/admin/LiveMonitoring';
+import AdminAcademicSchedule from './pages/Admin/AcademicSchedule';
 
 // Mentor Panel Pages
 import MentorDashboard from './pages/Mentor/MentorDashboard';
@@ -68,6 +69,7 @@ import MentorHeadInteractions from './pages/MentorHead/MentorHeadInteractions';
 import MentorHeadTasks from './pages/MentorHead/MentorHeadTasks';
 import FacultyDirectoryMentorHead from './pages/MentorHead/FacultyDirectory';
 import MentorHeadNotifications from './pages/MentorHead/MentorHeadNotifications';
+import MentorHeadAcademicSchedule from './pages/MentorHead/AcademicSchedule';
 
 // Mentor Interaction Tracking
 import FacultyTracking from './pages/Mentor/FacultyTracking';
@@ -134,6 +136,7 @@ function App() {
             <Route path="admin-management" element={<AdminManagement />} />
             <Route path="students/:id" element={<StudentDetails />} />
             <Route path="live-monitoring" element={<AdminLiveMonitoring />} />
+            <Route path="academic-schedule" element={<AdminAcademicSchedule />} />
             <Route path="profile" element={<AdminProfile />} />
             <Route path="account-settings" element={<AccountSettings />} />
           </Route>
@@ -158,6 +161,7 @@ function App() {
             <Route path="faculties" element={<FacultyDirectoryMentorHead />} />
             <Route path="course-completed" element={<CourseCompletedTracker />} />
             <Route path="tasks" element={<MentorHeadTasks />} />
+            <Route path="academic-schedule" element={<MentorHeadAcademicSchedule />} />
             <Route path="interactions" element={<MentorHeadInteractions />} />
             <Route path="notifications" element={<MentorHeadNotifications />} />
             <Route path="profile" element={<AdminProfile />} />

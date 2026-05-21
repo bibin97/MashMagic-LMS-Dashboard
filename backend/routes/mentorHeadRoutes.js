@@ -31,7 +31,8 @@ const {
     getStudentById,
     toggleCourseCompleted,
     deleteInteractionLog,
-    getDropdownData
+    getDropdownData,
+    getAcademicSchedule
 } = require('../controllers/mentorHeadController');
 const { requireAuth } = require('../middleware/authMiddleware');
 const { requireRole } = require('../middleware/roleMiddleware');
@@ -40,6 +41,7 @@ const { requireRole } = require('../middleware/roleMiddleware');
 router.use(requireAuth);
 router.use(requireRole('mentor_head', 'super_admin'));
 
+router.get('/academic-schedule', getAcademicSchedule);
 router.post('/register-mentor', registerMentor);
 router.get('/dashboard', getDashboardStats);
 router.get('/activities', getAllActivities);

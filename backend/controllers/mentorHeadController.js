@@ -1705,6 +1705,25 @@ exports.deleteInteractionLog = async (req, res) => {
     }
 };
 
+// @desc    Get academic schedule
+// @route   GET /api/mentor-head/academic-schedule
+exports.getAcademicSchedule = async (req, res) => {
+    try {
+        const query = `
+            SELECT fs.*, u.name as faculty_name, s.name as student_name, s.id as student_id, s.meeting_link
+            FROM faculty_sessions fs
+            LEFT JOIN faculties u ON fs.faculty_id = u.id
+            LEFT JOIN session_attendance sa ON fs.id = sa.session_id
+            LEFT JOIN students s ON sa.student_id = s.id
+            ORDER BY fs.date DESC, fs.start_time DESC
+        `;
+        const [rows] = await db.query(query);
+        res.status(200).json({ success: true, data: rows });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
 // @desc    Get dropdown data for student editing
 // @route   GET /api/mentor-head/dropdowns
 exports.getDropdownData = async (req, res) => {
