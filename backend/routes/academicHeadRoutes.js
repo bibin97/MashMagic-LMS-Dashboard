@@ -35,7 +35,8 @@ const {
     getLiveMonitoring,
     getAvailableFaculties,
     getStaff,
-    syncLegacyData
+    syncLegacyData,
+    getAcademicSchedule
 } = require('../controllers/academicHeadController');
 const { requireAuth } = require('../middleware/authMiddleware');
 const { requireRole } = require('../middleware/roleMiddleware');
@@ -45,6 +46,7 @@ router.use(requireAuth);
 router.use(requireRole('academic_head', 'super_admin'));
 
 router.get('/dashboard', getDashboardStats);
+router.get('/academic-schedule', getAcademicSchedule);
 router.get('/exam-analytics', getExamAnalytics);
 router.get('/actions', getAcademicActions);
 router.get('/faculties', getFacultyDirectory);

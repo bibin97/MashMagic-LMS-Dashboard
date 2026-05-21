@@ -80,6 +80,7 @@ import Registrations from './pages/AcademicHead/Registrations';
 import AcademicHeadTasks from './pages/AcademicHead/AcademicHeadTasks';
 import AcademicHeadFacultyActivity from './pages/AcademicHead/AcademicHeadFacultyActivity';
 import AcademicActions from './pages/AcademicHead/AcademicActions';
+import AcademicHeadAcademicSchedule from './pages/AcademicHead/AcademicSchedule';
 import FacultyDirectory from './pages/AcademicHead/FacultyDirectory';
 import StudentsListAcademic from './pages/AcademicHead/StudentsList';
 import MentorsListAcademic from './pages/AcademicHead/MentorsList';
@@ -192,6 +193,7 @@ function App() {
             <Route path="faculty-logs" element={<FacultyLogsAcademic />} />
             <Route path="checking" element={<CheckingSection />} />
             <Route path="live-monitoring" element={<AcademicLiveMonitoring />} />
+            <Route path="academic-schedule" element={<AcademicHeadAcademicSchedule />} />
             <Route path="profile" element={<AdminProfile />} />
             <Route path="account-settings" element={<AccountSettings />} />
           </Route>
