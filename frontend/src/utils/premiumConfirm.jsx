@@ -59,5 +59,5 @@ export const premiumConfirm = (callback, { name = '', title = '', message = '', 
  </div>
  </div>
  </div>
- ), { duration: Infinity, position: 'top-center' });
+ ), { duration: 60000, position: 'top-center' });
 };
