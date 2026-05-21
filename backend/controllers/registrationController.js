@@ -26,8 +26,8 @@ const registerStudent = async (req, res) => {
         const query = `
             INSERT INTO students (
                 name, grade, subject, course, hour, 
-                time_table, mentor_name, faculty_name, next_installment_date, enrollment_type, badge, status, isApproved
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', 1)
+                time_table, mentor_name, faculty_name, next_installment_date, enrollment_type, badge, status, isApproved, priority_category
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', 1, 'High')
         `;
 
         const [studentResult] = await db.query(query, [

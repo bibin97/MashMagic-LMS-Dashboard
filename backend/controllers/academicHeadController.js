@@ -166,7 +166,7 @@ const registerStudent = async (req, res) => {
         const hash = await bcrypt.hash(password || "student123", 10);
         await conn.beginTransaction();
         const [ur] = await conn.query('INSERT INTO users (name, email, phone_number, password, role, status, isApproved, isActive) VALUES (?, ?, ?, ?, "student", "active", 1, 1)', [name, email || null, contact || null, hash]);
-        await conn.query('INSERT INTO students (name, email, password, user_id, grade, course, mentor_id, status, isApproved) VALUES (?, ?, ?, ?, ?, ?, ?, "active", 1)', [name, email || null, hash, ur.insertId, grade, course, mentorId || null]);
+        await conn.query('INSERT INTO students (name, email, password, user_id, grade, course, mentor_id, status, isApproved, priority_category) VALUES (?, ?, ?, ?, ?, ?, ?, "active", 1, "High")', [name, email || null, hash, ur.insertId, grade, course, mentorId || null]);
         await conn.commit();
         conn.release();
         res.status(201).json({ success: true, message: "Student registered" });
