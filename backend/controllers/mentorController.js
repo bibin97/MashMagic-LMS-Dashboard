@@ -444,7 +444,7 @@ const getMentorTimetable = async (req, res) => {
             params.push(end_date);
         }
 
-        query += ' ORDER BY t.date DESC, t.start_time DESC';
+        query += ' ORDER BY t.date ASC, t.start_time ASC';
 
         const [rows] = await db.query(query, params);
 
@@ -468,22 +468,14 @@ const getMentorTimetable = async (req, res) => {
 const recalculateSessionNumbers = async (studentId, connectionObj = db) => {
     try {
         const [sessions] = await connectionObj.query(
-            'SELECT id, status FROM timetable WHERE student_id = ? ORDER BY date DESC, start_time DESC',
+            'SELECT id, status FROM timetable WHERE student_id = ? ORDER BY date ASC, start_time ASC',
             [studentId]
         );
-        let snCounter = 1;
         for (let i = 0; i < sessions.length; i++) {
-            const isInvalid = ['Postponed', 'Cancelled', 'Faculty Cancelled', 'Student Cancelled'].includes(sessions[i].status);
-            const snToAssign = isInvalid ? 0 : snCounter;
-            
             await connectionObj.query(
                 'UPDATE timetable SET session_number = ? WHERE id = ?',
-                [snToAssign, sessions[i].id]
+                [i + 1, sessions[i].id]
             );
-            
-            if (!isInvalid) {
-                snCounter++;
-            }
         }
     } catch (error) {
         console.error("Error recalculating session numbers:", error);
@@ -562,9 +554,8 @@ const createSession = async (req, res) => {
             }
         }
 
-        // 3. Assign a permanent session number sequentially
-        const [[maxSnObj]] = await db.query('SELECT MAX(session_number) as max_sn FROM timetable WHERE student_id = ?', [student_id]);
-        const session_number = (maxSnObj.max_sn || 0) + 1;
+        // 3. (Session number will be updated by recalculation later)
+        const session_number = 0;
 
         const start = new Date(`1970-01-01T${formattedStartTime}`);
         const end = new Date(`1970-01-01T${formattedEndTime}`);
@@ -585,6 +576,7 @@ const createSession = async (req, res) => {
         ]);
 
         await syncTimetableToFacultySession(result.insertId);
+        await recalculateSessionNumbers(student_id);
 
         res.status(201).json({ success: true, message: "Session created successfully", id: result.insertId });
     } catch (error) {
@@ -684,6 +676,7 @@ const updateSession = async (req, res) => {
         }
 
         await syncTimetableToFacultySession(sessionId);
+        await recalculateSessionNumbers(existingSession.student_id);
 
         res.status(200).json({ success: true, message: "Session updated successfully" });
     } catch (error) {
@@ -718,6 +711,7 @@ const deleteSession = async (req, res) => {
         }
 
         await syncTimetableToFacultySession(sessionId);
+        await recalculateSessionNumbers(sessionToDelete.student_id);
 
         res.status(200).json({ success: true, message: "Session deleted" });
     } catch (error) {
@@ -904,9 +898,8 @@ const createBatchTimetable = async (req, res) => {
         // as that would violate FK constraints on mentor_id column
         const actualMentorId = studentObj.mentor_id || null;
 
-        // 1. Determine starting session number
-        const [[maxSnObj]] = await connection.query('SELECT MAX(session_number) as max_sn FROM timetable WHERE student_id = ?', [student_id]);
-        let currentSessionNum = (maxSnObj.max_sn || 0) + 1;
+        // 1. (Session numbers will be recalculated after insert)
+        let currentSessionNum = 0;
 
         // 2. Prepare and Insert each session
         const insertedIds = [];
@@ -937,6 +930,9 @@ const createBatchTimetable = async (req, res) => {
 
             insertedIds.push(result.insertId);
         }
+
+        // Recalculate session numbers correctly ordered by date and time
+        await recalculateSessionNumbers(student_id, connection);
 
         // 3. Mark student as onboarded
         let updateQuery = 'UPDATE students SET onboarding_status = "completed" WHERE id = ?';
