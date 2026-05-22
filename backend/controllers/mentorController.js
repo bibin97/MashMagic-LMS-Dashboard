@@ -444,7 +444,7 @@ const getMentorTimetable = async (req, res) => {
             params.push(end_date);
         }
 
-        query += ' ORDER BY t.date ASC, t.start_time ASC';
+        query += ' ORDER BY t.date DESC, t.start_time DESC';
 
         const [rows] = await db.query(query, params);
 
@@ -468,7 +468,7 @@ const getMentorTimetable = async (req, res) => {
 const recalculateSessionNumbers = async (studentId, connectionObj = db) => {
     try {
         const [sessions] = await connectionObj.query(
-            'SELECT id, status FROM timetable WHERE student_id = ? ORDER BY date ASC, start_time ASC',
+            'SELECT id, status FROM timetable WHERE student_id = ? ORDER BY date DESC, start_time DESC',
             [studentId]
         );
         for (let i = 0; i < sessions.length; i++) {
