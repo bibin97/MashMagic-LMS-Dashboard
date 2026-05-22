@@ -468,14 +468,22 @@ const getMentorTimetable = async (req, res) => {
 const recalculateSessionNumbers = async (studentId, connectionObj = db) => {
     try {
         const [sessions] = await connectionObj.query(
-            'SELECT id FROM timetable WHERE student_id = ? ORDER BY date ASC, start_time ASC',
+            'SELECT id, status FROM timetable WHERE student_id = ? ORDER BY date ASC, start_time ASC',
             [studentId]
         );
+        let snCounter = 1;
         for (let i = 0; i < sessions.length; i++) {
+            const isInvalid = ['Postponed', 'Cancelled', 'Faculty Cancelled', 'Student Cancelled'].includes(sessions[i].status);
+            const snToAssign = isInvalid ? 0 : snCounter;
+            
             await connectionObj.query(
                 'UPDATE timetable SET session_number = ? WHERE id = ?',
-                [i + 1, sessions[i].id]
+                [snToAssign, sessions[i].id]
             );
+            
+            if (!isInvalid) {
+                snCounter++;
+            }
         }
     } catch (error) {
         console.error("Error recalculating session numbers:", error);

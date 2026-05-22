@@ -630,7 +630,7 @@ const Timetable = () => {
                   <div>
                     <h3 className="text-base font-black text-slate-900 tracking-tight uppercase">{session.student_name}</h3>
                     <p className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] mt-1">
-                      SN #{session.session_number} • {session.session_type} 
+                      {session.session_number === 0 ? 'SN N/A' : `SN #${session.session_number}`} • {session.session_type} 
                       {session.faculty_name && ` • Faculty: ${session.faculty_name}`}
                     </p>
                   </div>
