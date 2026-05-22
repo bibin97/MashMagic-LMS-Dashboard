@@ -425,7 +425,8 @@ const StudentInteractionLog = () => {
               Completed {assignedStudents.filter(s => s.status === 'COMPLETED').length} / {assignedStudents.length} Sessions Today
             </p>
           </div>
-</header>
+        </div>
+     </header>
 
      {!submitted ? (
        <form onSubmit={handleSubmit} className="bg-white p-6 md:p-12 rounded-[3.5rem] shadow-2xl border border-slate-50 space-y-12">
