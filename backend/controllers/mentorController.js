@@ -468,7 +468,7 @@ const getMentorTimetable = async (req, res) => {
 const recalculateSessionNumbers = async (studentId, connectionObj = db) => {
     try {
         const [sessions] = await connectionObj.query(
-            'SELECT id, status FROM timetable WHERE student_id = ? ORDER BY date ASC, start_time ASC',
+            'SELECT id, status FROM timetable WHERE student_id = ? ORDER BY date DESC, start_time DESC',
             [studentId]
         );
         let snCounter = 1;
