@@ -320,6 +320,18 @@ const StudentInteractionLog = () => {
                                </div>
                                <h3 className="text-2xl font-black text-slate-900 tracking-tight leading-none uppercase mb-2 truncate">{student.name}</h3>
                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest truncate">MM-{student.id.toString().padStart(4, '0')} • {student.priority_category || 'Stable'} Priority</p>
+                               
+                               <div className="mt-4 flex items-center gap-2 p-2 bg-slate-50 rounded-xl border border-slate-100" title={`Consumed: ${student.consumed_hours || 0} | Paid Limit: ${student.paid_hours || 0}`}>
+                                  <div className={`w-2 h-2 rounded-full ${student.payment_alert_level === 'Critical' ? 'bg-rose-500 animate-pulse' : student.payment_alert_level === 'Warning' ? 'bg-amber-500 animate-pulse' : 'bg-emerald-400'} shrink-0`}></div>
+                                  <div className="flex flex-col gap-0.5">
+                                    <p className={`text-[9px] font-black uppercase truncate leading-none ${student.payment_alert_level === 'Critical' ? 'text-rose-600' : student.payment_alert_level === 'Warning' ? 'text-amber-600' : 'text-emerald-600'}`}>
+                                      {student.payment_alert_level || 'Safe'} • {Math.round(((student.consumed_hours || 0) / (student.paid_hours || 1)) * 100)}%
+                                    </p>
+                                    <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest leading-none">
+                                      {student.consumed_hours || 0} hrs cycle consumed / {Math.round(student.paid_hours || 0)} hrs cycle limit
+                                    </p>
+                                  </div>
+                                </div>
                              </div>
 
                              <div className="flex items-center justify-between mt-6">
@@ -371,6 +383,18 @@ const StudentInteractionLog = () => {
                             {student.connected_today && <CheckCircle2 className="text-emerald-500" size={20} />}
                           </div>
                           <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest truncate">{student.course} • Grade {student.grade}</p>
+                          
+                          <div className="mt-4 flex items-center gap-2 p-2 bg-slate-50 rounded-xl border border-slate-100" title={`Consumed: ${student.consumed_hours || 0} | Paid Limit: ${student.paid_hours || 0}`}>
+                            <div className={`w-2 h-2 rounded-full ${student.payment_alert_level === 'Critical' ? 'bg-rose-500 animate-pulse' : student.payment_alert_level === 'Warning' ? 'bg-amber-500 animate-pulse' : 'bg-emerald-400'} shrink-0`}></div>
+                            <div className="flex flex-col gap-0.5">
+                              <p className={`text-[9px] font-black uppercase truncate leading-none ${student.payment_alert_level === 'Critical' ? 'text-rose-600' : student.payment_alert_level === 'Warning' ? 'text-amber-600' : 'text-emerald-600'}`}>
+                                {student.payment_alert_level || 'Safe'} • {Math.round(((student.consumed_hours || 0) / (student.paid_hours || 1)) * 100)}%
+                              </p>
+                              <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest leading-none">
+                                {student.consumed_hours || 0} hrs cycle consumed / {Math.round(student.paid_hours || 0)} hrs cycle limit
+                              </p>
+                            </div>
+                          </div>
                         </div>
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2 text-[#008080] text-[9px] font-black uppercase tracking-[0.2em]">

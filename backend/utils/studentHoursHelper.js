@@ -28,41 +28,48 @@ const calculateStudentHours = async (students, db) => {
     // Augment students array
     return students.map(s => {
         const total_fees = parseFloat(s.total_fees) || 0;
-        const total_paid = parseFloat(s.total_paid) || 0;
         const total_hours = parseInt(s.total_hours) || 0;
+        
+        const current_installment_amount = parseFloat(s.current_installment_amount) || 0;
+        const current_installment_start_hours = parseFloat(s.current_installment_start_hours) || 0;
 
-        let paid_hours = 0;
+        let cycle_limit_hours = 0;
         if (total_fees > 0) {
-            paid_hours = (total_paid / total_fees) * total_hours;
-        } else if (total_fees === 0 && total_paid > 0) {
-             paid_hours = total_hours; // fully paid if fees 0 but paid > 0? Edge case
+            cycle_limit_hours = (current_installment_amount / total_fees) * total_hours;
+        } else if (total_fees === 0 && current_installment_amount > 0) {
+            cycle_limit_hours = total_hours;
         }
 
-        const consumed_mins = consumedMap[s.id] || 0;
-        const consumed_hours = consumed_mins / 60;
+        const total_lifetime_consumed_mins = consumedMap[s.id] || 0;
+        const total_lifetime_consumed_hours = total_lifetime_consumed_mins / 60;
+        
+        // Calculate consumed hours for THIS specific cycle
+        let cycle_consumed_hours = total_lifetime_consumed_hours - current_installment_start_hours;
+        if (cycle_consumed_hours < 0) cycle_consumed_hours = 0; // Guard against negative values
 
         let payment_alert_level = 'None';
         let payment_threshold_percentage = 0;
 
-        if (paid_hours > 0) {
-            payment_threshold_percentage = (consumed_hours / paid_hours) * 100;
+        if (cycle_limit_hours > 0) {
+            payment_threshold_percentage = (cycle_consumed_hours / cycle_limit_hours) * 100;
             if (payment_threshold_percentage >= 90) {
                 payment_alert_level = 'Critical';
             } else if (payment_threshold_percentage >= 70) {
                 payment_alert_level = 'Warning';
             }
-        } else if (consumed_hours > 0) {
-            // Consumed hours but 0 paid hours
+        } else if (cycle_consumed_hours > 0) {
+            // Consumed hours but 0 limit in current cycle
             payment_alert_level = 'Critical';
             payment_threshold_percentage = 100;
         }
 
         return {
             ...s,
-            paid_hours: parseFloat(paid_hours.toFixed(2)),
-            consumed_hours: parseFloat(consumed_hours.toFixed(2)),
+            paid_hours: parseFloat(cycle_limit_hours.toFixed(2)),
+            consumed_hours: parseFloat(cycle_consumed_hours.toFixed(2)),
             payment_alert_level,
-            payment_threshold_percentage: parseFloat(payment_threshold_percentage.toFixed(2))
+            payment_threshold_percentage: parseFloat(payment_threshold_percentage.toFixed(2)),
+            total_lifetime_consumed_hours: parseFloat(total_lifetime_consumed_hours.toFixed(2))
         };
     });
 };

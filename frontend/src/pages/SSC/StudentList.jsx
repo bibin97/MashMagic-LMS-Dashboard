@@ -75,13 +75,22 @@ const StudentRow = ({ student, navigate }) => {
 
           <div className="hidden md:block w-[1px] h-10 bg-slate-200"></div>
 
-          <div className="flex-1 min-w-0" title={`Consumed: ${student.consumed_hours || 0} | Paid: ${student.paid_hours || 0}`}>
-            <p className="text-[8px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Class Hours</p>
-            <div className="flex items-center gap-2">
-              <div className={`w-2 h-2 rounded-full ${student.payment_alert_level === 'Critical' ? 'bg-rose-500 animate-pulse' : student.payment_alert_level === 'Warning' ? 'bg-amber-500' : 'bg-slate-300'} shrink-0`}></div>
-              <p className={`text-[11px] font-black uppercase truncate ${student.payment_alert_level === 'Critical' ? 'text-rose-600' : student.payment_alert_level === 'Warning' ? 'text-amber-600' : 'text-slate-700'}`}>
-                {student.consumed_hours || 0} / {student.paid_hours || 0}
-              </p>
+          <div className="flex-1 min-w-0 bg-slate-50 p-2 rounded-xl border border-slate-100" title={`Consumed: ${student.consumed_hours || 0} | Paid: ${student.paid_hours || 0}`}>
+            <p className="text-[8px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Current Cycle Tracking</p>
+            <div className="flex items-center justify-between gap-2 mb-1">
+              <div className="flex items-center gap-1.5">
+                <div className={`w-1.5 h-1.5 rounded-full ${student.payment_alert_level === 'Critical' ? 'bg-rose-500 animate-pulse' : student.payment_alert_level === 'Warning' ? 'bg-amber-500 animate-pulse' : 'bg-emerald-400'} shrink-0`}></div>
+                <p className={`text-[9px] font-black uppercase truncate ${student.payment_alert_level === 'Critical' ? 'text-rose-600' : student.payment_alert_level === 'Warning' ? 'text-amber-600' : 'text-emerald-600'}`}>
+                  {student.payment_alert_level || 'Safe'}
+                </p>
+              </div>
+              <span className="text-[10px] font-black text-slate-500">
+                {Math.round(((student.consumed_hours || 0) / (student.paid_hours || 1)) * 100)}%
+              </span>
+            </div>
+            <div className="flex flex-col gap-0.5">
+              <span className="text-[8px] font-black uppercase tracking-wider text-slate-400">Cycle Consumed: <span className="text-slate-700">{student.consumed_hours || 0} hrs</span></span>
+              <span className="text-[8px] font-black uppercase tracking-wider text-slate-400">Cycle Limit: <span className="text-slate-700">{Math.round(student.paid_hours || 0)} hrs</span></span>
             </div>
           </div>
         </div>

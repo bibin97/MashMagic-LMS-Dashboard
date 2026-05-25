@@ -261,6 +261,8 @@ const startServer = async () => {
                 'ALTER TABLE students ADD COLUMN total_paid DECIMAL(10,2) DEFAULT 0.00;',
                 'ALTER TABLE students ADD COLUMN total_hours INT DEFAULT 0;',
                 'ALTER TABLE students ADD COLUMN admission_type VARCHAR(50) DEFAULT "new";',
+                'ALTER TABLE students ADD COLUMN current_installment_amount DECIMAL(10,2) DEFAULT 0.00;',
+                'ALTER TABLE students ADD COLUMN current_installment_start_hours DECIMAL(10,2) DEFAULT 0.00;',
                 'ALTER TABLE users ADD COLUMN place VARCHAR(255) NULL;',
                 'ALTER TABLE users ADD COLUMN registeredBy INT NULL;',
                 'ALTER TABLE users ADD COLUMN profile_pic TEXT NULL;',
@@ -294,6 +296,15 @@ const startServer = async () => {
                 // Move less important columns to the end
                 'ALTER TABLE students MODIFY COLUMN roll_number VARCHAR(50) AFTER profile_pic;',
 
+                `CREATE TABLE IF NOT EXISTS student_installments (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    student_id INT NOT NULL,
+                    amount DECIMAL(10,2) NOT NULL,
+                    payment_date DATE NOT NULL,
+                    notes TEXT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE
+                );`,
                 `CREATE TABLE IF NOT EXISTS daily_assignments (
                     id INT AUTO_INCREMENT PRIMARY KEY,
                     mentor_id INT NOT NULL,

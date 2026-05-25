@@ -25,6 +25,10 @@ const RegistrationForm = ({ onSuccess, preSelectedRole }) => {
  mentor_name: '',
  faculty_name: '',
  enrollment_type: '', // Mentorship, Tuition, etc.
+ admission_type: 'new', // new or rejoin
+ total_fees: '',
+ total_paid: '',
+ total_hours: '',
  next_installment_date: '',
  time_table: {
  mon: '', tue: '', wed: '', thu: '', fri: '', sat: '', sun: ''
@@ -417,6 +421,66 @@ const RegistrationForm = ({ onSuccess, preSelectedRole }) => {
  <span className="text-[9px] font-bold text-[#008080] uppercase tracking-tighter">{item.badge}</span>
  </button>
  ))}
+ </div>
+ </div>
+
+ {/* NEW: Admission Type and Fee Tracking */}
+ <div className="flex flex-col gap-4 p-5 bg-amber-50/50 rounded-2xl border border-amber-100">
+ <label className="text-[10px] font-black text-amber-600 uppercase tracking-widest ml-1 flex items-center gap-2">
+ <span className="bg-amber-500 text-white p-1 rounded">₹</span> Admission & Fee Tracking
+ </label>
+ 
+ <div className="grid grid-cols-2 gap-3 mb-2">
+ <button
+ type="button"
+ onClick={() => setFormData(prev => ({ ...prev, admission_type: 'new' }))}
+ className={`p-3 rounded-xl border-2 transition-all text-xs font-black uppercase tracking-widest ${formData.admission_type === 'new' ? 'bg-amber-100 border-amber-500 text-amber-700' : 'bg-white border-slate-100 text-slate-400'}`}
+ >
+ New Admission
+ </button>
+ <button
+ type="button"
+ onClick={() => setFormData(prev => ({ ...prev, admission_type: 'rejoin' }))}
+ className={`p-3 rounded-xl border-2 transition-all text-xs font-black uppercase tracking-widest ${formData.admission_type === 'rejoin' ? 'bg-amber-100 border-amber-500 text-amber-700' : 'bg-white border-slate-100 text-slate-400'}`}
+ >
+ Rejoining
+ </button>
+ </div>
+
+ <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+ <div className="flex flex-col gap-2">
+ <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Total Course Fee</label>
+ <input
+ type="number"
+ name="total_fees"
+ className="w-full p-3 bg-white border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-amber-500 font-bold"
+ placeholder="e.g. 50000"
+ value={formData.total_fees}
+ onChange={handleInputChange}
+ />
+ </div>
+ <div className="flex flex-col gap-2">
+ <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Initial Payment</label>
+ <input
+ type="number"
+ name="total_paid"
+ className="w-full p-3 bg-white border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-amber-500 font-bold"
+ placeholder="e.g. 10000"
+ value={formData.total_paid}
+ onChange={handleInputChange}
+ />
+ </div>
+ <div className="flex flex-col gap-2">
+ <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Total Hours</label>
+ <input
+ type="number"
+ name="total_hours"
+ className="w-full p-3 bg-white border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-amber-500 font-bold"
+ placeholder="e.g. 144"
+ value={formData.total_hours}
+ onChange={handleInputChange}
+ />
+ </div>
  </div>
  </div>
 

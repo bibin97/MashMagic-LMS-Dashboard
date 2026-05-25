@@ -109,6 +109,37 @@ const Students = () => {
  setIsEditModalOpen(true);
  };
 
+  const [isInstallmentModalOpen, setIsInstallmentModalOpen] = useState(false);
+  const [installmentAmount, setInstallmentAmount] = useState('');
+  const [installmentStudent, setInstallmentStudent] = useState(null);
+
+  const handleAddInstallmentClick = (student) => {
+    setInstallmentStudent(student);
+    setInstallmentAmount('');
+    setIsInstallmentModalOpen(true);
+  };
+
+  const handleInstallmentSubmit = async (e) => {
+    e.preventDefault();
+    if (!installmentAmount || isNaN(installmentAmount) || installmentAmount <= 0) {
+      toast.error("Please enter a valid amount");
+      return;
+    }
+    try {
+      const res = await api.post(`/admin/students/${installmentStudent.id}/installments`, {
+        amount: parseFloat(installmentAmount),
+        notes: `Logged manually by ${user?.name || 'Admin'}`
+      });
+      if (res.data.success) {
+        toast.success("Installment logged successfully");
+        setIsInstallmentModalOpen(false);
+        fetchStudents();
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to log installment");
+    }
+  };
+
  const handleEditSubmit = async (e) => {
  e.preventDefault();
  try {
@@ -199,11 +230,40 @@ const Students = () => {
       )
     },
     { 
-      header: 'Academics', 
+      header: 'Academics & Fee', 
       render: (row) => (
-        <div className="flex flex-col gap-0.5">
+        <div className="flex flex-col gap-1.5">
           <span className="text-[11px] font-black text-slate-700">{row.grade}</span>
           <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wide truncate max-w-[120px]">{row.subject || '---'}</span>
+          
+          <div className="flex flex-col gap-1 mt-1 bg-slate-50 p-1.5 rounded-lg border border-slate-100">
+            <div className="flex items-center justify-between gap-2" title={`Consumed: ${row.consumed_hours || 0} | Paid: ${row.paid_hours || 0}`}>
+              <div className="flex items-center gap-1">
+                <span className={`w-1.5 h-1.5 rounded-full ${row.payment_alert_level === 'Critical' ? 'bg-rose-500 animate-pulse' : row.payment_alert_level === 'Warning' ? 'bg-amber-500 animate-pulse' : 'bg-emerald-400'}`}></span>
+                <span className={`text-[9px] font-black uppercase ${row.payment_alert_level === 'Critical' ? 'text-rose-600' : row.payment_alert_level === 'Warning' ? 'text-amber-600' : 'text-emerald-600'}`}>
+                  {row.payment_alert_level || 'Safe'}
+                </span>
+              </div>
+              <span className="text-[9px] font-bold text-slate-500">
+                {Math.round(((row.consumed_hours || 0) / (row.paid_hours || 1)) * 100)}%
+              </span>
+            </div>
+            
+            <div className="flex flex-col gap-0.5">
+              <span className="text-[8px] font-black uppercase tracking-wider text-slate-400">Current Cycle Consumed: <span className="text-slate-700">{row.consumed_hours || 0} hrs</span></span>
+              <span className="text-[8px] font-black uppercase tracking-wider text-slate-400">Current Cycle Limit: <span className="text-slate-700">{Math.round(row.paid_hours || 0)} hrs</span></span>
+            </div>
+
+            {isSuperAdmin && (
+              <button
+                onClick={(e) => { e.stopPropagation(); handleAddInstallmentClick(row); }}
+                className="mt-1 w-full py-1 bg-amber-100 text-amber-700 hover:bg-amber-200 text-[8px] font-black uppercase tracking-widest rounded transition-colors flex items-center justify-center gap-1"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+                Add Fee
+              </button>
+            )}
+          </div>
         </div>
       )
     },
@@ -441,6 +501,12 @@ const Students = () => {
  </div>
  <div className="col-span-2 flex flex-col gap-2">
  <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest pl-2">Timetable Summary</label>
+   <option value="left">Left</option>
+  <option value="rejected">Rejected</option>
+ </select>
+ </div>
+ <div className="col-span-2 flex flex-col gap-2">
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest pl-2">Timetable Summary</label>
  <textarea
  className="p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-[#008080] transition-all min-h-[100px]"
  value={editFormData.timetable}
@@ -454,6 +520,32 @@ const Students = () => {
  </form>
  </Modal>
 
+ {/* Add Installment Modal */}
+ <Modal
+ isOpen={isInstallmentModalOpen}
+ onClose={() => setIsInstallmentModalOpen(false)}
+ title={`Add Installment for ${installmentStudent?.name}`}
+ size="sm"
+ >
+ <form onSubmit={handleInstallmentSubmit} className="flex flex-col gap-6">
+ <div className="flex flex-col gap-2">
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest pl-2">Installment Amount (₹)</label>
+ <input
+ type="number"
+ className="p-5 bg-amber-50/50 border border-amber-100 rounded-[20px] text-lg font-black text-amber-700 outline-none focus:bg-white focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500/30 transition-all placeholder:text-amber-300"
+ placeholder="e.g. 10000"
+ value={installmentAmount}
+ onChange={(e) => setInstallmentAmount(e.target.value)}
+ required
+ autoFocus
+ />
+ </div>
+ <div className="flex justify-end gap-3 pt-4 border-t border-slate-100">
+ <button type="button" className="px-6 py-3 rounded-2xl border border-slate-100 text-[11px] font-black uppercase tracking-widest text-slate-600 hover:bg-slate-50 transition-all font-sans" onClick={() => setIsInstallmentModalOpen(false)}>Cancel</button>
+ <button type="submit" className="px-8 py-3 rounded-2xl bg-gradient-to-br from-amber-500 to-amber-600 text-white text-[11px] font-black uppercase tracking-[0.2em] hover:shadow-lg hover:shadow-amber-500/30 hover:-translate-y-1 transition-all font-sans">Submit Payment</button>
+ </div>
+ </form>
+ </Modal>
 
  </div>
  );

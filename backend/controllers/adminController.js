@@ -835,6 +835,64 @@ const updateStudentForAdmin = async (req, res) => {
     }
 };
 
+// @desc    Add a new installment payment for a student
+// @route   POST /api/admin/students/:id/installments
+const addStudentInstallment = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { amount, notes } = req.body;
+
+        if (!amount || isNaN(amount) || amount <= 0) {
+            return res.status(400).json({ success: false, message: "Valid amount is required" });
+        }
+
+        const [[student]] = await db.query('SELECT name, total_paid FROM students WHERE id = ?', [id]);
+        
+        if (!student) {
+            return res.status(404).json({ success: false, message: "Student not found" });
+        }
+
+        // Insert into installments history
+        await db.query(
+            'INSERT INTO student_installments (student_id, amount, payment_date, notes) VALUES (?, ?, CURDATE(), ?)',
+            [id, amount, notes || 'Manual installment via Admin']
+        );
+
+        // Calculate total consumed hours up to now
+        const [sessions] = await db.query(
+            'SELECT duration FROM timetable WHERE status = "Completed" AND student_id = ?',
+            [id]
+        );
+        let total_consumed_mins = 0;
+        sessions.forEach(session => {
+            const dur = session.duration || '';
+            const hMatch = dur.match(/(\d+)h/);
+            const mMatch = dur.match(/(\d+)m/);
+            if (hMatch) total_consumed_mins += parseInt(hMatch[1]) * 60;
+            if (mMatch) total_consumed_mins += parseInt(mMatch[1]);
+        });
+        const current_consumed_hours = total_consumed_mins / 60;
+
+        // Update student total_paid and current cycle columns
+        const newTotalPaid = parseFloat(student.total_paid || 0) + parseFloat(amount);
+        await db.query(
+            'UPDATE students SET total_paid = ?, current_installment_amount = ?, current_installment_start_hours = ? WHERE id = ?',
+            [newTotalPaid, amount, current_consumed_hours, id]
+        );
+
+        await db.query('INSERT INTO admin_notifications (message, action_type, related_id) VALUES (?, ?, ?)', [
+            `<b>Payment Received:</b> Installment of ₹${amount} logged for <b>${student.name}</b>.`,
+            'student_update',
+            id
+        ]);
+
+        res.status(200).json({ success: true, message: "Installment added successfully", newTotalPaid });
+    } catch (error) {
+        console.error("ADD_INSTALLMENT_ERROR:", error);
+        res.status(500).json({ success: false, message: "Server Error", error: error.message });
+    }
+};
+
 // @desc    Update User (Mentor, Faculty, etc.)
 // @route   PUT /api/admin/users/:id
 const updateUserForAdmin = async (req, res) => {
@@ -1535,5 +1593,6 @@ module.exports = {
             res.status(500).json({ success: false, message: error.message });
         }
     },
-    getAcademicSchedule
+    getAcademicSchedule,
+    addStudentInstallment
 };

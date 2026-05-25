@@ -36,7 +36,8 @@ const {
     getLiveMonitoring,
     getStudentPortalLogins,
     getStudentExamsForAdmin,
-    getAcademicSchedule
+    getAcademicSchedule,
+    addStudentInstallment
 } = require('../controllers/adminController');
 
 router.use(requireAuth);
@@ -69,6 +70,7 @@ router.put('/approve/:id', requireRole('super_admin', 'sub_admin'), approveUser)
 router.put('/block/:id', requireRole('super_admin', 'sub_admin'), blockUser);
 router.put('/users/:id', requireRole('super_admin', 'sub_admin'), updateUserForAdmin);
 router.put('/students/:id', requireRole('super_admin', 'sub_admin'), updateStudentForAdmin);
+router.post('/students/:id/installments', requireRole('super_admin', 'sub_admin'), addStudentInstallment);
 
 // Notifications (Super Admin, Sub Admin & Mentor Head)
 router.get('/notifications', requireRole('super_admin', 'sub_admin', 'mentor_head'), getAdminNotifications);

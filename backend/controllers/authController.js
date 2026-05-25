@@ -76,11 +76,18 @@ const register = async (req, res) => {
 
         // Add additional student fields if role is student
         if (finalRole === 'student') {
+            const initialPaid = parseFloat(req.body.total_paid) || 0;
             Object.assign(userPayload, {
                 grade: req.body.grade || null,
                 subject: req.body.subject || null,
                 course: req.body.course || null,
                 hour: req.body.hour || null,
+                total_fees: parseFloat(req.body.total_fees) || 0,
+                total_paid: initialPaid,
+                total_hours: parseInt(req.body.total_hours) || 0,
+                admission_type: req.body.admission_type || 'new',
+                current_installment_amount: initialPaid,
+                current_installment_start_hours: 0,
                 mentor_name: req.body.mentor_name || null,
                 faculty_name: req.body.faculty_name || null,
                 next_installment_date: req.body.next_installment_date || null,
@@ -94,6 +101,18 @@ const register = async (req, res) => {
         }
 
         const userId = await User.create(userPayload);
+
+        // Add initial installment if payment was made during registration
+        if (finalRole === 'student' && userPayload.total_paid > 0) {
+            try {
+                await db.query(
+                    'INSERT INTO student_installments (student_id, amount, payment_date, notes) VALUES (?, ?, CURDATE(), ?)',
+                    [userId, userPayload.total_paid, 'Initial Payment at Registration']
+                );
+            } catch (err) {
+                console.error("Failed to add initial installment:", err);
+            }
+        }
 
         res.status(201).json({
             success: true,
