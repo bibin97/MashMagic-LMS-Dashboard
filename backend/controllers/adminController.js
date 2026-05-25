@@ -943,7 +943,11 @@ const getAllStudentsForAdmin = async (req, res) => {
         }
 
         const [rows] = await db.query(sql, params);
-        res.status(200).json({ success: true, count: rows.length, data: rows });
+        
+        const { calculateStudentHours } = require('../utils/studentHoursHelper');
+        const augmentedRows = await calculateStudentHours(rows, db);
+
+        res.status(200).json({ success: true, count: augmentedRows.length, data: augmentedRows });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
