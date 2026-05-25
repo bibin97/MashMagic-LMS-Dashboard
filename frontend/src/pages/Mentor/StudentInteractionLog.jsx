@@ -184,7 +184,7 @@ const StudentInteractionLog = () => {
            type === 'mentorship only';
   };
 
- const isSilverCategory = (s) => s.onboarding_status !== 'pending' && !isDiamondCategory(s) && !isGoldCategory(s);
+ const isSilverCategory = (s) => !isDiamondCategory(s) && !isGoldCategory(s);
 
  const getSessionIcon = (type) => {
    switch(type) {
@@ -236,9 +236,9 @@ const StudentInteractionLog = () => {
         {/* Main Category Tabs */}
         <div className="flex flex-wrap gap-4 p-2 bg-white/50 backdrop-blur-md rounded-[28px] border border-slate-200/50 sticky top-4 z-50 shadow-sm">
           {[
-            { id: 'both', label: 'Mentorship + Tuition', color: 'bg-purple-600' },
-            { id: 'mentorship', label: 'Mentorship Only', color: 'bg-amber-500' },
-            { id: 'tuition', label: 'Tuition Only', color: 'bg-slate-900' }
+            { id: 'both', label: `Mentorship + Tuition (${allStudents.filter(isDiamondCategory).length})`, color: 'bg-purple-600' },
+            { id: 'mentorship', label: `Mentorship Only (${allStudents.filter(isGoldCategory).length})`, color: 'bg-amber-500' },
+            { id: 'tuition', label: `Tuition Only (${allStudents.filter(isSilverCategory).length})`, color: 'bg-slate-900' }
           ].map(tab => (
             <button
               key={tab.id}
