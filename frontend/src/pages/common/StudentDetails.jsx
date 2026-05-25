@@ -278,8 +278,45 @@ const StudentDetails = () => {
                                             </p>
                                         </div>
                                     </div>
+                                    </div>
+
+                                    {student.installments && student.installments.length > 0 && (
+                                        <div className="mt-6 border border-slate-100 rounded-[2rem] overflow-hidden bg-white shadow-sm">
+                                            <div className="bg-slate-50 px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+                                                <h4 className="text-[10px] font-black text-slate-700 uppercase tracking-widest">Payment History</h4>
+                                                <span className="text-[9px] font-black text-slate-400 bg-white px-3 py-1 rounded-full border border-slate-200">
+                                                    {student.installments.length} Records
+                                                </span>
+                                            </div>
+                                            <div className="max-h-[300px] overflow-y-auto">
+                                                <table className="w-full text-left">
+                                                    <thead className="sticky top-0 bg-white shadow-sm">
+                                                        <tr>
+                                                            <th className="py-3 px-6 text-[9px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">Date</th>
+                                                            <th className="py-3 px-6 text-[9px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">Amount</th>
+                                                            <th className="py-3 px-6 text-[9px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">Notes</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody className="divide-y divide-slate-50">
+                                                        {student.installments.map((inst, idx) => (
+                                                            <tr key={inst.id} className="hover:bg-slate-50/50 transition-colors">
+                                                                <td className="py-3 px-6 text-[11px] font-black text-slate-600">
+                                                                    {new Date(inst.payment_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+                                                                </td>
+                                                                <td className="py-3 px-6 text-[11px] font-black text-emerald-600">
+                                                                    ₹{inst.amount}
+                                                                </td>
+                                                                <td className="py-3 px-6 text-[10px] font-bold text-slate-500 italic">
+                                                                    {inst.notes || '---'}
+                                                                </td>
+                                                            </tr>
+                                                        ))}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
-                            </div>
                         </section>
                     </div>
                 )}

@@ -37,7 +37,8 @@ const {
     getStudentPortalLogins,
     getStudentExamsForAdmin,
     getAcademicSchedule,
-    addStudentInstallment
+    addStudentInstallment,
+    getStudentDetailsForAdmin
 } = require('../controllers/adminController');
 
 router.use(requireAuth);
@@ -50,6 +51,7 @@ router.get('/dashboard-summary', requireRole('super_admin', 'sub_admin'), getAdm
 router.get('/pending-users', requireRole('super_admin', 'sub_admin'), getPendingUsers);
 router.get('/users', requireRole('super_admin', 'sub_admin'), getUsers);
 router.get('/students', requireRole('super_admin', 'sub_admin'), getAllStudentsForAdmin);
+router.get('/student-details/:id', requireRole('super_admin', 'sub_admin'), getStudentDetailsForAdmin);
 router.get('/students/:id/exams', requireRole('super_admin', 'sub_admin'), getStudentExamsForAdmin);
 router.get('/mentors', requireRole('super_admin', 'sub_admin'), getAllMentorsForAdmin);
 router.get('/faculties', requireRole('super_admin', 'sub_admin'), getAllFacultiesForAdmin);

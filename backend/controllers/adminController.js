@@ -893,6 +893,45 @@ const addStudentInstallment = async (req, res) => {
     }
 };
 
+// @desc    Get complete student details including history
+// @route   GET /api/admin/student-details/:id
+const getStudentDetailsForAdmin = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        // Fetch basic details
+        const [studentRows] = await db.query(`
+            SELECT id, name, admission_date, created_at, admission_type, 
+                   total_fees, total_paid, current_installment_amount, current_installment_start_hours
+            FROM students WHERE id = ?
+        `, [id]);
+
+        if (studentRows.length === 0) {
+            return res.status(404).json({ success: false, message: "Student not found" });
+        }
+
+        const student = studentRows[0];
+
+        // Fetch installments
+        const [installments] = await db.query(`
+            SELECT id, amount, payment_date, notes, created_at
+            FROM student_installments
+            WHERE student_id = ?
+            ORDER BY created_at DESC
+        `, [id]);
+
+        res.json({
+            success: true,
+            data: {
+                ...student,
+                installments
+            }
+        });
+    } catch (error) {
+        console.error("GET_STUDENT_DETAILS_ERROR:", error);
+        res.status(500).json({ success: false, message: "Server Error", error: error.message });
+    }
+};
 // @desc    Update User (Mentor, Faculty, etc.)
 // @route   PUT /api/admin/users/:id
 const updateUserForAdmin = async (req, res) => {
@@ -1594,5 +1633,6 @@ module.exports = {
         }
     },
     getAcademicSchedule,
-    addStudentInstallment
+    addStudentInstallment,
+    getStudentDetailsForAdmin
 };

@@ -403,6 +403,19 @@ const Registrations = () => {
                 </div>
                 <h2 className="text-lg font-black text-slate-800 uppercase tracking-widest">Normal Registration</h2>
               </div>
+              {/* Top Configuration */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-2 mb-8 bg-[#008080]/5 p-6 rounded-3xl border border-[#008080]/20">
+                ${admissionTypeMatch[0]}
+                ${enrollmentPlanMatch[0].replace(' mt-8', ' mt-0').replace('{/* Enrollment Type Selection */}', '')}
+
+                {(studentForm.admissionType === 'new' || studentForm.admissionType === 'rejoining') && (
+                  <div className="col-span-1 md:col-span-2 pt-6 border-t border-[#008080]/10">
+                    <h3 className="text-[10px] font-black text-[#008080] uppercase tracking-widest mb-4">Fee Configuration</h3>
+                    ${feesMatch[0].replace(' mt-6', ' mt-0')}
+                  </div>
+                )}
+              </div>
+
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="flex flex-col gap-2">
@@ -488,20 +501,7 @@ const Registrations = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
-                <div className="flex flex-col gap-2">
-                  <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Total Fees (INR)</label>
-                  <input type="number" name="totalFees" value={studentForm.totalFees} onChange={handleStudentChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-bold" placeholder="E.g. 50000" />
-                </div>
-                <div className="flex flex-col gap-2">
-                  <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Total Paid (INR)</label>
-                  <input type="number" name="totalPaid" value={studentForm.totalPaid} onChange={handleStudentChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-bold" placeholder="E.g. 25000" />
-                </div>
-                <div className="flex flex-col gap-2">
-                  <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Total Hours</label>
-                  <input type="number" name="totalHours" value={studentForm.totalHours || ''} onChange={handleStudentChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-bold" placeholder="E.g. 100" />
-                </div>
-              </div>
+              
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
                 <div className="flex flex-col gap-2">
@@ -544,14 +544,7 @@ const Registrations = () => {
                     {mentors.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
                   </select>
                 </div>
-                <div className="flex flex-col gap-2">
-                  <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Admission Type</label>
-                  <select name="admissionType" required value={studentForm.admissionType} onChange={handleStudentChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-bold appearance-none">
-                    <option value="new">New Student</option>
-                    <option value="existing">Existing Student</option>
-                    <option value="rejoining">Rejoining</option>
-                  </select>
-                </div>
+                
                 <div className="flex flex-col gap-2">
                   <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Student ID #</label>
                   <input type="text" name="registrationNumber" value={studentForm.registrationNumber} onChange={handleStudentChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-bold" placeholder="E.g. ST-2024-001" />
@@ -563,32 +556,7 @@ const Registrations = () => {
                 <input type="text" name="meetingLink" value={studentForm.meetingLink} onChange={handleStudentChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-bold" placeholder="Google Meet Link" />
               </div>
 
-              {/* Enrollment Type Selection */}
-              <div className="space-y-4 mt-8">
-                <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Enrollment Plan</label>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  {[
-                    { id: 'Mentorship', label: 'Mentorship only', icon: '🥇' },
-                    { id: 'Tuition', label: 'Tuition only', icon: '🥈' },
-                    { id: 'Mentorship and Tuition', label: 'Mentorship & Tuition', icon: '💎' }
-                  ].map((plan) => (
-                    <button
-                      key={plan.id}
-                      type="button"
-                      onClick={() => setStudentForm(prev => ({ ...prev, enrollmentType: plan.id }))}
-                      className={`p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 group ${studentForm.enrollmentType === plan.id
-                        ? 'border-[#008080] bg-[#008080]/5 shadow-lg scale-[1.02]'
-                        : 'border-slate-100 bg-slate-50/50 hover:border-slate-200'
-                        }`}
-                    >
-                      <span className="text-2xl group-hover:scale-110 transition-transform">{plan.icon}</span>
-                      <span className={`text-[10px] font-black uppercase tracking-widest ${studentForm.enrollmentType === plan.id ? 'text-[#008080]' : 'text-slate-500'}`}>
-                        {plan.label}
-                      </span>
-                    </button>
-                  ))}
-                </div>
-              </div>
+              
 
               {/* Multiple Subjects & Faculties */}
               <div className="mt-8 rounded-2xl border border-[#008080]/30 bg-[#008080]/5 p-5 space-y-4">

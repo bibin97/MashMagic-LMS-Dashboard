@@ -346,6 +346,13 @@ const getStudentDetails = async (req, res) => {
             ORDER BY s.date DESC
         `, [studentId]);
 
+        const [installments] = await db.query(`
+            SELECT id, amount, payment_date, notes, created_at
+            FROM student_installments
+            WHERE student_id = ?
+            ORDER BY payment_date DESC, created_at DESC
+        `, [studentId]);
+
         res.status(200).json({
             success: true,
             data: {
@@ -355,7 +362,8 @@ const getStudentDetails = async (req, res) => {
                 mentorshipLogs,
                 dailyUpdates,
                 marks,
-                attendance
+                attendance,
+                installments
             }
         });
     } catch (error) {
