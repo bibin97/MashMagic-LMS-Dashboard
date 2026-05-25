@@ -180,7 +180,7 @@ const StudentInteractionLog = () => {
     const badge = s.badge?.toLowerCase();
     const type = s.enrollment_type?.toLowerCase();
     return badge === 'gold' || 
-           type === 'mentorship' || 
+           (type && type.includes('mentorship')) ||
            type === 'mentorship only';
   };
 
