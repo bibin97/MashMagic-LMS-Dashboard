@@ -22,7 +22,7 @@ const Registrations = () => {
     schoolName: '', preferredLanguage: '', country: '',
     totalFees: '', totalPaid: '', nextInstallmentDate: '', 
     admissionType: 'new', registrationNumber: '', meetingLink: '',
-    enrollmentType: 'Mentorship'
+    enrollmentType: 'Mentorship', rejoiningFee: ''
   });
 
   const [selectedSubjects, setSelectedSubjects] = useState([
@@ -305,7 +305,7 @@ const Registrations = () => {
           schoolName: '', preferredLanguage: '', country: '',
           totalFees: '', totalPaid: '', totalHours: '', nextInstallmentDate: '', 
           admissionType: 'new', registrationNumber: '', meetingLink: '',
-          enrollmentType: 'Mentorship'
+          enrollmentType: 'Mentorship', rejoiningFee: ''
         });
         setSelectedSubjects([{ subject: '', dayConfigs: [], facultyId: '', facultyName: '', hourlyRate: '', availableFaculties: [] }]);
       }
@@ -443,18 +443,37 @@ const Registrations = () => {
                   <div className="col-span-1 md:col-span-2 pt-6 border-t border-[#008080]/10">
                     <h3 className="text-[10px] font-black text-[#008080] uppercase tracking-widest mb-4">Fee Configuration</h3>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                      <div className="flex flex-col gap-2">
-                        <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Total Fees (INR)</label>
-                        <input type="number" name="totalFees" value={studentForm.totalFees} onChange={handleStudentChange} className="w-full p-3 bg-white border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-[#008080] font-bold shadow-sm" placeholder="E.g. 50000" />
-                      </div>
-                      <div className="flex flex-col gap-2">
-                        <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Total Paid (INR)</label>
-                        <input type="number" name="totalPaid" value={studentForm.totalPaid} onChange={handleStudentChange} className="w-full p-3 bg-white border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-[#008080] font-bold shadow-sm" placeholder="E.g. 25000" />
-                      </div>
-                      <div className="flex flex-col gap-2">
-                        <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Total Hours</label>
-                        <input type="number" name="totalHours" value={studentForm.totalHours || ''} onChange={handleStudentChange} className="w-full p-3 bg-white border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-[#008080] font-bold shadow-sm" placeholder="E.g. 100" />
-                      </div>
+                      {studentForm.admissionType === 'rejoining' ? (
+                        <>
+                          <div className="flex flex-col gap-2">
+                            <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Total Hours</label>
+                            <input type="number" name="totalHours" value={studentForm.totalHours || ''} onChange={handleStudentChange} className="w-full p-3 bg-white border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-[#008080] font-bold shadow-sm" placeholder="E.g. 100" />
+                          </div>
+                          <div className="flex flex-col gap-2">
+                            <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Rejoining Fee (INR)</label>
+                            <input type="number" name="rejoiningFee" value={studentForm.rejoiningFee || ''} onChange={handleStudentChange} className="w-full p-3 bg-white border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-[#008080] font-bold shadow-sm" placeholder="E.g. 1500" />
+                          </div>
+                          <div className="flex flex-col gap-2">
+                            <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Total Fees (INR)</label>
+                            <input type="number" name="totalFees" value={studentForm.totalFees} onChange={handleStudentChange} className="w-full p-3 bg-white border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-[#008080] font-bold shadow-sm" placeholder="E.g. 50000" />
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <div className="flex flex-col gap-2">
+                            <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Total Fees (INR)</label>
+                            <input type="number" name="totalFees" value={studentForm.totalFees} onChange={handleStudentChange} className="w-full p-3 bg-white border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-[#008080] font-bold shadow-sm" placeholder="E.g. 50000" />
+                          </div>
+                          <div className="flex flex-col gap-2">
+                            <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Total Paid (INR)</label>
+                            <input type="number" name="totalPaid" value={studentForm.totalPaid} onChange={handleStudentChange} className="w-full p-3 bg-white border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-[#008080] font-bold shadow-sm" placeholder="E.g. 25000" />
+                          </div>
+                          <div className="flex flex-col gap-2">
+                            <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Total Hours</label>
+                            <input type="number" name="totalHours" value={studentForm.totalHours || ''} onChange={handleStudentChange} className="w-full p-3 bg-white border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-[#008080] font-bold shadow-sm" placeholder="E.g. 100" />
+                          </div>
+                        </>
+                      )}
                     </div>
                   </div>
                 )}

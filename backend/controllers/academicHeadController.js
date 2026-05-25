@@ -167,7 +167,7 @@ const registerStudent = async (req, res) => {
             admissionDate, schoolName, preferredLanguage, country,
             totalFees, totalPaid, totalHours, nextInstallmentDate,
             admissionType, registrationNumber, meetingLink, enrollmentType,
-            selectedSubjects
+            selectedSubjects, rejoiningFee
         } = req.body;
         const hash = await bcrypt.hash(password || "student123", 10);
         
@@ -185,14 +185,15 @@ const registerStudent = async (req, res) => {
                 admission_date, school_name, preferred_language, country, 
                 total_fees, total_paid, total_hours, next_installment_date, 
                 admission_type, registration_number, meeting_link, enrollment_type, badge, 
-                subjects_json, status, isApproved, priority_category
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "active", 1, "High")
+                subjects_json, status, isApproved, priority_category, rejoining_fee
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "active", 1, "High", ?)
         `, [
             name, email || null, hash, ur.insertId, contact || null, grade, course, mentorId || null,
             admissionDate || null, schoolName || null, preferredLanguage || null, country || null,
             totalFees || 0, totalPaid || 0, totalHours || 0, nextInstallmentDate || null,
             admissionType || 'new', registrationNumber || null, meetingLink || null, enrollmentType || null, badge,
-            selectedSubjects ? JSON.stringify(selectedSubjects) : null
+            selectedSubjects ? JSON.stringify(selectedSubjects) : null,
+            rejoiningFee || 0
         ]);
         await conn.commit();
         conn.release();
@@ -406,7 +407,7 @@ const editStudent = async (req, res) => {
             next_installment_date, admission_date, registration_number, 
             meeting_link, meetingLink, enrollment_type, 
             school_name, preferred_language, country, total_fees, total_paid,
-            selectedSubjects, subjects_json, mentor_id, password
+            selectedSubjects, subjects_json, mentor_id, password, rejoining_fee, rejoiningFee
         } = req.body;
 
         const finalMeetingLink = meetingLink || meeting_link;
@@ -442,7 +443,7 @@ const editStudent = async (req, res) => {
                 school_name = ?, preferred_language = ?, country = ?, 
                 total_fees = ?, total_paid = ?,
                 subjects_json = ?, subject = ?, faculty_id = ?, faculty_name = ?, mentor_id = ?,
-                course_completed = ?
+                course_completed = ?, rejoining_fee = ?
              WHERE id = ?`, 
             [
                 name, email || null, contact || null, grade || null, syllabus || null, course || null, hour || null,
@@ -452,6 +453,7 @@ const editStudent = async (req, res) => {
                 total_fees || 0, total_paid || 0,
                 JSON.stringify(finalSubjects), primarySubject || null, primaryFacultyId || null, primaryFacultyName || null, mentor_id || null, 
                 req.body.course_completed || 0,
+                rejoining_fee || rejoiningFee || 0,
                 id
             ]
         );
