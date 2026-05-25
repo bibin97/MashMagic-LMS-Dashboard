@@ -494,13 +494,202 @@ const Students = () => {
  >
   <option value="active">Active</option>
   <option value="inactive">Backup</option>
-  <option value="pending">Pending Approval</option>
-   <option value="left">Left</option>
-  <option value="rejected">Rejected</option>
- </select>
+              ? 'bg-amber-50 text-amber-600 border-amber-100 animate-pulse'
+              : row.status === 'inactive'
+                ? 'bg-slate-50 text-slate-600 border-slate-100'
+                : 'bg-rose-50 text-rose-600 border-rose-100'
+        }`}>
+          {row.status === 'active' 
+            ? 'Active' 
+            : row.status === 'inactive' 
+              ? 'Backup' 
+              : row.status === 'pending' 
+                ? 'Pending Approval' 
+                : row.status === 'left' 
+                  ? 'Left' 
+                  : row.status}
+        </span>
+      )
+    },
+  ];
+
+  return (
+    <div className="flex flex-col gap-10 pb-10">
+      <div className="bg-white/70 backdrop-blur-xl p-12 rounded-[40px] border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.04)] flex flex-col md:flex-row justify-between items-center gap-10">
+        <div className="text-center md:text-left">
+          <h2 className="text-4xl font-black text-slate-900 tracking-tighter leading-none mb-3 ">Student Enrollment</h2>
+          <p className="text-slate-600 text-[11px] font-black uppercase tracking-[0.25em] flex items-center justify-center md:justify-start gap-3 mt-1">
+            <span className="w-2 h-2 rounded-full bg-[#008080] animate-pulse shadow-[0_0_10px_rgba(20,184,166,0.5)]"></span>
+            Comprehensive list of all registered students
+          </p>
+        </div>
+        
+        <div className="flex flex-col sm:flex-row items-center gap-5">
+          <div className="flex items-center gap-4 bg-slate-50/50 px-8 py-5 rounded-[24px] border border-slate-100/50 shadow-inner group">
+            <span className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] leading-none whitespace-nowrap">Sort By</span>
+            <div className="w-px h-10 bg-slate-200"></div>
+            <select 
+              value={sortBy} 
+              onChange={(e) => setSortBy(e.target.value)}
+              className="bg-transparent border-none text-xs font-black uppercase tracking-[0.1em] text-slate-800 outline-none focus:ring-0 cursor-pointer "
+            >
+              <option value="newest">Newest First</option>
+              <option value="oldest">Oldest First</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 px-2">
+        <div className="bg-white/70 backdrop-blur-md p-8 rounded-[35px] border border-white/60 shadow-sm flex flex-col gap-2 group transition-all hover:bg-white hover:shadow-md">
+          <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest group-hover:text-[#008080] transition-colors">Total Enrollment</span>
+          <div className="flex items-end gap-3 font-black text-slate-900 tracking-tighter">
+            <span className="text-4xl leading-none">{students.length}</span>
+            <span className="text-[10px] text-slate-600 mb-1 uppercase tracking-widest">Active Members</span>
+          </div>
+        </div>
+        
+        <div className="bg-white/70 backdrop-blur-md p-8 rounded-[35px] border border-white/60 shadow-sm flex flex-col gap-2 group transition-all hover:bg-white hover:shadow-md">
+          <span className="text-[10px] font-black text-[#10B981] uppercase tracking-widest">Active Students</span>
+          <div className="flex items-end gap-3 font-black text-slate-900 tracking-tighter">
+            <span className="text-4xl leading-none">{students.filter(s => s.status === 'active').length}</span>
+            <div className="flex items-center gap-1.5 mb-1 bg-[#10B981]/10 px-2 py-0.5 rounded-full">
+               <div className="w-1.5 h-1.5 rounded-full bg-[#10B981] animate-pulse"></div>
+               <span className="text-[10px] text-[#10B981] uppercase tracking-widest">Live</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <DataTable
+        columns={columns}
+        data={useMemo(() => sortStudentsByOption(filteredStudents, sortBy), [filteredStudents, sortBy])}
+        loading={loading}
+        onSearch={handleSearch}
+        onExport={handleExport}
+        onView={handleView}
+        onEdit={isSuperAdmin ? handleEdit : undefined}
+        onDelete={isSuperAdmin ? handleDelete : undefined}
+        onBlock={isSuperAdmin ? handleBlock : undefined}
+        expandedRowId={expandedRowId}
+        onToggleExpand={(id) => setExpandedRowId(expandedRowId === id ? null : id)}
+        renderSubRow={(student, onClose) => (
+          <div className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-inner animate-in fade-in slide-in-from-top-2 duration-300">
+            <div className="flex items-center justify-between pb-4 border-b border-slate-100 mb-4 pl-2">
+              <h4 className="text-xs font-black text-slate-900 flex items-center gap-2 uppercase tracking-tight">
+                <span className="w-2 h-2 rounded-full bg-[#008080]"></span> Assigned Faculties: {student.name.toUpperCase()}
+              </h4>
+              <button 
+                onClick={onClose}
+                className="text-slate-400 hover:text-slate-600 p-1 rounded-lg hover:bg-slate-50 transition-all"
+              >
+                <span className="text-[10px] font-black uppercase text-slate-400 hover:text-slate-600">Close</span>
+              </button>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+              {student.faculty.split(',').map((f, i) => (
+                <div key={i} className="flex items-center gap-3 bg-slate-50 p-4 rounded-2xl border border-slate-100 shadow-sm hover:bg-white hover:border-[#008080]/30 transition-all group">
+                  <div className="w-8 h-8 bg-[#008080]/10 text-[#008080] rounded-xl flex items-center justify-center font-black text-xs uppercase shrink-0 group-hover:bg-[#008080] group-hover:text-white transition-all">
+                    {f.trim().charAt(0)}
+                  </div>
+                  <span className="text-xs font-black text-slate-800 uppercase tracking-tight truncate">{f.trim()}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        searchPlaceholder="Search by name, email or reg #"
+      />
+
+ {/* Edit Student Modal */}
+ <Modal
+ isOpen={isEditModalOpen}
+ onClose={() => setIsEditModalOpen(false)}
+ title="Edit Student Details"
+ size="lg"
+ >
+ <form onSubmit={handleEditSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+ <div className="flex flex-col gap-2">
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest pl-2">Full Name</label>
+ <input
+ type="text"
+ className="p-5 bg-slate-50/50 border border-slate-100 rounded-[20px] text-sm font-bold text-slate-700 outline-none focus:bg-white focus:ring-4 focus:ring-[#008080]/5 focus:border-[#008080]/20 transition-all"
+ value={editFormData.name}
+ onChange={(e) => setEditFormData({ ...editFormData, name: e.target.value })}
+ required
+ />
+ </div>
+ <div className="flex flex-col gap-2">
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest pl-2">Email</label>
+ <input
+ type="email"
+ className="p-5 bg-slate-50/50 border border-slate-100 rounded-[20px] text-sm font-bold text-slate-700 outline-none focus:bg-white focus:ring-4 focus:ring-[#008080]/5 focus:border-[#008080]/20 transition-all"
+ value={editFormData.email}
+ onChange={(e) => setEditFormData({ ...editFormData, email: e.target.value })}
+ />
+ </div>
+ <div className="flex flex-col gap-2">
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest pl-2">Phone Number</label>
+ <input
+ type="text"
+ className="p-5 bg-slate-50/50 border border-slate-100 rounded-[20px] text-sm font-bold text-slate-700 outline-none focus:bg-white focus:ring-4 focus:ring-[#008080]/5 focus:border-[#008080]/20 transition-all"
+ value={editFormData.phone_number}
+ onChange={(e) => setEditFormData({ ...editFormData, phone_number: e.target.value })}
+ />
+ </div>
+ <div className="flex flex-col gap-2">
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest pl-2">Grade</label>
+ <input
+ type="text"
+ className="p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-[#008080] transition-all"
+ value={editFormData.grade}
+ onChange={(e) => setEditFormData({ ...editFormData, grade: e.target.value })}
+ required
+ />
+ </div>
+ <div className="flex flex-col gap-2">
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest pl-2">Subject</label>
+ <input
+ type="text"
+ className="p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-[#008080] transition-all"
+ value={editFormData.subject}
+ onChange={(e) => setEditFormData({ ...editFormData, subject: e.target.value })}
+ required
+ />
+ </div>
+ <div className="flex flex-col gap-2">
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest pl-2">Next Installment</label>
+ <input
+ type="date"
+ className="p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-[#008080] transition-all"
+ value={editFormData.nextInstallment}
+ onChange={(e) => setEditFormData({ ...editFormData, nextInstallment: e.target.value })}
+ />
+ </div>
+ <div className="flex flex-col gap-2">
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest pl-2">Course Status</label>
+ <button
+ type="button"
+ onClick={() => setEditFormData({ ...editFormData, course_completed: editFormData.course_completed === 1 ? 0 : 1 })}
+ className={`p-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border-2 flex items-center justify-center gap-3 ${editFormData.course_completed === 1 ? 'bg-emerald-500 border-emerald-500 text-white shadow-lg' : 'bg-slate-50 border-slate-100 text-slate-400'}`}
+ >
+ {editFormData.course_completed === 1 ? (
+ <><CheckCircle size={14} /> Completed</>
+ ) : (
+ <><Clock size={14} /> In Progress</>
+ )}
+ </button>
  </div>
  <div className="col-span-2 flex flex-col gap-2">
- <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest pl-2">Timetable Summary</label>
+ <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest pl-2">Status</label>
+ <select
+ className="p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-[#008080] transition-all"
+ value={editFormData.status}
+ onChange={(e) => setEditFormData({ ...editFormData, status: e.target.value })}
+ >
+  <option value="active">Active</option>
+  <option value="inactive">Backup</option>
+  <option value="pending">Pending Approval</option>
    <option value="left">Left</option>
   <option value="rejected">Rejected</option>
  </select>
