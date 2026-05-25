@@ -545,6 +545,8 @@ const getStudentById = async (req, res) => {
     } catch (e) { res.status(500).json({ success: false, message: e.message }); }
 };
 
+const { calculateStudentHours } = require('../utils/studentHoursHelper');
+
 const getStudents = async (req, res) => {
     try {
         const { mentor_id, faculty_id } = req.query;
@@ -569,7 +571,10 @@ const getStudents = async (req, res) => {
         }
         sql += ' ORDER BY s.name ASC';
         const [rows] = await db.query(sql, params);
-        res.status(200).json({ success: true, data: rows });
+        
+        const augmentedRows = await calculateStudentHours(rows, db);
+        
+        res.status(200).json({ success: true, data: augmentedRows });
     } catch (e) { res.status(500).json({ success: false, message: e.message }); }
 };
 

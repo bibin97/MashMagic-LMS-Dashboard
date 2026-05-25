@@ -150,3 +150,28 @@ body::after {
 *::-webkit-scrollbar {
   display: none;
 }
+
+/* Payment Alerts */
+@keyframes pulse-yellow {
+  0% { box-shadow: 0 0 0 0 rgba(234, 179, 8, 0.4); border-color: rgba(234, 179, 8, 0.8); }
+  70% { box-shadow: 0 0 0 10px rgba(234, 179, 8, 0); border-color: rgba(234, 179, 8, 0.3); }
+  100% { box-shadow: 0 0 0 0 rgba(234, 179, 8, 0); border-color: rgba(234, 179, 8, 0.8); }
+}
+
+@keyframes pulse-red {
+  0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5); border-color: rgba(239, 68, 68, 1); }
+  70% { box-shadow: 0 0 0 15px rgba(239, 68, 68, 0); border-color: rgba(239, 68, 68, 0.4); }
+  100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); border-color: rgba(239, 68, 68, 1); }
+}
+
+.payment-alert-warning {
+  animation: pulse-yellow 2s infinite;
+  border-width: 2px !important;
+  background-color: rgba(254, 252, 232, 0.5) !important;
+}
+
+.payment-alert-critical {
+  animation: pulse-red 1.5s infinite;
+  border-width: 2px !important;
+  background-color: rgba(254, 242, 242, 0.7) !important;
+}

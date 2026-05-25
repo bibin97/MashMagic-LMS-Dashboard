@@ -199,7 +199,10 @@ const getMentorStudents = async (req, res) => {
             LEFT JOIN users m ON s.mentor_id = m.id
             WHERE s.status != 'rejected' ${isPrivileged ? '' : 'AND s.mentor_id = ?'}
         `, isPrivileged ? [] : [mentorId]);
-        res.status(200).json({ success: true, data: rows });
+        const { calculateStudentHours } = require('../utils/studentHoursHelper');
+        const augmentedRows = await calculateStudentHours(rows, db);
+
+        res.status(200).json({ success: true, data: augmentedRows });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }

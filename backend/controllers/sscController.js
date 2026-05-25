@@ -23,8 +23,10 @@ exports.getDashboardStats = async (req, res) => {
 // @route   GET /api/ssc/students
 exports.getStudentsTrack = async (req, res) => {
     try {
-        const [rows] = await db.query('SELECT id, name, enrollment_type, performance_status, status FROM students WHERE status != "rejected" ORDER BY name ASC');
-        res.status(200).json({ success: true, data: rows });
+        const [rows] = await db.query('SELECT * FROM students WHERE status != "rejected" ORDER BY name ASC');
+        const { calculateStudentHours } = require('../utils/studentHoursHelper');
+        const augmentedRows = await calculateStudentHours(rows, db);
+        res.status(200).json({ success: true, data: augmentedRows });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }

@@ -9,10 +9,13 @@ const StudentRow = ({ student, navigate }) => {
   const isPending = student.onboarding_status === 'pending';
   const [isExpanded, setIsExpanded] = useState(false);
 
+  const alertClass = student.payment_alert_level === 'Critical' ? 'payment-alert-critical' : student.payment_alert_level === 'Warning' ? 'payment-alert-warning' : '';
+
   return (
     <div
       onClick={() => navigate(`/ssc/students/${student.id}`)}
-      className={`group relative bg-white border border-slate-100 rounded-[2.5rem] p-6 md:p-8 flex flex-col gap-6 transition-all duration-500 hover:shadow-2xl hover:-translate-y-1 cursor-pointer ${isPending ? 'border-amber-100 bg-amber-50/10' : ''}`}
+      className={`group relative bg-white border border-slate-100 rounded-[2.5rem] p-6 md:p-8 flex flex-col gap-6 transition-all duration-500 hover:shadow-2xl hover:-translate-y-1 cursor-pointer ${isPending ? 'border-amber-100 bg-amber-50/10' : ''} ${alertClass}`}
+      title={student.payment_alert_level && student.payment_alert_level !== 'None' ? `Payment Alert: ${student.consumed_hours} consumed / ${student.paid_hours} paid hours` : ''}
     >
       <div className="flex flex-col lg:flex-row items-center gap-8 w-full">
         {/* Student Profile Info */}
@@ -67,6 +70,18 @@ const StudentRow = ({ student, navigate }) => {
                   None Assigned
                 </p>
               )}
+            </div>
+          </div>
+
+          <div className="hidden md:block w-[1px] h-10 bg-slate-200"></div>
+
+          <div className="flex-1 min-w-0" title={`Consumed: ${student.consumed_hours || 0} | Paid: ${student.paid_hours || 0}`}>
+            <p className="text-[8px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Class Hours</p>
+            <div className="flex items-center gap-2">
+              <div className={`w-2 h-2 rounded-full ${student.payment_alert_level === 'Critical' ? 'bg-rose-500 animate-pulse' : student.payment_alert_level === 'Warning' ? 'bg-amber-500' : 'bg-slate-300'} shrink-0`}></div>
+              <p className={`text-[11px] font-black uppercase truncate ${student.payment_alert_level === 'Critical' ? 'text-rose-600' : student.payment_alert_level === 'Warning' ? 'text-amber-600' : 'text-slate-700'}`}>
+                {student.consumed_hours || 0} / {student.paid_hours || 0}
+              </p>
             </div>
           </div>
         </div>

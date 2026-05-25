@@ -10,10 +10,13 @@ const StudentRow = ({ student, navigate, handleToggleConnection, handleCompleteO
   const isNew = student.onboarding_status === 'completed' && (!student.session_count || student.session_count < 5);
   const [isExpanded, setIsExpanded] = useState(false);
 
+  const alertClass = student.payment_alert_level === 'Critical' ? 'payment-alert-critical' : student.payment_alert_level === 'Warning' ? 'payment-alert-warning' : '';
+
   return (
     <div
       onClick={() => navigate(`/mentor/students/${student.id}`)}
-      className={`group relative bg-white border border-slate-100 rounded-[2rem] p-5 flex flex-col gap-6 transition-all duration-500 hover:shadow-2xl hover:-translate-y-1 cursor-pointer ${isPending ? 'border-amber-100 bg-amber-50/10' : ''}`}
+      className={`group relative bg-white border border-slate-100 rounded-[2rem] p-5 flex flex-col gap-6 transition-all duration-500 hover:shadow-2xl hover:-translate-y-1 cursor-pointer ${isPending ? 'border-amber-100 bg-amber-50/10' : ''} ${alertClass}`}
+      title={student.payment_alert_level && student.payment_alert_level !== 'None' ? `Payment Alert: ${student.consumed_hours} consumed / ${student.paid_hours} paid hours` : ''}
     >
       <div className="flex flex-col lg:flex-row items-center gap-6 w-full">
         {/* Student Profile Info */}
@@ -41,9 +44,9 @@ const StudentRow = ({ student, navigate, handleToggleConnection, handleCompleteO
 
         {/* Stats Area */}
         <div className="flex items-center gap-8 px-8 py-3 bg-slate-50/50 rounded-2xl border border-slate-100/50 w-full lg:w-auto">
-          <div className="text-center">
-            <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Hours</p>
-            <p className="text-sm font-black text-slate-700 leading-none">{student.hour || '0'} Hrs</p>
+          <div className="text-center" title={`Consumed: ${student.consumed_hours || 0} | Paid: ${student.paid_hours || 0}`}>
+            <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Class Hrs</p>
+            <p className={`text-sm font-black leading-none ${student.payment_alert_level === 'Critical' ? 'text-rose-600' : student.payment_alert_level === 'Warning' ? 'text-amber-600' : 'text-slate-700'}`}>{student.consumed_hours || 0} / {student.paid_hours || 0}</p>
           </div>
           <div className="w-[1px] h-8 bg-slate-200"></div>
           <div className="text-center">

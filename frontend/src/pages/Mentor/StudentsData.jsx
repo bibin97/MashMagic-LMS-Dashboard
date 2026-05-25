@@ -109,16 +109,18 @@ const StudentsData = () => {
               filteredStudents.map(student => {
                 const isNew = student.created_at && (new Date() - new Date(student.created_at)) < 24 * 60 * 60 * 1000;
                 const isOnboarding = student.onboarding_status === 'pending';
+                const alertClass = student.payment_alert_level === 'Critical' ? 'payment-alert-critical' : student.payment_alert_level === 'Warning' ? 'payment-alert-warning' : '';
                 
                 return (
                   <button
                     key={student.id}
                     onClick={() => handleStudentSelect(student)}
-                    className={`w-full p-5 rounded-[28px] border transition-all flex items-center gap-4 group relative overflow-hidden
+                    className={`w-full p-5 rounded-[28px] border transition-all flex items-center gap-4 group relative overflow-hidden ${alertClass}
                     ${selectedStudent?.id === student.id 
                       ? 'bg-slate-900 border-slate-900 text-white shadow-xl translate-x-2' 
                       : 'bg-white border-slate-100 text-slate-600 hover:border-teal-500/30 hover:bg-teal-50/10'}
                     `}
+                    title={student.payment_alert_level && student.payment_alert_level !== 'None' ? `Payment Alert: ${student.consumed_hours} consumed / ${student.paid_hours} paid hours` : ''}
                   >
                     <div className={`w-12 h-12 rounded-2xl flex items-center justify-center font-black text-lg transition-transform group-hover:scale-110 duration-500
                     ${selectedStudent?.id === student.id ? 'bg-white/10 text-white' : 'bg-slate-50 text-slate-600'}`}>
@@ -160,19 +162,22 @@ const StudentsData = () => {
           {selectedStudent ? (
             <div className="space-y-6">
               {/* Stats Ribbon */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 {[
+                  { label: 'Class Hours', value: `${selectedStudent.consumed_hours || 0} / ${selectedStudent.paid_hours || 0}`, icon: <Clock size={20} />, color: selectedStudent.payment_alert_level === 'Critical' ? 'bg-rose-500' : selectedStudent.payment_alert_level === 'Warning' ? 'bg-amber-500' : 'bg-slate-800' },
                   { label: 'Total Logs', value: totalUpdates, icon: <History size={20} />, color: 'bg-indigo-500' },
                   { label: 'Days Active', value: uniqueDays, icon: <Calendar size={20} />, color: 'bg-teal-500' },
-                  { label: 'Updates Today', value: (comprehensiveData.dailyUpdates || []).filter(u => u.formatted_date === new Date().toLocaleDateString('en-GB').split('/').join('-')).length, icon: <CheckCircle2 size={20} />, color: 'bg-amber-500' }
+                  { label: 'Updates Today', value: (comprehensiveData.dailyUpdates || []).filter(u => u.formatted_date === new Date().toLocaleDateString('en-GB').split('/').join('-')).length, icon: <CheckCircle2 size={20} />, color: 'bg-emerald-500' }
                 ].map((stat, i) => (
-                  <div key={i} className="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm flex items-center gap-4">
-                    <div className={`w-12 h-12 ${stat.color} text-white rounded-2xl flex items-center justify-center shadow-lg`}>
-                      {stat.icon}
-                    </div>
-                    <div>
-                      <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest">{stat.label}</p>
-                      <p className="text-2xl font-black text-slate-900 tracking-tighter ">{stat.value}</p>
+                  <div key={i} className={`bg-white p-6 rounded-[32px] border ${stat.label === 'Class Hours' && selectedStudent.payment_alert_level !== 'None' ? 'border-rose-200 shadow-rose-100 animate-pulse' : 'border-slate-100'} shadow-sm flex flex-col gap-4`}>
+                    <div className="flex items-center gap-4">
+                      <div className={`w-12 h-12 ${stat.color} text-white rounded-2xl flex items-center justify-center shadow-lg shrink-0`}>
+                        {stat.icon}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest truncate">{stat.label}</p>
+                        <p className="text-xl font-black text-slate-900 tracking-tighter truncate">{stat.value}</p>
+                      </div>
                     </div>
                   </div>
                 ))}
