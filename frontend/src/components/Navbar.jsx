@@ -264,7 +264,7 @@ const Navbar = ({ onMenuClick }) => {
               <span className="font-bold text-sm">M</span>
             </div>
             <span className="font-semibold text-slate-900 tracking-tight hidden sm:block uppercase tracking-widest text-sm">
-              Mash Magic
+              {user?.role ? user.role.replace('_', ' ') : 'MASH MAGIC'}
             </span>
           </div>
 

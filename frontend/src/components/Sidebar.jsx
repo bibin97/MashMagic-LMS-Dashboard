@@ -60,22 +60,17 @@ const Sidebar = ({ isOpen, setIsOpen, isCollapsed, setIsCollapsed, navItems, tit
       {isCollapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
     </button>
 
-    <div className={`p-8 border-b border-slate-100 flex flex-col items-center gap-6 transition-all duration-500 overflow-hidden ${isCollapsed ? 'px-2 py-6' : 'px-8 py-10'}`}>
+    <div className={`p-8 border-b border-slate-100 flex flex-col items-center transition-all duration-500 overflow-hidden ${isCollapsed ? 'px-2 py-4' : 'px-8 py-6'}`}>
       <div className="flex items-center justify-center w-full relative">
-        <div className={`transition-all duration-500 flex flex-col items-center ${isCollapsed ? 'w-full' : 'w-full'}`}>
+        <div className={`transition-all duration-500 flex flex-col items-center w-full`}>
           {/* THE 'FULL' LOGO AREA */}
-          <div className={`transition-all duration-700 flex items-center justify-center ${isCollapsed ? 'w-20 h-20 mb-0' : 'w-full h-24 mb-4'}`}>
+          <div className={`transition-all duration-700 flex items-center justify-center ${isCollapsed ? 'w-20 h-20 mb-0' : 'w-full h-24 mb-0'}`}>
             <img 
               src={mlogo} 
               alt="Logo" 
               className={`transition-all duration-700 ${isCollapsed ? 'w-16 h-16 object-contain' : 'w-full h-full object-contain scale-[2.2]'}`} 
             />
           </div>
-          {!isCollapsed && (
-            <h1 className="text-2xl font-black text-slate-900 tracking-[0.2em] uppercase animate-in fade-in slide-in-from-top-6 duration-700 text-center drop-shadow-2xl">
-              {title}
-            </h1>
-          )}
         </div>
       </div>
     </div>
