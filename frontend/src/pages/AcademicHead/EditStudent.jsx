@@ -290,7 +290,7 @@ const EditStudent = () => {
                     <h1 className="text-4xl font-black text-slate-900 tracking-tight uppercase mb-2">Reconfigure Profile</h1>
                     <p className="text-slate-600 font-bold text-[10px] uppercase tracking-[0.2em]">Updating account identity for <span className="text-[#008080]">{formData.name}</span></p>
                 </div>
-                <div className="w-16 h-16 bg-slate-900 rounded-3xl flex items-center justify-center text-white shadow-2xl rotate-3">
+                <div className="w-16 h-16 bg-[#008080] rounded-3xl flex items-center justify-center text-white shadow-2xl rotate-3">
                     <UserCheck size={32} />
                 </div>
             </div>
@@ -400,13 +400,13 @@ const EditStudent = () => {
                 </div>
 
                 {/* Enrollment Plan */}
-                <div className="bg-slate-900 p-8 md:p-12 rounded-[48px] shadow-2xl shadow-slate-900/40 text-white relative">
+                <div className="bg-[#008080] p-8 md:p-12 rounded-[48px] shadow-2xl shadow-[#008080]/40 text-white relative">
                     <div className="flex justify-between items-center mb-6">
                         <label className="text-[10px] font-black uppercase tracking-[0.3em] opacity-60 block">Current Enrollment Plan</label>
                         <button 
                             type="button" 
                             onClick={() => setEditModes(prev => ({ ...prev, enrollment: !prev.enrollment }))}
-                            className={`p-3 rounded-2xl flex items-center gap-2 text-[10px] font-black uppercase tracking-widest transition-all ${editModes.enrollment ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-white/5 text-slate-400 hover:text-white border border-white/10'}`}
+                            className={`p-3 rounded-2xl flex items-center gap-2 text-[10px] font-black uppercase tracking-widest transition-all ${editModes.enrollment ? 'bg-yellow-400/20 text-yellow-400 border border-yellow-400/30' : 'bg-white/10 text-white hover:bg-white/20 border border-white/20'}`}
                         >
                             {editModes.enrollment ? <><Unlock size={14} /> Editing</> : <><Lock size={14} /> Edit Section</>}
                         </button>
@@ -417,7 +417,7 @@ const EditStudent = () => {
                                 key={plan}
                                 type="button"
                                 onClick={() => setFormData({...formData, enrollment_type: plan})}
-                                className={`p-6 rounded-3xl border-2 transition-all text-center ${formData.enrollment_type === plan ? 'bg-[#008080] border-[#008080] shadow-xl shadow-[#008080]/30' : 'bg-white/5 border-white/10 hover:border-white/30'}`}
+                                className={`p-6 rounded-3xl border-2 transition-all text-center ${formData.enrollment_type === plan ? 'bg-yellow-400 border-yellow-400 shadow-xl shadow-yellow-400/30 text-slate-900' : 'bg-white/5 border-white/10 hover:border-white/30 text-white'}`}
                             >
                                 <span className="text-[10px] font-black uppercase tracking-widest">{plan}</span>
                             </button>
@@ -613,7 +613,7 @@ const EditStudent = () => {
                                                     newSubjects[idx].isDayDropdownOpen = false;
                                                     setSelectedSubjects(newSubjects);
                                                 }}
-                                                className="w-full mt-3 p-2 bg-slate-900 text-white rounded-xl text-[9px] font-black uppercase tracking-widest"
+                                                className="w-full mt-3 p-2 bg-[#008080] text-white rounded-xl text-[9px] font-black uppercase tracking-widest"
                                             >
                                                 Apply Config
                                             </button>
@@ -725,7 +725,7 @@ const EditStudent = () => {
                     <button type="button" onClick={() => navigate(`${basePath}/students`)} className="w-full sm:w-auto px-10 py-5 rounded-[24px] border border-slate-200 text-slate-600 text-xs font-black uppercase tracking-widest hover:bg-slate-50 transition-all">
                         Discard Changes
                     </button>
-                    <button disabled={saving} type="submit" className="w-full sm:w-auto px-12 py-5 rounded-[24px] bg-slate-900 text-white text-xs font-black uppercase tracking-[0.25em] shadow-2xl hover:bg-[#008080] hover:-translate-y-1 transition-all flex items-center justify-center gap-4 disabled:opacity-50">
+                    <button disabled={saving} type="submit" className="w-full sm:w-auto px-12 py-5 rounded-[24px] bg-[#008080] text-white text-xs font-black uppercase tracking-[0.25em] shadow-2xl hover:bg-[#008080] hover:-translate-y-1 transition-all flex items-center justify-center gap-4 disabled:opacity-50">
                         {saving ? (
                             <>
                                 <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
