@@ -341,11 +341,7 @@ const AcademicSchedule = () => {
                     <BookOpen size={16} />
                   </button>
 
-                  {session.status === 'Completed' ? (
-                    <div title="Completed" className="w-11 h-11 bg-emerald-50 text-emerald-600 border border-emerald-100 rounded-[1rem] flex items-center justify-center shadow-sm">
-                      <CheckSquare size={16} />
-                    </div>
-                  ) : (
+                  {session.status !== 'Completed' && (
                     <button 
                       onClick={() => { setSelectedSession(session); setMinutesTaken(''); setIsCompleteModalOpen(true); }}
                       title="Class Completed"
