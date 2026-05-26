@@ -127,7 +127,7 @@ const AcademicSchedule = () => {
             {[
               { id: 'today', label: 'Live/Today', icon: <Clock size={14} />, color: 'bg-emerald-500' },
               { id: 'upcoming', label: 'Upcoming', icon: <CalendarClock size={14} />, color: 'bg-indigo-500' },
-              { id: 'completed', label: 'History', icon: <CheckSquare size={14} />, color: 'bg-slate-500' },
+              { id: 'completed', label: 'Completed', icon: <CheckSquare size={14} />, color: 'bg-slate-500' },
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -213,7 +213,7 @@ const AcademicSchedule = () => {
                     className={`px-4 h-11 rounded-[1rem] flex items-center justify-center gap-2 font-black uppercase text-[10px] tracking-widest transition-all ${
                       checkIsLive(session)
                       ? 'bg-red-500 text-white shadow-[0_0_15px_rgba(239,68,68,0.6)] animate-pulse hover:bg-red-600 hover:scale-[1.05]'
-                      : 'bg-slate-50 text-indigo-600 border border-indigo-100 hover:bg-indigo-600 hover:text-white shadow-sm'
+                      : 'bg-red-50 text-red-500 border border-red-100 hover:bg-red-500 hover:text-white shadow-sm'
                     }`}
                   >
                     <Video size={14} /> LIVE
