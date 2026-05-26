@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
 import { toast } from 'react-hot-toast';
 import { premiumConfirm } from '../utils/premiumConfirm';
+import mlogo from '../assets/mlogo.png';
 
 const Navbar = ({ onMenuClick }) => {
   const { user, logout } = useAuth();
@@ -260,9 +261,11 @@ const Navbar = ({ onMenuClick }) => {
             >
               <Menu size={22} />
             </button>
-            <div className="w-8 h-8 rounded-[14px] bg-gradient-to-tr from-slate-900 to-slate-700 items-center justify-center text-white shadow-sm hidden md:flex">
-              <span className="font-bold text-sm">M</span>
-            </div>
+            <img 
+              src={mlogo} 
+              alt="Mash Magic Logo" 
+              className="w-9 h-9 object-contain hidden md:block scale-150 ml-2 mr-1" 
+            />
             <span className="font-semibold text-slate-900 tracking-tight hidden sm:block uppercase tracking-widest text-sm">
               {user?.role ? user.role.replace('_', ' ') : 'MASH MAGIC'}
             </span>
