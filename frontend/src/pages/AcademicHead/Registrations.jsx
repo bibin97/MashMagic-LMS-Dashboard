@@ -22,7 +22,7 @@ const Registrations = () => {
     schoolName: '', preferredLanguage: '', country: '',
     totalFees: '', totalPaid: '', nextInstallmentDate: '', 
     admissionType: 'new', registrationNumber: '', meetingLink: '',
-    enrollmentType: 'Mentorship', rejoiningFee: ''
+    enrollmentType: '', rejoiningFee: ''
   });
 
   const [selectedSubjects, setSelectedSubjects] = useState([
@@ -276,6 +276,9 @@ const Registrations = () => {
 
   const submitStudent = async (e) => {
     e.preventDefault();
+    if (!studentForm.enrollmentType) {
+      return toast.error("Please select an Enrollment Plan before registering.");
+    }
     if (studentForm.password && studentForm.password !== studentForm.confirmPassword) {
       return toast.error("Passwords do not match!");
     }
@@ -305,7 +308,7 @@ const Registrations = () => {
           schoolName: '', preferredLanguage: '', country: '',
           totalFees: '', totalPaid: '', totalHours: '', nextInstallmentDate: '', 
           admissionType: 'new', registrationNumber: '', meetingLink: '',
-          enrollmentType: 'Mentorship', rejoiningFee: ''
+          enrollmentType: '', rejoiningFee: ''
         });
         setSelectedSubjects([{ subject: '', dayConfigs: [], facultyId: '', facultyName: '', hourlyRate: '', availableFaculties: [] }]);
       }
