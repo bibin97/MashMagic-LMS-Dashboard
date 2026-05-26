@@ -30,7 +30,7 @@ const checkIsLive = (session) => {
   const startMins = startH * 60 + startM;
   const endMins = endH * 60 + endM;
   
-  return currentMins >= startMins && currentMins <= endMins;
+  return currentMins >= (startMins - 5) && currentMins <= endMins;
 };
 
 const AcademicSchedule = () => {
@@ -38,6 +38,16 @@ const AcademicSchedule = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [activeTab, setActiveTab] = useState('today');
+  const [joinedSessions, setJoinedSessions] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('joinedSessions')) || {}; } catch { return {}; }
+  });
+  
+  const handleJoinSession = (session) => {
+    const newJoined = { ...joinedSessions, [session.id]: true };
+    setJoinedSessions(newJoined);
+    localStorage.setItem('joinedSessions', JSON.stringify(newJoined));
+    window.open(session.meeting_link, '_blank');
+  };
   const [selectedSession, setSelectedSession] = useState(null);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [isCompleteModalOpen, setIsCompleteModalOpen] = useState(false);
@@ -187,32 +197,32 @@ const AcademicSchedule = () => {
   return (
     <div className="space-y-8 pb-20">
       {/* Header Area */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 border-b-4 border-b-[#008080]">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6 bg-white p-5 md:p-8 rounded-[1.5rem] md:rounded-[2.5rem] shadow-sm border border-slate-100 border-b-4 border-b-[#008080]">
         <div className="flex items-center gap-5">
-          <div className="w-14 h-14 bg-[#008080] rounded-2xl flex items-center justify-center text-white shadow-xl rotate-3">
-            <CalendarClock size={28} />
+          <div className="w-12 h-12 md:w-14 md:h-14 bg-[#008080] rounded-xl md:rounded-2xl flex items-center justify-center text-white shadow-xl rotate-3 shrink-0">
+            <CalendarClock size={24} className="md:w-7 md:h-7" />
           </div>
           <div>
-            <h1 className="text-3xl font-black text-slate-900 tracking-tighter uppercase ">Academic Schedule Coordination</h1>
-            <p className="text-[10px] font-bold text-slate-600 uppercase tracking-[0.2em] mt-1">Success monitoring of faculty-led sessions</p>
+            <h1 className="text-xl md:text-3xl font-black text-slate-900 tracking-tighter uppercase leading-tight ">Academic Schedule Coordination</h1>
+            <p className="text-[9px] md:text-[10px] font-bold text-slate-600 uppercase tracking-[0.2em] mt-1">Success monitoring of faculty-led sessions</p>
           </div>
         </div>
 
         <div className="flex items-center gap-4">
-          <div className="bg-slate-50 px-6 py-3 rounded-2xl border border-slate-100 flex items-center gap-3">
-            <Activity className="text-emerald-500" size={18} />
+          <div className="bg-slate-50 px-4 md:px-6 py-2.5 md:py-3 rounded-[1rem] md:rounded-2xl border border-slate-100 flex items-center gap-3">
+            <Activity className="text-emerald-500 shrink-0" size={14} />
             <div>
-              <p className="text-[8px] font-black text-slate-600 uppercase tracking-widest">Total Active</p>
-              <p className="text-sm font-black text-slate-900 leading-none">{schedule.filter(s => s.status === 'Scheduled').length} Sessions</p>
+              <p className="text-[7px] md:text-[8px] font-black text-slate-600 uppercase tracking-widest">Total Active</p>
+              <p className="text-xs md:text-sm font-black text-slate-900 leading-none">{schedule.filter(s => s.status === 'Scheduled').length} Sessions</p>
             </div>
           </div>
         </div>
       </div>
 
       {/* Tabs and Search Bar */}
-      <div className="bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-sm space-y-6">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="flex p-1.5 bg-slate-100 rounded-2xl gap-2 overflow-x-auto no-scrollbar">
+      <div className="bg-white p-4 md:p-6 rounded-[1.5rem] md:rounded-[2.5rem] border border-slate-100 shadow-sm space-y-4 md:space-y-6">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6">
+          <div className="flex p-1.5 bg-slate-100 rounded-[1rem] md:rounded-2xl gap-2 overflow-x-auto no-scrollbar">
             {[
               { id: 'today', label: 'Today\'s Sessions', icon: <Clock size={14} />, color: 'bg-emerald-500' },
               { id: 'upcoming', label: 'Upcoming', icon: <CalendarClock size={14} />, color: 'bg-indigo-500' },
@@ -221,7 +231,7 @@ const AcademicSchedule = () => {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-3 px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${
+                className={`flex items-center gap-2 md:gap-3 px-4 md:px-6 py-2.5 md:py-3 rounded-xl text-[9px] md:text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${
                   activeTab === tab.id
                     ? 'bg-white text-slate-900 shadow-md'
                     : 'text-slate-400 hover:text-slate-600'
@@ -233,14 +243,14 @@ const AcademicSchedule = () => {
             ))}
           </div>
 
-          <div className="flex-1 max-w-md relative">
+          <div className="flex-1 max-w-md relative w-full">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
             <input
               type="text"
               placeholder="Filter by student or faculty..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-12 pr-4 py-3.5 bg-slate-50 border-none rounded-2xl text-[10px] font-black uppercase tracking-widest focus:bg-white focus:ring-4 ring-[#008080]/5 outline-none transition-all"
+              className="w-full pl-10 md:pl-12 pr-4 py-3 md:py-3.5 bg-slate-50 border-none rounded-[1rem] md:rounded-2xl text-[9px] md:text-[10px] font-black uppercase tracking-widest focus:bg-white focus:ring-4 ring-[#008080]/5 outline-none transition-all"
             />
           </div>
         </div>
@@ -249,41 +259,41 @@ const AcademicSchedule = () => {
       {/* Timetable List View */}
       <div className="space-y-4">
         {currentData.map((session, idx) => (
-          <div key={idx} className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-500 group overflow-hidden flex flex-col md:flex-row items-stretch">
-            <div className={`w-3 shrink-0 ${session.status === 'Completed' ? 'bg-emerald-500' : 'bg-amber-500'} opacity-40 group-hover:opacity-100 transition-opacity animate-pulse`}></div>
+          <div key={idx} className="bg-white rounded-[1.5rem] md:rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-500 group overflow-hidden flex flex-col md:flex-row items-stretch">
+            <div className={`w-2 md:w-3 shrink-0 ${session.status === 'Completed' ? 'bg-emerald-500' : 'bg-amber-500'} opacity-40 group-hover:opacity-100 transition-opacity animate-pulse`}></div>
             
-            <div className="flex-grow p-6 flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div className="flex-grow p-4 md:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6">
               
-              <div className="flex items-center gap-6 min-w-[200px]">
-                <div className="w-14 h-14 bg-slate-50 rounded-[1.5rem] flex items-center justify-center text-slate-600 group-hover:bg-[#008080] group-hover:text-white transition-all duration-700 -rotate-3 group-hover:rotate-0">
+              <div className="flex items-center gap-4 md:gap-6 w-full md:w-auto md:min-w-[200px]">
+                <div className="w-12 h-12 md:w-14 md:h-14 bg-slate-50 rounded-xl md:rounded-[1.5rem] flex items-center justify-center text-slate-600 group-hover:bg-[#008080] group-hover:text-white transition-all duration-700 -rotate-3 group-hover:rotate-0 shrink-0">
                   <Users size={20} />
                 </div>
-                <div>
-                  <h3 className="text-sm font-black text-slate-900 tracking-tight uppercase">{session.student_name}</h3>
-                  <p className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] mt-1">
+                <div className="overflow-hidden">
+                  <h3 className="text-xs md:text-sm font-black text-slate-900 tracking-tight uppercase truncate">{session.student_name}</h3>
+                  <p className="text-[9px] md:text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] mt-1 truncate">
                     Faculty: {session.faculty_name}
                   </p>
                 </div>
               </div>
 
-              <div className="flex flex-wrap items-center gap-6 flex-grow">
-                <div className="flex items-center gap-3 bg-slate-50/50 px-4 py-2.5 rounded-2xl border border-slate-100 transition-colors group-hover:bg-[#008080]/10">
+              <div className="flex flex-wrap items-center gap-3 md:gap-6 flex-grow">
+                <div className="flex items-center gap-2 md:gap-3 bg-slate-50/50 px-3 md:px-4 py-2 md:py-2.5 rounded-xl md:rounded-2xl border border-slate-100 transition-colors group-hover:bg-[#008080]/10">
                   <Calendar size={14} className="text-[#008080]" />
-                  <span className="text-[11px] font-black text-slate-700 uppercase tracking-widest">
+                  <span className="text-[10px] md:text-[11px] font-black text-slate-700 uppercase tracking-widest whitespace-nowrap">
                     {session.date ? new Date(session.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : 'TBD'}
                   </span>
                 </div>
 
-                <div className="flex items-center gap-3 bg-slate-50/50 px-4 py-2.5 rounded-2xl border border-slate-100 transition-colors group-hover:bg-[#008080]/10">
+                <div className="flex items-center gap-2 md:gap-3 bg-slate-50/50 px-3 md:px-4 py-2 md:py-2.5 rounded-xl md:rounded-2xl border border-slate-100 transition-colors group-hover:bg-[#008080]/10">
                   <Clock size={14} className="text-[#008080]" />
-                  <span className="text-[11px] font-black text-slate-700 uppercase tracking-widest">
+                  <span className="text-[10px] md:text-[11px] font-black text-slate-700 uppercase tracking-widest whitespace-nowrap">
                     {session.start_time ? new Date(`2000-01-01T${session.start_time}`).toLocaleString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }) : 'TBD'}
                   </span>
                 </div>
 
-                <div className="flex flex-col gap-1 min-w-[150px]">
+                <div className="flex flex-col gap-1 w-full md:w-auto md:min-w-[150px]">
                   <span className="text-[8px] font-black text-slate-400 uppercase tracking-[0.2em] pl-1">Topic</span>
-                  <p className="text-xs font-black text-slate-900 truncate">{session.topic || 'General Session'}</p>
+                  <p className="text-[10px] md:text-xs font-black text-slate-900 truncate">{session.topic || 'General Session'}</p>
                 </div>
 
                 {session.status === 'Completed' && (
@@ -294,14 +304,14 @@ const AcademicSchedule = () => {
               </div>
 
               {activeTab !== 'upcoming' && (
-                <div className="flex items-center gap-3 pl-6 md:border-l border-slate-100">
+                <div className="flex items-center justify-end md:justify-start gap-2 md:gap-3 pt-4 md:pt-0 border-t md:border-t-0 md:border-l border-slate-100 md:pl-6 w-full md:w-auto mt-2 md:mt-0">
                   {session.meeting_link && session.status !== 'Completed' && session.date && session.date.split('T')[0] === localTodayStr && (
                     <button 
-                      onClick={() => window.open(session.meeting_link, '_blank')}
+                      onClick={() => handleJoinSession(session)}
                       title="Watch Session"
                       className={`px-4 h-11 rounded-[1rem] flex items-center justify-center gap-2 font-black uppercase text-[10px] tracking-widest transition-all ${
                         checkIsLive(session)
-                        ? 'bg-red-500 text-white shadow-[0_0_15px_rgba(239,68,68,0.6)] animate-pulse hover:bg-red-600 hover:scale-[1.05]'
+                        ? `bg-red-500 text-white hover:bg-red-600 hover:scale-[1.05] ${!joinedSessions[session.id] ? 'shadow-[0_0_15px_rgba(239,68,68,0.6)] animate-pulse' : 'shadow-sm'}`
                         : 'bg-red-50 text-red-500 border border-red-100 hover:bg-red-500 hover:text-white shadow-sm'
                       }`}
                     >
