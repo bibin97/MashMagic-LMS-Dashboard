@@ -41,7 +41,7 @@ const AcademicHeadLayout = () => {
  {/* Mobile Overlay */}
  {isSidebarOpen && (
  <div 
- className="fixed inset-0 bg-slate-900/40 backdrop-blur-md z-[990] md:hidden cursor-pointer transition-all duration-500"
+ className="fixed inset-0 bg-[#008080]/40 backdrop-blur-md z-[990] md:hidden cursor-pointer transition-all duration-500"
  onClick={() => setIsSidebarOpen(false)}
  />
  )}

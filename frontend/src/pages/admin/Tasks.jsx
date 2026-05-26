@@ -351,7 +351,7 @@ const Tasks = () => {
  className={`
  p-4 rounded-2xl border-2 text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-500
  ${formData.priority === p
- ? 'bg-slate-900 border-slate-900 text-[#008080] shadow-2xl scale-[1.02]'
+ ? 'bg-[#008080] border-[#008080] text-[#008080] shadow-2xl scale-[1.02]'
  : 'bg-white border-slate-100 text-slate-300 hover:border-slate-200'}
  `}
  >
@@ -363,7 +363,7 @@ const Tasks = () => {
 
  <button
  type="submit"
- className="w-full bg-slate-900 text-white p-6 rounded-[24px] font-black text-[11px] uppercase tracking-[0.3em] hover:bg-slate-800 transition-all shadow-2xl shadow-slate-900/10 mt-4 flex items-center justify-center gap-4 group "
+ className="w-full bg-[#008080] text-white p-6 rounded-[24px] font-black text-[11px] uppercase tracking-[0.3em] hover:bg-slate-800 transition-all shadow-2xl shadow-[#008080]/10 mt-4 flex items-center justify-center gap-4 group "
  >
  <span>Create Task</span>
  <div className="w-1.5 h-1.5 rounded-full bg-[#008080] group-hover:animate-ping"></div>

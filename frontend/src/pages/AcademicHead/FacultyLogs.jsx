@@ -175,7 +175,7 @@ const FacultyLogs = () => {
  <span className="text-[8px] font-black uppercase tracking-widest ">{log.session_type}</span>
  </div>
  </div>
- <button className="w-10 h-10 bg-white rounded-xl shadow-sm flex items-center justify-center text-[#008080] hover:bg-slate-900 hover:text-white transition-all">
+ <button className="w-10 h-10 bg-white rounded-xl shadow-sm flex items-center justify-center text-[#008080] hover:bg-[#008080] hover:text-white transition-all">
  <ExternalLink size={16} />
  </button>
  </div>
@@ -228,7 +228,7 @@ const FacultyLogs = () => {
  <span className="text-[10px] font-black text-slate-900 ">{log.duration}</span>
  </td>
  <td className="px-8 py-6 text-right">
- <button className="px-6 py-2.5 bg-slate-900 text-white rounded-xl text-[9px] font-black uppercase tracking-widest shadow-xl shadow-slate-200/50 hover:bg-[#008080] transition-all opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0">
+ <button className="px-6 py-2.5 bg-[#008080] text-white rounded-xl text-[9px] font-black uppercase tracking-widest shadow-xl shadow-slate-200/50 hover:bg-[#008080] transition-all opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0">
  View
  </button>
  </td>
@@ -246,7 +246,7 @@ const FacultyLogs = () => {
 
  {/* Modal for Mentor Audit Detail */}
  {selectedLog && isMentorTab && (
- <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[1100] flex items-center justify-center p-4 animate-in fade-in duration-300">
+ <div className="fixed inset-0 bg-[#008080]/60 backdrop-blur-md z-[1100] flex items-center justify-center p-4 animate-in fade-in duration-300">
  <div className="bg-white rounded-[4rem] shadow-2xl w-full max-w-5xl h-[90vh] overflow-hidden animate-in zoom-in duration-500 border border-white/20 flex flex-col">
  <div className="p-10 border-b border-slate-50 flex justify-between items-center bg-[#008080] text-white relative h-32 overflow-hidden">
  <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-32 -mt-32"></div>
@@ -323,7 +323,7 @@ const FacultyLogs = () => {
  <p className="text-xs font-bold text-slate-900 ">Proof Attachment</p>
  </div>
  </div>
- <a href={selectedLog.screenshot_url} target="_blank" rel="noreferrer" className="bg-slate-900 text-white p-4 rounded-2xl hover:bg-[#008080] transition-all active:scale-90">
+ <a href={selectedLog.screenshot_url} target="_blank" rel="noreferrer" className="bg-[#008080] text-white p-4 rounded-2xl hover:bg-[#008080] transition-all active:scale-90">
  <ExternalLink size={20} />
  </a>
  </div>
@@ -335,7 +335,7 @@ const FacultyLogs = () => {
  <div className="p-10 border-t border-slate-50 bg-slate-50/50 flex justify-end">
  <button
  onClick={() => setSelectedLog(null)}
- className="px-12 py-5 bg-slate-900 text-white rounded-[2rem] text-[10px] font-black uppercase tracking-[0.2em] shadow-xl hover:-translate-y-1 transition-all "
+ className="px-12 py-5 bg-[#008080] text-white rounded-[2rem] text-[10px] font-black uppercase tracking-[0.2em] shadow-xl hover:-translate-y-1 transition-all "
  >
  Close
  </button>

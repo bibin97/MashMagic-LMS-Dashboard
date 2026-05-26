@@ -85,7 +85,7 @@ const StudentDetails = () => {
  <span className="px-5 py-2 bg-[#008080] text-white rounded-2xl text-xs font-black uppercase tracking-widest shadow-lg shadow-[#008080]/30 ">
  {student.course}
  </span>
- <span className="px-5 py-2 bg-slate-900 text-white rounded-2xl text-xs font-black uppercase tracking-widest">
+ <span className="px-5 py-2 bg-[#008080] text-white rounded-2xl text-xs font-black uppercase tracking-widest">
  {student.grade}
  </span>
  </div>
@@ -335,7 +335,7 @@ const StudentDetails = () => {
             <div className="flex-1 bg-slate-50/50 hover:bg-white transition-all border border-slate-100 p-8 rounded-[32px] group hover:shadow-xl hover:shadow-slate-200/50">
               <div className="flex flex-col md:flex-row justify-between mb-4 gap-2">
                 <div className="flex items-center gap-3">
-                  <div className="bg-slate-900 text-white px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest ">
+                  <div className="bg-[#008080] text-white px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest ">
                     {update.formatted_date}
                   </div>
                   <div className="flex items-center gap-1.5 text-slate-600 font-bold text-xs bg-white px-4 py-1.5 rounded-xl border border-slate-100">

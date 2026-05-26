@@ -405,7 +405,7 @@ const Timetable = () => {
       case 'Cancelled': return 'bg-rose-100 text-rose-600 border-rose-200';
       case 'Faculty Cancelled': return 'bg-rose-100 text-rose-600 border-rose-200';
       case 'Student Cancelled': return 'bg-rose-100 text-rose-600 border-rose-200';
-      case 'No Show': return 'bg-slate-800 text-white border-slate-900';
+      case 'No Show': return 'bg-slate-800 text-white border-[#008080]';
       default: return 'bg-slate-100 text-slate-600 border-slate-200';
     }
   };
@@ -446,7 +446,7 @@ const Timetable = () => {
     <div className="space-y-8 pb-20 max-w-[1600px] mx-auto min-h-screen">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 border-b-4 border-b-[#008080]">
         <div className="flex items-center gap-5">
-          <div className="w-14 h-14 bg-slate-900 rounded-2xl flex items-center justify-center text-white shadow-xl rotate-3 group hover:rotate-0 transition-all duration-500">
+          <div className="w-14 h-14 bg-[#008080] rounded-2xl flex items-center justify-center text-white shadow-xl rotate-3 group hover:rotate-0 transition-all duration-500">
             <CalendarClock size={28} />
           </div>
           <div>
@@ -553,7 +553,7 @@ const Timetable = () => {
 
           <button
             onClick={() => setFilters({ ...filters, student_id: '', status: '', start_date: '', end_date: '' })}
-            className="px-8 py-4 bg-slate-900 text-white text-[10px] font-black uppercase tracking-widest rounded-2xl hover:bg-[#008080] shadow-xl shadow-slate-100 transition-all active:scale-95 "
+            className="px-8 py-4 bg-[#008080] text-white text-[10px] font-black uppercase tracking-widest rounded-2xl hover:bg-[#008080] shadow-xl shadow-slate-100 transition-all active:scale-95 "
           >
             Reset Filters
           </button>
@@ -646,7 +646,7 @@ const Timetable = () => {
       )}
 
       {showModal && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[9999] flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-[#008080]/60 backdrop-blur-md z-[9999] flex items-center justify-center p-4">
           <div className="bg-white rounded-[3rem] shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between p-8 border-b border-slate-50">
               <div>
@@ -846,7 +846,7 @@ const Timetable = () => {
                           <select
                             value={formData.status}
                             onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                            className="w-full p-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] outline-none focus:ring-4 ring-slate-200 transition-all cursor-pointer shadow-xl shadow-slate-200"
+                            className="w-full p-4 bg-[#008080] text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] outline-none focus:ring-4 ring-slate-200 transition-all cursor-pointer shadow-xl shadow-slate-200"
                           >
                             {['Scheduled', 'Completed', 'Postponed', 'Cancelled', 'Faculty Cancelled', 'Student Cancelled', 'No Show'].map(s => (
                               <option key={s} value={s}>{s.toUpperCase()}</option>
@@ -930,7 +930,7 @@ const Timetable = () => {
         </div>
       )}
       {showScheduleModal && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[10000] flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-[#008080]/60 backdrop-blur-md z-[10000] flex items-center justify-center p-4">
           <div className="bg-white rounded-[3rem] shadow-2xl w-full max-w-5xl max-h-[90vh] overflow-hidden flex flex-col">
             <div className="p-8 border-b border-slate-50 flex justify-between items-center bg-slate-50/50">
               <div>

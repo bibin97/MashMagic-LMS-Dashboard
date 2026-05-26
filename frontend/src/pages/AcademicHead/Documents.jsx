@@ -106,7 +106,7 @@ const Documents = () => {
  </div>
  <button
  onClick={() => setIsModalOpen(true)}
- className="w-full sm:w-auto px-10 py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-emerald-600 transition-all shadow-xl shadow-slate-200 hover:-translate-y-1 active:scale-95 "
+ className="w-full sm:w-auto px-10 py-4 bg-[#008080] text-white rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-emerald-600 transition-all shadow-xl shadow-slate-200 hover:-translate-y-1 active:scale-95 "
  >
  <Plus size={18} /> Ingest Asset
  </button>
@@ -185,9 +185,9 @@ const Documents = () => {
 
  {/* Ingestion Modal */}
  {isModalOpen && (
- <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[1100] flex items-center justify-center p-4 animate-in fade-in duration-300">
+ <div className="fixed inset-0 bg-[#008080]/60 backdrop-blur-md z-[1100] flex items-center justify-center p-4 animate-in fade-in duration-300">
  <div className="bg-white rounded-[4rem] shadow-2xl w-full max-w-2xl overflow-hidden animate-in zoom-in duration-500 border border-white/20">
- <div className="bg-slate-900 p-10 flex justify-between items-center relative h-32 overflow-hidden">
+ <div className="bg-[#008080] p-10 flex justify-between items-center relative h-32 overflow-hidden">
  <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/20 rounded-full -mr-32 -mt-32"></div>
  <div className="relative z-10 flex items-center gap-6">
  <div className="w-16 h-16 bg-white/10 rounded-3xl flex items-center justify-center backdrop-blur-md border border-white/10 text-emerald-400 shadow-xl">
@@ -258,7 +258,7 @@ const Documents = () => {
 
  <button
  type="submit"
- className="w-full py-6 bg-slate-900 text-white rounded-[2rem] text-[10px] font-black uppercase tracking-[0.3em] flex items-center justify-center gap-4 hover:bg-emerald-600 transition-all shadow-xl shadow-slate-200 hover:-translate-y-1 "
+ className="w-full py-6 bg-[#008080] text-white rounded-[2rem] text-[10px] font-black uppercase tracking-[0.3em] flex items-center justify-center gap-4 hover:bg-emerald-600 transition-all shadow-xl shadow-slate-200 hover:-translate-y-1 "
  >
  <ShieldCheck size={20} /> AUTHORIZE REGISTRY LOCK
  </button>

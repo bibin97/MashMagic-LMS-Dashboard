@@ -108,7 +108,7 @@ const FacultyReports = () => {
  <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest mb-1">Status</p>
  <p className="font-bold text-slate-900">{report.status}</p>
  </div>
- <button className="px-8 py-4 bg-slate-900 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-800 transition-all flex items-center gap-3 shadow-xl shadow-slate-200">
+ <button className="px-8 py-4 bg-[#008080] text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-800 transition-all flex items-center gap-3 shadow-xl shadow-slate-200">
  Full Intel
  <ArrowUpRight size={14} />
  </button>

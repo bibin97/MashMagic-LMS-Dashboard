@@ -102,7 +102,7 @@ const StudentDetails = () => {
  </div>
 
  {/* Profile Overview Card */}
- <div className="bg-slate-900 rounded-[3.5rem] p-12 text-white relative overflow-hidden group">
+ <div className="bg-[#008080] rounded-[3.5rem] p-12 text-white relative overflow-hidden group">
  <div className="absolute top-0 right-0 w-80 h-80 bg-[#008080]/10 rounded-full -mr-40 -mt-40 blur-[80px]"></div>
  <div className="relative z-10 flex flex-col md:flex-row items-center gap-10">
  <div className="w-32 h-32 bg-white/10 backdrop-blur-xl rounded-[2.5rem] flex items-center justify-center border border-white/20 shadow-2xl overflow-hidden group-hover:scale-105 transition-transform duration-700">
@@ -262,7 +262,7 @@ const StudentDetails = () => {
  data.reports.map((report, idx) => (
  <div key={idx} className="bg-slate-50 p-10 rounded-[2.5rem] border border-slate-100 relative group hover:bg-white transition-all duration-500 shadow-sm hover:shadow-xl">
  <div className="absolute top-8 right-8">
- <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm ${report.status === 'Open' ? 'bg-[#008080] text-white' : 'bg-slate-900 text-white'
+ <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm ${report.status === 'Open' ? 'bg-[#008080] text-white' : 'bg-[#008080] text-white'
  }`}>
  {report.status}
  </span>
@@ -329,9 +329,9 @@ const StudentDetails = () => {
 
  {/* Interaction Report Modal */}
  {isReportModalOpen && (
- <div className="fixed inset-0 z-[2000] flex items-center justify-center p-6 backdrop-blur-3xl bg-slate-900/10 animate-in fade-in duration-300">
+ <div className="fixed inset-0 z-[2000] flex items-center justify-center p-6 backdrop-blur-3xl bg-[#008080]/10 animate-in fade-in duration-300">
  <div className="bg-white w-full max-w-2xl rounded-[3.5rem] border border-slate-100 shadow-2xl overflow-hidden animate-in zoom-in slide-in-from-bottom-10 duration-500">
- <div className="p-10 border-b border-slate-50 flex justify-between items-center text-white bg-slate-900 relative">
+ <div className="p-10 border-b border-slate-50 flex justify-between items-center text-white bg-[#008080] relative">
  <div className="absolute top-0 right-0 w-40 h-40 bg-[#008080]/10 rounded-full -mr-20 -mt-20 blur-3xl"></div>
  <div className="relative">
  <h3 className="text-2xl font-black tracking-tight ">Submit Report</h3>

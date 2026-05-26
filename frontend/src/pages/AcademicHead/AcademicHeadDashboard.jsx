@@ -153,7 +153,7 @@ const AcademicHeadDashboard = () => {
  subtitle="Active Enrollments"
  value={data.stats.totalStudents}
  icon={Users}
- color="bg-slate-900"
+ color="bg-[#008080]"
  />
  <StatCard
  title="Faculty Members"
@@ -342,7 +342,7 @@ const AcademicHeadDashboard = () => {
  <h3 className="text-3xl font-black text-slate-900 tracking-tighter uppercase leading-none mb-3">Activity Feed</h3>
  <p className="text-slate-600 text-[10px] font-black uppercase tracking-[0.25em]">Recent student reports and interaction updates</p>
  </div>
- <div className="w-14 h-14 bg-slate-900 text-[#008080] rounded-[22px] flex items-center justify-center shadow-2xl relative group">
+ <div className="w-14 h-14 bg-[#008080] text-[#008080] rounded-[22px] flex items-center justify-center shadow-2xl relative group">
  <div className="absolute inset-0 bg-[#008080] opacity-0 group-hover:opacity-20 blur-xl transition-all duration-700"></div>
  <Activity size={24} strokeWidth={3} className="relative z-10" />
  </div>
@@ -379,7 +379,7 @@ const AcademicHeadDashboard = () => {
  </div>
 
  <div className="flex flex-col gap-8">
- <div className="bg-slate-900 p-10 rounded-[3rem] text-white flex flex-col justify-between overflow-hidden relative group">
+ <div className="bg-[#008080] p-10 rounded-[3rem] text-white flex flex-col justify-between overflow-hidden relative group">
  <div className="absolute right-0 top-0 w-64 h-64 bg-white/5 rounded-full -mr-20 -mt-20 blur-3xl group-hover:bg-white/10 transition-all duration-700"></div>
  <div className="relative z-10">
  <div className="flex items-center gap-3 mb-4">

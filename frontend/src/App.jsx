@@ -275,7 +275,7 @@ function App() {
               <p className="text-xl font-bold text-slate-600 -mt-8 mb-8 text-black">Access Token Invalid or Page Missing</p>
               <button
                 onClick={() => window.location.href = '/'}
-                className="bg-slate-900 text-white px-8 py-3 rounded-2xl font-bold hover:bg-slate-800 transition-all font-black uppercase tracking-widest text-[10px]"
+                className="bg-[#008080] text-white px-8 py-3 rounded-2xl font-bold hover:bg-slate-800 transition-all font-black uppercase tracking-widest text-[10px]"
               >
                 Return to Safety
               </button>

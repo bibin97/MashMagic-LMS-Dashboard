@@ -108,7 +108,7 @@ const Approvals = () => {
           </div>
         </div>
         <div className="flex gap-4">
-          <div className="bg-slate-900 px-8 py-4 rounded-[28px] border border-slate-800 shadow-2xl flex items-center gap-4">
+          <div className="bg-[#008080] px-8 py-4 rounded-[28px] border border-slate-800 shadow-2xl flex items-center gap-4">
             <div className="flex flex-col">
               <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none mb-1">Pending</span>
               <span className="text-2xl font-black text-white leading-none">{pendingUsers.length}</span>

@@ -207,7 +207,7 @@ const FacultyDailyUpdate = () => {
         {/* Section 1: Class Details */}
         <div className="space-y-8">
            <div className="flex items-center gap-4">
-              <div className="w-10 h-10 bg-slate-900 text-white rounded-xl flex items-center justify-center text-xs font-black">01</div>
+              <div className="w-10 h-10 bg-[#008080] text-white rounded-xl flex items-center justify-center text-xs font-black">01</div>
               <h3 className="text-xl font-black text-slate-900 uppercase tracking-tighter">Class Details</h3>
            </div>
            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -237,7 +237,7 @@ const FacultyDailyUpdate = () => {
         {/* Section 2: Academic Update */}
         <div className="space-y-8">
            <div className="flex items-center gap-4">
-              <div className="w-10 h-10 bg-slate-900 text-white rounded-xl flex items-center justify-center text-xs font-black">02</div>
+              <div className="w-10 h-10 bg-[#008080] text-white rounded-xl flex items-center justify-center text-xs font-black">02</div>
               <h3 className="text-xl font-black text-slate-900 uppercase tracking-tighter">Academic Update</h3>
            </div>
            <div className="space-y-6">
@@ -259,7 +259,7 @@ const FacultyDailyUpdate = () => {
                         <button 
                           key={v}
                           onClick={() => setFormData({...formData, homework_given: v})}
-                          className={`flex-1 py-4 rounded-2xl font-black text-xs transition-all ${formData.homework_given === v ? 'bg-slate-900 text-white shadow-lg' : 'bg-slate-50 text-slate-400'}`}
+                          className={`flex-1 py-4 rounded-2xl font-black text-xs transition-all ${formData.homework_given === v ? 'bg-yellow-400 text-slate-900 shadow-lg' : 'bg-slate-50 text-slate-400'}`}
                         >
                           {v}
                         </button>
@@ -285,7 +285,7 @@ const FacultyDailyUpdate = () => {
         {/* Section 3: Class Observation */}
         <div className="space-y-8">
            <div className="flex items-center gap-4">
-              <div className="w-10 h-10 bg-slate-900 text-white rounded-xl flex items-center justify-center text-xs font-black">03</div>
+              <div className="w-10 h-10 bg-[#008080] text-white rounded-xl flex items-center justify-center text-xs font-black">03</div>
               <h3 className="text-xl font-black text-slate-900 uppercase tracking-tighter">Observation</h3>
            </div>
            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -331,7 +331,7 @@ const FacultyDailyUpdate = () => {
         {/* Section 4: Issue Flag */}
         <div className="space-y-8">
            <div className="flex items-center gap-4">
-              <div className="w-10 h-10 bg-slate-900 text-white rounded-xl flex items-center justify-center text-xs font-black">04</div>
+              <div className="w-10 h-10 bg-[#008080] text-white rounded-xl flex items-center justify-center text-xs font-black">04</div>
               <h3 className="text-xl font-black text-slate-900 uppercase tracking-tighter">Issue Reporting</h3>
            </div>
            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -372,7 +372,7 @@ const FacultyDailyUpdate = () => {
         {/* Section 5: Files */}
         <div className="space-y-8">
            <div className="flex items-center gap-4">
-              <div className="w-10 h-10 bg-slate-900 text-white rounded-xl flex items-center justify-center text-xs font-black">05</div>
+              <div className="w-10 h-10 bg-[#008080] text-white rounded-xl flex items-center justify-center text-xs font-black">05</div>
               <h3 className="text-xl font-black text-slate-900 uppercase tracking-tighter">Proof / Attachments</h3>
            </div>
            <div className="space-y-6">
@@ -430,7 +430,7 @@ const FacultyDailyUpdate = () => {
          <button 
            onClick={handleSubmit}
            disabled={submitting}
-           className="flex-[2] py-5 bg-slate-900 text-white rounded-[24px] font-black text-xs uppercase tracking-widest flex items-center justify-center gap-3 shadow-2xl shadow-slate-900/20 active:scale-95 transition-all"
+           className="flex-[2] py-5 bg-[#008080] text-white rounded-[24px] font-black text-xs uppercase tracking-widest flex items-center justify-center gap-3 shadow-2xl shadow-[#008080]/20 active:scale-95 transition-all"
          >
             {submitting ? "SUBMITTING..." : "SUBMIT CLASS UPDATE"} <CheckCircle2 size={18} />
          </button>

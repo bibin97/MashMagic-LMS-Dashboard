@@ -97,7 +97,7 @@ const ProfileConsole = () => {
 				
 				<div className="flex items-center gap-8 relative z-10 w-full md:w-auto">
 					<div className="relative group cursor-pointer" onClick={handleImageClick}>
-						<div className="w-32 h-32 bg-slate-900 rounded-[40px] overflow-hidden border-4 border-white shadow-2xl group-hover:rotate-3 transition-all duration-500 flex items-center justify-center text-white relative">
+						<div className="w-32 h-32 bg-[#008080] rounded-[40px] overflow-hidden border-4 border-white shadow-2xl group-hover:rotate-3 transition-all duration-500 flex items-center justify-center text-white relative">
 							{user?.profile_pic ? (
 								<img 
 									src={user.profile_pic} 
@@ -181,7 +181,7 @@ const ProfileConsole = () => {
 					</div>
 
 					{/* System Information */}
-					<div className="bg-slate-900 p-10 rounded-[48px] shadow-2xl shadow-slate-900/40 relative overflow-hidden group">
+					<div className="bg-[#008080] p-10 rounded-[48px] shadow-2xl shadow-[#008080]/40 relative overflow-hidden group">
 						<div className="absolute bottom-0 right-0 w-48 h-48 bg-white/5 rounded-full -mb-24 -mr-24 blur-3xl group-hover:bg-[#008080]/10 transition-colors duration-1000"></div>
 						<h3 className="text-xl font-black text-white uppercase tracking-tight mb-10 flex items-center gap-4">
 							<div className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center text-white">

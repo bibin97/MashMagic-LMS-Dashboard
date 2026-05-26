@@ -137,7 +137,7 @@ const FacultyTracking = () => {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-3 px-6 py-3 rounded-[18px] text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === tab.id ? 'bg-slate-900 text-white shadow-xl' : 'text-slate-400 hover:bg-slate-50'}`}
+              className={`flex items-center gap-3 px-6 py-3 rounded-[18px] text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === tab.id ? 'bg-yellow-400 text-slate-900 shadow-xl' : 'text-slate-400 hover:bg-slate-50'}`}
             >
               {tab.icon} {tab.label}
             </button>
@@ -198,7 +198,7 @@ const FacultyTracking = () => {
                           </div>
                           <button 
                             onClick={() => setSelectedLog(log)}
-                            className="w-12 h-12 bg-slate-900 text-white rounded-2xl flex items-center justify-center shadow-lg shadow-slate-900/20 hover:scale-105 transition-all"
+                            className="w-12 h-12 bg-[#008080] text-white rounded-2xl flex items-center justify-center shadow-lg shadow-[#008080]/20 hover:scale-105 transition-all"
                           >
                              <Eye size={20} />
                           </button>
@@ -310,7 +310,7 @@ const FacultyTracking = () => {
                   </div>
                   <button 
                     onClick={() => { setSelectedLog(log); setIsReviewModalOpen(true); }}
-                    className="w-full mt-8 py-4 bg-slate-900 text-white rounded-[20px] text-[10px] font-black uppercase tracking-[0.25em] flex items-center justify-center gap-3 hover:shadow-xl hover:shadow-slate-900/20 active:scale-95 transition-all"
+                    className="w-full mt-8 py-4 bg-[#008080] text-white rounded-[20px] text-[10px] font-black uppercase tracking-[0.25em] flex items-center justify-center gap-3 hover:shadow-xl hover:shadow-[#008080]/20 active:scale-95 transition-all"
                   >
                      Analyze & Review <ChevronRight size={16} />
                   </button>
@@ -407,7 +407,7 @@ const FacultyTracking = () => {
 
       {/* Review Modal */}
       {isReviewModalOpen && selectedLog && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[2000] flex items-center justify-center p-6 animate-in fade-in duration-300">
+        <div className="fixed inset-0 bg-[#008080]/60 backdrop-blur-md z-[2000] flex items-center justify-center p-6 animate-in fade-in duration-300">
            <div className="bg-white rounded-[40px] shadow-2xl w-full max-w-2xl overflow-hidden animate-in zoom-in slide-in-from-bottom-10 duration-500">
               <div className="p-10 border-b border-slate-50 flex justify-between items-center">
                  <div>
@@ -455,7 +455,7 @@ const FacultyTracking = () => {
                  <div className="flex gap-4 pt-6">
                     <button 
                       onClick={handleReviewSubmit}
-                      className="flex-1 py-5 bg-slate-900 text-white rounded-[24px] font-black text-xs uppercase tracking-widest flex items-center justify-center gap-3 shadow-2xl active:scale-95 transition-all"
+                      className="flex-1 py-5 bg-[#008080] text-white rounded-[24px] font-black text-xs uppercase tracking-widest flex items-center justify-center gap-3 shadow-2xl active:scale-95 transition-all"
                     >
                        COMMIT REVIEW <CheckCircle2 size={18} />
                     </button>
@@ -475,7 +475,7 @@ const FacultyTracking = () => {
 
       {/* Interaction Modal */}
       {isInteractionModalOpen && selectedLog && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[2000] flex items-center justify-center p-6 animate-in fade-in duration-300">
+        <div className="fixed inset-0 bg-[#008080]/60 backdrop-blur-md z-[2000] flex items-center justify-center p-6 animate-in fade-in duration-300">
            <div className="bg-white rounded-[40px] shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto animate-in zoom-in slide-in-from-bottom-10 duration-500">
               <div className="p-10 border-b border-slate-50 flex justify-between items-center sticky top-0 bg-white/80 backdrop-blur-xl z-10">
                  <div>
@@ -497,7 +497,7 @@ const FacultyTracking = () => {
                             <button 
                               key={v}
                               onClick={() => setInteractionData({...interactionData, connection_method: v})}
-                              className={`flex-1 py-4 rounded-2xl font-black text-xs transition-all ${interactionData.connection_method === v ? 'bg-slate-900 text-white shadow-lg' : 'bg-slate-50 text-slate-400'}`}
+                              className={`flex-1 py-4 rounded-2xl font-black text-xs transition-all ${interactionData.connection_method === v ? 'bg-yellow-400 text-slate-900 shadow-lg' : 'bg-slate-50 text-slate-400'}`}
                             >
                               {v}
                             </button>
@@ -574,7 +574,7 @@ const FacultyTracking = () => {
                        <input 
                          type="text"
                          placeholder="What is the next immediate step to solve this?"
-                         className="w-full p-5 bg-slate-900 text-white border-transparent rounded-2xl text-sm font-bold shadow-xl outline-none"
+                         className="w-full p-5 bg-yellow-400 text-slate-900 border-transparent rounded-2xl text-sm font-bold shadow-xl outline-none"
                          value={interactionData.action_plan}
                          onChange={e => setInteractionData({...interactionData, action_plan: e.target.value})}
                        />
@@ -625,7 +625,7 @@ const FacultyTracking = () => {
 
                  <button 
                    onClick={handleInteractionSubmit}
-                   className="w-full py-6 bg-slate-900 text-white rounded-[28px] font-black text-xs uppercase tracking-[0.3em] flex items-center justify-center gap-3 shadow-2xl active:scale-95 transition-all"
+                   className="w-full py-6 bg-[#008080] text-white rounded-[28px] font-black text-xs uppercase tracking-[0.3em] flex items-center justify-center gap-3 shadow-2xl active:scale-95 transition-all"
                  >
                     SAVE INTERACTION <CheckCircle2 size={20} />
                  </button>
@@ -636,7 +636,7 @@ const FacultyTracking = () => {
 
       {/* X Modal for details (reusing selectedLog) */}
       {!isReviewModalOpen && !isInteractionModalOpen && selectedLog && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[2000] flex items-center justify-center p-6 animate-in fade-in duration-300">
+        <div className="fixed inset-0 bg-[#008080]/60 backdrop-blur-md z-[2000] flex items-center justify-center p-6 animate-in fade-in duration-300">
            {/* Simple close trigger */}
            <div className="absolute inset-0" onClick={() => setSelectedLog(null)}></div>
            {/* Detailed View is already handled in-line in history tab, but could be a modal too */}

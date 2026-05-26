@@ -233,7 +233,7 @@ const SSCInteractionLogs = () => {
           {[
             { id: 'both', label: 'Mentorship + Tuition', color: 'bg-purple-600' },
             { id: 'mentorship', label: 'Mentorship Only', color: 'bg-amber-500' },
-            { id: 'tuition', label: 'Tuition Only', color: 'bg-slate-900' }
+            { id: 'tuition', label: 'Tuition Only', color: 'bg-[#008080]' }
           ].map(tab => (
             <button
               key={tab.id}
@@ -343,7 +343,7 @@ const SSCInteractionLogs = () => {
              ) : (
                 <div className="space-y-8">
                   <div className="flex items-center gap-3 px-4">
-                    <div className="w-4 h-8 bg-slate-900 rounded-full"></div>
+                    <div className="w-4 h-8 bg-[#008080] rounded-full"></div>
                     <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest">
                       {statusFilter === 'pending' ? 'Pending Tuition Attendance' : 'Concluded Tuition Records'}
                     </h3>
@@ -398,7 +398,7 @@ const SSCInteractionLogs = () => {
        <ArrowLeft size={16} /> Return to Execution Hub
      </button>
 
-     <header className={`border p-10 rounded-[3rem] shadow-2xl relative overflow-hidden transition-all ${sessionType === 'DEEP' ? 'bg-rose-950 border-rose-900' : sessionType === 'MEDIUM' ? 'bg-amber-950 border-amber-900' : sessionType === 'QUICK' ? 'bg-blue-950 border-blue-900' : 'bg-slate-900 border-slate-800'}`}>
+     <header className={`border p-10 rounded-[3rem] shadow-2xl relative overflow-hidden transition-all ${sessionType === 'DEEP' ? 'bg-rose-950 border-rose-900' : sessionType === 'MEDIUM' ? 'bg-amber-950 border-amber-900' : sessionType === 'QUICK' ? 'bg-blue-950 border-blue-900' : 'bg-[#008080] border-slate-800'}`}>
          <div className={`absolute top-0 right-0 w-80 h-80 rounded-full -mr-40 -mt-40 opacity-10 ${sessionType === 'DEEP' ? 'bg-rose-500' : sessionType === 'MEDIUM' ? 'bg-amber-500' : sessionType === 'QUICK' ? 'bg-blue-500' : 'bg-[#008080]'}`}></div>
          <div className="relative z-10 flex items-center gap-6">
            <div className={`w-16 h-16 rounded-[1.5rem] flex items-center justify-center text-white shadow-xl ${sessionType === 'DEEP' ? 'bg-rose-500' : sessionType === 'MEDIUM' ? 'bg-amber-500' : sessionType === 'QUICK' ? 'bg-blue-500' : 'bg-[#008080]'}`}>
@@ -444,7 +444,7 @@ const SSCInteractionLogs = () => {
                 </div>
                 <div className="space-y-2">
                    <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">5. Action Plan Set for Student (Compulsory) - Clear, measurable task</label>
-                   <textarea name="action_plan" rows="2" required value={formData.action_plan} onChange={handleChange} className="w-full p-6 bg-slate-900 text-white rounded-[2rem] text-sm font-bold outline-none border-none" placeholder="Example: 'Complete 2 chapters + revise notes'"></textarea>
+                   <textarea name="action_plan" rows="2" required value={formData.action_plan} onChange={handleChange} className="w-full p-6 bg-yellow-400 text-slate-900 rounded-[2rem] text-sm font-bold outline-none border-none" placeholder="Example: 'Complete 2 chapters + revise notes'"></textarea>
                 </div>
              </div>
 
@@ -453,7 +453,7 @@ const SSCInteractionLogs = () => {
                   <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">6. Student Response Level</label>
                   <div className="flex gap-2">
                     {['Positive / motivated', 'Neutral', 'Not responsive'].map(opt => (
-                      <button key={opt} type="button" onClick={() => setFormData({...formData, student_response: opt})} className={`flex-1 py-4 rounded-2xl text-[9px] font-black uppercase transition-all ${formData.student_response === opt ? 'bg-slate-900 text-white shadow-lg' : 'bg-slate-50 text-slate-400'}`}>{opt}</button>
+                      <button key={opt} type="button" onClick={() => setFormData({...formData, student_response: opt})} className={`flex-1 py-4 rounded-2xl text-[9px] font-black uppercase transition-all ${formData.student_response === opt ? 'bg-yellow-400 text-slate-900 shadow-lg' : 'bg-slate-50 text-slate-400'}`}>{opt}</button>
                     ))}
                   </div>
                </div>
@@ -517,7 +517,7 @@ const SSCInteractionLogs = () => {
                     <label className="text-[9px] font-black text-amber-600 uppercase tracking-widest ml-1">Category</label>
                     <div className="flex gap-2 mt-2">
                       {['Academic', 'Discipline', 'Focus issue'].map(opt => (
-                        <button key={opt} type="button" onClick={() => setFormData({...formData, issue_category: opt})} className={`flex-1 py-3 rounded-xl text-[9px] font-black uppercase transition-all ${formData.issue_category === opt ? 'bg-slate-900 text-white' : 'bg-white text-slate-400 border border-slate-100'}`}>{opt}</button>
+                        <button key={opt} type="button" onClick={() => setFormData({...formData, issue_category: opt})} className={`flex-1 py-3 rounded-xl text-[9px] font-black uppercase transition-all ${formData.issue_category === opt ? 'bg-yellow-400 text-slate-900' : 'bg-white text-slate-400 border border-slate-100'}`}>{opt}</button>
                       ))}
                     </div>
                   </div>
@@ -531,7 +531,7 @@ const SSCInteractionLogs = () => {
                 </div>
                 <div className="space-y-2">
                    <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">5. Next Task Assigned - Simple instruction (compulsory)</label>
-                   <input type="text" name="next_task" required value={formData.next_task} onChange={handleChange} className="w-full p-6 bg-slate-900 text-white rounded-[2rem] text-sm font-bold outline-none border-none" placeholder="What is the very next action for the student?" />
+                   <input type="text" name="next_task" required value={formData.next_task} onChange={handleChange} className="w-full p-6 bg-[#008080] text-white rounded-[2rem] text-sm font-bold outline-none border-none" placeholder="What is the very next action for the student?" />
                 </div>
              </div>
 
@@ -580,7 +580,7 @@ const SSCInteractionLogs = () => {
                        <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">2. Today's Study Status</label>
                        <div className="flex flex-col gap-2">
                           {['Studied properly', 'Studied partially', 'Not studied'].map(opt => (
-                            <button key={opt} type="button" onClick={() => setFormData({...formData, study_status: opt})} className={`w-full py-4 rounded-2xl text-[10px] font-black uppercase transition-all text-left px-6 ${formData.study_status === opt ? 'bg-slate-900 text-white shadow-xl translate-x-2' : 'bg-slate-50 text-slate-400 hover:bg-slate-100'}`}>{opt}</button>
+                            <button key={opt} type="button" onClick={() => setFormData({...formData, study_status: opt})} className={`w-full py-4 rounded-2xl text-[10px] font-black uppercase transition-all text-left px-6 ${formData.study_status === opt ? 'bg-yellow-400 text-slate-900 shadow-xl translate-x-2' : 'bg-slate-50 text-slate-400 hover:bg-slate-100'}`}>{opt}</button>
                           ))}
                        </div>
                     </div>
@@ -626,7 +626,7 @@ const SSCInteractionLogs = () => {
            <button
              type="submit"
              disabled={loading}
-             className={`w-full p-6 rounded-[2.5rem] font-black text-sm uppercase tracking-[0.3em] shadow-2xl transition-all disabled:opacity-50 flex items-center justify-center gap-4 active:scale-[0.98] ${sessionType === 'DEEP' ? 'bg-rose-600 text-white shadow-rose-200 hover:-translate-y-1' : sessionType === 'MEDIUM' ? 'bg-amber-500 text-white shadow-amber-200 hover:-translate-y-1' : sessionType === 'QUICK' ? 'bg-blue-600 text-white shadow-blue-200 hover:-translate-y-1' : 'bg-slate-900 text-white hover:-translate-y-1'}`}
+             className={`w-full p-6 rounded-[2.5rem] font-black text-sm uppercase tracking-[0.3em] shadow-2xl transition-all disabled:opacity-50 flex items-center justify-center gap-4 active:scale-[0.98] ${sessionType === 'DEEP' ? 'bg-rose-600 text-white shadow-rose-200 hover:-translate-y-1' : sessionType === 'MEDIUM' ? 'bg-amber-500 text-white shadow-amber-200 hover:-translate-y-1' : sessionType === 'QUICK' ? 'bg-blue-600 text-white shadow-blue-200 hover:-translate-y-1' : 'bg-[#008080] text-white hover:-translate-y-1'}`}
            >
              {loading ? 'Saving Interaction...' : 'Save Interaction'}
              {!loading && <CheckCircle2 size={24} />}

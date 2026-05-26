@@ -221,7 +221,7 @@ const FacultyDashboard = () => {
       </div>
 
       {/* Bottom Section - Engine Status */}
-      <div className="bg-slate-900 p-12 rounded-[40px] relative overflow-hidden group shadow-2xl shadow-slate-900/20">
+      <div className="bg-[#008080] p-12 rounded-[40px] relative overflow-hidden group shadow-2xl shadow-[#008080]/20">
         <div className="absolute top-0 right-0 w-96 h-96 bg-[#008080]/20 rounded-full -mr-48 -mt-48 blur-[100px] transition-all duration-1000 group-hover:scale-150"></div>
         <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-10">
           <div className="text-center lg:text-left">

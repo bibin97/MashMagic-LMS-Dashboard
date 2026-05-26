@@ -170,7 +170,7 @@ const StudentLogs = () => {
 
  {/* View Details Modal */}
  {viewingLog && (
- <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[2000] flex items-center justify-center p-6 animate-in fade-in duration-300">
+ <div className="fixed inset-0 bg-[#008080]/60 backdrop-blur-md z-[2000] flex items-center justify-center p-6 animate-in fade-in duration-300">
  <div className="bg-white rounded-[3.5rem] shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto animate-in zoom-in slide-in-from-bottom-10 duration-500">
  <div className="sticky top-0 bg-white/80 backdrop-blur-xl px-10 py-8 border-b border-slate-100 flex justify-between items-center z-10">
  <div className="flex items-center gap-6">
@@ -262,7 +262,7 @@ const StudentLogs = () => {
  </div>
 
  {/* Critical Status Row */}
- <div className="p-8 bg-slate-900 rounded-[2.5rem] flex flex-col md:flex-row items-center justify-between gap-8 relative overflow-hidden">
+ <div className="p-8 bg-[#008080] rounded-[2.5rem] flex flex-col md:flex-row items-center justify-between gap-8 relative overflow-hidden">
  <div className="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -mr-20 -mt-20 blur-2xl"></div>
  <div className="relative flex flex-wrap gap-8 items-center">
  <div className="text-center md:text-left">

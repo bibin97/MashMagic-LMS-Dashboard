@@ -219,7 +219,7 @@ const MentorDetails = () => {
  </div>
 
  {/* Activity Score Card */}
- <div className="w-full xl:w-[450px] bg-slate-900 p-10 rounded-[3.5rem] text-white shadow-2xl shadow-[#008080]/10 relative overflow-hidden group">
+ <div className="w-full xl:w-[450px] bg-[#008080] p-10 rounded-[3.5rem] text-white shadow-2xl shadow-[#008080]/10 relative overflow-hidden group">
  <div className="absolute top-0 right-0 w-48 h-48 bg-[#008080]/20 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
 
  <div className="relative z-10 space-y-10">
@@ -437,7 +437,7 @@ const MentorDetails = () => {
 
  {/* Student Edit Modal */}
  {isEditModalOpen && editingStudent && (
- <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
+ <div className="fixed inset-0 bg-[#008080]/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
  <div className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-lg overflow-hidden animate-in slide-in-from-bottom-4 duration-300 border border-white/20">
  <div className="px-8 py-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
  <div className="flex items-center gap-4">

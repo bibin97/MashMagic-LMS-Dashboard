@@ -101,7 +101,7 @@ const Profile = () => {
  <div className="h-24 bg-gradient-to-br from-[#008080] to-teal-400 relative">
  <div className="absolute -bottom-12 left-1/2 -translate-x-1/2">
  <div className="relative group">
- <div className="w-24 h-24 bg-slate-900 rounded-[28px] border-4 border-white flex items-center justify-center text-white shadow-lg overflow-hidden group-hover:scale-105 transition-transform">
+ <div className="w-24 h-24 bg-[#008080] rounded-[28px] border-4 border-white flex items-center justify-center text-white shadow-lg overflow-hidden group-hover:scale-105 transition-transform">
  <User size={40} className="opacity-80" />
  </div>
  <button className="absolute bottom-0 right-0 p-2 bg-white text-slate-900 rounded-xl shadow-md border border-slate-100 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -234,7 +234,7 @@ const Profile = () => {
  <button 
  type="submit"
  disabled={loading}
- className="w-full md:w-auto flex items-center justify-center gap-3 px-8 py-4 bg-slate-900 text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-slate-900/20 hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50"
+ className="w-full md:w-auto flex items-center justify-center gap-3 px-8 py-4 bg-[#008080] text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-[#008080]/20 hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50"
  >
  <Save size={18} />
  Synchronize Changes
@@ -285,7 +285,7 @@ const Profile = () => {
  <button 
  type="submit"
  disabled={loading}
- className="w-full md:w-auto flex items-center justify-center gap-3 px-8 py-4 bg-slate-900 text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-slate-900/20 hover:scale-[1.02] active:scale-95 transition-all"
+ className="w-full md:w-auto flex items-center justify-center gap-3 px-8 py-4 bg-[#008080] text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-[#008080]/20 hover:scale-[1.02] active:scale-95 transition-all"
  >
  <Lock size={18} />
  Rotate Passcode

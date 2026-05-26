@@ -166,7 +166,7 @@ const MentorHeadTasks = () => {
 
  <button
  onClick={() => setIsModalOpen(true)}
- className="flex items-center justify-center gap-2 bg-[#008080] text-white px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-900 transition-all shadow-xl shadow-[#008080]/30 hover:-translate-y-0.5"
+ className="flex items-center justify-center gap-2 bg-[#008080] text-white px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-[#008080] transition-all shadow-xl shadow-[#008080]/30 hover:-translate-y-0.5"
  >
  <Plus size={16} />
  Assign Task
@@ -309,7 +309,7 @@ const MentorHeadTasks = () => {
  />
  <label
  htmlFor={`proof-${task.id}`}
- className={`h-10 px-4 rounded-xl flex items-center justify-center gap-2 bg-[#008080] text-white hover:bg-slate-900 transition-all shadow-sm cursor-pointer font-black text-[9px] uppercase tracking-widest ${uploadingId === task.id ? 'opacity-50 cursor-wait' : ''}`}
+ className={`h-10 px-4 rounded-xl flex items-center justify-center gap-2 bg-[#008080] text-white hover:bg-[#008080] transition-all shadow-sm cursor-pointer font-black text-[9px] uppercase tracking-widest ${uploadingId === task.id ? 'opacity-50 cursor-wait' : ''}`}
  >
  <Upload size={14} />
  {uploadingId === task.id ? 'Uploading...' : 'Upload & Close'}
@@ -421,7 +421,7 @@ const MentorHeadTasks = () => {
  className={`
  p-3 rounded-2xl border-2 text-[10px] font-black uppercase tracking-widest transition-all
  ${formData.priority === p
- ? 'bg-slate-900 border-slate-900 text-white shadow-lg shadow-slate-200'
+ ? 'bg-yellow-400 border-[#008080] text-slate-900 shadow-lg shadow-slate-200'
  : 'bg-white border-slate-100 text-slate-600 hover:border-slate-200'}
  `}
  >
@@ -433,7 +433,7 @@ const MentorHeadTasks = () => {
 
  <button
  type="submit"
- className="w-full bg-[#008080] text-white p-4 rounded-2xl font-black text-sm hover:bg-slate-900 transition-all shadow-xl shadow-[#008080]/30 mt-2 flex items-center justify-center gap-2 group"
+ className="w-full bg-[#008080] text-white p-4 rounded-2xl font-black text-sm hover:bg-[#008080] transition-all shadow-xl shadow-[#008080]/30 mt-2 flex items-center justify-center gap-2 group"
  >
  <span>Assign Task</span>
  <AlertTriangle size={18} className="transition-transform group-hover:scale-110" />

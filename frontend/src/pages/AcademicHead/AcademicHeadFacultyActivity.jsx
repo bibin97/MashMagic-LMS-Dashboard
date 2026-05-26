@@ -89,13 +89,13 @@ const AcademicHeadFacultyActivity = () => {
  <div className="flex bg-white p-1.5 rounded-[2rem] border border-slate-100 shadow-sm self-stretch md:self-auto">
  <button
  onClick={() => setActiveTab('sessions')}
- className={`flex-1 md:w-40 px-6 py-3 rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'sessions' ? 'bg-slate-900 text-white shadow-lg' : 'text-slate-600 hover:text-slate-600'}`}
+ className={`flex-1 md:w-40 px-6 py-3 rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'sessions' ? 'bg-yellow-400 text-slate-900 shadow-lg' : 'text-slate-600 hover:text-slate-600'}`}
  >
  Live Sessions
  </button>
  <button
  onClick={() => setActiveTab('reports')}
- className={`flex-1 md:w-40 px-6 py-3 rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'reports' ? 'bg-slate-900 text-white shadow-lg' : 'text-slate-600 hover:text-slate-600'}`}
+ className={`flex-1 md:w-40 px-6 py-3 rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'reports' ? 'bg-yellow-400 text-slate-900 shadow-lg' : 'text-slate-600 hover:text-slate-600'}`}
  >
  Academic Reports
  </button>
@@ -142,7 +142,7 @@ const AcademicHeadFacultyActivity = () => {
  {/* Core Info */}
  <div className="flex-1 relative z-10 space-y-4">
  <div className="flex flex-wrap items-center gap-3">
- <span className="px-5 py-1.5 bg-slate-900 text-white rounded-full text-[9px] font-black uppercase tracking-[0.2em]">
+ <span className="px-5 py-1.5 bg-[#008080] text-white rounded-full text-[9px] font-black uppercase tracking-[0.2em]">
  {activeTab === 'sessions' ? 'Session' : 'Audit Report'}
  </span>
  <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest flex items-center gap-2">
@@ -222,7 +222,7 @@ const AcademicHeadFacultyActivity = () => {
 
   {/* Edit Minutes Modal */}
   {isEditMinutesModalOpen && editingSession && (
-    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[9999] flex items-center justify-center p-4">
+    <div className="fixed inset-0 bg-[#008080]/60 backdrop-blur-md z-[9999] flex items-center justify-center p-4">
       <div className="bg-white rounded-[3rem] shadow-2xl w-full max-w-md p-10 space-y-8 animate-in zoom-in duration-200">
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-4">
@@ -266,7 +266,7 @@ const AcademicHeadFacultyActivity = () => {
           </div>
 
           <div className="flex gap-4">
-            <button type="submit" className="flex-1 py-4 bg-slate-900 hover:bg-[#008080] text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl transition-all">Save Changes</button>
+            <button type="submit" className="flex-1 py-4 bg-[#008080] hover:bg-[#008080] text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl transition-all">Save Changes</button>
             <button type="button" onClick={() => setIsEditMinutesModalOpen(false)} className="px-8 py-4 bg-slate-50 text-slate-600 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-slate-100 transition-colors">Cancel</button>
           </div>
         </form>

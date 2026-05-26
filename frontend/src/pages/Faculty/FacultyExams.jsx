@@ -112,12 +112,12 @@ const FacultyExams = () => {
  <div className="flex items-center gap-4 relative z-10">
  <button
  onClick={() => setShowAddModal(true)}
- className="bg-[#008080] text-white px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-[#008080]/30 hover:bg-slate-900 transition-all flex items-center gap-3 active:scale-95"
+ className="bg-[#008080] text-white px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-[#008080]/30 hover:bg-[#008080] transition-all flex items-center gap-3 active:scale-95"
  >
  <Plus size={18} />
  Add New Score
  </button>
- <div className="w-16 h-16 bg-slate-900 rounded-3xl flex items-center justify-center text-white shadow-2xl rotate-3">
+ <div className="w-16 h-16 bg-[#008080] rounded-3xl flex items-center justify-center text-white shadow-2xl rotate-3">
  <Trophy size={28} />
  </div>
  </div>
@@ -159,7 +159,7 @@ const FacultyExams = () => {
 
  <div className="flex-1 relative z-10">
  <div className="flex flex-wrap items-center gap-3 mb-4">
- <span className="px-5 py-2 bg-slate-900 text-white rounded-full text-[9px] font-black uppercase tracking-[0.2em] shadow-lg shadow-slate-200">
+ <span className="px-5 py-2 bg-[#008080] text-white rounded-full text-[9px] font-black uppercase tracking-[0.2em] shadow-lg shadow-slate-200">
  {score.subject}
  </span>
  <span className="px-5 py-2 bg-[#008080] text-white rounded-full text-[9px] font-black uppercase tracking-[0.2em]">
@@ -206,14 +206,14 @@ const FacultyExams = () => {
  {/* Add Score Modal */}
  {showAddModal && (
  <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4">
- <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-xl" onClick={() => setShowAddModal(false)}></div>
+ <div className="absolute inset-0 bg-[#008080]/60 backdrop-blur-xl" onClick={() => setShowAddModal(false)}></div>
  <div className="bg-white w-full max-w-2xl p-10 rounded-[3.5rem] relative z-[2001] shadow-2xl animate-in fade-in zoom-in-95 duration-500 border border-slate-100">
  <div className="flex justify-between items-start mb-10">
  <div>
  <h2 className="text-3xl font-black text-slate-900 tracking-tight uppercase ">Add Exam Score</h2>
  <p className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] mt-2">Enter student performance details</p>
  </div>
- <button onClick={() => setShowAddModal(false)} className="p-4 bg-slate-50 text-slate-600 hover:bg-slate-900 hover:text-white rounded-2xl transition-all">
+ <button onClick={() => setShowAddModal(false)} className="p-4 bg-slate-50 text-slate-600 hover:bg-[#008080] hover:text-white rounded-2xl transition-all">
  <X size={20} />
  </button>
  </div>
@@ -331,7 +331,7 @@ const FacultyExams = () => {
  <button
  disabled={submitting}
  type="submit"
- className="w-full bg-[#008080] text-white p-5 rounded-2xl font-black text-xs uppercase tracking-[0.3em] hover:bg-slate-900 transition-all shadow-2xl shadow-[#008080]/30 flex items-center justify-center gap-3 mt-4 disabled:opacity-50"
+ className="w-full bg-[#008080] text-white p-5 rounded-2xl font-black text-xs uppercase tracking-[0.3em] hover:bg-[#008080] transition-all shadow-2xl shadow-[#008080]/30 flex items-center justify-center gap-3 mt-4 disabled:opacity-50"
  >
  {submitting ? 'Broadcasting score...' : 'Register Exam Score'}
  {!submitting && <CheckCircle size={18} />}

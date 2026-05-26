@@ -105,7 +105,7 @@ const SSCDashboard = () => {
           </div>
         </div>
 
-        <div className="bg-slate-900 p-10 rounded-[2.5rem] shadow-xl text-white flex flex-col h-full min-h-[400px]">
+        <div className="bg-[#008080] p-10 rounded-[2.5rem] shadow-xl text-white flex flex-col h-full min-h-[400px]">
           <div className="flex items-center gap-4 mb-8">
             <div className="w-10 h-10 bg-indigo-500 rounded-xl flex items-center justify-center text-white">
               <CheckCircle size={20} />

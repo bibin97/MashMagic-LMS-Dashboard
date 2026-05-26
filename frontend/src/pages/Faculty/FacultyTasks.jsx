@@ -133,7 +133,7 @@ const FacultyTasks = () => {
  />
  <label
  htmlFor={`proof-${task.id}`}
- className={`flex items-center gap-3 px-8 py-4 bg-slate-900 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest cursor-pointer hover:bg-[#008080] transition-all shadow-xl shadow-slate-200 ${uploadingId === task.id ? 'opacity-50 cursor-wait' : ''
+ className={`flex items-center gap-3 px-8 py-4 bg-yellow-400 text-slate-900 rounded-2xl font-black text-[10px] uppercase tracking-widest cursor-pointer hover:bg-[#008080] transition-all shadow-xl shadow-slate-200 ${uploadingId === task.id ? 'opacity-50 cursor-wait' : ''
  }`}
  >
  <Upload size={14} />

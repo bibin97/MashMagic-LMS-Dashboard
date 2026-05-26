@@ -200,7 +200,7 @@ const Exams = () => {
  </div>
  {exam.exam_type && (
  <div className="pt-1">
- <span className="px-2 py-0.5 bg-slate-900 text-white rounded text-[8px] font-black uppercase tracking-tighter">
+ <span className="px-2 py-0.5 bg-[#008080] text-white rounded text-[8px] font-black uppercase tracking-tighter">
  {exam.exam_type}
  </span>
  </div>
@@ -227,7 +227,7 @@ const Exams = () => {
 
  <button
  onClick={() => handleOpenSubmit(exam)}
- className="px-10 py-6 bg-slate-900 text-white rounded-[2rem] text-[11px] font-black uppercase tracking-[0.2em] shadow-2xl shadow-[#008080] hover:bg-rose-600 hover:-translate-y-1 transition-all active:scale-95 flex items-center justify-center gap-3 w-full xl:w-fit group-hover:scale-105"
+ className="px-10 py-6 bg-[#008080] text-white rounded-[2rem] text-[11px] font-black uppercase tracking-[0.2em] shadow-2xl shadow-[#008080] hover:bg-rose-600 hover:-translate-y-1 transition-all active:scale-95 flex items-center justify-center gap-3 w-full xl:w-fit group-hover:scale-105"
  >
  Record Exam Result <ArrowRight size={20} />
  </button>
@@ -302,7 +302,7 @@ const Exams = () => {
 
  {/* Assessment Submission Modal */}
  {isSubmitModalOpen && (
- <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[1100] flex items-center justify-center p-4 animate-in fade-in duration-300">
+ <div className="fixed inset-0 bg-[#008080]/60 backdrop-blur-md z-[1100] flex items-center justify-center p-4 animate-in fade-in duration-300">
  <div className="bg-white rounded-[3.5rem] shadow-2xl w-full max-w-xl overflow-hidden animate-in zoom-in duration-500 border border-white/20">
  {/* Modal Header */}
  <div className="p-10 border-b border-slate-50 flex justify-between items-center bg-[#008080] text-white relative h-32">

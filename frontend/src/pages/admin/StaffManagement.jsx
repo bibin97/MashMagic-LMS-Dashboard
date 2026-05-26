@@ -166,7 +166,7 @@ const StaffManagement = () => {
  Manage all staff members and their system access roles
  </p>
  </div>
- <div className="bg-slate-900 px-8 py-5 rounded-[24px] border border-slate-800 shadow-2xl flex items-center gap-5 group hover:translate-x-1 transition-all">
+ <div className="bg-[#008080] px-8 py-5 rounded-[24px] border border-slate-800 shadow-2xl flex items-center gap-5 group hover:translate-x-1 transition-all">
  <ShieldCheck className="text-[#008080]" size={20} strokeWidth={2.5} />
  <div className="flex flex-col">
  <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] leading-none mb-1">Total Staff</span>
@@ -239,7 +239,7 @@ const StaffManagement = () => {
         </div>
 
         <div className="flex justify-end gap-3 mt-4">
-          <button className="px-8 py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-[#008080] transition-all shadow-lg" onClick={() => setIsDetailModalOpen(false)}>Close Profile</button>
+          <button className="px-8 py-4 bg-[#008080] text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-[#008080] transition-all shadow-lg" onClick={() => setIsDetailModalOpen(false)}>Close Profile</button>
         </div>
       </div>
     )}

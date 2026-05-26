@@ -258,7 +258,7 @@ const AcademicHeadTasks = () => {
  </label>
  <button
  onClick={() => handleComplete(row.id)}
- className="bg-slate-900 text-white px-3 py-1.5 rounded-lg text-[8px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all font-bold"
+ className="bg-[#008080] text-white px-3 py-1.5 rounded-lg text-[8px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all font-bold"
  >
  Mark Done
  </button>
@@ -395,7 +395,7 @@ const AcademicHeadTasks = () => {
  className={`
  p-4 rounded-3xl border-2 text-[10px] font-black uppercase tracking-widest transition-all
  ${formData.priority === p
- ? 'bg-slate-900 border-slate-900 text-white shadow-xl shadow-slate-200 -translate-y-1'
+ ? 'bg-yellow-400 border-[#008080] text-slate-900 shadow-xl shadow-slate-200 -translate-y-1'
  : 'bg-white border-slate-100 text-slate-600 hover:border-slate-200'}
  `}
  >

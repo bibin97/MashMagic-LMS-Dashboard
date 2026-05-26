@@ -110,7 +110,7 @@ const MilestoneAlert = ({ count, navigate }) => (
     </div>
     <button 
       onClick={() => navigate('/mentor/exams')}
-      className="w-full lg:w-auto flex items-center justify-center gap-4 bg-slate-900 border border-slate-800 text-white px-10 py-5 rounded-[20px] text-[10px] font-black uppercase tracking-[0.25em] shadow-xl hover:bg-slate-800 hover:-translate-y-1 transition-all active:scale-95 group/btn relative z-10"
+      className="w-full lg:w-auto flex items-center justify-center gap-4 bg-[#008080] border border-slate-800 text-white px-10 py-5 rounded-[20px] text-[10px] font-black uppercase tracking-[0.25em] shadow-xl hover:bg-slate-800 hover:-translate-y-1 transition-all active:scale-95 group/btn relative z-10"
     >
       Evaluate Assessments <ChevronRight size={18} className="transition-transform group-hover/btn:translate-x-1" />
     </button>

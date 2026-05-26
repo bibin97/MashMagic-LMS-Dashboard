@@ -161,7 +161,7 @@ const AdminManagement = () => {
  </div>
  <button
  onClick={handleOpenCreate}
- className="bg-gradient-to-br from-slate-800 to-slate-900 text-[#008080] px-10 py-6 rounded-[24px] font-black text-[11px] uppercase tracking-[0.3em] flex items-center gap-4 hover:shadow-2xl hover:shadow-slate-900/20 hover:-translate-y-1 transition-all group"
+ className="bg-gradient-to-br from-slate-800 to-slate-900 text-[#008080] px-10 py-6 rounded-[24px] font-black text-[11px] uppercase tracking-[0.3em] flex items-center gap-4 hover:shadow-2xl hover:shadow-[#008080]/20 hover:-translate-y-1 transition-all group"
  >
  <UserPlus size={20} strokeWidth={3} className="group-hover:scale-110 transition-transform" />
  <span>Add Sub-Admin</span>

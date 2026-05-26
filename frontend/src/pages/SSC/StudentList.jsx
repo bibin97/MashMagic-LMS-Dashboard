@@ -96,7 +96,7 @@ const StudentRow = ({ student, navigate }) => {
         </div>
 
         {/* Navigation Arrow */}
-        <div className="hidden lg:flex items-center justify-center w-12 h-12 bg-white rounded-2xl border border-slate-100 group-hover:bg-slate-900 group-hover:text-white transition-all shrink-0">
+        <div className="hidden lg:flex items-center justify-center w-12 h-12 bg-white rounded-2xl border border-slate-100 group-hover:bg-[#008080] group-hover:text-white transition-all shrink-0">
           <ChevronRight size={20} />
         </div>
       </div>

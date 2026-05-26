@@ -415,7 +415,7 @@ const Navbar = ({ onMenuClick }) => {
                             Clear All
                           </button>
                         )}
-                        <span className="text-[10px] font-medium text-white bg-slate-900 px-2 py-0.5 rounded-full">{unreadCount} New</span>
+                        <span className="text-[10px] font-medium text-white bg-[#008080] px-2 py-0.5 rounded-full">{unreadCount} New</span>
                       </div>
                     </div>
                     

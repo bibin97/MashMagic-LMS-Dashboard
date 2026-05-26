@@ -345,7 +345,7 @@ const AcademicSchedule = () => {
                     <button 
                       onClick={() => { setSelectedSession(session); setMinutesTaken(''); setIsCompleteModalOpen(true); }}
                       title="Class Completed"
-                      className="w-11 h-11 bg-slate-900 text-white hover:bg-[#008080] rounded-[1rem] flex items-center justify-center transition-all shadow-sm"
+                      className="w-11 h-11 bg-[#008080] text-white hover:bg-[#008080] rounded-[1rem] flex items-center justify-center transition-all shadow-sm"
                     >
                       <CheckSquare size={16} />
                     </button>
@@ -369,7 +369,7 @@ const AcademicSchedule = () => {
 
       {/* Details Modal */}
       {isDetailsModalOpen && selectedSession && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[9999] flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-[#008080]/60 backdrop-blur-md z-[9999] flex items-center justify-center p-4">
           <div className="bg-white rounded-[3rem] shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <div className="sticky top-0 bg-white/80 backdrop-blur-xl px-10 py-6 border-b border-slate-100 flex justify-between items-center z-10">
               <div>
@@ -429,7 +429,7 @@ const AcademicSchedule = () => {
                           </div>
                           <button
                             onClick={() => handleReminderSave(n, reminderRemarks[n])}
-                            className="px-4 py-2.5 bg-slate-900 hover:bg-[#008080] text-white rounded-xl text-[9px] font-black uppercase tracking-widest transition-all"
+                            className="px-4 py-2.5 bg-[#008080] hover:bg-[#008080] text-white rounded-xl text-[9px] font-black uppercase tracking-widest transition-all"
                           >
                             Save Note
                           </button>
@@ -466,7 +466,7 @@ const AcademicSchedule = () => {
                 ) : (
                   <button
                     onClick={() => { setMinutesTaken(''); setIsCompleteModalOpen(true); }}
-                    className="w-full p-8 bg-slate-900 text-white rounded-[2.5rem] flex items-center justify-between hover:bg-[#008080] transition-all group animate-pulse"
+                    className="w-full p-8 bg-[#008080] text-white rounded-[2.5rem] flex items-center justify-between hover:bg-[#008080] transition-all group animate-pulse"
                   >
                     <div className="flex items-center gap-6">
                       <div className="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center group-hover:bg-white/20 transition-colors">
@@ -488,7 +488,7 @@ const AcademicSchedule = () => {
 
       {/* Completion Modal */}
       {isCompleteModalOpen && selectedSession && (
-        <div className="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-[10000] flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-[#008080]/80 backdrop-blur-md z-[10000] flex items-center justify-center p-4">
           <div className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-md p-10 space-y-8">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 bg-emerald-600 text-white rounded-2xl flex items-center justify-center shadow-lg"><CheckSquare size={24} /></div>

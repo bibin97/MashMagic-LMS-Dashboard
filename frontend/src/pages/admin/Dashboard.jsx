@@ -344,7 +344,7 @@ const Dashboard = () => {
                           const data = payload[0].payload;
                           if (data.type === 'gap') return null;
                           return (
-                            <div className="bg-slate-900/90 backdrop-blur-md p-3 rounded-xl shadow-2xl border border-white/10 font-bold text-[11px] text-white">
+                            <div className="bg-[#008080]/90 backdrop-blur-md p-3 rounded-xl shadow-2xl border border-white/10 font-bold text-[11px] text-white">
                               <p className={data.type === 'mentor' ? 'text-[#008080]' : 'text-slate-200'}>
                                 {data.name}
                               </p>

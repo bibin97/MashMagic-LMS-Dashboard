@@ -215,7 +215,7 @@ const EditFaculty = () => {
                     <h1 className="text-4xl font-black text-slate-900 tracking-tight uppercase mb-2">Refine Faculty</h1>
                     <p className="text-slate-600 font-bold text-[10px] uppercase tracking-[0.2em]">Updating professional profile for <span className="text-[#008080]">{formData.name}</span></p>
                 </div>
-                <div className="w-16 h-16 bg-slate-900 rounded-3xl flex items-center justify-center text-white shadow-2xl rotate-3">
+                <div className="w-16 h-16 bg-[#008080] rounded-3xl flex items-center justify-center text-white shadow-2xl rotate-3">
                     <Briefcase size={32} />
                 </div>
             </div>
@@ -288,7 +288,7 @@ const EditFaculty = () => {
                 </div>
 
                 {/* Section 2: Expertise & Mapping */}
-                <div className="bg-slate-900 p-8 md:p-12 rounded-[48px] shadow-2xl shadow-slate-900/40 text-white space-y-10 relative">
+                <div className="bg-[#008080] p-8 md:p-12 rounded-[48px] shadow-2xl shadow-[#008080]/40 text-white space-y-10 relative">
                     <h2 className="text-xl font-black uppercase tracking-tight flex items-center justify-between">
                         <div className="flex items-center gap-4">
                             <div className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center text-white">
@@ -332,7 +332,7 @@ const EditFaculty = () => {
                                                 <span className="text-xs font-bold">{sub}</span>
                                             </div>
                                         ))}
-                                        <button type="button" onClick={() => toggleDropdown('isSecondaryDropdownOpen')} className="w-full mt-2 p-3 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase">Confirm</button>
+                                        <button type="button" onClick={() => toggleDropdown('isSecondaryDropdownOpen')} className="w-full mt-2 p-3 bg-yellow-400 text-slate-900 rounded-xl text-[10px] font-black uppercase">Confirm</button>
                                     </div>
                                 )}
                             </div>
@@ -356,7 +356,7 @@ const EditFaculty = () => {
                                                 <span className="text-xs font-bold">{sec}</span>
                                             </div>
                                         ))}
-                                        <button type="button" onClick={() => toggleDropdown('isSectionDropdownOpen')} className="w-full mt-2 p-3 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase">Confirm</button>
+                                        <button type="button" onClick={() => toggleDropdown('isSectionDropdownOpen')} className="w-full mt-2 p-3 bg-yellow-400 text-slate-900 rounded-xl text-[10px] font-black uppercase">Confirm</button>
                                     </div>
                                 )}
                             </div>
@@ -377,7 +377,7 @@ const EditFaculty = () => {
                                                 <span className="text-xs font-bold">{syl}</span>
                                             </div>
                                         ))}
-                                        <button type="button" onClick={() => toggleDropdown('isSyllabusDropdownOpen')} className="w-full mt-2 p-3 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase">Confirm</button>
+                                        <button type="button" onClick={() => toggleDropdown('isSyllabusDropdownOpen')} className="w-full mt-2 p-3 bg-yellow-400 text-slate-900 rounded-xl text-[10px] font-black uppercase">Confirm</button>
                                     </div>
                                 )}
                             </div>
@@ -401,7 +401,7 @@ const EditFaculty = () => {
                                             <span className="text-xs font-bold">{lang.label}</span>
                                         </div>
                                     ))}
-                                    <button type="button" onClick={() => toggleDropdown('isLangDropdownOpen')} className="w-full mt-2 p-3 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase">Confirm</button>
+                                    <button type="button" onClick={() => toggleDropdown('isLangDropdownOpen')} className="w-full mt-2 p-3 bg-yellow-400 text-slate-900 rounded-xl text-[10px] font-black uppercase">Confirm</button>
                                 </div>
                             )}
                         </div>
@@ -468,7 +468,7 @@ const EditFaculty = () => {
                     <button type="button" onClick={() => navigate('/academic-head/faculties')} className="w-full sm:w-auto px-10 py-5 rounded-[24px] border border-slate-200 text-slate-600 text-xs font-black uppercase tracking-widest hover:bg-slate-50 transition-all font-sans">
                         Discard Changes
                     </button>
-                    <button disabled={saving} type="submit" className="w-full sm:w-auto px-12 py-5 rounded-[24px] bg-slate-900 text-white text-xs font-black uppercase tracking-[0.25em] shadow-2xl hover:bg-[#008080] hover:-translate-y-1 transition-all flex items-center justify-center gap-4 disabled:opacity-50">
+                    <button disabled={saving} type="submit" className="w-full sm:w-auto px-12 py-5 rounded-[24px] bg-[#008080] text-white text-xs font-black uppercase tracking-[0.25em] shadow-2xl hover:bg-[#008080] hover:-translate-y-1 transition-all flex items-center justify-center gap-4 disabled:opacity-50">
                         {saving ? (
                             <>
                                 <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>

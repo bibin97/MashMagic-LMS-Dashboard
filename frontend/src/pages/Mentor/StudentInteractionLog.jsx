@@ -238,7 +238,7 @@ const StudentInteractionLog = () => {
           {[
             { id: 'both', label: `Mentorship + Tuition (${allStudents.filter(isDiamondCategory).length})`, color: 'bg-purple-600' },
             { id: 'mentorship', label: `Mentorship Only (${allStudents.filter(isGoldCategory).length})`, color: 'bg-amber-500' },
-            { id: 'tuition', label: `Tuition Only (${allStudents.filter(isSilverCategory).length})`, color: 'bg-slate-900' }
+            { id: 'tuition', label: `Tuition Only (${allStudents.filter(isSilverCategory).length})`, color: 'bg-[#008080]' }
           ].map(tab => (
             <button
               key={tab.id}
@@ -362,7 +362,7 @@ const StudentInteractionLog = () => {
              ) : (
                 <div className="space-y-8">
                   <div className="flex items-center gap-3 px-4">
-                    <div className="w-4 h-8 bg-slate-900 rounded-full"></div>
+                    <div className="w-4 h-8 bg-[#008080] rounded-full"></div>
                     <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest">
                       {statusFilter === 'pending' ? 'Pending Tuition Attendance' : 'Concluded Tuition Records'}
                     </h3>
@@ -429,7 +429,7 @@ const StudentInteractionLog = () => {
        <ArrowLeft size={16} /> Return to Dashboard
      </button>
 
-     <header className={`border p-10 rounded-[3rem] shadow-2xl relative overflow-hidden transition-all ${sessionType === 'DEEP' ? 'bg-rose-950 border-rose-900' : sessionType === 'MEDIUM' ? 'bg-amber-950 border-amber-900' : sessionType === 'QUICK' ? 'bg-blue-950 border-blue-900' : 'bg-slate-900 border-slate-800'}`}>
+     <header className={`border p-10 rounded-[3rem] shadow-2xl relative overflow-hidden transition-all ${sessionType === 'DEEP' ? 'bg-rose-950 border-rose-900' : sessionType === 'MEDIUM' ? 'bg-amber-950 border-amber-900' : sessionType === 'QUICK' ? 'bg-blue-950 border-blue-900' : 'bg-[#008080] border-slate-800'}`}>
         <div className={`absolute top-0 right-0 w-80 h-80 rounded-full -mr-40 -mt-40 opacity-10 ${sessionType === 'DEEP' ? 'bg-rose-500' : sessionType === 'MEDIUM' ? 'bg-amber-500' : sessionType === 'QUICK' ? 'bg-blue-500' : 'bg-[#008080]'}`}></div>
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="flex items-center gap-6">
@@ -462,7 +462,7 @@ const StudentInteractionLog = () => {
                    <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 block">Planned Task Completed?</label>
                    <div className="grid grid-cols-3 gap-2">
                      {['Yes', 'Partially', 'No'].map(opt => (
-                       <button key={opt} type="button" onClick={() => setFormData({...formData, student_status_before: opt})} className={`py-3 rounded-2xl text-[9px] font-black uppercase transition-all ${formData.student_status_before === opt ? 'bg-slate-900 text-white shadow-lg' : 'bg-white text-slate-400 border border-slate-100 hover:bg-slate-100'}`}>{opt}</button>
+                       <button key={opt} type="button" onClick={() => setFormData({...formData, student_status_before: opt})} className={`py-3 rounded-2xl text-[9px] font-black uppercase transition-all ${formData.student_status_before === opt ? 'bg-yellow-400 text-slate-900 shadow-lg' : 'bg-white text-slate-400 border border-slate-100 hover:bg-slate-100'}`}>{opt}</button>
                      ))}
                    </div>
                 </div>
@@ -476,7 +476,7 @@ const StudentInteractionLog = () => {
                    <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 block">Student Response</label>
                    <div className="grid grid-cols-3 gap-2">
                      {['Positive', 'Neutral', 'Resistant'].map(opt => (
-                       <button key={opt} type="button" onClick={() => setFormData({...formData, student_response: opt})} className={`py-3 rounded-2xl text-[9px] font-black uppercase transition-all ${formData.student_response === opt ? 'bg-slate-900 text-white shadow-lg' : 'bg-white text-slate-400 border border-slate-100 hover:bg-slate-100'}`}>{opt}</button>
+                       <button key={opt} type="button" onClick={() => setFormData({...formData, student_response: opt})} className={`py-3 rounded-2xl text-[9px] font-black uppercase transition-all ${formData.student_response === opt ? 'bg-yellow-400 text-slate-900 shadow-lg' : 'bg-white text-slate-400 border border-slate-100 hover:bg-slate-100'}`}>{opt}</button>
                      ))}
                    </div>
                 </div>
@@ -503,7 +503,7 @@ const StudentInteractionLog = () => {
                    <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Follow-up Required?</label>
                    <div className="flex gap-2">
                      {['Yes', 'No'].map(opt => (
-                       <button key={opt} type="button" onClick={() => setFormData({...formData, followup_required: opt})} className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase transition-all ${formData.followup_required === opt ? 'bg-slate-900 text-white shadow-md' : 'bg-white text-slate-400 border border-slate-200 hover:bg-slate-100'}`}>{opt}</button>
+                       <button key={opt} type="button" onClick={() => setFormData({...formData, followup_required: opt})} className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase transition-all ${formData.followup_required === opt ? 'bg-yellow-400 text-slate-900 shadow-md' : 'bg-white text-slate-400 border border-slate-200 hover:bg-slate-100'}`}>{opt}</button>
                      ))}
                    </div>
                 </div>
@@ -607,7 +607,7 @@ const StudentInteractionLog = () => {
                     </label>
                     <div className="flex gap-2">
                        {['Yes', 'No'].map(opt => (
-                          <button key={opt} type="button" onClick={() => setFormData({...formData, immediate_concern: opt})} className={`px-6 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${formData.immediate_concern === opt ? (opt === 'Yes' ? 'bg-rose-500 text-white shadow-md' : 'bg-slate-900 text-white shadow-md') : 'bg-slate-100 text-slate-400'}`}>{opt}</button>
+                          <button key={opt} type="button" onClick={() => setFormData({...formData, immediate_concern: opt})} className={`px-6 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${formData.immediate_concern === opt ? (opt === 'Yes' ? 'bg-rose-500 text-white shadow-md' : 'bg-[#008080] text-white shadow-md') : 'bg-slate-100 text-slate-400'}`}>{opt}</button>
                        ))}
                     </div>
                  </div>
@@ -645,7 +645,7 @@ const StudentInteractionLog = () => {
 
           {/* Next Attention Level & Notes */}
           {(sessionType === 'DEEP' || sessionType === 'MEDIUM' || sessionType === 'QUICK') && (
-            <div className={`p-8 rounded-[3rem] border space-y-6 transition-all ${formData.next_session_type === 'DEEP' ? 'bg-rose-950 border-rose-900 shadow-[0_0_40px_rgba(244,63,94,0.1)]' : 'bg-slate-900 border-slate-800'}`}>
+            <div className={`p-8 rounded-[3rem] border space-y-6 transition-all ${formData.next_session_type === 'DEEP' ? 'bg-rose-950 border-rose-900 shadow-[0_0_40px_rgba(244,63,94,0.1)]' : 'bg-[#008080] border-slate-800'}`}>
               <div className="flex flex-col md:flex-row items-center justify-between gap-6">
                 <div>
                   <h4 className="text-lg font-black text-white uppercase tracking-tight flex items-center gap-2">
@@ -707,7 +707,7 @@ const StudentInteractionLog = () => {
            <button
              type="submit"
              disabled={loading}
-             className={`w-full p-6 rounded-[2.5rem] font-black text-sm uppercase tracking-[0.3em] shadow-2xl transition-all disabled:opacity-50 flex items-center justify-center gap-4 active:scale-[0.98] ${sessionType === 'DEEP' ? 'bg-rose-600 text-white shadow-rose-200 hover:-translate-y-1' : sessionType === 'MEDIUM' ? 'bg-amber-500 text-white shadow-amber-200 hover:-translate-y-1' : sessionType === 'QUICK' ? 'bg-blue-600 text-white shadow-blue-200 hover:-translate-y-1' : 'bg-slate-900 text-white hover:-translate-y-1'}`}
+             className={`w-full p-6 rounded-[2.5rem] font-black text-sm uppercase tracking-[0.3em] shadow-2xl transition-all disabled:opacity-50 flex items-center justify-center gap-4 active:scale-[0.98] ${sessionType === 'DEEP' ? 'bg-rose-600 text-white shadow-rose-200 hover:-translate-y-1' : sessionType === 'MEDIUM' ? 'bg-amber-500 text-white shadow-amber-200 hover:-translate-y-1' : sessionType === 'QUICK' ? 'bg-blue-600 text-white shadow-blue-200 hover:-translate-y-1' : 'bg-[#008080] text-white hover:-translate-y-1'}`}
            >
              {loading ? 'Saving Interaction...' : 'Save Interaction'}
              {!loading && <CheckCircle2 size={24} />}

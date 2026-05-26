@@ -418,7 +418,7 @@ const CommonInteractionLogs = ({ role }) => {
                             <div className="flex items-center gap-2">
                                 <button 
                                     onClick={() => setShowListFilter(!showListFilter)}
-                                    className={`flex items-center gap-3 px-6 py-4 rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all border ${showListFilter ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-600 border-slate-100 hover:border-[#008080]'}`}
+                                    className={`flex items-center gap-3 px-6 py-4 rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all border ${showListFilter ? 'bg-yellow-400 text-slate-900 border-[#008080]' : 'bg-white text-slate-600 border-slate-100 hover:border-[#008080]'}`}
                                 >
                                     <CalendarClock size={16} />
                                     Date Filter
@@ -551,7 +551,7 @@ const CommonInteractionLogs = ({ role }) => {
                                             <p className="text-slate-400 font-black text-[11px] uppercase tracking-[0.3em]">No records found matching your search.</p>
                                             <button 
                                                 onClick={resetListFilters}
-                                                className="mt-4 px-6 py-2 bg-slate-900 text-white rounded-xl text-[9px] font-black uppercase tracking-widest"
+                                                className="mt-4 px-6 py-2 bg-[#008080] text-white rounded-xl text-[9px] font-black uppercase tracking-widest"
                                             >
                                                 Clear Filters
                                             </button>
@@ -601,7 +601,7 @@ const CommonInteractionLogs = ({ role }) => {
                     </button>
                     <button 
                         onClick={() => setShowFilterPanel(!showFilterPanel)}
-                        className={`flex items-center gap-3 px-8 py-4 rounded-[2rem] text-[10px] font-black uppercase tracking-widest transition-all shadow-sm border ${showFilterPanel ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-600 border-slate-100 hover:border-[#008080]'}`}
+                        className={`flex items-center gap-3 px-8 py-4 rounded-[2rem] text-[10px] font-black uppercase tracking-widest transition-all shadow-sm border ${showFilterPanel ? 'bg-yellow-400 text-slate-900 border-[#008080]' : 'bg-white text-slate-600 border-slate-100 hover:border-[#008080]'}`}
                     >
                         <SlidersHorizontal size={16} />
                         Custom Filter
@@ -620,7 +620,7 @@ const CommonInteractionLogs = ({ role }) => {
             </header>
 
             {showFilterPanel && (
-                <div className="flex flex-col md:flex-row gap-8 p-10 bg-slate-900 rounded-[3.5rem] shadow-2xl animate-in slide-in-from-top-6 duration-700 items-end">
+                <div className="flex flex-col md:flex-row gap-8 p-10 bg-[#008080] rounded-[3.5rem] shadow-2xl animate-in slide-in-from-top-6 duration-700 items-end">
                     <div className="flex-1 w-full">
                         <label className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 block ml-2">Start Date</label>
                         <div className="relative group">
@@ -683,7 +683,7 @@ const CommonInteractionLogs = ({ role }) => {
                                     onClick={() => setSelectedLogTab(tab)}
                                     className={`px-8 py-3 rounded-[1.5rem] font-black text-[10px] uppercase tracking-[0.15em] transition-all ${
                                         selectedLogTab === tab 
-                                        ? 'bg-slate-900 text-white shadow-md scale-105' 
+                                        ? 'bg-yellow-400 text-slate-900 shadow-md scale-105' 
                                         : 'text-slate-400 hover:text-slate-600'
                                     }`}
                                 >
@@ -695,7 +695,7 @@ const CommonInteractionLogs = ({ role }) => {
                                     onClick={() => setSelectedLogTab('OTHERS')}
                                     className={`px-8 py-3 rounded-[1.5rem] font-black text-[10px] uppercase tracking-[0.15em] transition-all ${
                                         selectedLogTab === 'OTHERS' 
-                                        ? 'bg-slate-900 text-white shadow-md scale-105' 
+                                        ? 'bg-yellow-400 text-slate-900 shadow-md scale-105' 
                                         : 'text-slate-400 hover:text-slate-600'
                                     }`}
                                 >
@@ -735,7 +735,7 @@ const CommonInteractionLogs = ({ role }) => {
                                             return (
                                                 <div key={dateKey} className="space-y-6">
                                                     {/* Day Header */}
-                                                    <div className="bg-slate-900 text-white px-8 py-5 rounded-[2rem] flex items-center justify-between shadow-xl">
+                                                    <div className="bg-[#008080] text-white px-8 py-5 rounded-[2rem] flex items-center justify-between shadow-xl">
                                                         <div className="flex items-center gap-3">
                                                             <Calendar size={18} className="text-[#008080]" />
                                                             <span className="text-xs font-black uppercase tracking-wider">{dateKey}</span>
@@ -764,7 +764,7 @@ const CommonInteractionLogs = ({ role }) => {
                                                                     onClick={() => setExpandedLogId(expandedLogId === log.id ? null : log.id)}
                                                                     className={`flex-1 bg-white rounded-[2.5rem] border transition-all relative overflow-hidden group cursor-pointer p-8 ${
                                                                         expandedLogId === log.id 
-                                                                        ? 'ring-4 ring-slate-900/5 border-slate-900 shadow-2xl' 
+                                                                        ? 'ring-4 ring-slate-900/5 border-[#008080] shadow-2xl' 
                                                                         : 'border-slate-100 shadow-sm hover:shadow-xl hover:border-slate-300'
                                                                     }`}
                                                                 >
@@ -778,7 +778,7 @@ const CommonInteractionLogs = ({ role }) => {
                                                                         </span>
                                                                         <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-500 ${
                                                                             expandedLogId === log.id 
-                                                                            ? 'bg-slate-900 text-white rotate-180 scale-110 shadow-lg' 
+                                                                            ? 'bg-yellow-400 text-slate-900 rotate-180 scale-110 shadow-lg' 
                                                                             : 'bg-slate-50 text-slate-400 group-hover:bg-slate-100'
                                                                         }`}>
                                                                             <ChevronDown size={18} strokeWidth={3} />
@@ -797,7 +797,7 @@ const CommonInteractionLogs = ({ role }) => {
                                                                         <div className="mt-6 pt-6 border-t border-slate-100 space-y-8 animate-in slide-in-from-top-4 duration-500">
                                                                             {/* Narrative Section */}
                                                                             <div className="relative">
-                                                                                <div className="absolute -left-4 top-0 bottom-0 w-1 bg-slate-900 rounded-full opacity-10"></div>
+                                                                                <div className="absolute -left-4 top-0 bottom-0 w-1 bg-[#008080] rounded-full opacity-10"></div>
                                                                                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
                                                                                     <ScrollText size={12} /> Detailed Notes
                                                                                 </p>
@@ -873,7 +873,7 @@ const CommonInteractionLogs = ({ role }) => {
                                                                                     </div>
                                                                                 )}
                                                                                 {log.student_confidence !== undefined && log.student_confidence !== null && (
-                                                                                    <div className="p-5 bg-slate-900 border border-slate-800 rounded-3xl flex flex-col gap-1.5 shadow-sm text-white">
+                                                                                    <div className="p-5 bg-[#008080] border border-slate-800 rounded-3xl flex flex-col gap-1.5 shadow-sm text-white">
                                                                                         <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Self Confidence</span>
                                                                                         <div className="flex items-center gap-2">
                                                                                             <span className="text-lg font-black">{log.student_confidence}</span>
@@ -929,7 +929,7 @@ const CommonInteractionLogs = ({ role }) => {
                                     key={log.id} 
                                     className={`bg-white rounded-[2.5rem] border transition-all relative overflow-hidden group ${
                                         expandedLogId === log.id 
-                                        ? 'ring-4 ring-slate-900/5 border-slate-900 shadow-2xl' 
+                                        ? 'ring-4 ring-slate-900/5 border-[#008080] shadow-2xl' 
                                         : 'border-slate-100 shadow-sm hover:shadow-xl hover:border-slate-300'
                                     }`}
                                 >
@@ -957,7 +957,7 @@ const CommonInteractionLogs = ({ role }) => {
                                         {/* Mentor/Faculty Identity */}
                                         <div className="flex-1 border-x border-slate-100 px-8 hidden md:block">
                                             <div className="flex items-center gap-4">
-                                                <div className="w-10 h-10 bg-slate-900 rounded-full flex items-center justify-center text-white text-xs font-black shadow-lg">
+                                                <div className="w-10 h-10 bg-[#008080] rounded-full flex items-center justify-center text-white text-xs font-black shadow-lg">
                                                     {((role === 'super_admin' || role === 'mentor_head') 
                                                         ? (log.mentor_name || log.faculty_name || 'M') 
                                                         : (log.mentor_name || 'M')).charAt(0)}
@@ -981,7 +981,7 @@ const CommonInteractionLogs = ({ role }) => {
                                             </div>
                                             <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-500 ${
                                                 expandedLogId === log.id 
-                                                ? 'bg-slate-900 text-white rotate-180 scale-110 shadow-xl shadow-slate-900/20' 
+                                                ? 'bg-yellow-400 text-slate-900 rotate-180 scale-110 shadow-xl shadow-[#008080]/20' 
                                                 : 'bg-slate-50 text-slate-400 group-hover:bg-slate-100'
                                             }`}>
                                                 <ChevronDown size={20} strokeWidth={3} />
@@ -995,7 +995,7 @@ const CommonInteractionLogs = ({ role }) => {
                                             <div className="pt-8 border-t border-slate-100 space-y-8">
                                                 {/* Narrative Section */}
                                                 <div className="relative">
-                                                    <div className="absolute -left-4 top-0 bottom-0 w-1 bg-slate-900 rounded-full opacity-10"></div>
+                                                    <div className="absolute -left-4 top-0 bottom-0 w-1 bg-[#008080] rounded-full opacity-10"></div>
                                                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
                                                         <ScrollText size={12} /> Detailed Notes
                                                     </p>
@@ -1071,7 +1071,7 @@ const CommonInteractionLogs = ({ role }) => {
                                                         </div>
                                                     )}
                                                     {log.student_confidence !== undefined && log.student_confidence !== null && (
-                                                        <div className="p-5 bg-slate-900 border border-slate-800 rounded-3xl flex flex-col gap-1.5 shadow-sm text-white">
+                                                        <div className="p-5 bg-[#008080] border border-slate-800 rounded-3xl flex flex-col gap-1.5 shadow-sm text-white">
                                                             <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Self Confidence</span>
                                                             <div className="flex items-center gap-2">
                                                                 <span className="text-lg font-black">{log.student_confidence}</span>

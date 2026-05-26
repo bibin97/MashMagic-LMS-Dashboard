@@ -59,7 +59,7 @@ const LiveClassMonitoring = ({ role }) => {
  className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-[#008080] transition-all shadow-inner"
  />
  </div>
- <button onClick={fetchLiveSessions} className="p-4 bg-slate-900 text-white rounded-2xl hover:bg-slate-800 transition-all shadow-xl active:scale-95">
+ <button onClick={fetchLiveSessions} className="p-4 bg-[#008080] text-white rounded-2xl hover:bg-slate-800 transition-all shadow-xl active:scale-95">
  <Activity size={20} />
  </button>
  </div>
@@ -99,7 +99,7 @@ const LiveClassMonitoring = ({ role }) => {
  return acc;
  }, {})
  ).map(([name, count]) => (
- <div key={name} className="flex items-center gap-3 bg-slate-50 px-4 py-2 rounded-2xl border border-slate-100 group hover:bg-slate-900 hover:text-white transition-all cursor-default animate-in zoom-in-95 duration-500">
+ <div key={name} className="flex items-center gap-3 bg-slate-50 px-4 py-2 rounded-2xl border border-slate-100 group hover:bg-[#008080] hover:text-white transition-all cursor-default animate-in zoom-in-95 duration-500">
  <span className="text-xs font-bold">{name}</span>
  <span className="w-6 h-6 bg-white group-hover:bg-[#008080] group-hover:text-white text-white rounded-lg flex items-center justify-center text-[10px] font-black shadow-sm transition-colors">
  {count}
@@ -179,7 +179,7 @@ const LiveClassMonitoring = ({ role }) => {
  href={session.meeting_link.startsWith('http') ? session.meeting_link : `https://${session.meeting_link}`}
  target="_blank"
  rel="noopener noreferrer"
- className="flex items-center justify-center gap-3 w-full bg-slate-900 text-white py-4 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-xl hover:bg-slate-800 transition-all active:scale-95 group"
+ className="flex items-center justify-center gap-3 w-full bg-[#008080] text-white py-4 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-xl hover:bg-slate-800 transition-all active:scale-95 group"
  >
  Jump into Session <ExternalLink size={14} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
  </a>

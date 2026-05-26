@@ -925,7 +925,7 @@ const Registrations = () => {
                 </div>
               </div>
 
-              <button disabled={loading} type="submit" className="w-full mt-8 bg-slate-900 text-white p-4 rounded-xl font-black text-xs uppercase tracking-[0.2em] hover:bg-emerald-600 transition-all shadow-xl hover:shadow-[#008080] flex items-center justify-center gap-3">
+              <button disabled={loading} type="submit" className="w-full mt-8 bg-[#008080] text-white p-4 rounded-xl font-black text-xs uppercase tracking-[0.2em] hover:bg-emerald-600 transition-all shadow-xl hover:shadow-[#008080] flex items-center justify-center gap-3">
                 {loading ? 'Processing...' : 'Register Student'}
                 {!loading && <CheckCircle size={16} />}
               </button>
@@ -1040,7 +1040,7 @@ const Registrations = () => {
                             e.stopPropagation();
                             setFacultyForm(prev => ({ ...prev, isSecondaryDropdownOpen: false }));
                           }}
-                          className="w-full mt-3 p-3 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest"
+                          className="w-full mt-3 p-3 bg-[#008080] text-white rounded-xl text-[10px] font-black uppercase tracking-widest"
                         >
                           Confirm Selection
                         </button>
@@ -1089,7 +1089,7 @@ const Registrations = () => {
                             e.stopPropagation();
                             setFacultyForm(prev => ({ ...prev, isSectionDropdownOpen: false }));
                           }}
-                          className="w-full mt-3 p-3 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest"
+                          className="w-full mt-3 p-3 bg-[#008080] text-white rounded-xl text-[10px] font-black uppercase tracking-widest"
                         >
                           Confirm Selection
                         </button>
@@ -1171,7 +1171,7 @@ const Registrations = () => {
                             <span className="text-xs font-bold">{syl}</span>
                           </div>
                         ))}
-                        <button onClick={(e) => { e.stopPropagation(); setFacultyForm(prev => ({ ...prev, isSyllabusDropdownOpen: false })); }} className="w-full mt-3 p-3 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest">Confirm</button>
+                        <button onClick={(e) => { e.stopPropagation(); setFacultyForm(prev => ({ ...prev, isSyllabusDropdownOpen: false })); }} className="w-full mt-3 p-3 bg-[#008080] text-white rounded-xl text-[10px] font-black uppercase tracking-widest">Confirm</button>
                       </div>
                     )}
                   </div>
@@ -1206,7 +1206,7 @@ const Registrations = () => {
                             <span className="text-xs font-bold">{lang.label}</span>
                           </div>
                         ))}
-                        <button onClick={(e) => { e.stopPropagation(); setFacultyForm(prev => ({ ...prev, isLangDropdownOpen: false })); }} className="w-full mt-3 p-3 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest">Confirm</button>
+                        <button onClick={(e) => { e.stopPropagation(); setFacultyForm(prev => ({ ...prev, isLangDropdownOpen: false })); }} className="w-full mt-3 p-3 bg-[#008080] text-white rounded-xl text-[10px] font-black uppercase tracking-widest">Confirm</button>
                       </div>
                     )}
                   </div>
@@ -1227,7 +1227,7 @@ const Registrations = () => {
                 </div>
               </div>
 
-              <button disabled={loading} type="submit" className="w-full mt-8 bg-slate-900 text-white p-4 rounded-xl font-black text-xs uppercase tracking-[0.2em] hover:bg-emerald-600 transition-all shadow-xl hover:shadow-emerald-100 flex items-center justify-center gap-3">
+              <button disabled={loading} type="submit" className="w-full mt-8 bg-[#008080] text-white p-4 rounded-xl font-black text-xs uppercase tracking-[0.2em] hover:bg-emerald-600 transition-all shadow-xl hover:shadow-emerald-100 flex items-center justify-center gap-3">
                 {loading ? 'Processing...' : 'Securely Onboard Faculty'}
                 {!loading && <CheckCircle size={16} />}
               </button>
@@ -1300,7 +1300,7 @@ const Registrations = () => {
                 <button 
                   disabled={loading} 
                   type="submit" 
-                  className="px-10 py-5 bg-indigo-600 text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] hover:bg-slate-900 transition-all shadow-xl shadow-indigo-100 active:scale-95 disabled:opacity-50 flex items-center gap-3"
+                  className="px-10 py-5 bg-indigo-600 text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] hover:bg-[#008080] transition-all shadow-xl shadow-indigo-100 active:scale-95 disabled:opacity-50 flex items-center gap-3"
                 >
                   {loading ? 'Processing...' : 'Complete SSC Registration'}
                   {!loading && <CheckCircle size={18} />}

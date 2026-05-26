@@ -117,7 +117,7 @@ const StudentsData = () => {
                     onClick={() => handleStudentSelect(student)}
                     className={`w-full p-5 rounded-[28px] border transition-all flex items-center gap-4 group relative overflow-hidden ${alertClass}
                     ${selectedStudent?.id === student.id 
-                      ? 'bg-slate-900 border-slate-900 text-white shadow-xl translate-x-2' 
+                      ? 'bg-yellow-400 border-[#008080] text-slate-900 shadow-xl translate-x-2' 
                       : 'bg-white border-slate-100 text-slate-600 hover:border-teal-500/30 hover:bg-teal-50/10'}
                     `}
                     title={student.payment_alert_level && student.payment_alert_level !== 'None' ? `Payment Alert: ${student.consumed_hours} consumed / ${student.paid_hours} paid hours` : ''}
@@ -237,7 +237,7 @@ const StudentsData = () => {
                                   <div className="flex-1 bg-slate-50/50 hover:bg-white transition-all border border-slate-100 p-8 rounded-[32px] group/item hover:shadow-xl hover:shadow-slate-200/50">
                                     <div className="flex flex-col md:flex-row justify-between mb-4 gap-2">
                                       <div className="flex items-center gap-3">
-                                        <div className="bg-slate-900 text-white px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest ">{update.formatted_date}</div>
+                                        <div className="bg-[#008080] text-white px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest ">{update.formatted_date}</div>
                                         <div className="flex items-center gap-1.5 text-slate-600 font-bold text-xs bg-white px-4 py-1.5 rounded-xl border border-slate-100">
                                           <Clock size={14} className="text-teal-500" /> {update.formatted_time}
                                         </div>

@@ -190,7 +190,7 @@ const MentorRegistration = () => {
  <button
  type="submit"
  disabled={loading}
- className="w-full bg-slate-900 text-white rounded-[1.5rem] py-5 font-black uppercase tracking-[0.2em] text-xs flex items-center justify-center gap-3 hover:bg-slate-800 transition-all shadow-xl hover:shadow-slate-200 active:scale-[0.98] disabled:opacity-50"
+ className="w-full bg-[#008080] text-white rounded-[1.5rem] py-5 font-black uppercase tracking-[0.2em] text-xs flex items-center justify-center gap-3 hover:bg-slate-800 transition-all shadow-xl hover:shadow-slate-200 active:scale-[0.98] disabled:opacity-50"
  >
  {loading ? (
  <>

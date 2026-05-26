@@ -171,7 +171,7 @@ const AcademicActions = () => {
 
  {milestone.exam_type && (
  <div className="mt-3 flex items-center gap-2">
- <span className="text-[8px] font-black px-2 py-0.5 bg-slate-900 text-white rounded-md uppercase tracking-tighter">
+ <span className="text-[8px] font-black px-2 py-0.5 bg-[#008080] text-white rounded-md uppercase tracking-tighter">
  {milestone.exam_type}
  </span>
  </div>
@@ -187,7 +187,7 @@ const AcademicActions = () => {
  <p className="text-[10px] font-bold text-slate-700 line-clamp-1">{milestone.mentor_name}</p>
  </div>
  </div>
- <div className="w-9 h-9 bg-slate-900 text-white rounded-xl flex items-center justify-center group-hover:bg-rose-500 transition-colors">
+ <div className="w-9 h-9 bg-[#008080] text-white rounded-xl flex items-center justify-center group-hover:bg-rose-500 transition-colors">
  <FileText size={16} />
  </div>
  </div>
@@ -265,7 +265,7 @@ const AcademicActions = () => {
  </span>
  </td>
  <td className="px-8 py-6 text-right">
- <button className="w-10 h-10 bg-slate-900 text-white rounded-xl flex items-center justify-center hover:bg-[#008080] transition-all opacity-0 group-hover:opacity-100">
+ <button className="w-10 h-10 bg-[#008080] text-white rounded-xl flex items-center justify-center hover:bg-[#008080] transition-all opacity-0 group-hover:opacity-100">
  <ChevronRight size={18} />
  </button>
  </td>
@@ -357,7 +357,7 @@ const AcademicActions = () => {
  </button>
  <button
  type="submit"
- className="flex-1 bg-slate-900 text-white p-4 rounded-[2rem] font-black text-[10px] uppercase tracking-widest hover:bg-rose-600 transition-all shadow-xl shadow-rose-100 flex items-center justify-center gap-2 group"
+ className="flex-1 bg-[#008080] text-white p-4 rounded-[2rem] font-black text-[10px] uppercase tracking-widest hover:bg-rose-600 transition-all shadow-xl shadow-rose-100 flex items-center justify-center gap-2 group"
  >
  <span>Save Plan</span>
  <GraduationCap size={18} />

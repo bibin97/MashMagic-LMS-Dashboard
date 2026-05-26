@@ -405,7 +405,7 @@ const Timetable = () => {
       case 'Cancelled': return 'bg-rose-100 text-rose-600 border-rose-200';
       case 'Faculty Cancelled': return 'bg-rose-100 text-rose-600 border-rose-200';
       case 'Student Cancelled': return 'bg-rose-100 text-rose-600 border-rose-200';
-      case 'No Show': return 'bg-slate-800 text-white border-slate-900';
+      case 'No Show': return 'bg-slate-800 text-white border-[#008080]';
       default: return 'bg-slate-100 text-slate-600 border-slate-200';
     }
   };
@@ -464,7 +464,7 @@ const Timetable = () => {
           </button>
           <button
             onClick={handleBulkOpen}
-            className="hidden md:flex items-center justify-center gap-3 bg-slate-900 text-white px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-slate-200 hover:-translate-y-1 transition-all active:scale-95"
+            className="hidden md:flex items-center justify-center gap-3 bg-[#008080] text-white px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-slate-200 hover:-translate-y-1 transition-all active:scale-95"
           >
             <CalendarClock size={18} /> Bulk Schedule
           </button>
@@ -583,7 +583,7 @@ const Timetable = () => {
 
           <button
             onClick={() => setFilters({ student_id: '', mentor_id: '', status: '', start_date: '', end_date: '' })}
-            className="px-8 py-4 bg-slate-900 text-white text-[10px] font-black uppercase tracking-widest rounded-2xl hover:bg-[#008080] shadow-xl shadow-slate-100 transition-all active:scale-95 "
+            className="px-8 py-4 bg-[#008080] text-white text-[10px] font-black uppercase tracking-widest rounded-2xl hover:bg-[#008080] shadow-xl shadow-slate-100 transition-all active:scale-95 "
           >
             Reset Filters
           </button>
@@ -701,7 +701,7 @@ const Timetable = () => {
       )}
 
       {showModal && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[9999] flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-[#008080]/60 backdrop-blur-md z-[9999] flex items-center justify-center p-4">
           <div className="bg-white rounded-[3rem] shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between p-8 border-b border-slate-50">
               <div>
@@ -904,7 +904,7 @@ const Timetable = () => {
                           <select
                             value={formData.status}
                             onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                            className="w-full p-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] outline-none focus:ring-4 ring-slate-200 transition-all cursor-pointer shadow-xl shadow-slate-200"
+                            className="w-full p-4 bg-[#008080] text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] outline-none focus:ring-4 ring-slate-200 transition-all cursor-pointer shadow-xl shadow-slate-200"
                           >
                             {['Scheduled', 'Completed', 'Postponed', 'Cancelled', 'Faculty Cancelled', 'Student Cancelled', 'No Show'].map(s => (
                               <option key={s} value={s}>{s.toUpperCase()}</option>
@@ -988,7 +988,7 @@ const Timetable = () => {
         </div>
       )}
       {showScheduleModal && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[10000] flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-[#008080]/60 backdrop-blur-md z-[10000] flex items-center justify-center p-4">
           <div className="bg-white rounded-[3rem] shadow-2xl w-full max-w-5xl max-h-[90vh] overflow-hidden flex flex-col">
             <div className="p-8 border-b border-slate-50 flex justify-between items-center bg-slate-50/50">
               <div>

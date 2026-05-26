@@ -172,7 +172,7 @@ const AccountSettings = () => {
                             <button 
                                 type="submit"
                                 disabled={loading}
-                                className="w-full mt-6 py-5 bg-slate-900 text-white rounded-3xl text-xs font-black uppercase tracking-[0.2em] hover:bg-[#008080] transition-all shadow-xl shadow-slate-900/20 flex items-center justify-center gap-3 active:scale-95 disabled:opacity-50"
+                                className="w-full mt-6 py-5 bg-[#008080] text-white rounded-3xl text-xs font-black uppercase tracking-[0.2em] hover:bg-[#008080] transition-all shadow-xl shadow-[#008080]/20 flex items-center justify-center gap-3 active:scale-95 disabled:opacity-50"
                             >
                                 {loading ? <Loader2 className="animate-spin" size={18} /> : <Save size={18} />}
                                 {loading ? 'Syncing Profile...' : 'Save Profile Changes'}
@@ -183,7 +183,7 @@ const AccountSettings = () => {
 
                 {/* Security Section */}
                 <div className="space-y-8">
-                    <div className="bg-slate-900 p-10 rounded-[48px] shadow-2xl shadow-slate-900/40 relative overflow-hidden group">
+                    <div className="bg-[#008080] p-10 rounded-[48px] shadow-2xl shadow-[#008080]/40 relative overflow-hidden group">
                         <div className="absolute bottom-0 left-0 w-48 h-48 bg-[#008080]/10 rounded-full -mb-24 -ml-24 blur-3xl transition-colors duration-1000"></div>
                         
                         <h3 className="text-xl font-black text-white uppercase tracking-tight mb-10 flex items-center gap-4">

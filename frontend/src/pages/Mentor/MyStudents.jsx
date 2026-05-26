@@ -102,7 +102,7 @@ const StudentRow = ({ student, navigate, handleToggleConnection, handleCompleteO
               </button>
               <button
                 onClick={(e) => handleLogHoursClick(student, e)}
-                className="flex-[2] lg:flex-none flex items-center justify-center gap-3 bg-slate-900 text-white px-8 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-slate-200 hover:shadow-2xl transition-all active:scale-95"
+                className="flex-[2] lg:flex-none flex items-center justify-center gap-3 bg-[#008080] text-white px-8 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-slate-200 hover:shadow-2xl transition-all active:scale-95"
               >
                 <Clock size={16} /> Log Hours
               </button>
@@ -343,7 +343,7 @@ const MyStudents = () => {
 
  {/* Batch Timetable Modal */}
  {isTimetableModalOpen && (
- <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[9999] flex items-center justify-center p-4">
+ <div className="fixed inset-0 bg-[#008080]/60 backdrop-blur-md z-[9999] flex items-center justify-center p-4">
  <div className="bg-white rounded-[3rem] shadow-2xl w-full max-w-6xl max-h-[90vh] overflow-hidden flex flex-col">
  <div className="px-10 py-8 border-b border-slate-100 flex justify-between items-center bg-white">
  <div>
@@ -437,7 +437,7 @@ const MyStudents = () => {
  <button
  type="submit"
  onClick={handleBatchSubmit}
- className="flex-1 bg-slate-900 text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl hover:bg-[#008080] transition-all flex items-center justify-center gap-3 "
+ className="flex-1 bg-[#008080] text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl hover:bg-[#008080] transition-all flex items-center justify-center gap-3 "
  >
  <CheckCircle2 size={18} /> Initialize Activation
  </button>
@@ -451,9 +451,9 @@ const MyStudents = () => {
  {/* Log Hours Modal */}
  {isHoursModalOpen && selectedStudent && (
  <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
- <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => setIsHoursModalOpen(false)}></div>
+ <div className="absolute inset-0 bg-[#008080]/60 backdrop-blur-sm" onClick={() => setIsHoursModalOpen(false)}></div>
  <div className="bg-white rounded-[3rem] w-full max-w-md shadow-2xl overflow-hidden relative z-10 animate-in zoom-in duration-300">
- <div className="px-10 py-8 bg-slate-900 text-white relative">
+ <div className="px-10 py-8 bg-[#008080] text-white relative">
  <div className="absolute top-0 right-0 p-6 opacity-20">
  <Clock size={48} />
  </div>

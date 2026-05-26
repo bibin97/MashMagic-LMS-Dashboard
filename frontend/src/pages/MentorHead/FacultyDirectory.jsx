@@ -149,7 +149,7 @@ const FacultyDirectory = () => {
 
  {/* Faculty Detail Modal */}
  {isDetailModalOpen && selectedFaculty && (
- <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4 animate-in fade-in duration-300">
+ <div className="fixed inset-0 bg-[#008080]/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4 animate-in fade-in duration-300">
  <div className="bg-white rounded-[3.5rem] shadow-2xl w-full max-w-2xl overflow-hidden animate-in slide-in-from-bottom-8 duration-500">
  <div className="px-10 py-8 border-b border-slate-50 flex justify-between items-center bg-slate-50/50">
  <div className="flex items-center gap-4">
@@ -212,7 +212,7 @@ const FacultyDirectory = () => {
  </div>
  <button
  onClick={() => setIsDetailModalOpen(false)}
- className="px-8 py-3.5 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-emerald-700 transition-all shadow-lg"
+ className="px-8 py-3.5 bg-[#008080] text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-emerald-700 transition-all shadow-lg"
  >
  Close Registry
  </button>

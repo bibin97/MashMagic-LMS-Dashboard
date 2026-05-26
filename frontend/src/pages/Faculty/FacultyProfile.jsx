@@ -93,7 +93,7 @@ const FacultyProfile = () => {
  <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
  {/* Left: Identity Card */}
  <div className="lg:col-span-1 space-y-8">
- <div className="bg-slate-900 rounded-[3.5rem] p-10 text-white relative overflow-hidden group">
+ <div className="bg-[#008080] rounded-[3.5rem] p-10 text-white relative overflow-hidden group">
  <div className="absolute top-0 right-0 w-64 h-64 bg-[#008080]/10 rounded-full -mr-32 -mt-32 blur-3xl"></div>
 
  <div className="relative z-10 flex flex-col items-center">
@@ -178,7 +178,7 @@ const FacultyProfile = () => {
  </div>
  <button
  onClick={() => handleProfileUpdate()}
- className="px-10 py-5 bg-slate-900 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-800 transition-all inline-flex items-center gap-3"
+ className="px-10 py-5 bg-[#008080] text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-800 transition-all inline-flex items-center gap-3"
  >
  Synchronize Updates
  <ArrowRight size={14} />

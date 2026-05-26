@@ -247,7 +247,7 @@ const AcademicSchedule = () => {
                     <button 
                       onClick={() => { setSelectedSession(session); setMinutesTaken(''); setIsCompleteModalOpen(true); }}
                       title="Class Completed"
-                      className="w-11 h-11 bg-slate-900 text-white hover:bg-[#008080] rounded-[1rem] flex items-center justify-center transition-all shadow-sm"
+                      className="w-11 h-11 bg-[#008080] text-white hover:bg-[#008080] rounded-[1rem] flex items-center justify-center transition-all shadow-sm"
                     >
                       <CheckSquare size={16} />
                     </button>
@@ -271,7 +271,7 @@ const AcademicSchedule = () => {
 
       {/* Details Modal (Read-only for Mentors) */}
       {isDetailsModalOpen && selectedSession && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[9999] flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-[#008080]/60 backdrop-blur-md z-[9999] flex items-center justify-center p-4">
           <div className="bg-white rounded-[3rem] shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <div className="sticky top-0 bg-white/80 backdrop-blur-xl px-10 py-6 border-b border-slate-100 flex justify-between items-center z-10">
               <div>

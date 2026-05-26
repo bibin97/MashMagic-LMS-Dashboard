@@ -138,7 +138,7 @@ const MyTasks = () => {
  </label>
  <button
  onClick={() => handleComplete(task.id)}
- className="bg-slate-900 text-white px-4 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all"
+ className="bg-[#008080] text-white px-4 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all"
  >
  Mark Done
  </button>

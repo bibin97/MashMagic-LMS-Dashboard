@@ -137,7 +137,7 @@ const StudentDetails = () => {
                         <div className="px-5 py-2.5 bg-[#008080] text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-lg shadow-[#008080]/20">
                             {student.course}
                         </div>
-                        <div className="px-5 py-2.5 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-lg shadow-slate-900/20">
+                        <div className="px-5 py-2.5 bg-[#008080] text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-lg shadow-[#008080]/20">
                             {student.grade}
                         </div>
                         {student.badge && (
@@ -235,7 +235,7 @@ const StudentDetails = () => {
                             </div>
                             
                             <div className="space-y-6">
-                                <div className="p-8 bg-slate-900 text-white rounded-[2.5rem] border border-slate-800 shadow-2xl relative overflow-hidden group">
+                                <div className="p-8 bg-[#008080] text-white rounded-[2.5rem] border border-slate-800 shadow-2xl relative overflow-hidden group">
                                     <div className="absolute top-0 right-0 w-32 h-32 bg-[#008080]/20 rounded-full -mr-16 -mt-16 blur-2xl group-hover:scale-150 transition-transform duration-700"></div>
                                     <p className="text-[10px] font-black text-[#008080] uppercase tracking-[0.2em] mb-4">Enrollment Notes</p>
                                     <p className="text-sm font-medium leading-relaxed text-slate-300">

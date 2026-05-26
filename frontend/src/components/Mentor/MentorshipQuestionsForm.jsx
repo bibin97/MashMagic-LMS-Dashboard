@@ -256,7 +256,7 @@ const MentorshipQuestionsForm = ({ selectedStudent, setSubmitted, fetchStudentLo
 
     return (
         <form onSubmit={handleSubmit} className="bg-white p-6 md:p-10 rounded-[2.5rem] shadow-xl border border-slate-100 space-y-8">
-            <div className="bg-slate-900 text-white rounded-3xl p-5 flex items-center justify-between">
+            <div className="bg-[#008080] text-white rounded-3xl p-5 flex items-center justify-between">
                 <div>
                     <h3 className="text-lg font-black tracking-tight">Mentor Performance + Student Impact Tracker</h3>
                     <p className="text-[10px] uppercase tracking-widest text-slate-300">Student: {selectedStudent?.name}</p>

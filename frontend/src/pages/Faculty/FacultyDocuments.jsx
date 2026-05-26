@@ -170,7 +170,7 @@ const FacultyDocuments = () => {
  href={doc.file_url}
  target="_blank"
  rel="noopener noreferrer"
- className="p-4 bg-slate-50 text-slate-600 hover:bg-slate-900 hover:text-white rounded-2xl transition-all duration-500 group/btn"
+ className="p-4 bg-slate-50 text-slate-600 hover:bg-[#008080] hover:text-white rounded-2xl transition-all duration-500 group/btn"
  >
  <Eye size={18} className="group-hover/btn:scale-110 transition-transform" />
  </a>

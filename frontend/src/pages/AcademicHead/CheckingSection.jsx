@@ -379,9 +379,9 @@ const CheckingSection = () => {
  {/* Live Class Eval Modal */}
  {isEvalModalOpen && (
  <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
- <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => setIsEvalModalOpen(false)}></div>
+ <div className="absolute inset-0 bg-[#008080]/60 backdrop-blur-sm" onClick={() => setIsEvalModalOpen(false)}></div>
  <div className="bg-white rounded-[3rem] w-full max-w-lg shadow-2xl overflow-hidden relative z-10 animate-in zoom-in duration-300">
- <div className="px-10 py-8 bg-slate-900 text-white relative">
+ <div className="px-10 py-8 bg-[#008080] text-white relative">
  <h3 className="text-2xl font-black tracking-tighter uppercase relative z-10">Live Class Check</h3>
  </div>
  <form onSubmit={handleEvalSubmit} className="p-10 space-y-6">
@@ -483,9 +483,9 @@ const CheckingSection = () => {
  {/* Verify Log Modal */}
  {isVerifyModalOpen && (
  <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
- <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => setIsVerifyModalOpen(false)}></div>
+ <div className="absolute inset-0 bg-[#008080]/60 backdrop-blur-sm" onClick={() => setIsVerifyModalOpen(false)}></div>
  <div className="bg-white rounded-[3rem] w-full max-w-md shadow-2xl overflow-hidden relative z-10 animate-in zoom-in duration-300">
- <div className="px-10 py-8 bg-slate-900 text-white relative">
+ <div className="px-10 py-8 bg-[#008080] text-white relative">
  <h3 className="text-2xl font-black tracking-tighter uppercase relative z-10">Verify Faculty Log</h3>
  </div>
  <form onSubmit={handleVerifySubmit} className="p-10 space-y-6">
@@ -547,7 +547,7 @@ const CheckboxItem = ({ label, checked, onChange }) => (
 const TabButton = ({ active, onClick, label }) => (
  <button
  onClick={onClick}
- className={`px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${active ? 'bg-slate-900 text-white shadow-lg shadow-slate-200' : 'bg-slate-50 text-slate-600 hover:bg-slate-100'}`}
+ className={`px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${active ? 'bg-yellow-400 text-slate-900 shadow-lg shadow-slate-200' : 'bg-slate-50 text-slate-600 hover:bg-slate-100'}`}
  >
  {label}
  </button>
