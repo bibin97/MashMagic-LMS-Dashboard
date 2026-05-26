@@ -11,7 +11,9 @@ import {
  ListTodo, 
  FileText, 
  Target, 
- ScrollText 
+ ScrollText,
+ MessageSquare,
+ Presentation
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
@@ -59,6 +61,8 @@ const AdminLayout = () => {
  { path: '/admin/academic-schedule', icon: <ScrollText size={20} />, label: 'Academic Schedule', perm: 'monitoring' },
  { path: '/admin/mentor-head-report', icon: <Target size={20} />, label: 'Mentor Head Report', perm: 'reports' },
    { path: '/admin/logs', icon: <ScrollText size={20} />, label: 'Interaction Logs', perm: 'logs' },
+   { path: '/admin/ah-interactions', icon: <MessageSquare size={20} />, label: 'AH Interactions', perm: 'logs' },
+   { path: '/admin/ah-meetings', icon: <Presentation size={20} />, label: 'AH Meetings', perm: 'logs' },
   { path: '/admin/audit-logs', icon: <FileText size={20} />, label: 'Audit Trail', perm: 'logs' },
 
  ].filter(item => {

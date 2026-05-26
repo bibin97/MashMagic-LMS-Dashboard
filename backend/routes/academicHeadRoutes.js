@@ -36,7 +36,14 @@ const {
     getAvailableFaculties,
     getStaff,
     syncLegacyData,
-    getAcademicSchedule
+    getAcademicSchedule,
+    getAHParentInteractions,
+    createAHParentInteraction,
+    getAHFacultyInteractions,
+    createAHFacultyInteraction,
+    getAHParentMeetings,
+    scheduleAHParentMeeting,
+    reportAHParentMeeting
 } = require('../controllers/academicHeadController');
 const { requireAuth } = require('../middleware/authMiddleware');
 const { requireRole } = require('../middleware/roleMiddleware');
@@ -88,5 +95,14 @@ router.get('/live-monitoring', getLiveMonitoring);
 router.put('/mentors/:id', editMentor);
 router.delete('/mentors/:id', deleteMentor);
 router.post('/sync-legacy-data', syncLegacyData);
+
+// Interactions & Meetings
+router.get('/parent-interactions', getAHParentInteractions);
+router.post('/parent-interactions', createAHParentInteraction);
+router.get('/faculty-interactions', getAHFacultyInteractions);
+router.post('/faculty-interactions', createAHFacultyInteraction);
+router.get('/parent-meetings', getAHParentMeetings);
+router.post('/parent-meetings', scheduleAHParentMeeting);
+router.put('/parent-meetings/:id/report', reportAHParentMeeting);
 
 module.exports = router;

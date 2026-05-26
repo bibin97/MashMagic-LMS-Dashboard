@@ -29,28 +29,38 @@ const calculateStudentHours = async (students, db) => {
     return students.map(s => {
         const total_fees = parseFloat(s.total_fees) || 0;
         const total_hours = parseInt(s.total_hours) || 0;
+        const total_paid = parseFloat(s.total_paid) || 0;
         
-        const current_installment_amount = parseFloat(s.current_installment_amount) || 0;
         const current_installment_start_hours = parseFloat(s.current_installment_start_hours) || 0;
-
-        let cycle_limit_hours = 0;
+        
+        let total_entitled_hours = 0;
         if (total_fees > 0) {
-            cycle_limit_hours = (current_installment_amount / total_fees) * total_hours;
-        } else if (total_fees === 0 && current_installment_amount > 0) {
-            cycle_limit_hours = total_hours;
+            // Whatever percentage of total fees they paid, they are entitled to that percentage of total hours overall
+            total_entitled_hours = (total_paid / total_fees) * total_hours;
+        } else if (total_fees === 0 && total_paid > 0) {
+            total_entitled_hours = total_hours;
         }
 
         const total_lifetime_consumed_mins = consumedMap[s.id] || 0;
         const total_lifetime_consumed_hours = total_lifetime_consumed_mins / 60;
         
-        // Calculate consumed hours for THIS specific cycle
-        let cycle_consumed_hours = total_lifetime_consumed_hours - current_installment_start_hours;
-        if (cycle_consumed_hours < 0) cycle_consumed_hours = 0; // Guard against negative values
+        // Cycle Limit is the total entitled hours minus whatever they had already consumed before this last payment.
+        // This gives us the size of the "bucket" of hours they have for this cycle (including any carried over hours).
+        let cycle_limit_hours = total_entitled_hours - current_installment_start_hours;
+        if (cycle_limit_hours < 0) cycle_limit_hours = 0;
 
+        // Consumed hours within THIS cycle
+        let cycle_consumed_hours = total_lifetime_consumed_hours - current_installment_start_hours;
+        if (cycle_consumed_hours < 0) cycle_consumed_hours = 0;
+        
         let payment_alert_level = 'None';
         let payment_threshold_percentage = 0;
 
-        if (cycle_limit_hours > 0) {
+        if (total_fees === 0) {
+            // User requested: "fees onnum illa... fees base ahnu vendathu" -> If no fees, no blinking.
+            payment_alert_level = 'None';
+            payment_threshold_percentage = 0;
+        } else if (cycle_limit_hours > 0) {
             payment_threshold_percentage = (cycle_consumed_hours / cycle_limit_hours) * 100;
             if (payment_threshold_percentage >= 90) {
                 payment_alert_level = 'Critical';
@@ -58,7 +68,7 @@ const calculateStudentHours = async (students, db) => {
                 payment_alert_level = 'Warning';
             }
         } else if (cycle_consumed_hours > 0) {
-            // Consumed hours but 0 limit in current cycle
+            // Consumed hours but 0 limit in current cycle AND total_fees > 0
             payment_alert_level = 'Critical';
             payment_threshold_percentage = 100;
         }

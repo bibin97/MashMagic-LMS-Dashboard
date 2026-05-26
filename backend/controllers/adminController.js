@@ -996,7 +996,10 @@ const getAllStudentsForAdmin = async (req, res) => {
                 course_completed,
                 created_at,
                 mentor_id,
-                badge
+                badge,
+                total_fees,
+                total_paid,
+                total_hours
             FROM students WHERE 1=1
         `;
         let params = [];
@@ -1363,6 +1366,46 @@ const getFacultyDetailsForAdmin = async (req, res) => {
     }
 };
 
+// --- AH Interactions & Meetings (View Only) ---
+const getAHParentInteractions = async (req, res) => {
+    try {
+        const [rows] = await db.query(`
+            SELECT p.*, s.name as student_name, u.name as academic_head_name
+            FROM ah_parent_interactions p
+            JOIN students s ON p.student_id = s.id
+            JOIN users u ON p.academic_head_id = u.id
+            ORDER BY p.date DESC, p.created_at DESC
+        `);
+        res.json({ success: true, data: rows });
+    } catch (error) { res.status(500).json({ success: false, message: error.message }); }
+};
+
+const getAHFacultyInteractions = async (req, res) => {
+    try {
+        const [rows] = await db.query(`
+            SELECT f.*, u2.name as faculty_name, u.name as academic_head_name
+            FROM ah_faculty_interactions f
+            JOIN users u2 ON f.faculty_id = u2.id
+            JOIN users u ON f.academic_head_id = u.id
+            ORDER BY f.date DESC, f.created_at DESC
+        `);
+        res.json({ success: true, data: rows });
+    } catch (error) { res.status(500).json({ success: false, message: error.message }); }
+};
+
+const getAHParentMeetings = async (req, res) => {
+    try {
+        const [rows] = await db.query(`
+            SELECT m.*, s.name as student_name, u.name as academic_head_name
+            FROM ah_parent_meetings m
+            JOIN students s ON m.student_id = s.id
+            JOIN users u ON m.academic_head_id = u.id
+            ORDER BY m.meeting_date DESC, m.meeting_time DESC
+        `);
+        res.json({ success: true, data: rows });
+    } catch (error) { res.status(500).json({ success: false, message: error.message }); }
+};
+
 module.exports = {
     getAdminDashboardSummary,
     getUsers,
@@ -1628,11 +1671,209 @@ module.exports = {
             
             res.status(200).json({ success: true, data: results });
         } catch (error) {
+            console.error('Error fetching exam analytics:', error);
+            res.status(500).json({ success: false, message: error.message });
+        }
+    },
+    // @desc    Get mentor student distribution
+    // @route   GET /api/admin/mentor-distribution
+    getMentorDistribution: async (req, res) => {
+        try {
+            const [rows] = await db.query(`
+                SELECT 
+                    u.name as mentor_name,
+                    (SELECT COUNT(*) FROM students s WHERE s.mentor_id = u.id AND s.status = 'active') as student_count
+                FROM mentors u
+                WHERE u.status = 'active'
+                HAVING student_count > 0
+                ORDER BY student_count DESC
+            `);
+            res.status(200).json({ success: true, data: rows });
+        } catch (error) {
+            res.status(500).json({ success: false, message: error.message });
+        }
+    },
+    // @desc    Get task performance analytics
+    // @route   GET /api/admin/task-analytics
+    getTaskAnalytics: async (req, res) => {
+        try {
+            const { range } = req.query;
+            let daysCount = 7; // Default
+
+            const mapping = {
+                'today': 1,
+                'yesterday': 2,
+                'last3': 3,
+                'last7': 7,
+                'this_week': 7,
+                'last_week': 7,
+                'last14': 14,
+                'last30': 30,
+                'this_month': 30,
+                'last_month': 30,
+                'last60': 60,
+                'last90': 90
+            };
+
+            if (mapping[range]) {
+                daysCount = mapping[range];
+            }
+
+            // Create helper to format date as YYYY-MM-DD in local time
+            const formatDate = (date) => {
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            };
+
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            const startDate = new Date(today);
+            startDate.setDate(today.getDate() - (daysCount - 1));
+
+            console.log(`ANALYTICS_DEBUG: range=${range}, daysCount=${daysCount}, startDate=${startDate.toISOString()}, today=${today.toISOString()}`);
+
+            // Query DB
+            const [rows] = await db.query(`
+                SELECT 
+                    DATE_FORMAT(created_at, '%Y-%m-%d') as date_label,
+                    COUNT(*) as total_tasks,
+                    SUM(CASE WHEN (status = 'Completed' OR status = 'Success') THEN 1 ELSE 0 END) as completed_tasks
+                FROM tasks
+                WHERE created_at >= ?
+                GROUP BY date_label
+                ORDER BY date_label ASC
+            `, [startDate]);
+
+            // Create a lookup map
+            const dbDataMap = {};
+            rows.forEach(row => {
+                dbDataMap[row.date_label] = {
+                    total_tasks: parseInt(row.total_tasks) || 0,
+                    completed_tasks: parseInt(row.completed_tasks) || 0
+                };
+            });
+
+            // Generate full date range
+            const fullRangeData = [];
+            let currentDate = new Date(startDate);
+
+            while (currentDate <= today) {
+                const dateStr = formatDate(currentDate);
+                const dayData = dbDataMap[dateStr] || { total_tasks: 0, completed_tasks: 0 };
+
+                // Always use Month Date labels as per user request
+                const name = currentDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+
+                fullRangeData.push({
+                    date: dateStr,
+                    name: name,
+                    tasks: dayData.total_tasks,
+                    completed: dayData.completed_tasks
+                });
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
+
+            console.log(`ANALYTICS_DEBUG: returning ${fullRangeData.length} days`);
+            res.status(200).json({ success: true, data: fullRangeData });
+        } catch (error) {
+            console.error("TASK_ANALYTICS_ERROR:", error);
+            res.status(500).json({ success: false, message: error.message });
+        }
+    },
+    // @desc    Get currently running sessions across the platform
+    // @route   GET /api/admin/live-monitoring
+    getLiveMonitoring: async (req, res) => {
+        try {
+            const [rows] = await db.query(`
+                SELECT 
+                    fs.id, fs.topic, fs.date, fs.start_time, fs.end_time, fs.status,
+                    u.name as faculty_name,
+                    s.name as student_name,
+                    s.meeting_link,
+                    s.registration_number,
+                    m.name as mentor_name
+                FROM faculty_sessions fs
+                JOIN faculties u ON fs.faculty_id = u.id
+                JOIN session_attendance sa ON fs.id = sa.session_id
+                JOIN students s ON sa.student_id = s.id
+                LEFT JOIN mentors m ON s.mentor_id = m.id
+                WHERE fs.date = CURDATE()
+                ORDER BY fs.start_time ASC
+            `);
+            res.status(200).json({ success: true, count: rows.length, data: rows });
+        } catch (error) {
+            console.error("LIVE_MONITORING_ERROR:", error);
+            res.status(500).json({ success: false, message: error.message });
+        }
+    },
+    getStudentExamsForAdmin: async (req, res) => {
+        try {
+            const studentId = req.params.id;
+            
+            // 1. Fetch completed or scheduled exams in DB
+            const [dbExams] = await db.query(
+                'SELECT id, milestone_session as milestone, status, score, chapter, portions, exam_type, scheduled_date FROM student_exams WHERE student_id = ? ORDER BY milestone_session ASC', 
+                [studentId]
+            );
+            
+            // 2. Fetch current maximum session count from timetable to find upcoming milestones
+            const [rows] = await db.query(
+                'SELECT MAX(session_number) as current_max FROM timetable WHERE student_id = ? AND status != "Cancelled"',
+                [studentId]
+            );
+            const currentMax = rows[0]?.current_max || 0;
+            
+            // 3. Ensure we have at least 4 milestone slots (milestones 5, 10, 15, 20, etc.)
+            const milestonesToShow = new Set([5, 10, 15, 20]);
+            for (let m = 5; m <= Math.max(currentMax, 20); m += 5) {
+                milestonesToShow.add(m);
+            }
+            
+            const examsMap = new Map();
+            dbExams.forEach(e => {
+                examsMap.set(e.milestone, {
+                    id: e.id,
+                    milestone: e.milestone,
+                    status: e.status || 'Pending',
+                    score: e.score,
+                    chapter: e.chapter,
+                    portions: e.portions,
+                    exam_type: e.exam_type || 'MCQ',
+                    scheduled_date: e.scheduled_date
+                });
+            });
+            
+            const sortedMilestones = Array.from(milestonesToShow).sort((a, b) => a - b);
+            const results = sortedMilestones.map(m => {
+                if (examsMap.has(m)) {
+                    return examsMap.get(m);
+                } else {
+                    return {
+                        id: null,
+                        milestone: m,
+                        status: 'Pending',
+                        score: null,
+                        chapter: null,
+                        portions: null,
+                        exam_type: 'MCQ',
+                        scheduled_date: null
+                    };
+                }
+            });
+            
+            res.status(200).json({ success: true, data: results });
+        } catch (error) {
             console.error("GET_STUDENT_EXAMS_ERROR:", error);
             res.status(500).json({ success: false, message: error.message });
         }
     },
     getAcademicSchedule,
     addStudentInstallment,
-    getStudentDetailsForAdmin
+    getStudentDetailsForAdmin,
+    getAHParentInteractions,
+    getAHFacultyInteractions,
+    getAHParentMeetings
 };

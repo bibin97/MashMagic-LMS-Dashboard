@@ -38,7 +38,10 @@ const {
     getStudentExamsForAdmin,
     getAcademicSchedule,
     addStudentInstallment,
-    getStudentDetailsForAdmin
+    getStudentDetailsForAdmin,
+    getAHParentInteractions,
+    getAHFacultyInteractions,
+    getAHParentMeetings
 } = require('../controllers/adminController');
 
 router.use(requireAuth);
@@ -65,6 +68,11 @@ router.get('/exam-analytics', requireRole('super_admin', 'sub_admin'), getExamAn
 router.get('/mentor-distribution', requireRole('super_admin', 'sub_admin'), getMentorDistribution);
 router.get('/task-analytics', requireRole('super_admin', 'sub_admin'), getTaskAnalytics);
 router.get('/live-monitoring', requireRole('super_admin', 'sub_admin'), getLiveMonitoring);
+
+// View AH Interactions & Meetings
+router.get('/ah-parent-interactions', requireRole('super_admin', 'sub_admin'), getAHParentInteractions);
+router.get('/ah-faculty-interactions', requireRole('super_admin', 'sub_admin'), getAHFacultyInteractions);
+router.get('/ah-parent-meetings', requireRole('super_admin', 'sub_admin'), getAHParentMeetings);
 
 // Management & Action routes
 router.put('/reject/:id', requireRole('super_admin', 'sub_admin'), rejectUser);

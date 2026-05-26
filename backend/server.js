@@ -263,6 +263,7 @@ const startServer = async () => {
                 'ALTER TABLE students ADD COLUMN admission_type VARCHAR(50) DEFAULT "new";',
                 'ALTER TABLE students ADD COLUMN current_installment_amount DECIMAL(10,2) DEFAULT 0.00;',
                 'ALTER TABLE students ADD COLUMN current_installment_start_hours DECIMAL(10,2) DEFAULT 0.00;',
+                'ALTER TABLE students ADD COLUMN rejoining_fee DECIMAL(10,2) DEFAULT 0.00;',
                 'ALTER TABLE users ADD COLUMN place VARCHAR(255) NULL;',
                 'ALTER TABLE users ADD COLUMN registeredBy INT NULL;',
                 'ALTER TABLE users ADD COLUMN profile_pic TEXT NULL;',
@@ -565,6 +566,45 @@ const startServer = async () => {
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     FOREIGN KEY (student_id) REFERENCES students(id),
                     FOREIGN KEY (mentor_id) REFERENCES users(id)
+                );`,
+
+                `CREATE TABLE IF NOT EXISTS ah_parent_interactions (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    student_id INT NOT NULL,
+                    academic_head_id INT NOT NULL,
+                    date DATE NOT NULL,
+                    interaction_data JSON,
+                    notes TEXT,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (student_id) REFERENCES students(id),
+                    FOREIGN KEY (academic_head_id) REFERENCES users(id)
+                );`,
+
+                `CREATE TABLE IF NOT EXISTS ah_faculty_interactions (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    faculty_id INT NOT NULL,
+                    academic_head_id INT NOT NULL,
+                    date DATE NOT NULL,
+                    interaction_data JSON,
+                    notes TEXT,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (faculty_id) REFERENCES users(id),
+                    FOREIGN KEY (academic_head_id) REFERENCES users(id)
+                );`,
+
+                `CREATE TABLE IF NOT EXISTS ah_parent_meetings (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    student_id INT NOT NULL,
+                    academic_head_id INT NOT NULL,
+                    meeting_date DATE NOT NULL,
+                    meeting_time VARCHAR(20) NOT NULL,
+                    status ENUM('Scheduled', 'Completed', 'Cancelled') DEFAULT 'Scheduled',
+                    meeting_link VARCHAR(255),
+                    report_data JSON,
+                    notes TEXT,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (student_id) REFERENCES students(id),
+                    FOREIGN KEY (academic_head_id) REFERENCES users(id)
                 );`,
 
                 // Performance Indexes

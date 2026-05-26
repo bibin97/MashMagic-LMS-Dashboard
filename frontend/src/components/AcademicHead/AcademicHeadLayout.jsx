@@ -3,14 +3,16 @@ import { Outlet, useLocation } from 'react-router-dom';
 import Sidebar from '../Sidebar';
 import Navbar from '../Navbar';
 import { 
- LayoutDashboard, 
- Activity, 
- UserPlus, 
- GraduationCap, 
- Users, 
- Briefcase, 
- ShieldAlert,
- ScrollText
+  LayoutDashboard, 
+  Activity, 
+  UserPlus, 
+  GraduationCap, 
+  Users,
+  Briefcase,
+  ShieldAlert,
+  ScrollText,
+  MessageSquare,
+  Presentation
 } from 'lucide-react';
 
 const AcademicHeadLayout = () => {
@@ -28,7 +30,9 @@ const AcademicHeadLayout = () => {
   { path: '/academic-head/live-monitoring', icon: <Activity size={18} />, label: 'Live Monitoring' },
   { path: '/academic-head/academic-schedule', icon: <ScrollText size={18} />, label: 'Academic Schedule' },
   { path: '/academic-head/tasks', icon: <Briefcase size={18} />, label: 'Workforce Tasks' },
- { path: '/academic-head/checking', icon: <ShieldAlert size={18} />, label: 'Institutional Audit' },
+  { path: '/academic-head/interactions', icon: <MessageSquare size={18} />, label: 'Interactions' },
+  { path: '/academic-head/meetings', icon: <Presentation size={18} />, label: 'Parent Meetings' },
+  { path: '/academic-head/checking', icon: <ShieldAlert size={18} />, label: 'Institutional Audit' },
  ];
 
  return (

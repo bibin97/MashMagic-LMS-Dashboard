@@ -34,6 +34,8 @@ import AdminManagement from './pages/admin/AdminManagement';
 import StaffManagement from './pages/admin/StaffManagement';
 import AdminLiveMonitoring from './pages/admin/LiveMonitoring';
 import AdminAcademicSchedule from './pages/admin/AcademicSchedule';
+import AHInteractions from './pages/admin/AHInteractions';
+import AHParentMeetings from './pages/admin/AHParentMeetings';
 
 // Mentor Panel Pages
 import MentorDashboard from './pages/Mentor/MentorDashboard';
@@ -92,6 +94,8 @@ import CheckingSection from './pages/AcademicHead/CheckingSection';
 import AcademicLiveMonitoring from './pages/AcademicHead/LiveMonitoring';
 import EditStudent from './pages/AcademicHead/EditStudent';
 import EditFaculty from './pages/AcademicHead/EditFaculty';
+import Interactions from './pages/AcademicHead/Interactions';
+import ParentMeetings from './pages/AcademicHead/ParentMeetings';
 
 // SSC Pages
 import SSCDashboard from './pages/SSC/SSCDashboard';
@@ -138,6 +142,8 @@ function App() {
             <Route path="students/:id" element={<StudentDetails />} />
             <Route path="live-monitoring" element={<AdminLiveMonitoring />} />
             <Route path="academic-schedule" element={<AdminAcademicSchedule />} />
+            <Route path="ah-interactions" element={<AHInteractions />} />
+            <Route path="ah-meetings" element={<AHParentMeetings />} />
             <Route path="profile" element={<AdminProfile />} />
             <Route path="account-settings" element={<AccountSettings />} />
           </Route>
@@ -194,6 +200,8 @@ function App() {
             <Route path="checking" element={<CheckingSection />} />
             <Route path="live-monitoring" element={<AcademicLiveMonitoring />} />
             <Route path="academic-schedule" element={<AcademicHeadAcademicSchedule />} />
+            <Route path="interactions" element={<Interactions />} />
+            <Route path="meetings" element={<ParentMeetings />} />
             <Route path="profile" element={<AdminProfile />} />
             <Route path="account-settings" element={<AccountSettings />} />
           </Route>

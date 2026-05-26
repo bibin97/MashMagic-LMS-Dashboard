@@ -655,6 +655,96 @@ const getAcademicSchedule = async (req, res) => {
     }
 };
 
+// --- AH Interactions & Meetings ---
+const getAHParentInteractions = async (req, res) => {
+    try {
+        const [rows] = await db.query(`
+            SELECT p.*, s.name as student_name, u.name as academic_head_name
+            FROM ah_parent_interactions p
+            JOIN students s ON p.student_id = s.id
+            JOIN users u ON p.academic_head_id = u.id
+            ORDER BY p.date DESC, p.created_at DESC
+        `);
+        res.json({ success: true, data: rows });
+    } catch (error) { res.status(500).json({ success: false, message: error.message }); }
+};
+
+const createAHParentInteraction = async (req, res) => {
+    try {
+        const { student_id, date, interaction_data, notes } = req.body;
+        const academic_head_id = req.user.id;
+        await db.query(`
+            INSERT INTO ah_parent_interactions (student_id, academic_head_id, date, interaction_data, notes)
+            VALUES (?, ?, ?, ?, ?)
+        `, [student_id, academic_head_id, date, JSON.stringify(interaction_data || {}), notes || '']);
+        res.json({ success: true, message: 'Parent interaction logged successfully' });
+    } catch (error) { res.status(500).json({ success: false, message: error.message }); }
+};
+
+const getAHFacultyInteractions = async (req, res) => {
+    try {
+        const [rows] = await db.query(`
+            SELECT f.*, u2.name as faculty_name, u.name as academic_head_name
+            FROM ah_faculty_interactions f
+            JOIN users u2 ON f.faculty_id = u2.id
+            JOIN users u ON f.academic_head_id = u.id
+            ORDER BY f.date DESC, f.created_at DESC
+        `);
+        res.json({ success: true, data: rows });
+    } catch (error) { res.status(500).json({ success: false, message: error.message }); }
+};
+
+const createAHFacultyInteraction = async (req, res) => {
+    try {
+        const { faculty_id, date, interaction_data, notes } = req.body;
+        const academic_head_id = req.user.id;
+        await db.query(`
+            INSERT INTO ah_faculty_interactions (faculty_id, academic_head_id, date, interaction_data, notes)
+            VALUES (?, ?, ?, ?, ?)
+        `, [faculty_id, academic_head_id, date, JSON.stringify(interaction_data || {}), notes || '']);
+        res.json({ success: true, message: 'Faculty interaction logged successfully' });
+    } catch (error) { res.status(500).json({ success: false, message: error.message }); }
+};
+
+const getAHParentMeetings = async (req, res) => {
+    try {
+        const [rows] = await db.query(`
+            SELECT m.*, s.name as student_name, u.name as academic_head_name
+            FROM ah_parent_meetings m
+            JOIN students s ON m.student_id = s.id
+            JOIN users u ON m.academic_head_id = u.id
+            ORDER BY m.meeting_date DESC, m.meeting_time DESC
+        `);
+        res.json({ success: true, data: rows });
+    } catch (error) { res.status(500).json({ success: false, message: error.message }); }
+};
+
+const scheduleAHParentMeeting = async (req, res) => {
+    try {
+        const { student_id, meeting_date, meeting_time, meeting_link, notes } = req.body;
+        const academic_head_id = req.user.id;
+        await db.query(`
+            INSERT INTO ah_parent_meetings (student_id, academic_head_id, meeting_date, meeting_time, status, meeting_link, notes)
+            VALUES (?, ?, ?, ?, 'Scheduled', ?, ?)
+        `, [student_id, academic_head_id, meeting_date, meeting_time, meeting_link || '', notes || '']);
+        res.json({ success: true, message: 'Meeting scheduled successfully' });
+    } catch (error) { res.status(500).json({ success: false, message: error.message }); }
+};
+
+const reportAHParentMeeting = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { report_data, status } = req.body;
+        await db.query(`
+            UPDATE ah_parent_meetings 
+            SET report_data = ?, status = ?
+            WHERE id = ?
+        `, [JSON.stringify(report_data || {}), status || 'Completed', id]);
+        res.json({ success: true, message: 'Meeting reported successfully' });
+    } catch (error) { res.status(500).json({ success: false, message: error.message }); }
+};
+
 module.exports = {
-    getExamAnalytics, getDashboardStats, getAllFacultyActivity, getAvailableFaculties, getDropdownData, registerStudent, registerFaculty, registerSSC, getStudentInteractionLogs, getFacultyInteractionLogs, getAcademicActions, getDailyFacultyChecks, checkFacultySessionToday, uncheckFacultySession, getFacultyDirectory, getAcademicDocuments, uploadAcademicDocument, deleteAcademicDocument, getLiveClassEvaluations, submitLiveClassEvaluation, getPendingFacultyLogs, verifyFacultyLog, editFaculty, deleteFaculty, editStudent, deleteStudent, getStudentById, getStudents, getMentors, editMentor, deleteMentor, getLiveMonitoring, getStaff, syncLegacyData, saveExamPlan, getAcademicSchedule
+    getExamAnalytics, getDashboardStats, getAllFacultyActivity, getAvailableFaculties, getDropdownData, registerStudent, registerFaculty, registerSSC, getStudentInteractionLogs, getFacultyInteractionLogs, getAcademicActions, getDailyFacultyChecks, checkFacultySessionToday, uncheckFacultySession, getFacultyDirectory, getAcademicDocuments, uploadAcademicDocument, deleteAcademicDocument, getLiveClassEvaluations, submitLiveClassEvaluation, getPendingFacultyLogs, verifyFacultyLog, editFaculty, deleteFaculty, editStudent, deleteStudent, getStudentById, getStudents, getMentors, editMentor, deleteMentor, getLiveMonitoring, getStaff, syncLegacyData, saveExamPlan, getAcademicSchedule,
+    getAHParentInteractions, createAHParentInteraction, getAHFacultyInteractions, createAHFacultyInteraction, getAHParentMeetings, scheduleAHParentMeeting, reportAHParentMeeting
 };
