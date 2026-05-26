@@ -88,6 +88,11 @@ const AcademicSchedule = () => {
 
   const currentData = getFilteredData();
 
+  const localTodayStr = (() => {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  })();
+
   if (loading) return (
     <div className="flex flex-col items-center justify-center p-20 space-y-4">
       <div className="w-12 h-12 border-4 border-[#008080] border-t-transparent rounded-full animate-spin"></div>
@@ -206,7 +211,7 @@ const AcademicSchedule = () => {
 
               {activeTab !== 'upcoming' && (
               <div className="flex items-center gap-3 pl-6 md:border-l border-slate-100">
-                {session.meeting_link && (
+                {session.meeting_link && session.status !== 'Completed' && session.date && session.date.split('T')[0] === localTodayStr && (
                   <button 
                     onClick={() => window.open(session.meeting_link, '_blank')}
                     title="Watch Session"

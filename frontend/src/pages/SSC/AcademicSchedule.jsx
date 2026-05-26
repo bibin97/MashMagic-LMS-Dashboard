@@ -93,6 +93,11 @@ const AcademicSchedule = () => {
 
   const currentData = getFilteredData();
 
+  const localTodayStr = (() => {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  })();
+
   const handleReminderSave = async (num, remark) => {
     if (!remark.trim()) return toast("Please type a note to save", { icon: "✍️" });
     try {
@@ -290,7 +295,7 @@ const AcademicSchedule = () => {
 
               {activeTab !== 'upcoming' && (
                 <div className="flex items-center gap-3 pl-6 md:border-l border-slate-100">
-                  {session.meeting_link && (
+                  {session.meeting_link && session.status !== 'Completed' && session.date && session.date.split('T')[0] === localTodayStr && (
                     <button 
                       onClick={() => window.open(session.meeting_link, '_blank')}
                       title="Watch Session"
