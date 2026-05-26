@@ -17,7 +17,9 @@ import {
  BookOpen,
  Eye,
  ShieldCheck,
- Mail
+ Mail,
+ Lock,
+ Unlock
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
@@ -30,6 +32,7 @@ const MentorsList = () => {
  const [searchTerm, setSearchTerm] = useState('');
  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
  const [editingMentor, setEditingMentor] = useState({ id: '', name: '', email: '', phone_number: '', place: '', password: '' });
+ const [isEditingMentorModal, setIsEditingMentorModal] = useState(false);
  
  // Detail Modal States
  const [selectedMentorForDetail, setSelectedMentorForDetail] = useState(null);
@@ -67,6 +70,7 @@ const MentorsList = () => {
 
  const handleEdit = (mentor) => {
  setEditingMentor({ id: mentor.mentor_id, name: mentor.mentor_name, email: mentor.email || '', phone_number: mentor.phone_number || '', place: mentor.place || '', password: '' });
+ setIsEditingMentorModal(false);
  setIsEditModalOpen(true);
  };
 
@@ -451,14 +455,23 @@ const MentorsList = () => {
     <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
       <div className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-lg overflow-hidden animate-in slide-in-from-bottom-4 duration-300">
         <div className="px-8 py-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
-          <h2 className="text-lg font-black text-slate-900 flex items-center gap-3 uppercase tracking-tight">
-            <Edit2 size={20} className="text-[#008080]" /> Reconfigure Account
-          </h2>
+          <div className="flex items-center gap-4">
+            <h2 className="text-lg font-black text-slate-900 flex items-center gap-3 uppercase tracking-tight">
+              <Edit2 size={20} className="text-[#008080]" /> Reconfigure Account
+            </h2>
+            <button 
+              type="button" 
+              onClick={() => setIsEditingMentorModal(prev => !prev)}
+              className={`px-3 py-1.5 rounded-xl flex items-center gap-2 text-[9px] font-black uppercase tracking-widest transition-all ${isEditingMentorModal ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-white text-slate-400 hover:text-slate-600 border border-slate-200'}`}
+            >
+              {isEditingMentorModal ? <><Unlock size={12} /> Editing</> : <><Lock size={12} /> Unlock</>}
+            </button>
+          </div>
           <button onClick={() => setIsEditModalOpen(false)} className="text-slate-600 hover:text-slate-900 transition-colors">
             <X size={20} />
           </button>
         </div>
-        <div className="p-8 space-y-6">
+        <div className={`p-8 space-y-6 transition-opacity duration-300 ${!isEditingMentorModal ? 'opacity-60 pointer-events-none' : ''}`}>
           <div className="grid grid-cols-2 gap-6">
             <div className="space-y-2">
               <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Mentor Name</label>
@@ -466,6 +479,7 @@ const MentorsList = () => {
                 type="text"
                 value={editingMentor.name}
                 onChange={(e) => setEditingMentor({ ...editingMentor, name: e.target.value })}
+                disabled={!isEditingMentorModal}
                 className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold outline-none focus:ring-2 focus:ring-[#008080] transition-all"
               />
             </div>
@@ -475,6 +489,7 @@ const MentorsList = () => {
                 type="text"
                 value={editingMentor.phone_number}
                 onChange={(e) => setEditingMentor({ ...editingMentor, phone_number: e.target.value })}
+                disabled={!isEditingMentorModal}
                 className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold outline-none focus:ring-2 focus:ring-[#008080] transition-all"
               />
             </div>
@@ -485,6 +500,7 @@ const MentorsList = () => {
               type="email"
               value={editingMentor.email}
               onChange={(e) => setEditingMentor({ ...editingMentor, email: e.target.value })}
+              disabled={!isEditingMentorModal}
               className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold outline-none focus:ring-2 focus:ring-[#008080] transition-all"
             />
           </div>
@@ -494,6 +510,7 @@ const MentorsList = () => {
               type="text"
               value={editingMentor.place}
               onChange={(e) => setEditingMentor({ ...editingMentor, place: e.target.value })}
+              disabled={!isEditingMentorModal}
               className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold outline-none focus:ring-2 focus:ring-[#008080] transition-all"
             />
           </div>
@@ -504,11 +521,12 @@ const MentorsList = () => {
               placeholder="LEAVE BLANK TO RETAIN CURRENT"
               value={editingMentor.password}
               onChange={(e) => setEditingMentor({ ...editingMentor, password: e.target.value })}
+              disabled={!isEditingMentorModal}
               className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold outline-none focus:ring-2 focus:ring-rose-200 transition-all uppercase placeholder:text-[9px]"
             />
           </div>
         </div>
-        <div className="px-8 py-6 border-t border-slate-100 bg-slate-50 flex justify-end gap-3">
+        <div className={`px-8 py-6 border-t border-slate-100 bg-slate-50 flex justify-end gap-3 transition-opacity duration-300 ${!isEditingMentorModal ? 'opacity-60 pointer-events-none' : ''}`}>
           <button
             onClick={() => setIsEditModalOpen(false)}
             className="px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-600 hover:bg-slate-100 transition-all"

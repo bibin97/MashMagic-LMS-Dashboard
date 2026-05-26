@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
- User, Phone, MapPin, Calendar, ArrowLeft, GraduationCap, Clock, Activity, ShieldCheck, Users, AlertCircle, Edit2, Trash2, X, Save, ChevronRight, Search, Filter
+ User, Phone, MapPin, Calendar, ArrowLeft, GraduationCap, Clock, Activity, ShieldCheck, Users, AlertCircle, Edit2, Trash2, X, Save, ChevronRight, Search, Filter, Lock, Unlock
 } from 'lucide-react';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
@@ -14,6 +14,7 @@ const MentorDetails = () => {
  const [loading, setLoading] = useState(true);
  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
  const [editingStudent, setEditingStudent] = useState(null);
+ const [isEditingStudentModal, setIsEditingStudentModal] = useState(false);
 
  // Search & Filter States
  const [studentSearch, setStudentSearch] = useState('');
@@ -82,6 +83,7 @@ const MentorDetails = () => {
 
  const handleEditStudent = (student) => {
  setEditingStudent({ ...student });
+ setIsEditingStudentModal(false);
  setIsEditModalOpen(true);
  };
 
@@ -293,7 +295,7 @@ const MentorDetails = () => {
  <div className="p-10 border-b border-slate-100 flex flex-col md:flex-row justify-between items-center gap-8 bg-slate-50/20">
  <div className="flex items-center gap-6">
  <div className="w-16 h-16 bg-white rounded-3xl flex items-center justify-center text-[#008080] shadow-xl shadow-slate-200/50">
- <    GraduationCap size={32} />
+ <GraduationCap size={32} />
  </div>
  <div>
  <h3 className="text-2xl font-black text-slate-900 tracking-tight leading-none mb-1">Assigned Students & Faculty</h3>
@@ -438,14 +440,23 @@ const MentorDetails = () => {
  <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
  <div className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-lg overflow-hidden animate-in slide-in-from-bottom-4 duration-300 border border-white/20">
  <div className="px-8 py-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+ <div className="flex items-center gap-4">
  <h2 className="text-lg font-black text-slate-900 flex items-center gap-3 ">
  <Edit2 size={20} className="text-[#008080]" /> Edit Student Registry
  </h2>
+ <button 
+ type="button" 
+ onClick={() => setIsEditingStudentModal(prev => !prev)}
+ className={`px-3 py-1.5 rounded-xl flex items-center gap-2 text-[9px] font-black uppercase tracking-widest transition-all ${isEditingStudentModal ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-white text-slate-400 hover:text-slate-600 border border-slate-200'}`}
+ >
+ {isEditingStudentModal ? <><Unlock size={12} /> Editing</> : <><Lock size={12} /> Unlock</>}
+ </button>
+ </div>
  <button onClick={() => setIsEditModalOpen(false)} className="w-10 h-10 flex items-center justify-center bg-white rounded-xl text-slate-600 hover:text-slate-600 hover:shadow-md transition-all">
  <X size={20} />
  </button>
  </div>
- <div className="p-8 space-y-6">
+ <div className={`p-8 space-y-6 transition-opacity duration-300 ${!isEditingStudentModal ? 'opacity-60 pointer-events-none' : ''}`}>
  <div className="grid grid-cols-2 gap-6">
  <div>
  <label className="block text-[10px] font-black text-slate-600 uppercase tracking-widest mb-2 ml-1">Student Name</label>
@@ -453,6 +464,7 @@ const MentorDetails = () => {
  type="text"
  value={editingStudent.name}
  onChange={(e) => setEditingStudent(prev => ({ ...prev, name: e.target.value }))}
+ disabled={!isEditingStudentModal}
  className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-xs font-bold rounded-2xl px-5 py-4 focus:outline-none focus:ring-4 focus:ring-[#008080] focus:border-[#008080] transition-all"
  />
  </div>
@@ -462,6 +474,7 @@ const MentorDetails = () => {
  type="text"
  value={editingStudent.grade}
  onChange={(e) => setEditingStudent(prev => ({ ...prev, grade: e.target.value }))}
+ disabled={!isEditingStudentModal}
  className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-xs font-bold rounded-2xl px-5 py-4 focus:outline-none focus:ring-4 focus:ring-[#008080] focus:border-[#008080] transition-all"
  />
  </div>
@@ -473,6 +486,7 @@ const MentorDetails = () => {
  type="email"
  value={editingStudent.email}
  onChange={(e) => setEditingStudent(prev => ({ ...prev, email: e.target.value }))}
+ disabled={!isEditingStudentModal}
  className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-xs font-bold rounded-2xl px-5 py-4 focus:outline-none focus:ring-4 focus:ring-[#008080] focus:border-[#008080] transition-all"
  />
  </div>
@@ -482,6 +496,7 @@ const MentorDetails = () => {
  type="text"
  value={editingStudent.phone_number}
  onChange={(e) => setEditingStudent(prev => ({ ...prev, phone_number: e.target.value }))}
+ disabled={!isEditingStudentModal}
  className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-xs font-bold rounded-2xl px-5 py-4 focus:outline-none focus:ring-4 focus:ring-[#008080] focus:border-[#008080] transition-all"
  />
  </div>
@@ -492,11 +507,12 @@ const MentorDetails = () => {
  type="text"
  value={editingStudent.course}
  onChange={(e) => setEditingStudent(prev => ({ ...prev, course: e.target.value }))}
+ disabled={!isEditingStudentModal}
  className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-xs font-bold rounded-2xl px-5 py-4 focus:outline-none focus:ring-4 focus:ring-[#008080] focus:border-[#008080] transition-all"
  />
  </div>
  </div>
- <div className="px-8 py-6 border-t border-slate-100 bg-slate-50/50 flex justify-end gap-3">
+ <div className={`px-8 py-6 border-t border-slate-100 bg-slate-50/50 flex justify-end gap-3 transition-opacity duration-300 ${!isEditingStudentModal ? 'opacity-60 pointer-events-none' : ''}`}>
  <button
  onClick={() => setIsEditModalOpen(false)}
  className="px-8 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest text-slate-600 hover:text-slate-600 hover:bg-slate-100 transition-all"

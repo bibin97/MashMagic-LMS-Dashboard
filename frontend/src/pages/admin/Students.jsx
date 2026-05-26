@@ -5,7 +5,7 @@ import Modal from '../../components/Modal';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
 import { premiumConfirm } from '../../utils/premiumConfirm';
-import { Eye, Edit2, Ban, Trash2, Filter, Download, Search, UserPlus, CheckCircle, Clock } from 'lucide-react';
+import { Eye, Edit2, Ban, Trash2, Filter, Download, Search, UserPlus, CheckCircle, Clock, Lock, Unlock } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { sortStudentsByOption } from '../../components/StudentListFilterDropdown';
 
@@ -27,6 +27,8 @@ const Students = () => {
  const [expandedRowId, setExpandedRowId] = useState(null);
  const [isModalOpen, setIsModalOpen] = useState(false);
  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+ const [isExportMenuOpen, setIsExportMenuOpen] = useState(false);
+ const [isEditingModal, setIsEditingModal] = useState(false);
  const [editFormData, setEditFormData] = useState({
  name: '',
  email: '',
@@ -94,20 +96,21 @@ const Students = () => {
  };
 
  const handleEdit = (student) => {
- setSelectedStudent(student);
- setEditFormData({
- name: student.name,
- email: student.email || '',
- phone_number: student.phone_number || '',
- grade: student.grade,
- subject: student.subject,
- timetable: student.timetable,
- nextInstallment: student.nextInstallment ? student.nextInstallment.split('T')[0] : '',
- status: student.status,
- course_completed: student.course_completed || 0
- });
- setIsEditModalOpen(true);
- };
+  setEditFormData({
+  id: student.id,
+  name: student.name,
+  email: student.email || '',
+  phone_number: student.phone_number || '',
+  grade: student.grade || '',
+  subject: student.subject || '',
+  nextInstallment: student.next_installment_date ? student.next_installment_date.split('T')[0] : '',
+  course_completed: student.course_completed || 0,
+  status: student.status || 'active',
+  timetable: student.timetable_summary || ''
+  });
+  setIsEditingModal(false);
+  setIsEditModalOpen(true);
+  };
 
   const [isInstallmentModalOpen, setIsInstallmentModalOpen] = useState(false);
   const [installmentAmount, setInstallmentAmount] = useState('');
@@ -413,7 +416,17 @@ const Students = () => {
  title="Edit Student Details"
  size="lg"
  >
- <form onSubmit={handleEditSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+ <form onSubmit={handleEditSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 relative">
+ <div className="col-span-1 md:col-span-2 flex justify-end mb-2">
+    <button 
+        type="button" 
+        onClick={() => setIsEditingModal(prev => !prev)}
+        className={`px-4 py-2 rounded-xl flex items-center gap-2 text-[10px] font-black uppercase tracking-widest transition-all ${isEditingModal ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-slate-50 text-slate-400 hover:text-slate-600 border border-slate-200'}`}
+    >
+        {isEditingModal ? <><Unlock size={14} /> Editing</> : <><Lock size={14} /> Unlock Fields</>}
+    </button>
+ </div>
+ <div className={`col-span-1 md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 transition-opacity duration-300 ${!isEditingModal ? 'opacity-60 pointer-events-none' : ''}`}>
  <div className="flex flex-col gap-2">
  <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest pl-2">Full Name</label>
  <input
@@ -421,6 +434,7 @@ const Students = () => {
  className="p-5 bg-slate-50/50 border border-slate-100 rounded-[20px] text-sm font-bold text-slate-700 outline-none focus:bg-white focus:ring-4 focus:ring-[#008080]/5 focus:border-[#008080]/20 transition-all"
  value={editFormData.name}
  onChange={(e) => setEditFormData({ ...editFormData, name: e.target.value })}
+ disabled={!isEditingModal}
  required
  />
  </div>
@@ -431,6 +445,7 @@ const Students = () => {
  className="p-5 bg-slate-50/50 border border-slate-100 rounded-[20px] text-sm font-bold text-slate-700 outline-none focus:bg-white focus:ring-4 focus:ring-[#008080]/5 focus:border-[#008080]/20 transition-all"
  value={editFormData.email}
  onChange={(e) => setEditFormData({ ...editFormData, email: e.target.value })}
+ disabled={!isEditingModal}
  />
  </div>
  <div className="flex flex-col gap-2">
@@ -440,6 +455,7 @@ const Students = () => {
  className="p-5 bg-slate-50/50 border border-slate-100 rounded-[20px] text-sm font-bold text-slate-700 outline-none focus:bg-white focus:ring-4 focus:ring-[#008080]/5 focus:border-[#008080]/20 transition-all"
  value={editFormData.phone_number}
  onChange={(e) => setEditFormData({ ...editFormData, phone_number: e.target.value })}
+ disabled={!isEditingModal}
  />
  </div>
  <div className="flex flex-col gap-2">
@@ -449,6 +465,7 @@ const Students = () => {
  className="p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-[#008080] transition-all"
  value={editFormData.grade}
  onChange={(e) => setEditFormData({ ...editFormData, grade: e.target.value })}
+ disabled={!isEditingModal}
  required
  />
  </div>
@@ -459,6 +476,7 @@ const Students = () => {
  className="p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-[#008080] transition-all"
  value={editFormData.subject}
  onChange={(e) => setEditFormData({ ...editFormData, subject: e.target.value })}
+ disabled={!isEditingModal}
  required
  />
  </div>
@@ -469,6 +487,7 @@ const Students = () => {
  className="p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-[#008080] transition-all"
  value={editFormData.nextInstallment}
  onChange={(e) => setEditFormData({ ...editFormData, nextInstallment: e.target.value })}
+ disabled={!isEditingModal}
  />
  </div>
  <div className="flex flex-col gap-2">
@@ -476,6 +495,7 @@ const Students = () => {
  <button
  type="button"
  onClick={() => setEditFormData({ ...editFormData, course_completed: editFormData.course_completed === 1 ? 0 : 1 })}
+ disabled={!isEditingModal}
  className={`p-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border-2 flex items-center justify-center gap-3 ${editFormData.course_completed === 1 ? 'bg-emerald-500 border-emerald-500 text-white shadow-lg' : 'bg-slate-50 border-slate-100 text-slate-400'}`}
  >
  {editFormData.course_completed === 1 ? (
@@ -485,12 +505,13 @@ const Students = () => {
  )}
  </button>
  </div>
- <div className="col-span-2 flex flex-col gap-2">
+ <div className="col-span-1 md:col-span-2 flex flex-col gap-2">
  <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest pl-2">Status</label>
  <select
  className="p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-[#008080] transition-all"
  value={editFormData.status}
  onChange={(e) => setEditFormData({ ...editFormData, status: e.target.value })}
+ disabled={!isEditingModal}
  >
   <option value="active">Active</option>
   <option value="inactive">Backup</option>
@@ -499,15 +520,17 @@ const Students = () => {
   <option value="rejected">Rejected</option>
  </select>
  </div>
- <div className="col-span-2 flex flex-col gap-2">
+ <div className="col-span-1 md:col-span-2 flex flex-col gap-2">
  <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest pl-2">Timetable Summary</label>
  <textarea
  className="p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-[#008080] transition-all min-h-[100px]"
  value={editFormData.timetable}
  onChange={(e) => setEditFormData({ ...editFormData, timetable: e.target.value })}
+ disabled={!isEditingModal}
  />
  </div>
- <div className="col-span-2 flex justify-end gap-3 pt-8 pb-4">
+ </div>
+ <div className="col-span-1 md:col-span-2 flex justify-end gap-3 pt-8 pb-4 transition-opacity duration-300">
  <button type="button" className="px-8 py-4 rounded-[18px] border border-slate-100 text-[11px] font-black uppercase tracking-widest text-slate-600 hover:text-slate-600 hover:bg-slate-50 transition-all font-sans" onClick={() => setIsEditModalOpen(false)}>Cancel</button>
  <button type="submit" className="px-10 py-4 rounded-[18px] bg-gradient-to-br from-[#006666] to-[#008080] text-white text-[11px] font-black uppercase tracking-[0.2em] hover:shadow-lg hover:shadow-[#008080]/30 hover:-translate-y-1 transition-all shadow-md shadow-[#008080]/20 font-sans">Save Changes</button>
  </div>

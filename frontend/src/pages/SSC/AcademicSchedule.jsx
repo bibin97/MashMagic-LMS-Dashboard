@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
 import {
   CalendarClock, Clock, BookOpen, Users,
-  Search, Filter, ChevronRight, Activity, Radio,
+  Search, Filter, ChevronRight, Activity, Radio, Video,
   Calendar, AlertCircle, Bell, CheckSquare, MessageSquareText, Lock, 
   ShieldCheck, Timer, XCircle
 } from 'lucide-react';
@@ -79,7 +79,7 @@ const AcademicSchedule = () => {
     if (activeTab === 'today') {
       return filtered.filter(s => {
         const sessionDate = s.date.split('T')[0];
-        return sessionDate === todayStr && s.status !== 'Completed' && s.status !== 'Postponed';
+        return sessionDate <= todayStr && s.status !== 'Completed' && s.status !== 'Postponed';
       });
     } else if (activeTab === 'upcoming') {
       return filtered.filter(s => {
@@ -300,7 +300,7 @@ const AcademicSchedule = () => {
                         : 'bg-slate-50 text-indigo-600 border border-indigo-100 hover:bg-indigo-600 hover:text-white shadow-sm'
                       }`}
                     >
-                      <Activity size={14} /> LIVE
+                      <Video size={14} /> LIVE
                     </button>
                   )}
                   

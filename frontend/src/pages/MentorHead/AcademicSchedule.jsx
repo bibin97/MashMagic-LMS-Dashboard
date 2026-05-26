@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
 import {
   CalendarClock, Clock, BookOpen, Users,
-  Search, Filter, ChevronRight, Activity, Radio,
+  Search, Filter, ChevronRight, Activity, Radio, Video,
   Calendar, AlertCircle, Bell, CheckSquare, MessageSquareText, Lock, 
   ShieldCheck, Timer, XCircle
 } from 'lucide-react';
@@ -57,7 +57,12 @@ const AcademicSchedule = () => {
   };
 
   const getFilteredData = () => {
-    const today = new Date().toISOString().split('T')[0];
+    const localToday = new Date();
+    const year = localToday.getFullYear();
+    const month = String(localToday.getMonth() + 1).padStart(2, '0');
+    const day = String(localToday.getDate()).padStart(2, '0');
+    const todayStr = `${year}-${month}-${day}`;
+
     let filtered = schedule.filter(session => {
       const matchesSearch =
         (session.topic || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -67,9 +72,15 @@ const AcademicSchedule = () => {
     });
 
     if (activeTab === 'today') {
-      return filtered.filter(s => s.date.split('T')[0] === today && s.status !== 'Completed');
+      return filtered.filter(s => {
+        const sessionDate = s.date.split('T')[0];
+        return sessionDate <= todayStr && s.status !== 'Completed';
+      });
     } else if (activeTab === 'upcoming') {
-      return filtered.filter(s => s.date.split('T')[0] > today && s.status !== 'Completed');
+      return filtered.filter(s => {
+        const sessionDate = s.date.split('T')[0];
+        return sessionDate > todayStr && s.status !== 'Completed';
+      });
     } else {
       return filtered.filter(s => s.status === 'Completed');
     }
@@ -205,7 +216,7 @@ const AcademicSchedule = () => {
                       : 'bg-slate-50 text-indigo-600 border border-indigo-100 hover:bg-indigo-600 hover:text-white shadow-sm'
                     }`}
                   >
-                    <Activity size={14} /> LIVE
+                    <Video size={14} /> LIVE
                   </button>
                 )}
                 

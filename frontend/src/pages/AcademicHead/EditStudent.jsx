@@ -5,7 +5,7 @@ import toast from 'react-hot-toast';
 import { useAuth } from '../../context/AuthContext';
 import { 
     User, Mail, GraduationCap, BookOpen, Clock, 
-    CheckCircle, ArrowLeft, Plus, Trash2, 
+    CheckCircle, ArrowLeft, Plus, Trash2, Edit2, Lock, Unlock, Eye, EyeOff,
     Link as LinkIcon, UserCheck, Shield, Phone, Globe, Calendar, DollarSign, X
 } from 'lucide-react';
 
@@ -69,6 +69,15 @@ const EditStudent = () => {
     // Refs for clicking outside
     const subRefs = useRef([]);
     const dayRefs = useRef([]);
+
+    const [editModes, setEditModes] = useState({
+        personal: false,
+        academic: false,
+        enrollment: false,
+        subjects: false,
+        admin: false
+    });
+    const [showPassword, setShowPassword] = useState(false);
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -289,74 +298,120 @@ const EditStudent = () => {
             <form onSubmit={handleSubmit} className="space-y-10">
                 {/* Section 1: Personal Profile */}
                 <div className="bg-white p-8 md:p-12 rounded-[48px] border border-slate-100 shadow-2xl shadow-slate-200/40 relative overflow-hidden">
-                    <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight mb-10 flex items-center gap-4">
-                        <div className="w-10 h-10 bg-[#008080]/10 rounded-xl flex items-center justify-center text-[#008080]">
-                            <User size={20} />
+                    <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight mb-10 flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                            <div className="w-10 h-10 bg-[#008080]/10 rounded-xl flex items-center justify-center text-[#008080]">
+                                <User size={20} />
+                            </div>
+                            Personal Profile
                         </div>
-                        Personal Profile
+                        <button 
+                            type="button" 
+                            onClick={() => setEditModes(prev => ({ ...prev, personal: !prev.personal }))}
+                            className={`p-3 rounded-2xl flex items-center gap-2 text-[10px] font-black uppercase tracking-widest transition-all ${editModes.personal ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-slate-50 text-slate-400 hover:text-slate-600 border border-slate-100'}`}
+                        >
+                            {editModes.personal ? <><Unlock size={14} /> Editing</> : <><Lock size={14} /> Edit Section</>}
+                        </button>
                     </h2>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 transition-opacity duration-300 ${!editModes.personal ? 'opacity-60 pointer-events-none' : ''}`}>
                         <div className="flex flex-col gap-2">
                             <label className="text-[10px] font-black text-slate-700 uppercase tracking-widest ml-1">Full Name</label>
-                            <input type="text" name="name" required value={formData.name} onChange={handleInputChange} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold focus:bg-white focus:ring-2 focus:ring-[#008080] outline-none" />
+                            <input type="text" name="name" required value={formData.name} onChange={handleInputChange} disabled={!editModes.personal} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold focus:bg-white focus:ring-2 focus:ring-[#008080] outline-none" />
                         </div>
                         <div className="flex flex-col gap-2">
                             <label className="text-[10px] font-black text-slate-700 uppercase tracking-widest ml-1">Email Address</label>
-                            <input type="email" name="email" value={formData.email} onChange={handleInputChange} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold focus:bg-white focus:ring-2 focus:ring-[#008080] outline-none" />
+                            <input type="email" name="email" value={formData.email} onChange={handleInputChange} disabled={!editModes.personal} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold focus:bg-white focus:ring-2 focus:ring-[#008080] outline-none" />
                         </div>
                         <div className="flex flex-col gap-2">
                             <label className="text-[10px] font-black text-slate-700 uppercase tracking-widest ml-1">Contact Number</label>
-                            <input type="text" name="contact" value={formData.contact} onChange={handleInputChange} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold focus:bg-white focus:ring-2 focus:ring-[#008080] outline-none" />
+                            <input type="text" name="contact" value={formData.contact} onChange={handleInputChange} disabled={!editModes.personal} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold focus:bg-white focus:ring-2 focus:ring-[#008080] outline-none" />
                         </div>
                         <div className="flex flex-col gap-2">
                             <label className="text-[10px] font-black text-slate-700 uppercase tracking-widest ml-1">Update Password (Optional)</label>
-                            <input type="password" name="password" value={formData.password} onChange={handleInputChange} placeholder="Leave blank to keep current" className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold focus:bg-white focus:ring-2 focus:ring-rose-200 outline-none" />
+                            <div className="relative group">
+                                <Lock size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-rose-400 transition-colors" />
+                                <input 
+                                    type={showPassword ? "text" : "password"} 
+                                    name="password" 
+                                    value={formData.password} 
+                                    onChange={handleInputChange} 
+                                    disabled={!editModes.personal} 
+                                    placeholder="Leave blank to keep current" 
+                                    className="w-full p-4 pl-12 pr-12 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold focus:bg-white focus:ring-2 focus:ring-rose-200 outline-none transition-all" 
+                                />
+                                <button 
+                                    type="button" 
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    disabled={!editModes.personal}
+                                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-rose-500 focus:outline-none transition-colors disabled:opacity-50"
+                                >
+                                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                                </button>
+                            </div>
                         </div>
                         <div className="flex flex-col gap-2">
                             <label className="text-[10px] font-black text-slate-700 uppercase tracking-widest ml-1">Country</label>
-                            <input type="text" name="country" value={formData.country} onChange={handleInputChange} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold focus:bg-white focus:ring-2 focus:ring-[#008080] outline-none" />
+                            <input type="text" name="country" value={formData.country} onChange={handleInputChange} disabled={!editModes.personal} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold focus:bg-white focus:ring-2 focus:ring-[#008080] outline-none" />
                         </div>
                         <div className="flex flex-col gap-2">
                             <label className="text-[10px] font-black text-slate-700 uppercase tracking-widest ml-1">Preferred Language</label>
-                            <input type="text" name="preferred_language" value={formData.preferred_language} onChange={handleInputChange} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold focus:bg-white focus:ring-2 focus:ring-[#008080] outline-none" />
+                            <input type="text" name="preferred_language" value={formData.preferred_language} onChange={handleInputChange} disabled={!editModes.personal} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold focus:bg-white focus:ring-2 focus:ring-[#008080] outline-none" />
                         </div>
                     </div>
                 </div>
 
                 {/* Section 2: Academic Details */}
-                <div className="bg-white p-8 md:p-12 rounded-[48px] border border-slate-100 shadow-2xl shadow-slate-200/40">
-                    <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight mb-10 flex items-center gap-4">
-                        <div className="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600">
-                            <GraduationCap size={20} />
+                <div className="bg-white p-8 md:p-12 rounded-[48px] border border-slate-100 shadow-2xl shadow-slate-200/40 relative">
+                    <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight mb-10 flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                            <div className="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600">
+                                <GraduationCap size={20} />
+                            </div>
+                            Academic Parameters
                         </div>
-                        Academic Parameters
+                        <button 
+                            type="button" 
+                            onClick={() => setEditModes(prev => ({ ...prev, academic: !prev.academic }))}
+                            className={`p-3 rounded-2xl flex items-center gap-2 text-[10px] font-black uppercase tracking-widest transition-all ${editModes.academic ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-slate-50 text-slate-400 hover:text-slate-600 border border-slate-100'}`}
+                        >
+                            {editModes.academic ? <><Unlock size={14} /> Editing</> : <><Lock size={14} /> Edit Section</>}
+                        </button>
                     </h2>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                    <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 transition-opacity duration-300 ${!editModes.academic ? 'opacity-60 pointer-events-none' : ''}`}>
                         <div className="flex flex-col gap-2">
                             <label className="text-[10px] font-black text-slate-700 uppercase tracking-widest ml-1">Grade / Level</label>
-                            <input type="text" name="grade" value={formData.grade} onChange={handleInputChange} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold focus:bg-white outline-none" />
+                            <input type="text" name="grade" value={formData.grade} onChange={handleInputChange} disabled={!editModes.academic} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold focus:bg-white outline-none" />
                         </div>
                         <div className="flex flex-col gap-2">
                             <label className="text-[10px] font-black text-slate-700 uppercase tracking-widest ml-1">Syllabus</label>
-                            <input type="text" name="syllabus" value={formData.syllabus} onChange={handleInputChange} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold focus:bg-white outline-none" />
+                            <input type="text" name="syllabus" value={formData.syllabus} onChange={handleInputChange} disabled={!editModes.academic} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold focus:bg-white outline-none" />
                         </div>
                         <div className="flex flex-col gap-2">
                             <label className="text-[10px] font-black text-slate-700 uppercase tracking-widest ml-1">Course Name</label>
-                            <input type="text" name="course" value={formData.course} onChange={handleInputChange} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold focus:bg-white outline-none" />
+                            <input type="text" name="course" value={formData.course} onChange={handleInputChange} disabled={!editModes.academic} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold focus:bg-white outline-none" />
                         </div>
                         <div className="flex flex-col gap-2">
                             <label className="text-[10px] font-black text-slate-700 uppercase tracking-widest ml-1">School / Institution</label>
-                            <input type="text" name="school_name" value={formData.school_name} onChange={handleInputChange} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold focus:bg-white outline-none" />
+                            <input type="text" name="school_name" value={formData.school_name} onChange={handleInputChange} disabled={!editModes.academic} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold focus:bg-white outline-none" />
                         </div>
                     </div>
                 </div>
 
                 {/* Enrollment Plan */}
-                <div className="bg-slate-900 p-8 md:p-12 rounded-[48px] shadow-2xl shadow-slate-900/40 text-white">
-                    <label className="text-[10px] font-black uppercase tracking-[0.3em] opacity-60 mb-6 block">Current Enrollment Plan</label>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                <div className="bg-slate-900 p-8 md:p-12 rounded-[48px] shadow-2xl shadow-slate-900/40 text-white relative">
+                    <div className="flex justify-between items-center mb-6">
+                        <label className="text-[10px] font-black uppercase tracking-[0.3em] opacity-60 block">Current Enrollment Plan</label>
+                        <button 
+                            type="button" 
+                            onClick={() => setEditModes(prev => ({ ...prev, enrollment: !prev.enrollment }))}
+                            className={`p-3 rounded-2xl flex items-center gap-2 text-[10px] font-black uppercase tracking-widest transition-all ${editModes.enrollment ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-white/5 text-slate-400 hover:text-white border border-white/10'}`}
+                        >
+                            {editModes.enrollment ? <><Unlock size={14} /> Editing</> : <><Lock size={14} /> Edit Section</>}
+                        </button>
+                    </div>
+                    <div className={`grid grid-cols-1 sm:grid-cols-3 gap-6 transition-opacity duration-300 ${!editModes.enrollment ? 'opacity-60 pointer-events-none' : ''}`}>
                         {['Mentorship Only', 'Tuition Only', 'Mentorship & Tuition'].map(plan => (
                             <button
                                 key={plan}
@@ -371,18 +426,27 @@ const EditStudent = () => {
                 </div>
 
                 {/* Section 3: Subject & Faculty Matrix */}
-                <div className="rounded-[48px] border-2 border-dashed border-[#008080]/30 bg-[#008080]/5 p-8 md:p-12 space-y-10">
+                <div className="rounded-[48px] border-2 border-dashed border-[#008080]/30 bg-[#008080]/5 p-8 md:p-12 space-y-10 relative">
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 border-b border-[#008080]/10 pb-8">
                         <div>
                             <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight mb-2">Subject Assignment Matrix</h2>
                             <p className="text-[10px] font-bold text-slate-600 uppercase tracking-[0.2em]">Map multiple specialized faculties to unique academic sequences</p>
                         </div>
-                        <button type="button" onClick={addSubjectRow} className="flex items-center gap-3 bg-white text-[#008080] px-6 py-4 rounded-[20px] border-2 border-[#008080]/20 text-[10px] font-black uppercase tracking-widest hover:bg-[#008080] hover:text-white transition-all shadow-sm">
-                            <Plus size={16} strokeWidth={3} /> Add Sequencing Pair
-                        </button>
+                        <div className="flex items-center gap-4">
+                            <button 
+                                type="button" 
+                                onClick={() => setEditModes(prev => ({ ...prev, subjects: !prev.subjects }))}
+                                className={`p-3 rounded-2xl flex items-center gap-2 text-[10px] font-black uppercase tracking-widest transition-all ${editModes.subjects ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-white text-slate-400 hover:text-slate-600 border border-[#008080]/20 shadow-sm'}`}
+                            >
+                                {editModes.subjects ? <><Unlock size={14} /> Editing</> : <><Lock size={14} /> Edit Section</>}
+                            </button>
+                            <button type="button" onClick={addSubjectRow} disabled={!editModes.subjects} className="flex items-center gap-3 bg-white text-[#008080] px-6 py-4 rounded-[20px] border-2 border-[#008080]/20 text-[10px] font-black uppercase tracking-widest hover:bg-[#008080] hover:text-white transition-all shadow-sm disabled:opacity-50 disabled:pointer-events-none">
+                                <Plus size={16} strokeWidth={3} /> Add Sequencing Pair
+                            </button>
+                        </div>
                     </div>
 
-                    <div className="space-y-6">
+                    <div className={`space-y-6 transition-opacity duration-300 ${!editModes.subjects ? 'opacity-60 pointer-events-none' : ''}`}>
                         {selectedSubjects.map((row, idx) => (
                             <div key={idx} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 bg-white p-8 rounded-[40px] border border-slate-100 shadow-sm relative animate-in slide-in-from-bottom-4 duration-300 items-end">
                                 {/* Custom Subject Dropdown (Multiple Selection) */}
@@ -579,43 +643,52 @@ const EditStudent = () => {
                 </div>
 
                 {/* Section 4: Admin & Finance */}
-                <div className="bg-white p-8 md:p-12 rounded-[48px] border border-slate-100 shadow-2xl shadow-slate-200/40">
-                    <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight mb-10 flex items-center gap-4">
-                        <div className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center text-slate-600">
-                            <Shield size={20} />
+                <div className="bg-white p-8 md:p-12 rounded-[48px] border border-slate-100 shadow-2xl shadow-slate-200/40 relative">
+                    <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight mb-10 flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                            <div className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center text-slate-600">
+                                <Shield size={20} />
+                            </div>
+                            Administration & Infrastructure
                         </div>
-                        Administration & Infrastructure
+                        <button 
+                            type="button" 
+                            onClick={() => setEditModes(prev => ({ ...prev, admin: !prev.admin }))}
+                            className={`p-3 rounded-2xl flex items-center gap-2 text-[10px] font-black uppercase tracking-widest transition-all ${editModes.admin ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-slate-50 text-slate-400 hover:text-slate-600 border border-slate-100'}`}
+                        >
+                            {editModes.admin ? <><Unlock size={14} /> Editing</> : <><Lock size={14} /> Edit Section</>}
+                        </button>
                     </h2>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                    <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 transition-opacity duration-300 ${!editModes.admin ? 'opacity-60 pointer-events-none' : ''}`}>
                         <div className="flex flex-col gap-2">
                             <label className="text-[10px] font-black text-slate-700 uppercase tracking-widest ml-1">Registration #</label>
-                            <input type="text" name="registration_number" value={formData.registration_number} onChange={handleInputChange} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none" />
+                            <input type="text" name="registration_number" value={formData.registration_number} onChange={handleInputChange} disabled={!editModes.admin} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none" />
                         </div>
                         <div className="flex flex-col gap-2">
                             <label className="text-[10px] font-black text-slate-700 uppercase tracking-widest ml-1">Total Fee Authority</label>
                             <div className="relative">
                                 <DollarSign size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-                                <input type="number" name="total_fees" value={formData.total_fees} onChange={handleInputChange} className="w-full p-4 pl-10 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none" />
+                                <input type="number" name="total_fees" value={formData.total_fees} onChange={handleInputChange} disabled={!editModes.admin} className="w-full p-4 pl-10 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none" />
                             </div>
                         </div>
                         <div className="flex flex-col gap-2">
                             <label className="text-[10px] font-black text-slate-700 uppercase tracking-widest ml-1">Amount Paid (Confirmed)</label>
                             <div className="relative">
                                 <DollarSign size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-400" />
-                                <input type="number" name="total_paid" value={formData.total_paid} onChange={handleInputChange} className="w-full p-4 pl-10 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none" />
+                                <input type="number" name="total_paid" value={formData.total_paid} onChange={handleInputChange} disabled={!editModes.admin} className="w-full p-4 pl-10 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none" />
                             </div>
                         </div>
                         <div className="flex flex-col gap-2">
                             <label className="text-[10px] font-black text-slate-700 uppercase tracking-widest ml-1">Next Installment</label>
-                            <input type="date" name="next_installment_date" value={formData.next_installment_date} onChange={handleInputChange} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold" />
+                            <input type="date" name="next_installment_date" value={formData.next_installment_date} onChange={handleInputChange} disabled={!editModes.admin} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold" />
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-8 border-t border-slate-100 pt-8">
+                    <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-8 border-t border-slate-100 pt-8 transition-opacity duration-300 ${!editModes.admin ? 'opacity-60 pointer-events-none' : ''}`}>
                         <div className="flex flex-col gap-2">
                             <label className="text-[10px] font-black text-slate-700 uppercase tracking-widest ml-1">Assigned Academic Mentor</label>
-                            <select name="mentor_id" value={formData.mentor_id} onChange={handleInputChange} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold appearance-none outline-none">
+                            <select name="mentor_id" value={formData.mentor_id} onChange={handleInputChange} disabled={!editModes.admin} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold appearance-none outline-none">
                                 <option value="">Select Mentor</option>
                                 {mentors.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
                             </select>
@@ -624,7 +697,7 @@ const EditStudent = () => {
                             <label className="text-[10px] font-black text-slate-700 uppercase tracking-widest ml-1">Live Session Link</label>
                             <div className="relative">
                                 <LinkIcon size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#008080]" />
-                                <input type="text" name="meeting_link" value={formData.meeting_link} onChange={handleInputChange} className="w-full p-4 pl-12 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none" placeholder="meet.google.com/..." />
+                                <input type="text" name="meeting_link" value={formData.meeting_link} onChange={handleInputChange} disabled={!editModes.admin} className="w-full p-4 pl-12 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none" placeholder="meet.google.com/..." />
                             </div>
                         </div>
                         <div className="flex flex-col gap-2">
@@ -633,6 +706,7 @@ const EditStudent = () => {
                                 <button
                                     type="button"
                                     onClick={() => setFormData({...formData, course_completed: formData.course_completed === 1 ? 0 : 1})}
+                                    disabled={!editModes.admin}
                                     className={`flex items-center gap-3 px-6 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border-2 ${formData.course_completed === 1 ? 'bg-emerald-500 border-emerald-500 text-white shadow-lg shadow-emerald-500/20' : 'bg-white border-slate-100 text-slate-400 hover:border-emerald-500/30'}`}
                                 >
                                     {formData.course_completed === 1 ? (

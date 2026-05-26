@@ -4,7 +4,7 @@ import api from '../../services/api';
 import toast from 'react-hot-toast';
 import { 
     User, Mail, GraduationCap, BookOpen, Clock, 
-    CheckCircle, ArrowLeft, Plus, Trash2, 
+    CheckCircle, ArrowLeft, Plus, Trash2, Edit2, Lock, Unlock, Eye, EyeOff,
     Link as LinkIcon, UserCheck, Shield, Phone, MapPin, Briefcase, Calendar, Info
 } from 'lucide-react';
 
@@ -56,6 +56,13 @@ const EditFaculty = () => {
         isSyllabusDropdownOpen: false,
         isLangDropdownOpen: false
     });
+
+    const [editModes, setEditModes] = useState({
+        basic: false,
+        expertise: false,
+        logistics: false
+    });
+    const [showPassword, setShowPassword] = useState(false);
 
     // Refs for clicking outside
     const secondaryRef = useRef(null);
@@ -215,52 +222,90 @@ const EditFaculty = () => {
 
             <form onSubmit={handleSubmit} className="space-y-10">
                 {/* Section 1: Core Credentials */}
-                <div className="bg-white p-8 md:p-12 rounded-[48px] border border-slate-100 shadow-2xl shadow-slate-200/40">
-                    <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight mb-10 flex items-center gap-4">
-                        <div className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center text-slate-600">
-                            <User size={20} />
+                <div className="bg-white p-8 md:p-12 rounded-[48px] border border-slate-100 shadow-2xl shadow-slate-200/40 relative">
+                    {/* Overlay to prevent clicks when disabled (optional, but disabled prop works too) */}
+                    <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight mb-10 flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                            <div className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center text-slate-600">
+                                <User size={20} />
+                            </div>
+                            Basic Identity
                         </div>
-                        Basic Identity
+                        <button 
+                            type="button" 
+                            onClick={() => setEditModes(prev => ({ ...prev, basic: !prev.basic }))}
+                            className={`p-3 rounded-2xl flex items-center gap-2 text-[10px] font-black uppercase tracking-widest transition-all ${editModes.basic ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-slate-50 text-slate-400 hover:text-slate-600 border border-slate-100'}`}
+                        >
+                            {editModes.basic ? <><Unlock size={14} /> Editing</> : <><Lock size={14} /> Edit Section</>}
+                        </button>
                     </h2>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 transition-opacity duration-300 ${!editModes.basic ? 'opacity-60 pointer-events-none' : ''}`}>
                         <div className="flex flex-col gap-2">
                             <label className="text-[10px] font-black text-slate-700 uppercase tracking-widest ml-1">Full Name</label>
-                            <input type="text" name="name" required value={formData.name} onChange={handleInputChange} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-2 focus:ring-[#008080]" />
+                            <input type="text" name="name" required value={formData.name} onChange={handleInputChange} disabled={!editModes.basic} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-2 focus:ring-[#008080]" />
                         </div>
                         <div className="flex flex-col gap-2">
                             <label className="text-[10px] font-black text-slate-700 uppercase tracking-widest ml-1">Email Address</label>
-                            <input type="email" name="email" value={formData.email} onChange={handleInputChange} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-2 focus:ring-[#008080]" />
+                            <input type="email" name="email" value={formData.email} onChange={handleInputChange} disabled={!editModes.basic} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-2 focus:ring-[#008080]" />
                         </div>
                         <div className="flex flex-col gap-2">
                             <label className="text-[10px] font-black text-slate-700 uppercase tracking-widest ml-1">Phone Number</label>
-                            <input type="text" name="phone_number" value={formData.phone_number} onChange={handleInputChange} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none" />
+                            <input type="text" name="phone_number" value={formData.phone_number} onChange={handleInputChange} disabled={!editModes.basic} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none" />
                         </div>
                         <div className="flex flex-col gap-2">
                             <label className="text-[10px] font-black text-slate-700 uppercase tracking-widest ml-1">Place / City</label>
-                            <input type="text" name="place" value={formData.place} onChange={handleInputChange} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none" />
+                            <input type="text" name="place" value={formData.place} onChange={handleInputChange} disabled={!editModes.basic} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none" />
                         </div>
                         <div className="flex flex-col gap-2">
                             <label className="text-[10px] font-black text-slate-700 uppercase tracking-widest ml-1">Faculty ID Card #</label>
-                            <input type="text" name="faculty_id_card" value={formData.faculty_id_card} onChange={handleInputChange} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none" />
+                            <input type="text" name="faculty_id_card" value={formData.faculty_id_card} onChange={handleInputChange} disabled={!editModes.basic} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none" />
                         </div>
                         <div className="flex flex-col gap-2">
-                            <label className="text-[10px] font-black text-slate-700 uppercase tracking-widest ml-1">Update Access Key (Optional)</label>
-                            <input type="password" name="password" value={formData.password} onChange={handleInputChange} placeholder="Leave blank to keep current" className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none" />
+                            <label className="text-[10px] font-black text-slate-700 uppercase tracking-widest ml-1">Update Password (Optional)</label>
+                            <div className="relative group">
+                                <Lock size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-rose-400 transition-colors" />
+                                <input 
+                                    type={showPassword ? "text" : "password"} 
+                                    name="password" 
+                                    value={formData.password} 
+                                    onChange={handleInputChange} 
+                                    disabled={!editModes.basic} 
+                                    placeholder="Leave blank to keep current" 
+                                    className="w-full p-4 pl-12 pr-12 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none transition-all focus:bg-white focus:ring-2 focus:ring-rose-200" 
+                                />
+                                <button 
+                                    type="button" 
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    disabled={!editModes.basic}
+                                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-rose-500 focus:outline-none transition-colors disabled:opacity-50"
+                                >
+                                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 {/* Section 2: Expertise & Mapping */}
-                <div className="bg-slate-900 p-8 md:p-12 rounded-[48px] shadow-2xl shadow-slate-900/40 text-white space-y-10">
-                    <h2 className="text-xl font-black uppercase tracking-tight flex items-center gap-4">
-                        <div className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center text-white">
-                            <GraduationCap size={20} />
+                <div className="bg-slate-900 p-8 md:p-12 rounded-[48px] shadow-2xl shadow-slate-900/40 text-white space-y-10 relative">
+                    <h2 className="text-xl font-black uppercase tracking-tight flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                            <div className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center text-white">
+                                <GraduationCap size={20} />
+                            </div>
+                            Academic Expertise
                         </div>
-                        Academic Expertise
+                        <button 
+                            type="button" 
+                            onClick={() => setEditModes(prev => ({ ...prev, expertise: !prev.expertise }))}
+                            className={`p-3 rounded-2xl flex items-center gap-2 text-[10px] font-black uppercase tracking-widest transition-all ${editModes.expertise ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-white/5 text-slate-400 hover:text-white border border-white/10'}`}
+                        >
+                            {editModes.expertise ? <><Unlock size={14} /> Editing</> : <><Lock size={14} /> Edit Section</>}
+                        </button>
                     </h2>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                    <div className={`grid grid-cols-1 md:grid-cols-2 gap-10 transition-opacity duration-300 ${!editModes.expertise ? 'opacity-60 pointer-events-none' : ''}`}>
                         {/* Primary & Secondary Subjects */}
                         <div className="space-y-6">
                             <div className="flex flex-col gap-2">
@@ -339,7 +384,7 @@ const EditFaculty = () => {
                         </div>
                     </div>
 
-                    <div className="pt-6 border-t border-white/10">
+                    <div className={`pt-6 border-t border-white/10 transition-opacity duration-300 ${!editModes.expertise ? 'opacity-60 pointer-events-none' : ''}`}>
                         <div className="flex flex-col gap-2 relative max-w-md" ref={langRef}>
                             <label className="text-[10px] font-black uppercase tracking-widest opacity-60">Language Proficiency</label>
                             <div onClick={() => toggleDropdown('isLangDropdownOpen')} className="w-full p-4 bg-white/5 border border-white/10 rounded-2xl text-sm font-bold cursor-pointer flex justify-between items-center">
@@ -364,26 +409,35 @@ const EditFaculty = () => {
                 </div>
 
                 {/* Section 3: Professional & Logistics */}
-                <div className="bg-white p-8 md:p-12 rounded-[48px] border border-slate-100 shadow-2xl shadow-slate-200/40 space-y-10">
-                    <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight flex items-center gap-4">
-                        <div className="w-10 h-10 bg-amber-50 rounded-xl flex items-center justify-center text-amber-600">
-                            <Clock size={20} />
+                <div className="bg-white p-8 md:p-12 rounded-[48px] border border-slate-100 shadow-2xl shadow-slate-200/40 space-y-10 relative">
+                    <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                            <div className="w-10 h-10 bg-amber-50 rounded-xl flex items-center justify-center text-amber-600">
+                                <Clock size={20} />
+                            </div>
+                            Logistics & Administration
                         </div>
-                        Logistics & Administration
+                        <button 
+                            type="button" 
+                            onClick={() => setEditModes(prev => ({ ...prev, logistics: !prev.logistics }))}
+                            className={`p-3 rounded-2xl flex items-center gap-2 text-[10px] font-black uppercase tracking-widest transition-all ${editModes.logistics ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-slate-50 text-slate-400 hover:text-slate-600 border border-slate-100'}`}
+                        >
+                            {editModes.logistics ? <><Unlock size={14} /> Editing</> : <><Lock size={14} /> Edit Section</>}
+                        </button>
                     </h2>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 transition-opacity duration-300 ${!editModes.logistics ? 'opacity-60 pointer-events-none' : ''}`}>
                         <div className="flex flex-col gap-2">
                             <label className="text-[10px] font-black text-slate-700 uppercase tracking-widest ml-1">Hourly Rate (₹) (Multiple Typing)</label>
-                            <input type="text" name="hourly_rate" value={formData.hourly_rate} onChange={handleInputChange} placeholder="e.g. 500, 600, 750" className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none" />
+                            <input type="text" name="hourly_rate" value={formData.hourly_rate} onChange={handleInputChange} disabled={!editModes.logistics} placeholder="e.g. 500, 600, 750" className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none" />
                         </div>
                         <div className="flex flex-col gap-2">
                             <label className="text-[10px] font-black text-slate-700 uppercase tracking-widest ml-1">Joining Date</label>
-                            <input type="date" name="joining_date" value={formData.joining_date} onChange={handleInputChange} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none" />
+                            <input type="date" name="joining_date" value={formData.joining_date} onChange={handleInputChange} disabled={!editModes.logistics} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none" />
                         </div>
                         <div className="flex flex-col gap-2">
                             <label className="text-[10px] font-black text-slate-700 uppercase tracking-widest ml-1">Teaching Mode</label>
-                            <select name="teaching_mode" value={formData.teaching_mode} onChange={handleInputChange} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold appearance-none">
+                            <select name="teaching_mode" value={formData.teaching_mode} onChange={handleInputChange} disabled={!editModes.logistics} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold appearance-none">
                                 <option value="Online">Online Only</option>
                                 <option value="Offline">Offline Only</option>
                                 <option value="Both">Both Modes</option>
@@ -391,21 +445,21 @@ const EditFaculty = () => {
                         </div>
                         <div className="flex flex-col gap-2">
                             <label className="text-[10px] font-black text-slate-700 uppercase tracking-widest ml-1">Experience (Years)</label>
-                            <input type="text" name="experience" value={formData.experience} onChange={handleInputChange} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none" />
+                            <input type="text" name="experience" value={formData.experience} onChange={handleInputChange} disabled={!editModes.logistics} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none" />
                         </div>
                         <div className="flex flex-col gap-2">
                             <label className="text-[10px] font-black text-slate-700 uppercase tracking-widest ml-1">Highest Qualification</label>
-                            <input type="text" name="qualification" value={formData.qualification} onChange={handleInputChange} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none" />
+                            <input type="text" name="qualification" value={formData.qualification} onChange={handleInputChange} disabled={!editModes.logistics} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none" />
                         </div>
                         <div className="flex flex-col gap-2">
                             <label className="text-[10px] font-black text-slate-700 uppercase tracking-widest ml-1">Daily Availability</label>
-                            <input type="text" name="availability" value={formData.availability} onChange={handleInputChange} placeholder="E.g. 4PM - 9PM IST" className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none" />
+                            <input type="text" name="availability" value={formData.availability} onChange={handleInputChange} disabled={!editModes.logistics} placeholder="E.g. 4PM - 9PM IST" className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none" />
                         </div>
                     </div>
 
-                    <div className="flex flex-col gap-2 pt-6 border-t border-slate-100">
+                    <div className={`flex flex-col gap-2 pt-6 border-t border-slate-100 transition-opacity duration-300 ${!editModes.logistics ? 'opacity-60 pointer-events-none' : ''}`}>
                         <label className="text-[10px] font-black text-slate-700 uppercase tracking-widest ml-1">Internal Academic Remarks</label>
-                        <textarea name="remarks" value={formData.remarks} onChange={handleInputChange} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-3xl text-sm font-bold outline-none h-32 resize-none" placeholder="Enter notes about faculty performance or specialization..." />
+                        <textarea name="remarks" value={formData.remarks} onChange={handleInputChange} disabled={!editModes.logistics} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-3xl text-sm font-bold outline-none h-32 resize-none" placeholder="Enter notes about faculty performance or specialization..." />
                     </div>
                 </div>
 

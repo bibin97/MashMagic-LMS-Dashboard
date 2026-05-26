@@ -5,7 +5,7 @@ import api from '../../services/api';
 import toast from 'react-hot-toast';
 import { premiumConfirm } from '../../utils/premiumConfirm';
 import { useAuth } from '../../context/AuthContext';
-import { ShieldCheck, UserCog, Mail, Phone, Briefcase } from 'lucide-react';
+import { ShieldCheck, UserCog, Mail, Phone, Briefcase, Lock, Unlock } from 'lucide-react';
 
 const StaffManagement = () => {
  const { user } = useAuth();
@@ -16,6 +16,7 @@ const StaffManagement = () => {
  const [sortBy, setSortBy] = useState('newest');
  const [selectedMember, setSelectedMember] = useState(null);
  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+ const [isEditingModal, setIsEditingModal] = useState(false);
  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
  const [editFormData, setEditFormData] = useState({
  name: '',
@@ -96,6 +97,7 @@ const StaffManagement = () => {
  role: member.role,
  status: member.status
  });
+ setIsEditingModal(false);
  setIsEditModalOpen(true);
  };
 
@@ -249,7 +251,17 @@ const StaffManagement = () => {
  title="Edit Staff Details"
  size="md"
  >
- <form onSubmit={handleUpdate} className="flex flex-col gap-6">
+ <form onSubmit={handleUpdate} className="flex flex-col gap-6 relative">
+ <div className="flex justify-end mb-2">
+    <button 
+        type="button" 
+        onClick={() => setIsEditingModal(prev => !prev)}
+        className={`px-4 py-2 rounded-xl flex items-center gap-2 text-[10px] font-black uppercase tracking-widest transition-all ${isEditingModal ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-slate-50 text-slate-400 hover:text-slate-600 border border-slate-200'}`}
+    >
+        {isEditingModal ? <><Unlock size={14} /> Editing</> : <><Lock size={14} /> Unlock Fields</>}
+    </button>
+ </div>
+ <div className={`flex flex-col gap-6 transition-opacity duration-300 ${!isEditingModal ? 'opacity-60 pointer-events-none' : ''}`}>
  <div className="flex flex-col gap-2">
  <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest pl-1">Full Name</label>
  <div className="relative">
@@ -259,6 +271,7 @@ const StaffManagement = () => {
  className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-[#008080] transition-all shadow-sm"
  value={editFormData.name}
  onChange={(e) => setEditFormData({ ...editFormData, name: e.target.value })}
+ disabled={!isEditingModal}
  required
  />
  </div>
@@ -274,6 +287,7 @@ const StaffManagement = () => {
  className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-[13px] font-bold outline-none focus:bg-white focus:ring-4 focus:ring-[#008080] transition-all shadow-sm"
  value={editFormData.email}
  onChange={(e) => setEditFormData({ ...editFormData, email: e.target.value })}
+ disabled={!isEditingModal}
  required
  />
  </div>
@@ -287,6 +301,7 @@ const StaffManagement = () => {
  className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-[13px] font-bold outline-none focus:bg-white focus:ring-4 focus:ring-[#008080] transition-all shadow-sm"
  value={editFormData.phone_number}
  onChange={(e) => setEditFormData({ ...editFormData, phone_number: e.target.value })}
+ disabled={!isEditingModal}
  />
  </div>
  </div>
@@ -301,6 +316,7 @@ const StaffManagement = () => {
  className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-[#008080] transition-all shadow-sm appearance-none"
  value={editFormData.role}
  onChange={(e) => setEditFormData({ ...editFormData, role: e.target.value })}
+ disabled={!isEditingModal}
  >
  <option value="mentor">Mentor</option>
  <option value="faculty">Faculty</option>
@@ -320,6 +336,7 @@ const StaffManagement = () => {
  className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-[#008080] transition-all shadow-sm appearance-none"
  value={editFormData.status}
  onChange={(e) => setEditFormData({ ...editFormData, status: e.target.value })}
+ disabled={!isEditingModal}
  >
  <option value="active">Active</option>
  <option value="inactive">Backup</option>
@@ -328,8 +345,9 @@ const StaffManagement = () => {
  </div>
  </div>
  </div>
+ </div>
 
- <div className="flex justify-end gap-3 mt-6 pt-6 border-t border-slate-50">
+ <div className="flex justify-end gap-3 mt-6 pt-6 border-t border-slate-50 transition-opacity duration-300">
  <button
  type="button"
  className="px-6 py-3 rounded-2xl border border-slate-200 text-sm font-bold text-slate-600 hover:bg-slate-50 transition-all active:scale-95"
