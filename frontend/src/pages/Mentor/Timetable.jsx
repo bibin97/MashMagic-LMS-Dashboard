@@ -943,7 +943,7 @@ const Timetable = () => {
             </div>
 
             <div className="flex-1 overflow-y-auto p-10 space-y-6">
-              <div className="grid grid-cols-5 gap-4 px-4 text-[9px] font-black text-slate-400 uppercase tracking-widest">
+              <div className="hidden lg:grid grid-cols-5 gap-4 px-4 text-[9px] font-black text-slate-400 uppercase tracking-widest">
                 <div className="col-span-1">Day of Week</div>
                 <div className="col-span-1">Start Time</div>
                 <div className="col-span-1">End Time</div>
@@ -952,7 +952,7 @@ const Timetable = () => {
               </div>
 
               {editScheduleData.map((slot, index) => (
-                <div key={index} className="grid grid-cols-5 gap-4 items-center bg-slate-50 p-4 rounded-2xl border border-slate-100 group hover:border-[#008080] transition-all">
+                <div key={index} className="grid grid-cols-1 lg:grid-cols-5 gap-4 items-center bg-slate-50 p-4 rounded-2xl border border-slate-100 group hover:border-[#008080] transition-all relative">
                   <select
                     value={slot.day_of_week}
                     onChange={(e) => {
