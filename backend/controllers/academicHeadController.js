@@ -11,7 +11,7 @@ const getDashboardStats = async (req, res) => {
                 const [result] = await db.query(query, params);
                 return result;
             } catch (err) {
-                console.error(`[Academic Head Dashboard Error] ${label}:`, err.message);
+                console.error(`[Academic Operation Executive Dashboard Error] ${label}:`, err.message);
                 return [];
             }
         };
@@ -513,7 +513,7 @@ const editStudent = async (req, res) => {
             }
         }
 
-        await db.query('INSERT INTO admin_notifications (message) VALUES (?)', [`Academic Head (${req.user ? req.user.name : 'Unknown'}) updated student profile and sync'd schedule for: ${student.name}`]);
+        await db.query('INSERT INTO admin_notifications (message) VALUES (?)', [`Academic Operation Executive (${req.user ? req.user.name : 'Unknown'}) updated student profile and sync'd schedule for: ${student.name}`]);
         res.status(200).json({ success: true, message: 'Student profile updated successfully' });
     } catch (error) { 
         console.error("EDIT_STUDENT_ERROR:", error);

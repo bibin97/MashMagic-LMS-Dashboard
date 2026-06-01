@@ -791,7 +791,7 @@ const createStudentLog = async (req, res) => {
             screenshot_url
         ]);
 
-        // Notify Admin/Academic Head
+        // Notify Admin/Academic Operation Executive
         await db.query('INSERT INTO admin_notifications (message) VALUES (?)', [`Mentor (${req.user.name}) submitted a new Student Interaction Log for ${student_id}`]);
 
         res.status(201).json({ success: true, message: "Student interaction log saved successfully", session_number: nextSessionNumber });
