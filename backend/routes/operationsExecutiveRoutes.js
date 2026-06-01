@@ -1,9 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const { requireRole } = require('../middleware/authMiddleware');
+const { requireAuth } = require('../middleware/authMiddleware');
+const { requireRole } = require('../middleware/roleMiddleware');
 const operationsExecutiveController = require('../controllers/operationsExecutiveController');
 
 // All routes require academic_operation_executive role
+router.use(requireAuth);
 router.use(requireRole('academic_operation_executive', 'super_admin'));
 
 // Academic Quality
