@@ -24,6 +24,7 @@ const SSCLayout = () => {
     { path: '/ssc/students', icon: <Users size={18} />, label: 'Student List' },
     { path: '/ssc/timetable', icon: <Clock size={18} />, label: 'Timetable Area' },
     { path: '/ssc/academic-schedule', icon: <Calendar size={18} />, label: 'Academic Schedule' },
+    { path: '/ssc/interaction-logs', icon: <MessageSquare size={18} />, label: 'Interaction Logs' },
   ];
 
   return (

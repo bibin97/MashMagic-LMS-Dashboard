@@ -141,7 +141,7 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center p-6 relative overflow-hidden bg-[#020617]">
+    <div className="min-h-screen w-full flex items-center justify-center p-4 md:p-6 relative overflow-x-hidden overflow-y-auto bg-[#020617]">
       {/* Enterprise Background Gradients */}
       <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-[#0d9488]/15 blur-[120px] rounded-full animate-pulse" />
       <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-[#1e1b4b]/40 blur-[150px] rounded-full" />
@@ -191,8 +191,8 @@ const Login = () => {
         <div className="p-6 md:p-8 flex flex-col justify-center">
 
           {/* Mobile Logo */}
-          <div className="flex lg:hidden justify-center mb-6 mt-4">
-            <img src={mlogo} className="h-20 w-auto object-contain drop-shadow-xl scale-[2.5]" alt="Logo" />
+          <div className="flex lg:hidden justify-center mb-10 mt-12">
+            <img src={mlogo} className="h-16 w-auto object-contain drop-shadow-xl scale-[1.8]" alt="Logo" />
           </div>
           
           {/* Heading Section */}

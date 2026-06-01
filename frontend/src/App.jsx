@@ -216,8 +216,13 @@ function App() {
               <AcademicHeadLayout />
             </ProtectedRoute>
           }>
-            <Route index element={<Navigate to="/academic-head/dashboard" replace />} />
-            <Route path="dashboard" element={<OperationsHub />} />
+            <Route index element={<Navigate to="/academic-head/academic-quality" replace />} />
+            <Route path="academic-quality" element={<OperationsHub section="academic_quality" />} />
+            <Route path="parent-meetings" element={<OperationsHub section="parent_meetings" />} />
+            <Route path="exam-scores" element={<OperationsHub section="exam_scores" />} />
+            <Route path="growth-monitor" element={<OperationsHub section="student_growth" />} />
+            <Route path="faculty-replacement" element={<OperationsHub section="faculty_replacement" />} />
+            <Route path="escalations" element={<OperationsHub section="escalation" />} />
           </Route>
 
           {/* SSC System */}

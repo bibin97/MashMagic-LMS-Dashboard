@@ -6,11 +6,15 @@ import {
 import toast from 'react-hot-toast';
 import api from '../../services/api';
 
-const OperationsHub = () => {
-  const [activeTab, setActiveTab] = useState('academic_quality');
+const OperationsHub = ({ section }) => {
+  const [activeTab, setActiveTab] = useState(section || 'academic_quality');
   const [searchTerm, setSearchTerm] = useState('');
   const [data, setData] = useState({});
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    setActiveTab(section);
+  }, [section]);
 
   const tabs = [
     { id: 'academic_quality', label: 'Academic Quality', icon: <Target size={16} />, color: 'text-indigo-500' },
@@ -240,26 +244,6 @@ const OperationsHub = () => {
             className="bg-transparent border-none outline-none text-xs font-black uppercase tracking-widest pl-3 pr-4 py-2 placeholder:text-slate-400 w-48"
           />
         </div>
-      </div>
-
-      {/* Dynamic Tabs */}
-      <div className="bg-white p-2 md:p-3 rounded-[1.5rem] md:rounded-[2rem] border border-slate-100 shadow-sm flex overflow-x-auto no-scrollbar gap-2">
-        {tabs.map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={`flex items-center gap-2 md:gap-3 px-4 md:px-6 py-3 rounded-[1rem] md:rounded-xl text-[9px] md:text-[10px] font-black uppercase tracking-[0.15em] transition-all whitespace-nowrap ${
-              activeTab === tab.id
-                ? 'bg-yellow-400 text-slate-900 shadow-md transform scale-[1.02]'
-                : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
-            }`}
-          >
-            <div className={`${activeTab === tab.id ? 'text-slate-900' : tab.color}`}>
-              {tab.icon}
-            </div>
-            {tab.label}
-          </button>
-        ))}
       </div>
 
       {/* Render Active Section */}

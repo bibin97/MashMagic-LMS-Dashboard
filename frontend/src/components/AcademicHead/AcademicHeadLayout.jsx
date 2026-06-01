@@ -2,17 +2,7 @@ import React, { useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import Sidebar from '../Sidebar';
 import Navbar from '../Navbar';
-import { 
-  LayoutDashboard, 
-  Activity, 
-  UserPlus, 
-  GraduationCap, 
-  Users,
-  Briefcase,
-  ShieldAlert,
-  ScrollText,
-  MessageSquare,
-  Presentation
+  Target, Presentation, FileText, TrendingUp, UserMinus, AlertTriangle
 } from 'lucide-react';
 
 const AcademicHeadLayout = () => {
@@ -21,7 +11,12 @@ const AcademicHeadLayout = () => {
  const [isCollapsed, setIsCollapsed] = useState(false);
 
  const navItems = [
-  { path: '/academic-head/dashboard', icon: <Activity size={18} />, label: 'Operations Hub' }
+  { path: '/academic-head/academic-quality', icon: <Target size={18} />, label: 'Academic Quality' },
+  { path: '/academic-head/parent-meetings', icon: <Presentation size={18} />, label: 'Parents Meeting' },
+  { path: '/academic-head/exam-scores', icon: <FileText size={18} />, label: 'Exam Scores' },
+  { path: '/academic-head/growth-monitor', icon: <TrendingUp size={18} />, label: 'Growth Monitor' },
+  { path: '/academic-head/faculty-replacement', icon: <UserMinus size={18} />, label: 'Faculty Replacement' },
+  { path: '/academic-head/escalations', icon: <AlertTriangle size={18} />, label: 'Escalations' }
  ];
 
  return (
