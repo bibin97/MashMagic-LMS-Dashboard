@@ -89,12 +89,12 @@ const AcademicSchedule = () => {
     if (activeTab === 'today') {
       return filtered.filter(s => {
         const sessionDate = s.date.split('T')[0];
-        return sessionDate <= todayStr && s.status !== 'Completed' && s.status !== 'Postponed';
+        return sessionDate <= todayStr && s.status !== 'Completed';
       });
     } else if (activeTab === 'upcoming') {
       return filtered.filter(s => {
         const sessionDate = s.date.split('T')[0];
-        return s.status === 'Postponed' || (sessionDate > todayStr && s.status !== 'Completed');
+        return sessionDate > todayStr && s.status !== 'Completed';
       });
     } else {
       return filtered.filter(s => s.status === 'Completed');
