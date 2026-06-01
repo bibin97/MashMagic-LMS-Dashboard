@@ -2,8 +2,7 @@ import React, { useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import Sidebar from '../Sidebar';
 import Navbar from '../Navbar';
-  Target, Presentation, FileText, TrendingUp, UserMinus, AlertTriangle
-} from 'lucide-react';
+import { Target, Presentation, FileText, TrendingUp, UserMinus, AlertTriangle } from 'lucide-react';
 
 const AcademicHeadLayout = () => {
  const location = useLocation();
