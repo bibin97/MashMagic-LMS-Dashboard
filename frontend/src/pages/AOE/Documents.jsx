@@ -26,7 +26,7 @@ const Documents = () => {
 
  const fetchDocuments = async () => {
  try {
- const res = await api.get('/academic-head/documents');
+ const res = await api.get('/aoe/documents');
  setDocuments(res.data.data);
  } catch (error) {
  toast.error("Failed to load documents");
@@ -38,7 +38,7 @@ const Documents = () => {
  const handleUpload = async (e) => {
  e.preventDefault();
  try {
- await api.post('/academic-head/documents', newDoc);
+ await api.post('/aoe/documents', newDoc);
  toast.success("Document registry updated");
  setIsModalOpen(false);
  setNewDoc({ title: '', description: '', file_url: '', category: 'General' });
@@ -54,7 +54,7 @@ const Documents = () => {
 
  premiumConfirm(async () => {
  try {
- await api.delete(`/academic-head/documents/${id}`);
+ await api.delete(`/aoe/documents/${id}`);
  toast.success("Document removed");
  setDocuments(prev => prev.filter(d => d.id !== id));
  } catch (error) {

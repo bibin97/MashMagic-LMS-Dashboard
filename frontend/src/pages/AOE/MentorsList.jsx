@@ -29,7 +29,7 @@ const MentorsList = () => {
 
  const fetchMentors = async () => {
  try {
- const res = await api.get('/academic-head/mentors-all');
+ const res = await api.get('/aoe/mentors-all');
  if (res.data.success) {
  setMentors(res.data.data);
  }
@@ -47,7 +47,7 @@ const MentorsList = () => {
 
  const handleUpdate = async () => {
  try {
- const res = await api.put(`/academic-head/mentors/${editingMentor.id}`, editingMentor);
+ const res = await api.put(`/aoe/mentors/${editingMentor.id}`, editingMentor);
  if (res.data.success) {
  toast.success("Mentor profile updated");
  setIsEditModalOpen(false);
@@ -61,7 +61,7 @@ const MentorsList = () => {
  const handleDelete = async (id, name) => {
  premiumConfirm(async () => {
  try {
- const res = await api.delete(`/academic-head/mentors/${id}`);
+ const res = await api.delete(`/aoe/mentors/${id}`);
  if (res.data.success) {
  toast.success("Mentor profile deleted");
  fetchMentors();
@@ -87,7 +87,7 @@ const MentorsList = () => {
  setExpandedMentorId(mentor.id);
  setLoadingStudents(true);
  try {
- const res = await api.get(`/academic-head/students?mentor_id=${mentor.id}`);
+ const res = await api.get(`/aoe/students?mentor_id=${mentor.id}`);
  if (res.data.success) {
  setMentorStudents(res.data.data);
  }
@@ -114,7 +114,7 @@ const MentorsList = () => {
             <h2 className="text-3xl lg:text-4xl font-black text-slate-900 tracking-tighter uppercase leading-none">Mentor Faculty</h2>
             <p className="text-slate-600 text-[10px] font-bold uppercase tracking-widest mt-2 flex items-center gap-2">
               <Users size={14} className="text-[#008080]" />
-              Academic Head level management of all mentor profiles and assignments
+              AOE level management of all mentor profiles and assignments
             </p>
           </div>
 

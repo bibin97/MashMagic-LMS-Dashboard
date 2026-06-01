@@ -97,7 +97,7 @@ const EditFaculty = () => {
     const fetchFacultyData = async () => {
         try {
             setLoading(true);
-            const res = await api.get(`/academic-head/faculties`);
+            const res = await api.get(`/aoe/faculties`);
             const faculty = res.data.data.find(f => f.id.toString() === id);
             
             if (faculty) {
@@ -139,7 +139,7 @@ const EditFaculty = () => {
                 });
             } else {
                 toast.error("Faculty not found");
-                navigate('/academic-head/faculties');
+                navigate('/aoe/faculties');
             }
         } catch (error) {
             toast.error("Failed to load faculty data");
@@ -176,10 +176,10 @@ const EditFaculty = () => {
         e.preventDefault();
         try {
             setSaving(true);
-            const res = await api.put(`/academic-head/faculties/${id}`, formData);
+            const res = await api.put(`/aoe/faculties/${id}`, formData);
             if (res.data.success) {
                 toast.success("Faculty profile updated successfully");
-                navigate('/academic-head/faculties');
+                navigate('/aoe/faculties');
             }
         } catch (error) {
             toast.error(error.response?.data?.message || "Update failed");
@@ -201,7 +201,7 @@ const EditFaculty = () => {
         <div className="max-w-6xl mx-auto pb-20 px-4">
             {/* Header */}
             <div className="flex items-center justify-between mb-10 py-6">
-                <button onClick={() => navigate('/academic-head/faculties')} className="flex items-center gap-2 text-slate-600 hover:text-[#008080] transition-colors">
+                <button onClick={() => navigate('/aoe/faculties')} className="flex items-center gap-2 text-slate-600 hover:text-[#008080] transition-colors">
                     <ArrowLeft size={20} />
                     <span className="text-xs font-black uppercase tracking-widest">Faculty Directory</span>
                 </button>
@@ -465,7 +465,7 @@ const EditFaculty = () => {
 
                 {/* Form Actions */}
                 <div className="flex flex-col sm:flex-row items-center justify-end gap-6 pt-10">
-                    <button type="button" onClick={() => navigate('/academic-head/faculties')} className="w-full sm:w-auto px-10 py-5 rounded-[24px] border border-slate-200 text-slate-600 text-xs font-black uppercase tracking-widest hover:bg-slate-50 transition-all font-sans">
+                    <button type="button" onClick={() => navigate('/aoe/faculties')} className="w-full sm:w-auto px-10 py-5 rounded-[24px] border border-slate-200 text-slate-600 text-xs font-black uppercase tracking-widest hover:bg-slate-50 transition-all font-sans">
                         Discard Changes
                     </button>
                     <button disabled={saving} type="submit" className="w-full sm:w-auto px-12 py-5 rounded-[24px] bg-[#008080] text-white text-xs font-black uppercase tracking-[0.25em] shadow-2xl hover:bg-[#008080] hover:-translate-y-1 transition-all flex items-center justify-center gap-4 disabled:opacity-50">

@@ -41,13 +41,13 @@ const CheckingSection = () => {
  setLoading(true);
  try {
  if (activeTab === 'live_class') {
- const res = await api.get('/academic-head/live-class-evaluations');
+ const res = await api.get('/aoe/live-class-evaluations');
  if (res.data.success) setEvaluations(res.data.data);
  } else if (activeTab === 'session_audit') {
- const res = await api.get('/academic-head/faculty-checks');
+ const res = await api.get('/aoe/faculty-checks');
  if (res.data.success) setSessions(res.data.data);
  } else {
- const res = await api.get('/academic-head/faculty-logs-pending');
+ const res = await api.get('/aoe/faculty-logs-pending');
  if (res.data.success) {
  setPendingLogs(res.data.data);
  }
@@ -61,7 +61,7 @@ const CheckingSection = () => {
 
  const handleAddCheck = async (sessionId) => {
  try {
- await api.post(`/academic-head/sessions/${sessionId}/check`);
+ await api.post(`/aoe/sessions/${sessionId}/check`);
  setSessions(prev => prev.map(s => {
  if (s.session_id === sessionId) {
  return { ...s, check_count: (s.check_count || 0) + 1 };
@@ -76,7 +76,7 @@ const CheckingSection = () => {
 
  const handleRemoveCheck = async (sessionId) => {
  try {
- await api.delete(`/academic-head/sessions/${sessionId}/uncheck`);
+ await api.delete(`/aoe/sessions/${sessionId}/uncheck`);
  setSessions(prev => prev.map(s => {
  if (s.session_id === sessionId && s.check_count > 0) {
  return { ...s, check_count: s.check_count - 1 };
@@ -91,7 +91,7 @@ const CheckingSection = () => {
 
  const fetchFaculties = async () => {
  try {
- const res = await api.get('/academic-head/faculties');
+ const res = await api.get('/aoe/faculties');
  if (res.data.success) {
  setFaculties(res.data.data);
  }
@@ -103,7 +103,7 @@ const CheckingSection = () => {
  const handleEvalSubmit = async (e) => {
  e.preventDefault();
  try {
- const res = await api.post('/academic-head/live-class-evaluations', evalForm);
+ const res = await api.post('/aoe/live-class-evaluations', evalForm);
  if (res.data.success) {
  toast.success('Evaluation Submitted');
  setIsEvalModalOpen(false);
@@ -117,7 +117,7 @@ const CheckingSection = () => {
  const handleVerifySubmit = async (e) => {
  e.preventDefault();
  try {
- const res = await api.put(`/academic-head/faculty-logs/${verifyForm.id}/verify`, {
+ const res = await api.put(`/aoe/faculty-logs/${verifyForm.id}/verify`, {
  verification_status: verifyForm.verification_status,
  verification_remarks: verifyForm.verification_remarks
  });

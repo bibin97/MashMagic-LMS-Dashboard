@@ -74,7 +74,7 @@ const AcademicHeadTasks = () => {
 
  const fetchAssignees = async () => {
  try {
- const response = await api.get('/academic-head/dropdowns');
+ const response = await api.get('/aoe/dropdowns');
  const { faculties, mentors, mentorHeads } = response.data.data;
 
  // Consolidate all potential assignees

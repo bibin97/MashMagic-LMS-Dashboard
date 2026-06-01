@@ -29,7 +29,7 @@ const AcademicActions = () => {
 
  const fetchActions = async () => {
  try {
- const res = await api.get('/academic-head/actions');
+ const res = await api.get('/aoe/actions');
  setMilestones(res.data.data.milestones);
  setDailyLogs(res.data.data.dailyLogs);
  } catch (error) {
@@ -53,7 +53,7 @@ const AcademicActions = () => {
  const handleSaveExamPlan = async (e) => {
  e.preventDefault();
  try {
- await api.post('/academic-head/exams/plan', {
+ await api.post('/aoe/exams/plan', {
  student_id: selectedMilestone.student_id,
  milestone_session: selectedMilestone.milestone,
  chapter: planData.chapter,

@@ -79,7 +79,7 @@ const Login = () => {
         
         if (finalRole === 'super_admin' || finalRole === 'sub_admin') navigate('/admin/dashboard');
         else if (finalRole === 'academic_head') navigate('/academic-head/dashboard');
-        else if (finalRole === 'academic_operation_executive') navigate('/operations-executive/dashboard');
+        else if (finalRole === 'academic_operation_executive') navigate('/aoe/dashboard');
         else if (finalRole === 'mentor_head') navigate('/mentor-head/dashboard');
         else if (finalRole === 'mentor') navigate('/mentor/dashboard');
         else if (finalRole === 'faculty_head') navigate('/faculty-head/dashboard');

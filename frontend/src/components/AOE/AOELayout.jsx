@@ -12,17 +12,27 @@ import {
   ShieldAlert,
   ScrollText,
   MessageSquare,
-  Presentation,
-  Target
+  Presentation
 } from 'lucide-react';
 
-const OperationsExecutiveLayout = () => {
+const AOELayout = () => {
  const location = useLocation();
  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
  const [isCollapsed, setIsCollapsed] = useState(false);
 
  const navItems = [
-  { path: '/operations-executive/dashboard', icon: <Target size={18} />, label: 'Operations Hub' }
+ { path: '/aoe/dashboard', icon: <LayoutDashboard size={18} />, label: 'Dashboard' },
+ { path: '/aoe/actions', icon: <Activity size={18} />, label: 'Actions Center' },
+ { path: '/aoe/registrations', icon: <UserPlus size={18} />, label: 'Registrations' },
+ { path: '/aoe/students', icon: <GraduationCap size={18} />, label: 'Students' },
+ { path: '/aoe/mentors', icon: <Users size={18} />, label: 'Mentors' },
+ { path: '/aoe/faculties', icon: <Briefcase size={18} />, label: 'Faculties' },
+  { path: '/aoe/live-monitoring', icon: <Activity size={18} />, label: 'Live Monitoring' },
+  { path: '/aoe/academic-schedule', icon: <ScrollText size={18} />, label: 'Academic Schedule' },
+  { path: '/aoe/tasks', icon: <Briefcase size={18} />, label: 'Workforce Tasks' },
+  { path: '/aoe/interactions', icon: <MessageSquare size={18} />, label: 'Interactions' },
+  { path: '/aoe/meetings', icon: <Presentation size={18} />, label: 'Parent Meetings' },
+  { path: '/aoe/checking', icon: <ShieldAlert size={18} />, label: 'Institutional Audit' },
  ];
 
  return (
@@ -42,7 +52,7 @@ const OperationsExecutiveLayout = () => {
  isCollapsed={isCollapsed} 
  setIsCollapsed={setIsCollapsed} 
  navItems={navItems}
- title="Academic Head"
+ title="AOE"
  />
  
   <div className={`flex-1 flex flex-col min-w-0 w-full h-screen overflow-y-auto transition-all duration-300 ${isCollapsed ? 'md:ml-[88px]' : 'md:ml-72'}`}>
@@ -57,4 +67,4 @@ const OperationsExecutiveLayout = () => {
  );
 };
 
-export default OperationsExecutiveLayout;
+export default AOELayout;

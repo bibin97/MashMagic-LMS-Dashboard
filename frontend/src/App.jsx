@@ -8,8 +8,8 @@ import AdminLayout from './layouts/AdminLayout';
 import MentorLayout from './components/Mentor/MentorLayout';
 import FacultyLayout from './components/Faculty/FacultyLayout';
 import MentorHeadLayout from './components/MentorHead/MentorHeadLayout';
+import AOELayout from './components/AOE/AOELayout';
 import AcademicHeadLayout from './components/AcademicHead/AcademicHeadLayout';
-import OperationsExecutiveLayout from './components/AcademicHead/OperationsExecutiveLayout';
 import SSCLayout from './components/SSC/SSCLayout';
 
 // Auth Pages
@@ -77,26 +77,28 @@ import MentorHeadAcademicSchedule from './pages/MentorHead/AcademicSchedule';
 // Mentor Interaction Tracking
 import FacultyTracking from './pages/Mentor/FacultyTracking';
 
+// AOE Pages
+import AOEDashboard from './pages/AOE/AcademicHeadDashboard';
+import Registrations from './pages/AOE/Registrations';
+import AOETasks from './pages/AOE/AcademicHeadTasks';
+import AOEFacultyActivity from './pages/AOE/AcademicHeadFacultyActivity';
+import AcademicActions from './pages/AOE/AcademicActions';
+import AOEAcademicSchedule from './pages/AOE/AcademicSchedule';
+import FacultyDirectory from './pages/AOE/FacultyDirectory';
+import StudentsListAcademic from './pages/AOE/StudentsList';
+import MentorsListAcademic from './pages/AOE/MentorsList';
+import Documents from './pages/AOE/Documents';
+import FacultyAudit from './pages/AOE/FacultyAudit';
+import StudentLogsAcademic from './pages/AOE/StudentLogs';
+import FacultyLogsAcademic from './pages/AOE/FacultyLogs';
+import CheckingSection from './pages/AOE/CheckingSection';
+import AOELiveMonitoring from './pages/AOE/LiveMonitoring';
+import EditStudent from './pages/AOE/EditStudent';
+import EditFaculty from './pages/AOE/EditFaculty';
+import Interactions from './pages/AOE/Interactions';
+import ParentMeetings from './pages/AOE/ParentMeetings';
+
 // Academic Head Pages
-import AcademicHeadDashboard from './pages/AcademicHead/AcademicHeadDashboard';
-import Registrations from './pages/AcademicHead/Registrations';
-import AcademicHeadTasks from './pages/AcademicHead/AcademicHeadTasks';
-import AcademicHeadFacultyActivity from './pages/AcademicHead/AcademicHeadFacultyActivity';
-import AcademicActions from './pages/AcademicHead/AcademicActions';
-import AcademicHeadAcademicSchedule from './pages/AcademicHead/AcademicSchedule';
-import FacultyDirectory from './pages/AcademicHead/FacultyDirectory';
-import StudentsListAcademic from './pages/AcademicHead/StudentsList';
-import MentorsListAcademic from './pages/AcademicHead/MentorsList';
-import Documents from './pages/AcademicHead/Documents';
-import FacultyAudit from './pages/AcademicHead/FacultyAudit';
-import StudentLogsAcademic from './pages/AcademicHead/StudentLogs';
-import FacultyLogsAcademic from './pages/AcademicHead/FacultyLogs';
-import CheckingSection from './pages/AcademicHead/CheckingSection';
-import AcademicLiveMonitoring from './pages/AcademicHead/LiveMonitoring';
-import EditStudent from './pages/AcademicHead/EditStudent';
-import EditFaculty from './pages/AcademicHead/EditFaculty';
-import Interactions from './pages/AcademicHead/Interactions';
-import ParentMeetings from './pages/AcademicHead/ParentMeetings';
 import OperationsHub from './pages/AcademicHead/OperationsHub';
 
 // SSC Pages
@@ -177,17 +179,17 @@ function App() {
             <Route path="account-settings" element={<AccountSettings />} />
           </Route>
 
-          {/* Academic Head System */}
-          <Route path="/academic-head" element={
-            <ProtectedRoute allowedRoles={['academic_head']}>
-              <AcademicHeadLayout />
+          {/* AOE System */}
+          <Route path="/aoe" element={
+            <ProtectedRoute allowedRoles={['academic_operation_executive']}>
+              <AOELayout />
             </ProtectedRoute>
           }>
-            <Route index element={<Navigate to="/academic-head/dashboard" replace />} />
-            <Route path="dashboard" element={<AcademicHeadDashboard />} />
+            <Route index element={<Navigate to="/aoe/dashboard" replace />} />
+            <Route path="dashboard" element={<AOEDashboard />} />
             <Route path="actions" element={<AcademicActions />} />
             <Route path="faculties" element={<FacultyDirectory />} />
-            <Route path="students" element={<StudentsListAcademic role="academic_head" />} />
+            <Route path="students" element={<StudentsListAcademic role="academic_operation_executive" />} />
             <Route path="students/:id" element={<StudentDetails />} />
             <Route path="edit-student/:id" element={<EditStudent />} />
             <Route path="edit-faculty/:id" element={<EditFaculty />} />
@@ -195,26 +197,26 @@ function App() {
             <Route path="documents" element={<Documents />} />
             <Route path="faculty-audit" element={<FacultyAudit />} />
             <Route path="registrations" element={<Registrations />} />
-            <Route path="tasks" element={<AcademicHeadTasks />} />
-            <Route path="faculty-activity" element={<AcademicHeadFacultyActivity />} />
+            <Route path="tasks" element={<AOETasks />} />
+            <Route path="faculty-activity" element={<AOEFacultyActivity />} />
             <Route path="student-logs" element={<StudentLogsAcademic />} />
             <Route path="faculty-logs" element={<FacultyLogsAcademic />} />
             <Route path="checking" element={<CheckingSection />} />
-            <Route path="live-monitoring" element={<AcademicLiveMonitoring />} />
-            <Route path="academic-schedule" element={<AcademicHeadAcademicSchedule />} />
+            <Route path="live-monitoring" element={<AOELiveMonitoring />} />
+            <Route path="academic-schedule" element={<AOEAcademicSchedule />} />
             <Route path="interactions" element={<Interactions />} />
             <Route path="meetings" element={<ParentMeetings />} />
             <Route path="profile" element={<AdminProfile />} />
             <Route path="account-settings" element={<AccountSettings />} />
           </Route>
 
-          {/* Academic Operation Executive System */}
-          <Route path="/operations-executive" element={
-            <ProtectedRoute allowedRoles={['academic_operation_executive']}>
-              <OperationsExecutiveLayout />
+          {/* Academic Head System */}
+          <Route path="/academic-head" element={
+            <ProtectedRoute allowedRoles={['academic_head']}>
+              <AcademicHeadLayout />
             </ProtectedRoute>
           }>
-            <Route index element={<Navigate to="/operations-executive/dashboard" replace />} />
+            <Route index element={<Navigate to="/academic-head/dashboard" replace />} />
             <Route path="dashboard" element={<OperationsHub />} />
           </Route>
 

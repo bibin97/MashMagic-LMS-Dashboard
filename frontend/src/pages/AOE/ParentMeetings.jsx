@@ -31,7 +31,7 @@ const ParentMeetings = () => {
 
   const fetchStudents = async () => {
     try {
-      const res = await api.get('/academic-head/students-all');
+      const res = await api.get('/aoe/students-all');
       setStudents(res.data.data || []);
     } catch (err) {
       toast.error('Failed to fetch students');
@@ -40,7 +40,7 @@ const ParentMeetings = () => {
 
   const fetchMeetings = async () => {
     try {
-      const res = await api.get('/academic-head/parent-meetings');
+      const res = await api.get('/aoe/parent-meetings');
       setMeetings(res.data.data || []);
     } catch (err) {
       toast.error('Failed to fetch meetings');
@@ -52,7 +52,7 @@ const ParentMeetings = () => {
     if (!formData.student_id) return toast.error('Please select a student');
 
     try {
-      await api.post('/academic-head/parent-meetings', formData);
+      await api.post('/aoe/parent-meetings', formData);
       toast.success('Meeting scheduled successfully');
       setFormData({
         ...formData,
@@ -72,7 +72,7 @@ const ParentMeetings = () => {
     if (!reportData.id) return toast.error('Invalid meeting');
 
     try {
-      await api.put(`/academic-head/parent-meetings/${reportData.id}/report`, {
+      await api.put(`/aoe/parent-meetings/${reportData.id}/report`, {
         status: 'Completed',
         report_data: { summary: reportData.notes } // Using JSON structure for future extensibility
       });
@@ -308,7 +308,7 @@ const ParentMeetings = () => {
                         {summary}
                       </td>
                       <td className="p-4 text-sm font-medium text-slate-500 whitespace-nowrap">
-                        {m.academic_head_name}
+                        {m.academic_operation_executive_name}
                       </td>
                     </tr>
                   )}) : (

@@ -144,7 +144,7 @@ const Registrations = () => {
   const fetchDropdowns = async () => {
     try {
       const token = sessionStorage.getItem('token');
-      const res = await api.get('/academic-head/dropdowns', {
+      const res = await api.get('/aoe/dropdowns', {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.data.success) {
@@ -168,7 +168,7 @@ const Registrations = () => {
       const subjectParam = subjectsToFetch.join(',');
       // Send dayConfigs as JSON string for complex availability checking
       const configsParam = encodeURIComponent(JSON.stringify(dayConfigs));
-      const res = await api.get(`/academic-head/available-faculties?subject=${subjectParam}&dayConfigs=${configsParam}`);
+      const res = await api.get(`/aoe/available-faculties?subject=${subjectParam}&dayConfigs=${configsParam}`);
       if (res.data.success) {
         setSelectedSubjects(prev => {
           const newSubjects = [...prev];
@@ -298,7 +298,7 @@ const Registrations = () => {
           });
         }
       });
-      const res = await api.post('/academic-head/register-student', { ...studentForm, selectedSubjects: flattenedSubjects });
+      const res = await api.post('/aoe/register-student', { ...studentForm, selectedSubjects: flattenedSubjects });
       if (res.data.success) {
         toast.success('Student Registered Successfully!');
         setStudentForm({
@@ -326,7 +326,7 @@ const Registrations = () => {
     }
     setLoading(true);
     try {
-      const res = await api.post('/academic-head/register-faculty', facultyForm);
+      const res = await api.post('/aoe/register-faculty', facultyForm);
       if (res.data.success) {
         toast.success('Faculty Account Created Successfully!');
         setFacultyForm({
@@ -349,7 +349,7 @@ const Registrations = () => {
     }
     setLoading(true);
     try {
-      const res = await api.post('/academic-head/register-ssc', sscForm);
+      const res = await api.post('/aoe/register-ssc', sscForm);
       if (res.data.success) {
         toast.success('SSC Account Created Successfully!');
         setSscForm({

@@ -57,7 +57,7 @@ const AcademicSchedule = () => {
 
   const fetchSchedule = async () => {
     try {
-      const res = await api.get('/academic-head/academic-schedule');
+      const res = await api.get('/aoe/academic-schedule');
       setSchedule(res.data.data);
     } catch (error) {
       toast.error("Failed to load academic schedule");

@@ -22,7 +22,7 @@ const FacultyLogs = () => {
 
  const fetchLogs = async () => {
  try {
- const res = await api.get('/academic-head/faculty-interaction-logs');
+ const res = await api.get('/aoe/faculty-interaction-logs');
  setMentorLogs(res.data.data.mentorLogs);
  setFacultyLogs(res.data.data.facultyLogs);
  } catch (error) {

@@ -64,9 +64,9 @@ const AcademicHeadDashboard = () => {
  const fetchDashboardData = async () => {
  try {
  const [dashRes, examRes, studentsRes] = await Promise.all([
- api.get('/academic-head/dashboard'),
- api.get('/academic-head/exam-analytics'),
- api.get('/academic-head/students')
+ api.get('/aoe/dashboard'),
+ api.get('/aoe/exam-analytics'),
+ api.get('/aoe/students')
  ]);
 
  if (dashRes.data.success) {
@@ -92,7 +92,7 @@ const AcademicHeadDashboard = () => {
  setSelectedStudent(studentId);
  try {
  const params = studentId ? { student_id: studentId } : {};
- const res = await api.get('/academic-head/exam-analytics', { params });
+ const res = await api.get('/aoe/exam-analytics', { params });
  if (res.data.success) {
  setData(prev => ({ ...prev, examAnalytics: res.data.data }));
  }
@@ -128,7 +128,7 @@ const AcademicHeadDashboard = () => {
     onClick={async () => {
       const load = toast.loading("Syncing...");
       try {
-        await api.post('/academic-head/sync-legacy-data');
+        await api.post('/aoe/sync-legacy-data');
         toast.success("Synced!", { id: load });
         window.location.reload();
       } catch (e) {

@@ -32,7 +32,7 @@ const AcademicHeadFacultyActivity = () => {
 
  const fetchActivity = async () => {
  try {
- const response = await api.get('/academic-head/faculty-activity-logs');
+ const response = await api.get('/aoe/faculty-activity-logs');
  if (response.data.success) {
  setActivities(response.data.data);
  }
@@ -231,7 +231,7 @@ const AcademicHeadFacultyActivity = () => {
             </div>
             <div>
               <h3 className="text-lg font-black text-slate-900 uppercase">Override Duration</h3>
-              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Academic Head Override</p>
+              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">AOE Override</p>
             </div>
           </div>
           <button 

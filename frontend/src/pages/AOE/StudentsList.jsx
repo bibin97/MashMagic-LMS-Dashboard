@@ -9,7 +9,7 @@ import toast from 'react-hot-toast';
 import StudentListFilterDropdown, { sortStudentsByOption } from '../../components/StudentListFilterDropdown';
 import { premiumConfirm } from '../../utils/premiumConfirm';
 
-const StudentsList = ({ role = 'academic_head' }) => {
+const StudentsList = ({ role = 'academic_operation_executive' }) => {
 	const [students, setStudents] = useState([]);
 	const [loading, setLoading] = useState(true);
 	const [searchTerm, setSearchTerm] = useState('');
@@ -22,7 +22,7 @@ const StudentsList = ({ role = 'academic_head' }) => {
 	const [expandedStudentId, setExpandedStudentId] = useState(null);
 
 	// Base API path based on role
-	const apiPath = role === 'mentor_head' ? '/mentor-head' : '/academic-head';
+	const apiPath = role === 'mentor_head' ? '/mentor-head' : '/aoe';
 	const navigate = useNavigate();
 
 	const coursesList = ["Mission X", "Classmate", "Crash 45", "Bright Bridge", "Magic Revision"];
@@ -279,7 +279,7 @@ const StudentsList = ({ role = 'academic_head' }) => {
 												>
 													<Eye size={16} />
 												</button>
-												{role === 'academic_head' && (
+												{role === 'academic_operation_executive' && (
 													<>
 														<button
 															onClick={() => handleEdit(student)}

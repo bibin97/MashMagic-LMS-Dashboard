@@ -14,7 +14,7 @@ const FacultyAudit = () => {
 
  const fetchFacultyChecks = async () => {
  try {
- const res = await api.get('/academic-head/faculty-checks');
+ const res = await api.get('/aoe/faculty-checks');
  if (res.data.success) {
  setSessions(res.data.data);
  }
@@ -27,7 +27,7 @@ const FacultyAudit = () => {
 
  const handleAddCheck = async (sessionId) => {
  try {
- await api.post(`/academic-head/sessions/${sessionId}/check`);
+ await api.post(`/aoe/sessions/${sessionId}/check`);
 
  setSessions(prev => prev.map(s => {
  if (s.session_id === sessionId) {
@@ -46,7 +46,7 @@ const FacultyAudit = () => {
 
  const handleRemoveCheck = async (sessionId) => {
  try {
- await api.delete(`/academic-head/sessions/${sessionId}/uncheck`);
+ await api.delete(`/aoe/sessions/${sessionId}/uncheck`);
 
  setSessions(prev => prev.map(s => {
  if (s.session_id === sessionId && s.check_count > 0) {

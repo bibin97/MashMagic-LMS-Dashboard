@@ -34,7 +34,7 @@ const EditStudent = () => {
     const { user } = useAuth();
     
     // Determine API base path based on role
-    const basePath = user?.role === 'mentor_head' ? '/mentor-head' : '/academic-head';
+    const basePath = user?.role === 'mentor_head' ? '/mentor-head' : '/aoe';
     
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);

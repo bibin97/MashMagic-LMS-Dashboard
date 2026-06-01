@@ -39,7 +39,7 @@ const FacultyDirectory = () => {
   const fetchFaculties = async () => {
     try {
       setLoading(true);
-      const res = await api.get(`/academic-head/faculties?sortBy=${sortBy}`);
+      const res = await api.get(`/aoe/faculties?sortBy=${sortBy}`);
       if (res.data.success) {
         setFaculties(res.data.data);
       }
@@ -51,7 +51,7 @@ const FacultyDirectory = () => {
   };
 
   const handleEditFaculty = (faculty) => {
-    navigate(`/academic-head/edit-faculty/${faculty.id}`);
+    navigate(`/aoe/edit-faculty/${faculty.id}`);
   };
 
   const handleDeleteFaculty = async (facultyParam) => {
@@ -67,7 +67,7 @@ const FacultyDirectory = () => {
 
     if (confirm) {
       try {
-        const res = await api.delete(`/academic-head/faculties/${id}`);
+        const res = await api.delete(`/aoe/faculties/${id}`);
         if (res.data.success) {
           toast.success("Faculty access revoked successfully");
           fetchFaculties();

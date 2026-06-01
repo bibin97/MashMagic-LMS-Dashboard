@@ -27,7 +27,7 @@ app.use('/api/register', require('./routes/registrationRoutes'));
 app.use('/api/mentor-head', require('./routes/mentorHeadRoutes'));
 app.use('/api/mentor', require('./routes/mentorRoutes'));
 app.use('/api/academic-head', require('./routes/academicHeadRoutes'));
-app.use('/api/operations-executive', require('./routes/operationsExecutiveRoutes'));
+app.use('/api/aoe', require('./routes/aoeRoutes'));
 app.use('/api/faculty', require('./routes/facultyRoutes'));
 app.use('/api/student', studentRoutes);
 app.use('/api/mentor-logs', require('./routes/mentorLogRoutes'));
@@ -608,40 +608,40 @@ const startServer = async () => {
                     FOREIGN KEY (academic_head_id) REFERENCES users(id)
                 );`,
 
-                `CREATE TABLE IF NOT EXISTS aoe_faculty_quality (
+                `CREATE TABLE IF NOT EXISTS ah_faculty_quality (
                     id INT AUTO_INCREMENT PRIMARY KEY,
                     faculty_id INT NOT NULL,
-                    aoe_id INT NOT NULL,
+                    academic_head_id INT NOT NULL,
                     class_topic VARCHAR(255),
                     score INT NOT NULL,
                     remarks TEXT,
                     date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     FOREIGN KEY (faculty_id) REFERENCES users(id) ON DELETE CASCADE,
-                    FOREIGN KEY (aoe_id) REFERENCES users(id) ON DELETE CASCADE
+                    FOREIGN KEY (academic_head_id) REFERENCES users(id) ON DELETE CASCADE
                 );`,
 
-                `CREATE TABLE IF NOT EXISTS aoe_faculty_replacements (
+                `CREATE TABLE IF NOT EXISTS ah_faculty_replacements (
                     id INT AUTO_INCREMENT PRIMARY KEY,
                     faculty_id INT NOT NULL,
-                    aoe_id INT NOT NULL,
+                    academic_head_id INT NOT NULL,
                     reason TEXT NOT NULL,
                     status ENUM('pending', 'approved', 'rejected') DEFAULT 'pending',
                     date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     FOREIGN KEY (faculty_id) REFERENCES users(id) ON DELETE CASCADE,
-                    FOREIGN KEY (aoe_id) REFERENCES users(id) ON DELETE CASCADE
+                    FOREIGN KEY (academic_head_id) REFERENCES users(id) ON DELETE CASCADE
                 );`,
 
-                `CREATE TABLE IF NOT EXISTS aoe_escalations (
+                `CREATE TABLE IF NOT EXISTS ah_escalations (
                     id INT AUTO_INCREMENT PRIMARY KEY,
                     student_id INT,
-                    aoe_id INT NOT NULL,
+                    academic_head_id INT NOT NULL,
                     issue_type VARCHAR(255) NOT NULL,
                     description TEXT NOT NULL,
                     priority ENUM('low', 'medium', 'high', 'critical') DEFAULT 'medium',
-                    status ENUM('open', 'in_progress', 'resolved') DEFAULT 'open',
+                    status ENUM('open', 'in_progress', 'resolved', 'closed') DEFAULT 'open',
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                    FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE SET NULL,
-                    FOREIGN KEY (aoe_id) REFERENCES users(id) ON DELETE CASCADE
+                    FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
+                    FOREIGN KEY (academic_head_id) REFERENCES users(id) ON DELETE CASCADE
                 );`,
 
                 // Performance Indexes

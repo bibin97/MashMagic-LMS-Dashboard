@@ -34,8 +34,8 @@ const Interactions = () => {
   const fetchDropdowns = async () => {
     try {
       const [stdRes, facRes] = await Promise.all([
-        api.get('/academic-head/students-all'),
-        api.get('/academic-head/faculties')
+        api.get('/aoe/students-all'),
+        api.get('/aoe/faculties')
       ]);
       setStudents(stdRes.data.data || []);
       setFaculties(facRes.data.data || []);
@@ -47,8 +47,8 @@ const Interactions = () => {
   const fetchInteractions = async () => {
     try {
       const endpoint = activeMainTab === 'parent' 
-        ? '/academic-head/parent-interactions' 
-        : '/academic-head/faculty-interactions';
+        ? '/aoe/parent-interactions' 
+        : '/aoe/faculty-interactions';
       const res = await api.get(endpoint);
       setInteractions(res.data.data || []);
     } catch (err) {
@@ -65,8 +65,8 @@ const Interactions = () => {
 
     try {
       const endpoint = activeMainTab === 'parent' 
-        ? '/academic-head/parent-interactions' 
-        : '/academic-head/faculty-interactions';
+        ? '/aoe/parent-interactions' 
+        : '/aoe/faculty-interactions';
       
       const payload = {
         date: formData.date,
@@ -243,7 +243,7 @@ const Interactions = () => {
                         {item.notes}
                       </td>
                       <td className="p-4 text-sm font-medium text-slate-500">
-                        {item.academic_head_name}
+                        {item.academic_operation_executive_name}
                       </td>
                     </tr>
                   )) : (
