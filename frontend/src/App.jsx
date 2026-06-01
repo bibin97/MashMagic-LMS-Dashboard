@@ -96,6 +96,7 @@ import EditStudent from './pages/AcademicHead/EditStudent';
 import EditFaculty from './pages/AcademicHead/EditFaculty';
 import Interactions from './pages/AcademicHead/Interactions';
 import ParentMeetings from './pages/AcademicHead/ParentMeetings';
+import OperationsHub from './pages/AcademicHead/OperationsHub';
 
 // SSC Pages
 import SSCDashboard from './pages/SSC/SSCDashboard';
@@ -202,6 +203,7 @@ function App() {
             <Route path="academic-schedule" element={<AcademicHeadAcademicSchedule />} />
             <Route path="interactions" element={<Interactions />} />
             <Route path="meetings" element={<ParentMeetings />} />
+            <Route path="operations-hub" element={<OperationsHub />} />
             <Route path="profile" element={<AdminProfile />} />
             <Route path="account-settings" element={<AccountSettings />} />
           </Route>

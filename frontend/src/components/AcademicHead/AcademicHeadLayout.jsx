@@ -12,7 +12,8 @@ import {
   ShieldAlert,
   ScrollText,
   MessageSquare,
-  Presentation
+  Presentation,
+  Target
 } from 'lucide-react';
 
 const AcademicHeadLayout = () => {
@@ -32,6 +33,7 @@ const AcademicHeadLayout = () => {
   { path: '/academic-head/tasks', icon: <Briefcase size={18} />, label: 'Workforce Tasks' },
   { path: '/academic-head/interactions', icon: <MessageSquare size={18} />, label: 'Interactions' },
   { path: '/academic-head/meetings', icon: <Presentation size={18} />, label: 'Parent Meetings' },
+  { path: '/academic-head/operations-hub', icon: <Target size={18} />, label: 'Operations Hub' },
   { path: '/academic-head/checking', icon: <ShieldAlert size={18} />, label: 'Institutional Audit' },
  ];
 
