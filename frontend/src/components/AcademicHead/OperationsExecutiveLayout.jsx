@@ -12,27 +12,17 @@ import {
   ShieldAlert,
   ScrollText,
   MessageSquare,
-  Presentation
+  Presentation,
+  Target
 } from 'lucide-react';
 
-const AcademicHeadLayout = () => {
+const OperationsExecutiveLayout = () => {
  const location = useLocation();
  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
  const [isCollapsed, setIsCollapsed] = useState(false);
 
  const navItems = [
- { path: '/academic-head/dashboard', icon: <LayoutDashboard size={18} />, label: 'Dashboard' },
- { path: '/academic-head/actions', icon: <Activity size={18} />, label: 'Actions Center' },
- { path: '/academic-head/registrations', icon: <UserPlus size={18} />, label: 'Registrations' },
- { path: '/academic-head/students', icon: <GraduationCap size={18} />, label: 'Students' },
- { path: '/academic-head/mentors', icon: <Users size={18} />, label: 'Mentors' },
- { path: '/academic-head/faculties', icon: <Briefcase size={18} />, label: 'Faculties' },
-  { path: '/academic-head/live-monitoring', icon: <Activity size={18} />, label: 'Live Monitoring' },
-  { path: '/academic-head/academic-schedule', icon: <ScrollText size={18} />, label: 'Academic Schedule' },
-  { path: '/academic-head/tasks', icon: <Briefcase size={18} />, label: 'Workforce Tasks' },
-  { path: '/academic-head/interactions', icon: <MessageSquare size={18} />, label: 'Interactions' },
-  { path: '/academic-head/meetings', icon: <Presentation size={18} />, label: 'Parent Meetings' },
-  { path: '/academic-head/checking', icon: <ShieldAlert size={18} />, label: 'Institutional Audit' },
+  { path: '/operations-executive/dashboard', icon: <Target size={18} />, label: 'Operations Hub' }
  ];
 
  return (
@@ -67,4 +57,4 @@ const AcademicHeadLayout = () => {
  );
 };
 
-export default AcademicHeadLayout;
+export default OperationsExecutiveLayout;

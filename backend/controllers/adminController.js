@@ -941,7 +941,7 @@ const updateUserForAdmin = async (req, res) => {
 
         let result;
         const staffRoles = ['mentor', 'faculty'];
-        const headRoles = ['mentor_head', 'academic_head', 'ssc', 'super_admin', 'sub_admin'];
+        const headRoles = ['mentor_head', 'academic_head', 'academic_operation_executive', 'ssc', 'super_admin', 'sub_admin'];
 
         if (staffRoles.includes(role)) {
             const targetTable = role === 'mentor' ? 'mentors' : 'faculties';

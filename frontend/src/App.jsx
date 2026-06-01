@@ -9,6 +9,7 @@ import MentorLayout from './components/Mentor/MentorLayout';
 import FacultyLayout from './components/Faculty/FacultyLayout';
 import MentorHeadLayout from './components/MentorHead/MentorHeadLayout';
 import AcademicHeadLayout from './components/AcademicHead/AcademicHeadLayout';
+import OperationsExecutiveLayout from './components/AcademicHead/OperationsExecutiveLayout';
 import SSCLayout from './components/SSC/SSCLayout';
 
 // Auth Pages
@@ -76,7 +77,7 @@ import MentorHeadAcademicSchedule from './pages/MentorHead/AcademicSchedule';
 // Mentor Interaction Tracking
 import FacultyTracking from './pages/Mentor/FacultyTracking';
 
-// Academic Operation Executive Pages
+// Academic Head Pages
 import AcademicHeadDashboard from './pages/AcademicHead/AcademicHeadDashboard';
 import Registrations from './pages/AcademicHead/Registrations';
 import AcademicHeadTasks from './pages/AcademicHead/AcademicHeadTasks';
@@ -176,7 +177,7 @@ function App() {
             <Route path="account-settings" element={<AccountSettings />} />
           </Route>
 
-          {/* Academic Operation Executive System */}
+          {/* Academic Head System */}
           <Route path="/academic-head" element={
             <ProtectedRoute allowedRoles={['academic_head']}>
               <AcademicHeadLayout />
@@ -203,9 +204,18 @@ function App() {
             <Route path="academic-schedule" element={<AcademicHeadAcademicSchedule />} />
             <Route path="interactions" element={<Interactions />} />
             <Route path="meetings" element={<ParentMeetings />} />
-            <Route path="operations-hub" element={<OperationsHub />} />
             <Route path="profile" element={<AdminProfile />} />
             <Route path="account-settings" element={<AccountSettings />} />
+          </Route>
+
+          {/* Academic Operation Executive System */}
+          <Route path="/operations-executive" element={
+            <ProtectedRoute allowedRoles={['academic_operation_executive']}>
+              <OperationsExecutiveLayout />
+            </ProtectedRoute>
+          }>
+            <Route index element={<Navigate to="/operations-executive/dashboard" replace />} />
+            <Route path="dashboard" element={<OperationsHub />} />
           </Route>
 
           {/* SSC System */}

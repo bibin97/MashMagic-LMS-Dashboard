@@ -23,7 +23,7 @@ const register = async (req, res) => {
         }
 
         // ROLE EXISTENCE LOGIC (Restriction for single high-level roles)
-        const restrictedRoles = ['super_admin', 'mentor_head', 'academic_head', 'ssc'];
+        const restrictedRoles = ['super_admin', 'mentor_head', 'academic_head', 'academic_operation_executive', 'ssc'];
         
         if (restrictedRoles.includes(targetRole)) {
             const [existingRole] = await db.query('SELECT id FROM users WHERE role = ?', [targetRole]);

@@ -35,7 +35,7 @@ const Login = () => {
   // Map sub-roles for better selection
   const subRoles = {
     'admin': ['Super Admin', 'Sub Admin'],
-    'academic': ['Academic Operation Executive', 'SSC', 'Faculty'],
+    'academic': ['Academic Head', 'Academic Operation Executive', 'SSC', 'Faculty'],
     'mentor': ['Mentor Head', 'Mentor']
   };
 
@@ -48,8 +48,7 @@ const Login = () => {
 
     setLoading(true);
     try {
-      let finalRole = role.toLowerCase().replace(' ', '_');
-      if (role === 'Academic Operation Executive') finalRole = 'academic_head';
+      let finalRole = role.toLowerCase().replace(/ /g, '_');
       // Normalize SSC role mapping
       if (role === 'SSC') finalRole = 'ssc';
 
@@ -79,6 +78,7 @@ const Login = () => {
         
         if (finalRole === 'super_admin' || finalRole === 'sub_admin') navigate('/admin/dashboard');
         else if (finalRole === 'academic_head') navigate('/academic-head/dashboard');
+        else if (finalRole === 'academic_operation_executive') navigate('/operations-executive/dashboard');
         else if (finalRole === 'mentor_head') navigate('/mentor-head/dashboard');
         else if (finalRole === 'mentor') navigate('/mentor/dashboard');
         else if (finalRole === 'faculty_head') navigate('/faculty-head/dashboard');
@@ -104,8 +104,7 @@ const Login = () => {
     toast.loading('Registering Account...');
     
     try {
-      let finalRole = role.toLowerCase().replace(' ', '_');
-      if (role === 'Academic Operation Executive') finalRole = 'academic_head';
+      let finalRole = role.toLowerCase().replace(/ /g, '_');
       const response = await api.post('/auth/register', {
         name: regData.fullName,
         email: email,
@@ -314,7 +313,7 @@ const Login = () => {
                     </button>
                   </div>
 
-                  {(role === 'Super Admin' || role === 'Academic Operation Executive' || role === 'Mentor Head') && role !== 'SSC' && (
+                  {(role === 'Super Admin' || role === 'Academic Head' || role === 'Academic Operation Executive' || role === 'Mentor Head') && role !== 'SSC' && (
                     <div className="flex justify-center pt-2 border-t border-white/5">
                       <button 
                         type="button"

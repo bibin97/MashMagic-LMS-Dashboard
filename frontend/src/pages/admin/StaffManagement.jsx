@@ -321,7 +321,7 @@ const StaffManagement = () => {
  <option value="mentor">Mentor</option>
  <option value="faculty">Faculty</option>
  <option value="mentor_head">Mentor Head</option>
- <option value="academic_head">Academic Operation Executive</option>
+ <option value="academic_head">Academic Head</option>
  <option value="ssc">SSC</option>
  <option value="super_admin">Super Admin</option>
  <option value="sub_admin">Sub Admin</option>

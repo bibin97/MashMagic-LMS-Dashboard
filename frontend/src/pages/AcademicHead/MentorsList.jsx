@@ -114,7 +114,7 @@ const MentorsList = () => {
             <h2 className="text-3xl lg:text-4xl font-black text-slate-900 tracking-tighter uppercase leading-none">Mentor Faculty</h2>
             <p className="text-slate-600 text-[10px] font-bold uppercase tracking-widest mt-2 flex items-center gap-2">
               <Users size={14} className="text-[#008080]" />
-              Academic Operation Executive level management of all mentor profiles and assignments
+              Academic Head level management of all mentor profiles and assignments
             </p>
           </div>
 

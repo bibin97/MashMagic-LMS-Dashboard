@@ -34,7 +34,7 @@ const getTasks = async (req, res) => {
         }
 
         // Role-based filtering
-        if (req.user.role === 'academic_head') {
+        if (req.user.role === 'academic_head' || req.user.role === 'academic_operation_executive') {
             sql += ' AND t.assigned_by = ?';
             params.push(req.user.id);
         } else if (req.user.role === 'mentor' || req.user.role === 'faculty') {

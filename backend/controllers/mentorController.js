@@ -178,7 +178,7 @@ const getMentorDashboard = async (req, res) => {
 const getMentorStudents = async (req, res) => {
     try {
         const mentorId = req.user.id;
-        const isPrivileged = ['super_admin', 'admin', 'mentor_head', 'academic_head', 'ssc'].includes(req.user.role);
+        const isPrivileged = ['super_admin', 'admin', 'mentor_head', 'academic_head', 'academic_operation_executive', 'ssc'].includes(req.user.role);
         const [rows] = await db.query(`
             SELECT s.*, 
             m.name as mentor_name,
@@ -215,7 +215,7 @@ const getStudentDetails = async (req, res) => {
         const mentorId = req.user.id;
         const studentId = req.params.id;
 
-        const isPrivileged = ['super_admin', 'admin', 'mentor_head', 'academic_head', 'ssc'].includes(req.user.role);
+        const isPrivileged = ['super_admin', 'admin', 'mentor_head', 'academic_head', 'academic_operation_executive', 'ssc'].includes(req.user.role);
         const [student] = await db.query(
             `SELECT * FROM students WHERE id = ? ${isPrivileged ? '' : 'AND mentor_id = ?'}`,
             isPrivileged ? [studentId] : [studentId, mentorId]
@@ -791,7 +791,7 @@ const createStudentLog = async (req, res) => {
             screenshot_url
         ]);
 
-        // Notify Admin/Academic Operation Executive
+        // Notify Admin/Academic Head
         await db.query('INSERT INTO admin_notifications (message) VALUES (?)', [`Mentor (${req.user.name}) submitted a new Student Interaction Log for ${student_id}`]);
 
         res.status(201).json({ success: true, message: "Student interaction log saved successfully", session_number: nextSessionNumber });

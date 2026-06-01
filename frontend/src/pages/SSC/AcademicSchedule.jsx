@@ -460,7 +460,7 @@ const AcademicSchedule = () => {
                           <Lock size={12} /> Duration Locked
                         </span>
                       </div>
-                      <p className="text-[9px] font-bold text-slate-400 uppercase mt-2">Only Academic Operation Executive can edit duration now</p>
+                      <p className="text-[9px] font-bold text-slate-400 uppercase mt-2">Only Academic Head can edit duration now</p>
                     </div>
                   </div>
                 ) : (
