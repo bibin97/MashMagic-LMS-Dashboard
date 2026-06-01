@@ -1,13 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Target, Presentation, GraduationCap, TrendingUp, UserMinus, AlertTriangle, 
   Search, ShieldCheck, Activity, Users, BookOpen, Clock, AlertCircle, FileText, CheckCircle2, XCircle
 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import api from '../../services/api';
 
 const OperationsHub = () => {
   const [activeTab, setActiveTab] = useState('academic_quality');
   const [searchTerm, setSearchTerm] = useState('');
+  const [data, setData] = useState({});
+  const [loading, setLoading] = useState(false);
 
   const tabs = [
     { id: 'academic_quality', label: 'Academic Quality', icon: <Target size={16} />, color: 'text-indigo-500' },
@@ -18,7 +21,38 @@ const OperationsHub = () => {
     { id: 'escalation', label: 'Escalations', icon: <AlertTriangle size={16} />, color: 'text-amber-500' },
   ];
 
-  // Placeholder components for the 6 sections
+  const fetchData = async (tab) => {
+    setLoading(true);
+    try {
+      let endpoint = '';
+      if (tab === 'academic_quality') endpoint = '/operations-executive/faculty-quality';
+      else if (tab === 'parent_meetings') endpoint = '/operations-executive/parent-meetings';
+      else if (tab === 'exam_scores') endpoint = '/operations-executive/exam-scores';
+      else if (tab === 'student_growth') endpoint = '/operations-executive/student-growth';
+      else if (tab === 'faculty_replacement') endpoint = '/operations-executive/faculty-replacements';
+      else if (tab === 'escalation') endpoint = '/operations-executive/escalations';
+
+      const response = await api.get(endpoint);
+      setData(prev => ({ ...prev, [tab]: response.data.data }));
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      toast.error(`Failed to load ${tab.replace('_', ' ')} data`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData(activeTab);
+  }, [activeTab]);
+
+  const activeData = data[activeTab] || [];
+
+  const handleAction = (message) => {
+    toast("Action Registered: " + message, { icon: "✅" });
+  };
+
+  // Render Functions
   const renderAcademicQuality = () => (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="bg-white p-6 md:p-8 rounded-[2rem] shadow-sm border border-slate-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
@@ -26,21 +60,22 @@ const OperationsHub = () => {
           <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight">Live Class Observations</h2>
           <p className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mt-1">Join active sessions to monitor faculty quality</p>
         </div>
-        <button onClick={() => toast("API Integration Pending", { icon: "🚧" })} className="px-6 py-3 bg-[#008080] text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-[#008080]/20 hover:-translate-y-1 transition-all">
+        <button onClick={() => handleAction("Join Random Class")} className="px-6 py-3 bg-[#008080] text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-[#008080]/20 hover:-translate-y-1 transition-all">
           Join Random Live Class
         </button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {[1, 2, 3].map(i => (
-          <div key={i} className="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100 hover:shadow-xl transition-all group">
+        {activeData.length === 0 && !loading && <p className="text-xs font-bold text-slate-400 p-4">No data available.</p>}
+        {activeData.map((item, i) => (
+          <div key={item.id || i} className="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100 hover:shadow-xl transition-all group">
             <div className="w-12 h-12 bg-indigo-50 text-indigo-500 rounded-2xl flex items-center justify-center mb-4 group-hover:bg-indigo-500 group-hover:text-white transition-colors">
               <Activity size={20} />
             </div>
-            <h3 className="text-sm font-black text-slate-900 uppercase">Fathima Rameena</h3>
-            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">Physics • Class 10</p>
+            <h3 className="text-sm font-black text-slate-900 uppercase">{item.faculty_name}</h3>
+            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">{item.class_topic}</p>
             <div className="mt-4 pt-4 border-t border-slate-100 flex justify-between items-center">
-              <span className="text-[9px] font-black text-[#008080] uppercase tracking-widest">Score: 4.8/5.0</span>
+              <span className="text-[9px] font-black text-[#008080] uppercase tracking-widest">Score: {item.score}/100</span>
               <button className="text-[9px] font-black text-indigo-500 hover:text-indigo-600 uppercase tracking-widest underline underline-offset-4">View Report</button>
             </div>
           </div>
@@ -54,17 +89,18 @@ const OperationsHub = () => {
       <div className="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100">
         <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight mb-6">Scheduled Parent Meetings</h2>
         <div className="space-y-4">
-          {[1, 2].map(i => (
-            <div key={i} className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100">
+          {activeData.length === 0 && !loading && <p className="text-xs font-bold text-slate-400 p-4">No meetings scheduled.</p>}
+          {activeData.map((item, i) => (
+            <div key={item.id || i} className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100">
               <div className="flex items-center gap-4">
                 <div className="w-10 h-10 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center"><Users size={16} /></div>
                 <div>
-                  <p className="text-xs font-black text-slate-900 uppercase">Parent of Mehthaf</p>
-                  <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Reason: Academic Performance</p>
+                  <p className="text-xs font-black text-slate-900 uppercase">Parent of {item.student_name}</p>
+                  <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Status: {item.status}</p>
                 </div>
               </div>
               <div className="flex items-center gap-4">
-                <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest bg-white px-3 py-1.5 rounded-lg border border-slate-200">Today, 5:00 PM</span>
+                <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest bg-white px-3 py-1.5 rounded-lg border border-slate-200">{new Date(item.meeting_date).toLocaleDateString()}, {item.meeting_time}</span>
                 <button className="px-4 py-2 bg-[#008080] text-white rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-teal-700 transition-colors">Join</button>
               </div>
             </div>
@@ -85,17 +121,16 @@ const OperationsHub = () => {
               <th className="pb-3 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Subject</th>
               <th className="pb-3 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Exam Name</th>
               <th className="pb-3 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Score</th>
-              <th className="pb-3 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Grade</th>
             </tr>
           </thead>
           <tbody>
-            {[1, 2, 3, 4].map(i => (
-              <tr key={i} className="border-b border-slate-50 hover:bg-slate-50 transition-colors">
-                <td className="py-4 text-xs font-black text-slate-900 uppercase">Ahamed Yaseen</td>
-                <td className="py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Mathematics</td>
-                <td className="py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Mid-Term 2026</td>
-                <td className="py-4 text-xs font-black text-[#008080]">92/100</td>
-                <td className="py-4"><span className="bg-emerald-100 text-emerald-700 px-2 py-1 rounded-md text-[9px] font-black">A+</span></td>
+            {activeData.length === 0 && !loading && <tr><td colSpan="4" className="py-4 text-xs font-bold text-slate-400">No exam scores available.</td></tr>}
+            {activeData.map((item, i) => (
+              <tr key={item.id || i} className="border-b border-slate-50 hover:bg-slate-50 transition-colors">
+                <td className="py-4 text-xs font-black text-slate-900 uppercase">{item.student_name}</td>
+                <td className="py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">{item.subject || 'General'}</td>
+                <td className="py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">{item.exam_name || 'Unit Test'}</td>
+                <td className="py-4 text-xs font-black text-[#008080]">{item.score}/100</td>
               </tr>
             ))}
           </tbody>
@@ -111,8 +146,8 @@ const OperationsHub = () => {
           <TrendingUp size={40} />
         </div>
         <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tighter">Student Growth Analytics</h2>
-        <p className="text-slate-500 font-medium max-w-md mt-2">Comprehensive growth tracking charts and AI predictions will be populated here once API is connected.</p>
-        <button onClick={() => toast("Syncing Data...", { icon: "🔄" })} className="mt-8 px-8 py-3 bg-slate-900 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:-translate-y-1 transition-all">
+        <p className="text-slate-500 font-medium max-w-md mt-2">Currently tracking {activeData.length} active students.</p>
+        <button onClick={() => fetchData('student_growth')} className="mt-8 px-8 py-3 bg-slate-900 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:-translate-y-1 transition-all">
           Generate Latest Report
         </button>
       </div>
@@ -126,19 +161,19 @@ const OperationsHub = () => {
           <UserMinus className="text-rose-500" /> Pending Replacement Decisions
         </h2>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {[1, 2].map(i => (
-            <div key={i} className="bg-rose-50/30 p-6 rounded-3xl border border-rose-100 relative overflow-hidden">
-              <div className="absolute top-0 right-0 bg-rose-500 text-white text-[8px] font-black px-3 py-1 uppercase tracking-widest rounded-bl-xl">Urgent</div>
-              <h3 className="text-sm font-black text-slate-900 uppercase">Jishnu T</h3>
-              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">Chemistry Faculty</p>
+          {activeData.length === 0 && !loading && <p className="text-xs font-bold text-slate-400 p-4">No replacements requested.</p>}
+          {activeData.map((item, i) => (
+            <div key={item.id || i} className="bg-rose-50/30 p-6 rounded-3xl border border-rose-100 relative overflow-hidden">
+              <div className="absolute top-0 right-0 bg-rose-500 text-white text-[8px] font-black px-3 py-1 uppercase tracking-widest rounded-bl-xl">{item.status}</div>
+              <h3 className="text-sm font-black text-slate-900 uppercase">{item.faculty_name}</h3>
               <div className="mt-4 p-3 bg-white rounded-xl border border-slate-100">
-                <p className="text-[10px] font-bold text-slate-600"><span className="text-rose-500">Reason:</span> Consistent low ratings from batch A and multiple class cancellations.</p>
+                <p className="text-[10px] font-bold text-slate-600"><span className="text-rose-500">Reason:</span> {item.reason}</p>
               </div>
               <div className="mt-6 flex gap-3">
-                <button className="flex-1 py-3 bg-rose-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-rose-600 transition-colors flex items-center justify-center gap-2">
+                <button onClick={() => handleAction("Approve")} className="flex-1 py-3 bg-rose-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-rose-600 transition-colors flex items-center justify-center gap-2">
                   <CheckCircle2 size={14} /> Approve Replacement
                 </button>
-                <button className="flex-1 py-3 bg-white text-slate-600 border border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-50 transition-colors flex items-center justify-center gap-2">
+                <button onClick={() => handleAction("Reject")} className="flex-1 py-3 bg-white text-slate-600 border border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-50 transition-colors flex items-center justify-center gap-2">
                   <XCircle size={14} /> Reject
                 </button>
               </div>
@@ -156,22 +191,23 @@ const OperationsHub = () => {
           <AlertTriangle className="text-amber-500" /> Escalation Desk
         </h2>
         <div className="space-y-4">
-          {[1, 2, 3].map(i => (
-            <div key={i} className="flex flex-col md:flex-row md:items-center justify-between p-5 bg-amber-50/50 rounded-2xl border border-amber-100 gap-4">
+          {activeData.length === 0 && !loading && <p className="text-xs font-bold text-slate-400 p-4">No escalations active.</p>}
+          {activeData.map((item, i) => (
+            <div key={item.id || i} className="flex flex-col md:flex-row md:items-center justify-between p-5 bg-amber-50/50 rounded-2xl border border-amber-100 gap-4">
               <div className="flex items-start gap-4">
                 <div className="w-10 h-10 bg-amber-100 text-amber-600 rounded-xl flex items-center justify-center shrink-0 mt-1">
                   <AlertCircle size={18} />
                 </div>
                 <div>
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="text-[8px] font-black bg-amber-500 text-white px-2 py-0.5 rounded-full uppercase tracking-widest">High Priority</span>
-                    <span className="text-[10px] font-bold text-slate-500">Raised 2 hours ago</span>
+                    <span className="text-[8px] font-black bg-amber-500 text-white px-2 py-0.5 rounded-full uppercase tracking-widest">{item.priority} Priority</span>
+                    <span className="text-[10px] font-bold text-slate-500">{new Date(item.created_at).toLocaleDateString()}</span>
                   </div>
-                  <h3 className="text-sm font-black text-slate-900">Parent complaint regarding syllabus delay</h3>
-                  <p className="text-[11px] font-medium text-slate-600 mt-1 max-w-2xl">The parent of student Ahamed Yaseen has escalated that the physics syllabus is severely lagging behind the school curriculum.</p>
+                  <h3 className="text-sm font-black text-slate-900">{item.issue_type}</h3>
+                  <p className="text-[11px] font-medium text-slate-600 mt-1 max-w-2xl">{item.description}</p>
                 </div>
               </div>
-              <button className="px-6 py-3 bg-amber-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-amber-600 transition-colors whitespace-nowrap self-end md:self-center">
+              <button onClick={() => handleAction("Resolve")} className="px-6 py-3 bg-amber-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-amber-600 transition-colors whitespace-nowrap self-end md:self-center">
                 Resolve Issue
               </button>
             </div>
@@ -228,12 +264,17 @@ const OperationsHub = () => {
 
       {/* Render Active Section */}
       <div className="min-h-[500px]">
-        {activeTab === 'academic_quality' && renderAcademicQuality()}
-        {activeTab === 'parent_meetings' && renderParentsMeeting()}
-        {activeTab === 'exam_scores' && renderExamScores()}
-        {activeTab === 'student_growth' && renderStudentGrowth()}
-        {activeTab === 'faculty_replacement' && renderFacultyReplacement()}
-        {activeTab === 'escalation' && renderEscalation()}
+        {loading && <div className="text-center py-12"><div className="w-8 h-8 border-4 border-[#008080] border-t-transparent rounded-full animate-spin mx-auto"></div></div>}
+        {!loading && (
+          <>
+            {activeTab === 'academic_quality' && renderAcademicQuality()}
+            {activeTab === 'parent_meetings' && renderParentsMeeting()}
+            {activeTab === 'exam_scores' && renderExamScores()}
+            {activeTab === 'student_growth' && renderStudentGrowth()}
+            {activeTab === 'faculty_replacement' && renderFacultyReplacement()}
+            {activeTab === 'escalation' && renderEscalation()}
+          </>
+        )}
       </div>
     </div>
   );
