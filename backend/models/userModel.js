@@ -71,7 +71,7 @@ const User = {
                 time_table, enrollment_type, badge, meeting_link, registeredBy,
                 faculty_id_card, section, syllabus, languages_proficiency, qualification, 
                 experience, availability, hourly_rate, teaching_mode, joining_date, remarks`;
-            values += `, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?`;
+            values += `, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?`;
             paramsArray.push(
                 userData.grade || null, subjectValue, userData.course || null, userData.hour || null, userData.mentor_name || null, userData.faculty_name || null, userData.next_installment_date || null, userData.time_table || null,
                 enrollment_type, badge, userData.meeting_link || null, registeredBy,
