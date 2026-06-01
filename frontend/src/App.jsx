@@ -76,7 +76,7 @@ import MentorHeadAcademicSchedule from './pages/MentorHead/AcademicSchedule';
 // Mentor Interaction Tracking
 import FacultyTracking from './pages/Mentor/FacultyTracking';
 
-// Academic Head Pages
+// Academic Operation Executive Pages
 import AcademicHeadDashboard from './pages/AcademicHead/AcademicHeadDashboard';
 import Registrations from './pages/AcademicHead/Registrations';
 import AcademicHeadTasks from './pages/AcademicHead/AcademicHeadTasks';
@@ -175,7 +175,7 @@ function App() {
             <Route path="account-settings" element={<AccountSettings />} />
           </Route>
 
-          {/* Academic Head System */}
+          {/* Academic Operation Executive System */}
           <Route path="/academic-head" element={
             <ProtectedRoute allowedRoles={['academic_head']}>
               <AcademicHeadLayout />

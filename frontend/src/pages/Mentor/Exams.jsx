@@ -195,7 +195,7 @@ const Exams = () => {
  <div>
  <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest block mb-1">Portions / Details</span>
  <p className="text-[11px] font-bold text-slate-600 ">
- {exam.portions || 'Scope assignment pending from Academic Head'}
+ {exam.portions || 'Scope assignment pending from Academic Operation Executive'}
  </p>
  </div>
  {exam.exam_type && (
@@ -365,7 +365,7 @@ const Exams = () => {
  onChange={(e) => setFormData({ ...formData, score: e.target.value })}
  />
  </div>
- <p className="text-[8px] font-bold text-slate-600 uppercase tracking-widest pl-1">Note: This score will be synced with Academic Head reports.</p>
+ <p className="text-[8px] font-bold text-slate-600 uppercase tracking-widest pl-1">Note: This score will be synced with Academic Operation Executive reports.</p>
  </div>
  </div>
  ) : (

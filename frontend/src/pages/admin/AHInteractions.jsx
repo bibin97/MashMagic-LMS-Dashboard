@@ -40,8 +40,8 @@ const AHInteractions = () => {
               <MessageSquare size={24} />
             </div>
             <div>
-              <h1 className="text-2xl font-black text-slate-900">Academic Head Interactions</h1>
-              <p className="text-sm font-bold text-slate-500 uppercase tracking-widest mt-1">View Parent & Faculty Interactions Logged by Academic Head</p>
+              <h1 className="text-2xl font-black text-slate-900">Academic Operation Executive Interactions</h1>
+              <p className="text-sm font-bold text-slate-500 uppercase tracking-widest mt-1">View Parent & Faculty Interactions Logged by Academic Operation Executive</p>
             </div>
           </div>
         </div>

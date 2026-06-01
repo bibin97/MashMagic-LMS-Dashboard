@@ -231,7 +231,7 @@ const AcademicHeadFacultyActivity = () => {
             </div>
             <div>
               <h3 className="text-lg font-black text-slate-900 uppercase">Override Duration</h3>
-              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Academic Head Override</p>
+              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Academic Operation Executive Override</p>
             </div>
           </div>
           <button 

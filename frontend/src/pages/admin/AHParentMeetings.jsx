@@ -40,8 +40,8 @@ const AHParentMeetings = () => {
               <Presentation size={24} />
             </div>
             <div>
-              <h1 className="text-2xl font-black text-slate-900">Academic Head Parent Meetings</h1>
-              <p className="text-sm font-bold text-slate-500 uppercase tracking-widest mt-1">View Parent Meetings Scheduled & Reported by Academic Head</p>
+              <h1 className="text-2xl font-black text-slate-900">Academic Operation Executive Parent Meetings</h1>
+              <p className="text-sm font-bold text-slate-500 uppercase tracking-widest mt-1">View Parent Meetings Scheduled & Reported by Academic Operation Executive</p>
             </div>
           </div>
         </div>

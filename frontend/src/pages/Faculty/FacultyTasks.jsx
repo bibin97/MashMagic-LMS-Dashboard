@@ -64,7 +64,7 @@ const FacultyTasks = () => {
  <div className="flex flex-col md:flex-row justify-between items-center gap-8">
  <div>
  <h2 className="text-3xl lg:text-4xl font-black text-slate-900 tracking-tighter uppercase leading-none">Operational Tasks</h2>
- <p className="text-slate-600 text-[10px] font-black uppercase tracking-[0.2em] mt-2">Administrative directives from Academic Head</p>
+ <p className="text-slate-600 text-[10px] font-black uppercase tracking-[0.2em] mt-2">Administrative directives from Academic Operation Executive</p>
  </div>
 
  <div className="flex gap-4">
@@ -119,7 +119,7 @@ const FacultyTasks = () => {
  </div>
  <div>
  <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Assigned By</p>
- <p className="text-xs font-black text-slate-900">{task.assigned_by_name || 'Academic Head'}</p>
+ <p className="text-xs font-black text-slate-900">{task.assigned_by_name || 'Academic Operation Executive'}</p>
  </div>
  </div>
 

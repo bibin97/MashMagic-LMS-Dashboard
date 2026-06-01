@@ -318,7 +318,7 @@ const Tasks = () => {
  <option key={mh.id} value={mh.id}>{mh.name}</option>
  ))}
  </optgroup>
- <optgroup label="ACADEMIC HEADS">
+ <optgroup label="ACADEMIC OPERATION EXECUTIVES">
  {assignees.filter(a => a.role === 'academic_head').map(ah => (
  <option key={ah.id} value={ah.id}>{ah.name}</option>
  ))}

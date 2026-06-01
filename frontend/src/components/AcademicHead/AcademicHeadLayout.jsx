@@ -52,7 +52,7 @@ const AcademicHeadLayout = () => {
  isCollapsed={isCollapsed} 
  setIsCollapsed={setIsCollapsed} 
  navItems={navItems}
- title="Academic Head"
+ title="Academic Operation Executive"
  />
  
   <div className={`flex-1 flex flex-col min-w-0 w-full h-screen overflow-y-auto transition-all duration-300 ${isCollapsed ? 'md:ml-[88px]' : 'md:ml-72'}`}>

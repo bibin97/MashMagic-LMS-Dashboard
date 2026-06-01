@@ -35,7 +35,7 @@ const Login = () => {
   // Map sub-roles for better selection
   const subRoles = {
     'admin': ['Super Admin', 'Sub Admin'],
-    'academic': ['Academic Head', 'SSC', 'Faculty'],
+    'academic': ['Academic Operation Executive', 'SSC', 'Faculty'],
     'mentor': ['Mentor Head', 'Mentor']
   };
 
@@ -49,6 +49,7 @@ const Login = () => {
     setLoading(true);
     try {
       let finalRole = role.toLowerCase().replace(' ', '_');
+      if (role === 'Academic Operation Executive') finalRole = 'academic_head';
       // Normalize SSC role mapping
       if (role === 'SSC') finalRole = 'ssc';
 
@@ -103,7 +104,8 @@ const Login = () => {
     toast.loading('Registering Account...');
     
     try {
-      const finalRole = role.toLowerCase().replace(' ', '_');
+      let finalRole = role.toLowerCase().replace(' ', '_');
+      if (role === 'Academic Operation Executive') finalRole = 'academic_head';
       const response = await api.post('/auth/register', {
         name: regData.fullName,
         email: email,
@@ -312,7 +314,7 @@ const Login = () => {
                     </button>
                   </div>
 
-                  {(role === 'Super Admin' || role === 'Academic Head' || role === 'Mentor Head') && role !== 'SSC' && (
+                  {(role === 'Super Admin' || role === 'Academic Operation Executive' || role === 'Mentor Head') && role !== 'SSC' && (
                     <div className="flex justify-center pt-2 border-t border-white/5">
                       <button 
                         type="button"
