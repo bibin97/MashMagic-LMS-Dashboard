@@ -464,7 +464,7 @@ const Timetable = () => {
           </button>
           <button
             onClick={handleBulkOpen}
-            className="hidden md:flex items-center justify-center gap-3 bg-[#008080] text-white px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-slate-200 hover:-translate-y-1 transition-all active:scale-95"
+            className="flex items-center justify-center gap-3 bg-[#008080] text-white px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-slate-200 hover:-translate-y-1 transition-all active:scale-95"
           >
             <CalendarClock size={18} /> Bulk Schedule
           </button>
@@ -745,6 +745,20 @@ const Timetable = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div className="space-y-2">
                       <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Student Selection *</label>
+                      
+                      {!editingSession && (
+                        <div className="relative mb-2">
+                          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
+                          <input 
+                            type="text" 
+                            placeholder="Search student by name or ID..." 
+                            value={studentSearch} 
+                            onChange={(e) => setStudentSearch(e.target.value)}
+                            className="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-xl text-xs focus:ring-2 ring-[#008080]/20 outline-none"
+                          />
+                        </div>
+                      )}
+                      
                       <select
                         required
                         disabled={!!editingSession}
@@ -753,7 +767,10 @@ const Timetable = () => {
                         className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none disabled:opacity-50"
                       >
                         <option value="">Select Student</option>
-                        {students.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+                        {students
+                          .filter(s => s.name.toLowerCase().includes(studentSearch.toLowerCase()) || (s.student_id && s.student_id.toLowerCase().includes(studentSearch.toLowerCase())))
+                          .map(s => <option key={s.id} value={s.id}>{s.name} {s.student_id ? `(${s.student_id})` : ''}</option>)
+                        }
                       </select>
                     </div>
 
