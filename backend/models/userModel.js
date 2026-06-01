@@ -53,35 +53,46 @@ const User = {
         const syllabusValue = Array.isArray(userData.syllabus) ? userData.syllabus.join(',') : (userData.syllabus || null);
         const hourlyRateValue = Array.isArray(userData.hourly_rates) ? userData.hourly_rates.join(',') : (userData.hourly_rate || 0);
 
-        let columns = `name, phone_number, place, email, password, role, status, isApproved, isActive, 
-                grade, subject, course, hour, mentor_name, faculty_name, next_installment_date, 
+        let columns = `name, phone_number, place, email, password, role, status, isApproved, isActive`;
+        let values = `?, ?, ?, ?, ?, ?, ?, ?, ?`;
+        let paramsArray = [
+            name, phone_number, place, email, password, role, status, isApproved, status === 'active' ? 1 : 1
+        ];
+
+        if (targetTable === 'users') {
+            if (registeredBy) {
+                columns += `, createdBy`;
+                values += `, ?`;
+                paramsArray.push(registeredBy);
+            }
+        } else {
+            // For mentors, faculties, students, we append the extra columns
+            columns += `, grade, subject, course, hour, mentor_name, faculty_name, next_installment_date, 
                 time_table, enrollment_type, badge, meeting_link, registeredBy,
                 faculty_id_card, section, syllabus, languages_proficiency, qualification, 
                 experience, availability, hourly_rate, teaching_mode, joining_date, remarks`;
-        
-        let values = `?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?`;
-        
-        let paramsArray = [
-                name, phone_number, place, email, password, role, status, isApproved, status === 'active' ? 1 : 1,
+            values += `, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?`;
+            paramsArray.push(
                 userData.grade || null, subjectValue, userData.course || null, userData.hour || null, userData.mentor_name || null, userData.faculty_name || null, userData.next_installment_date || null, userData.time_table || null,
                 enrollment_type, badge, userData.meeting_link || null, registeredBy,
                 userData.faculty_id_card || null, userData.section || null, syllabusValue, 
                 userData.languages_proficiency ? JSON.stringify(userData.languages_proficiency) : null,
                 userData.qualification || null, userData.experience || null, userData.availability || null,
                 hourlyRateValue, userData.teaching_mode || null, userData.joining_date || null, userData.remarks || null
-        ];
-
-        if (targetTable === 'students') {
-            columns += `, total_fees, total_paid, total_hours, admission_type, current_installment_amount, current_installment_start_hours`;
-            values += `, ?, ?, ?, ?, ?, ?`;
-            paramsArray.push(
-                userData.total_fees || 0,
-                userData.total_paid || 0,
-                userData.total_hours || 0,
-                userData.admission_type || 'new',
-                userData.current_installment_amount || 0,
-                userData.current_installment_start_hours || 0
             );
+
+            if (targetTable === 'students') {
+                columns += `, total_fees, total_paid, total_hours, admission_type, current_installment_amount, current_installment_start_hours`;
+                values += `, ?, ?, ?, ?, ?, ?`;
+                paramsArray.push(
+                    userData.total_fees || 0,
+                    userData.total_paid || 0,
+                    userData.total_hours || 0,
+                    userData.admission_type || 'new',
+                    userData.current_installment_amount || 0,
+                    userData.current_installment_start_hours || 0
+                );
+            }
         }
 
         const [result] = await db.query(
