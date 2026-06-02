@@ -41,9 +41,15 @@ const StudentDetails = () => {
     const fetchStudentDetails = async () => {
         try {
             setLoading(true);
-            // Use a more permissive endpoint for admins if needed, 
-            // but for now we'll use the mentor one and ensure backend handles roles
-            const res = await api.get(`/mentor/students/${id}`);
+            let endpoint = `/mentor/students/${id}`;
+            if (user?.role === 'academic_operation_executive') endpoint = `/aoe/students/${id}`;
+            else if (user?.role === 'admin' || user?.role === 'super_admin' || user?.role === 'sub_admin') endpoint = `/admin/students/${id}`;
+            else if (user?.role === 'academic_head') endpoint = `/academic-head/students/${id}`;
+            else if (user?.role === 'mentor_head') endpoint = `/mentor-head/students/${id}`;
+            else if (user?.role === 'ssc') endpoint = `/ssc/students/${id}`;
+            else if (user?.role === 'faculty') endpoint = `/faculty/students/${id}`;
+
+            const res = await api.get(endpoint);
             setStudent(res.data.data);
         } catch (error) {
             console.error("Error fetching student details:", error);
