@@ -16,7 +16,7 @@ router.get('/debug-db', async (req, res) => {
 });
 
 router.use(requireAuth);
-router.use(requireRole('ssc'));
+router.use(requireRole('ssc', 'super_admin', 'academic_head'));
 
 router.get('/dashboard', getDashboardStats);
 router.get('/students', getStudentsTrack);

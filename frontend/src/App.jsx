@@ -226,6 +226,30 @@ function App() {
             <Route path="growth-monitor" element={<OperationsHub section="student_growth" />} />
             <Route path="faculty-replacement" element={<OperationsHub section="faculty_replacement" />} />
             <Route path="escalations" element={<OperationsHub section="escalation" />} />
+            
+            {/* AOE Panels inside Academic Head */}
+            <Route path="aoe/dashboard" element={<AOEDashboard />} />
+            <Route path="aoe/actions" element={<AcademicActions />} />
+            <Route path="aoe/faculties" element={<FacultyDirectory />} />
+            <Route path="aoe/students" element={<StudentsListAcademic role="academic_head" />} />
+            <Route path="aoe/students/:id" element={<StudentDetails />} />
+            <Route path="aoe/mentors" element={<MentorsListAcademic />} />
+            <Route path="aoe/registrations" element={<Registrations />} />
+            <Route path="aoe/tasks" element={<AOETasks />} />
+            <Route path="aoe/checking" element={<CheckingSection />} />
+            <Route path="aoe/live-monitoring" element={<AOELiveMonitoring />} />
+            <Route path="aoe/academic-schedule" element={<AOEAcademicSchedule />} />
+            <Route path="aoe/interactions" element={<Interactions />} />
+            <Route path="aoe/meetings" element={<ParentMeetings />} />
+            <Route path="aoe/demo-schedule" element={<AOEDemoSchedule />} />
+
+            {/* SSC Panels inside Academic Head */}
+            <Route path="ssc/dashboard" element={<SSCDashboard />} />
+            <Route path="ssc/students" element={<SSCStudentList />} />
+            <Route path="ssc/students/:id" element={<StudentDetails />} />
+            <Route path="ssc/timetable" element={<SSCTimetable />} />
+            <Route path="ssc/academic-schedule" element={<SSCAcademicSchedule />} />
+            <Route path="ssc/interaction-logs" element={<SSCInteractionLogs />} />
           </Route>
 
           {/* SSC System */}

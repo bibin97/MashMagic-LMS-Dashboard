@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import {
@@ -16,6 +16,8 @@ import {
   X,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
+  ChevronUp,
   MessageSquare,
   Contact,
   CalendarClock,
@@ -32,6 +34,7 @@ import mlogo from '../assets/mlogo.png';
 const Sidebar = ({ isOpen, setIsOpen, isCollapsed, setIsCollapsed, navItems, title = "MashMagic" }) => {
   const { logout, user } = useAuth();
   const navigate = useNavigate();
+  const [openDropdown, setOpenDropdown] = useState(null);
 
   const handleLogout = () => {
     logout();
@@ -77,36 +80,85 @@ const Sidebar = ({ isOpen, setIsOpen, isCollapsed, setIsCollapsed, navItems, tit
 
     <nav className="flex-1 p-4 flex flex-col gap-1 overflow-y-auto custom-scrollbar">
       {navItems.map((item) => (
-        <NavLink
-          key={item.path}
-          to={item.path}
-          onClick={() => setIsOpen(false)}
-          className={({ isActive }) => `
-            flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all duration-300 group relative
-            ${isActive
-              ? 'bg-[#008080] text-white font-bold shadow-[0_10px_20px_rgba(0,128,128,0.2)]'
-              : 'text-[#64748b] hover:bg-slate-50 hover:text-[#008080] hover:translate-x-1'}
-            ${isCollapsed ? 'justify-center px-0 mx-auto w-12' : ''}
-          `}
-        >
-          <span className={`transition-all duration-300 ${isCollapsed ? 'scale-110' : 'opacity-80 group-hover:opacity-100 flex items-center justify-center shrink-0'}`}>
-            {item.icon}
-          </span>
-          {!isCollapsed && (
-            <div className="flex-1 flex items-center justify-between min-w-0">
-              <span className="text-sm font-medium tracking-tight whitespace-nowrap animate-in fade-in slide-in-from-left-2 duration-300 truncate">{item.label}</span>
-              {item.badge > 0 && (
-                <span className={`px-2 py-0.5 text-[9px] font-black rounded-full ${item.badgeColor || 'bg-rose-500 text-white animate-pulse'}`}>
-                  {item.badge}
-                </span>
+        item.children ? (
+          <div key={item.label} className="flex flex-col gap-1">
+            <button
+              onClick={() => setOpenDropdown(openDropdown === item.label ? null : item.label)}
+              className={`
+                flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all duration-300 group relative w-full
+                ${openDropdown === item.label
+                  ? 'bg-slate-50 text-[#008080] font-bold shadow-sm'
+                  : 'text-[#64748b] hover:bg-slate-50 hover:text-[#008080] hover:translate-x-1'}
+                ${isCollapsed ? 'justify-center px-0 mx-auto w-12' : ''}
+              `}
+              title={isCollapsed ? item.label : undefined}
+            >
+              <span className={`transition-all duration-300 ${isCollapsed ? 'scale-110' : 'opacity-80 group-hover:opacity-100 flex items-center justify-center shrink-0'}`}>
+                {item.icon}
+              </span>
+              {!isCollapsed && (
+                <div className="flex-1 flex items-center justify-between min-w-0">
+                  <span className="text-sm font-medium tracking-tight whitespace-nowrap animate-in fade-in slide-in-from-left-2 duration-300 truncate">{item.label}</span>
+                  {openDropdown === item.label ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                </div>
               )}
-            </div>
-          )}
+            </button>
+            {openDropdown === item.label && !isCollapsed && (
+              <div className="flex flex-col gap-1 pl-4 mt-1 animate-in slide-in-from-top-2 duration-300">
+                {item.children.map((child) => (
+                  <NavLink
+                    key={child.path}
+                    to={child.path}
+                    onClick={() => setIsOpen(false)}
+                    className={({ isActive }) => `
+                      flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-300 group relative
+                      ${isActive
+                        ? 'bg-[#008080] text-white font-bold shadow-md'
+                        : 'text-[#64748b] hover:bg-slate-50 hover:text-[#008080] hover:translate-x-1'}
+                    `}
+                  >
+                    <span className="opacity-80 group-hover:opacity-100 flex items-center justify-center shrink-0">
+                      {child.icon}
+                    </span>
+                    <span className="text-sm font-medium tracking-tight whitespace-nowrap truncate">{child.label}</span>
+                  </NavLink>
+                ))}
+              </div>
+            )}
+          </div>
+        ) : (
+          <NavLink
+            key={item.path}
+            to={item.path}
+            onClick={() => setIsOpen(false)}
+            className={({ isActive }) => `
+              flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all duration-300 group relative
+              ${isActive
+                ? 'bg-[#008080] text-white font-bold shadow-[0_10px_20px_rgba(0,128,128,0.2)]'
+                : 'text-[#64748b] hover:bg-slate-50 hover:text-[#008080] hover:translate-x-1'}
+              ${isCollapsed ? 'justify-center px-0 mx-auto w-12' : ''}
+            `}
+            title={isCollapsed ? item.label : undefined}
+          >
+            <span className={`transition-all duration-300 ${isCollapsed ? 'scale-110' : 'opacity-80 group-hover:opacity-100 flex items-center justify-center shrink-0'}`}>
+              {item.icon}
+            </span>
+            {!isCollapsed && (
+              <div className="flex-1 flex items-center justify-between min-w-0">
+                <span className="text-sm font-medium tracking-tight whitespace-nowrap animate-in fade-in slide-in-from-left-2 duration-300 truncate">{item.label}</span>
+                {item.badge > 0 && (
+                  <span className={`px-2 py-0.5 text-[9px] font-black rounded-full ${item.badgeColor || 'bg-rose-500 text-white animate-pulse'}`}>
+                    {item.badge}
+                  </span>
+                )}
+              </div>
+            )}
 
-          {isCollapsed && item.dotBadge > 0 && (
-            <span className="w-2 h-2 rounded-full bg-yellow-400 shadow-[0_0_8px_rgba(250,204,21,0.8)] animate-pulse absolute top-2 right-2"></span>
-          )}
-        </NavLink>
+            {isCollapsed && item.dotBadge > 0 && (
+              <span className="w-2 h-2 rounded-full bg-yellow-400 shadow-[0_0_8px_rgba(250,204,21,0.8)] animate-pulse absolute top-2 right-2"></span>
+            )}
+          </NavLink>
+        )
       ))}
     </nav>
 

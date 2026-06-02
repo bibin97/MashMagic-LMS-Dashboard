@@ -53,7 +53,7 @@ const { requireRole } = require('../middleware/roleMiddleware');
 
 // All routes require academic_operation_executive role
 router.use(requireAuth);
-router.use(requireRole('academic_operation_executive', 'super_admin'));
+router.use(requireRole('academic_operation_executive', 'super_admin', 'academic_head'));
 
 router.get('/dashboard', getDashboardStats);
 router.get('/academic-schedule', getAcademicSchedule);
