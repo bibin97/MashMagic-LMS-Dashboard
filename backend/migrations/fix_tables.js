@@ -1,30 +1,20 @@
-const mysql = require('mysql2/promise');
-require('dotenv').config({ path: '../.env' });
+const db = require('../config/db');
 
 async function fixTables() {
     console.log("Starting database fixes...");
-    const pool = mysql.createPool({
-        host: process.env.DB_HOST || 'localhost',
-        user: process.env.DB_USER || 'root',
-        password: process.env.DB_PASSWORD || '',
-        database: process.env.DB_NAME || 'MashMagic',
-        waitForConnections: true,
-        connectionLimit: 10,
-        queueLimit: 0
-    });
 
     const tables = ['mentors', 'faculties', 'students'];
 
     for (const table of tables) {
         try {
-            await pool.query(`ALTER TABLE ${table} ADD COLUMN phone_number VARCHAR(50) UNIQUE NULL`);
+            await db.query(`ALTER TABLE ${table} ADD COLUMN phone_number VARCHAR(50) UNIQUE NULL`);
             console.log(`Added phone_number to ${table} table.`);
         } catch (error) {
             if (error.code === 'ER_DUP_FIELDNAME') {
                 console.log(`phone_number already exists in ${table} table.`);
             } else if (error.code === 'ER_NO_SUCH_TABLE') {
                 console.log(`${table} table does not exist. Creating it...`);
-                await pool.query(`
+                await db.query(`
                     CREATE TABLE IF NOT EXISTS ${table} (
                         id INT AUTO_INCREMENT PRIMARY KEY,
                         name VARCHAR(255) NOT NULL,
