@@ -745,6 +745,14 @@ const startServer = async () => {
                 }
             }
 
+            // Fallback for aoe_demo_schedules
+            try {
+                await pool.query(`ALTER TABLE aoe_demo_schedules DROP FOREIGN KEY aoe_demo_schedules_ibfk_2`);
+                console.log(`✅ Dropped foreign key constraint by name: aoe_demo_schedules_ibfk_2`);
+            } catch (e) {
+                // Ignore if constraint does not exist
+            }
+
             console.log('✅ Database schema is up to date');
         } catch (migErr) {
             console.log('Migration check suppressed:', migErr.message);
