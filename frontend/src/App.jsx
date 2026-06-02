@@ -217,6 +217,7 @@ function App() {
             </ProtectedRoute>
           }>
             <Route index element={<Navigate to="/academic-head/academic-quality" replace />} />
+            <Route path="dashboard" element={<Navigate to="/academic-head/academic-quality" replace />} />
             <Route path="academic-quality" element={<OperationsHub section="academic_quality" />} />
             <Route path="parent-meetings" element={<OperationsHub section="parent_meetings" />} />
             <Route path="exam-scores" element={<OperationsHub section="exam_scores" />} />
