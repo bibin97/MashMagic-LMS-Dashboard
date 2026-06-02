@@ -15,6 +15,7 @@ const AOEDemoSchedule = () => {
 
   // Form State
   const [formData, setFormData] = useState({
+    demo_id: '',
     student_name: '',
     student_type: 'new',
     subject: '',
@@ -84,6 +85,7 @@ const AOEDemoSchedule = () => {
       await api.post('/academic-operation-executive/demo-schedules', formData);
       toast.success('Demo Schedule Created Successfully');
       setFormData({
+        demo_id: '',
         student_name: '',
         student_type: 'new',
         subject: '',
@@ -177,6 +179,19 @@ const AOEDemoSchedule = () => {
           
           <form onSubmit={handleCreateSchedule} className="space-y-8">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 flex items-center gap-2">
+                  <Target size={12}/> Demo ID *
+                </label>
+                <input
+                  type="text" required
+                  value={formData.demo_id}
+                  onChange={(e) => setFormData({ ...formData, demo_id: e.target.value })}
+                  className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
+                  placeholder="Enter Demo ID"
+                />
+              </div>
+
               <div className="space-y-2">
                 <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 flex items-center gap-2">
                   <User size={12}/> Student Name *
@@ -312,7 +327,7 @@ const AOEDemoSchedule = () => {
                   <div className="flex justify-between items-start mb-4">
                     <div>
                       <span className="text-[9px] font-black px-3 py-1 bg-slate-100 text-slate-600 rounded-full uppercase tracking-widest">
-                        Demo #{demo.id}
+                        Demo #{demo.demo_id || demo.id}
                       </span>
                       <h3 className="text-lg font-black text-slate-900 mt-2">{demo.student_name}</h3>
                       <p className="text-[10px] font-black text-[#008080] uppercase tracking-widest">{demo.student_type} Student</p>

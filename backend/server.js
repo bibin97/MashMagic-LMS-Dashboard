@@ -662,6 +662,7 @@ const startServer = async () => {
                 `CREATE TABLE IF NOT EXISTS aoe_demo_schedules (
                     id INT AUTO_INCREMENT PRIMARY KEY,
                     aoe_id INT NOT NULL,
+                    demo_id VARCHAR(50) NULL,
                     student_name VARCHAR(255) NOT NULL,
                     student_type ENUM('new', 'existing') DEFAULT 'new',
                     subject VARCHAR(255) NOT NULL,
@@ -684,6 +685,7 @@ const startServer = async () => {
 
 
                 // Performance Indexes
+                'ALTER TABLE aoe_demo_schedules ADD COLUMN demo_id VARCHAR(50) NULL;',
                 'CREATE INDEX IF NOT EXISTS idx_users_role_status ON users(role, status);',
                 'CREATE INDEX IF NOT EXISTS idx_students_user_id ON students(user_id);',
                 'CREATE INDEX IF NOT EXISTS idx_students_mentor_id ON students(mentor_id);',
