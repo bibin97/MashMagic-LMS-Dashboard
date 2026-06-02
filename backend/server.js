@@ -679,8 +679,7 @@ const startServer = async () => {
                     total_score INT DEFAULT 0,
                     remarks TEXT,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                    FOREIGN KEY (aoe_id) REFERENCES users(id) ON DELETE CASCADE,
-                    FOREIGN KEY (faculty_id) REFERENCES users(id) ON DELETE CASCADE
+                    FOREIGN KEY (aoe_id) REFERENCES users(id) ON DELETE CASCADE
                 );`,
 
 
@@ -725,11 +724,11 @@ const startServer = async () => {
                 const [fks] = await pool.query(`
                     SELECT CONSTRAINT_NAME 
                     FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE 
-                    WHERE TABLE_SCHEMA = ? AND TABLE_NAME = 'timetable' AND COLUMN_NAME = 'faculty_id' AND REFERENCED_TABLE_NAME = 'users'
+                    WHERE TABLE_SCHEMA = ? AND TABLE_NAME IN ('timetable', 'aoe_demo_schedules') AND COLUMN_NAME = 'faculty_id' AND REFERENCED_TABLE_NAME = 'users'
                 `, [process.env.DB_NAME || 'mashmagic']);
                 for (const fk of fks) {
-                    await pool.query(`ALTER TABLE timetable DROP FOREIGN KEY ${fk.CONSTRAINT_NAME}`);
-                    console.log(`✅ Dynamically dropped invalid foreign key constraint: ${fk.CONSTRAINT_NAME}`);
+                    await pool.query(`ALTER TABLE ${fk.TABLE_NAME} DROP FOREIGN KEY ${fk.CONSTRAINT_NAME}`);
+                    console.log(`✅ Dynamically dropped invalid foreign key constraint: ${fk.CONSTRAINT_NAME} from ${fk.TABLE_NAME}`);
                 }
             } catch (fkErr) {
                 console.log('ℹ️ Dynamic FK drop info:', fkErr.message);
