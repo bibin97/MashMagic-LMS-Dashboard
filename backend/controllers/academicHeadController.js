@@ -21,7 +21,7 @@ const addFacultyQualityCheck = async (req, res) => {
         const ah_id = req.user.id;
         
         await db.query(`
-            INSERT INTO ah_faculty_quality (faculty_id, ah_id, class_topic, score, remarks)
+            INSERT INTO ah_faculty_quality (faculty_id, academic_head_id, class_topic, score, remarks)
             VALUES (?, ?, ?, ?, ?)
         `, [faculty_id, ah_id, class_topic, score, remarks]);
         
@@ -103,7 +103,7 @@ const addFacultyReplacement = async (req, res) => {
         const ah_id = req.user.id;
         
         await db.query(`
-            INSERT INTO ah_faculty_replacements (faculty_id, ah_id, reason)
+            INSERT INTO ah_faculty_replacements (faculty_id, academic_head_id, reason)
             VALUES (?, ?, ?)
         `, [faculty_id, ah_id, reason]);
         
@@ -135,7 +135,7 @@ const addEscalation = async (req, res) => {
         const ah_id = req.user.id;
         
         await db.query(`
-            INSERT INTO ah_escalations (student_id, ah_id, issue_type, description, priority)
+            INSERT INTO ah_escalations (student_id, academic_head_id, issue_type, description, priority)
             VALUES (?, ?, ?, ?, ?)
         `, [student_id || null, ah_id, issue_type, description, priority || 'medium']);
         
