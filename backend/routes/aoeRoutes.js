@@ -43,7 +43,10 @@ const {
     createAHFacultyInteraction,
     getAHParentMeetings,
     scheduleAHParentMeeting,
-    reportAHParentMeeting
+    reportAHParentMeeting,
+    getDemoSchedules,
+    createDemoSchedule,
+    updateDemoEvaluation
 } = require('../controllers/aoeController');
 const { requireAuth } = require('../middleware/authMiddleware');
 const { requireRole } = require('../middleware/roleMiddleware');
@@ -104,5 +107,10 @@ router.post('/faculty-interactions', createAHFacultyInteraction);
 router.get('/parent-meetings', getAHParentMeetings);
 router.post('/parent-meetings', scheduleAHParentMeeting);
 router.put('/parent-meetings/:id/report', reportAHParentMeeting);
+
+// Demo Schedules
+router.get('/demo-schedules', getDemoSchedules);
+router.post('/demo-schedules', createDemoSchedule);
+router.put('/demo-schedules/:id/evaluate', updateDemoEvaluation);
 
 module.exports = router;

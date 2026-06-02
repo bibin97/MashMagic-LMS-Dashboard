@@ -12,7 +12,8 @@ import {
   ShieldAlert,
   ScrollText,
   MessageSquare,
-  Presentation
+  Presentation,
+  CalendarDays
 } from 'lucide-react';
 
 const AOELayout = () => {
@@ -33,6 +34,7 @@ const AOELayout = () => {
   { path: '/aoe/interactions', icon: <MessageSquare size={18} />, label: 'Interactions' },
   { path: '/aoe/meetings', icon: <Presentation size={18} />, label: 'Parent Meetings' },
   { path: '/aoe/checking', icon: <ShieldAlert size={18} />, label: 'Institutional Audit' },
+  { path: '/aoe/demo-schedule', icon: <CalendarDays size={18} />, label: 'Demo Schedule' },
  ];
 
  return (

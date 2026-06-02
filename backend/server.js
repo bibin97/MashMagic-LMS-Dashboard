@@ -659,6 +659,30 @@ const startServer = async () => {
                     FOREIGN KEY (academic_head_id) REFERENCES users(id) ON DELETE CASCADE
                 );`,
 
+                `CREATE TABLE IF NOT EXISTS aoe_demo_schedules (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    aoe_id INT NOT NULL,
+                    student_name VARCHAR(255) NOT NULL,
+                    student_type ENUM('new', 'existing') DEFAULT 'new',
+                    subject VARCHAR(255) NOT NULL,
+                    faculty_id INT NOT NULL,
+                    start_time VARCHAR(50) NOT NULL,
+                    end_time VARCHAR(50) NOT NULL,
+                    hour_rate DECIMAL(10,2) DEFAULT 0.00,
+                    status ENUM('scheduled', 'completed', 'cancelled') DEFAULT 'scheduled',
+                    prep_score INT DEFAULT 0,
+                    comm_score INT DEFAULT 0,
+                    concept_score INT DEFAULT 0,
+                    engage_score INT DEFAULT 0,
+                    parent_score INT DEFAULT 0,
+                    total_score INT DEFAULT 0,
+                    remarks TEXT,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (aoe_id) REFERENCES users(id) ON DELETE CASCADE,
+                    FOREIGN KEY (faculty_id) REFERENCES users(id) ON DELETE CASCADE
+                );`,
+
+
                 // Performance Indexes
                 'CREATE INDEX IF NOT EXISTS idx_users_role_status ON users(role, status);',
                 'CREATE INDEX IF NOT EXISTS idx_students_user_id ON students(user_id);',

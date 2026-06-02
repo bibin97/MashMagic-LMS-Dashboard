@@ -744,7 +744,61 @@ const reportAHParentMeeting = async (req, res) => {
     } catch (error) { res.status(500).json({ success: false, message: error.message }); }
 };
 
+const getDemoSchedules = async (req, res) => {
+    try {
+        const [rows] = await db.query(`
+            SELECT d.*, u.name as faculty_name 
+            FROM aoe_demo_schedules d
+            JOIN users u ON d.faculty_id = u.id
+            ORDER BY d.created_at DESC
+        `);
+        res.status(200).json({ success: true, data: rows });
+    } catch (error) {
+        console.error("GET_DEMOS_ERROR:", error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+const createDemoSchedule = async (req, res) => {
+    try {
+        const { student_name, student_type, subject, faculty_id, start_time, end_time, hour_rate } = req.body;
+        const aoe_id = req.user.id;
+
+        await db.query(`
+            INSERT INTO aoe_demo_schedules 
+                (aoe_id, student_name, student_type, subject, faculty_id, start_time, end_time, hour_rate)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        `, [aoe_id, student_name, student_type || 'new', subject, faculty_id, start_time, end_time, hour_rate || 0]);
+
+        res.status(201).json({ success: true, message: 'Demo schedule created successfully' });
+    } catch (error) {
+        console.error("CREATE_DEMO_ERROR:", error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+const updateDemoEvaluation = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { prep_score, comm_score, concept_score, engage_score, parent_score, remarks } = req.body;
+        
+        const total = (Number(prep_score) || 0) + (Number(comm_score) || 0) + (Number(concept_score) || 0) + (Number(engage_score) || 0) + (Number(parent_score) || 0);
+
+        await db.query(`
+            UPDATE aoe_demo_schedules
+            SET prep_score = ?, comm_score = ?, concept_score = ?, engage_score = ?, parent_score = ?, total_score = ?, remarks = ?, status = 'completed'
+            WHERE id = ?
+        `, [prep_score, comm_score, concept_score, engage_score, parent_score, total, remarks, id]);
+
+        res.status(200).json({ success: true, message: 'Demo evaluation saved successfully' });
+    } catch (error) {
+        console.error("UPDATE_DEMO_ERROR:", error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
 module.exports = {
     getExamAnalytics, getDashboardStats, getAllFacultyActivity, getAvailableFaculties, getDropdownData, registerStudent, registerFaculty, registerSSC, getStudentInteractionLogs, getFacultyInteractionLogs, getAcademicActions, getDailyFacultyChecks, checkFacultySessionToday, uncheckFacultySession, getFacultyDirectory, getAcademicDocuments, uploadAcademicDocument, deleteAcademicDocument, getLiveClassEvaluations, submitLiveClassEvaluation, getPendingFacultyLogs, verifyFacultyLog, editFaculty, deleteFaculty, editStudent, deleteStudent, getStudentById, getStudents, getMentors, editMentor, deleteMentor, getLiveMonitoring, getStaff, syncLegacyData, saveExamPlan, getAcademicSchedule,
-    getAHParentInteractions, createAHParentInteraction, getAHFacultyInteractions, createAHFacultyInteraction, getAHParentMeetings, scheduleAHParentMeeting, reportAHParentMeeting
+    getAHParentInteractions, createAHParentInteraction, getAHFacultyInteractions, createAHFacultyInteraction, getAHParentMeetings, scheduleAHParentMeeting, reportAHParentMeeting,
+    getDemoSchedules, createDemoSchedule, updateDemoEvaluation
 };

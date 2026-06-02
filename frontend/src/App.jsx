@@ -97,6 +97,7 @@ import EditStudent from './pages/AOE/EditStudent';
 import EditFaculty from './pages/AOE/EditFaculty';
 import Interactions from './pages/AOE/Interactions';
 import ParentMeetings from './pages/AOE/ParentMeetings';
+import AOEDemoSchedule from './pages/AOE/AOEDemoSchedule';
 
 // Academic Head Pages
 import OperationsHub from './pages/AcademicHead/OperationsHub';
@@ -206,6 +207,7 @@ function App() {
             <Route path="academic-schedule" element={<AOEAcademicSchedule />} />
             <Route path="interactions" element={<Interactions />} />
             <Route path="meetings" element={<ParentMeetings />} />
+            <Route path="demo-schedule" element={<AOEDemoSchedule />} />
             <Route path="profile" element={<AdminProfile />} />
             <Route path="account-settings" element={<AccountSettings />} />
           </Route>
