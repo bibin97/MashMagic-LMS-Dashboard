@@ -227,6 +227,7 @@ const startServer = async () => {
                 'ALTER TABLE users ADD COLUMN profile_pic TEXT NULL;',
                 
                 'ALTER TABLE students ADD COLUMN badge VARCHAR(50) NULL;',
+                'ALTER TABLE students ADD COLUMN batch VARCHAR(100) NULL;',
                 'ALTER TABLE students ADD COLUMN enrollment_type VARCHAR(100) NULL;',
                 'ALTER TABLE students ADD COLUMN course_completed BOOLEAN DEFAULT FALSE;',
                 'ALTER TABLE students ADD COLUMN attendance_percentage DECIMAL(5,2) DEFAULT 0.00;',
