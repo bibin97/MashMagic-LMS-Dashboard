@@ -11,6 +11,7 @@ const AOEDemoSchedule = () => {
   const [loading, setLoading] = useState(false);
   const [faculties, setFaculties] = useState([]);
   const [students, setStudents] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
   const [demoList, setDemoList] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -205,35 +206,53 @@ const AOEDemoSchedule = () => {
                 />
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-2 relative">
                 <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 flex items-center gap-2">
                   <User size={12}/> Student Name *
                 </label>
                 <input
                   type="text" required
-                  list="student-list"
                   value={formData.student_name}
+                  onFocus={() => setShowSuggestions(true)}
+                  onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
                   onChange={(e) => {
                     const val = e.target.value;
-                    const selectedStudent = students.find(s => s.name === val);
-                    if (selectedStudent) {
-                      setFormData({ 
-                        ...formData, 
-                        student_name: val,
-                        student_type: 'existing'
-                      });
-                    } else {
-                      setFormData({ ...formData, student_name: val });
-                    }
+                    setFormData({ ...formData, student_name: val });
+                    setShowSuggestions(true);
                   }}
                   className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
                   placeholder="Type to search or enter new name"
                 />
-                <datalist id="student-list">
-                  {students.map(s => (
-                    <option key={s.id} value={s.name}>{s.email || ''}</option>
-                  ))}
-                </datalist>
+                
+                {/* Custom Autocomplete Dropdown */}
+                {showSuggestions && formData.student_name && (
+                  <div className="absolute z-50 w-full mt-1 bg-white border border-slate-100 rounded-2xl shadow-xl max-h-60 overflow-y-auto top-full left-0">
+                    {students
+                      .filter(s => s.name.toLowerCase().includes(formData.student_name.toLowerCase()))
+                      .map(s => (
+                        <div 
+                          key={s.id}
+                          className="px-4 py-3 hover:bg-slate-50 cursor-pointer border-b border-slate-50 last:border-0 transition-colors"
+                          onClick={() => {
+                            setFormData({ 
+                              ...formData, 
+                              student_name: s.name,
+                              student_type: 'existing'
+                            });
+                            setShowSuggestions(false);
+                          }}
+                        >
+                          <div className="text-xs font-bold text-slate-800">{s.name}</div>
+                          {s.email && <div className="text-[9px] text-slate-400">{s.email}</div>}
+                        </div>
+                      ))}
+                    {students.filter(s => s.name.toLowerCase().includes(formData.student_name.toLowerCase())).length === 0 && (
+                      <div className="px-4 py-4 text-[10px] text-slate-500 font-bold text-center">
+                        No matches found. Will be added as a new student.
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
 
               <div className="space-y-2">
