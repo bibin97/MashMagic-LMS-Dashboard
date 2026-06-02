@@ -33,7 +33,7 @@ import Approvals from './pages/admin/Approvals';
 import DailyMentorHeadReport from './pages/admin/DailyMentorHeadReport';
 import AdminManagement from './pages/admin/AdminManagement';
 import StaffManagement from './pages/admin/StaffManagement';
-import AdminLiveMonitoring from './pages/admin/LiveMonitoring';
+
 import AdminAcademicSchedule from './pages/admin/AcademicSchedule';
 import AHInteractions from './pages/admin/AHInteractions';
 import AHParentMeetings from './pages/admin/AHParentMeetings';
@@ -144,7 +144,7 @@ function App() {
             <Route path="approvals" element={<Approvals />} />
             <Route path="admin-management" element={<AdminManagement />} />
             <Route path="students/:id" element={<StudentDetails />} />
-            <Route path="live-monitoring" element={<AdminLiveMonitoring />} />
+
             <Route path="academic-schedule" element={<AdminAcademicSchedule />} />
             <Route path="ah-interactions" element={<AHInteractions />} />
             <Route path="ah-meetings" element={<AHParentMeetings />} />
