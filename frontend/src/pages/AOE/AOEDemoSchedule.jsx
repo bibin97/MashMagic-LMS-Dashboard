@@ -10,6 +10,7 @@ const AOEDemoSchedule = () => {
   const [activeTab, setActiveTab] = useState('schedule');
   const [loading, setLoading] = useState(false);
   const [faculties, setFaculties] = useState([]);
+  const [students, setStudents] = useState([]);
   const [demoList, setDemoList] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -46,8 +47,20 @@ const AOEDemoSchedule = () => {
 
   useEffect(() => {
     fetchFaculties();
+    fetchStudents();
     fetchDemos();
   }, []);
+
+  const fetchStudents = async () => {
+    try {
+      const response = await api.get('/aoe/students');
+      if (response.data.success) {
+        setStudents(response.data.data);
+      }
+    } catch (error) {
+      console.error('Error fetching students:', error);
+    }
+  };
 
   const fetchFaculties = async () => {
     try {
@@ -198,11 +211,29 @@ const AOEDemoSchedule = () => {
                 </label>
                 <input
                   type="text" required
+                  list="student-list"
                   value={formData.student_name}
-                  onChange={(e) => setFormData({ ...formData, student_name: e.target.value })}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    const selectedStudent = students.find(s => s.name === val);
+                    if (selectedStudent) {
+                      setFormData({ 
+                        ...formData, 
+                        student_name: val,
+                        student_type: 'existing'
+                      });
+                    } else {
+                      setFormData({ ...formData, student_name: val });
+                    }
+                  }}
                   className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
-                  placeholder="Enter student name"
+                  placeholder="Type to search or enter new name"
                 />
+                <datalist id="student-list">
+                  {students.map(s => (
+                    <option key={s.id} value={s.name}>{s.email || ''}</option>
+                  ))}
+                </datalist>
               </div>
 
               <div className="space-y-2">
