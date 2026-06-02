@@ -29,12 +29,12 @@ const OperationsHub = ({ section }) => {
     setLoading(true);
     try {
       let endpoint = '';
-      if (tab === 'academic_quality') endpoint = '/operations-executive/faculty-quality';
-      else if (tab === 'parent_meetings') endpoint = '/operations-executive/parent-meetings';
-      else if (tab === 'exam_scores') endpoint = '/operations-executive/exam-scores';
-      else if (tab === 'student_growth') endpoint = '/operations-executive/student-growth';
-      else if (tab === 'faculty_replacement') endpoint = '/operations-executive/faculty-replacements';
-      else if (tab === 'escalation') endpoint = '/operations-executive/escalations';
+      if (tab === 'academic_quality') endpoint = '/academic-head/faculty-quality';
+      else if (tab === 'parent_meetings') endpoint = '/academic-head/parent-meetings';
+      else if (tab === 'exam_scores') endpoint = '/academic-head/exam-scores';
+      else if (tab === 'student_growth') endpoint = '/academic-head/student-growth';
+      else if (tab === 'faculty_replacement') endpoint = '/academic-head/faculty-replacements';
+      else if (tab === 'escalation') endpoint = '/academic-head/escalations';
 
       const response = await api.get(endpoint);
       setData(prev => ({ ...prev, [tab]: response.data.data }));
