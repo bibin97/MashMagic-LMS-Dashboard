@@ -21,6 +21,7 @@ const StudentDetails = () => {
 
     // Determine back path based on role
     const getBackPath = () => {
+        if (user?.role === 'academic_operation_executive' || user?.role === 'aoe') return '/aoe/students';
         if (isAdmin) {
             if (user.role === 'mentor_head') return '/mentor-head/students';
             if (user.role === 'academic_head') return '/academic-head/students';
@@ -42,7 +43,7 @@ const StudentDetails = () => {
         try {
             setLoading(true);
             let endpoint = `/mentor/students/${id}`;
-            if (user?.role === 'academic_operation_executive') endpoint = `/aoe/students/${id}`;
+            if (user?.role === 'academic_operation_executive' || user?.role === 'aoe') endpoint = `/aoe/students/${id}`;
             else if (user?.role === 'admin' || user?.role === 'super_admin' || user?.role === 'sub_admin') endpoint = `/admin/students/${id}`;
             else if (user?.role === 'academic_head') endpoint = `/academic-head/students/${id}`;
             else if (user?.role === 'mentor_head') endpoint = `/mentor-head/students/${id}`;
