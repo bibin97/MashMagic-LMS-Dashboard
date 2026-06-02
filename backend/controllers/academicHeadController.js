@@ -55,7 +55,7 @@ const getExamScores = async (req, res) => {
             SELECT e.*, s.name as student_name 
             FROM student_exams e
             JOIN students s ON e.student_id = s.id
-            ORDER BY e.exam_date DESC
+            ORDER BY e.created_at DESC
         `);
         res.status(200).json({ success: true, data: rows });
     } catch (error) {
