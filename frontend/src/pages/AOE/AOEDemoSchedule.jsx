@@ -12,6 +12,7 @@ const AOEDemoSchedule = () => {
   const [faculties, setFaculties] = useState([]);
   const [students, setStudents] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [showSubjectSuggestions, setShowSubjectSuggestions] = useState(false);
   const [demoList, setDemoList] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -45,6 +46,8 @@ const AOEDemoSchedule = () => {
     (Number(evalData.concept_score) || 0) + 
     (Number(evalData.engage_score) || 0) + 
     (Number(evalData.parent_score) || 0);
+
+  const uniqueSubjects = Array.from(new Set(faculties.map(f => f.subject).filter(Boolean)));
 
   useEffect(() => {
     fetchFaculties();
@@ -233,7 +236,8 @@ const AOEDemoSchedule = () => {
                         <div 
                           key={s.id}
                           className="px-4 py-3 hover:bg-slate-50 cursor-pointer border-b border-slate-50 last:border-0 transition-colors"
-                          onClick={() => {
+                          onMouseDown={(e) => {
+                            e.preventDefault();
                             setFormData({ 
                               ...formData, 
                               student_name: s.name,
@@ -270,17 +274,48 @@ const AOEDemoSchedule = () => {
                 </select>
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-2 relative">
                 <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 flex items-center gap-2">
                   <BookOpen size={12}/> Subject *
                 </label>
                 <input
                   type="text" required
                   value={formData.subject}
-                  onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
+                  onFocus={() => setShowSubjectSuggestions(true)}
+                  onBlur={() => setTimeout(() => setShowSubjectSuggestions(false), 200)}
+                  onChange={(e) => {
+                    setFormData({ ...formData, subject: e.target.value });
+                    setShowSubjectSuggestions(true);
+                  }}
                   className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
                   placeholder="E.g., Mathematics"
                 />
+                
+                {/* Subject Autocomplete Dropdown */}
+                {showSubjectSuggestions && formData.subject && (
+                  <div className="absolute z-50 w-full mt-1 bg-white border border-slate-100 rounded-2xl shadow-xl max-h-60 overflow-y-auto top-full left-0">
+                    {uniqueSubjects
+                      .filter(subj => subj.toLowerCase().includes(formData.subject.toLowerCase()))
+                      .map((subj, idx) => (
+                        <div 
+                          key={idx}
+                          className="px-4 py-3 hover:bg-slate-50 cursor-pointer border-b border-slate-50 last:border-0 transition-colors"
+                          onMouseDown={(e) => {
+                            e.preventDefault();
+                            setFormData({ ...formData, subject: subj });
+                            setShowSubjectSuggestions(false);
+                          }}
+                        >
+                          <div className="text-xs font-bold text-slate-800">{subj}</div>
+                        </div>
+                      ))}
+                    {uniqueSubjects.filter(subj => subj.toLowerCase().includes(formData.subject.toLowerCase())).length === 0 && (
+                      <div className="px-4 py-4 text-[10px] text-slate-500 font-bold text-center">
+                        No matches found. You can add this as a new subject.
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
 
               <div className="space-y-2">
