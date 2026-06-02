@@ -268,7 +268,7 @@ const login = async (req, res) => {
                 return res.status(403).json({ success: false, message: "Unauthorized: Only Mentor Department staff can login here." });
             }
         } else if (department === 'academic_dept') {
-            if (dbRole !== 'faculty' && dbRole !== 'academichead' && dbRole !== 'ssc' && dbRole !== 'aoe') {
+            if (dbRole !== 'faculty' && dbRole !== 'academichead' && dbRole !== 'ssc' && user.role !== 'academic_operation_executive') {
                 return res.status(403).json({ success: false, message: "Unauthorized: Only Academic Department staff can login here." });
             }
         } else if (department === 'student_dept') {
