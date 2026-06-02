@@ -57,7 +57,6 @@ const AdminLayout = () => {
  { path: '/admin/staff', icon: <UserSquare2 size={20} />, label: 'Staff Management', perm: 'staff' },
  { path: '/admin/tasks', icon: <ListTodo size={20} />, label: 'Tasks', perm: 'tasks' },
  { path: '/admin/reports', icon: <FileText size={20} />, label: 'Reports', perm: 'reports' },
- { path: '/admin/live-monitoring', icon: <Target size={20} />, label: 'Live Classes', perm: 'monitoring' },
  { path: '/admin/academic-schedule', icon: <ScrollText size={20} />, label: 'Academic Schedule', perm: 'monitoring' },
  { path: '/admin/mentor-head-report', icon: <Target size={20} />, label: 'Mentor Head Report', perm: 'reports' },
    { path: '/admin/logs', icon: <ScrollText size={20} />, label: 'Interaction Logs', perm: 'logs' },
