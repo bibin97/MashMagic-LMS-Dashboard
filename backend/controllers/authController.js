@@ -247,12 +247,15 @@ const login = async (req, res) => {
             return res.status(401).json({ success: false, message: "Invalid credentials" });
         }
 
+        // Handle legacy 'aoe' role format
+        const actualUserRole = user.role === 'aoe' ? 'academic_operation_executive' : user.role;
+
         // Strict Role Match Check
-        if (user.role !== requestedRole) {
+        if (actualUserRole !== requestedRole) {
             console.log(`[LOGIN REJECTED] Role Mismatch: User ${identifier} is ${user.role}, but tried to login as ${requestedRole}`);
             return res.status(403).json({ 
                 success: false, 
-                message: `Unauthorized: Your account is registered as ${user.role.replace('_', ' ').toUpperCase()}, but you are attempting to login as ${requestedRole.replace('_', ' ').toUpperCase()}. Please select the correct role.` 
+                message: `Unauthorized: Your account is registered as ${actualUserRole.replace('_', ' ').toUpperCase()}, but you are attempting to login as ${requestedRole.replace('_', ' ').toUpperCase()}. Please select the correct role.` 
             });
         }
 
@@ -268,7 +271,7 @@ const login = async (req, res) => {
                 return res.status(403).json({ success: false, message: "Unauthorized: Only Mentor Department staff can login here." });
             }
         } else if (department === 'academic_dept') {
-            if (dbRole !== 'faculty' && dbRole !== 'academichead' && dbRole !== 'ssc' && user.role !== 'academic_operation_executive') {
+            if (dbRole !== 'faculty' && dbRole !== 'academichead' && dbRole !== 'ssc' && actualUserRole !== 'academic_operation_executive') {
                 return res.status(403).json({ success: false, message: "Unauthorized: Only Academic Department staff can login here." });
             }
         } else if (department === 'student_dept') {
