@@ -51,7 +51,7 @@ const AOEDemoSchedule = () => {
 
   const fetchFaculties = async () => {
     try {
-      const response = await api.get('/academic-operation-executive/dropdowns');
+      const response = await api.get('/aoe/dropdowns');
       if (response.data.success && response.data.data.faculties) {
         setFaculties(response.data.data.faculties);
       }
@@ -63,7 +63,7 @@ const AOEDemoSchedule = () => {
   const fetchDemos = async () => {
     setLoading(true);
     try {
-      const response = await api.get('/academic-operation-executive/demo-schedules');
+      const response = await api.get('/aoe/demo-schedules');
       if (response.data.success) {
         setDemoList(response.data.data);
       }
@@ -82,7 +82,7 @@ const AOEDemoSchedule = () => {
     }
     
     try {
-      await api.post('/academic-operation-executive/demo-schedules', formData);
+      await api.post('/aoe/demo-schedules', formData);
       toast.success('Demo Schedule Created Successfully');
       setFormData({
         demo_id: '',
@@ -117,7 +117,7 @@ const AOEDemoSchedule = () => {
   const handleEvaluationSubmit = async (e) => {
     e.preventDefault();
     try {
-      await api.put(`/academic-operation-executive/demo-schedules/${selectedDemo.id}/evaluate`, evalData);
+      await api.put(`/aoe/demo-schedules/${selectedDemo.id}/evaluate`, evalData);
       toast.success('Evaluation submitted successfully');
       setShowModal(false);
       fetchDemos();
