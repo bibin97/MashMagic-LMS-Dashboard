@@ -747,9 +747,9 @@ const reportAHParentMeeting = async (req, res) => {
 const getDemoSchedules = async (req, res) => {
     try {
         const [rows] = await db.query(`
-            SELECT d.*, u.name as faculty_name 
+            SELECT d.*, f.name as faculty_name 
             FROM aoe_demo_schedules d
-            JOIN users u ON d.faculty_id = u.id
+            JOIN faculties f ON d.faculty_id = f.id
             ORDER BY d.created_at DESC
         `);
         res.status(200).json({ success: true, data: rows });
