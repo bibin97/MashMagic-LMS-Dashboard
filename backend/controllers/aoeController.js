@@ -727,12 +727,49 @@ const saveExamPlan = async (req, res) => {
 const getAcademicSchedule = async (req, res) => {
     try {
         const query = `
-            SELECT fs.*, u.name as faculty_name, s.name as student_name, s.id as student_id, s.meeting_link
-            FROM faculty_sessions fs
-            LEFT JOIN faculties u ON fs.faculty_id = u.id
-            LEFT JOIN session_attendance sa ON fs.id = sa.session_id
-            LEFT JOIN students s ON sa.student_id = s.id
-            ORDER BY fs.date DESC, fs.start_time DESC
+            SELECT id, faculty_id, student_id, date, start_time, end_time,
+                   topic, status, faculty_name, student_name, meeting_link, minutes_taken
+            FROM (
+                SELECT 
+                    t.id as id,
+                    t.faculty_id,
+                    t.student_id,
+                    t.date,
+                    t.start_time,
+                    t.end_time,
+                    COALESCE(t.chapter, t.session_type, 'General Session') as topic,
+                    t.status,
+                    COALESCE(t.faculty_name, f.name, 'TBD') as faculty_name,
+                    s.name as student_name,
+                    s.meeting_link,
+                    fs.minutes_taken
+                FROM timetable t
+                LEFT JOIN users f ON t.faculty_id = f.id
+                JOIN students s ON t.student_id = s.id
+                LEFT JOIN faculty_sessions fs ON t.id = fs.timetable_id
+
+                UNION ALL
+
+                SELECT 
+                    fs.id as id,
+                    fs.faculty_id,
+                    sa.student_id,
+                    fs.date,
+                    fs.start_time,
+                    fs.end_time,
+                    fs.topic,
+                    fs.status,
+                    u.name as faculty_name,
+                    s.name as student_name,
+                    s.meeting_link,
+                    fs.minutes_taken
+                FROM faculty_sessions fs
+                LEFT JOIN faculties u ON fs.faculty_id = u.id
+                LEFT JOIN session_attendance sa ON fs.id = sa.session_id
+                LEFT JOIN students s ON sa.student_id = s.id
+                WHERE fs.timetable_id IS NULL
+            ) combined_schedules
+            ORDER BY date DESC, start_time DESC
         `;
         const [rows] = await db.query(query);
         res.status(200).json({ success: true, data: rows });
