@@ -3,7 +3,7 @@ import axios from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import {
   User, Phone, Lock, Camera, CheckCircle, Shield, Mail, Info, ArrowRight,
-  BookOpen, Clock, Calendar
+  BookOpen, Clock, Calendar, X
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -37,7 +37,7 @@ const FacultyProfile = () => {
     languages_proficiency: [],
     qualification: '',
     experience: '',
-    availability: '',
+    availability: [''],
     hourly_rate: '',
     teaching_mode: 'Both',
     joining_date: '',
@@ -109,6 +109,17 @@ const FacultyProfile = () => {
         try { parsedSecondary = typeof u.secondary_subjects === 'string' ? JSON.parse(u.secondary_subjects) : (u.secondary_subjects || []); } catch(e){}
         try { parsedPrimary = typeof (u.subject || u.primary_subject) === 'string' && (u.subject || u.primary_subject).startsWith('[') ? JSON.parse(u.subject || u.primary_subject) : ((u.subject || u.primary_subject) ? (u.subject || u.primary_subject).split(', ') : []); } catch(e){ parsedPrimary = (u.subject || u.primary_subject) ? [(u.subject || u.primary_subject)] : []; }
 
+        let parsedAvailability = [''];
+        if (u.availability) {
+          try {
+            parsedAvailability = typeof u.availability === 'string' && u.availability.startsWith('[') 
+              ? JSON.parse(u.availability) 
+              : u.availability.split(',').map(s=>s.trim());
+          } catch(e) {
+            parsedAvailability = [u.availability];
+          }
+        }
+
         setFormData(prev => ({
           ...prev,
           phone_number: u.phone_number || '',
@@ -118,7 +129,7 @@ const FacultyProfile = () => {
           languages_proficiency: Array.isArray(parsedLangs) ? parsedLangs : [],
           qualification: u.qualification || '',
           experience: u.experience || '',
-          availability: u.availability || '',
+          availability: Array.isArray(parsedAvailability) && parsedAvailability.length > 0 ? parsedAvailability : [''],
           hourly_rate: u.hourly_rate || '',
           teaching_mode: u.teaching_mode || 'Both',
           joining_date: u.joining_date ? new Date(u.joining_date).toISOString().split('T')[0] : '',
@@ -154,7 +165,7 @@ const FacultyProfile = () => {
     updateData.append('section', formData.section);
     updateData.append('qualification', formData.qualification);
     updateData.append('experience', formData.experience);
-    updateData.append('availability', formData.availability);
+    updateData.append('availability', JSON.stringify(formData.availability));
     updateData.append('hourly_rate', formData.hourly_rate);
     updateData.append('teaching_mode', formData.teaching_mode);
     updateData.append('joining_date', formData.joining_date);
@@ -501,11 +512,45 @@ const FacultyProfile = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
               <div className="flex flex-col gap-2">
                 <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Availability (Time Slots)</label>
-                <div className="relative group">
-                  <Clock size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600" />
-                  <input type="text" name="availability" value={formData.availability} onChange={handleChange} className="w-full p-3 pl-12 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold text-black focus:bg-white focus:ring-2 focus:ring-[#008080] outline-none" placeholder="E.g. 2:00 PM - 7:00 PM" />
-                </div>
-                <p className="text-[10px] text-slate-500 ml-1">Define your total available hours (e.g., 2:00 PM - 7:00 PM). Booked student slots will be deducted automatically.</p>
+                {formData.availability.map((slot, index) => (
+                  <div key={index} className="relative group flex items-center gap-2">
+                    <div className="relative flex-1">
+                      <Clock size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600" />
+                      <input 
+                        type="text" 
+                        value={slot} 
+                        onChange={(e) => {
+                          const newSlots = [...formData.availability];
+                          newSlots[index] = e.target.value;
+                          setFormData({ ...formData, availability: newSlots });
+                        }} 
+                        className="w-full p-3 pl-12 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold text-black focus:bg-white focus:ring-2 focus:ring-[#008080] outline-none" 
+                        placeholder={`Time Slot ${index + 1} (e.g. 2:00 PM - 7:00 PM)`} 
+                      />
+                    </div>
+                    {formData.availability.length > 1 && (
+                      <button 
+                        type="button"
+                        onClick={() => {
+                          const newSlots = formData.availability.filter((_, i) => i !== index);
+                          setFormData({ ...formData, availability: newSlots });
+                        }}
+                        className="p-3 bg-red-50 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-colors"
+                        title="Remove Time Slot"
+                      >
+                        <X size={16} />
+                      </button>
+                    )}
+                  </div>
+                ))}
+                <button 
+                  type="button"
+                  onClick={() => setFormData({ ...formData, availability: [...formData.availability, ''] })}
+                  className="mt-2 py-2 px-4 bg-[#008080]/10 text-[#008080] rounded-xl text-xs font-bold hover:bg-[#008080] hover:text-white transition-colors w-fit"
+                >
+                  + Add Time Slot
+                </button>
+                <p className="text-[10px] text-slate-500 ml-1">Define your total available hours. Add multiple slots if needed.</p>
               </div>
               <div className="flex flex-col gap-2">
                 <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Phone Number</label>
