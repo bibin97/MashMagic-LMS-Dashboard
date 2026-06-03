@@ -514,34 +514,54 @@ const FacultyProfile = () => {
               <div className="flex flex-col gap-2">
                 <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Availability (Time Slots)</label>
                 {formData.availability.map((slot, index) => (
-                  <div key={index} className="relative group flex items-center gap-2">
-                    <div className="relative flex-1">
-                      <Clock size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600" />
-                      <input 
-                        type="text" 
-                        value={slot} 
-                        onChange={(e) => {
-                          const newSlots = [...formData.availability];
-                          newSlots[index] = e.target.value;
-                          setFormData({ ...formData, availability: newSlots });
-                        }} 
-                        className="w-full p-3 pl-12 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold text-black focus:bg-white focus:ring-2 focus:ring-[#008080] outline-none" 
-                        placeholder={`Time Slot ${index + 1} (e.g. 2:00 PM - 7:00 PM)`} 
-                      />
+                  <div key={index} className="flex flex-col gap-1 p-3 bg-slate-50/50 border border-slate-100 rounded-xl">
+                    <div className="flex justify-between items-center mb-1">
+                      <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Time Slot {index + 1}</span>
+                      {formData.availability.length > 1 && (
+                        <button 
+                          type="button"
+                          onClick={() => {
+                            const newSlots = formData.availability.filter((_, i) => i !== index);
+                            setFormData({ ...formData, availability: newSlots });
+                          }}
+                          className="text-red-400 hover:text-red-600 transition-colors"
+                          title="Remove Time Slot"
+                        >
+                          <X size={14} />
+                        </button>
+                      )}
                     </div>
-                    {formData.availability.length > 1 && (
-                      <button 
-                        type="button"
-                        onClick={() => {
-                          const newSlots = formData.availability.filter((_, i) => i !== index);
-                          setFormData({ ...formData, availability: newSlots });
-                        }}
-                        className="p-3 bg-red-50 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-colors"
-                        title="Remove Time Slot"
-                      >
-                        <X size={16} />
-                      </button>
-                    )}
+                    <div className="flex items-center gap-2">
+                      <div className="relative flex-1">
+                        <Clock size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                        <input 
+                          type="time" 
+                          value={(slot || '').split(' - ')[0] || ''} 
+                          onChange={(e) => {
+                            const newSlots = [...formData.availability];
+                            const parts = (newSlots[index] || '').split(' - ');
+                            newSlots[index] = `${e.target.value} - ${parts[1] || ''}`;
+                            setFormData({ ...formData, availability: newSlots });
+                          }} 
+                          className="w-full p-2.5 pl-9 bg-white border border-slate-200 rounded-lg text-xs font-bold text-black focus:bg-white focus:ring-2 focus:ring-[#008080] outline-none" 
+                        />
+                      </div>
+                      <span className="text-[10px] font-black text-slate-400 uppercase">to</span>
+                      <div className="relative flex-1">
+                        <Clock size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                        <input 
+                          type="time" 
+                          value={(slot || '').split(' - ')[1] || ''} 
+                          onChange={(e) => {
+                            const newSlots = [...formData.availability];
+                            const parts = (newSlots[index] || '').split(' - ');
+                            newSlots[index] = `${parts[0] || ''} - ${e.target.value}`;
+                            setFormData({ ...formData, availability: newSlots });
+                          }} 
+                          className="w-full p-2.5 pl-9 bg-white border border-slate-200 rounded-lg text-xs font-bold text-black focus:bg-white focus:ring-2 focus:ring-[#008080] outline-none" 
+                        />
+                      </div>
+                    </div>
                   </div>
                 ))}
                 <button 
