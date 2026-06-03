@@ -474,8 +474,35 @@ const editFaculty = async (req, res) => {
         params.push(req.params.id);
 
         await db.query(updateQuery, params);
+        
+        // Log the edit
+        try {
+            const editorId = req.user.id;
+            const editorName = req.user.name;
+            const changes = `Updated profile for ${name || 'faculty'}`;
+            await db.query(
+                `INSERT INTO faculty_edit_logs (faculty_id, edited_by, edited_by_name, changes_summary) VALUES (?, ?, ?, ?)`,
+                [req.params.id, editorId, editorName, changes]
+            );
+        } catch (logErr) {
+            console.error("Error logging faculty edit:", logErr);
+        }
+
         res.status(200).json({ success: true, message: "Updated" });
     } catch (e) { res.status(500).json({ success: false, message: e.message }); }
+};
+
+const getFacultyEditHistory = async (req, res) => {
+    try {
+        const [logs] = await db.query(
+            `SELECT * FROM faculty_edit_logs WHERE faculty_id = ? ORDER BY edited_at DESC`,
+            [req.params.id]
+        );
+        res.status(200).json({ success: true, data: logs });
+    } catch (e) {
+        console.error("Error fetching faculty edit history:", e);
+        res.status(500).json({ success: false, message: "Server error" });
+    }
 };
 
 const deleteFaculty = async (req, res) => {
@@ -1129,7 +1156,7 @@ const generateQualityAudits = async (req, res) => {
 };
 
 module.exports = {
-    getExamAnalytics, getDashboardStats, getAllFacultyActivity, getAvailableFaculties, getDropdownData, registerStudent, registerFaculty, registerSSC, getStudentInteractionLogs, getFacultyInteractionLogs, getAcademicActions, getDailyFacultyChecks, checkFacultySessionToday, uncheckFacultySession, getFacultyDirectory, getAcademicDocuments, uploadAcademicDocument, deleteAcademicDocument, getLiveClassEvaluations, submitLiveClassEvaluation, getPendingFacultyLogs, verifyFacultyLog, editFaculty, deleteFaculty, editStudent, deleteStudent, getStudentById, getStudents, getMentors, editMentor, deleteMentor, getLiveMonitoring, getStaff, syncLegacyData, saveExamPlan, getAcademicSchedule,
+    getExamAnalytics, getDashboardStats, getAllFacultyActivity, getAvailableFaculties, getDropdownData, registerStudent, registerFaculty, registerSSC, getStudentInteractionLogs, getFacultyInteractionLogs, getAcademicActions, getDailyFacultyChecks, checkFacultySessionToday, uncheckFacultySession, getFacultyDirectory, getAcademicDocuments, uploadAcademicDocument, deleteAcademicDocument, getLiveClassEvaluations, submitLiveClassEvaluation, getPendingFacultyLogs, verifyFacultyLog, editFaculty, getFacultyEditHistory, deleteFaculty, editStudent, deleteStudent, getStudentById, getStudents, getMentors, editMentor, deleteMentor, getLiveMonitoring, getStaff, syncLegacyData, saveExamPlan, getAcademicSchedule,
     getAHParentInteractions, createAHParentInteraction, getAHFacultyInteractions, createAHFacultyInteraction, getAHParentMeetings, scheduleAHParentMeeting, reportAHParentMeeting,
     getDemoSchedules, createDemoSchedule, updateDemoEvaluation, getQualityAudits, verifyQualityAudit, generateQualityAudits
 };

@@ -23,6 +23,7 @@ const {
     verifyFacultyLog,
     getExamAnalytics,
     editFaculty,
+    getFacultyEditHistory,
     deleteFaculty,
     editStudent,
     deleteStudent,
@@ -93,6 +94,7 @@ router.put('/faculty-logs/:id/verify', verifyFacultyLog);
 // New Management Routes
 router.get('/students/:id', getStudentById);
 router.put('/faculties/:id', editFaculty);
+router.get('/faculties/:id/history', getFacultyEditHistory);
 router.delete('/faculties/:id', deleteFaculty);
 router.put('/students/:id', editStudent);
 router.delete('/students/:id', deleteStudent);

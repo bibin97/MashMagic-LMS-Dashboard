@@ -167,6 +167,14 @@ const startServer = async () => {
                     faculty_count INT DEFAULT 1,
                     status VARCHAR(50) DEFAULT 'Pending',
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                );`,
+                `CREATE TABLE IF NOT EXISTS faculty_edit_logs (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    faculty_id INT NOT NULL,
+                    edited_by INT NOT NULL,
+                    edited_by_name VARCHAR(255),
+                    changes_summary TEXT NULL,
+                    edited_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 );`
             ];
 

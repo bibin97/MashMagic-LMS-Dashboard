@@ -5,7 +5,7 @@ import toast from 'react-hot-toast';
 import { 
     User, Mail, GraduationCap, BookOpen, Clock, 
     CheckCircle, ArrowLeft, Plus, Trash2, Edit2, Lock, Unlock, Eye, EyeOff,
-    Link as LinkIcon, UserCheck, Shield, Phone, MapPin, Briefcase, Calendar, Info
+    Link as LinkIcon, UserCheck, Shield, Phone, MapPin, Briefcase, Calendar, Info, History
 } from 'lucide-react';
 
 const SUBJECT_OPTIONS = [
@@ -60,6 +60,7 @@ const EditFaculty = () => {
         isLangDropdownOpen: false
     });
 
+    const [editHistory, setEditHistory] = useState([]);
     const [editModes, setEditModes] = useState({
         basic: false,
         expertise: false,
@@ -140,6 +141,16 @@ const EditFaculty = () => {
                     isSyllabusDropdownOpen: false,
                     isLangDropdownOpen: false
                 });
+
+                // Fetch Edit History
+                try {
+                    const historyRes = await api.get(`/aoe/faculties/${id}/history`);
+                    if (historyRes.data.success) {
+                        setEditHistory(historyRes.data.data);
+                    }
+                } catch (historyErr) {
+                    console.error("Failed to load edit history");
+                }
             } else {
                 toast.error("Faculty not found");
                 navigate('/aoe/faculties');
@@ -461,6 +472,39 @@ const EditFaculty = () => {
                         <textarea name="remarks" value={formData.remarks} onChange={handleInputChange} disabled={!editModes.logistics} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-3xl text-sm font-bold outline-none h-32 resize-none" placeholder="Enter notes about faculty performance or specialization..." />
                     </div>
                 </div>
+
+                {/* Section 4: Edit History */}
+                {editHistory.length > 0 && (
+                    <div className="bg-white p-8 md:p-12 rounded-[48px] border border-slate-100 shadow-2xl shadow-slate-200/40">
+                        <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight flex items-center gap-4 mb-10">
+                            <div className="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600">
+                                <History size={20} />
+                            </div>
+                            Modification History
+                        </h2>
+                        
+                        <div className="space-y-4">
+                            {editHistory.map((log) => (
+                                <div key={log.id} className="flex gap-6 items-start p-6 bg-slate-50 rounded-3xl border border-slate-100 hover:border-indigo-100 transition-colors">
+                                    <div className="w-12 h-12 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-500 flex-shrink-0">
+                                        <User size={18} />
+                                    </div>
+                                    <div className="flex-1">
+                                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 mb-2">
+                                            <h3 className="text-sm font-black text-slate-900">{log.edited_by_name || 'Admin'}</h3>
+                                            <span className="text-[10px] font-bold text-slate-400 bg-white px-3 py-1 rounded-full border border-slate-200">
+                                                {new Date(log.edited_at).toLocaleString()}
+                                            </span>
+                                        </div>
+                                        <p className="text-xs font-bold text-slate-600 bg-white p-4 rounded-2xl border border-slate-100">
+                                            {log.changes_summary}
+                                        </p>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
 
                 {/* Form Actions */}
                 <div className="flex flex-col sm:flex-row items-center justify-end gap-6 pt-10">
