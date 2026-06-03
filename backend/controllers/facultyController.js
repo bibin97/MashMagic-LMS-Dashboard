@@ -340,6 +340,19 @@ const markRead = async (req, res) => {
 };
 
 // @desc    Profile Settings
+const getProfile = async (req, res) => {
+    try {
+        const [user] = await db.query('SELECT * FROM users WHERE id = ?', [req.user.id]);
+        if (user.length === 0) return res.status(404).json({ success: false, message: "User not found" });
+        
+        delete user[0].password;
+        res.status(200).json({ success: true, data: user[0] });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+// @desc    Update Profile
 const updateProfile = async (req, res) => {
     try {
         const { 
@@ -384,6 +397,12 @@ const updateProfile = async (req, res) => {
 
         params.push(req.user.id);
         await db.query(`UPDATE users SET ${updates.join(', ')} WHERE id = ?`, params);
+
+        const [updatedUser] = await db.query('SELECT * FROM users WHERE id = ?', [req.user.id]);
+        if (updatedUser.length > 0) {
+            delete updatedUser[0].password; // Don't send password back
+            return res.status(200).json({ success: true, message: "Profile updated successfully", user: updatedUser[0] });
+        }
 
         res.status(200).json({ success: true, message: "Profile updated successfully" });
     } catch (error) {
@@ -464,5 +483,6 @@ module.exports = {
     updateProfile,
     getMentorLogs,
     getStudentExamScores,
-    submitExamScore
+    submitExamScore,
+    getProfile
 };

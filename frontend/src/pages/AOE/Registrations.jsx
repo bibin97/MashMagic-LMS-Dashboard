@@ -922,8 +922,6 @@ const Registrations = () => {
                 </div>
               </div>
 
-              </div>
-
               <button disabled={loading} type="submit" className="w-full mt-8 bg-[#008080] text-white p-4 rounded-xl font-black text-xs uppercase tracking-[0.2em] hover:bg-emerald-600 transition-all shadow-xl hover:shadow-emerald-100 flex items-center justify-center gap-3">
                 {loading ? 'Processing...' : 'Securely Onboard Faculty'}
                 {!loading && <CheckCircle size={16} />}

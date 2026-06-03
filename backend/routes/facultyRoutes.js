@@ -19,7 +19,8 @@ const {
     updateProfile,
     getMentorLogs,
     getStudentExamScores,
-    submitExamScore
+    submitExamScore,
+    getProfile
 } = require('../controllers/facultyController');
 const { getDailyHours } = require('../controllers/mentorController');
 const { protect, authorize } = require('../middleware/authMiddleware');
@@ -63,6 +64,7 @@ router.get('/notifications', getNotifications);
 router.put('/notifications/:id/read', markRead);
 
 // Profile
+router.get('/profile', getProfile);
 router.put('/profile', upload.single('profile_image'), updateProfile);
 
 module.exports = router;
