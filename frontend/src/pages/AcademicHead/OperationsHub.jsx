@@ -58,7 +58,11 @@ const OperationsHub = ({ section }) => {
   };
 
   // Render Functions
-  const renderAcademicQuality = () => (
+  const renderAcademicQuality = () => {
+    const evaluations = activeData.evaluations || [];
+    const liveSessions = activeData.liveSessions || [];
+
+    return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="bg-white p-6 md:p-8 rounded-[2rem] shadow-sm border border-slate-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div>
@@ -70,24 +74,54 @@ const OperationsHub = ({ section }) => {
         </button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {activeData.length === 0 && !loading && <p className="text-xs font-bold text-slate-400 p-4">No data available.</p>}
-        {activeData.map((item, i) => (
-          <div key={item.id || i} className="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100 hover:shadow-xl transition-all group">
-            <div className="w-12 h-12 bg-indigo-50 text-indigo-500 rounded-2xl flex items-center justify-center mb-4 group-hover:bg-indigo-500 group-hover:text-white transition-colors">
-              <Activity size={20} />
+      <div className="space-y-4">
+        <h3 className="text-sm font-black text-slate-800 uppercase tracking-widest px-2">Currently Scheduled Sessions</h3>
+        {liveSessions.length === 0 && !loading && <p className="text-xs font-bold text-slate-400 p-4">No live sessions scheduled for today.</p>}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {liveSessions.map((session, i) => (
+            <div key={session.id || i} className="bg-emerald-50/50 p-6 rounded-[2rem] border border-emerald-100 hover:shadow-xl hover:shadow-emerald-100/50 transition-all group">
+              <div className="flex justify-between items-start mb-4">
+                <div className="w-10 h-10 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center">
+                  <Clock size={18} />
+                </div>
+                <span className="text-[9px] font-black bg-emerald-500 text-white px-2 py-1 rounded-full uppercase tracking-widest">
+                  {session.start_time} - {session.end_time}
+                </span>
+              </div>
+              <h3 className="text-sm font-black text-slate-900 uppercase truncate">{session.student_name}</h3>
+              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1 truncate">Faculty: {session.faculty_name}</p>
+              <div className="mt-4 pt-4 border-t border-emerald-100 flex justify-between items-center">
+                <span className="text-[9px] font-black text-emerald-600 uppercase tracking-widest truncate max-w-[120px]">{session.topic || 'General Session'}</span>
+                <a href={session.meeting_link || '#'} target="_blank" rel="noreferrer" className="text-[9px] font-black text-white bg-emerald-600 px-3 py-1.5 rounded-lg hover:bg-emerald-700 uppercase tracking-widest transition-colors">
+                  Join Meet
+                </a>
+              </div>
             </div>
-            <h3 className="text-sm font-black text-slate-900 uppercase">{item.faculty_name}</h3>
-            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">{item.class_topic}</p>
-            <div className="mt-4 pt-4 border-t border-slate-100 flex justify-between items-center">
-              <span className="text-[9px] font-black text-[#008080] uppercase tracking-widest">Score: {item.score}/100</span>
-              <button className="text-[9px] font-black text-indigo-500 hover:text-indigo-600 uppercase tracking-widest underline underline-offset-4">View Report</button>
+          ))}
+        </div>
+      </div>
+
+      <div className="space-y-4 pt-6">
+        <h3 className="text-sm font-black text-slate-800 uppercase tracking-widest px-2">Recent Quality Evaluations</h3>
+        {evaluations.length === 0 && !loading && <p className="text-xs font-bold text-slate-400 p-4">No evaluations available.</p>}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {evaluations.map((item, i) => (
+            <div key={item.id || i} className="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100 hover:shadow-xl transition-all group">
+              <div className="w-12 h-12 bg-indigo-50 text-indigo-500 rounded-2xl flex items-center justify-center mb-4 group-hover:bg-indigo-500 group-hover:text-white transition-colors">
+                <Activity size={20} />
+              </div>
+              <h3 className="text-sm font-black text-slate-900 uppercase">{item.faculty_name}</h3>
+              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">{item.class_topic}</p>
+              <div className="mt-4 pt-4 border-t border-slate-100 flex justify-between items-center">
+                <span className="text-[9px] font-black text-[#008080] uppercase tracking-widest">Score: {item.score}/100</span>
+                <button className="text-[9px] font-black text-indigo-500 hover:text-indigo-600 uppercase tracking-widest underline underline-offset-4">View Report</button>
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
-  );
+  )};
 
   const renderParentsMeeting = () => (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
