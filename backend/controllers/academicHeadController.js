@@ -11,10 +11,10 @@ const getFacultyQualityChecks = async (req, res) => {
 
         // Fetch live scheduled sessions for today (from timetable)
         const [liveSessions] = await db.query(`
-            SELECT t.id, t.start_time, t.end_time, t.topic, t.status, t.meeting_link,
+            SELECT t.id, t.start_time, t.end_time, COALESCE(t.chapter, t.session_type, 'General Session') as topic, t.status, t.meeting_link,
                    f.name as faculty_name, s.name as student_name
             FROM timetable t
-            JOIN users f ON t.faculty_id = f.id
+            LEFT JOIN users f ON t.faculty_id = f.id
             JOIN students s ON t.student_id = s.id
             WHERE t.date = CURDATE()
             ORDER BY t.start_time ASC
