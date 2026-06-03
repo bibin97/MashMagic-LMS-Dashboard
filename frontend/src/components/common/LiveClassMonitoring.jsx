@@ -16,7 +16,7 @@ const LiveClassMonitoring = ({ role }) => {
 
  const fetchLiveSessions = async () => {
  try {
- const endpoint = role === 'admin' ? '/admin/live-monitoring' : '/academic-head/live-monitoring';
+ const endpoint = role === 'admin' ? '/admin/live-monitoring' : role === 'academic_operation_executive' ? '/aoe/live-monitoring' : '/academic-head/live-monitoring';
  const res = await api.get(endpoint);
  setSessions(res.data.data);
  } catch (error) {
