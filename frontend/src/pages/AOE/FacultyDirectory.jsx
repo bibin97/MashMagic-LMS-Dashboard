@@ -24,7 +24,8 @@ const FacultyDirectory = () => {
     { id: 'MAL-ONLY', label: 'Malayalam Only' },
     { id: 'HIN-100', label: 'Hindi 100%' },
     { id: 'BL-ADV-HIN', label: 'Bilingual - Advanced (70% Hindi, 30% English)' },
-    { id: 'BL-SMP-HIN', label: 'Bilingual - Simple (70% English, 30% Hindi)' }
+    { id: 'BL-SMP-HIN', label: 'Bilingual - Simple (70% English, 30% Hindi)' },
+    { id: 'ARB-100', label: 'Arabic 100%' }
   ];
 
   const SUBJECT_OPTIONS = [
