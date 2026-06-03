@@ -649,7 +649,7 @@ const getStudents = async (req, res) => {
             ) as faculty_name 
             FROM students s 
             LEFT JOIN mentors m ON s.mentor_id = m.id 
-            WHERE s.status != 'rejected'
+            WHERE (s.status != 'rejected' OR s.status IS NULL)
         `;
         let params = [];
         if (mentor_id) { sql += ' AND s.mentor_id = ?'; params.push(mentor_id); }
