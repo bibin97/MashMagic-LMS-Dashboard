@@ -186,6 +186,29 @@ const startServer = async () => {
                     status VARCHAR(50) DEFAULT 'active',
                     isApproved TINYINT(1) DEFAULT 0,
                     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                );`,
+                `CREATE TABLE IF NOT EXISTS student_audit_status (
+                    student_id INT PRIMARY KEY,
+                    last_audited_at DATETIME NULL,
+                    current_subject_index INT DEFAULT 0,
+                    total_audits INT DEFAULT 0
+                );`,
+                `CREATE TABLE IF NOT EXISTS faculty_audit_status (
+                    faculty_id INT PRIMARY KEY,
+                    total_audits INT DEFAULT 0
+                );`,
+                `CREATE TABLE IF NOT EXISTS academic_quality_audits (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    date DATE NOT NULL,
+                    student_id INT NOT NULL,
+                    student_name VARCHAR(255) NOT NULL,
+                    subject VARCHAR(255) NOT NULL,
+                    faculty_id INT NOT NULL,
+                    faculty_name VARCHAR(255) NOT NULL,
+                    student_count INT DEFAULT 1,
+                    faculty_count INT DEFAULT 1,
+                    status VARCHAR(50) DEFAULT 'Pending',
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 );`
             ];
 

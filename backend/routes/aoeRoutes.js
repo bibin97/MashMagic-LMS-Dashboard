@@ -46,7 +46,10 @@ const {
     reportAHParentMeeting,
     getDemoSchedules,
     createDemoSchedule,
-    updateDemoEvaluation
+    updateDemoEvaluation,
+    getQualityAudits,
+    generateQualityAudits,
+    verifyQualityAudit
 } = require('../controllers/aoeController');
 const { requireAuth } = require('../middleware/authMiddleware');
 const { requireRole } = require('../middleware/roleMiddleware');
@@ -69,6 +72,11 @@ router.get('/faculty-logs', getFacultyInteractionLogs);
 router.get('/faculty-checks', getDailyFacultyChecks);
 router.post('/sessions/:sessionId/check', checkFacultySessionToday);
 router.delete('/sessions/:sessionId/uncheck', uncheckFacultySession);
+
+// Academic Quality Audits (Rotating Logic)
+router.get('/quality-audits', getQualityAudits);
+router.post('/quality-audits/generate', generateQualityAudits);
+router.put('/quality-audits/:id/verify', verifyQualityAudit);
 router.get('/dropdowns', getDropdownData);
 router.get('/available-faculties', getAvailableFaculties);
 router.post('/register-student', registerStudent);

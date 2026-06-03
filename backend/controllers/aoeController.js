@@ -832,8 +832,216 @@ const updateDemoEvaluation = async (req, res) => {
     }
 };
 
+const generateDailyAuditsInternal = async () => {
+    try {
+        const [existing] = await db.query('SELECT id FROM academic_quality_audits WHERE date = CURDATE() LIMIT 1');
+        if (existing.length > 0) return; // Already generated
+
+        const [students] = await db.query(`
+            SELECT s.id, s.name, s.subjects_json, sas.last_audited_at, sas.current_subject_index, sas.total_audits
+            FROM students s
+            LEFT JOIN student_audit_status sas ON s.id = sas.student_id
+            WHERE s.status = 'active' AND s.subjects_json IS NOT NULL
+            ORDER BY sas.last_audited_at ASC, s.id ASC
+            LIMIT 100
+        `);
+
+        let generatedCount = 0;
+        let auditsToInsert = [];
+
+        for (const student of students) {
+            if (generatedCount >= 15) break;
+
+            let subjects = [];
+            try {
+                subjects = typeof student.subjects_json === 'string' ? JSON.parse(student.subjects_json) : student.subjects_json;
+            } catch (e) {}
+
+            if (!subjects || subjects.length === 0) continue;
+
+            let currIndex = student.current_subject_index || 0;
+            if (currIndex >= subjects.length) currIndex = 0;
+
+            const selectedSubject = subjects[currIndex];
+            const subjectName = Array.isArray(selectedSubject.subject) ? selectedSubject.subject.join(', ') : selectedSubject.subject;
+            const facultyId = selectedSubject.facultyId;
+            const facultyName = selectedSubject.facultyName;
+
+            if (!subjectName || !facultyId) {
+                await db.query(`
+                    INSERT INTO student_audit_status (student_id, last_audited_at, current_subject_index, total_audits)
+                    VALUES (?, NOW(), ?, ?)
+                    ON DUPLICATE KEY UPDATE last_audited_at = NOW(), current_subject_index = ?
+                `, [student.id, currIndex + 1, student.total_audits || 0, currIndex + 1]);
+                continue;
+            }
+
+            const newStudentCount = (student.total_audits || 0) + 1;
+            
+            let newFacultyCount = 1;
+            const [facStatus] = await db.query('SELECT total_audits FROM faculty_audit_status WHERE faculty_id = ?', [facultyId]);
+            if (facStatus.length > 0) {
+                newFacultyCount = facStatus[0].total_audits + 1;
+            }
+
+            auditsToInsert.push({
+                student_id: student.id,
+                student_name: student.name,
+                subject: subjectName,
+                faculty_id: facultyId,
+                faculty_name: facultyName,
+                student_count: newStudentCount,
+                faculty_count: newFacultyCount,
+                next_index: currIndex + 1
+            });
+
+            await db.query(`
+                INSERT INTO student_audit_status (student_id, last_audited_at, current_subject_index, total_audits)
+                VALUES (?, NOW(), ?, ?)
+                ON DUPLICATE KEY UPDATE last_audited_at = NOW(), current_subject_index = ?, total_audits = ?
+            `, [student.id, currIndex + 1, newStudentCount, currIndex + 1, newStudentCount]);
+
+            await db.query(`
+                INSERT INTO faculty_audit_status (faculty_id, total_audits)
+                VALUES (?, ?)
+                ON DUPLICATE KEY UPDATE total_audits = ?
+            `, [facultyId, newFacultyCount, newFacultyCount]);
+
+            generatedCount++;
+        }
+
+        for (const audit of auditsToInsert) {
+            await db.query(`
+                INSERT INTO academic_quality_audits (date, student_id, student_name, subject, faculty_id, faculty_name, student_count, faculty_count, status)
+                VALUES (CURDATE(), ?, ?, ?, ?, ?, ?, ?, 'Pending')
+            `, [audit.student_id, audit.student_name, audit.subject, audit.faculty_id, audit.faculty_name, audit.student_count, audit.faculty_count]);
+        }
+        
+        console.log(`[AUDIT] Automatically generated ${generatedCount} daily audits.`);
+    } catch (e) {
+        console.error("GENERATE_QUALITY_AUDITS_INTERNAL_ERROR:", e);
+    }
+};
+
+const getQualityAudits = async (req, res) => {
+    try {
+        let [rows] = await db.query('SELECT * FROM academic_quality_audits WHERE date = CURDATE() ORDER BY id DESC');
+        
+        if (rows.length === 0) {
+            await generateDailyAuditsInternal();
+            [rows] = await db.query('SELECT * FROM academic_quality_audits WHERE date = CURDATE() ORDER BY id DESC');
+        }
+        
+        res.status(200).json({ success: true, data: rows });
+    } catch (e) {
+        console.error("GET_QUALITY_AUDITS_ERROR:", e);
+        res.status(500).json({ success: false, message: e.message });
+    }
+};
+
+const verifyQualityAudit = async (req, res) => {
+    try {
+        await db.query('UPDATE academic_quality_audits SET status = "Verified" WHERE id = ?', [req.params.id]);
+        res.status(200).json({ success: true, message: "Done" });
+    } catch (e) {
+        console.error("VERIFY_QUALITY_AUDITS_ERROR:", e);
+        res.status(500).json({ success: false, message: e.message });
+    }
+};
+
+const generateQualityAudits = async (req, res) => {
+    try {
+        const [students] = await db.query(`
+            SELECT s.id, s.name, s.subjects_json, sas.last_audited_at, sas.current_subject_index, sas.total_audits
+            FROM students s
+            LEFT JOIN student_audit_status sas ON s.id = sas.student_id
+            WHERE s.status = 'active' AND s.subjects_json IS NOT NULL
+            ORDER BY sas.last_audited_at ASC, s.id ASC
+            LIMIT 100
+        `);
+
+        let generatedCount = 0;
+        let auditsToInsert = [];
+
+        for (const student of students) {
+            if (generatedCount >= 15) break;
+
+            let subjects = [];
+            try {
+                subjects = typeof student.subjects_json === 'string' ? JSON.parse(student.subjects_json) : student.subjects_json;
+            } catch (e) {}
+
+            if (!subjects || subjects.length === 0) continue;
+
+            let currIndex = student.current_subject_index || 0;
+            if (currIndex >= subjects.length) currIndex = 0;
+
+            const selectedSubject = subjects[currIndex];
+            const subjectName = Array.isArray(selectedSubject.subject) ? selectedSubject.subject.join(', ') : selectedSubject.subject;
+            const facultyId = selectedSubject.facultyId;
+            const facultyName = selectedSubject.facultyName;
+
+            if (!subjectName || !facultyId) {
+                // if invalid, just advance index to avoid infinite loops on this student
+                await db.query(`
+                    INSERT INTO student_audit_status (student_id, last_audited_at, current_subject_index, total_audits)
+                    VALUES (?, NOW(), ?, ?)
+                    ON DUPLICATE KEY UPDATE last_audited_at = NOW(), current_subject_index = ?
+                `, [student.id, currIndex + 1, student.total_audits || 0, currIndex + 1]);
+                continue;
+            }
+
+            const newStudentCount = (student.total_audits || 0) + 1;
+            
+            let newFacultyCount = 1;
+            const [facStatus] = await db.query('SELECT total_audits FROM faculty_audit_status WHERE faculty_id = ?', [facultyId]);
+            if (facStatus.length > 0) {
+                newFacultyCount = facStatus[0].total_audits + 1;
+            }
+
+            auditsToInsert.push({
+                student_id: student.id,
+                student_name: student.name,
+                subject: subjectName,
+                faculty_id: facultyId,
+                faculty_name: facultyName,
+                student_count: newStudentCount,
+                faculty_count: newFacultyCount,
+                next_index: currIndex + 1
+            });
+
+            await db.query(`
+                INSERT INTO student_audit_status (student_id, last_audited_at, current_subject_index, total_audits)
+                VALUES (?, NOW(), ?, ?)
+                ON DUPLICATE KEY UPDATE last_audited_at = NOW(), current_subject_index = ?, total_audits = ?
+            `, [student.id, currIndex + 1, newStudentCount, currIndex + 1, newStudentCount]);
+
+            await db.query(`
+                INSERT INTO faculty_audit_status (faculty_id, total_audits)
+                VALUES (?, ?)
+                ON DUPLICATE KEY UPDATE total_audits = ?
+            `, [facultyId, newFacultyCount, newFacultyCount]);
+
+            generatedCount++;
+        }
+
+        for (const audit of auditsToInsert) {
+            await db.query(`
+                INSERT INTO academic_quality_audits (date, student_id, student_name, subject, faculty_id, faculty_name, student_count, faculty_count, status)
+                VALUES (CURDATE(), ?, ?, ?, ?, ?, ?, ?, 'Pending')
+            `, [audit.student_id, audit.student_name, audit.subject, audit.faculty_id, audit.faculty_name, audit.student_count, audit.faculty_count]);
+        }
+
+        res.status(200).json({ success: true, message: \`Generated \${generatedCount} audits for today.\` });
+
+    } catch (e) {
+        console.error("GENERATE_QUALITY_AUDITS_ERROR:", e);
+        res.status(500).json({ success: false, message: e.message });
+    }
+};
+
 module.exports = {
     getExamAnalytics, getDashboardStats, getAllFacultyActivity, getAvailableFaculties, getDropdownData, registerStudent, registerFaculty, registerSSC, getStudentInteractionLogs, getFacultyInteractionLogs, getAcademicActions, getDailyFacultyChecks, checkFacultySessionToday, uncheckFacultySession, getFacultyDirectory, getAcademicDocuments, uploadAcademicDocument, deleteAcademicDocument, getLiveClassEvaluations, submitLiveClassEvaluation, getPendingFacultyLogs, verifyFacultyLog, editFaculty, deleteFaculty, editStudent, deleteStudent, getStudentById, getStudents, getMentors, editMentor, deleteMentor, getLiveMonitoring, getStaff, syncLegacyData, saveExamPlan, getAcademicSchedule,
     getAHParentInteractions, createAHParentInteraction, getAHFacultyInteractions, createAHFacultyInteraction, getAHParentMeetings, scheduleAHParentMeeting, reportAHParentMeeting,
-    getDemoSchedules, createDemoSchedule, updateDemoEvaluation
+    getDemoSchedules, createDemoSchedule, updateDemoEvaluation, getQualityAudits, verifyQualityAudit, generateQualityAudits
 };
