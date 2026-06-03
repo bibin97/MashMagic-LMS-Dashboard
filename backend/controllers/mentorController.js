@@ -1287,7 +1287,42 @@ const getStudentAcademicSchedule = async (req, res) => {
             ORDER BY FIELD(fs.day_of_week, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'), fs.start_time ASC
         `, [studentId]);
         
-        res.status(200).json({ success: true, data: schedules });
+        if (schedules && schedules.length > 0) {
+            return res.status(200).json({ success: true, data: schedules });
+        }
+
+        // Fallback to subjects_json if faculty_schedules is empty
+        const [[student]] = await db.query('SELECT subjects_json FROM students WHERE id = ?', [studentId]);
+        if (student && student.subjects_json) {
+            let parsed = [];
+            try {
+                parsed = typeof student.subjects_json === 'string' ? JSON.parse(student.subjects_json) : student.subjects_json;
+            } catch (e) {}
+
+            let generatedSchedules = [];
+            if (Array.isArray(parsed)) {
+                parsed.forEach(p => {
+                    let subjectStr = Array.isArray(p.subject) ? p.subject.join(', ') : p.subject;
+                    if (p.dayConfigs && Array.isArray(p.dayConfigs)) {
+                        p.dayConfigs.forEach(dc => {
+                            generatedSchedules.push({
+                                day_of_week: dc.day,
+                                start_time: convertTo24Hour(dc.startTime) || '10:00:00',
+                                end_time: convertTo24Hour(dc.endTime) || '11:00:00',
+                                subject: subjectStr,
+                                faculty_id: null,
+                                faculty_name: null
+                            });
+                        });
+                    }
+                });
+            }
+            if (generatedSchedules.length > 0) {
+                return res.status(200).json({ success: true, data: generatedSchedules });
+            }
+        }
+        
+        res.status(200).json({ success: true, data: [] });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }

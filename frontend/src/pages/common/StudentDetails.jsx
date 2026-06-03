@@ -244,10 +244,41 @@ const StudentDetails = () => {
                             <div className="space-y-6">
                                 <div className="p-8 bg-[#008080] text-white rounded-[2.5rem] border border-slate-800 shadow-2xl relative overflow-hidden group">
                                     <div className="absolute top-0 right-0 w-32 h-32 bg-[#008080]/20 rounded-full -mr-16 -mt-16 blur-2xl group-hover:scale-150 transition-transform duration-700"></div>
-                                    <p className="text-[10px] font-black text-[#008080] uppercase tracking-[0.2em] mb-4">Enrollment Notes</p>
-                                    <p className="text-sm font-medium leading-relaxed text-slate-300">
-                                        {student.time_table || student.timetable_summary || 'Standard operation procedures apply for this profile. Academic progress is monitored weekly.'}
-                                    </p>
+                                    <p className="text-[10px] font-black text-white/60 uppercase tracking-[0.2em] mb-4">Class Schedule</p>
+                                    <div className="text-sm font-medium leading-relaxed text-white space-y-2">
+                                        {(() => {
+                                            if (student.subjects_json && student.subjects_json !== '{}' && student.subjects_json !== '[]') {
+                                                try {
+                                                    const parsed = typeof student.subjects_json === 'string' ? JSON.parse(student.subjects_json) : student.subjects_json;
+                                                    if (Array.isArray(parsed) && parsed.length > 0) {
+                                                        return parsed.map((s, idx) => (
+                                                            <div key={idx} className="bg-white/10 p-3 rounded-xl border border-white/10">
+                                                                <p className="font-black text-yellow-400 text-xs mb-1">
+                                                                    {Array.isArray(s.subject) ? s.subject.join(', ') : s.subject}
+                                                                </p>
+                                                                <div className="flex flex-wrap gap-2">
+                                                                    {s.dayConfigs ? s.dayConfigs.map((d, i) => (
+                                                                        <span key={i} className="text-[10px] bg-white/20 px-2 py-1 rounded-lg">
+                                                                            {d.day.substring(0,3)}: {d.startTime}-{d.endTime}
+                                                                        </span>
+                                                                    )) : s.days?.map((d, i) => (
+                                                                        <span key={i} className="text-[10px] bg-white/20 px-2 py-1 rounded-lg">
+                                                                            {d.substring(0,3)}
+                                                                        </span>
+                                                                    ))}
+                                                                </div>
+                                                            </div>
+                                                        ));
+                                                    }
+                                                } catch (e) {
+                                                    // fallback
+                                                }
+                                            }
+                                            const tt = student.time_table !== '{}' ? student.time_table : null;
+                                            const ts = student.timetable_summary !== '{}' ? student.timetable_summary : null;
+                                            return tt || ts || 'Standard operation procedures apply for this profile. Academic progress is monitored weekly.';
+                                        })()}
+                                    </div>
                                 </div>
                                 
                                 <div className="grid grid-cols-2 gap-4">
