@@ -1035,15 +1035,6 @@ const Registrations = () => {
                             <span className="text-xs font-bold">{sub}</span>
                           </div>
                         ))}
-                        <button 
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setFacultyForm(prev => ({ ...prev, isSecondaryDropdownOpen: false }));
-                          }}
-                          className="w-full mt-3 p-3 bg-[#008080] text-white rounded-xl text-[10px] font-black uppercase tracking-widest"
-                        >
-                          Confirm Selection
-                        </button>
                       </div>
                     )}
                   </div>
@@ -1084,15 +1075,6 @@ const Registrations = () => {
                             <span className="text-xs font-bold">{sec}</span>
                           </div>
                         ))}
-                        <button 
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setFacultyForm(prev => ({ ...prev, isSectionDropdownOpen: false }));
-                          }}
-                          className="w-full mt-3 p-3 bg-[#008080] text-white rounded-xl text-[10px] font-black uppercase tracking-widest"
-                        >
-                          Confirm Selection
-                        </button>
                       </div>
                     )}
                   </div>

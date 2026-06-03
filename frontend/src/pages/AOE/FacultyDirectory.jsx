@@ -282,39 +282,69 @@ const FacultyDirectory = () => {
             </div>
 
             <div className="p-10 space-y-10">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <div className="space-y-6">
                   <div className="flex flex-col gap-1">
                     <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Full Name</span>
-                    <p className="text-lg font-black text-slate-900 uppercase">{selectedFaculty.name}</p>
+                    <p className="text-sm font-black text-slate-900 uppercase">{selectedFaculty.name}</p>
                   </div>
                   <div className="flex flex-col gap-1">
                     <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Primary Email</span>
                     <p className="text-sm font-bold text-slate-700">{selectedFaculty.email}</p>
                   </div>
                   <div className="flex flex-col gap-1">
-                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Academic Status</span>
-                    <div className="flex items-center gap-2 mt-1">
-                      <div className={`w-2 h-2 rounded-full ${selectedFaculty.status === 'active' ? 'bg-emerald-500' : 'bg-amber-500'}`}></div>
-                      <p className="text-xs font-black text-slate-900 uppercase tracking-widest">{selectedFaculty.status}</p>
-                    </div>
+                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Phone Number</span>
+                    <p className="text-sm font-bold text-slate-700">{selectedFaculty.phone_number || 'N/A'}</p>
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Location</span>
+                    <p className="text-sm font-bold text-slate-700">{selectedFaculty.place || 'N/A'}</p>
                   </div>
                 </div>
+                
+                <div className="space-y-6">
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Faculty ID</span>
+                    <p className="text-sm font-bold text-slate-700">{selectedFaculty.faculty_id_card || 'N/A'}</p>
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Qualification</span>
+                    <p className="text-sm font-bold text-slate-700">{selectedFaculty.qualification || 'N/A'}</p>
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Experience</span>
+                    <p className="text-sm font-bold text-slate-700">{selectedFaculty.experience || 'N/A'}</p>
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Hourly Rate</span>
+                    <p className="text-sm font-bold text-slate-700">{selectedFaculty.hourly_rate ? `₹${selectedFaculty.hourly_rate}` : 'N/A'}</p>
+                  </div>
+                </div>
+
                 <div className="space-y-6">
                   <div className="flex flex-col gap-1">
                     <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Onboarding Date</span>
                     <p className="text-sm font-black text-slate-900 uppercase tracking-widest">
-                      {new Date(selectedFaculty.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })}
+                      {selectedFaculty.created_at && !isNaN(new Date(selectedFaculty.created_at)) 
+                        ? new Date(selectedFaculty.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' }) 
+                        : 'N/A'}
                     </p>
                   </div>
                   <div className="flex flex-col gap-2">
                     <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Subject Expertise</span>
                     <div className="flex flex-wrap gap-2">
-                      {selectedFaculty.subject?.split(',').map((sub, idx) => (
+                      {selectedFaculty.subject ? selectedFaculty.subject.split(',').map((sub, idx) => (
                         <span key={idx} className="px-3 py-1 bg-[#008080]/10 text-[#008080] rounded-lg text-[9px] font-black uppercase tracking-widest border border-[#008080]/20">
                           {sub.trim()}
                         </span>
-                      ))}
+                      )) : <span className="text-xs text-slate-400">N/A</span>}
+                    </div>
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Academic Status</span>
+                    <div className="flex items-center gap-2 mt-1">
+                      <div className={`w-2 h-2 rounded-full ${selectedFaculty.status === 'active' ? 'bg-emerald-500' : 'bg-amber-500'}`}></div>
+                      <p className="text-xs font-black text-slate-900 uppercase tracking-widest">{selectedFaculty.status}</p>
                     </div>
                   </div>
                 </div>

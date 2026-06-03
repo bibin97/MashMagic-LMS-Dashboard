@@ -332,7 +332,6 @@ const EditFaculty = () => {
                                                 <span className="text-xs font-bold">{sub}</span>
                                             </div>
                                         ))}
-                                        <button type="button" onClick={() => toggleDropdown('isSecondaryDropdownOpen')} className="w-full mt-2 p-3 bg-yellow-400 text-slate-900 rounded-xl text-[10px] font-black uppercase">Confirm</button>
                                     </div>
                                 )}
                             </div>
@@ -356,7 +355,6 @@ const EditFaculty = () => {
                                                 <span className="text-xs font-bold">{sec}</span>
                                             </div>
                                         ))}
-                                        <button type="button" onClick={() => toggleDropdown('isSectionDropdownOpen')} className="w-full mt-2 p-3 bg-yellow-400 text-slate-900 rounded-xl text-[10px] font-black uppercase">Confirm</button>
                                     </div>
                                 )}
                             </div>
@@ -377,7 +375,6 @@ const EditFaculty = () => {
                                                 <span className="text-xs font-bold">{syl}</span>
                                             </div>
                                         ))}
-                                        <button type="button" onClick={() => toggleDropdown('isSyllabusDropdownOpen')} className="w-full mt-2 p-3 bg-yellow-400 text-slate-900 rounded-xl text-[10px] font-black uppercase">Confirm</button>
                                     </div>
                                 )}
                             </div>
@@ -401,7 +398,6 @@ const EditFaculty = () => {
                                             <span className="text-xs font-bold">{lang.label}</span>
                                         </div>
                                     ))}
-                                    <button type="button" onClick={() => toggleDropdown('isLangDropdownOpen')} className="w-full mt-2 p-3 bg-yellow-400 text-slate-900 rounded-xl text-[10px] font-black uppercase">Confirm</button>
                                 </div>
                             )}
                         </div>
