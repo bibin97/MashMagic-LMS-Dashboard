@@ -556,37 +556,35 @@ const FacultyProfile = () => {
                     </div>
                     <div className="flex items-center gap-2">
                       <div className="relative flex-1">
-                        <Clock size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 z-10" />
-                        <select 
+                        <Clock size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                        <input 
+                          type="time" 
                           value={to24H((slot || '').split(' - ')[0] || '')} 
                           onChange={(e) => {
                             const newSlots = [...formData.availability];
                             const parts = (newSlots[index] || '').split(' - ');
-                            newSlots[index] = `${e.target.value} - ${to24H(parts[1] || '')}`;
+                            // Convert back to 12-hour format before saving or keep 24-hour if that's what we want
+                            // Wait, the backend probably saves it as is. 
+                            newSlots[index] = `${e.target.value} - ${parts[1] ? to24H(parts[1]) : ''}`;
                             setFormData({ ...formData, availability: newSlots });
                           }} 
-                          className="w-full p-2.5 pl-9 bg-white border border-slate-200 rounded-lg text-xs font-bold text-black focus:bg-white focus:ring-2 focus:ring-[#008080] outline-none appearance-none cursor-pointer" 
-                        >
-                          <option value="">Start Time</option>
-                          {TIME_SLOTS_24.map(t => <option key={t.val24} value={t.val24}>{t.val12}</option>)}
-                        </select>
+                          className="w-full p-2.5 pl-9 bg-white border border-slate-200 rounded-lg text-xs font-bold text-black focus:bg-white focus:ring-2 focus:ring-[#008080] outline-none" 
+                        />
                       </div>
                       <span className="text-[10px] font-black text-slate-400 uppercase">to</span>
                       <div className="relative flex-1">
-                        <Clock size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 z-10" />
-                        <select 
+                        <Clock size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                        <input 
+                          type="time" 
                           value={to24H((slot || '').split(' - ')[1] || '')} 
                           onChange={(e) => {
                             const newSlots = [...formData.availability];
                             const parts = (newSlots[index] || '').split(' - ');
-                            newSlots[index] = `${to24H(parts[0] || '')} - ${e.target.value}`;
+                            newSlots[index] = `${parts[0] ? to24H(parts[0]) : ''} - ${e.target.value}`;
                             setFormData({ ...formData, availability: newSlots });
                           }} 
-                          className="w-full p-2.5 pl-9 bg-white border border-slate-200 rounded-lg text-xs font-bold text-black focus:bg-white focus:ring-2 focus:ring-[#008080] outline-none appearance-none cursor-pointer" 
-                        >
-                          <option value="">End Time</option>
-                          {TIME_SLOTS_24.map(t => <option key={t.val24} value={t.val24}>{t.val12}</option>)}
-                        </select>
+                          className="w-full p-2.5 pl-9 bg-white border border-slate-200 rounded-lg text-xs font-bold text-black focus:bg-white focus:ring-2 focus:ring-[#008080] outline-none" 
+                        />
                       </div>
                     </div>
                   </div>
