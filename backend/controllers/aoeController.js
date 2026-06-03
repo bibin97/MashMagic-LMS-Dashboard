@@ -149,7 +149,7 @@ const getAvailableFaculties = async (req, res) => {
 
         // Base query to get faculties that match the subject criteria
         // We use users table with role = 'faculty' instead of faculties view/table to be safe.
-        const [faculties] = await db.query('SELECT id, name, subject as primary_subject, secondary_subjects, profile_pic FROM users WHERE role = "faculty"');
+        const [faculties] = await db.query('SELECT id, name, subject as primary_subject, secondary_subjects, profile_pic, hourly_rate FROM users WHERE role = "faculty"');
 
         const matchingFaculties = faculties.filter(f => {
             if (subjectsList.length === 0) return true;

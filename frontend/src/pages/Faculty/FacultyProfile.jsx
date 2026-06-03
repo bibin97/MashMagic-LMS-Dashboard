@@ -381,6 +381,14 @@ const FacultyProfile = () => {
                   <option value="Both">Both</option>
                 </select>
               </div>
+              <div className="flex flex-col gap-2">
+                <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Hourly Rate (₹)</label>
+                <div className="relative group">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-sm">₹</span>
+                  <input type="text" name="hourly_rate" value={formData.hourly_rate || 'Not Set'} disabled className="w-full p-3 pl-10 bg-slate-100 border border-slate-200 rounded-xl text-sm font-bold text-slate-500 outline-none cursor-not-allowed" />
+                </div>
+              </div>
+
 
               <div className="flex flex-col gap-2">
                 <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Joining Date</label>

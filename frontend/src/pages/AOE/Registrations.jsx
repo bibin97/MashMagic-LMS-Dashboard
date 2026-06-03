@@ -169,6 +169,9 @@ const Registrations = () => {
     if (field === 'facultyId') {
       const faculty = newSubjects[index].availableFaculties.find(f => f.id.toString() === value);
       newSubjects[index].facultyName = faculty ? faculty.name : '';
+      if (faculty && faculty.hourly_rate) {
+        newSubjects[index].hourlyRate = faculty.hourly_rate;
+      }
     }
     setSelectedSubjects(newSubjects);
     if (['subject', 'dayConfigs'].includes(field)) {
