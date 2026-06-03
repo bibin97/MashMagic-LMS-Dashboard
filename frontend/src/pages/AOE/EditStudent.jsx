@@ -65,6 +65,7 @@ const EditStudent = () => {
     const [selectedSubjects, setSelectedSubjects] = useState([]);
     const [mentors, setMentors] = useState([]);
     const [faculties, setFaculties] = useState([]);
+    const [facultySearch, setFacultySearch] = useState({});
     
     // Refs for clicking outside
     const subRefs = useRef([]);
@@ -612,9 +613,16 @@ const EditStudent = () => {
 
                                 <div className="flex flex-col gap-2">
                                     <label className="text-[9px] font-black text-[#008080] uppercase tracking-widest ml-1">Assigned Faculty</label>
-                                    <select value={row.facultyId} onChange={(e) => handleSubjectChange(idx, 'facultyId', e.target.value)} className="w-full p-4 bg-[#008080]/5 border border-[#008080]/20 rounded-2xl text-[10px] font-black outline-none focus:ring-2 focus:ring-[#008080] appearance-none text-[#008080]">
+                                    <input 
+                                        type="text" 
+                                        placeholder="Search faculty by name..."
+                                        value={facultySearch[idx] || ''}
+                                        onChange={(e) => setFacultySearch({...facultySearch, [idx]: e.target.value})}
+                                        className="w-full p-2 px-4 bg-[#008080]/5 border border-[#008080]/20 rounded-t-2xl text-[10px] font-black outline-none text-[#008080]"
+                                    />
+                                    <select value={row.facultyId} onChange={(e) => handleSubjectChange(idx, 'facultyId', e.target.value)} className="w-full p-4 bg-[#008080]/5 border border-[#008080]/20 rounded-b-2xl border-t-0 text-[10px] font-black outline-none focus:ring-2 focus:ring-[#008080] appearance-none text-[#008080]">
                                         <option value="">Select Faculty</option>
-                                        {faculties.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
+                                        {faculties.filter(f => f.name.toLowerCase().includes((facultySearch[idx] || '').toLowerCase())).map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
                                     </select>
                                 </div>
 
