@@ -42,6 +42,7 @@ const Timetable = () => {
   const [mentors, setMentors] = useState([]);
   const [faculties, setFaculties] = useState([]);
   const [studentSearch, setStudentSearch] = useState('');
+  const [sessionSearch, setSessionSearch] = useState('');
   const [summary, setSummary] = useState({
     total: 0, completed: 0, cancelled: 0, postponed: 0, upcoming: 0
   });
@@ -499,6 +500,19 @@ const Timetable = () => {
       <div className="bg-white p-8 rounded-[3rem] border border-slate-100 shadow-sm space-y-8">
         <div className="flex flex-wrap items-end gap-6 justify-between">
           <div className="flex-1 min-w-[240px]">
+            <label className="text-[8px] font-black text-slate-600 uppercase tracking-[0.2em] pl-1 mb-2 block">Search Timetable</label>
+            <div className="relative group">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#008080] transition-colors" size={16} />
+              <input
+                type="text"
+                placeholder="Search by student, faculty, or topic..."
+                value={sessionSearch}
+                onChange={(e) => setSessionSearch(e.target.value)}
+                className="w-full pl-12 pr-4 py-4 bg-slate-50 border-none rounded-2xl text-[11px] font-black text-slate-700 focus:bg-white focus:ring-4 ring-[#008080]/10 outline-none transition-all"
+              />
+            </div>
+          </div>
+          <div className="flex-1 min-w-[240px]">
             <label className="text-[8px] font-black text-slate-600 uppercase tracking-[0.2em] pl-1 mb-2 block">Target Student</label>
             <div className="relative group">
               <Users className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#008080] transition-colors" size={16} />
@@ -619,7 +633,12 @@ const Timetable = () => {
         </div>
       ) : (
         <div className="space-y-4">
-          {sessions.map((session) => (
+          {sessions.filter(session => 
+            session.student_name?.toLowerCase().includes(sessionSearch.toLowerCase()) || 
+            session.faculty_name?.toLowerCase().includes(sessionSearch.toLowerCase()) ||
+            session.chapter?.toLowerCase().includes(sessionSearch.toLowerCase()) ||
+            session.session_type?.toLowerCase().includes(sessionSearch.toLowerCase())
+          ).map((session) => (
             <div key={session.id} className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-500 group overflow-hidden flex flex-col md:flex-row items-stretch">
               <div className={`w-3 shrink-0 ${getStatusColor(session.status).split(' ')[0]} opacity-40 group-hover:opacity-100 transition-opacity`}></div>
 
@@ -690,7 +709,12 @@ const Timetable = () => {
             </div>
           ))}
 
-          {sessions.length === 0 && (
+          {sessions.filter(session => 
+            session.student_name?.toLowerCase().includes(sessionSearch.toLowerCase()) || 
+            session.faculty_name?.toLowerCase().includes(sessionSearch.toLowerCase()) ||
+            session.chapter?.toLowerCase().includes(sessionSearch.toLowerCase()) ||
+            session.session_type?.toLowerCase().includes(sessionSearch.toLowerCase())
+          ).length === 0 && (
             <div className="col-span-full py-32 bg-white rounded-[3rem] border border-dashed border-slate-200 flex flex-col items-center justify-center text-center">
               <div className="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center text-slate-200 mb-8 border border-slate-100 shadow-inner">
                 <Target size={48} />
