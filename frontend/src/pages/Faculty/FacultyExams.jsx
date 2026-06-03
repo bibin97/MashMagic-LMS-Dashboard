@@ -58,7 +58,7 @@ const FacultyExams = () => {
  try {
  const res = await axios.get('/faculty/students');
  if (res.data.success) {
- setStudents(res.data.data);
+ setStudents((res.data.data || []).sort((a, b) => (a.name || '').localeCompare(b.name || '')));
  }
  } catch (error) {
  console.error("Error fetching students", error);

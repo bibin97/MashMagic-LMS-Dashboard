@@ -59,7 +59,7 @@ const AOEDemoSchedule = () => {
     try {
       const response = await api.get('/aoe/students');
       if (response.data.success) {
-        setStudents(response.data.data);
+        setStudents((response.data.data || []).sort((a, b) => (a.name || '').localeCompare(b.name || '')));
       }
     } catch (error) {
       console.error('Error fetching students:', error);

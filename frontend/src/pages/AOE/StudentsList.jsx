@@ -51,7 +51,7 @@ const StudentsList = ({ role = 'academic_operation_executive' }) => {
 			const facultyParam = filterFaculty !== 'all' ? `&faculty_id=${filterFaculty}` : '';
 			const res = await api.get(`${apiPath}/students-all?search=${searchTerm}&sortBy=${sortBy}&course=${filterCourse}${mentorParam}${facultyParam}`);
 			if (res.data.success) {
-				setStudents(res.data.data);
+				setStudents((res.data.data || []).sort((a, b) => (a.name || '').localeCompare(b.name || '')));
 			}
 		} catch (error) {
 			toast.error("Failed to load students directory");

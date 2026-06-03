@@ -164,7 +164,7 @@ const MyStudents = () => {
  const fetchStudents = async () => {
  try {
  const res = await api.get('/mentor/students');
- setStudents(res.data.data);
+ setStudents((res.data.data || []).sort((a, b) => (a.name || '').localeCompare(b.name || '')));
  } catch (error) {
  toast.error("Failed to load students");
  } finally {

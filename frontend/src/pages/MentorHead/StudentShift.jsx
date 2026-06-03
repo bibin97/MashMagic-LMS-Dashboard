@@ -25,7 +25,7 @@ const StudentShift = () => {
  ]);
 
  if (studentsRes.data.success) {
- setStudents(studentsRes.data.data);
+ setStudents((studentsRes.data.data || []).sort((a, b) => (a.name || '').localeCompare(b.name || '')));
  }
  if (mentorsRes.data.success) {
  setMentors(mentorsRes.data.data);

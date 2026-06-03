@@ -21,7 +21,7 @@ const StudentsData = () => {
       setLoading(true);
       const res = await api.get('/mentor/students');
       if (res.data.success) {
-        setStudents(res.data.data);
+        setStudents((res.data.data || []).sort((a, b) => (a.name || '').localeCompare(b.name || '')));
       }
     } catch (error) {
       toast.error("Failed to fetch students");

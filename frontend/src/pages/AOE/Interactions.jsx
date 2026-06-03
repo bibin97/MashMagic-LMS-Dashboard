@@ -37,7 +37,7 @@ const Interactions = () => {
         api.get('/aoe/students-all'),
         api.get('/aoe/faculties')
       ]);
-      setStudents(stdRes.data.data || []);
+      setStudents((stdRes.data.data || []).sort((a, b) => (a.name || '').localeCompare(b.name || '')));
       setFaculties(facRes.data.data || []);
     } catch (err) {
       toast.error('Failed to fetch students/faculties');

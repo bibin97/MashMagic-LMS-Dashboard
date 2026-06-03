@@ -148,7 +148,7 @@ const SSCStudentList = () => {
     try {
       setLoading(true);
       const res = await api.get('/mentor/students');
-      setStudents(res.data.data);
+      setStudents((res.data.data || []).sort((a, b) => (a.name || '').localeCompare(b.name || '')));
     } catch (error) {
       toast.error("Database connection failed");
     } finally {

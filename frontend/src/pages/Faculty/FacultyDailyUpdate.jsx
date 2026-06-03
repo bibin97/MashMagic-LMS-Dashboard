@@ -51,7 +51,7 @@ const FacultyDailyUpdate = () => {
     try {
       const res = await axios.get('/faculty/students');
       // Include all students assigned to this faculty
-      setStudents(res.data.data);
+      setStudents((res.data.data || []).sort((a, b) => (a.name || '').localeCompare(b.name || '')));
     } catch (error) {
       toast.error("Failed to load students");
     } finally {

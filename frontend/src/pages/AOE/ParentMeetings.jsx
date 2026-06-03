@@ -36,7 +36,7 @@ const ParentMeetings = ({ isEmbedded }) => {
   const fetchStudents = async () => {
     try {
       const res = await api.get('/aoe/students-all');
-      setStudents(res.data.data || []);
+      setStudents((res.data.data || []).sort((a, b) => (a.name || '').localeCompare(b.name || '')));
     } catch (err) {
       toast.error('Failed to fetch students');
     }
