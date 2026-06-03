@@ -137,15 +137,66 @@ const performAutoSync = async () => {
 const getAvailableFaculties = async (req, res) => {
     try {
         await performAutoSync();
-        const { days, day, startTime, endTime } = req.query;
-        const daysList = days ? (Array.isArray(days) ? days : days.split(',')) : [day];
+        let { subject, dayConfigs } = req.query;
         
-        const conflictConditions = daysList.map(() => `(fs.day_of_week = ? AND STR_TO_DATE(fs.start_time, '%h:%i %p') < STR_TO_DATE(?, '%h:%i %p') AND STR_TO_DATE(fs.end_time, '%h:%i %p') > STR_TO_DATE(?, '%h:%i %p'))`).join(' OR ');
-        let params = [];
-        daysList.forEach(d => params.push(d, endTime, startTime));
+        let configs = [];
+        if (dayConfigs) {
+            try { configs = JSON.parse(decodeURIComponent(dayConfigs)); }
+            catch(e) { configs = JSON.parse(dayConfigs); }
+        }
 
-        const [faculties] = await db.query(`SELECT u.id, u.name, u.subject, EXISTS (SELECT 1 FROM faculty_schedules fs WHERE fs.faculty_id = u.id AND (${conflictConditions})) as hasConflict FROM faculties u`, params);
-        res.status(200).json({ success: true, data: faculties.map(f => ({ ...f, isAvailable: !f.hasConflict })) });
+        const subjectsList = subject ? subject.split(',') : [];
+
+        // Base query to get faculties that match the subject criteria
+        // We use users table with role = 'faculty' instead of faculties view/table to be safe.
+        const [faculties] = await db.query('SELECT id, name, subject as primary_subject, secondary_subjects, profile_pic FROM users WHERE role = "faculty"');
+
+        const matchingFaculties = faculties.filter(f => {
+            if (subjectsList.length === 0) return true;
+            let secs = [];
+            try { secs = f.secondary_subjects ? (typeof f.secondary_subjects === 'string' ? JSON.parse(f.secondary_subjects) : f.secondary_subjects) : []; } catch(e){}
+            const allSubjects = [f.primary_subject, ...secs].filter(Boolean);
+            // Check if faculty has ALL requested subjects (or ANY? usually ANY is fine if one faculty is chosen per row)
+            return subjectsList.some(s => allSubjects.includes(s));
+        });
+
+        if (configs.length === 0) {
+            return res.status(200).json({ success: true, data: matchingFaculties.map(f => ({ ...f, isAvailable: true })) });
+        }
+
+        // Build conflict conditions for all configs
+        const conflictConditions = configs.map(() => `(fs.day_of_week = ? AND STR_TO_DATE(fs.start_time, '%h:%i %p') < STR_TO_DATE(?, '%h:%i %p') AND STR_TO_DATE(fs.end_time, '%h:%i %p') > STR_TO_DATE(?, '%h:%i %p'))`).join(' OR ');
+        
+        let params = [];
+        configs.forEach(c => {
+            params.push(c.day, c.endTime, c.startTime);
+        });
+
+        // We can check all matched faculties at once
+        const facultyIds = matchingFaculties.map(f => f.id);
+        if (facultyIds.length === 0) {
+            return res.status(200).json({ success: true, data: [] });
+        }
+
+        const placeholders = facultyIds.map(() => '?').join(',');
+        params = [...params, ...facultyIds];
+
+        const [conflicts] = await db.query(`
+            SELECT DISTINCT faculty_id 
+            FROM faculty_schedules fs 
+            WHERE (${conflictConditions}) 
+            AND faculty_id IN (${placeholders})
+        `, params);
+
+        const conflictedIds = conflicts.map(c => c.faculty_id);
+
+        const finalData = matchingFaculties.map(f => ({
+            ...f,
+            subject: f.primary_subject, // backwards compatibility
+            isAvailable: !conflictedIds.includes(f.id)
+        }));
+
+        res.status(200).json({ success: true, data: finalData });
     } catch (error) { res.status(500).json({ success: false, message: error.message }); }
 };
 

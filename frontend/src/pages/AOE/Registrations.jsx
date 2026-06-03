@@ -153,7 +153,7 @@ const Registrations = () => {
         setSelectedSubjects(prev => {
           const newSubjects = [...prev];
           if (newSubjects[index]) {
-            newSubjects[index].availableFaculties = res.data.data;
+            newSubjects[index].availableFaculties = res.data.data.filter(f => f.isAvailable);
           }
           return newSubjects;
         });
@@ -297,6 +297,8 @@ const Registrations = () => {
         });
         fetchDropdowns();
       }
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to register faculty');
     } finally {
       setLoading(false);
     }
@@ -812,7 +814,6 @@ const Registrations = () => {
                         <div className="flex flex-col gap-2">
                           <label className="text-[10px] font-black text-[#008080] uppercase tracking-widest ml-1">Assigned Faculty</label>
                           <select 
-                            required 
                             value={row.facultyId} 
                             onChange={(e) => handleSubjectChange(idx, 'facultyId', e.target.value)} 
                             className="w-full p-4 bg-[#008080]/5 border border-[#008080]/20 rounded-2xl text-xs font-bold outline-none focus:ring-4 ring-[#008080]/10 appearance-none"
