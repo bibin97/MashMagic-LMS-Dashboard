@@ -158,6 +158,30 @@ const addEscalation = async (req, res) => {
     }
 };
 
+const getAllStudents = async (req, res) => {
+    try {
+        let query = `
+            SELECT id, name, course, subject, grade, mentor_id, mentor_name, faculty_id, faculty_name, course_completed
+            FROM students
+            WHERE 1=1
+        `;
+        const queryParams = [];
+
+        if (req.query.mentor_id) {
+            query += ` AND mentor_id = ?`;
+            queryParams.push(req.query.mentor_id);
+        }
+
+        query += ` ORDER BY name ASC`;
+
+        const [students] = await db.query(query, queryParams);
+        res.status(200).json({ success: true, data: students });
+    } catch (error) {
+        console.error("Error fetching all students:", error);
+        res.status(500).json({ success: false, message: "Server error" });
+    }
+};
+
 const getCourseCompletions = async (req, res) => {
     try {
         const [students] = await db.query(`
@@ -212,6 +236,7 @@ module.exports = {
     addFacultyReplacement,
     getEscalations,
     addEscalation,
+    getAllStudents,
     getCourseCompletions,
     markCourseCompleted
 };

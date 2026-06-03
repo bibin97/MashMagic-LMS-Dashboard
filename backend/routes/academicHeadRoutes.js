@@ -38,6 +38,9 @@ router.get('/exam-scores', academicHeadController.getExamScores);
 // Student Growth
 router.get('/student-growth', academicHeadController.getStudentGrowth);
 
+// All Students
+router.get('/students-all', academicHeadController.getAllStudents);
+
 // Faculty Replacements
 router.get('/faculty-replacements', academicHeadController.getFacultyReplacements);
 router.post('/faculty-replacements', academicHeadController.addFacultyReplacement);
