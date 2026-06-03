@@ -87,8 +87,8 @@ const Sidebar = ({ isOpen, setIsOpen, isCollapsed, setIsCollapsed, navItems, tit
               className={`
                 flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all duration-300 group relative w-full
                 ${openDropdown === item.label
-                  ? 'bg-slate-50 text-[#008080] font-bold shadow-sm'
-                  : 'text-[#64748b] hover:bg-slate-50 hover:text-[#008080] hover:translate-x-1'}
+                  ? `bg-slate-50 font-bold shadow-sm ${item.colorClass === 'blue' ? 'text-blue-600' : item.colorClass === 'violet' ? 'text-violet-600' : 'text-[#008080]'}`
+                  : `text-[#64748b] hover:bg-slate-50 hover:translate-x-1 ${item.colorClass === 'blue' ? 'hover:text-blue-600' : item.colorClass === 'violet' ? 'hover:text-violet-600' : 'hover:text-[#008080]'}`}
                 ${isCollapsed ? 'justify-center px-0 mx-auto w-12' : ''}
               `}
               title={isCollapsed ? item.label : undefined}
@@ -113,8 +113,8 @@ const Sidebar = ({ isOpen, setIsOpen, isCollapsed, setIsCollapsed, navItems, tit
                     className={({ isActive }) => `
                       flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-300 group relative
                       ${isActive
-                        ? 'bg-[#008080] text-white font-bold shadow-md'
-                        : 'text-[#64748b] hover:bg-slate-50 hover:text-[#008080] hover:translate-x-1'}
+                        ? `${item.colorClass === 'blue' ? 'bg-blue-600' : item.colorClass === 'violet' ? 'bg-violet-600' : 'bg-[#008080]'} text-white font-bold shadow-md`
+                        : `text-[#64748b] hover:bg-slate-50 hover:translate-x-1 ${item.colorClass === 'blue' ? 'hover:text-blue-600' : item.colorClass === 'violet' ? 'hover:text-violet-600' : 'hover:text-[#008080]'}`}
                     `}
                   >
                     <span className="opacity-80 group-hover:opacity-100 flex items-center justify-center shrink-0">

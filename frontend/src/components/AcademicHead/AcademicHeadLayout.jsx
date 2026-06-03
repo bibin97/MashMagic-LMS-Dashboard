@@ -19,31 +19,23 @@ const AcademicHeadLayout = () => {
    {
      label: 'AOE Panels',
      icon: <Briefcase size={18} />,
+     colorClass: 'blue',
      children: [
-        { path: '/academic-head/aoe/dashboard', icon: <LayoutDashboard size={18} />, label: 'Dashboard' },
-        { path: '/academic-head/aoe/actions', icon: <Activity size={18} />, label: 'Actions Center' },
         { path: '/academic-head/aoe/registrations', icon: <UserPlus size={18} />, label: 'Registrations' },
         { path: '/academic-head/aoe/students', icon: <GraduationCap size={18} />, label: 'Students' },
         { path: '/academic-head/aoe/mentors', icon: <Users size={18} />, label: 'Mentors' },
         { path: '/academic-head/aoe/faculties', icon: <Briefcase size={18} />, label: 'Faculties' },
-        { path: '/academic-head/aoe/live-monitoring', icon: <Activity size={18} />, label: 'Live Monitoring' },
         { path: '/academic-head/aoe/academic-schedule', icon: <ScrollText size={18} />, label: 'Academic Schedule' },
-        { path: '/academic-head/aoe/tasks', icon: <Briefcase size={18} />, label: 'Workforce Tasks' },
-        { path: '/academic-head/aoe/interactions', icon: <MessageSquare size={18} />, label: 'Interactions' },
-        { path: '/academic-head/aoe/meetings', icon: <Presentation size={18} />, label: 'Parent Meetings' },
-        { path: '/academic-head/aoe/checking', icon: <ShieldAlert size={18} />, label: 'Institutional Audit' },
-        { path: '/academic-head/aoe/demo-schedule', icon: <CalendarDays size={18} />, label: 'Demo Schedule' }
+        { path: '/academic-head/aoe/interactions', icon: <MessageSquare size={18} />, label: 'Interactions' }
      ]
    },
    {
      label: 'SSC Panels',
      icon: <Users size={18} />,
+     colorClass: 'violet',
      children: [
-        { path: '/academic-head/ssc/dashboard', icon: <LayoutDashboard size={18} />, label: 'Dashboard' },
         { path: '/academic-head/ssc/students', icon: <Users size={18} />, label: 'Student List' },
-        { path: '/academic-head/ssc/timetable', icon: <Clock size={18} />, label: 'Timetable Area' },
-        { path: '/academic-head/ssc/academic-schedule', icon: <Calendar size={18} />, label: 'Academic Schedule' },
-        { path: '/academic-head/ssc/interaction-logs', icon: <MessageSquare size={18} />, label: 'Interaction Logs' }
+        { path: '/academic-head/ssc/timetable', icon: <Clock size={18} />, label: 'Timetable Area' }
      ]
    }
   ];
