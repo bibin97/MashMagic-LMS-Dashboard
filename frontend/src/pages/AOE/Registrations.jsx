@@ -39,13 +39,7 @@ const Registrations = () => {
   ]);
 
   const [facultyForm, setFacultyForm] = useState({
-    name: '', email: '', phone_number: '', place: '', password: '', confirmPassword: '',
-    faculty_id_card: '', section: '', syllabus: [], languages_proficiency: [],
-    qualification: '', experience: '', availability: '', hourly_rate: '',
-    teaching_mode: 'Both', joining_date: new Date().toISOString().split('T')[0], 
-    remarks: '', primary_subject: '', secondary_subjects: [],
-    isSecondaryDropdownOpen: false, isSectionDropdownOpen: false,
-    isSyllabusDropdownOpen: false, isLangDropdownOpen: false
+    name: '', email: '', phone_number: '', place: '', password: '', confirmPassword: ''
   });
 
   const [sscForm, setSscForm] = useState({
@@ -62,20 +56,6 @@ const Registrations = () => {
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      // Faculty form dropdowns
-      if (secondaryRef.current && !secondaryRef.current.contains(event.target)) {
-        setFacultyForm(prev => ({ ...prev, isSecondaryDropdownOpen: false }));
-      }
-      if (sectionRef.current && !sectionRef.current.contains(event.target)) {
-        setFacultyForm(prev => ({ ...prev, isSectionDropdownOpen: false }));
-      }
-      if (syllabusRef.current && !syllabusRef.current.contains(event.target)) {
-        setFacultyForm(prev => ({ ...prev, isSyllabusDropdownOpen: false }));
-      }
-      if (langRef.current && !langRef.current.contains(event.target)) {
-        setFacultyForm(prev => ({ ...prev, isLangDropdownOpen: false }));
-      }
-
       // Student registration row dropdowns
       let updated = false;
       const newSubjects = selectedSubjects.map((row, idx) => {
@@ -236,26 +216,6 @@ const Registrations = () => {
   };
 
 
-
-  const handleLanguageToggle = (langId) => {
-    setFacultyForm(prev => {
-      const current = prev.languages_proficiency;
-      return {
-        ...prev,
-        languages_proficiency: current.includes(langId) ? current.filter(id => id !== langId) : [...current, langId]
-      };
-    });
-  };
-
-  const handleSyllabusToggle = (syll) => {
-    setFacultyForm(prev => {
-      const current = prev.syllabus || [];
-      return {
-        ...prev,
-        syllabus: current.includes(syll) ? current.filter(s => s !== syll) : [...current, syll]
-      };
-    });
-  };
 
   const handleStudentChange = (e) => setStudentForm({ ...studentForm, [e.target.name]: e.target.value });
   const handleFacultyChange = (e) => setFacultyForm({ ...facultyForm, [e.target.name]: e.target.value });
@@ -962,225 +922,6 @@ const Registrations = () => {
                 </div>
               </div>
 
-              {/* Faculty Academic Section */}
-              <div className="pt-8 border-t border-slate-100 space-y-8">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-emerald-50 text-emerald-600 rounded-lg flex items-center justify-center">
-                    <BookOpen size={18} />
-                  </div>
-                  <h3 className="text-sm font-black text-slate-800 uppercase tracking-widest">Academic & Professional Profile</h3>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  <div className="flex flex-col gap-2">
-                    <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Primary Subject</label>
-                    <select name="primary_subject" value={facultyForm.primary_subject} onChange={handleFacultyChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-emerald-100 font-bold appearance-none text-black">
-                      <option value="">Select Primary</option>
-                      {SUBJECT_OPTIONS.map(sub => <option key={sub} value={sub}>{sub}</option>)}
-                    </select>
-                  </div>
-
-                  <div className="flex flex-col gap-2 relative" ref={secondaryRef}>
-                    <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Secondary Subjects</label>
-                    <div 
-                      onClick={() => setFacultyForm(prev => ({ ...prev, isSecondaryDropdownOpen: !prev.isSecondaryDropdownOpen }))}
-                      className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold text-black cursor-pointer flex justify-between items-center min-h-[46px]"
-                    >
-                      <span className="truncate max-w-[250px]">
-                        {facultyForm.secondary_subjects.length > 0 ? facultyForm.secondary_subjects.join(', ') : 'Select Secondary Subjects'}
-                      </span>
-                      <span className="text-slate-400">▼</span>
-                    </div>
-                    
-                    {facultyForm.isSecondaryDropdownOpen && (
-                      <div className="absolute top-[100%] left-0 w-full bg-white border border-slate-100 rounded-xl shadow-2xl z-[100] mt-1 p-2 max-h-60 overflow-y-auto animate-in slide-in-from-top-2 duration-200">
-                        {SUBJECT_OPTIONS.filter(s => s !== facultyForm.primary_subject).map(sub => (
-                          <div 
-                            key={sub} 
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              const current = facultyForm.secondary_subjects;
-                              const updated = current.includes(sub) ? current.filter(s => s !== sub) : [...current, sub];
-                              setFacultyForm(prev => ({ ...prev, secondary_subjects: updated }));
-                            }}
-                            className={`flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all ${facultyForm.secondary_subjects.includes(sub) ? 'bg-[#008080]/10 text-[#008080]' : 'hover:bg-slate-50 text-slate-600'}`}
-                          >
-                            <div className={`w-5 h-5 rounded-lg border flex items-center justify-center transition-colors ${facultyForm.secondary_subjects.includes(sub) ? 'bg-[#008080] border-[#008080]' : 'border-slate-300'}`}>
-                              {facultyForm.secondary_subjects.includes(sub) && <CheckCircle size={12} className="text-white" />}
-                            </div>
-                            <span className="text-xs font-bold">{sub}</span>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="flex flex-col gap-2">
-                    <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Faculty ID #</label>
-                    <input type="text" name="faculty_id_card" value={facultyForm.faculty_id_card} onChange={handleFacultyChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-emerald-100 font-bold" placeholder="FAC-ID-001" />
-                  </div>
-
-                  <div className="flex flex-col gap-2 relative" ref={sectionRef}>
-                    <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Section Coverage</label>
-                    <div 
-                      onClick={() => setFacultyForm(prev => ({ ...prev, isSectionDropdownOpen: !prev.isSectionDropdownOpen }))}
-                      className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold text-black cursor-pointer flex justify-between items-center min-h-[46px]"
-                    >
-                      <span className="truncate max-w-[250px]">
-                        {facultyForm.section ? facultyForm.section : 'Select Sections'}
-                      </span>
-                      <span className="text-slate-400">▼</span>
-                    </div>
-                    
-                    {facultyForm.isSectionDropdownOpen && (
-                      <div className="absolute top-[100%] left-0 w-full bg-white border border-slate-100 rounded-xl shadow-2xl z-[100] mt-1 p-2 max-h-60 overflow-y-auto animate-in slide-in-from-top-2 duration-200">
-                        {["KG", "LP", "UP", "HS", "HSS"].map(sec => (
-                          <div 
-                            key={sec} 
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              const current = facultyForm.section ? facultyForm.section.split(', ') : [];
-                              const updated = current.includes(sec) ? current.filter(s => s !== sec) : [...current, sec];
-                              setFacultyForm(prev => ({ ...prev, section: updated.join(', ') }));
-                            }}
-                            className={`flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all ${facultyForm.section?.includes(sec) ? 'bg-[#008080]/10 text-[#008080]' : 'hover:bg-slate-50 text-slate-600'}`}
-                          >
-                            <div className={`w-5 h-5 rounded-lg border flex items-center justify-center transition-colors ${facultyForm.section?.includes(sec) ? 'bg-[#008080] border-[#008080]' : 'border-slate-300'}`}>
-                              {facultyForm.section?.includes(sec) && <CheckCircle size={12} className="text-white" />}
-                            </div>
-                            <span className="text-xs font-bold">{sec}</span>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="flex flex-col gap-2">
-                    <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Highest Qualification</label>
-                    <input type="text" name="qualification" value={facultyForm.qualification} onChange={handleFacultyChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-emerald-100 font-bold text-black" placeholder="E.g. MSc, BEd" />
-                  </div>
-
-                  <div className="flex flex-col gap-2">
-                    <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Experience (Years)</label>
-                    <input type="text" name="experience" value={facultyForm.experience} onChange={handleFacultyChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-emerald-100 font-bold text-black" placeholder="E.g. 5 Years" />
-                  </div>
-
-                  <div className="flex flex-col gap-2">
-                    <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Teaching Mode</label>
-                    <select name="teaching_mode" value={facultyForm.teaching_mode} onChange={handleFacultyChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-emerald-100 font-bold appearance-none text-black">
-                      <option value="Online">Online</option>
-                      <option value="Offline">Offline</option>
-                      <option value="Both">Both</option>
-                    </select>
-                  </div>
-
-                  <div className="flex flex-col gap-2">
-                    <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Hourly Rate (₹) (Multiple Typing)</label>
-                    <div className="relative group">
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-sm">₹</span>
-                      <input 
-                        type="text" 
-                        name="hourly_rate" 
-                        value={facultyForm.hourly_rate} 
-                        onChange={handleFacultyChange} 
-                        className="w-full p-3 pl-10 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-emerald-100 font-bold text-black" 
-                        placeholder="e.g. 500, 600, 750" 
-                      />
-                    </div>
-                  </div>
-
-                  <div className="flex flex-col gap-2">
-                    <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Joining Date</label>
-                    <div className="relative group">
-                      <Calendar size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-emerald-600 transition-colors" />
-                      <input type="date" name="joining_date" value={facultyForm.joining_date} onChange={handleFacultyChange} className="w-full p-3 pl-12 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-emerald-100 font-bold text-black" />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex flex-col gap-4 bg-slate-50 p-6 rounded-3xl border border-slate-100">
-                  <div className="flex flex-col gap-2 relative" ref={syllabusRef}>
-                    <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Syllabus Expertise</label>
-                    <div 
-                      onClick={() => setFacultyForm(prev => ({ ...prev, isSyllabusDropdownOpen: !prev.isSyllabusDropdownOpen }))}
-                      className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold text-black cursor-pointer flex justify-between items-center min-h-[46px]"
-                    >
-                      <span className="truncate max-w-[250px]">
-                        {facultyForm.syllabus?.length > 0 ? facultyForm.syllabus.join(', ') : 'Select Syllabus'}
-                      </span>
-                      <span className="text-slate-400">▼</span>
-                    </div>
-                    {facultyForm.isSyllabusDropdownOpen && (
-                      <div className="absolute top-[100%] left-0 w-full bg-white border border-slate-100 rounded-xl shadow-2xl z-[100] mt-1 p-2 max-h-60 overflow-y-auto animate-in slide-in-from-top-2 duration-200">
-                        {SYLLABUS_OPTIONS.map(syl => (
-                          <div 
-                            key={syl} 
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              const current = facultyForm.syllabus || [];
-                              const updated = current.includes(syl) ? current.filter(s => s !== syl) : [...current, syl];
-                              setFacultyForm(prev => ({ ...prev, syllabus: updated }));
-                            }}
-                            className={`flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all ${facultyForm.syllabus?.includes(syl) ? 'bg-[#008080]/10 text-[#008080]' : 'hover:bg-slate-50 text-slate-600'}`}
-                          >
-                            <div className={`w-5 h-5 rounded-lg border flex items-center justify-center transition-colors ${facultyForm.syllabus?.includes(syl) ? 'bg-[#008080] border-[#008080]' : 'border-slate-300'}`}>
-                              {facultyForm.syllabus?.includes(syl) && <CheckCircle size={12} className="text-white" />}
-                            </div>
-                            <span className="text-xs font-bold">{syl}</span>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="flex flex-col gap-2 relative" ref={langRef}>
-                    <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Language Proficiency</label>
-                    <div 
-                      onClick={() => setFacultyForm(prev => ({ ...prev, isLangDropdownOpen: !prev.isLangDropdownOpen }))}
-                      className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold text-black cursor-pointer flex justify-between items-center min-h-[46px]"
-                    >
-                      <span className="truncate max-w-[250px]">
-                        {facultyForm.languages_proficiency?.length > 0 ? facultyForm.languages_proficiency.map(id => LANG_OPTIONS.find(l => l.id === id)?.label || id).join(', ') : 'Select Languages'}
-                      </span>
-                      <span className="text-slate-400">▼</span>
-                    </div>
-                    {facultyForm.isLangDropdownOpen && (
-                      <div className="absolute top-[100%] left-0 w-full bg-white border border-slate-100 rounded-xl shadow-2xl z-[100] mt-1 p-2 max-h-60 overflow-y-auto animate-in slide-in-from-top-2 duration-200">
-                        {LANG_OPTIONS.map(lang => (
-                          <div 
-                            key={lang.id} 
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              const current = facultyForm.languages_proficiency || [];
-                              const updated = current.includes(lang.id) ? current.filter(id => id !== lang.id) : [...current, lang.id];
-                              setFacultyForm(prev => ({ ...prev, languages_proficiency: updated }));
-                            }}
-                            className={`flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all ${facultyForm.languages_proficiency?.includes(lang.id) ? 'bg-[#008080]/10 text-[#008080]' : 'hover:bg-slate-50 text-slate-600'}`}
-                          >
-                            <div className={`w-5 h-5 rounded-lg border flex items-center justify-center transition-colors ${facultyForm.languages_proficiency?.includes(lang.id) ? 'bg-[#008080] border-[#008080]' : 'border-slate-300'}`}>
-                              {facultyForm.languages_proficiency?.includes(lang.id) && <CheckCircle size={12} className="text-white" />}
-                            </div>
-                            <span className="text-xs font-bold">{lang.label}</span>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="flex flex-col gap-2">
-                    <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Availability (Time Slots)</label>
-                    <div className="relative group">
-                      <Clock size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-emerald-600" />
-                      <input type="text" name="availability" value={facultyForm.availability} onChange={handleFacultyChange} className="w-full p-3 pl-12 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-emerald-100 font-bold text-black" placeholder="E.g. 4PM - 9PM Weekdays" />
-                    </div>
-                  </div>
-                  <div className="flex flex-col gap-2">
-                    <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Internal Remarks</label>
-                    <textarea name="remarks" value={facultyForm.remarks} onChange={handleFacultyChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-emerald-100 font-bold resize-none h-[46px] text-black" placeholder="Additional notes about faculty expertise..." />
-                  </div>
-                </div>
               </div>
 
               <button disabled={loading} type="submit" className="w-full mt-8 bg-[#008080] text-white p-4 rounded-xl font-black text-xs uppercase tracking-[0.2em] hover:bg-emerald-600 transition-all shadow-xl hover:shadow-emerald-100 flex items-center justify-center gap-3">

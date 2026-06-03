@@ -5,9 +5,13 @@ import {
   BookOpen, ListTodo, Presentation
 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { useAuth } from '../../context/AuthContext';
 
-const ParentMeetings = () => {
-  const [activeTab, setActiveTab] = useState('schedule'); // 'schedule', 'report', 'view'
+const ParentMeetings = ({ isEmbedded }) => {
+  const { user } = useAuth();
+  const isAOE = user?.role === 'academic_operation_executive';
+  
+  const [activeTab, setActiveTab] = useState(isAOE ? 'view' : 'schedule'); // 'schedule', 'report', 'view'
   const [students, setStudents] = useState([]);
   const [meetings, setMeetings] = useState([]);
   
@@ -89,7 +93,7 @@ const ParentMeetings = () => {
   const completedMeetings = meetings.filter(m => m.status === 'Completed');
 
   return (
-    <div className="min-h-screen bg-slate-50/50 p-4 md:p-8">
+    <div className={isEmbedded ? "" : "min-h-screen bg-slate-50/50 p-4 md:p-8"}>
       <div className="max-w-7xl mx-auto space-y-6">
         
         {/* Header */}
@@ -105,39 +109,41 @@ const ParentMeetings = () => {
           </div>
         </div>
 
-        {/* Tabs */}
-        <div className="flex gap-2 border-b border-slate-200">
-          <button
-            onClick={() => setActiveTab('schedule')}
-            className={`pb-4 px-4 font-black uppercase text-xs tracking-widest transition-all flex items-center gap-2 ${
-              activeTab === 'schedule' 
-              ? 'text-indigo-600 border-b-2 border-indigo-600' 
-              : 'text-slate-400 hover:text-slate-600'
-            }`}
-          >
-            <PlusCircle size={16} /> Schedule Meeting
-          </button>
-          <button
-            onClick={() => setActiveTab('report')}
-            className={`pb-4 px-4 font-black uppercase text-xs tracking-widest transition-all flex items-center gap-2 ${
-              activeTab === 'report' 
-              ? 'text-amber-500 border-b-2 border-amber-500' 
-              : 'text-slate-400 hover:text-slate-600'
-            }`}
-          >
-            <ListTodo size={16} /> Report / Active ({scheduledMeetings.length})
-          </button>
-          <button
-            onClick={() => setActiveTab('view')}
-            className={`pb-4 px-4 font-black uppercase text-xs tracking-widest transition-all flex items-center gap-2 ${
-              activeTab === 'view' 
-              ? 'text-emerald-500 border-b-2 border-emerald-500' 
-              : 'text-slate-400 hover:text-slate-600'
-            }`}
-          >
-            <CheckCircle2 size={16} /> Completed View
-          </button>
-        </div>
+        {/* Tabs - Only show if not AOE */}
+        {!isAOE && (
+          <div className="flex gap-2 border-b border-slate-200">
+            <button
+              onClick={() => setActiveTab('schedule')}
+              className={`pb-4 px-4 font-black uppercase text-xs tracking-widest transition-all flex items-center gap-2 ${
+                activeTab === 'schedule' 
+                ? 'text-indigo-600 border-b-2 border-indigo-600' 
+                : 'text-slate-400 hover:text-slate-600'
+              }`}
+            >
+              <PlusCircle size={16} /> Schedule Meeting
+            </button>
+            <button
+              onClick={() => setActiveTab('report')}
+              className={`pb-4 px-4 font-black uppercase text-xs tracking-widest transition-all flex items-center gap-2 ${
+                activeTab === 'report' 
+                ? 'text-amber-500 border-b-2 border-amber-500' 
+                : 'text-slate-400 hover:text-slate-600'
+              }`}
+            >
+              <ListTodo size={16} /> Report / Active ({scheduledMeetings.length})
+            </button>
+            <button
+              onClick={() => setActiveTab('view')}
+              className={`pb-4 px-4 font-black uppercase text-xs tracking-widest transition-all flex items-center gap-2 ${
+                activeTab === 'view' 
+                ? 'text-emerald-500 border-b-2 border-emerald-500' 
+                : 'text-slate-400 hover:text-slate-600'
+              }`}
+            >
+              <CheckCircle2 size={16} /> Completed View
+            </button>
+          </div>
+        )}
 
         {/* Content */}
         {activeTab === 'schedule' && (

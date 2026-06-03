@@ -342,14 +342,30 @@ const markRead = async (req, res) => {
 // @desc    Profile Settings
 const updateProfile = async (req, res) => {
     try {
-        const { phone_number, password } = req.body;
+        const { 
+            phone_number, password, 
+            faculty_id_card, section, syllabus, languages_proficiency,
+            qualification, experience, availability, hourly_rate,
+            teaching_mode, joining_date, remarks, primary_subject, secondary_subjects
+        } = req.body;
+        
         const updates = [];
         const params = [];
 
-        if (phone_number) {
-            updates.push('phone_number = ?');
-            params.push(phone_number);
-        }
+        if (phone_number) { updates.push('phone_number = ?'); params.push(phone_number); }
+        if (faculty_id_card) { updates.push('faculty_id_card = ?'); params.push(faculty_id_card); }
+        if (section) { updates.push('section = ?'); params.push(section); }
+        if (syllabus) { updates.push('syllabus = ?'); params.push(JSON.stringify(syllabus)); }
+        if (languages_proficiency) { updates.push('languages_proficiency = ?'); params.push(JSON.stringify(languages_proficiency)); }
+        if (qualification) { updates.push('qualification = ?'); params.push(qualification); }
+        if (experience) { updates.push('experience = ?'); params.push(experience); }
+        if (availability) { updates.push('availability = ?'); params.push(availability); }
+        if (hourly_rate) { updates.push('hourly_rate = ?'); params.push(hourly_rate); }
+        if (teaching_mode) { updates.push('teaching_mode = ?'); params.push(teaching_mode); }
+        if (joining_date) { updates.push('joining_date = ?'); params.push(joining_date); }
+        if (remarks) { updates.push('remarks = ?'); params.push(remarks); }
+        if (primary_subject) { updates.push('subject = ?'); params.push(primary_subject); }
+        if (secondary_subjects) { updates.push('secondary_subjects = ?'); params.push(JSON.stringify(secondary_subjects)); }
 
         if (password) {
             const bcrypt = require('bcrypt');

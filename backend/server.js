@@ -227,6 +227,7 @@ const startServer = async () => {
                 'ALTER TABLE users ADD COLUMN hour VARCHAR(50) NULL;',
                 'ALTER TABLE users ADD COLUMN mentor_name VARCHAR(100) NULL;',
                 'ALTER TABLE users ADD COLUMN faculty_name VARCHAR(100) NULL;',
+                'ALTER TABLE users ADD COLUMN secondary_subjects JSON NULL;',
                 'ALTER TABLE users ADD COLUMN next_installment_date VARCHAR(50) NULL;',
                 'ALTER TABLE users ADD COLUMN time_table JSON NULL;',
                 'ALTER TABLE users ADD COLUMN enrollment_type VARCHAR(100) NULL;',

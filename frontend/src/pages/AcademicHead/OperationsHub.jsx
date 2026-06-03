@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import api from '../../services/api';
+import ParentMeetings from '../AOE/ParentMeetings';
 
 const OperationsHub = ({ section }) => {
   const [activeTab, setActiveTab] = useState(section || 'academic_quality');
@@ -89,28 +90,8 @@ const OperationsHub = ({ section }) => {
   );
 
   const renderParentsMeeting = () => (
-    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100">
-        <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight mb-6">Scheduled Parent Meetings</h2>
-        <div className="space-y-4">
-          {activeData.length === 0 && !loading && <p className="text-xs font-bold text-slate-400 p-4">No meetings scheduled.</p>}
-          {activeData.map((item, i) => (
-            <div key={item.id || i} className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100">
-              <div className="flex items-center gap-4">
-                <div className="w-10 h-10 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center"><Users size={16} /></div>
-                <div>
-                  <p className="text-xs font-black text-slate-900 uppercase">Parent of {item.student_name}</p>
-                  <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Status: {item.status}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-4">
-                <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest bg-white px-3 py-1.5 rounded-lg border border-slate-200">{new Date(item.meeting_date).toLocaleDateString()}, {item.meeting_time}</span>
-                <button className="px-4 py-2 bg-[#008080] text-white rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-teal-700 transition-colors">Join</button>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
+    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <ParentMeetings isEmbedded={true} />
     </div>
   );
 
