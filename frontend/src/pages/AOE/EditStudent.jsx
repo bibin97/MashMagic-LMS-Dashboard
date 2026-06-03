@@ -6,7 +6,7 @@ import { useAuth } from '../../context/AuthContext';
 import { 
     User, Mail, GraduationCap, BookOpen, Clock, 
     CheckCircle, ArrowLeft, Plus, Trash2, Edit2, Lock, Unlock, Eye, EyeOff,
-    Link as LinkIcon, UserCheck, Shield, Phone, Globe, Calendar, DollarSign, X
+    Link as LinkIcon, UserCheck, Shield, Phone, Globe, Calendar, DollarSign, X, MapPin
 } from 'lucide-react';
 
 const SUBJECT_OPTIONS = [
@@ -315,21 +315,30 @@ const EditStudent = () => {
                         </button>
                     </h2>
 
-                    <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 transition-opacity duration-300 ${!editModes.personal ? 'opacity-60 pointer-events-none' : ''}`}>
+                    <div className={`grid grid-cols-1 md:grid-cols-2 gap-6 transition-opacity duration-300 ${!editModes.personal ? 'opacity-60 pointer-events-none' : ''}`}>
                         <div className="flex flex-col gap-2">
                             <label className="text-[10px] font-black text-slate-700 uppercase tracking-widest ml-1">Full Name</label>
-                            <input type="text" name="name" required value={formData.name} onChange={handleInputChange} disabled={!editModes.personal} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold focus:bg-white focus:ring-2 focus:ring-[#008080] outline-none" />
+                            <div className="relative group">
+                                <User size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#008080] transition-colors" />
+                                <input type="text" name="name" required value={formData.name} onChange={handleInputChange} disabled={!editModes.personal} className="w-full p-3 pl-12 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold focus:bg-white focus:ring-2 focus:ring-[#008080] outline-none" />
+                            </div>
                         </div>
                         <div className="flex flex-col gap-2">
                             <label className="text-[10px] font-black text-slate-700 uppercase tracking-widest ml-1">Email Address</label>
-                            <input type="email" name="email" value={formData.email} onChange={handleInputChange} disabled={!editModes.personal} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold focus:bg-white focus:ring-2 focus:ring-[#008080] outline-none" />
+                            <div className="relative group">
+                                <Mail size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#008080] transition-colors" />
+                                <input type="email" name="email" value={formData.email} onChange={handleInputChange} disabled={!editModes.personal} className="w-full p-3 pl-12 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold focus:bg-white focus:ring-2 focus:ring-[#008080] outline-none" />
+                            </div>
                         </div>
                         <div className="flex flex-col gap-2">
                             <label className="text-[10px] font-black text-slate-700 uppercase tracking-widest ml-1">Contact Number</label>
-                            <input type="text" name="contact" value={formData.contact} onChange={handleInputChange} disabled={!editModes.personal} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold focus:bg-white focus:ring-2 focus:ring-[#008080] outline-none" />
+                            <div className="relative group">
+                                <Phone size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#008080] transition-colors" />
+                                <input type="text" name="contact" value={formData.contact} onChange={handleInputChange} disabled={!editModes.personal} className="w-full p-3 pl-12 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold focus:bg-white focus:ring-2 focus:ring-[#008080] outline-none" />
+                            </div>
                         </div>
                         <div className="flex flex-col gap-2">
-                            <label className="text-[10px] font-black text-slate-700 uppercase tracking-widest ml-1">Update Password (Optional)</label>
+                            <label className="text-[10px] font-black text-slate-700 uppercase tracking-widest ml-1">Update Password</label>
                             <div className="relative group">
                                 <Lock size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-rose-400 transition-colors" />
                                 <input 
@@ -339,7 +348,7 @@ const EditStudent = () => {
                                     onChange={handleInputChange} 
                                     disabled={!editModes.personal} 
                                     placeholder="Leave blank to keep current" 
-                                    className="w-full p-4 pl-12 pr-12 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold focus:bg-white focus:ring-2 focus:ring-rose-200 outline-none transition-all" 
+                                    className="w-full p-3 pl-12 pr-12 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold focus:bg-white focus:ring-2 focus:ring-rose-200 outline-none transition-all" 
                                 />
                                 <button 
                                     type="button" 
@@ -353,11 +362,17 @@ const EditStudent = () => {
                         </div>
                         <div className="flex flex-col gap-2">
                             <label className="text-[10px] font-black text-slate-700 uppercase tracking-widest ml-1">Country</label>
-                            <input type="text" name="country" value={formData.country} onChange={handleInputChange} disabled={!editModes.personal} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold focus:bg-white focus:ring-2 focus:ring-[#008080] outline-none" />
+                            <div className="relative group">
+                                <MapPin size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#008080] transition-colors" />
+                                <input type="text" name="country" value={formData.country} onChange={handleInputChange} disabled={!editModes.personal} className="w-full p-3 pl-12 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold focus:bg-white focus:ring-2 focus:ring-[#008080] outline-none" />
+                            </div>
                         </div>
                         <div className="flex flex-col gap-2">
                             <label className="text-[10px] font-black text-slate-700 uppercase tracking-widest ml-1">Preferred Language</label>
-                            <input type="text" name="preferred_language" value={formData.preferred_language} onChange={handleInputChange} disabled={!editModes.personal} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold focus:bg-white focus:ring-2 focus:ring-[#008080] outline-none" />
+                            <div className="relative group">
+                                <Globe size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#008080] transition-colors" />
+                                <input type="text" name="preferred_language" value={formData.preferred_language} onChange={handleInputChange} disabled={!editModes.personal} className="w-full p-3 pl-12 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold focus:bg-white focus:ring-2 focus:ring-[#008080] outline-none" />
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -380,22 +395,34 @@ const EditStudent = () => {
                         </button>
                     </h2>
 
-                    <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 transition-opacity duration-300 ${!editModes.academic ? 'opacity-60 pointer-events-none' : ''}`}>
+                    <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 transition-opacity duration-300 ${!editModes.academic ? 'opacity-60 pointer-events-none' : ''}`}>
                         <div className="flex flex-col gap-2">
                             <label className="text-[10px] font-black text-slate-700 uppercase tracking-widest ml-1">Grade / Level</label>
-                            <input type="text" name="grade" value={formData.grade} onChange={handleInputChange} disabled={!editModes.academic} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold focus:bg-white outline-none" />
+                            <div className="relative group">
+                                <BookOpen size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#008080] transition-colors" />
+                                <input type="text" name="grade" value={formData.grade} onChange={handleInputChange} disabled={!editModes.academic} className="w-full p-3 pl-12 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold focus:bg-white outline-none" />
+                            </div>
                         </div>
                         <div className="flex flex-col gap-2">
                             <label className="text-[10px] font-black text-slate-700 uppercase tracking-widest ml-1">Syllabus</label>
-                            <input type="text" name="syllabus" value={formData.syllabus} onChange={handleInputChange} disabled={!editModes.academic} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold focus:bg-white outline-none" />
+                            <div className="relative group">
+                                <BookOpen size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#008080] transition-colors" />
+                                <input type="text" name="syllabus" value={formData.syllabus} onChange={handleInputChange} disabled={!editModes.academic} className="w-full p-3 pl-12 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold focus:bg-white outline-none" />
+                            </div>
                         </div>
                         <div className="flex flex-col gap-2">
                             <label className="text-[10px] font-black text-slate-700 uppercase tracking-widest ml-1">Course Name</label>
-                            <input type="text" name="course" value={formData.course} onChange={handleInputChange} disabled={!editModes.academic} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold focus:bg-white outline-none" />
+                            <div className="relative group">
+                                <BookOpen size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#008080] transition-colors" />
+                                <input type="text" name="course" value={formData.course} onChange={handleInputChange} disabled={!editModes.academic} className="w-full p-3 pl-12 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold focus:bg-white outline-none" />
+                            </div>
                         </div>
                         <div className="flex flex-col gap-2">
                             <label className="text-[10px] font-black text-slate-700 uppercase tracking-widest ml-1">School / Institution</label>
-                            <input type="text" name="school_name" value={formData.school_name} onChange={handleInputChange} disabled={!editModes.academic} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold focus:bg-white outline-none" />
+                            <div className="relative group">
+                                <GraduationCap size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#008080] transition-colors" />
+                                <input type="text" name="school_name" value={formData.school_name} onChange={handleInputChange} disabled={!editModes.academic} className="w-full p-3 pl-12 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold focus:bg-white outline-none" />
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -413,14 +440,20 @@ const EditStudent = () => {
                         </button>
                     </div>
                     <div className={`grid grid-cols-1 sm:grid-cols-3 gap-6 transition-opacity duration-300 ${!editModes.enrollment ? 'opacity-60 pointer-events-none' : ''}`}>
-                        {['Mentorship Only', 'Tuition Only', 'Mentorship & Tuition'].map(plan => (
+                        {[
+                            { id: 'Mentorship Only', label: 'Mentorship only', icon: '🥇' },
+                            { id: 'Tuition Only', label: 'Tuition only', icon: '🥈' },
+                            { id: 'Mentorship & Tuition', label: 'Mentorship & Tuition', icon: '💎' }
+                        ].map(plan => (
                             <button
-                                key={plan}
+                                key={plan.id}
                                 type="button"
-                                onClick={() => setFormData({...formData, enrollment_type: plan})}
-                                className={`p-6 rounded-3xl border-2 transition-all text-center ${formData.enrollment_type === plan ? 'bg-yellow-400 border-yellow-400 shadow-xl shadow-yellow-400/30 text-slate-900' : 'bg-white/5 border-white/10 hover:border-white/30 text-white'}`}
+                                onClick={() => setFormData({...formData, enrollment_type: plan.id})}
+                                disabled={!editModes.enrollment}
+                                className={`p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-1 group ${formData.enrollment_type === plan.id ? 'bg-yellow-400 border-yellow-400 shadow-xl shadow-yellow-400/30 text-slate-900' : 'bg-white/5 border-white/10 hover:border-white/30 text-white'}`}
                             >
-                                <span className="text-[10px] font-black uppercase tracking-widest">{plan}</span>
+                                <span className="text-xl group-hover:scale-110 transition-transform">{plan.icon}</span>
+                                <span className={`text-[10px] font-black uppercase tracking-widest ${formData.enrollment_type === plan.id ? 'text-slate-900' : 'text-white'}`}>{plan.label}</span>
                             </button>
                         ))}
                     </div>
@@ -660,32 +693,35 @@ const EditStudent = () => {
                     <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 transition-opacity duration-300 ${!editModes.admin ? 'opacity-60 pointer-events-none' : ''}`}>
                         <div className="flex flex-col gap-2">
                             <label className="text-[10px] font-black text-slate-700 uppercase tracking-widest ml-1">Registration #</label>
-                            <input type="text" name="registration_number" value={formData.registration_number} onChange={handleInputChange} disabled={!editModes.admin} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none" />
+                            <input type="text" name="registration_number" value={formData.registration_number} onChange={handleInputChange} disabled={!editModes.admin} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold outline-none" />
                         </div>
                         <div className="flex flex-col gap-2">
                             <label className="text-[10px] font-black text-slate-700 uppercase tracking-widest ml-1">Total Fee Authority</label>
                             <div className="relative">
                                 <DollarSign size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-                                <input type="number" name="total_fees" value={formData.total_fees} onChange={handleInputChange} disabled={!editModes.admin} className="w-full p-4 pl-10 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none" />
+                                <input type="number" name="total_fees" value={formData.total_fees} onChange={handleInputChange} disabled={!editModes.admin} className="w-full p-3 pl-10 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold outline-none" />
                             </div>
                         </div>
                         <div className="flex flex-col gap-2">
                             <label className="text-[10px] font-black text-slate-700 uppercase tracking-widest ml-1">Amount Paid (Confirmed)</label>
                             <div className="relative">
                                 <DollarSign size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-400" />
-                                <input type="number" name="total_paid" value={formData.total_paid} onChange={handleInputChange} disabled={!editModes.admin} className="w-full p-4 pl-10 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none" />
+                                <input type="number" name="total_paid" value={formData.total_paid} onChange={handleInputChange} disabled={!editModes.admin} className="w-full p-3 pl-10 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold outline-none" />
                             </div>
                         </div>
                         <div className="flex flex-col gap-2">
                             <label className="text-[10px] font-black text-slate-700 uppercase tracking-widest ml-1">Next Installment</label>
-                            <input type="date" name="next_installment_date" value={formData.next_installment_date} onChange={handleInputChange} disabled={!editModes.admin} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold" />
+                            <div className="relative">
+                                <Calendar size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+                                <input type="date" name="next_installment_date" value={formData.next_installment_date} onChange={handleInputChange} disabled={!editModes.admin} className="w-full p-3 pl-10 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold outline-none" />
+                            </div>
                         </div>
                     </div>
 
                     <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-8 border-t border-slate-100 pt-8 transition-opacity duration-300 ${!editModes.admin ? 'opacity-60 pointer-events-none' : ''}`}>
                         <div className="flex flex-col gap-2">
                             <label className="text-[10px] font-black text-slate-700 uppercase tracking-widest ml-1">Assigned Academic Mentor</label>
-                            <select name="mentor_id" value={formData.mentor_id} onChange={handleInputChange} disabled={!editModes.admin} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold appearance-none outline-none">
+                            <select name="mentor_id" value={formData.mentor_id} onChange={handleInputChange} disabled={!editModes.admin} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold appearance-none outline-none">
                                 <option value="">Select Mentor</option>
                                 {mentors.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
                             </select>
@@ -694,7 +730,7 @@ const EditStudent = () => {
                             <label className="text-[10px] font-black text-slate-700 uppercase tracking-widest ml-1">Live Session Link</label>
                             <div className="relative">
                                 <LinkIcon size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#008080]" />
-                                <input type="text" name="meeting_link" value={formData.meeting_link} onChange={handleInputChange} disabled={!editModes.admin} className="w-full p-4 pl-12 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none" placeholder="meet.google.com/..." />
+                                <input type="text" name="meeting_link" value={formData.meeting_link} onChange={handleInputChange} disabled={!editModes.admin} className="w-full p-3 pl-12 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold outline-none" placeholder="meet.google.com/..." />
                             </div>
                         </div>
                         <div className="flex flex-col gap-2">
