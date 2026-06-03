@@ -88,50 +88,7 @@ const syncStudentsOnStart = async () => {
             console.log(`✅ Automatically approved ${approveResult.affectedRows} students whose user accounts were already active/approved.`);
         }
 
-        // 2. Fetch all student records that are rejected (either in students or user table) to clean up and delete
-        const [rejectedStudents] = await pool.query(`
-            SELECT s.id, s.name, s.user_id 
-            FROM students s
-            LEFT JOIN users u ON (s.user_id = u.id OR (s.email IS NOT NULL AND s.email = u.email))
-            WHERE s.status = 'rejected' 
-            OR (u.role = 'student' AND u.status = 'rejected')
-        `);
-
-        if (rejectedStudents.length > 0) {
-            console.log(`🧹 Found ${rejectedStudents.length} rejected students. Commencing clean up and removal...`);
-            
-            for (const student of rejectedStudents) {
-                // Cleanup dependencies
-                const cleanupQueries = [
-                    'DELETE FROM student_interaction_logs WHERE student_id = ?',
-                    'DELETE FROM faculty_interaction_logs WHERE student_id = ?',
-                    'DELETE FROM student_verification WHERE student_id = ?',
-                    'DELETE FROM daily_hours_log WHERE student_id = ?',
-                    'DELETE FROM student_marks WHERE student_id = ?',
-                    'DELETE FROM student_exams WHERE student_id = ?',
-                    'DELETE FROM session_attendance WHERE student_id = ?',
-                    'DELETE FROM student_reports WHERE student_id = ?',
-                    'DELETE FROM live_class_feedbacks WHERE student_id = ?',
-                    'DELETE FROM timetable WHERE student_id = ?',
-                    'DELETE FROM student_daily_updates WHERE student_id = ?',
-                    'DELETE FROM faculty_class_updates WHERE student_id = ?',
-                    'DELETE FROM faculty_schedules WHERE student_id = ?'
-                ];
-                for (const q of cleanupQueries) {
-                    try { await pool.query(q, [student.id]); } catch (e) {}
-                }
-
-                // Delete student record
-                await pool.query('DELETE FROM students WHERE id = ?', [student.id]);
-
-                // Delete user record if linked
-                if (student.user_id) {
-                    await pool.query('DELETE FROM users WHERE id = ?', [student.user_id]);
-                }
-                
-                console.log(`❌ Removed rejected student: ${student.name}`);
-            }
-        }
+        // Auto deletion of rejected students has been removed per user request
 
         // 3. Sync mentor_id in timetable with the current student's mentor_id
         const [timetableSyncRes] = await pool.query(`
