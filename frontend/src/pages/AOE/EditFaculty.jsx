@@ -15,12 +15,13 @@ const SUBJECT_OPTIONS = [
 ];
 
 const LANG_OPTIONS = [
-    { id: 'ENG', label: 'ENG(100%)' },
-    { id: 'BL-AD', label: 'BILINGUAL ADVANCE' },
-    { id: 'BL-SM', label: 'BILINGUAL SIMPLE' },
-    { id: 'MLM', label: 'MAL' },
-    { id: 'HIN', label: 'HINDI' },
-    { id: 'TML', label: 'TML' }
+    { id: 'ENG-100', label: 'English - 100%' },
+    { id: 'BL-ADV-MAL', label: 'Bilingual - Advanced (70% English, 30% Malayalam)' },
+    { id: 'BL-SMP-MAL', label: 'Bilingual - Simple (70% Malayalam, 30% English)' },
+    { id: 'MAL-ONLY', label: 'Malayalam Only' },
+    { id: 'HIN-100', label: 'Hindi 100%' },
+    { id: 'BL-ADV-HIN', label: 'Bilingual - Advanced (70% Hindi, 30% English)' },
+    { id: 'BL-SMP-HIN', label: 'Bilingual - Simple (70% English, 30% Hindi)' }
 ];
 
 const SYLLABUS_OPTIONS = ["CBSE", "STATE", "ICSE", "IGCSE", "IB"];

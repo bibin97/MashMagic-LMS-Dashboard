@@ -182,6 +182,7 @@ const AccountSettings = () => {
                 </div>
 
                 {/* Security Section */}
+                {user?.role !== 'mentor' && user?.role !== 'faculty' && (
                 <div className="space-y-8">
                     <div className="bg-[#008080] p-10 rounded-[48px] shadow-2xl shadow-[#008080]/40 relative overflow-hidden group">
                         <div className="absolute bottom-0 left-0 w-48 h-48 bg-[#008080]/10 rounded-full -mb-24 -ml-24 blur-3xl transition-colors duration-1000"></div>
@@ -262,6 +263,7 @@ const AccountSettings = () => {
                         </div>
                     </div>
                 </div>
+                )}
             </div>
         </div>
     );

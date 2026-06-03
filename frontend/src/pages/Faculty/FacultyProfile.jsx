@@ -8,11 +8,13 @@ import {
 import toast from 'react-hot-toast';
 
 const LANG_OPTIONS = [
-  { id: 'en', label: 'English' },
-  { id: 'ml', label: 'Malayalam' },
-  { id: 'hi', label: 'Hindi' },
-  { id: 'ta', label: 'Tamil' },
-  { id: 'ar', label: 'Arabic' }
+  { id: 'ENG-100', label: 'English - 100%' },
+  { id: 'BL-ADV-MAL', label: 'Bilingual - Advanced (70% English, 30% Malayalam)' },
+  { id: 'BL-SMP-MAL', label: 'Bilingual - Simple (70% Malayalam, 30% English)' },
+  { id: 'MAL-ONLY', label: 'Malayalam Only' },
+  { id: 'HIN-100', label: 'Hindi 100%' },
+  { id: 'BL-ADV-HIN', label: 'Bilingual - Advanced (70% Hindi, 30% English)' },
+  { id: 'BL-SMP-HIN', label: 'Bilingual - Simple (70% English, 30% Hindi)' }
 ];
 
 const SUBJECT_OPTIONS = [
@@ -48,6 +50,7 @@ const FacultyProfile = () => {
   });
 
   const [dropdowns, setDropdowns] = useState({
+    primary: false,
     secondary: false,
     section: false,
     syllabus: false,
@@ -55,6 +58,7 @@ const FacultyProfile = () => {
   });
 
   const refs = {
+    primary: useRef(null),
     secondary: useRef(null),
     section: useRef(null),
     syllabus: useRef(null),
@@ -98,10 +102,12 @@ const FacultyProfile = () => {
         let parsedSyllabus = [];
         let parsedLangs = [];
         let parsedSecondary = [];
+        let parsedPrimary = [];
         
         try { parsedSyllabus = typeof u.syllabus === 'string' ? JSON.parse(u.syllabus) : (u.syllabus || []); } catch(e){}
         try { parsedLangs = typeof u.languages_proficiency === 'string' ? JSON.parse(u.languages_proficiency) : (u.languages_proficiency || []); } catch(e){}
         try { parsedSecondary = typeof u.secondary_subjects === 'string' ? JSON.parse(u.secondary_subjects) : (u.secondary_subjects || []); } catch(e){}
+        try { parsedPrimary = typeof (u.subject || u.primary_subject) === 'string' && (u.subject || u.primary_subject).startsWith('[') ? JSON.parse(u.subject || u.primary_subject) : ((u.subject || u.primary_subject) ? (u.subject || u.primary_subject).split(', ') : []); } catch(e){ parsedPrimary = (u.subject || u.primary_subject) ? [(u.subject || u.primary_subject)] : []; }
 
         setFormData(prev => ({
           ...prev,
@@ -117,7 +123,7 @@ const FacultyProfile = () => {
           teaching_mode: u.teaching_mode || 'Both',
           joining_date: u.joining_date ? new Date(u.joining_date).toISOString().split('T')[0] : '',
           remarks: u.remarks || '',
-          primary_subject: u.subject || u.primary_subject || '',
+          primary_subject: Array.isArray(parsedPrimary) ? parsedPrimary : [],
           secondary_subjects: Array.isArray(parsedSecondary) ? parsedSecondary : []
         }));
       }
@@ -153,12 +159,12 @@ const FacultyProfile = () => {
     updateData.append('teaching_mode', formData.teaching_mode);
     updateData.append('joining_date', formData.joining_date);
     updateData.append('remarks', formData.remarks);
-    updateData.append('primary_subject', formData.primary_subject);
     
     // JSON arrays
     formData.syllabus.forEach((item, index) => updateData.append(`syllabus[${index}]`, item));
     formData.languages_proficiency.forEach((item, index) => updateData.append(`languages_proficiency[${index}]`, item));
     formData.secondary_subjects.forEach((item, index) => updateData.append(`secondary_subjects[${index}]`, item));
+    formData.primary_subject.forEach((item, index) => updateData.append(`primary_subject[${index}]`, item));
 
     setLoading(true);
     try {
@@ -283,12 +289,37 @@ const FacultyProfile = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col gap-2 relative" ref={refs.primary}>
                 <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Primary Subject</label>
-                <select name="primary_subject" value={formData.primary_subject} onChange={handleChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-bold appearance-none text-black">
-                  <option value="">Select Primary</option>
-                  {SUBJECT_OPTIONS.map(sub => <option key={sub} value={sub}>{sub}</option>)}
-                </select>
+                <div 
+                  onClick={() => toggleDropdown('primary')}
+                  className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold text-black cursor-pointer flex justify-between items-center min-h-[46px]"
+                >
+                  <span className="truncate max-w-[150px]">
+                    {formData.primary_subject && formData.primary_subject.length > 0 ? formData.primary_subject.join(', ') : 'Select Primary'}
+                  </span>
+                  <span className="text-slate-400">▼</span>
+                </div>
+                {dropdowns.primary && (
+                  <div className="absolute top-[100%] left-0 w-full bg-white border border-slate-100 rounded-xl shadow-2xl z-[100] mt-1 p-2 max-h-60 overflow-y-auto">
+                    {SUBJECT_OPTIONS.map(sub => (
+                      <div 
+                        key={sub} 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          const curr = formData.primary_subject || [];
+                          setFormData({ ...formData, primary_subject: curr.includes(sub) ? curr.filter(s => s !== sub) : [...curr, sub] });
+                        }}
+                        className={`flex items-center gap-3 p-3 rounded-xl cursor-pointer ${formData.primary_subject && formData.primary_subject.includes(sub) ? 'bg-[#008080]/10 text-[#008080]' : 'hover:bg-slate-50'}`}
+                      >
+                        <div className={`w-5 h-5 rounded-lg border flex items-center justify-center ${formData.primary_subject && formData.primary_subject.includes(sub) ? 'bg-[#008080] border-[#008080]' : 'border-slate-300'}`}>
+                          {formData.primary_subject && formData.primary_subject.includes(sub) && <CheckCircle size={12} className="text-white" />}
+                        </div>
+                        <span className="text-xs font-bold">{sub}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
               <div className="flex flex-col gap-2 relative" ref={refs.secondary}>
@@ -326,7 +357,7 @@ const FacultyProfile = () => {
 
               <div className="flex flex-col gap-2">
                 <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Faculty ID #</label>
-                <input type="text" name="faculty_id_card" value={formData.faculty_id_card} onChange={handleChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold text-black focus:bg-white focus:ring-2 focus:ring-[#008080] outline-none" placeholder="FAC-ID-001" />
+                <input type="text" name="faculty_id_card" value={formData.faculty_id_card || 'Not Set'} disabled className="w-full p-3 bg-slate-100 border border-slate-200 rounded-xl text-sm font-bold text-slate-500 outline-none cursor-not-allowed" />
               </div>
 
               <div className="flex flex-col gap-2 relative" ref={refs.section}>
@@ -495,54 +526,7 @@ const FacultyProfile = () => {
             </button>
           </div>
 
-          {/* Password Update */}
-          <form onSubmit={handlePasswordChange} className="bg-white p-12 rounded-[3.5rem] border border-slate-100 shadow-sm relative overflow-hidden group">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-rose-500/5 rounded-full -mr-16 -mt-16 blur-2xl"></div>
-            <div className="flex items-center gap-4 mb-10">
-              <div className="w-12 h-12 bg-rose-50 rounded-2xl flex items-center justify-center text-rose-500">
-                <Lock size={24} />
-              </div>
-              <div>
-                <h3 className="text-xl font-black text-slate-900 tracking-tight">Security Vault</h3>
-                <p className="text-slate-600 text-[10px] font-black uppercase tracking-widest">Rotate access credentials</p>
-              </div>
-            </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
-              <div className="space-y-4">
-                <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-6">New Password</label>
-                <input
-                  type="password"
-                  name="new_password"
-                  className="w-full px-10 py-5 bg-slate-50 border border-slate-100 rounded-[2rem] text-sm font-bold focus:outline-none focus:ring-4 focus:ring-rose-500/5 focus:border-rose-500 transition-all shadow-sm"
-                  placeholder="••••••••"
-                  value={formData.new_password}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-              <div className="space-y-4">
-                <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-6">Confirm Handshake</label>
-                <input
-                  type="password"
-                  name="confirm_password"
-                  className="w-full px-10 py-5 bg-slate-50 border border-slate-100 rounded-[2rem] text-sm font-bold focus:outline-none focus:ring-4 focus:ring-rose-500/5 focus:border-rose-500 transition-all shadow-sm"
-                  placeholder="••••••••"
-                  value={formData.confirm_password}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-            </div>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full py-5 bg-rose-500 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-rose-600 transition-all shadow-xl shadow-rose-100 disabled:opacity-50"
-            >
-              {loading ? 'Executing Rotation...' : 'Rotate Security Tokens'}
-            </button>
-          </form>
         </div>
       </div>
     </div>
