@@ -203,9 +203,9 @@ const registerStudent = async (req, res) => {
 
 const registerFaculty = async (req, res) => {
     try {
-        const { name, email, phone_number, password } = req.body;
+        const { name, email, phone_number, password, ...rest } = req.body;
         const hash = await bcrypt.hash(password || phone_number || "faculty123", 10);
-        await User.create({ name, email, phone_number, password: hash, role: 'faculty', status: 'pending' });
+        await User.create({ name, email, phone_number, password: hash, role: 'faculty', status: 'pending', ...rest });
         res.status(201).json({ success: true, message: "Faculty registered" });
     } catch (e) { res.status(500).json({ success: false, message: e.message }); }
 };
@@ -386,8 +386,43 @@ const verifyFacultyLog = async (req, res) => {
 
 const editFaculty = async (req, res) => {
     try {
-        const { name, email, phone_number, subject } = req.body;
-        await db.query('UPDATE faculties SET name = ?, email = ?, phone_number = ?, subject = ? WHERE id = ?', [name, email, phone_number, subject, req.params.id]);
+        const { 
+            name, email, phone_number, password,
+            place, faculty_id_card, qualification, experience, 
+            availability, hourly_rate, teaching_mode, joining_date, remarks,
+            primary_subject, secondary_subjects, syllabus, languages_proficiency, section
+        } = req.body;
+
+        const subjectsList = [primary_subject, ...(secondary_subjects || [])].filter(Boolean);
+        const subjectValue = subjectsList.length > 0 ? subjectsList.join(',') : null;
+        const syllabusValue = Array.isArray(syllabus) ? syllabus.join(',') : (syllabus || null);
+        const languagesValue = languages_proficiency ? JSON.stringify(languages_proficiency) : null;
+
+        let updateQuery = `
+            UPDATE faculties SET 
+                name = ?, email = ?, phone_number = ?, place = ?,
+                faculty_id_card = ?, qualification = ?, experience = ?,
+                availability = ?, hourly_rate = ?, teaching_mode = ?, joining_date = ?,
+                remarks = ?, subject = ?, syllabus = ?, languages_proficiency = ?, section = ?
+        `;
+        let params = [
+            name, email || null, phone_number || null, place || null,
+            faculty_id_card || null, qualification || null, experience || null,
+            availability || null, hourly_rate || null, teaching_mode || null, joining_date || null,
+            remarks || null, subjectValue, syllabusValue, languagesValue, section || null
+        ];
+
+        if (password && password.trim() !== '') {
+            const salt = await bcrypt.genSalt(10);
+            const hashedPassword = await bcrypt.hash(password, salt);
+            updateQuery += `, password = ?`;
+            params.push(hashedPassword);
+        }
+
+        updateQuery += ` WHERE id = ?`;
+        params.push(req.params.id);
+
+        await db.query(updateQuery, params);
         res.status(200).json({ success: true, message: "Updated" });
     } catch (e) { res.status(500).json({ success: false, message: e.message }); }
 };
