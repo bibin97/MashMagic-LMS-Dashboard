@@ -1083,7 +1083,7 @@ const generateQualityAudits = async (req, res) => {
             `, [audit.student_id, audit.student_name, audit.subject, audit.faculty_id, audit.faculty_name, audit.student_count, audit.faculty_count]);
         }
 
-        res.status(200).json({ success: true, message: \`Generated \${generatedCount} audits for today.\` });
+        res.status(200).json({ success: true, message: "Generated " + generatedCount + " audits for today." });
 
     } catch (e) {
         console.error("GENERATE_QUALITY_AUDITS_ERROR:", e);
