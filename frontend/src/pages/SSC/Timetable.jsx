@@ -140,7 +140,8 @@ const Timetable = () => {
         ? `/academic-head/students-all${filters.mentor_id ? `?mentor_id=${filters.mentor_id}` : ''}`
         : '/mentor/students';
       const res = await api.get(endpoint);
-      setStudents(res.data.data);
+      const sortedStudents = (res.data.data || []).sort((a, b) => a.name.localeCompare(b.name));
+      setStudents(sortedStudents);
     } catch (error) {
       console.error("Failed to load students");
     }
