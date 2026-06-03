@@ -24,6 +24,7 @@ const OperationsHub = ({ section }) => {
     { id: 'student_growth', label: 'Growth Monitor', icon: <TrendingUp size={16} />, color: 'text-violet-500' },
     { id: 'faculty_replacement', label: 'Faculty Replacement', icon: <UserMinus size={16} />, color: 'text-rose-500' },
     { id: 'escalation', label: 'Escalations', icon: <AlertTriangle size={16} />, color: 'text-amber-500' },
+    { id: 'course_completions', label: 'Course Completions', icon: <CheckCircle2 size={16} />, color: 'text-teal-500' },
   ];
 
   const fetchData = async (tab) => {
@@ -36,6 +37,7 @@ const OperationsHub = ({ section }) => {
       else if (tab === 'student_growth') endpoint = '/academic-head/student-growth';
       else if (tab === 'faculty_replacement') endpoint = '/academic-head/faculty-replacements';
       else if (tab === 'escalation') endpoint = '/academic-head/escalations';
+      else if (tab === 'course_completions') endpoint = '/academic-head/course-completions';
 
       const response = await api.get(endpoint);
       setData(prev => ({ ...prev, [tab]: response.data.data }));
@@ -236,6 +238,126 @@ const OperationsHub = ({ section }) => {
     </div>
   );
 
+  const [completionModal, setCompletionModal] = useState({ show: false, studentId: null, remarks: '', file: null });
+
+  const handleCourseCompletionSubmit = async (e) => {
+    e.preventDefault();
+    if (!completionModal.file) return toast.error("Please upload a completion document");
+
+    const formData = new FormData();
+    formData.append('remarks', completionModal.remarks);
+    formData.append('completion_file', completionModal.file);
+
+    try {
+      const response = await api.post(`/academic-head/course-completions/${completionModal.studentId}`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      if (response.data.success) {
+        toast.success("Course marked as completed!");
+        setCompletionModal({ show: false, studentId: null, remarks: '', file: null });
+        fetchData('course_completions');
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to mark completion");
+    }
+  };
+
+  const renderCourseCompletions = () => (
+    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <div className="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100 overflow-x-auto">
+        <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight mb-6 flex items-center gap-3">
+          <GraduationCap className="text-teal-500" /> Student Course Completions
+        </h2>
+        <table className="w-full min-w-[900px] text-left">
+          <thead>
+            <tr className="border-b border-slate-200">
+              <th className="pb-3 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Student</th>
+              <th className="pb-3 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Course / Subject</th>
+              <th className="pb-3 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Mentor & Faculty</th>
+              <th className="pb-3 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Status</th>
+              <th className="pb-3 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {activeData.length === 0 && !loading && <tr><td colSpan="5" className="py-4 text-xs font-bold text-slate-400">No students found.</td></tr>}
+            {activeData.map((item) => (
+              <tr key={item.id} className="border-b border-slate-50 hover:bg-slate-50 transition-colors">
+                <td className="py-4 text-xs font-black text-slate-900 uppercase">{item.name}</td>
+                <td className="py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">{item.course} / {item.subject}</td>
+                <td className="py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">{item.mentor_name || 'N/A'} <br/> {item.faculty_name || 'N/A'}</td>
+                <td className="py-4">
+                  {item.course_completed ? (
+                    <span className="text-[9px] font-black bg-teal-100 text-teal-600 px-2 py-1 rounded-full uppercase tracking-widest flex items-center w-fit gap-1"><CheckCircle2 size={12}/> Completed</span>
+                  ) : (
+                    <span className="text-[9px] font-black bg-amber-100 text-amber-600 px-2 py-1 rounded-full uppercase tracking-widest flex items-center w-fit gap-1"><Activity size={12}/> In Progress</span>
+                  )}
+                </td>
+                <td className="py-4">
+                  {!item.course_completed ? (
+                    <button 
+                      onClick={() => setCompletionModal({ show: true, studentId: item.id, remarks: '', file: null })}
+                      className="px-4 py-2 bg-teal-500 text-white rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-teal-600 transition-colors"
+                    >
+                      Mark Complete
+                    </button>
+                  ) : (
+                    item.completion_file && (
+                      <a href={`http://localhost:5000${item.completion_file}`} target="_blank" rel="noreferrer" className="px-4 py-2 bg-slate-100 text-slate-600 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-slate-200 transition-colors">
+                        View File
+                      </a>
+                    )
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {completionModal.show && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white rounded-[2.5rem] w-full max-w-lg overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200">
+            <div className="p-8 pb-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+              <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight flex items-center gap-3">
+                <CheckCircle2 className="text-teal-500" /> Complete Course
+              </h2>
+              <button onClick={() => setCompletionModal({ ...completionModal, show: false })} className="text-slate-400 hover:text-rose-500 transition-colors">
+                <XCircle size={24} />
+              </button>
+            </div>
+            <form onSubmit={handleCourseCompletionSubmit} className="p-8 space-y-6">
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Remarks / Assessment</label>
+                <textarea 
+                  value={completionModal.remarks}
+                  onChange={(e) => setCompletionModal({...completionModal, remarks: e.target.value})}
+                  className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold focus:ring-4 focus:ring-teal-500/10 outline-none transition-all"
+                  rows="3"
+                  placeholder="Enter final remarks..."
+                  required
+                ></textarea>
+              </div>
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Upload Certificate / File</label>
+                <input 
+                  type="file"
+                  onChange={(e) => setCompletionModal({...completionModal, file: e.target.files[0]})}
+                  className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-600 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-[10px] file:font-black file:uppercase file:tracking-widest file:bg-teal-100 file:text-teal-700 hover:file:bg-teal-200 focus:outline-none"
+                  accept=".pdf,.jpg,.jpeg,.png"
+                  required
+                />
+              </div>
+              <div className="pt-4 flex justify-end gap-4">
+                <button type="button" onClick={() => setCompletionModal({ ...completionModal, show: false })} className="px-6 py-3 text-[10px] font-black text-slate-500 uppercase tracking-widest hover:text-slate-700">Cancel</button>
+                <button type="submit" className="px-8 py-3 bg-teal-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-teal-500/20 hover:bg-teal-600 transition-colors">Submit Completion</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+
   return (
     <div className="space-y-8 pb-20">
       {/* Header */}
@@ -272,6 +394,7 @@ const OperationsHub = ({ section }) => {
             {activeTab === 'student_growth' && renderStudentGrowth()}
             {activeTab === 'faculty_replacement' && renderFacultyReplacement()}
             {activeTab === 'escalation' && renderEscalation()}
+            {activeTab === 'course_completions' && renderCourseCompletions()}
           </>
         )}
       </div>

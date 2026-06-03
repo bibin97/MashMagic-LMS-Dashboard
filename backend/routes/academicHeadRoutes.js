@@ -3,7 +3,24 @@ const router = express.Router();
 const { requireAuth } = require('../middleware/authMiddleware');
 const { requireRole } = require('../middleware/roleMiddleware');
 const academicHeadController = require('../controllers/academicHeadController');
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
 
+// Configure Multer for course completion files
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        const uploadDir = 'uploads/completions/';
+        if (!fs.existsSync(uploadDir)) {
+            fs.mkdirSync(uploadDir, { recursive: true });
+        }
+        cb(null, uploadDir);
+    },
+    filename: (req, file, cb) => {
+        cb(null, Date.now() + path.extname(file.originalname));
+    }
+});
+const upload = multer({ storage: storage });
 // All routes require academic_head role
 router.use(requireAuth);
 router.use(requireRole('academic_head', 'super_admin'));
@@ -28,5 +45,9 @@ router.post('/faculty-replacements', academicHeadController.addFacultyReplacemen
 // Escalations
 router.get('/escalations', academicHeadController.getEscalations);
 router.post('/escalations', academicHeadController.addEscalation);
+
+// Course Completions
+router.get('/course-completions', academicHeadController.getCourseCompletions);
+router.post('/course-completions/:id', upload.single('completion_file'), academicHeadController.markCourseCompleted);
 
 module.exports = router;

@@ -227,6 +227,7 @@ function App() {
             <Route path="growth-monitor" element={<OperationsHub section="student_growth" />} />
             <Route path="faculty-replacement" element={<OperationsHub section="faculty_replacement" />} />
             <Route path="escalations" element={<OperationsHub section="escalation" />} />
+            <Route path="course-completions" element={<OperationsHub section="course_completions" />} />
             
             {/* AOE Panels inside Academic Head */}
             <Route path="aoe/dashboard" element={<AOEDashboard />} />

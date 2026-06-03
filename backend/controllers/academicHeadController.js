@@ -158,6 +158,50 @@ const addEscalation = async (req, res) => {
     }
 };
 
+const getCourseCompletions = async (req, res) => {
+    try {
+        const [students] = await db.query(`
+            SELECT 
+                s.id, s.name, s.course, s.subject, s.course_completed,
+                s.completion_remarks, s.completion_file, s.course_completed_date,
+                s.mentor_name, s.faculty_name
+            FROM students s
+            ORDER BY s.id DESC
+        `);
+        res.status(200).json({ success: true, data: students });
+    } catch (error) {
+        console.error("Error fetching course completions:", error);
+        res.status(500).json({ success: false, message: "Server error" });
+    }
+};
+
+const markCourseCompleted = async (req, res) => {
+    try {
+        const studentId = req.params.id;
+        const { remarks } = req.body;
+        const file = req.file;
+
+        let completionFileUrl = null;
+        if (file) {
+            completionFileUrl = `/uploads/completions/${file.filename}`;
+        }
+
+        await db.query(`
+            UPDATE students 
+            SET course_completed = 1,
+                completion_remarks = ?,
+                completion_file = ?,
+                course_completed_date = CURDATE()
+            WHERE id = ?
+        `, [remarks || '', completionFileUrl, studentId]);
+
+        res.status(200).json({ success: true, message: "Course marked as completed" });
+    } catch (error) {
+        console.error("Error marking course complete:", error);
+        res.status(500).json({ success: false, message: "Server error" });
+    }
+};
+
 module.exports = {
     getFacultyQualityChecks,
     addFacultyQualityCheck,
@@ -167,5 +211,7 @@ module.exports = {
     getFacultyReplacements,
     addFacultyReplacement,
     getEscalations,
-    addEscalation
+    addEscalation,
+    getCourseCompletions,
+    markCourseCompleted
 };

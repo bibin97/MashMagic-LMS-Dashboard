@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import Sidebar from '../Sidebar';
 import Navbar from '../Navbar';
-import { Target, Presentation, FileText, TrendingUp, UserMinus, AlertTriangle, LayoutDashboard, Activity, UserPlus, GraduationCap, Users, Briefcase, ShieldAlert, ScrollText, MessageSquare, CalendarDays, Clock, Calendar } from 'lucide-react';
+import { Target, Presentation, FileText, TrendingUp, UserMinus, AlertTriangle, LayoutDashboard, Activity, UserPlus, GraduationCap, Users, Briefcase, ShieldAlert, ScrollText, MessageSquare, CalendarDays, Clock, Calendar, CheckCircle2 } from 'lucide-react';
 
 const AcademicHeadLayout = () => {
  const location = useLocation();
@@ -16,6 +16,7 @@ const AcademicHeadLayout = () => {
    { path: '/academic-head/growth-monitor', icon: <TrendingUp size={18} />, label: 'Growth Monitor' },
    { path: '/academic-head/faculty-replacement', icon: <UserMinus size={18} />, label: 'Faculty Replacement' },
    { path: '/academic-head/escalations', icon: <AlertTriangle size={18} />, label: 'Escalations' },
+   { path: '/academic-head/course-completions', icon: <CheckCircle2 size={18} />, label: 'Course Completions' },
    {
      label: 'AOE Panels',
      icon: <Briefcase size={18} />,
