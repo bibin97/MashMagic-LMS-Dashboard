@@ -59,6 +59,7 @@ import FacultyDailyUpdate from './pages/Faculty/FacultyDailyUpdate';
 import FacultyTasks from './pages/Faculty/FacultyTasks';
 import FacultyNotifications from './pages/Faculty/FacultyNotifications';
 import MentorFeedbackView from './pages/Faculty/StudentLogs'; // Renamed import for clarity
+import FacultyProfile from './pages/Faculty/FacultyProfile';
 
 // Mentor Head Pages
 import MentorHeadDashboard from './pages/MentorHead/MentorHeadDashboard';
@@ -287,7 +288,7 @@ function App() {
             <Route path="tasks" element={<FacultyTasks />} />
             <Route path="notifications" element={<FacultyNotifications />} />
             <Route path="profile" element={<AdminProfile />} />
-            <Route path="account-settings" element={<AccountSettings />} />
+            <Route path="account-settings" element={<FacultyProfile />} />
           </Route>
 
           {/* Mentor System */}
