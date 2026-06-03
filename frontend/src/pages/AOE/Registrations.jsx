@@ -728,18 +728,6 @@ const Registrations = () => {
                                   </div>
                                 );
                               })}
-                              <button 
-                                type="button"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  const newSubjects = [...selectedSubjects];
-                                  newSubjects[idx].isSubjectDropdownOpen = false;
-                                  setSelectedSubjects(newSubjects);
-                                }}
-                                className="w-full mt-4 bg-[#008080] text-white py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-[#008080]/20 hover:scale-[1.02] transition-all"
-                              >
-                                Done
-                              </button>
                             </div>
                           )}
                         </div>
@@ -856,18 +844,6 @@ const Registrations = () => {
                                   );
                                 })}
                               </div>
-                              <button 
-                                type="button"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  const newSubjects = [...selectedSubjects];
-                                  newSubjects[idx].isDayDropdownOpen = false;
-                                  setSelectedSubjects(newSubjects);
-                                }}
-                                className="w-full mt-4 bg-[#008080] text-white py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-[#008080]/20 hover:scale-[1.02] transition-all"
-                              >
-                                Done
-                              </button>
                             </div>
                           )}
                         </div>
@@ -1153,7 +1129,6 @@ const Registrations = () => {
                             <span className="text-xs font-bold">{syl}</span>
                           </div>
                         ))}
-                        <button onClick={(e) => { e.stopPropagation(); setFacultyForm(prev => ({ ...prev, isSyllabusDropdownOpen: false })); }} className="w-full mt-3 p-3 bg-[#008080] text-white rounded-xl text-[10px] font-black uppercase tracking-widest">Confirm</button>
                       </div>
                     )}
                   </div>
@@ -1188,7 +1163,6 @@ const Registrations = () => {
                             <span className="text-xs font-bold">{lang.label}</span>
                           </div>
                         ))}
-                        <button onClick={(e) => { e.stopPropagation(); setFacultyForm(prev => ({ ...prev, isLangDropdownOpen: false })); }} className="w-full mt-3 p-3 bg-[#008080] text-white rounded-xl text-[10px] font-black uppercase tracking-widest">Confirm</button>
                       </div>
                     )}
                   </div>

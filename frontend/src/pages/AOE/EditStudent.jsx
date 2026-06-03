@@ -606,17 +606,6 @@ const EditStudent = () => {
                                                     );
                                                 })}
                                             </div>
-                                            <button 
-                                                type="button"
-                                                onClick={() => {
-                                                    const newSubjects = [...selectedSubjects];
-                                                    newSubjects[idx].isDayDropdownOpen = false;
-                                                    setSelectedSubjects(newSubjects);
-                                                }}
-                                                className="w-full mt-3 p-2 bg-[#008080] text-white rounded-xl text-[9px] font-black uppercase tracking-widest"
-                                            >
-                                                Apply Config
-                                            </button>
                                         </div>
                                     )}
                                 </div>
