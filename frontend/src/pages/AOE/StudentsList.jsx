@@ -23,6 +23,8 @@ const StudentsList = ({ role = 'academic_operation_executive' }) => {
 
 	// Base API path based on role
 	const apiPath = role === 'mentor_head' ? '/mentor-head' : '/aoe';
+	// Navigation base path (frontend routes)
+	const navBasePath = role === 'mentor_head' ? '/mentor-head' : role === 'academic_head' ? '/academic-head' : '/aoe';
 	const navigate = useNavigate();
 
 	const coursesList = ["Mission X", "Classmate", "Crash 45", "Bright Bridge", "Magic Revision"];
@@ -61,11 +63,11 @@ const StudentsList = ({ role = 'academic_operation_executive' }) => {
 	};
 
 	const handleEdit = (student) => {
-		navigate(`${apiPath}/edit-student/${student.id}`);
+		navigate(`${navBasePath}/edit-student/${student.id}`);
 	};
 
 	const handleView = (student) => {
-		navigate(`${apiPath}/students/${student.id}`);
+		navigate(`${navBasePath}/students/${student.id}`);
 	};
 
 	const handleDelete = async (studentParam) => {
@@ -279,7 +281,7 @@ const StudentsList = ({ role = 'academic_operation_executive' }) => {
 												>
 													<Eye size={16} />
 												</button>
-												{role === 'academic_operation_executive' && (
+												{(role === 'academic_operation_executive' || role === 'academic_head') && (
 													<>
 														<button
 															onClick={() => handleEdit(student)}

@@ -297,6 +297,24 @@ const markCourseCompleted = async (req, res) => {
     }
 };
 
+const editDailyUpdate = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { date, start_time, end_time, subject, topic, homework_given, remarks } = req.body;
+        
+        await db.query(`
+            UPDATE timetable_reports 
+            SET date=?, start_time=?, end_time=?, subject=?, topic=?, homework_given=?, remarks=?
+            WHERE id=?
+        `, [date, start_time, end_time, subject, topic, homework_given, remarks, id]);
+        
+        res.status(200).json({ success: true, message: 'Report updated successfully' });
+    } catch (error) {
+        console.error("Error updating report:", error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
 module.exports = {
     getDailyFacultyRotation,
     updateFacultyRotation,
@@ -311,5 +329,6 @@ module.exports = {
     addEscalation,
     getAllStudents,
     getCourseCompletions,
-    markCourseCompleted
+    markCourseCompleted,
+    editDailyUpdate
 };

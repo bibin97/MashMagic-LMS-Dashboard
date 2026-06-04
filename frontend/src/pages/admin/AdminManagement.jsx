@@ -204,12 +204,17 @@ const AdminManagement = () => {
  </div>
  </td>
  <td className="p-8">
-  <span className={`px-6 py-2.5 rounded-[20px] text-[10px] font-black uppercase tracking-[0.2em] border shadow-sm transition-all group-hover:scale-105 ${admin.status === 'active'
- ? 'bg-[#10B981]/10 text-[#10B981] border-[#10B981]/20'
- : 'bg-[#EF4444]/10 text-[#EF4444] border-[#EF4444]/20'
- }`}>
-  {admin.status === 'active' ? 'Active' : admin.status === 'inactive' ? 'Backup' : admin.status === 'pending' ? 'Left' : admin.status}
- </span>
+   <span className={`px-6 py-2.5 rounded-[20px] text-[10px] font-black uppercase tracking-[0.2em] border shadow-sm transition-all group-hover:scale-105 ${
+     admin.status === 'active'
+       ? 'bg-[#10B981]/10 text-[#10B981] border-[#10B981]/20'
+       : admin.status === 'inactive'
+       ? 'bg-slate-50 text-slate-600 border-slate-100'
+       : admin.status === 'pending'
+       ? 'bg-amber-50 text-amber-600 border border-amber-100 animate-pulse'
+       : 'bg-[#EF4444]/10 text-[#EF4444] border-[#EF4444]/20'
+   }`}>
+     {admin.status === 'active' ? 'Active' : admin.status === 'inactive' ? 'Backup' : admin.status === 'pending' ? 'Pending' : admin.status === 'left' ? 'Left' : admin.status}
+   </span>
  </td>
  <td className="p-6">
  <span className="text-xs font-bold text-slate-500">

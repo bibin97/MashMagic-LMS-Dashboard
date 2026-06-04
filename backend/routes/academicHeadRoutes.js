@@ -39,6 +39,9 @@ router.get('/parent-meetings', academicHeadController.getParentMeetings);
 // Exam Scores
 router.get('/exam-scores', academicHeadController.getExamScores);
 
+// Daily Updates
+router.put('/daily-updates/:id', academicHeadController.editDailyUpdate);
+
 // Student Growth
 router.get('/student-growth', academicHeadController.getStudentGrowth);
 

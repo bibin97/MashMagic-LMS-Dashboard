@@ -143,17 +143,23 @@ const StaffManagement = () => {
  </span>
  )
  },
- {
- header: 'Status',
- accessor: 'status',
- render: (row) => (
- <span className={`px-6 py-2.5 rounded-[20px] text-[10px] font-black uppercase tracking-[0.2em] border shadow-sm transition-all hover:scale-105 active:scale-95 ${row.status === 'active' 
- ? 'bg-[#10B981]/10 text-[#10B981] border-[#10B981]/20' 
- : 'bg-[#EF4444]/10 text-[#EF4444] border-[#EF4444]/20 animate-pulse'}`}>
- {row.status === 'active' ? 'Active' : row.status === 'inactive' ? 'Backup' : row.status === 'pending' ? 'Left' : row.status}
- </span>
- )
- },
+  {
+  header: 'Status',
+  accessor: 'status',
+  render: (row) => (
+  <span className={`px-6 py-2.5 rounded-[20px] text-[10px] font-black uppercase tracking-[0.2em] border shadow-sm transition-all hover:scale-105 active:scale-95 ${
+    row.status === 'active' 
+      ? 'bg-[#10B981]/10 text-[#10B981] border-[#10B981]/20' 
+      : row.status === 'inactive' 
+      ? 'bg-slate-50 text-slate-600 border-slate-100'
+      : row.status === 'pending' 
+      ? 'bg-amber-50 text-amber-600 border border-amber-100 animate-pulse'
+      : 'bg-[#EF4444]/10 text-[#EF4444] border-[#EF4444]/20'
+  }`}>
+    {row.status === 'active' ? 'Active' : row.status === 'inactive' ? 'Backup' : row.status === 'pending' ? 'Pending' : row.status === 'left' ? 'Left' : row.status}
+  </span>
+  )
+  },
  ];
 
  return (
@@ -207,8 +213,16 @@ const StaffManagement = () => {
               <span className="px-3 py-1 bg-[#008080]/10 text-[#008080] rounded-lg text-[10px] font-black uppercase tracking-widest border border-[#008080]/20">
                 {selectedMember.role.replace('_', ' ')}
               </span>
-              <span className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border ${selectedMember.status === 'active' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-rose-50 text-rose-600 border-rose-100'}`}>
-                {selectedMember.status}
+              <span className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border ${
+                selectedMember.status === 'active' 
+                  ? 'bg-emerald-50 text-emerald-600 border-emerald-100' 
+                  : selectedMember.status === 'inactive'
+                  ? 'bg-slate-50 text-slate-600 border-slate-100'
+                  : selectedMember.status === 'pending'
+                  ? 'bg-amber-50 text-amber-600 border-amber-100'
+                  : 'bg-rose-50 text-rose-600 border-rose-100'
+              }`}>
+                {selectedMember.status === 'active' ? 'Active' : selectedMember.status === 'inactive' ? 'Backup' : selectedMember.status === 'pending' ? 'Pending' : selectedMember.status === 'left' ? 'Left' : selectedMember.status}
               </span>
             </div>
           </div>
@@ -328,22 +342,23 @@ const StaffManagement = () => {
  </select>
  </div>
  </div>
- <div className="flex flex-col gap-2">
- <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest pl-1">Account Status</label>
- <div className="relative">
- <ShieldCheck size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600" />
- <select
- className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-[#008080] transition-all shadow-sm appearance-none"
- value={editFormData.status}
- onChange={(e) => setEditFormData({ ...editFormData, status: e.target.value })}
- disabled={!isEditingModal}
- >
- <option value="active">Active</option>
- <option value="inactive">Backup</option>
- <option value="pending">Left</option>
- </select>
- </div>
- </div>
+  <div className="flex flex-col gap-2">
+  <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest pl-1">Account Status</label>
+  <div className="relative">
+  <ShieldCheck size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600" />
+  <select
+  className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-[#008080] transition-all shadow-sm appearance-none"
+  value={editFormData.status}
+  onChange={(e) => setEditFormData({ ...editFormData, status: e.target.value })}
+  disabled={!isEditingModal}
+  >
+  <option value="active">Active</option>
+  <option value="inactive">Backup</option>
+  <option value="pending">Pending</option>
+  <option value="left">Left</option>
+  </select>
+  </div>
+  </div>
  </div>
  </div>
 

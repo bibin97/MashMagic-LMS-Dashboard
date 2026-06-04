@@ -37,14 +37,14 @@ exports.getStudentsTrack = async (req, res) => {
 exports.getDailyUpdates = async (req, res) => {
     try {
         const [updates] = await db.query(`
-            SELECT u.*, 
+            SELECT r.*, 
                    s.name as student_name, 
                    s.grade as student_grade,
                    f.name as faculty_name 
-            FROM faculty_class_updates u
-            JOIN students s ON u.student_id = s.id
-            JOIN users f ON u.faculty_id = f.id
-            ORDER BY u.created_at DESC
+            FROM timetable_reports r
+            JOIN students s ON r.student_id = s.id
+            JOIN users f ON r.faculty_id = f.id
+            ORDER BY r.submitted_at DESC
         `);
         res.status(200).json({ success: true, data: updates });
     } catch (error) {

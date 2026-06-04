@@ -3,6 +3,7 @@ const router = express.Router();
 const { requireAuth } = require('../middleware/authMiddleware');
 const { requireRole } = require('../middleware/roleMiddleware');
 const { getDailyHours } = require('../controllers/mentorController');
+const { getDailyUpdates } = require('../controllers/sscController');
 const {
     getAdminDashboardSummary,
     getUsers,
@@ -73,6 +74,9 @@ router.get('/live-monitoring', requireRole('super_admin', 'sub_admin'), getLiveM
 router.get('/ah-parent-interactions', requireRole('super_admin', 'sub_admin'), getAHParentInteractions);
 router.get('/ah-faculty-interactions', requireRole('super_admin', 'sub_admin'), getAHFacultyInteractions);
 router.get('/ah-parent-meetings', requireRole('super_admin', 'sub_admin'), getAHParentMeetings);
+
+// Daily Updates
+router.get('/daily-updates', requireRole('super_admin', 'sub_admin'), getDailyUpdates);
 
 // Management & Action routes
 router.put('/reject/:id', requireRole('super_admin', 'sub_admin'), rejectUser);

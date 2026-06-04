@@ -396,6 +396,24 @@ const startServer = async () => {
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 );`,
 
+                `CREATE TABLE IF NOT EXISTS timetable_reports (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    timetable_id INT NOT NULL,
+                    faculty_id INT NOT NULL,
+                    student_id INT NOT NULL,
+                    date DATE,
+                    start_time VARCHAR(50),
+                    end_time VARCHAR(50),
+                    subject VARCHAR(100),
+                    topic TEXT,
+                    homework_given BOOLEAN DEFAULT FALSE,
+                    remarks TEXT,
+                    is_late BOOLEAN DEFAULT FALSE,
+                    submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (faculty_id) REFERENCES users(id) ON DELETE CASCADE,
+                    FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE
+                );`,
+
                 `CREATE TABLE IF NOT EXISTS faculty_class_updates (
                     id INT AUTO_INCREMENT PRIMARY KEY,
                     student_id INT NOT NULL,

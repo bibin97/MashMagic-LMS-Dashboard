@@ -8,7 +8,8 @@ import {
   Calendar, 
   ClipboardList, 
   CheckSquare,
-  MessageSquare
+  MessageSquare,
+  Clock
 } from 'lucide-react';
 
 const FacultyLayout = () => {
@@ -22,7 +23,8 @@ const FacultyLayout = () => {
     { path: '/faculty/sessions', icon: <Calendar size={18} />, label: 'Sessions' },
     { path: '/faculty/reports', icon: <ClipboardList size={18} />, label: 'Reports' },
     { path: '/faculty/exam-scores', icon: <CheckSquare size={18} />, label: 'Exam Scores' },
-    { path: '/faculty/student-logs', icon: <ClipboardList size={18} />, label: 'Daily Class Update' },
+    { path: '/faculty/timetable', icon: <Clock size={18} />, label: 'Timetable' },
+    { path: '/faculty/schedule', icon: <Calendar size={18} />, label: 'Academic Schedule' },
     { path: '/faculty/mentor-feedback', icon: <MessageSquare size={18} />, label: 'Mentor Feedback' },
     { path: '/faculty/tasks', icon: <CheckSquare size={18} />, label: 'Tasks' },
   ];

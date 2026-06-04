@@ -230,14 +230,22 @@ const Faculties = () => {
  { header: 'Mentors Group', accessor: 'mentorsUnder' },
  { header: 'Total Students', accessor: 'studentsUnder' },
  {
- header: 'Status',
- accessor: 'status',
- render: (row) => (
- <span className={`px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-widest border ${row.status === 'active' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-rose-50 text-rose-600 border-rose-100'}`}>
- {row.status === 'active' ? 'Active' : row.status === 'inactive' ? 'Backup' : row.status === 'pending' ? 'Left' : row.status}
- </span>
- )
- },
+  header: 'Status',
+  accessor: 'status',
+  render: (row) => (
+    <span className={`px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-widest border ${
+      row.status === 'active' 
+        ? 'bg-emerald-50 text-emerald-600 border-emerald-100' 
+        : row.status === 'inactive' 
+        ? 'bg-slate-50 text-slate-600 border-slate-100' 
+        : row.status === 'pending' 
+        ? 'bg-amber-50 text-amber-600 border-amber-100' 
+        : 'bg-rose-50 text-rose-600 border-rose-100'
+    }`}>
+      {row.status === 'active' ? 'Active' : row.status === 'inactive' ? 'Backup' : row.status === 'pending' ? 'Pending' : row.status === 'left' ? 'Left' : row.status}
+    </span>
+  )
+  },
  ];
 
  return (
@@ -454,9 +462,10 @@ const Faculties = () => {
  value={editFormData.status}
  onChange={(e) => setEditFormData({ ...editFormData, status: e.target.value })}
  >
-  <option value="active">Active</option>
-  <option value="inactive">Backup</option>
-  <option value="pending">Left</option>
+   <option value="active">Active</option>
+   <option value="inactive">Backup</option>
+   <option value="pending">Pending</option>
+   <option value="left">Left</option>
  </select>
  </div>
  <div className="flex justify-end gap-3 mt-8">
@@ -489,10 +498,12 @@ const Faculties = () => {
     selectedFaculty.status === 'active' 
       ? 'bg-emerald-50 text-emerald-600 border-emerald-100' 
       : selectedFaculty.status === 'inactive'
+      ? 'bg-slate-50 text-slate-600 border-slate-100'
+      : selectedFaculty.status === 'pending'
       ? 'bg-amber-50 text-amber-600 border-amber-100'
       : 'bg-rose-50 text-rose-600 border-rose-100'
   }`}>
-  Status: {selectedFaculty.status === 'active' ? 'Active' : selectedFaculty.status === 'inactive' ? 'Backup' : 'Left'}
+  Status: {selectedFaculty.status === 'active' ? 'Active' : selectedFaculty.status === 'inactive' ? 'Backup' : selectedFaculty.status === 'pending' ? 'Pending' : selectedFaculty.status === 'left' ? 'Left' : selectedFaculty.status}
   </span>
   </div>
   </div>

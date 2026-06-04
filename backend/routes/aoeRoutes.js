@@ -51,8 +51,10 @@ const {
     updateDemoEvaluation,
     getQualityAudits,
     generateQualityAudits,
-    verifyQualityAudit
+    verifyQualityAudit,
+    assignMentor
 } = require('../controllers/aoeController');
+const { getDailyUpdates } = require('../controllers/sscController');
 const { requireAuth } = require('../middleware/authMiddleware');
 const { requireRole } = require('../middleware/roleMiddleware');
 
@@ -102,6 +104,11 @@ router.put('/students/:id', editStudent);
 router.delete('/students/:id', deleteStudent);
 
 // Management Lists
+// Daily Updates
+router.get('/daily-updates', getDailyUpdates);
+
+// Students
+router.post('/students', registerStudent);
 router.get('/students-all', getStudents);
 router.get('/students', getStudents);
 router.get('/mentors-all', getMentors);

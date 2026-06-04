@@ -3,16 +3,47 @@ import api from '../../services/api';
 import { Video, User, BookOpen, Clock, ExternalLink, Search, Filter, Activity } from 'lucide-react';
 import toast from 'react-hot-toast';
 
-const LiveClassMonitoring = ({ role }) => {
- const [sessions, setSessions] = useState([]);
- const [loading, setLoading] = useState(true);
- const [searchTerm, setSearchTerm] = useState('');
+const checkIsLive = (session, now = new Date()) => {
+  if (!session.start_time || !session.end_time || !session.date) return false;
+  if (session.status === 'Completed') return false;
+  
+  const sessionDate = new Date(session.date);
+  
+  if (
+    now.getFullYear() !== sessionDate.getFullYear() ||
+    now.getMonth() !== sessionDate.getMonth() ||
+    now.getDate() !== sessionDate.getDate()
+  ) {
+    return false;
+  }
+  
+  const currentMins = now.getHours() * 60 + now.getMinutes();
+  const [startH, startM] = session.start_time.split(':').map(Number);
+  const [endH, endM] = session.end_time.split(':').map(Number);
+  
+  const startMins = startH * 60 + startM;
+  const endMins = endH * 60 + endM;
+  
+  return currentMins >= startMins && currentMins <= endMins;
+};
 
- useEffect(() => {
- fetchLiveSessions();
- const interval = setInterval(fetchLiveSessions, 60000); // Auto refresh every minute
- return () => clearInterval(interval);
- }, []);
+const LiveClassMonitoring = ({ role }) => {
+  const [sessions, setSessions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [currentTime, setCurrentTime] = useState(new Date());
+
+  useEffect(() => {
+    fetchLiveSessions();
+    const interval = setInterval(fetchLiveSessions, 60000); // Auto refresh every minute
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 10000);
+    return () => {
+      clearInterval(interval);
+      clearInterval(timer);
+    };
+  }, []);
 
  const fetchLiveSessions = async () => {
  try {
@@ -115,13 +146,20 @@ const LiveClassMonitoring = ({ role }) => {
  {filteredSessions.length > 0 ? (
  filteredSessions.map((session) => (
  <div key={session.id} className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 relative group overflow-hidden">
- {/* LIVE Badge */}
- <div className="absolute top-6 right-6">
- <span className="flex items-center gap-2 bg-rose-50 border border-rose-100 px-3 py-1 rounded-full">
- <span className="w-1.5 h-1.5 bg-rose-500 rounded-full animate-ping"></span>
- <span className="text-[8px] font-black text-rose-600 uppercase tracking-tighter">Live Monitor</span>
- </span>
- </div>
+  {/* LIVE Badge */}
+  <div className="absolute top-6 right-6">
+  {checkIsLive(session, currentTime) ? (
+  <span className="flex items-center gap-2 bg-rose-50 border border-rose-100 px-3 py-1 rounded-full">
+  <span className="w-1.5 h-1.5 bg-rose-500 rounded-full animate-ping"></span>
+  <span className="text-[8px] font-black text-rose-600 uppercase tracking-tighter">Live Monitor</span>
+  </span>
+  ) : (
+  <span className="flex items-center gap-2 bg-slate-50 border border-slate-100 px-3 py-1 rounded-full">
+  <span className="w-1.5 h-1.5 bg-slate-300 rounded-full"></span>
+  <span className="text-[8px] font-black text-slate-400 uppercase tracking-tighter">Scheduled</span>
+  </span>
+  )}
+  </div>
 
  <div className="flex items-center gap-4 mb-6">
  <div className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-400">

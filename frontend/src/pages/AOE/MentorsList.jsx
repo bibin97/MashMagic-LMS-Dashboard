@@ -163,8 +163,16 @@ const MentorsList = () => {
                     <div className="flex flex-col min-w-0 flex-1">
                       <div className="flex items-center gap-3">
                         <h3 className="text-lg font-black text-slate-900 group-hover:text-[#008080] transition-colors uppercase truncate">{mentor.name}</h3>
-                        <div className={`px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest ${mentor.status === 'active' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-amber-50 text-amber-600 border border-amber-100'}`}>
-                          {mentor.status === 'active' ? 'Active' : mentor.status === 'inactive' ? 'Backup' : mentor.status === 'pending' ? 'Left' : mentor.status}
+                        <div className={`px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest border ${
+                          mentor.status === 'active' 
+                            ? 'bg-emerald-50 text-emerald-600 border-emerald-100' 
+                            : mentor.status === 'inactive' 
+                            ? 'bg-slate-50 text-slate-600 border-slate-100' 
+                            : mentor.status === 'pending' 
+                            ? 'bg-amber-50 text-amber-600 border-amber-100 animate-pulse' 
+                            : 'bg-rose-50 text-rose-600 border-rose-100'
+                        }`}>
+                          {mentor.status === 'active' ? 'Active' : mentor.status === 'inactive' ? 'Backup' : mentor.status === 'pending' ? 'Pending' : mentor.status === 'left' ? 'Left' : mentor.status}
                         </div>
                       </div>
 
@@ -323,8 +331,18 @@ const MentorsList = () => {
                     <div className="flex flex-col gap-1">
                       <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Operational Pulse</span>
                       <div className="flex items-center gap-2 mt-1">
-                        <div className={`w-2 h-2 rounded-full ${selectedMentorForDetail.status === 'active' ? 'bg-emerald-500' : 'bg-amber-500'}`}></div>
-                        <p className="text-xs font-black text-slate-900 uppercase tracking-widest">{selectedMentorForDetail.status}</p>
+                        <div className={`w-2 h-2 rounded-full ${
+                          selectedMentorForDetail.status === 'active' 
+                            ? 'bg-emerald-500' 
+                            : selectedMentorForDetail.status === 'inactive' 
+                            ? 'bg-slate-400' 
+                            : selectedMentorForDetail.status === 'pending' 
+                            ? 'bg-amber-500 animate-pulse' 
+                            : 'bg-rose-500'
+                        }`}></div>
+                        <p className="text-xs font-black text-slate-900 uppercase tracking-widest">
+                          {selectedMentorForDetail.status === 'active' ? 'Active' : selectedMentorForDetail.status === 'inactive' ? 'Backup' : selectedMentorForDetail.status === 'pending' ? 'Pending' : selectedMentorForDetail.status === 'left' ? 'Left' : selectedMentorForDetail.status}
+                        </p>
                       </div>
                     </div>
                   </div>

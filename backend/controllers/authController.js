@@ -288,7 +288,7 @@ const login = async (req, res) => {
         }
 
         // Status Check
-        if (user.status === 'pending') {
+        if (user.status === 'pending' || user.status === 'left') {
             return res.status(403).json({ success: false, message: "Account in 'Left' status or pending approval. Please contact Admin." });
         }
 

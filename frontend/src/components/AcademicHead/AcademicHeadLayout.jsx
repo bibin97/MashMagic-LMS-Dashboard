@@ -11,12 +11,16 @@ const AcademicHeadLayout = () => {
 
   const navItems = [
    { path: '/academic-head/academic-quality', icon: <Target size={18} />, label: 'Academic Quality' },
+   { path: '/academic-head/students', icon: <GraduationCap size={18} />, label: 'Students' },
+   { path: '/academic-head/faculties', icon: <Briefcase size={18} />, label: 'Faculties' },
+   { path: '/academic-head/mentors', icon: <Users size={18} />, label: 'Mentors' },
    { path: '/academic-head/parent-meetings', icon: <Presentation size={18} />, label: 'Parents Meeting' },
    { path: '/academic-head/exam-scores', icon: <FileText size={18} />, label: 'Exam Scores' },
    { path: '/academic-head/growth-monitor', icon: <TrendingUp size={18} />, label: 'Growth Monitor' },
    { path: '/academic-head/faculty-replacement', icon: <UserMinus size={18} />, label: 'Faculty Replacement' },
    { path: '/academic-head/escalations', icon: <AlertTriangle size={18} />, label: 'Escalations' },
    { path: '/academic-head/course-completions', icon: <CheckCircle2 size={18} />, label: 'Course Completions' },
+   { path: '/academic-head/daily-updates', icon: <FileText size={18} />, label: 'Daily Updates' },
    {
      label: 'AOE Panels',
      icon: <Briefcase size={18} />,

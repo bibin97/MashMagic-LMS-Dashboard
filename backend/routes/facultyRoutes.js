@@ -22,6 +22,7 @@ const {
     submitExamScore,
     getProfile
 } = require('../controllers/facultyController');
+const { getTimetable, getAcademicSchedule, submitTimetableReport } = require('../controllers/facultyTimetableController');
 const { getDailyHours } = require('../controllers/mentorController');
 const { protect, authorize } = require('../middleware/authMiddleware');
 const { upload } = require('../config/cloudinary');
@@ -37,10 +38,15 @@ router.get('/dashboard', getDashboard);
 router.get('/students', getStudents);
 router.get('/students/:id', getStudentProfile);
 
-// Sessions
+// Sessions (Old)
 router.get('/sessions', getSessions);
 router.post('/sessions', createSession);
 router.put('/sessions/:id/complete', completeSession);
+
+// Timetable & Academic Schedule (New)
+router.get('/timetable', getTimetable);
+router.get('/schedule', getAcademicSchedule);
+router.post('/schedule/report', submitTimetableReport);
 
 // Reports
 router.get('/reports', getReports);

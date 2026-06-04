@@ -8,7 +8,7 @@ import {
 import toast from 'react-hot-toast';
 import { premiumConfirm } from '../../utils/premiumConfirm';
 
-const FacultyDirectory = () => {
+const FacultyDirectory = ({ role = 'academic_operation_executive' }) => {
   const [faculties, setFaculties] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -17,6 +17,7 @@ const FacultyDirectory = () => {
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('directory');
   const [editHistory, setEditHistory] = useState([]);
+  const navBasePath = role === 'academic_head' ? '/academic-head' : '/aoe';
   const navigate = useNavigate();
 
   const [selectedSyllabi, setSelectedSyllabi] = useState([]);
@@ -97,7 +98,7 @@ const FacultyDirectory = () => {
   };
 
   const handleEditFaculty = (faculty) => {
-    navigate(`/aoe/edit-faculty/${faculty.id}`);
+    navigate(`${navBasePath}/edit-faculty/${faculty.id}`);
   };
 
   const handleDeleteFaculty = async (facultyParam) => {

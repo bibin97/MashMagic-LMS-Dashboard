@@ -33,6 +33,7 @@ import Approvals from './pages/admin/Approvals';
 import DailyMentorHeadReport from './pages/admin/DailyMentorHeadReport';
 import AdminManagement from './pages/admin/AdminManagement';
 import StaffManagement from './pages/admin/StaffManagement';
+import AdminDailyUpdates from './pages/admin/AdminDailyUpdates';
 
 import AdminAcademicSchedule from './pages/admin/AcademicSchedule';
 import AHInteractions from './pages/admin/AHInteractions';
@@ -68,6 +69,7 @@ import MentorsList from './pages/MentorHead/MentorsList';
 import CourseCompletedTracker from './pages/MentorHead/CourseCompletedTracker';
 import MentorDetails from './pages/MentorHead/MentorDetails';
 import StudentCheckTracker from './pages/MentorHead/StudentCheckTracker';
+import AHDailyUpdates from './pages/AcademicHead/AHDailyUpdates';
 import StudentShift from './pages/MentorHead/StudentShift';
 import MentorHeadInteractions from './pages/MentorHead/MentorHeadInteractions';
 import MentorHeadTasks from './pages/MentorHead/MentorHeadTasks';
@@ -99,6 +101,7 @@ import EditFaculty from './pages/AOE/EditFaculty';
 import Interactions from './pages/AOE/Interactions';
 import ParentMeetings from './pages/AOE/ParentMeetings';
 import AOEDemoSchedule from './pages/AOE/AOEDemoSchedule';
+import AOEDailyUpdates from './pages/AOE/AOEDailyUpdates';
 
 // Academic Head Pages
 import OperationsHub from './pages/AcademicHead/OperationsHub';
@@ -148,6 +151,7 @@ function App() {
             <Route path="students/:id" element={<StudentDetails />} />
 
             <Route path="academic-schedule" element={<AdminAcademicSchedule />} />
+            <Route path="daily-updates" element={<AdminDailyUpdates />} />
             <Route path="ah-interactions" element={<AHInteractions />} />
             <Route path="ah-meetings" element={<AHParentMeetings />} />
             <Route path="profile" element={<AdminProfile />} />
@@ -207,8 +211,9 @@ function App() {
             <Route path="live-monitoring" element={<AOELiveMonitoring />} />
             <Route path="academic-schedule" element={<AOEAcademicSchedule />} />
             <Route path="interactions" element={<Interactions />} />
-            <Route path="meetings" element={<ParentMeetings />} />
+            <Route path="parent-meetings" element={<ParentMeetings />} />
             <Route path="demo-schedule" element={<AOEDemoSchedule />} />
+            <Route path="daily-updates" element={<AHDailyUpdates />} />
             <Route path="profile" element={<AdminProfile />} />
             <Route path="account-settings" element={<AccountSettings />} />
           </Route>
@@ -222,6 +227,12 @@ function App() {
             <Route index element={<Navigate to="/academic-head/academic-quality" replace />} />
             <Route path="dashboard" element={<Navigate to="/academic-head/academic-quality" replace />} />
             <Route path="academic-quality" element={<OperationsHub section="academic_quality" />} />
+            <Route path="students" element={<StudentsListAcademic role="academic_head" />} />
+            <Route path="students/:id" element={<StudentDetails />} />
+            <Route path="edit-student/:id" element={<EditStudent />} />
+            <Route path="faculties" element={<FacultyDirectory role="academic_head" />} />
+            <Route path="edit-faculty/:id" element={<EditFaculty />} />
+            <Route path="mentors" element={<MentorsListAcademic />} />
             <Route path="parent-meetings" element={<OperationsHub section="parent_meetings" />} />
             <Route path="exam-scores" element={<OperationsHub section="exam_scores" />} />
             <Route path="growth-monitor" element={<OperationsHub section="student_growth" />} />
@@ -265,7 +276,7 @@ function App() {
             <Route path="students/:id" element={<StudentDetails />} />
             <Route path="timetable" element={<SSCTimetable />} />
             <Route path="academic-schedule" element={<SSCAcademicSchedule />} />
-            <Route path="daily-updates" element={<SSCDailyUpdates />} />
+            <Route path="daily-updates" element={<AOEDailyUpdates />} />
             <Route path="profile" element={<AdminProfile />} />
             <Route path="account-settings" element={<AccountSettings />} />
           </Route>

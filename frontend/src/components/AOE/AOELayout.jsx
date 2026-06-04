@@ -35,6 +35,7 @@ const AOELayout = () => {
   { path: '/aoe/meetings', icon: <Presentation size={18} />, label: 'Parent Meetings' },
   { path: '/aoe/checking', icon: <ShieldAlert size={18} />, label: 'Institutional Audit' },
   { path: '/aoe/demo-schedule', icon: <CalendarDays size={18} />, label: 'Demo Schedule' },
+  { path: '/aoe/daily-updates', icon: <ScrollText size={18} />, label: 'Daily Updates' },
  ];
 
  return (

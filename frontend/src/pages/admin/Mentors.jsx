@@ -233,15 +233,23 @@ const Mentors = () => {
   </div>
   )
   },
- {
- header: 'Account Status',
- accessor: 'status',
- render: (row) => (
-  <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase border ${row.status === 'active' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-rose-50 text-rose-600 border-rose-100'}`}>
-  {row.status === 'active' ? 'Active' : row.status === 'inactive' ? 'Backup' : row.status === 'pending' ? 'Left' : row.status}
-  </span>
- )
- },
+  {
+  header: 'Account Status',
+  accessor: 'status',
+  render: (row) => (
+    <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase border ${
+      row.status === 'active' 
+        ? 'bg-emerald-50 text-emerald-600 border-emerald-100' 
+        : row.status === 'inactive' 
+        ? 'bg-slate-50 text-slate-600 border-slate-100' 
+        : row.status === 'pending' 
+        ? 'bg-amber-50 text-amber-600 border-amber-100 animate-pulse' 
+        : 'bg-rose-50 text-rose-600 border-rose-100'
+    }`}>
+      {row.status === 'active' ? 'Active' : row.status === 'inactive' ? 'Backup' : row.status === 'pending' ? 'Pending' : row.status === 'left' ? 'Left' : row.status}
+    </span>
+  )
+  },
  ];
 
  return (
@@ -440,7 +448,8 @@ const Mentors = () => {
  >
   <option value="active">Active</option>
   <option value="inactive">Backup</option>
-  <option value="pending">Left</option>
+  <option value="pending">Pending</option>
+  <option value="left">Left</option>
  </select>
  </div>
  <div className="flex justify-end gap-3 mt-8">

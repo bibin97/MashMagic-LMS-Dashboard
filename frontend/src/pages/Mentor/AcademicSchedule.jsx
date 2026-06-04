@@ -8,11 +8,10 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
-const checkIsLive = (session) => {
+const checkIsLive = (session, now = new Date()) => {
   if (!session.start_time || !session.end_time || !session.date) return false;
   if (session.status === 'Completed') return false;
   
-  const now = new Date();
   const sessionDate = new Date(session.date);
   
   if (
@@ -30,7 +29,7 @@ const checkIsLive = (session) => {
   const startMins = startH * 60 + startM;
   const endMins = endH * 60 + endM;
   
-  return currentMins >= (startMins - 5) && currentMins <= endMins;
+  return currentMins >= startMins && currentMins <= endMins;
 };
 
 const AcademicSchedule = () => {
@@ -41,6 +40,15 @@ const AcademicSchedule = () => {
   const [joinedSessions, setJoinedSessions] = useState(() => {
     try { return JSON.parse(localStorage.getItem('joinedSessions')) || {}; } catch { return {}; }
   });
+  const [currentTime, setCurrentTime] = useState(new Date());
+
+  useEffect(() => {
+    fetchSchedule();
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 10000);
+    return () => clearInterval(timer);
+  }, []);
   
   const handleJoinSession = (session) => {
     const newJoined = { ...joinedSessions, [session.id]: true };
@@ -50,10 +58,6 @@ const AcademicSchedule = () => {
   };
   const [selectedSession, setSelectedSession] = useState(null);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
-
-  useEffect(() => {
-    fetchSchedule();
-  }, []);
 
   const fetchSchedule = async () => {
     try {
@@ -226,7 +230,7 @@ const AcademicSchedule = () => {
                     onClick={() => handleJoinSession(session)}
                     title="Watch Session"
                     className={`px-4 h-11 rounded-[1rem] flex items-center justify-center gap-2 font-black uppercase text-[10px] tracking-widest transition-all ${
-                      checkIsLive(session)
+                      checkIsLive(session, currentTime)
                       ? `bg-red-500 text-white hover:bg-red-600 hover:scale-[1.05] ${!joinedSessions[session.id] ? 'shadow-[0_0_15px_rgba(239,68,68,0.6)] animate-pulse' : 'shadow-sm'}`
                       : 'bg-red-50 text-red-500 border border-red-100 hover:bg-red-500 hover:text-white shadow-sm'
                     }`}

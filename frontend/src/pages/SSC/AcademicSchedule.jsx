@@ -30,7 +30,7 @@ const checkIsLive = (session) => {
   const startMins = startH * 60 + startM;
   const endMins = endH * 60 + endM;
   
-  return currentMins >= (startMins - 5) && currentMins <= endMins;
+  return currentMins >= startMins && currentMins <= endMins;
 };
 
 const AcademicSchedule = () => {
@@ -58,6 +58,13 @@ const AcademicSchedule = () => {
 
   useEffect(() => {
     fetchSchedule();
+  }, []);
+
+  const [currentTime, setCurrentTime] = useState(new Date());
+
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentTime(new Date()), 10000);
+    return () => clearInterval(timer);
   }, []);
 
   const fetchSchedule = async () => {
