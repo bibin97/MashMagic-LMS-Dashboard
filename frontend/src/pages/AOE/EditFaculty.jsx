@@ -44,7 +44,10 @@ const EditFaculty = () => {
         qualification: '',
         experience: '',
         availability: '',
-        hourly_rate: '',
+        lp_rate: '',
+        up_rate: '',
+        hs_rate: '',
+        hss_rate: '',
         teaching_mode: 'Both',
         joining_date: '',
         remarks: '',
@@ -123,6 +126,21 @@ const EditFaculty = () => {
                     syllabus = typeof faculty.syllabus === 'string' ? faculty.syllabus.split(',') : (Array.isArray(faculty.syllabus) ? faculty.syllabus : [faculty.syllabus]);
                 }
 
+                let lp = '', up = '', hs = '', hss = '';
+                try {
+                    const parsedRates = JSON.parse(faculty.hourly_rate || '{}');
+                    if (typeof parsedRates === 'object' && parsedRates !== null) {
+                        lp = parsedRates.lp || '';
+                        up = parsedRates.up || '';
+                        hs = parsedRates.hs || '';
+                        hss = parsedRates.hss || '';
+                    } else {
+                        lp = faculty.hourly_rate || ''; // Fallback
+                    }
+                } catch(e) {
+                    lp = faculty.hourly_rate || '';
+                }
+
                 setFormData({
                     ...faculty,
                     name: faculty.name || '',
@@ -135,6 +153,10 @@ const EditFaculty = () => {
                     syllabus,
                     section: faculty.section || '',
                     joining_date: faculty.joining_date ? new Date(faculty.joining_date).toISOString().split('T')[0] : '',
+                    lp_rate: lp,
+                    up_rate: up,
+                    hs_rate: hs,
+                    hss_rate: hss,
                     password: '',
                     isSecondaryDropdownOpen: false,
                     isSectionDropdownOpen: false,
@@ -190,7 +212,14 @@ const EditFaculty = () => {
         e.preventDefault();
         try {
             setSaving(true);
-            const res = await api.put(`/aoe/faculties/${id}`, formData);
+            const payload = { ...formData };
+            payload.hourly_rate = JSON.stringify({
+                lp: formData.lp_rate,
+                up: formData.up_rate,
+                hs: formData.hs_rate,
+                hss: formData.hss_rate
+            });
+            const res = await api.put(`/aoe/faculties/${id}`, payload);
             if (res.data.success) {
                 toast.success("Faculty profile updated successfully");
                 navigate('/aoe/faculties');
@@ -438,8 +467,25 @@ const EditFaculty = () => {
 
                     <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 transition-opacity duration-300 ${!editModes.logistics ? 'opacity-60 pointer-events-none' : ''}`}>
                         <div className="flex flex-col gap-2">
-                            <label className="text-[10px] font-black text-slate-700 uppercase tracking-widest ml-1">Hourly Rate (₹) (Multiple Typing)</label>
-                            <input type="text" name="hourly_rate" value={formData.hourly_rate} onChange={handleInputChange} disabled={!editModes.logistics} placeholder="e.g. 500, 600, 750" className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none" />
+                            <label className="text-[10px] font-black text-slate-700 uppercase tracking-widest ml-1">Hourly Rates by Section (₹)</label>
+                            <div className="grid grid-cols-2 gap-2">
+                                <div className="flex flex-col">
+                                    <span className="text-[8px] font-bold text-slate-400 uppercase">LP Rate</span>
+                                    <input type="number" name="lp_rate" value={formData.lp_rate} onChange={handleInputChange} disabled={!editModes.logistics} placeholder="0" className="w-full p-2 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold outline-none" />
+                                </div>
+                                <div className="flex flex-col">
+                                    <span className="text-[8px] font-bold text-slate-400 uppercase">UP Rate</span>
+                                    <input type="number" name="up_rate" value={formData.up_rate} onChange={handleInputChange} disabled={!editModes.logistics} placeholder="0" className="w-full p-2 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold outline-none" />
+                                </div>
+                                <div className="flex flex-col">
+                                    <span className="text-[8px] font-bold text-slate-400 uppercase">HS Rate</span>
+                                    <input type="number" name="hs_rate" value={formData.hs_rate} onChange={handleInputChange} disabled={!editModes.logistics} placeholder="0" className="w-full p-2 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold outline-none" />
+                                </div>
+                                <div className="flex flex-col">
+                                    <span className="text-[8px] font-bold text-slate-400 uppercase">HSS Rate</span>
+                                    <input type="number" name="hss_rate" value={formData.hss_rate} onChange={handleInputChange} disabled={!editModes.logistics} placeholder="0" className="w-full p-2 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold outline-none" />
+                                </div>
+                            </div>
                         </div>
                         <div className="flex flex-col gap-2">
                             <label className="text-[10px] font-black text-slate-700 uppercase tracking-widest ml-1">Joining Date</label>

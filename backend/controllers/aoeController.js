@@ -256,8 +256,20 @@ const registerFaculty = async (req, res) => {
     try {
         const { name, email, phone_number, password, ...rest } = req.body;
         const hash = await bcrypt.hash(password || phone_number || "faculty123", 10);
+        
+        // Auto-generate faculty_id_card (e.g. FAC-01)
+        const [rows] = await db.query('SELECT faculty_id_card FROM users WHERE role = "faculty" AND faculty_id_card LIKE "FAC-%" ORDER BY CAST(SUBSTRING(faculty_id_card, 5) AS UNSIGNED) DESC LIMIT 1');
+        let nextId = "FAC-01";
+        if (rows.length > 0 && rows[0].faculty_id_card) {
+            const currentNumber = parseInt(rows[0].faculty_id_card.split('-')[1], 10);
+            if (!isNaN(currentNumber)) {
+                nextId = `FAC-${String(currentNumber + 1).padStart(2, '0')}`;
+            }
+        }
+        rest.faculty_id_card = nextId;
+
         await User.create({ name, email, phone_number, password: hash, role: 'faculty', status: 'pending', ...rest });
-        res.status(201).json({ success: true, message: "Faculty registered" });
+        res.status(201).json({ success: true, message: "Faculty registered", data: { faculty_id_card: nextId } });
     } catch (e) { res.status(500).json({ success: false, message: e.message }); }
 };
 
