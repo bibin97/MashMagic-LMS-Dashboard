@@ -81,8 +81,30 @@ const Timetable = () => {
     faculty_id: null,
     faculty_name: ''
   });
-
   const navigate = useNavigate();
+
+  const getNextAvailableDates = () => {
+    if (!studentSchedule || studentSchedule.length === 0) return [];
+    const daysMap = { 'Sunday': 0, 'Monday': 1, 'Tuesday': 2, 'Wednesday': 3, 'Thursday': 4, 'Friday': 5, 'Saturday': 6 };
+    const scheduledDays = [...new Set(studentSchedule.map(s => daysMap[s.day_of_week]))];
+    
+    if (scheduledDays.length === 0) return [];
+
+    let availableDates = [];
+    let currentDate = new Date();
+    currentDate.setDate(currentDate.getDate() + 1); // Start from tomorrow
+
+    let daysChecked = 0;
+    while (availableDates.length < 5 && daysChecked < 60) {
+      if (scheduledDays.includes(currentDate.getDay())) {
+        availableDates.push(new Date(currentDate));
+      }
+      currentDate.setDate(currentDate.getDate() + 1);
+      daysChecked++;
+    }
+    
+    return availableDates;
+  };
 
   useEffect(() => {
     fetchTimetable(true);
@@ -150,18 +172,20 @@ const Timetable = () => {
   
   useEffect(() => {
     const autoPopulate = async () => {
-      if (formData.student_id && !editingSession) {
+      if (formData.student_id) {
         try {
           setIsScheduleLoading(true);
           const res = await api.get(`/mentor/students/${formData.student_id}/schedule`);
           const schedule = res.data.data;
           setStudentSchedule(schedule || []);
           
-          const dayName = new Date(formData.date).toLocaleDateString('en-GB', { weekday: 'long' });
-          const todaySlot = schedule.find(slot => slot.day_of_week === dayName);
-          
-          if (todaySlot) {
-            toast.success(`Registration schedule available for this day. You can auto-fill from the reference list.`);
+          if (!editingSession) {
+            const dayName = new Date(formData.date).toLocaleDateString('en-GB', { weekday: 'long' });
+            const todaySlot = schedule.find(slot => slot.day_of_week === dayName);
+            
+            if (todaySlot) {
+              toast.success(`Registration schedule available for this day. You can auto-fill from the reference list.`);
+            }
           }
         } catch (error) {
           console.error("Failed to fetch student schedule");
@@ -756,13 +780,32 @@ const Timetable = () => {
                   </div>
                   <div className="space-y-4">
                     <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">New Target Date *</label>
-                    <input
-                      type="date"
-                      required
-                      value={formData.date}
-                      onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                      className="w-full p-6 bg-slate-50 border border-slate-100 rounded-[2rem] text-lg font-black focus:bg-white focus:ring-8 ring-indigo-500/10 transition-all outline-none"
-                    />
+                    {getNextAvailableDates().length > 0 ? (
+                      <select
+                        required
+                        value={formData.date}
+                        onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                        className="w-full p-6 bg-slate-50 border border-slate-100 rounded-[2rem] text-lg font-black focus:bg-white focus:ring-8 ring-indigo-500/10 transition-all outline-none cursor-pointer"
+                      >
+                        <option value="">Select Target Date</option>
+                        {getNextAvailableDates().map((d, i) => {
+                          const dateStr = d.toISOString().split('T')[0];
+                          return (
+                            <option key={i} value={dateStr}>
+                              {d.toLocaleDateString('en-GB', { weekday: 'long', day: '2-digit', month: 'short', year: 'numeric' })}
+                            </option>
+                          );
+                        })}
+                      </select>
+                    ) : (
+                      <input
+                        type="date"
+                        required
+                        value={formData.date}
+                        onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                        className="w-full p-6 bg-slate-50 border border-slate-100 rounded-[2rem] text-lg font-black focus:bg-white focus:ring-8 ring-indigo-500/10 transition-all outline-none"
+                      />
+                    )}
                   </div>
                 </div>
               ) : (
@@ -801,13 +844,32 @@ const Timetable = () => {
 
                     <div className="space-y-2">
                       <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Session Date *</label>
-                      <input
-                        type="date"
-                        required
-                        value={formData.date}
-                        onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                        className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
-                      />
+                      {formData.status === 'Postponed' && getNextAvailableDates().length > 0 ? (
+                        <select
+                          required
+                          value={formData.date}
+                          onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                          className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
+                        >
+                          <option value="">Select Target Date</option>
+                          {getNextAvailableDates().map((d, i) => {
+                            const dateStr = d.toISOString().split('T')[0];
+                            return (
+                              <option key={i} value={dateStr}>
+                                {d.toLocaleDateString('en-GB', { weekday: 'long', day: '2-digit', month: 'short', year: 'numeric' })}
+                              </option>
+                            );
+                          })}
+                        </select>
+                      ) : (
+                        <input
+                          type="date"
+                          required
+                          value={formData.date}
+                          onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                          className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
+                        />
+                      )}
                     </div>
 
                     {/* Registration Slot Helper */}
