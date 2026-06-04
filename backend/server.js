@@ -676,8 +676,10 @@ const startServer = async () => {
                 );`,
 
 
-                // Performance Indexes
+                // Add new columns to aoe_demo_schedules
                 'ALTER TABLE aoe_demo_schedules ADD COLUMN demo_id VARCHAR(50) NULL;',
+                'ALTER TABLE aoe_demo_schedules ADD COLUMN syllabus VARCHAR(255) NULL;',
+                'ALTER TABLE aoe_demo_schedules ADD COLUMN section VARCHAR(255) NULL;',
                 'CREATE INDEX IF NOT EXISTS idx_users_role_status ON users(role, status);',
                 'CREATE INDEX IF NOT EXISTS idx_students_user_id ON students(user_id);',
                 'CREATE INDEX IF NOT EXISTS idx_students_mentor_id ON students(mentor_id);',

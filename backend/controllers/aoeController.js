@@ -926,14 +926,14 @@ const getDemoSchedules = async (req, res) => {
 
 const createDemoSchedule = async (req, res) => {
     try {
-        const { demo_id, student_name, student_type, subject, faculty_id, start_time, end_time, hour_rate } = req.body;
+        const { demo_id, student_name, student_type, syllabus, section, subject, faculty_id, start_time, end_time, hour_rate } = req.body;
         const aoe_id = req.user.id;
 
         await db.query(`
             INSERT INTO aoe_demo_schedules 
-                (aoe_id, demo_id, student_name, student_type, subject, faculty_id, start_time, end_time, hour_rate)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-        `, [aoe_id, demo_id || null, student_name, student_type || 'new', subject, faculty_id, start_time, end_time, hour_rate || 0]);
+                (aoe_id, demo_id, student_name, student_type, syllabus, section, subject, faculty_id, start_time, end_time, hour_rate)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `, [aoe_id, demo_id || null, student_name, student_type || 'new', syllabus || null, section || null, subject, faculty_id, start_time, end_time, hour_rate || 0]);
 
         res.status(201).json({ success: true, message: 'Demo schedule created successfully' });
     } catch (error) {

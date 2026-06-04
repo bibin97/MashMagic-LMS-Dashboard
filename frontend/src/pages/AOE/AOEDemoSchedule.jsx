@@ -21,12 +21,17 @@ const AOEDemoSchedule = () => {
     demo_id: '',
     student_name: '',
     student_type: 'new',
+    syllabus: '',
+    section: '',
     subject: '',
     faculty_id: '',
     start_time: '',
     end_time: '',
     hour_rate: ''
   });
+
+  const SYLLABUS_OPTIONS = ["CBSE", "STATE", "ICSE", "IGCSE", "IB"];
+  const SECTION_OPTIONS = ["KG", "LP", "UP", "HS", "HSS"];
 
   // Modal State
   const [showModal, setShowModal] = useState(false);
@@ -54,6 +59,25 @@ const AOEDemoSchedule = () => {
     fetchStudents();
     fetchDemos();
   }, []);
+
+  useEffect(() => {
+    if (demoList.length > 0 && !formData.demo_id) {
+      let maxId = 0;
+      demoList.forEach(d => {
+        if (d.demo_id && d.demo_id.startsWith('DE')) {
+          const num = parseInt(d.demo_id.substring(2));
+          if (!isNaN(num) && num > maxId) maxId = num;
+        } else if (d.demo_id && !isNaN(parseInt(d.demo_id))) {
+           const num = parseInt(d.demo_id);
+           if (num > maxId) maxId = num;
+        }
+      });
+      const nextId = `DE${String(maxId + 1).padStart(2, '0')}`;
+      setFormData(prev => ({ ...prev, demo_id: nextId }));
+    } else if (demoList.length === 0 && !formData.demo_id && !loading) {
+      setFormData(prev => ({ ...prev, demo_id: 'DE01' }));
+    }
+  }, [demoList, loading, formData.demo_id]);
 
   const fetchStudents = async () => {
     try {
@@ -105,6 +129,8 @@ const AOEDemoSchedule = () => {
         demo_id: '',
         student_name: '',
         student_type: 'new',
+        syllabus: '',
+        section: '',
         subject: '',
         faculty_id: '',
         start_time: '',
@@ -209,6 +235,21 @@ const AOEDemoSchedule = () => {
                 />
               </div>
 
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 flex items-center gap-2">
+                  <Target size={12}/> Student Type *
+                </label>
+                <select
+                  required
+                  value={formData.student_type}
+                  onChange={(e) => setFormData({ ...formData, student_type: e.target.value })}
+                  className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
+                >
+                  <option value="new">New Student</option>
+                  <option value="existing">Existing Student</option>
+                </select>
+              </div>
+
               <div className="space-y-2 relative">
                 <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 flex items-center gap-2">
                   <User size={12}/> Student Name *
@@ -241,7 +282,9 @@ const AOEDemoSchedule = () => {
                             setFormData({ 
                               ...formData, 
                               student_name: s.name,
-                              student_type: 'existing'
+                              student_type: 'existing',
+                              syllabus: s.syllabus || '',
+                              section: s.section || s.grade || ''
                             });
                             setShowSuggestions(false);
                           }}
@@ -261,16 +304,35 @@ const AOEDemoSchedule = () => {
 
               <div className="space-y-2">
                 <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 flex items-center gap-2">
-                  <Target size={12}/> Student Type *
+                  <BookOpen size={12}/> Syllabus *
                 </label>
                 <select
                   required
-                  value={formData.student_type}
-                  onChange={(e) => setFormData({ ...formData, student_type: e.target.value })}
+                  value={formData.syllabus}
+                  onChange={(e) => setFormData({ ...formData, syllabus: e.target.value })}
                   className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
                 >
-                  <option value="new">New Student</option>
-                  <option value="existing">Existing Student</option>
+                  <option value="" disabled>Select Syllabus</option>
+                  {SYLLABUS_OPTIONS.map(s => (
+                    <option key={s} value={s}>{s}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 flex items-center gap-2">
+                  <Target size={12}/> Section *
+                </label>
+                <select
+                  required
+                  value={formData.section}
+                  onChange={(e) => setFormData({ ...formData, section: e.target.value })}
+                  className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
+                >
+                  <option value="" disabled>Select Section</option>
+                  {SECTION_OPTIONS.map(s => (
+                    <option key={s} value={s}>{s}</option>
+                  ))}
                 </select>
               </div>
 
