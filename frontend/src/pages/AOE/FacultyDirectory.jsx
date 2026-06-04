@@ -193,6 +193,7 @@ const FacultyDirectory = () => {
               <h3 className="text-2xl font-black text-slate-900">{faculties.filter(f => f.status === 'pending').length}</h3>
             </div>
           </div>
+        </div>
         )}
 
         {/* Main Content Area */}
