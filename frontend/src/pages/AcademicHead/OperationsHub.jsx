@@ -117,7 +117,30 @@ const OperationsHub = ({ section }) => {
       setSubmittingRating(false);
     }
   };
+  const [rotationModal, setRotationModal] = useState({ show: false, rotation: null, status: 'Called', notes: '', next_call_date: '' });
+  const [submittingRotation, setSubmittingRotation] = useState(false);
 
+  const handleRotationSubmit = async (e) => {
+    e.preventDefault();
+    if (!rotationModal.rotation) return;
+    setSubmittingRotation(true);
+    try {
+      const response = await api.put(`/academic-head/faculty-rotation/${rotationModal.rotation.id}`, {
+        status: rotationModal.status,
+        notes: rotationModal.notes,
+        next_call_date: rotationModal.next_call_date
+      });
+      if (response.data.success) {
+        toast.success("Rotation updated successfully!");
+        setRotationModal({ show: false, rotation: null, status: 'Called', notes: '', next_call_date: '' });
+        fetchData('academic_quality');
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to update rotation");
+    } finally {
+      setSubmittingRotation(false);
+    }
+  };
   useEffect(() => {
     setActiveTab(section);
   }, [section]);
@@ -135,17 +158,24 @@ const OperationsHub = ({ section }) => {
   const fetchData = async (tab) => {
     setLoading(true);
     try {
-      let endpoint = '';
-      if (tab === 'academic_quality') endpoint = '/academic-head/faculty-quality';
-      else if (tab === 'parent_meetings') endpoint = '/academic-head/parent-meetings';
-      else if (tab === 'exam_scores') endpoint = '/academic-head/exam-scores';
-      else if (tab === 'student_growth') endpoint = '/academic-head/student-growth';
-      else if (tab === 'faculty_replacement') endpoint = '/academic-head/faculty-replacements';
-      else if (tab === 'escalation') endpoint = '/academic-head/escalations';
-      else if (tab === 'course_completions') endpoint = '/academic-head/course-completions';
+      if (tab === 'academic_quality') {
+        const [qualityRes, rotationRes] = await Promise.all([
+          api.get('/academic-head/faculty-quality'),
+          api.get('/academic-head/faculty-rotation')
+        ]);
+        setData(prev => ({ ...prev, [tab]: { ...qualityRes.data.data, dailyRotation: rotationRes.data.data } }));
+      } else {
+        let endpoint = '';
+        if (tab === 'parent_meetings') endpoint = '/academic-head/parent-meetings';
+        else if (tab === 'exam_scores') endpoint = '/academic-head/exam-scores';
+        else if (tab === 'student_growth') endpoint = '/academic-head/student-growth';
+        else if (tab === 'faculty_replacement') endpoint = '/academic-head/faculty-replacements';
+        else if (tab === 'escalation') endpoint = '/academic-head/escalations';
+        else if (tab === 'course_completions') endpoint = '/academic-head/course-completions';
 
-      const response = await api.get(endpoint);
-      setData(prev => ({ ...prev, [tab]: response.data.data }));
+        const response = await api.get(endpoint);
+        setData(prev => ({ ...prev, [tab]: response.data.data }));
+      }
     } catch (error) {
       console.error("Error fetching data:", error);
       toast.error(`Failed to load ${tab.replace('_', ' ')} data`);
@@ -171,6 +201,53 @@ const OperationsHub = ({ section }) => {
 
     return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      
+      {/* Daily Faculty Rotation Section */}
+      <div className="bg-white p-6 md:p-8 rounded-[2rem] shadow-sm border border-slate-100 mb-6">
+        <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight mb-4">Daily Faculty Rotation</h2>
+        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-6">Faculties to call and monitor today</p>
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="bg-slate-50/50">
+                <th className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Faculty</th>
+                <th className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Subject</th>
+                <th className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Phone</th>
+                <th className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Status</th>
+                <th className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Next Call</th>
+                <th className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Action</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-50">
+              {(!activeData.dailyRotation || activeData.dailyRotation.length === 0) && !loading && (
+                <tr><td colSpan="6" className="py-6 text-center text-xs font-bold text-slate-400">No rotation data available for today.</td></tr>
+              )}
+              {activeData.dailyRotation?.map((rotation) => (
+                <tr key={rotation.id} className="hover:bg-slate-50/50 transition-colors">
+                  <td className="px-6 py-4 text-sm font-black text-slate-900 uppercase">{rotation.faculty_name}</td>
+                  <td className="px-6 py-4 text-xs font-bold text-slate-600 uppercase">{rotation.subject || 'N/A'}</td>
+                  <td className="px-6 py-4 text-xs font-bold text-slate-600">{rotation.phone_number || 'N/A'}</td>
+                  <td className="px-6 py-4">
+                    <span className={`text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest ${rotation.status === 'Called' ? 'bg-emerald-100 text-emerald-700' : rotation.status === 'Missed' ? 'bg-rose-100 text-rose-700' : 'bg-amber-100 text-amber-700'}`}>
+                      {rotation.status}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 text-xs font-bold text-slate-600">{rotation.next_call_date ? new Date(rotation.next_call_date).toLocaleDateString() : 'N/A'}</td>
+                  <td className="px-6 py-4">
+                    <button 
+                      onClick={() => setRotationModal({ show: true, rotation, status: rotation.status, notes: rotation.notes || '', next_call_date: rotation.next_call_date ? new Date(rotation.next_call_date).toISOString().split('T')[0] : '' })}
+                      className="px-4 py-2 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 hover:text-indigo-700 rounded-xl text-[10px] font-black uppercase tracking-widest transition-colors"
+                    >
+                      Update
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       <div className="bg-white p-6 md:p-8 rounded-[2rem] shadow-sm border border-slate-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div>
           <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight">Live Class Observations</h2>
@@ -365,8 +442,68 @@ const OperationsHub = ({ section }) => {
           </div>
         </div>
       )}
+
+      {rotationModal.show && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white rounded-[2.5rem] w-full max-w-lg overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200">
+            <div className="p-8 pb-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+              <div>
+                <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight flex items-center gap-3">
+                  <Activity className="text-indigo-500" /> Update Rotation Status
+                </h2>
+                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">
+                  Faculty: {rotationModal.rotation?.faculty_name}
+                </p>
+              </div>
+              <button onClick={() => setRotationModal({ ...rotationModal, show: false })} className="text-slate-400 hover:text-rose-500 transition-colors">
+                <X size={24} />
+              </button>
+            </div>
+            <form onSubmit={handleRotationSubmit} className="p-8 space-y-6">
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Call Status</label>
+                <select 
+                  value={rotationModal.status}
+                  onChange={(e) => setRotationModal({...rotationModal, status: e.target.value})}
+                  className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all"
+                >
+                  <option value="Pending">Pending</option>
+                  <option value="Called">Called</option>
+                  <option value="Missed">Missed</option>
+                </select>
+              </div>
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Next Call Date</label>
+                <input 
+                  type="date"
+                  value={rotationModal.next_call_date}
+                  onChange={(e) => setRotationModal({...rotationModal, next_call_date: e.target.value})}
+                  className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Call Notes / Updates</label>
+                <textarea 
+                  value={rotationModal.notes}
+                  onChange={(e) => setRotationModal({...rotationModal, notes: e.target.value})}
+                  className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all"
+                  rows="3"
+                  placeholder="Enter details from the call..."
+                ></textarea>
+              </div>
+              <div className="pt-4 flex justify-end gap-4">
+                <button type="button" onClick={() => setRotationModal({ ...rotationModal, show: false })} className="px-6 py-3 text-[10px] font-black text-slate-500 uppercase tracking-widest hover:text-slate-700">Cancel</button>
+                <button type="submit" disabled={submittingRotation} className="px-8 py-3 bg-indigo-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-indigo-500/20 hover:bg-indigo-600 transition-colors disabled:opacity-50">
+                  {submittingRotation ? 'Saving...' : 'Save Update'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
-  )};
+  );
+};
 
   const renderParentsMeeting = () => (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">

@@ -1,5 +1,76 @@
 const db = require('../config/db');
 
+const getDailyFacultyRotation = async (req, res) => {
+    try {
+        const ah_id = req.user.id;
+        
+        // Check if rotation already generated for today
+        const [existing] = await db.query(`
+            SELECT r.*, f.name as faculty_name, f.phone_number, f.subject
+            FROM ah_faculty_rotation r
+            JOIN users f ON r.faculty_id = f.id
+            WHERE r.academic_head_id = ? AND r.rotation_date = CURDATE()
+        `, [ah_id]);
+
+        if (existing.length > 0) {
+            return res.status(200).json({ success: true, data: existing });
+        }
+
+        // If not, fetch 3 faculties who haven't been in rotation recently
+        const [faculties] = await db.query(`
+            SELECT id FROM users 
+            WHERE role = 'faculty' AND status = 'active'
+            ORDER BY (SELECT MAX(rotation_date) FROM ah_faculty_rotation WHERE faculty_id = users.id) ASC, RAND()
+            LIMIT 3
+        `);
+
+        if (faculties.length === 0) {
+            return res.status(200).json({ success: true, data: [] });
+        }
+
+        // Insert into rotation
+        const insertPromises = faculties.map(f => 
+            db.query(`
+                INSERT INTO ah_faculty_rotation (faculty_id, academic_head_id, rotation_date)
+                VALUES (?, ?, CURDATE())
+            `, [f.id, ah_id])
+        );
+        await Promise.all(insertPromises);
+
+        // Fetch newly created rotation
+        const [newRotation] = await db.query(`
+            SELECT r.*, f.name as faculty_name, f.phone_number, f.subject
+            FROM ah_faculty_rotation r
+            JOIN users f ON r.faculty_id = f.id
+            WHERE r.academic_head_id = ? AND r.rotation_date = CURDATE()
+        `, [ah_id]);
+
+        res.status(200).json({ success: true, data: newRotation });
+    } catch (error) {
+        console.error("Error generating daily rotation:", error);
+        res.status(500).json({ success: false, message: "Server error" });
+    }
+};
+
+const updateFacultyRotation = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { status, next_call_date, notes } = req.body;
+        const ah_id = req.user.id;
+
+        await db.query(`
+            UPDATE ah_faculty_rotation 
+            SET status = ?, next_call_date = ?, notes = ?
+            WHERE id = ? AND academic_head_id = ?
+        `, [status, next_call_date || null, notes, id, ah_id]);
+
+        res.status(200).json({ success: true, message: "Rotation updated" });
+    } catch (error) {
+        console.error("Error updating rotation:", error);
+        res.status(500).json({ success: false, message: "Server error" });
+    }
+};
+
 const getFacultyQualityChecks = async (req, res) => {
     try {
         const [evaluations] = await db.query(`
@@ -227,6 +298,8 @@ const markCourseCompleted = async (req, res) => {
 };
 
 module.exports = {
+    getDailyFacultyRotation,
+    updateFacultyRotation,
     getFacultyQualityChecks,
     addFacultyQualityCheck,
     getParentMeetings,
