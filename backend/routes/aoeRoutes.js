@@ -24,6 +24,7 @@ const {
     getExamAnalytics,
     editFaculty,
     getFacultyEditHistory,
+    getAllFacultyEditHistory,
     deleteFaculty,
     editStudent,
     deleteStudent,
@@ -92,6 +93,7 @@ router.get('/faculty-logs-pending', getPendingFacultyLogs);
 router.put('/faculty-logs/:id/verify', verifyFacultyLog);
 
 // New Management Routes
+router.get('/faculty-history', getAllFacultyEditHistory);
 router.get('/students/:id', getStudentById);
 router.put('/faculties/:id', editFaculty);
 router.get('/faculties/:id/history', getFacultyEditHistory);

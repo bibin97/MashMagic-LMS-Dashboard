@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import {
   Users, User, Mail, Phone, Calendar, Search,
-  Filter, Activity, Edit2, Trash2, X, Save, BookOpen, MapPin, ShieldCheck, Eye, GraduationCap
+  Filter, Activity, Edit2, Trash2, X, Save, BookOpen, MapPin, ShieldCheck, Eye, GraduationCap, History
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { premiumConfirm } from '../../utils/premiumConfirm';
@@ -15,6 +15,8 @@ const FacultyDirectory = () => {
   const [sortBy, setSortBy] = useState('newest');
   const [selectedFaculty, setSelectedFaculty] = useState(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState('directory');
+  const [editHistory, setEditHistory] = useState([]);
   const navigate = useNavigate();
 
   const LANG_OPTIONS = [
@@ -36,8 +38,26 @@ const FacultyDirectory = () => {
   ];
 
   useEffect(() => {
-    fetchFaculties();
-  }, [sortBy]);
+    if (activeTab === 'directory') {
+      fetchFaculties();
+    } else {
+      fetchEditHistory();
+    }
+  }, [sortBy, activeTab]);
+
+  const fetchEditHistory = async () => {
+    try {
+      setLoading(true);
+      const res = await api.get('/aoe/faculty-history');
+      if (res.data.success) {
+        setEditHistory(res.data.data);
+      }
+    } catch (e) {
+      toast.error("Failed to fetch history");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const fetchFaculties = async () => {
     try {
@@ -95,13 +115,29 @@ const FacultyDirectory = () => {
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div className="space-y-1">
             <h1 className="text-4xl font-black text-slate-900 uppercase tracking-tighter flex items-center gap-4">
-              Faculty Directory
-              <div className="px-3 py-1 bg-emerald-100 text-emerald-600 rounded-full text-[10px] tracking-widest font-black">
-                {faculties.length} TOTAL
-              </div>
+              Faculty Management
             </h1>
-            <p className="text-slate-500 font-bold text-xs uppercase tracking-[0.2em]">Manage academic staff credentials and subject mappings</p>
+            <p className="text-slate-500 font-bold text-xs uppercase tracking-[0.2em]">Manage academic staff credentials and track modifications</p>
           </div>
+          
+          <div className="flex gap-2 bg-white p-2 rounded-2xl shadow-sm border border-slate-100">
+            <button 
+              onClick={() => setActiveTab('directory')}
+              className={`px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${activeTab === 'directory' ? 'bg-[#008080] text-white shadow-lg shadow-[#008080]/30' : 'text-slate-500 hover:bg-slate-50'}`}
+            >
+              Directory
+            </button>
+            <button 
+              onClick={() => setActiveTab('history')}
+              className={`px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${activeTab === 'history' ? 'bg-[#008080] text-white shadow-lg shadow-[#008080]/30' : 'text-slate-500 hover:bg-slate-50'}`}
+            >
+              Edit History
+            </button>
+          </div>
+        </div>
+
+        {activeTab === 'directory' && (
+          <div className="flex flex-col md:flex-row justify-end gap-3 w-full">
           
           <div className="flex flex-wrap items-center gap-3">
             <div className="relative group min-w-[300px]">
@@ -124,9 +160,10 @@ const FacultyDirectory = () => {
               <option value="oldest">Sort: Oldest First</option>
             </select>
           </div>
-        </div>
+        )}
 
         {/* Stats Row */}
+        {activeTab === 'directory' && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex items-center gap-5">
             <div className="w-14 h-14 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center">
@@ -155,7 +192,7 @@ const FacultyDirectory = () => {
               <h3 className="text-2xl font-black text-slate-900">{faculties.filter(f => f.status === 'pending').length}</h3>
             </div>
           </div>
-        </div>
+        )}
 
         {/* Main Content Area */}
         <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-200/50 overflow-hidden">
@@ -164,7 +201,7 @@ const FacultyDirectory = () => {
               <div className="w-12 h-12 border-4 border-[#008080] border-t-transparent rounded-full animate-spin"></div>
               <p className="font-black text-xs uppercase tracking-widest">Retrieving Staff Data...</p>
             </div>
-          ) : filteredFaculties.length === 0 ? (
+          ) : activeTab === 'directory' && filteredFaculties.length === 0 ? (
             <div className="p-20 text-center space-y-4">
               <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto text-slate-300">
                 <Search size={40} />
@@ -172,7 +209,7 @@ const FacultyDirectory = () => {
               <h3 className="text-xl font-black text-slate-900">No Faculty Found</h3>
               <p className="text-slate-500 font-bold max-w-xs mx-auto text-sm">We couldn't find any staff matching your search criteria.</p>
             </div>
-          ) : (
+          ) : activeTab === 'directory' ? (
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
@@ -258,6 +295,57 @@ const FacultyDirectory = () => {
                   ))}
                 </tbody>
               </table>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              {editHistory.length === 0 ? (
+                <div className="p-20 text-center space-y-4">
+                  <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto text-slate-300">
+                    <History size={40} />
+                  </div>
+                  <h3 className="text-xl font-black text-slate-900">No History Found</h3>
+                  <p className="text-slate-500 font-bold max-w-xs mx-auto text-sm">No faculties have been edited yet.</p>
+                </div>
+              ) : (
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="bg-slate-50/50">
+                      <th className="px-8 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Date & Time</th>
+                      <th className="px-8 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Faculty Name</th>
+                      <th className="px-8 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Edited By</th>
+                      <th className="px-8 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Changes Summary</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-50">
+                    {editHistory.map((log) => (
+                      <tr key={log.id} className="hover:bg-slate-50/50 transition-colors">
+                        <td className="px-8 py-6">
+                          <p className="text-xs font-black text-slate-900">
+                            {new Date(log.edited_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+                          </p>
+                          <p className="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-widest">
+                            {new Date(log.edited_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+                          </p>
+                        </td>
+                        <td className="px-8 py-6">
+                          <p className="text-sm font-black text-[#008080] uppercase tracking-tight">{log.faculty_name || 'Unknown Faculty'}</p>
+                        </td>
+                        <td className="px-8 py-6">
+                          <div className="flex items-center gap-2 text-slate-600">
+                            <User size={14} />
+                            <span className="text-xs font-bold">{log.edited_by_name || 'Admin'}</span>
+                          </div>
+                        </td>
+                        <td className="px-8 py-6">
+                          <span className="inline-block px-3 py-1.5 bg-slate-50 text-slate-600 rounded-xl text-xs font-bold border border-slate-100">
+                            {log.changes_summary}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
             </div>
           )}
         </div>

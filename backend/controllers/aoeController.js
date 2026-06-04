@@ -505,6 +505,21 @@ const getFacultyEditHistory = async (req, res) => {
     }
 };
 
+const getAllFacultyEditHistory = async (req, res) => {
+    try {
+        const [logs] = await db.query(
+            `SELECT l.*, f.name as faculty_name 
+             FROM faculty_edit_logs l
+             LEFT JOIN faculties f ON l.faculty_id = f.id
+             ORDER BY l.edited_at DESC`
+        );
+        res.status(200).json({ success: true, data: logs });
+    } catch (e) {
+        console.error("Error fetching all faculty edit history:", e);
+        res.status(500).json({ success: false, message: "Server error" });
+    }
+};
+
 const deleteFaculty = async (req, res) => {
     try {
         await db.query('DELETE FROM faculties WHERE id = ?', [req.params.id]);
@@ -1156,7 +1171,7 @@ const generateQualityAudits = async (req, res) => {
 };
 
 module.exports = {
-    getExamAnalytics, getDashboardStats, getAllFacultyActivity, getAvailableFaculties, getDropdownData, registerStudent, registerFaculty, registerSSC, getStudentInteractionLogs, getFacultyInteractionLogs, getAcademicActions, getDailyFacultyChecks, checkFacultySessionToday, uncheckFacultySession, getFacultyDirectory, getAcademicDocuments, uploadAcademicDocument, deleteAcademicDocument, getLiveClassEvaluations, submitLiveClassEvaluation, getPendingFacultyLogs, verifyFacultyLog, editFaculty, getFacultyEditHistory, deleteFaculty, editStudent, deleteStudent, getStudentById, getStudents, getMentors, editMentor, deleteMentor, getLiveMonitoring, getStaff, syncLegacyData, saveExamPlan, getAcademicSchedule,
+    getExamAnalytics, getDashboardStats, getAllFacultyActivity, getAvailableFaculties, getDropdownData, registerStudent, registerFaculty, registerSSC, getStudentInteractionLogs, getFacultyInteractionLogs, getAcademicActions, getDailyFacultyChecks, checkFacultySessionToday, uncheckFacultySession, getFacultyDirectory, getAcademicDocuments, uploadAcademicDocument, deleteAcademicDocument, getLiveClassEvaluations, submitLiveClassEvaluation, getPendingFacultyLogs, verifyFacultyLog, editFaculty, getFacultyEditHistory, getAllFacultyEditHistory, deleteFaculty, editStudent, deleteStudent, getStudentById, getStudents, getMentors, editMentor, deleteMentor, getLiveMonitoring, getStaff, syncLegacyData, saveExamPlan, getAcademicSchedule,
     getAHParentInteractions, createAHParentInteraction, getAHFacultyInteractions, createAHFacultyInteraction, getAHParentMeetings, scheduleAHParentMeeting, reportAHParentMeeting,
     getDemoSchedules, createDemoSchedule, updateDemoEvaluation, getQualityAudits, verifyQualityAudit, generateQualityAudits
 };
