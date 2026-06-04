@@ -160,6 +160,7 @@ const FacultyDirectory = () => {
               <option value="oldest">Sort: Oldest First</option>
             </select>
           </div>
+          </div>
         )}
 
         {/* Stats Row */}
