@@ -9,7 +9,6 @@ import {
   Activity,
   UserCheck,
   Calendar,
-  MessageSquare,
   ShieldCheck,
   Clock,
   FileText
@@ -25,7 +24,6 @@ const SSCLayout = () => {
     { path: '/ssc/students', icon: <Users size={18} />, label: 'Student List' },
     { path: '/ssc/timetable', icon: <Clock size={18} />, label: 'Timetable Area' },
     { path: '/ssc/academic-schedule', icon: <Calendar size={18} />, label: 'Academic Schedule' },
-    { path: '/ssc/interaction-logs', icon: <MessageSquare size={18} />, label: 'Interaction Logs' },
     { path: '/ssc/daily-updates', icon: <FileText size={18} />, label: 'Daily Updates' },
   ];
 

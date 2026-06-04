@@ -1412,7 +1412,7 @@ exports.deleteStudent = async (req, res) => {
 
 exports.getFaculties = async (req, res) => {
     try {
-        const [rows] = await db.query('SELECT id, name, email, phone_number, place, status, createdAt FROM faculties ORDER BY name ASC');
+        const [rows] = await db.query('SELECT id, name, email, phone_number, place, status, subject, syllabus, section, createdAt FROM faculties ORDER BY name ASC');
         res.status(200).json({ success: true, data: rows });
     } catch (error) { res.status(500).json({ success: false, message: error.message }); }
 };

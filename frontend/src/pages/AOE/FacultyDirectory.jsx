@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import {
   Users, User, Mail, Phone, Calendar, Search,
-  Filter, Activity, Edit2, Trash2, X, Save, BookOpen, MapPin, ShieldCheck, Eye, GraduationCap, History
+  Filter, Activity, Edit2, Trash2, X, Save, BookOpen, MapPin, ShieldCheck, Eye, GraduationCap, History, Check
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { premiumConfirm } from '../../utils/premiumConfirm';
@@ -18,6 +18,29 @@ const FacultyDirectory = () => {
   const [activeTab, setActiveTab] = useState('directory');
   const [editHistory, setEditHistory] = useState([]);
   const navigate = useNavigate();
+
+  const [selectedSyllabi, setSelectedSyllabi] = useState([]);
+  const [selectedSections, setSelectedSections] = useState([]);
+  const [selectedSubjects, setSelectedSubjects] = useState([]);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+
+  const toggleSyllabus = (syl) => {
+    setSelectedSyllabi(prev => 
+      prev.includes(syl) ? prev.filter(s => s !== syl) : [...prev, syl]
+    );
+  };
+
+  const toggleSection = (sec) => {
+    setSelectedSections(prev => 
+      prev.includes(sec) ? prev.filter(s => s !== sec) : [...prev, sec]
+    );
+  };
+
+  const toggleSubject = (sub) => {
+    setSelectedSubjects(prev => 
+      prev.includes(sub) ? prev.filter(s => s !== sub) : [...prev, sub]
+    );
+  };
 
   const LANG_OPTIONS = [
     { id: 'ENG-100', label: 'English - 100%' },
@@ -101,11 +124,41 @@ const FacultyDirectory = () => {
     }
   };
 
-  const filteredFaculties = faculties.filter(f => 
-    f.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    f.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    f.subject?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredFaculties = faculties.filter(f => {
+    const matchesSearch = searchTerm === '' ||
+      f.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      f.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      f.subject?.toLowerCase().includes(searchTerm.toLowerCase());
+      
+    let matchesSyllabus = true;
+    if (selectedSyllabi.length > 0) {
+      const fSyllabus = f.syllabus 
+        ? (typeof f.syllabus === 'string' ? f.syllabus.split(',') : (Array.isArray(f.syllabus) ? f.syllabus : [f.syllabus]))
+        : [];
+      const normalizedSyllabi = fSyllabus.map(s => s.trim().toUpperCase());
+      matchesSyllabus = selectedSyllabi.some(syl => normalizedSyllabi.includes(syl.toUpperCase()));
+    }
+
+    let matchesSection = true;
+    if (selectedSections.length > 0) {
+      const fSection = f.section 
+        ? (typeof f.section === 'string' ? f.section.split(',') : (Array.isArray(f.section) ? f.section : [f.section]))
+        : [];
+      const normalizedSections = fSection.map(s => s.trim().toUpperCase());
+      matchesSection = selectedSections.some(sec => normalizedSections.includes(sec.toUpperCase()));
+    }
+
+    let matchesSubject = true;
+    if (selectedSubjects.length > 0) {
+      const fSubject = f.subject 
+        ? (typeof f.subject === 'string' ? f.subject.split(',') : (Array.isArray(f.subject) ? f.subject : [f.subject]))
+        : [];
+      const normalizedSubjects = fSubject.map(s => s.trim().toUpperCase());
+      matchesSubject = selectedSubjects.some(sub => normalizedSubjects.includes(sub.toUpperCase()));
+    }
+
+    return matchesSearch && matchesSyllabus && matchesSection && matchesSubject;
+  });
 
   return (
     <div className="p-4 md:p-8 min-h-screen bg-[#f8fafc]">
@@ -137,29 +190,146 @@ const FacultyDirectory = () => {
         </div>
 
         {activeTab === 'directory' && (
-          <div className="flex flex-col md:flex-row justify-end gap-3 w-full">
-          
-          <div className="flex flex-wrap items-center gap-3">
-            <div className="relative group min-w-[300px]">
-              <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#008080] transition-colors" />
-              <input 
-                type="text" 
-                placeholder="Search by name, email or subject..." 
-                className="w-full bg-white border border-slate-200 rounded-2xl py-3 pl-12 pr-4 text-sm font-bold text-slate-700 outline-none focus:ring-4 focus:ring-[#008080]/10 focus:border-[#008080] transition-all shadow-sm"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
+          <div className="flex flex-col gap-4 w-full">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-3 w-full">
+              <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
+                <div className="relative group min-w-[300px] flex-1 md:flex-initial">
+                  <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#008080] transition-colors" />
+                  <input 
+                    type="text" 
+                    placeholder="Search by name, email or subject..." 
+                    className="w-full bg-white border border-slate-200 rounded-2xl py-3 pl-12 pr-4 text-sm font-bold text-slate-700 outline-none focus:ring-4 focus:ring-[#008080]/10 focus:border-[#008080] transition-all shadow-sm"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                </div>
+                <button 
+                  onClick={() => setIsFilterOpen(!isFilterOpen)}
+                  className={`flex items-center gap-2 px-5 py-3 rounded-2xl text-xs font-black uppercase tracking-widest border transition-all ${
+                    isFilterOpen || (selectedSyllabi.length + selectedSections.length + selectedSubjects.length) > 0
+                      ? 'bg-[#008080]/10 text-[#008080] border-[#008080]' 
+                      : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+                  }`}
+                >
+                  <Filter size={16} /> Filters
+                  {(selectedSyllabi.length + selectedSections.length + selectedSubjects.length) > 0 && (
+                    <span className="ml-1 px-2 py-0.5 rounded-full text-[9px] font-black bg-[#008080] text-white">
+                      {selectedSyllabi.length + selectedSections.length + selectedSubjects.length}
+                    </span>
+                  )}
+                </button>
+              </div>
+
+              <select 
+                className="bg-white border border-slate-200 rounded-2xl py-3 px-4 text-sm font-bold text-slate-700 outline-none focus:border-[#008080] shadow-sm cursor-pointer w-full md:w-auto"
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+              >
+                <option value="newest">Sort: Newest First</option>
+                <option value="name">Sort: Alphabetical</option>
+                <option value="oldest">Sort: Oldest First</option>
+              </select>
             </div>
-            <select 
-              className="bg-white border border-slate-200 rounded-2xl py-3 px-4 text-sm font-bold text-slate-700 outline-none focus:border-[#008080] shadow-sm cursor-pointer"
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-            >
-              <option value="newest">Sort: Newest First</option>
-              <option value="name">Sort: Alphabetical</option>
-              <option value="oldest">Sort: Oldest First</option>
-            </select>
-          </div>
+
+            {/* Collapsible Filter Panel */}
+            {isFilterOpen && (
+              <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-lg space-y-6 animate-in slide-in-from-top-4 duration-300">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Syllabus Filter */}
+                  <div className="space-y-3">
+                    <h4 className="text-xs font-black text-slate-500 uppercase tracking-widest">Syllabus</h4>
+                    <div className="flex flex-wrap gap-2">
+                      {['CBSE', 'STATE'].map(syl => {
+                        const isSelected = selectedSyllabi.includes(syl);
+                        return (
+                          <button
+                            key={syl}
+                            type="button"
+                            onClick={() => toggleSyllabus(syl)}
+                            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all border ${
+                              isSelected 
+                                ? 'bg-[#008080]/10 text-[#008080] border-[#008080]' 
+                                : 'bg-slate-50 text-slate-600 border-slate-100 hover:bg-slate-100'
+                            }`}
+                          >
+                            <div className={`w-3 h-3 rounded-sm border flex items-center justify-center ${isSelected ? 'bg-[#008080] border-[#008080]' : 'border-slate-300'}`}>
+                              {isSelected && <Check size={8} className="text-white" />}
+                            </div>
+                            {syl}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Section Filter */}
+                  <div className="space-y-3">
+                    <h4 className="text-xs font-black text-slate-500 uppercase tracking-widest">Section</h4>
+                    <div className="flex flex-wrap gap-2">
+                      {['LP', 'UP', 'HS', 'HSS'].map(sec => {
+                        const isSelected = selectedSections.includes(sec);
+                        return (
+                          <button
+                            key={sec}
+                            type="button"
+                            onClick={() => toggleSection(sec)}
+                            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all border ${
+                              isSelected 
+                                ? 'bg-[#008080]/10 text-[#008080] border-[#008080]' 
+                                : 'bg-slate-50 text-slate-600 border-slate-100 hover:bg-slate-100'
+                            }`}
+                          >
+                            <div className={`w-3 h-3 rounded-sm border flex items-center justify-center ${isSelected ? 'bg-[#008080] border-[#008080]' : 'border-slate-300'}`}>
+                              {isSelected && <Check size={8} className="text-white" />}
+                            </div>
+                            {sec}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Subject Filter */}
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <h4 className="text-xs font-black text-slate-500 uppercase tracking-widest">Subject Focus</h4>
+                    {selectedSubjects.length > 0 && (
+                      <button 
+                        type="button" 
+                        onClick={() => setSelectedSubjects([])}
+                        className="text-[10px] font-black text-rose-500 uppercase tracking-widest hover:underline"
+                      >
+                        Clear Subjects
+                      </button>
+                    )}
+                  </div>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2">
+                    {SUBJECT_OPTIONS.map(sub => {
+                      const isSelected = selectedSubjects.includes(sub);
+                      return (
+                        <button
+                          key={sub}
+                          type="button"
+                          onClick={() => toggleSubject(sub)}
+                          className={`flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-[11px] font-bold transition-all border truncate ${
+                            isSelected 
+                              ? 'bg-[#008080]/10 text-[#008080] border-[#008080]' 
+                              : 'bg-slate-50 text-slate-600 border-slate-100 hover:bg-slate-100'
+                          }`}
+                          title={sub}
+                        >
+                          <div className={`w-3 h-3 rounded-sm border flex flex-shrink-0 items-center justify-center ${isSelected ? 'bg-[#008080] border-[#008080]' : 'border-slate-300'}`}>
+                            {isSelected && <Check size={8} className="text-white" />}
+                          </div>
+                          <span className="truncate">{sub}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
 

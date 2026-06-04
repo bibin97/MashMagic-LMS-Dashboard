@@ -1301,7 +1301,7 @@ const getAllFacultiesForAdmin = async (req, res) => {
     try {
         const query = `
             SELECT 
-                u.id, u.name, u.email, u.phone_number as phone, u.status,
+                u.id, u.name, u.email, u.phone_number as phone, u.status, u.subject, u.syllabus, u.section,
                 (SELECT COUNT(DISTINCT s.id) 
                  FROM students s 
                  WHERE (s.faculty_id = u.id OR EXISTS (SELECT 1 FROM faculty_schedules fs WHERE fs.student_id = s.id AND fs.faculty_id = u.id)) 

@@ -109,7 +109,6 @@ import SSCStudentList from './pages/SSC/StudentList';
 import SSCTimetable from './pages/SSC/Timetable';
 import SSCAcademicSchedule from './pages/SSC/AcademicSchedule';
 import SSCDailyUpdates from './pages/SSC/SSCDailyUpdates';
-import SSCInteractionLogs from './pages/SSC/InteractionLogs';
 
 function App() {
   return (
@@ -252,7 +251,6 @@ function App() {
             <Route path="ssc/students/:id" element={<StudentDetails />} />
             <Route path="ssc/timetable" element={<SSCTimetable />} />
             <Route path="ssc/academic-schedule" element={<SSCAcademicSchedule />} />
-            <Route path="ssc/interaction-logs" element={<SSCInteractionLogs />} />
           </Route>
 
           {/* SSC System */}
@@ -265,7 +263,6 @@ function App() {
             <Route path="dashboard" element={<SSCDashboard />} />
             <Route path="students" element={<SSCStudentList />} />
             <Route path="students/:id" element={<StudentDetails />} />
-            <Route path="interaction-logs" element={<SSCInteractionLogs />} />
             <Route path="timetable" element={<SSCTimetable />} />
             <Route path="academic-schedule" element={<SSCAcademicSchedule />} />
             <Route path="daily-updates" element={<SSCDailyUpdates />} />

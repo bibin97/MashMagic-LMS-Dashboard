@@ -229,15 +229,132 @@ const Faculties = () => {
     </div>
   </div>
 
+  {/* Collapsible Filter Panel */}
+  {isFilterOpen && (
+    <div className="bg-white p-6 rounded-[28px] border border-slate-100 shadow-sm space-y-6 animate-in slide-in-from-top-4 duration-300">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Syllabus Filter */}
+        <div className="space-y-3">
+          <h4 className="text-xs font-black text-slate-500 uppercase tracking-widest">Syllabus</h4>
+          <div className="flex flex-wrap gap-2">
+            {['CBSE', 'STATE'].map(syl => {
+              const isSelected = selectedSyllabi.includes(syl);
+              return (
+                <button
+                  key={syl}
+                  type="button"
+                  onClick={() => toggleSyllabus(syl)}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all border ${
+                    isSelected 
+                      ? 'bg-[#008080]/10 text-[#008080] border-[#008080]' 
+                      : 'bg-slate-50 text-slate-600 border-slate-100 hover:bg-slate-100'
+                  }`}
+                >
+                  <div className={`w-3 h-3 rounded-sm border flex items-center justify-center ${isSelected ? 'bg-[#008080] border-[#008080]' : 'border-slate-300'}`}>
+                    {isSelected && <Check size={8} className="text-white" />}
+                  </div>
+                  {syl}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Section Filter */}
+        <div className="space-y-3">
+          <h4 className="text-xs font-black text-slate-500 uppercase tracking-widest">Section</h4>
+          <div className="flex flex-wrap gap-2">
+            {['LP', 'UP', 'HS', 'HSS'].map(sec => {
+              const isSelected = selectedSections.includes(sec);
+              return (
+                <button
+                  key={sec}
+                  type="button"
+                  onClick={() => toggleSection(sec)}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all border ${
+                    isSelected 
+                      ? 'bg-[#008080]/10 text-[#008080] border-[#008080]' 
+                      : 'bg-slate-50 text-slate-600 border-slate-100 hover:bg-slate-100'
+                  }`}
+                >
+                  <div className={`w-3 h-3 rounded-sm border flex items-center justify-center ${isSelected ? 'bg-[#008080] border-[#008080]' : 'border-slate-300'}`}>
+                    {isSelected && <Check size={8} className="text-white" />}
+                  </div>
+                  {sec}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      {/* Subject Filter */}
+      <div className="space-y-3">
+        <div className="flex justify-between items-center">
+          <h4 className="text-xs font-black text-slate-500 uppercase tracking-widest">Subject Focus</h4>
+          {selectedSubjects.length > 0 && (
+            <button 
+              type="button" 
+              onClick={() => setSelectedSubjects([])}
+              className="text-[10px] font-black text-rose-500 uppercase tracking-widest hover:underline"
+            >
+              Clear Subjects
+            </button>
+          )}
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2">
+          {SUBJECT_OPTIONS.map(sub => {
+            const isSelected = selectedSubjects.includes(sub);
+            return (
+              <button
+                key={sub}
+                type="button"
+                onClick={() => toggleSubject(sub)}
+                className={`flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-[11px] font-bold transition-all border truncate ${
+                  isSelected 
+                    ? 'bg-[#008080]/10 text-[#008080] border-[#008080]' 
+                    : 'bg-slate-50 text-slate-600 border-slate-100 hover:bg-slate-100'
+                }`}
+                title={sub}
+              >
+                <div className={`w-3 h-3 rounded-sm border flex flex-shrink-0 items-center justify-center ${isSelected ? 'bg-[#008080] border-[#008080]' : 'border-slate-300'}`}>
+                  {isSelected && <Check size={8} className="text-white" />}
+                </div>
+                <span className="truncate">{sub}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  )}
+
   <DataTable
- columns={columns}
- data={sortedFaculties}
- loading={loading}
- onSearch={handleSearch}
- onExport={handleExport}
- onView={handleView}
- searchPlaceholder="Search leads by name or email..."
- />
+    columns={columns}
+    data={sortedFaculties}
+    loading={loading}
+    onSearch={(query) => setSearchTerm(query)}
+    onExport={handleExport}
+    onView={handleView}
+    onFilter={
+      <button 
+        onClick={() => setIsFilterOpen(!isFilterOpen)}
+        className={`flex items-center gap-2 px-6 py-3.5 rounded-[18px] text-[11px] font-black uppercase tracking-widest border transition-all ${
+          isFilterOpen || (selectedSyllabi.length + selectedSections.length + selectedSubjects.length) > 0
+            ? 'bg-[#008080]/10 text-[#008080] border-[#008080]' 
+            : 'bg-white text-slate-500 border-slate-100 hover:bg-slate-50 hover:text-slate-900 shadow-sm shadow-slate-100/10'
+        }`}
+      >
+        <Filter size={16} /> Filters
+        {(selectedSyllabi.length + selectedSections.length + selectedSubjects.length) > 0 && (
+          <span className="ml-1 px-2 py-0.5 rounded-full text-[9px] font-black bg-[#008080] text-white">
+            {selectedSyllabi.length + selectedSections.length + selectedSubjects.length}
+          </span>
+        )}
+      </button>
+    }
+    searchPlaceholder="Search leads by name or email..."
+  />
 
  {/* Edit Faculty Modal */}
  <Modal
@@ -345,6 +462,14 @@ const Faculties = () => {
       <div className="flex flex-col gap-1.5">
         <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Registered Subject</span>
         <span className="text-sm font-bold text-slate-800">{selectedFaculty.subject || 'N/A'}</span>
+      </div>
+      <div className="flex flex-col gap-1.5">
+        <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Syllabus Focus</span>
+        <span className="text-sm font-bold text-slate-800">{selectedFaculty.syllabus || 'N/A'}</span>
+      </div>
+      <div className="flex flex-col gap-1.5">
+        <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Section Coverage</span>
+        <span className="text-sm font-bold text-slate-800">{selectedFaculty.section || 'N/A'}</span>
       </div>
     </div>
   </div>

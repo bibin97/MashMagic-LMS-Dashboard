@@ -1,17 +1,122 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Target, Presentation, GraduationCap, TrendingUp, UserMinus, AlertTriangle, 
-  Search, ShieldCheck, Activity, Users, BookOpen, Clock, AlertCircle, FileText, CheckCircle2, XCircle
+  Search, ShieldCheck, Activity, Users, BookOpen, Clock, AlertCircle, FileText, CheckCircle2, XCircle, Star, X
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import api from '../../services/api';
 import ParentMeetings from '../AOE/ParentMeetings';
+
+const formatTime12Hour = (timeStr) => {
+  if (!timeStr) return '';
+  const parts = timeStr.split(':');
+  if (parts.length < 2) return timeStr;
+  let hours = parseInt(parts[0], 10);
+  const minutes = parts[1];
+  const ampm = hours >= 12 ? 'PM' : 'AM';
+  hours = hours % 12;
+  hours = hours ? hours : 12; // the hour '0' should be '12'
+  const formattedHours = hours.toString().padStart(2, '0');
+  return `${formattedHours}:${minutes} ${ampm}`;
+};
 
 const OperationsHub = ({ section }) => {
   const [activeTab, setActiveTab] = useState(section || 'academic_quality');
   const [searchTerm, setSearchTerm] = useState('');
   const [data, setData] = useState({});
   const [loading, setLoading] = useState(false);
+
+  const [ratingModal, setRatingModal] = useState({
+    show: false,
+    session: null,
+    remarks: '',
+    ratings: {
+      lighting: 0,
+      audioQuality: 0,
+      videoQuality: 0,
+      internetStability: 0,
+      screenSharing: 0,
+      writingBoardVisibility: 0,
+      virtualBackground: 0,
+      devicePositioning: 0
+    }
+  });
+  const [submittingRating, setSubmittingRating] = useState(false);
+
+  const handleRatingChange = (category, value) => {
+    setRatingModal(prev => ({
+      ...prev,
+      ratings: {
+        ...prev.ratings,
+        [category]: value
+      }
+    }));
+  };
+
+  const handleRatingSubmit = async (e) => {
+    e.preventDefault();
+    const { session, ratings, remarks } = ratingModal;
+    if (!session) return;
+    
+    // Check that all ratings are filled (must be > 0)
+    const missing = Object.entries(ratings).filter(([_, val]) => val === 0);
+    if (missing.length > 0) {
+      toast.error("Please rate all criteria before submitting");
+      return;
+    }
+
+    setSubmittingRating(true);
+    try {
+      // Calculate overall score out of 100
+      const values = Object.values(ratings);
+      const sum = values.reduce((a, b) => a + b, 0);
+      const average = sum / values.length; // out of 5
+      const score = Math.round(average * 20); // out of 100
+
+      // Format remarks to include detailed ratings breakdown
+      const ratingBreakdown = Object.entries(ratings)
+        .map(([key, val]) => {
+          const label = key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+          return `${label}: ${val}/5`;
+        })
+        .join(', ');
+      
+      const fullRemarks = `[Ratings: ${ratingBreakdown}] Remarks: ${remarks}`;
+
+      const response = await api.post('/academic-head/faculty-quality', {
+        faculty_id: session.faculty_id,
+        class_topic: session.topic || 'General Session',
+        score: score,
+        remarks: fullRemarks
+      });
+
+      if (response.data.success) {
+        toast.success("Quality check submitted successfully!");
+        setRatingModal({
+          show: false,
+          session: null,
+          remarks: '',
+          ratings: {
+            lighting: 0,
+            audioQuality: 0,
+            videoQuality: 0,
+            internetStability: 0,
+            screenSharing: 0,
+            writingBoardVisibility: 0,
+            virtualBackground: 0,
+            devicePositioning: 0
+          }
+        });
+        // Refresh data
+        fetchData('academic_quality');
+      }
+    } catch (error) {
+      console.error("Error submitting evaluation:", error);
+      toast.error(error.response?.data?.message || "Failed to submit evaluation");
+    } finally {
+      setSubmittingRating(false);
+    }
+  };
 
   useEffect(() => {
     setActiveTab(section);
@@ -79,24 +184,73 @@ const OperationsHub = ({ section }) => {
       <div className="space-y-4">
         <h3 className="text-sm font-black text-slate-800 uppercase tracking-widest px-2">Currently Scheduled Sessions</h3>
         {liveSessions.length === 0 && !loading && <p className="text-xs font-bold text-slate-400 p-4">No live sessions scheduled for today.</p>}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="space-y-3">
           {liveSessions.map((session, i) => (
-            <div key={session.id || i} className="bg-emerald-50/50 p-6 rounded-[2rem] border border-emerald-100 hover:shadow-xl hover:shadow-emerald-100/50 transition-all group">
-              <div className="flex justify-between items-start mb-4">
-                <div className="w-10 h-10 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center">
+            <div key={session.id || i} className="bg-emerald-50/30 p-4 md:p-6 rounded-[2rem] border border-emerald-100/70 hover:shadow-lg hover:shadow-emerald-100/30 transition-all flex flex-col md:flex-row md:items-center justify-between gap-4 group">
+              <div className="flex items-center gap-4 flex-1 min-w-[200px]">
+                <div className="w-10 h-10 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center shrink-0">
                   <Clock size={18} />
                 </div>
-                <span className="text-[9px] font-black bg-emerald-500 text-white px-2 py-1 rounded-full uppercase tracking-widest">
-                  {session.start_time} - {session.end_time}
-                </span>
+                <div className="min-w-0">
+                  <span className="inline-block text-[9px] font-black bg-emerald-500 text-white px-2.5 py-0.5 rounded-full uppercase tracking-widest mb-1.5">
+                    {formatTime12Hour(session.start_time)} - {formatTime12Hour(session.end_time)}
+                  </span>
+                  <h3 className="text-sm font-black text-slate-900 uppercase truncate">{session.student_name}</h3>
+                </div>
               </div>
-              <h3 className="text-sm font-black text-slate-900 uppercase truncate">{session.student_name}</h3>
-              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1 truncate">Faculty: {session.faculty_name}</p>
-              <div className="mt-4 pt-4 border-t border-emerald-100 flex justify-between items-center">
-                <span className="text-[9px] font-black text-emerald-600 uppercase tracking-widest truncate max-w-[120px]">{session.topic || 'General Session'}</span>
-                <a href={session.meeting_link || '#'} target="_blank" rel="noreferrer" className="text-[9px] font-black text-white bg-emerald-600 px-3 py-1.5 rounded-lg hover:bg-emerald-700 uppercase tracking-widest transition-colors">
-                  Join Meet
-                </a>
+              
+              <div className="flex flex-wrap items-center gap-6 md:gap-12 flex-1 justify-start md:justify-center">
+                <div className="min-w-[120px]">
+                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Faculty</p>
+                  <p className="text-xs font-bold text-slate-700 uppercase mt-0.5 truncate">{session.faculty_name || 'Not Assigned'}</p>
+                </div>
+                <div>
+                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Subject</p>
+                  <span className="inline-block text-[9px] font-black text-emerald-600 uppercase tracking-widest bg-emerald-100/50 px-2.5 py-1 rounded-lg mt-0.5">
+                    {session.topic || 'General Session'}
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 justify-end shrink-0">
+                {session.meeting_link ? (
+                  <a href={session.meeting_link} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-xs font-black bg-rose-50 border border-rose-100 px-4 py-2 rounded-xl text-rose-600 hover:bg-rose-100 transition-colors shadow-sm group">
+                    <span className="w-2 h-2 bg-rose-500 rounded-full animate-pulse"></span>
+                    <span className="uppercase tracking-widest text-[9px]">Live</span>
+                  </a>
+                ) : (
+                  <span className="flex items-center gap-2 text-xs font-black bg-slate-50 border border-slate-200 px-4 py-2 rounded-xl text-slate-400">
+                    <span className="w-2 h-2 bg-slate-300 rounded-full"></span>
+                    <span className="uppercase tracking-widest text-[9px]">Offline</span>
+                  </span>
+                )}
+                
+                <button 
+                  onClick={() => {
+                    if (!session.faculty_id) {
+                      toast.error("Cannot evaluate: Faculty not assigned to this session.");
+                      return;
+                    }
+                    setRatingModal({ 
+                      show: true, 
+                      session, 
+                      remarks: '', 
+                      ratings: { 
+                        lighting: 0, 
+                        audioQuality: 0, 
+                        videoQuality: 0, 
+                        internetStability: 0, 
+                        screenSharing: 0, 
+                        writingBoardVisibility: 0, 
+                        virtualBackground: 0, 
+                        devicePositioning: 0 
+                      } 
+                    });
+                  }}
+                  className="text-[9px] font-black text-white bg-[#008080] px-4 py-2.5 rounded-xl hover:bg-[#006666] uppercase tracking-widest transition-all shadow-md shadow-[#008080]/20 hover:-translate-y-0.5 active:translate-y-0"
+                >
+                  Updates
+                </button>
               </div>
             </div>
           ))}
@@ -122,6 +276,95 @@ const OperationsHub = ({ section }) => {
           ))}
         </div>
       </div>
+
+      {ratingModal.show && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white rounded-[2.5rem] w-full max-w-xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
+            <div className="p-8 pb-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+              <div>
+                <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight flex items-center gap-3">
+                  <Star className="text-amber-500 fill-amber-500" size={24} /> Evaluation Updates
+                </h2>
+                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">
+                  Evaluating {ratingModal.session?.student_name}'s Session ({ratingModal.session?.faculty_name})
+                </p>
+              </div>
+              <button 
+                onClick={() => setRatingModal({ ...ratingModal, show: false })} 
+                className="text-slate-400 hover:text-rose-500 transition-colors p-2 hover:bg-rose-50 rounded-xl"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <form onSubmit={handleRatingSubmit} className="flex-1 overflow-y-auto p-8 space-y-6">
+              <div className="space-y-4">
+                {[
+                  { key: 'lighting', label: 'Lighting' },
+                  { key: 'audioQuality', label: 'Audio Quality' },
+                  { key: 'videoQuality', label: 'Video Quality' },
+                  { key: 'internetStability', label: 'Internet Stability' },
+                  { key: 'screenSharing', label: 'Screen Sharing' },
+                  { key: 'writingBoardVisibility', label: 'Writing Board Visibility' },
+                  { key: 'virtualBackground', label: 'Virtual Background' },
+                  { key: 'devicePositioning', label: 'Device Positioning' }
+                ].map((item) => (
+                  <div key={item.key} className="flex justify-between items-center p-3 bg-slate-50 rounded-2xl border border-slate-100/50">
+                    <span className="text-xs font-black text-slate-700 uppercase tracking-wider pl-1">{item.label}</span>
+                    <div className="flex gap-1.5">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <button
+                          key={star}
+                          type="button"
+                          onClick={() => handleRatingChange(item.key, star)}
+                          className="focus:outline-none transition-transform hover:scale-110 active:scale-95"
+                        >
+                          <Star 
+                            className={`w-6 h-6 transition-colors ${
+                              star <= ratingModal.ratings[item.key] 
+                                ? 'text-amber-400 fill-amber-400' 
+                                : 'text-slate-200 hover:text-amber-300'
+                            }`} 
+                          />
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Remarks / Assessment</label>
+                <textarea 
+                  value={ratingModal.remarks}
+                  onChange={(e) => setRatingModal({...ratingModal, remarks: e.target.value})}
+                  className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold focus:ring-4 focus:ring-[#008080]/10 outline-none transition-all"
+                  rows="3"
+                  placeholder="Enter final observation remarks..."
+                  required
+                ></textarea>
+              </div>
+
+              <div className="pt-4 border-t border-slate-100 flex justify-end gap-4">
+                <button 
+                  type="button" 
+                  onClick={() => setRatingModal({ ...ratingModal, show: false })} 
+                  className="px-6 py-3 text-[10px] font-black text-slate-500 uppercase tracking-widest hover:text-slate-700"
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="submit" 
+                  disabled={submittingRating}
+                  className="px-8 py-3 bg-[#008080] text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-[#008080]/20 hover:bg-[#006666] transition-colors disabled:opacity-50"
+                >
+                  {submittingRating ? 'Submitting...' : 'Submit Evaluation'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   )};
 
