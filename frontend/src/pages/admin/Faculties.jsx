@@ -4,58 +4,112 @@ import Modal from '../../components/Modal';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
 import { premiumConfirm } from '../../utils/premiumConfirm';
-import { Eye, Edit2, Ban, Trash2, Filter, Download, UserPlus, Search, UserSquare2, GraduationCap } from 'lucide-react';
+import { Eye, Edit2, Ban, Trash2, Filter, Download, UserPlus, Search, UserSquare2, GraduationCap, Check } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
+const SUBJECT_OPTIONS = [
+  "Mathematics", "Science", "Social Science", "English", "Malayalam", 
+  "Hindi", "Physics", "Chemistry", "Biology", "Accountancy", 
+  "Business Studies", "Economics", "Computer Science", "Arabic", "French", "IT", "EVS"
+];
+
 const Faculties = () => {
- const { user } = useAuth();
- const isSuperAdmin = user?.role === 'super_admin';
- const [faculties, setFaculties] = useState([]);
- const [filteredFaculties, setFilteredFaculties] = useState([]);
- const [loading, setLoading] = useState(true);
- const [sortBy, setSortBy] = useState('newest');
- const [selectedFaculty, setSelectedFaculty] = useState(null);
- const [isModalOpen, setIsModalOpen] = useState(false);
- const [detailLoading, setDetailLoading] = useState(false);
- const [facultyDetail, setFacultyDetail] = useState(null);
- const [isEditModalOpen, setIsEditModalOpen] = useState(false);
- const [editFormData, setEditFormData] = useState({
- name: '',
- email: '',
- phone_number: '',
- status: '',
- role: 'faculty'
- });
+  const { user } = useAuth();
+  const isSuperAdmin = user?.role === 'super_admin';
+  const [faculties, setFaculties] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [sortBy, setSortBy] = useState('newest');
+  const [selectedFaculty, setSelectedFaculty] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [detailLoading, setDetailLoading] = useState(false);
+  const [facultyDetail, setFacultyDetail] = useState(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editFormData, setEditFormData] = useState({
+    name: '',
+    email: '',
+    phone_number: '',
+    status: '',
+    role: 'faculty'
+  });
 
- useEffect(() => {
- fetchFaculties();
- }, []);
+  const [selectedSyllabi, setSelectedSyllabi] = useState([]);
+  const [selectedSections, setSelectedSections] = useState([]);
+  const [selectedSubjects, setSelectedSubjects] = useState([]);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
 
- const fetchFaculties = async () => {
- try {
- setLoading(true);
- const response = await api.get('/admin/faculties');
- const realFaculties = response.data.data;
+  const toggleSyllabus = (syl) => {
+    setSelectedSyllabi(prev => 
+      prev.includes(syl) ? prev.filter(s => s !== syl) : [...prev, syl]
+    );
+  };
 
- setFaculties(realFaculties);
- setFilteredFaculties(realFaculties);
- setLoading(false);
- } catch (error) {
- toast.error("Failed to fetch faculties");
- setLoading(false);
- }
- };
+  const toggleSection = (sec) => {
+    setSelectedSections(prev => 
+      prev.includes(sec) ? prev.filter(s => s !== sec) : [...prev, sec]
+    );
+  };
 
- const handleSearch = (query) => {
- const filtered = faculties.filter(f =>
- f.name?.toLowerCase().includes(query.toLowerCase()) ||
- f.email?.toLowerCase().includes(query.toLowerCase()) ||
- f.phone?.toLowerCase().includes(query.toLowerCase())
- );
- setFilteredFaculties(filtered);
- };
+  const toggleSubject = (sub) => {
+    setSelectedSubjects(prev => 
+      prev.includes(sub) ? prev.filter(s => s !== sub) : [...prev, sub]
+    );
+  };
 
- const sortedFaculties = [...filteredFaculties].sort((a, b) => {
+  useEffect(() => {
+    fetchFaculties();
+  }, []);
+
+  const fetchFaculties = async () => {
+    try {
+      setLoading(true);
+      const response = await api.get('/admin/faculties');
+      const realFaculties = response.data.data;
+      setFaculties(realFaculties);
+      setLoading(false);
+    } catch (error) {
+      toast.error("Failed to fetch faculties");
+      setLoading(false);
+    }
+  };
+
+  const filteredFaculties = faculties.filter(f => {
+    const matchesSearch = searchTerm === '' ||
+      f.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      f.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      f.phone?.toLowerCase().includes(searchTerm.toLowerCase());
+      
+    let matchesSyllabus = true;
+    if (selectedSyllabi.length > 0) {
+      const fSyllabus = f.syllabus 
+        ? (typeof f.syllabus === 'string' ? f.syllabus.split(',') : (Array.isArray(f.syllabus) ? f.syllabus : [f.syllabus]))
+        : [];
+      const normalizedSyllabi = fSyllabus.map(s => s.trim().toUpperCase());
+      matchesSyllabus = selectedSyllabi.some(syl => normalizedSyllabi.includes(syl.toUpperCase()));
+    }
+
+    let matchesSection = true;
+    if (selectedSections.length > 0) {
+      const fSection = f.section 
+        ? (typeof f.section === 'string' ? f.section.split(',') : (Array.isArray(f.section) ? f.section : [f.section]))
+        : [];
+      const normalizedSections = fSection.map(s => s.trim().toUpperCase());
+      matchesSection = selectedSections.some(sec => normalizedSections.includes(sec.toUpperCase()));
+    }
+
+    let matchesSubject = true;
+    if (selectedSubjects.length > 0) {
+      const fSubject = f.subject 
+        ? (typeof f.subject === 'string' ? f.subject.split(',') : (Array.isArray(f.subject) ? f.subject : [f.subject]))
+        : [];
+      const normalizedSubjects = fSubject.map(s => s.trim().toUpperCase());
+      matchesSubject = selectedSubjects.some(sub => normalizedSubjects.includes(sub.toUpperCase()));
+    }
+
+    return matchesSearch && matchesSyllabus && matchesSection && matchesSubject;
+  });
+
+  const sortedFaculties = [...filteredFaculties].sort((a, b) => {
     if (sortBy === 'newest') return b.id - a.id;
     if (sortBy === 'oldest') return a.id - b.id;
     return 0;
