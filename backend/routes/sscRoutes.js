@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { getDashboardStats, getStudentsTrack } = require('../controllers/sscController');
+const { getDashboardStats, getStudentsTrack, getDailyUpdates } = require('../controllers/sscController');
 const { getStudentById } = require('../controllers/aoeController');
 const { requireAuth } = require('../middleware/authMiddleware');
 const { requireRole } = require('../middleware/roleMiddleware');
@@ -21,6 +21,7 @@ router.use(requireRole('ssc', 'super_admin', 'academic_head'));
 
 router.get('/dashboard', getDashboardStats);
 router.get('/students', getStudentsTrack);
+router.get('/daily-updates', getDailyUpdates);
 router.get('/students/:id', getStudentById);
 
 module.exports = router;

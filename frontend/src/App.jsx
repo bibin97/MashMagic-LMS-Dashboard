@@ -108,6 +108,7 @@ import SSCDashboard from './pages/SSC/SSCDashboard';
 import SSCStudentList from './pages/SSC/StudentList';
 import SSCTimetable from './pages/SSC/Timetable';
 import SSCAcademicSchedule from './pages/SSC/AcademicSchedule';
+import SSCDailyUpdates from './pages/SSC/SSCDailyUpdates';
 import SSCInteractionLogs from './pages/SSC/InteractionLogs';
 
 function App() {
@@ -267,6 +268,7 @@ function App() {
             <Route path="interaction-logs" element={<SSCInteractionLogs />} />
             <Route path="timetable" element={<SSCTimetable />} />
             <Route path="academic-schedule" element={<SSCAcademicSchedule />} />
+            <Route path="daily-updates" element={<SSCDailyUpdates />} />
             <Route path="profile" element={<AdminProfile />} />
             <Route path="account-settings" element={<AccountSettings />} />
           </Route>
