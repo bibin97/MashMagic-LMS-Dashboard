@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { UserPlus, User, GraduationCap, MapPin, Mail, Phone, Lock, BookOpen, Clock, Calendar, CheckCircle, ShieldCheck, Trash2, Eye, EyeOff, Edit2 } from 'lucide-react';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
-import Modal from '../../components/common/Modal';
+import Modal from '../../components/Modal';
 
 const Registrations = () => {
   const [activeTab, setActiveTab] = useState('student');
