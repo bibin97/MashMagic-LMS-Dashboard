@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { UserPlus, User, GraduationCap, MapPin, Mail, Phone, Lock, BookOpen, Clock, Calendar, CheckCircle, ShieldCheck, Trash2, Eye, EyeOff } from 'lucide-react';
+import { UserPlus, User, GraduationCap, MapPin, Mail, Phone, Lock, BookOpen, Clock, Calendar, CheckCircle, ShieldCheck, Trash2, Eye, EyeOff, Edit2 } from 'lucide-react';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
+import Modal from '../../components/common/Modal';
 
 const Registrations = () => {
   const [activeTab, setActiveTab] = useState('student');
@@ -9,6 +10,12 @@ const Registrations = () => {
   const [saving, setSaving] = useState(false);
   const [showStudentPassword, setShowStudentPassword] = useState(false);
   const [showStudentConfirmPassword, setShowStudentConfirmPassword] = useState(false);
+
+  // AOE Faculty states
+  const [fullFaculties, setFullFaculties] = useState([]);
+  const [selectedFaculty, setSelectedFaculty] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [facultySubTab, setFacultySubTab] = useState('registration');
 
   // Dropdowns data
   const [mentors, setMentors] = useState([]);
@@ -122,7 +129,22 @@ const Registrations = () => {
 
   useEffect(() => {
     fetchDropdowns();
+    fetchFullFaculties();
   }, []);
+
+  const fetchFullFaculties = async () => {
+    try {
+      const token = sessionStorage.getItem('token');
+      const res = await api.get('/aoe/faculties', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.data.success) {
+        setFullFaculties(res.data.data);
+      }
+    } catch (error) {
+      console.error("Failed to fetch full faculties:", error);
+    }
+  };
 
   const fetchDropdowns = async () => {
     try {
@@ -328,6 +350,29 @@ const Registrations = () => {
       toast.error(error.response?.data?.message || 'Failed to register SSC');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleViewFaculty = (faculty) => {
+    setSelectedFaculty(faculty);
+    setIsModalOpen(true);
+  };
+
+  const handleUpdateFacultyDetails = async (e) => {
+    e.preventDefault();
+    try {
+      const token = sessionStorage.getItem('token');
+      await api.put(`/aoe/faculties/${selectedFaculty._id}`, {
+        faculty_id: selectedFaculty.faculty_id,
+        hourly_rate: selectedFaculty.hourly_rate
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      toast.success("Faculty details updated successfully");
+      fetchFullFaculties();
+      setIsModalOpen(false);
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to update faculty");
     }
   };
 
@@ -876,8 +921,15 @@ const Registrations = () => {
           )}
 
           {activeTab === 'faculty' && (
-            <form onSubmit={submitFaculty} className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-10">
-              <div className="flex items-center gap-3 mb-6">
+            <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-10">
+              <div className="flex gap-4 border-b border-slate-100 pb-4">
+                <button onClick={() => setFacultySubTab('registration')} className={`text-sm font-black uppercase tracking-widest pb-2 border-b-2 transition-all ${facultySubTab === 'registration' ? 'text-emerald-600 border-emerald-600' : 'text-slate-400 border-transparent hover:text-slate-600'}`}>Faculty Registration</button>
+                <button onClick={() => setFacultySubTab('details')} className={`text-sm font-black uppercase tracking-widest pb-2 border-b-2 transition-all ${facultySubTab === 'details' ? 'text-emerald-600 border-emerald-600' : 'text-slate-400 border-transparent hover:text-slate-600'}`}>Faculty Details</button>
+              </div>
+
+              {facultySubTab === 'registration' && (
+                <form onSubmit={submitFaculty} className="space-y-6">
+                  <div className="flex items-center gap-3 mb-6">
                 <div className="w-8 h-8 bg-emerald-100 text-emerald-600 rounded-lg flex items-center justify-center">
                   <ShieldCheck size={18} />
                 </div>
@@ -914,13 +966,6 @@ const Registrations = () => {
                   </div>
                 </div>
                 <div className="flex flex-col gap-2">
-                  <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Hourly Rate (₹)</label>
-                  <div className="relative group">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-sm">₹</span>
-                    <input type="text" name="hourly_rate" required value={facultyForm.hourly_rate} onChange={handleFacultyChange} className="w-full p-3 pl-10 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-emerald-100 font-bold" placeholder="e.g. 500" />
-                  </div>
-                </div>
-                <div className="flex flex-col gap-2">
                   <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Assign Login Password</label>
                   <div className="relative group">
                     <Lock size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-emerald-600 transition-colors" />
@@ -936,11 +981,117 @@ const Registrations = () => {
                 </div>
               </div>
 
-              <button disabled={loading} type="submit" className="w-full mt-8 bg-[#008080] text-white p-4 rounded-xl font-black text-xs uppercase tracking-[0.2em] hover:bg-emerald-600 transition-all shadow-xl hover:shadow-emerald-100 flex items-center justify-center gap-3">
-                {loading ? 'Processing...' : 'Securely Onboard Faculty'}
-                {!loading && <CheckCircle size={16} />}
-              </button>
-            </form>
+                  <button disabled={loading} type="submit" className="w-full mt-8 bg-[#008080] text-white p-4 rounded-xl font-black text-xs uppercase tracking-[0.2em] hover:bg-emerald-600 transition-all shadow-xl hover:shadow-emerald-100 flex items-center justify-center gap-3">
+                    {loading ? 'Processing...' : 'Securely Onboard Faculty'}
+                    {!loading && <CheckCircle size={16} />}
+                  </button>
+                </form>
+              )}
+
+              {facultySubTab === 'details' && (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    {fullFaculties.length === 0 ? (
+                        <div className="col-span-full text-center py-10 bg-slate-50 rounded-2xl border border-slate-100">
+                            <p className="text-slate-400 font-bold text-xs uppercase tracking-widest">No faculties onboarded yet</p>
+                        </div>
+                    ) : (
+                        fullFaculties.map((fac, idx) => (
+                            <div key={idx} className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all flex flex-col gap-4">
+                                <div className="flex items-center gap-4">
+                                    <div className="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center font-black text-lg">
+                                        {fac.name[0]}
+                                    </div>
+                                    <div>
+                                        <h3 className="text-sm font-black text-slate-800">{fac.name}</h3>
+                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{fac.faculty_id || 'ID PENDING'}</p>
+                                    </div>
+                                </div>
+                                <div className="grid grid-cols-2 gap-2 text-[10px] font-bold">
+                                    <div className="bg-slate-50 p-2 rounded-xl">
+                                        <p className="text-slate-400 uppercase tracking-widest mb-1">Rate</p>
+                                        <p className="text-slate-800 font-black">₹ {fac.hourly_rate || 0}/hr</p>
+                                    </div>
+                                    <div className="bg-slate-50 p-2 rounded-xl">
+                                        <p className="text-slate-400 uppercase tracking-widest mb-1">Status</p>
+                                        <p className={`font-black ${fac.status === 'active' ? 'text-emerald-600' : 'text-amber-500'}`}>{fac.status}</p>
+                                    </div>
+                                </div>
+                                <button onClick={() => handleViewFaculty(fac)} className="w-full mt-2 py-3 bg-emerald-50 text-emerald-600 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-emerald-600 hover:text-white transition-all">
+                                    View & Edit Profile
+                                </button>
+                            </div>
+                        ))
+                    )}
+                </div>
+              )}
+
+              <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Faculty Profile">
+                  {selectedFaculty && (
+                      <div className="space-y-8">
+                          {/* Profile Overview */}
+                          <div className="flex items-center gap-6 p-6 bg-slate-50 rounded-3xl border border-slate-100">
+                              <div className="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-[2rem] flex items-center justify-center text-3xl font-black">
+                                  {selectedFaculty.name[0]}
+                              </div>
+                              <div>
+                                  <h3 className="text-2xl font-black text-slate-900 tracking-tight">{selectedFaculty.name}</h3>
+                                  <p className="text-xs font-black text-slate-400 uppercase tracking-widest mt-1">{selectedFaculty.faculty_id || 'ID PENDING'}</p>
+                                  <span className={`inline-block mt-2 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${selectedFaculty.status === 'active' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
+                                      {selectedFaculty.status}
+                                  </span>
+                              </div>
+                          </div>
+
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                              <div>
+                                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Email / Phone</p>
+                                  <p className="text-sm font-bold text-slate-800">{selectedFaculty.email}</p>
+                                  <p className="text-sm font-bold text-slate-800">{selectedFaculty.phone_number}</p>
+                              </div>
+                              <div>
+                                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Qualification & Experience</p>
+                                  <p className="text-sm font-bold text-slate-800">{selectedFaculty.qualification || 'Not updated'}</p>
+                                  <p className="text-sm font-bold text-slate-800">{selectedFaculty.experience || 'Not updated'}</p>
+                              </div>
+                              <div>
+                                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Subjects</p>
+                                  <div className="flex flex-wrap gap-2 mt-1">
+                                      {selectedFaculty.subjects?.length > 0 ? selectedFaculty.subjects.map((sub, i) => (
+                                          <span key={i} className="px-2 py-1 bg-emerald-50 text-emerald-700 rounded-md text-[10px] font-bold border border-emerald-100">{sub}</span>
+                                      )) : <span className="text-sm font-bold text-slate-500">Not updated</span>}
+                                  </div>
+                              </div>
+                              <div>
+                                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Assigned Students</p>
+                                  <p className="text-xl font-black text-emerald-600">{selectedFaculty.studentCount || 0}</p>
+                              </div>
+                              <div className="md:col-span-2">
+                                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Bio / Address</p>
+                                  <p className="text-sm font-bold text-slate-700">{selectedFaculty.bio || selectedFaculty.address || 'Not updated'}</p>
+                              </div>
+                          </div>
+
+                          {/* AOE Edit Section */}
+                          <form onSubmit={handleUpdateFacultyDetails} className="bg-emerald-50/50 p-6 rounded-3xl border border-emerald-100">
+                              <h4 className="text-xs font-black text-emerald-800 uppercase tracking-widest mb-4 flex items-center gap-2"><Edit2 size={14}/> AOE Controls</h4>
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                  <div className="flex flex-col gap-2">
+                                      <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Faculty ID</label>
+                                      <input type="text" value={selectedFaculty.faculty_id || ''} onChange={(e) => setSelectedFaculty({...selectedFaculty, faculty_id: e.target.value})} className="w-full p-3 bg-white border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-emerald-500 font-bold" placeholder="E.g. FAC-001" />
+                                  </div>
+                                  <div className="flex flex-col gap-2">
+                                      <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Hourly Rate (₹)</label>
+                                      <input type="number" value={selectedFaculty.hourly_rate || ''} onChange={(e) => setSelectedFaculty({...selectedFaculty, hourly_rate: e.target.value})} className="w-full p-3 bg-white border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-emerald-500 font-bold" placeholder="E.g. 500" />
+                                  </div>
+                              </div>
+                              <div className="mt-6 flex justify-end">
+                                  <button type="submit" className="px-8 py-3 bg-emerald-600 text-white rounded-xl font-black text-[10px] uppercase tracking-[0.2em] hover:bg-emerald-700 transition-all shadow-md shadow-emerald-200">Save Controls</button>
+                              </div>
+                          </form>
+                      </div>
+                  )}
+              </Modal>
+            </div>
           )}
 
           {activeTab === 'ssc' && (
