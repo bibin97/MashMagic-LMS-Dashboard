@@ -435,7 +435,7 @@ const uncheckFacultySession = async (req, res) => {
 const getFacultyDirectory = async (req, res) => {
     try {
         await performAutoSync();
-        const [rows] = await db.query('SELECT * FROM faculties ORDER BY name ASC');
+        const [rows] = await db.query('SELECT * FROM faculties WHERE status = "active" ORDER BY name ASC');
         res.status(200).json({ success: true, data: rows });
     } catch (e) { res.status(500).json({ success: false, message: e.message }); }
 };
@@ -752,7 +752,7 @@ const getStudents = async (req, res) => {
             ) as faculty_name 
             FROM students s 
             LEFT JOIN mentors m ON s.mentor_id = m.id 
-            WHERE (s.status != 'rejected' OR s.status IS NULL)
+            WHERE (s.status != 'rejected' OR s.status IS NULL) AND s.status = 'active'
         `;
         let params = [];
         if (mentor_id) { sql += ' AND s.mentor_id = ?'; params.push(mentor_id); }
@@ -772,7 +772,7 @@ const getStudents = async (req, res) => {
 const getMentors = async (req, res) => {
     try {
         await performAutoSync();
-        const [rows] = await db.query('SELECT m.*, (SELECT COUNT(*) FROM students WHERE mentor_id = m.id AND status != "rejected") as studentCount FROM mentors m ORDER BY m.name ASC');
+        const [rows] = await db.query('SELECT m.*, (SELECT COUNT(*) FROM students WHERE mentor_id = m.id AND status != "rejected") as studentCount FROM mentors m WHERE m.status = "active" ORDER BY m.name ASC');
         res.status(200).json({ success: true, data: rows });
     } catch (e) { res.status(500).json({ success: false, message: e.message }); }
 };
