@@ -56,10 +56,12 @@ const FacultyStudents = () => {
  };
 
  const filteredStudents = useMemo(() => {
- const filtered = students.filter(s =>
- s.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
- (s.roll_number || '').toLowerCase().includes(searchTerm.toLowerCase())
- );
+ const filtered = students.filter(s => {
+      const nameStr = s.name || '';
+      const rollStr = s.roll_number || '';
+      return nameStr.toLowerCase().includes(searchTerm.toLowerCase()) ||
+             rollStr.toLowerCase().includes(searchTerm.toLowerCase());
+ });
  return sortStudentsByOption(filtered, sortBy);
  }, [students, searchTerm, sortBy]);
 

@@ -68,10 +68,12 @@ const StudentShift = () => {
  }
  };
 
- const filteredStudents = students.filter(s =>
- s.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
- s.course.toLowerCase().includes(searchTerm.toLowerCase())
- );
+ const filteredStudents = students.filter(s => {
+			const nameStr = s.name || '';
+			const courseStr = s.course || '';
+			return nameStr.toLowerCase().includes(searchTerm.toLowerCase()) ||
+			courseStr.toLowerCase().includes(searchTerm.toLowerCase());
+ });
 
  if (loading) return <div className="p-8 text-center text-slate-600 font-bold">Loading system...</div>;
 

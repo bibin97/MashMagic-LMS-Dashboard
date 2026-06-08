@@ -251,8 +251,10 @@ const MyStudents = () => {
       const isNew = s.onboarding_status === 'pending';
       if (viewMode === 'new' && !isNew) return false;
       // In 'active' view, show all students
-      return s.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (s.subject || '').toLowerCase().includes(searchTerm.toLowerCase());
+      const nameStr = s.name || '';
+      const subjStr = s.subject || '';
+      return nameStr.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      subjStr.toLowerCase().includes(searchTerm.toLowerCase());
     });
     
     // Auto-Rotation: Completed interactions move to the bottom

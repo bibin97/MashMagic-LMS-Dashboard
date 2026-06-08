@@ -124,9 +124,13 @@ const StudentsList = ({ role = 'academic_operation_executive' }) => {
 
 	const filteredStudents = useMemo(() => {
 		const filtered = students.filter(s => {
-			const matchesSearch = s.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-				(s.registration_number && s.registration_number.toLowerCase().includes(searchTerm.toLowerCase())) ||
-				s.grade.toLowerCase().includes(searchTerm.toLowerCase());
+			const nameStr = s.name || '';
+			const regStr = s.registration_number || '';
+			const gradeStr = s.grade || '';
+
+			const matchesSearch = nameStr.toLowerCase().includes(searchTerm.toLowerCase()) ||
+				regStr.toLowerCase().includes(searchTerm.toLowerCase()) ||
+				gradeStr.toLowerCase().includes(searchTerm.toLowerCase());
 			const matchesCourse = filterCourse === 'all' || s.course === filterCourse;
 			return matchesSearch && matchesCourse;
 		});

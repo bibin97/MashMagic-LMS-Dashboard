@@ -160,8 +160,10 @@ const SSCStudentList = () => {
     const filtered = students.filter(s => {
       const isPending = s.onboarding_status === 'pending';
       if (viewMode === 'new' && !isPending) return false;
-      return s.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-             (s.course || '').toLowerCase().includes(searchTerm.toLowerCase());
+      const nameStr = s.name || '';
+      const courseStr = s.course || '';
+      return nameStr.toLowerCase().includes(searchTerm.toLowerCase()) ||
+             courseStr.toLowerCase().includes(searchTerm.toLowerCase());
     });
     return sortStudentsByOption(filtered, sortBy);
   }, [students, viewMode, searchTerm, sortBy]);
