@@ -203,6 +203,13 @@ const Students = () => {
 
   const columns = [
     {
+      header: 'No.',
+      width: '60px',
+      render: (row, { index }) => (
+        <span className="text-[12px] font-black text-slate-400">{index + 1}</span>
+      )
+    },
+    {
       header: 'Student Name & ID',
       accessor: 'name',
       render: (row) => (

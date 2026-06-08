@@ -387,6 +387,7 @@ const FacultyDirectory = ({ role = 'academic_operation_executive' }) => {
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="bg-slate-50/50">
+                    <th className="px-8 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] w-[80px]">No.</th>
                     <th className="px-8 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Faculty Profile</th>
                     <th className="px-8 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Subject Focus</th>
                     <th className="px-8 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Status</th>
@@ -395,8 +396,9 @@ const FacultyDirectory = ({ role = 'academic_operation_executive' }) => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-50">
-                  {filteredFaculties.map((faculty) => (
+                  {filteredFaculties.map((faculty, index) => (
                     <tr key={faculty.id} className="hover:bg-slate-50/50 transition-colors group">
+                      <td className="px-8 py-6 font-black text-slate-400 text-[12px]">{index + 1}</td>
                       <td className="px-8 py-6">
                         <div className="flex items-center gap-4">
                           <div className="w-12 h-12 bg-[#008080] text-white rounded-2xl flex items-center justify-center font-black text-lg shadow-lg shadow-[#008080]/20 group-hover:scale-110 transition-transform">

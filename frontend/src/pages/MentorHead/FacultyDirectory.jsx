@@ -250,6 +250,7 @@ const FacultyDirectory = () => {
  <table className="w-full text-left border-collapse">
  <thead>
  <tr className="bg-slate-50/50 border-b border-slate-100">
+ <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest w-[80px]">No.</th>
  <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Faculty</th>
  <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Email</th>
  <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Phone</th>
@@ -259,8 +260,9 @@ const FacultyDirectory = () => {
  </tr>
  </thead>
  <tbody className="divide-y divide-slate-50">
- {filteredFaculties.length > 0 ? filteredFaculties.map((faculty) => (
+ {filteredFaculties.length > 0 ? filteredFaculties.map((faculty, index) => (
  <tr key={faculty.id} className="hover:bg-emerald-50/20 transition-all group">
+ <td className="px-8 py-6 font-black text-slate-400 text-[12px]">{index + 1}</td>
  <td className="px-8 py-6">
  <div className="flex items-center gap-4">
  <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-[#008080] rounded-2xl flex items-center justify-center text-white text-lg font-black shadow-lg shadow-emerald-100">
@@ -314,7 +316,7 @@ const FacultyDirectory = () => {
  </tr>
  )) : (
  <tr>
- <td colSpan={6} className="px-8 py-20 text-center">
+ <td colSpan={7} className="px-8 py-20 text-center">
  <p className="text-slate-600 font-black text-[10px] uppercase tracking-[0.3em]">System empty or no faculty found</p>
  </td>
  </tr>

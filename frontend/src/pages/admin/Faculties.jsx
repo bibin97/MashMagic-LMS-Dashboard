@@ -224,11 +224,18 @@ const Faculties = () => {
  };
 
  const columns = [
- { header: 'Faculty Lead', accessor: 'name' },
- { header: 'Email Address', accessor: 'email' },
- { header: 'Direct Contact', accessor: 'phone' },
- { header: 'Mentors Group', accessor: 'mentorsUnder' },
- { header: 'Total Students', accessor: 'studentsUnder' },
+  {
+    header: 'No.',
+    width: '60px',
+    render: (row, { index }) => (
+      <span className="text-[12px] font-black text-slate-400">{index + 1}</span>
+    )
+  },
+  { header: 'Faculty Lead', accessor: 'name' },
+  { header: 'Email Address', accessor: 'email' },
+  { header: 'Direct Contact', accessor: 'phone' },
+  { header: 'Mentors Group', accessor: 'mentorsUnder' },
+  { header: 'Total Students', accessor: 'studentsUnder' },
  {
   header: 'Status',
   accessor: 'status',

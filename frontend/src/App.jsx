@@ -276,7 +276,7 @@ function App() {
             <Route path="timetable" element={<SSCTimetable />} />
             <Route path="academic-schedule" element={<SSCAcademicSchedule />} />
             <Route path="exam-schedule" element={<SSCExamSchedule />} />
-            <Route path="daily-updates" element={<AOEDailyUpdates />} />
+            <Route path="daily-updates" element={<SSCDailyUpdates />} />
             <Route path="profile" element={<AdminProfile />} />
             <Route path="account-settings" element={<AccountSettings />} />
           </Route>

@@ -132,7 +132,7 @@ const DataTable = ({
  <tr className="group hover:bg-[#F8FAFC]/80 transition-all duration-300">
  {columns.map((col, colIndex) => (
  <td key={colIndex} className="px-8 py-6 whitespace-nowrap text-sm text-slate-600 font-bold">
- {col.render ? col.render(row, { isExpanded, onToggle: () => handleToggle(row.id !== undefined ? row.id : rowIndex) }) : row[col.accessor]}
+ {col.render ? col.render(row, { isExpanded, onToggle: () => handleToggle(row.id !== undefined ? row.id : rowIndex), index: rowIndex }) : row[col.accessor]}
  </td>
  ))}
  {hasActions && (
@@ -231,7 +231,7 @@ const DataTable = ({
  <div className="flex-1 overflow-hidden">
  <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{columns[0].header}</div>
  <div className="font-bold text-slate-900 truncate">
- {columns[0].render ? columns[0].render(row, { isExpanded, onToggle: () => handleToggle(row.id !== undefined ? row.id : rowIndex) }) : row[columns[0].accessor]}
+ {columns[0].render ? columns[0].render(row, { isExpanded, onToggle: () => handleToggle(row.id !== undefined ? row.id : rowIndex), index: rowIndex }) : row[columns[0].accessor]}
  </div>
  </div>
  {onView && (onViewFilter ? onViewFilter(row) : true) && (
@@ -252,7 +252,7 @@ const DataTable = ({
  <div key={colIndex} className="overflow-hidden">
  <div className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1 truncate">{col.header}</div>
  <div className="text-[11px] font-black text-slate-700 truncate">
- {col.render ? col.render(row, { isExpanded, onToggle: () => handleToggle(row.id !== undefined ? row.id : rowIndex) }) : row[col.accessor] || '---'}
+ {col.render ? col.render(row, { isExpanded, onToggle: () => handleToggle(row.id !== undefined ? row.id : rowIndex), index: rowIndex }) : row[col.accessor] || '---'}
  </div>
  </div>
  ))}

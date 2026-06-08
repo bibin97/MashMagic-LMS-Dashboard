@@ -196,6 +196,13 @@ const Mentors = () => {
  };
 
  const columns = [
+ {
+   header: 'No.',
+   width: '60px',
+   render: (row, { index }) => (
+     <span className="text-[12px] font-black text-slate-400">{index + 1}</span>
+   )
+ },
  { header: 'Mentor Name', accessor: 'name' },
  { header: 'Email ID', accessor: 'email' },
  { 

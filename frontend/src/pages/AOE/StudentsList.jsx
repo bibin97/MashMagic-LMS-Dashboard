@@ -239,6 +239,7 @@ const StudentsList = ({ role = 'academic_operation_executive' }) => {
 					<table className="w-full text-left">
 						<thead>
 							<tr className="bg-slate-50/50 border-b border-slate-100">
+								<th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest w-[80px]">No.</th>
 								<th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Student Information</th>
 								<th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Course & Grade</th>
 								<th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Mentor & Faculty</th>
@@ -246,9 +247,10 @@ const StudentsList = ({ role = 'academic_operation_executive' }) => {
 							</tr>
 						</thead>
 						<tbody className="divide-y divide-slate-50">
-							{filteredStudents.length > 0 ? filteredStudents.map((student) => (
+							{filteredStudents.length > 0 ? filteredStudents.map((student, index) => (
 								<React.Fragment key={student.id}>
 									<tr className="hover:bg-[#008080]/10/20 transition-all group">
+										<td className="px-8 py-6 font-black text-slate-400 text-[12px]">{index + 1}</td>
 										<td className="px-8 py-6">
 											<div className="flex items-center gap-4">
 												<div className="w-12 h-12 bg-gradient-to-br from-slate-100 to-slate-200 rounded-2xl flex items-center justify-center text-slate-600 font-black shadow-inner group-hover:from-[#008080] group-hover:to-[#008080] group-hover:text-white transition-all transform group-hover:scale-110">

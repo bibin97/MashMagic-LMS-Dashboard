@@ -152,7 +152,7 @@ const MentorsList = () => {
 
         {/* List Layout */}
         <div className="flex flex-col gap-4">
-          {filteredMentors.length > 0 ? filteredMentors.map((mentor) => (
+          {filteredMentors.length > 0 ? filteredMentors.map((mentor, index) => (
             <div key={mentor.id} className="bg-white group rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden">
               <div className="p-6">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
@@ -162,7 +162,7 @@ const MentorsList = () => {
                     </div>
                     <div className="flex flex-col min-w-0 flex-1">
                       <div className="flex items-center gap-3">
-                        <h3 className="text-lg font-black text-slate-900 group-hover:text-[#008080] transition-colors uppercase truncate">{mentor.name}</h3>
+                        <h3 className="text-lg font-black text-slate-900 group-hover:text-[#008080] transition-colors uppercase truncate">{index + 1} - {mentor.name}</h3>
                         <div className={`px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest border ${
                           mentor.status === 'active' 
                             ? 'bg-emerald-50 text-emerald-600 border-emerald-100' 

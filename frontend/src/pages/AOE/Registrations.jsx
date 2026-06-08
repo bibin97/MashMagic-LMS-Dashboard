@@ -194,7 +194,8 @@ const Registrations = () => {
     const newSubjects = [...selectedSubjects];
     newSubjects[index][field] = value;
     if (field === 'facultyId') {
-      const faculty = newSubjects[index].availableFaculties.find(f => f.id.toString() === value);
+      const listToSearch = (newSubjects[index].availableFaculties && newSubjects[index].availableFaculties.length > 0) ? newSubjects[index].availableFaculties : faculties;
+      const faculty = listToSearch.find(f => f.id.toString() === value);
       newSubjects[index].facultyName = faculty ? faculty.name : '';
       if (faculty && faculty.hourly_rate) {
         newSubjects[index].hourlyRate = faculty.hourly_rate;
@@ -259,7 +260,7 @@ const Registrations = () => {
       preferredLanguage: student.preferred_language || '',
       country: student.country || '',
       registrationNumber: student.registration_number || '',
-      admissionType: 'rejoin' // Ensure this stays
+      admissionType: 'rejoining' // Ensure this stays
     }));
     setIsStudentDropdownOpen(false);
     setStudentSearchQuery('');

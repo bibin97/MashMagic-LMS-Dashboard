@@ -197,6 +197,7 @@ const MentorsList = () => {
  <table className="w-full text-left border-collapse">
  <thead>
  <tr className="bg-slate-50/50 border-b border-slate-100">
+ <th className="p-6 text-[10px] font-black text-slate-600 uppercase tracking-widest w-[60px]">No.</th>
  <th className="p-6 text-[10px] font-black text-slate-600 uppercase tracking-widest min-w-[200px]">Mentor</th>
  <th className="p-6 text-[10px] font-black text-slate-600 uppercase tracking-widest text-center">Total Students</th>
  <th className="p-6 text-[10px] font-black text-slate-600 uppercase tracking-widest text-center">Connected Today</th>
@@ -205,7 +206,7 @@ const MentorsList = () => {
  </tr>
  </thead>
  <tbody className="divide-y divide-slate-50">
- {filteredMentors.map((mentor) => {
+ {filteredMentors.map((mentor, index) => {
  const total = mentor.total_assigned_students || 0;
  const connected = mentor.students_connected_today || 0;
  const progress = total > 0 ? (connected / total) * 100 : 0;
@@ -213,6 +214,7 @@ const MentorsList = () => {
  return (
  <React.Fragment key={mentor.mentor_id}>
  <tr className="hover:bg-slate-50/50 transition-colors group">
+ <td className="p-6 font-black text-slate-400 text-[12px]">{index + 1}</td>
  <td className="p-6">
  <div className="flex items-center gap-4">
  <div className="w-10 h-10 bg-gradient-to-br from-[#008080] via-[#008080] to-purple-700 rounded-xl flex items-center justify-center text-white font-black shadow-lg shadow-[#008080] group-hover:scale-110 transition-transform uppercase">

@@ -24,7 +24,7 @@ const getAdminDashboardSummary = async (req, res) => {
         const [[{count: students}]] = await db.query('SELECT COUNT(*) as count FROM students');
         const [[{count: mentors}]] = await db.query('SELECT COUNT(*) as count FROM mentors');
         const [[{count: faculties}]] = await db.query('SELECT COUNT(*) as count FROM faculties');
-        const [[{count: pending}]] = await db.query('SELECT COUNT(*) as count FROM users WHERE (status = "pending" OR isApproved = 0) AND status != "rejected"');
+        const [[{count: pending}]] = await db.query('SELECT COUNT(*) as count FROM users WHERE status = "pending"');
 
         res.status(200).json({
             success: true,
@@ -195,8 +195,7 @@ const getPendingUsers = async (req, res) => {
                    rb.name as registered_by_name
             FROM users u
             LEFT JOIN users rb ON u.registeredBy = rb.id
-            WHERE (u.status = "pending" OR u.isApproved = 0) 
-            AND u.status != 'rejected'
+            WHERE u.status = "pending"
             AND u.role != 'student'
         `);
 
