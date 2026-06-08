@@ -111,6 +111,7 @@ import SSCStudentList from './pages/SSC/StudentList';
 import SSCTimetable from './pages/SSC/Timetable';
 import SSCAcademicSchedule from './pages/SSC/AcademicSchedule';
 import SSCDailyUpdates from './pages/SSC/SSCDailyUpdates';
+import SSCExamSchedule from './pages/SSC/ExamSchedule';
 
 function App() {
   return (
@@ -276,6 +277,7 @@ function App() {
             <Route path="students/:id" element={<StudentDetails />} />
             <Route path="timetable" element={<SSCTimetable />} />
             <Route path="academic-schedule" element={<SSCAcademicSchedule />} />
+            <Route path="exam-schedule" element={<SSCExamSchedule />} />
             <Route path="daily-updates" element={<AOEDailyUpdates />} />
             <Route path="profile" element={<AdminProfile />} />
             <Route path="account-settings" element={<AccountSettings />} />

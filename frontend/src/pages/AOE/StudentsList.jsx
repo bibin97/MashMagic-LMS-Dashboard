@@ -22,11 +22,14 @@ const StudentsList = ({ role = 'academic_operation_executive' }) => {
 	
 	const [expandedStudentId, setExpandedStudentId] = useState(null);
 	
+
 	// Assign Mentor Modal States
 	const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
 	const [selectedStudentForAssign, setSelectedStudentForAssign] = useState(null);
 	const [selectedMentorId, setSelectedMentorId] = useState('');
 	const [isAssigning, setIsAssigning] = useState(false);
+	const [assignSearchTerm, setAssignSearchTerm] = useState('');
+	const [isAssignDropdownOpen, setIsAssignDropdownOpen] = useState(false);
 
 
 	// Base API path based on role
@@ -413,19 +416,51 @@ const StudentsList = ({ role = 'academic_operation_executive' }) => {
 							</button>
 						</div>
 						<form onSubmit={handleAssignSubmit} className="p-6 space-y-6">
-							<div className="space-y-2">
+							<div className="space-y-2 relative">
 								<label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Select Mentor</label>
-								<select
-									value={selectedMentorId}
-									onChange={(e) => setSelectedMentorId(e.target.value)}
-									className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl text-xs font-bold uppercase tracking-widest outline-none focus:ring-4 ring-[#008080]/10 focus:border-[#008080] transition-all"
-									required
+								<div 
+									className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl text-xs font-bold uppercase tracking-widest cursor-pointer hover:bg-slate-100 transition-colors flex justify-between items-center"
+									onClick={() => setIsAssignDropdownOpen(!isAssignDropdownOpen)}
 								>
-									<option value="" disabled>Choose a mentor...</option>
-									{mentors.map(m => (
-										<option key={m.id} value={m.id}>{m.name}</option>
-									))}
-								</select>
+									<span>{selectedMentorId ? mentors.find(m => m.id === selectedMentorId)?.name : 'Choose a mentor...'}</span>
+									<span className="text-slate-400 text-[10px]">▼</span>
+								</div>
+								
+								{isAssignDropdownOpen && (
+									<div className="absolute z-50 w-full mt-2 bg-white border border-slate-200 rounded-2xl shadow-xl overflow-hidden top-full left-0">
+										<div className="p-3 border-b border-slate-100 sticky top-0 bg-white">
+											<div className="relative">
+												<Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+												<input 
+													type="text"
+													autoFocus
+													placeholder="Search mentor name..."
+													value={assignSearchTerm}
+													onChange={(e) => setAssignSearchTerm(e.target.value)}
+													className="w-full pl-9 pr-3 py-2.5 text-xs font-bold border border-slate-200 rounded-xl outline-none focus:border-[#008080] focus:ring-2 ring-[#008080]/20"
+												/>
+											</div>
+										</div>
+										<div className="max-h-48 overflow-y-auto p-2">
+											{mentors.filter(m => m.name.toLowerCase().includes(assignSearchTerm.toLowerCase())).map(m => (
+												<div 
+													key={m.id}
+													onClick={() => {
+														setSelectedMentorId(m.id);
+														setIsAssignDropdownOpen(false);
+														setAssignSearchTerm('');
+													}}
+													className={`px-4 py-3 text-xs font-bold uppercase tracking-widest cursor-pointer rounded-xl transition-colors ${selectedMentorId === m.id ? 'bg-[#008080]/10 text-[#008080]' : 'text-slate-700 hover:bg-slate-50'}`}
+												>
+													{m.name}
+												</div>
+											))}
+											{mentors.filter(m => m.name.toLowerCase().includes(assignSearchTerm.toLowerCase())).length === 0 && (
+												<div className="px-4 py-6 text-xs text-slate-500 text-center font-bold uppercase tracking-widest">No mentors found</div>
+											)}
+										</div>
+									</div>
+								)}
 							</div>
 							<div className="flex justify-end gap-3 pt-2">
 								<button type="button" onClick={() => setIsAssignModalOpen(false)} className="px-6 py-3 rounded-xl border border-slate-200 text-slate-600 text-[10px] font-black uppercase tracking-widest hover:bg-slate-50 transition-colors">
