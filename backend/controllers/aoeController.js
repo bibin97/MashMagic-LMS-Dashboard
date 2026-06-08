@@ -243,6 +243,7 @@ const getAvailableFaculties = async (req, res) => {
 
 const getDropdownData = async (req, res) => {
     try {
+        await performAutoSync();
         const [ms] = await db.query('SELECT id, name FROM mentors');
         const [mhs] = await db.query('SELECT id, name FROM users WHERE role = "mentor_head"');
         const [fs] = await db.query('SELECT id, name, subject FROM faculties');
