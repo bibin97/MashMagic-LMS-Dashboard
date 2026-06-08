@@ -71,13 +71,7 @@ const EditStudent = () => {
     const subRefs = useRef([]);
     const dayRefs = useRef([]);
 
-    const [editModes, setEditModes] = useState({
-        personal: false,
-        academic: false,
-        enrollment: false,
-        subjects: false,
-        admin: false
-    });
+    const [isLocked, setIsLocked] = useState(true);
     const [showPassword, setShowPassword] = useState(false);
 
     useEffect(() => {
@@ -291,487 +285,455 @@ const EditStudent = () => {
                     <h1 className="text-4xl font-black text-slate-900 tracking-tight uppercase mb-2">Reconfigure Profile</h1>
                     <p className="text-slate-600 font-bold text-[10px] uppercase tracking-[0.2em]">Updating account identity for <span className="text-[#008080]">{formData.name}</span></p>
                 </div>
-                <div className="w-16 h-16 bg-[#008080] rounded-3xl flex items-center justify-center text-white shadow-2xl rotate-3">
-                    <UserCheck size={32} />
+                <div className="flex items-center gap-4">
+                    <button 
+                        type="button" 
+                        onClick={() => setIsLocked(!isLocked)}
+                        className={`p-4 rounded-2xl flex items-center gap-3 text-sm font-black uppercase tracking-widest transition-all shadow-lg ${!isLocked ? 'bg-amber-100 text-amber-700 border border-amber-200' : 'bg-[#008080] text-white hover:bg-[#006666]'}`}
+                    >
+                        {!isLocked ? <><Unlock size={18} /> Editing Unlocked</> : <><Lock size={18} /> Edit Locked</>}
+                    </button>
+                    <div className="w-16 h-16 bg-[#008080] rounded-3xl flex items-center justify-center text-white shadow-2xl rotate-3">
+                        <UserCheck size={32} />
+                    </div>
                 </div>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-10">
-                {/* Section 1: Personal Profile */}
-                <div className="bg-white p-8 md:p-12 rounded-[48px] border border-slate-100 shadow-2xl shadow-slate-200/40 relative overflow-hidden">
-                    <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight mb-10 flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                            <div className="w-10 h-10 bg-[#008080]/10 rounded-xl flex items-center justify-center text-[#008080]">
-                                <User size={20} />
+            <div className="bg-white p-6 md:p-8 rounded-[1.5rem] md:rounded-[2rem] shadow-[0_10px_40px_rgba(0,128,128,0.05)] border border-slate-100 relative">
+                <div className={`transition-opacity duration-300 ${isLocked ? 'opacity-60 pointer-events-none' : ''}`}>
+                    <form onSubmit={handleSubmit} className="animate-in fade-in slide-in-from-right-4 duration-500">
+                        <div className="flex items-center gap-3 mb-8 border-b border-slate-50 pb-6">
+                            <div className="w-8 h-8 bg-[#008080] text-white rounded-lg flex items-center justify-center">
+                            <GraduationCap size={18} />
                             </div>
-                            Personal Profile
+                            <h2 className="text-lg font-black text-slate-800 uppercase tracking-widest">Student Information</h2>
                         </div>
-                        <button 
-                            type="button" 
-                            onClick={() => setEditModes(prev => ({ ...prev, personal: !prev.personal }))}
-                            className={`p-3 rounded-2xl flex items-center gap-2 text-[10px] font-black uppercase tracking-widest transition-all ${editModes.personal ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-slate-50 text-slate-400 hover:text-slate-600 border border-slate-100'}`}
-                        >
-                            {editModes.personal ? <><Unlock size={14} /> Editing</> : <><Lock size={14} /> Edit Section</>}
-                        </button>
-                    </h2>
-
-                    <div className={`grid grid-cols-1 md:grid-cols-2 gap-6 transition-opacity duration-300 ${!editModes.personal ? 'opacity-60 pointer-events-none' : ''}`}>
-                        <div className="flex flex-col gap-2">
-                            <label className="text-[10px] font-black text-slate-700 uppercase tracking-widest ml-1">Full Name</label>
-                            <div className="relative group">
-                                <User size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#008080] transition-colors" />
-                                <input type="text" name="name" required value={formData.name} onChange={handleInputChange} disabled={!editModes.personal} className="w-full p-3 pl-12 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold focus:bg-white focus:ring-2 focus:ring-[#008080] outline-none" />
-                            </div>
-                        </div>
-                        <div className="flex flex-col gap-2">
-                            <label className="text-[10px] font-black text-slate-700 uppercase tracking-widest ml-1">Email Address</label>
-                            <div className="relative group">
-                                <Mail size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#008080] transition-colors" />
-                                <input type="email" name="email" value={formData.email} onChange={handleInputChange} disabled={!editModes.personal} className="w-full p-3 pl-12 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold focus:bg-white focus:ring-2 focus:ring-[#008080] outline-none" />
-                            </div>
-                        </div>
-                        <div className="flex flex-col gap-2">
-                            <label className="text-[10px] font-black text-slate-700 uppercase tracking-widest ml-1">Contact Number</label>
-                            <div className="relative group">
-                                <Phone size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#008080] transition-colors" />
-                                <input type="text" name="contact" value={formData.contact} onChange={handleInputChange} disabled={!editModes.personal} className="w-full p-3 pl-12 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold focus:bg-white focus:ring-2 focus:ring-[#008080] outline-none" />
-                            </div>
-                        </div>
-                        <div className="flex flex-col gap-2">
-                            <label className="text-[10px] font-black text-slate-700 uppercase tracking-widest ml-1">Update Password</label>
-                            <div className="relative group">
-                                <Lock size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-rose-400 transition-colors" />
-                                <input 
-                                    type={showPassword ? "text" : "password"} 
-                                    name="password" 
-                                    value={formData.password} 
-                                    onChange={handleInputChange} 
-                                    disabled={!editModes.personal} 
-                                    placeholder="Leave blank to keep current" 
-                                    className="w-full p-3 pl-12 pr-12 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold focus:bg-white focus:ring-2 focus:ring-rose-200 outline-none transition-all" 
-                                />
-                                <button 
-                                    type="button" 
-                                    onClick={() => setShowPassword(!showPassword)}
-                                    disabled={!editModes.personal}
-                                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-rose-500 focus:outline-none transition-colors disabled:opacity-50"
-                                >
-                                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                                </button>
-                            </div>
-                        </div>
-                        <div className="flex flex-col gap-2">
-                            <label className="text-[10px] font-black text-slate-700 uppercase tracking-widest ml-1">Country</label>
-                            <div className="relative group">
-                                <MapPin size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#008080] transition-colors" />
-                                <input type="text" name="country" value={formData.country} onChange={handleInputChange} disabled={!editModes.personal} className="w-full p-3 pl-12 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold focus:bg-white focus:ring-2 focus:ring-[#008080] outline-none" />
-                            </div>
-                        </div>
-                        <div className="flex flex-col gap-2">
-                            <label className="text-[10px] font-black text-slate-700 uppercase tracking-widest ml-1">Preferred Language</label>
-                            <div className="relative group">
-                                <Globe size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#008080] transition-colors" />
-                                <input type="text" name="preferred_language" value={formData.preferred_language} onChange={handleInputChange} disabled={!editModes.personal} className="w-full p-3 pl-12 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold focus:bg-white focus:ring-2 focus:ring-[#008080] outline-none" />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Section 2: Academic Details */}
-                <div className="bg-white p-8 md:p-12 rounded-[48px] border border-slate-100 shadow-2xl shadow-slate-200/40 relative">
-                    <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight mb-10 flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                            <div className="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600">
-                                <GraduationCap size={20} />
-                            </div>
-                            Academic Parameters
-                        </div>
-                        <button 
-                            type="button" 
-                            onClick={() => setEditModes(prev => ({ ...prev, academic: !prev.academic }))}
-                            className={`p-3 rounded-2xl flex items-center gap-2 text-[10px] font-black uppercase tracking-widest transition-all ${editModes.academic ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-slate-50 text-slate-400 hover:text-slate-600 border border-slate-100'}`}
-                        >
-                            {editModes.academic ? <><Unlock size={14} /> Editing</> : <><Lock size={14} /> Edit Section</>}
-                        </button>
-                    </h2>
-
-                    <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 transition-opacity duration-300 ${!editModes.academic ? 'opacity-60 pointer-events-none' : ''}`}>
-                        <div className="flex flex-col gap-2">
-                            <label className="text-[10px] font-black text-slate-700 uppercase tracking-widest ml-1">Grade / Level</label>
-                            <div className="relative group">
-                                <BookOpen size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#008080] transition-colors" />
-                                <input type="text" name="grade" value={formData.grade} onChange={handleInputChange} disabled={!editModes.academic} className="w-full p-3 pl-12 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold focus:bg-white outline-none" />
-                            </div>
-                        </div>
-                        <div className="flex flex-col gap-2">
-                            <label className="text-[10px] font-black text-slate-700 uppercase tracking-widest ml-1">Syllabus</label>
-                            <div className="relative group">
-                                <BookOpen size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#008080] transition-colors" />
-                                <input type="text" name="syllabus" value={formData.syllabus} onChange={handleInputChange} disabled={!editModes.academic} className="w-full p-3 pl-12 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold focus:bg-white outline-none" />
-                            </div>
-                        </div>
-                        <div className="flex flex-col gap-2">
-                            <label className="text-[10px] font-black text-slate-700 uppercase tracking-widest ml-1">Course Name</label>
-                            <div className="relative group">
-                                <BookOpen size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#008080] transition-colors" />
-                                <input type="text" name="course" value={formData.course} onChange={handleInputChange} disabled={!editModes.academic} className="w-full p-3 pl-12 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold focus:bg-white outline-none" />
-                            </div>
-                        </div>
-                        <div className="flex flex-col gap-2">
-                            <label className="text-[10px] font-black text-slate-700 uppercase tracking-widest ml-1">School / Institution</label>
-                            <div className="relative group">
-                                <GraduationCap size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#008080] transition-colors" />
-                                <input type="text" name="school_name" value={formData.school_name} onChange={handleInputChange} disabled={!editModes.academic} className="w-full p-3 pl-12 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold focus:bg-white outline-none" />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Enrollment Plan */}
-                <div className="bg-[#008080] p-8 md:p-12 rounded-[48px] shadow-2xl shadow-[#008080]/40 text-white relative">
-                    <div className="flex justify-between items-center mb-6">
-                        <label className="text-[10px] font-black uppercase tracking-[0.3em] opacity-60 block">Current Enrollment Plan</label>
-                        <button 
-                            type="button" 
-                            onClick={() => setEditModes(prev => ({ ...prev, enrollment: !prev.enrollment }))}
-                            className={`p-3 rounded-2xl flex items-center gap-2 text-[10px] font-black uppercase tracking-widest transition-all ${editModes.enrollment ? 'bg-yellow-400/20 text-yellow-400 border border-yellow-400/30' : 'bg-white/10 text-white hover:bg-white/20 border border-white/20'}`}
-                        >
-                            {editModes.enrollment ? <><Unlock size={14} /> Editing</> : <><Lock size={14} /> Edit Section</>}
-                        </button>
-                    </div>
-                    <div className={`grid grid-cols-1 sm:grid-cols-3 gap-6 transition-opacity duration-300 ${!editModes.enrollment ? 'opacity-60 pointer-events-none' : ''}`}>
-                        {[
-                            { id: 'Mentorship Only', label: 'Mentorship only', icon: '🥇' },
-                            { id: 'Tuition Only', label: 'Tuition only', icon: '🥈' },
-                            { id: 'Mentorship & Tuition', label: 'Mentorship & Tuition', icon: '💎' }
-                        ].map(plan => (
-                            <button
-                                key={plan.id}
-                                type="button"
-                                onClick={() => setFormData({...formData, enrollment_type: plan.id})}
-                                disabled={!editModes.enrollment}
-                                className={`p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-1 group ${formData.enrollment_type === plan.id ? 'bg-yellow-400 border-yellow-400 shadow-xl shadow-yellow-400/30 text-slate-900' : 'bg-white/5 border-white/10 hover:border-white/30 text-white'}`}
-                            >
-                                <span className="text-xl group-hover:scale-110 transition-transform">{plan.icon}</span>
-                                <span className={`text-[10px] font-black uppercase tracking-widest ${formData.enrollment_type === plan.id ? 'text-slate-900' : 'text-white'}`}>{plan.label}</span>
-                            </button>
-                        ))}
-                    </div>
-                </div>
-
-                {/* Section 3: Subject & Faculty Matrix */}
-                <div className="rounded-[48px] border-2 border-dashed border-[#008080]/30 bg-[#008080]/5 p-8 md:p-12 space-y-10 relative">
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 border-b border-[#008080]/10 pb-8">
-                        <div>
-                            <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight mb-2">Subject Assignment Matrix</h2>
-                            <p className="text-[10px] font-bold text-slate-600 uppercase tracking-[0.2em]">Map multiple specialized faculties to unique academic sequences</p>
-                        </div>
-                        <div className="flex items-center gap-4">
-                            <button 
-                                type="button" 
-                                onClick={() => setEditModes(prev => ({ ...prev, subjects: !prev.subjects }))}
-                                className={`p-3 rounded-2xl flex items-center gap-2 text-[10px] font-black uppercase tracking-widest transition-all ${editModes.subjects ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-white text-slate-400 hover:text-slate-600 border border-[#008080]/20 shadow-sm'}`}
-                            >
-                                {editModes.subjects ? <><Unlock size={14} /> Editing</> : <><Lock size={14} /> Edit Section</>}
-                            </button>
-                            <button type="button" onClick={addSubjectRow} disabled={!editModes.subjects} className="flex items-center gap-3 bg-white text-[#008080] px-6 py-4 rounded-[20px] border-2 border-[#008080]/20 text-[10px] font-black uppercase tracking-widest hover:bg-[#008080] hover:text-white transition-all shadow-sm disabled:opacity-50 disabled:pointer-events-none">
-                                <Plus size={16} strokeWidth={3} /> Add Sequencing Pair
-                            </button>
-                        </div>
-                    </div>
-
-                    <div className={`space-y-6 transition-opacity duration-300 ${!editModes.subjects ? 'opacity-60 pointer-events-none' : ''}`}>
-                        {selectedSubjects.map((row, idx) => (
-                            <div key={idx} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 bg-white p-8 rounded-[40px] border border-slate-100 shadow-sm relative animate-in slide-in-from-bottom-4 duration-300 items-end">
-                                {/* Custom Subject Dropdown (Multiple Selection) */}
-                                <div className="flex flex-col gap-2 relative" ref={el => subRefs.current[idx] = el}>
-                                    <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest ml-1">Academic Subjects</label>
-                                    <div 
-                                        onClick={() => {
-                                            const newSubjects = [...selectedSubjects];
-                                            newSubjects[idx].isSubjectDropdownOpen = !newSubjects[idx].isSubjectDropdownOpen;
-                                            setSelectedSubjects(newSubjects);
-                                        }}
-                                        className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-[10px] font-black uppercase text-slate-800 cursor-pointer flex justify-between items-center min-h-[52px]"
-                                    >
-                                        <span className="truncate">
-                                            {Array.isArray(row.subject) && row.subject.length > 0 
-                                                ? row.subject.join(', ') 
-                                                : (typeof row.subject === 'string' && row.subject ? row.subject : 'Select Subjects')}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-2 mb-8 bg-[#008080]/5 p-6 rounded-3xl border border-[#008080]/20">
+                            
+                            <div className="space-y-4 md:col-span-2">
+                                <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Enrollment Plan</label>
+                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                                    {[
+                                        { id: 'Mentorship Only', label: 'Mentorship only', icon: '🥇' },
+                                        { id: 'Tuition Only', label: 'Tuition only', icon: '🥈' },
+                                        { id: 'Mentorship & Tuition', label: 'Mentorship & Tuition', icon: '💎' }
+                                    ].map((plan) => (
+                                        <button
+                                        key={plan.id}
+                                        type="button"
+                                        onClick={() => setFormData(prev => ({ ...prev, enrollment_type: plan.id }))}
+                                        className={`p-2 rounded-xl border-2 transition-all flex flex-col items-center gap-1 group ${formData.enrollment_type === plan.id
+                                            ? 'border-[#008080] bg-white shadow-md scale-100'
+                                            : 'border-transparent bg-white/50 hover:bg-white hover:border-slate-200'
+                                            }`}
+                                        >
+                                        <span className="text-xl group-hover:scale-110 transition-transform">{plan.icon}</span>
+                                        <span className={`text-[9px] text-center leading-tight font-black uppercase tracking-widest ${formData.enrollment_type === plan.id ? 'text-[#008080]' : 'text-slate-500'}`}>
+                                            {plan.label}
                                         </span>
-                                        <span className="text-slate-400">▼</span>
-                                    </div>
-                                    {row.isSubjectDropdownOpen && (
-                                        <div className="absolute top-[100%] left-0 w-full bg-white border border-slate-100 rounded-2xl shadow-2xl z-[120] mt-1 p-2 max-h-60 overflow-y-auto animate-in fade-in zoom-in-95 duration-200">
-                                            {SUBJECT_OPTIONS.map(sub => {
-                                                const isSelected = Array.isArray(row.subject) ? row.subject.includes(sub) : row.subject === sub;
-                                                return (
-                                                    <div 
-                                                        key={sub} 
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            const newSubjects = [...selectedSubjects];
-                                                            let current = Array.isArray(newSubjects[idx].subject) 
-                                                                ? newSubjects[idx].subject 
-                                                                : (newSubjects[idx].subject ? [newSubjects[idx].subject] : []);
-                                                            
-                                                            if (current.includes(sub)) {
-                                                                current = current.filter(s => s !== sub);
-                                                            } else {
-                                                                current = [...current, sub];
-                                                            }
-                                                            newSubjects[idx].subject = current;
-                                                            setSelectedSubjects(newSubjects);
-                                                        }}
-                                                        className={`flex items-center gap-3 p-2.5 rounded-xl cursor-pointer transition-all ${isSelected ? 'bg-[#008080]/10 text-[#008080]' : 'hover:bg-slate-50 text-slate-600'}`}
-                                                    >
-                                                        <div className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${isSelected ? 'bg-[#008080] border-[#008080]' : 'border-slate-300'}`}>
-                                                            {isSelected && <CheckCircle size={10} className="text-white" />}
-                                                        </div>
-                                                        <span className="text-[10px] font-black uppercase">{sub}</span>
-                                                    </div>
-                                                );
-                                            })}
-                                            {/* Clear All Option */}
-                                            <div 
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    const newSubjects = [...selectedSubjects];
-                                                    newSubjects[idx].subject = [];
-                                                    setSelectedSubjects(newSubjects);
-                                                }}
-                                                className="mt-2 p-2 text-center text-[10px] font-black text-rose-500 uppercase tracking-widest hover:bg-rose-50 rounded-lg cursor-pointer transition-colors border border-dashed border-rose-200"
-                                            >
-                                                Clear All
-                                            </div>
-                                        </div>
-                                    )}
+                                        </button>
+                                    ))}
                                 </div>
+                            </div>
 
-                                {/* Custom Days Dropdown (Matches Registration) */}
-                                <div className="flex flex-col gap-2 relative" ref={el => dayRefs.current[idx] = el}>
-                                    <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest ml-1">Session Configuration (Days & Time)</label>
-                                    <div 
-                                        onClick={() => {
-                                            const newSubjects = [...selectedSubjects];
-                                            newSubjects[idx].isDayDropdownOpen = !newSubjects[idx].isDayDropdownOpen;
-                                            setSelectedSubjects(newSubjects);
-                                        }}
-                                        className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-[10px] font-black uppercase text-slate-800 cursor-pointer flex justify-between items-center"
-                                    >
-                                        <span className="truncate">
-                                            {row.dayConfigs?.length > 0 
-                                                ? row.dayConfigs.map(d => `${d.day.substring(0,3)} ${d.startTime || ''}`).join(', ') 
-                                                : 'Configure Days & Time'}
-                                        </span>
-                                        <span>▼</span>
+                            <div className="col-span-1 md:col-span-2 pt-6 border-t border-[#008080]/10">
+                                <h3 className="text-[10px] font-black text-[#008080] uppercase tracking-widest mb-4">Fee Configuration</h3>
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                    <div className="flex flex-col gap-2">
+                                        <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Total Fees (INR)</label>
+                                        <input type="number" name="total_fees" value={formData.total_fees} onChange={handleInputChange} className="w-full p-3 bg-white border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-[#008080] font-bold shadow-sm" placeholder="E.g. 50000" />
                                     </div>
-                                    {row.isDayDropdownOpen && (
-                                        <div className="absolute top-[100%] left-0 w-[300px] bg-white border border-slate-100 rounded-2xl shadow-2xl z-[120] mt-1 p-3 animate-in fade-in zoom-in-95 duration-200" onClick={e => e.stopPropagation()}>
-                                            <div className="space-y-2 max-h-60 overflow-y-auto pr-1">
-                                                {DAYS_LIST.map(day => {
-                                                    const configIdx = row.dayConfigs?.findIndex(c => c.day === day);
-                                                    const isSelected = configIdx !== -1;
+                                    <div className="flex flex-col gap-2">
+                                        <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Total Paid (INR)</label>
+                                        <input type="number" name="total_paid" value={formData.total_paid} onChange={handleInputChange} className="w-full p-3 bg-white border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-[#008080] font-bold shadow-sm" placeholder="E.g. 25000" />
+                                    </div>
+                                    <div className="flex flex-col gap-2">
+                                        <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Total Hours</label>
+                                        <input type="number" name="hour" value={formData.hour} onChange={handleInputChange} className="w-full p-3 bg-white border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-[#008080] font-bold shadow-sm" placeholder="E.g. 100" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="flex flex-col gap-2">
+                                <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Student Name</label>
+                                <div className="relative group">
+                                    <User size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#008080] transition-colors" />
+                                    <input type="text" name="name" required value={formData.name} onChange={handleInputChange} className="w-full p-3 pl-12 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-bold" placeholder="Full Name" />
+                                </div>
+                            </div>
+                            <div className="flex flex-col gap-2">
+                                <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Email Address (Optional)</label>
+                                <div className="relative group">
+                                    <Mail size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#008080] transition-colors" />
+                                    <input type="email" name="email" value={formData.email} onChange={handleInputChange} className="w-full p-3 pl-12 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-bold" placeholder="Email Address (Optional)" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                            <div className="flex flex-col gap-2">
+                                <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Update Password (Optional)</label>
+                                <div className="relative group">
+                                    <Lock size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#008080] transition-colors" />
+                                    <input 
+                                        type={showPassword ? "text" : "password"} 
+                                        name="password" 
+                                        value={formData.password} 
+                                        onChange={handleInputChange} 
+                                        className="w-full p-3 pl-12 pr-12 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-bold" 
+                                        placeholder="Leave blank to keep current" 
+                                    />
+                                    <button 
+                                        type="button" 
+                                        onClick={() => setShowPassword(!showPassword)}
+                                        className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[#008080] focus:outline-none transition-colors"
+                                    >
+                                        {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                                    </button>
+                                </div>
+                            </div>
+                            <div className="flex flex-col gap-2">
+                                <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Confirm Password (Optional)</label>
+                                <div className="relative group">
+                                    <Lock size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#008080] transition-colors" />
+                                    <input 
+                                        type={showPassword ? "text" : "password"} 
+                                        name="confirmPassword" 
+                                        onChange={() => {}} 
+                                        className="w-full p-3 pl-12 pr-12 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-bold" 
+                                        placeholder="Leave blank if not changing" 
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                            <div className="flex flex-col gap-2">
+                                <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Contact Number</label>
+                                <div className="relative group">
+                                    <Phone size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#008080] transition-colors" />
+                                    <input type="tel" name="contact" value={formData.contact} onChange={handleInputChange} className="w-full p-3 pl-12 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-bold" placeholder="Phone Number" />
+                                </div>
+                            </div>
+                            <div className="flex flex-col gap-2">
+                                <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Date of Admission</label>
+                                <div className="relative group">
+                                    <Calendar size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#008080] transition-colors" />
+                                    <input type="date" name="admission_date" value={formData.admission_date} onChange={handleInputChange} className="w-full p-3 pl-12 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-bold" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                            <div className="flex flex-col gap-2">
+                                <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Current School Name</label>
+                                <input type="text" name="school_name" value={formData.school_name} onChange={handleInputChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-bold" placeholder="E.g. Model Excellence School" />
+                            </div>
+                            <div className="flex flex-col gap-2">
+                                <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Preferred Language</label>
+                                <select name="preferred_language" value={formData.preferred_language} onChange={handleInputChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-bold appearance-none">
+                                    <option value="">Select Language</option>
+                                    <option value="Eng">Eng</option>
+                                    <option value="BL-AD">BL-AD</option>
+                                    <option value="BL-SM">BL-SM</option>
+                                    <option value="MLM">MLM</option>
+                                    <option value="HIN">HIN</option>
+                                    <option value="TML">TML</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                            <div className="flex flex-col gap-2">
+                                <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Country</label>
+                                <div className="relative group">
+                                    <MapPin size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#008080] transition-colors" />
+                                    <input type="text" name="country" value={formData.country} onChange={handleInputChange} className="w-full p-3 pl-12 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-bold" placeholder="E.g. UAE, India" />
+                                </div>
+                            </div>
+                            <div className="flex flex-col gap-2">
+                                <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Next Installment Date</label>
+                                <input type="date" name="next_installment_date" value={formData.next_installment_date} onChange={handleInputChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-bold" />
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+                            <div className="flex flex-col gap-2">
+                                <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Grade</label>
+                                <select name="grade" required value={formData.grade} onChange={handleInputChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-bold appearance-none">
+                                    <option value="" disabled>Select Grade</option>
+                                    <option value="KG 1">KG 1</option>
+                                    <option value="KG 2">KG 2</option>
+                                    {[...Array(12)].map((_, i) => (
+                                    <option key={i + 1} value={`Class ${i + 1}`}>Class {i + 1}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div className="flex flex-col gap-2">
+                                <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Syllabus</label>
+                                <select name="syllabus" required value={formData.syllabus} onChange={handleInputChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-bold appearance-none">
+                                    <option value="" disabled>Select Syllabus</option>
+                                    <option value="CBSE">CBSE</option>
+                                    <option value="STATE">STATE</option>
+                                    <option value="ICSE">ICSE</option>
+                                    <option value="IGCSE">IGCSE</option>
+                                    <option value="IB">IB</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                            <div className="flex flex-col gap-2">
+                                <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Course</label>
+                                <input type="text" name="course" value={formData.course} onChange={handleInputChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-bold appearance-none" placeholder="Course Name" />
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+                            {(formData.enrollment_type !== 'Tuition Only') && (
+                                <div className="flex flex-col gap-2">
+                                    <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Assigned Mentor</label>
+                                    <select name="mentor_id" value={formData.mentor_id || ''} onChange={handleInputChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-bold appearance-none">
+                                    <option value="" disabled>Select Mentor</option>
+                                    {mentors.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
+                                    </select>
+                                </div>
+                            )}
+                            
+                            <div className="flex flex-col gap-2">
+                                <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Student ID #</label>
+                                <input type="text" name="registration_number" value={formData.registration_number} onChange={handleInputChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-bold" placeholder="E.g. ST-2024-001" />
+                            </div>
+                        </div>
+
+                        <div className="flex flex-col gap-2 mt-6">
+                            <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Meeting Link</label>
+                            <input type="text" name="meeting_link" value={formData.meeting_link} onChange={handleInputChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-bold" placeholder="Google Meet Link" />
+                        </div>
+
+                        {/* Multiple Subjects & Faculties */}
+                        <div className="mt-8 rounded-2xl border border-[#008080]/30 bg-[#008080]/5 p-5 space-y-4">
+                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                            <div>
+                                <label className="text-[10px] font-black text-[#0f172a] uppercase tracking-widest ml-1">Subjects & Assigned Faculties</label>
+                                <p className="text-[10px] font-bold text-slate-700 ml-1 mt-1">Add one or more subject-faculty pairs for this student.</p>
+                            </div>
+                            <button type="button" onClick={addSubjectRow} className="text-[10px] font-black text-[#008080] uppercase tracking-widest hover:text-[#0f172a] transition-colors bg-white px-3 py-2 rounded-lg border border-[#008080]/40 w-fit">
+                                + Add Subject
+                            </button>
+                            </div>
+
+                            <div className="space-y-6">
+                            {selectedSubjects.map((row, idx) => (
+                                <div key={idx} className="bg-white p-8 rounded-[3rem] border border-slate-100 shadow-xl shadow-slate-200/20 relative animate-in slide-in-from-right-4 duration-500 space-y-8">
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-start">
+                                    
+                                    {/* Custom Subject Dropdown (Multiple Selection) */}
+                                    <div className="flex flex-col gap-2 relative" ref={el => subRefs.current[idx] = el}>
+                                        <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest ml-1">Academic Subjects</label>
+                                        <div 
+                                            onClick={() => {
+                                                const newSubjects = [...selectedSubjects];
+                                                newSubjects[idx].isSubjectDropdownOpen = !newSubjects[idx].isSubjectDropdownOpen;
+                                                setSelectedSubjects(newSubjects);
+                                            }}
+                                            className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-[10px] font-black uppercase text-slate-800 cursor-pointer flex justify-between items-center min-h-[52px]"
+                                        >
+                                            <span className="truncate">
+                                                {Array.isArray(row.subject) && row.subject.length > 0 
+                                                    ? row.subject.join(', ') 
+                                                    : (typeof row.subject === 'string' && row.subject ? row.subject : 'Select Subjects')}
+                                            </span>
+                                            <span className="text-slate-400">▼</span>
+                                        </div>
+                                        {row.isSubjectDropdownOpen && (
+                                            <div className="absolute top-[100%] left-0 w-full bg-white border border-slate-100 rounded-2xl shadow-2xl z-[120] mt-1 p-2 max-h-60 overflow-y-auto animate-in fade-in zoom-in-95 duration-200">
+                                                {SUBJECT_OPTIONS.map(sub => {
+                                                    const isSelected = Array.isArray(row.subject) ? row.subject.includes(sub) : row.subject === sub;
                                                     return (
-                                                        <div key={day} className={`p-2 rounded-xl border ${isSelected ? 'bg-[#008080]/5 border-[#008080]/20' : 'border-transparent'}`}>
-                                                            <div className="flex items-center gap-3 mb-1 cursor-pointer" onClick={() => handleDayToggle(idx, day)}>
-                                                                <div className={`w-4 h-4 rounded border flex items-center justify-center ${isSelected ? 'bg-[#008080] border-[#008080]' : 'border-slate-300'}`}>
-                                                                    {isSelected && <CheckCircle size={10} className="text-white" />}
-                                                                </div>
-                                                                <span className="text-[10px] font-black uppercase">{day}</span>
+                                                        <div 
+                                                            key={sub} 
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                const newSubjects = [...selectedSubjects];
+                                                                let current = Array.isArray(newSubjects[idx].subject) 
+                                                                    ? newSubjects[idx].subject 
+                                                                    : (newSubjects[idx].subject ? [newSubjects[idx].subject] : []);
+                                                                
+                                                                if (current.includes(sub)) {
+                                                                    current = current.filter(s => s !== sub);
+                                                                } else {
+                                                                    current = [...current, sub];
+                                                                }
+                                                                newSubjects[idx].subject = current;
+                                                                setSelectedSubjects(newSubjects);
+                                                            }}
+                                                            className={`flex items-center gap-3 p-2.5 rounded-xl cursor-pointer transition-all ${isSelected ? 'bg-[#008080]/10 text-[#008080]' : 'hover:bg-slate-50 text-slate-600'}`}
+                                                        >
+                                                            <div className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${isSelected ? 'bg-[#008080] border-[#008080]' : 'border-slate-300'}`}>
+                                                                {isSelected && <CheckCircle size={10} className="text-white" />}
                                                             </div>
-                                                            {isSelected && (
-                                                                <div className="grid grid-cols-2 gap-2 mt-2">
-                                                                    <div className="relative group/time">
-                                                                        <input 
-                                                                            type="text" 
-                                                                            placeholder="10:00 AM"
-                                                                            value={row.dayConfigs[configIdx].startTime}
-                                                                            onChange={(e) => handleDayTimeChange(idx, configIdx, 'startTime', e.target.value)}
-                                                                            className="w-full p-2 pr-7 bg-white border border-slate-200 rounded-lg text-[9px] font-bold outline-none focus:border-[#008080]"
-                                                                        />
-                                                                        <div className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[#008080] cursor-pointer" onClick={(e) => {
-                                                                            document.querySelectorAll('.time-picker-dropdown').forEach(el => el.classList.add('hidden'));
-                                                                            const picker = e.currentTarget.nextElementSibling;
-                                                                            picker.classList.toggle('hidden');
-                                                                        }}>
-                                                                            <Clock size={10} />
-                                                                        </div>
-                                                                        <div className="time-picker-dropdown hidden absolute top-full left-0 w-full bg-white border border-slate-100 rounded-lg shadow-2xl z-[150] mt-1 p-1 max-h-32 overflow-y-auto animate-in fade-in zoom-in-95 duration-200">
-                                                                            {TIME_SLOTS.map(t => (
-                                                                                <div key={t} onClick={() => {
-                                                                                    handleDayTimeChange(idx, configIdx, 'startTime', t);
-                                                                                    document.querySelectorAll('.time-picker-dropdown').forEach(el => el.classList.add('hidden'));
-                                                                                }} className="p-1.5 hover:bg-[#008080]/10 rounded-md text-[9px] font-black cursor-pointer transition-colors uppercase">
-                                                                                    {t}
-                                                                                </div>
-                                                                            ))}
-                                                                        </div>
-                                                                    </div>
-                                                                    <div className="relative group/time">
-                                                                        <input 
-                                                                            type="text" 
-                                                                            placeholder="11:00 AM"
-                                                                            value={row.dayConfigs[configIdx].endTime}
-                                                                            onChange={(e) => handleDayTimeChange(idx, configIdx, 'endTime', e.target.value)}
-                                                                            className="w-full p-2 pr-7 bg-white border border-slate-200 rounded-lg text-[9px] font-bold outline-none focus:border-[#008080]"
-                                                                        />
-                                                                        <div className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[#008080] cursor-pointer" onClick={(e) => {
-                                                                            document.querySelectorAll('.time-picker-dropdown').forEach(el => el.classList.add('hidden'));
-                                                                            const picker = e.currentTarget.nextElementSibling;
-                                                                            picker.classList.toggle('hidden');
-                                                                        }}>
-                                                                            <Clock size={10} />
-                                                                        </div>
-                                                                        <div className="time-picker-dropdown hidden absolute top-full left-0 w-full bg-white border border-slate-100 rounded-lg shadow-2xl z-[150] mt-1 p-1 max-h-32 overflow-y-auto animate-in fade-in zoom-in-95 duration-200">
-                                                                            {TIME_SLOTS.map(t => (
-                                                                                <div key={t} onClick={() => {
-                                                                                    handleDayTimeChange(idx, configIdx, 'endTime', t);
-                                                                                    document.querySelectorAll('.time-picker-dropdown').forEach(el => el.classList.add('hidden'));
-                                                                                }} className="p-1.5 hover:bg-[#008080]/10 rounded-md text-[9px] font-black cursor-pointer transition-colors uppercase">
-                                                                                    {t}
-                                                                                </div>
-                                                                            ))}
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            )}
+                                                            <span className="text-[10px] font-black uppercase">{sub}</span>
                                                         </div>
                                                     );
                                                 })}
+                                                {/* Clear All Option */}
+                                                <div 
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        const newSubjects = [...selectedSubjects];
+                                                        newSubjects[idx].subject = [];
+                                                        setSelectedSubjects(newSubjects);
+                                                    }}
+                                                    className="mt-2 p-2 text-center text-[10px] font-black text-rose-500 uppercase tracking-widest hover:bg-rose-50 rounded-lg cursor-pointer transition-colors border border-dashed border-rose-200"
+                                                >
+                                                    Clear All
+                                                </div>
                                             </div>
+                                        )}
+                                    </div>
+
+                                    {/* Custom Days Dropdown */}
+                                    <div className="flex flex-col gap-2 relative" ref={el => dayRefs.current[idx] = el}>
+                                        <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest ml-1">Session Configuration (Days & Time)</label>
+                                        <div 
+                                            onClick={() => {
+                                                const newSubjects = [...selectedSubjects];
+                                                newSubjects[idx].isDayDropdownOpen = !newSubjects[idx].isDayDropdownOpen;
+                                                setSelectedSubjects(newSubjects);
+                                            }}
+                                            className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-[10px] font-black uppercase text-slate-800 cursor-pointer flex justify-between items-center"
+                                        >
+                                            <span className="truncate">
+                                                {row.dayConfigs?.length > 0 
+                                                    ? row.dayConfigs.map(d => `${d.day.substring(0,3)} ${d.startTime || ''}`).join(', ') 
+                                                    : 'Configure Days & Time'}
+                                            </span>
+                                            <span>▼</span>
                                         </div>
-                                    )}
-                                </div>
+                                        {row.isDayDropdownOpen && (
+                                            <div className="absolute top-[100%] left-0 w-[300px] bg-white border border-slate-100 rounded-2xl shadow-2xl z-[120] mt-1 p-3 animate-in fade-in zoom-in-95 duration-200" onClick={e => e.stopPropagation()}>
+                                                <div className="space-y-2 max-h-60 overflow-y-auto pr-1">
+                                                    {DAYS_LIST.map(day => {
+                                                        const configIdx = row.dayConfigs?.findIndex(c => c.day === day);
+                                                        const isSelected = configIdx !== -1;
+                                                        return (
+                                                            <div key={day} className={`p-2 rounded-xl border ${isSelected ? 'bg-[#008080]/5 border-[#008080]/20' : 'border-transparent'}`}>
+                                                                <div className="flex items-center gap-3 mb-1 cursor-pointer" onClick={() => handleDayToggle(idx, day)}>
+                                                                    <div className={`w-4 h-4 rounded border flex items-center justify-center ${isSelected ? 'bg-[#008080] border-[#008080]' : 'border-slate-300'}`}>
+                                                                        {isSelected && <CheckCircle size={10} className="text-white" />}
+                                                                    </div>
+                                                                    <span className="text-[10px] font-black uppercase">{day}</span>
+                                                                </div>
+                                                                {isSelected && (
+                                                                    <div className="grid grid-cols-2 gap-2 mt-2">
+                                                                        <div className="relative group/time">
+                                                                            <input 
+                                                                                type="text" 
+                                                                                placeholder="10:00 AM"
+                                                                                value={row.dayConfigs[configIdx].startTime}
+                                                                                onChange={(e) => handleDayTimeChange(idx, configIdx, 'startTime', e.target.value)}
+                                                                                className="w-full p-2 pr-7 bg-white border border-slate-200 rounded-lg text-[9px] font-bold outline-none focus:border-[#008080]"
+                                                                            />
+                                                                            <div className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[#008080] cursor-pointer" onClick={(e) => {
+                                                                                document.querySelectorAll('.time-picker-dropdown').forEach(el => el.classList.add('hidden'));
+                                                                                const picker = e.currentTarget.nextElementSibling;
+                                                                                picker.classList.toggle('hidden');
+                                                                            }}>
+                                                                                <Clock size={10} />
+                                                                            </div>
+                                                                            <div className="time-picker-dropdown hidden absolute top-full left-0 w-full bg-white border border-slate-100 rounded-lg shadow-2xl z-[150] mt-1 p-1 max-h-32 overflow-y-auto animate-in fade-in zoom-in-95 duration-200">
+                                                                                {TIME_SLOTS.map(t => (
+                                                                                    <div key={t} onClick={() => {
+                                                                                        handleDayTimeChange(idx, configIdx, 'startTime', t);
+                                                                                        document.querySelectorAll('.time-picker-dropdown').forEach(el => el.classList.add('hidden'));
+                                                                                    }} className="p-1.5 hover:bg-[#008080]/10 rounded-md text-[9px] font-black cursor-pointer transition-colors uppercase">
+                                                                                        {t}
+                                                                                    </div>
+                                                                                ))}
+                                                                            </div>
+                                                                        </div>
+                                                                        <div className="relative group/time">
+                                                                            <input 
+                                                                                type="text" 
+                                                                                placeholder="11:00 AM"
+                                                                                value={row.dayConfigs[configIdx].endTime}
+                                                                                onChange={(e) => handleDayTimeChange(idx, configIdx, 'endTime', e.target.value)}
+                                                                                className="w-full p-2 pr-7 bg-white border border-slate-200 rounded-lg text-[9px] font-bold outline-none focus:border-[#008080]"
+                                                                            />
+                                                                            <div className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[#008080] cursor-pointer" onClick={(e) => {
+                                                                                document.querySelectorAll('.time-picker-dropdown').forEach(el => el.classList.add('hidden'));
+                                                                                const picker = e.currentTarget.nextElementSibling;
+                                                                                picker.classList.toggle('hidden');
+                                                                            }}>
+                                                                                <Clock size={10} />
+                                                                            </div>
+                                                                            <div className="time-picker-dropdown hidden absolute top-full left-0 w-full bg-white border border-slate-100 rounded-lg shadow-2xl z-[150] mt-1 p-1 max-h-32 overflow-y-auto animate-in fade-in zoom-in-95 duration-200">
+                                                                                {TIME_SLOTS.map(t => (
+                                                                                    <div key={t} onClick={() => {
+                                                                                        handleDayTimeChange(idx, configIdx, 'endTime', t);
+                                                                                        document.querySelectorAll('.time-picker-dropdown').forEach(el => el.classList.add('hidden'));
+                                                                                    }} className="p-1.5 hover:bg-[#008080]/10 rounded-md text-[9px] font-black cursor-pointer transition-colors uppercase">
+                                                                                        {t}
+                                                                                    </div>
+                                                                                ))}
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        );
+                                                    })}
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
 
-                                <div className="flex flex-col gap-2">
-                                    <label className="text-[9px] font-black text-[#008080] uppercase tracking-widest ml-1">Assigned Faculty</label>
-                                    <input 
-                                        type="text" 
-                                        placeholder="Search faculty by name..."
-                                        value={facultySearch[idx] || ''}
-                                        onChange={(e) => setFacultySearch({...facultySearch, [idx]: e.target.value})}
-                                        className="w-full p-2 px-4 bg-[#008080]/5 border border-[#008080]/20 rounded-t-2xl text-[10px] font-black outline-none text-[#008080]"
-                                    />
-                                    <select value={row.facultyId} onChange={(e) => handleSubjectChange(idx, 'facultyId', e.target.value)} className="w-full p-4 bg-[#008080]/5 border border-[#008080]/20 rounded-b-2xl border-t-0 text-[10px] font-black outline-none focus:ring-2 focus:ring-[#008080] appearance-none text-[#008080]">
-                                        <option value="">Select Faculty</option>
-                                        {faculties.filter(f => f.name.toLowerCase().includes((facultySearch[idx] || '').toLowerCase())).map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
-                                    </select>
+                                    {/* Faculty Selection */}
+                                    <div className="flex flex-col gap-2 relative">
+                                        <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest ml-1">Assigned Faculty</label>
+                                        <select 
+                                            value={row.facultyId} 
+                                            onChange={(e) => handleSubjectChange(idx, 'facultyId', e.target.value)} 
+                                            className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-[10px] font-black text-slate-800 focus:ring-2 focus:ring-[#008080] outline-none min-h-[52px]"
+                                        >
+                                            <option value="">Select Faculty</option>
+                                            {faculties.map(f => (
+                                                <option key={f.id} value={f.id}>{f.name} ({f.id})</option>
+                                            ))}
+                                        </select>
+                                    </div>
                                 </div>
-
-                                <div className="flex flex-col gap-2">
-                                    <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest ml-1">Faculty Rate (₹)</label>
-                                    <input type="number" value={row.hourlyRate} onChange={(e) => handleSubjectChange(idx, 'hourlyRate', e.target.value)} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-[10px] font-black outline-none focus:ring-2 focus:ring-[#008080]" />
+                                <div className="absolute -top-3 -right-3">
+                                    <button 
+                                        type="button" 
+                                        onClick={() => removeSubjectRow(idx)} 
+                                        className="w-8 h-8 bg-white border-2 border-slate-100 rounded-full flex items-center justify-center text-slate-400 hover:text-rose-500 hover:border-rose-200 hover:bg-rose-50 transition-all shadow-sm"
+                                        title="Remove Sequence"
+                                    >
+                                        <X size={14} strokeWidth={3} />
+                                    </button>
                                 </div>
-
-                                <button type="button" onClick={() => removeSubjectRow(idx)} className="absolute top-4 right-4 w-10 h-10 flex items-center justify-center bg-rose-50 text-rose-500 rounded-full hover:bg-rose-500 hover:text-white transition-all shadow-sm">
-                                    <Trash2 size={16} />
-                                </button>
+                                </div>
+                            ))}
                             </div>
-                        ))}
-                    </div>
+                        </div>
+
+                    </form>
                 </div>
-
-                {/* Section 4: Admin & Finance */}
-                <div className="bg-white p-8 md:p-12 rounded-[48px] border border-slate-100 shadow-2xl shadow-slate-200/40 relative">
-                    <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight mb-10 flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                            <div className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center text-slate-600">
-                                <Shield size={20} />
-                            </div>
-                            Administration & Infrastructure
-                        </div>
-                        <button 
-                            type="button" 
-                            onClick={() => setEditModes(prev => ({ ...prev, admin: !prev.admin }))}
-                            className={`p-3 rounded-2xl flex items-center gap-2 text-[10px] font-black uppercase tracking-widest transition-all ${editModes.admin ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-slate-50 text-slate-400 hover:text-slate-600 border border-slate-100'}`}
-                        >
-                            {editModes.admin ? <><Unlock size={14} /> Editing</> : <><Lock size={14} /> Edit Section</>}
-                        </button>
-                    </h2>
-
-                    <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 transition-opacity duration-300 ${!editModes.admin ? 'opacity-60 pointer-events-none' : ''}`}>
-                        <div className="flex flex-col gap-2">
-                            <label className="text-[10px] font-black text-slate-700 uppercase tracking-widest ml-1">Registration #</label>
-                            <input type="text" name="registration_number" value={formData.registration_number} onChange={handleInputChange} disabled={!editModes.admin} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold outline-none" />
-                        </div>
-                        <div className="flex flex-col gap-2">
-                            <label className="text-[10px] font-black text-slate-700 uppercase tracking-widest ml-1">Total Fee Authority</label>
-                            <div className="relative">
-                                <DollarSign size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-                                <input type="number" name="total_fees" value={formData.total_fees} onChange={handleInputChange} disabled={!editModes.admin} className="w-full p-3 pl-10 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold outline-none" />
-                            </div>
-                        </div>
-                        <div className="flex flex-col gap-2">
-                            <label className="text-[10px] font-black text-slate-700 uppercase tracking-widest ml-1">Amount Paid (Confirmed)</label>
-                            <div className="relative">
-                                <DollarSign size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-400" />
-                                <input type="number" name="total_paid" value={formData.total_paid} onChange={handleInputChange} disabled={!editModes.admin} className="w-full p-3 pl-10 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold outline-none" />
-                            </div>
-                        </div>
-                        <div className="flex flex-col gap-2">
-                            <label className="text-[10px] font-black text-slate-700 uppercase tracking-widest ml-1">Next Installment</label>
-                            <div className="relative">
-                                <Calendar size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-                                <input type="date" name="next_installment_date" value={formData.next_installment_date} onChange={handleInputChange} disabled={!editModes.admin} className="w-full p-3 pl-10 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold outline-none" />
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-8 border-t border-slate-100 pt-8 transition-opacity duration-300 ${!editModes.admin ? 'opacity-60 pointer-events-none' : ''}`}>
-                        <div className="flex flex-col gap-2">
-                            <label className="text-[10px] font-black text-slate-700 uppercase tracking-widest ml-1">Assigned Academic Mentor</label>
-                            <select name="mentor_id" value={formData.mentor_id} onChange={handleInputChange} disabled={!editModes.admin} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold appearance-none outline-none">
-                                <option value="">Select Mentor</option>
-                                {mentors.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
-                            </select>
-                        </div>
-                        <div className="flex flex-col gap-2">
-                            <label className="text-[10px] font-black text-slate-700 uppercase tracking-widest ml-1">Live Session Link</label>
-                            <div className="relative">
-                                <LinkIcon size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#008080]" />
-                                <input type="text" name="meeting_link" value={formData.meeting_link} onChange={handleInputChange} disabled={!editModes.admin} className="w-full p-3 pl-12 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold outline-none" placeholder="meet.google.com/..." />
-                            </div>
-                        </div>
-                        <div className="flex flex-col gap-2">
-                            <label className="text-[10px] font-black text-slate-700 uppercase tracking-widest ml-1">Course Status</label>
-                            <div className="flex items-center gap-4 h-full">
-                                <button
-                                    type="button"
-                                    onClick={() => setFormData({...formData, course_completed: formData.course_completed === 1 ? 0 : 1})}
-                                    disabled={!editModes.admin}
-                                    className={`flex items-center gap-3 px-6 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border-2 ${formData.course_completed === 1 ? 'bg-emerald-500 border-emerald-500 text-white shadow-lg shadow-emerald-500/20' : 'bg-white border-slate-100 text-slate-400 hover:border-emerald-500/30'}`}
-                                >
-                                    {formData.course_completed === 1 ? (
-                                        <><CheckCircle size={16} strokeWidth={3} /> Graduated / Completed</>
-                                    ) : (
-                                        <><Clock size={16} strokeWidth={3} /> In Progress / Active</>
-                                    )}
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Form Actions */}
-                <div className="flex flex-col sm:flex-row items-center justify-end gap-6 pt-10">
-                    <button type="button" onClick={() => navigate(`${basePath}/students`)} className="w-full sm:w-auto px-10 py-5 rounded-[24px] border border-slate-200 text-slate-600 text-xs font-black uppercase tracking-widest hover:bg-slate-50 transition-all">
-                        Discard Changes
+            </div>
+            
+            {/* Submit Button (Outside locked div but visible only when unlocked) */}
+            {!isLocked && (
+                <div className="mt-8 flex justify-end gap-4">
+                    <button type="button" onClick={() => navigate(`${basePath}/students`)} className="px-10 py-4 border border-slate-200 text-slate-600 rounded-2xl text-sm font-black uppercase tracking-widest hover:bg-slate-50 transition-colors shadow-sm">
+                        Cancel
                     </button>
-                    <button disabled={saving} type="submit" className="w-full sm:w-auto px-12 py-5 rounded-[24px] bg-[#008080] text-white text-xs font-black uppercase tracking-[0.25em] shadow-2xl hover:bg-[#008080] hover:-translate-y-1 transition-all flex items-center justify-center gap-4 disabled:opacity-50">
-                        {saving ? (
-                            <>
-                                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                                Saving...
-                            </>
-                        ) : (
-                            <>
-                                Save Profile Update <CheckCircle size={18} strokeWidth={3} />
-                            </>
-                        )}
+                    <button type="button" onClick={handleSubmit} disabled={saving} className="px-10 py-4 bg-[#008080] text-white rounded-2xl text-sm font-black uppercase tracking-widest hover:bg-[#006666] transition-colors shadow-lg shadow-[#008080]/30 disabled:opacity-50 flex items-center gap-2">
+                        {saving ? 'Updating...' : <><CheckCircle size={18} strokeWidth={3} /> Save Updates</>}
                     </button>
                 </div>
-            </form>
+            )}
         </div>
     );
 };
