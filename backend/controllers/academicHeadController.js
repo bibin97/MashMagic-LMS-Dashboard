@@ -242,7 +242,7 @@ const getAllStudents = async (req, res) => {
         let query = `
             SELECT id, name, course, subject, grade, mentor_id, mentor_name, faculty_id, faculty_name, course_completed
             FROM students
-            WHERE 1=1
+            WHERE mentor_id IS NOT NULL
         `;
         const queryParams = [];
 

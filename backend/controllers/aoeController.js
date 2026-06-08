@@ -128,9 +128,22 @@ const getAllFacultyActivity = async (req, res) => {
 const performAutoSync = async () => {
     try {
         const [ms] = await db.query('SELECT * FROM users WHERE role = "mentor"');
-        for (const m of ms) await db.query('INSERT INTO mentors (id, name, email, phone_number, status) VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE status = VALUES(status)', [m.id, m.name, m.email, m.phone_number, m.status]);
+        for (const m of ms) {
+            try {
+                await db.query('INSERT INTO mentors (id, name, email, phone_number, status) VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE name = VALUES(name), email = VALUES(email), phone_number = VALUES(phone_number), status = VALUES(status)', [m.id, m.name, m.email, m.phone_number, m.status]);
+            } catch (err) {
+                console.error(`Error syncing mentor ${m.id}:`, err.message);
+            }
+        }
+        
         const [fs] = await db.query('SELECT * FROM users WHERE role = "faculty"');
-        for (const f of fs) await db.query('INSERT INTO faculties (id, name, email, phone_number, status, subject) VALUES (?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE status = VALUES(status)', [f.id, f.name, f.email, f.phone_number, f.status, f.subject || null]);
+        for (const f of fs) {
+            try {
+                await db.query('INSERT INTO faculties (id, name, email, phone_number, status, subject) VALUES (?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE name = VALUES(name), email = VALUES(email), phone_number = VALUES(phone_number), status = VALUES(status), subject = VALUES(subject)', [f.id, f.name, f.email, f.phone_number, f.status, f.subject || null]);
+            } catch (err) {
+                console.error(`Error syncing faculty ${f.id}:`, err.message);
+            }
+        }
     } catch (e) { console.error("AUTO_SYNC_ERR:", e.message); }
 };
 
@@ -153,11 +166,17 @@ const getAvailableFaculties = async (req, res) => {
 
         const matchingFaculties = faculties.filter(f => {
             if (subjectsList.length === 0) return true;
-            let secs = [];
-            try { secs = f.secondary_subjects ? (typeof f.secondary_subjects === 'string' ? JSON.parse(f.secondary_subjects) : f.secondary_subjects) : []; } catch(e){}
-            const allSubjects = [f.primary_subject, ...secs].filter(Boolean);
+            let allSubjects = [];
+            if (f.primary_subject) {
+                allSubjects = f.primary_subject.split(',').map(s => s.trim());
+            }
+            try { 
+                let secs = f.secondary_subjects ? (typeof f.secondary_subjects === 'string' ? JSON.parse(f.secondary_subjects) : f.secondary_subjects) : []; 
+                if (Array.isArray(secs)) allSubjects.push(...secs.map(s => s.trim()));
+            } catch(e){}
+            
             // Check if faculty has ALL requested subjects (or ANY? usually ANY is fine if one faculty is chosen per row)
-            return subjectsList.some(s => allSubjects.includes(s));
+            return subjectsList.some(s => allSubjects.includes(s.trim()));
         });
 
         if (configs.length === 0) {
@@ -202,10 +221,9 @@ const getAvailableFaculties = async (req, res) => {
 
 const getDropdownData = async (req, res) => {
     try {
-        await performAutoSync();
-        const [ms] = await db.query('SELECT id, name FROM mentors');
+        const [ms] = await db.query('SELECT id, name FROM users WHERE role = "mentor"');
         const [mhs] = await db.query('SELECT id, name FROM users WHERE role = "mentor_head"');
-        const [fs] = await db.query('SELECT id, name, subject FROM faculties');
+        const [fs] = await db.query('SELECT id, name, subject FROM users WHERE role = "faculty"');
         res.status(200).json({ success: true, data: { mentors: ms, mentorHeads: mhs, faculties: fs } });
     } catch (error) { res.status(500).json({ success: false, message: error.message }); }
 };
@@ -393,7 +411,7 @@ const uncheckFacultySession = async (req, res) => {
 
 const getFacultyDirectory = async (req, res) => {
     try {
-        const [rows] = await db.query('SELECT * FROM faculties ORDER BY name ASC');
+        const [rows] = await db.query('SELECT * FROM users WHERE role = "faculty" ORDER BY name ASC');
         res.status(200).json({ success: true, data: rows });
     } catch (e) { res.status(500).json({ success: false, message: e.message }); }
 };
@@ -697,12 +715,12 @@ const getStudents = async (req, res) => {
             COALESCE(
                 (SELECT GROUP_CONCAT(DISTINCT u.name SEPARATOR ', ') 
                  FROM faculty_schedules fs 
-                 JOIN faculties u ON fs.faculty_id = u.id 
+                 JOIN users u ON fs.faculty_id = u.id AND u.role = 'faculty' 
                  WHERE fs.student_id = s.id),
                 s.faculty_name
             ) as faculty_name 
             FROM students s 
-            LEFT JOIN mentors m ON s.mentor_id = m.id 
+            LEFT JOIN users m ON s.mentor_id = m.id AND m.role = 'mentor' 
             WHERE (s.status != 'rejected' OR s.status IS NULL)
         `;
         let params = [];
@@ -722,7 +740,7 @@ const getStudents = async (req, res) => {
 
 const getMentors = async (req, res) => {
     try {
-        const [rows] = await db.query('SELECT m.*, (SELECT COUNT(*) FROM students WHERE mentor_id = m.id AND status != "rejected") as studentCount FROM mentors m ORDER BY m.name ASC');
+        const [rows] = await db.query('SELECT m.*, (SELECT COUNT(*) FROM students WHERE mentor_id = m.id AND status != "rejected") as studentCount FROM users m WHERE m.role = "mentor" ORDER BY m.name ASC');
         res.status(200).json({ success: true, data: rows });
     } catch (e) { res.status(500).json({ success: false, message: e.message }); }
 };

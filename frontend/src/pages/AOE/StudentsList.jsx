@@ -19,7 +19,15 @@ const StudentsList = ({ role = 'academic_operation_executive' }) => {
 	const [faculties, setFaculties] = useState([]);
 	const [filterMentor, setFilterMentor] = useState('all');
 	const [filterFaculty, setFilterFaculty] = useState('all');
+	
 	const [expandedStudentId, setExpandedStudentId] = useState(null);
+	
+	// Assign Mentor Modal States
+	const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
+	const [selectedStudentForAssign, setSelectedStudentForAssign] = useState(null);
+	const [selectedMentorId, setSelectedMentorId] = useState('');
+	const [isAssigning, setIsAssigning] = useState(false);
+
 
 	// Base API path based on role
 	const apiPath = role === 'mentor_head' ? '/mentor-head' : '/aoe';
@@ -90,6 +98,28 @@ const StudentsList = ({ role = 'academic_operation_executive' }) => {
 			message: `Are you sure you want to permanently delete student ${name}? This action will remove all their data from the database forever and cannot be undone.`,
 			type: 'danger'
 		});
+	};
+
+	
+	const handleAssignSubmit = async (e) => {
+		e.preventDefault();
+		if (!selectedMentorId) {
+			toast.error('Please select a mentor');
+			return;
+		}
+		setIsAssigning(true);
+		try {
+			const res = await api.put(`${apiPath}/students/${selectedStudentForAssign.id}/assign`, { mentorId: selectedMentorId });
+			if (res.data.success) {
+				toast.success('Mentor assigned successfully');
+				setIsAssignModalOpen(false);
+				fetchStudents();
+			}
+		} catch (error) {
+			toast.error(error.response?.data?.message || 'Failed to assign mentor');
+		} finally {
+			setIsAssigning(false);
+		}
 	};
 
 	const filteredStudents = useMemo(() => {
@@ -222,7 +252,14 @@ const StudentsList = ({ role = 'academic_operation_executive' }) => {
 													<div className="flex items-center gap-2">
 														<div className="text-sm font-black text-slate-900 group-hover:text-[#008080] transition-colors uppercase flex-shrink-0">{student.name}</div>
 
+														
 														{/* Student Badge System */}
+														{role === 'mentor_head' && !student.mentor_id && (
+															<span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-50 text-amber-600 border border-amber-200 text-[9px] font-black uppercase tracking-widest whitespace-nowrap animate-pulse">
+																NEW
+															</span>
+														)}
+
 														{student.badge === 'Gold' && <span title="Mentorship Plan" className="text-lg cursor-help">🥇</span>}
 														{student.badge === 'Silver' && <span title="Tuition Plan" className="text-lg cursor-help">🥈</span>}
 														{student.badge === 'Diamond' && <span title="Mentorship & Tuition Plan" className="text-lg cursor-help">💎</span>}
@@ -281,6 +318,20 @@ const StudentsList = ({ role = 'academic_operation_executive' }) => {
 												>
 													<Eye size={16} />
 												</button>
+												{role === 'mentor_head' && (
+													<button
+														onClick={() => {
+															setSelectedStudentForAssign(student);
+															setSelectedMentorId(student.mentor_id || '');
+															setIsAssignModalOpen(true);
+														}}
+														className="p-2.5 bg-white border-2 border-emerald-200 rounded-xl text-emerald-600 hover:bg-emerald-600 hover:text-white transition-all shadow-sm group/assign"
+														title="Assign Mentor"
+													>
+														<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+													</button>
+												)}
+
 												{(role === 'academic_operation_executive' || role === 'academic_head') && (
 													<>
 														<button
@@ -343,8 +394,50 @@ const StudentsList = ({ role = 'academic_operation_executive' }) => {
 					</table>
 				</div>
 			</div>
+
+			{/* Assign Mentor Modal */}
+			{isAssignModalOpen && selectedStudentForAssign && (
+				<div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-in fade-in duration-200">
+					<div className="bg-white rounded-3xl w-full max-w-md shadow-2xl border border-slate-100 overflow-hidden animate-in zoom-in-95 duration-200">
+						<div className="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+							<div>
+								<h3 className="text-lg font-black text-slate-800 uppercase tracking-tight">Assign Mentor</h3>
+								<p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">For {selectedStudentForAssign.name}</p>
+							</div>
+							<button onClick={() => setIsAssignModalOpen(false)} className="w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 text-slate-400 hover:bg-slate-200 hover:text-slate-600 transition-colors">
+								<X size={16} />
+							</button>
+						</div>
+						<form onSubmit={handleAssignSubmit} className="p-6 space-y-6">
+							<div className="space-y-2">
+								<label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Select Mentor</label>
+								<select
+									value={selectedMentorId}
+									onChange={(e) => setSelectedMentorId(e.target.value)}
+									className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl text-xs font-bold uppercase tracking-widest outline-none focus:ring-4 ring-[#008080]/10 focus:border-[#008080] transition-all"
+									required
+								>
+									<option value="" disabled>Choose a mentor...</option>
+									{mentors.map(m => (
+										<option key={m.id} value={m.id}>{m.name}</option>
+									))}
+								</select>
+							</div>
+							<div className="flex justify-end gap-3 pt-2">
+								<button type="button" onClick={() => setIsAssignModalOpen(false)} className="px-6 py-3 rounded-xl border border-slate-200 text-slate-600 text-[10px] font-black uppercase tracking-widest hover:bg-slate-50 transition-colors">
+									Cancel
+								</button>
+								<button type="submit" disabled={isAssigning} className="px-6 py-3 rounded-xl bg-[#008080] text-white text-[10px] font-black uppercase tracking-widest hover:bg-[#006666] transition-colors disabled:opacity-50 flex items-center gap-2 shadow-lg shadow-[#008080]/20">
+									{isAssigning ? 'Assigning...' : <><Save size={14} /> Confirm Assignment</>}
+								</button>
+							</div>
+						</form>
+					</div>
+				</div>
+			)}
 		</div>
 	);
 };
 
 export default StudentsList;
+

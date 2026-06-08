@@ -1000,7 +1000,7 @@ const getAllStudentsForAdmin = async (req, res) => {
                 total_fees,
                 total_paid,
                 total_hours
-            FROM students WHERE 1=1
+            FROM students WHERE mentor_id IS NOT NULL
         `;
         let params = [];
 

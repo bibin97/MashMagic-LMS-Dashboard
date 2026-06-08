@@ -1084,6 +1084,30 @@ exports.shiftStudent = async (req, res) => {
     }
 };
 
+// @desc    Assign student to a mentor
+// @route   PUT /api/mentor-head/students/:studentId/assign
+exports.assignMentor = async (req, res) => {
+    try {
+        const { studentId } = req.params;
+        const { mentorId } = req.body;
+
+        if (!mentorId) return res.status(400).json({ success: false, message: 'Mentor ID is required' });
+
+        const [mentor] = await db.query('SELECT name FROM mentors WHERE id = ?', [mentorId]);
+        if (mentor.length === 0) return res.status(404).json({ success: false, message: 'Mentor not found' });
+        const mentorName = mentor[0].name;
+
+        await db.query(
+            'UPDATE students SET mentor_id = ?, mentor_name = ? WHERE id = ?',
+            [mentorId, mentorName, studentId]
+        );
+
+        res.status(200).json({ success: true, message: 'Mentor assigned successfully' });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
 // @desc    Get Daily Student Checks (for Mentor Head)
 // @route   GET /api/mentor-head/daily-student-checks
 exports.getDailyStudentChecks = async (req, res) => {

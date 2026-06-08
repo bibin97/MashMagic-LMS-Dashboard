@@ -32,7 +32,8 @@ const {
     toggleCourseCompleted,
     deleteInteractionLog,
     getDropdownData,
-    getAcademicSchedule
+    getAcademicSchedule,
+    assignMentor
 } = require('../controllers/mentorHeadController');
 const { requireAuth } = require('../middleware/authMiddleware');
 const { requireRole } = require('../middleware/roleMiddleware');
@@ -52,6 +53,7 @@ router.get('/dropdowns', getDropdownData);
 // Monitoring Architecture Routes
 router.get('/mentor-activity', getMentorActivityDashboard);
 router.get('/mentors/:mentorId/monitoring', getMentorMonitoringDetails);
+router.put('/students/:studentId/assign', assignMentor);
 router.put('/students/:studentId/shift', shiftStudent);
 router.get('/daily-student-checks', getDailyStudentChecks);
 router.post('/students/:studentId/check', checkStudentToday);

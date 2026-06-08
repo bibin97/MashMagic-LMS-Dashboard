@@ -94,7 +94,43 @@ const User = {
             `INSERT INTO ${targetTable} (${columns}) VALUES (${values})`,
             paramsArray
         );
-        return result.insertId;
+        const newId = result.insertId;
+
+        // Also insert into the specific role tables to maintain data integrity
+        if (role === 'faculty') {
+            try {
+                await db.query(
+                    'INSERT INTO faculties (id, name, email, phone_number, status, subject) VALUES (?, ?, ?, ?, ?, ?)',
+                    [newId, name, email || null, phone_number || null, status, subjectValue]
+                );
+            } catch (err) { console.error("Faculty Insert Sync Error:", err); }
+        } else if (role === 'mentor') {
+            try {
+                await db.query(
+                    'INSERT INTO mentors (id, name, email, phone_number, status) VALUES (?, ?, ?, ?, ?)',
+                    [newId, name, email || null, phone_number || null, status]
+                );
+            } catch (err) { console.error("Mentor Insert Sync Error:", err); }
+        } else if (role === 'student') {
+            try {
+                await db.query(`
+                    INSERT INTO students (
+                        id, user_id, name, email, password, contact, grade, course, 
+                        admission_type, total_fees, total_paid, total_hours, 
+                        current_installment_amount, current_installment_start_hours,
+                        status, isApproved, priority_category, enrollment_type, badge, subjects_json
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "Stable", ?, ?, ?)
+                `, [
+                    newId, newId, name, email || null, password, phone_number || null, userData.grade || null, userData.course || null,
+                    userData.admission_type || 'new', userData.total_fees || 0, userData.total_paid || 0, userData.total_hours || 0,
+                    userData.current_installment_amount || 0, userData.current_installment_start_hours || 0,
+                    status, isApproved, enrollment_type, badge,
+                    userData.subjects ? JSON.stringify(userData.subjects) : null
+                ]);
+            } catch (err) { console.error("Student Insert Sync Error:", err); }
+        }
+
+        return newId;
     },
 
     // Find user by ID across all relevant tables
