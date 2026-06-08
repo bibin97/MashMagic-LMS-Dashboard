@@ -54,7 +54,8 @@ const {
     getQualityAudits,
     generateQualityAudits,
     verifyQualityAudit,
-    assignMentor
+    assignMentor,
+    forceSync
 } = require('../controllers/aoeController');
 const { getDailyUpdates } = require('../controllers/sscController');
 const { requireAuth } = require('../middleware/authMiddleware');
@@ -85,6 +86,7 @@ router.post('/quality-audits/generate', generateQualityAudits);
 router.put('/quality-audits/:id/verify', verifyQualityAudit);
 router.get('/dropdowns', getDropdownData);
 router.get('/available-faculties', getAvailableFaculties);
+router.post('/force-sync', forceSync);
 router.post('/register-student', registerStudent);
 router.post('/register-faculty', registerFaculty);
 router.post('/register-ssc', registerSSC);
