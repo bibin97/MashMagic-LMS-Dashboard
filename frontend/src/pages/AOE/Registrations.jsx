@@ -319,9 +319,9 @@ const Registrations = () => {
     try {
       const res = await api.post('/aoe/register-ssc', sscForm);
       if (res.data.success) {
-        toast.success('SSC Account Created Successfully!');
-      toast.success(res.data.message || "SSC registered successfully");
-      setSscForm({ name: '', email: '', phone_number: '', place: '', password: '', confirmPassword: '' });
+        toast.success(res.data.message || "SSC registered successfully");
+        setSscForm({ name: '', email: '', phone_number: '', place: '', password: '', confirmPassword: '' });
+      }
     } catch (error) {
       toast.error(error.response?.data?.message || "Registration failed");
     } finally {
