@@ -13,6 +13,9 @@ const getDailyAssignments = async (req, res) => {
             [mentor_id]
         );
 
+        const [[mentor]] = await db.query('SELECT interaction_paused FROM users WHERE id = ?', [mentor_id]);
+        const isPaused = mentor ? mentor.interaction_paused : false;
+
         // Check if assignments already exist for today
         const [existing] = await db.query(
             'SELECT assignments FROM daily_assignments WHERE mentor_id = ? AND date = ?',
@@ -62,7 +65,7 @@ const getDailyAssignments = async (req, res) => {
                         return assignment;
                     });
                 }
-                return res.status(200).json({ success: true, data: savedAssignments || [] });
+                return res.status(200).json({ success: true, data: savedAssignments || [], is_paused: isPaused });
             }
         }
 
@@ -75,7 +78,7 @@ const getDailyAssignments = async (req, res) => {
             [mentor_id, today, JSON.stringify(assignments), JSON.stringify(assignments)]
         );
 
-        res.status(200).json({ success: true, data: assignments });
+        res.status(200).json({ success: true, data: assignments, is_paused: isPaused });
     } catch (error) {
         console.error('Get Daily Assignments Error:', error);
         res.status(500).json({ success: false, message: 'Server Error' });
@@ -83,6 +86,12 @@ const getDailyAssignments = async (req, res) => {
 };
 
 const generateAssignments = async (mentor_id, today) => {
+    // Check if mentor is paused
+    const [[mentor]] = await db.query('SELECT interaction_paused, current_rotation_index FROM users WHERE id = ?', [mentor_id]);
+    if (mentor && mentor.interaction_paused) {
+        return []; // Return empty if paused
+    }
+
     const [students] = await db.query(
         `SELECT id, name, priority_category, enrollment_type, badge, onboarding_status 
          FROM students 
@@ -111,7 +120,7 @@ const generateAssignments = async (mentor_id, today) => {
         }
         if (Array.isArray(prevAssignments) && prevAssignments.length > 0) {
             // Find students who were NOT completed yesterday/last session
-            const uncompleted = prevAssignments.filter(a => a.status !== 'COMPLETED');
+            const uncompleted = prevAssignments.filter(a => a.status !== 'COMPLETED' && a.status !== 'CANCELLED');
             const activeStudentMap = new Map(students.map(s => [s.id, s]));
             
             for (const a of uncompleted) {
@@ -122,16 +131,14 @@ const generateAssignments = async (mentor_id, today) => {
         }
     }
 
-    // Determine where the next rotation should start in the circular array
-    // Shift by 15 every day by default so there is no overlap.
-    // If students >= 25, use the old 10-student shift pattern.
-    const refDate = new Date('2024-01-01');
-    const currentDate = new Date(today);
-    const diffTime = Math.abs(currentDate - refDate);
-    const dayNumber = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-    
+    // Determine where the next rotation should start using current_rotation_index
     const shiftAmount = students.length >= 25 ? 10 : 15;
-    const nextStartIndex = (dayNumber * shiftAmount) % students.length;
+    let nextStartIndex = mentor ? mentor.current_rotation_index : 0;
+    
+    // Ensure index is within bounds
+    if (nextStartIndex >= students.length) {
+        nextStartIndex = 0;
+    }
 
     // Fill selectedForToday starting with onboarding students first, then carryOverStudents
     const onboardingStudents = students.filter(s => s.onboarding_status === 'pending');
@@ -157,6 +164,10 @@ const generateAssignments = async (mentor_id, today) => {
         currIdx = (currIdx + 1) % students.length;
         attempts++;
     }
+
+    // Advance the rotation index for the next day
+    const newRotationIndex = currIdx;
+    await db.query('UPDATE users SET current_rotation_index = ? WHERE id = ?', [newRotationIndex, mentor_id]);
 
     // 4. Distribute into session types (Deep, Medium, Quick)
     const deep = [];
@@ -248,13 +259,17 @@ const submitSessionReport = async (req, res) => {
             if (typeof assignments === 'string') assignments = JSON.parse(assignments);
             
             const updatedAssignments = assignments.map(a => 
-                a.id === student_id ? { ...a, status: 'COMPLETED' } : a
+                a.id === student_id ? { ...a, status: session_type === 'CANCELLED' ? 'CANCELLED' : 'COMPLETED' } : a
             );
 
             await db.query(
                 'UPDATE daily_assignments SET assignments = ? WHERE id = ?',
                 [JSON.stringify(updatedAssignments), existing[0].id]
             );
+        }
+
+        if (session_type === 'CANCELLED') {
+            return res.status(200).json({ success: true, message: 'Session cancelled and logged' });
         }
 
         // 7. Priority Logic (Manual Priority from Mentor)
@@ -342,3 +357,5 @@ module.exports = {
     getHighRiskStudents,
     getWeeklyCoverage
 };
+m o d u l e . e x p o r t s . t o g g l e P a u s e   =   a s y n c   ( r e q ,   r e s )   = >   {   t r y   {   c o n s t   m e n t o r _ i d   =   r e q . u s e r . i d ;   c o n s t   [ [ m e n t o r ] ]   =   a w a i t   d b . q u e r y ( ' S E L E C T   i n t e r a c t i o n _ p a u s e d   F R O M   u s e r s   W H E R E   i d   =   ? ' ,   [ m e n t o r _ i d ] ) ;   c o n s t   n e w S t a t u s   =   ! m e n t o r . i n t e r a c t i o n _ p a u s e d ;   a w a i t   d b . q u e r y ( ' U P D A T E   u s e r s   S E T   i n t e r a c t i o n _ p a u s e d   =   ?   W H E R E   i d   =   ? ' ,   [ n e w S t a t u s ,   m e n t o r _ i d ] ) ;   r e s . s t a t u s ( 2 0 0 ) . j s o n ( {   s u c c e s s :   t r u e ,   i s _ p a u s e d :   n e w S t a t u s ,   m e s s a g e :   ' P a u s e   s t a t u s   u p d a t e d '   } ) ;   }   c a t c h ( e r r )   {   c o n s o l e . e r r o r ( e r r ) ;   r e s . s t a t u s ( 5 0 0 ) . j s o n ( {   s u c c e s s :   f a l s e ,   m e s s a g e :   ' S e r v e r   E r r o r '   } ) ;   }   } ;  
+ 

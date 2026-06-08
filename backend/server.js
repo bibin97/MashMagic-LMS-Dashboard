@@ -273,6 +273,8 @@ const startServer = async () => {
                 'ALTER TABLE faculty_schedules MODIFY COLUMN end_time VARCHAR(20) NULL;',
                 
                 'ALTER TABLE student_exams ADD COLUMN chapter VARCHAR(255) NULL;',
+                'ALTER TABLE users ADD COLUMN interaction_paused BOOLEAN DEFAULT FALSE;',
+                'ALTER TABLE users ADD COLUMN current_rotation_index INT DEFAULT 0;',
                 'ALTER TABLE student_exams ADD COLUMN portions TEXT NULL;',
                 'ALTER TABLE student_exams ADD COLUMN exam_type VARCHAR(100) NULL;',
                 'ALTER TABLE student_exams ADD COLUMN scheduled_date DATE NULL;',

@@ -13,6 +13,10 @@ const Registrations = () => {
   // Dropdowns data
   const [mentors, setMentors] = useState([]);
   const [faculties, setFaculties] = useState([]);
+  const [allStudents, setAllStudents] = useState([]);
+  const [studentSearchQuery, setStudentSearchQuery] = useState('');
+  const [isStudentDropdownOpen, setIsStudentDropdownOpen] = useState(false);
+  const studentDropdownRef = useRef(null);
 
   // Forms data
   const [studentForm, setStudentForm] = useState({
@@ -34,7 +38,9 @@ const Registrations = () => {
       hourlyRate: '', 
       availableFaculties: [], 
       isDayDropdownOpen: false, 
-      isSubjectDropdownOpen: false 
+      isSubjectDropdownOpen: false,
+      isFacultyDropdownOpen: false,
+      facultySearchQuery: ''
     }
   ]);
 
@@ -53,14 +59,21 @@ const Registrations = () => {
   const langRef = useRef(null);
   const subRefs = useRef([]);
   const dayRefs = useRef([]);
+  const facultyRefs = useRef([]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
       // Student registration row dropdowns
       let updated = false;
+      
+      if (studentDropdownRef.current && !studentDropdownRef.current.contains(event.target) && isStudentDropdownOpen) {
+        setIsStudentDropdownOpen(false);
+      }
+
       const newSubjects = selectedSubjects.map((row, idx) => {
         const subContainer = subRefs.current[idx];
         const dayContainer = dayRefs.current[idx];
+        const facultyContainer = facultyRefs.current[idx];
         let newRow = { ...row };
         
         let rowUpdated = false;
@@ -70,6 +83,10 @@ const Registrations = () => {
         }
         if (dayContainer && !dayContainer.contains(event.target) && row.isDayDropdownOpen) {
           newRow.isDayDropdownOpen = false;
+          rowUpdated = true;
+        }
+        if (facultyContainer && !facultyContainer.contains(event.target) && row.isFacultyDropdownOpen) {
+          newRow.isFacultyDropdownOpen = false;
           rowUpdated = true;
         }
         if (rowUpdated) updated = true;
@@ -133,6 +150,13 @@ const Registrations = () => {
       if (res.data.success) {
         setMentors(res.data.data.mentors || []);
         setFaculties(res.data.data.faculties || []);
+      }
+      
+      const stdRes = await api.get('/aoe/students-all', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (stdRes.data.success) {
+        setAllStudents(stdRes.data.data || []);
       }
     } catch (error) {
       console.error("Failed to fetch dropdowns:", error);
@@ -223,6 +247,24 @@ const Registrations = () => {
 
 
 
+  const handleExistingStudentSelect = (student) => {
+    setStudentForm(prev => ({
+      ...prev,
+      name: student.name || '',
+      email: student.email || '',
+      contact: student.phone_number || '',
+      grade: student.grade || '',
+      syllabus: student.syllabus || '',
+      schoolName: student.school_name || '',
+      preferredLanguage: student.preferred_language || '',
+      country: student.country || '',
+      registrationNumber: student.registration_number || '',
+      admissionType: 'rejoin' // Ensure this stays
+    }));
+    setIsStudentDropdownOpen(false);
+    setStudentSearchQuery('');
+  };
+
   const handleStudentChange = (e) => setStudentForm({ ...studentForm, [e.target.name]: e.target.value });
   const handleFacultyChange = (e) => setFacultyForm({ ...facultyForm, [e.target.name]: e.target.value });
   const handleSSCChange = (e) => setSscForm({ ...sscForm, [e.target.name]: e.target.value });
@@ -236,7 +278,9 @@ const Registrations = () => {
       hourlyRate: '', 
       availableFaculties: [],
       isDayDropdownOpen: false, 
-      isSubjectDropdownOpen: false 
+      isSubjectDropdownOpen: false,
+      isFacultyDropdownOpen: false,
+      facultySearchQuery: ''
     }]);
   };
 
@@ -374,13 +418,42 @@ const Registrations = () => {
                 <h2 className="text-lg font-black text-slate-800 uppercase tracking-widest">Normal Registration</h2>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-2 mb-8 bg-[#008080]/5 p-6 rounded-3xl border border-[#008080]/20">
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-2 relative">
                   <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Admission Type</label>
                   <select name="admissionType" required value={studentForm.admissionType} onChange={handleStudentChange} className="w-full p-3 bg-white border border-slate-200 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-bold appearance-none shadow-sm">
                     <option value="new">New Student</option>
                     <option value="existing">Existing Student</option>
                     <option value="rejoining">Rejoining</option>
                   </select>
+                  {studentForm.admissionType === 'rejoining' && (
+                    <div className="relative mt-2" ref={studentDropdownRef}>
+                      <input 
+                        type="text" 
+                        placeholder="Search exiting student to auto-fill..." 
+                        value={studentSearchQuery}
+                        onChange={(e) => {
+                          setStudentSearchQuery(e.target.value);
+                          setIsStudentDropdownOpen(true);
+                        }}
+                        onFocus={() => setIsStudentDropdownOpen(true)}
+                        className="w-full p-3 bg-white border border-amber-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-amber-500 font-bold shadow-sm placeholder:text-amber-300"
+                      />
+                      {isStudentDropdownOpen && (
+                        <div className="absolute top-full left-0 w-full mt-1 bg-white border border-slate-200 rounded-xl shadow-2xl z-50 max-h-60 overflow-y-auto">
+                           {allStudents.filter(s => s.name.toLowerCase().includes(studentSearchQuery.toLowerCase()) || (s.email && s.email.toLowerCase().includes(studentSearchQuery.toLowerCase()))).length > 0 ? (
+                             allStudents.filter(s => s.name.toLowerCase().includes(studentSearchQuery.toLowerCase()) || (s.email && s.email.toLowerCase().includes(studentSearchQuery.toLowerCase()))).map(s => (
+                               <div key={s.id} onClick={() => handleExistingStudentSelect(s)} className="p-3 hover:bg-slate-50 cursor-pointer border-b border-slate-50 last:border-0">
+                                 <p className="text-sm font-bold text-slate-800">{s.name}</p>
+                                 <p className="text-[10px] text-slate-500 font-semibold">{s.email || 'No email'} • {s.grade}</p>
+                               </div>
+                             ))
+                           ) : (
+                             <div className="p-4 text-center text-slate-400 text-xs font-bold">No students found</div>
+                           )}
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
                 <div className="space-y-4">
                   <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Enrollment Plan</label>
@@ -815,26 +888,59 @@ const Registrations = () => {
                         </div>
 
                         {/* Faculty Selector */}
-                        <div className="flex flex-col gap-2">
+                        <div className="flex flex-col gap-2 relative" ref={el => facultyRefs.current[idx] = el}>
                           <label className="text-[10px] font-black text-[#008080] uppercase tracking-widest ml-1">Assigned Faculty</label>
-                          <select 
-                            value={row.facultyId} 
-                            onChange={(e) => handleSubjectChange(idx, 'facultyId', e.target.value)} 
-                            className="w-full p-4 bg-[#008080]/5 border border-[#008080]/20 rounded-2xl text-xs font-bold outline-none focus:ring-4 ring-[#008080]/10 appearance-none"
+                          <div 
+                            onClick={() => {
+                              const newSubjects = [...selectedSubjects];
+                              newSubjects[idx].isFacultyDropdownOpen = !newSubjects[idx].isFacultyDropdownOpen;
+                              setSelectedSubjects(newSubjects);
+                            }}
+                            className="w-full p-4 bg-[#008080]/5 border border-[#008080]/20 rounded-2xl text-xs font-bold outline-none focus:ring-4 ring-[#008080]/10 cursor-pointer flex justify-between items-center"
                           >
-                            <option value="" disabled>
-                              {(row.dayConfigs?.length === 0) ? 'Select Days First' : 'Select Faculty'}
-                            </option>
-                            {row.availableFaculties?.map(f => (
-                              <option 
-                                key={f.id} 
-                                value={f.id} 
-                                style={{ color: f.isAvailable ? 'inherit' : '#ef4444' }}
-                              >
-                                {f.name} {!f.isAvailable ? ' (NOT AVAILABLE)' : ''} {f.subject ? ` - [${f.subject}]` : ''}
-                              </option>
-                            ))}
-                          </select>
+                            <span className="truncate">
+                              {row.facultyName || ((row.dayConfigs?.length === 0) ? 'Select Days First' : 'Select Faculty')}
+                            </span>
+                            <span className="text-[#008080]">▼</span>
+                          </div>
+
+                          {row.isFacultyDropdownOpen && (
+                            <div className="absolute top-[100%] left-0 w-full bg-white border border-slate-100 rounded-2xl shadow-2xl z-[120] mt-1 p-2 max-h-60 flex flex-col animate-in fade-in zoom-in-95 duration-200">
+                               <input 
+                                 type="text" 
+                                 placeholder="Search faculty..." 
+                                 value={row.facultySearchQuery || ''}
+                                 onChange={(e) => handleSubjectChange(idx, 'facultySearchQuery', e.target.value)}
+                                 className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-xs outline-none focus:ring-2 focus:ring-[#008080] font-bold mb-2 sticky top-0"
+                                 onClick={(e) => e.stopPropagation()}
+                               />
+                               <div className="overflow-y-auto flex-1">
+                                 {(() => {
+                                   const listToSearch = (row.availableFaculties && row.availableFaculties.length > 0) ? row.availableFaculties : faculties;
+                                   const filtered = listToSearch.filter(f => f.name.toLowerCase().includes((row.facultySearchQuery || '').toLowerCase()));
+                                   if (filtered.length === 0) return <div className="p-3 text-center text-slate-400 text-xs font-bold">No faculty found</div>;
+                                   return filtered.map(f => (
+                                     <div 
+                                       key={f.id} 
+                                       onClick={() => {
+                                         handleSubjectChange(idx, 'facultyId', f.id.toString());
+                                         const newSubjects = [...selectedSubjects];
+                                         newSubjects[idx].isFacultyDropdownOpen = false;
+                                         newSubjects[idx].facultySearchQuery = '';
+                                         setSelectedSubjects(newSubjects);
+                                       }}
+                                       className="p-3 hover:bg-slate-50 cursor-pointer border-b border-slate-50 last:border-0 rounded-xl transition-colors"
+                                     >
+                                       <p className="text-sm font-bold" style={{ color: f.isAvailable === false ? '#ef4444' : '#334155' }}>
+                                         {f.name} {f.isAvailable === false ? ' (NOT AVAILABLE)' : ''}
+                                       </p>
+                                       {f.subject && <p className="text-[10px] text-slate-500 font-semibold uppercase tracking-widest">{f.subject}</p>}
+                                     </div>
+                                   ));
+                                 })()}
+                               </div>
+                            </div>
+                          )}
                         </div>
                       </div>
 
