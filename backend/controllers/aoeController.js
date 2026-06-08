@@ -474,13 +474,6 @@ const markLiveClassFeedbacksRead = async (req, res) => {
     } catch (e) { res.status(500).json({ success: false, message: e.message }); }
 };
 
-const forceSync = async (req, res) => {
-    try {
-        await performAutoSync();
-        res.status(200).json({ success: true, message: "Sync complete" });
-    } catch (e) { res.status(500).json({ success: false, message: e.message }); }
-};
-
 const submitLiveClassEvaluation = async (req, res) => {
     try {
         await db.query('INSERT INTO live_class_feedbacks (academic_operation_executive_id, faculty_id, student_id, remarks) VALUES (?, ?, ?, ?)', [req.user.id, req.body.faculty_id, req.body.student_id || null, req.body.remarks]);
@@ -1269,6 +1262,19 @@ const generateQualityAudits = async (req, res) => {
 
 module.exports = {
     getExamAnalytics, getDashboardStats, getAllFacultyActivity, getAvailableFaculties, getDropdownData, registerStudent, registerFaculty, registerSSC, getStudentInteractionLogs, getFacultyInteractionLogs, getAcademicActions, getDailyFacultyChecks, checkFacultySessionToday, uncheckFacultySession, getFacultyDirectory, getAcademicDocuments, uploadAcademicDocument, deleteAcademicDocument, getLiveClassEvaluations, submitLiveClassEvaluation, getPendingFacultyLogs, verifyFacultyLog, editFaculty, getFacultyEditHistory, getAllFacultyEditHistory, deleteFaculty, editStudent, deleteStudent, getStudentById, getStudents, getMentors, editMentor, deleteMentor, getLiveMonitoring, getStaff, syncLegacyData, saveExamPlan, getAcademicSchedule,
-    getAHParentInteractions, createAHParentInteraction, getAHFacultyInteractions, createAHFacultyInteraction, getAHParentMeetings, scheduleAHParentMeeting, reportAHParentMeeting,
-    getDemoSchedules, createDemoSchedule, editDemoSchedule, deleteDemoSchedule, updateDemoEvaluation, getQualityAudits, verifyQualityAudit, generateQualityAudits
+    getAHParentInteractions, createAHParentInteraction, getAHFacultyInteractions,    createAHFacultyInteraction,
+    getAHParentMeetings,
+    scheduleAHParentMeeting,
+    reportAHParentMeeting,
+    getDemoSchedules,
+    getDemoSchedules,
+    createDemoSchedule,
+    editDemoSchedule,
+    deleteDemoSchedule,
+    updateDemoEvaluation,
+    getQualityAudits,
+    generateQualityAudits,
+    verifyQualityAudit,
+    markLiveClassFeedbacksRead,
+    forceSync
 };
