@@ -162,11 +162,12 @@ const performAutoSync = async () => {
         const [sts] = await db.query('SELECT * FROM users WHERE role = "student"');
         for (const s of sts) {
             try {
-                await db.query(`
-                    INSERT INTO students (id, user_id, name, email, contact, status) 
-                    VALUES (?, ?, ?, ?, ?, ?) 
-                    ON DUPLICATE KEY UPDATE name = VALUES(name), email = VALUES(email), contact = VALUES(contact), status = VALUES(status)
-                `, [s.id, s.id, s.name, s.email || null, s.phone_number || null, s.status]);
+                const [existing] = await db.query('SELECT id FROM students WHERE user_id = ?', [s.id]);
+                if (existing.length > 0) {
+                    await db.query('UPDATE students SET name = ?, email = ?, contact = ?, status = ? WHERE user_id = ?', [s.name, s.email || null, s.phone_number || null, s.status, s.id]);
+                } else {
+                    await db.query('INSERT INTO students (user_id, name, email, contact, status) VALUES (?, ?, ?, ?, ?)', [s.id, s.name, s.email || null, s.phone_number || null, s.status]);
+                }
             } catch (err) {
                 console.error(`Error syncing student ${s.id}:`, err.message);
             }
@@ -176,11 +177,19 @@ const performAutoSync = async () => {
 
 const forceSync = async (req, res) => {
     try {
+        // Cleanup duplicate students created by previous auto-sync bug
+        await db.query(`
+            DELETE FROM students 
+            WHERE user_id IN (
+                SELECT user_id FROM (
+                    SELECT user_id FROM students GROUP BY user_id HAVING COUNT(*) > 1
+                ) as t
+            ) 
+            AND grade IS NULL
+        `);
         await performAutoSync();
-        res.status(200).json({ success: true, message: "Sync completed successfully for all roles!" });
-    } catch (e) {
-        res.status(500).json({ success: false, message: e.message });
-    }
+        res.status(200).json({ success: true, message: "Sync complete" });
+    } catch (e) { res.status(500).json({ success: false, message: e.message }); }
 };
 
 const getAvailableFaculties = async (req, res) => {
