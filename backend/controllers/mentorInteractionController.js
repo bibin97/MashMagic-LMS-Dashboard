@@ -355,7 +355,17 @@ module.exports = {
     getDailyAssignments,
     submitSessionReport,
     getHighRiskStudents,
-    getWeeklyCoverage
+    getWeeklyCoverage,
+    togglePause: async (req, res) => { 
+        try { 
+            const mentor_id = req.user.id; 
+            const [[mentor]] = await db.query('SELECT interaction_paused FROM users WHERE id = ?', [mentor_id]); 
+            const newStatus = !mentor.interaction_paused; 
+            await db.query('UPDATE users SET interaction_paused = ? WHERE id = ?', [newStatus, mentor_id]); 
+            res.status(200).json({ success: true, is_paused: newStatus, message: 'Pause status updated' }); 
+        } catch(err) { 
+            console.error(err); 
+            res.status(500).json({ success: false, message: 'Server Error' }); 
+        } 
+    }
 };
-m o d u l e . e x p o r t s . t o g g l e P a u s e   =   a s y n c   ( r e q ,   r e s )   = >   {   t r y   {   c o n s t   m e n t o r _ i d   =   r e q . u s e r . i d ;   c o n s t   [ [ m e n t o r ] ]   =   a w a i t   d b . q u e r y ( ' S E L E C T   i n t e r a c t i o n _ p a u s e d   F R O M   u s e r s   W H E R E   i d   =   ? ' ,   [ m e n t o r _ i d ] ) ;   c o n s t   n e w S t a t u s   =   ! m e n t o r . i n t e r a c t i o n _ p a u s e d ;   a w a i t   d b . q u e r y ( ' U P D A T E   u s e r s   S E T   i n t e r a c t i o n _ p a u s e d   =   ?   W H E R E   i d   =   ? ' ,   [ n e w S t a t u s ,   m e n t o r _ i d ] ) ;   r e s . s t a t u s ( 2 0 0 ) . j s o n ( {   s u c c e s s :   t r u e ,   i s _ p a u s e d :   n e w S t a t u s ,   m e s s a g e :   ' P a u s e   s t a t u s   u p d a t e d '   } ) ;   }   c a t c h ( e r r )   {   c o n s o l e . e r r o r ( e r r ) ;   r e s . s t a t u s ( 5 0 0 ) . j s o n ( {   s u c c e s s :   f a l s e ,   m e s s a g e :   ' S e r v e r   E r r o r '   } ) ;   }   } ;  
- 
