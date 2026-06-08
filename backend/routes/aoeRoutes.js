@@ -54,9 +54,13 @@ const {
     getQualityAudits,
     generateQualityAudits,
     verifyQualityAudit,
-    assignMentor,
-    forceSync
+    markLiveClassFeedbacksRead,
+    forceSync,
+    debugSync
 } = require('../controllers/aoeController');
+
+// Debug route
+router.get('/debug-sync', debugSync);
 const { getDailyUpdates } = require('../controllers/sscController');
 const { requireAuth } = require('../middleware/authMiddleware');
 const { requireRole } = require('../middleware/roleMiddleware');
