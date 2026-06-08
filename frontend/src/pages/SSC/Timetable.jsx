@@ -923,13 +923,20 @@ const Timetable = () => {
                             const idx = e.target.value;
                             if (idx === "") return;
                             const slot = studentSchedule[idx];
+                            
+                            let facId = slot.faculty_id;
+                            if (!facId && slot.faculty_name) {
+                              const found = faculties.find(f => f.name.toLowerCase() === slot.faculty_name.toLowerCase());
+                              if (found) facId = found.id;
+                            }
+
                             setFormData({
                               ...formData,
                               start_time: formatTo24hTime(slot.start_time),
                               end_time: formatTo24hTime(slot.end_time),
                               chapter: slot.subject || '',
-                              faculty_id: String(slot.faculty_id),
-                              faculty_name: slot.faculty_name
+                              faculty_id: facId ? String(facId) : '',
+                              faculty_name: slot.faculty_name || ''
                             });
                             setSelectedSlot(idx);
                           }}
