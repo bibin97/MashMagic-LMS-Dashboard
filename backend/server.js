@@ -268,6 +268,7 @@ const startServer = async () => {
                 'ALTER TABLE students ADD COLUMN completion_remarks TEXT NULL;',
                 'ALTER TABLE students ADD COLUMN completion_file TEXT NULL;',
                 'ALTER TABLE students ADD COLUMN course_completed_date DATE NULL;',
+                'ALTER TABLE faculty_schedules MODIFY COLUMN faculty_id INT NULL;',
                 'ALTER TABLE faculty_schedules MODIFY COLUMN start_time VARCHAR(20) NULL;',
                 'ALTER TABLE faculty_schedules MODIFY COLUMN end_time VARCHAR(20) NULL;',
                 

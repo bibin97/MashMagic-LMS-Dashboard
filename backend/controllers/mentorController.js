@@ -1292,7 +1292,7 @@ const getStudentAcademicSchedule = async (req, res) => {
         }
 
         // Fallback to subjects_json if faculty_schedules is empty
-        const [[student]] = await db.query('SELECT subjects_json FROM students WHERE id = ?', [studentId]);
+        const [[student]] = await db.query('SELECT subjects_json, faculty_id, faculty_name FROM students WHERE id = ?', [studentId]);
         if (student && student.subjects_json) {
             let parsed = [];
             try {
@@ -1303,6 +1303,9 @@ const getStudentAcademicSchedule = async (req, res) => {
             if (Array.isArray(parsed)) {
                 parsed.forEach(p => {
                     let subjectStr = Array.isArray(p.subject) ? p.subject.join(', ') : p.subject;
+                    let pFacultyId = p.faculty_id || student.faculty_id || null;
+                    let pFacultyName = p.faculty_name || student.faculty_name || null;
+                    
                     if (p.dayConfigs && Array.isArray(p.dayConfigs)) {
                         p.dayConfigs.forEach(dc => {
                             generatedSchedules.push({
@@ -1310,8 +1313,8 @@ const getStudentAcademicSchedule = async (req, res) => {
                                 start_time: convertTo24Hour(dc.startTime) || '10:00:00',
                                 end_time: convertTo24Hour(dc.endTime) || '11:00:00',
                                 subject: subjectStr,
-                                faculty_id: null,
-                                faculty_name: null
+                                faculty_id: pFacultyId,
+                                faculty_name: pFacultyName
                             });
                         });
                     }
@@ -1343,10 +1346,11 @@ const updateStudentAcademicSchedule = async (req, res) => {
         // 2. Insert new schedules
         if (schedules && Array.isArray(schedules) && schedules.length > 0) {
             for (const s of schedules) {
+                const facId = s.faculty_id ? parseInt(s.faculty_id) : null;
                 await connection.query(`
                     INSERT INTO faculty_schedules (student_id, day_of_week, start_time, end_time, subject, faculty_id)
                     VALUES (?, ?, ?, ?, ?, ?)
-                `, [studentId, s.day_of_week, s.start_time, s.end_time, s.subject, s.faculty_id]);
+                `, [studentId, s.day_of_week, s.start_time, s.end_time, s.subject, facId]);
             }
         }
 
