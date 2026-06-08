@@ -166,11 +166,11 @@ const OperationsHub = ({ section }) => {
     setLoading(true);
     try {
       if (tab === 'academic_quality') {
-        const [qualityRes, rotationRes] = await Promise.all([
-          api.get('/academic-head/faculty-quality'),
-          api.get('/academic-head/faculty-rotation')
-        ]);
-        setData(prev => ({ ...prev, [tab]: { ...qualityRes.data.data, dailyRotation: rotationRes.data.data } }));
+        const qualityRes = await api.get('/academic-head/faculty-quality');
+        setData(prev => ({ ...prev, [tab]: qualityRes.data.data }));
+      } else if (tab === 'faculty_rotation') {
+        const rotationRes = await api.get('/academic-head/faculty-rotation');
+        setData(prev => ({ ...prev, [tab]: rotationRes.data.data }));
       } else {
         let endpoint = '';
         if (tab === 'parent_meetings') endpoint = '/academic-head/parent-meetings';
@@ -202,59 +202,14 @@ const OperationsHub = ({ section }) => {
   };
 
   // Render Functions
-  const renderAcademicQuality = () => {
+
+
+  const renderLiveClassUpdates = () => {
     const evaluations = activeData.evaluations || [];
     const liveSessions = activeData.liveSessions || [];
 
     return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      
-      {/* Daily Faculty Rotation Section */}
-      <div className="bg-white p-6 md:p-8 rounded-[2rem] shadow-sm border border-slate-100 mb-6">
-        <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight mb-4">Daily Faculty Rotation</h2>
-        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-6">Faculties to call and monitor today</p>
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="bg-slate-50/50">
-                <th className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Faculty</th>
-                <th className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Subject</th>
-                <th className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Phone</th>
-                <th className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Status</th>
-                <th className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Next Call</th>
-                <th className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Action</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-50">
-              {(!activeData.dailyRotation || activeData.dailyRotation.length === 0) && !loading && (
-                <tr><td colSpan="6" className="py-6 text-center text-xs font-bold text-slate-400">No rotation data available for today.</td></tr>
-              )}
-              {activeData.dailyRotation?.map((rotation) => (
-                <tr key={rotation.id} className="hover:bg-slate-50/50 transition-colors">
-                  <td className="px-6 py-4 text-sm font-black text-slate-900 uppercase">{rotation.faculty_name}</td>
-                  <td className="px-6 py-4 text-xs font-bold text-slate-600 uppercase">{rotation.subject || 'N/A'}</td>
-                  <td className="px-6 py-4 text-xs font-bold text-slate-600">{rotation.phone_number || 'N/A'}</td>
-                  <td className="px-6 py-4">
-                    <span className={`text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest ${rotation.status === 'Called' ? 'bg-emerald-100 text-emerald-700' : rotation.status === 'Missed' ? 'bg-rose-100 text-rose-700' : 'bg-amber-100 text-amber-700'}`}>
-                      {rotation.status}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-xs font-bold text-slate-600">{rotation.next_call_date ? new Date(rotation.next_call_date).toLocaleDateString() : 'N/A'}</td>
-                  <td className="px-6 py-4">
-                    <button 
-                      onClick={() => setRotationModal({ show: true, rotation, status: rotation.status, notes: rotation.notes || '', next_call_date: rotation.next_call_date ? new Date(rotation.next_call_date).toISOString().split('T')[0] : '' })}
-                      className="px-4 py-2 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 hover:text-indigo-700 rounded-xl text-[10px] font-black uppercase tracking-widest transition-colors"
-                    >
-                      Update
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
       <div className="bg-white p-6 md:p-8 rounded-[2rem] shadow-sm border border-slate-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div>
           <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight">Live Class Observations</h2>
@@ -459,6 +414,57 @@ const OperationsHub = ({ section }) => {
           </div>
         </div>
       )}
+    </div>
+    );
+  };
+
+  const renderFacultyRotation = () => {
+    return (
+    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <div className="bg-white p-6 md:p-8 rounded-[2rem] shadow-sm border border-slate-100 mb-6">
+        <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight mb-4">Daily Faculty Rotation</h2>
+        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-6">Faculties to call and monitor today</p>
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="bg-slate-50/50">
+                <th className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Faculty</th>
+                <th className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Subject</th>
+                <th className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Phone</th>
+                <th className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Status</th>
+                <th className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Next Call</th>
+                <th className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Action</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-50">
+              {(!activeData || activeData.length === 0) && !loading && (
+                <tr><td colSpan="6" className="py-6 text-center text-xs font-bold text-slate-400">No rotation data available for today.</td></tr>
+              )}
+              {activeData?.map((rotation) => (
+                <tr key={rotation.id} className="hover:bg-slate-50/50 transition-colors">
+                  <td className="px-6 py-4 text-sm font-black text-slate-900 uppercase">{rotation.faculty_name}</td>
+                  <td className="px-6 py-4 text-xs font-bold text-slate-600 uppercase">{rotation.subject || 'N/A'}</td>
+                  <td className="px-6 py-4 text-xs font-bold text-slate-600">{rotation.phone_number || 'N/A'}</td>
+                  <td className="px-6 py-4">
+                    <span className={`text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest ${rotation.status === 'Called' ? 'bg-emerald-100 text-emerald-700' : rotation.status === 'Missed' ? 'bg-rose-100 text-rose-700' : 'bg-amber-100 text-amber-700'}`}>
+                      {rotation.status}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 text-xs font-bold text-slate-600">{rotation.next_call_date ? new Date(rotation.next_call_date).toLocaleDateString() : 'N/A'}</td>
+                  <td className="px-6 py-4">
+                    <button 
+                      onClick={() => setRotationModal({ show: true, rotation, status: rotation.status, notes: rotation.notes || '', next_call_date: rotation.next_call_date ? new Date(rotation.next_call_date).toISOString().split('T')[0] : '' })}
+                      className="px-4 py-2 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 hover:text-indigo-700 rounded-xl text-[10px] font-black uppercase tracking-widest transition-colors"
+                    >
+                      Update
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
 
       {rotationModal.show && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-in fade-in duration-200">
@@ -514,13 +520,13 @@ const OperationsHub = ({ section }) => {
                   {submittingRotation ? 'Saving...' : 'Save Update'}
                 </button>
               </div>
-            </form>
+              </form>
+            </div>
           </div>
-        </div>
-      )}
-    </div>
-  );
-};
+        )}
+      </div>
+    );
+  };
 
   const renderParentsMeeting = () => (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -785,7 +791,8 @@ const OperationsHub = ({ section }) => {
         {loading && <div className="text-center py-12"><div className="w-8 h-8 border-4 border-[#008080] border-t-transparent rounded-full animate-spin mx-auto"></div></div>}
         {!loading && (
           <>
-            {activeTab === 'academic_quality' && renderAcademicQuality()}
+            {activeTab === 'academic_quality' && renderLiveClassUpdates()}
+            {activeTab === 'faculty_rotation' && renderFacultyRotation()}
             {activeTab === 'parent_meetings' && renderParentsMeeting()}
             {activeTab === 'exam_scores' && renderExamScores()}
             {activeTab === 'student_growth' && renderStudentGrowth()}
