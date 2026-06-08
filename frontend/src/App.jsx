@@ -56,7 +56,6 @@ import FacultyStudents from './pages/Faculty/MyStudents';
 import FacultySessions from './pages/Faculty/FacultySessions';
 import FacultyReports from './pages/Faculty/FacultyReports';
 import FacultyExams from './pages/Faculty/FacultyExams';
-import FacultyDailyUpdate from './pages/Faculty/FacultyDailyUpdate';
 import FacultyTasks from './pages/Faculty/FacultyTasks';
 import FacultyNotifications from './pages/Faculty/FacultyNotifications';
 import MentorFeedbackView from './pages/Faculty/StudentLogs'; // Renamed import for clarity
@@ -294,7 +293,6 @@ function App() {
             <Route path="sessions" element={<FacultySessions />} />
             <Route path="reports" element={<FacultyReports />} />
             <Route path="exam-scores" element={<FacultyExams />} />
-            <Route path="student-logs" element={<FacultyDailyUpdate />} />
             <Route path="mentor-feedback" element={<MentorFeedbackView />} />
             <Route path="tasks" element={<FacultyTasks />} />
             <Route path="notifications" element={<FacultyNotifications />} />
