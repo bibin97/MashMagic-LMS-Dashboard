@@ -24,7 +24,6 @@ const MentorLayout = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   
   const [pendingTasksCount, setPendingTasksCount] = useState(0);
-  const [pendingExamsCount, setPendingExamsCount] = useState(0);
 
   const fetchPendingTasks = async () => {
     try {
@@ -34,34 +33,17 @@ const MentorLayout = () => {
     } catch (error) {}
   };
 
-  const fetchPendingExams = async () => {
-    try {
-      const res = await api.get('/mentor/exams/pending');
-      setPendingExamsCount(res.data.data.length);
-    } catch (error) {}
-  };
-
   useEffect(() => {
     if (user) {
       fetchPendingTasks();
-      fetchPendingExams();
       const interval = setInterval(() => {
         fetchPendingTasks();
-        fetchPendingExams();
       }, 30000);
       return () => clearInterval(interval);
     }
   }, [user]);
 
-  useEffect(() => {
-    if (pendingExamsCount > 0) {
-      toast(`Attention: ${pendingExamsCount} Exam Milestones are pending!`, {
-        icon: '📝',
-        duration: 6000,
-        id: 'exam-alert'
-      });
-    }
-  }, [pendingExamsCount]);
+
 
   const navItems = [
     { path: '/mentor/dashboard', icon: <LayoutDashboard size={18} />, label: 'Dashboard' },
@@ -69,10 +51,8 @@ const MentorLayout = () => {
     { path: '/mentor/students-data', icon: <ClipboardList size={18} />, label: 'Students Data' },
     { path: '/mentor/tasks', icon: <ListTodo size={18} />, label: 'Tasks', badge: pendingTasksCount },
     { path: '/mentor/interaction-logs', icon: <MessageSquare size={18} />, label: 'Student Interactions' },
-    { path: '/mentor/faculty-logs', icon: <Contact size={18} />, label: 'Faculty Tracking' },
     { path: '/mentor/timetable', icon: <CalendarClock size={18} />, label: 'Timetable' },
     { path: '/mentor/academic-schedule', icon: <Calendar size={18} />, label: 'Academic Schedule' },
-    { path: '/mentor/exams', icon: <GraduationCap size={18} />, label: 'Exams', badge: pendingExamsCount },
   ];
 
   return (

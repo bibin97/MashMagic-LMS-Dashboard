@@ -23,7 +23,8 @@ const StudentInteractionLog = () => {
  const [statusFilter, setStatusFilter] = useState('pending'); // 'pending', 'completed'
  
  // Form States
- const [sessionType, setSessionType] = useState(null); // 'DEEP', 'MEDIUM', 'QUICK'
+ const [isPaused, setIsPaused] = useState(false);
+ const [sessionType, setSessionType] = useState(null); // 'DEEP', 'MEDIUM', 'QUICK', 'CANCELLED'
  const [formData, setFormData] = useState({});
 
  useEffect(() => {
@@ -36,10 +37,24 @@ const StudentInteractionLog = () => {
    try {
      const res = await api.get('/mentor-interactions/daily-assignments');
      setAssignedStudents(res.data.data);
+     if (res.data.is_paused !== undefined) {
+       setIsPaused(res.data.is_paused);
+     }
    } catch (error) {
      toast.error("Failed to load daily assignments");
    } finally {
      setAssignedLoading(false);
+   }
+ };
+
+ const handleTogglePause = async () => {
+   try {
+     const res = await api.post('/mentor-interactions/toggle-pause');
+     setIsPaused(res.data.is_paused);
+     toast.success(res.data.is_paused ? "Interaction Rotation Paused" : "Interaction Rotation Resumed");
+     fetchAssignedStudents();
+   } catch (error) {
+     toast.error("Failed to toggle pause status");
    }
  };
 
@@ -112,8 +127,13 @@ const StudentInteractionLog = () => {
    setLoading(true);
 
     try {
-      // Validation Rules from Product Document
-      if (sessionType === 'DEEP') {
+      if (sessionType === 'CANCELLED') {
+        if (!formData.cancel_reason) {
+          toast.error("Cancellation Reason is mandatory");
+          setLoading(false);
+          return;
+        }
+      } else if (sessionType === 'DEEP') {
         if (!formData.action_plan || !formData.main_problem || !formData.root_cause || !formData.mentor_guidance) {
           toast.error("Please fill all mandatory fields (Problem, Root Cause, Guidance, and Action Plan)");
           setLoading(false);
@@ -132,6 +152,7 @@ const StudentInteractionLog = () => {
           return;
         }
       }
+
      if (sessionType === 'TUITION') {
        // Old legacy logging or simple tracking for tuition
        await api.post('/mentor/student-log', {
@@ -146,7 +167,7 @@ const StudentInteractionLog = () => {
        await api.post('/mentor-interactions/submit-report', {
          student_id: selectedStudent.id,
          session_type: sessionType,
-         next_session_type: formData.next_session_type,
+         next_session_type: formData.next_session_type || 'QUICK',
          report_data: formData
        });
      }
@@ -232,48 +253,61 @@ const StudentInteractionLog = () => {
           </div>
        </header>
 
-       <div className="space-y-4">
-        {/* Main Category Tabs */}
-        <div className="flex flex-wrap gap-4 p-2 bg-white/50 backdrop-blur-md rounded-[28px] border border-slate-200/50 sticky top-4 z-50 shadow-sm">
-          {[
-            { id: 'both', label: `Mentorship + Tuition (${allStudents.filter(isDiamondCategory).length})`, color: 'bg-purple-600' },
-            { id: 'mentorship', label: `Mentorship Only (${allStudents.filter(isGoldCategory).length})`, color: 'bg-amber-500' },
-            { id: 'tuition', label: `Tuition Only (${allStudents.filter(isSilverCategory).length})`, color: 'bg-[#008080]' }
-          ].map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`flex-1 py-4 px-6 rounded-[22px] text-[11px] font-black uppercase tracking-widest transition-all ${activeTab === tab.id ? `${tab.color} text-white shadow-lg` : 'text-slate-600 hover:bg-white'}`}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
+        <div className="space-y-4">
+         {/* Main Category Tabs & Pause Toggle */}
+         <div className="flex flex-col md:flex-row justify-between items-center gap-4 p-2 bg-white/50 backdrop-blur-md rounded-[28px] border border-slate-200/50 sticky top-4 z-50 shadow-sm">
+           <div className="flex flex-wrap gap-4 flex-1 w-full">
+             {[
+               { id: 'both', label: `Mentorship + Tuition (${allStudents.filter(isDiamondCategory).length})`, color: 'bg-purple-600' },
+               { id: 'mentorship', label: `Mentorship Only (${allStudents.filter(isGoldCategory).length})`, color: 'bg-amber-500' }
+             ].map(tab => (
+               <button
+                 key={tab.id}
+                 onClick={() => setActiveTab(tab.id)}
+                 className={`flex-1 py-4 px-6 rounded-[22px] text-[11px] font-black uppercase tracking-widest transition-all ${activeTab === tab.id ? `${tab.color} text-white shadow-lg` : 'text-slate-600 hover:bg-white'}`}
+               >
+                 {tab.label}
+               </button>
+             ))}
+           </div>
+           <button
+             onClick={handleTogglePause}
+             className={`px-6 py-4 rounded-[22px] text-[11px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${isPaused ? 'bg-amber-100 text-amber-700 border border-amber-300' : 'bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-200'}`}
+           >
+             {isPaused ? <AlertCircle size={16} /> : <Clock size={16} />}
+             {isPaused ? 'Resume Rotation' : 'Pause Rotation'}
+           </button>
+         </div>
 
-        {/* Sub-Tabs: Status Filter */}
-        <div className="flex justify-center gap-3">
-          <button
-            onClick={() => setStatusFilter('pending')}
-            className={`px-8 py-3 rounded-2xl text-[9px] font-black uppercase tracking-[0.2em] transition-all flex items-center gap-3 ${statusFilter === 'pending' ? 'bg-rose-500 text-white shadow-xl shadow-rose-200' : 'bg-white text-slate-400 border border-slate-100 hover:border-rose-200'}`}
-          >
-            <div className={`w-2 h-2 rounded-full ${statusFilter === 'pending' ? 'bg-white animate-pulse' : 'bg-rose-500'}`}></div>
-            Awaiting Interaction ({activeTab === 'tuition' ? 
-              allStudents.filter(s => isSilverCategory(s) && !s.connected_today).length :
-              assignedStudents.filter(s => s.status !== 'COMPLETED' && (activeTab === 'both' ? isDiamondCategory(s) : isGoldCategory(s))).length
-            })
-          </button>
-          <button
-            onClick={() => setStatusFilter('completed')}
-            className={`px-8 py-3 rounded-2xl text-[9px] font-black uppercase tracking-[0.2em] transition-all flex items-center gap-3 ${statusFilter === 'completed' ? 'bg-emerald-500 text-white shadow-xl shadow-emerald-200' : 'bg-white text-slate-400 border border-slate-100 hover:border-emerald-200'}`}
-          >
-            <div className={`w-2 h-2 rounded-full ${statusFilter === 'completed' ? 'bg-white animate-pulse' : 'bg-emerald-500'}`}></div>
-            Completed Today ({activeTab === 'tuition' ? 
-              allStudents.filter(s => isSilverCategory(s) && s.connected_today).length :
-              assignedStudents.filter(s => s.status === 'COMPLETED' && (activeTab === 'both' ? isDiamondCategory(s) : isGoldCategory(s))).length
-            })
-          </button>
-        </div>
-      </div>
+         {isPaused && (
+           <div className="p-6 bg-amber-50 border border-amber-200 rounded-3xl flex items-center justify-center gap-4 animate-in fade-in zoom-in duration-500">
+             <AlertCircle className="text-amber-500" size={24} />
+             <p className="text-sm font-black text-amber-700 uppercase tracking-widest">Interaction Rotation is currently paused. You will not receive new assignments until you resume.</p>
+           </div>
+         )}
+
+         {/* Sub-Tabs: Status Filter */}
+         <div className="flex justify-center gap-3">
+           <button
+             onClick={() => setStatusFilter('pending')}
+             className={`px-8 py-3 rounded-2xl text-[9px] font-black uppercase tracking-[0.2em] transition-all flex items-center gap-3 ${statusFilter === 'pending' ? 'bg-rose-500 text-white shadow-xl shadow-rose-200' : 'bg-white text-slate-400 border border-slate-100 hover:border-rose-200'}`}
+           >
+             <div className={`w-2 h-2 rounded-full ${statusFilter === 'pending' ? 'bg-white animate-pulse' : 'bg-rose-500'}`}></div>
+             Awaiting Interaction ({
+               assignedStudents.filter(s => s.status !== 'COMPLETED' && s.status !== 'CANCELLED' && (activeTab === 'both' ? isDiamondCategory(s) : isGoldCategory(s))).length
+             })
+           </button>
+           <button
+             onClick={() => setStatusFilter('completed')}
+             className={`px-8 py-3 rounded-2xl text-[9px] font-black uppercase tracking-[0.2em] transition-all flex items-center gap-3 ${statusFilter === 'completed' ? 'bg-emerald-500 text-white shadow-xl shadow-emerald-200' : 'bg-white text-slate-400 border border-slate-100 hover:border-emerald-200'}`}
+           >
+             <div className={`w-2 h-2 rounded-full ${statusFilter === 'completed' ? 'bg-white animate-pulse' : 'bg-emerald-500'}`}></div>
+             Completed Today ({
+               assignedStudents.filter(s => (s.status === 'COMPLETED' || s.status === 'CANCELLED') && (activeTab === 'both' ? isDiamondCategory(s) : isGoldCategory(s))).length
+             })
+           </button>
+         </div>
+       </div>
 
        {/* Main Content Area */}
        <div className="min-h-[400px]">
@@ -284,7 +318,7 @@ const StudentInteractionLog = () => {
            </div>
          ) : (
            <div className="space-y-10 animate-in fade-in duration-500">
-             {activeTab !== 'tuition' ? (
+             {activeTab !== 'tuition' && (
                 <div className="space-y-8">
                   <div className="flex items-center justify-between px-4">
                      <h3 className="text-sm font-black text-slate-900 uppercase tracking-[0.2em] flex items-center gap-3">
@@ -359,63 +393,11 @@ const StudentInteractionLog = () => {
                     )}
                   </div>
                 </div>
-             ) : (
-                <div className="space-y-8">
-                  <div className="flex items-center gap-3 px-4">
-                    <div className="w-4 h-8 bg-[#008080] rounded-full"></div>
-                    <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest">
-                      {statusFilter === 'pending' ? 'Pending Tuition Attendance' : 'Concluded Tuition Records'}
-                    </h3>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {allStudents
-                      .filter(s => isSilverCategory(s) && (statusFilter === 'completed' ? s.connected_today : !s.connected_today))
-                      .sort((a, b) => a.name.localeCompare(b.name))
-                      .map(student => (
-                      <button
-                        key={student.id}
-                        onClick={() => handleStudentSelect(student, 'TUITION')}
-                        className={`bg-white p-8 rounded-[3rem] border border-slate-100 hover:shadow-xl hover:scale-[1.02] transition-all text-left group h-48 flex flex-col justify-between ${student.connected_today ? 'bg-emerald-50/50 border-emerald-100' : ''}`}
-                      >
-                        <div>
-                          <div className="flex justify-between items-start mb-1">
-                            <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight truncate">{student.name}</h3>
-                            {student.connected_today && <CheckCircle2 className="text-emerald-500" size={20} />}
-                          </div>
-                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest truncate">{student.course} • Grade {student.grade}</p>
-                          
-                          <div className="mt-4 flex items-center gap-2 p-2 bg-slate-50 rounded-xl border border-slate-100" title={`Consumed: ${student.consumed_hours || 0} | Paid Limit: ${student.paid_hours || 0}`}>
-                            <div className={`w-2 h-2 rounded-full ${student.payment_alert_level === 'Critical' ? 'bg-rose-500 animate-pulse' : student.payment_alert_level === 'Warning' ? 'bg-amber-500 animate-pulse' : 'bg-emerald-400'} shrink-0`}></div>
-                            <div className="flex flex-col gap-0.5">
-                              <p className={`text-[9px] font-black uppercase truncate leading-none ${student.payment_alert_level === 'Critical' ? 'text-rose-600' : student.payment_alert_level === 'Warning' ? 'text-amber-600' : 'text-emerald-600'}`}>
-                                {student.payment_alert_level || 'Safe'} • {Math.round(((student.consumed_hours || 0) / (student.paid_hours || 1)) * 100)}%
-                              </p>
-                              <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest leading-none">
-                                {student.consumed_hours || 0} hrs cycle consumed / {Math.round(student.paid_hours || 0)} hrs cycle limit
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2 text-[#008080] text-[9px] font-black uppercase tracking-[0.2em]">
-                            {student.connected_today ? 'View Record' : 'Track Attendance'}
-                          </div>
-                          <ArrowLeft size={16} className="text-slate-300 rotate-180" />
-                        </div>
-                      </button>
-                    ))}
-                    {allStudents.filter(s => isSilverCategory(s) && (statusFilter === 'completed' ? s.connected_today : !s.connected_today)).length === 0 && (
-                      <div className="col-span-full py-20 text-center bg-slate-50/50 rounded-[3rem] border border-dashed border-slate-200">
-                         <p className="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">No students in this {statusFilter} category.</p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-             )}
-           </div>
-         )}
-       </div>
-     </div>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
    );
  }
 
@@ -429,12 +411,12 @@ const StudentInteractionLog = () => {
        <ArrowLeft size={16} /> Return to Dashboard
      </button>
 
-     <header className={`border p-10 rounded-[3rem] shadow-2xl relative overflow-hidden transition-all ${sessionType === 'DEEP' ? 'bg-rose-950 border-rose-900' : sessionType === 'MEDIUM' ? 'bg-amber-950 border-amber-900' : sessionType === 'QUICK' ? 'bg-blue-950 border-blue-900' : 'bg-[#008080] border-slate-800'}`}>
-        <div className={`absolute top-0 right-0 w-80 h-80 rounded-full -mr-40 -mt-40 opacity-10 ${sessionType === 'DEEP' ? 'bg-rose-500' : sessionType === 'MEDIUM' ? 'bg-amber-500' : sessionType === 'QUICK' ? 'bg-blue-500' : 'bg-[#008080]'}`}></div>
+     <header className={`border p-10 rounded-[3rem] shadow-2xl relative overflow-hidden transition-all ${sessionType === 'CANCELLED' ? 'bg-slate-900 border-slate-800' : sessionType === 'DEEP' ? 'bg-rose-950 border-rose-900' : sessionType === 'MEDIUM' ? 'bg-amber-950 border-amber-900' : sessionType === 'QUICK' ? 'bg-blue-950 border-blue-900' : 'bg-[#008080] border-slate-800'}`}>
+        <div className={`absolute top-0 right-0 w-80 h-80 rounded-full -mr-40 -mt-40 opacity-10 ${sessionType === 'CANCELLED' ? 'bg-slate-500' : sessionType === 'DEEP' ? 'bg-rose-500' : sessionType === 'MEDIUM' ? 'bg-amber-500' : sessionType === 'QUICK' ? 'bg-blue-500' : 'bg-[#008080]'}`}></div>
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="flex items-center gap-6">
-            <div className={`w-16 h-16 rounded-[1.5rem] flex items-center justify-center text-white shadow-xl ${sessionType === 'DEEP' ? 'bg-rose-500' : sessionType === 'MEDIUM' ? 'bg-amber-500' : sessionType === 'QUICK' ? 'bg-blue-500' : 'bg-[#008080]'}`}>
-              {getSessionIcon(sessionType)}
+            <div className={`w-16 h-16 rounded-[1.5rem] flex items-center justify-center text-white shadow-xl ${sessionType === 'CANCELLED' ? 'bg-slate-500' : sessionType === 'DEEP' ? 'bg-rose-500' : sessionType === 'MEDIUM' ? 'bg-amber-500' : sessionType === 'QUICK' ? 'bg-blue-500' : 'bg-[#008080]'}`}>
+              {sessionType === 'CANCELLED' ? <XCircle size={24} /> : getSessionIcon(sessionType)}
             </div>
             <div>
               <h1 className="text-3xl font-black text-white tracking-tight leading-none uppercase mb-2">{selectedStudent.name}</h1>
@@ -453,8 +435,46 @@ const StudentInteractionLog = () => {
      </header>
 
      {!submitted ? (
-       <form onSubmit={handleSubmit} className="bg-white p-6 md:p-12 rounded-[3.5rem] shadow-2xl border border-slate-50 space-y-12">
+       <form onSubmit={handleSubmit} className="bg-white p-6 md:p-12 rounded-[3.5rem] shadow-2xl border border-slate-50 space-y-12 relative">
          
+         {sessionType !== 'CANCELLED' && (
+           <div className="absolute top-8 right-8 z-20">
+             <button
+               type="button"
+               onClick={() => setSessionType('CANCELLED')}
+               className="flex items-center gap-2 px-4 py-2 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl text-[10px] font-black uppercase tracking-widest transition-colors border border-rose-100"
+             >
+               <XCircle size={14} /> Cancel Session
+             </button>
+           </div>
+         )}
+
+         {sessionType === 'CANCELLED' && (
+           <div className="space-y-6 animate-in fade-in zoom-in duration-300">
+              <div className="p-8 bg-slate-50 border border-slate-200 rounded-[2.5rem] space-y-4">
+                <div className="flex items-center gap-3">
+                  <XCircle className="text-slate-500" size={24} />
+                  <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight">Cancel Interaction</h3>
+                </div>
+                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                  You are about to cancel this interaction. This will clear it from your pending list, but you MUST provide a reason.
+                </p>
+                
+                <div className="space-y-2 mt-6">
+                  <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 block">Cancellation Reason (Mandatory)</label>
+                  <textarea 
+                    name="cancel_reason" 
+                    rows="3" 
+                    required 
+                    value={formData.cancel_reason || ''} 
+                    onChange={handleChange} 
+                    className="w-full p-4 bg-white border border-slate-200 rounded-[1.5rem] text-sm font-bold outline-none focus:ring-4 focus:ring-slate-900/10 transition-all placeholder:text-slate-300" 
+                    placeholder="Why was this session cancelled? (e.g., Student unreachable, Number busy...)"
+                  ></textarea>
+                </div>
+              </div>
+           </div>
+         )}
          {sessionType === 'DEEP' && (
             <div className="space-y-10">
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 bg-slate-50 p-6 rounded-[2.5rem] border border-slate-100 items-end">
@@ -622,26 +642,7 @@ const StudentInteractionLog = () => {
             </div>
          )}
 
-         {sessionType === 'TUITION' && (
-           <div className="space-y-8">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="space-y-2">
-                   <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Attendance Status</label>
-                   <select name="attendance" value={formData.attendance} onChange={handleChange} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-black uppercase">
-                     {['Present', 'Absent', 'Late'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
-                   </select>
-                </div>
-                <div className="space-y-2">
-                   <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Date</label>
-                   <input type="date" name="date" value={formData.date} onChange={handleChange} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-black uppercase" />
-                </div>
-              </div>
-              <div className="space-y-2">
-                 <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Observations / Quick Notes</label>
-                 <textarea name="notes" rows="4" value={formData.notes} onChange={handleChange} className="w-full p-6 bg-slate-50 border border-slate-100 rounded-[2rem] text-sm font-bold outline-none focus:ring-4 focus:ring-slate-900/10" placeholder="Any specific notes for today's tuition..."></textarea>
-              </div>
-           </div>
-         )}
+
 
           {/* Next Attention Level & Notes */}
           {(sessionType === 'DEEP' || sessionType === 'MEDIUM' || sessionType === 'QUICK') && (
@@ -707,10 +708,10 @@ const StudentInteractionLog = () => {
            <button
              type="submit"
              disabled={loading}
-             className={`w-full p-6 rounded-[2.5rem] font-black text-sm uppercase tracking-[0.3em] shadow-2xl transition-all disabled:opacity-50 flex items-center justify-center gap-4 active:scale-[0.98] ${sessionType === 'DEEP' ? 'bg-rose-600 text-white shadow-rose-200 hover:-translate-y-1' : sessionType === 'MEDIUM' ? 'bg-amber-500 text-white shadow-amber-200 hover:-translate-y-1' : sessionType === 'QUICK' ? 'bg-blue-600 text-white shadow-blue-200 hover:-translate-y-1' : 'bg-[#008080] text-white hover:-translate-y-1'}`}
+             className={`w-full p-6 rounded-[2.5rem] font-black text-sm uppercase tracking-[0.3em] shadow-2xl transition-all disabled:opacity-50 flex items-center justify-center gap-4 active:scale-[0.98] ${sessionType === 'CANCELLED' ? 'bg-slate-800 text-white shadow-slate-200 hover:-translate-y-1' : sessionType === 'DEEP' ? 'bg-rose-600 text-white shadow-rose-200 hover:-translate-y-1' : sessionType === 'MEDIUM' ? 'bg-amber-500 text-white shadow-amber-200 hover:-translate-y-1' : sessionType === 'QUICK' ? 'bg-blue-600 text-white shadow-blue-200 hover:-translate-y-1' : 'bg-[#008080] text-white hover:-translate-y-1'}`}
            >
-             {loading ? 'Saving Interaction...' : 'Save Interaction'}
-             {!loading && <CheckCircle2 size={24} />}
+             {loading ? 'Saving...' : sessionType === 'CANCELLED' ? 'Save Cancelled Interaction' : 'Save Interaction'}
+             {!loading && (sessionType === 'CANCELLED' ? <XCircle size={24} /> : <CheckCircle2 size={24} />)}
            </button>
          </div>
 
