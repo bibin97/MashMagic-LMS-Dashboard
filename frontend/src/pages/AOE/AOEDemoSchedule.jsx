@@ -123,9 +123,16 @@ const AOEDemoSchedule = () => {
     }
     
     try {
-      await api.post('/aoe/demo-schedules', formData);
-      toast.success('Demo Schedule Created Successfully');
+      if (formData.id) {
+        await api.put(`/aoe/demo-schedules/${formData.id}`, formData);
+        toast.success('Demo Schedule Updated Successfully');
+      } else {
+        await api.post('/aoe/demo-schedules', formData);
+        toast.success('Demo Schedule Created Successfully');
+      }
+      
       setFormData({
+        id: undefined,
         demo_id: '',
         student_name: '',
         student_type: 'new',
@@ -140,7 +147,36 @@ const AOEDemoSchedule = () => {
       fetchDemos();
       setActiveTab('list');
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to create schedule');
+      toast.error(error.response?.data?.message || (formData.id ? 'Failed to update schedule' : 'Failed to create schedule'));
+    }
+  };
+
+  const handleEditClick = (demo) => {
+    setFormData({
+      id: demo.id,
+      demo_id: demo.demo_id || '',
+      student_name: demo.student_name || '',
+      student_type: demo.student_type || 'new',
+      syllabus: demo.syllabus || '',
+      section: demo.section || '',
+      subject: demo.subject || '',
+      faculty_id: demo.faculty_id || '',
+      start_time: demo.start_time || '',
+      end_time: demo.end_time || '',
+      hour_rate: demo.hour_rate || ''
+    });
+    setActiveTab('schedule');
+  };
+
+  const handleDeleteClick = async (demoId) => {
+    if (window.confirm('Are you sure you want to delete this demo schedule?')) {
+      try {
+        await api.delete(`/aoe/demo-schedules/${demoId}`);
+        toast.success('Demo Schedule Deleted Successfully');
+        fetchDemos();
+      } catch (error) {
+        toast.error('Failed to delete demo schedule');
+      }
     }
   };
 
@@ -178,15 +214,43 @@ const AOEDemoSchedule = () => {
     <div className="space-y-8 pb-20 max-w-[1600px] mx-auto min-h-screen">
       {/* Header section */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 border-b-4 border-b-[#008080]">
-        <div className="flex items-center gap-5">
-          <div className="w-14 h-14 bg-[#008080] rounded-2xl flex items-center justify-center text-white shadow-xl rotate-3 group hover:rotate-0 transition-all duration-500">
-            <CalendarDays size={28} />
+          <div className="flex items-center gap-4 mb-10">
+            <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600">
+              <Target size={24} />
+            </div>
+            <div>
+              <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight">
+                {formData.id ? 'Edit Demo Schedule' : 'Schedule New Demo'}
+              </h2>
+              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">
+                {formData.id ? 'Update demo class details' : 'Fill in the details for the new demo class'}
+              </p>
+            </div>
+            {formData.id && (
+              <button
+                type="button"
+                onClick={() => {
+                  setFormData({
+                    id: undefined,
+                    demo_id: '',
+                    student_name: '',
+                    student_type: 'new',
+                    syllabus: '',
+                    section: '',
+                    subject: '',
+                    faculty_id: '',
+                    start_time: '',
+                    end_time: '',
+                    hour_rate: ''
+                  });
+                  setActiveTab('list');
+                }}
+                className="ml-auto px-4 py-2 bg-slate-100 text-slate-600 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-200 transition-colors"
+              >
+                Cancel Edit
+              </button>
+            )}
           </div>
-          <div>
-            <h1 className="text-3xl font-black text-slate-900 tracking-tighter uppercase">Demo Management</h1>
-            <p className="text-[10px] font-bold text-slate-600 uppercase tracking-[0.2em] mt-1">Schedule and evaluate student demos</p>
-          </div>
-        </div>
       </div>
 
       {/* Tabs Menu */}
@@ -440,7 +504,7 @@ const AOEDemoSchedule = () => {
                 type="submit"
                 className="px-10 py-4 bg-[#008080] text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-xl hover:bg-[#006666] transition-all flex items-center gap-2"
               >
-                <Save size={16} /> Save Schedule
+                <Save size={16} /> {formData.id ? 'Update Schedule' : 'Save Schedule'}
               </button>
             </div>
           </form>
@@ -480,12 +544,48 @@ const AOEDemoSchedule = () => {
                       <p className="text-[10px] font-black text-[#008080] uppercase tracking-widest">{demo.student_type} Student</p>
                     </div>
                     {demo.status === 'completed' ? (
-                      <div className="text-center">
-                        <span className="block text-[20px] font-black text-emerald-600">{demo.total_score}/50</span>
-                        <span className="text-[8px] font-black text-emerald-500 uppercase tracking-widest">Score</span>
+                      <div className="flex flex-col items-end gap-2">
+                        <div className="text-center">
+                          <span className="block text-[20px] font-black text-emerald-600">{demo.total_score}/50</span>
+                          <span className="text-[8px] font-black text-emerald-500 uppercase tracking-widest">Score</span>
+                        </div>
+                        <div className="flex gap-2 mt-1">
+                          <button 
+                            onClick={() => handleEditClick(demo)}
+                            className="text-emerald-400 hover:text-indigo-600 transition-colors"
+                            title="Edit Demo"
+                          >
+                            <Target size={14} />
+                          </button>
+                          <button 
+                            onClick={() => handleDeleteClick(demo.id)}
+                            className="text-emerald-400 hover:text-rose-600 transition-colors"
+                            title="Delete Demo"
+                          >
+                            <XCircle size={14} />
+                          </button>
+                        </div>
                       </div>
                     ) : (
-                      <span className="text-[9px] font-black px-3 py-1 bg-amber-100 text-amber-600 rounded-full uppercase tracking-widest">Pending</span>
+                      <div className="flex flex-col items-end gap-2">
+                        <span className="text-[9px] font-black px-3 py-1 bg-amber-100 text-amber-600 rounded-full uppercase tracking-widest">Pending</span>
+                        <div className="flex gap-2">
+                          <button 
+                            onClick={() => handleEditClick(demo)}
+                            className="text-slate-400 hover:text-indigo-600 transition-colors"
+                            title="Edit Demo"
+                          >
+                            <Target size={14} />
+                          </button>
+                          <button 
+                            onClick={() => handleDeleteClick(demo.id)}
+                            className="text-slate-400 hover:text-rose-600 transition-colors"
+                            title="Delete Demo"
+                          >
+                            <XCircle size={14} />
+                          </button>
+                        </div>
+                      </div>
                     )}
                   </div>
                   

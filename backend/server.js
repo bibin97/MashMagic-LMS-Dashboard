@@ -605,6 +605,19 @@ const startServer = async () => {
                     FOREIGN KEY (academic_head_id) REFERENCES users(id)
                 );`,
 
+                `CREATE TABLE IF NOT EXISTS ah_faculty_rotation (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    faculty_id INT NOT NULL,
+                    academic_head_id INT NOT NULL,
+                    rotation_date DATE NOT NULL,
+                    status ENUM('Pending', 'Called', 'Missed') DEFAULT 'Pending',
+                    next_call_date DATE,
+                    notes TEXT,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (faculty_id) REFERENCES users(id) ON DELETE CASCADE,
+                    FOREIGN KEY (academic_head_id) REFERENCES users(id) ON DELETE CASCADE
+                );`,
+
                 `CREATE TABLE IF NOT EXISTS ah_parent_meetings (
                     id INT AUTO_INCREMENT PRIMARY KEY,
                     student_id INT NOT NULL,

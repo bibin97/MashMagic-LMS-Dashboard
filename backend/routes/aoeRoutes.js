@@ -48,6 +48,8 @@ const {
     reportAHParentMeeting,
     getDemoSchedules,
     createDemoSchedule,
+    editDemoSchedule,
+    deleteDemoSchedule,
     updateDemoEvaluation,
     getQualityAudits,
     generateQualityAudits,
@@ -130,6 +132,8 @@ router.put('/parent-meetings/:id/report', reportAHParentMeeting);
 // Demo Schedules
 router.get('/demo-schedules', getDemoSchedules);
 router.post('/demo-schedules', createDemoSchedule);
+router.put('/demo-schedules/:id', editDemoSchedule);
+router.delete('/demo-schedules/:id', deleteDemoSchedule);
 router.put('/demo-schedules/:id/evaluate', updateDemoEvaluation);
 
 module.exports = router;

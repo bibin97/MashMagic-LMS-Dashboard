@@ -954,6 +954,35 @@ const createDemoSchedule = async (req, res) => {
     }
 };
 
+const editDemoSchedule = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { student_name, student_type, syllabus, section, subject, faculty_id, start_time, end_time, hour_rate } = req.body;
+        
+        await db.query(`
+            UPDATE aoe_demo_schedules 
+            SET student_name=?, student_type=?, syllabus=?, section=?, subject=?, faculty_id=?, start_time=?, end_time=?, hour_rate=?
+            WHERE id=?
+        `, [student_name, student_type, syllabus, section, subject, faculty_id, start_time, end_time, hour_rate, id]);
+        
+        res.status(200).json({ success: true, message: 'Demo schedule updated successfully' });
+    } catch (error) {
+        console.error("EDIT_DEMO_ERROR:", error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+const deleteDemoSchedule = async (req, res) => {
+    try {
+        const { id } = req.params;
+        await db.query('DELETE FROM aoe_demo_schedules WHERE id=?', [id]);
+        res.status(200).json({ success: true, message: 'Demo schedule deleted successfully' });
+    } catch (error) {
+        console.error("DELETE_DEMO_ERROR:", error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
 const updateDemoEvaluation = async (req, res) => {
     try {
         const { id } = req.params;
@@ -1185,5 +1214,5 @@ const generateQualityAudits = async (req, res) => {
 module.exports = {
     getExamAnalytics, getDashboardStats, getAllFacultyActivity, getAvailableFaculties, getDropdownData, registerStudent, registerFaculty, registerSSC, getStudentInteractionLogs, getFacultyInteractionLogs, getAcademicActions, getDailyFacultyChecks, checkFacultySessionToday, uncheckFacultySession, getFacultyDirectory, getAcademicDocuments, uploadAcademicDocument, deleteAcademicDocument, getLiveClassEvaluations, submitLiveClassEvaluation, getPendingFacultyLogs, verifyFacultyLog, editFaculty, getFacultyEditHistory, getAllFacultyEditHistory, deleteFaculty, editStudent, deleteStudent, getStudentById, getStudents, getMentors, editMentor, deleteMentor, getLiveMonitoring, getStaff, syncLegacyData, saveExamPlan, getAcademicSchedule,
     getAHParentInteractions, createAHParentInteraction, getAHFacultyInteractions, createAHFacultyInteraction, getAHParentMeetings, scheduleAHParentMeeting, reportAHParentMeeting,
-    getDemoSchedules, createDemoSchedule, updateDemoEvaluation, getQualityAudits, verifyQualityAudit, generateQualityAudits
+    getDemoSchedules, createDemoSchedule, editDemoSchedule, deleteDemoSchedule, updateDemoEvaluation, getQualityAudits, verifyQualityAudit, generateQualityAudits
 };

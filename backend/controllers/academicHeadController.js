@@ -12,16 +12,19 @@ const getDailyFacultyRotation = async (req, res) => {
             WHERE r.academic_head_id = ? AND r.rotation_date = CURDATE()
         `, [ah_id]);
 
-        if (existing.length > 0) {
+        if (existing.length >= 15) {
             return res.status(200).json({ success: true, data: existing });
+        } else if (existing.length > 0) {
+            // Clear incomplete rotation to regenerate
+            await db.query('DELETE FROM ah_faculty_rotation WHERE academic_head_id = ? AND rotation_date = CURDATE()', [ah_id]);
         }
 
-        // If not, fetch 3 faculties who haven't been in rotation recently
+        // If not, fetch 15 faculties who haven't been in rotation recently
         const [faculties] = await db.query(`
             SELECT id FROM users 
             WHERE role = 'faculty' AND status = 'active'
             ORDER BY (SELECT MAX(rotation_date) FROM ah_faculty_rotation WHERE faculty_id = users.id) ASC, RAND()
-            LIMIT 3
+            LIMIT 15
         `);
 
         if (faculties.length === 0) {
@@ -102,11 +105,16 @@ const addFacultyQualityCheck = async (req, res) => {
     try {
         const { faculty_id, class_topic, score, remarks } = req.body;
         const ah_id = req.user.id;
+        const proof_url = req.file ? req.file.path : null;
         
+        try {
+            await db.query('ALTER TABLE ah_faculty_quality ADD COLUMN proof_url VARCHAR(500) DEFAULT NULL');
+        } catch (e) {}
+
         await db.query(`
-            INSERT INTO ah_faculty_quality (faculty_id, academic_head_id, class_topic, score, remarks)
-            VALUES (?, ?, ?, ?, ?)
-        `, [faculty_id, ah_id, class_topic, score, remarks]);
+            INSERT INTO ah_faculty_quality (faculty_id, academic_head_id, class_topic, score, remarks, proof_url)
+            VALUES (?, ?, ?, ?, ?, ?)
+        `, [faculty_id, ah_id, class_topic, score, remarks, proof_url]);
         
         res.status(201).json({ success: true, message: "Quality check added successfully" });
     } catch (error) {

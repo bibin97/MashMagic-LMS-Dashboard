@@ -201,10 +201,6 @@ const Timetable = () => {
   }, [formData.student_id, formData.date]);
 
   const handleCreateOpen = () => {
-    setEditingSession(null);
-    setRescheduleMode(false);
-    setIsBulkMode(false);
-    setBulkSessions([]);
     setFormData({
       student_id: filters.student_id || '',
       date: new Date().toISOString().split('T')[0],
@@ -218,6 +214,30 @@ const Timetable = () => {
       faculty_id: null,
       faculty_name: ''
     });
+    setEditingSession(null);
+    setRescheduleMode(false);
+    setIsBulkMode(false);
+    setBulkSessions([]);
+    setShowModal(true);
+  };
+
+  const handleCreateExamOpen = () => {
+    setFormData({
+      student_id: filters.student_id || '',
+      date: new Date().toISOString().split('T')[0],
+      start_time: '10:00',
+      end_time: '11:00',
+      chapter: 'Exam / Test',
+      session_type: 'Exam',
+      status: 'Scheduled',
+      status_reason: '',
+      notes: '',
+      faculty_id: null,
+      faculty_name: ''
+    });
+    setEditingSession(null);
+    setRescheduleMode(false);
+    setIsBulkMode(false);
     setShowModal(true);
   };
   
@@ -495,6 +515,12 @@ const Timetable = () => {
             <CalendarClock size={18} /> Bulk Schedule
           </button>
           <button
+            onClick={handleCreateExamOpen}
+            className="flex items-center justify-center gap-3 bg-amber-500 text-white px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-amber-500/30 hover:bg-amber-600 hover:-translate-y-1 transition-all active:scale-95"
+          >
+            <Target size={18} /> Schedule Exam
+          </button>
+          <button
             onClick={handleCreateOpen}
             className="flex items-center justify-center gap-3 bg-[#008080] text-white px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-[#008080]/30 hover:bg-[#008080] hover:-translate-y-1 transition-all active:scale-95 "
           >
@@ -663,13 +689,13 @@ const Timetable = () => {
             session.chapter?.toLowerCase().includes(sessionSearch.toLowerCase()) ||
             session.session_type?.toLowerCase().includes(sessionSearch.toLowerCase())
           ).map((session) => (
-            <div key={session.id} className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-500 group overflow-hidden flex flex-col md:flex-row items-stretch">
+            <div key={session.id} className={`${session.session_type === 'Exam' ? 'bg-amber-50 border-amber-200' : 'bg-white border-slate-100'} rounded-[2.5rem] border shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-500 group overflow-hidden flex flex-col md:flex-row items-stretch`}>
               <div className={`w-3 shrink-0 ${getStatusColor(session.status).split(' ')[0]} opacity-40 group-hover:opacity-100 transition-opacity`}></div>
 
               <div className="flex-grow p-8 flex flex-col md:flex-row md:items-center justify-between gap-8">
                 <div className="flex items-center gap-6 min-w-[250px]">
-                  <div className="w-16 h-16 bg-slate-50 rounded-[1.5rem] flex items-center justify-center text-slate-600 group-hover:bg-[#008080] group-hover:text-white transition-all duration-700 -rotate-3 group-hover:rotate-0">
-                    <Users size={24} />
+                  <div className={`w-16 h-16 rounded-[1.5rem] flex items-center justify-center transition-all duration-700 -rotate-3 group-hover:rotate-0 ${session.session_type === 'Exam' ? 'bg-amber-100 text-amber-600 group-hover:bg-amber-500 group-hover:text-white' : 'bg-slate-50 text-slate-600 group-hover:bg-[#008080] group-hover:text-white'}`}>
+                    {session.session_type === 'Exam' ? <Target size={24} /> : <Users size={24} />}
                   </div>
                   <div>
                     <h3 className="text-base font-black text-slate-900 tracking-tight uppercase">{session.student_name}</h3>
@@ -753,13 +779,18 @@ const Timetable = () => {
         <div className="fixed inset-0 bg-[#008080]/60 backdrop-blur-md z-[9999] flex items-center justify-center p-4">
           <div className="bg-white rounded-[3rem] shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between p-8 border-b border-slate-50">
-              <div>
-                <h2 className="text-2xl font-black text-slate-900 tracking-tight uppercase">
-                  {rescheduleMode ? 'Quick Reschedule' : (editingSession ? 'Edit Session' : 'Create New Session')}
-                </h2>
-                <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mt-1">
-                  {rescheduleMode ? 'Change session date' : (editingSession ? 'Modify existing session details' : 'Schedule a new class session')}
-                </p>
+              <div className="flex items-center gap-4 mb-10">
+                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${rescheduleMode ? 'bg-indigo-50 text-indigo-600' : formData.session_type === 'Exam' ? 'bg-amber-50 text-amber-600' : 'bg-[#008080]/10 text-[#008080]'}`}>
+                  {rescheduleMode ? <RefreshCcw size={24} /> : formData.session_type === 'Exam' ? <Target size={24} /> : <Calendar size={24} />}
+                </div>
+                <div>
+                  <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight">
+                    {rescheduleMode ? 'Reschedule Session' : editingSession ? 'Edit Session' : isBulkMode ? 'Bulk Schedule' : formData.session_type === 'Exam' ? 'Schedule Exam' : 'Create Session'}
+                  </h2>
+                  <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">
+                    {rescheduleMode ? 'Select a new date and time' : isBulkMode ? 'Add multiple sessions at once' : formData.session_type === 'Exam' ? 'Schedule an exam after 5 completed sessions' : 'Fill in the session details'}
+                  </p>
+                </div>
               </div>
               <button onClick={() => { setShowModal(false); setEditingSession(null); setRescheduleMode(false); }} className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-400 hover:bg-rose-50 hover:text-rose-500 transition-all active:scale-90 shadow-inner">
                 <XCircle size={24} />

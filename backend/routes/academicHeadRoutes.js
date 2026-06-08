@@ -27,7 +27,7 @@ router.use(requireRole('academic_head', 'super_admin'));
 
 // Academic Quality
 router.get('/faculty-quality', academicHeadController.getFacultyQualityChecks);
-router.post('/faculty-quality', academicHeadController.addFacultyQualityCheck);
+router.post('/faculty-quality', upload.single('proof'), academicHeadController.addFacultyQualityCheck);
 
 // Daily Faculty Rotation
 router.get('/faculty-rotation', academicHeadController.getDailyFacultyRotation);

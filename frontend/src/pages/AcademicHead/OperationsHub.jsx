@@ -83,11 +83,17 @@ const OperationsHub = ({ section }) => {
       
       const fullRemarks = `[Ratings: ${ratingBreakdown}] Remarks: ${remarks}`;
 
-      const response = await api.post('/academic-head/faculty-quality', {
-        faculty_id: session.faculty_id,
-        class_topic: session.topic || 'General Session',
-        score: score,
-        remarks: fullRemarks
+      const formData = new FormData();
+      formData.append('faculty_id', session.faculty_id);
+      formData.append('class_topic', session.topic || 'General Session');
+      formData.append('score', score);
+      formData.append('remarks', fullRemarks);
+      if (ratingModal.proofFile) {
+        formData.append('proof', ratingModal.proofFile);
+      }
+
+      const response = await api.post('/academic-head/faculty-quality', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
       });
 
       if (response.data.success) {
@@ -96,6 +102,7 @@ const OperationsHub = ({ section }) => {
           show: false,
           session: null,
           remarks: '',
+          proofFile: null,
           ratings: {
             lighting: 0,
             audioQuality: 0,
@@ -312,6 +319,7 @@ const OperationsHub = ({ section }) => {
                       show: true, 
                       session, 
                       remarks: '', 
+                      proofFile: null,
                       ratings: { 
                         lighting: 0, 
                         audioQuality: 0, 
@@ -420,6 +428,15 @@ const OperationsHub = ({ section }) => {
                   placeholder="Enter final observation remarks..."
                   required
                 ></textarea>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Evaluation Proof (Optional)</label>
+                <input 
+                  type="file"
+                  onChange={(e) => setRatingModal({...ratingModal, proofFile: e.target.files[0]})}
+                  className="w-full p-3 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-[10px] file:font-black file:uppercase file:tracking-widest file:bg-[#008080]/10 file:text-[#008080] hover:file:bg-[#008080]/20 transition-all outline-none"
+                />
               </div>
 
               <div className="pt-4 border-t border-slate-100 flex justify-end gap-4">
