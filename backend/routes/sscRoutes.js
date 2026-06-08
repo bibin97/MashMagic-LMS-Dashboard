@@ -62,5 +62,22 @@ router.delete('/exam-schedules/:id', async (req, res) => {
     } catch (e) { res.status(500).json({ success: false, message: e.message }); }
 });
 
+
+// SSC Timetable Routes
+const { 
+    getFacultiesAll, getMentorsAll, getTimetable, createSession, updateSession, deleteSession, 
+    getStudentAcademicSchedule, updateStudentAcademicSchedule, createBatchTimetable 
+} = require('../controllers/sscController');
+
+router.get('/faculties-all', getFacultiesAll);
+router.get('/mentors-all', getMentorsAll);
+router.get('/timetable', getTimetable);
+router.post('/timetable', createSession);
+router.put('/timetable/:id', updateSession);
+router.delete('/timetable/:id', deleteSession);
+router.get('/students/:id/schedule', getStudentAcademicSchedule);
+router.post('/students/:id/schedule', updateStudentAcademicSchedule);
+router.post('/timetable/batch', createBatchTimetable);
+
 module.exports = router;
 

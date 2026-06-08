@@ -1,58 +1,11 @@
-const db = require('../config/db');
+const fs = require('fs');
+const path = require('path');
 
-// @desc    Get SSC Dashboard Stats
-// @route   GET /api/ssc/dashboard
-exports.getDashboardStats = async (req, res) => {
-    try {
-        // Placeholder stats
-        res.status(200).json({
-            success: true,
-            data: {
-                activeStudents: 0,
-                mentorSyncs: 0,
-                successRate: '0%',
-                pendingReviews: 0
-            }
-        });
-    } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
-    }
-};
+const sscControllerPath = path.join(__dirname, 'controllers', 'sscController.js');
+const sscRoutesPath = path.join(__dirname, 'routes', 'sscRoutes.js');
+const timetablePath = path.join(__dirname, '../frontend/src/pages/SSC/Timetable.jsx');
 
-// @desc    Get Students for SSC Tracking
-// @route   GET /api/ssc/students
-exports.getStudentsTrack = async (req, res) => {
-    try {
-        const [rows] = await db.query('SELECT * FROM students WHERE status != "rejected" ORDER BY name ASC');
-        const { calculateStudentHours } = require('../utils/studentHoursHelper');
-        const augmentedRows = await calculateStudentHours(rows, db);
-        res.status(200).json({ success: true, data: augmentedRows });
-    } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
-    }
-};
-
-// @desc    Get Daily Updates from Faculties
-// @route   GET /api/ssc/daily-updates
-exports.getDailyUpdates = async (req, res) => {
-    try {
-        const [updates] = await db.query(`
-            SELECT r.*, 
-                   s.name as student_name, 
-                   s.grade as student_grade,
-                   f.name as faculty_name 
-            FROM timetable_reports r
-            JOIN students s ON r.student_id = s.id
-            JOIN users f ON r.faculty_id = f.id
-            ORDER BY r.submitted_at DESC
-        `);
-        res.status(200).json({ success: true, data: updates });
-    } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
-    }
-};
-
-
+const sscControllerCode = `
 // SSC Timetable Controller Functions
 
 const convertTo24Hour = (timeStr) => {
@@ -62,7 +15,7 @@ const convertTo24Hour = (timeStr) => {
     let [hours, minutes] = time.split(':');
     if (hours === '12') { hours = '00'; }
     if (modifier.toLowerCase() === 'pm') { hours = parseInt(hours, 10) + 12; }
-    return `${hours}:${minutes}:00`;
+    return \`\${hours}:\${minutes}:00\`;
 };
 
 exports.getFacultiesAll = async (req, res) => {
@@ -86,13 +39,13 @@ exports.getMentorsAll = async (req, res) => {
 exports.getTimetable = async (req, res) => {
     try {
         const { date, student_id, status } = req.query;
-        let query = `
+        let query = \`
             SELECT t.*, s.name as student_name, s.course, m.name as mentor_name 
             FROM timetable t
             JOIN students s ON t.student_id = s.id
             LEFT JOIN users m ON t.mentor_id = m.id
             WHERE 1=1
-        `;
+        \`;
         const params = [];
 
         if (date) { query += ' AND t.date = ?'; params.push(date); }
@@ -103,14 +56,14 @@ exports.getTimetable = async (req, res) => {
 
         const [rows] = await db.query(query, params);
 
-        const [stats] = await db.query(`
+        const [stats] = await db.query(\`
             SELECT 
                 COUNT(*) as total,
                 SUM(CASE WHEN status = 'Scheduled' THEN 1 ELSE 0 END) as upcoming,
                 SUM(CASE WHEN status = 'Completed' THEN 1 ELSE 0 END) as completed,
                 SUM(CASE WHEN status = 'Cancelled' THEN 1 ELSE 0 END) as cancelled
             FROM timetable
-        `);
+        \`);
 
         res.status(200).json({ success: true, data: rows, summary: stats[0] });
     } catch (error) {
@@ -131,16 +84,16 @@ exports.createSession = async (req, res) => {
         const formattedStartTime = convertTo24Hour(start_time);
         const formattedEndTime = convertTo24Hour(end_time);
 
-        const start = new Date(`1970-01-01T${formattedStartTime}`);
-        const end = new Date(`1970-01-01T${formattedEndTime}`);
+        const start = new Date(\`1970-01-01T\${formattedStartTime}\`);
+        const end = new Date(\`1970-01-01T\${formattedEndTime}\`);
         const diffMs = end - start;
         const diffMins = Math.round(diffMs / 60000);
-        const duration = `${Math.floor(diffMins / 60)}h ${diffMins % 60}m`;
+        const duration = \`\${Math.floor(diffMins / 60)}h \${diffMins % 60}m\`;
 
-        const [result] = await db.query(`
+        const [result] = await db.query(\`
             INSERT INTO timetable (mentor_id, student_id, session_number, date, start_time, end_time, duration, chapter, session_type, status, notes, faculty_id, faculty_name)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        `, [mentor_id, student_id, nextSessionNumber, date, formattedStartTime, formattedEndTime, duration, chapter, session_type, status, notes, faculty_id || null, faculty_name]);
+        \`, [mentor_id, student_id, nextSessionNumber, date, formattedStartTime, formattedEndTime, duration, chapter, session_type, status, notes, faculty_id || null, faculty_name]);
 
         // Optional: Sync to faculty_sessions logic could be duplicated here, but for SSC simple schedule we just insert
 
@@ -158,17 +111,17 @@ exports.updateSession = async (req, res) => {
         const formattedStartTime = convertTo24Hour(start_time);
         const formattedEndTime = convertTo24Hour(end_time);
 
-        const start = new Date(`1970-01-01T${formattedStartTime}`);
-        const end = new Date(`1970-01-01T${formattedEndTime}`);
+        const start = new Date(\`1970-01-01T\${formattedStartTime}\`);
+        const end = new Date(\`1970-01-01T\${formattedEndTime}\`);
         const diffMs = end - start;
         const diffMins = Math.round(diffMs / 60000);
-        const duration = `${Math.floor(diffMins / 60)}h ${diffMins % 60}m`;
+        const duration = \`\${Math.floor(diffMins / 60)}h \${diffMins % 60}m\`;
 
-        await db.query(`
+        await db.query(\`
             UPDATE timetable 
             SET date = ?, start_time = ?, end_time = ?, duration = ?, chapter = ?, session_type = ?, status = ?, notes = ?, faculty_id = ?, faculty_name = ?
             WHERE id = ?
-        `, [date, formattedStartTime, formattedEndTime, duration, chapter, session_type, status, notes, faculty_id || null, faculty_name, sessionId]);
+        \`, [date, formattedStartTime, formattedEndTime, duration, chapter, session_type, status, notes, faculty_id || null, faculty_name, sessionId]);
 
         res.status(200).json({ success: true, message: "Session updated" });
     } catch (error) {
@@ -189,13 +142,13 @@ exports.deleteSession = async (req, res) => {
 exports.getStudentAcademicSchedule = async (req, res) => {
     try {
         const studentId = req.params.id;
-        const [schedules] = await db.query(`
+        const [schedules] = await db.query(\`
             SELECT fs.*, u.name as faculty_name 
             FROM faculty_schedules fs
             LEFT JOIN users u ON fs.faculty_id = u.id
             WHERE fs.student_id = ?
             ORDER BY FIELD(fs.day_of_week, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'), fs.start_time ASC
-        `, [studentId]);
+        \`, [studentId]);
         
         if (schedules && schedules.length > 0) {
             return res.status(200).json({ success: true, data: schedules });
@@ -251,10 +204,10 @@ exports.updateStudentAcademicSchedule = async (req, res) => {
         if (schedules && Array.isArray(schedules) && schedules.length > 0) {
             for (const s of schedules) {
                 const facId = s.faculty_id ? parseInt(s.faculty_id) : null;
-                await connection.query(`
+                await connection.query(\`
                     INSERT INTO faculty_schedules (student_id, day_of_week, start_time, end_time, subject, faculty_id)
                     VALUES (?, ?, ?, ?, ?, ?)
-                `, [studentId, s.day_of_week, s.start_time, s.end_time, s.subject, facId]);
+                \`, [studentId, s.day_of_week, s.start_time, s.end_time, s.subject, facId]);
             }
         }
 
@@ -290,16 +243,16 @@ exports.createBatchTimetable = async (req, res) => {
             const formattedStartTime = convertTo24Hour(start_time);
             const formattedEndTime = convertTo24Hour(end_time);
 
-            const start = new Date(`1970-01-01T${formattedStartTime}`);
-            const end = new Date(`1970-01-01T${formattedEndTime}`);
+            const start = new Date(\`1970-01-01T\${formattedStartTime}\`);
+            const end = new Date(\`1970-01-01T\${formattedEndTime}\`);
             const diffMs = end - start;
             const diffMins = Math.round(diffMs / 60000);
-            const duration = `${Math.floor(diffMins / 60)}h ${diffMins % 60}m`;
+            const duration = \`\${Math.floor(diffMins / 60)}h \${diffMins % 60}m\`;
 
-            await connection.query(`
+            await connection.query(\`
                 INSERT INTO timetable (mentor_id, student_id, session_number, date, start_time, end_time, duration, chapter, session_type, status, notes, faculty_id, faculty_name)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'Scheduled', ?, ?, ?)
-            `, [actualMentorId, student_id, currentSessionNum++, date, formattedStartTime, formattedEndTime, duration, chapter, session_type || 'Regular Class', notes || '', faculty_id ? parseInt(faculty_id) : null, faculty_name || null]);
+            \`, [actualMentorId, student_id, currentSessionNum++, date, formattedStartTime, formattedEndTime, duration, chapter, session_type || 'Regular Class', notes || '', faculty_id ? parseInt(faculty_id) : null, faculty_name || null]);
         }
 
         await connection.commit();
@@ -311,3 +264,50 @@ exports.createBatchTimetable = async (req, res) => {
         connection.release();
     }
 };
+`;
+
+const sscRoutesCode = `
+// SSC Timetable Routes
+const { 
+    getFacultiesAll, getMentorsAll, getTimetable, createSession, updateSession, deleteSession, 
+    getStudentAcademicSchedule, updateStudentAcademicSchedule, createBatchTimetable 
+} = require('../controllers/sscController');
+
+router.get('/faculties-all', getFacultiesAll);
+router.get('/mentors-all', getMentorsAll);
+router.get('/timetable', getTimetable);
+router.post('/timetable', createSession);
+router.put('/timetable/:id', updateSession);
+router.delete('/timetable/:id', deleteSession);
+router.get('/students/:id/schedule', getStudentAcademicSchedule);
+router.post('/students/:id/schedule', updateStudentAcademicSchedule);
+router.post('/timetable/batch', createBatchTimetable);
+`;
+
+// Append to sscController.js
+const currentControllerCode = fs.readFileSync(sscControllerPath, 'utf8');
+if (!currentControllerCode.includes('getFacultiesAll')) {
+    fs.writeFileSync(sscControllerPath, currentControllerCode + '\n' + sscControllerCode);
+}
+
+// Modify sscRoutes.js
+let currentRoutesCode = fs.readFileSync(sscRoutesPath, 'utf8');
+if (!currentRoutesCode.includes('/faculties-all')) {
+    const lines = currentRoutesCode.split('\n');
+    const exportsLineIndex = lines.findIndex(l => l.includes('module.exports = router;'));
+    if (exportsLineIndex !== -1) {
+        lines.splice(exportsLineIndex, 0, sscRoutesCode);
+        fs.writeFileSync(sscRoutesPath, lines.join('\n'));
+    }
+}
+
+// Modify Timetable.jsx
+let frontendCode = fs.readFileSync(timetablePath, 'utf8');
+frontendCode = frontendCode.replace(/\/mentor\/faculties-all/g, '/ssc/faculties-all');
+frontendCode = frontendCode.replace(/\/mentor\/mentors-all/g, '/ssc/mentors-all');
+frontendCode = frontendCode.replace(/\/mentor\/timetable/g, '/ssc/timetable');
+frontendCode = frontendCode.replace(/\/academic-head\/students-all/g, '/ssc/students');
+frontendCode = frontendCode.replace(/\/mentor\/students/g, '/ssc/students'); // This will catch the schedule ones too because they use backticks: /mentor/students/\${id}/schedule
+
+fs.writeFileSync(timetablePath, frontendCode);
+console.log("Migration script complete");

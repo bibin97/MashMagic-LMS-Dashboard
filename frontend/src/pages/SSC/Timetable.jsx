@@ -124,7 +124,7 @@ const Timetable = () => {
 
   const fetchFaculties = async () => {
     try {
-      const res = await api.get('/mentor/faculties-all');
+      const res = await api.get('/ssc/faculties-all');
       setFaculties(res.data.data);
     } catch (error) {
       console.error("Failed to load faculties");
@@ -133,7 +133,7 @@ const Timetable = () => {
 
   const fetchMentors = async () => {
     try {
-      const res = await api.get('/mentor/mentors-all');
+      const res = await api.get('/ssc/mentors-all');
       setMentors(res.data.data);
     } catch (error) {
       console.error("Failed to load mentors");
@@ -147,7 +147,7 @@ const Timetable = () => {
       Object.entries(filters).forEach(([key, value]) => {
         if (value) params.append(key, value);
       });
-      const res = await api.get(`/mentor/timetable?${params.toString()}`);
+      const res = await api.get(`/ssc/timetable?${params.toString()}`);
       setSessions(res.data.data);
       setSummary(res.data.summary);
     } catch (error) {
@@ -160,8 +160,8 @@ const Timetable = () => {
   const fetchStudents = async () => {
     try {
       const endpoint = (user?.role === 'academic_head' || user?.role === 'super_admin')
-        ? `/academic-head/students-all${filters.mentor_id ? `?mentor_id=${filters.mentor_id}` : ''}`
-        : '/mentor/students';
+        ? `/ssc/students${filters.mentor_id ? `?mentor_id=${filters.mentor_id}` : ''}`
+        : '/ssc/students';
       const res = await api.get(endpoint);
       const sortedStudents = (res.data.data || []).sort((a, b) => a.name.localeCompare(b.name));
       setStudents(sortedStudents);
@@ -175,7 +175,7 @@ const Timetable = () => {
       if (formData.student_id) {
         try {
           setIsScheduleLoading(true);
-          const res = await api.get(`/mentor/students/${formData.student_id}/schedule`);
+          const res = await api.get(`/ssc/students/${formData.student_id}/schedule`);
           const schedule = res.data.data;
           setStudentSchedule(schedule || []);
           
@@ -308,7 +308,7 @@ const Timetable = () => {
     
     premiumConfirm(async () => {
       try {
-        await api.delete(`/mentor/timetable/${id}`);
+        await api.delete(`/ssc/timetable/${id}`);
         toast.success("Session deleted");
         fetchTimetable();
       } catch (error) {
@@ -339,10 +339,10 @@ const Timetable = () => {
 
       try {
         if (editingSession) {
-          await api.put(`/mentor/timetable/${editingSession.id}`, formData);
+          await api.put(`/ssc/timetable/${editingSession.id}`, formData);
           toast.success("Session updated");
         } else {
-          await api.post('/mentor/timetable', formData);
+          await api.post('/ssc/timetable', formData);
           toast.success("Session created");
         }
         setShowModal(false);
@@ -360,7 +360,7 @@ const Timetable = () => {
 
       try {
         console.log("Sending bulk timetable data:", { student_id: formData.student_id, sessions: bulkSessions });
-        await api.post('/mentor/timetable/batch', {
+        await api.post('/ssc/timetable/batch', {
           student_id: formData.student_id,
           sessions: bulkSessions
         });
@@ -432,11 +432,11 @@ const Timetable = () => {
 
   const handleScheduleSubmit = async () => {
     try {
-      await api.post(`/mentor/students/${formData.student_id}/schedule`, { schedules: editScheduleData });
+      await api.post(`/ssc/students/${formData.student_id}/schedule`, { schedules: editScheduleData });
       toast.success("Registration schedule updated");
       setShowScheduleModal(false);
       // Refresh current student's schedule reference
-      const res = await api.get(`/mentor/students/${formData.student_id}/schedule`);
+      const res = await api.get(`/ssc/students/${formData.student_id}/schedule`);
       setStudentSchedule(res.data.data);
     } catch (error) {
       toast.error(error.response?.data?.message || "Failed to update schedule");
