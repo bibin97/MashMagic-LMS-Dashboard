@@ -1291,6 +1291,5 @@ module.exports = {
     generateQualityAudits,
     verifyQualityAudit,
     markLiveClassFeedbacksRead,
-    forceSync,
-    debugSync
+    forceSync
 };
