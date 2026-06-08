@@ -31,7 +31,6 @@ const StudentsList = ({ role = 'academic_operation_executive' }) => {
 	const [assignSearchTerm, setAssignSearchTerm] = useState('');
 	const [isAssignDropdownOpen, setIsAssignDropdownOpen] = useState(false);
 
-
 	// Base API path based on role
 	const apiPath = role === 'mentor_head' ? '/mentor-head' : '/aoe';
 	// Navigation base path (frontend routes)
