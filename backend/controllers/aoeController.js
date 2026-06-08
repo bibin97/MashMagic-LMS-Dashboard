@@ -145,6 +145,20 @@ const performAutoSync = async () => {
             }
         }
 
+        // Reverse sync: Legacy faculties to users table
+        const [legacyFaculties] = await db.query('SELECT * FROM faculties f WHERE NOT EXISTS (SELECT 1 FROM users u WHERE u.email = f.email OR u.phone_number = f.phone_number OR u.name = f.name)');
+        for (const lf of legacyFaculties) {
+            try {
+                const hash = await bcrypt.hash(lf.phone_number || "faculty123", 10);
+                await db.query(`
+                    INSERT INTO users (name, email, phone_number, password, role, status, isApproved)
+                    VALUES (?, ?, ?, ?, 'faculty', ?, 0)
+                `, [lf.name, lf.email || null, lf.phone_number || null, hash, lf.status || 'pending']);
+            } catch (err) {
+                console.error(`Error reverse syncing legacy faculty ${lf.name}:`, err.message);
+            }
+        }
+
         const [sts] = await db.query('SELECT * FROM users WHERE role = "student"');
         for (const s of sts) {
             try {
