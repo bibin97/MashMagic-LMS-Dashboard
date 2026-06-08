@@ -490,41 +490,41 @@ const Timetable = () => {
 
   return (
     <div className="space-y-8 pb-20 max-w-[1600px] mx-auto min-h-screen">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 border-b-4 border-b-[#008080]">
-        <div className="flex items-center gap-5">
-          <div className="w-14 h-14 bg-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-xl rotate-3 group hover:rotate-0 transition-all duration-500">
+      <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-6 bg-white p-6 md:p-8 rounded-[2.5rem] shadow-sm border border-slate-100 border-b-4 border-b-[#008080]">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-5">
+          <div className="w-14 h-14 bg-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-xl rotate-3 group hover:rotate-0 transition-all duration-500 shrink-0">
             <CalendarClock size={28} />
           </div>
           <div>
-            <h1 className="text-3xl font-black text-slate-900 tracking-tighter uppercase ">SSC Timetable Management</h1>
-            <p className="text-[10px] font-bold text-slate-600 uppercase tracking-[0.2em] mt-1">Manage and track student class schedules</p>
+            <h1 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tighter uppercase break-words">SSC Timetable</h1>
+            <p className="text-[9px] md:text-[10px] font-bold text-slate-600 uppercase tracking-[0.2em] mt-1 break-words">Manage and track student class schedules</p>
           </div>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex flex-wrap items-center gap-3 w-full xl:w-auto">
           <button
             onClick={() => setQuickFilter('this_month')}
-            className="hidden lg:flex items-center gap-2 px-6 py-4 bg-slate-50 text-slate-600 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-100 transition-all border border-slate-100"
+            className="hidden xl:flex items-center gap-2 px-6 py-4 bg-slate-50 text-slate-600 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-100 transition-all border border-slate-100"
           >
             <Calendar size={16} /> This Month
           </button>
           <button
             onClick={handleBulkOpen}
-            className="flex items-center justify-center gap-3 bg-[#008080] text-white px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-slate-200 hover:-translate-y-1 transition-all active:scale-95"
+            className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-[#008080] text-white px-4 md:px-8 py-4 rounded-2xl font-black text-[10px] md:text-xs uppercase tracking-widest shadow-xl shadow-slate-200 hover:-translate-y-1 transition-all active:scale-95 whitespace-nowrap"
           >
-            <CalendarClock size={18} /> Bulk Schedule
+            <CalendarClock size={16} /> <span className="hidden sm:inline">Bulk </span>Schedule
           </button>
           <button
             onClick={handleCreateExamOpen}
-            className="flex items-center justify-center gap-3 bg-amber-500 text-white px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-amber-500/30 hover:bg-amber-600 hover:-translate-y-1 transition-all active:scale-95"
+            className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-amber-500 text-white px-4 md:px-8 py-4 rounded-2xl font-black text-[10px] md:text-xs uppercase tracking-widest shadow-xl shadow-amber-500/30 hover:bg-amber-600 hover:-translate-y-1 transition-all active:scale-95 whitespace-nowrap"
           >
-            <Target size={18} /> Schedule Exam
+            <Target size={16} /> <span className="hidden sm:inline">Schedule </span>Exam
           </button>
           <button
             onClick={handleCreateOpen}
-            className="flex items-center justify-center gap-3 bg-[#008080] text-white px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-[#008080]/30 hover:bg-[#008080] hover:-translate-y-1 transition-all active:scale-95 "
+            className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-indigo-600 text-white px-4 md:px-8 py-4 rounded-2xl font-black text-[10px] md:text-xs uppercase tracking-widest shadow-xl shadow-indigo-600/30 hover:bg-indigo-700 hover:-translate-y-1 transition-all active:scale-95 whitespace-nowrap"
           >
-            <Plus size={18} /> Create Session
+            <Plus size={16} /> <span className="hidden sm:inline">Single </span>Session
           </button>
         </div>
       </div>
