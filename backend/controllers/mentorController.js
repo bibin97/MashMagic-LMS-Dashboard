@@ -216,14 +216,38 @@ const getMentorStudents = async (req, res) => {
 // @route   GET /api/mentor/students/:id
 const getStudentDetails = async (req, res) => {
     try {
-        const mentorId = req.user.id;
+        const userId = req.user.id;
+        const userRole = req.user.role;
         const studentId = req.params.id;
 
-        const isPrivileged = ['super_admin', 'admin', 'mentor_head', 'academic_head', 'academic_operation_executive', 'ssc'].includes(req.user.role);
-        const [student] = await db.query(
-            `SELECT * FROM students WHERE id = ? ${isPrivileged ? '' : 'AND mentor_id = ?'}`,
-            isPrivileged ? [studentId] : [studentId, mentorId]
-        );
+        const isPrivileged = ['super_admin', 'admin', 'sub_admin', 'mentor_head', 'academic_head', 'academic_operation_executive', 'aoe', 'ssc'].includes(userRole);
+        
+        let queryStr = `
+            SELECT s.*, m.name as mentor_name, 
+            COALESCE(
+                (SELECT GROUP_CONCAT(DISTINCT u.name SEPARATOR ', ') 
+                 FROM faculty_schedules fs 
+                 JOIN faculties u ON fs.faculty_id = u.id 
+                 WHERE fs.student_id = s.id),
+                s.faculty_name
+            ) as faculty_name 
+            FROM students s 
+            LEFT JOIN users m ON s.mentor_id = m.id 
+            WHERE s.id = ?
+        `;
+        let queryParams = [studentId];
+        
+        if (!isPrivileged) {
+            if (userRole === 'faculty') {
+                queryStr += ` AND (s.faculty_id = ? OR EXISTS (SELECT 1 FROM faculty_schedules fs WHERE fs.student_id = s.id AND fs.faculty_id = ?))`;
+                queryParams.push(userId, userId);
+            } else {
+                queryStr += ` AND s.mentor_id = ?`;
+                queryParams.push(userId);
+            }
+        }
+
+        const [student] = await db.query(queryStr, queryParams);
 
         if (!student.length) {
             return res.status(404).json({ success: false, message: req.user.role === 'ssc' ? "Student not found" : "Student not found or not assigned to you" });
