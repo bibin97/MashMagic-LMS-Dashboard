@@ -13,7 +13,11 @@ const getDailyAssignments = async (req, res) => {
             [mentor_id]
         );
 
-        const [[mentor]] = await db.query('SELECT interaction_paused FROM users WHERE id = ?', [mentor_id]);
+        let [mentorRows] = await db.query('SELECT interaction_paused FROM users WHERE id = ?', [mentor_id]);
+        if (mentorRows.length === 0) {
+            [mentorRows] = await db.query('SELECT interaction_paused FROM mentors WHERE id = ?', [mentor_id]);
+        }
+        const mentor = mentorRows[0];
         const isPaused = mentor ? mentor.interaction_paused : false;
 
         // Check if assignments already exist for today
@@ -87,7 +91,11 @@ const getDailyAssignments = async (req, res) => {
 
 const generateAssignments = async (mentor_id, today) => {
     // Check if mentor is paused
-    const [[mentor]] = await db.query('SELECT interaction_paused, current_rotation_index FROM users WHERE id = ?', [mentor_id]);
+    let [mentorRows] = await db.query('SELECT interaction_paused, current_rotation_index FROM users WHERE id = ?', [mentor_id]);
+    if (mentorRows.length === 0) {
+        [mentorRows] = await db.query('SELECT interaction_paused, current_rotation_index FROM mentors WHERE id = ?', [mentor_id]);
+    }
+    const mentor = mentorRows[0];
     if (mentor && mentor.interaction_paused) {
         return []; // Return empty if paused
     }
@@ -168,6 +176,7 @@ const generateAssignments = async (mentor_id, today) => {
     // Advance the rotation index for the next day
     const newRotationIndex = currIdx;
     await db.query('UPDATE users SET current_rotation_index = ? WHERE id = ?', [newRotationIndex, mentor_id]);
+    await db.query('UPDATE mentors SET current_rotation_index = ? WHERE id = ?', [newRotationIndex, mentor_id]);
 
     // 4. Distribute into session types (Deep, Medium, Quick)
     const deep = [];
@@ -359,9 +368,14 @@ module.exports = {
     togglePause: async (req, res) => { 
         try { 
             const mentor_id = req.user.id; 
-            const [[mentor]] = await db.query('SELECT interaction_paused FROM users WHERE id = ?', [mentor_id]); 
-            const newStatus = !mentor.interaction_paused; 
+            let [mentorRows] = await db.query('SELECT interaction_paused FROM users WHERE id = ?', [mentor_id]); 
+            if (mentorRows.length === 0) {
+                [mentorRows] = await db.query('SELECT interaction_paused FROM mentors WHERE id = ?', [mentor_id]);
+            }
+            const mentor = mentorRows[0];
+            const newStatus = mentor ? !mentor.interaction_paused : false; 
             await db.query('UPDATE users SET interaction_paused = ? WHERE id = ?', [newStatus, mentor_id]); 
+            await db.query('UPDATE mentors SET interaction_paused = ? WHERE id = ?', [newStatus, mentor_id]); 
             res.status(200).json({ success: true, is_paused: newStatus, message: 'Pause status updated' }); 
         } catch(err) { 
             console.error(err); 
