@@ -9,7 +9,7 @@ const getDailyAssignments = async (req, res) => {
             `SELECT id, onboarding_status FROM students 
              WHERE mentor_id = ? 
              AND (LOWER(enrollment_type) LIKE '%mentorship%' OR LOWER(enrollment_type) = 'both')
-             AND status != 'inactive'`,
+             AND status != 'inactive' AND course_completed = 0`,
             [mentor_id]
         );
 
@@ -105,7 +105,7 @@ const generateAssignments = async (mentor_id, today) => {
          FROM students 
          WHERE mentor_id = ? 
          AND (LOWER(enrollment_type) LIKE '%mentorship%' OR LOWER(enrollment_type) = 'both')
-         AND status != 'inactive'
+         AND status != 'inactive' AND course_completed = 0
          ORDER BY id ASC`,
         [mentor_id]
     );

@@ -83,7 +83,7 @@ const getMentorDashboard = async (req, res) => {
             });
         }
 
-        const studentCount = await safeQuery('SELECT COUNT(*) as count FROM students WHERE mentor_id = ? AND status != "rejected"', [mentorId], 'studentCount');
+        const studentCount = await safeQuery('SELECT COUNT(*) as count FROM students WHERE mentor_id = ? AND status != "rejected" AND course_completed = 0', [mentorId], 'studentCount');
         const sessionCount = await safeQuery('SELECT COUNT(*) as count FROM timetable WHERE mentor_id = ?', [mentorId], 'sessionCount');
         const pendingTasks = await safeQuery('SELECT COUNT(*) as count FROM tasks WHERE assigned_to = ? AND status != "Completed"', [mentorId], 'pendingTasks');
         const completedTasks = await safeQuery('SELECT COUNT(*) as count FROM tasks WHERE assigned_to = ? AND status = "Completed"', [mentorId], 'completedTasks');
@@ -199,7 +199,7 @@ const getMentorStudents = async (req, res) => {
             s.onboarding_status
             FROM students s 
             LEFT JOIN users m ON s.mentor_id = m.id
-            WHERE s.status != 'rejected' 
+            WHERE s.status != 'rejected' AND s.course_completed = 0
             ${isPrivileged ? '' : 'AND s.mentor_id = ?'}
             ${hideTuitionOnly ? `AND (LOWER(s.enrollment_type) LIKE '%mentorship%' OR LOWER(s.enrollment_type) = 'both')` : ''}
         `, isPrivileged ? [] : [mentorId]);

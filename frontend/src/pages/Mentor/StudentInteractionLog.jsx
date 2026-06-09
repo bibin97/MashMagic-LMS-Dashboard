@@ -282,7 +282,7 @@ const StudentInteractionLog = () => {
          {isPaused && (
            <div className="p-6 bg-rose-50 border border-rose-200 rounded-3xl flex items-center justify-center gap-4 animate-in fade-in zoom-in duration-500">
              <AlertCircle className="text-rose-500" size={24} />
-             <p className="text-sm font-black text-rose-700 uppercase tracking-widest">Interaction Rotation is currently paused. You will not receive new assignments until you resume.</p>
+             <p className="text-[11px] font-black text-rose-700 lowercase tracking-widest">Interaction Rotation is currently paused. You will not receive new assignments until you resume.</p>
            </div>
          )}
 
