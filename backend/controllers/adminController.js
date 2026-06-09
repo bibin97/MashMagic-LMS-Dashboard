@@ -83,9 +83,12 @@ const approveUser = async (req, res) => {
         if (nameRow) {
             [result] = await db.query('UPDATE users SET status = "active", isApproved = 1, isActive = 1 WHERE id = ?', [id]);
             
-            // If it's a student user, also try to update corresponding record in students table if it exists
             if (nameRow.role === 'student' || role === 'student') {
                 await db.query('UPDATE students SET status = "active", isApproved = 1 WHERE user_id = ? OR id = ?', [id, id]);
+            } else if (nameRow.role === 'faculty' || role === 'faculty') {
+                await db.query('UPDATE faculties SET status = "active" WHERE id = ?', [id]);
+            } else if (nameRow.role === 'mentor' || role === 'mentor') {
+                await db.query('UPDATE mentors SET status = "active" WHERE id = ?', [id]);
             }
         } else {
             // 2. If not found in users, try students table
@@ -138,6 +141,10 @@ const blockUser = async (req, res) => {
             [result] = await db.query('UPDATE users SET status = "inactive", isActive = 0 WHERE id = ?', [id]);
             if (nameRow.role === 'student' || role === 'student') {
                 await db.query('UPDATE students SET status = "inactive" WHERE user_id = ? OR id = ?', [id, id]);
+            } else if (nameRow.role === 'faculty' || role === 'faculty') {
+                await db.query('UPDATE faculties SET status = "inactive" WHERE id = ?', [id]);
+            } else if (nameRow.role === 'mentor' || role === 'mentor') {
+                await db.query('UPDATE mentors SET status = "inactive" WHERE id = ?', [id]);
             }
         } else {
             // Try students table
@@ -226,6 +233,10 @@ const rejectUser = async (req, res) => {
             [result] = await db.query('UPDATE users SET status = "rejected", isApproved = 0, isActive = 0 WHERE id = ?', [id]);
             if (userRow.role === 'student' || role === 'student') {
                 await db.query('UPDATE students SET status = "rejected", isApproved = 0 WHERE user_id = ? OR id = ?', [id, id]);
+            } else if (userRow.role === 'faculty' || role === 'faculty') {
+                await db.query('UPDATE faculties SET status = "rejected" WHERE id = ?', [id]);
+            } else if (userRow.role === 'mentor' || role === 'mentor') {
+                await db.query('UPDATE mentors SET status = "rejected" WHERE id = ?', [id]);
             }
         } else {
             // Try students table
