@@ -130,7 +130,12 @@ const performAutoSync = async () => {
         const [ms] = await db.query('SELECT * FROM users WHERE role = "mentor"');
         for (const m of ms) {
             try {
-                await db.query('INSERT INTO mentors (id, name, email, phone_number, status) VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE name = VALUES(name), email = VALUES(email), phone_number = VALUES(phone_number), status = VALUES(status)', [m.id, m.name, m.email, m.phone_number, m.status]);
+                const [existing] = await db.query('SELECT id FROM mentors WHERE email = ? OR phone_number = ? OR name = ? LIMIT 1', [m.email, m.phone_number, m.name]);
+                if (existing.length > 0) {
+                    await db.query('UPDATE mentors SET name = ?, email = ?, phone_number = ?, status = ? WHERE id = ?', [m.name, m.email, m.phone_number, m.status, existing[0].id]);
+                } else {
+                    await db.query('INSERT INTO mentors (name, email, phone_number, status) VALUES (?, ?, ?, ?)', [m.name, m.email, m.phone_number, m.status]);
+                }
             } catch (err) {
                 console.error(`Error syncing mentor ${m.id}:`, err.message);
             }
@@ -139,7 +144,12 @@ const performAutoSync = async () => {
         const [fs] = await db.query('SELECT * FROM users WHERE role = "faculty"');
         for (const f of fs) {
             try {
-                await db.query('INSERT INTO faculties (id, name, email, phone_number, status, subject) VALUES (?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE name = VALUES(name), email = VALUES(email), phone_number = VALUES(phone_number), status = VALUES(status), subject = VALUES(subject)', [f.id, f.name, f.email, f.phone_number, f.status, f.subject || null]);
+                const [existing] = await db.query('SELECT id FROM faculties WHERE email = ? OR phone_number = ? OR name = ? LIMIT 1', [f.email, f.phone_number, f.name]);
+                if (existing.length > 0) {
+                    await db.query('UPDATE faculties SET name = ?, email = ?, phone_number = ?, status = ?, subject = COALESCE(subject, ?) WHERE id = ?', [f.name, f.email, f.phone_number, f.status, f.subject || null, existing[0].id]);
+                } else {
+                    await db.query('INSERT INTO faculties (name, email, phone_number, status, subject) VALUES (?, ?, ?, ?, ?)', [f.name, f.email, f.phone_number, f.status, f.subject || null]);
+                }
             } catch (err) {
                 console.error(`Error syncing faculty ${f.id}:`, err.message);
             }
@@ -162,11 +172,20 @@ const performAutoSync = async () => {
         const [sts] = await db.query('SELECT * FROM users WHERE role = "student"');
         for (const s of sts) {
             try {
-                const [existing] = await db.query('SELECT id FROM students WHERE user_id = ?', [s.id]);
+                let findQ = 'SELECT id, user_id FROM students WHERE user_id = ?';
+                let findParams = [s.id];
+                if (s.phone_number) { findQ += ' OR contact = ?'; findParams.push(s.phone_number); }
+                if (s.email) { findQ += ' OR email = ?'; findParams.push(s.email); }
+                // Use name as fallback only if phone/email aren't available but user is synced.
+                findQ += ' LIMIT 1';
+                
+                const [existing] = await db.query(findQ, findParams);
                 if (existing.length > 0) {
-                    await db.query('UPDATE students SET name = ?, email = ?, contact = ?, status = ? WHERE user_id = ?', [s.name, s.email || null, s.phone_number || null, s.status, s.id]);
+                    await db.query('UPDATE students SET user_id = ?, name = ?, email = COALESCE(email, ?), contact = COALESCE(contact, ?), status = ? WHERE id = ?', 
+                        [s.id, s.name, s.email || null, s.phone_number || null, s.status, existing[0].id]);
                 } else {
-                    await db.query('INSERT INTO students (user_id, name, email, contact, status) VALUES (?, ?, ?, ?, ?)', [s.id, s.name, s.email || null, s.phone_number || null, s.status]);
+                    await db.query('INSERT INTO students (user_id, name, email, contact, status) VALUES (?, ?, ?, ?, ?)', 
+                        [s.id, s.name, s.email || null, s.phone_number || null, s.status]);
                 }
             } catch (err) {
                 console.error(`Error syncing student ${s.id}:`, err.message);
@@ -1076,6 +1095,82 @@ const updateDemoEvaluation = async (req, res) => {
     }
 };
 
+const toggleDemoSuccess = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const [demo] = await db.query('SELECT is_successful FROM aoe_demo_schedules WHERE id = ?', [id]);
+        if (demo.length === 0) return res.status(404).json({ success: false, message: 'Demo not found' });
+        
+        const newStatus = demo[0].is_successful ? 0 : 1;
+        await db.query('UPDATE aoe_demo_schedules SET is_successful = ? WHERE id = ?', [newStatus, id]);
+        
+        res.status(200).json({ success: true, message: 'Demo success toggled', is_successful: newStatus });
+    } catch (error) {
+        console.error("TOGGLE_DEMO_SUCCESS_ERROR:", error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+const getFacultyPerformance = async (req, res) => {
+    try {
+        const { faculty_id, month_year } = req.query; // month_year format: '2026-06'
+        if (!faculty_id || !month_year) return res.status(400).json({ success: false, message: 'faculty_id and month_year are required' });
+
+        // Calculate demo conversion rate dynamically
+        const [demos] = await db.query(`
+            SELECT 
+                COUNT(*) as total_demos,
+                SUM(CASE WHEN is_successful = 1 THEN 1 ELSE 0 END) as successful_demos
+            FROM aoe_demo_schedules
+            WHERE faculty_id = ? AND DATE_FORMAT(created_at, '%Y-%m') = ?
+        `, [faculty_id, month_year]);
+
+        let calculated_rate = 0;
+        if (demos[0].total_demos > 0) {
+            calculated_rate = (demos[0].successful_demos / demos[0].total_demos) * 25; // mapped out of 25%
+        }
+
+        const [rows] = await db.query('SELECT * FROM faculty_performance_index WHERE faculty_id = ? AND month_year = ?', [faculty_id, month_year]);
+        
+        if (rows.length > 0) {
+            // Include dynamically calculated demo conversion rate alongside saved data
+            const responseData = { ...rows[0], demo_conversion_rate: calculated_rate.toFixed(2) };
+            res.json({ success: true, data: responseData });
+        } else {
+            res.json({ success: true, data: null, demo_rate: calculated_rate.toFixed(2) });
+        }
+    } catch (error) {
+        console.error("GET_FACULTY_PERFORMANCE_ERROR:", error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+const saveFacultyPerformance = async (req, res) => {
+    try {
+        const { faculty_id, month_year, demo_conversion_rate, attendance_punctuality, parent_feedback, student_exam_improvement, academic_head_rating } = req.body;
+        
+        const total = parseFloat(demo_conversion_rate) + parseFloat(attendance_punctuality) + parseFloat(parent_feedback) + parseFloat(student_exam_improvement) + parseFloat(academic_head_rating);
+
+        await db.query(`
+            INSERT INTO faculty_performance_index 
+            (faculty_id, month_year, demo_conversion_rate, attendance_punctuality, parent_feedback, student_exam_improvement, academic_head_rating, total_score)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            ON DUPLICATE KEY UPDATE 
+            demo_conversion_rate = VALUES(demo_conversion_rate),
+            attendance_punctuality = VALUES(attendance_punctuality),
+            parent_feedback = VALUES(parent_feedback),
+            student_exam_improvement = VALUES(student_exam_improvement),
+            academic_head_rating = VALUES(academic_head_rating),
+            total_score = VALUES(total_score)
+        `, [faculty_id, month_year, demo_conversion_rate, attendance_punctuality, parent_feedback, student_exam_improvement, academic_head_rating, total]);
+
+        res.json({ success: true, message: 'Performance index saved' });
+    } catch (error) {
+        console.error("SAVE_FACULTY_PERFORMANCE_ERROR:", error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
 const generateDailyAuditsInternal = async () => {
     try {
         const [existing] = await db.query('SELECT id FROM academic_quality_audits WHERE date = CURDATE() LIMIT 1');
@@ -1295,6 +1390,7 @@ const deduplicateStudents = async (req, res) => {
             groups[key].push(r);
         }
         const toDelete = [];
+        const toUpdate = []; // { id, user_id }
         for(const key in groups) {
             if(groups[key].length > 1) {
                 const sorted = groups[key].sort((a,b) => {
@@ -1302,11 +1398,30 @@ const deduplicateStudents = async (req, res) => {
                     const bCount = Object.values(b).filter(v => v !== null && v !== '').length;
                     return bCount - aCount;
                 });
+                
+                const keptRecord = sorted[0];
+                let bestUserId = keptRecord.user_id;
+
                 for(let i = 1; i < sorted.length; i++) {
                     toDelete.push(sorted[i].id);
+                    if (!bestUserId && sorted[i].user_id) {
+                        bestUserId = sorted[i].user_id;
+                    }
+                }
+
+                // If the kept record was missing a user_id but a duplicate had one, update it.
+                if (bestUserId && bestUserId !== keptRecord.user_id) {
+                    toUpdate.push({ id: keptRecord.id, user_id: bestUserId });
                 }
             }
         }
+        
+        if (toUpdate.length > 0) {
+            for (const item of toUpdate) {
+                await db.query('UPDATE students SET user_id = ? WHERE id = ?', [item.user_id, item.id]);
+            }
+        }
+
         if(toDelete.length > 0) {
             await db.query('DELETE FROM students WHERE id IN (?)', [toDelete]);
         }
@@ -1363,5 +1478,8 @@ module.exports = {
     forceSync,
     deduplicateStudents,
     getExamScores,
-    addExamScore
+    addExamScore,
+    toggleDemoSuccess,
+    getFacultyPerformance,
+    saveFacultyPerformance
 };
