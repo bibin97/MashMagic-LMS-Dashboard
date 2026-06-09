@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import {
 	Users, Search, Filter, Edit2, Trash2, X, Save,
-	GraduationCap, BookOpen, Clock, Activity, Calendar, Eye
+	GraduationCap, BookOpen, Clock, Activity, Calendar, Eye, ClipboardList
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
@@ -30,6 +30,13 @@ const StudentsList = ({ role = 'academic_operation_executive' }) => {
 	const [isAssigning, setIsAssigning] = useState(false);
 	const [assignSearchTerm, setAssignSearchTerm] = useState('');
 	const [isAssignDropdownOpen, setIsAssignDropdownOpen] = useState(false);
+
+	// Quick Assessment State
+	const [isAssessmentModalOpen, setIsAssessmentModalOpen] = useState(false);
+	const [assessmentStudent, setAssessmentStudent] = useState(null);
+	const [assessmentScores, setAssessmentScores] = useState({
+		q1: 0, q2: 0, q3: 0, q4: 0, q5: 0
+	});
 
 	// Base API path based on role
 	const apiPath = role === 'mentor_head' ? '/mentor-head' : '/aoe';
@@ -121,6 +128,38 @@ const StudentsList = ({ role = 'academic_operation_executive' }) => {
 			toast.error(error.response?.data?.message || 'Failed to assign mentor');
 		} finally {
 			setIsAssigning(false);
+		}
+	};
+
+	const handleOpenAssessment = (student) => {
+		setAssessmentStudent(student);
+		setAssessmentScores({ q1: 0, q2: 0, q3: 0, q4: 0, q5: 0 });
+		setIsAssessmentModalOpen(true);
+	};
+
+	const calculateAssessmentScore = () => {
+		return Object.values(assessmentScores).reduce((a, b) => a + b, 0);
+	};
+
+	const getAssessmentLevel = (score) => {
+		if (score >= 5 && score <= 12) return 'Level 1';
+		if (score >= 13 && score <= 19) return 'Level 2';
+		if (score >= 20 && score <= 25) return 'Level 3';
+		return 'Pending';
+	};
+
+	const handleSubmitAssessment = async () => {
+		const totalScore = calculateAssessmentScore();
+		if (totalScore === 0) {
+			toast.error('Please complete the assessment before submitting');
+			return;
+		}
+		const level = getAssessmentLevel(totalScore);
+		try {
+			toast.success(`Assessment submitted! Score: ${totalScore} (${level})`);
+			setIsAssessmentModalOpen(false);
+		} catch (error) {
+			toast.error('Failed to submit assessment');
 		}
 	};
 
@@ -327,17 +366,26 @@ const StudentsList = ({ role = 'academic_operation_executive' }) => {
 													<Eye size={16} />
 												</button>
 												{role === 'mentor_head' && (
-													<button
-														onClick={() => {
-															setSelectedStudentForAssign(student);
-															setSelectedMentorId(student.mentor_id || '');
-															setIsAssignModalOpen(true);
-														}}
-														className="p-2.5 bg-white border-2 border-emerald-200 rounded-xl text-emerald-600 hover:bg-emerald-600 hover:text-white transition-all shadow-sm group/assign"
-														title="Assign Mentor"
-													>
-														<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
-													</button>
+													<>
+														<button
+															onClick={() => handleOpenAssessment(student)}
+															className="p-2.5 bg-white border-2 border-emerald-200 rounded-xl text-emerald-600 hover:bg-emerald-50 hover:border-emerald-300 transition-all shadow-sm group/assess"
+															title="Quick Assessment"
+														>
+															<ClipboardList size={16} />
+														</button>
+														<button
+															onClick={() => {
+																setSelectedStudentForAssign(student);
+																setSelectedMentorId(student.mentor_id || '');
+																setIsAssignModalOpen(true);
+															}}
+															className="p-2.5 bg-white border-2 border-emerald-200 rounded-xl text-emerald-600 hover:bg-emerald-600 hover:text-white transition-all shadow-sm group/assign"
+															title="Assign Mentor"
+														>
+															<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+														</button>
+													</>
 												)}
 
 												{(role === 'academic_operation_executive' || role === 'academic_head') && (
@@ -472,6 +520,137 @@ const StudentsList = ({ role = 'academic_operation_executive' }) => {
 								</button>
 							</div>
 						</form>
+					</div>
+				</div>
+			)}
+
+			{/* Quick Assessment Modal */}
+			{isAssessmentModalOpen && assessmentStudent && (
+				<div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[1000] flex items-center justify-center p-4 animate-in fade-in duration-300">
+					<div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-4xl overflow-hidden animate-in slide-in-from-bottom-4 duration-500 border border-slate-100 flex flex-col max-h-[90vh]">
+						
+						{/* Header */}
+						<div className="px-8 py-6 border-b border-slate-100 flex justify-between items-center bg-[#005050] text-white shrink-0">
+							<div className="flex flex-col">
+								<h2 className="text-2xl font-black flex items-center gap-3 tracking-tight">
+									<ClipboardList size={24} className="text-emerald-400" />
+									Quick Assessment
+								</h2>
+								<p className="text-xs font-bold text-emerald-100 mt-1 uppercase tracking-widest">
+									{assessmentStudent.name} • First 2 Sessions
+								</p>
+							</div>
+							<button onClick={() => setIsAssessmentModalOpen(false)} className="w-10 h-10 flex items-center justify-center bg-white/10 hover:bg-white/20 rounded-xl text-white transition-all">
+								<X size={20} />
+							</button>
+						</div>
+
+						{/* Content */}
+						<div className="p-8 overflow-y-auto custom-scrollbar flex-grow bg-slate-50">
+							<div className="mb-6">
+								<p className="text-slate-600 font-bold text-sm">Score each area 1-5. Total score determines level.</p>
+							</div>
+
+							<div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+								<table className="w-full text-left border-collapse">
+									<thead>
+										<tr className="bg-[#005050] text-white">
+											<th className="p-4 text-sm font-bold border-b border-[#006060]">Assessment Area</th>
+											<th className="p-4 text-sm font-bold border-b border-[#006060]">1 — Poor</th>
+											<th className="p-4 text-sm font-bold border-b border-[#006060]">3 — Average</th>
+											<th className="p-4 text-sm font-bold border-b border-[#006060]">5 — Strong</th>
+											<th className="p-4 text-sm font-bold border-b border-[#006060] text-center min-w-[150px]">Score (circle)</th>
+										</tr>
+									</thead>
+									<tbody className="divide-y divide-slate-100">
+										{[
+											{ 
+												id: 'q1', 
+												area: 'How many days per week does the student study?', 
+												l1: 'Never', l3: '3 days', l5: 'Daily' 
+											},
+											{ 
+												id: 'q2', 
+												area: 'How quickly does student complete homework?', 
+												l1: 'Never does it', l3: 'Sometimes', l5: 'Always on time' 
+											},
+											{ 
+												id: 'q3', 
+												area: 'Can student explain what they learned?', 
+												l1: 'Cannot explain', l3: 'Partially', l5: 'Clearly in own words' 
+											},
+											{ 
+												id: 'q4', 
+												area: 'Does student cover all subjects in the week?', 
+												l1: '1-2 subjects only', l3: 'Some balance', l5: 'All subjects' 
+											},
+											{ 
+												id: 'q5', 
+												area: 'How motivated and confident is the student?', 
+												l1: 'Avoids studying', l3: 'Neutral', l5: 'Confident and motivated' 
+											}
+										].map((row, index) => (
+											<tr key={row.id} className={index % 2 === 0 ? 'bg-emerald-50/30' : 'bg-white'}>
+												<td className="p-4 text-sm font-bold text-slate-800">{row.area}</td>
+												<td className="p-4 text-xs italic text-slate-500">{row.l1}</td>
+												<td className="p-4 text-xs italic text-slate-500">{row.l3}</td>
+												<td className="p-4 text-xs italic text-slate-500">{row.l5}</td>
+												<td className="p-4 text-center">
+													<div className="flex items-center justify-center gap-1.5">
+														{[1, 2, 3, 4, 5].map(val => (
+															<button
+																key={val}
+																onClick={() => setAssessmentScores(prev => ({ ...prev, [row.id]: val }))}
+																className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all ${assessmentScores[row.id] === val ? 'bg-[#008080] text-white shadow-md ring-2 ring-[#008080] ring-offset-1' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+															>
+																{val}
+															</button>
+														))}
+													</div>
+												</td>
+											</tr>
+										))}
+									</tbody>
+								</table>
+							</div>
+						</div>
+
+						{/* Footer with Levels and Submit */}
+						<div className="p-6 border-t border-slate-100 bg-white flex flex-col md:flex-row justify-between items-center gap-6 shrink-0">
+							
+							<div className="flex items-center gap-2 w-full md:w-auto overflow-x-auto pb-2 md:pb-0">
+								<div className={`px-4 py-3 rounded-xl flex items-center justify-center min-w-[140px] border transition-all ${calculateAssessmentScore() >= 5 && calculateAssessmentScore() <= 12 ? 'bg-rose-100 border-rose-200 shadow-sm scale-105' : 'bg-rose-50/50 border-rose-100/50 opacity-60'}`}>
+									<span className="text-rose-800 font-bold text-xs uppercase tracking-widest">
+										Score 5-12 &rarr; Level 1
+									</span>
+								</div>
+								<div className={`px-4 py-3 rounded-xl flex items-center justify-center min-w-[140px] border transition-all ${calculateAssessmentScore() >= 13 && calculateAssessmentScore() <= 19 ? 'bg-amber-100 border-amber-200 shadow-sm scale-105' : 'bg-amber-50/50 border-amber-100/50 opacity-60'}`}>
+									<span className="text-amber-800 font-bold text-xs uppercase tracking-widest">
+										Score 13-19 &rarr; Level 2
+									</span>
+								</div>
+								<div className={`px-4 py-3 rounded-xl flex items-center justify-center min-w-[140px] border transition-all ${calculateAssessmentScore() >= 20 && calculateAssessmentScore() <= 25 ? 'bg-emerald-100 border-emerald-200 shadow-sm scale-105' : 'bg-emerald-50/50 border-emerald-100/50 opacity-60'}`}>
+									<span className="text-emerald-800 font-bold text-xs uppercase tracking-widest">
+										Score 20-25 &rarr; Level 3
+									</span>
+								</div>
+							</div>
+
+							<div className="flex items-center gap-4 w-full md:w-auto">
+								<div className="text-right">
+									<p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Total Score</p>
+									<p className="text-2xl font-black text-slate-900">{calculateAssessmentScore()}</p>
+								</div>
+								<button
+									onClick={handleSubmitAssessment}
+									disabled={calculateAssessmentScore() < 5}
+									className={`px-8 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 shadow-xl ${calculateAssessmentScore() >= 5 ? 'bg-[#008080] text-white shadow-[#008080]/30 hover:bg-[#006060] hover:-translate-y-0.5' : 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-none'}`}
+								>
+									<Save size={16} /> Submit Score
+								</button>
+							</div>
+
+						</div>
 					</div>
 				</div>
 			)}

@@ -253,15 +253,37 @@ const Registrations = () => {
       ...prev,
       name: student.name || '',
       email: student.email || '',
-      contact: student.phone_number || '',
+      contact: student.phone_number || student.contact || '',
       grade: student.grade || '',
       syllabus: student.syllabus || '',
+      course: student.course || '',
+      mentorId: student.mentor_id || '',
       schoolName: student.school_name || '',
       preferredLanguage: student.preferred_language || '',
       country: student.country || '',
       registrationNumber: student.registration_number || '',
       admissionType: 'rejoining' // Ensure this stays
     }));
+
+    if (student.subjects_json) {
+      try {
+        const parsedSubjects = typeof student.subjects_json === 'string' ? JSON.parse(student.subjects_json) : student.subjects_json;
+        if (Array.isArray(parsedSubjects) && parsedSubjects.length > 0) {
+          const subjectsWithState = parsedSubjects.map(sub => ({
+            ...sub,
+            availableFaculties: [],
+            isDayDropdownOpen: false, 
+            isSubjectDropdownOpen: false,
+            isFacultyDropdownOpen: false,
+            facultySearchQuery: ''
+          }));
+          setSelectedSubjects(subjectsWithState);
+        }
+      } catch (e) {
+        console.error("Error parsing student subjects:", e);
+      }
+    }
+
     setIsStudentDropdownOpen(false);
     setStudentSearchQuery('');
   };

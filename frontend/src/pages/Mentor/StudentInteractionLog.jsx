@@ -4,7 +4,7 @@ import api from '../../services/api';
 import {
  MessageSquare, CheckCircle, ArrowLeft, Target, AlertCircle, BarChart3,
  CloudLightning, FileText, Camera, Phone, UserCheck, HeartPulse, Brain,
- Clock, Activity, BookOpen, Smile, Plus, Frown, Meh, MoreHorizontal, Upload, ImageIcon, Loader2, Zap, TrendingUp, ShieldAlert, CheckCircle2, ChevronRight, XCircle
+ Clock, Activity, BookOpen, Smile, Plus, Frown, Meh, MoreHorizontal, Upload, ImageIcon, Loader2, Zap, TrendingUp, ShieldAlert, CheckCircle2, ChevronRight, XCircle, Play, Pause
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Modal from '../../components/Modal';
@@ -272,17 +272,17 @@ const StudentInteractionLog = () => {
            </div>
            <button
              onClick={handleTogglePause}
-             className={`px-6 py-4 rounded-[22px] text-[11px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${isPaused ? 'bg-amber-100 text-amber-700 border border-amber-300' : 'bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-200'}`}
+             className={`px-6 py-4 rounded-[22px] text-[11px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${isPaused ? 'bg-rose-500 text-white shadow-rose-200 shadow-lg' : 'bg-[#008080] text-white shadow-[#008080]/30 shadow-lg'}`}
            >
-             {isPaused ? <AlertCircle size={16} /> : <Clock size={16} />}
+             {isPaused ? <Play fill="currentColor" size={16} /> : <Pause fill="currentColor" size={16} />}
              {isPaused ? 'Resume Rotation' : 'Pause Rotation'}
            </button>
          </div>
 
          {isPaused && (
-           <div className="p-6 bg-amber-50 border border-amber-200 rounded-3xl flex items-center justify-center gap-4 animate-in fade-in zoom-in duration-500">
-             <AlertCircle className="text-amber-500" size={24} />
-             <p className="text-sm font-black text-amber-700 uppercase tracking-widest">Interaction Rotation is currently paused. You will not receive new assignments until you resume.</p>
+           <div className="p-6 bg-rose-50 border border-rose-200 rounded-3xl flex items-center justify-center gap-4 animate-in fade-in zoom-in duration-500">
+             <AlertCircle className="text-rose-500" size={24} />
+             <p className="text-sm font-black text-rose-700 uppercase tracking-widest">Interaction Rotation is currently paused. You will not receive new assignments until you resume.</p>
            </div>
          )}
 
