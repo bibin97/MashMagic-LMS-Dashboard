@@ -263,7 +263,7 @@ const DataTable = ({
  </div>
 
  {/* Action Row */}
- {(onEdit || onApprove || onBlock || onDelete) && (
+ {(hasActions) && (
  <div className="flex items-center gap-2 pt-4 justify-end">
  {onEdit && (onEditFilter ? onEditFilter(row) : true) && (
  <button className="flex-1 py-3 px-4 rounded-xl bg-slate-50 text-slate-500 text-[10px] font-black uppercase tracking-widest border border-slate-100 flex items-center justify-center gap-2" onClick={() => onEdit(row)}>
@@ -285,6 +285,12 @@ const DataTable = ({
  <button className="w-10 h-10 flex items-center justify-center bg-rose-50 text-rose-600 rounded-xl border border-rose-100" onClick={() => onDelete(row)}>
  <Trash2 size={16} />
  </button>
+ )}
+ {extraActions.map((actionFn, i) => (
+   <React.Fragment key={`extra-${i}`}>{actionFn(row)}</React.Fragment>
+ ))}
+ </div>
+ </div>
  )}
  </div>
  </div>
