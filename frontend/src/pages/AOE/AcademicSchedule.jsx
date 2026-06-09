@@ -32,123 +32,45 @@ const checkIsLive = (session) => {
   
   return currentMins >= (startMins - 5) && currentMins <= endMins;
 };
+import React, {  useState, useEffect , useDeferredValue } from 'react';
+import api from '../../services/api';
+import {
+  CalendarClock, Clock, BookOpen, Users,
+  Search, Filter, ChevronRight, Activity, Radio, Video,
+  Calendar, AlertCircle, Bell, CheckSquare, MessageSquareText, Lock, 
+  ShieldCheck, Timer, XCircle, Plus, Trash2
+} from 'lucide-react';
+import toast from 'react-hot-toast';
+
+const checkIsLive = (session) => {
+  if (!session.start_time || !session.end_time || !session.date) return false;
+  if (session.status === 'Completed') return false;
+  
+  const now = new Date();
+  const sessionDate = new Date(session.date);
+  
+  if (
+    now.getFullYear() !== sessionDate.getFullYear() ||
+    now.getMonth() !== sessionDate.getMonth() ||
+    now.getDate() !== sessionDate.getDate()
+  ) {
+    return false;
+  }
+  
+  const currentMins = now.getHours() * 60 + now.getMinutes();
+  const [startH, startM] = session.start_time.split(':').map(Number);
+  const [endH, endM] = session.end_time.split(':').map(Number);
+  
+  const startMins = startH * 60 + startM;
+  const endMins = endH * 60 + endM;
+  
+  return currentMins >= (startMins - 5) && currentMins <= endMins;
+};
 
 const AcademicSchedule = () => {
   const [schedule, setSchedule] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-	const deferredSearchTerm = useDeferredValue(searchTerm);
-  const [activeTab, setActiveTab] = useState('today');
-  const [joinedSessions, setJoinedSessions] = useState(() => {
-    try { return JSON.parse(localStorage.getItem('joinedSessions')) || {}; } catch { return {}; }
-  });
-  
-  const handleJoinSession = (session) => {
-    const newJoined = { ...joinedSessions, [session.id]: true };
-    setJoinedSessions(newJoined);
-    localStorage.setItem('joinedSessions', JSON.stringify(newJoined));
-    window.open(session.meeting_link, '_blank');
-  };
-  const [selectedSession, setSelectedSession] = useState(null);
-  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
-
-  useEffect(() => {
-    fetchSchedule();
-  }, []);
-
-  const fetchSchedule = async () => {
-    try {
-      const res = await api.get('/aoe/academic-schedule');
-      setSchedule(res.data.data);
-    } catch (error) {
-      toast.error("Failed to load academic schedule");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const getFilteredData = () => {
-    const localToday = new Date();
-    const year = localToday.getFullYear();
-    const month = String(localToday.getMonth() + 1).padStart(2, '0');
-    const day = String(localToday.getDate()).padStart(2, '0');
-    const todayStr = `${year}-${month}-${day}`;
-
-    let filtered = schedule.filter(session => {
-      const matchesSearch =
-        (session.topic || '').toLowerCase().includes(deferredSearchTerm.toLowerCase()) ||
-        (session.faculty_name || '').toLowerCase().includes(deferredSearchTerm.toLowerCase()) ||
-        (session.student_name || '').toLowerCase().includes(deferredSearchTerm.toLowerCase());
-      return matchesSearch;
-    });
-
-    if (activeTab === 'today') {
-      return filtered.filter(s => {
-        const sessionDate = s.date.split('T')[0];
-        return sessionDate <= todayStr && s.status !== 'Completed';
-      });
-    } else if (activeTab === 'upcoming') {
-      return filtered.filter(s => {
-        const sessionDate = s.date.split('T')[0];
-        return sessionDate > todayStr && s.status !== 'Completed';
-      });
-    } else {
-      return filtered.filter(s => s.status === 'Completed');
-    }
-  };
-
-  const currentData = getFilteredData();
-
-  const localTodayStr = (() => {
-    const d = new Date();
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-  })();
-
-  if (loading) return (
-    <div className="flex flex-col items-center justify-center p-20 space-y-4">
-      <div className="w-12 h-12 border-4 border-[#008080] border-t-transparent rounded-full animate-spin"></div>
-      <p className="text-xs font-black text-slate-600 uppercase tracking-widest animate-pulse">Syncing Academic Timetable...</p>
-    </div>
-  );
-
-  return (
-    <div className="space-y-8 pb-20">
-      {/* Header Area */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6 bg-white p-5 md:p-8 rounded-[1.5rem] md:rounded-[2.5rem] shadow-sm border border-slate-100 border-b-4 border-b-[#008080]">
-        <div className="flex items-center gap-5">
-          <div className="w-12 h-12 md:w-14 md:h-14 bg-[#008080] rounded-xl md:rounded-2xl flex items-center justify-center text-white shadow-xl rotate-3 shrink-0">
-            <CalendarClock size={24} className="md:w-7 md:h-7" />
-          </div>
-          <div>
-            <h1 className="text-xl md:text-3xl font-black text-slate-900 tracking-tighter uppercase leading-tight ">Academic Schedule</h1>
-            <p className="text-[9px] md:text-[10px] font-bold text-slate-600 uppercase tracking-[0.2em] mt-1">Monitoring faculty-led sessions for your students</p>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-4">
-          <div className="bg-slate-50 px-4 md:px-6 py-2.5 md:py-3 rounded-[1rem] md:rounded-2xl border border-slate-100 flex items-center gap-3">
-            <Activity className="text-emerald-500 shrink-0" size={14} />
-            <div>
-              <p className="text-[7px] md:text-[8px] font-black text-slate-600 uppercase tracking-widest">Active Track</p>
-              <p className="text-xs md:text-sm font-black text-slate-900 leading-none">{schedule.filter(s => s.status === 'Scheduled').length} Sessions</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Tabs and Search Bar */}
-      <div className="bg-white p-4 md:p-6 rounded-[1.5rem] md:rounded-[2.5rem] border border-slate-100 shadow-sm space-y-4 md:space-y-6">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6">
-          <div className="flex p-1.5 bg-slate-100 rounded-[1rem] md:rounded-2xl gap-2 overflow-x-auto no-scrollbar">
-            {[
-              { id: 'today', label: 'Live/Today', icon: <Clock size={14} />, color: 'bg-emerald-500' },
-              { id: 'upcoming', label: 'Upcoming', icon: <CalendarClock size={14} />, color: 'bg-indigo-500' },
-              { id: 'completed', label: 'Completed', icon: <CheckSquare size={14} />, color: 'bg-slate-500' },
-            ].map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2 md:gap-3 px-4 md:px-6 py-2.5 md:py-3 rounded-xl text-[9px] md:text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${
                   activeTab === tab.id
                     ? 'bg-white text-slate-900 shadow-md'
                     : 'text-slate-400 hover:text-slate-600'
