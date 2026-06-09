@@ -86,9 +86,15 @@ const approveUser = async (req, res) => {
             if (nameRow.role === 'student' || role === 'student') {
                 await db.query('UPDATE students SET status = "active", isApproved = 1 WHERE user_id = ? OR id = ?', [id, id]);
             } else if (nameRow.role === 'faculty' || role === 'faculty') {
-                await db.query('UPDATE faculties SET status = "active" WHERE phone_number = ? OR phone_number = ? OR name = ?', [nameRow.email, nameRow.phone_number, nameRow.name]);
+                const [facUpdate] = await db.query('UPDATE faculties SET status = "active" WHERE phone_number = ? OR phone_number = ? OR name = ?', [nameRow.email, nameRow.phone_number, nameRow.name]);
+                if (facUpdate.affectedRows === 0) {
+                    await db.query('INSERT INTO faculties (name, email, phone_number, status, subject) VALUES (?, ?, ?, ?, ?)', [nameRow.name, nameRow.email, nameRow.phone_number, 'active', null]);
+                }
             } else if (nameRow.role === 'mentor' || role === 'mentor') {
-                await db.query('UPDATE mentors SET status = "active" WHERE phone_number = ? OR phone_number = ? OR name = ?', [nameRow.email, nameRow.phone_number, nameRow.name]);
+                const [menUpdate] = await db.query('UPDATE mentors SET status = "active" WHERE phone_number = ? OR phone_number = ? OR name = ?', [nameRow.email, nameRow.phone_number, nameRow.name]);
+                if (menUpdate.affectedRows === 0) {
+                    await db.query('INSERT INTO mentors (name, email, phone_number, status) VALUES (?, ?, ?, ?)', [nameRow.name, nameRow.email, nameRow.phone_number, 'active']);
+                }
             }
         } else {
             // 2. If not found in users, try students table
