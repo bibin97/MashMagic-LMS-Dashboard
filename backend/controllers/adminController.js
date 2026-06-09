@@ -820,14 +820,31 @@ const clearAllNotifications = async (req, res) => {
 const updateStudentForAdmin = async (req, res) => {
     try {
         const { id } = req.params;
-        const { name, email, phone_number, grade, subject, timetable, nextInstallment, status, total_fees, total_hours, hour } = req.body;
+        const { 
+            name, email, phone_number, grade, subject, timetable, nextInstallment, status,
+            total_fees, total_hours, hour, syllabus, school_name, preferred_language,
+            country, admission_date, meeting_link, enrollment_type, course
+        } = req.body;
 
         const [[oldStudent]] = await db.query('SELECT name FROM students WHERE id = ?', [id]);
 
-        // Update ONLY in students table as requested
         const [result] = await db.query(
-            'UPDATE students SET name = ?, email = ?, contact = ?, grade = ?, subject = ?, time_table = ?, next_installment_date = ?, status = ?, course_completed = ?, total_fees = ?, total_hours = ?, hour = ? WHERE id = ?',
-            [name, email, phone_number, grade, subject, timetable, nextInstallment, status, req.body.course_completed || 0, total_fees || null, total_hours || null, hour || null, id]
+            `UPDATE students SET 
+                name = ?, email = ?, contact = ?, grade = ?, subject = ?, 
+                time_table = ?, next_installment_date = ?, status = ?, course_completed = ?,
+                total_fees = ?, total_hours = ?, hour = ?,
+                syllabus = ?, school_name = ?, preferred_language = ?,
+                country = ?, admission_date = ?, meeting_link = ?,
+                enrollment_type = ?, course = ?
+            WHERE id = ?`,
+            [
+                name, email, phone_number, grade, subject,
+                timetable, nextInstallment, status, req.body.course_completed || 0,
+                total_fees || null, total_hours || null, hour || null,
+                syllabus || null, school_name || null, preferred_language || null,
+                country || null, admission_date || null, meeting_link || null,
+                enrollment_type || null, course || null, id
+            ]
         );
 
         if (result.affectedRows === 0) {
@@ -991,7 +1008,7 @@ const getAllStudentsForAdmin = async (req, res) => {
         let sql = `
             SELECT 
                 id, roll_number, registration_number, name, email, contact as phone_number, grade, course, hour, 
-                mentor_name as mentor, 
+                mentor_name as mentor, mentor_id,
                 COALESCE(
                     (SELECT GROUP_CONCAT(DISTINCT u.name SEPARATOR ', ') 
                      FROM faculty_schedules fs 
@@ -999,17 +1016,25 @@ const getAllStudentsForAdmin = async (req, res) => {
                      WHERE fs.student_id = students.id),
                     students.faculty_name
                 ) as faculty, 
-                subject, time_table as timetable, 
-                next_installment_date as nextInstallment, 
+                subject, time_table as timetable_summary, 
+                next_installment_date,
                 status, onboarding_status, 
                 attendance_percentage, performance_status,
                 course_completed,
                 created_at,
-                mentor_id,
                 badge,
                 total_fees,
                 total_paid,
-                total_hours
+                total_hours,
+                syllabus,
+                school_name,
+                preferred_language,
+                country,
+                admission_date,
+                meeting_link,
+                enrollment_type,
+                admission_type,
+                subjects_json
             FROM students WHERE mentor_id IS NOT NULL
         `;
         let params = [];

@@ -42,7 +42,21 @@ const StudentDetails = () => {
     const fetchStudentDetails = async () => {
         try {
             setLoading(true);
-            let endpoint = `/mentor/students/${id}`;
+            let endpoint;
+            const role = user?.role;
+
+            if (role === 'academic_operation_executive' || role === 'aoe') {
+                endpoint = `/aoe/students/${id}`;
+            } else if (role === 'ssc') {
+                endpoint = `/ssc/students/${id}`;
+            } else if (role === 'faculty') {
+                endpoint = `/faculty/students/${id}`;
+            } else if (role === 'mentor_head') {
+                endpoint = `/mentor-head/students/${id}`;
+            } else {
+                // mentor, admin, super_admin, sub_admin, mentor_head, academic_head
+                endpoint = `/mentor/students/${id}`;
+            }
 
             const res = await api.get(endpoint);
             setStudent(res.data.data);

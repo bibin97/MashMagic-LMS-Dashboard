@@ -30,24 +30,29 @@ const Students = () => {
  const [isExportMenuOpen, setIsExportMenuOpen] = useState(false);
  const [isEditingModal, setIsEditingModal] = useState(false);
  const [editFormData, setEditFormData] = useState({
- name: '',
- email: '',
- phone_number: '',
- grade: '',
- subject: '',
- timetable: '',
- nextInstallment: '',
- status: '',
- course_completed: 0,
- total_fees: '',
- total_hours: '',
- hour: ''
+  id: '', name: '', email: '', phone_number: '', grade: '', subject: '',
+  timetable: '', status: '', course_completed: 0, course: '',
+  syllabus: '', school_name: '', preferred_language: '', country: '',
+  admission_date: '', meeting_link: '', enrollment_type: '',
+  nextInstallment: '', total_fees: '', total_hours: '', hour: '',
+  mentorId: '', mentorName: ''
  });
  const [dailyHours, setDailyHours] = useState([]);
+ const [mentorsList, setMentorsList] = useState([]);
+ const [mentorSearch, setMentorSearch] = useState('');
+ const [showMentorDropdown, setShowMentorDropdown] = useState(false);
 
  useEffect(() => {
- fetchStudents();
+  fetchStudents();
+  fetchMentors();
  }, [searchTerm, sortBy]);
+
+ const fetchMentors = async () => {
+  try {
+   const res = await api.get('/admin/mentors');
+   if (res.data.success) setMentorsList(res.data.data || []);
+  } catch (e) {}
+ };
 
  const fetchStudents = async () => {
  try {
@@ -99,24 +104,37 @@ const Students = () => {
  };
 
  const handleEdit = (student) => {
+  setSelectedStudent(student);
+  setMentorSearch('');
+  setShowMentorDropdown(false);
   setEditFormData({
-  id: student.id,
-  name: student.name,
-  email: student.email || '',
-  phone_number: student.phone_number || '',
-  grade: student.grade || '',
-  subject: student.subject || '',
-  nextInstallment: student.next_installment_date ? student.next_installment_date.split('T')[0] : '',
-  course_completed: student.course_completed || 0,
-  status: student.status || 'active',
-  timetable: student.timetable_summary || '',
-  total_fees: student.total_fees || '',
-  total_hours: student.total_hours || '',
-  hour: student.hour || ''
+   id: student.id,
+   name: student.name || '',
+   email: student.email || '',
+   phone_number: student.phone_number || '',
+   grade: student.grade || '',
+   subject: student.subject || '',
+   course: student.course || '',
+   syllabus: student.syllabus || '',
+   school_name: student.school_name || '',
+   preferred_language: student.preferred_language || '',
+   country: student.country || '',
+   admission_date: student.admission_date ? student.admission_date.split('T')[0] : '',
+   meeting_link: student.meeting_link || '',
+   enrollment_type: student.enrollment_type || '',
+   nextInstallment: student.next_installment_date ? student.next_installment_date.split('T')[0] : '',
+   course_completed: student.course_completed || 0,
+   status: student.status || 'active',
+   timetable: student.timetable_summary || '',
+   total_fees: student.total_fees || '',
+   total_hours: student.total_hours || '',
+   hour: student.hour || '',
+   mentorId: student.mentor_id || '',
+   mentorName: student.mentor || ''
   });
   setIsEditingModal(false);
   setIsEditModalOpen(true);
-  };
+ };
 
   const [isInstallmentModalOpen, setIsInstallmentModalOpen] = useState(false);
   const [installmentAmount, setInstallmentAmount] = useState('');
@@ -152,14 +170,14 @@ const Students = () => {
  const handleEditSubmit = async (e) => {
  e.preventDefault();
  try {
- const res = await api.put(`/admin/students/${selectedStudent.id}`, editFormData);
- if (res.data.success) {
- toast.success("Student updated successfully");
- setIsEditModalOpen(false);
- fetchStudents();
- }
+  const res = await api.put(`/admin/students/${editFormData.id}`, editFormData);
+  if (res.data.success) {
+   toast.success("Student updated successfully");
+   setIsEditModalOpen(false);
+   fetchStudents();
+  }
  } catch (error) {
- toast.error(error.response?.data?.message || "Failed to update student");
+  toast.error(error.response?.data?.message || "Failed to update student");
  }
  };
 
@@ -423,154 +441,195 @@ const Students = () => {
         searchPlaceholder="Search by name, email or reg #"
       />
 
- {/* Edit Student Modal */}
+    {/* Edit Student Modal */}
  <Modal
  isOpen={isEditModalOpen}
  onClose={() => setIsEditModalOpen(false)}
  title="Edit Student Details"
  size="lg"
  >
- <form onSubmit={handleEditSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 relative">
- <div className="col-span-1 md:col-span-2 flex justify-end mb-2">
-    <button 
-        type="button" 
-        onClick={() => setIsEditingModal(prev => !prev)}
-        className={`px-4 py-2 rounded-xl flex items-center gap-2 text-[10px] font-black uppercase tracking-widest transition-all ${isEditingModal ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-slate-50 text-slate-400 hover:text-slate-600 border border-slate-200'}`}
-    >
-        {isEditingModal ? <><Unlock size={14} /> Editing</> : <><Lock size={14} /> Unlock Fields</>}
-    </button>
- </div>
- <div className={`col-span-1 md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 transition-opacity duration-300 ${!isEditingModal ? 'opacity-60 pointer-events-none' : ''}`}>
- <div className="flex flex-col gap-2">
- <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest pl-2">Full Name</label>
- <input
- type="text"
- className="p-5 bg-slate-50/50 border border-slate-100 rounded-[20px] text-sm font-bold text-slate-700 outline-none focus:bg-white focus:ring-4 focus:ring-[#008080]/5 focus:border-[#008080]/20 transition-all"
- value={editFormData.name}
- onChange={(e) => setEditFormData({ ...editFormData, name: e.target.value })}
- disabled={!isEditingModal}
- required
- />
- </div>
- <div className="flex flex-col gap-2">
- <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest pl-2">Email</label>
- <input
- type="email"
- className="p-5 bg-slate-50/50 border border-slate-100 rounded-[20px] text-sm font-bold text-slate-700 outline-none focus:bg-white focus:ring-4 focus:ring-[#008080]/5 focus:border-[#008080]/20 transition-all"
- value={editFormData.email}
- onChange={(e) => setEditFormData({ ...editFormData, email: e.target.value })}
- disabled={!isEditingModal}
- />
- </div>
- <div className="flex flex-col gap-2">
- <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest pl-2">Phone Number</label>
- <input
- type="text"
- className="p-5 bg-slate-50/50 border border-slate-100 rounded-[20px] text-sm font-bold text-slate-700 outline-none focus:bg-white focus:ring-4 focus:ring-[#008080]/5 focus:border-[#008080]/20 transition-all"
- value={editFormData.phone_number}
- onChange={(e) => setEditFormData({ ...editFormData, phone_number: e.target.value })}
- disabled={!isEditingModal}
- />
- </div>
- <div className="flex flex-col gap-2">
- <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest pl-2">Grade</label>
- <input
- type="text"
- className="p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-[#008080] transition-all"
- value={editFormData.grade}
- onChange={(e) => setEditFormData({ ...editFormData, grade: e.target.value })}
- disabled={!isEditingModal}
- required
- />
- </div>
- <div className="flex flex-col gap-2">
- <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest pl-2">Subject</label>
- <input
- type="text"
- className="p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-[#008080] transition-all"
- value={editFormData.subject}
- onChange={(e) => setEditFormData({ ...editFormData, subject: e.target.value })}
- disabled={!isEditingModal}
- required
- />
- </div>
- 
- <div className="flex flex-col gap-2">
- <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest pl-2">Course Status</label>
- <button
- type="button"
- onClick={() => setEditFormData({ ...editFormData, course_completed: editFormData.course_completed === 1 ? 0 : 1 })}
- disabled={!isEditingModal}
- className={`p-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border-2 flex items-center justify-center gap-3 ${editFormData.course_completed === 1 ? 'bg-emerald-500 border-emerald-500 text-white shadow-lg' : 'bg-slate-50 border-slate-100 text-slate-400'}`}
- >
- {editFormData.course_completed === 1 ? (
- <><CheckCircle size={14} /> Completed</>
- ) : (
- <><Clock size={14} /> In Progress</>
- )}
- </button>
- </div>
- <div className="col-span-1 md:col-span-2 flex flex-col gap-2">
- <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest pl-2">Status</label>
- <select
- className="p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-[#008080] transition-all"
- value={editFormData.status}
- onChange={(e) => setEditFormData({ ...editFormData, status: e.target.value })}
- disabled={!isEditingModal}
- >
-  <option value="active">Active</option>
-  <option value="inactive">Backup</option>
-  <option value="pending">Pending Approval</option>
-   <option value="left">Left</option>
-  <option value="rejected">Rejected</option>
- </select>
- </div>
- <div className="col-span-1 md:col-span-2 flex flex-col gap-2">
- <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest pl-2">Timetable Summary</label>
- <textarea
- className="p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-[#008080] transition-all min-h-[100px]"
- value={editFormData.timetable}
- onChange={(e) => setEditFormData({ ...editFormData, timetable: e.target.value })}
- disabled={!isEditingModal}
- />
- </div>
+ <form onSubmit={handleEditSubmit} className="flex flex-col gap-0 relative">
+   <div className="flex justify-end mb-4">
+     <button
+       type="button"
+       onClick={() => setIsEditingModal(prev => !prev)}
+       className={`px-4 py-2 rounded-xl flex items-center gap-2 text-[10px] font-black uppercase tracking-widest transition-all ${isEditingModal ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-slate-50 text-slate-400 hover:text-slate-600 border border-slate-200'}`}
+     >
+       {isEditingModal ? <><Unlock size={14} /> Editing</> : <><Lock size={14} /> Unlock Fields</>}
+     </button>
+   </div>
 
- <div className="col-span-1 md:col-span-2 mt-4 pt-6 border-t border-slate-200">
-     <h4 className="text-[12px] font-black text-slate-800 uppercase tracking-widest mb-4 flex items-center gap-2">
-         <span className="w-2 h-2 rounded-full bg-[#008080]"></span>
-         Fee Details
-     </h4>
-     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-         <div className="flex flex-col gap-2">
-             <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest pl-2">Next Installment</label>
-             <input
-                 type="date"
-                 className="p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-[#008080] transition-all"
-                 value={editFormData.nextInstallment}
-                 onChange={(e) => setEditFormData({ ...editFormData, nextInstallment: e.target.value })}
-                 disabled={!isEditingModal}
-             />
+   <div className={`transition-opacity duration-300 space-y-6 ${!isEditingModal ? 'opacity-60 pointer-events-none' : ''}`}>
+
+     {/* Personal Info */}
+     <div>
+       <h4 className="text-[11px] font-black text-slate-700 uppercase tracking-widest mb-3 flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-slate-400"></span> Personal Info</h4>
+       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+         <div className="flex flex-col gap-1.5">
+           <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Full Name</label>
+           <input type="text" className="p-3.5 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-700 outline-none focus:bg-white focus:ring-2 focus:ring-[#008080]/20 focus:border-[#008080]/30 transition-all" value={editFormData.name} onChange={(e) => setEditFormData({ ...editFormData, name: e.target.value })} disabled={!isEditingModal} required />
          </div>
-         <div className="flex flex-col gap-2">
-             <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest pl-2">Total Fee (₹)</label>
-             <input type="number" className="p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-[#008080] transition-all" value={editFormData.total_fees} onChange={(e) => setEditFormData({ ...editFormData, total_fees: e.target.value })} disabled={!isEditingModal} placeholder="E.g. 5000" />
+         <div className="flex flex-col gap-1.5">
+           <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Email</label>
+           <input type="email" className="p-3.5 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-700 outline-none focus:bg-white focus:ring-2 focus:ring-[#008080]/20 focus:border-[#008080]/30 transition-all" value={editFormData.email} onChange={(e) => setEditFormData({ ...editFormData, email: e.target.value })} disabled={!isEditingModal} />
          </div>
-         <div className="flex flex-col gap-2">
-             <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest pl-2">Total Hours</label>
-             <input type="number" className="p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-[#008080] transition-all" value={editFormData.total_hours} onChange={(e) => setEditFormData({ ...editFormData, total_hours: e.target.value })} disabled={!isEditingModal} placeholder="E.g. 100" />
+         <div className="flex flex-col gap-1.5">
+           <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Phone Number</label>
+           <input type="text" className="p-3.5 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-700 outline-none focus:bg-white focus:ring-2 focus:ring-[#008080]/20 focus:border-[#008080]/30 transition-all" value={editFormData.phone_number} onChange={(e) => setEditFormData({ ...editFormData, phone_number: e.target.value })} disabled={!isEditingModal} />
          </div>
-         <div className="flex flex-col gap-2">
-             <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest pl-2">Student Hours</label>
-             <input type="number" className="p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-[#008080] transition-all" value={editFormData.hour} onChange={(e) => setEditFormData({ ...editFormData, hour: e.target.value })} disabled={!isEditingModal} placeholder="E.g. 60" />
-         </div>
+       </div>
      </div>
- </div>
 
- </div>
- <div className="col-span-1 md:col-span-2 flex justify-end gap-3 pt-8 pb-4 transition-opacity duration-300">
- <button type="button" className="px-8 py-4 rounded-[18px] border border-slate-100 text-[11px] font-black uppercase tracking-widest text-slate-600 hover:text-slate-600 hover:bg-slate-50 transition-all font-sans" onClick={() => setIsEditModalOpen(false)}>Cancel</button>
- <button type="submit" className="px-10 py-4 rounded-[18px] bg-gradient-to-br from-[#006666] to-[#008080] text-white text-[11px] font-black uppercase tracking-[0.2em] hover:shadow-lg hover:shadow-[#008080]/30 hover:-translate-y-1 transition-all shadow-md shadow-[#008080]/20 font-sans">Save Changes</button>
- </div>
+     {/* Academic Details */}
+     <div className="pt-4 border-t border-slate-100">
+       <h4 className="text-[11px] font-black text-slate-700 uppercase tracking-widest mb-3 flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-blue-500"></span> Academic Details</h4>
+       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+         <div className="flex flex-col gap-1.5">
+           <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Grade</label>
+           <input type="text" className="p-3.5 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-2 focus:ring-[#008080]/20 focus:border-[#008080]/30 transition-all" value={editFormData.grade} onChange={(e) => setEditFormData({ ...editFormData, grade: e.target.value })} disabled={!isEditingModal} required />
+         </div>
+         <div className="flex flex-col gap-1.5">
+           <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Subject</label>
+           <input type="text" className="p-3.5 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-2 focus:ring-[#008080]/20 focus:border-[#008080]/30 transition-all" value={editFormData.subject} onChange={(e) => setEditFormData({ ...editFormData, subject: e.target.value })} disabled={!isEditingModal} />
+         </div>
+         <div className="flex flex-col gap-1.5">
+           <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Course / Stream</label>
+           <input type="text" className="p-3.5 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-2 focus:ring-[#008080]/20 focus:border-[#008080]/30 transition-all" value={editFormData.course} onChange={(e) => setEditFormData({ ...editFormData, course: e.target.value })} disabled={!isEditingModal} placeholder="e.g. Mission X" />
+         </div>
+         <div className="flex flex-col gap-1.5">
+           <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Syllabus</label>
+           <select className="p-3.5 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-2 focus:ring-[#008080]/20 transition-all" value={editFormData.syllabus} onChange={(e) => setEditFormData({ ...editFormData, syllabus: e.target.value })} disabled={!isEditingModal}>
+             <option value="">Select Syllabus</option>
+             {['CBSE','STATE','ICSE','IGCSE','IB'].map(s => <option key={s} value={s}>{s}</option>)}
+           </select>
+         </div>
+         <div className="flex flex-col gap-1.5">
+           <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">School / Institution</label>
+           <input type="text" className="p-3.5 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-2 focus:ring-[#008080]/20 focus:border-[#008080]/30 transition-all" value={editFormData.school_name} onChange={(e) => setEditFormData({ ...editFormData, school_name: e.target.value })} disabled={!isEditingModal} placeholder="School name" />
+         </div>
+         <div className="flex flex-col gap-1.5">
+           <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Preferred Language</label>
+           <input type="text" className="p-3.5 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-2 focus:ring-[#008080]/20 focus:border-[#008080]/30 transition-all" value={editFormData.preferred_language} onChange={(e) => setEditFormData({ ...editFormData, preferred_language: e.target.value })} disabled={!isEditingModal} placeholder="e.g. English" />
+         </div>
+         <div className="flex flex-col gap-1.5">
+           <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Country</label>
+           <input type="text" className="p-3.5 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-2 focus:ring-[#008080]/20 focus:border-[#008080]/30 transition-all" value={editFormData.country} onChange={(e) => setEditFormData({ ...editFormData, country: e.target.value })} disabled={!isEditingModal} placeholder="e.g. India" />
+         </div>
+         <div className="flex flex-col gap-1.5">
+           <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Admission Date</label>
+           <input type="date" className="p-3.5 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-2 focus:ring-[#008080]/20 transition-all" value={editFormData.admission_date} onChange={(e) => setEditFormData({ ...editFormData, admission_date: e.target.value })} disabled={!isEditingModal} />
+         </div>
+         <div className="flex flex-col gap-1.5">
+           <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Enrollment Type</label>
+           <select className="p-3.5 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-2 focus:ring-[#008080]/20 transition-all" value={editFormData.enrollment_type} onChange={(e) => setEditFormData({ ...editFormData, enrollment_type: e.target.value })} disabled={!isEditingModal}>
+             <option value="">Select Type</option>
+             <option value="Mentorship">Mentorship Only 🥇</option>
+             <option value="Tuition">Tuition Only 🥈</option>
+             <option value="Mentorship and Tuition">Mentorship & Tuition 💎</option>
+           </select>
+         </div>
+         <div className="col-span-1 sm:col-span-2 md:col-span-3 flex flex-col gap-1.5">
+           <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Live Session Link</label>
+           <input type="text" className="p-3.5 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-2 focus:ring-[#008080]/20 focus:border-[#008080]/30 transition-all" value={editFormData.meeting_link} onChange={(e) => setEditFormData({ ...editFormData, meeting_link: e.target.value })} disabled={!isEditingModal} placeholder="https://meet.google.com/..." />
+         </div>
+         <div className="col-span-1 sm:col-span-2 md:col-span-3 flex flex-col gap-1.5 relative">
+           <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Assigned Mentor</label>
+           <div className="relative">
+             <input
+               type="text"
+               className="w-full p-3.5 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-2 focus:ring-[#008080]/20 focus:border-[#008080]/30 transition-all pr-10"
+               placeholder="Search mentor by name..."
+               value={mentorSearch || editFormData.mentorName || ''}
+               onChange={(e) => { setMentorSearch(e.target.value); setShowMentorDropdown(true); }}
+               onFocus={() => setShowMentorDropdown(true)}
+               disabled={!isEditingModal}
+             />
+             <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">▾</span>
+           </div>
+           {showMentorDropdown && isEditingModal && (
+             <div className="absolute top-full left-0 right-0 z-50 mt-1 bg-white border border-slate-200 rounded-2xl shadow-xl max-h-48 overflow-y-auto">
+               {mentorsList
+                 .filter(m => m.name?.toLowerCase().includes((mentorSearch || '').toLowerCase()))
+                 .map(m => (
+                   <button
+                     key={m.id}
+                     type="button"
+                     className="w-full text-left px-4 py-3 text-sm font-bold text-slate-700 hover:bg-[#008080]/5 hover:text-[#008080] transition-colors flex items-center gap-3"
+                     onClick={() => {
+                       setEditFormData({ ...editFormData, mentorId: m.id, mentorName: m.name });
+                       setMentorSearch('');
+                       setShowMentorDropdown(false);
+                     }}
+                   >
+                     <div className="w-7 h-7 rounded-xl bg-[#008080]/10 text-[#008080] flex items-center justify-center font-black text-xs shrink-0">{m.name?.charAt(0)}</div>
+                     {m.name}
+                   </button>
+                 ))}
+               {mentorsList.filter(m => m.name?.toLowerCase().includes((mentorSearch || '').toLowerCase())).length === 0 && (
+                 <div className="px-4 py-3 text-sm text-slate-400 font-bold">No mentor found</div>
+               )}
+             </div>
+           )}
+         </div>
+       </div>
+     </div>
+
+     {/* Status */}
+     <div className="pt-4 border-t border-slate-100">
+       <h4 className="text-[11px] font-black text-slate-700 uppercase tracking-widest mb-3 flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-purple-500"></span> Status</h4>
+       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+         <div className="flex flex-col gap-1.5">
+           <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Account Status</label>
+           <select className="p-3.5 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-2 focus:ring-[#008080]/20 transition-all" value={editFormData.status} onChange={(e) => setEditFormData({ ...editFormData, status: e.target.value })} disabled={!isEditingModal}>
+             <option value="active">Active</option>
+             <option value="inactive">Backup</option>
+             <option value="pending">Pending Approval</option>
+             <option value="left">Left</option>
+             <option value="rejected">Rejected</option>
+           </select>
+         </div>
+         <div className="flex flex-col gap-1.5">
+           <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Course Progress</label>
+           <button type="button" onClick={() => setEditFormData({ ...editFormData, course_completed: editFormData.course_completed === 1 ? 0 : 1 })} disabled={!isEditingModal} className={`p-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border-2 flex items-center justify-center gap-3 ${editFormData.course_completed === 1 ? 'bg-emerald-500 border-emerald-500 text-white shadow-lg' : 'bg-slate-50 border-slate-100 text-slate-400'}`}>
+             {editFormData.course_completed === 1 ? <><CheckCircle size={14} /> Completed</> : <><Clock size={14} /> In Progress</>}
+           </button>
+         </div>
+       </div>
+       <div className="flex flex-col gap-1.5 mt-4">
+         <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Timetable Summary</label>
+         <textarea className="p-3.5 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-2 focus:ring-[#008080]/20 transition-all min-h-[80px]" value={editFormData.timetable} onChange={(e) => setEditFormData({ ...editFormData, timetable: e.target.value })} disabled={!isEditingModal} />
+       </div>
+     </div>
+
+     {/* Fee Details Section */}
+     <div className="pt-4 border-t border-amber-100 bg-amber-50/30 rounded-2xl p-4">
+       <h4 className="text-[11px] font-black text-amber-700 uppercase tracking-widest mb-3 flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-amber-500"></span> Fee Details</h4>
+       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+         <div className="flex flex-col gap-1.5">
+           <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Next Installment</label>
+           <input type="date" className="p-3.5 bg-white border border-amber-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-2 focus:ring-amber-400/30 transition-all" value={editFormData.nextInstallment} onChange={(e) => setEditFormData({ ...editFormData, nextInstallment: e.target.value })} disabled={!isEditingModal} />
+         </div>
+         <div className="flex flex-col gap-1.5">
+           <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Total Fee (₹)</label>
+           <input type="number" className="p-3.5 bg-white border border-amber-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-2 focus:ring-amber-400/30 transition-all" value={editFormData.total_fees} onChange={(e) => setEditFormData({ ...editFormData, total_fees: e.target.value })} disabled={!isEditingModal} placeholder="e.g. 50000" />
+         </div>
+         <div className="flex flex-col gap-1.5">
+           <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Total Hours</label>
+           <input type="number" className="p-3.5 bg-white border border-amber-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-2 focus:ring-amber-400/30 transition-all" value={editFormData.total_hours} onChange={(e) => setEditFormData({ ...editFormData, total_hours: e.target.value })} disabled={!isEditingModal} placeholder="e.g. 100" />
+         </div>
+         <div className="flex flex-col gap-1.5">
+           <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Hours / Week</label>
+           <input type="number" className="p-3.5 bg-white border border-amber-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-2 focus:ring-amber-400/30 transition-all" value={editFormData.hour} onChange={(e) => setEditFormData({ ...editFormData, hour: e.target.value })} disabled={!isEditingModal} placeholder="e.g. 5" />
+         </div>
+       </div>
+     </div>
+
+   </div>
+
+   <div className="flex justify-end gap-3 pt-6 mt-4 border-t border-slate-100">
+     <button type="button" className="px-8 py-4 rounded-[18px] border border-slate-100 text-[11px] font-black uppercase tracking-widest text-slate-600 hover:bg-slate-50 transition-all" onClick={() => setIsEditModalOpen(false)}>Cancel</button>
+     <button type="submit" className="px-10 py-4 rounded-[18px] bg-gradient-to-br from-[#006666] to-[#008080] text-white text-[11px] font-black uppercase tracking-[0.2em] hover:shadow-lg hover:shadow-[#008080]/30 hover:-translate-y-1 transition-all shadow-md">Save Changes</button>
+   </div>
  </form>
  </Modal>
 
