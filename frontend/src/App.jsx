@@ -44,11 +44,12 @@ import MentorDashboard from './pages/Mentor/MentorDashboard';
 import MyStudents from './pages/Mentor/MyStudents';
 import StudentDetails from './pages/common/StudentDetails';
 import MyTasks from './pages/Mentor/MyTasks';
-import Timetable from './pages/Mentor/Timetable';
+import Timetable from './pages/admin/Timetable';
 import StudentInteractionLog from './pages/Mentor/StudentInteractionLog';
-import Exams from './pages/Mentor/Exams';
-import AcademicSchedule from './pages/Mentor/AcademicSchedule';
+import AcademicSchedule from './pages/admin/AcademicSchedule';
 import StudentsData from './pages/Mentor/StudentsData';
+import MentorLogs from './pages/Mentor/MentorLogs';
+import Exams from './pages/Mentor/Exams';
 
 // Faculty Panel Pages
 import FacultyDashboard from './pages/Faculty/FacultyDashboard';
@@ -99,6 +100,7 @@ import EditFaculty from './pages/AOE/EditFaculty';
 import Interactions from './pages/AOE/Interactions';
 import ParentMeetings from './pages/AOE/ParentMeetings';
 import AOEDemoSchedule from './pages/AOE/AOEDemoSchedule';
+import EditDemoSchedule from './pages/AOE/EditDemoSchedule';
 import AOEDailyUpdates from './pages/AOE/AOEDailyUpdates';
 import AoeExams from './pages/AOE/AoeExams';
 
@@ -256,6 +258,7 @@ function App() {
             <Route path="aoe/interactions" element={<Interactions />} />
             <Route path="aoe/meetings" element={<ParentMeetings />} />
             <Route path="aoe/demo-schedule" element={<AOEDemoSchedule />} />
+            <Route path="aoe/demo-schedule/edit/:id" element={<EditDemoSchedule />} />
 
             {/* SSC Panels inside Academic Head */}
             <Route path="ssc/dashboard" element={<SSCDashboard />} />
@@ -314,12 +317,11 @@ function App() {
             <Route path="students" element={<MyStudents />} />
             <Route path="students/:id" element={<StudentDetails />} />
             <Route path="tasks" element={<MyTasks />} />
-            <Route path="timetable" element={<Timetable />} />
             <Route path="interaction-logs" element={<StudentInteractionLog />} />
             <Route path="faculty-logs" element={<FacultyTracking />} />
+            <Route path="logs" element={<MentorLogs />} />
             <Route path="exams" element={<Exams />} />
             <Route path="students-data" element={<StudentsData />} />
-            <Route path="academic-schedule" element={<AcademicSchedule />} />
             <Route path="profile" element={<AdminProfile />} />
             <Route path="account-settings" element={<AccountSettings />} />
           </Route>

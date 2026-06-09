@@ -58,7 +58,10 @@ const {
     forceSync,
     deduplicateStudents,
     getExamScores,
-    addExamScore
+    addExamScore,
+    getFacultyPerformance,
+    saveFacultyPerformance,
+    toggleDemoSuccess
 } = require('../controllers/aoeController');
 
 // Debug route
@@ -145,5 +148,10 @@ router.post('/demo-schedules', createDemoSchedule);
 router.put('/demo-schedules/:id', editDemoSchedule);
 router.delete('/demo-schedules/:id', deleteDemoSchedule);
 router.put('/demo-schedules/:id/evaluate', updateDemoEvaluation);
+router.put('/demo-schedules/:id/toggle-success', toggleDemoSuccess);
+
+// Faculty Performance Index
+router.get('/faculty-performance', getFacultyPerformance);
+router.post('/faculty-performance', saveFacultyPerformance);
 
 module.exports = router;

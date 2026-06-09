@@ -3,8 +3,10 @@ import api from '../../services/api';
 import toast from 'react-hot-toast';
 import { 
   CalendarDays, ListTodo, Plus, Target, Presentation, 
-  Video, RefreshCcw, Save, XCircle, Search, Clock, DollarSign, User, BookOpen 
+  Video, RefreshCcw, Save, XCircle, Search, Clock, DollarSign, User, BookOpen,
+  CheckCircle, CheckCircle2
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const AOEDemoSchedule = () => {
   const [activeTab, setActiveTab] = useState('schedule');
@@ -16,6 +18,13 @@ const AOEDemoSchedule = () => {
   const [demoList, setDemoList] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
 	const deferredSearchTerm = useDeferredValue(searchTerm);
+  const navigate = useNavigate();
+
+  // Current time state for Live button logic
+  const [currentTimeMinutes, setCurrentTimeMinutes] = useState(() => {
+    const d = new Date();
+    return d.getHours() * 60 + d.getMinutes();
+  });
 
   // Form State
   const [formData, setFormData] = useState({
@@ -59,6 +68,13 @@ const AOEDemoSchedule = () => {
     fetchFaculties();
     fetchStudents();
     fetchDemos();
+    
+    // Update time every minute
+    const interval = setInterval(() => {
+      const d = new Date();
+      setCurrentTimeMinutes(d.getHours() * 60 + d.getMinutes());
+    }, 60000);
+    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
@@ -153,20 +169,17 @@ const AOEDemoSchedule = () => {
   };
 
   const handleEditClick = (demo) => {
-    setFormData({
-      id: demo.id,
-      demo_id: demo.demo_id || '',
-      student_name: demo.student_name || '',
-      student_type: demo.student_type || 'new',
-      syllabus: demo.syllabus || '',
-      section: demo.section || '',
-      subject: demo.subject || '',
-      faculty_id: demo.faculty_id || '',
-      start_time: demo.start_time || '',
-      end_time: demo.end_time || '',
-      hour_rate: demo.hour_rate || ''
-    });
-    setActiveTab('schedule');
+    navigate(`/aoe/demo-schedule/edit/${demo.id}`, { state: { demo } });
+  };
+
+  const handleToggleSuccess = async (demoId) => {
+    try {
+      const res = await api.put(`/aoe/demo-schedules/${demoId}/toggle-success`);
+      toast.success('Demo success status updated');
+      fetchDemos();
+    } catch (error) {
+      toast.error('Failed to update success status');
+    }
   };
 
   const handleDeleteClick = async (demoId) => {
@@ -545,45 +558,61 @@ const AOEDemoSchedule = () => {
                       <p className="text-[10px] font-black text-[#008080] uppercase tracking-widest">{demo.student_type} Student</p>
                     </div>
                     {demo.status === 'completed' ? (
-                      <div className="flex flex-col items-end gap-2">
-                        <div className="text-center">
+                      <div className="flex gap-4">
+                        <div className="text-center mt-2">
                           <span className="block text-[20px] font-black text-emerald-600">{demo.total_score}/50</span>
                           <span className="text-[8px] font-black text-emerald-500 uppercase tracking-widest">Score</span>
                         </div>
-                        <div className="flex gap-2 mt-1">
+                        <div className="flex flex-col gap-2 mt-1 border-l pl-4 border-slate-100">
+                          <button 
+                            onClick={() => handleToggleSuccess(demo.id)}
+                            className={`transition-colors ${demo.is_successful ? 'text-emerald-500 hover:text-emerald-600' : 'text-slate-300 hover:text-emerald-400'}`}
+                            title={demo.is_successful ? "Mark as unsuccessful" : "Mark as successful"}
+                          >
+                            <CheckCircle2 size={16} />
+                          </button>
                           <button 
                             onClick={() => handleEditClick(demo)}
                             className="text-emerald-400 hover:text-indigo-600 transition-colors"
                             title="Edit Demo"
                           >
-                            <Target size={14} />
+                            <Target size={16} />
                           </button>
                           <button 
                             onClick={() => handleDeleteClick(demo.id)}
                             className="text-emerald-400 hover:text-rose-600 transition-colors"
                             title="Delete Demo"
                           >
-                            <XCircle size={14} />
+                            <XCircle size={16} />
                           </button>
                         </div>
                       </div>
                     ) : (
-                      <div className="flex flex-col items-end gap-2">
-                        <span className="text-[9px] font-black px-3 py-1 bg-amber-100 text-amber-600 rounded-full uppercase tracking-widest">Pending</span>
-                        <div className="flex gap-2">
+                      <div className="flex gap-4">
+                        <div className="flex flex-col items-center mt-2">
+                          <span className="text-[9px] font-black px-3 py-1 bg-amber-100 text-amber-600 rounded-full uppercase tracking-widest">Pending</span>
+                        </div>
+                        <div className="flex flex-col gap-2 mt-1 border-l pl-4 border-slate-100">
+                          <button 
+                            onClick={() => handleToggleSuccess(demo.id)}
+                            className={`transition-colors ${demo.is_successful ? 'text-emerald-500 hover:text-emerald-600' : 'text-slate-300 hover:text-emerald-400'}`}
+                            title={demo.is_successful ? "Mark as unsuccessful" : "Mark as successful"}
+                          >
+                            <CheckCircle2 size={16} />
+                          </button>
                           <button 
                             onClick={() => handleEditClick(demo)}
                             className="text-slate-400 hover:text-indigo-600 transition-colors"
                             title="Edit Demo"
                           >
-                            <Target size={14} />
+                            <Target size={16} />
                           </button>
                           <button 
                             onClick={() => handleDeleteClick(demo.id)}
                             className="text-slate-400 hover:text-rose-600 transition-colors"
                             title="Delete Demo"
                           >
-                            <XCircle size={14} />
+                            <XCircle size={16} />
                           </button>
                         </div>
                       </div>
@@ -597,9 +626,26 @@ const AOEDemoSchedule = () => {
                   </div>
 
                   <div className="flex items-center gap-3 pt-4 border-t border-slate-100">
-                    <button className="flex-1 py-3 bg-indigo-50 text-indigo-600 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-indigo-600 hover:text-white transition-all flex items-center justify-center gap-2">
-                      <Video size={14}/> Live
-                    </button>
+                    {(() => {
+                      let isLive = false;
+                      if (demo.start_time && demo.end_time) {
+                        const [startH, startM] = demo.start_time.split(':').map(Number);
+                        const [endH, endM] = demo.end_time.split(':').map(Number);
+                        const startMins = startH * 60 + startM;
+                        const endMins = endH * 60 + endM;
+                        isLive = currentTimeMinutes >= startMins && currentTimeMinutes <= endMins;
+                      }
+
+                      return (
+                        <button className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 ${
+                          isLive 
+                            ? 'bg-rose-500 text-white animate-pulse shadow-[0_0_15px_rgba(244,63,94,0.5)]' 
+                            : 'bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white'
+                        }`}>
+                          <Video size={14} className={isLive ? "text-white" : ""} /> Live
+                        </button>
+                      );
+                    })()}
                     <button 
                       onClick={() => openEvaluationModal(demo)}
                       className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 ${demo.status === 'completed' ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200' : 'bg-slate-900 text-white hover:bg-slate-800'}`}

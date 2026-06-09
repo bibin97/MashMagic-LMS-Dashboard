@@ -84,6 +84,24 @@ const getMentorDashboard = async (req, res) => {
         }
 
         const studentCount = await safeQuery('SELECT COUNT(*) as count FROM students WHERE mentor_id = ? AND status != "rejected" AND course_completed = 0', [mentorId], 'studentCount');
+        const pendingOnboardingsCount = await safeQuery('SELECT COUNT(*) as count FROM students WHERE mentor_id = ? AND onboarding_status = "pending" AND status != "rejected"', [mentorId], 'pendingOnboardingsCount');
+        const highRiskStudentsCount = await safeQuery('SELECT COUNT(*) as count FROM students WHERE mentor_id = ? AND (priority_category = "High" OR payment_alert_level = "Critical") AND status != "rejected"', [mentorId], 'highRiskStudentsCount');
+        
+        const todayStr = new Date().toISOString().split('T')[0];
+        const dailyAssignments = await safeQuery('SELECT assignments FROM daily_assignments WHERE mentor_id = ? AND date = ?', [mentorId, todayStr], 'dailyAssignments');
+        let todayInteractionsTotal = 0;
+        let todayInteractionsCompleted = 0;
+        if (dailyAssignments.length > 0 && dailyAssignments[0].assignments) {
+            let assignmentsArr = dailyAssignments[0].assignments;
+            if (typeof assignmentsArr === 'string') {
+                try { assignmentsArr = JSON.parse(assignmentsArr); } catch(e) { assignmentsArr = []; }
+            }
+            if (Array.isArray(assignmentsArr)) {
+                todayInteractionsTotal = assignmentsArr.length;
+                todayInteractionsCompleted = assignmentsArr.filter(a => a.status === 'COMPLETED' || a.status === 'CANCELLED').length;
+            }
+        }
+
         const sessionCount = await safeQuery('SELECT COUNT(*) as count FROM timetable WHERE mentor_id = ?', [mentorId], 'sessionCount');
         const pendingTasks = await safeQuery('SELECT COUNT(*) as count FROM tasks WHERE assigned_to = ? AND status != "Completed"', [mentorId], 'pendingTasks');
         const completedTasks = await safeQuery('SELECT COUNT(*) as count FROM tasks WHERE assigned_to = ? AND status = "Completed"', [mentorId], 'completedTasks');
@@ -156,6 +174,10 @@ const getMentorDashboard = async (req, res) => {
             success: true,
             data: {
                 totalStudents: studentCount[0]?.count || 0,
+                pendingOnboardings: pendingOnboardingsCount[0]?.count || 0,
+                highRiskStudents: highRiskStudentsCount[0]?.count || 0,
+                todayInteractionsTotal,
+                todayInteractionsCompleted,
                 totalSessions: sessionCount[0]?.count || 0,
                 pendingTasks: pendingTasks[0]?.count || 0,
                 completedTasks: completedTasks[0]?.count || 0,

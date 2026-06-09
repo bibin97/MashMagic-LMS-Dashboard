@@ -1,13 +1,16 @@
 import React, {  useState, useEffect, useMemo , useDeferredValue } from 'react';
+import React, {  useState, useEffect, useMemo , useDeferredValue } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
-import { User, Users, ChevronRight, Search, CheckCircle2, Calendar, Clock, Plus, Trash2, XCircle, Activity } from 'lucide-react';
+import { User, Users, ChevronRight, Search, CheckCircle2, Calendar, Clock, Plus, Trash2, XCircle, Activity, MessageSquare } from 'lucide-react';
 import toast from 'react-hot-toast';
 import StudentListFilterDropdown, { sortStudentsByOption } from '../../components/StudentListFilterDropdown';
 
-const StudentRow = ({ student, navigate, handleToggleConnection, handleCompleteOnboarding, handleLogHoursClick }) => {
+const StudentRow = ({ student, navigate, handleCompleteOnboarding }) => {
   const isPending = student.onboarding_status === 'pending';
-  const isNew = student.onboarding_status === 'completed' && (!student.session_count || student.session_count < 5);
+  // Badge logic: "New Member" if pending (or completed but no sessions). When SSC adds session, it should disappear if session_count > 0.
+  // We'll define "New Member" based on session count and onboarding status.
+  const isNew = student.onboarding_status === 'pending' || (student.onboarding_status === 'completed' && (!student.session_count || student.session_count === 0));
   const [isExpanded, setIsExpanded] = useState(false);
 
   const alertClass = student.payment_alert_level === 'Critical' ? 'payment-alert-critical' : student.payment_alert_level === 'Warning' ? 'payment-alert-warning' : '';
@@ -30,9 +33,6 @@ const StudentRow = ({ student, navigate, handleToggleConnection, handleCompleteO
               {isNew && (
                 <span className="px-3 py-1 bg-emerald-500 text-white text-[8px] font-black uppercase tracking-widest rounded-full shadow-lg shadow-emerald-200 animate-pulse">New Member</span>
               )}
-              {isPending && (
-                <span className="px-3 py-1 bg-amber-500 text-white text-[8px] font-black uppercase tracking-widest rounded-full">New Student</span>
-              )}
             </div>
             <div className="flex items-center gap-3 mt-2">
               <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">ID: MM-{student.id.toString().padStart(4, '0')}</span>
@@ -47,13 +47,6 @@ const StudentRow = ({ student, navigate, handleToggleConnection, handleCompleteO
           <div className="text-center" title={`Consumed: ${student.consumed_hours || 0} | Paid: ${student.paid_hours || 0}`}>
             <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Class Hrs</p>
             <p className={`text-sm font-black leading-none ${student.payment_alert_level === 'Critical' ? 'text-rose-600' : student.payment_alert_level === 'Warning' ? 'text-amber-600' : 'text-slate-700'}`}>{student.consumed_hours || 0} / {student.paid_hours || 0}</p>
-          </div>
-          <div className="w-[1px] h-8 bg-slate-200"></div>
-          <div className="text-center">
-            <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Status</p>
-            <p className={`text-xs font-black leading-none ${student.connected_today ? 'text-emerald-500' : 'text-slate-400'}`}>
-              {student.connected_today ? 'Connected' : 'Offline'}
-            </p>
           </div>
           <div className="w-[1px] h-8 bg-slate-200"></div>
           <div className="text-center">
@@ -77,37 +70,14 @@ const StudentRow = ({ student, navigate, handleToggleConnection, handleCompleteO
 
         {/* Quick Actions */}
         <div className="flex items-center gap-3 w-full lg:w-auto shrink-0" onClick={(e) => e.stopPropagation()}>
-          {isPending ? (
-            <div
-              className="flex-1 lg:flex-none flex items-center justify-center gap-3 bg-amber-50 text-amber-600 px-8 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest border border-amber-200"
-            >
-              <Clock size={16} /> Awaiting SSC Setup
-            </div>
-          ) : (
-            <>
-              <button
-                onClick={(e) => handleToggleConnection(student.id, student.connected_today, e)}
-                className={`flex-1 lg:flex-none p-4 rounded-2xl border transition-all flex items-center justify-center gap-2 ${student.connected_today ? 'bg-emerald-500 text-white border-emerald-600 shadow-lg shadow-emerald-200' : 'bg-white border-slate-100 text-slate-400 hover:border-[#008080] hover:text-[#008080]'}`}
-                title="Toggle Attendance"
-              >
-                <CheckCircle2 size={18} strokeWidth={3} />
-                <span className="lg:hidden text-[10px] font-black uppercase">Presence</span>
-              </button>
-              <button
-                onClick={() => navigate('/mentor/interaction-logs', { state: { studentId: student.id } })}
-                className="flex-1 lg:flex-none p-4 bg-slate-50 text-slate-600 border border-slate-100 rounded-2xl hover:bg-[#008080] hover:text-white hover:border-[#008080] transition-all group/btn"
-                title="Interaction Log"
-              >
-                <Activity size={18} strokeWidth={2.5} className="group-hover/btn:scale-110 transition-transform" />
-              </button>
-              <button
-                onClick={(e) => handleLogHoursClick(student, e)}
-                className="flex-[2] lg:flex-none flex items-center justify-center gap-3 bg-[#008080] text-white px-8 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-slate-200 hover:shadow-2xl transition-all active:scale-95"
-              >
-                <Clock size={16} /> Log Hours
-              </button>
-            </>
-          )}
+          <button
+            onClick={() => navigate('/mentor/interaction-logs', { state: { studentId: student.id } })}
+            className="flex-1 lg:flex-none px-6 py-4 bg-[#008080] text-white rounded-2xl hover:bg-[#006666] transition-all flex items-center justify-center gap-3 shadow-xl shadow-[#008080]/30 hover:shadow-2xl hover:-translate-y-0.5"
+            title="Interaction Log"
+          >
+            <MessageSquare size={18} strokeWidth={2.5} />
+            <span className="text-[10px] font-black uppercase tracking-widest">Interactions</span>
+          </button>
         </div>
       </div>
 
@@ -148,10 +118,7 @@ const MyStudents = () => {
  const [searchTerm, setSearchTerm] = useState('');
 	const deferredSearchTerm = useDeferredValue(searchTerm);
  const [sortBy, setSortBy] = useState('');
- const [viewMode, setViewMode] = useState('active'); // 'active' or 'new'
  const [isTimetableModalOpen, setIsTimetableModalOpen] = useState(false);
- const [isHoursModalOpen, setIsHoursModalOpen] = useState(false);
- const [hoursFormData, setHoursFormData] = useState({ date: new Date().toISOString().split('T')[0], hours: '' });
  const [selectedStudent, setSelectedStudent] = useState(null);
  const [batchSessions, setBatchSessions] = useState([
  { date: '', start_time: '10:00', end_time: '11:00', chapter: '', session_type: 'Regular Class' }
@@ -173,47 +140,11 @@ const MyStudents = () => {
  }
  };
 
- const handleToggleConnection = async (studentId, currentStatus, e) => {
- e.stopPropagation(); // prevent navigation
- try {
- await api.put(`/mentor/students/${studentId}/connection`, {
- connected_today: !currentStatus
- });
- // update UI locally
- setStudents(prev => prev.map(s => s.id === studentId ? { ...s, connected_today: !currentStatus ? 1 : 0 } : s));
- toast.success(!currentStatus ? 'Marked as connected today!' : 'Connection marked as incomplete.');
- } catch (error) {
- toast.error("Failed to update connection status");
- }
- };
-
  const handleCompleteOnboarding = (student, e) => {
  e.stopPropagation();
  setSelectedStudent(student);
  setBatchSessions([{ date: '', start_time: '10:00', end_time: '11:00', chapter: '', session_type: 'Regular Class' }]);
  setIsTimetableModalOpen(true);
- };
-
- const handleLogHoursClick = (student, e) => {
- e.stopPropagation();
- setSelectedStudent(student);
- setHoursFormData({ date: new Date().toISOString().split('T')[0], hours: '' });
- setIsHoursModalOpen(true);
- };
-
- const handleHoursSubmit = async (e) => {
- e.preventDefault();
- try {
- await api.post('/mentor/daily-hours', {
- student_id: selectedStudent.id,
- hours: hoursFormData.hours,
- date: hoursFormData.date
- });
- toast.success('Daily hours logged successfully');
- setIsHoursModalOpen(false);
- } catch (error) {
- toast.error(error.response?.data?.message || 'Failed to log hours');
- }
  };
 
  const addBatchRow = () => {
@@ -241,7 +172,6 @@ const MyStudents = () => {
  setStudents(prev => prev.map(s => s.id === selectedStudent.id ? { ...s, onboarding_status: 'completed' } : s));
  setIsTimetableModalOpen(false);
  toast.success("Timetable created and student activated!");
- setViewMode('active');
  } catch (error) {
  toast.error(error.response?.data?.message || "Batch update failed");
  }
@@ -249,23 +179,14 @@ const MyStudents = () => {
 
   const filteredStudents = useMemo(() => {
     const filtered = students.filter(s => {
-      const isNew = s.onboarding_status === 'pending';
-      if (viewMode === 'new' && !isNew) return false;
-      // In 'active' view, show all students
       const nameStr = s.name || '';
       const subjStr = s.subject || '';
       return nameStr.toLowerCase().includes(deferredSearchTerm.toLowerCase()) ||
       subjStr.toLowerCase().includes(deferredSearchTerm.toLowerCase());
     });
     
-    // Auto-Rotation: Completed interactions move to the bottom
-    const rotated = [...filtered].sort((a, b) => {
-      if (a.connected_today === b.connected_today) return 0;
-      return a.connected_today ? 1 : -1;
-    });
-
-    return sortStudentsByOption(rotated, sortBy);
-  }, [students, viewMode, searchTerm, sortBy]);
+    return sortStudentsByOption(filtered, sortBy);
+  }, [students, searchTerm, sortBy]);
 
  return (
  <div className="space-y-12 pb-20">
@@ -297,25 +218,9 @@ const MyStudents = () => {
  <div className="flex flex-wrap items-center gap-2">
  <StudentListFilterDropdown value={sortBy} onChange={setSortBy} />
   <div className="flex items-center gap-2 bg-slate-50 p-1 rounded-2xl border border-slate-100">
-  <button
-  onClick={() => setViewMode('active')}
-  className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${viewMode === 'active' ? 'bg-white text-[#008080] shadow-sm' : 'text-slate-400 hover:text-slate-600'
-  }`}
-  >
+  <div className="px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest bg-white text-[#008080] shadow-sm">
   All Assigned Hub ({students.length})
-  </button>
-  <button
-  onClick={() => setViewMode('new')}
-  className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${viewMode === 'new' ? 'bg-white text-emerald-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'
-  }`}
-  >
-  Pending Onboarding
-  {students.filter(s => s.onboarding_status === 'pending').length > 0 && (
-  <span className="ml-2 px-2 py-0.5 bg-amber-500 text-white rounded-full text-[8px] font-black animate-bounce">
-  {students.filter(s => s.onboarding_status === 'pending').length}
-  </span>
-  )}
-  </button>
+  </div>
   </div>
  </div>
  </div>
@@ -330,9 +235,7 @@ const MyStudents = () => {
     key={student.id} 
     student={student} 
     navigate={navigate} 
-    handleToggleConnection={handleToggleConnection} 
     handleCompleteOnboarding={handleCompleteOnboarding} 
-    handleLogHoursClick={handleLogHoursClick} 
   />
   ))}
   </div>
@@ -448,61 +351,6 @@ const MyStudents = () => {
  Abort
  </button>
  </div>
- </div>
- </div>
- )}
- {/* Log Hours Modal */}
- {isHoursModalOpen && selectedStudent && (
- <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
- <div className="absolute inset-0 bg-[#008080]/60 backdrop-blur-sm" onClick={() => setIsHoursModalOpen(false)}></div>
- <div className="bg-white rounded-[3rem] w-full max-w-md shadow-2xl overflow-hidden relative z-10 animate-in zoom-in duration-300">
- <div className="px-10 py-8 bg-[#008080] text-white relative">
- <div className="absolute top-0 right-0 p-6 opacity-20">
- <Clock size={48} />
- </div>
- <h3 className="text-2xl font-black tracking-tighter uppercase relative z-10">Log Working Hours</h3>
- <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest mt-1 relative z-10">Record time spent for {selectedStudent.name}</p>
- </div>
- <form onSubmit={handleHoursSubmit} className="p-10 space-y-6">
- <div>
- <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest pl-2 mb-2 block">Date</label>
- <input
- type="date"
- required
- className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold shadow-sm outline-none focus:ring-4 focus:ring-[#008080]"
- value={hoursFormData.date}
- onChange={(e) => setHoursFormData({ ...hoursFormData, date: e.target.value })}
- />
- </div>
- <div>
- <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest pl-2 mb-2 block">Total Hours</label>
- <input
- type="number"
- step="0.5"
- min="0.5"
- required
- placeholder="e.g. 2.5"
- className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold shadow-sm outline-none focus:ring-4 focus:ring-[#008080]"
- value={hoursFormData.hours}
- onChange={(e) => setHoursFormData({ ...hoursFormData, hours: e.target.value })}
- />
- </div>
- <div className="flex gap-4 pt-4 border-t border-slate-50">
- <button
- type="submit"
- className="flex-[2] bg-[#008080] text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-[#008080]/30 hover:bg-[#008080] transition-all"
- >
- Log Hours
- </button>
- <button
- type="button"
- onClick={() => setIsHoursModalOpen(false)}
- className="flex-1 bg-white border border-slate-200 text-slate-600 py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-slate-50 transition-all"
- >
- Cancel
- </button>
- </div>
- </form>
  </div>
  </div>
  )}

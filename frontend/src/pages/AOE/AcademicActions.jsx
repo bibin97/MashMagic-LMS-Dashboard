@@ -1,373 +1,271 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
 import {
- AlertCircle, CheckCircle2, Clock, Calendar,
- User, BookOpen, ChevronRight, Activity,
- ShieldAlert, GraduationCap, ArrowRight, Filter,
- FileText, X
+  Activity, ShieldAlert, CheckCircle2, User, 
+  Calendar, Target, Star, BookOpen, GraduationCap,
+  Save, Calculator
 } from 'lucide-react';
 import toast from 'react-hot-toast';
-import Modal from '../../components/Modal';
 
 const AcademicActions = () => {
- const [milestones, setMilestones] = useState([]);
- const [dailyLogs, setDailyLogs] = useState([]);
- const [loading, setLoading] = useState(true);
- const [activeTab, setActiveTab] = useState('milestones');
- const [selectedMilestone, setSelectedMilestone] = useState(null);
- const [isExamModalOpen, setIsExamModalOpen] = useState(false);
- const [planData, setPlanData] = useState({
- chapter: '',
- portions: '',
- exam_type: 'MCQ',
- scheduled_date: ''
- });
+  const [faculties, setFaculties] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [selectedFaculty, setSelectedFaculty] = useState('');
+  
+  // Default to current month e.g., "2026-06"
+  const currentDate = new Date();
+  const currentMonthYear = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
+  const [selectedMonth, setSelectedMonth] = useState(currentMonthYear);
 
- useEffect(() => {
- fetchActions();
- }, []);
+  const [formData, setFormData] = useState({
+    demo_conversion_rate: 0,
+    attendance_punctuality: 0,
+    parent_feedback: 0,
+    student_exam_improvement: 0,
+    academic_head_rating: 0
+  });
 
- const fetchActions = async () => {
- try {
- const res = await api.get('/aoe/actions');
- setMilestones(res.data.data.milestones);
- setDailyLogs(res.data.data.dailyLogs);
- } catch (error) {
- toast.error("Failed to load actions dashboard");
- } finally {
- setLoading(false);
- }
- };
+  useEffect(() => {
+    fetchFaculties();
+  }, []);
 
- const handleOpenExamModal = (milestone) => {
- setSelectedMilestone(milestone);
- setPlanData({
- chapter: milestone.chapter || '',
- portions: milestone.portions || '',
- exam_type: milestone.exam_type || 'MCQ',
- scheduled_date: milestone.scheduled_date ? new Date(milestone.scheduled_date).toISOString().split('T')[0] : ''
- });
- setIsExamModalOpen(true);
- };
+  useEffect(() => {
+    if (selectedFaculty && selectedMonth) {
+      fetchPerformanceData();
+    }
+  }, [selectedFaculty, selectedMonth]);
 
- const handleSaveExamPlan = async (e) => {
- e.preventDefault();
- try {
- await api.post('/aoe/exams/plan', {
- student_id: selectedMilestone.student_id,
- milestone_session: selectedMilestone.milestone,
- chapter: planData.chapter,
- portions: planData.portions,
- exam_type: planData.exam_type,
- scheduled_date: planData.scheduled_date
- });
- toast.success("Exam plan saved successfully");
- setIsExamModalOpen(false);
- fetchActions();
- } catch (error) {
- toast.error(error.response?.data?.message || "Failed to save exam plan");
- }
- };
+  const fetchFaculties = async () => {
+    try {
+      const res = await api.get('/aoe/dropdowns');
+      if (res.data.success && res.data.data.faculties) {
+        setFaculties(res.data.data.faculties);
+      }
+    } catch (error) {
+      toast.error("Failed to fetch faculties");
+    }
+  };
 
- return (
- <div className="space-y-10 pb-20 max-w-[1600px] mx-auto animate-in fade-in duration-700">
- {/* Action Center Header */}
- <div className="bg-white p-10 rounded-[3.5rem] shadow-sm border border-slate-100 flex flex-col md:flex-row justify-between items-center gap-6 relative overflow-hidden">
- <div className="absolute top-0 right-0 w-64 h-64 bg-rose-50 rounded-full -mr-32 -mt-32 opacity-40"></div>
- <div className="relative z-10 flex items-center gap-6">
- <div className="w-16 h-16 bg-rose-500 rounded-3xl flex items-center justify-center text-white shadow-xl shadow-rose-100 -rotate-6 group hover:rotate-0 transition-all duration-500">
- <Activity size={32} />
- </div>
- <div>
- <h1 className="text-3xl lg:text-4xl font-black text-slate-900 tracking-tighter uppercase leading-none">Action Center</h1>
- <p className="text-slate-500 text-[10px] font-bold uppercase tracking-[0.2em] mt-1 flex items-center gap-2">
- <ShieldAlert size={12} className="text-rose-500" />
- Monitor critical exam milestones and audit daily faculty session intake
- </p>
- </div>
- </div>
+  const fetchPerformanceData = async () => {
+    try {
+      setLoading(true);
+      const res = await api.get(`/aoe/faculty-performance?faculty_id=${selectedFaculty}&month_year=${selectedMonth}`);
+      if (res.data.success && res.data.data) {
+        setFormData({
+          demo_conversion_rate: res.data.data.demo_conversion_rate || 0,
+          attendance_punctuality: res.data.data.attendance_punctuality || 0,
+          parent_feedback: res.data.data.parent_feedback || 0,
+          student_exam_improvement: res.data.data.student_exam_improvement || 0,
+          academic_head_rating: res.data.data.academic_head_rating || 0
+        });
+      } else {
+        // Reset if no data but keep demo rate if calculated from backend
+        setFormData({
+          demo_conversion_rate: res.data.demo_rate || 0,
+          attendance_punctuality: 0,
+          parent_feedback: 0,
+          student_exam_improvement: 0,
+          academic_head_rating: 0
+        });
+      }
+    } catch (error) {
+      toast.error("Failed to load performance data");
+    } finally {
+      setLoading(false);
+    }
+  };
 
- <div className="relative z-10 flex items-center gap-4">
- <div className="bg-slate-50 px-6 py-4 rounded-2xl border border-slate-100">
- <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest block mb-1">Pending Exam Alerts</span>
- <span className="text-xl font-black text-rose-500 ">{milestones.length}</span>
- </div>
- <div className="bg-slate-50 px-6 py-4 rounded-2xl border border-slate-100">
- <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest block mb-1">Today's Intake</span>
- <span className="text-xl font-black text-[#008080] ">{dailyLogs.length}</span>
- </div>
- </div>
- </div>
+  const handleSave = async (e) => {
+    e.preventDefault();
+    try {
+      await api.post('/aoe/faculty-performance', {
+        faculty_id: selectedFaculty,
+        month_year: selectedMonth,
+        ...formData
+      });
+      toast.success("Performance Index saved successfully");
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to save data");
+    }
+  };
 
-  <div className="flex gap-2 mb-8 bg-slate-200/50 p-1.5 rounded-2xl w-fit mx-auto shadow-inner">
-  {[
-    { id: 'milestones', label: 'Exam Milestones', icon: <GraduationCap size={16} /> },
-    { id: 'registry', label: "Today's Registry Update", icon: <BookOpen size={16} /> }
-  ].map((tab) => (
-    <button
-      key={tab.id}
-      onClick={() => setActiveTab(tab.id)}
-      className={`px-8 py-3 rounded-xl font-black text-[11px] uppercase tracking-widest transition-all flex items-center gap-3 ${activeTab === tab.id
-        ? 'bg-white text-slate-900 shadow-sm scale-100'
-        : 'text-slate-500 hover:text-slate-800 scale-95'
-        }`}
-    >
-      {tab.icon}
-      {tab.label}
-    </button>
-  ))}
-  </div>
+  const handleInputChange = (field, value, max) => {
+    let val = parseFloat(value);
+    if (isNaN(val)) val = 0;
+    if (val > max) val = max;
+    if (val < 0) val = 0;
+    setFormData(prev => ({ ...prev, [field]: val }));
+  };
 
-  <div className="w-full">
- {activeTab === 'milestones' && (
- <div className="space-y-6">
- <div className="flex items-center justify-between px-4">
- <h3 className="text-[11px] font-black text-slate-900 uppercase tracking-[0.3em] flex items-center gap-2">
- <GraduationCap size={16} className="text-rose-500" /> Exam Milestones
- </h3>
- {milestones.length > 0 && (
- <span className="bg-rose-100 text-rose-600 text-[9px] font-black px-3 py-1 rounded-full uppercase tracking-widest">Plan Required</span>
- )}
- </div>
+  const totalScore = (
+    parseFloat(formData.demo_conversion_rate || 0) +
+    parseFloat(formData.attendance_punctuality || 0) +
+    parseFloat(formData.parent_feedback || 0) +
+    parseFloat(formData.student_exam_improvement || 0) +
+    parseFloat(formData.academic_head_rating || 0)
+  ).toFixed(2);
 
- {loading ? (
- <div className="bg-white p-12 rounded-[3rem] border border-slate-100 flex items-center justify-center">
- <div className="w-10 h-10 border-4 border-rose-500 border-t-transparent rounded-full animate-spin"></div>
- </div>
- ) : milestones.length === 0 ? (
- <div className="bg-white p-12 rounded-[3rem] border border-slate-100 text-center">
- <CheckCircle2 size={40} className="text-emerald-500 mx-auto mb-4" />
- <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest">All Milestones Clear</p>
- </div>
- ) : (
- <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
- {milestones.map((milestone, idx) => (
- <div key={idx} 
- onClick={() => handleOpenExamModal(milestone)}
- className="bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-xl hover:border-rose-200 transition-all group overflow-hidden relative cursor-pointer"
- >
- <div className="absolute top-0 right-0 w-16 h-16 bg-rose-50 rounded-full -mr-8 -mt-8 opacity-40"></div>
- <div className="flex justify-between items-start mb-4">
- <div>
- <h4 className="text-lg font-black text-slate-900 uppercase leading-none">{milestone.student_name}</h4>
- <p className="text-[9px] font-bold text-slate-600 uppercase tracking-widest mt-1">Session Milestone: {milestone.milestone}</p>
- </div>
- <div className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest ${milestone.portions ? 'bg-emerald-50 text-emerald-500' : 'bg-rose-50 text-rose-500'}`}>
- {milestone.portions ? 'Planned' : 'Set Portions'}
- </div>
- </div>
+  return (
+    <div className="space-y-10 pb-20 max-w-[1200px] mx-auto animate-in fade-in duration-700">
+      <div className="bg-[#008080] p-10 rounded-[3.5rem] shadow-sm flex flex-col md:flex-row justify-between items-center gap-6 relative overflow-hidden text-white">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-32 -mt-32"></div>
+        <div className="relative z-10 flex items-center gap-6">
+          <div className="w-16 h-16 bg-white/20 rounded-3xl flex items-center justify-center text-white backdrop-blur-sm -rotate-6 transition-all duration-500">
+            <Activity size={32} />
+          </div>
+          <div>
+            <div className="flex items-center gap-3 mb-2">
+              <span className="px-3 py-1 bg-white/20 text-[10px] font-black tracking-widest uppercase rounded-full">Stage Thirteen - Quality & Continuity</span>
+            </div>
+            <h1 className="text-3xl lg:text-4xl font-black tracking-tighter uppercase leading-none">Faculty Performance Index</h1>
+            <p className="text-white/80 text-xs font-bold mt-2 max-w-xl leading-relaxed">
+              Managed by the AOE. Scored monthly out of 100 to drive ranking, incentives, training needs, and quality control.
+            </p>
+          </div>
+        </div>
+      </div>
 
- {milestone.chapter && (
- <div className="mt-2 text-[10px] text-slate-900 font-black border-l-2 border-rose-500 pl-3 uppercase ">
- Chapter: {milestone.chapter}
- </div>
- )}
+      <div className="bg-white p-8 rounded-[3rem] shadow-sm border border-slate-100 space-y-8">
+        <div className="flex flex-col md:flex-row gap-6">
+          <div className="flex-1 space-y-2">
+            <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 flex items-center gap-2">
+              <User size={12} className="text-[#008080]"/> Select Faculty
+            </label>
+            <select
+              value={selectedFaculty}
+              onChange={(e) => setSelectedFaculty(e.target.value)}
+              className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
+            >
+              <option value="">-- Choose Faculty --</option>
+              {faculties.map(f => (
+                <option key={f.id} value={f.id}>{f.name} ({f.subject})</option>
+              ))}
+            </select>
+          </div>
+          <div className="flex-1 space-y-2">
+            <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 flex items-center gap-2">
+              <Calendar size={12} className="text-[#008080]"/> Select Month
+            </label>
+            <input
+              type="month"
+              value={selectedMonth}
+              onChange={(e) => setSelectedMonth(e.target.value)}
+              className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
+            />
+          </div>
+        </div>
 
- {milestone.portions && (
- <div className="mt-2 text-[10px] text-slate-500 font-bold border-l-2 border-slate-200 pl-3">
- Portions: {milestone.portions}
- </div>
- )}
+        {selectedFaculty && selectedMonth && (
+          <form onSubmit={handleSave} className="animate-in slide-in-from-bottom-4">
+            {loading ? (
+              <div className="py-20 flex justify-center"><div className="w-10 h-10 border-4 border-[#008080] border-t-transparent rounded-full animate-spin"></div></div>
+            ) : (
+              <div className="border border-slate-100 rounded-[2rem] overflow-hidden">
+                <table className="w-full text-left">
+                  <thead>
+                    <tr className="bg-[#008080] text-white">
+                      <th className="px-8 py-5 text-xs font-black uppercase tracking-widest w-2/3">Performance Dimension</th>
+                      <th className="px-8 py-5 text-xs font-black uppercase tracking-widest text-center w-1/3">Weight / Score</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    <tr className="bg-slate-50/50 hover:bg-slate-50 transition-colors">
+                      <td className="px-8 py-6">
+                        <div className="flex items-center gap-3">
+                          <Target size={18} className="text-[#008080]" />
+                          <span className="text-sm font-bold text-slate-700">Demo conversion rate</span>
+                        </div>
+                        <p className="text-[10px] text-slate-500 mt-1 ml-8 uppercase tracking-widest font-bold">Auto-calculated from demo schedules</p>
+                      </td>
+                      <td className="px-8 py-6">
+                        <div className="flex items-center justify-center gap-2">
+                          <input type="number" readOnly value={formData.demo_conversion_rate} className="w-20 text-center p-3 bg-slate-100 border border-slate-200 rounded-xl font-black text-[#008080] outline-none" />
+                          <span className="text-xs font-black text-slate-400">/ 25%</span>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr className="hover:bg-slate-50 transition-colors">
+                      <td className="px-8 py-6">
+                        <div className="flex items-center gap-3">
+                          <Calendar size={18} className="text-[#008080]" />
+                          <span className="text-sm font-bold text-slate-700">Attendance & punctuality</span>
+                        </div>
+                      </td>
+                      <td className="px-8 py-6">
+                        <div className="flex items-center justify-center gap-2">
+                          <input type="number" step="0.1" value={formData.attendance_punctuality} onChange={(e) => handleInputChange('attendance_punctuality', e.target.value, 15)} className="w-20 text-center p-3 bg-white border border-slate-200 rounded-xl font-black text-slate-700 focus:border-[#008080] focus:ring-2 ring-[#008080]/20 outline-none transition-all" />
+                          <span className="text-xs font-black text-slate-400">/ 15%</span>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr className="hover:bg-slate-50 transition-colors">
+                      <td className="px-8 py-6">
+                        <div className="flex items-center gap-3">
+                          <Star size={18} className="text-[#008080]" />
+                          <span className="text-sm font-bold text-slate-700">Parent feedback</span>
+                        </div>
+                      </td>
+                      <td className="px-8 py-6">
+                        <div className="flex items-center justify-center gap-2">
+                          <input type="number" step="0.1" value={formData.parent_feedback} onChange={(e) => handleInputChange('parent_feedback', e.target.value, 20)} className="w-20 text-center p-3 bg-white border border-slate-200 rounded-xl font-black text-slate-700 focus:border-[#008080] focus:ring-2 ring-[#008080]/20 outline-none transition-all" />
+                          <span className="text-xs font-black text-slate-400">/ 20%</span>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr className="hover:bg-slate-50 transition-colors">
+                      <td className="px-8 py-6">
+                        <div className="flex items-center gap-3">
+                          <GraduationCap size={18} className="text-[#008080]" />
+                          <span className="text-sm font-bold text-slate-700">Student exam improvement</span>
+                        </div>
+                      </td>
+                      <td className="px-8 py-6">
+                        <div className="flex items-center justify-center gap-2">
+                          <input type="number" step="0.1" value={formData.student_exam_improvement} onChange={(e) => handleInputChange('student_exam_improvement', e.target.value, 25)} className="w-20 text-center p-3 bg-white border border-slate-200 rounded-xl font-black text-slate-700 focus:border-[#008080] focus:ring-2 ring-[#008080]/20 outline-none transition-all" />
+                          <span className="text-xs font-black text-slate-400">/ 25%</span>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr className="hover:bg-slate-50 transition-colors">
+                      <td className="px-8 py-6">
+                        <div className="flex items-center gap-3">
+                          <ShieldAlert size={18} className="text-[#008080]" />
+                          <span className="text-sm font-bold text-slate-700">Academic Head rating</span>
+                        </div>
+                      </td>
+                      <td className="px-8 py-6">
+                        <div className="flex items-center justify-center gap-2">
+                          <input type="number" step="0.1" value={formData.academic_head_rating} onChange={(e) => handleInputChange('academic_head_rating', e.target.value, 15)} className="w-20 text-center p-3 bg-white border border-slate-200 rounded-xl font-black text-slate-700 focus:border-[#008080] focus:ring-2 ring-[#008080]/20 outline-none transition-all" />
+                          <span className="text-xs font-black text-slate-400">/ 15%</span>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                  <tfoot>
+                    <tr className="bg-slate-900 text-white">
+                      <td className="px-8 py-6 font-black uppercase tracking-widest text-sm">Total monthly score</td>
+                      <td className="px-8 py-6">
+                        <div className="flex items-center justify-center gap-2">
+                          <span className="text-2xl font-black">{totalScore}</span>
+                          <span className="text-xs font-black text-slate-400">/ 100</span>
+                        </div>
+                      </td>
+                    </tr>
+                  </tfoot>
+                </table>
 
- {milestone.exam_type && (
- <div className="mt-3 flex items-center gap-2">
- <span className="text-[8px] font-black px-2 py-0.5 bg-[#008080] text-white rounded-md uppercase tracking-tighter">
- {milestone.exam_type}
- </span>
- </div>
- )}
-
- <div className="flex items-center justify-between mt-6 pt-6 border-t border-slate-50">
- <div className="flex items-center gap-2">
- <div className="w-8 h-8 bg-slate-50 rounded-xl flex items-center justify-center text-[#008080]">
- <User size={14} />
- </div>
- <div>
- <p className="text-[8px] font-black text-slate-600 uppercase tracking-widest">Mentor</p>
- <p className="text-[10px] font-bold text-slate-700 line-clamp-1">{milestone.mentor_name}</p>
- </div>
- </div>
- <div className="w-9 h-9 bg-[#008080] text-white rounded-xl flex items-center justify-center group-hover:bg-rose-500 transition-colors">
- <FileText size={16} />
- </div>
- </div>
- </div>
- ))}
- </div>
- )}
- </div>
- )}
-
-  {activeTab === 'registry' && (
-  <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-500">
-  <div className="flex items-center justify-between px-4">
-  <h3 className="text-[11px] font-black text-slate-900 uppercase tracking-[0.3em] flex items-center gap-2">
-  <BookOpen size={16} className="text-[#008080]" /> Today's Registry Update
-  </h3>
- <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest flex items-center gap-1">
- <Clock size={10} /> Live Stream
- </span>
- </div>
-
- {loading ? (
- <div className="bg-white p-20 rounded-[4rem] border border-slate-100 flex items-center justify-center flex-col gap-4">
- <div className="w-12 h-12 border-4 border-[#008080] border-t-transparent rounded-full animate-spin"></div>
- <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Synchronizing Intra-Day Logs...</p>
- </div>
- ) : dailyLogs.length === 0 ? (
- <div className="bg-white p-20 rounded-[4rem] border-2 border-dashed border-slate-100 text-center">
- <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center text-slate-200 mx-auto mb-6">
- <Activity size={40} />
- </div>
- <h4 className="text-xl font-black text-slate-900 uppercase">Registry Empty</h4>
- <p className="text-[10px] font-bold text-slate-600 mt-2 uppercase tracking-[0.2em]">No faculty submissions recorded today yet.</p>
- </div>
- ) : (
- <div className="bg-white rounded-[3.5rem] border border-slate-100 shadow-sm overflow-hidden">
- <table className="w-full text-left">
- <thead>
- <tr className="bg-slate-50 border-b border-slate-100">
- <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest ">Faculty Unit</th>
- <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest ">Target Chapter</th>
- <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest ">Session Frame</th>
- <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest ">Status</th>
- <th className="px-8 py-6 text-right"></th>
- </tr>
- </thead>
- <tbody className="divide-y divide-slate-50">
- {dailyLogs.map((log) => (
- <tr key={log.id} className="hover:bg-slate-50/50 transition-colors group">
- <td className="px-8 py-6">
- <div className="flex items-center gap-3">
- <div className="w-10 h-10 bg-white rounded-xl shadow-sm border border-slate-100 flex items-center justify-center text-[#008080]">
- <User size={18} />
- </div>
- <div>
- <p className="text-xs font-black text-slate-900 uppercase tracking-tighter">{log.faculty_name}</p>
- <p className="text-[8px] font-bold text-slate-600 uppercase tracking-widest">Faculty ID: {log.faculty_id}</p>
- </div>
- </div>
- </td>
- <td className="px-8 py-6">
- <div className="bg-[#008080]/10 px-4 py-2 rounded-xl inline-block border border-[#008080]">
- <span className="text-xs font-black text-[#008080] uppercase tracking-tighter line-clamp-1">{log.chapter}</span>
- </div>
- </td>
- <td className="px-8 py-6">
- <div className="flex items-center gap-2 text-slate-500">
- <Clock size={12} />
- <span className="text-[10px] font-bold ">{log.start_time} - {log.end_time}</span>
- </div>
- </td>
- <td className="px-8 py-6">
- <span className={`px-4 py-1.5 rounded-full text-[8px] font-black uppercase tracking-widest ${log.status === 'Completed' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'}`}>
- {log.status}
- </span>
- </td>
- <td className="px-8 py-6 text-right">
- <button className="w-10 h-10 bg-[#008080] text-white rounded-xl flex items-center justify-center hover:bg-[#008080] transition-all opacity-0 group-hover:opacity-100">
- <ChevronRight size={18} />
- </button>
- </td>
- </tr>
- ))}
- </tbody>
- </table>
- </div>
- )}
- </div>
- )}
- </div>
-
- {/* Exam Planning Modal */}
- <Modal
- isOpen={isExamModalOpen}
- onClose={() => setIsExamModalOpen(false)}
- title="Schedule student Assessment"
- size="md"
- >
- <div className="p-2">
- {selectedMilestone && (
- <div className="mb-6 p-4 bg-slate-50 rounded-3xl border border-slate-100">
- <h4 className="text-sm font-black text-slate-900 uppercase tracking-tight ">
- Setting exam plan for {selectedMilestone.student_name}
- </h4>
- <p className="text-[10px] font-bold text-slate-500 mt-1 uppercase tracking-widest">
- Target Milestone: Session {selectedMilestone.milestone}
- </p>
- </div>
- )}
-
- <form onSubmit={handleSaveExamPlan} className="space-y-6">
- <div className="flex flex-col gap-2">
- <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Chapter</label>
- <input
- type="text"
- required
- className="p-4 bg-slate-50 border border-slate-100 rounded-3xl text-sm outline-none focus:bg-white focus:ring-4 focus:ring-rose-50 focus:border-rose-300 transition-all font-bold text-slate-700"
- placeholder="E.g. Polynomials, Optics..."
- value={planData.chapter}
- onChange={(e) => setPlanData({ ...planData, chapter: e.target.value })}
- />
- </div>
-
- <div className="flex flex-col gap-2">
- <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Exam Portions / Details</label>
- <textarea
- rows="3"
- required
- className="p-4 bg-slate-50 border border-slate-100 rounded-3xl text-sm outline-none focus:bg-white focus:ring-4 focus:ring-rose-50 focus:border-rose-300 transition-all font-bold text-slate-700 resize-none"
- placeholder="Specify topics or pages to be covered..."
- value={planData.portions}
- onChange={(e) => setPlanData({ ...planData, portions: e.target.value })}
- />
- </div>
-
- <div className="flex flex-col gap-2">
- <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Exam Type</label>
- <select
- required
- className="p-4 bg-slate-50 border border-slate-100 rounded-3xl text-sm outline-none focus:bg-white focus:ring-4 focus:ring-rose-50 focus:border-rose-300 transition-all font-bold text-slate-700 cursor-pointer"
- value={planData.exam_type}
- onChange={(e) => setPlanData({ ...planData, exam_type: e.target.value })}
- >
- <option value="MCQ">MCQ (Multiple Choice Questions)</option>
- <option value="Descriptive">Descriptive Test</option>
- </select>
- </div>
-
- <div className="flex flex-col gap-2">
- <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Target Scheduled Date</label>
- <input
- type="date"
- required
- className="p-4 bg-slate-50 border border-slate-100 rounded-3xl text-sm outline-none focus:bg-white focus:ring-4 focus:ring-rose-50 focus:border-rose-300 transition-all font-bold text-slate-700"
- value={planData.scheduled_date}
- onChange={(e) => setPlanData({ ...planData, scheduled_date: e.target.value })}
- />
- </div>
-
- <div className="pt-4 flex gap-3">
- <button
- type="button"
- onClick={() => setIsExamModalOpen(false)}
- className="flex-1 bg-slate-100 text-slate-600 p-4 rounded-[2rem] font-black text-[10px] uppercase tracking-widest hover:bg-slate-200 transition-all"
- >
- Cancel
- </button>
- <button
- type="submit"
- className="flex-1 bg-[#008080] text-white p-4 rounded-[2rem] font-black text-[10px] uppercase tracking-widest hover:bg-rose-600 transition-all shadow-xl shadow-rose-100 flex items-center justify-center gap-2 group"
- >
- <span>Save Plan</span>
- <GraduationCap size={18} />
- </button>
- </div>
- </form>
- </div>
- </Modal>
- </div>
- );
+                <div className="p-8 bg-slate-50 flex justify-end">
+                  <button type="submit" className="px-10 py-4 bg-[#008080] hover:bg-[#006666] text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-lg transition-all flex items-center gap-2">
+                    <Save size={16} /> Save Performance Index
+                  </button>
+                </div>
+              </div>
+            )}
+          </form>
+        )}
+      </div>
+    </div>
+  );
 };
 
 export default AcademicActions;

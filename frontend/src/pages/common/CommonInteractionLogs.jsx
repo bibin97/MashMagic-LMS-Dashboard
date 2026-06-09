@@ -121,6 +121,7 @@ const CommonInteractionLogs = ({ role }) => {
         if (role === 'mentor_head') return '/mentor-head';
         if (role === 'academic_head') return '/academic-head';
         if (role === 'ssc') return '/ssc';
+        if (role === 'mentor') return '/mentor';
         return '/admin';
     };
     const apiPrefix = getApiPrefix();
@@ -371,12 +372,14 @@ const CommonInteractionLogs = ({ role }) => {
                         >
                             Student Focus
                         </button>
+                        {role !== 'mentor' && (
                         <button 
                             onClick={() => { setActiveTab('faculty'); resetListFilters(); }}
                             className={`flex-1 md:flex-none px-8 py-3.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'faculty' ? 'bg-white text-purple-600 shadow-md' : 'text-slate-500 hover:text-slate-700'}`}
                         >
                             Faculty Focus
                         </button>
+                        )}
                     </div>
                 </div>
 

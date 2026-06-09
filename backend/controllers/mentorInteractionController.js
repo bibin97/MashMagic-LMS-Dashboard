@@ -89,6 +89,35 @@ const getDailyAssignments = async (req, res) => {
     }
 };
 
+const getAssignmentsByDate = async (req, res) => {
+    try {
+        const mentor_id = req.user.id;
+        const targetDate = req.query.date; // YYYY-MM-DD
+        if (!targetDate) return res.status(400).json({ success: false, message: 'Date is required' });
+
+        const [existing] = await db.query(
+            'SELECT assignments FROM daily_assignments WHERE mentor_id = ? AND date = ?',
+            [mentor_id, targetDate]
+        );
+
+        if (existing.length > 0) {
+            let savedAssignments = existing[0].assignments;
+            if (typeof savedAssignments === 'string') {
+                try { savedAssignments = JSON.parse(savedAssignments); } 
+                catch (e) { savedAssignments = []; }
+            }
+            return res.status(200).json({ success: true, data: savedAssignments || [] });
+        }
+
+        // For future dates without assignments, we can't reliably generate them without messing up the rotation state,
+        // so we return empty array or a message.
+        return res.status(200).json({ success: true, data: [] });
+    } catch (error) {
+        console.error('Get Assignments By Date Error:', error);
+        res.status(500).json({ success: false, message: 'Server Error' });
+    }
+};
+
 const generateAssignments = async (mentor_id, today) => {
     // Check if mentor is paused
     let [mentorRows] = await db.query('SELECT interaction_paused, current_rotation_index FROM users WHERE id = ?', [mentor_id]);
@@ -209,10 +238,23 @@ const generateAssignments = async (mentor_id, today) => {
 const submitSessionReport = async (req, res) => {
     try {
         const mentor_id = req.user.id;
-        const { student_id, session_type, next_session_type, report_data } = req.body;
+        let { student_id, session_type, next_session_type, report_data } = req.body;
+        const file = req.file;
 
         if (!student_id || !session_type || !report_data) {
             return res.status(400).json({ success: false, message: 'Missing required fields' });
+        }
+
+        if (typeof report_data === 'string') {
+            try {
+                report_data = JSON.parse(report_data);
+            } catch (e) {
+                return res.status(400).json({ success: false, message: 'Invalid report data format' });
+            }
+        }
+
+        if (file) {
+            report_data.file_url = file.path; // cloudinary URL
         }
 
         // 4. Fraud Check (Module 7)
@@ -381,5 +423,6 @@ module.exports = {
             console.error(err); 
             res.status(500).json({ success: false, message: 'Server Error' }); 
         } 
-    }
+    },
+    getAssignmentsByDate
 };
