@@ -4,8 +4,9 @@ import {
   CalendarClock, Clock, BookOpen, Users,
   Search, Filter, ChevronRight, Activity, Radio, Video,
   Calendar, AlertCircle, Bell, CheckSquare, MessageSquareText, Lock, 
-  ShieldCheck, Timer, XCircle
+  ShieldCheck, Timer, XCircle, Download
 } from 'lucide-react';
+import * as XLSX from 'xlsx';
 import toast from 'react-hot-toast';
 
 const checkIsLive = (session) => {
@@ -110,6 +111,23 @@ const AcademicSchedule = () => {
   };
 
   const currentData = getFilteredData();
+
+  const handleExport = () => {
+    const dataToExport = currentData.map(session => ({
+      "Student Name": session.student_name,
+      "Faculty Name": session.faculty_name,
+      "Topic": session.topic || 'General Session',
+      "Date": session.date ? new Date(session.date).toLocaleDateString('en-GB') : 'TBD',
+      "Start Time": session.start_time || 'TBD',
+      "End Time": session.end_time || 'TBD',
+      "Status": session.status,
+      "Minutes Taken": session.minutes_taken || 'N/A'
+    }));
+    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Academic_Schedule");
+    XLSX.writeFile(workbook, "Academic_Schedule.xlsx");
+  };
 
   const localTodayStr = (() => {
     const d = new Date();
@@ -217,6 +235,12 @@ const AcademicSchedule = () => {
         </div>
 
         <div className="flex items-center gap-4">
+          <button 
+            onClick={handleExport}
+            className="bg-emerald-50 text-emerald-600 hover:bg-emerald-500 hover:text-white px-4 md:px-6 py-2.5 md:py-3 rounded-[1rem] md:rounded-2xl border border-emerald-100 flex items-center gap-2 transition-all font-black uppercase text-[10px]"
+          >
+            <Download size={14} /> Export Excel
+          </button>
           <div className="bg-slate-50 px-4 md:px-6 py-2.5 md:py-3 rounded-[1rem] md:rounded-2xl border border-slate-100 flex items-center gap-3">
             <Activity className="text-emerald-500 shrink-0" size={14} />
             <div>

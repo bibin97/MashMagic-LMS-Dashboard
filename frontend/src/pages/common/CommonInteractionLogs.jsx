@@ -6,6 +6,7 @@ import {
     ArrowLeft, Users, ShieldAlert, CheckSquare, Filter, BookOpen,
     ChevronDown, SlidersHorizontal, X, SortAsc, CalendarClock
 } from 'lucide-react';
+import * as XLSX from 'xlsx';
 import toast from 'react-hot-toast';
 
 const DEEP_QUESTION_LABELS = {
@@ -244,8 +245,8 @@ const CommonInteractionLogs = ({ role }) => {
         }
     };
 
-    const exportToCSV = async (studentId = null) => {
-        const loadingToast = toast.loading("Preparing CSV export...");
+    const exportToExcel = async (studentId = null) => {
+        const loadingToast = toast.loading("Preparing Excel export...");
         try {
             const params = {
                 dateFilter: studentId ? dateFilter : listDateFilter,
@@ -275,18 +276,7 @@ const CommonInteractionLogs = ({ role }) => {
                 return;
             }
 
-            // Convert to CSV
-            const headers = [
-                "ID", "Date", "Student Name", "Mentor/Faculty Name", 
-                "Source/Type", "Session Type", "Notes/Remarks", 
-                "Understanding Level (%)", "Confidence (1-5)", "Stress Level",
-                "Is Flagged", "Flag Reason", "Detailed Questionnaire Responses"
-            ];
-
-            const csvRows = [headers.join(",")];
-
-            for (const item of exportData) {
-                // Parse report_data for Questionnaire Answers
+            const excelData = exportData.map(item => {
                 let reportAnswersStr = "";
                 if (item.report_data) {
                     try {
@@ -309,47 +299,35 @@ const CommonInteractionLogs = ({ role }) => {
                     } catch (e) {}
                 }
 
-                // escape quotes and clean newlines
-                const cleanStr = (val) => {
-                    if (val === null || val === undefined) return "";
-                    return String(val).replace(/"/g, '""').replace(/\r?\n|\r/g, " ");
+                return {
+                    "ID": item.id,
+                    "Date": item.created_at || item.date,
+                    "Student Name": item.student_name,
+                    "Mentor/Faculty Name": item.mentor_name || item.faculty_name,
+                    "Source/Type": item.source || item.type,
+                    "Session Type": item.session_type,
+                    "Notes/Remarks": item.mentor_notes || item.notes || item.remarks,
+                    "Understanding Level (%)": item.understanding_level,
+                    "Confidence (1-5)": item.student_confidence,
+                    "Stress Level": item.stress_level,
+                    "Is Flagged": item.is_flagged ? "Yes" : "No",
+                    "Flag Reason": item.flag_reason,
+                    "Detailed Questionnaire Responses": reportAnswersStr
                 };
+            });
 
-                const row = [
-                    cleanStr(item.id),
-                    cleanStr(item.created_at || item.date),
-                    `"${cleanStr(item.student_name)}"`,
-                    `"${cleanStr(item.mentor_name || item.faculty_name)}"`,
-                    `"${cleanStr(item.source || item.type)}"`,
-                    `"${cleanStr(item.session_type)}"`,
-                    `"${cleanStr(item.mentor_notes || item.notes || item.remarks)}"`,
-                    cleanStr(item.understanding_level),
-                    cleanStr(item.student_confidence),
-                    cleanStr(item.stress_level),
-                    item.is_flagged ? "Yes" : "No",
-                    `"${cleanStr(item.flag_reason)}"`,
-                    `"${cleanStr(reportAnswersStr)}"`
-                ];
-                csvRows.push(row.join(","));
-            }
-
-            const csvContent = csvRows.join("\n");
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement("a");
-            link.setAttribute("href", url);
+            const worksheet = XLSX.utils.json_to_sheet(excelData);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Interaction_Logs");
             
             const fileName = studentId 
-                ? `${selectedStudent?.name || 'student'}_interaction_logs.csv` 
-                : `all_student_interaction_logs.csv`;
+                ? `${selectedStudent?.name || 'student'}_interaction_logs.xlsx` 
+                : `all_student_interaction_logs.xlsx`;
                 
-            link.setAttribute("download", fileName.toLowerCase().replace(/\s+/g, "_"));
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+            XLSX.writeFile(workbook, fileName.toLowerCase().replace(/\s+/g, "_"));
 
             toast.dismiss(loadingToast);
-            toast.success("CSV exported successfully");
+            toast.success("Excel exported successfully");
         } catch (error) {
             console.error("Export failed:", error);
             toast.dismiss(loadingToast);
@@ -425,7 +403,7 @@ const CommonInteractionLogs = ({ role }) => {
                                     Date Filter
                                 </button>
                                 <button 
-                                    onClick={() => exportToCSV()}
+                                    onClick={() => exportToExcel()}
                                     className="flex items-center gap-3 px-6 py-4 rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all border bg-[#008080] text-white border-[#008080] hover:bg-[#006666] active:scale-95 shadow-sm"
                                 >
                                     Export Logs
@@ -595,7 +573,7 @@ const CommonInteractionLogs = ({ role }) => {
 
                 <div className="flex items-center gap-4">
                     <button 
-                        onClick={() => exportToCSV(selectedStudent.id)}
+                        onClick={() => exportToExcel(selectedStudent.id)}
                         className="flex items-center gap-3 px-8 py-4 rounded-[2rem] text-[10px] font-black uppercase tracking-widest transition-all shadow-sm border bg-[#008080] text-white border-[#008080] hover:bg-[#006666] active:scale-95"
                     >
                         Export Timeline

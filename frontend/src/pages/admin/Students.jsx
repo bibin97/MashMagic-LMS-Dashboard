@@ -266,6 +266,7 @@ const Students = () => {
             </div>
             
             <div className="flex flex-col gap-0.5">
+              <span className="text-[8px] font-black uppercase tracking-wider text-slate-400">Lifetime Hours: <span className="text-[#008080] font-black">{row.total_lifetime_consumed_hours || 0} / {row.total_hours || 0} hrs</span></span>
               <span className="text-[8px] font-black uppercase tracking-wider text-slate-400">Current Cycle Consumed: <span className="text-slate-700">{row.consumed_hours || 0} hrs</span></span>
               <span className="text-[8px] font-black uppercase tracking-wider text-slate-400">Current Cycle Limit: <span className="text-slate-700">{Math.round(row.paid_hours || 0)} hrs</span></span>
             </div>

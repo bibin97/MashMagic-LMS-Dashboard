@@ -89,6 +89,7 @@ const StudentRow = ({ student, navigate }) => {
               </span>
             </div>
             <div className="flex flex-col gap-0.5">
+              <span className="text-[8px] font-black uppercase tracking-wider text-slate-400">Lifetime Hours: <span className="text-[#008080] font-black">{student.total_lifetime_consumed_hours || 0} / {student.total_hours || 0} hrs</span></span>
               <span className="text-[8px] font-black uppercase tracking-wider text-slate-400">Cycle Consumed: <span className="text-slate-700">{student.consumed_hours || 0} hrs</span></span>
               <span className="text-[8px] font-black uppercase tracking-wider text-slate-400">Cycle Limit: <span className="text-slate-700">{Math.round(student.paid_hours || 0)} hrs</span></span>
             </div>

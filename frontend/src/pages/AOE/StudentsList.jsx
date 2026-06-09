@@ -283,6 +283,7 @@ const StudentsList = ({ role = 'academic_operation_executive' }) => {
 								<th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest w-[80px]">No.</th>
 								<th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Student Information</th>
 								<th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Course & Grade</th>
+								<th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Hours</th>
 								<th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Mentor & Faculty</th>
 								<th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest text-right">Actions</th>
 							</tr>
@@ -331,6 +332,14 @@ const StudentsList = ({ role = 'academic_operation_executive' }) => {
 											<div className="flex flex-col">
 												<span className="text-xs font-black text-slate-700 uppercase tracking-widest">{student.course}</span>
 												<span className="text-[10px] font-bold text-[#008080] uppercase mt-0.5">{student.grade}</span>
+											</div>
+										</td>
+										<td className="px-8 py-6">
+											<div className="flex items-center gap-2">
+												<Clock size={14} className="text-[#008080]" />
+												<span className="text-xs font-black text-slate-700 tracking-widest">
+													{student.total_lifetime_consumed_hours || 0} / {student.total_hours || 0} Hrs
+												</span>
 											</div>
 										</td>
 										<td className="px-8 py-6">

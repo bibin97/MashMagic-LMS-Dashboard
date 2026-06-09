@@ -3,27 +3,45 @@ const calculateStudentHours = async (students, db) => {
 
     const studentIds = students.map(s => s.id);
     
-    // Fetch all completed timetable sessions for these students
-    const [sessions] = await db.query(
-        'SELECT student_id, duration FROM timetable WHERE status = "Completed" AND student_id IN (?)',
-        [studentIds]
-    );
+    // Fetch all completed timetable sessions, and join faculty_sessions to get exact minutes_taken
+    const [sessions] = await db.query(`
+        SELECT t.student_id, t.duration, fs.minutes_taken 
+        FROM timetable t
+        LEFT JOIN faculty_sessions fs ON t.id = fs.timetable_id
+        WHERE t.status = "Completed" AND t.student_id IN (?)
+    `, [studentIds]);
+
+    // Also fetch standalone faculty_sessions that might not have a timetable entry
+    const [standaloneSessions] = await db.query(`
+        SELECT sa.student_id, fs.minutes_taken, fs.duration
+        FROM faculty_sessions fs
+        JOIN session_attendance sa ON fs.id = sa.session_id
+        WHERE fs.status = "Completed" AND fs.timetable_id IS NULL AND sa.student_id IN (?)
+    `, [studentIds]);
 
     // Group consumed minutes by student
     const consumedMap = {};
     studentIds.forEach(id => consumedMap[id] = 0);
 
-    sessions.forEach(session => {
-        const dur = session.duration || '';
+    const processSession = (session) => {
         let mins = 0;
-        const hMatch = dur.match(/(\d+)h/);
-        const mMatch = dur.match(/(\d+)m/);
-        
-        if (hMatch) mins += parseInt(hMatch[1]) * 60;
-        if (mMatch) mins += parseInt(mMatch[1]);
-        
-        consumedMap[session.student_id] += mins;
-    });
+        if (session.minutes_taken !== null && session.minutes_taken !== undefined && session.minutes_taken !== '') {
+            mins = parseInt(session.minutes_taken, 10);
+        } else {
+            const dur = session.duration || '';
+            const hMatch = dur.match(/(\d+)h/);
+            const mMatch = dur.match(/(\d+)m/);
+            
+            if (hMatch) mins += parseInt(hMatch[1]) * 60;
+            if (mMatch) mins += parseInt(mMatch[1]);
+        }
+        if (consumedMap[session.student_id] !== undefined) {
+            consumedMap[session.student_id] += mins;
+        }
+    };
+
+    sessions.forEach(processSession);
+    standaloneSessions.forEach(processSession);
 
     // Augment students array
     return students.map(s => {

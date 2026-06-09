@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
-import { Video, User, BookOpen, Clock, ExternalLink, Search, Filter, Activity } from 'lucide-react';
+import { Video, User, BookOpen, Clock, ExternalLink, Search, Filter, Activity, Download } from 'lucide-react';
+import * as XLSX from 'xlsx';
 import toast from 'react-hot-toast';
 
 const checkIsLive = (session, now = new Date()) => {
@@ -57,13 +58,32 @@ const LiveClassMonitoring = ({ role }) => {
  }
  };
 
- const filteredSessions = sessions.filter(s => 
- s.student_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
- s.faculty_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
- s.topic.toLowerCase().includes(searchTerm.toLowerCase())
- );
+  const filteredSessions = sessions.filter(s => 
+  s.student_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  s.faculty_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  s.topic.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
- if (loading) return <div className="p-8 text-center text-slate-400 font-bold animate-pulse">Scanning Active Classrooms...</div>;
+  const handleExport = () => {
+    const dataToExport = filteredSessions.map(session => ({
+      "Student Name": session.student_name,
+      "Registration Number": session.registration_number || 'N/A',
+      "Faculty Name": session.faculty_name,
+      "Mentor Name": session.mentor_name,
+      "Topic": session.topic,
+      "Date": session.date,
+      "Start Time": session.start_time,
+      "End Time": session.end_time,
+      "Status": checkIsLive(session, currentTime) ? 'Live' : 'Scheduled',
+      "Meeting Link": session.meeting_link || 'Unavailable'
+    }));
+    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Live_Classes");
+    XLSX.writeFile(workbook, "Live_Classes_Monitoring.xlsx");
+  };
+
+  if (loading) return <div className="p-8 text-center text-slate-400 font-bold animate-pulse">Scanning Active Classrooms...</div>;
 
  return (
  <div className="space-y-8 pb-10">
@@ -90,6 +110,9 @@ const LiveClassMonitoring = ({ role }) => {
  className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-[#008080] transition-all shadow-inner"
  />
  </div>
+ <button onClick={handleExport} className="px-4 py-4 bg-emerald-50 text-emerald-600 border border-emerald-100 rounded-2xl hover:bg-emerald-500 hover:text-white transition-all shadow-sm font-black uppercase text-[10px] flex items-center gap-2">
+  <Download size={16} /> Export
+ </button>
  <button onClick={fetchLiveSessions} className="p-4 bg-[#008080] text-white rounded-2xl hover:bg-slate-800 transition-all shadow-xl active:scale-95">
  <Activity size={20} />
  </button>
