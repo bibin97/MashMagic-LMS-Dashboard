@@ -867,23 +867,40 @@ const updateStudentForAdmin = async (req, res) => {
 const addStudentInstallment = async (req, res) => {
     try {
         const { id } = req.params;
-        const { amount, notes } = req.body;
+        const { amount, notes, paid_hours, payment_date } = req.body;
 
         if (!amount || isNaN(amount) || amount <= 0) {
             return res.status(400).json({ success: false, message: "Valid amount is required" });
         }
 
-        const [[student]] = await db.query('SELECT name, total_paid FROM students WHERE id = ?', [id]);
+        const [[student]] = await db.query('SELECT name, total_paid, total_fees, total_hours FROM students WHERE id = ?', [id]);
         
         if (!student) {
             return res.status(404).json({ success: false, message: "Student not found" });
         }
 
-        // Insert into installments history
-        await db.query(
-            'INSERT INTO student_installments (student_id, amount, payment_date, notes) VALUES (?, ?, CURDATE(), ?)',
-            [id, amount, notes || 'Manual installment via Admin']
-        );
+        // Auto-calculate paid_hours if not provided
+        let calculatedPaidHours = parseFloat(paid_hours || 0);
+        if (!calculatedPaidHours && student.total_fees > 0 && student.total_hours > 0) {
+            const hourlyRate = parseFloat(student.total_fees) / parseFloat(student.total_hours);
+            calculatedPaidHours = parseFloat(amount) / hourlyRate;
+        }
+
+        const payDate = payment_date || new Date().toISOString().split('T')[0];
+
+        // Insert into installments history (try with paid_hours column, fallback without)
+        try {
+            await db.query(
+                'INSERT INTO student_installments (student_id, amount, payment_date, notes, paid_hours) VALUES (?, ?, ?, ?, ?)',
+                [id, amount, payDate, notes || 'Manual installment via Admin', calculatedPaidHours]
+            );
+        } catch (colErr) {
+            // If paid_hours column doesn't exist yet, insert without it
+            await db.query(
+                'INSERT INTO student_installments (student_id, amount, payment_date, notes) VALUES (?, ?, ?, ?)',
+                [id, amount, payDate, `[PH:${calculatedPaidHours.toFixed(2)}] ${notes || 'Manual installment via Admin'}`]
+            );
+        }
 
         // Calculate total consumed hours up to now
         const [sessions] = await db.query(
@@ -913,7 +930,7 @@ const addStudentInstallment = async (req, res) => {
             id
         ]);
 
-        res.status(200).json({ success: true, message: "Installment added successfully", newTotalPaid });
+        res.status(200).json({ success: true, message: "Installment added successfully", newTotalPaid, paid_hours: calculatedPaidHours });
     } catch (error) {
         console.error("ADD_INSTALLMENT_ERROR:", error);
         res.status(500).json({ success: false, message: "Server Error", error: error.message });
@@ -929,7 +946,7 @@ const getStudentDetailsForAdmin = async (req, res) => {
         // Fetch basic details
         const [studentRows] = await db.query(`
             SELECT id, name, admission_date, created_at, admission_type, 
-                   total_fees, total_paid, current_installment_amount, current_installment_start_hours
+                   total_fees, total_paid, total_hours, current_installment_amount, current_installment_start_hours
             FROM students WHERE id = ?
         `, [id]);
 
@@ -939,19 +956,60 @@ const getStudentDetailsForAdmin = async (req, res) => {
 
         const student = studentRows[0];
 
-        // Fetch installments
-        const [installments] = await db.query(`
-            SELECT id, amount, payment_date, notes, created_at
-            FROM student_installments
-            WHERE student_id = ?
-            ORDER BY created_at DESC
-        `, [id]);
+        // Fetch installments (try with paid_hours column, fallback without)
+        let installments;
+        try {
+            [installments] = await db.query(`
+                SELECT id, amount, payment_date, notes, paid_hours, created_at
+                FROM student_installments
+                WHERE student_id = ?
+                ORDER BY payment_date DESC
+            `, [id]);
+        } catch (e) {
+            [installments] = await db.query(`
+                SELECT id, amount, payment_date, notes, created_at
+                FROM student_installments
+                WHERE student_id = ?
+                ORDER BY payment_date DESC
+            `, [id]);
+        }
+
+        // Parse paid_hours from notes if not in column
+        installments = installments.map(inst => {
+            if (inst.paid_hours === undefined) {
+                const match = (inst.notes || '').match(/\[PH:(\d+\.?\d*)\]/);
+                inst.paid_hours = match ? parseFloat(match[1]) : 0;
+                inst.notes = (inst.notes || '').replace(/\[PH:\d+\.?\d*\]\s*/, '');
+            }
+            return inst;
+        });
+
+        // Calculate consumed hours
+        const [sessions] = await db.query(
+            'SELECT duration FROM timetable WHERE status = "Completed" AND student_id = ?', [id]
+        );
+        let total_consumed_mins = 0;
+        sessions.forEach(s => {
+            const dur = s.duration || '';
+            const hMatch = dur.match(/(\d+)h/);
+            const mMatch = dur.match(/(\d+)m/);
+            if (hMatch) total_consumed_mins += parseInt(hMatch[1]) * 60;
+            if (mMatch) total_consumed_mins += parseInt(mMatch[1]);
+        });
+        const consumed_hours = parseFloat((total_consumed_mins / 60).toFixed(2));
+        const total_paid_hours = parseFloat(installments.reduce((sum, i) => sum + parseFloat(i.paid_hours || 0), 0).toFixed(2));
+        const pct = total_paid_hours > 0 ? Math.round((consumed_hours / total_paid_hours) * 100) : 0;
+        const alert_level = pct >= 90 ? 'Critical' : pct >= 70 ? 'Warning' : 'Safe';
 
         res.json({
             success: true,
             data: {
                 ...student,
-                installments
+                installments,
+                consumed_hours,
+                total_paid_hours,
+                usage_pct: pct,
+                alert_level
             }
         });
     } catch (error) {

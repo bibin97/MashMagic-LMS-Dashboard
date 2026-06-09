@@ -208,7 +208,7 @@ const Students = () => {
  });
  };
 
- const handleDelete = async (student) => {
+  const handleDelete = async (student) => {
  premiumConfirm(async () => {
  try {
  await api.delete(`/admin/delete/${student.id}?role=student`);
@@ -224,6 +224,57 @@ const Students = () => {
  type: 'danger'
  });
  };
+
+  // ─── Fee Management ────────────────────────────────────
+  const [isFeeModalOpen, setIsFeeModalOpen] = useState(false);
+  const [feeStudent, setFeeStudent] = useState(null);
+  const [feeDetails, setFeeDetails] = useState(null);
+  const [feeLoading, setFeeLoading] = useState(false);
+  const [showAddInstallment, setShowAddInstallment] = useState(false);
+  const [newInstallment, setNewInstallment] = useState({ payment_date: new Date().toISOString().split('T')[0], amount: '', paid_hours: '', notes: '' });
+
+  const calcPaidHours = (amount, totalFee, totalHours) => {
+    if (!amount || !totalFee || !totalHours || totalFee <= 0 || totalHours <= 0) return '';
+    const rate = parseFloat(totalFee) / parseFloat(totalHours);
+    return (parseFloat(amount) / rate).toFixed(2);
+  };
+
+  const handleOpenFee = async (student) => {
+    setFeeStudent(student);
+    setIsFeeModalOpen(true);
+    setFeeLoading(true);
+    setShowAddInstallment(false);
+    setNewInstallment({ payment_date: new Date().toISOString().split('T')[0], amount: '', paid_hours: '', notes: '' });
+    try {
+      const res = await api.get(`/admin/student-details/${student.id}`);
+      if (res.data.success) setFeeDetails(res.data.data);
+    } catch (e) { toast.error('Failed to load fee details'); }
+    finally { setFeeLoading(false); }
+  };
+
+  const handleSubmitInstallment = async (e) => {
+    e.preventDefault();
+    if (!newInstallment.amount || parseFloat(newInstallment.amount) <= 0) return toast.error('Enter valid amount');
+    try {
+      const paid_hours = newInstallment.paid_hours || calcPaidHours(newInstallment.amount, feeDetails?.total_fees, feeDetails?.total_hours);
+      const res = await api.post(`/admin/students/${feeStudent.id}/installments`, {
+        amount: parseFloat(newInstallment.amount),
+        payment_date: newInstallment.payment_date,
+        paid_hours: parseFloat(paid_hours) || 0,
+        notes: newInstallment.notes || `Logged by Admin`
+      });
+      if (res.data.success) {
+        toast.success('Installment added!');
+        setShowAddInstallment(false);
+        setNewInstallment({ payment_date: new Date().toISOString().split('T')[0], amount: '', paid_hours: '', notes: '' });
+        // Refresh fee details
+        const refresh = await api.get(`/admin/student-details/${feeStudent.id}`);
+        if (refresh.data.success) setFeeDetails(refresh.data.data);
+        fetchStudents();
+      }
+    } catch (err) { toast.error(err.response?.data?.message || 'Failed to add installment'); }
+  };
+
 
   const columns = [
     {
@@ -411,6 +462,16 @@ const Students = () => {
         onEdit={isSuperAdmin ? handleEdit : undefined}
         onDelete={isSuperAdmin ? handleDelete : undefined}
         onBlock={isSuperAdmin ? handleBlock : undefined}
+        extraActions={isSuperAdmin ? [(student) => (
+          <button
+            key="fee"
+            title="Fee Management"
+            onClick={(e) => { e.stopPropagation(); handleOpenFee(student); }}
+            className="p-2 rounded-xl bg-amber-50 text-amber-600 hover:bg-amber-100 border border-amber-100 transition-all"
+          >
+            <span className="text-[10px] font-black">₹</span>
+          </button>
+        )] : []}
         expandedRowId={expandedRowId}
         onToggleExpand={(id) => setExpandedRowId(expandedRowId === id ? null : id)}
         renderSubRow={(student, onClose) => (
@@ -659,6 +720,209 @@ const Students = () => {
  </div>
  </form>
  </Modal>
+
+ {/* ─── Fee Management Modal ─────────────────────────── */}
+ {isFeeModalOpen && (
+   <div className="fixed inset-0 z-[100] flex items-start justify-center pt-8 px-4 pb-8">
+     <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setIsFeeModalOpen(false)} />
+     <div className="relative bg-white rounded-[2.5rem] shadow-2xl w-full max-w-3xl max-h-[92vh] overflow-y-auto border border-slate-100 animate-in fade-in slide-in-from-bottom-4 duration-300">
+       <div className="sticky top-0 bg-white/95 backdrop-blur-sm z-10 px-8 pt-8 pb-4 border-b border-slate-100 rounded-t-[2.5rem]">
+         <div className="flex items-center justify-between">
+           <div>
+             <h2 className="text-xl font-black text-slate-900 tracking-tight">Fee Management</h2>
+             <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mt-0.5">{feeStudent?.name}</p>
+           </div>
+           <button onClick={() => setIsFeeModalOpen(false)} className="p-2 rounded-2xl hover:bg-slate-100 transition-all text-slate-400 hover:text-slate-700">
+             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+           </button>
+         </div>
+       </div>
+
+       <div className="p-8 space-y-6">
+         {feeLoading ? (
+           <div className="flex justify-center items-center py-20">
+             <div className="w-10 h-10 border-4 border-amber-400 border-t-transparent rounded-full animate-spin" />
+           </div>
+         ) : feeDetails ? (
+           <>
+             {/* Alert Banner */}
+             {feeDetails.alert_level === 'Critical' && (
+               <div className="animate-pulse p-4 rounded-2xl bg-red-50 border-2 border-red-300 flex items-center gap-3">
+                 <div className="w-3 h-3 rounded-full bg-red-500 animate-ping" />
+                 <div>
+                   <p className="text-xs font-black text-red-700 uppercase tracking-widest">🚨 Critical Alert — {feeDetails.usage_pct}% Hours Consumed</p>
+                   <p className="text-[11px] text-red-600 mt-0.5">Student has used {feeDetails.consumed_hours} of {feeDetails.total_paid_hours} paid hours. Immediate renewal required!</p>
+                 </div>
+               </div>
+             )}
+             {feeDetails.alert_level === 'Warning' && (
+               <div className="animate-pulse p-4 rounded-2xl bg-amber-50 border-2 border-amber-300 flex items-center gap-3">
+                 <div className="w-3 h-3 rounded-full bg-amber-500 animate-ping" />
+                 <div>
+                   <p className="text-xs font-black text-amber-700 uppercase tracking-widest">⚠️ Warning — {feeDetails.usage_pct}% Hours Consumed</p>
+                   <p className="text-[11px] text-amber-600 mt-0.5">Student has used {feeDetails.consumed_hours} of {feeDetails.total_paid_hours} paid hours. Consider next installment soon.</p>
+                 </div>
+               </div>
+             )}
+
+             {/* Overview Cards */}
+             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+               <div className="p-5 bg-slate-50 rounded-2xl border border-slate-100 flex flex-col gap-1">
+                 <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Total Fee</p>
+                 <p className="text-xl font-black text-slate-800">₹{parseFloat(feeDetails.total_fees || 0).toLocaleString()}</p>
+               </div>
+               <div className="p-5 bg-slate-50 rounded-2xl border border-slate-100 flex flex-col gap-1">
+                 <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Total Hours</p>
+                 <p className="text-xl font-black text-slate-800">{feeDetails.total_hours || 0} hrs</p>
+               </div>
+               <div className="p-5 bg-emerald-50 rounded-2xl border border-emerald-100 flex flex-col gap-1">
+                 <p className="text-[9px] font-black text-emerald-600 uppercase tracking-widest">Total Paid</p>
+                 <p className="text-xl font-black text-emerald-700">₹{parseFloat(feeDetails.total_paid || 0).toLocaleString()}</p>
+               </div>
+               <div className={`p-5 rounded-2xl border flex flex-col gap-1 ${
+                 feeDetails.alert_level === 'Critical' ? 'bg-red-50 border-red-200' :
+                 feeDetails.alert_level === 'Warning' ? 'bg-amber-50 border-amber-200' :
+                 'bg-blue-50 border-blue-100'
+               }`}>
+                 <p className={`text-[9px] font-black uppercase tracking-widest ${
+                   feeDetails.alert_level === 'Critical' ? 'text-red-600' :
+                   feeDetails.alert_level === 'Warning' ? 'text-amber-600' : 'text-blue-600'
+                 }`}>Hours Used</p>
+                 <p className={`text-xl font-black ${
+                   feeDetails.alert_level === 'Critical' ? 'text-red-700' :
+                   feeDetails.alert_level === 'Warning' ? 'text-amber-700' : 'text-blue-700'
+                 }`}>{feeDetails.consumed_hours} / {feeDetails.total_paid_hours}</p>
+               </div>
+             </div>
+
+             {/* Progress Bar */}
+             {feeDetails.total_paid_hours > 0 && (
+               <div className="space-y-2">
+                 <div className="flex justify-between items-center">
+                   <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Hour Consumption</span>
+                   <span className={`text-[11px] font-black px-3 py-1 rounded-full ${
+                     feeDetails.alert_level === 'Critical' ? 'bg-red-100 text-red-700' :
+                     feeDetails.alert_level === 'Warning' ? 'bg-amber-100 text-amber-700' :
+                     'bg-emerald-100 text-emerald-700'
+                   }`}>{feeDetails.usage_pct}%</span>
+                 </div>
+                 <div className="h-3 bg-slate-100 rounded-full overflow-hidden">
+                   <div
+                     className={`h-full rounded-full transition-all duration-700 ${
+                       feeDetails.alert_level === 'Critical' ? 'bg-red-500 animate-pulse' :
+                       feeDetails.alert_level === 'Warning' ? 'bg-amber-500 animate-pulse' :
+                       'bg-emerald-500'
+                     }`}
+                     style={{ width: `${Math.min(feeDetails.usage_pct, 100)}%` }}
+                   />
+                 </div>
+                 <div className="flex justify-between text-[9px] font-black text-slate-400 uppercase tracking-widest">
+                   <span>0%</span>
+                   <span className="text-amber-500">70%</span>
+                   <span className="text-red-500">90%</span>
+                   <span>100%</span>
+                 </div>
+               </div>
+             )}
+
+             {/* Installment History */}
+             <div className="border border-slate-100 rounded-2xl overflow-hidden">
+               <div className="bg-slate-50 px-5 py-3 flex items-center justify-between border-b border-slate-100">
+                 <h4 className="text-[10px] font-black text-slate-700 uppercase tracking-widest">Installment History</h4>
+                 <button
+                   type="button"
+                   onClick={() => { setShowAddInstallment(true); }}
+                   className="flex items-center gap-1.5 px-4 py-2 bg-amber-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-amber-600 transition-all shadow-sm hover:shadow-amber-200 hover:shadow-md active:scale-95"
+                 >
+                   <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                   Add Installment
+                 </button>
+               </div>
+
+               {/* Add Installment Form */}
+               {showAddInstallment && (
+                 <form onSubmit={handleSubmitInstallment} className="p-5 bg-amber-50/50 border-b border-amber-100 space-y-4">
+                   <p className="text-[10px] font-black text-amber-700 uppercase tracking-widest">New Installment Entry</p>
+                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                     <div className="flex flex-col gap-1.5">
+                       <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest pl-1">Payment Date</label>
+                       <input type="date" className="p-3 bg-white border border-amber-100 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-amber-300/50 transition-all"
+                         value={newInstallment.payment_date}
+                         onChange={(e) => setNewInstallment(p => ({ ...p, payment_date: e.target.value }))} required />
+                     </div>
+                     <div className="flex flex-col gap-1.5">
+                       <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest pl-1">Installment Amount (₹)</label>
+                       <input type="number" className="p-3 bg-white border border-amber-100 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-amber-300/50 transition-all"
+                         placeholder="e.g. 5000"
+                         value={newInstallment.amount}
+                         onChange={(e) => setNewInstallment(p => ({ ...p, amount: e.target.value, paid_hours: calcPaidHours(e.target.value, feeDetails?.total_fees, feeDetails?.total_hours) }))} required />
+                     </div>
+                     <div className="flex flex-col gap-1.5">
+                       <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest pl-1">Paid Hours <span className="text-amber-500">(Auto-calculated)</span></label>
+                       <input type="number" step="0.01" className="p-3 bg-amber-50 border border-amber-200 rounded-xl text-sm font-black text-amber-700 outline-none focus:ring-2 focus:ring-amber-300/50 transition-all"
+                         placeholder="Auto"
+                         value={newInstallment.paid_hours || calcPaidHours(newInstallment.amount, feeDetails?.total_fees, feeDetails?.total_hours)}
+                         onChange={(e) => setNewInstallment(p => ({ ...p, paid_hours: e.target.value }))} />
+                     </div>
+                     <div className="flex flex-col gap-1.5">
+                       <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest pl-1">Notes (optional)</label>
+                       <input type="text" className="p-3 bg-white border border-amber-100 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-amber-300/50 transition-all"
+                         placeholder="e.g. Month 1 fee"
+                         value={newInstallment.notes}
+                         onChange={(e) => setNewInstallment(p => ({ ...p, notes: e.target.value }))} />
+                     </div>
+                   </div>
+                   {feeDetails?.total_fees > 0 && feeDetails?.total_hours > 0 && (
+                     <p className="text-[10px] font-bold text-amber-600 bg-amber-50 px-3 py-2 rounded-xl border border-amber-100">
+                       Rate: ₹{(parseFloat(feeDetails.total_fees)/parseFloat(feeDetails.total_hours)).toFixed(0)}/hr &nbsp;•&nbsp;
+                       Paid Hours = Amount ÷ Rate
+                     </p>
+                   )}
+                   <div className="flex gap-3 justify-end">
+                     <button type="button" onClick={() => setShowAddInstallment(false)} className="px-5 py-2.5 rounded-xl border border-slate-200 text-[10px] font-black uppercase tracking-widest text-slate-500 hover:bg-slate-50 transition-all">Cancel</button>
+                     <button type="submit" className="px-6 py-2.5 rounded-xl bg-amber-500 text-white text-[10px] font-black uppercase tracking-widest hover:bg-amber-600 transition-all shadow-sm">Save Installment</button>
+                   </div>
+                 </form>
+               )}
+
+               {/* Installments Table */}
+               <div className="max-h-[300px] overflow-y-auto">
+                 <table className="w-full text-left">
+                   <thead className="sticky top-0 bg-white shadow-sm">
+                     <tr>
+                       <th className="py-3 px-5 text-[9px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">Date</th>
+                       <th className="py-3 px-5 text-[9px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">Amount</th>
+                       <th className="py-3 px-5 text-[9px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">Paid Hours</th>
+                       <th className="py-3 px-5 text-[9px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">Notes</th>
+                     </tr>
+                   </thead>
+                   <tbody className="divide-y divide-slate-50">
+                     {(feeDetails.installments || []).length === 0 ? (
+                       <tr><td colSpan="4" className="py-10 text-center text-[10px] font-black text-slate-300 uppercase tracking-widest">No installments recorded yet</td></tr>
+                     ) : (feeDetails.installments || []).map((inst, idx) => (
+                       <tr key={inst.id || idx} className="hover:bg-slate-50/60 transition-colors">
+                         <td className="py-3 px-5 text-[11px] font-black text-slate-600">{new Date(inst.payment_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</td>
+                         <td className="py-3 px-5 text-[11px] font-black text-emerald-600">₹{parseFloat(inst.amount).toLocaleString()}</td>
+                         <td className="py-3 px-5">
+                           <span className="inline-flex items-center px-2.5 py-1 rounded-lg bg-amber-50 text-amber-700 text-[10px] font-black border border-amber-100">
+                             {parseFloat(inst.paid_hours || 0).toFixed(2)} hrs
+                           </span>
+                         </td>
+                         <td className="py-3 px-5 text-[10px] font-bold text-slate-400 italic">{inst.notes || '—'}</td>
+                       </tr>
+                     ))}
+                   </tbody>
+                 </table>
+               </div>
+             </div>
+           </>
+         ) : (
+           <p className="text-center py-10 text-[11px] text-slate-400 font-bold uppercase tracking-widest">No data found.</p>
+         )}
+       </div>
+     </div>
+   </div>
+ )}
 
  </div>
  );
