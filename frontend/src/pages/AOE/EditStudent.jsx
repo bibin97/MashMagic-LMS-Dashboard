@@ -323,7 +323,7 @@ const EditStudent = () => {
                                         type="button"
                                         onClick={() => setFormData(prev => ({ ...prev, enrollment_type: plan.id }))}
                                         className={`p-2 rounded-xl border-2 transition-all flex flex-col items-center gap-1 group ${formData.enrollment_type === plan.id
-                                            ? 'border-[#008080] bg-white shadow-md scale-100'
+                                            ? 'border-[#008080]/50 bg-[#008080]/10 backdrop-blur-md shadow-[0_8px_30px_rgba(0,128,128,0.2)] scale-105'
                                             : 'border-transparent bg-white/50 hover:bg-white hover:border-slate-200'
                                             }`}
                                         >

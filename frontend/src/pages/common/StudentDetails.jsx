@@ -204,7 +204,10 @@ const StudentDetails = () => {
                             
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                                 <InfoItem label="Registration Number" value={student.registration_number || student.roll_number || 'N/A'} />
-                                <InfoItem label="Enrollment Type" value={student.enrollment_type || 'Academic'} />
+                                <div className="p-6 bg-[#008080]/10 backdrop-blur-md rounded-[2.5rem] border border-[#008080]/30 shadow-[0_4px_30px_rgba(0,128,128,0.1)] hover:bg-[#008080]/15 hover:shadow-lg hover:shadow-[#008080]/20 transition-all group">
+                                    <p className="text-[9px] font-black text-[#008080]/70 uppercase tracking-[0.2em] mb-1.5 transition-colors">Enrollment Type</p>
+                                    <p className="text-sm font-black text-[#008080] tracking-tight">{student.enrollment_type || 'Academic'}</p>
+                                </div>
                                 <InfoItem label="Course / Stream" value={student.course} />
                                 <InfoItem label="Grade / Level" value={student.grade} />
                                 <InfoItem label="Syllabus" value={student.syllabus} />
