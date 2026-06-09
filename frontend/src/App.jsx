@@ -100,6 +100,7 @@ import Interactions from './pages/AOE/Interactions';
 import ParentMeetings from './pages/AOE/ParentMeetings';
 import AOEDemoSchedule from './pages/AOE/AOEDemoSchedule';
 import AOEDailyUpdates from './pages/AOE/AOEDailyUpdates';
+import AoeExams from './pages/AOE/AoeExams';
 
 // Academic Head Pages
 import OperationsHub from './pages/AcademicHead/OperationsHub';
@@ -212,6 +213,7 @@ function App() {
             <Route path="parent-meetings" element={<ParentMeetings />} />
             <Route path="demo-schedule" element={<AOEDemoSchedule />} />
             <Route path="daily-updates" element={<AHDailyUpdates />} />
+            <Route path="exam-scores" element={<AoeExams />} />
             <Route path="profile" element={<AdminProfile />} />
             <Route path="account-settings" element={<AccountSettings />} />
           </Route>

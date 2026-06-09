@@ -272,7 +272,7 @@ const StudentInteractionLog = () => {
            </div>
            <button
              onClick={handleTogglePause}
-             className={`px-6 py-4 rounded-[22px] text-[11px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${isPaused ? 'bg-rose-500 text-white shadow-rose-200 shadow-lg' : 'bg-[#008080] text-white shadow-[#008080]/30 shadow-lg'}`}
+             className={`px-6 py-4 rounded-[22px] text-[11px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${isPaused ? 'bg-red-500 text-white shadow-red-200 shadow-lg' : 'bg-green-500 text-white shadow-green-200 shadow-lg'}`}
            >
              {isPaused ? <Play fill="currentColor" size={16} /> : <Pause fill="currentColor" size={16} />}
              {isPaused ? 'Resume Rotation' : 'Pause Rotation'}

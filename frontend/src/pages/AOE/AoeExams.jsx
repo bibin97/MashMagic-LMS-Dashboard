@@ -18,7 +18,7 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
-const FacultyExams = () => {
+const AoeExams = () => {
   const [scores, setScores] = useState([]);
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -49,7 +49,7 @@ const FacultyExams = () => {
 
   const fetchData = async () => {
     try {
-      const res = await axios.get('/faculty/exam-scores');
+      const res = await axios.get('/aoe/exam-scores');
       if (res.data.success) {
         setScores(res.data.data);
       }
@@ -62,7 +62,7 @@ const FacultyExams = () => {
 
   const fetchStudents = async () => {
     try {
-      const res = await axios.get('/faculty/students');
+      const res = await axios.get('/aoe/students');
       if (res.data.success) {
         setStudents((res.data.data || []).sort((a, b) => (a.name || '').localeCompare(b.name || '')));
       }
@@ -92,7 +92,7 @@ const FacultyExams = () => {
       }
 
       const payload = { ...formData, question_paper: qpUrl, answer_sheet: asUrl };
-      const res = await axios.post('/faculty/exam-scores', payload);
+      const res = await axios.post('/aoe/exam-scores', payload);
       if (res.data.success) {
         toast.success("Exam score added successfully");
         setShowAddModal(false);
@@ -424,4 +424,4 @@ const FacultyExams = () => {
   );
 };
 
-export default FacultyExams;
+export default AoeExams;

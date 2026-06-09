@@ -1,7 +1,81 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { UserPlus, User, GraduationCap, MapPin, Mail, Phone, Lock, BookOpen, Clock, Calendar, CheckCircle, ShieldCheck, Trash2, Eye, EyeOff } from 'lucide-react';
+import { UserPlus, User, GraduationCap, MapPin, Mail, Phone, Lock, BookOpen, Clock, Calendar, CheckCircle, ShieldCheck, Trash2, Eye, EyeOff, X } from 'lucide-react';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
+import Select from 'react-select';
+
+const gradeOptions = [
+  { value: 'KG 1', label: 'KG 1' },
+  { value: 'KG 2', label: 'KG 2' },
+  ...[...Array(12)].map((_, i) => ({ value: `Class ${i + 1}`, label: `Class ${i + 1}` }))
+];
+
+const syllabusOptions = [
+  { value: 'CBSE', label: 'CBSE' },
+  { value: 'STATE', label: 'STATE' },
+  { value: 'ICSE', label: 'ICSE' },
+  { value: 'IGCSE', label: 'IGCSE' },
+  { value: 'IB', label: 'IB' },
+  { value: 'Other', label: 'Other' }
+];
+
+const languageOptions = [
+  { value: 'Eng', label: 'Eng' },
+  { value: 'BL-AD', label: 'BL-AD' },
+  { value: 'BL-SM', label: 'BL-SM' },
+  { value: 'MLM', label: 'MLM' },
+  { value: 'HIN', label: 'HIN' },
+  { value: 'TML', label: 'TML' }
+];
+
+const customSelectStyles = {
+  control: (base, state) => ({
+    ...base,
+    padding: '4px',
+    backgroundColor: '#f8fafc',
+    borderColor: state.isFocused ? '#008080' : '#f1f5f9',
+    borderRadius: '0.75rem',
+    boxShadow: state.isFocused ? '0 0 0 2px rgba(0,128,128,0.2)' : 'none',
+    '&:hover': {
+      borderColor: '#008080'
+    },
+    fontWeight: '700',
+    fontSize: '0.875rem'
+  }),
+  option: (base, state) => ({
+    ...base,
+    backgroundColor: state.isSelected ? '#008080' : state.isFocused ? '#f0fdfa' : 'white',
+    color: state.isSelected ? 'white' : '#1e293b',
+    fontWeight: '700',
+    fontSize: '0.875rem',
+    cursor: 'pointer',
+    '&:active': {
+      backgroundColor: '#008080'
+    }
+  }),
+  menu: (base) => ({
+    ...base,
+    borderRadius: '0.75rem',
+    overflow: 'hidden',
+    boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)'
+  }),
+  singleValue: (base) => ({
+    ...base,
+    color: '#1e293b'
+  })
+};
+
+const to24H = (timeStr) => {
+  if (!timeStr) return '';
+  if (timeStr.includes('AM') || timeStr.includes('PM')) {
+    const [time, modifier] = timeStr.trim().split(' ');
+    let [hours, minutes] = time.split(':');
+    if (hours === '12') hours = '00';
+    if (modifier === 'PM' && hours !== '12') hours = parseInt(hours, 10) + 12;
+    return `${hours.toString().padStart(2, '0')}:${minutes}`;
+  }
+  return timeStr;
+};
 
 const Registrations = () => {
   const [activeTab, setActiveTab] = useState('student');
@@ -45,7 +119,7 @@ const Registrations = () => {
   ]);
 
   const [facultyForm, setFacultyForm] = useState({
-    name: '', email: '', phone_number: '', place: '', password: '', confirmPassword: ''
+    name: '', email: '', phone_number: '', place: '', password: '', confirmPassword: '', availability: ['']
   });
 
   const [sscForm, setSscForm] = useState({
@@ -289,6 +363,7 @@ const Registrations = () => {
   };
 
   const handleStudentChange = (e) => setStudentForm({ ...studentForm, [e.target.name]: e.target.value });
+  const handleSelectChange = (name, option) => setStudentForm({ ...studentForm, [name]: option ? option.value : '' });
   const handleFacultyChange = (e) => setFacultyForm({ ...facultyForm, [e.target.name]: e.target.value });
   const handleSSCChange = (e) => setSscForm({ ...sscForm, [e.target.name]: e.target.value });
 
@@ -359,14 +434,15 @@ const Registrations = () => {
     }
     setLoading(true);
     try {
-      const res = await api.post('/aoe/register-faculty', facultyForm);
+      const facultyData = {
+        ...facultyForm,
+        availability: JSON.stringify(facultyForm.availability.filter(slot => slot && slot.trim() !== ''))
+      };
+      const res = await api.post('/aoe/register-faculty', facultyData);
       if (res.data.success) {
         toast.success('Faculty Account Created Successfully!');
         setFacultyForm({
-          name: '', email: '', phone_number: '', place: '', password: '', confirmPassword: '',
-          faculty_id_card: '', section: '', syllabus: [], languages_proficiency: [],
-          qualification: '', experience: '', availability: '', hourly_rate: '',
-          teaching_mode: 'Both', joining_date: new Date().toISOString().split('T')[0], remarks: '', primary_subject: '', secondary_subjects: []
+          name: '', email: '', phone_number: '', place: '', password: '', confirmPassword: '', availability: ['']
         });
         fetchDropdowns();
       }
@@ -443,11 +519,24 @@ const Registrations = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-2 mb-8 bg-[#008080]/5 p-6 rounded-3xl border border-[#008080]/20">
                 <div className="flex flex-col gap-2 relative">
                   <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Admission Type</label>
-                  <select name="admissionType" required value={studentForm.admissionType} onChange={handleStudentChange} className="w-full p-3 bg-white border border-slate-200 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-bold appearance-none shadow-sm">
-                    <option value="new">New Student</option>
-                    <option value="existing">Existing Student</option>
-                    <option value="rejoining">Rejoining</option>
-                  </select>
+                  <Select
+                    options={[
+                      { value: 'new', label: 'New Student' },
+                      { value: 'existing', label: 'Existing Student' },
+                      { value: 'rejoining', label: 'Rejoining' }
+                    ]}
+                    styles={customSelectStyles}
+                    value={
+                      [
+                        { value: 'new', label: 'New Student' },
+                        { value: 'existing', label: 'Existing Student' },
+                        { value: 'rejoining', label: 'Rejoining' }
+                      ].find(opt => opt.value === studentForm.admissionType) || null
+                    }
+                    onChange={(option) => handleSelectChange('admissionType', option)}
+                    placeholder="Select Admission Type"
+                    isClearable
+                  />
                   {studentForm.admissionType === 'rejoining' && (
                     <div className="relative mt-2" ref={studentDropdownRef}>
                       <input 
@@ -631,15 +720,14 @@ const Registrations = () => {
                 </div>
                 <div className="flex flex-col gap-2">
                   <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Preferred Language</label>
-                  <select name="preferredLanguage" value={studentForm.preferredLanguage} onChange={handleStudentChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-bold appearance-none">
-                    <option value="">Select Language</option>
-                    <option value="Eng">Eng</option>
-                    <option value="BL-AD">BL-AD</option>
-                    <option value="BL-SM">BL-SM</option>
-                    <option value="MLM">MLM</option>
-                    <option value="HIN">HIN</option>
-                    <option value="TML">TML</option>
-                  </select>
+                  <Select
+                    options={languageOptions}
+                    styles={customSelectStyles}
+                    value={languageOptions.find(opt => opt.value === studentForm.preferredLanguage) || null}
+                    onChange={(option) => handleSelectChange('preferredLanguage', option)}
+                    placeholder="Select Language"
+                    isClearable
+                  />
                 </div>
               </div>
 
@@ -662,33 +750,36 @@ const Registrations = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
                 <div className="flex flex-col gap-2">
                   <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Grade</label>
-                  <select name="grade" required value={studentForm.grade} onChange={handleStudentChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-bold appearance-none">
-                    <option value="" disabled>Select Grade</option>
-                    <option value="KG 1">KG 1</option>
-                    <option value="KG 2">KG 2</option>
-                    {[...Array(12)].map((_, i) => (
-                      <option key={i + 1} value={`Class ${i + 1}`}>Class {i + 1}</option>
-                    ))}
-                  </select>
+                  <Select
+                    options={gradeOptions}
+                    styles={customSelectStyles}
+                    value={gradeOptions.find(opt => opt.value === studentForm.grade) || null}
+                    onChange={(option) => handleSelectChange('grade', option)}
+                    placeholder="Select Grade"
+                    isClearable
+                  />
                 </div>
                 <div className="flex flex-col gap-2">
                   <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Syllabus</label>
-                  <select name="syllabus" required value={studentForm.syllabus} onChange={handleStudentChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-bold appearance-none">
-                    <option value="" disabled>Select Syllabus</option>
-                    <option value="CBSE">CBSE</option>
-                    <option value="STATE">STATE</option>
-                    <option value="ICSE">ICSE</option>
-                    <option value="IGCSE">IGCSE</option>
-                    <option value="IB">IB</option>
-                    <option value="Other">Other</option>
-                  </select>
+                  <Select
+                    options={syllabusOptions}
+                    styles={customSelectStyles}
+                    value={syllabusOptions.find(opt => opt.value === studentForm.syllabus) || null}
+                    onChange={(option) => handleSelectChange('syllabus', option)}
+                    placeholder="Select Syllabus"
+                    isClearable
+                  />
                 </div>
                 <div className="flex flex-col gap-2">
                   <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Course</label>
-                  <select name="course" required value={studentForm.course} onChange={handleStudentChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-bold appearance-none">
-                    <option value="" disabled>Select Course</option>
-                    {coursesList.map(c => <option key={c} value={c}>{c}</option>)}
-                  </select>
+                  <Select
+                    options={coursesList.map(c => ({ value: c, label: c }))}
+                    styles={customSelectStyles}
+                    value={coursesList.includes(studentForm.course) ? { value: studentForm.course, label: studentForm.course } : null}
+                    onChange={(option) => handleSelectChange('course', option)}
+                    placeholder="Select Course"
+                    isClearable
+                  />
                 </div>
               </div>
 
@@ -696,10 +787,14 @@ const Registrations = () => {
                 {studentForm.enrollmentType !== 'Tuition' && (
                   <div className="flex flex-col gap-2">
                     <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Assigned Mentor</label>
-                    <select name="mentorId" value={studentForm.mentorId} onChange={handleStudentChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-bold appearance-none">
-                      <option value="">Select Mentor (Optional)</option>
-                      {mentors.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
-                    </select>
+                    <Select
+                      options={mentors.map(m => ({ value: m.id, label: m.name }))}
+                      styles={customSelectStyles}
+                      value={mentors.find(m => m.id === studentForm.mentorId) ? { value: studentForm.mentorId, label: mentors.find(m => m.id === studentForm.mentorId).name } : null}
+                      onChange={(option) => handleSelectChange('mentorId', option)}
+                      placeholder="Select Mentor (Optional)"
+                      isClearable
+                    />
                   </div>
                 )}
                 
@@ -1055,6 +1150,69 @@ const Registrations = () => {
                     <input type="password" name="confirmPassword" required value={facultyForm.confirmPassword} onChange={handleFacultyChange} className="w-full p-3 pl-12 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-emerald-100 font-bold" placeholder="••••••••" />
                   </div>
                 </div>
+              </div>
+
+              <div className="flex flex-col gap-2 mt-6 p-6 bg-slate-50 border border-slate-100 rounded-3xl">
+                <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Availability (Time Slots)</label>
+                {facultyForm.availability.map((slot, index) => (
+                  <div key={index} className="flex flex-col gap-1 p-3 bg-white border border-slate-100 rounded-xl">
+                    <div className="flex justify-between items-center mb-1">
+                      <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Time Slot {index + 1}</span>
+                      {facultyForm.availability.length > 1 && (
+                        <button 
+                          type="button"
+                          onClick={() => {
+                            const newSlots = facultyForm.availability.filter((_, i) => i !== index);
+                            setFacultyForm({ ...facultyForm, availability: newSlots });
+                          }}
+                          className="text-red-400 hover:text-red-600 transition-colors"
+                          title="Remove Time Slot"
+                        >
+                          <X size={14} />
+                        </button>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="relative flex-1">
+                        <Clock size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                        <input 
+                          type="time" 
+                          value={to24H((slot || '').split(' - ')[0] || '')} 
+                          onChange={(e) => {
+                            const newSlots = [...facultyForm.availability];
+                            const parts = (newSlots[index] || '').split(' - ');
+                            newSlots[index] = `${e.target.value} - ${parts[1] ? to24H(parts[1]) : ''}`;
+                            setFacultyForm({ ...facultyForm, availability: newSlots });
+                          }} 
+                          className="w-full p-2.5 pl-9 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold text-black focus:bg-white focus:ring-2 focus:ring-emerald-600 outline-none" 
+                        />
+                      </div>
+                      <span className="text-[10px] font-black text-slate-400 uppercase">to</span>
+                      <div className="relative flex-1">
+                        <Clock size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                        <input 
+                          type="time" 
+                          value={to24H((slot || '').split(' - ')[1] || '')} 
+                          onChange={(e) => {
+                            const newSlots = [...facultyForm.availability];
+                            const parts = (newSlots[index] || '').split(' - ');
+                            newSlots[index] = `${parts[0] ? to24H(parts[0]) : ''} - ${e.target.value}`;
+                            setFacultyForm({ ...facultyForm, availability: newSlots });
+                          }} 
+                          className="w-full p-2.5 pl-9 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold text-black focus:bg-white focus:ring-2 focus:ring-emerald-600 outline-none" 
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                <button 
+                  type="button"
+                  onClick={() => setFacultyForm({ ...facultyForm, availability: [...facultyForm.availability, ''] })}
+                  className="mt-2 py-2 px-4 bg-emerald-100 text-emerald-600 rounded-xl text-xs font-bold hover:bg-emerald-600 hover:text-white transition-colors w-fit"
+                >
+                  + Add Time Slot
+                </button>
+                <p className="text-[10px] text-slate-500 ml-1">Define faculty available hours. Add multiple slots if needed.</p>
               </div>
 
                   <button disabled={loading} type="submit" className="w-full mt-8 bg-[#008080] text-white p-4 rounded-xl font-black text-xs uppercase tracking-[0.2em] hover:bg-emerald-600 transition-all shadow-xl hover:shadow-emerald-100 flex items-center justify-center gap-3">

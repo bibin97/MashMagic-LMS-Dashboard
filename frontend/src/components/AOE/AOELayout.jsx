@@ -36,6 +36,7 @@ const AOELayout = () => {
   { path: '/aoe/checking', icon: <ShieldAlert size={18} />, label: 'Institutional Audit' },
   { path: '/aoe/demo-schedule', icon: <CalendarDays size={18} />, label: 'Demo Schedule' },
   { path: '/aoe/daily-updates', icon: <ScrollText size={18} />, label: 'Daily Updates' },
+  { path: '/aoe/exam-scores', icon: <ScrollText size={18} />, label: 'Exam Scores' },
  ];
 
  return (

@@ -1284,6 +1284,66 @@ const generateQualityAudits = async (req, res) => {
     }
 };
 
+const deduplicateStudents = async (req, res) => {
+    try {
+        const [rows] = await db.query('SELECT * FROM students');
+        const groups = {};
+        for(const r of rows) {
+            const key = r.contact || r.email || r.registration_number || r.name;
+            if(!key) continue;
+            if(!groups[key]) groups[key] = [];
+            groups[key].push(r);
+        }
+        const toDelete = [];
+        for(const key in groups) {
+            if(groups[key].length > 1) {
+                const sorted = groups[key].sort((a,b) => {
+                    const aCount = Object.values(a).filter(v => v !== null && v !== '').length;
+                    const bCount = Object.values(b).filter(v => v !== null && v !== '').length;
+                    return bCount - aCount;
+                });
+                for(let i = 1; i < sorted.length; i++) {
+                    toDelete.push(sorted[i].id);
+                }
+            }
+        }
+        if(toDelete.length > 0) {
+            await db.query('DELETE FROM students WHERE id IN (?)', [toDelete]);
+        }
+        res.status(200).json({ success: true, message: `Deleted ${toDelete.length} duplicate students.` });
+    } catch(err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+};
+
+const getExamScores = async (req, res) => {
+    try {
+        const [rows] = await db.query(`
+            SELECT m.*, s.name as student_name, f.name as faculty_name
+            FROM student_marks m
+            JOIN students s ON m.student_id = s.id
+            LEFT JOIN faculties f ON m.faculty_id = f.id
+            ORDER BY m.exam_date DESC, m.created_at DESC
+        `);
+        res.status(200).json({ success: true, data: rows });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+const addExamScore = async (req, res) => {
+    const { student_id, faculty_id, subject, chapter, publication, marks, total, grade, term, exam_date, question_paper, answer_sheet } = req.body;
+    try {
+        await db.query(`
+            INSERT INTO student_marks (student_id, faculty_id, subject, chapter, publication, marks, total, grade, term, exam_date, question_paper, answer_sheet)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `, [student_id, faculty_id || req.user.id, subject, chapter || null, publication || null, marks, total, grade, term, exam_date, question_paper || null, answer_sheet || null]);
+        res.status(201).json({ success: true, message: "Exam score submitted successfully" });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
 module.exports = {
     getExamAnalytics, getDashboardStats, getAllFacultyActivity, getAvailableFaculties, getDropdownData, registerStudent, registerFaculty, registerSSC, getStudentInteractionLogs, getFacultyInteractionLogs, getAcademicActions, getDailyFacultyChecks, checkFacultySessionToday, uncheckFacultySession, getFacultyDirectory, getAcademicDocuments, uploadAcademicDocument, deleteAcademicDocument, getLiveClassEvaluations, submitLiveClassEvaluation, getPendingFacultyLogs, verifyFacultyLog, editFaculty, getFacultyEditHistory, getAllFacultyEditHistory, deleteFaculty, editStudent, deleteStudent, getStudentById, getStudents, getMentors, editMentor, deleteMentor, getLiveMonitoring, getStaff, syncLegacyData, saveExamPlan, getAcademicSchedule,
     getAHParentInteractions, createAHParentInteraction, getAHFacultyInteractions,    createAHFacultyInteraction,
@@ -1300,5 +1360,8 @@ module.exports = {
     generateQualityAudits,
     verifyQualityAudit,
     markLiveClassFeedbacksRead,
-    forceSync
+    forceSync,
+    deduplicateStudents,
+    getExamScores,
+    addExamScore
 };

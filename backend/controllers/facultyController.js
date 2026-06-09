@@ -449,14 +449,14 @@ const getStudentExamScores = async (req, res) => {
 
 // @desc    Submit exam score
 const submitExamScore = async (req, res) => {
-    const { student_id, subject, marks, total, grade, term, exam_date } = req.body;
+    const { student_id, subject, chapter, publication, marks, total, grade, term, exam_date, question_paper, answer_sheet } = req.body;
     const facultyId = req.user.id;
 
     try {
         await db.query(`
-            INSERT INTO student_marks (student_id, faculty_id, subject, marks, total, grade, term, exam_date)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        `, [student_id, facultyId, subject, marks, total, grade, term, exam_date]);
+            INSERT INTO student_marks (student_id, faculty_id, subject, chapter, publication, marks, total, grade, term, exam_date, question_paper, answer_sheet)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `, [student_id, facultyId, subject, chapter || null, publication || null, marks, total, grade, term, exam_date, question_paper || null, answer_sheet || null]);
 
         res.status(201).json({ success: true, message: "Exam score submitted successfully" });
     } catch (error) {

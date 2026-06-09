@@ -280,6 +280,10 @@ const startServer = async () => {
                 'ALTER TABLE student_exams ADD COLUMN portions TEXT NULL;',
                 'ALTER TABLE student_exams ADD COLUMN exam_type VARCHAR(100) NULL;',
                 'ALTER TABLE student_exams ADD COLUMN scheduled_date DATE NULL;',
+                'ALTER TABLE student_marks ADD COLUMN chapter VARCHAR(255) NULL;',
+                'ALTER TABLE student_marks ADD COLUMN publication VARCHAR(255) NULL;',
+                'ALTER TABLE student_marks ADD COLUMN question_paper TEXT NULL;',
+                'ALTER TABLE student_marks ADD COLUMN answer_sheet TEXT NULL;',
 
                 // Reordering Columns for Students Table
                 'ALTER TABLE students MODIFY COLUMN registration_number VARCHAR(100) AFTER id;',

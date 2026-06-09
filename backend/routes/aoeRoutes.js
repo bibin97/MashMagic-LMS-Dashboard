@@ -55,7 +55,10 @@ const {
     generateQualityAudits,
     verifyQualityAudit,
     markLiveClassFeedbacksRead,
-    forceSync
+    forceSync,
+    deduplicateStudents,
+    getExamScores,
+    addExamScore
 } = require('../controllers/aoeController');
 
 // Debug route
@@ -99,6 +102,9 @@ router.post('/live-class-evaluations', submitLiveClassEvaluation);
 router.post('/exams/plan', saveExamPlan);
 router.get('/faculty-logs-pending', getPendingFacultyLogs);
 router.put('/faculty-logs/:id/verify', verifyFacultyLog);
+router.post('/deduplicate-students', deduplicateStudents);
+router.get('/exam-scores', getExamScores);
+router.post('/exam-scores', addExamScore);
 
 // New Management Routes
 router.get('/faculty-history', getAllFacultyEditHistory);
