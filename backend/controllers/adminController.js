@@ -809,14 +809,14 @@ const clearAllNotifications = async (req, res) => {
 const updateStudentForAdmin = async (req, res) => {
     try {
         const { id } = req.params;
-        const { name, email, phone_number, grade, subject, timetable, nextInstallment, status } = req.body;
+        const { name, email, phone_number, grade, subject, timetable, nextInstallment, status, total_fees, total_hours, hour } = req.body;
 
         const [[oldStudent]] = await db.query('SELECT name FROM students WHERE id = ?', [id]);
 
         // Update ONLY in students table as requested
         const [result] = await db.query(
-            'UPDATE students SET name = ?, email = ?, contact = ?, grade = ?, subject = ?, time_table = ?, next_installment_date = ?, status = ?, course_completed = ? WHERE id = ?',
-            [name, email, phone_number, grade, subject, timetable, nextInstallment, status, req.body.course_completed || 0, id]
+            'UPDATE students SET name = ?, email = ?, contact = ?, grade = ?, subject = ?, time_table = ?, next_installment_date = ?, status = ?, course_completed = ?, total_fees = ?, total_hours = ?, hour = ? WHERE id = ?',
+            [name, email, phone_number, grade, subject, timetable, nextInstallment, status, req.body.course_completed || 0, total_fees || null, total_hours || null, hour || null, id]
         );
 
         if (result.affectedRows === 0) {

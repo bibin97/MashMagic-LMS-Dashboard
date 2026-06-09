@@ -38,7 +38,10 @@ const Students = () => {
  timetable: '',
  nextInstallment: '',
  status: '',
- course_completed: 0
+ course_completed: 0,
+ total_fees: '',
+ total_hours: '',
+ hour: ''
  });
  const [dailyHours, setDailyHours] = useState([]);
 
@@ -106,7 +109,10 @@ const Students = () => {
   nextInstallment: student.next_installment_date ? student.next_installment_date.split('T')[0] : '',
   course_completed: student.course_completed || 0,
   status: student.status || 'active',
-  timetable: student.timetable_summary || ''
+  timetable: student.timetable_summary || '',
+  total_fees: student.total_fees || '',
+  total_hours: student.total_hours || '',
+  hour: student.hour || ''
   });
   setIsEditingModal(false);
   setIsEditModalOpen(true);
@@ -487,16 +493,7 @@ const Students = () => {
  required
  />
  </div>
- <div className="flex flex-col gap-2">
- <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest pl-2">Next Installment</label>
- <input
- type="date"
- className="p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-[#008080] transition-all"
- value={editFormData.nextInstallment}
- onChange={(e) => setEditFormData({ ...editFormData, nextInstallment: e.target.value })}
- disabled={!isEditingModal}
- />
- </div>
+ 
  <div className="flex flex-col gap-2">
  <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest pl-2">Course Status</label>
  <button
@@ -536,6 +533,38 @@ const Students = () => {
  disabled={!isEditingModal}
  />
  </div>
+
+ <div className="col-span-1 md:col-span-2 mt-4 pt-6 border-t border-slate-200">
+     <h4 className="text-[12px] font-black text-slate-800 uppercase tracking-widest mb-4 flex items-center gap-2">
+         <span className="w-2 h-2 rounded-full bg-[#008080]"></span>
+         Fee Details
+     </h4>
+     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+         <div className="flex flex-col gap-2">
+             <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest pl-2">Next Installment</label>
+             <input
+                 type="date"
+                 className="p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-[#008080] transition-all"
+                 value={editFormData.nextInstallment}
+                 onChange={(e) => setEditFormData({ ...editFormData, nextInstallment: e.target.value })}
+                 disabled={!isEditingModal}
+             />
+         </div>
+         <div className="flex flex-col gap-2">
+             <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest pl-2">Total Fee (₹)</label>
+             <input type="number" className="p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-[#008080] transition-all" value={editFormData.total_fees} onChange={(e) => setEditFormData({ ...editFormData, total_fees: e.target.value })} disabled={!isEditingModal} placeholder="E.g. 5000" />
+         </div>
+         <div className="flex flex-col gap-2">
+             <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest pl-2">Total Hours</label>
+             <input type="number" className="p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-[#008080] transition-all" value={editFormData.total_hours} onChange={(e) => setEditFormData({ ...editFormData, total_hours: e.target.value })} disabled={!isEditingModal} placeholder="E.g. 100" />
+         </div>
+         <div className="flex flex-col gap-2">
+             <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest pl-2">Student Hours</label>
+             <input type="number" className="p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 focus:ring-[#008080] transition-all" value={editFormData.hour} onChange={(e) => setEditFormData({ ...editFormData, hour: e.target.value })} disabled={!isEditingModal} placeholder="E.g. 60" />
+         </div>
+     </div>
+ </div>
+
  </div>
  <div className="col-span-1 md:col-span-2 flex justify-end gap-3 pt-8 pb-4 transition-opacity duration-300">
  <button type="button" className="px-8 py-4 rounded-[18px] border border-slate-100 text-[11px] font-black uppercase tracking-widest text-slate-600 hover:text-slate-600 hover:bg-slate-50 transition-all font-sans" onClick={() => setIsEditModalOpen(false)}>Cancel</button>
