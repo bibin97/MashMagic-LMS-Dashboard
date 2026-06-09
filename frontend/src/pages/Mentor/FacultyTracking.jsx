@@ -17,7 +17,8 @@ import {
   CheckSquare,
   ChevronRight,
   Filter,
-  ArrowRight
+  ArrowRight,
+  Download
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -109,6 +110,36 @@ const FacultyTracking = () => {
     l.faculty_name.toLowerCase().includes(deferredSearchTerm.toLowerCase())
   );
 
+  const exportToExcel = async () => {
+    if (filteredLogs.length === 0) {
+      toast.error("No data to export");
+      return;
+    }
+    const XLSX = await import('xlsx');
+    const exportData = filteredLogs.map(log => ({
+      'Student Name': log.student_name || 'N/A',
+      'Subject': log.subject || 'N/A',
+      'Faculty': log.faculty_name || 'N/A',
+      'Date': log.date ? new Date(log.date).toLocaleDateString() : 'N/A',
+      'Time': log.created_at ? new Date(log.created_at).toLocaleTimeString() : 'N/A',
+      'Observation': log.todays_observation || 'PENDING REVIEW',
+      'Topic Taught': log.topic_taught || 'N/A',
+      'Duration': log.class_duration || 'N/A',
+      'Homework Given': log.homework_given ? 'Yes' : 'No',
+      'Homework Details': log.homework_details || 'N/A',
+      'Attention Level': log.attention_level || 'N/A',
+      'Participation Level': log.participation_level || 'N/A',
+      'Understanding Level': log.understanding_level || 'N/A',
+      'Issue Detected': log.issue_flag ? 'Yes' : 'No',
+      'Issue Type': log.issue_type || 'N/A'
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(exportData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Daily Updates");
+    XLSX.writeFile(wb, "Mentor_Daily_Updates_Report.xlsx");
+  };
+
   const getObservationColor = (obs) => {
     switch(obs) {
       case 'Normal': return 'bg-emerald-50 text-emerald-600 border-emerald-100';
@@ -163,6 +194,9 @@ const FacultyTracking = () => {
                     onChange={e => setSearchTerm(e.target.value)}
                   />
                </div>
+               <button onClick={exportToExcel} className="bg-[#008080] p-5 rounded-[24px] border border-[#008080] text-white hover:bg-[#006666] hover:border-[#006666] transition-all shadow-sm shadow-[#008080]/20 flex items-center justify-center group" title="Export to Excel">
+                  <Download size={20} className="group-hover:scale-110 transition-transform" />
+               </button>
                <button className="bg-white p-5 rounded-[24px] border border-slate-200 text-slate-400 hover:text-slate-900 transition-all shadow-sm">
                   <Filter size={20} />
                </button>
