@@ -44,7 +44,6 @@ import MentorDashboard from './pages/Mentor/MentorDashboard';
 import MyStudents from './pages/Mentor/MyStudents';
 import StudentDetails from './pages/common/StudentDetails';
 import MyTasks from './pages/Mentor/MyTasks';
-import Timetable from './pages/admin/Timetable';
 import StudentInteractionLog from './pages/Mentor/StudentInteractionLog';
 import AcademicSchedule from './pages/admin/AcademicSchedule';
 import StudentsData from './pages/Mentor/StudentsData';

@@ -292,9 +292,6 @@ const DataTable = ({
  </div>
  </div>
  )}
- </div>
- </div>
- )}
 
  {/* Sub Row for Mobile */}
  {isExpanded && renderSubRow && (

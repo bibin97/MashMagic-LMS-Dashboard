@@ -38,7 +38,6 @@ const Students = () => {
   mentorId: '', mentorName: ''
  });
  const [dailyHours, setDailyHours] = useState([]);
- const [mentorsList, setMentorsList] = useState([]);
  const [mentorSearch, setMentorSearch] = useState('');
  const [showMentorDropdown, setShowMentorDropdown] = useState(false);
 
