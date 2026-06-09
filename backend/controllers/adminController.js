@@ -46,7 +46,7 @@ const getAdminDashboardSummary = async (req, res) => {
 // @access  Private (super_admin, admin)
 const getUsers = async (req, res) => {
     try {
-        const [rows] = await db.query('SELECT id, name, email, role, status FROM users');
+        const [rows] = await db.query("SELECT id, name, email, role, status FROM users WHERE role NOT IN ('student', 'faculty', 'mentor')");
         res.status(200).json({ success: true, count: rows.length, data: rows });
     } catch (error) {
         res.status(500).json({ success: false, message: "Server Error", error: error.message });
