@@ -19,7 +19,7 @@ async function syncStatus() {
         // Update faculties
         const [facultiesResult] = await db.query(`
             UPDATE faculties f
-            JOIN users u ON f.id = u.id
+            JOIN users u ON (f.phone_number = u.email OR f.phone_number = u.phone_number OR f.name = u.name)
             SET f.status = u.status
             WHERE u.role = 'faculty' AND f.status != u.status
         `);
@@ -28,7 +28,7 @@ async function syncStatus() {
         // Update mentors
         const [mentorsResult] = await db.query(`
             UPDATE mentors m
-            JOIN users u ON m.id = u.id
+            JOIN users u ON (m.phone_number = u.email OR m.phone_number = u.phone_number OR m.name = u.name)
             SET m.status = u.status
             WHERE u.role = 'mentor' AND m.status != u.status
         `);

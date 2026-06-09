@@ -79,16 +79,16 @@ const approveUser = async (req, res) => {
         let nameRow;
 
         // 1. Try to find and update in users table first
-        [[nameRow]] = await db.query('SELECT name, role FROM users WHERE id = ?', [id]);
+        [[nameRow]] = await db.query('SELECT name, role, email, phone_number FROM users WHERE id = ?', [id]);
         if (nameRow) {
             [result] = await db.query('UPDATE users SET status = "active", isApproved = 1, isActive = 1 WHERE id = ?', [id]);
             
             if (nameRow.role === 'student' || role === 'student') {
                 await db.query('UPDATE students SET status = "active", isApproved = 1 WHERE user_id = ? OR id = ?', [id, id]);
             } else if (nameRow.role === 'faculty' || role === 'faculty') {
-                await db.query('UPDATE faculties SET status = "active" WHERE id = ?', [id]);
+                await db.query('UPDATE faculties SET status = "active" WHERE phone_number = ? OR phone_number = ? OR name = ?', [nameRow.email, nameRow.phone_number, nameRow.name]);
             } else if (nameRow.role === 'mentor' || role === 'mentor') {
-                await db.query('UPDATE mentors SET status = "active" WHERE id = ?', [id]);
+                await db.query('UPDATE mentors SET status = "active" WHERE phone_number = ? OR phone_number = ? OR name = ?', [nameRow.email, nameRow.phone_number, nameRow.name]);
             }
         } else {
             // 2. If not found in users, try students table
@@ -136,15 +136,15 @@ const blockUser = async (req, res) => {
         let nameRow;
 
         // Try users table
-        [[nameRow]] = await db.query('SELECT name, role FROM users WHERE id = ?', [id]);
+        [[nameRow]] = await db.query('SELECT name, role, email, phone_number FROM users WHERE id = ?', [id]);
         if (nameRow) {
             [result] = await db.query('UPDATE users SET status = "inactive", isActive = 0 WHERE id = ?', [id]);
             if (nameRow.role === 'student' || role === 'student') {
                 await db.query('UPDATE students SET status = "inactive" WHERE user_id = ? OR id = ?', [id, id]);
             } else if (nameRow.role === 'faculty' || role === 'faculty') {
-                await db.query('UPDATE faculties SET status = "inactive" WHERE id = ?', [id]);
+                await db.query('UPDATE faculties SET status = "inactive" WHERE phone_number = ? OR phone_number = ? OR name = ?', [nameRow.email, nameRow.phone_number, nameRow.name]);
             } else if (nameRow.role === 'mentor' || role === 'mentor') {
-                await db.query('UPDATE mentors SET status = "inactive" WHERE id = ?', [id]);
+                await db.query('UPDATE mentors SET status = "inactive" WHERE phone_number = ? OR phone_number = ? OR name = ?', [nameRow.email, nameRow.phone_number, nameRow.name]);
             }
         } else {
             // Try students table
@@ -228,15 +228,15 @@ const rejectUser = async (req, res) => {
         let result = { affectedRows: 0 };
 
         // Try users table first
-        const [[userRow]] = await db.query('SELECT role FROM users WHERE id = ?', [id]);
+        const [[userRow]] = await db.query('SELECT role, email, phone_number, name FROM users WHERE id = ?', [id]);
         if (userRow) {
             [result] = await db.query('UPDATE users SET status = "rejected", isApproved = 0, isActive = 0 WHERE id = ?', [id]);
             if (userRow.role === 'student' || role === 'student') {
                 await db.query('UPDATE students SET status = "rejected", isApproved = 0 WHERE user_id = ? OR id = ?', [id, id]);
             } else if (userRow.role === 'faculty' || role === 'faculty') {
-                await db.query('UPDATE faculties SET status = "rejected" WHERE id = ?', [id]);
+                await db.query('UPDATE faculties SET status = "rejected" WHERE phone_number = ? OR phone_number = ? OR name = ?', [userRow.email, userRow.phone_number, userRow.name]);
             } else if (userRow.role === 'mentor' || role === 'mentor') {
-                await db.query('UPDATE mentors SET status = "rejected" WHERE id = ?', [id]);
+                await db.query('UPDATE mentors SET status = "rejected" WHERE phone_number = ? OR phone_number = ? OR name = ?', [userRow.email, userRow.phone_number, userRow.name]);
             }
         } else {
             // Try students table
@@ -275,7 +275,7 @@ const deleteUser = async (req, res) => {
 
     try {
         // Try to find in users table first
-        const [users] = await db.query('SELECT id, name, role, status FROM users WHERE id = ?', [id]);
+        const [users] = await db.query('SELECT id, name, email, phone_number, role, status FROM users WHERE id = ?', [id]);
         
         if (users.length > 0) {
             const target = users[0];
@@ -326,8 +326,8 @@ const deleteUser = async (req, res) => {
 
             // Final User Delete from central and specific tables
             await db.query('DELETE FROM users WHERE id = ?', [id]);
-            if (userRole === 'mentor') await db.query('DELETE FROM mentors WHERE id = ?', [id]);
-            if (userRole === 'faculty') await db.query('DELETE FROM faculties WHERE id = ?', [id]);
+            if (userRole === 'mentor') await db.query('DELETE FROM mentors WHERE phone_number = ? OR phone_number = ? OR name = ?', [target.email, target.phone_number, target.name]);
+            if (userRole === 'faculty') await db.query('DELETE FROM faculties WHERE phone_number = ? OR phone_number = ? OR name = ?', [target.email, target.phone_number, target.name]);
             
             try {
                 await db.query('INSERT INTO admin_notifications (message) VALUES (?)', [
