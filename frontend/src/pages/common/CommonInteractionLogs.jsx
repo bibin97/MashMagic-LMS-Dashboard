@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, {  useState, useEffect , useDeferredValue } from 'react';
 import api from '../../services/api';
 import { 
     ScrollText, Search, User, Clock, Calendar, 
@@ -101,6 +101,7 @@ const CommonInteractionLogs = ({ role }) => {
     const [logs, setLogs] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
+	const deferredSearchTerm = useDeferredValue(searchTerm);
     const [dateFilter, setDateFilter] = useState('all');
     const [customRange, setCustomRange] = useState({ start: '', end: '' });
     const [mentorFilter, setMentorFilter] = useState('all');
@@ -372,9 +373,9 @@ const CommonInteractionLogs = ({ role }) => {
     };
 
     const filteredEntities = entities.filter(e => 
-        (e.name?.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (e.email?.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (e.registration_number?.toLowerCase().includes(searchTerm.toLowerCase()))
+        (e.name?.toLowerCase().includes(deferredSearchTerm.toLowerCase())) ||
+        (e.email?.toLowerCase().includes(deferredSearchTerm.toLowerCase())) ||
+        (e.registration_number?.toLowerCase().includes(deferredSearchTerm.toLowerCase()))
     );
 
     if (viewMode === 'list') {

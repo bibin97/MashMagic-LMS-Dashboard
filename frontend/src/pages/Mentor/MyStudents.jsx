@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, {  useState, useEffect, useMemo , useDeferredValue } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import { User, Users, ChevronRight, Search, CheckCircle2, Calendar, Clock, Plus, Trash2, XCircle, Activity } from 'lucide-react';
@@ -146,6 +146,7 @@ const MyStudents = () => {
  const [students, setStudents] = useState([]);
  const [loading, setLoading] = useState(true);
  const [searchTerm, setSearchTerm] = useState('');
+	const deferredSearchTerm = useDeferredValue(searchTerm);
  const [sortBy, setSortBy] = useState('');
  const [viewMode, setViewMode] = useState('active'); // 'active' or 'new'
  const [isTimetableModalOpen, setIsTimetableModalOpen] = useState(false);
@@ -253,8 +254,8 @@ const MyStudents = () => {
       // In 'active' view, show all students
       const nameStr = s.name || '';
       const subjStr = s.subject || '';
-      return nameStr.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      subjStr.toLowerCase().includes(searchTerm.toLowerCase());
+      return nameStr.toLowerCase().includes(deferredSearchTerm.toLowerCase()) ||
+      subjStr.toLowerCase().includes(deferredSearchTerm.toLowerCase());
     });
     
     // Auto-Rotation: Completed interactions move to the bottom

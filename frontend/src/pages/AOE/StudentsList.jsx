@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, {  useState, useEffect, useMemo , useDeferredValue } from 'react';
 import {
 	Users, Search, Filter, Edit2, Trash2, X, Save,
 	GraduationCap, BookOpen, Clock, Activity, Calendar, Eye, ClipboardList
@@ -13,6 +13,7 @@ const StudentsList = ({ role = 'academic_operation_executive' }) => {
 	const [students, setStudents] = useState([]);
 	const [loading, setLoading] = useState(true);
 	const [searchTerm, setSearchTerm] = useState('');
+	const deferredSearchTerm = useDeferredValue(searchTerm);
 	const [filterCourse, setFilterCourse] = useState('all');
 	const [sortBy, setSortBy] = useState('join_newest');
 	const [mentors, setMentors] = useState([]);
@@ -29,6 +30,7 @@ const StudentsList = ({ role = 'academic_operation_executive' }) => {
 	const [selectedMentorId, setSelectedMentorId] = useState('');
 	const [isAssigning, setIsAssigning] = useState(false);
 	const [assignSearchTerm, setAssignSearchTerm] = useState('');
+	const deferredAssignSearchTerm = useDeferredValue(assignSearchTerm);
 	const [isAssignDropdownOpen, setIsAssignDropdownOpen] = useState(false);
 
 	// Quick Assessment State
@@ -169,9 +171,9 @@ const StudentsList = ({ role = 'academic_operation_executive' }) => {
 			const regStr = s.registration_number || '';
 			const gradeStr = s.grade || '';
 
-			const matchesSearch = nameStr.toLowerCase().includes(searchTerm.toLowerCase()) ||
-				regStr.toLowerCase().includes(searchTerm.toLowerCase()) ||
-				gradeStr.toLowerCase().includes(searchTerm.toLowerCase());
+			const matchesSearch = nameStr.toLowerCase().includes(deferredSearchTerm.toLowerCase()) ||
+				regStr.toLowerCase().includes(deferredSearchTerm.toLowerCase()) ||
+				gradeStr.toLowerCase().includes(deferredSearchTerm.toLowerCase());
 			const matchesCourse = filterCourse === 'all' || s.course === filterCourse;
 			return matchesSearch && matchesCourse;
 		});
@@ -491,7 +493,7 @@ const StudentsList = ({ role = 'academic_operation_executive' }) => {
 											</div>
 										</div>
 										<div className="max-h-48 overflow-y-auto p-2">
-											{mentors.filter(m => m.name.toLowerCase().includes(assignSearchTerm.toLowerCase())).map(m => (
+											{mentors.filter(m => m.name.toLowerCase().includes(deferredAssignSearchTerm.toLowerCase())).map(m => (
 												<div 
 													key={m.id}
 													onClick={() => {
@@ -504,7 +506,7 @@ const StudentsList = ({ role = 'academic_operation_executive' }) => {
 													{m.name}
 												</div>
 											))}
-											{mentors.filter(m => m.name.toLowerCase().includes(assignSearchTerm.toLowerCase())).length === 0 && (
+											{mentors.filter(m => m.name.toLowerCase().includes(deferredAssignSearchTerm.toLowerCase())).length === 0 && (
 												<div className="px-4 py-6 text-xs text-slate-500 text-center font-bold uppercase tracking-widest">No mentors found</div>
 											)}
 										</div>

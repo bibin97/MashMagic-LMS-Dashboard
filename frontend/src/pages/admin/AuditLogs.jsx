@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, {  useState, useEffect , useDeferredValue } from 'react';
 import api from '../../services/api';
 import { 
     ShieldCheck, Bell, Clock, Search, Filter, 
@@ -11,6 +11,7 @@ const AuditLogs = () => {
     const [notifications, setNotifications] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
+	const deferredSearchTerm = useDeferredValue(searchTerm);
     const [typeFilter, setTypeFilter] = useState('all');
 
     useEffect(() => {
@@ -41,7 +42,7 @@ const AuditLogs = () => {
     };
 
     const filteredLogs = notifications.filter(log => {
-        const matchesSearch = log.message.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesSearch = log.message.toLowerCase().includes(deferredSearchTerm.toLowerCase());
         const matchesType = typeFilter === 'all' || log.action_type === typeFilter;
         return matchesSearch && matchesType;
     });

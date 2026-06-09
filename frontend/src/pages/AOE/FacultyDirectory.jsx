@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, {  useState, useEffect , useDeferredValue } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import {
@@ -12,6 +12,7 @@ const FacultyDirectory = ({ role = 'academic_operation_executive' }) => {
   const [faculties, setFaculties] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+	const deferredSearchTerm = useDeferredValue(searchTerm);
   const [sortBy, setSortBy] = useState('newest');
   const [selectedFaculty, setSelectedFaculty] = useState(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
@@ -126,10 +127,10 @@ const FacultyDirectory = ({ role = 'academic_operation_executive' }) => {
   };
 
   const filteredFaculties = faculties.filter(f => {
-    const matchesSearch = searchTerm === '' ||
-      f.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      f.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      f.subject?.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = deferredSearchTerm === '' ||
+      f.name.toLowerCase().includes(deferredSearchTerm.toLowerCase()) ||
+      f.email?.toLowerCase().includes(deferredSearchTerm.toLowerCase()) ||
+      f.subject?.toLowerCase().includes(deferredSearchTerm.toLowerCase());
       
     let matchesSyllabus = true;
     if (selectedSyllabi.length > 0) {

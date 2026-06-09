@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, {  useState, useEffect, useMemo , useDeferredValue } from 'react';
 import {
     ClipboardList, Plus, X, Search, Calendar, BookOpen,
     CheckCircle, Clock, AlertTriangle, Trash2, Award, Filter, RefreshCw
@@ -15,6 +15,7 @@ const ExamSchedule = () => {
     const [isResultModalOpen, setIsResultModalOpen] = useState(false);
     const [selectedExam, setSelectedExam] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
+	const deferredSearchTerm = useDeferredValue(searchTerm);
     const [filterStatus, setFilterStatus] = useState('all');
     const [saving, setSaving] = useState(false);
 
@@ -125,9 +126,9 @@ const ExamSchedule = () => {
             const nameStr = e.student_name || '';
             const courseStr = e.course || '';
             const milestoneStr = String(e.milestone_session || '');
-            const matchSearch = nameStr.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                courseStr.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                milestoneStr.toLowerCase().includes(searchTerm.toLowerCase());
+            const matchSearch = nameStr.toLowerCase().includes(deferredSearchTerm.toLowerCase()) ||
+                courseStr.toLowerCase().includes(deferredSearchTerm.toLowerCase()) ||
+                milestoneStr.toLowerCase().includes(deferredSearchTerm.toLowerCase());
             const matchStatus = filterStatus === 'all' || e.status === filterStatus;
             return matchSearch && matchStatus;
         });

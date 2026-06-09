@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, {  useState, useEffect , useDeferredValue } from 'react';
 import axios from '../../services/api';
 import {
  ClipboardList,
@@ -22,6 +22,7 @@ const StudentLogs = () => {
  const [logs, setLogs] = useState([]);
  const [loading, setLoading] = useState(true);
  const [searchTerm, setSearchTerm] = useState('');
+	const deferredSearchTerm = useDeferredValue(searchTerm);
  const [viewingLog, setViewingLog] = useState(null);
 
  useEffect(() => {
@@ -42,9 +43,9 @@ const StudentLogs = () => {
  };
 
  const filteredLogs = logs.filter(l =>
- l.student_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
- l.chapter.toLowerCase().includes(searchTerm.toLowerCase()) ||
- l.mentor_name?.toLowerCase().includes(searchTerm.toLowerCase())
+ l.student_name.toLowerCase().includes(deferredSearchTerm.toLowerCase()) ||
+ l.chapter.toLowerCase().includes(deferredSearchTerm.toLowerCase()) ||
+ l.mentor_name?.toLowerCase().includes(deferredSearchTerm.toLowerCase())
  );
 
  const getHomeworkStatusIcon = (status) => {

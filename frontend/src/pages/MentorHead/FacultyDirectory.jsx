@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, {  useState, useEffect , useDeferredValue } from 'react';
 import {
  Users, Search, Edit2, Trash2, X, Save, Eye,
  ShieldCheck, Activity, MapPin, Phone, Mail, Calendar, Briefcase, Filter, Check
@@ -17,6 +17,7 @@ const FacultyDirectory = () => {
  const [faculties, setFaculties] = useState([]);
  const [loading, setLoading] = useState(true);
  const [searchTerm, setSearchTerm] = useState('');
+	const deferredSearchTerm = useDeferredValue(searchTerm);
  const [selectedFaculty, setSelectedFaculty] = useState(null);
  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
 
@@ -61,10 +62,10 @@ const FacultyDirectory = () => {
  };
 
  const filteredFaculties = faculties.filter(f => {
-   const matchesSearch = searchTerm === '' ||
-     f.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-     f.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-     f.subject?.toLowerCase().includes(searchTerm.toLowerCase());
+   const matchesSearch = deferredSearchTerm === '' ||
+     f.name.toLowerCase().includes(deferredSearchTerm.toLowerCase()) ||
+     f.email?.toLowerCase().includes(deferredSearchTerm.toLowerCase()) ||
+     f.subject?.toLowerCase().includes(deferredSearchTerm.toLowerCase());
      
    let matchesSyllabus = true;
    if (selectedSyllabi.length > 0) {

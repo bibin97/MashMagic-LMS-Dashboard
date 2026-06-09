@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, {  useState, useEffect , useDeferredValue } from 'react';
 import api from '../../services/api';
 import {
   CalendarClock, Clock, BookOpen, Users,
@@ -37,6 +37,7 @@ const AcademicSchedule = () => {
   const [schedule, setSchedule] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+	const deferredSearchTerm = useDeferredValue(searchTerm);
   const [activeTab, setActiveTab] = useState('today');
   const [joinedSessions, setJoinedSessions] = useState(() => {
     try { return JSON.parse(localStorage.getItem('joinedSessions')) || {}; } catch { return {}; }
@@ -87,9 +88,9 @@ const AcademicSchedule = () => {
 
     let filtered = schedule.filter(session => {
       const matchesSearch =
-        (session.topic || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (session.faculty_name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (session.student_name || '').toLowerCase().includes(searchTerm.toLowerCase());
+        (session.topic || '').toLowerCase().includes(deferredSearchTerm.toLowerCase()) ||
+        (session.faculty_name || '').toLowerCase().includes(deferredSearchTerm.toLowerCase()) ||
+        (session.student_name || '').toLowerCase().includes(deferredSearchTerm.toLowerCase());
       return matchesSearch;
     });
 

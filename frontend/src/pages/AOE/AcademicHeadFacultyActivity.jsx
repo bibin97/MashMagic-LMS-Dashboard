@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, {  useState, useEffect , useDeferredValue } from 'react';
 import {
  Activity,
  ClipboardList,
@@ -21,6 +21,7 @@ const AcademicHeadFacultyActivity = () => {
  const [loading, setLoading] = useState(true);
  const [activities, setActivities] = useState({ sessions: [], reports: [] });
  const [searchTerm, setSearchTerm] = useState('');
+	const deferredSearchTerm = useDeferredValue(searchTerm);
 
  const [editingSession, setEditingSession] = useState(null);
  const [isEditMinutesModalOpen, setIsEditMinutesModalOpen] = useState(false);
@@ -63,7 +64,7 @@ const AcademicHeadFacultyActivity = () => {
   };
 
  const filteredData = activities[activeTab].filter(item => {
- const searchStr = searchTerm.toLowerCase();
+ const searchStr = deferredSearchTerm.toLowerCase();
  if (activeTab === 'sessions') {
  return item.faculty_name?.toLowerCase().includes(searchStr) ||
  item.topic?.toLowerCase().includes(searchStr);

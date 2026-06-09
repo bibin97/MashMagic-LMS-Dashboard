@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, {  useState, useEffect , useDeferredValue } from 'react';
 import axios from '../../services/api';
 import {
  Files,
@@ -21,6 +21,7 @@ const FacultyDocuments = () => {
  const [loading, setLoading] = useState(true);
  const [isUploading, setIsUploading] = useState(false);
  const [searchTerm, setSearchTerm] = useState('');
+	const deferredSearchTerm = useDeferredValue(searchTerm);
 
  useEffect(() => {
  fetchDocuments();
@@ -87,7 +88,7 @@ const FacultyDocuments = () => {
  };
 
  const filteredDocs = documents.filter(doc =>
- doc.title.toLowerCase().includes(searchTerm.toLowerCase())
+ doc.title.toLowerCase().includes(deferredSearchTerm.toLowerCase())
  );
 
  const getFileIcon = (type) => {

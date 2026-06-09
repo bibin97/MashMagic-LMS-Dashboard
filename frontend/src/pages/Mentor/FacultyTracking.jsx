@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, {  useState, useEffect , useDeferredValue } from 'react';
 import axios from '../../services/api';
 import { 
   ClipboardList, 
@@ -27,6 +27,7 @@ const FacultyTracking = () => {
   const [interactions, setInteractions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+	const deferredSearchTerm = useDeferredValue(searchTerm);
   const [selectedLog, setSelectedLog] = useState(null);
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
   const [isInteractionModalOpen, setIsInteractionModalOpen] = useState(false);
@@ -103,9 +104,9 @@ const FacultyTracking = () => {
   };
 
   const filteredLogs = logs.filter(l => 
-    l.student_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    l.subject.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    l.faculty_name.toLowerCase().includes(searchTerm.toLowerCase())
+    l.student_name.toLowerCase().includes(deferredSearchTerm.toLowerCase()) ||
+    l.subject.toLowerCase().includes(deferredSearchTerm.toLowerCase()) ||
+    l.faculty_name.toLowerCase().includes(deferredSearchTerm.toLowerCase())
   );
 
   const getObservationColor = (obs) => {

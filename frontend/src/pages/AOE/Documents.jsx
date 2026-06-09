@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, {  useState, useEffect , useDeferredValue } from 'react';
 import api from '../../services/api';
 import {
  Upload, FileText, Trash2, Download, Search,
@@ -12,6 +12,7 @@ const Documents = () => {
  const [documents, setDocuments] = useState([]);
  const [loading, setLoading] = useState(true);
  const [searchTerm, setSearchTerm] = useState('');
+	const deferredSearchTerm = useDeferredValue(searchTerm);
  const [isModalOpen, setIsModalOpen] = useState(false);
  const [newDoc, setNewDoc] = useState({
  title: '',
@@ -69,8 +70,8 @@ const Documents = () => {
  };
 
  const filteredDocs = documents.filter(doc =>
- doc.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
- doc.category.toLowerCase().includes(searchTerm.toLowerCase())
+ doc.title.toLowerCase().includes(deferredSearchTerm.toLowerCase()) ||
+ doc.category.toLowerCase().includes(deferredSearchTerm.toLowerCase())
  );
 
  const categories = ['General', 'Curriculum', 'Syllabus', 'Results', 'Policies', 'Faculty Guide'];

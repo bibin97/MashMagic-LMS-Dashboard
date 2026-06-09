@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, {  useState, useEffect , useDeferredValue } from 'react';
 import axios from 'axios';
 import {
  Users,
@@ -30,6 +30,7 @@ const MentorsList = () => {
  const [mentors, setMentors] = useState([]);
  const [loading, setLoading] = useState(true);
  const [searchTerm, setSearchTerm] = useState('');
+	const deferredSearchTerm = useDeferredValue(searchTerm);
  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
  const [editingMentor, setEditingMentor] = useState({ id: '', name: '', email: '', phone_number: '', place: '', password: '' });
  const [isEditingMentorModal, setIsEditingMentorModal] = useState(false);
@@ -65,7 +66,7 @@ const MentorsList = () => {
  }, []);
 
  const filteredMentors = mentors.filter(m =>
- m.mentor_name?.toLowerCase().includes(searchTerm.toLowerCase()) || m.phone_number?.includes(searchTerm)
+ m.mentor_name?.toLowerCase().includes(deferredSearchTerm.toLowerCase()) || m.phone_number?.includes(searchTerm)
  );
 
  const handleEdit = (mentor) => {

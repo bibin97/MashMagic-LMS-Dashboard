@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, {  useState, useEffect , useDeferredValue } from 'react';
 import api from '../../services/api';
 import {
  Search, Users, Calendar, Clock,
@@ -14,6 +14,7 @@ const FacultyLogs = () => {
  const [loading, setLoading] = useState(true);
  const [activeTab, setActiveTab] = useState('mentor'); // 'mentor' or 'faculty'
  const [searchTerm, setSearchTerm] = useState('');
+	const deferredSearchTerm = useDeferredValue(searchTerm);
  const [selectedLog, setSelectedLog] = useState(null);
 
  useEffect(() => {
@@ -39,7 +40,7 @@ const FacultyLogs = () => {
  const text = isMentorTab
  ? `${log.student_name} ${log.mentor_name} ${log.faculty_name} ${log.chapter}`.toLowerCase()
  : `${log.faculty_name} ${log.chapter}`.toLowerCase();
- return text.includes(searchTerm.toLowerCase());
+ return text.includes(deferredSearchTerm.toLowerCase());
  });
 
  return (

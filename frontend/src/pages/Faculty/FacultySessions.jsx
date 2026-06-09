@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, {  useState, useEffect , useDeferredValue } from 'react';
 import axios from '../../services/api';
 import {
   Calendar,
@@ -16,6 +16,7 @@ const FacultySessions = () => {
   const [sessions, setSessions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+	const deferredSearchTerm = useDeferredValue(searchTerm);
 
   useEffect(() => {
     fetchSessions();
@@ -33,8 +34,8 @@ const FacultySessions = () => {
   };
 
   const filteredSessions = sessions.filter(s => 
-    s.topic.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (s.student_name && s.student_name.toLowerCase().includes(searchTerm.toLowerCase()))
+    s.topic.toLowerCase().includes(deferredSearchTerm.toLowerCase()) ||
+    (s.student_name && s.student_name.toLowerCase().includes(deferredSearchTerm.toLowerCase()))
   );
 
   return (

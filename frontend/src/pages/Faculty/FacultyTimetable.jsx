@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, {  useState, useEffect , useDeferredValue } from 'react';
 import api from '../../../services/api';
 import { Calendar as CalendarIcon, Search, Clock, User, BookOpen } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -7,6 +7,7 @@ const FacultyTimetable = () => {
   const [timetable, setTimetable] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+	const deferredSearchTerm = useDeferredValue(searchTerm);
 
   useEffect(() => {
     fetchTimetable();
@@ -27,8 +28,8 @@ const FacultyTimetable = () => {
   };
 
   const filteredTimetable = timetable.filter(item => 
-    item.student_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    item.student_subject?.toLowerCase().includes(searchTerm.toLowerCase())
+    item.student_name?.toLowerCase().includes(deferredSearchTerm.toLowerCase()) ||
+    item.student_subject?.toLowerCase().includes(deferredSearchTerm.toLowerCase())
   );
 
   return (

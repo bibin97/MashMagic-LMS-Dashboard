@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, {  useState, useEffect, useMemo , useDeferredValue } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import { User, Users, ChevronRight, Search, XCircle } from 'lucide-react';
@@ -136,6 +136,7 @@ const SSCStudentList = () => {
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+	const deferredSearchTerm = useDeferredValue(searchTerm);
   const [sortBy, setSortBy] = useState('');
   const [viewMode, setViewMode] = useState('active'); // 'active' or 'new'
   const navigate = useNavigate();
@@ -162,8 +163,8 @@ const SSCStudentList = () => {
       if (viewMode === 'new' && !isPending) return false;
       const nameStr = s.name || '';
       const courseStr = s.course || '';
-      return nameStr.toLowerCase().includes(searchTerm.toLowerCase()) ||
-             courseStr.toLowerCase().includes(searchTerm.toLowerCase());
+      return nameStr.toLowerCase().includes(deferredSearchTerm.toLowerCase()) ||
+             courseStr.toLowerCase().includes(deferredSearchTerm.toLowerCase());
     });
     return sortStudentsByOption(filtered, sortBy);
   }, [students, viewMode, searchTerm, sortBy]);

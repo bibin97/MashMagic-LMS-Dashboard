@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, {  useState, useEffect , useDeferredValue } from 'react';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
 import { 
@@ -15,6 +15,7 @@ const AOEDemoSchedule = () => {
   const [showSubjectSuggestions, setShowSubjectSuggestions] = useState(false);
   const [demoList, setDemoList] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
+	const deferredSearchTerm = useDeferredValue(searchTerm);
 
   // Form State
   const [formData, setFormData] = useState({
@@ -206,8 +207,8 @@ const AOEDemoSchedule = () => {
   };
 
   const filteredDemos = demoList.filter(d => 
-    d.student_name?.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    d.faculty_name?.toLowerCase().includes(searchTerm.toLowerCase())
+    d.student_name?.toLowerCase().includes(deferredSearchTerm.toLowerCase()) || 
+    d.faculty_name?.toLowerCase().includes(deferredSearchTerm.toLowerCase())
   );
 
   return (

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, {  useState, useEffect , useDeferredValue } from 'react';
 import axios from '../../services/api';
 import {
  ClipboardList,
@@ -17,6 +17,7 @@ const FacultyReports = () => {
  const [reports, setReports] = useState([]);
  const [loading, setLoading] = useState(true);
  const [searchTerm, setSearchTerm] = useState('');
+	const deferredSearchTerm = useDeferredValue(searchTerm);
 
  useEffect(() => {
  fetchReports();
@@ -36,8 +37,8 @@ const FacultyReports = () => {
  };
 
  const filteredReports = reports.filter(r =>
- r.student_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
- r.type.toLowerCase().includes(searchTerm.toLowerCase())
+ r.student_name.toLowerCase().includes(deferredSearchTerm.toLowerCase()) ||
+ r.type.toLowerCase().includes(deferredSearchTerm.toLowerCase())
  );
 
  return (

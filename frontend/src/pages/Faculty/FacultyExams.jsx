@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, {  useState, useEffect , useDeferredValue } from 'react';
 import axios from '../../services/api';
 import {
  Trophy,
@@ -22,6 +22,7 @@ const FacultyExams = () => {
  const [students, setStudents] = useState([]);
  const [loading, setLoading] = useState(true);
  const [searchTerm, setSearchTerm] = useState('');
+	const deferredSearchTerm = useDeferredValue(searchTerm);
  const [showAddModal, setShowAddModal] = useState(false);
  const [submitting, setSubmitting] = useState(false);
 
@@ -92,9 +93,9 @@ const FacultyExams = () => {
  };
 
  const filteredScores = scores.filter(s =>
- s.student_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
- s.subject.toLowerCase().includes(searchTerm.toLowerCase()) ||
- s.term.toLowerCase().includes(searchTerm.toLowerCase())
+ s.student_name.toLowerCase().includes(deferredSearchTerm.toLowerCase()) ||
+ s.subject.toLowerCase().includes(deferredSearchTerm.toLowerCase()) ||
+ s.term.toLowerCase().includes(deferredSearchTerm.toLowerCase())
  );
 
  return (

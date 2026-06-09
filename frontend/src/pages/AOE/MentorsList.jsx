@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, {  useState, useEffect , useDeferredValue } from 'react';
 import {
  Users, Search, Edit2, Trash2, X, Save,
  ShieldCheck, Activity, MapPin, Phone, Mail, Calendar, Eye
@@ -11,6 +11,7 @@ const MentorsList = () => {
  const [mentors, setMentors] = useState([]);
  const [loading, setLoading] = useState(true);
  const [searchTerm, setSearchTerm] = useState('');
+	const deferredSearchTerm = useDeferredValue(searchTerm);
 
  // Edit Modal States
  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -99,8 +100,8 @@ const MentorsList = () => {
  };
 
  const filteredMentors = mentors.filter(m =>
- m.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
- m.place?.toLowerCase().includes(searchTerm.toLowerCase())
+ m.name.toLowerCase().includes(deferredSearchTerm.toLowerCase()) ||
+ m.place?.toLowerCase().includes(deferredSearchTerm.toLowerCase())
  );
 
  if (loading) return <div className="p-20 text-center font-black text-slate-600 animate-pulse">SYNCING MENTOR DIRECTORY...</div>;

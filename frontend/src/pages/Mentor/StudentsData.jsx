@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, {  useState, useEffect , useDeferredValue } from 'react';
 import { Users, Search, ChevronRight, Calendar, Clock, ClipboardList, CheckCircle2, AlertCircle, TrendingUp, History, GraduationCap } from 'lucide-react';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
@@ -10,6 +10,7 @@ const StudentsData = () => {
   const [loading, setLoading] = useState(true);
   const [updatesLoading, setUpdatesLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+	const deferredSearchTerm = useDeferredValue(searchTerm);
   const [detailTab, setDetailTab] = useState('activity'); // activity, marks, attendance
 
   useEffect(() => {
@@ -50,8 +51,8 @@ const StudentsData = () => {
   };
 
   const filteredStudents = students.filter(s => 
-    s.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    s.email?.toLowerCase().includes(searchTerm.toLowerCase())
+    s.name.toLowerCase().includes(deferredSearchTerm.toLowerCase()) ||
+    s.email?.toLowerCase().includes(deferredSearchTerm.toLowerCase())
   );
 
   // Calculate streaks/stats

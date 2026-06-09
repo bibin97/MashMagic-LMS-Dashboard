@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, {  useState, useEffect , useDeferredValue } from 'react';
 import { 
   Target, Presentation, GraduationCap, TrendingUp, UserMinus, AlertTriangle, 
   Search, ShieldCheck, Activity, Users, BookOpen, Clock, AlertCircle, FileText, CheckCircle2, XCircle, Star, X
@@ -23,6 +23,7 @@ const formatTime12Hour = (timeStr) => {
 const OperationsHub = ({ section }) => {
   const [activeTab, setActiveTab] = useState(section || 'academic_quality');
   const [searchTerm, setSearchTerm] = useState('');
+	const deferredSearchTerm = useDeferredValue(searchTerm);
   const [data, setData] = useState({});
   const [loading, setLoading] = useState(false);
 

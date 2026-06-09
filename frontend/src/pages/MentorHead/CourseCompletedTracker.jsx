@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, {  useState, useEffect , useDeferredValue } from 'react';
 import axios from 'axios';
 import { GraduationCap, CheckCircle2, RotateCcw, Search, ShieldAlert } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -7,6 +7,7 @@ const CourseCompletedTracker = () => {
  const [students, setStudents] = useState([]);
  const [loading, setLoading] = useState(true);
  const [searchTerm, setSearchTerm] = useState('');
+	const deferredSearchTerm = useDeferredValue(searchTerm);
  const [filter, setFilter] = useState('all');
 
  useEffect(() => {
@@ -53,8 +54,8 @@ const CourseCompletedTracker = () => {
  };
 
  const filteredStudents = students.filter(student => {
- const matchesSearch = student.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
- student.course?.toLowerCase().includes(searchTerm.toLowerCase());
+ const matchesSearch = student.name?.toLowerCase().includes(deferredSearchTerm.toLowerCase()) ||
+ student.course?.toLowerCase().includes(deferredSearchTerm.toLowerCase());
 
  if (filter === 'completed') return matchesSearch && student.course_completed === 1;
  if (filter === 'pending') return matchesSearch && student.course_completed !== 1;

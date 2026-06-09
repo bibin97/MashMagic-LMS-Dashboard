@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, {  useState, useEffect , useDeferredValue } from 'react';
 import axios from 'axios';
 import { RefreshCw, Search, ArrowRight, User } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -8,6 +8,7 @@ const StudentShift = () => {
  const [mentors, setMentors] = useState([]);
  const [loading, setLoading] = useState(true);
  const [searchTerm, setSearchTerm] = useState('');
+	const deferredSearchTerm = useDeferredValue(searchTerm);
  const [selectedStudent, setSelectedStudent] = useState(null);
  const [selectedMentor, setSelectedMentor] = useState('');
  const [shifting, setShifting] = useState(false);
@@ -71,8 +72,8 @@ const StudentShift = () => {
  const filteredStudents = students.filter(s => {
 			const nameStr = s.name || '';
 			const courseStr = s.course || '';
-			return nameStr.toLowerCase().includes(searchTerm.toLowerCase()) ||
-			courseStr.toLowerCase().includes(searchTerm.toLowerCase());
+			return nameStr.toLowerCase().includes(deferredSearchTerm.toLowerCase()) ||
+			courseStr.toLowerCase().includes(deferredSearchTerm.toLowerCase());
  });
 
  if (loading) return <div className="p-8 text-center text-slate-600 font-bold">Loading system...</div>;

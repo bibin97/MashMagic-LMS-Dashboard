@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, {  useState, useEffect, useMemo , useDeferredValue } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from '../../services/api';
 import {
@@ -17,6 +17,7 @@ const FacultyStudents = () => {
  const [students, setStudents] = useState([]);
  const [loading, setLoading] = useState(true);
  const [searchTerm, setSearchTerm] = useState('');
+	const deferredSearchTerm = useDeferredValue(searchTerm);
  const [sortBy, setSortBy] = useState('');
  const navigate = useNavigate();
 
@@ -59,8 +60,8 @@ const FacultyStudents = () => {
  const filtered = students.filter(s => {
       const nameStr = s.name || '';
       const rollStr = s.roll_number || '';
-      return nameStr.toLowerCase().includes(searchTerm.toLowerCase()) ||
-             rollStr.toLowerCase().includes(searchTerm.toLowerCase());
+      return nameStr.toLowerCase().includes(deferredSearchTerm.toLowerCase()) ||
+             rollStr.toLowerCase().includes(deferredSearchTerm.toLowerCase());
  });
  return sortStudentsByOption(filtered, sortBy);
  }, [students, searchTerm, sortBy]);
