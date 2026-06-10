@@ -1030,14 +1030,14 @@ const getDemoSchedules = async (req, res) => {
 
 const createDemoSchedule = async (req, res) => {
     try {
-        const { demo_id, student_name, student_type, syllabus, section, subject, faculty_id, start_time, end_time, hour_rate } = req.body;
+        const { demo_id, student_name, student_type, syllabus, section, subject, faculty_id, start_time, end_time, hour_rate, meeting_link } = req.body;
         const aoe_id = req.user.id;
 
         await db.query(`
             INSERT INTO aoe_demo_schedules 
-                (aoe_id, demo_id, student_name, student_type, syllabus, section, subject, faculty_id, start_time, end_time, hour_rate)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        `, [aoe_id, demo_id || null, student_name, student_type || 'new', syllabus || null, section || null, subject, faculty_id, start_time, end_time, hour_rate || 0]);
+                (aoe_id, demo_id, student_name, student_type, syllabus, section, subject, faculty_id, start_time, end_time, hour_rate, meeting_link)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `, [aoe_id, demo_id || null, student_name, student_type || 'new', syllabus || null, section || null, subject, faculty_id, start_time, end_time, hour_rate || 0, meeting_link || null]);
 
         res.status(201).json({ success: true, message: 'Demo schedule created successfully' });
     } catch (error) {
@@ -1049,13 +1049,13 @@ const createDemoSchedule = async (req, res) => {
 const editDemoSchedule = async (req, res) => {
     try {
         const { id } = req.params;
-        const { student_name, student_type, syllabus, section, subject, faculty_id, start_time, end_time, hour_rate } = req.body;
+        const { student_name, student_type, syllabus, section, subject, faculty_id, start_time, end_time, hour_rate, meeting_link } = req.body;
         
         await db.query(`
             UPDATE aoe_demo_schedules 
-            SET student_name=?, student_type=?, syllabus=?, section=?, subject=?, faculty_id=?, start_time=?, end_time=?, hour_rate=?
+            SET student_name=?, student_type=?, syllabus=?, section=?, subject=?, faculty_id=?, start_time=?, end_time=?, hour_rate=?, meeting_link=?
             WHERE id=?
-        `, [student_name, student_type, syllabus, section, subject, faculty_id, start_time, end_time, hour_rate, id]);
+        `, [student_name, student_type, syllabus, section, subject, faculty_id, start_time, end_time, hour_rate, meeting_link || null, id]);
         
         res.status(200).json({ success: true, message: 'Demo schedule updated successfully' });
     } catch (error) {

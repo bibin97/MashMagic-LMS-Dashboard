@@ -39,6 +39,7 @@ const AcademicSchedule = () => {
   const [searchTerm, setSearchTerm] = useState('');
 	const deferredSearchTerm = useDeferredValue(searchTerm);
   const [activeTab, setActiveTab] = useState('today');
+  const [filterDate, setFilterDate] = useState('');
   const [joinedSessions, setJoinedSessions] = useState(() => {
     try { return JSON.parse(localStorage.getItem('joinedSessions')) || {}; } catch { return {}; }
   });
@@ -87,9 +88,12 @@ const AcademicSchedule = () => {
         const sessionDate = s.date.split('T')[0];
         return sessionDate <= todayStr && s.status !== 'Completed';
       });
-    } else if (activeTab === 'upcoming') {
+    } else if (activeTab === 'calendar') {
       return filtered.filter(s => {
         const sessionDate = s.date.split('T')[0];
+        if (filterDate) {
+           return sessionDate === filterDate && s.status !== 'Completed';
+        }
         return sessionDate > todayStr && s.status !== 'Completed';
       });
     } else {
@@ -139,25 +143,40 @@ const AcademicSchedule = () => {
       {/* Tabs and Search Bar */}
       <div className="bg-white p-4 md:p-6 rounded-[1.5rem] md:rounded-[2.5rem] border border-slate-100 shadow-sm space-y-4 md:space-y-6">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6">
-          <div className="flex p-1.5 bg-slate-100 rounded-[1rem] md:rounded-2xl gap-2 overflow-x-auto no-scrollbar">
-            {[
-              { id: 'today', label: 'Live/Today', icon: <Clock size={14} />, color: 'bg-emerald-500' },
-              { id: 'upcoming', label: 'Upcoming', icon: <CalendarClock size={14} />, color: 'bg-indigo-500' },
-              { id: 'completed', label: 'Completed', icon: <CheckSquare size={14} />, color: 'bg-slate-500' },
-            ].map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2 md:gap-3 px-4 md:px-6 py-2.5 md:py-3 rounded-xl text-[9px] md:text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${
-                  activeTab === tab.id
-                    ? 'bg-white text-slate-900 shadow-md'
-                    : 'text-slate-400 hover:text-slate-600'
-                }`}
-              >
-                <div className={`w-2 h-2 rounded-full ${activeTab === tab.id ? tab.color : 'bg-slate-300'}`}></div>
-                {tab.label}
-              </button>
-            ))}
+          <div className="flex p-1.5 bg-slate-100 rounded-[1rem] md:rounded-2xl gap-2 overflow-x-auto no-scrollbar items-center">
+            <button
+              onClick={() => { setActiveTab('today'); setFilterDate(''); }}
+              className={`flex items-center gap-2 md:gap-3 px-4 md:px-6 py-2.5 md:py-3 rounded-xl text-[9px] md:text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${
+                activeTab === 'today' ? 'bg-white text-slate-900 shadow-md' : 'text-slate-400 hover:text-slate-600'
+              }`}
+            >
+              <div className={`w-2 h-2 rounded-full ${activeTab === 'today' ? 'bg-emerald-500' : 'bg-slate-300'}`}></div>
+              Live/Today
+            </button>
+
+            <div className={`flex items-center gap-2 md:gap-3 px-4 md:px-6 py-2.5 md:py-3 rounded-xl text-[9px] md:text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${
+              activeTab === 'calendar' ? 'bg-white text-slate-900 shadow-md' : 'text-slate-400 hover:text-slate-600'
+            }`}>
+               <CalendarClock size={14} className={activeTab === 'calendar' ? 'text-indigo-500' : ''} />
+               <input 
+                  type="date" 
+                  value={filterDate}
+                  onChange={(e) => { setFilterDate(e.target.value); setActiveTab('calendar'); }}
+                  className="bg-transparent border-none outline-none cursor-pointer text-slate-600 font-bold"
+                  title="Filter by specific date"
+               />
+               {!filterDate && <span className="ml-1 opacity-60">Upcoming</span>}
+            </div>
+
+            <button
+              onClick={() => { setActiveTab('completed'); setFilterDate(''); }}
+              className={`flex items-center gap-2 md:gap-3 px-4 md:px-6 py-2.5 md:py-3 rounded-xl text-[9px] md:text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${
+                activeTab === 'completed' ? 'bg-white text-slate-900 shadow-md' : 'text-slate-400 hover:text-slate-600'
+              }`}
+            >
+              <div className={`w-2 h-2 rounded-full ${activeTab === 'completed' ? 'bg-slate-500' : 'bg-slate-300'}`}></div>
+              Completed
+            </button>
           </div>
 
           <div className="flex-1 max-w-md relative w-full">
@@ -220,7 +239,7 @@ const AcademicSchedule = () => {
                 )}
               </div>
 
-              {activeTab !== 'upcoming' && (
+              {activeTab !== 'calendar' && (
               <div className="flex items-center justify-end md:justify-start gap-2 md:gap-3 pt-4 md:pt-0 border-t md:border-t-0 md:border-l border-slate-100 md:pl-6 w-full md:w-auto mt-2 md:mt-0">
                 {session.meeting_link && session.status !== 'Completed' && session.date && session.date.split('T')[0] === localTodayStr && (
                   <button 

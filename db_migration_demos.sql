@@ -3,6 +3,9 @@
 -- 1. Add is_successful to aoe_demo_schedules
 ALTER TABLE aoe_demo_schedules ADD COLUMN is_successful BOOLEAN DEFAULT 0;
 
+-- 1b. Add meeting_link to aoe_demo_schedules
+ALTER TABLE aoe_demo_schedules ADD COLUMN meeting_link VARCHAR(255) DEFAULT NULL;
+
 -- 2. Create faculty_performance_index table
 CREATE TABLE IF NOT EXISTS faculty_performance_index (
     id INT AUTO_INCREMENT PRIMARY KEY,

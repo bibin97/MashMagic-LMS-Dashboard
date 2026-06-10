@@ -14,7 +14,7 @@ const AOEDemoSchedule = () => {
   const [faculties, setFaculties] = useState([]);
   const [students, setStudents] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const [showSubjectSuggestions, setShowSubjectSuggestions] = useState(false);
+  const [showFacultySuggestions, setShowFacultySuggestions] = useState(false);
   const [demoList, setDemoList] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
 	const deferredSearchTerm = useDeferredValue(searchTerm);
@@ -35,9 +35,11 @@ const AOEDemoSchedule = () => {
     section: '',
     subject: '',
     faculty_id: '',
+    faculty_name_input: '',
     start_time: '',
     end_time: '',
-    hour_rate: ''
+    hour_rate: '',
+    meeting_link: ''
   });
 
   const SYLLABUS_OPTIONS = ["CBSE", "STATE", "ICSE", "IGCSE", "IB"];
@@ -157,9 +159,11 @@ const AOEDemoSchedule = () => {
         section: '',
         subject: '',
         faculty_id: '',
+        faculty_name_input: '',
         start_time: '',
         end_time: '',
-        hour_rate: ''
+        hour_rate: '',
+        meeting_link: ''
       });
       fetchDemos();
       setActiveTab('list');
@@ -178,9 +182,11 @@ const AOEDemoSchedule = () => {
       section: demo.section || '',
       subject: demo.subject || '',
       faculty_id: demo.faculty_id || '',
+      faculty_name_input: demo.faculty_name || '',
       start_time: demo.start_time ? demo.start_time.substring(0, 5) : '',
       end_time: demo.end_time ? demo.end_time.substring(0, 5) : '',
-      hour_rate: demo.hour_rate || ''
+      hour_rate: demo.hour_rate || '',
+      meeting_link: demo.meeting_link || ''
     });
     setActiveTab('schedule');
   };
@@ -266,9 +272,11 @@ const AOEDemoSchedule = () => {
                     section: '',
                     subject: '',
                     faculty_id: '',
+                    faculty_name_input: '',
                     start_time: '',
                     end_time: '',
-                    hour_rate: ''
+                    hour_rate: '',
+                    meeting_link: ''
                   });
                   setActiveTab('list');
                 }}
@@ -471,21 +479,48 @@ const AOEDemoSchedule = () => {
                 )}
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-2 relative">
                 <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 flex items-center gap-2">
                   <Presentation size={12}/> Faculty *
                 </label>
-                <select
-                  required
-                  value={formData.faculty_id}
-                  onChange={(e) => setFormData({ ...formData, faculty_id: e.target.value })}
+                <input
+                  type="text" required
+                  value={formData.faculty_name_input}
+                  onFocus={() => setShowFacultySuggestions(true)}
+                  onBlur={() => setTimeout(() => setShowFacultySuggestions(false), 200)}
+                  onChange={(e) => {
+                    setFormData({ ...formData, faculty_name_input: e.target.value, faculty_id: '' });
+                    setShowFacultySuggestions(true);
+                  }}
                   className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
-                >
-                  <option value="">Select Faculty</option>
-                  {faculties.map(f => (
-                    <option key={f.id} value={f.id}>{f.name} - {f.subject}</option>
-                  ))}
-                </select>
+                  placeholder="Search faculty..."
+                />
+                
+                {showFacultySuggestions && (
+                  <div className="absolute z-50 w-full mt-1 bg-white border border-slate-100 rounded-2xl shadow-xl max-h-60 overflow-y-auto top-full left-0">
+                    {faculties
+                      .filter(f => f.name.toLowerCase().includes(formData.faculty_name_input.toLowerCase()) || (f.subject && f.subject.toLowerCase().includes(formData.faculty_name_input.toLowerCase())))
+                      .map(f => (
+                        <div 
+                          key={f.id}
+                          className="px-4 py-3 hover:bg-slate-50 cursor-pointer border-b border-slate-50 last:border-0 transition-colors"
+                          onMouseDown={(e) => {
+                            e.preventDefault();
+                            setFormData({ ...formData, faculty_name_input: f.name, faculty_id: f.id });
+                            setShowFacultySuggestions(false);
+                          }}
+                        >
+                          <div className="text-xs font-bold text-slate-800">{f.name}</div>
+                          {f.subject && <div className="text-[9px] text-slate-400">{f.subject}</div>}
+                        </div>
+                      ))}
+                    {faculties.filter(f => f.name.toLowerCase().includes(formData.faculty_name_input.toLowerCase())).length === 0 && (
+                      <div className="px-4 py-4 text-[10px] text-slate-500 font-bold text-center">
+                        No faculty found matching this name.
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -522,6 +557,19 @@ const AOEDemoSchedule = () => {
                   onChange={(e) => setFormData({ ...formData, hour_rate: e.target.value })}
                   className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
                   placeholder="0.00"
+                />
+              </div>
+
+              <div className="space-y-2 md:col-span-2">
+                <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 flex items-center gap-2">
+                  <Video size={12}/> Meeting Link (e.g. Google Meet / Zoom)
+                </label>
+                <input
+                  type="url"
+                  value={formData.meeting_link}
+                  onChange={(e) => setFormData({ ...formData, meeting_link: e.target.value })}
+                  className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
+                  placeholder="https://meet.google.com/..."
                 />
               </div>
             </div>
@@ -636,6 +684,14 @@ const AOEDemoSchedule = () => {
                     <p className="flex items-center gap-2"><BookOpen size={14} className="text-slate-400"/> {demo.subject}</p>
                     <p className="flex items-center gap-2"><Presentation size={14} className="text-slate-400"/> {demo.faculty_name}</p>
                     <p className="flex items-center gap-2"><Clock size={14} className="text-slate-400"/> {demo.start_time} - {demo.end_time}</p>
+                    {demo.meeting_link && (
+                      <p className="flex items-center gap-2">
+                        <Video size={14} className="text-slate-400"/> 
+                        <a href={demo.meeting_link} target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:underline truncate max-w-[200px]">
+                          Join Meeting
+                        </a>
+                      </p>
+                    )}
                   </div>
 
                   <div className="flex items-center gap-3 pt-4 border-t border-slate-100">
