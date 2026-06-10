@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import api from '../../../services/api';
+import api from '../../services/api';
 import { Calendar as CalendarIcon, Clock, User, BookOpen, Video, FileEdit, X } from 'lucide-react';
 import toast from 'react-hot-toast';
 
