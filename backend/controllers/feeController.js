@@ -21,17 +21,29 @@ const getFees = async (req, res) => {
             ORDER BY fi.installment_date ASC
         `, [entity_type]);
 
-        // Get Consumed Hours for students
         let consumedMap = {};
         if (entity_type === 'student') {
-            const [consumed] = await db.query(`
-                SELECT student_id, SUM(minutes_taken) as total_minutes
+            const [completedSessions] = await db.query(`
+                SELECT student_id, start_time, end_time
                 FROM timetable 
                 WHERE status = 'Completed'
-                GROUP BY student_id
             `);
-            consumed.forEach(c => {
-                consumedMap[c.student_id] = (c.total_minutes || 0) / 60;
+            
+            completedSessions.forEach(session => {
+                if (session.start_time && session.end_time) {
+                    const [startH, startM] = session.start_time.split(':').map(Number);
+                    const [endH, endM] = session.end_time.split(':').map(Number);
+                    
+                    const startMins = (startH * 60) + (startM || 0);
+                    const endMins = (endH * 60) + (endM || 0);
+                    let diffMins = endMins - startMins;
+                    
+                    // Handle case where session crosses midnight (rare but possible)
+                    if (diffMins < 0) diffMins += 24 * 60;
+                    
+                    if (!consumedMap[session.student_id]) consumedMap[session.student_id] = 0;
+                    consumedMap[session.student_id] += diffMins / 60;
+                }
             });
         }
 
