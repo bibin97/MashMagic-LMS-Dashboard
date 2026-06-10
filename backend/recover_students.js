@@ -28,10 +28,10 @@ async function recover() {
             
             if (students.length > 0) {
                 console.log(`Updating existing student record for ${user.name}...`);
-                await db.query("UPDATE students SET mentor_id = ?, user_id = ?, status = 'active' WHERE id = ?", [mentorId, user.id, students[0].id]);
+                await db.query("UPDATE students SET mentor_id = ?, user_id = ?, status = 'active', enrollment_type = 'Mentorship' WHERE id = ?", [mentorId, user.id, students[0].id]);
             } else {
                 console.log(`Recreating student record for ${user.name}...`);
-                await db.query("INSERT INTO students (user_id, name, email, contact, mentor_id, status) VALUES (?, ?, ?, ?, ?, 'active')", 
+                await db.query("INSERT INTO students (user_id, name, email, contact, mentor_id, status, enrollment_type) VALUES (?, ?, ?, ?, ?, 'active', 'Mentorship')", 
                     [user.id, user.name, user.email || null, user.phone_number || null, mentorId]);
             }
         }
