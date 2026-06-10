@@ -1,25 +1,19 @@
-require('dotenv').config({path: __dirname + '/.env'});
-const mysql = require('mysql2/promise');
-
-async function run() {
+const db = require('./config/db.js');
+async function check() {
     try {
-        const c = await mysql.createConnection({
-            host: process.env.DB_HOST,
-            user: process.env.DB_USER,
-            password: process.env.DB_PASSWORD,
-            database: process.env.DB_NAME
-        });
+        const [students] = await db.query(`SELECT id, name, mentor_id, user_id, contact FROM students WHERE name LIKE '%zayan%' OR name LIKE '%sidhan%'`);
+        console.log('Students:', students);
         
-        const [r] = await c.query('SELECT id, name, email, contact, registration_number, user_id FROM students WHERE name LIKE "%JOEL%" LIMIT 10');
-        console.log("Students:", r);
+        const [users] = await db.query(`SELECT id, name, role, email, phone_number FROM users WHERE name LIKE '%zayan%' OR name LIKE '%sidhan%'`);
+        console.log('Users:', users);
 
-        const [r2] = await c.query('SELECT COUNT(*) as c, name FROM students GROUP BY name HAVING c > 1');
-        console.log("Duplicates:", r2);
-        
+        const [mentors] = await db.query(`SELECT id, name FROM users WHERE name LIKE '%Ramshu%'`);
+        console.log('Mentors:', mentors);
+
         process.exit(0);
     } catch(e) {
         console.error(e);
         process.exit(1);
     }
 }
-run();
+check();
