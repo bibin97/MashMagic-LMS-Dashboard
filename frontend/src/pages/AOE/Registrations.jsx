@@ -509,7 +509,7 @@ const Registrations = () => {
         {/* Formal Registration Container */}
         <div className="bg-white p-6 md:p-8 rounded-[1.5rem] md:rounded-[2rem] shadow-[0_10px_40px_rgba(0,128,128,0.05)] border border-slate-100">
           {activeTab === 'student' && (
-            <form onSubmit={submitStudent} className="animate-in fade-in slide-in-from-right-4 duration-500">
+            <form onSubmit={submitStudent} className="animate-in fade-in slide-in-from-right-4 duration-500" autoComplete="off">
               <div className="flex items-center gap-3 mb-8 border-b border-slate-50 pb-6">
                 <div className="w-8 h-8 bg-[#008080] text-white rounded-lg flex items-center justify-center">
                   <GraduationCap size={18} />
@@ -639,7 +639,7 @@ const Registrations = () => {
                   <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Student Name</label>
                   <div className="relative group">
                     <User size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#008080] transition-colors" />
-                    <input type="text" name="name" required value={studentForm.name} onChange={handleStudentChange} className="w-full p-3 pl-12 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-bold" placeholder="Full Name" />
+                    <input type="text" name="name" required value={studentForm.name} onChange={handleStudentChange} autoComplete="off" className="w-full p-3 pl-12 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-bold" placeholder="Full Name" />
                   </div>
                 </div>
                 <div className="flex flex-col gap-2">
