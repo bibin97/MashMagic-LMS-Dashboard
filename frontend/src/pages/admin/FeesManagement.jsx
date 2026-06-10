@@ -251,7 +251,7 @@ const FeesManagement = () => {
               <form id="feeForm" onSubmit={saveFeeStructure} className="space-y-8">
                 
                 {/* Main Structure */}
-                <div className="grid grid-cols-2 gap-6 p-6 bg-slate-50 rounded-3xl border border-slate-100">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 bg-slate-50 rounded-3xl border border-slate-100">
                   <div className="space-y-2">
                     <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest flex items-center gap-1"><IndianRupee size={12}/> Total Fee</label>
                     <input type="number" required min="0" value={formData.total_fee} onChange={(e) => setFormData({...formData, total_fee: e.target.value})} className="w-full p-4 bg-white border border-slate-200 rounded-2xl text-sm font-bold focus:ring-4 ring-indigo-500/10 outline-none" />
@@ -287,7 +287,7 @@ const FeesManagement = () => {
                       const calculatedHours = (hourlyRate > 0 && inst.installment_amount) ? (inst.installment_amount / hourlyRate).toFixed(2) : 0;
                       
                       return (
-                        <div key={index} className="flex items-center gap-4 p-4 bg-white border border-slate-200 rounded-2xl relative group">
+                        <div key={index} className="flex flex-col md:flex-row md:items-center gap-4 p-4 bg-white border border-slate-200 rounded-2xl relative group">
                           <div className="flex-1 space-y-1">
                             <label className="text-[9px] font-black text-slate-400 uppercase">Paid Date</label>
                             <input type="date" required value={inst.installment_date} onChange={(e) => updateInstallment(index, 'installment_date', e.target.value)} className="w-full p-2 bg-slate-50 border border-slate-100 rounded-xl text-xs font-bold outline-none" />
@@ -317,7 +317,7 @@ const FeesManagement = () => {
               </form>
             </div>
             
-            <div className="p-6 border-t border-slate-100 bg-slate-50 flex justify-end gap-3">
+            <div className="p-4 md:p-6 border-t border-slate-100 bg-slate-50 flex flex-col md:flex-row justify-end gap-3">
               <button onClick={() => setIsModalOpen(false)} className="px-6 py-3 rounded-xl text-xs font-black text-slate-500 uppercase hover:bg-slate-200 transition-all">Cancel</button>
               <button form="feeForm" type="submit" className="px-8 py-3 rounded-xl text-xs font-black text-white uppercase bg-indigo-600 hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20">Save Details</button>
             </div>

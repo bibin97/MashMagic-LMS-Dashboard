@@ -537,35 +537,7 @@ const Registrations = () => {
                     placeholder="Select Admission Type"
                     isClearable
                   />
-                  {studentForm.admissionType === 'rejoining' && (
-                    <div className="relative mt-2" ref={studentDropdownRef}>
-                      <input 
-                        type="text" 
-                        placeholder="Search exiting student to auto-fill..." 
-                        value={studentSearchQuery}
-                        onChange={(e) => {
-                          setStudentSearchQuery(e.target.value);
-                          setIsStudentDropdownOpen(true);
-                        }}
-                        onFocus={() => setIsStudentDropdownOpen(true)}
-                        className="w-full p-3 bg-white border border-amber-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-amber-500 font-bold shadow-sm placeholder:text-amber-300"
-                      />
-                      {isStudentDropdownOpen && (
-                        <div className="absolute top-full left-0 w-full mt-1 bg-white border border-slate-200 rounded-xl shadow-2xl z-50 max-h-60 overflow-y-auto">
-                           {allStudents.filter(s => s.name.toLowerCase().includes(studentSearchQuery.toLowerCase()) || (s.email && s.email.toLowerCase().includes(studentSearchQuery.toLowerCase()))).length > 0 ? (
-                             allStudents.filter(s => s.name.toLowerCase().includes(studentSearchQuery.toLowerCase()) || (s.email && s.email.toLowerCase().includes(studentSearchQuery.toLowerCase()))).map(s => (
-                               <div key={s.id} onClick={() => handleExistingStudentSelect(s)} className="p-3 hover:bg-slate-50 cursor-pointer border-b border-slate-50 last:border-0">
-                                 <p className="text-sm font-bold text-slate-800">{s.name}</p>
-                                 <p className="text-[10px] text-slate-500 font-semibold">{s.email || 'No email'} • {s.grade}</p>
-                               </div>
-                             ))
-                           ) : (
-                             <div className="p-4 text-center text-slate-400 text-xs font-bold">No students found</div>
-                           )}
-                        </div>
-                      )}
-                    </div>
-                  )}
+
                 </div>
                 <div className="space-y-4">
                   <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Enrollment Plan</label>

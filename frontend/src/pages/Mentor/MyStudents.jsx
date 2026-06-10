@@ -275,7 +275,7 @@ const MyStudents = () => {
  <h2 className="text-5xl font-black text-slate-900 tracking-tighter leading-none mb-3 ">Student Fleet</h2>
  <p className="text-slate-600 text-[11px] font-black uppercase tracking-[0.25em] flex items-center justify-center md:justify-start gap-3 mt-1">
  <div className="w-2 h-2 rounded-full bg-[#008080] animate-pulse"></div>
- Direct assignments & operational node management
+ Direct assignments
  </p>
  </div>
  <div className="w-20 h-20 bg-[#008080] rounded-[28px] shadow-2xl shadow-[#008080]/30 flex items-center justify-center text-white">
