@@ -16,9 +16,9 @@ const getDashboardStats = async (req, res) => {
             }
         };
 
-        const studentsStats = await safeQuery('SELECT COUNT(*) as totalStudents FROM students WHERE status != "rejected"', [], 'totalStudents');
-        const facultiesStats = await safeQuery('SELECT COUNT(*) as totalFaculties FROM faculties WHERE status != "rejected"', [], 'totalFaculties');
-        const mentorsStats = await safeQuery('SELECT COUNT(*) as totalMentors FROM mentors WHERE status != "rejected"', [], 'totalMentors');
+        const studentsStats = await safeQuery('SELECT COUNT(*) as totalStudents FROM students WHERE status = "active"', [], 'totalStudents');
+        const facultiesStats = await safeQuery('SELECT COUNT(*) as totalFaculties FROM faculties WHERE status = "active"', [], 'totalFaculties');
+        const mentorsStats = await safeQuery('SELECT COUNT(*) as totalMentors FROM mentors WHERE status = "active"', [], 'totalMentors');
 
         const totalStudents = studentsStats[0]?.totalStudents || 0;
         const totalFaculties = facultiesStats[0]?.totalFaculties || 0;

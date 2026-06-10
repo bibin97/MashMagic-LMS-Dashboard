@@ -1546,7 +1546,7 @@ exports.getDashboardStats = async (req, res) => {
                 u.status,
                 (SELECT COUNT(*) FROM student_interaction_logs WHERE mentor_id = u.id) as completed_count
             FROM mentors u 
-            WHERE u.status != 'rejected'
+            WHERE u.status = 'active'
         `);
 
         res.status(200).json({
