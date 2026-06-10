@@ -613,9 +613,9 @@ const MentorDetails = () => {
              <thead>
                <tr className="bg-[#005050] text-white">
                  <th className="p-4 text-sm font-bold border-b border-[#006060]">Assessment Area</th>
-                 <th className="p-4 text-sm font-bold border-b border-[#006060]">1 — Poor</th>
-                 <th className="p-4 text-sm font-bold border-b border-[#006060]">3 — Average</th>
-                 <th className="p-4 text-sm font-bold border-b border-[#006060]">5 — Strong</th>
+                 <th className="hidden md:table-cell p-4 text-sm font-bold border-b border-[#006060]">1 — Poor</th>
+                 <th className="hidden md:table-cell p-4 text-sm font-bold border-b border-[#006060]">3 — Average</th>
+                 <th className="hidden md:table-cell p-4 text-sm font-bold border-b border-[#006060]">5 — Strong</th>
                  <th className="p-4 text-sm font-bold border-b border-[#006060] text-center min-w-[150px]">Score (circle)</th>
                </tr>
              </thead>
@@ -649,9 +649,9 @@ const MentorDetails = () => {
                ].map((row, index) => (
                  <tr key={row.id} className={index % 2 === 0 ? 'bg-emerald-50/30' : 'bg-white'}>
                    <td className="p-4 text-sm font-bold text-slate-800">{row.area}</td>
-                   <td className="p-4 text-xs italic text-slate-500">{row.l1}</td>
-                   <td className="p-4 text-xs italic text-slate-500">{row.l3}</td>
-                   <td className="p-4 text-xs italic text-slate-500">{row.l5}</td>
+                   <td className="hidden md:table-cell p-4 text-xs italic text-slate-500">{row.l1}</td>
+                   <td className="hidden md:table-cell p-4 text-xs italic text-slate-500">{row.l3}</td>
+                   <td className="hidden md:table-cell p-4 text-xs italic text-slate-500">{row.l5}</td>
                    <td className="p-4 text-center">
                      <div className="flex items-center justify-center gap-1.5">
                        {[1, 2, 3, 4, 5].map(val => (
