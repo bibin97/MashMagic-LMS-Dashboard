@@ -15,6 +15,7 @@ const AOEDemoSchedule = () => {
   const [students, setStudents] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [showFacultySuggestions, setShowFacultySuggestions] = useState(false);
+  const [showSubjectSuggestions, setShowSubjectSuggestions] = useState(false);
   const [demoList, setDemoList] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
 	const deferredSearchTerm = useDeferredValue(searchTerm);
