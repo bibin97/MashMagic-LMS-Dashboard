@@ -1384,8 +1384,8 @@ const deduplicateStudents = async (req, res) => {
         const [rows] = await db.query('SELECT * FROM students');
         const groups = {};
         for(const r of rows) {
-            const key = r.contact || r.email || r.registration_number || r.name;
-            if(!key) continue;
+            const key = r.registration_number || (r.name.trim().toLowerCase() + '_' + (r.contact || r.email || ''));
+            if(!key || key === '_') continue;
             if(!groups[key]) groups[key] = [];
             groups[key].push(r);
         }
