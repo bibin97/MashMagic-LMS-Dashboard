@@ -21,9 +21,9 @@ const getAcademicSchedule = async (req, res) => {
 // @route   GET /api/admin/dashboard-summary
 const getAdminDashboardSummary = async (req, res) => {
     try {
-        const [[{count: students}]] = await db.query('SELECT COUNT(*) as count FROM students');
-        const [[{count: mentors}]] = await db.query('SELECT COUNT(*) as count FROM mentors');
-        const [[{count: faculties}]] = await db.query('SELECT COUNT(*) as count FROM faculties');
+        const [[{count: students}]] = await db.query('SELECT COUNT(*) as count FROM students WHERE status != "rejected"');
+        const [[{count: mentors}]] = await db.query('SELECT COUNT(*) as count FROM mentors WHERE status != "rejected"');
+        const [[{count: faculties}]] = await db.query('SELECT COUNT(*) as count FROM faculties WHERE status != "rejected"');
         const [[{count: pending}]] = await db.query('SELECT COUNT(*) as count FROM users WHERE status = "pending"');
 
         res.status(200).json({

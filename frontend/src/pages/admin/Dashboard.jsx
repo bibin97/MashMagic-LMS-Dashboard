@@ -60,9 +60,8 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const [userRes, studentRes, reportRes, examRes, distRes, taskRes, portalRes] = await Promise.all([
-          api.get('/admin/users'),
-          api.get('/admin/students'),
+        const [summaryRes, reportRes, examRes, distRes, taskRes, portalRes] = await Promise.all([
+          api.get('/admin/dashboard-summary'),
           api.get('/admin/mentor-head-report'),
           api.get('/admin/exam-analytics'),
           api.get('/admin/mentor-distribution'),
@@ -70,20 +69,9 @@ const Dashboard = () => {
           api.get('/admin/student-portal-logins')
         ]);
 
-        const users = userRes.data.data || [];
-        const students = studentRes.data.data || [];
-
-        const counts = users.reduce((acc, user) => {
-          if (user.role === 'mentor') acc.mentors++;
-          if (user.role === 'faculty') acc.faculties++;
-          if (user.status === 'inactive') acc.pendingApprovals++;
-          return acc;
-        }, { students: students.length, mentors: 0, faculties: 0, pendingApprovals: 0 });
-
-        const pendingStudents = students.filter(s => s.status === 'inactive' || !s.isApproved).length;
-        counts.pendingApprovals += pendingStudents;
-
-        setStats(counts);
+        if (summaryRes.data.success) {
+          setStats(summaryRes.data.data);
+        }
 
         if (reportRes.data.success) {
           const reports = reportRes.data.data;
