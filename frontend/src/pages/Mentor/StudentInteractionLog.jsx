@@ -26,16 +26,17 @@ const StudentInteractionLog = () => {
  const [isPaused, setIsPaused] = useState(false);
  const [sessionType, setSessionType] = useState(null); // 'DEEP', 'MEDIUM', 'QUICK', 'CANCELLED'
  const [formData, setFormData] = useState({});
+ const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
 
  useEffect(() => {
    fetchAssignedStudents();
    fetchAllStudents();
- }, []);
+ }, [selectedDate]);
 
  const fetchAssignedStudents = async () => {
    setAssignedLoading(true);
    try {
-     const res = await api.get('/mentor-interactions/daily-assignments');
+     const res = await api.get(`/mentor-interactions/daily-assignments?date=${selectedDate}`);
      setAssignedStudents(res.data.data);
      if (res.data.is_paused !== undefined) {
        setIsPaused(res.data.is_paused);
@@ -270,13 +271,21 @@ const StudentInteractionLog = () => {
                </button>
              ))}
            </div>
-           <button
-             onClick={handleTogglePause}
-             className={`px-6 py-4 rounded-[22px] text-[11px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${isPaused ? 'bg-red-500 text-white shadow-red-200 shadow-lg' : 'bg-green-500 text-white shadow-green-200 shadow-lg'}`}
-           >
-             {isPaused ? <Play fill="currentColor" size={16} /> : <Pause fill="currentColor" size={16} />}
-             {isPaused ? 'Resume Rotation' : 'Pause Rotation'}
-           </button>
+           <div className="flex items-center gap-3 shrink-0">
+             <input
+               type="date"
+               value={selectedDate}
+               onChange={(e) => setSelectedDate(e.target.value)}
+               className="bg-white border border-slate-200 rounded-2xl py-3 px-4 text-xs font-black text-slate-600 outline-none focus:ring-2 focus:ring-[#008080]"
+             />
+             <button
+               onClick={handleTogglePause}
+               className={`px-6 py-3 rounded-[22px] text-[11px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${isPaused ? 'bg-red-500 text-white shadow-red-200 shadow-lg' : 'bg-green-500 text-white shadow-green-200 shadow-lg'}`}
+             >
+               {isPaused ? <Play fill="currentColor" size={16} /> : <Pause fill="currentColor" size={16} />}
+               {isPaused ? 'Resume Rotation' : 'Pause Rotation'}
+             </button>
+           </div>
          </div>
 
          {!!isPaused && (
@@ -330,18 +339,21 @@ const StudentInteractionLog = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {(assignedStudents.length > 0 ? assignedStudents : [])
                        .filter(s => {
-                         const matchesStatus = statusFilter === 'completed' ? s.status === 'COMPLETED' : s.status !== 'COMPLETED';
+                         const matchesStatus = statusFilter === 'completed' 
+                           ? (s.status === 'COMPLETED' || s.status === 'CANCELLED') 
+                           : (s.status !== 'COMPLETED' && s.status !== 'CANCELLED');
                          const matchesTab = activeTab === 'both' ? isDiamondCategory(s) : isGoldCategory(s);
                          return matchesStatus && matchesTab;
                        })
                        .map(student => {
                          const sessionType = student.sessionType || 'QUICK';
                          const isCompleted = student.status === 'COMPLETED';
+                         const isCancelled = student.status === 'CANCELLED';
                          return (
                            <button
                              key={student.id}
                              onClick={() => handleStudentSelect(student, sessionType)}
-                             className={`group relative overflow-hidden p-8 rounded-[3rem] border transition-all text-left flex flex-col justify-between h-64 ${isCompleted ? 'bg-emerald-50/50 border-emerald-100' : 'bg-white border-slate-100 hover:shadow-2xl hover:scale-[1.02] hover:border-slate-200 active:scale-95'}`}
+                             className={`group relative overflow-hidden p-8 rounded-[3rem] border transition-all text-left flex flex-col justify-between h-64 ${isCompleted ? 'bg-emerald-50/50 border-emerald-100' : isCancelled ? 'bg-rose-50/50 border-rose-100' : 'bg-white border-slate-100 hover:shadow-2xl hover:scale-[1.02] hover:border-slate-200 active:scale-95'}`}
                            >
                              <div className={`absolute top-0 right-0 w-32 h-32 rounded-full -mr-16 -mt-16 opacity-10 transition-transform group-hover:scale-150 duration-700 ${getSessionColor(sessionType).split(' ')[0]}`}></div>
                              
@@ -351,6 +363,7 @@ const StudentInteractionLog = () => {
                                    {sessionType} SESSION
                                  </div>
                                  {isCompleted && <CheckCircle2 className="text-emerald-500" size={24} />}
+                                 {isCancelled && <XCircle className="text-rose-500" size={24} />}
                                </div>
                                <h3 className="text-2xl font-black text-slate-900 tracking-tight leading-none uppercase mb-2 truncate">{student.name}</h3>
                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest truncate">MM-{student.id.toString().padStart(4, '0')} • {student.priority_category || 'Stable'} Priority</p>
@@ -374,7 +387,7 @@ const StudentInteractionLog = () => {
                                    {getSessionIcon(sessionType)}
                                  </div>
                                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                                   {isCompleted ? 'Report Logged' : 'Awaiting Interaction'}
+                                   {isCompleted ? 'Report Logged' : isCancelled ? 'Cancelled' : 'Awaiting Interaction'}
                                  </span>
                                </div>
                                <ChevronRight size={20} className="text-slate-300 group-hover:text-slate-900 transition-colors" />
