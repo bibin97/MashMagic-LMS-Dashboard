@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
-import { Users, CalendarClock, ListTodo, CheckCircle2, Phone, MessageSquare, Activity, ChevronRight, Clock, BookOpen, AlertCircle, ShieldAlert, Target } from 'lucide-react';
+import { Users, CalendarClock, ListTodo, CheckCircle2, Phone, MessageSquare, Activity, ChevronRight, Clock, BookOpen } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const StatCard = ({ title, value, icon: Icon, color }) => {
@@ -120,15 +120,12 @@ const MilestoneAlert = ({ count, navigate }) => (
 const MentorDashboard = () => {
   const [stats, setStats] = useState({
     totalStudents: 0,
-    pendingOnboardings: 0,
-    highRiskStudents: 0,
-    todayInteractionsTotal: 0,
-    todayInteractionsCompleted: 0,
     totalSessions: 0,
     pendingTasks: 0,
     completedTasks: 0,
     pendingExams: 0,
-    totalStudentInteractions: 0
+    totalStudentInteractions: 0,
+    totalFacultyInteractions: 0
   });
   const navigate = useNavigate();
 
@@ -169,79 +166,43 @@ const MentorDashboard = () => {
         <MilestoneAlert count={stats.pendingExams} navigate={navigate} />
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         <StatCard
-          title="Total Assigned Students"
+          title="Assigned Students"
           value={stats.totalStudents}
           icon={Users}
           color="bg-[#008080]"
         />
         <StatCard
-          title="Pending Onboardings"
-          value={stats.pendingOnboardings}
-          icon={AlertCircle}
-          color={stats.pendingOnboardings > 0 ? "bg-amber-500" : "bg-slate-300"}
+          title="Scheduled Sessions"
+          value={stats.totalSessions}
+          icon={CalendarClock}
+          color="bg-[#6366F1]"
         />
         <StatCard
-          title="High Priority / Risk"
-          value={stats.highRiskStudents}
-          icon={ShieldAlert}
-          color={stats.highRiskStudents > 0 ? "bg-rose-500" : "bg-emerald-500"}
+          title="Pending Tasks"
+          value={stats.pendingTasks}
+          icon={ListTodo}
+          color="bg-[#F59E0B]"
         />
-      </div>
-
-      {/* Tier 2: Daily Operations / Interactions */}
-      <div className="bg-white/70 backdrop-blur-xl p-8 rounded-[32px] border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.04)] mb-4">
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h2 className="text-2xl font-black text-slate-900 tracking-tighter uppercase leading-none mb-2">Today's Fleet Operations</h2>
-            <p className="text-slate-600 text-[10px] font-black uppercase tracking-[0.2em]">Monitor your daily interaction progress</p>
-          </div>
-          <button 
-            onClick={() => navigate('/mentor/interaction-logs')}
-            className="flex items-center gap-2 bg-slate-900 text-white px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-[#008080] transition-colors"
-          >
-            Execute Fleet <ChevronRight size={14} />
-          </button>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {/* Progress Section */}
-          <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100 flex flex-col justify-center">
-            <div className="flex justify-between items-end mb-4">
-              <span className="text-sm font-black text-slate-800 uppercase tracking-tight">Interaction Completion</span>
-              <span className="text-2xl font-black text-[#008080]">
-                {stats.todayInteractionsTotal > 0 ? Math.round((stats.todayInteractionsCompleted / stats.todayInteractionsTotal) * 100) : 0}%
-              </span>
-            </div>
-            <div className="w-full bg-slate-200 h-3 rounded-full overflow-hidden">
-              <div 
-                className="bg-[#008080] h-full transition-all duration-1000 ease-out"
-                style={{ width: `${stats.todayInteractionsTotal > 0 ? (stats.todayInteractionsCompleted / stats.todayInteractionsTotal) * 100 : 0}%` }}
-              ></div>
-            </div>
-            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-4">
-              {stats.todayInteractionsCompleted} of {stats.todayInteractionsTotal} Interactions Completed Today
-            </p>
-          </div>
-
-          {/* Pending Tasks Section */}
-          <div 
-            onClick={() => navigate('/mentor/tasks')}
-            className="bg-amber-50/50 p-6 rounded-2xl border border-amber-100 flex items-center justify-between cursor-pointer hover:bg-amber-50 transition-colors group"
-          >
-            <div className="flex items-center gap-6">
-              <div className="w-14 h-14 bg-amber-500/10 text-amber-600 rounded-[18px] flex items-center justify-center group-hover:scale-110 transition-transform">
-                <ListTodo size={24} strokeWidth={2.5} />
-              </div>
-              <div>
-                <h3 className="text-3xl font-black text-slate-800 tabular-nums leading-none mb-1">{stats.pendingTasks}</h3>
-                <p className="text-[10px] font-black text-amber-600 uppercase tracking-[0.2em]">Pending Mentor Tasks</p>
-              </div>
-            </div>
-            <ChevronRight className="text-amber-300 group-hover:text-amber-600 transition-colors" />
-          </div>
-        </div>
+        <StatCard
+          title="Completed Tasks"
+          value={stats.completedTasks}
+          icon={CheckCircle2}
+          color="bg-[#10B981]"
+        />
+        <StatCard
+          title="Student Reach"
+          value={stats.totalStudentInteractions}
+          icon={Users}
+          color="bg-[#008080]"
+        />
+        <StatCard
+          title="Faculty Interactions"
+          value={stats.totalFacultyInteractions}
+          icon={Users}
+          color="bg-[#EC4899]"
+        />
       </div>
 
       <div className="bg-white/70 backdrop-blur-xl p-10 md:p-12 rounded-[32px] border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.04)] relative overflow-hidden">
@@ -279,7 +240,49 @@ const MentorDashboard = () => {
             </div>
           </div>
 
-
+          <div className="space-y-10">
+            <div className="flex items-center gap-6">
+              <div className="w-1.5 h-10 bg-indigo-500 rounded-full"></div>
+              <h3 className="text-xl font-black text-slate-800 uppercase tracking-tight">Recent Interactions</h3>
+              <div className="h-[1px] flex-1 bg-slate-100 opacity-50"></div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {stats.recentInteractions?.length > 0 ? (
+                stats.recentInteractions.map((log, idx) => (
+                  <div key={`log-${idx}`} className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm hover:shadow-md transition-all group">
+                    <div className="flex justify-between items-start mb-4">
+                      <div className="px-3 py-1 bg-slate-50 text-[9px] font-black uppercase tracking-widest text-slate-600 rounded-full border border-slate-100">
+                        {log.type}
+                      </div>
+                      <span className="text-[10px] font-bold text-slate-400 uppercase">
+                        {new Date(log.created_at).toLocaleDateString('en-GB')}
+                      </span>
+                    </div>
+                    <h4 className="text-xl font-black text-slate-900 uppercase tracking-tight mb-2 group-hover:text-[#008080] transition-colors">{log.student_name}</h4>
+                    <p className="text-sm font-medium text-slate-600 line-clamp-2 leading-relaxed italic">"{log.remarks || 'No notes provided'}"</p>
+                    <div className="flex items-center gap-4 mt-6">
+                      {log.self_clarity !== null && (
+                        <div className="flex flex-col">
+                          <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Clarity</span>
+                          <span className="text-xs font-black text-emerald-600">{log.self_clarity}%</span>
+                        </div>
+                      )}
+                      {log.confidence !== null && (
+                        <div className="flex flex-col">
+                          <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Confidence</span>
+                          <span className="text-xs font-black text-[#008080]">{log.confidence}/5</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="col-span-full py-12 text-center bg-slate-50/50 rounded-3xl border border-dashed border-slate-200">
+                  <p className="text-slate-600 text-[10px] font-black uppercase tracking-widest">No recent interactions found.</p>
+                </div>
+              )}
+            </div>
+          </div>
 
           <div className="space-y-10">
             <div className="flex items-center gap-6">
