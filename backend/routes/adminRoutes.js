@@ -76,14 +76,16 @@ router.get('/restore-missing-students', async (req, res) => {
         }
         logs.push(`Re-inserted ${restored} missing students from users table.`);
         
-        // 2. Restore overwritten names in students table based on users table
-        const [students] = await db.query(`SELECT id, user_id, name FROM students WHERE user_id IS NOT NULL`);
+        // 2. Fix completely corrupted students (like multiple Joel Johnsons) by matching their ORIGINAL unique contact number
+        const [allStudents] = await db.query(`SELECT id, name, contact, user_id FROM students WHERE contact IS NOT NULL AND contact != ''`);
         let nameFixed = 0;
-        for (const j of students) {
-            const [u] = await db.query(`SELECT name FROM users WHERE id = ?`, [j.user_id]);
-            if (u.length > 0 && u[0].name !== j.name) {
-                await db.query(`UPDATE students SET name = ? WHERE id = ?`, [u[0].name, j.id]);
-                logs.push(`Fixed name for student ID ${j.id}: Was '${j.name}', now '${u[0].name}'`);
+        for (const j of allStudents) {
+            // Find the real user who has this exact phone number
+            const [u] = await db.query(`SELECT id, name FROM users WHERE phone_number = ? AND role = 'student' LIMIT 1`, [j.contact]);
+            
+            if (u.length > 0 && (u[0].name !== j.name || u[0].id !== j.user_id)) {
+                await db.query(`UPDATE students SET name = ?, user_id = ? WHERE id = ?`, [u[0].name, u[0].id, j.id]);
+                logs.push(`Fixed corrupted student ID ${j.id}: Name was '${j.name}', now properly matched to '${u[0].name}' using phone number.`);
                 nameFixed++;
             }
         }
