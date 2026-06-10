@@ -4,7 +4,7 @@ import toast from 'react-hot-toast';
 import { 
   CalendarDays, ListTodo, Plus, Target, Presentation, 
   Video, RefreshCcw, Save, XCircle, Search, Clock, DollarSign, User, BookOpen,
-  CheckCircle, CheckCircle2
+  CheckCircle, CheckCircle2, Pencil, Trash2
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -169,7 +169,20 @@ const AOEDemoSchedule = () => {
   };
 
   const handleEditClick = (demo) => {
-    navigate(`/aoe/demo-schedule/edit/${demo.id}`, { state: { demo } });
+    setFormData({
+      id: demo.id,
+      demo_id: demo.demo_id || '',
+      student_name: demo.student_name || '',
+      student_type: demo.student_type || 'new',
+      syllabus: demo.syllabus || '',
+      section: demo.section || '',
+      subject: demo.subject || '',
+      faculty_id: demo.faculty_id || '',
+      start_time: demo.start_time ? demo.start_time.substring(0, 5) : '',
+      end_time: demo.end_time ? demo.end_time.substring(0, 5) : '',
+      hour_rate: demo.hour_rate || ''
+    });
+    setActiveTab('schedule');
   };
 
   const handleToggleSuccess = async (demoId) => {
@@ -576,14 +589,14 @@ const AOEDemoSchedule = () => {
                             className="text-emerald-400 hover:text-indigo-600 transition-colors"
                             title="Edit Demo"
                           >
-                            <Target size={16} />
+                            <Pencil size={16} />
                           </button>
                           <button 
                             onClick={() => handleDeleteClick(demo.id)}
                             className="text-emerald-400 hover:text-rose-600 transition-colors"
                             title="Delete Demo"
                           >
-                            <XCircle size={16} />
+                            <Trash2 size={16} />
                           </button>
                         </div>
                       </div>
@@ -605,14 +618,14 @@ const AOEDemoSchedule = () => {
                             className="text-slate-400 hover:text-indigo-600 transition-colors"
                             title="Edit Demo"
                           >
-                            <Target size={16} />
+                            <Pencil size={16} />
                           </button>
                           <button 
                             onClick={() => handleDeleteClick(demo.id)}
                             className="text-slate-400 hover:text-rose-600 transition-colors"
                             title="Delete Demo"
                           >
-                            <XCircle size={16} />
+                            <Trash2 size={16} />
                           </button>
                         </div>
                       </div>
