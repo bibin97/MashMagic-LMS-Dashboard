@@ -58,6 +58,8 @@ import FacultySessions from './pages/Faculty/FacultySessions';
 import FacultyReports from './pages/Faculty/FacultyReports';
 import FacultyExams from './pages/Faculty/FacultyExams';
 import FacultyTasks from './pages/Faculty/FacultyTasks';
+import FacultyTimetable from './pages/Faculty/FacultyTimetable';
+import FacultySchedule from './pages/Faculty/FacultySchedule';
 import FacultyNotifications from './pages/Faculty/FacultyNotifications';
 import MentorFeedbackView from './pages/Faculty/StudentLogs'; // Renamed import for clarity
 import FacultyProfile from './pages/Faculty/FacultyProfile';
@@ -298,6 +300,8 @@ function App() {
             <Route path="students" element={<FacultyStudents />} />
             <Route path="students/:id" element={<StudentDetails />} />
             <Route path="sessions" element={<FacultySessions />} />
+            <Route path="timetable" element={<FacultyTimetable />} />
+            <Route path="schedule" element={<FacultySchedule />} />
             <Route path="reports" element={<FacultyReports />} />
             <Route path="exam-scores" element={<FacultyExams />} />
             <Route path="mentor-feedback" element={<MentorFeedbackView />} />

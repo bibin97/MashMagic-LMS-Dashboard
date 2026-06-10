@@ -6,9 +6,9 @@ exports.getTimetable = async (req, res) => {
             SELECT t.*, s.name as student_name, s.grade, s.subject as student_subject
             FROM timetable t
             JOIN students s ON t.student_id = s.id
-            WHERE t.faculty_id = ?
+            WHERE t.faculty_id = ? OR s.faculty_id = ?
             ORDER BY t.date DESC, t.start_time DESC
-        `, [req.user.id]);
+        `, [req.user.id, req.user.id]);
         res.status(200).json({ success: true, data: rows });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
@@ -21,25 +21,25 @@ exports.getAcademicSchedule = async (req, res) => {
             SELECT t.*, s.name as student_name, s.grade, s.subject as student_subject, s.meeting_link as student_meeting_link
             FROM timetable t
             JOIN students s ON t.student_id = s.id
-            WHERE t.faculty_id = ? AND t.date = CURDATE()
+            WHERE (t.faculty_id = ? OR s.faculty_id = ?) AND t.date = CURDATE()
             ORDER BY t.start_time ASC
-        `, [req.user.id]);
+        `, [req.user.id, req.user.id]);
 
         const [upcoming] = await db.query(`
             SELECT t.*, s.name as student_name, s.grade, s.subject as student_subject
             FROM timetable t
             JOIN students s ON t.student_id = s.id
-            WHERE t.faculty_id = ? AND t.date > CURDATE()
+            WHERE (t.faculty_id = ? OR s.faculty_id = ?) AND t.date > CURDATE()
             ORDER BY t.date ASC, t.start_time ASC
-        `, [req.user.id]);
+        `, [req.user.id, req.user.id]);
 
         const [completed] = await db.query(`
             SELECT t.*, s.name as student_name, s.grade, s.subject as student_subject
             FROM timetable t
             JOIN students s ON t.student_id = s.id
-            WHERE t.faculty_id = ? AND t.status = 'Completed'
+            WHERE (t.faculty_id = ? OR s.faculty_id = ?) AND t.status = 'Completed'
             ORDER BY t.date DESC, t.start_time DESC
-        `, [req.user.id]);
+        `, [req.user.id, req.user.id]);
 
         res.status(200).json({ success: true, data: { today, upcoming, completed } });
     } catch (error) {
