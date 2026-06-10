@@ -207,20 +207,13 @@ const performAutoSync = async () => {
 
 const forceSync = async (req, res) => {
     try {
-        // Cleanup duplicate students created by previous auto-sync bug
-        await db.query(`
-            DELETE FROM students 
-            WHERE user_id IN (
-                SELECT user_id FROM (
-                    SELECT user_id FROM students GROUP BY user_id HAVING COUNT(*) > 1
-                ) as t
-            ) 
-            AND grade IS NULL
-        `);
+        // SAFE SYNC: No automatic deletion of students.
+        // We only add/update records, never delete.
         await performAutoSync();
         res.status(200).json({ success: true, message: "Sync complete" });
     } catch (e) { res.status(500).json({ success: false, message: e.message }); }
 };
+
 
 const getAvailableFaculties = async (req, res) => {
     try {
@@ -1396,14 +1389,15 @@ const deduplicateStudents = async (req, res) => {
         const groups = {};
         for(const r of rows) {
             const key = r.contact || r.email || r.registration_number;
-            if(!key) continue;
+            if(!key) continue; // Skip students with no unique identifier — NEVER group by name alone
             if(!groups[key]) groups[key] = [];
             groups[key].push(r);
         }
         const toDelete = [];
-        const toUpdate = []; // { id, user_id }
+        const toUpdate = [];
         for(const key in groups) {
             if(groups[key].length > 1) {
+                // Sort: keep the one with the MOST filled fields
                 const sorted = groups[key].sort((a,b) => {
                     const aCount = Object.values(a).filter(v => v !== null && v !== '').length;
                     const bCount = Object.values(b).filter(v => v !== null && v !== '').length;
@@ -1412,35 +1406,47 @@ const deduplicateStudents = async (req, res) => {
                 
                 const keptRecord = sorted[0];
                 let bestUserId = keptRecord.user_id;
+                let bestMentorId = keptRecord.mentor_id;
 
                 for(let i = 1; i < sorted.length; i++) {
-                    toDelete.push(sorted[i].id);
-                    if (!bestUserId && sorted[i].user_id) {
-                        bestUserId = sorted[i].user_id;
+                    // SAFETY: Only mark as duplicate if the record has NO timetable/log entries
+                    const [timetableCount] = await db.query('SELECT COUNT(*) as c FROM timetable WHERE student_id = ?', [sorted[i].id]);
+                    const [logCount] = await db.query('SELECT COUNT(*) as c FROM student_interaction_logs WHERE student_id = ?', [sorted[i].id]);
+                    const hasDependencies = (timetableCount[0].c > 0 || logCount[0].c > 0);
+                    
+                    if (hasDependencies) {
+                        // This record has sessions/logs — DO NOT delete, just log it
+                        console.log(`SAFE SKIP: Student id=${sorted[i].id} (${sorted[i].name}) has ${timetableCount[0].c} sessions and ${logCount[0].c} logs — skipping deletion.`);
+                        continue;
                     }
+
+                    toDelete.push(sorted[i].id);
+                    if (!bestUserId && sorted[i].user_id) bestUserId = sorted[i].user_id;
+                    if (!bestMentorId && sorted[i].mentor_id) bestMentorId = sorted[i].mentor_id;
                 }
 
-                // If the kept record was missing a user_id but a duplicate had one, update it.
-                if (bestUserId && bestUserId !== keptRecord.user_id) {
-                    toUpdate.push({ id: keptRecord.id, user_id: bestUserId });
+                // Merge best user_id and mentor_id into kept record
+                if ((bestUserId && bestUserId !== keptRecord.user_id) || (bestMentorId && bestMentorId !== keptRecord.mentor_id)) {
+                    toUpdate.push({ id: keptRecord.id, user_id: bestUserId, mentor_id: bestMentorId });
                 }
             }
         }
         
         if (toUpdate.length > 0) {
             for (const item of toUpdate) {
-                await db.query('UPDATE students SET user_id = ? WHERE id = ?', [item.user_id, item.id]);
+                await db.query('UPDATE students SET user_id = ?, mentor_id = COALESCE(mentor_id, ?) WHERE id = ?', [item.user_id, item.mentor_id, item.id]);
             }
         }
 
         if(toDelete.length > 0) {
             await db.query('DELETE FROM students WHERE id IN (?)', [toDelete]);
         }
-        res.status(200).json({ success: true, message: `Deleted ${toDelete.length} duplicate students.` });
+        res.status(200).json({ success: true, message: `Removed ${toDelete.length} true duplicates. Skipped records with session/log data.` });
     } catch(err) {
         res.status(500).json({ success: false, message: err.message });
     }
 };
+
 
 const getExamScores = async (req, res) => {
     try {
