@@ -11,6 +11,7 @@ const StudentDetails = () => {
     const navigate = useNavigate();
     const { user } = useAuth();
     const [student, setStudent] = useState(null);
+    const [fees, setFees] = useState(null);
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState('info'); // info, timetable, logs
 
@@ -54,12 +55,31 @@ const StudentDetails = () => {
             } else if (role === 'mentor_head') {
                 endpoint = `/mentor-head/students/${id}`;
             } else {
-                // mentor, admin, super_admin, sub_admin, mentor_head, academic_head
                 endpoint = `/mentor/students/${id}`;
             }
 
-            const res = await api.get(endpoint);
-            setStudent(res.data.data);
+            // For admins, we can use the admin endpoint or the mentor endpoint. 
+            // The original logic mapped admin/super_admin to `/mentor/students/${id}`. Let's keep it that way.
+            const studentRes = await api.get(endpoint);
+            
+            if (studentRes.data.success) {
+                setStudent(studentRes.data.data);
+            }
+
+            // Only fetch fees if admin
+            if (isAdmin) {
+                try {
+                    const feesRes = await api.get(`/admin/fees/student`);
+                    if (feesRes.data.success) {
+                        const feeStruct = feesRes.data.data.find(f => f.entity_id === parseInt(id));
+                        if (feeStruct) {
+                            setFees(feeStruct);
+                        }
+                    }
+                } catch (err) {
+                    console.error("Error fetching fees:", err);
+                }
+            }
         } catch (error) {
             console.error("Error fetching student details:", error);
             toast.error("Failed to load student details");
@@ -314,16 +334,23 @@ const StudentDetails = () => {
                                     <div className="grid grid-cols-3 gap-4">
                                         <div className="p-6 bg-slate-50 rounded-[2rem] border border-slate-100">
                                             <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Fees</p>
-                                            <p className="text-sm font-black text-slate-700">₹{student.total_fees || 0}</p>
+                                            <div className="flex items-center gap-2">
+                                                <p className="text-sm font-black text-slate-700">₹{fees ? fees.total_fee : (student.total_fees || 0)}</p>
+                                                {fees && fees.paid_hours > 0 && fees.consumed_hours / fees.paid_hours >= 0.9 ? (
+                                                    <span className="px-2 py-0.5 bg-rose-100 text-rose-700 rounded-full text-[8px] font-black uppercase animate-pulse">90% Consumed</span>
+                                                ) : fees && fees.paid_hours > 0 && fees.consumed_hours / fees.paid_hours >= 0.7 ? (
+                                                    <span className="px-2 py-0.5 bg-amber-100 text-amber-700 rounded-full text-[8px] font-black uppercase animate-pulse">70% Consumed</span>
+                                                ) : null}
+                                            </div>
                                         </div>
                                         <div className="p-6 bg-slate-50 rounded-[2rem] border border-slate-100">
                                             <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Paid</p>
-                                            <p className="text-sm font-black text-emerald-600">₹{student.total_paid || 0}</p>
+                                            <p className="text-sm font-black text-emerald-600">₹{fees ? fees.total_paid_amount : (student.total_paid || 0)}</p>
                                         </div>
                                         <div className="p-6 bg-slate-50 rounded-[2rem] border border-slate-100">
-                                            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Balance</p>
-                                            <p className={`text-sm font-black ${(student.total_fees || 0) - (student.total_paid || 0) > 0 ? 'text-rose-600' : 'text-slate-500'}`}>
-                                                ₹{Math.max(0, (student.total_fees || 0) - (student.total_paid || 0))}
+                                            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Balance Amount</p>
+                                            <p className={`text-sm font-black ${fees && (fees.total_fee - fees.total_paid_amount) > 0 ? 'text-rose-600' : (!fees && (student.total_fees || 0) - (student.total_paid || 0) > 0 ? 'text-rose-600' : 'text-slate-500')}`}>
+                                                ₹{fees ? Math.max(0, fees.total_fee - fees.total_paid_amount) : Math.max(0, (student.total_fees || 0) - (student.total_paid || 0))}
                                             </p>
                                         </div>
                                     </div>

@@ -38,6 +38,7 @@ import AdminDailyUpdates from './pages/admin/AdminDailyUpdates';
 import AdminAcademicSchedule from './pages/admin/AcademicSchedule';
 import AHInteractions from './pages/admin/AHInteractions';
 import AHParentMeetings from './pages/admin/AHParentMeetings';
+import FeesManagement from './pages/admin/FeesManagement';
 
 // Mentor Panel Pages
 import MentorDashboard from './pages/Mentor/MentorDashboard';
@@ -155,6 +156,7 @@ function App() {
             <Route path="daily-updates" element={<AdminDailyUpdates />} />
             <Route path="ah-interactions" element={<AHInteractions />} />
             <Route path="ah-meetings" element={<AHParentMeetings />} />
+            <Route path="fees" element={<FeesManagement />} />
             <Route path="profile" element={<AdminProfile />} />
             <Route path="account-settings" element={<AccountSettings />} />
           </Route>

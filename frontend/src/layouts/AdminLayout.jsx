@@ -13,7 +13,8 @@ import {
  Target, 
  ScrollText,
  MessageSquare,
- Presentation
+ Presentation,
+ IndianRupee
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
@@ -63,7 +64,8 @@ const AdminLayout = () => {
    { path: '/admin/logs', icon: <ScrollText size={20} />, label: 'Interaction Logs', perm: 'logs' },
    { path: '/admin/ah-interactions', icon: <MessageSquare size={20} />, label: 'AH Interactions', perm: 'logs' },
    { path: '/admin/ah-meetings', icon: <Presentation size={20} />, label: 'AH Meetings', perm: 'logs' },
-  { path: '/admin/audit-logs', icon: <FileText size={20} />, label: 'Audit Trail', perm: 'logs' },
+   { path: '/admin/fees', icon: <IndianRupee size={20} />, label: 'Fee Management', perm: 'fees' },
+   { path: '/admin/audit-logs', icon: <FileText size={20} />, label: 'Audit Trail', perm: 'logs' },
 
  ].filter(item => {
     // Main Admin has full access

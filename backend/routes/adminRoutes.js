@@ -4,6 +4,7 @@ const { requireAuth } = require('../middleware/authMiddleware');
 const { requireRole } = require('../middleware/roleMiddleware');
 const { getDailyHours } = require('../controllers/mentorController');
 const { getDailyUpdates } = require('../controllers/sscController');
+const { getFees, saveFee } = require('../controllers/feeController');
 const {
     getAdminDashboardSummary,
     getUsers,
@@ -85,6 +86,10 @@ router.put('/block/:id', requireRole('super_admin', 'sub_admin'), blockUser);
 router.put('/users/:id', requireRole('super_admin', 'sub_admin'), updateUserForAdmin);
 router.put('/students/:id', requireRole('super_admin', 'sub_admin'), updateStudentForAdmin);
 router.post('/students/:id/installments', requireRole('super_admin', 'sub_admin'), addStudentInstallment);
+
+// Fees Management
+router.get('/fees/:entity_type', requireRole('super_admin', 'sub_admin'), getFees);
+router.post('/fees', requireRole('super_admin', 'sub_admin'), saveFee);
 
 // Notifications (Super Admin, Sub Admin & Mentor Head)
 router.get('/notifications', requireRole('super_admin', 'sub_admin', 'mentor_head'), getAdminNotifications);
