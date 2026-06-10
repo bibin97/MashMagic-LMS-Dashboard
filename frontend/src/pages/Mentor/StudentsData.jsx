@@ -148,6 +148,15 @@ const StudentsData = () => {
                             NEW
                           </span>
                         )}
+                        {student.assessment_level && student.assessment_level !== 'Unassessed' && (
+                          <span className={`px-2 py-0.5 text-white text-[7px] font-black uppercase rounded-lg shadow-sm ${
+                            student.assessment_level === 'Level 1' ? 'bg-rose-500 shadow-rose-200' :
+                            student.assessment_level === 'Level 2' ? 'bg-amber-500 shadow-amber-200' :
+                            'bg-emerald-500 shadow-emerald-200'
+                          }`}>
+                            {student.assessment_level}
+                          </span>
+                        )}
                       </div>
                     </div>
                     <ChevronRight className={`transition-transform duration-500 shrink-0 ${selectedStudent?.id === student.id ? 'translate-x-1' : 'opacity-20 translate-x-0'}`} size={20} />

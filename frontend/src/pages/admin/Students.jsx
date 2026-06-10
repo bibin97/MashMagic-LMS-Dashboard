@@ -377,6 +377,20 @@ const Students = () => {
       )
     },
     {
+      header: 'Level',
+      width: '120px',
+      render: (row) => (
+        <span className={`inline-flex items-center justify-center min-w-[100px] px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm border ${
+          row.assessment_level === 'Level 1' ? 'bg-rose-50 text-rose-600 border-rose-200' :
+          row.assessment_level === 'Level 2' ? 'bg-amber-50 text-amber-600 border-amber-200' :
+          row.assessment_level === 'Level 3' ? 'bg-emerald-50 text-emerald-600 border-emerald-200' :
+          'bg-slate-50 text-slate-500 border-slate-200'
+        }`}>
+          {row.assessment_level || 'Unassessed'}
+        </span>
+      )
+    },
+    {
       header: 'Status',
       width: '120px',
       render: (row) => (

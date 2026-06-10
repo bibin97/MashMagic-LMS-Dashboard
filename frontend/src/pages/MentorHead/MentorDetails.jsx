@@ -608,8 +608,8 @@ const MentorDetails = () => {
            <p className="text-slate-600 font-bold text-sm">Score each area 1-5. Total score determines level.</p>
          </div>
 
-         <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-           <table className="w-full text-left border-collapse">
+         <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-x-auto">
+           <table className="w-full text-left border-collapse min-w-[600px]">
              <thead>
                <tr className="bg-[#005050] text-white">
                  <th className="p-4 text-sm font-bold border-b border-[#006060]">Assessment Area</th>

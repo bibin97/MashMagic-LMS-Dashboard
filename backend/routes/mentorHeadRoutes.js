@@ -33,7 +33,8 @@ const {
     deleteInteractionLog,
     getDropdownData,
     getAcademicSchedule,
-    assignMentor
+    assignMentor,
+    updateStudentAssessmentLevel
 } = require('../controllers/mentorHeadController');
 const { requireAuth } = require('../middleware/authMiddleware');
 const { requireRole } = require('../middleware/roleMiddleware');
@@ -55,6 +56,7 @@ router.get('/mentor-activity', getMentorActivityDashboard);
 router.get('/mentors/:mentorId/monitoring', getMentorMonitoringDetails);
 router.put('/students/:studentId/assign', assignMentor);
 router.put('/students/:studentId/shift', shiftStudent);
+router.put('/students/:studentId/assessment-level', updateStudentAssessmentLevel);
 router.get('/daily-student-checks', getDailyStudentChecks);
 router.post('/students/:studentId/check', checkStudentToday);
 router.delete('/students/:studentId/uncheck', uncheckStudent);

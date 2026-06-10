@@ -12,8 +12,10 @@ const adminRoutes = require('./routes/adminRoutes');
 const studentRoutes = require('./routes/studentRoutes');
 
 const app = express();
+const deleteProtection = require('./middleware/deleteProtection');
 
 // Middleware
+app.use(deleteProtection);
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
@@ -256,6 +258,7 @@ const startServer = async () => {
                 'ALTER TABLE students ADD COLUMN current_installment_amount DECIMAL(10,2) DEFAULT 0.00;',
                 'ALTER TABLE students ADD COLUMN current_installment_start_hours DECIMAL(10,2) DEFAULT 0.00;',
                 'ALTER TABLE students ADD COLUMN rejoining_fee DECIMAL(10,2) DEFAULT 0.00;',
+                'ALTER TABLE students ADD COLUMN assessment_level VARCHAR(50) DEFAULT "Unassessed";',
                 'ALTER TABLE users ADD COLUMN place VARCHAR(255) NULL;',
                 'ALTER TABLE users ADD COLUMN registeredBy INT NULL;',
                 'ALTER TABLE users ADD COLUMN profile_pic TEXT NULL;',

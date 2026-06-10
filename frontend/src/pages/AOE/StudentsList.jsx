@@ -158,8 +158,10 @@ const StudentsList = ({ role = 'academic_operation_executive' }) => {
 		}
 		const level = getAssessmentLevel(totalScore);
 		try {
+			await api.put(`/mentor-head/students/${assessmentStudent.id}/assessment-level`, { level });
 			toast.success(`Assessment submitted! Score: ${totalScore} (${level})`);
 			setIsAssessmentModalOpen(false);
+			fetchStudents();
 		} catch (error) {
 			toast.error('Failed to submit assessment');
 		}
@@ -285,6 +287,7 @@ const StudentsList = ({ role = 'academic_operation_executive' }) => {
 								<th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Course & Grade</th>
 								<th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Hours</th>
 								<th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Mentor & Faculty</th>
+								<th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest text-center">Level</th>
 								<th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest text-right">Actions</th>
 							</tr>
 						</thead>
@@ -366,6 +369,16 @@ const StudentsList = ({ role = 'academic_operation_executive' }) => {
 													)}
 												</div>
 											</div>
+										</td>
+										<td className="px-8 py-6 text-center">
+											<span className={`inline-flex items-center justify-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest whitespace-nowrap shadow-sm border ${
+												student.assessment_level === 'Level 1' ? 'bg-rose-50 text-rose-600 border-rose-200' :
+												student.assessment_level === 'Level 2' ? 'bg-amber-50 text-amber-600 border-amber-200' :
+												student.assessment_level === 'Level 3' ? 'bg-emerald-50 text-emerald-600 border-emerald-200' :
+												'bg-slate-50 text-slate-500 border-slate-200'
+											}`}>
+												{student.assessment_level || 'Unassessed'}
+											</span>
 										</td>
 										<td className="px-8 py-6 text-right">
 											<div className="flex items-center justify-end gap-2">
@@ -562,8 +575,8 @@ const StudentsList = ({ role = 'academic_operation_executive' }) => {
 								<p className="text-slate-600 font-bold text-sm">Score each area 1-5. Total score determines level.</p>
 							</div>
 
-							<div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-								<table className="w-full text-left border-collapse">
+							<div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-x-auto">
+								<table className="w-full text-left border-collapse min-w-[600px]">
 									<thead>
 										<tr className="bg-[#005050] text-white">
 											<th className="p-4 text-sm font-bold border-b border-[#006060]">Assessment Area</th>

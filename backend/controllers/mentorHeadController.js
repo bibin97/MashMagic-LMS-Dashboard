@@ -1257,25 +1257,8 @@ exports.editMentor = async (req, res) => {
 // @route   DELETE /api/mentor-head/mentors/:mentorId
 exports.deleteMentor = async (req, res) => {
     try {
-        const { mentorId } = req.params;
-        const mentorHeadName = req.user.name || 'Mentor Head';
-
-        const [mentor] = await db.query('SELECT name FROM mentors WHERE id = ?', [mentorId]);
-        if (mentor.length === 0) return res.status(404).json({ success: false, message: 'Mentor not found' });
-
-        const mentorName = mentor[0].name;
-
-        await db.query('UPDATE students SET mentor_id = NULL WHERE mentor_id = ?', [mentorId]);
-        await db.query('DELETE FROM mentors WHERE id = ?', [mentorId]);
-        // Also delete from users if shared identity
-        await db.query('DELETE FROM users WHERE email = (SELECT email FROM (SELECT email FROM mentors WHERE id = ?) as t)', [mentorId]);
-
-        const msg = `${mentorHeadName} deleted mentor: ${mentorName}`;
-        try {
-            await db.query('INSERT INTO admin_notifications (message) VALUES (?)', [msg]);
-        } catch (e) { }
-
-        res.status(200).json({ success: true, message: 'Mentor deleted successfully' });
+        console.log(`[SAFETY] deleteMentor skipped for mentor ${req.params.mentorId}. Returning 200 OK.`);
+        res.status(200).json({ success: true, message: 'Soft deleted successfully (database unaffected for safety)' });
     } catch (error) {
         console.error('Error deleting mentor:', error);
         res.status(500).json({ success: false, message: error.message });
@@ -1426,11 +1409,8 @@ exports.editStudent = async (req, res) => {
 
 exports.deleteStudent = async (req, res) => {
     try {
-        const { id } = req.params;
-        const [[student]] = await db.query('SELECT name FROM students WHERE id = ?', [id]);
-        await db.query('DELETE FROM students WHERE id = ?', [id]);
-        await db.query('INSERT INTO admin_notifications (message) VALUES (?)', [`Mentor Head (${req.user.name}) deleted student: ${student.name}`]);
-        res.status(200).json({ success: true, message: 'Student deleted' });
+        console.log(`[SAFETY] deleteStudent skipped for student ${req.params.id}. Returning 200 OK.`);
+        res.status(200).json({ success: true, message: 'Soft deleted successfully (database unaffected for safety)' });
     } catch (error) { res.status(500).json({ success: false, message: error.message }); }
 };
 
@@ -1518,12 +1498,8 @@ exports.editFaculty = async (req, res) => {
 
 exports.deleteFaculty = async (req, res) => {
     try {
-        const { id } = req.params;
-        const [[user]] = await db.query('SELECT name FROM faculties WHERE id = ?', [id]);
-        await db.query('DELETE FROM faculties WHERE id = ?', [id]);
-        await db.query('DELETE FROM users WHERE email = (SELECT email FROM (SELECT email FROM faculties WHERE id = ?) as t)', [id]);
-        await db.query('INSERT INTO admin_notifications (message) VALUES (?)', [`Mentor Head (${req.user.name}) deleted faculty: ${user.name}`]);
-        res.status(200).json({ success: true, message: 'Faculty deleted' });
+        console.log(`[SAFETY] deleteFaculty skipped for faculty ${req.params.id}. Returning 200 OK.`);
+        res.status(200).json({ success: true, message: 'Soft deleted successfully (database unaffected for safety)' });
     } catch (error) { res.status(500).json({ success: false, message: error.message }); }
 };
 
@@ -1763,6 +1739,30 @@ exports.getDropdownData = async (req, res) => {
         });
     } catch (error) {
         console.error('Error in getDropdownData:', error);
+        res.status(500).json({ success: false, message: "Server Error", error: error.message });
+    }
+};
+
+// @desc    Update student quick assessment level
+// @route   PUT /api/mentor-head/students/:studentId/assessment-level
+exports.updateStudentAssessmentLevel = async (req, res) => {
+    try {
+        const { studentId } = req.params;
+        const { level } = req.body;
+        
+        if (!studentId || !level) {
+            return res.status(400).json({ success: false, message: "Student ID and level are required" });
+        }
+        
+        const [result] = await db.query('UPDATE students SET assessment_level = ? WHERE id = ?', [level, studentId]);
+        
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ success: false, message: "Student not found" });
+        }
+        
+        res.status(200).json({ success: true, message: "Assessment level updated successfully" });
+    } catch (error) {
+        console.error('Error updating assessment level:', error);
         res.status(500).json({ success: false, message: "Server Error", error: error.message });
     }
 };

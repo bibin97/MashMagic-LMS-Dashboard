@@ -32,6 +32,15 @@ const StudentRow = ({ student, navigate, handleCompleteOnboarding }) => {
               {isNew && (
                 <span className="px-3 py-1 bg-emerald-500 text-white text-[8px] font-black uppercase tracking-widest rounded-full shadow-lg shadow-emerald-200 animate-pulse">New Member</span>
               )}
+              {student.assessment_level && student.assessment_level !== 'Unassessed' && (
+                <span className={`px-3 py-1 text-white text-[8px] font-black uppercase tracking-widest rounded-full shadow-lg ${
+                  student.assessment_level === 'Level 1' ? 'bg-rose-500 shadow-rose-200' :
+                  student.assessment_level === 'Level 2' ? 'bg-amber-500 shadow-amber-200' :
+                  'bg-emerald-500 shadow-emerald-200'
+                }`}>
+                  {student.assessment_level}
+                </span>
+              )}
             </div>
             <div className="flex items-center gap-3 mt-2">
               <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">ID: MM-{student.id.toString().padStart(4, '0')}</span>
