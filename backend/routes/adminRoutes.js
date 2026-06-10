@@ -55,13 +55,42 @@ router.get('/academic-schedule', requireRole('super_admin', 'sub_admin'), getAca
 router.get('/dashboard-summary', requireRole('super_admin', 'sub_admin'), getAdminDashboardSummary);
 router.get('/pending-users', requireRole('super_admin', 'sub_admin'), getPendingUsers);
 router.get('/users', requireRole('super_admin', 'sub_admin'), getUsers);
-router.get('/debug-students', async (req, res) => {
+router.get('/restore-missing-students', async (req, res) => {
     try {
         const db = require('../config/db');
-        const [rows] = await db.query('SELECT id, name, email, phone_number, role, status FROM users WHERE role = "student" AND name IN ("Muhammad farhan", "Aryan zayn nishad", "pavithra", "Ren", "Zehna", "Ziya")');
-        res.json({ users: rows });
+        let logs = [];
+        // 1. Re-insert missing students from the users table
+        const [missingUsers] = await db.query(`
+            SELECT * FROM users 
+            WHERE role = 'student' 
+            AND id NOT IN (SELECT user_id FROM students WHERE user_id IS NOT NULL)
+        `);
+        
+        let restored = 0;
+        for (const u of missingUsers) {
+            await db.query(`
+                INSERT INTO students (user_id, name, email, contact, status)
+                VALUES (?, ?, ?, ?, ?)
+            `, [u.id, u.name, u.email, u.phone_number, u.status]);
+            restored++;
+        }
+        logs.push(`Re-inserted ${restored} missing students from users table.`);
+        
+        // 2. Restore overwritten names in students table based on users table
+        const [students] = await db.query(`SELECT id, user_id, name FROM students WHERE user_id IS NOT NULL`);
+        let nameFixed = 0;
+        for (const j of students) {
+            const [u] = await db.query(`SELECT name FROM users WHERE id = ?`, [j.user_id]);
+            if (u.length > 0 && u[0].name !== j.name) {
+                await db.query(`UPDATE students SET name = ? WHERE id = ?`, [u[0].name, j.id]);
+                logs.push(`Fixed name for student ID ${j.id}: Was '${j.name}', now '${u[0].name}'`);
+                nameFixed++;
+            }
+        }
+        logs.push(`Restored ${nameFixed} corrupted names in students table.`);
+        res.json({ success: true, message: "Restoration Complete", details: logs });
     } catch (e) {
-        res.status(500).json({ error: e.message });
+        res.status(500).json({ success: false, error: e.message });
     }
 });
 router.get('/students', requireRole('super_admin', 'sub_admin'), getAllStudentsForAdmin);
