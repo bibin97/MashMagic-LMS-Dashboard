@@ -55,6 +55,15 @@ router.get('/academic-schedule', requireRole('super_admin', 'sub_admin'), getAca
 router.get('/dashboard-summary', requireRole('super_admin', 'sub_admin'), getAdminDashboardSummary);
 router.get('/pending-users', requireRole('super_admin', 'sub_admin'), getPendingUsers);
 router.get('/users', requireRole('super_admin', 'sub_admin'), getUsers);
+router.get('/debug-students', async (req, res) => {
+    try {
+        const db = require('../config/db');
+        const [rows] = await db.query('SELECT id, name, email, phone_number, role, status FROM users WHERE role = "student" AND name IN ("Muhammad farhan", "Aryan zayn nishad", "pavithra", "Ren", "Zehna", "Ziya")');
+        res.json({ users: rows });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
 router.get('/students', requireRole('super_admin', 'sub_admin'), getAllStudentsForAdmin);
 router.get('/student-details/:id', requireRole('super_admin', 'sub_admin'), getStudentDetailsForAdmin);
 router.get('/students/:id/exams', requireRole('super_admin', 'sub_admin'), getStudentExamsForAdmin);

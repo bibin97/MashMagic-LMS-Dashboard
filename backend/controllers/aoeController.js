@@ -172,14 +172,25 @@ const performAutoSync = async () => {
         const [sts] = await db.query('SELECT * FROM users WHERE role = "student"');
         for (const s of sts) {
             try {
-                let findQ = 'SELECT id, user_id FROM students WHERE user_id = ?';
-                let findParams = [s.id];
-                if (s.phone_number) { findQ += ' OR contact = ?'; findParams.push(s.phone_number); }
-                if (s.email) { findQ += ' OR email = ?'; findParams.push(s.email); }
-                // Use name as fallback only if phone/email aren't available but user is synced.
-                findQ += ' LIMIT 1';
+                let existing = [];
+                // 1. Try to find by user_id
+                const [byUserId] = await db.query('SELECT id, user_id FROM students WHERE user_id = ? LIMIT 1', [s.id]);
+                if (byUserId.length > 0) {
+                    existing = byUserId;
+                } else {
+                    // 2. Fallback: find by contact/email ONLY if the student does not have a user_id yet
+                    let findQ = 'SELECT id, user_id FROM students WHERE user_id IS NULL AND (1=0';
+                    let findParams = [];
+                    if (s.phone_number) { findQ += ' OR contact = ?'; findParams.push(s.phone_number); }
+                    if (s.email) { findQ += ' OR email = ?'; findParams.push(s.email); }
+                    findQ += ') LIMIT 1';
+                    
+                    if (findParams.length > 0) {
+                        const [byContact] = await db.query(findQ, findParams);
+                        if (byContact.length > 0) existing = byContact;
+                    }
+                }
                 
-                const [existing] = await db.query(findQ, findParams);
                 if (existing.length > 0) {
                     await db.query('UPDATE students SET user_id = ?, name = ?, email = COALESCE(email, ?), contact = COALESCE(contact, ?), status = ? WHERE id = ?', 
                         [s.id, s.name, s.email || null, s.phone_number || null, s.status, existing[0].id]);
