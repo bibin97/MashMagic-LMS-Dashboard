@@ -317,7 +317,7 @@ const ExamSchedule = () => {
             {/* Schedule Exam Modal */}
             {isModalOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
-                    <div className="bg-white rounded-[2rem] w-full max-w-lg shadow-2xl border border-slate-100 overflow-hidden animate-in zoom-in-95 duration-200">
+                    <div className="bg-white rounded-[2rem] w-full max-w-lg shadow-2xl border border-slate-100 overflow-hidden animate-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto">
                         <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-gradient-to-r from-[#008080]/5 to-transparent">
                             <div>
                                 <h3 className="text-lg font-black text-slate-800 uppercase tracking-tight">Schedule Exam</h3>
@@ -422,7 +422,7 @@ const ExamSchedule = () => {
             {/* Enter Result Modal */}
             {isResultModalOpen && selectedExam && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
-                    <div className="bg-white rounded-[2rem] w-full max-w-md shadow-2xl border border-slate-100 overflow-hidden animate-in zoom-in-95 duration-200">
+                    <div className="bg-white rounded-[2rem] w-full max-w-md shadow-2xl border border-slate-100 overflow-hidden animate-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto">
                         <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-gradient-to-r from-emerald-50 to-transparent">
                             <div>
                                 <h3 className="text-lg font-black text-slate-800 uppercase tracking-tight">Enter Exam Result</h3>

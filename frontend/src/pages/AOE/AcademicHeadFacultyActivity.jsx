@@ -224,7 +224,7 @@ const AcademicHeadFacultyActivity = () => {
   {/* Edit Minutes Modal */}
   {isEditMinutesModalOpen && editingSession && (
     <div className="fixed inset-0 bg-[#008080]/60 backdrop-blur-md z-[9999] flex items-center justify-center p-4">
-      <div className="bg-white rounded-[3rem] shadow-2xl w-full max-w-md p-10 space-y-8 animate-in zoom-in duration-200">
+      <div className="bg-white rounded-[3rem] shadow-2xl w-full max-w-md p-10 space-y-8 animate-in zoom-in duration-200 max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 bg-[#008080] text-white rounded-2xl flex items-center justify-center shadow-lg">

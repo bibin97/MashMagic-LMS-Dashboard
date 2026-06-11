@@ -489,7 +489,7 @@ const MentorDetails = () => {
  {/* Student Edit Modal */}
  {isEditModalOpen && editingStudent && (
  <div className="fixed inset-0 bg-[#008080]/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
- <div className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-lg overflow-hidden animate-in slide-in-from-bottom-4 duration-300 border border-white/20">
+ <div className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-lg overflow-hidden animate-in slide-in-from-bottom-4 duration-300 border border-white/20 max-h-[90vh] overflow-y-auto">
  <div className="px-8 py-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
  <div className="flex items-center gap-4">
  <h2 className="text-lg font-black text-slate-900 flex items-center gap-3 ">

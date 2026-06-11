@@ -165,7 +165,8 @@ const CheckingSection = () => {
  {/* Session Audit Content */}
  {activeTab === 'session_audit' && (
  <div className="bg-white rounded-[3rem] border border-slate-100 shadow-sm overflow-hidden">
- <table className="w-full text-left border-collapse min-w-max">
+ <div className="w-full overflow-x-auto">
+<table className="w-full text-left border-collapse min-w-max">
  <thead>
  <tr className="bg-slate-50/50 border-b border-slate-100">
  <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Faculty Member</th>
@@ -246,6 +247,7 @@ const CheckingSection = () => {
  )}
  </tbody>
  </table>
+</div>
  </div>
  )}
 
@@ -313,7 +315,8 @@ const CheckingSection = () => {
  {/* Faculty Logs Review Content */}
  {activeTab === 'faculty_logs' && (
  <div className="bg-white rounded-[3rem] border border-slate-100 shadow-sm overflow-hidden">
- <table className="w-full text-left border-collapse min-w-max">
+ <div className="w-full overflow-x-auto">
+<table className="w-full text-left border-collapse min-w-max">
  <thead>
  <tr className="bg-slate-50/50 border-b border-slate-100">
  <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Date / Session</th>
@@ -371,6 +374,7 @@ const CheckingSection = () => {
  )}
  </tbody>
  </table>
+</div>
  </div>
  )}
  </>
@@ -379,7 +383,7 @@ const CheckingSection = () => {
  {/* Live Class Eval Modal */}
  {isEvalModalOpen && (
  <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
- <div className="absolute inset-0 bg-[#008080]/60 backdrop-blur-sm" onClick={() => setIsEvalModalOpen(false)}></div>
+ <div className="absolute inset-0 bg-[#008080]/60 backdrop-blur-sm max-h-[90vh] overflow-y-auto" onClick={() => setIsEvalModalOpen(false)}></div>
  <div className="bg-white rounded-[3rem] w-full max-w-lg shadow-2xl overflow-hidden relative z-10 animate-in zoom-in duration-300">
  <div className="px-10 py-8 bg-[#008080] text-white relative">
  <h3 className="text-2xl font-black tracking-tighter uppercase relative z-10">Live Class Check</h3>
@@ -483,7 +487,7 @@ const CheckingSection = () => {
  {/* Verify Log Modal */}
  {isVerifyModalOpen && (
  <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
- <div className="absolute inset-0 bg-[#008080]/60 backdrop-blur-sm" onClick={() => setIsVerifyModalOpen(false)}></div>
+ <div className="absolute inset-0 bg-[#008080]/60 backdrop-blur-sm max-h-[90vh] overflow-y-auto" onClick={() => setIsVerifyModalOpen(false)}></div>
  <div className="bg-white rounded-[3rem] w-full max-w-md shadow-2xl overflow-hidden relative z-10 animate-in zoom-in duration-300">
  <div className="px-10 py-8 bg-[#008080] text-white relative">
  <h3 className="text-2xl font-black tracking-tighter uppercase relative z-10">Verify Faculty Log</h3>

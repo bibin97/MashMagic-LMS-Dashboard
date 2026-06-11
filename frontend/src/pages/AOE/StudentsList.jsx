@@ -478,7 +478,7 @@ const StudentsList = ({ role = 'academic_operation_executive' }) => {
 			{/* Assign Mentor Modal */}
 			{isAssignModalOpen && selectedStudentForAssign && (
 				<div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-in fade-in duration-200">
-					<div className="bg-white rounded-3xl w-full max-w-md shadow-2xl border border-slate-100 animate-in zoom-in-95 duration-200">
+					<div className="bg-white rounded-3xl w-full max-w-md shadow-2xl border border-slate-100 animate-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto">
 						<div className="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50 rounded-t-3xl">
 							<div>
 								<h3 className="text-lg font-black text-slate-800 uppercase tracking-tight">Assign Mentor</h3>

@@ -161,7 +161,8 @@ const AcademicActions = () => {
               <div className="py-20 flex justify-center"><div className="w-10 h-10 border-4 border-[#008080] border-t-transparent rounded-full animate-spin"></div></div>
             ) : (
               <div className="border border-slate-100 rounded-[2rem] overflow-hidden">
-                <table className="w-full text-left">
+                <div className="w-full overflow-x-auto">
+<table className="w-full text-left">
                   <thead>
                     <tr className="bg-[#008080] text-white">
                       <th className="px-8 py-5 text-xs font-black uppercase tracking-widest w-2/3">Performance Dimension</th>
@@ -253,6 +254,7 @@ const AcademicActions = () => {
                     </tr>
                   </tfoot>
                 </table>
+</div>
 
                 <div className="p-8 bg-slate-50 flex justify-end">
                   <button type="submit" className="px-10 py-4 bg-[#008080] hover:bg-[#006666] text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-lg transition-all flex items-center gap-2">

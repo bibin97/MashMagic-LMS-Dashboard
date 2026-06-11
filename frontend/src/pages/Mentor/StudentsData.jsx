@@ -295,7 +295,8 @@ const StudentsData = () => {
                             </div>
                           ) : (
                             <div className="overflow-hidden rounded-[32px] border border-slate-100">
-                              <table className="w-full text-left border-collapse">
+                              <div className="w-full overflow-x-auto">
+<table className="w-full text-left border-collapse">
                                 <thead className="bg-slate-50">
                                   <tr>
                                     <th className="py-4 px-6 text-[10px] font-black text-slate-500 uppercase tracking-widest">Date</th>
@@ -317,6 +318,7 @@ const StudentsData = () => {
                                   ))}
                                 </tbody>
                               </table>
+</div>
                             </div>
                           )}
                         </div>

@@ -397,7 +397,8 @@ const StudentDetails = () => {
           <CheckSquare size={20} className="text-emerald-500" /> Attendance History
         </h3>
         <div className="overflow-hidden rounded-[2rem] border border-slate-100 shadow-sm">
-          <table className="w-full text-left border-collapse">
+          <div className="w-full overflow-x-auto">
+<table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-slate-50/50">
                 <th className="py-5 px-6 text-[10px] font-black text-slate-500 uppercase tracking-widest">Date</th>
@@ -426,6 +427,7 @@ const StudentDetails = () => {
               )}
             </tbody>
           </table>
+</div>
         </div>
       </section>
     </div>

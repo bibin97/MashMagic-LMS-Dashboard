@@ -228,7 +228,8 @@ const StudentDetails = () => {
  </div>
  </div>
  <div className="bg-slate-50 rounded-[2.5rem] border border-slate-100">
- <table className="w-full text-left">
+ <div className="w-full overflow-x-auto">
+<table className="w-full text-left">
  <thead>
  <tr>
  <th className="px-8 py-5 text-[10px] font-black text-slate-600 uppercase tracking-widest">Session Topic</th>
@@ -251,6 +252,7 @@ const StudentDetails = () => {
  ))}
  </tbody>
  </table>
+</div>
  </div>
  </div>
  )}
@@ -330,7 +332,7 @@ const StudentDetails = () => {
  {/* Interaction Report Modal */}
  {isReportModalOpen && (
  <div className="fixed inset-0 z-[2000] flex items-center justify-center p-6 backdrop-blur-3xl bg-[#008080]/10 animate-in fade-in duration-300">
- <div className="bg-white w-full max-w-2xl rounded-[3.5rem] border border-slate-100 shadow-2xl overflow-hidden animate-in zoom-in slide-in-from-bottom-10 duration-500">
+ <div className="bg-white w-full max-w-2xl rounded-[3.5rem] border border-slate-100 shadow-2xl overflow-hidden animate-in zoom-in slide-in-from-bottom-10 duration-500 max-h-[90vh] overflow-y-auto">
  <div className="p-10 border-b border-slate-50 flex justify-between items-center text-white bg-[#008080] relative">
  <div className="absolute top-0 right-0 w-40 h-40 bg-[#008080]/10 rounded-full -mr-20 -mt-20 blur-3xl"></div>
  <div className="relative">

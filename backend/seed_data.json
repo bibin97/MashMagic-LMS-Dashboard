@@ -1,0 +1,539 @@
+[
+  {
+    "name": "Saif",
+    "total_hours": 72,
+    "subjects": [
+      { "name": "Arabic", "consumed": 36, "allocated": 38 },
+      { "name": "Maths", "consumed": 34, "allocated": 34 }
+    ]
+  },
+  {
+    "name": "Aman",
+    "total_hours": 72,
+    "subjects": [
+      { "name": "Hindi", "consumed": 13, "allocated": 24 },
+      { "name": "Malayalam", "consumed": 7, "allocated": 24 },
+      { "name": "Arabic", "consumed": 9, "allocated": 24 }
+    ]
+  },
+  {
+    "name": "dareen",
+    "total_hours": 24,
+    "subjects": [
+      { "name": "Maths", "consumed": 2, "allocated": 5 },
+      { "name": "Hindi", "consumed": 2, "allocated": 4 },
+      { "name": "Science", "consumed": 3, "allocated": 4 },
+      { "name": "Social", "consumed": 1, "allocated": 5 },
+      { "name": "English", "consumed": 0, "allocated": 3 },
+      { "name": "Arabic", "consumed": 1.5, "allocated": 3 }
+    ]
+  },
+  {
+    "name": "godwin",
+    "total_hours": 20,
+    "subjects": [
+      { "name": "Accountancy", "consumed": 2, "allocated": 7 },
+      { "name": "Economics", "consumed": 0, "allocated": 6 },
+      { "name": "Ip", "consumed": 0, "allocated": 7 }
+    ]
+  },
+  {
+    "name": "Hamdan",
+    "total_hours": 72,
+    "subjects": [
+      { "name": "Hindi", "consumed": 7, "allocated": 14 },
+      { "name": "Maths", "consumed": 3.5, "allocated": 10 },
+      { "name": "English", "consumed": 14, "allocated": 36 },
+      { "name": "Malayalam", "consumed": 12, "allocated": 36 }
+    ]
+  },
+  {
+    "name": "nathan jobby",
+    "total_hours": 64,
+    "subjects": [
+      { "name": "Maths", "consumed": 25, "allocated": 31 },
+      { "name": "Physics", "consumed": 4, "allocated": 11 },
+      { "name": "Chemistry", "consumed": 3, "allocated": 11 },
+      { "name": "Biology", "consumed": 4, "allocated": 11 }
+    ]
+  },
+  {
+    "name": "Jai Sanker",
+    "total_hours": 216,
+    "subjects": [
+      { "name": "Social", "consumed": 16, "allocated": 75 },
+      { "name": "Science", "consumed": 11, "allocated": 72 },
+      { "name": "English", "consumed": 12, "allocated": 72 }
+    ]
+  },
+  {
+    "name": "ragapriya",
+    "total_hours": 216,
+    "subjects": [
+      { "name": "Physics", "consumed": 8, "allocated": 54 },
+      { "name": "Maths", "consumed": 19, "allocated": 54 },
+      { "name": "Chemistry", "consumed": 7, "allocated": 54 },
+      { "name": "Biology", "consumed": 8, "allocated": 54 }
+    ]
+  },
+  {
+    "name": "jazlyn",
+    "total_hours": 16,
+    "subjects": [
+      { "name": "French", "consumed": 2, "allocated": 8 },
+      { "name": "Arabic", "consumed": 3, "allocated": 8 }
+    ]
+  },
+  {
+    "name": "rayan",
+    "total_hours": 30,
+    "subjects": [
+      { "name": "Malayalam", "consumed": 3, "allocated": 15 },
+      { "name": "English", "consumed": 1, "allocated": 15 }
+    ]
+  },
+  {
+    "name": "rihan",
+    "total_hours": 30,
+    "subjects": [
+      { "name": "Malayalam", "consumed": 3, "allocated": 15 },
+      { "name": "English", "consumed": 1, "allocated": 15 }
+    ]
+  },
+  {
+    "name": "Johan",
+    "total_hours": 24,
+    "subjects": [
+      { "name": "Maths", "consumed": 22, "allocated": 24 }
+    ]
+  },
+  {
+    "name": "Ren Joseph",
+    "total_hours": 16,
+    "subjects": [
+      { "name": "Maths", "consumed": 5, "allocated": 8 },
+      { "name": "Hindi", "consumed": 2, "allocated": 8 }
+    ]
+  },
+  {
+    "name": "Alvin",
+    "total_hours": 72,
+    "subjects": [
+      { "name": "Maths", "consumed": 8.5, "allocated": 11 },
+      { "name": "Science", "consumed": 6, "allocated": 11 },
+      { "name": "Social", "consumed": 5, "allocated": 11 },
+      { "name": "Hindi", "consumed": 6, "allocated": 11 },
+      { "name": "Malayalam", "consumed": 3, "allocated": 11 },
+      { "name": "English", "consumed": 1, "allocated": 11 },
+      { "name": "It", "consumed": 2, "allocated": 6 }
+    ]
+  },
+  {
+    "name": "Aysha",
+    "total_hours": 14,
+    "subjects": [
+      { "name": "Hindi", "consumed": 2, "allocated": 14 }
+    ]
+  },
+  {
+    "name": "Muhammed",
+    "total_hours": 15,
+    "subjects": [
+      { "name": "Hindi", "consumed": 4, "allocated": 15 }
+    ]
+  },
+  {
+    "name": "Zaiba",
+    "total_hours": 30,
+    "subjects": []
+  },
+  {
+    "name": "mehreen",
+    "total_hours": 24,
+    "subjects": [
+      { "name": "Hindi", "consumed": 5, "allocated": 5 },
+      { "name": "Maths", "consumed": 4, "allocated": 5 },
+      { "name": "Social", "consumed": 5, "allocated": 5 },
+      { "name": "Science", "consumed": 5, "allocated": 5 },
+      { "name": "English", "consumed": 4, "allocated": 4 }
+    ]
+  },
+  {
+    "name": "mehdi",
+    "total_hours": 24,
+    "subjects": [
+      { "name": "Maths", "consumed": 12, "allocated": 24 }
+    ]
+  },
+  {
+    "name": "Aaradhya",
+    "total_hours": 72,
+    "subjects": [
+      { "name": "Malayalam", "consumed": 4, "allocated": 24 },
+      { "name": "English", "consumed": 3, "allocated": 24 },
+      { "name": "Hindi", "consumed": 2, "allocated": 24 }
+    ]
+  },
+  {
+    "name": "Nayal Joseph",
+    "total_hours": 147,
+    "subjects": [
+      { "name": "Science", "consumed": 34, "allocated": 60 },
+      { "name": "Maths", "consumed": 27, "allocated": 60 },
+      { "name": "English", "consumed": 13, "allocated": 27 }
+    ]
+  },
+  {
+    "name": "Suzaina Marya Adolf",
+    "total_hours": 24,
+    "subjects": [
+      { "name": "Physics", "consumed": 4, "allocated": 4.8 },
+      { "name": "Biology", "consumed": 4.8, "allocated": 4.8 },
+      { "name": "Chemistry", "consumed": 4, "allocated": 4.8 },
+      { "name": "SST", "consumed": 3, "allocated": 4.8 },
+      { "name": "Maths", "consumed": 4.8, "allocated": 4.8 }
+    ]
+  },
+  {
+    "name": "Eina Grace Jiju",
+    "total_hours": 24,
+    "subjects": [
+      { "name": "Maths", "consumed": 2, "allocated": 8 },
+      { "name": "Science", "consumed": 3, "allocated": 8 },
+      { "name": "Hindi", "consumed": 2, "allocated": 8 }
+    ]
+  },
+  {
+    "name": "Azila Fathima",
+    "total_hours": 24,
+    "subjects": [
+      { "name": "English", "consumed": 10, "allocated": 12 },
+      { "name": "Malayalam", "consumed": 9, "allocated": 12 }
+    ]
+  },
+  {
+    "name": "Devadarsh",
+    "total_hours": 24,
+    "subjects": [
+      { "name": "Maths", "consumed": 1, "allocated": 6 },
+      { "name": "Science", "consumed": 2, "allocated": 6 },
+      { "name": "SST", "consumed": 1, "allocated": 6 },
+      { "name": "English", "consumed": 1, "allocated": 6 }
+    ]
+  },
+  {
+    "name": "Sreedev",
+    "total_hours": 30,
+    "subjects": [
+      { "name": "Hindi", "consumed": 26, "allocated": 30 }
+    ]
+  },
+  {
+    "name": "Diya",
+    "total_hours": 45,
+    "subjects": [
+      { "name": "Maths", "consumed": 11, "allocated": 12 },
+      { "name": "Social", "consumed": 7, "allocated": 11 },
+      { "name": "Science", "consumed": 9, "allocated": 11 },
+      { "name": "English", "consumed": 3, "allocated": 11 }
+    ]
+  },
+  {
+    "name": "Ebel",
+    "total_hours": 72,
+    "subjects": [
+      { "name": "English", "consumed": 69, "allocated": 72 }
+    ]
+  },
+  {
+    "name": "Ameena Shameer",
+    "total_hours": 15,
+    "subjects": [
+      { "name": "English", "consumed": 12, "allocated": 15 }
+    ]
+  },
+  {
+    "name": "Riya",
+    "total_hours": 12,
+    "subjects": [
+      { "name": "Physics", "consumed": 3, "allocated": 12 }
+    ]
+  },
+  {
+    "name": "Niranjana",
+    "total_hours": 214,
+    "subjects": [
+      { "name": "Malayalam", "consumed": 9, "allocated": 72 },
+      { "name": "Hindi", "consumed": 7, "allocated": 72 },
+      { "name": "Science", "consumed": 8, "allocated": 72 }
+    ]
+  },
+  {
+    "name": "Adam",
+    "total_hours": 144,
+    "subjects": [
+      { "name": "English", "consumed": 4, "allocated": 9 },
+      { "name": "G. K", "consumed": 3, "allocated": 2 },
+      { "name": "Malayalam", "consumed": 12, "allocated": 24 },
+      { "name": "Hindi", "consumed": 7, "allocated": 24 },
+      { "name": "Maths", "consumed": 7, "allocated": 24 },
+      { "name": "Evs", "consumed": 1, "allocated": 17 }
+    ]
+  },
+  {
+    "name": "Shaina & Shauna",
+    "total_hours": 36,
+    "subjects": [
+      { "name": "English", "consumed": 0.75, "allocated": 7.2 },
+      { "name": "Hindi", "consumed": 1.5, "allocated": 7.2 },
+      { "name": "Sst", "consumed": 0.75, "allocated": 7.2 },
+      { "name": "Maths", "consumed": 0.75, "allocated": 7.2 },
+      { "name": "Science", "consumed": 1.5, "allocated": 7.2 }
+    ]
+  },
+  {
+    "name": "Afham Arshad",
+    "total_hours": 216,
+    "subjects": [
+      { "name": "Physics", "consumed": 9, "allocated": 0 },
+      { "name": "Chemistry", "consumed": 7, "allocated": 0 },
+      { "name": "Biology", "consumed": 9, "allocated": 0 },
+      { "name": "Maths", "consumed": 16, "allocated": 0 },
+      { "name": "Hindi", "consumed": 18, "allocated": 0 }
+    ]
+  },
+  {
+    "name": "zayan ayzan",
+    "total_hours": 5.5,
+    "subjects": []
+  },
+  {
+    "name": "Aaleyah",
+    "total_hours": 360,
+    "subjects": [
+      { "name": "Hindi", "consumed": 32, "allocated": 0 },
+      { "name": "English", "consumed": 23, "allocated": 0 },
+      { "name": "Maths", "consumed": 44, "allocated": 0 }
+    ]
+  },
+  {
+    "name": "Firas",
+    "total_hours": 86,
+    "subjects": [
+      { "name": "Maths", "consumed": 30, "allocated": 0 }
+    ]
+  },
+  {
+    "name": "Sidhan",
+    "total_hours": 216,
+    "subjects": [
+      { "name": "Maths", "consumed": 16, "allocated": 0 },
+      { "name": "Science", "consumed": 16, "allocated": 0 }
+    ]
+  },
+  {
+    "name": "Leo",
+    "total_hours": 144,
+    "subjects": [
+      { "name": "Science", "consumed": 21, "allocated": 0 },
+      { "name": "Maths", "consumed": 20, "allocated": 0 },
+      { "name": "English", "consumed": 24, "allocated": 0 }
+    ]
+  },
+  {
+    "name": "Dhyandev",
+    "total_hours": 21,
+    "subjects": [
+      { "name": "Maths", "consumed": 10, "allocated": 21 }
+    ]
+  },
+  {
+    "name": "Mihira",
+    "total_hours": 24,
+    "subjects": []
+  },
+  {
+    "name": "Siyona",
+    "total_hours": 12,
+    "subjects": [
+      { "name": "Maths", "consumed": 4, "allocated": 0 },
+      { "name": "Biology", "consumed": 5, "allocated": 0 }
+    ]
+  },
+  {
+    "name": "Aithel",
+    "total_hours": 48,
+    "subjects": [
+      { "name": "Maths", "consumed": 15, "allocated": 0 },
+      { "name": "Science", "consumed": 9, "allocated": 0 },
+      { "name": "Social science", "consumed": 12, "allocated": 0 }
+    ]
+  },
+  {
+    "name": "Aenon",
+    "total_hours": 108,
+    "subjects": [
+      { "name": "social science", "consumed": 9, "allocated": 0 },
+      { "name": "Maths", "consumed": 10, "allocated": 0 },
+      { "name": "Science", "consumed": 8, "allocated": 0 },
+      { "name": "English", "consumed": 1, "allocated": 0 }
+    ]
+  },
+  {
+    "name": "Rose",
+    "total_hours": 15,
+    "subjects": [
+      { "name": "Maths", "consumed": 5, "allocated": 15 }
+    ]
+  },
+  {
+    "name": "sayan",
+    "total_hours": 216,
+    "subjects": [
+      { "name": "Maths", "consumed": 6, "allocated": 0 },
+      { "name": "Science", "consumed": 13, "allocated": 0 }
+    ]
+  },
+  {
+    "name": "Ayisha mubarak",
+    "total_hours": 21,
+    "subjects": [
+      { "name": "Hindi", "consumed": 3, "allocated": 12 },
+      { "name": "Maths", "consumed": 3, "allocated": 6 },
+      { "name": "Malayalam", "consumed": 1, "allocated": 3 }
+    ]
+  },
+  {
+    "name": "Ryan",
+    "total_hours": 216,
+    "subjects": [
+      { "name": "Maths", "consumed": 24, "allocated": 72 },
+      { "name": "Physics", "consumed": 18, "allocated": 72 },
+      { "name": "Chemistry", "consumed": 19, "allocated": 72 }
+    ]
+  },
+  {
+    "name": "Evan",
+    "total_hours": 36,
+    "subjects": [
+      { "name": "Maths", "consumed": 4, "allocated": 12 },
+      { "name": "Science", "consumed": 4, "allocated": 12 },
+      { "name": "Social", "consumed": 4, "allocated": 12 }
+    ]
+  },
+  {
+    "name": "Amina",
+    "total_hours": 72,
+    "subjects": [
+      { "name": "Maths", "consumed": 10, "allocated": 26 },
+      { "name": "Arabic", "consumed": 3, "allocated": 16 },
+      { "name": "Malayalam", "consumed": 4, "allocated": 16 },
+      { "name": "English", "consumed": 2, "allocated": 16 }
+    ]
+  },
+  {
+    "name": "Fathima",
+    "total_hours": 72,
+    "subjects": [
+      { "name": "Maths", "consumed": 11, "allocated": 36 },
+      { "name": "Malayalam", "consumed": 7, "allocated": 36 }
+    ]
+  },
+  {
+    "name": "Anaya shaheen",
+    "total_hours": 144,
+    "subjects": [
+      { "name": "Maths", "consumed": 6, "allocated": 26 },
+      { "name": "Science", "consumed": 2, "allocated": 26 },
+      { "name": "Social", "consumed": 3, "allocated": 26 }
+    ]
+  },
+  {
+    "name": "Aryan",
+    "total_hours": 24,
+    "subjects": [
+      { "name": "Maths", "consumed": 5, "allocated": 5 },
+      { "name": "Hindi", "consumed": 5, "allocated": 5 },
+      { "name": "English", "consumed": 3, "allocated": 3 },
+      { "name": "EVs", "consumed": 1, "allocated": 4 },
+      { "name": "Arabic", "consumed": 0, "allocated": 7 }
+    ]
+  },
+  {
+    "name": "Fayis",
+    "total_hours": 144,
+    "subjects": [
+      { "name": "English", "consumed": 3, "allocated": 38 },
+      { "name": "Malayalam", "consumed": 2, "allocated": 38 },
+      { "name": "Maths", "consumed": 4, "allocated": 38 },
+      { "name": "Evs", "consumed": 3, "allocated": 30 }
+    ]
+  },
+  {
+    "name": "Farhan",
+    "total_hours": 48,
+    "subjects": [
+      { "name": "English", "consumed": 2, "allocated": 48 }
+    ]
+  },
+  {
+    "name": "geethika",
+    "total_hours": 120,
+    "subjects": [
+      { "name": "Malayalam", "consumed": 6, "allocated": 60 },
+      { "name": "English", "consumed": 11, "allocated": 60 }
+    ]
+  },
+  {
+    "name": "Jyothika",
+    "total_hours": 120,
+    "subjects": [
+      { "name": "Maths", "consumed": 13, "allocated": 60 },
+      { "name": "Hindi", "consumed": 7, "allocated": 60 }
+    ]
+  },
+  {
+    "name": "Fathimath zehna",
+    "total_hours": 72,
+    "subjects": [
+      { "name": "English", "consumed": 4, "allocated": 12 },
+      { "name": "Hindi", "consumed": 1, "allocated": 30 },
+      { "name": "Malayalam", "consumed": 1, "allocated": 30 }
+    ]
+  },
+  {
+    "name": "Fathimath ziya",
+    "total_hours": 24,
+    "subjects": [
+      { "name": "Maths", "consumed": 7, "allocated": 24 }
+    ]
+  },
+  {
+    "name": "Mehthaf lakan",
+    "total_hours": 72,
+    "subjects": [
+      { "name": "Malayalam", "consumed": 32, "allocated": 36 },
+      { "name": "English", "consumed": 36, "allocated": 36 }
+    ]
+  },
+  {
+    "name": "Pavithra Sreekumar",
+    "total_hours": 216,
+    "subjects": [
+      { "name": "Maths", "consumed": 21, "allocated": 110 },
+      { "name": "Physics", "consumed": 15, "allocated": 53 },
+      { "name": "Chemistry", "consumed": 4, "allocated": 53 }
+    ]
+  },
+  {
+    "name": "Amaal",
+    "total_hours": 24,
+    "subjects": [
+      { "name": "English", "consumed": 4, "allocated": 4 },
+      { "name": "Hindi", "consumed": 5, "allocated": 5 },
+      { "name": "Maths", "consumed": 6, "allocated": 6 },
+      { "name": "EVs", "consumed": 3, "allocated": 6 },
+      { "name": "Arabic", "consumed": 1, "allocated": 3 }
+    ]
+  }
+]

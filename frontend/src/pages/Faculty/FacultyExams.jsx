@@ -224,7 +224,7 @@ const FacultyExams = () => {
       {/* Add Score Modal */}
       {showAddModal && (
         <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-[#008080]/60 backdrop-blur-xl" onClick={() => setShowAddModal(false)}></div>
+          <div className="absolute inset-0 bg-[#008080]/60 backdrop-blur-xl max-h-[90vh] overflow-y-auto" onClick={() => setShowAddModal(false)}></div>
           <div className="bg-white w-full max-w-2xl max-h-[90vh] overflow-y-auto p-10 rounded-[3.5rem] relative z-[2001] shadow-2xl animate-in fade-in zoom-in-95 duration-500 border border-slate-100">
             <div className="flex justify-between items-start mb-10">
               <div>

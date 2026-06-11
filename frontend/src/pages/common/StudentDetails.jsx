@@ -365,7 +365,8 @@ const StudentDetails = () => {
                                                 </span>
                                             </div>
                                             <div className="max-h-[300px] overflow-y-auto">
-                                                <table className="w-full text-left">
+                                                <div className="w-full overflow-x-auto">
+<table className="w-full text-left">
                                                     <thead className="sticky top-0 bg-white shadow-sm">
                                                         <tr>
                                                             <th className="py-3 px-6 text-[9px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">Date</th>
@@ -389,6 +390,7 @@ const StudentDetails = () => {
                                                         ))}
                                                     </tbody>
                                                 </table>
+</div>
                                             </div>
                                         </div>
                                     )}

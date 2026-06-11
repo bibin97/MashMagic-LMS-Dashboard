@@ -187,7 +187,7 @@ const Documents = () => {
  {/* Ingestion Modal */}
  {isModalOpen && (
  <div className="fixed inset-0 bg-[#008080]/60 backdrop-blur-md z-[1100] flex items-center justify-center p-4 animate-in fade-in duration-300">
- <div className="bg-white rounded-[4rem] shadow-2xl w-full max-w-2xl overflow-hidden animate-in zoom-in duration-500 border border-white/20">
+ <div className="bg-white rounded-[4rem] shadow-2xl w-full max-w-2xl overflow-hidden animate-in zoom-in duration-500 border border-white/20 max-h-[90vh] overflow-y-auto">
  <div className="bg-[#008080] p-10 flex justify-between items-center relative h-32 overflow-hidden">
  <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/20 rounded-full -mr-32 -mt-32"></div>
  <div className="relative z-10 flex items-center gap-6">

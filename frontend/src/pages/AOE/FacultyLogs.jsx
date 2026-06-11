@@ -248,7 +248,7 @@ const FacultyLogs = () => {
  {/* Modal for Mentor Audit Detail */}
  {selectedLog && isMentorTab && (
  <div className="fixed inset-0 bg-[#008080]/60 backdrop-blur-md z-[1100] flex items-center justify-center p-4 animate-in fade-in duration-300">
- <div className="bg-white rounded-[4rem] shadow-2xl w-full max-w-5xl h-[90vh] overflow-hidden animate-in zoom-in duration-500 border border-white/20 flex flex-col">
+ <div className="bg-white rounded-[4rem] shadow-2xl w-full max-w-5xl h-[90vh] overflow-hidden animate-in zoom-in duration-500 border border-white/20 flex flex-col max-h-[90vh] overflow-y-auto">
  <div className="p-10 border-b border-slate-50 flex justify-between items-center bg-[#008080] text-white relative h-32 overflow-hidden">
  <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-32 -mt-32"></div>
  <div className="relative z-10 flex items-center gap-6">

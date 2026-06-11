@@ -303,7 +303,7 @@ const Exams = () => {
  {/* Assessment Submission Modal */}
  {isSubmitModalOpen && (
  <div className="fixed inset-0 bg-[#008080]/60 backdrop-blur-md z-[1100] flex items-center justify-center p-4 animate-in fade-in duration-300">
- <div className="bg-white rounded-[3.5rem] shadow-2xl w-full max-w-xl overflow-hidden animate-in zoom-in duration-500 border border-white/20">
+ <div className="bg-white rounded-[3.5rem] shadow-2xl w-full max-w-xl overflow-hidden animate-in zoom-in duration-500 border border-white/20 max-h-[90vh] overflow-y-auto">
  {/* Modal Header */}
  <div className="p-10 border-b border-slate-50 flex justify-between items-center bg-[#008080] text-white relative h-32">
  <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16"></div>

@@ -737,7 +737,7 @@ const Students = () => {
  {/* ─── Fee Management Modal ─────────────────────────── */}
  {isFeeModalOpen && (
    <div className="fixed inset-0 z-[100] flex items-start justify-center pt-8 px-4 pb-8">
-     <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setIsFeeModalOpen(false)} />
+     <div className="absolute inset-0 bg-black/40 backdrop-blur-sm max-h-[90vh] overflow-y-auto" onClick={() => setIsFeeModalOpen(false)} />
      <div className="relative bg-white rounded-[2.5rem] shadow-2xl w-full max-w-3xl max-h-[92vh] overflow-y-auto border border-slate-100 animate-in fade-in slide-in-from-bottom-4 duration-300">
        <div className="sticky top-0 bg-white/95 backdrop-blur-sm z-10 px-8 pt-8 pb-4 border-b border-slate-100 rounded-t-[2.5rem]">
          <div className="flex items-center justify-between">
@@ -900,7 +900,8 @@ const Students = () => {
 
                {/* Installments Table */}
                <div className="max-h-[300px] overflow-y-auto">
-                 <table className="w-full text-left">
+                 <div className="w-full overflow-x-auto">
+<table className="w-full text-left">
                    <thead className="sticky top-0 bg-white shadow-sm">
                      <tr>
                        <th className="py-3 px-5 text-[9px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">Date</th>
@@ -926,6 +927,7 @@ const Students = () => {
                      ))}
                    </tbody>
                  </table>
+</div>
                </div>
              </div>
            </>

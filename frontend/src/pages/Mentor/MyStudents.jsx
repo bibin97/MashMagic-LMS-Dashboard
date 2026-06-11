@@ -406,7 +406,7 @@ const MyStudents = () => {
  {/* Log Hours Modal */}
  {isHoursModalOpen && selectedStudent && (
  <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
- <div className="absolute inset-0 bg-[#008080]/60 backdrop-blur-sm" onClick={() => setIsHoursModalOpen(false)}></div>
+ <div className="absolute inset-0 bg-[#008080]/60 backdrop-blur-sm max-h-[90vh] overflow-y-auto" onClick={() => setIsHoursModalOpen(false)}></div>
  <div className="bg-white rounded-[3rem] w-full max-w-md shadow-2xl overflow-hidden relative z-10 animate-in zoom-in duration-300">
  <div className="px-10 py-8 bg-[#008080] text-white relative">
  <div className="absolute top-0 right-0 p-6 opacity-20">

@@ -13,7 +13,7 @@ const PostponeModal = ({ session, onClose, onConfirm }) => {
 
  return (
  <div className="fixed inset-0 bg-[#008080]/50 backdrop-blur-sm flex items-center justify-center p-6 z-[9999]">
- <div className="bg-white w-full max-w-sm rounded-[2rem] shadow-2xl p-8 border border-white/20 animate-in zoom-in duration-300">
+ <div className="bg-white w-full max-w-sm rounded-[2rem] shadow-2xl p-8 border border-white/20 animate-in zoom-in duration-300 max-h-[90vh] overflow-y-auto">
  <div className="flex justify-between items-center mb-6">
  <h3 className="text-xl font-black text-slate-900">Postpone Session</h3>
  <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-xl transition-colors">

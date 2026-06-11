@@ -469,7 +469,7 @@ const OperationsHub = ({ section }) => {
 
       {rotationModal.show && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-white rounded-[2.5rem] w-full max-w-lg overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200">
+          <div className="bg-white rounded-[2.5rem] w-full max-w-lg overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto">
             <div className="p-8 pb-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
               <div>
                 <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight flex items-center gap-3">
@@ -539,7 +539,8 @@ const OperationsHub = ({ section }) => {
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100 overflow-x-auto">
         <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight mb-6">Institution-wide Exam Scores</h2>
-        <table className="w-full min-w-[800px] text-left">
+        <div className="w-full overflow-x-auto">
+<table className="w-full min-w-[800px] text-left">
           <thead>
             <tr className="border-b border-slate-200">
               <th className="pb-3 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Student</th>
@@ -560,6 +561,7 @@ const OperationsHub = ({ section }) => {
             ))}
           </tbody>
         </table>
+</div>
       </div>
     </div>
   );
@@ -672,7 +674,8 @@ const OperationsHub = ({ section }) => {
         <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight mb-6 flex items-center gap-3">
           <GraduationCap className="text-teal-500" /> Student Course Completions
         </h2>
-        <table className="w-full min-w-[900px] text-left">
+        <div className="w-full overflow-x-auto">
+<table className="w-full min-w-[900px] text-left">
           <thead>
             <tr className="border-b border-slate-200">
               <th className="pb-3 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Student</th>
@@ -716,11 +719,12 @@ const OperationsHub = ({ section }) => {
             ))}
           </tbody>
         </table>
+</div>
       </div>
 
       {completionModal.show && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-white rounded-[2.5rem] w-full max-w-lg overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200">
+          <div className="bg-white rounded-[2.5rem] w-full max-w-lg overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto">
             <div className="p-8 pb-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
               <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight flex items-center gap-3">
                 <CheckCircle2 className="text-teal-500" /> Complete Course

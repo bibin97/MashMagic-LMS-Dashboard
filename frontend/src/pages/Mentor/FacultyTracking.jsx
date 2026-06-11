@@ -443,7 +443,7 @@ const FacultyTracking = () => {
       {/* Review Modal */}
       {isReviewModalOpen && selectedLog && (
         <div className="fixed inset-0 bg-[#008080]/60 backdrop-blur-md z-[2000] flex items-center justify-center p-6 animate-in fade-in duration-300">
-           <div className="bg-white rounded-[40px] shadow-2xl w-full max-w-2xl overflow-hidden animate-in zoom-in slide-in-from-bottom-10 duration-500">
+           <div className="bg-white rounded-[40px] shadow-2xl w-full max-w-2xl overflow-hidden animate-in zoom-in slide-in-from-bottom-10 duration-500 max-h-[90vh] overflow-y-auto">
               <div className="p-10 border-b border-slate-50 flex justify-between items-center">
                  <div>
                     <h3 className="text-2xl font-black text-slate-900 uppercase tracking-tighter">Mentor Review</h3>
