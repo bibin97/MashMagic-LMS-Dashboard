@@ -78,6 +78,7 @@ const Timetable = () => {
     status: 'Scheduled',
     status_reason: '',
     notes: '',
+    subject: '',
     faculty_id: null,
     faculty_name: ''
   });
@@ -397,6 +398,7 @@ const Timetable = () => {
       start_time: '',
       end_time: '',
       chapter: '',
+      subject: '',
       faculty_id: null,
       faculty_name: ''
     });
@@ -717,8 +719,11 @@ const Timetable = () => {
                   </div>
 
                   <div className="flex flex-col gap-1 flex-grow min-w-[200px]">
-                    <span className="text-[8px] font-black text-slate-600 uppercase tracking-[0.2em] pl-1">Chapter / Primary Topic</span>
-                    <p className="text-sm font-black text-slate-900 truncate ">{session.chapter || 'Pending topic assignment'}</p>
+                    <span className="text-[8px] font-black text-slate-600 uppercase tracking-[0.2em] pl-1">Subject & Topic</span>
+                    <p className="text-sm font-black text-slate-900 truncate ">
+                      {session.subject ? <span className="text-[#008080] mr-2">[{session.subject}]</span> : null}
+                      {session.chapter || 'Pending topic assignment'}
+                    </p>
                   </div>
                 </div>
 
@@ -1021,6 +1026,17 @@ const Timetable = () => {
                           );
                         })()}
                       </select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Subject</label>
+                      <input
+                        type="text"
+                        value={formData.subject}
+                        onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
+                        placeholder="Enter subject name (e.g., Maths, Physics)"
+                        className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
+                      />
                     </div>
 
                     <div className="space-y-2">

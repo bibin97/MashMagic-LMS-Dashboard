@@ -3,15 +3,36 @@ const calculateStudentHours = async (students, db) => {
 
     const studentIds = students.map(s => s.id);
     
-    // Fetch all completed timetable sessions, and join faculty_sessions to get exact minutes_taken
-    const [sessions] = await db.query(`
-        SELECT t.student_id, t.duration, fs.minutes_taken 
-        FROM timetable t
-        LEFT JOIN faculty_sessions fs ON t.id = fs.timetable_id
-        WHERE t.status = "Completed" AND t.student_id IN (?)
-    `, [studentIds]);
+    // Check if student_subjects table exists to avoid crash if migration not run
+    let baseSubjects = [];
+    try {
+        const [rows] = await db.query('SELECT * FROM student_subjects WHERE student_id IN (?)', [studentIds]);
+        baseSubjects = rows;
+    } catch (e) {
+        // Table doesn't exist yet, ignore
+    }
 
-    // Also fetch standalone faculty_sessions that might not have a timetable entry
+    // Try to get subject from timetable
+    let sessions = [];
+    try {
+        const [rows] = await db.query(`
+            SELECT t.student_id, t.duration, t.subject, fs.minutes_taken 
+            FROM timetable t
+            LEFT JOIN faculty_sessions fs ON t.id = fs.timetable_id
+            WHERE t.status = "Completed" AND t.student_id IN (?)
+        `, [studentIds]);
+        sessions = rows;
+    } catch (e) {
+        // Fallback if subject column doesn't exist yet
+        const [rows] = await db.query(`
+            SELECT t.student_id, t.duration, fs.minutes_taken 
+            FROM timetable t
+            LEFT JOIN faculty_sessions fs ON t.id = fs.timetable_id
+            WHERE t.status = "Completed" AND t.student_id IN (?)
+        `, [studentIds]);
+        sessions = rows.map(r => ({ ...r, subject: 'Unknown' }));
+    }
+
     const [standaloneSessions] = await db.query(`
         SELECT sa.student_id, fs.minutes_taken, fs.duration
         FROM faculty_sessions fs
@@ -19,9 +40,20 @@ const calculateStudentHours = async (students, db) => {
         WHERE fs.status = "Completed" AND fs.timetable_id IS NULL AND sa.student_id IN (?)
     `, [studentIds]);
 
-    // Group consumed minutes by student
     const consumedMap = {};
-    studentIds.forEach(id => consumedMap[id] = 0);
+    studentIds.forEach(id => {
+        consumedMap[id] = { totalMins: 0, subjects: {} };
+    });
+
+    // Populate historical base
+    baseSubjects.forEach(bs => {
+        if (!consumedMap[bs.student_id].subjects[bs.subject_name]) {
+            consumedMap[bs.student_id].subjects[bs.subject_name] = {
+                allocated: parseFloat(bs.allocated_hours) || 0,
+                consumedMins: (parseFloat(bs.historical_consumed_hours) || 0) * 60
+            };
+        }
+    });
 
     const processSession = (session) => {
         let mins = 0;
@@ -35,8 +67,15 @@ const calculateStudentHours = async (students, db) => {
             if (hMatch) mins += parseInt(hMatch[1]) * 60;
             if (mMatch) mins += parseInt(mMatch[1]);
         }
-        if (consumedMap[session.student_id] !== undefined) {
-            consumedMap[session.student_id] += mins;
+        
+        if (consumedMap[session.student_id]) {
+            consumedMap[session.student_id].totalMins += mins;
+            
+            const subj = session.subject || 'Unknown';
+            if (!consumedMap[session.student_id].subjects[subj]) {
+                consumedMap[session.student_id].subjects[subj] = { allocated: 0, consumedMins: 0 };
+            }
+            consumedMap[session.student_id].subjects[subj].consumedMins += mins;
         }
     };
 
@@ -59,7 +98,31 @@ const calculateStudentHours = async (students, db) => {
             total_entitled_hours = total_hours;
         }
 
-        const total_lifetime_consumed_mins = consumedMap[s.id] || 0;
+        const studentData = consumedMap[s.id] || { totalMins: 0, subjects: {} };
+        
+        // Sum historical baseline to totalMins
+        let historicalTotalMins = 0;
+        const subject_hours = [];
+        for (const [subjName, data] of Object.entries(studentData.subjects)) {
+            const subjConsumedHours = data.consumedMins / 60;
+            subject_hours.push({
+                subject: subjName,
+                consumed_hours: parseFloat(subjConsumedHours.toFixed(2)),
+                allocated_hours: data.allocated
+            });
+            // We only add the historical base because dynamically tracked session mins are already in studentData.totalMins
+            // Wait, studentData.totalMins only has dynamically tracked sessions.
+            // historicalTotalMins should sum ONLY the historical base!
+        }
+
+        // Wait, the `data.consumedMins` above is `historical + dynamically tracked`.
+        // So the TRUE total lifetime consumed minutes is `studentData.totalMins` (dynamically tracked) + SUM(historical consumed mins).
+        let total_historical_mins = 0;
+        baseSubjects.filter(bs => bs.student_id === s.id).forEach(bs => {
+            total_historical_mins += (parseFloat(bs.historical_consumed_hours) || 0) * 60;
+        });
+
+        const total_lifetime_consumed_mins = studentData.totalMins + total_historical_mins;
         const total_lifetime_consumed_hours = total_lifetime_consumed_mins / 60;
         
         // Cycle Limit is the total entitled hours minus whatever they had already consumed before this last payment.
@@ -97,7 +160,8 @@ const calculateStudentHours = async (students, db) => {
             consumed_hours: parseFloat(cycle_consumed_hours.toFixed(2)),
             payment_alert_level,
             payment_threshold_percentage: parseFloat(payment_threshold_percentage.toFixed(2)),
-            total_lifetime_consumed_hours: parseFloat(total_lifetime_consumed_hours.toFixed(2))
+            total_lifetime_consumed_hours: parseFloat(total_lifetime_consumed_hours.toFixed(2)),
+            subject_hours: subject_hours
         };
     });
 };

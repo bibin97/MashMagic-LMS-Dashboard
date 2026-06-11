@@ -88,10 +88,21 @@ const StudentRow = ({ student, navigate }) => {
                 {Math.round(((student.consumed_hours || 0) / (student.paid_hours || 1)) * 100)}%
               </span>
             </div>
-            <div className="flex flex-col gap-0.5">
+              <div className="flex flex-col gap-0.5 mt-2">
               <span className="text-[8px] font-black uppercase tracking-wider text-slate-400">Lifetime Hours: <span className="text-[#008080] font-black">{student.total_lifetime_consumed_hours || 0} / {student.total_hours || 0} hrs</span></span>
               <span className="text-[8px] font-black uppercase tracking-wider text-slate-400">Cycle Consumed: <span className="text-slate-700">{student.consumed_hours || 0} hrs</span></span>
               <span className="text-[8px] font-black uppercase tracking-wider text-slate-400">Cycle Limit: <span className="text-slate-700">{Math.round(student.paid_hours || 0)} hrs</span></span>
+              {student.subject_hours && student.subject_hours.length > 0 && (
+                <div className="mt-1 pt-1 border-t border-slate-200 flex flex-col gap-0.5">
+                  <span className="text-[7px] font-black text-[#008080] uppercase tracking-widest mb-0.5">Subject Breakdown</span>
+                  {student.subject_hours.map((sh, idx) => (
+                    <div key={idx} className="flex justify-between items-center text-[8px] font-black uppercase text-slate-500">
+                      <span>{sh.subject}</span>
+                      <span className="text-slate-700 ml-2">{sh.consumed_hours} / {sh.allocated_hours} Hrs</span>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>

@@ -338,11 +338,23 @@ const StudentsList = ({ role = 'academic_operation_executive' }) => {
 											</div>
 										</td>
 										<td className="px-8 py-6">
-											<div className="flex items-center gap-2">
-												<Clock size={14} className="text-[#008080]" />
-												<span className="text-xs font-black text-slate-700 tracking-widest">
-													{student.total_lifetime_consumed_hours || 0} / {student.total_hours || 0} Hrs
-												</span>
+											<div className="flex flex-col gap-1">
+												<div className="flex items-center gap-2">
+													<Clock size={14} className="text-[#008080]" />
+													<span className="text-xs font-black text-slate-700 tracking-widest">
+														{student.total_lifetime_consumed_hours || 0} / {student.total_hours || 0} Hrs
+													</span>
+												</div>
+												{student.subject_hours && student.subject_hours.length > 0 && (
+													<div className="flex flex-col gap-0.5 mt-1 border-t border-slate-100 pt-1 w-full min-w-[120px]">
+														{student.subject_hours.map((sh, idx) => (
+															<div key={idx} className="flex justify-between items-center text-[9px] font-black uppercase text-slate-500">
+																<span>{sh.subject}</span>
+																<span className="text-slate-700 ml-2">{sh.consumed_hours} / {sh.allocated_hours} Hrs</span>
+															</div>
+														))}
+													</div>
+												)}
 											</div>
 										</td>
 										<td className="px-8 py-6">

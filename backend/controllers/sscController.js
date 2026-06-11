@@ -120,7 +120,7 @@ exports.getTimetable = async (req, res) => {
 
 exports.createSession = async (req, res) => {
     try {
-        const { student_id, date, start_time, end_time, chapter, session_type, status, notes, faculty_id, faculty_name } = req.body;
+        const { student_id, date, start_time, end_time, subject, chapter, session_type, status, notes, faculty_id, faculty_name } = req.body;
         
         const [student] = await db.query('SELECT mentor_id FROM students WHERE id = ?', [student_id]);
         const mentor_id = student[0]?.mentor_id || null;
@@ -138,9 +138,9 @@ exports.createSession = async (req, res) => {
         const duration = `${Math.floor(diffMins / 60)}h ${diffMins % 60}m`;
 
         const [result] = await db.query(`
-            INSERT INTO timetable (mentor_id, student_id, session_number, date, start_time, end_time, duration, chapter, session_type, status, notes, faculty_id, faculty_name)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        `, [mentor_id, student_id, nextSessionNumber, date, formattedStartTime, formattedEndTime, duration, chapter, session_type, status, notes, faculty_id || null, faculty_name]);
+            INSERT INTO timetable (mentor_id, student_id, session_number, date, start_time, end_time, duration, subject, chapter, session_type, status, notes, faculty_id, faculty_name)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `, [mentor_id, student_id, nextSessionNumber, date, formattedStartTime, formattedEndTime, duration, subject || null, chapter, session_type, status, notes, faculty_id || null, faculty_name]);
 
         // Optional: Sync to faculty_sessions logic could be duplicated here, but for SSC simple schedule we just insert
 
@@ -153,7 +153,7 @@ exports.createSession = async (req, res) => {
 exports.updateSession = async (req, res) => {
     try {
         const sessionId = req.params.id;
-        const { date, start_time, end_time, chapter, session_type, status, notes, faculty_id, faculty_name } = req.body;
+        const { date, start_time, end_time, subject, chapter, session_type, status, notes, faculty_id, faculty_name } = req.body;
 
         const formattedStartTime = convertTo24Hour(start_time);
         const formattedEndTime = convertTo24Hour(end_time);
@@ -166,9 +166,9 @@ exports.updateSession = async (req, res) => {
 
         await db.query(`
             UPDATE timetable 
-            SET date = ?, start_time = ?, end_time = ?, duration = ?, chapter = ?, session_type = ?, status = ?, notes = ?, faculty_id = ?, faculty_name = ?
+            SET date = ?, start_time = ?, end_time = ?, duration = ?, subject = ?, chapter = ?, session_type = ?, status = ?, notes = ?, faculty_id = ?, faculty_name = ?
             WHERE id = ?
-        `, [date, formattedStartTime, formattedEndTime, duration, chapter, session_type, status, notes, faculty_id || null, faculty_name, sessionId]);
+        `, [date, formattedStartTime, formattedEndTime, duration, subject || null, chapter, session_type, status, notes, faculty_id || null, faculty_name, sessionId]);
 
         res.status(200).json({ success: true, message: "Session updated" });
     } catch (error) {
@@ -285,7 +285,7 @@ exports.createBatchTimetable = async (req, res) => {
         let currentSessionNum = (maxSessionResult[0].max_sn || 0) + 1;
 
         for (const session of sessions) {
-            const { date, start_time, end_time, chapter, session_type, notes, faculty_id, faculty_name } = session;
+            const { date, start_time, end_time, subject, chapter, session_type, notes, faculty_id, faculty_name } = session;
 
             const formattedStartTime = convertTo24Hour(start_time);
             const formattedEndTime = convertTo24Hour(end_time);
@@ -297,9 +297,9 @@ exports.createBatchTimetable = async (req, res) => {
             const duration = `${Math.floor(diffMins / 60)}h ${diffMins % 60}m`;
 
             await connection.query(`
-                INSERT INTO timetable (mentor_id, student_id, session_number, date, start_time, end_time, duration, chapter, session_type, status, notes, faculty_id, faculty_name)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'Scheduled', ?, ?, ?)
-            `, [actualMentorId, student_id, currentSessionNum++, date, formattedStartTime, formattedEndTime, duration, chapter, session_type || 'Regular Class', notes || '', faculty_id ? parseInt(faculty_id) : null, faculty_name || null]);
+                INSERT INTO timetable (mentor_id, student_id, session_number, date, start_time, end_time, duration, subject, chapter, session_type, status, notes, faculty_id, faculty_name)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Scheduled', ?, ?, ?)
+            `, [actualMentorId, student_id, currentSessionNum++, date, formattedStartTime, formattedEndTime, duration, subject || null, chapter, session_type || 'Regular Class', notes || '', faculty_id ? parseInt(faculty_id) : null, faculty_name || null]);
         }
 
         await connection.commit();

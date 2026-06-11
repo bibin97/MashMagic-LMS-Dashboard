@@ -131,7 +131,8 @@ const AcademicSchedule = () => {
 
   const localTodayStr = (() => {
     const d = new Date();
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    
+return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
   })();
 
   const handleReminderSave = async (num, remark) => {
@@ -234,23 +235,53 @@ const AcademicSchedule = () => {
           </div>
         </div>
 
-        <div className="flex items-center gap-4">
-          <button 
-            onClick={handleExport}
-            className="bg-emerald-50 text-emerald-600 hover:bg-emerald-500 hover:text-white px-4 md:px-6 py-2.5 md:py-3 rounded-[1rem] md:rounded-2xl border border-emerald-100 flex items-center gap-2 transition-all font-black uppercase text-[10px]"
-          >
-            <Download size={14} /> Export Excel
-          </button>
-          <div className="bg-slate-50 px-4 md:px-6 py-2.5 md:py-3 rounded-[1rem] md:rounded-2xl border border-slate-100 flex items-center gap-3">
-            <Activity className="text-emerald-500 shrink-0" size={14} />
-            <div>
-              <p className="text-[7px] md:text-[8px] font-black text-slate-600 uppercase tracking-widest">Total Active</p>
-              <p className="text-xs md:text-sm font-black text-slate-900 leading-none">{schedule.filter(s => s.status === 'Scheduled').length} Sessions</p>
-            </div>
+        
+      </div>
+
+      
+      {/* KPI Stats Row */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-4">
+          <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-500 flex items-center justify-center shrink-0">
+            <BookOpen size={18} />
+          </div>
+          <div>
+            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Total</p>
+            <p className="text-lg font-black text-slate-900 leading-none">{totalCount}</p>
+          </div>
+        </div>
+        
+        <div className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-4">
+          <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-500 flex items-center justify-center shrink-0">
+            <Timer size={18} />
+          </div>
+          <div>
+            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Today</p>
+            <p className="text-lg font-black text-slate-900 leading-none">{todayCount}</p>
+          </div>
+        </div>
+
+        <div className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-4">
+          <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-500 flex items-center justify-center shrink-0">
+            <CheckSquare size={18} />
+          </div>
+          <div>
+            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Completed</p>
+            <p className="text-lg font-black text-slate-900 leading-none">{completedCount}</p>
+          </div>
+        </div>
+
+        <div className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-4">
+          <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center shrink-0">
+            <Filter size={18} />
+          </div>
+          <div>
+            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Filtered</p>
+            <p className="text-lg font-black text-slate-900 leading-none">{filteredCount}</p>
           </div>
         </div>
       </div>
-
+  
       {/* Tabs and Search Bar */}
       <div className="bg-white p-4 md:p-6 rounded-[1.5rem] md:rounded-[2.5rem] border border-slate-100 shadow-sm space-y-4 md:space-y-6">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6">

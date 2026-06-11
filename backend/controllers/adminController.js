@@ -1026,7 +1026,7 @@ const getAllStudentsForAdmin = async (req, res) => {
                 enrollment_type,
                 admission_type,
                 subjects_json
-            FROM students WHERE mentor_id IS NOT NULL
+            FROM students WHERE 1=1
         `;
         let params = [];
 

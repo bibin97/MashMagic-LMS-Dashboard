@@ -1,5 +1,6 @@
 const db = require('../config/db');
 const User = require('../models/userModel');
+const { calculateStudentHours } = require('../utils/studentHoursHelper');
 
 // @desc    Get dashboard stats for faculty
 // @route   GET /api/faculty/dashboard
@@ -88,12 +89,41 @@ const getDashboard = async (req, res) => {
 const getStudents = async (req, res) => {
     try {
         const facultyId = req.user.id;
-        const [students] = await db.query(`
-            SELECT DISTINCT s.id, s.name, s.roll_number, s.department, s.attendance_percentage, s.performance_status, s.status, s.created_at, s.badge, s.enrollment_type
+
+        const [facultyRows] = await db.query('SELECT subject, secondary_subjects FROM users WHERE id = ?', [facultyId]);
+        const facultySubjects = [];
+        if (facultyRows.length > 0) {
+            const f = facultyRows[0];
+            if (f.subject) facultySubjects.push(f.subject.toLowerCase().trim());
+            if (f.secondary_subjects) {
+                try {
+                    let sec = f.secondary_subjects;
+                    if (typeof sec === 'string') sec = JSON.parse(sec);
+                    if (Array.isArray(sec)) facultySubjects.push(...sec.map(s => s.toLowerCase().trim()));
+                } catch(e) {}
+            }
+        }
+
+        let [students] = await db.query(`
+            SELECT DISTINCT s.id, s.name, s.roll_number, s.department, s.attendance_percentage, s.performance_status, s.status, s.created_at, s.badge, s.enrollment_type, s.total_fees, s.total_hours, s.total_paid
             FROM students s
             WHERE s.faculty_id = ? 
                OR EXISTS (SELECT 1 FROM faculty_schedules fs WHERE fs.student_id = s.id AND fs.faculty_id = ?)
         `, [facultyId, facultyId]);
+
+        students = await calculateStudentHours(students, db);
+
+        // Filter subject_hours to only include the subjects this faculty teaches
+        if (facultySubjects.length > 0) {
+            students = students.map(student => {
+                if (student.subject_hours && Array.isArray(student.subject_hours)) {
+                    student.subject_hours = student.subject_hours.filter(sh => 
+                        sh.subject && facultySubjects.includes(sh.subject.toLowerCase().trim())
+                    );
+                }
+                return student;
+            });
+        }
 
         res.status(200).json({ success: true, count: students.length, data: students });
     } catch (error) {

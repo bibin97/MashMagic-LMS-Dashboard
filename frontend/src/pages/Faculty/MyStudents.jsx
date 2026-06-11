@@ -104,6 +104,7 @@ const FacultyStudents = () => {
  <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Student Information</th>
  <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Roll Number</th>
  <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Department</th>
+ <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Hours</th>
  <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest text-center">Attendance</th>
  <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Performance</th>
  </tr>
@@ -141,6 +142,20 @@ const FacultyStudents = () => {
  <div className="flex items-center gap-2">
  <div className="w-1.5 h-1.5 bg-[#008080] rounded-full"></div>
  <span className="text-xs font-bold text-slate-700 tracking-tight uppercase">{student.department || 'General'}</span>
+ </div>
+ </td>
+ <td className="px-8 py-6">
+ <div className="flex flex-col gap-1 min-w-[120px]">
+ {student.subject_hours && student.subject_hours.length > 0 ? (
+ student.subject_hours.map((sh, idx) => (
+ <div key={idx} className="flex justify-between items-center text-[10px] font-black uppercase text-[#008080]">
+ <span>{sh.subject}</span>
+ <span className="text-slate-700 ml-2">{sh.consumed_hours} / {sh.allocated_hours} Hrs</span>
+ </div>
+ ))
+ ) : (
+ <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">No subject hours logged</span>
+ )}
  </div>
  </td>
  <td className="px-8 py-6">
