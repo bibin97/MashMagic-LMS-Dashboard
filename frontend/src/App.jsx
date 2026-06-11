@@ -322,12 +322,10 @@ function App() {
             <Route path="students" element={<MyStudents />} />
             <Route path="students/:id" element={<StudentDetails />} />
             <Route path="tasks" element={<MyTasks />} />
-            <Route path="timetable" element={<Timetable />} />
             <Route path="interaction-logs" element={<StudentInteractionLog />} />
             <Route path="faculty-logs" element={<FacultyTracking />} />
             <Route path="exams" element={<Exams />} />
             <Route path="students-data" element={<StudentsData />} />
-            <Route path="academic-schedule" element={<AcademicSchedule />} />
             <Route path="profile" element={<AdminProfile />} />
             <Route path="account-settings" element={<AccountSettings />} />
           </Route>
