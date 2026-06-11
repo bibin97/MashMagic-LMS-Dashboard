@@ -90,7 +90,7 @@ const StudentDetails = () => {
  </span>
  </div>
 
- <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
+ <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
  <div>
  <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest mb-1 flex items-center gap-2"><BookOpen size={12} /> Primary Subject</p>
  <p className="text-base font-bold text-slate-700">{student.subject}</p>
@@ -112,7 +112,7 @@ const StudentDetails = () => {
  </div>
 
  {/* Navigation Tabs */}
- <div className="flex gap-2 p-1.5 bg-slate-100 rounded-3xl w-fit">
+ <div className="flex flex-wrap justify-center gap-2 p-1.5 bg-slate-100 rounded-3xl w-full md:w-fit">
  {[
  { id: 'info', label: 'Detailed Info', icon: <User size={14} /> },
  { id: 'timetable', label: 'Session Timetable', icon: <Clock size={14} /> },
@@ -124,7 +124,7 @@ const StudentDetails = () => {
  key={tab.id}
  onClick={() => setActiveTab(tab.id)}
  className={`
- flex items-center gap-2 px-8 py-4 rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest transition-all
+ flex-1 md:flex-none items-center justify-center gap-2 px-4 md:px-8 py-3 md:py-4 rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest transition-all
  ${activeTab === tab.id ? 'bg-white text-[#008080] shadow-lg' : 'text-slate-500 hover:text-slate-800'}
  `}
  >

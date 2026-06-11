@@ -160,7 +160,7 @@ const FacultyTracking = () => {
           </p>
         </div>
 
-        <div className="bg-white p-1.5 rounded-[22px] border border-slate-200 flex gap-2 shadow-sm">
+        <div className="bg-white p-1.5 rounded-[22px] border border-slate-200 flex flex-wrap gap-2 shadow-sm">
           {[
             { id: 'history', label: 'Daily Updates', icon: <History size={16} /> },
             { id: 'review', label: 'Mentor Review', icon: <CheckSquare size={16} /> },
@@ -169,7 +169,7 @@ const FacultyTracking = () => {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-3 px-6 py-3 rounded-[18px] text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === tab.id ? 'bg-yellow-400 text-slate-900 shadow-xl' : 'text-slate-400 hover:bg-slate-50'}`}
+              className={`flex-1 md:flex-none justify-center items-center gap-2 md:gap-3 px-3 md:px-6 py-3 rounded-[18px] text-[9px] md:text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === tab.id ? 'bg-yellow-400 text-slate-900 shadow-xl' : 'text-slate-400 hover:bg-slate-50'}`}
             >
               {tab.icon} {tab.label}
             </button>

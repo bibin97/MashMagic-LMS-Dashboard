@@ -40,7 +40,7 @@ const StudentRow = ({ student, navigate, handleToggleConnection, handleCompleteO
         </div>
 
         {/* Stats Area */}
-        <div className="flex items-center gap-8 px-8 py-3 bg-slate-50/50 rounded-2xl border border-slate-100/50 w-full lg:w-auto">
+        <div className="flex flex-wrap items-center justify-between gap-4 md:gap-8 px-4 md:px-8 py-4 bg-slate-50/50 rounded-2xl border border-slate-100/50 w-full lg:w-auto">
           <div className="text-center" title={`Consumed: ${student.consumed_hours || 0} | Paid: ${student.paid_hours || 0}`}>
             <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Class Hrs</p>
             <p className={`text-sm font-black leading-none ${student.payment_alert_level === 'Critical' ? 'text-rose-600' : student.payment_alert_level === 'Warning' ? 'text-amber-600' : 'text-slate-700'}`}>{student.consumed_hours || 0} / {student.paid_hours || 0}</p>

@@ -466,7 +466,7 @@ const Timetable = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 md:gap-6">
         {[
           { label: 'Total Sessions', value: summary.total, icon: Calendar, color: 'text-slate-900', bg: 'bg-white border-slate-100' },
           { label: 'Completed', value: summary.completed, icon: CheckCircle, color: 'text-emerald-600', bg: 'bg-emerald-50/50 border-emerald-100/50' },
@@ -484,9 +484,9 @@ const Timetable = () => {
         ))}
       </div>
 
-      <div className="bg-white p-8 rounded-[3rem] border border-slate-100 shadow-sm space-y-8">
-        <div className="flex flex-wrap items-end gap-6 justify-between">
-          <div className="flex-1 min-w-[240px]">
+      <div className="bg-white p-4 md:p-8 rounded-[2rem] md:rounded-[3rem] border border-slate-100 shadow-sm space-y-6 md:space-y-8">
+        <div className="flex flex-col md:flex-row md:flex-wrap items-stretch md:items-end gap-4 md:gap-6 justify-between">
+          <div className="flex-1 w-full md:min-w-[240px]">
             <label className="text-[8px] font-black text-slate-600 uppercase tracking-[0.2em] pl-1 mb-2 block">Target Student</label>
             <div className="relative group">
               <Users className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#008080] transition-colors" size={16} />
@@ -504,7 +504,7 @@ const Timetable = () => {
             </div>
           </div>
 
-          <div className="w-[200px]">
+          <div className="w-full md:w-[200px]">
             <label className="text-[8px] font-black text-slate-600 uppercase tracking-[0.2em] pl-1 mb-2 block">Filter by Month</label>
             <div className="relative group">
               <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#008080] transition-colors" size={16} />
@@ -540,7 +540,7 @@ const Timetable = () => {
             </div>
           </div>
 
-          <div className="w-[200px]">
+          <div className="w-full md:w-[200px]">
             <label className="text-[8px] font-black text-slate-600 uppercase tracking-[0.2em] pl-1 mb-2 block">Filter by Status</label>
             <select
               value={filters.status}

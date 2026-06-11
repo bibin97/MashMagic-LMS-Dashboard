@@ -726,6 +726,7 @@ const startServer = async () => {
                     engage_score INT DEFAULT 0,
                     parent_score INT DEFAULT 0,
                     total_score INT DEFAULT 0,
+                    is_successful TINYINT(1) DEFAULT 0,
                     remarks TEXT,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     FOREIGN KEY (aoe_id) REFERENCES users(id) ON DELETE CASCADE
@@ -736,6 +737,7 @@ const startServer = async () => {
                 'ALTER TABLE aoe_demo_schedules ADD COLUMN demo_id VARCHAR(50) NULL;',
                 'ALTER TABLE aoe_demo_schedules ADD COLUMN syllabus VARCHAR(255) NULL;',
                 'ALTER TABLE aoe_demo_schedules ADD COLUMN section VARCHAR(255) NULL;',
+                'ALTER TABLE aoe_demo_schedules ADD COLUMN is_successful TINYINT(1) DEFAULT 0;',
                 'CREATE INDEX IF NOT EXISTS idx_users_role_status ON users(role, status);',
                 'CREATE INDEX IF NOT EXISTS idx_students_user_id ON students(user_id);',
                 'CREATE INDEX IF NOT EXISTS idx_students_mentor_id ON students(mentor_id);',
