@@ -386,7 +386,7 @@ const RegistrationForm = ({ onSuccess, preSelectedRole }) => {
  <div className="flex flex-col gap-2">
  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Google Meet Link (Optional)</label>
  <input
- type="url"
+ type="text"
  name="meeting_link"
  className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-semibold"
  placeholder="https://meet.google.com/..."

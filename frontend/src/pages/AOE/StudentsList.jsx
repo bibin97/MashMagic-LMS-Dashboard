@@ -21,6 +21,7 @@ const StudentsList = ({ role = 'academic_operation_executive' }) => {
 	const [filterMentor, setFilterMentor] = useState('all');
 	const [filterFaculty, setFilterFaculty] = useState('all');
 	
+	const [activeTab, setActiveTab] = useState('enrolled_scholars'); // 'enrolled_scholars', 'active_plus', 'completed'
 	const [expandedStudentId, setExpandedStudentId] = useState(null);
 	
 
@@ -177,10 +178,20 @@ const StudentsList = ({ role = 'academic_operation_executive' }) => {
 				regStr.toLowerCase().includes(deferredSearchTerm.toLowerCase()) ||
 				gradeStr.toLowerCase().includes(deferredSearchTerm.toLowerCase());
 			const matchesCourse = filterCourse === 'all' || s.course === filterCourse;
-			return matchesSearch && matchesCourse;
+            
+            let matchesTab = true;
+            if (activeTab === 'active_plus') {
+                const isActive = (s.status === 'active' || s.isActive === 1);
+                const isCompleted = role === 'mentor_head' ? s.mentorship_completed === 1 : s.course_completed === 1;
+                matchesTab = isActive && !isCompleted;
+            } else if (activeTab === 'completed') {
+                matchesTab = role === 'mentor_head' ? s.mentorship_completed === 1 : s.course_completed === 1;
+            }
+
+			return matchesSearch && matchesCourse && matchesTab;
 		});
 		return sortStudentsByOption(filtered, sortBy);
-	}, [students, searchTerm, filterCourse, sortBy]);
+	}, [students, searchTerm, filterCourse, sortBy, activeTab, role]);
 
 	if (loading) return <div className="p-20 text-center font-black text-slate-600 animate-pulse">SYNCING STUDENT RECORDS...</div>;
 
@@ -255,25 +266,52 @@ const StudentsList = ({ role = 'academic_operation_executive' }) => {
 				</div>
 			</div>
 
-			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-				<div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm flex flex-col gap-2 group transition-all hover:shadow-xl hover:shadow-[#008080]/5 hover:-translate-y-1">
-					<span className="text-[10px] font-black text-slate-600 uppercase tracking-widest group-hover:text-[#008080] transition-colors">Enrolled Scholars</span>
-					<div className="flex items-end gap-3 font-black text-slate-900 tracking-tighter">
+			<div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+				<button 
+                    onClick={() => setActiveTab('enrolled_scholars')}
+                    className={`p-8 rounded-[2.5rem] border shadow-sm flex flex-col gap-2 transition-all ${activeTab === 'enrolled_scholars' ? 'bg-[#008080] border-[#008080] text-white scale-105 shadow-xl shadow-[#008080]/20' : 'bg-white border-slate-100 hover:shadow-xl hover:shadow-[#008080]/5 hover:-translate-y-1'}`}
+                >
+					<span className={`text-[10px] font-black uppercase tracking-widest transition-colors ${activeTab === 'enrolled_scholars' ? 'text-white/80' : 'text-slate-600 group-hover:text-[#008080]'}`}>Enrolled Scholars</span>
+					<div className={`flex items-end gap-3 font-black tracking-tighter ${activeTab === 'enrolled_scholars' ? 'text-white' : 'text-slate-900'}`}>
 						<span className="text-4xl leading-none">{students.length}</span>
-						<span className="text-[10px] text-slate-600 mb-1 uppercase tracking-widest">Total Population</span>
+						<span className={`text-[10px] mb-1 uppercase tracking-widest ${activeTab === 'enrolled_scholars' ? 'text-white/80' : 'text-slate-600'}`}>Total Population</span>
 					</div>
-				</div>
+				</button>
 
-				<div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm flex flex-col gap-2 group transition-all hover:shadow-xl hover:shadow-[#008080]/5 hover:-translate-y-1">
-					<span className="text-[10px] font-black text-[#008080] uppercase tracking-widest">Active Pulse</span>
-					<div className="flex items-end gap-3 font-black text-slate-900 tracking-tighter">
-						<span className="text-4xl leading-none">{students.filter(s => (s.status === 'active' || s.isActive === 1)).length}</span>
-						<div className="flex items-center gap-1.5 mb-1 bg-[#008080]/10 px-2 py-0.5 rounded-full">
-							<div className="w-1.5 h-1.5 rounded-full bg-[#008080] animate-pulse"></div>
-							<span className="text-[10px] text-[#008080] uppercase tracking-widest">Live</span>
+				<button 
+                    onClick={() => setActiveTab('active_plus')}
+                    className={`p-8 rounded-[2.5rem] border shadow-sm flex flex-col gap-2 transition-all ${activeTab === 'active_plus' ? 'bg-[#008080] border-[#008080] text-white scale-105 shadow-xl shadow-[#008080]/20' : 'bg-white border-slate-100 hover:shadow-xl hover:shadow-[#008080]/5 hover:-translate-y-1'}`}
+                >
+					<span className={`text-[10px] font-black uppercase tracking-widest ${activeTab === 'active_plus' ? 'text-white/80' : 'text-[#008080]'}`}>Active Plus</span>
+					<div className={`flex items-end gap-3 font-black tracking-tighter ${activeTab === 'active_plus' ? 'text-white' : 'text-slate-900'}`}>
+						<span className="text-4xl leading-none">
+                            {students.filter(s => {
+                                const isActive = (s.status === 'active' || s.isActive === 1);
+                                const isCompleted = role === 'mentor_head' ? s.mentorship_completed === 1 : s.course_completed === 1;
+                                return isActive && !isCompleted;
+                            }).length}
+                        </span>
+						<div className={`flex items-center gap-1.5 mb-1 px-2 py-0.5 rounded-full ${activeTab === 'active_plus' ? 'bg-white/20' : 'bg-[#008080]/10'}`}>
+							<div className={`w-1.5 h-1.5 rounded-full animate-pulse ${activeTab === 'active_plus' ? 'bg-white' : 'bg-[#008080]'}`}></div>
+							<span className={`text-[10px] uppercase tracking-widest ${activeTab === 'active_plus' ? 'text-white' : 'text-[#008080]'}`}>Live</span>
 						</div>
 					</div>
-				</div>
+				</button>
+
+                <button 
+                    onClick={() => setActiveTab('completed')}
+                    className={`p-8 rounded-[2.5rem] border shadow-sm flex flex-col gap-2 transition-all ${activeTab === 'completed' ? 'bg-emerald-600 border-emerald-600 text-white scale-105 shadow-xl shadow-emerald-500/20' : 'bg-white border-slate-100 hover:shadow-xl hover:shadow-emerald-500/5 hover:-translate-y-1'}`}
+                >
+					<span className={`text-[10px] font-black uppercase tracking-widest transition-colors ${activeTab === 'completed' ? 'text-white/80' : 'text-emerald-600 hover:text-emerald-700'}`}>
+                        {role === 'mentor_head' ? 'Mentorship Completed' : 'Course Completed'}
+                    </span>
+					<div className={`flex items-end gap-3 font-black tracking-tighter ${activeTab === 'completed' ? 'text-white' : 'text-slate-900'}`}>
+						<span className="text-4xl leading-none">
+                            {students.filter(s => role === 'mentor_head' ? s.mentorship_completed === 1 : s.course_completed === 1).length}
+                        </span>
+						<span className={`text-[10px] mb-1 uppercase tracking-widest ${activeTab === 'completed' ? 'text-white/80' : 'text-slate-600'}`}>Total Achievers</span>
+					</div>
+				</button>
 			</div>
 
 			{/* Table */}

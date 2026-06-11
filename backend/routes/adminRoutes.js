@@ -46,6 +46,8 @@ const {
     getAHParentMeetings
 } = require('../controllers/adminController');
 
+const { updateInteractionLog, getInteractionHistory } = require('../controllers/mentorHeadController');
+
 router.use(requireAuth);
 
 router.get('/student-portal-logins', requireRole('super_admin', 'sub_admin'), getStudentPortalLogins);
@@ -110,6 +112,9 @@ router.get('/exam-analytics', requireRole('super_admin', 'sub_admin'), getExamAn
 router.get('/mentor-distribution', requireRole('super_admin', 'sub_admin'), getMentorDistribution);
 router.get('/task-analytics', requireRole('super_admin', 'sub_admin'), getTaskAnalytics);
 router.get('/live-monitoring', requireRole('super_admin', 'sub_admin'), getLiveMonitoring);
+
+router.put('/interactions/:source/:id', requireRole('super_admin', 'sub_admin', 'mentor_head'), updateInteractionLog);
+router.get('/interactions/:source/:id/history', requireRole('super_admin', 'sub_admin', 'mentor_head'), getInteractionHistory);
 
 // View AH Interactions & Meetings
 router.get('/ah-parent-interactions', requireRole('super_admin', 'sub_admin'), getAHParentInteractions);

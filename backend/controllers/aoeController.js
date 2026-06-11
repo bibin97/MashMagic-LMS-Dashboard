@@ -758,9 +758,16 @@ const editStudent = async (req, res) => {
 
 const deleteStudent = async (req, res) => {
     try {
-        console.log(`[SAFETY] deleteStudent skipped for student ${req.params.id}. Returning 200 OK.`);
-        res.status(200).json({ success: true, message: "Soft deleted successfully (database unaffected for safety)" });
-    } catch (e) { res.status(500).json({ success: false, message: e.message }); }
+        const { id } = req.params;
+        const [result] = await db.query('UPDATE students SET status = "rejected" WHERE id = ?', [id]);
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ success: false, message: "Student not found" });
+        }
+        res.status(200).json({ success: true, message: "Student record hidden from dashboard" });
+    } catch (e) { 
+        console.error("DELETE_STUDENT_ERROR:", e);
+        res.status(500).json({ success: false, message: e.message }); 
+    }
 };
 
 const getStudentById = async (req, res) => {

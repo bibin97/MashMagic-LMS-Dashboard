@@ -1514,17 +1514,17 @@ exports.getMentors = async (req, res) => {
     } catch (error) { res.status(500).json({ success: false, message: error.message }); }
 };
 
-// @desc    Toggle Course Completed status for a student
-// @route   PUT /api/mentor-head/students/:studentId/course-complete
-exports.toggleCourseCompleted = async (req, res) => {
+// @desc    Toggle Mentorship Completed status for a student
+// @route   PUT /api/mentor-head/students/:studentId/mentorship-complete
+exports.toggleMentorshipCompleted = async (req, res) => {
     try {
         const { studentId } = req.params;
         const { isCompleted } = req.body;
 
-        await db.query('UPDATE students SET course_completed = ? WHERE id = ?', [isCompleted ? 1 : 0, studentId]);
+        await db.query('UPDATE students SET mentorship_completed = ? WHERE id = ?', [isCompleted ? 1 : 0, studentId]);
 
         const [[student]] = await db.query('SELECT name FROM students WHERE id = ?', [studentId]);
-        const statusMsg = isCompleted ? 'marked as Course Completed' : 'unmarked from Course Completed';
+        const statusMsg = isCompleted ? 'marked as Mentorship Completed' : 'unmarked from Mentorship Completed';
         await db.query('INSERT INTO admin_notifications (message) VALUES (?)', [`Mentor Head (${req.user.name}) ${statusMsg} for student: ${student.name}`]);
 
         res.status(200).json({ success: true, message: `Student ${statusMsg}` });
@@ -1767,3 +1767,79 @@ exports.updateStudentAssessmentLevel = async (req, res) => {
     }
 };
 
+// @desc    Update Interaction Log and save history
+// @route   PUT /api/mentor-head/interactions/:source/:id
+exports.updateInteractionLog = async (req, res) => {
+    try {
+        const { source, id } = req.params;
+        const { report_data, notes, main_issue, action_type } = req.body;
+        
+        let tableName = '';
+        let oldDataQuery = '';
+        
+        if (source === 'Interaction Hub') {
+            tableName = 'mentor_session_reports';
+            oldDataQuery = 'SELECT report_data FROM mentor_session_reports WHERE id = ?';
+        } else if (source === 'Session Log') {
+            tableName = 'mentor_session_logs';
+            oldDataQuery = 'SELECT main_issue, action_type FROM mentor_session_logs WHERE id = ?';
+        } else if (source === 'Interaction Log') {
+            tableName = 'student_interaction_logs';
+            oldDataQuery = 'SELECT mentor_notes FROM student_interaction_logs WHERE id = ?';
+        } else {
+            return res.status(400).json({ success: false, message: 'Invalid source' });
+        }
+
+        const [oldRows] = await db.query(oldDataQuery, [id]);
+        if (oldRows.length === 0) {
+            return res.status(404).json({ success: false, message: 'Log not found' });
+        }
+
+        const oldData = oldRows[0];
+        let newData = {};
+
+        if (tableName === 'mentor_session_reports') {
+            const reportStr = typeof report_data === 'string' ? report_data : JSON.stringify(report_data);
+            await db.query('UPDATE mentor_session_reports SET report_data = ? WHERE id = ?', [reportStr, id]);
+            newData = { report_data: reportStr };
+        } else if (tableName === 'mentor_session_logs') {
+            await db.query('UPDATE mentor_session_logs SET main_issue = ?, action_type = ? WHERE id = ?', [main_issue, action_type, id]);
+            newData = { main_issue, action_type };
+        } else if (tableName === 'student_interaction_logs') {
+            await db.query('UPDATE student_interaction_logs SET mentor_notes = ? WHERE id = ?', [notes, id]);
+            newData = { mentor_notes: notes };
+        }
+
+        // Save history
+        await db.query(
+            'INSERT INTO interaction_edit_history (log_id, log_source, edited_by, edited_by_role, previous_data, new_data) VALUES (?, ?, ?, ?, ?, ?)',
+            [id, source, req.user.id, req.user.role, JSON.stringify(oldData), JSON.stringify(newData)]
+        );
+
+        res.status(200).json({ success: true, message: 'Log updated successfully' });
+    } catch (error) {
+        console.error('Error updating interaction log:', error);
+        res.status(500).json({ success: false, message: 'Server Error', error: error.message });
+    }
+};
+
+// @desc    Get History of Interaction Log
+// @route   GET /api/mentor-head/interactions/:source/:id/history
+exports.getInteractionHistory = async (req, res) => {
+    try {
+        const { source, id } = req.params;
+        
+        const [history] = await db.query(`
+            SELECT h.*, u.name as editor_name 
+            FROM interaction_edit_history h
+            LEFT JOIN users u ON h.edited_by = u.id
+            WHERE h.log_id = ? AND h.log_source = ?
+            ORDER BY h.created_at DESC
+        `, [id, source]);
+
+        res.status(200).json({ success: true, data: history });
+    } catch (error) {
+        console.error('Error fetching history:', error);
+        res.status(500).json({ success: false, message: 'Server Error', error: error.message });
+    }
+};

@@ -31,7 +31,7 @@ const MentorHeadLayout = () => {
  { path: '/mentor-head/students', icon: <GraduationCap size={18} />, label: 'Students' },
  { path: '/mentor-head/faculties', icon: <Briefcase size={18} />, label: 'Faculties' },
  { path: '/mentor-head/tasks', icon: <ListTodo size={18} />, label: 'Tasks' },
- { path: '/mentor-head/course-completed', icon: <CheckCircle2 size={18} />, label: 'Course Completed' },
+ { path: '/mentor-head/course-completed', icon: <CheckCircle2 size={18} />, label: 'Mentorship Completed' },
  { path: '/mentor-head/interactions', icon: <Activity size={18} />, label: 'Logs' },
  { path: '/mentor-head/notifications', icon: <Bell size={18} />, label: 'Notifications' },
  ];

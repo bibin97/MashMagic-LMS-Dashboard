@@ -4,7 +4,7 @@ import {
     ScrollText, Search, User, Clock, Calendar, 
     ChevronLeft, ChevronRight, History, ExternalLink, 
     ArrowLeft, Users, ShieldAlert, CheckSquare, Filter, BookOpen,
-    ChevronDown, SlidersHorizontal, X, SortAsc, CalendarClock
+    ChevronDown, SlidersHorizontal, X, SortAsc, CalendarClock, Pencil
 } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import toast from 'react-hot-toast';
@@ -115,6 +115,15 @@ const CommonInteractionLogs = ({ role }) => {
     const [selectedLogTab, setSelectedLogTab] = useState('ALL');
     const [sortOrder, setSortOrder] = useState('newest'); // 'newest' or 'oldest'
     const [staffTypeFilter, setStaffTypeFilter] = useState('all'); // 'all', 'mentor', 'faculty'
+
+    // New state variables for Edit and History Modal
+    const [editModalLog, setEditModalLog] = useState(null);
+    const [editFormData, setEditFormData] = useState({});
+    const [isSavingEdit, setIsSavingEdit] = useState(false);
+    
+    const [historyModalLog, setHistoryModalLog] = useState(null);
+    const [historyLogs, setHistoryLogs] = useState([]);
+    const [isLoadingHistory, setIsLoadingHistory] = useState(false);
 
     // Dynamic API prefix based on role
     const getApiPrefix = () => {
@@ -332,6 +341,53 @@ const CommonInteractionLogs = ({ role }) => {
             console.error("Export failed:", error);
             toast.dismiss(loadingToast);
             toast.error("Failed to export logs");
+        }
+    };
+
+    const handleOpenEdit = (log) => {
+        setEditModalLog(log);
+        let parsedReport = {};
+        if (log.report_data) {
+            try {
+                parsedReport = typeof log.report_data === 'string' ? JSON.parse(log.report_data) : log.report_data;
+            } catch(e) {}
+        }
+        
+        setEditFormData({
+            notes: log.mentor_notes || log.notes || log.remarks || '',
+            report_data: parsedReport,
+            main_issue: log.main_issue || '',
+            action_type: log.action_type || ''
+        });
+    };
+
+    const handleSaveEdit = async () => {
+        setIsSavingEdit(true);
+        try {
+            const res = await api.put(`${apiPrefix}/interactions/${editModalLog.source || 'Interaction Hub'}/${editModalLog.id}`, editFormData);
+            if (res.data.success) {
+                toast.success('Log updated successfully');
+                setEditModalLog(null);
+                fetchLogs(); // refresh logs
+            }
+        } catch (error) {
+            toast.error(error.response?.data?.message || 'Failed to save edits');
+        } finally {
+            setIsSavingEdit(false);
+        }
+    };
+
+    const handleOpenHistory = async (log) => {
+        setHistoryModalLog(log);
+        setIsLoadingHistory(true);
+        try {
+            const res = await api.get(`${apiPrefix}/interactions/${log.source || 'Interaction Hub'}/${log.id}/history`);
+            setHistoryLogs(res.data.data || []);
+        } catch (error) {
+            toast.error('Failed to load edit history');
+            setHistoryLogs([]);
+        } finally {
+            setIsLoadingHistory(false);
         }
     };
 
@@ -755,12 +811,32 @@ const CommonInteractionLogs = ({ role }) => {
                                                                         }`}>
                                                                             {(log.session_type || log.type || 'QUICK').toUpperCase()}
                                                                         </span>
-                                                                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-500 ${
-                                                                            expandedLogId === log.id 
-                                                                            ? 'bg-yellow-400 text-slate-900 rotate-180 scale-110 shadow-lg' 
-                                                                            : 'bg-slate-50 text-slate-400 group-hover:bg-slate-100'
-                                                                        }`}>
-                                                                            <ChevronDown size={18} strokeWidth={3} />
+                                                                        <div className="flex items-center gap-2">
+                                                                            {(role === 'mentor_head' || role === 'super_admin' || role === 'academic_head') && (
+                                                                                <>
+                                                                                    <button
+                                                                                        onClick={(e) => { e.stopPropagation(); handleOpenHistory(log); }}
+                                                                                        className="w-10 h-10 rounded-xl flex items-center justify-center bg-blue-50 text-blue-500 hover:bg-blue-100 transition-colors shadow-sm"
+                                                                                        title="View Edit History"
+                                                                                    >
+                                                                                        <History size={16} strokeWidth={2.5} />
+                                                                                    </button>
+                                                                                    <button
+                                                                                        onClick={(e) => { e.stopPropagation(); handleOpenEdit(log); }}
+                                                                                        className="w-10 h-10 rounded-xl flex items-center justify-center bg-emerald-50 text-emerald-600 hover:bg-emerald-100 transition-colors shadow-sm"
+                                                                                        title="Edit Interaction"
+                                                                                    >
+                                                                                        <Pencil size={16} strokeWidth={2.5} />
+                                                                                    </button>
+                                                                                </>
+                                                                            )}
+                                                                            <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-500 ${
+                                                                                expandedLogId === log.id 
+                                                                                ? 'bg-yellow-400 text-slate-900 rotate-180 scale-110 shadow-lg' 
+                                                                                : 'bg-slate-50 text-slate-400 group-hover:bg-slate-100'
+                                                                            }`}>
+                                                                                <ChevronDown size={18} strokeWidth={3} />
+                                                                            </div>
                                                                         </div>
                                                                     </div>
 
@@ -1085,6 +1161,171 @@ const CommonInteractionLogs = ({ role }) => {
                     <p className="text-slate-400 font-bold text-[10px] uppercase tracking-[0.3em] mt-3 max-w-md mx-auto leading-loose">
                         No interaction logs found for this user.
                     </p>
+                </div>
+            )}
+            {/* History Modal */}
+            {historyModalLog && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-200">
+                    <div className="bg-white rounded-[2rem] w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl">
+                        <div className="p-6 border-b border-slate-100 flex items-center justify-between">
+                            <div>
+                                <h3 className="text-lg font-black text-slate-900 uppercase tracking-widest">Edit History</h3>
+                                <p className="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-widest">View timeline of changes for this log</p>
+                            </div>
+                            <button onClick={() => setHistoryModalLog(null)} className="p-2 hover:bg-slate-100 rounded-xl transition-colors">
+                                <X size={20} className="text-slate-400" />
+                            </button>
+                        </div>
+                        <div className="p-6 overflow-y-auto">
+                            {isLoadingHistory ? (
+                                <div className="py-20 text-center text-slate-400 font-bold text-xs uppercase tracking-widest">Loading history...</div>
+                            ) : historyLogs.length === 0 ? (
+                                <div className="py-20 text-center text-slate-400 font-bold text-xs uppercase tracking-widest">No previous edits found for this log.</div>
+                            ) : (
+                                <div className="space-y-6">
+                                    {historyLogs.map((h, index) => {
+                                        const prev = typeof h.previous_data === 'string' ? JSON.parse(h.previous_data) : h.previous_data;
+                                        const next = typeof h.new_data === 'string' ? JSON.parse(h.new_data) : h.new_data;
+                                        return (
+                                            <div key={h.id} className="border border-slate-100 rounded-2xl p-6 bg-slate-50 relative">
+                                                <div className="absolute -top-3 left-6 px-3 py-1 bg-[#008080] text-white text-[9px] font-black uppercase tracking-widest rounded-lg shadow-sm">
+                                                    Edit #{historyLogs.length - index}
+                                                </div>
+                                                <div className="flex justify-between items-center mb-4 mt-2 border-b border-slate-200 pb-2">
+                                                    <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Edited by {h.editor_name || 'Unknown'} ({h.edited_by_role})</span>
+                                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{new Date(h.created_at).toLocaleString()}</span>
+                                                </div>
+                                                <div className="space-y-4">
+                                                    {Object.keys(next).map(key => {
+                                                        const pVal = prev[key];
+                                                        const nVal = next[key];
+                                                        if (typeof pVal === 'object') {
+                                                            // For report_data JSON
+                                                            const pReport = typeof pVal === 'string' ? JSON.parse(pVal) : pVal || {};
+                                                            const nReport = typeof nVal === 'string' ? JSON.parse(nVal) : nVal || {};
+                                                            return Object.keys(nReport).map(rKey => {
+                                                                if (pReport[rKey] !== nReport[rKey]) {
+                                                                    return (
+                                                                        <div key={rKey} className="text-xs">
+                                                                            <span className="font-black text-slate-700 uppercase tracking-wider">{rKey.replace(/_/g, ' ')}:</span>
+                                                                            <div className="mt-1 grid grid-cols-2 gap-4">
+                                                                                <div className="bg-rose-50 text-rose-700 p-2 rounded line-through border border-rose-100">{pReport[rKey] || 'N/A'}</div>
+                                                                                <div className="bg-emerald-50 text-emerald-700 p-2 rounded border border-emerald-100">{nReport[rKey] || 'N/A'}</div>
+                                                                            </div>
+                                                                        </div>
+                                                                    );
+                                                                }
+                                                                return null;
+                                                            });
+                                                        } else if (pVal !== nVal) {
+                                                            return (
+                                                                <div key={key} className="text-xs">
+                                                                    <span className="font-black text-slate-700 uppercase tracking-wider">{key.replace(/_/g, ' ')}:</span>
+                                                                    <div className="mt-1 grid grid-cols-2 gap-4">
+                                                                        <div className="bg-rose-50 text-rose-700 p-2 rounded line-through border border-rose-100">{pVal || 'N/A'}</div>
+                                                                        <div className="bg-emerald-50 text-emerald-700 p-2 rounded border border-emerald-100">{nVal || 'N/A'}</div>
+                                                                    </div>
+                                                                </div>
+                                                            );
+                                                        }
+                                                        return null;
+                                                    })}
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Edit Modal */}
+            {editModalLog && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-200">
+                    <div className="bg-white rounded-[2rem] w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl">
+                        <div className="p-6 border-b border-slate-100 flex items-center justify-between">
+                            <div>
+                                <h3 className="text-lg font-black text-slate-900 uppercase tracking-widest">Edit Interaction Log</h3>
+                                <p className="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-widest">Modify details for this session</p>
+                            </div>
+                            <button onClick={() => setEditModalLog(null)} className="p-2 hover:bg-slate-100 rounded-xl transition-colors">
+                                <X size={20} className="text-slate-400" />
+                            </button>
+                        </div>
+                        
+                        <div className="p-6 overflow-y-auto flex-1 space-y-6">
+                            {(editModalLog.source === 'Interaction Hub' || !editModalLog.source) && Object.keys(editFormData.report_data || {}).map(key => (
+                                <div key={key}>
+                                    <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 ml-1">
+                                        {DEEP_QUESTION_LABELS[key] || MEDIUM_QUESTION_LABELS[key] || QUICK_QUESTION_LABELS[key] || key.replace(/_/g, ' ')}
+                                    </label>
+                                    <textarea 
+                                        className="w-full bg-slate-50 border border-slate-200 rounded-xl p-4 text-xs font-bold focus:ring-2 focus:ring-[#008080]/20 outline-none min-h-[80px]"
+                                        value={editFormData.report_data[key] || ''}
+                                        onChange={(e) => setEditFormData({
+                                            ...editFormData,
+                                            report_data: {
+                                                ...editFormData.report_data,
+                                                [key]: e.target.value
+                                            }
+                                        })}
+                                    />
+                                </div>
+                            ))}
+
+                            {editModalLog.source === 'Session Log' && (
+                                <>
+                                    <div>
+                                        <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 ml-1">Main Issue</label>
+                                        <input 
+                                            type="text"
+                                            className="w-full bg-slate-50 border border-slate-200 rounded-xl p-4 text-xs font-bold focus:ring-2 focus:ring-[#008080]/20 outline-none"
+                                            value={editFormData.main_issue || ''}
+                                            onChange={(e) => setEditFormData({...editFormData, main_issue: e.target.value})}
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 ml-1">Action Type</label>
+                                        <input 
+                                            type="text"
+                                            className="w-full bg-slate-50 border border-slate-200 rounded-xl p-4 text-xs font-bold focus:ring-2 focus:ring-[#008080]/20 outline-none"
+                                            value={editFormData.action_type || ''}
+                                            onChange={(e) => setEditFormData({...editFormData, action_type: e.target.value})}
+                                        />
+                                    </div>
+                                </>
+                            )}
+
+                            {editModalLog.source === 'Interaction Log' && (
+                                <div>
+                                    <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 ml-1">Mentor Notes</label>
+                                    <textarea 
+                                        className="w-full bg-slate-50 border border-slate-200 rounded-xl p-4 text-xs font-bold focus:ring-2 focus:ring-[#008080]/20 outline-none min-h-[120px]"
+                                        value={editFormData.notes || ''}
+                                        onChange={(e) => setEditFormData({...editFormData, notes: e.target.value})}
+                                    />
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="p-6 border-t border-slate-100 flex justify-end gap-3 bg-slate-50 rounded-b-[2rem]">
+                            <button 
+                                onClick={() => setEditModalLog(null)}
+                                className="px-6 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest text-slate-500 hover:bg-slate-200 transition-colors"
+                            >
+                                Cancel
+                            </button>
+                            <button 
+                                onClick={handleSaveEdit}
+                                disabled={isSavingEdit}
+                                className="px-8 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest bg-[#008080] text-white hover:bg-[#006666] transition-colors disabled:opacity-50"
+                            >
+                                {isSavingEdit ? 'Saving...' : 'Save Changes'}
+                            </button>
+                        </div>
+                    </div>
                 </div>
             )}
         </div>

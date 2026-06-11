@@ -81,23 +81,27 @@ const AOEDemoSchedule = () => {
   }, []);
 
   useEffect(() => {
-    if (demoList.length > 0 && !formData.demo_id) {
-      let maxId = 0;
-      demoList.forEach(d => {
-        if (d.demo_id && d.demo_id.startsWith('DE')) {
-          const num = parseInt(d.demo_id.substring(2));
-          if (!isNaN(num) && num > maxId) maxId = num;
-        } else if (d.demo_id && !isNaN(parseInt(d.demo_id))) {
-           const num = parseInt(d.demo_id);
-           if (num > maxId) maxId = num;
-        }
-      });
-      const nextId = `DE${String(maxId + 1).padStart(2, '0')}`;
-      setFormData(prev => ({ ...prev, demo_id: nextId }));
-    } else if (demoList.length === 0 && !formData.demo_id && !loading) {
-      setFormData(prev => ({ ...prev, demo_id: 'DE01' }));
-    }
-  }, [demoList, loading, formData.demo_id]);
+    let maxId = 0;
+    demoList.forEach(d => {
+      if (d.demo_id && d.demo_id.startsWith('DE')) {
+        const num = parseInt(d.demo_id.substring(2));
+        if (!isNaN(num) && num > maxId) maxId = num;
+      } else if (d.demo_id && !isNaN(parseInt(d.demo_id))) {
+         const num = parseInt(d.demo_id);
+         if (num > maxId) maxId = num;
+      }
+    });
+    
+    const nextId = `DE${String(maxId + 1).padStart(2, '0')}`;
+    
+    setFormData(prev => {
+      // Only overwrite if it's empty, or if the current automatically populated ID is stale/duplicate
+      if (!prev.demo_id || (prev.demo_id.startsWith('DE') && parseInt(prev.demo_id.substring(2)) <= maxId)) {
+        return { ...prev, demo_id: nextId };
+      }
+      return prev;
+    });
+  }, [demoList]);
 
   const fetchStudents = async () => {
     try {
@@ -566,7 +570,7 @@ const AOEDemoSchedule = () => {
                   <Video size={12}/> Meeting Link (e.g. Google Meet / Zoom)
                 </label>
                 <input
-                  type="url"
+                  type="text"
                   value={formData.meeting_link}
                   onChange={(e) => setFormData({ ...formData, meeting_link: e.target.value })}
                   className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"

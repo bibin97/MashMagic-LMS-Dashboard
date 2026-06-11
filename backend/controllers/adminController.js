@@ -878,8 +878,7 @@ const getStudentDetailsForAdmin = async (req, res) => {
 
         // Fetch basic details
         const [studentRows] = await db.query(`
-            SELECT id, name, admission_date, created_at, admission_type, 
-                   total_fees, total_paid, total_hours, current_installment_amount, current_installment_start_hours
+            SELECT *
             FROM students WHERE id = ?
         `, [id]);
 

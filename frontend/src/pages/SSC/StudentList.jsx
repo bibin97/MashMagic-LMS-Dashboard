@@ -151,6 +151,7 @@ const SSCStudentList = () => {
 	const deferredSearchTerm = useDeferredValue(searchTerm);
   const [sortBy, setSortBy] = useState('');
   const [viewMode, setViewMode] = useState('active'); // 'active' or 'new'
+  const [activeTab, setActiveTab] = useState('enrolled_scholars');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -170,7 +171,7 @@ const SSCStudentList = () => {
   };
 
   const filteredStudents = useMemo(() => {
-    const filtered = students.filter(s => {
+    let filtered = students.filter(s => {
       const isPending = s.onboarding_status === 'pending';
       if (viewMode === 'new' && !isPending) return false;
       const nameStr = s.name || '';
@@ -178,8 +179,15 @@ const SSCStudentList = () => {
       return nameStr.toLowerCase().includes(deferredSearchTerm.toLowerCase()) ||
              courseStr.toLowerCase().includes(deferredSearchTerm.toLowerCase());
     });
+
+    if (activeTab === 'active_plus') {
+      filtered = filtered.filter(s => s.status === 'active' && s.course_completed !== 1 && s.mentorship_completed !== 1);
+    } else if (activeTab === 'completed') {
+      filtered = filtered.filter(s => s.course_completed === 1);
+    }
+
     return sortStudentsByOption(filtered, sortBy);
-  }, [students, viewMode, searchTerm, sortBy]);
+  }, [students, viewMode, searchTerm, sortBy, activeTab]);
 
   return (
     <div className="space-y-12 pb-20">
@@ -195,6 +203,46 @@ const SSCStudentList = () => {
         <div className="w-20 h-20 bg-indigo-600 rounded-[28px] shadow-2xl shadow-indigo-600/30 flex items-center justify-center text-white">
           <Users size={36} strokeWidth={2.5} />
         </div>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+        <button 
+          onClick={() => setActiveTab('enrolled_scholars')}
+          className={`p-8 rounded-[35px] border shadow-sm flex flex-col gap-2 transition-all text-left ${activeTab === 'enrolled_scholars' ? 'bg-indigo-600 border-indigo-600 text-white scale-105 shadow-xl shadow-indigo-600/20' : 'bg-white border-slate-100 hover:shadow-xl hover:shadow-indigo-600/5 hover:-translate-y-1'}`}
+        >
+          <span className={`text-[10px] font-black uppercase tracking-widest transition-colors ${activeTab === 'enrolled_scholars' ? 'text-white/80' : 'text-slate-600 group-hover:text-indigo-600'}`}>Enrolled Scholars</span>
+          <div className={`flex items-end gap-3 font-black tracking-tighter ${activeTab === 'enrolled_scholars' ? 'text-white' : 'text-slate-900'}`}>
+            <span className="text-4xl leading-none">{students.length}</span>
+            <span className={`text-[10px] mb-1 uppercase tracking-widest ${activeTab === 'enrolled_scholars' ? 'text-white/80' : 'text-slate-600'}`}>Total Population</span>
+          </div>
+        </button>
+
+        <button 
+          onClick={() => setActiveTab('active_plus')}
+          className={`p-8 rounded-[35px] border shadow-sm flex flex-col gap-2 transition-all text-left ${activeTab === 'active_plus' ? 'bg-indigo-600 border-indigo-600 text-white scale-105 shadow-xl shadow-indigo-600/20' : 'bg-white border-slate-100 hover:shadow-xl hover:shadow-indigo-600/5 hover:-translate-y-1'}`}
+        >
+          <span className={`text-[10px] font-black uppercase tracking-widest ${activeTab === 'active_plus' ? 'text-white/80' : 'text-indigo-600'}`}>Active Plus</span>
+          <div className={`flex items-end gap-3 font-black tracking-tighter ${activeTab === 'active_plus' ? 'text-white' : 'text-slate-900'}`}>
+            <span className="text-4xl leading-none">
+              {students.filter(s => s.status === 'active' && s.course_completed !== 1 && s.mentorship_completed !== 1).length}
+            </span>
+            <div className={`flex items-center gap-1.5 mb-1 px-2 py-0.5 rounded-full ${activeTab === 'active_plus' ? 'bg-white/20' : 'bg-indigo-600/10'}`}>
+               <div className={`w-1.5 h-1.5 rounded-full animate-pulse ${activeTab === 'active_plus' ? 'bg-white' : 'bg-indigo-600'}`}></div>
+               <span className={`text-[10px] uppercase tracking-widest ${activeTab === 'active_plus' ? 'text-white' : 'text-indigo-600'}`}>Live</span>
+            </div>
+          </div>
+        </button>
+
+        <button 
+          onClick={() => setActiveTab('completed')}
+          className={`p-8 rounded-[35px] border shadow-sm flex flex-col gap-2 transition-all text-left ${activeTab === 'completed' ? 'bg-emerald-600 border-emerald-600 text-white scale-105 shadow-xl shadow-emerald-500/20' : 'bg-white border-slate-100 hover:shadow-xl hover:shadow-emerald-500/5 hover:-translate-y-1'}`}
+        >
+          <span className={`text-[10px] font-black uppercase tracking-widest transition-colors ${activeTab === 'completed' ? 'text-white/80' : 'text-emerald-600 hover:text-emerald-700'}`}>Course Completed</span>
+          <div className={`flex items-end gap-3 font-black tracking-tighter ${activeTab === 'completed' ? 'text-white' : 'text-slate-900'}`}>
+            <span className="text-4xl leading-none">{students.filter(s => s.course_completed === 1).length}</span>
+            <span className={`text-[10px] mb-1 uppercase tracking-widest ${activeTab === 'completed' ? 'text-white/80' : 'text-slate-600'}`}>Total Achievers</span>
+          </div>
+        </button>
       </div>
 
       {/* Filter Bar */}

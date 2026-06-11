@@ -268,6 +268,7 @@ const startServer = async () => {
                 'ALTER TABLE students ADD COLUMN last_session_date DATE NULL;',
                 'ALTER TABLE students ADD COLUMN performance_status ENUM("Excellent", "Good", "Average", "Critical") DEFAULT "Good";',
                 'ALTER TABLE students ADD COLUMN course_completed TINYINT(1) DEFAULT 0;',
+                'ALTER TABLE students ADD COLUMN mentorship_completed TINYINT(1) DEFAULT 0;',
                 'ALTER TABLE students ADD COLUMN completion_remarks TEXT NULL;',
                 'ALTER TABLE students ADD COLUMN completion_file TEXT NULL;',
                 'ALTER TABLE students ADD COLUMN course_completed_date DATE NULL;',

@@ -189,7 +189,7 @@ const ParentMeetings = ({ isEmbedded }) => {
               <div className="space-y-2">
                 <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">Meeting Link (Optional)</label>
                 <input 
-                  type="url"
+                  type="text"
                   value={formData.meeting_link}
                   onChange={(e) => setFormData({...formData, meeting_link: e.target.value})}
                   placeholder="https://meet.google.com/..."

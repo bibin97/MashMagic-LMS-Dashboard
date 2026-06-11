@@ -16,7 +16,7 @@ const calculateStudentHours = async (students, db) => {
     let sessions = [];
     try {
         const [rows] = await db.query(`
-            SELECT t.student_id, t.duration, t.subject, fs.minutes_taken 
+            SELECT t.student_id, t.duration, t.chapter AS subject, fs.minutes_taken 
             FROM timetable t
             LEFT JOIN faculty_sessions fs ON t.id = fs.timetable_id
             WHERE t.status = "Completed" AND t.student_id IN (?)
@@ -34,7 +34,7 @@ const calculateStudentHours = async (students, db) => {
     }
 
     const [standaloneSessions] = await db.query(`
-        SELECT sa.student_id, fs.minutes_taken, fs.duration
+        SELECT sa.student_id, fs.minutes_taken, fs.duration, fs.topic AS subject
         FROM faculty_sessions fs
         JOIN session_attendance sa ON fs.id = sa.session_id
         WHERE fs.status = "Completed" AND fs.timetable_id IS NULL AND sa.student_id IN (?)
