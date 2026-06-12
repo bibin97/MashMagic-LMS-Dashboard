@@ -214,6 +214,10 @@ return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String
     setIsDetailsModalOpen(true);
   };
 
+  const totalCount = schedule.length;
+  const todayCount = schedule.filter(s => s.date && s.date.split('T')[0] === localTodayStr).length;
+  const completedCount = schedule.filter(s => s.status === 'Completed').length;
+  const filteredCount = currentData.length;
   if (loading) return (
     <div className="flex flex-col items-center justify-center p-20 space-y-4">
       <div className="w-12 h-12 border-4 border-[#008080] border-t-transparent rounded-full animate-spin"></div>
