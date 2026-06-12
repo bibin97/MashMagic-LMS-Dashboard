@@ -8,6 +8,7 @@ import api from '../../services/api';
 import toast from 'react-hot-toast';
 import StudentListFilterDropdown, { sortStudentsByOption } from '../../components/StudentListFilterDropdown';
 import { premiumConfirm } from '../../utils/premiumConfirm';
+import { mockStudentHours } from '../../utils/mockStudentHours';
 
 const StudentsList = ({ role = 'academic_operation_executive' }) => {
 	const [students, setStudents] = useState([]);
@@ -74,19 +75,18 @@ const StudentsList = ({ role = 'academic_operation_executive' }) => {
 			const res = await api.get(`${apiPath}/students-all?search=${searchTerm}&sortBy=${sortBy}&course=${filterCourse}${mentorParam}${facultyParam}`);
 			
 			// Inject mock hours for specific students requested by user
-			const mockHours = {
-				"Saif": { total_lifetime_consumed_hours: 70, total_hours: 72, consumed_hours: 70, paid_hours: 72, subject_hours: [{subject: 'Arabic', consumed_hours: 36, allocated_hours: 38}, {subject: 'Maths', consumed_hours: 34, allocated_hours: 34}] },
-				"Aman": { total_lifetime_consumed_hours: 60, total_hours: 72, consumed_hours: 60, paid_hours: 72, subject_hours: [{subject: 'Mal', consumed_hours: 24, allocated_hours: 36}, {subject: 'Science', consumed_hours: 18, allocated_hours: 18}, {subject: 'Maths', consumed_hours: 18, allocated_hours: 18}] },
-				"Hamdan": { total_lifetime_consumed_hours: 36, total_hours: 36, consumed_hours: 36, paid_hours: 36, subject_hours: [{subject: 'English', consumed_hours: 22, allocated_hours: 22}, {subject: 'Hindi', consumed_hours: 14, allocated_hours: 14}] },
-				"Sami": { total_lifetime_consumed_hours: 69, total_hours: 72, consumed_hours: 69, paid_hours: 72, subject_hours: [{subject: 'Maths', consumed_hours: 36, allocated_hours: 36}, {subject: 'Physics', consumed_hours: 15, allocated_hours: 18}, {subject: 'Chemi', consumed_hours: 18, allocated_hours: 18}] }
-			};
-
 			let fetchedStudents = res.data.data || [];
 			fetchedStudents = fetchedStudents.map(student => {
 				// Try to match by exact name or if the name contains the mock name
-				const mockKey = Object.keys(mockHours).find(key => student.name.toLowerCase().includes(key.toLowerCase()));
+				const mockKey = Object.keys(mockStudentHours).find(key => student.name.toLowerCase().includes(key.toLowerCase()));
 				if (mockKey) {
-					return { ...student, ...mockHours[mockKey] };
+					const mockObj = mockStudentHours[mockKey];
+					return { 
+						...student, 
+						...mockObj,
+						consumed_hours: (parseFloat(student.consumed_hours) || 0) + (mockObj.consumed_hours || 0),
+						total_lifetime_consumed_hours: (parseFloat(student.total_lifetime_consumed_hours) || 0) + (mockObj.total_lifetime_consumed_hours || 0)
+					};
 				}
 				return student;
 			});

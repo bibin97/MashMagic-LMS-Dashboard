@@ -115,6 +115,7 @@ const CommonInteractionLogs = ({ role }) => {
     const [selectedLogTab, setSelectedLogTab] = useState('ALL');
     const [sortOrder, setSortOrder] = useState('newest'); // 'newest' or 'oldest'
     const [staffTypeFilter, setStaffTypeFilter] = useState('all'); // 'all', 'mentor', 'faculty'
+    const [listLogs, setListLogs] = useState([]);
 
     // New state variables for Edit and History Modal
     const [editModalLog, setEditModalLog] = useState(null);
@@ -216,6 +217,16 @@ const CommonInteractionLogs = ({ role }) => {
             }
             const res = await api.get(endpoint, { params });
             setEntities(res.data.data || []);
+            
+            // Also fetch logs for filtering and sorting
+            let logsEndpoint;
+            if (activeTab === 'student') {
+                logsEndpoint = `${apiPrefix}/student-logs`;
+            } else {
+                logsEndpoint = role === 'mentor_head' ? `${apiPrefix}/mentor-logs` : `${apiPrefix}/faculty-logs`;
+            }
+            const logsRes = await api.get(logsEndpoint, { params });
+            setListLogs(logsRes.data.data || []);
         } catch (error) {
             toast.error(`Failed to load ${activeTab}s`);
         } finally {
@@ -407,11 +418,36 @@ const CommonInteractionLogs = ({ role }) => {
         setShowListFilter(false);
     };
 
-    const filteredEntities = entities.filter(e => 
-        (e.name?.toLowerCase().includes(deferredSearchTerm.toLowerCase())) ||
-        (e.email?.toLowerCase().includes(deferredSearchTerm.toLowerCase())) ||
-        (e.registration_number?.toLowerCase().includes(deferredSearchTerm.toLowerCase()))
-    );
+    const filteredEntities = useMemo(() => {
+        let base = entities.filter(e => 
+            (e.name?.toLowerCase().includes(deferredSearchTerm.toLowerCase())) ||
+            (e.email?.toLowerCase().includes(deferredSearchTerm.toLowerCase())) ||
+            (e.registration_number?.toLowerCase().includes(deferredSearchTerm.toLowerCase()))
+        );
+
+        const latestLogMap = {};
+        listLogs.forEach(log => {
+            const entityId = activeTab === 'student' ? log.student_id : (log.faculty_id || log.mentor_id);
+            if (entityId) {
+                const logDate = new Date(log.created_at || log.date).getTime();
+                if (!latestLogMap[entityId] || logDate > latestLogMap[entityId]) {
+                    latestLogMap[entityId] = logDate;
+                }
+            }
+        });
+
+        if (listDateFilter !== 'all') {
+            base = base.filter(e => latestLogMap[e.id] !== undefined);
+        }
+
+        base.sort((a, b) => {
+            const dateA = latestLogMap[a.id] || 0;
+            const dateB = latestLogMap[b.id] || 0;
+            return dateB - dateA;
+        });
+
+        return base;
+    }, [entities, listLogs, deferredSearchTerm, activeTab, listDateFilter]);
 
     if (viewMode === 'list') {
         return (
@@ -495,7 +531,8 @@ const CommonInteractionLogs = ({ role }) => {
                     <div className="overflow-x-auto">
                         <table className="w-full text-left border-collapse">
                             <thead>
-                                <tr className="bg-slate-50/50">
+                                <tr className="bg-slate-50/80 border-b border-slate-100/50">
+                                    <th className="w-16 px-10 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest text-center">#</th>
                                     <th className="px-10 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Name</th>
                                     <th className="px-10 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Details</th>
                                     <th className="px-10 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Status</th>
@@ -510,12 +547,15 @@ const CommonInteractionLogs = ({ role }) => {
                                         </td>
                                     </tr>
                                 ) : filteredEntities.length > 0 ? (
-                                    filteredEntities.map((entity) => (
+                                    filteredEntities.map((entity, index) => (
                                         <tr 
                                             key={entity.id} 
                                             className="group hover:bg-slate-50/50 transition-colors cursor-pointer"
                                             onClick={() => { setSelectedStudent(entity); setViewMode('detail'); }}
                                         >
+                                            <td className="px-10 py-6 text-center text-slate-400 font-black text-xs">
+                                                {index + 1}
+                                            </td>
                                             <td className="px-10 py-6">
                                                 <div className="flex items-center gap-4">
                                                     <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-white font-black text-lg shadow-lg ${activeTab === 'student' ? 'bg-[#008080]' : 'bg-purple-600'}`}>
@@ -555,7 +595,7 @@ const CommonInteractionLogs = ({ role }) => {
                                     ))
                                 ) : (
                                     <tr>
-                                        <td colSpan="4" className="px-10 py-40 text-center">
+                                        <td colSpan="5" className="px-10 py-40 text-center">
                                             <History size={48} className="text-slate-200 mx-auto mb-6" />
                                             <p className="text-slate-400 font-black text-[11px] uppercase tracking-[0.3em]">No records found matching your search.</p>
                                             <button 

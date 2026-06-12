@@ -4,6 +4,7 @@ import api from '../../services/api';
 import { User, Users, ChevronRight, Search, XCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
 import StudentListFilterDropdown, { sortStudentsByOption } from '../../components/StudentListFilterDropdown';
+import { mockStudentHours } from '../../utils/mockStudentHours';
 
 const StudentRow = ({ student, navigate }) => {
   const isPending = student.onboarding_status === 'pending';
@@ -168,7 +169,22 @@ const SSCStudentList = () => {
     try {
       setLoading(true);
       const res = await api.get('/mentor/students');
-      setStudents((res.data.data || []).sort((a, b) => (a.name || '').localeCompare(b.name || '')));
+      let realStudents = res.data.data || [];
+      // Inject mock hours for specific students requested by user
+      realStudents = realStudents.map(student => {
+        const mockKey = Object.keys(mockStudentHours).find(key => student.name && student.name.toLowerCase().includes(key.toLowerCase()));
+        if (mockKey) {
+          const mockObj = mockStudentHours[mockKey];
+          return { 
+            ...student, 
+            ...mockObj,
+            consumed_hours: (parseFloat(student.consumed_hours) || 0) + (mockObj.consumed_hours || 0),
+            total_lifetime_consumed_hours: (parseFloat(student.total_lifetime_consumed_hours) || 0) + (mockObj.total_lifetime_consumed_hours || 0)
+          };
+        }
+        return student;
+      });
+      setStudents(realStudents.sort((a, b) => (a.name || '').localeCompare(b.name || '')));
     } catch (error) {
       toast.error("Database connection failed");
     } finally {

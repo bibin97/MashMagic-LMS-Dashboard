@@ -8,6 +8,7 @@ import { premiumConfirm } from '../../utils/premiumConfirm';
 import { Eye, Edit2, Ban, Trash2, Filter, Download, Search, UserPlus, CheckCircle, Clock, Lock, Unlock } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { sortStudentsByOption } from '../../components/StudentListFilterDropdown';
+import { mockStudentHours } from '../../utils/mockStudentHours';
 
 const Students = () => {
  const navigate = useNavigate();
@@ -59,7 +60,22 @@ const Students = () => {
  try {
  setLoading(true);
  const response = await api.get(`/admin/students?search=${searchTerm}&sortBy=${sortBy}`);
- const realStudents = response.data.data;
+ let realStudents = response.data.data;
+
+ // Inject mock hours for specific students requested by user
+ realStudents = realStudents.map(student => {
+   const mockKey = Object.keys(mockStudentHours).find(key => student.name && student.name.toLowerCase().includes(key.toLowerCase()));
+   if (mockKey) {
+     const mockObj = mockStudentHours[mockKey];
+     return { 
+       ...student, 
+       ...mockObj,
+       consumed_hours: (parseFloat(student.consumed_hours) || 0) + (mockObj.consumed_hours || 0),
+       total_lifetime_consumed_hours: (parseFloat(student.total_lifetime_consumed_hours) || 0) + (mockObj.total_lifetime_consumed_hours || 0)
+     };
+   }
+   return student;
+ });
 
  setStudents(realStudents);
  setFilteredStudents(realStudents);

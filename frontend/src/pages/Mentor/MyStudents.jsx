@@ -4,6 +4,7 @@ import api from '../../services/api';
 import { User, Users, ChevronRight, Search, CheckCircle2, Calendar, Clock, Plus, Trash2, XCircle, Activity, MessageSquare } from 'lucide-react';
 import toast from 'react-hot-toast';
 import StudentListFilterDropdown, { sortStudentsByOption } from '../../components/StudentListFilterDropdown';
+import { mockStudentHours } from '../../utils/mockStudentHours';
 
 const StudentRow = ({ student, navigate, handleToggleConnection, handleCompleteOnboarding, handleLogHoursClick }) => {
   const isPending = student.onboarding_status === 'pending';
@@ -41,9 +42,19 @@ const StudentRow = ({ student, navigate, handleToggleConnection, handleCompleteO
 
         {/* Stats Area */}
         <div className="flex flex-wrap items-center justify-between gap-4 md:gap-8 px-4 md:px-8 py-4 bg-slate-50/50 rounded-2xl border border-slate-100/50 w-full lg:w-auto">
-          <div className="text-center" title={`Consumed: ${student.consumed_hours || 0} | Paid: ${student.paid_hours || 0}`}>
-            <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Class Hrs</p>
-            <p className={`text-sm font-black leading-none ${student.payment_alert_level === 'Critical' ? 'text-rose-600' : student.payment_alert_level === 'Warning' ? 'text-amber-600' : 'text-slate-700'}`}>{student.consumed_hours || 0} / {student.paid_hours || 0}</p>
+          <div className="text-left" title={`Consumed: ${student.consumed_hours || 0} | Paid: ${student.paid_hours || 0}`}>
+            <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Lifetime Hrs: <span className="text-[#008080]">{student.total_lifetime_consumed_hours || 0} / {student.total_hours || 0}</span></p>
+            <p className={`text-xs font-black leading-none mb-1 ${student.payment_alert_level === 'Critical' ? 'text-rose-600' : student.payment_alert_level === 'Warning' ? 'text-amber-600' : 'text-slate-700'}`}>Cycle: {student.consumed_hours || 0} / {student.paid_hours || 0}</p>
+            {student.subject_hours && student.subject_hours.length > 0 && (
+              <div className="mt-2 border-t border-slate-200 pt-1 w-[120px]">
+                {student.subject_hours.map((sh, idx) => (
+                  <div key={idx} className="flex justify-between items-center text-[8px] font-black uppercase text-slate-500">
+                    <span className="truncate max-w-[60px]" title={sh.subject}>{sh.subject}</span>
+                    <span className="text-slate-700 ml-1">{sh.consumed_hours} / {sh.allocated_hours}</span>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
           <div className="w-[1px] h-8 bg-slate-200"></div>
           <div className="text-center">
@@ -138,7 +149,22 @@ const MyStudents = () => {
  const fetchStudents = async () => {
  try {
  const res = await api.get('/mentor/students');
- setStudents((res.data.data || []).sort((a, b) => (a.name || '').localeCompare(b.name || '')));
+ let realStudents = res.data.data || [];
+ // Inject mock hours for specific students requested by user
+ realStudents = realStudents.map(student => {
+   const mockKey = Object.keys(mockStudentHours).find(key => student.name && student.name.toLowerCase().includes(key.toLowerCase()));
+   if (mockKey) {
+     const mockObj = mockStudentHours[mockKey];
+     return { 
+       ...student, 
+       ...mockObj,
+       consumed_hours: (parseFloat(student.consumed_hours) || 0) + (mockObj.consumed_hours || 0),
+       total_lifetime_consumed_hours: (parseFloat(student.total_lifetime_consumed_hours) || 0) + (mockObj.total_lifetime_consumed_hours || 0)
+     };
+   }
+   return student;
+ });
+ setStudents(realStudents.sort((a, b) => (a.name || '').localeCompare(b.name || '')));
  } catch (error) {
  toast.error("Failed to load students");
  } finally {
