@@ -676,8 +676,27 @@ const OperationsHub = ({ section }) => {
       return true; // 'mark' tab shows all, or you could change logic if you only want to show in_progress here
     });
 
+    const totalCount = activeData.length;
+    const completedCount = activeData.filter(s => s.course_completed).length;
+    const inProgressCount = totalCount - completedCount;
+
     return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <div className="flex gap-4">
+        <div className="bg-white p-6 rounded-3xl border border-slate-100 flex-1 text-center shadow-sm">
+          <p className="text-3xl font-black text-slate-900">{totalCount}</p>
+          <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mt-1">Total</p>
+        </div>
+        <div className="bg-teal-50 p-6 rounded-3xl border border-teal-100 flex-1 text-center shadow-sm">
+          <p className="text-3xl font-black text-teal-600">{completedCount}</p>
+          <p className="text-[10px] font-black uppercase tracking-widest text-teal-500 mt-1">Course Completed</p>
+        </div>
+        <div className="bg-amber-50 p-6 rounded-3xl border border-amber-100 flex-1 text-center shadow-sm">
+          <p className="text-3xl font-black text-amber-600">{inProgressCount}</p>
+          <p className="text-[10px] font-black uppercase tracking-widest text-amber-500 mt-1">In Progress</p>
+        </div>
+      </div>
+
       <div className="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100 overflow-x-auto">
         <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight mb-6 flex items-center gap-3">
           <GraduationCap className="text-teal-500" /> Student Course Completions
