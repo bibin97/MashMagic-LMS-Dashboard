@@ -977,60 +977,30 @@ const Registrations = () => {
                           )}
                         </div>
 
-                        {/* Faculty Selector */}
-                        <div className="flex flex-col gap-2 relative" ref={el => facultyRefs.current[idx] = el}>
+                        {/* Faculty Selector (React-Select) */}
+                        <div className="flex flex-col gap-2 relative">
                           <label className="text-[10px] font-black text-[#008080] uppercase tracking-widest ml-1">Assigned Faculty</label>
-                          <div 
-                            onClick={() => {
-                              const newSubjects = [...selectedSubjects];
-                              newSubjects[idx].isFacultyDropdownOpen = !newSubjects[idx].isFacultyDropdownOpen;
-                              setSelectedSubjects(newSubjects);
+                          <Select
+                            options={((row.availableFaculties && row.availableFaculties.length > 0) ? row.availableFaculties : faculties).map(f => ({
+                              value: f.id.toString(),
+                              label: `${f.name} ${f.isAvailable === false ? '(NOT AVAILABLE)' : ''} ${f.subject ? `- ${f.subject}` : ''}`
+                            }))}
+                            styles={customSelectStyles}
+                            value={
+                              row.facultyId 
+                                ? { 
+                                    value: row.facultyId, 
+                                    label: faculties.find(f => f.id.toString() === row.facultyId)?.name || 'Unknown' 
+                                  } 
+                                : null
+                            }
+                            onChange={(option) => {
+                              handleSubjectChange(idx, 'facultyId', option ? option.value : '');
                             }}
-                            className="w-full p-4 bg-[#008080]/5 border border-[#008080]/20 rounded-2xl text-xs font-bold outline-none focus:ring-4 ring-[#008080]/10 cursor-pointer flex justify-between items-center"
-                          >
-                            <span className="truncate">
-                              {row.facultyName || ((row.dayConfigs?.length === 0) ? 'Select Days First' : 'Select Faculty')}
-                            </span>
-                            <span className="text-[#008080]">▼</span>
-                          </div>
-
-                          {row.isFacultyDropdownOpen && (
-                            <div className="absolute top-[100%] left-0 w-full bg-white border border-slate-100 rounded-2xl shadow-2xl z-[120] mt-1 p-2 max-h-60 flex flex-col animate-in fade-in zoom-in-95 duration-200">
-                               <input 
-                                 type="text" 
-                                 placeholder="Search faculty..." 
-                                 value={row.facultySearchQuery || ''}
-                                 onChange={(e) => handleSubjectChange(idx, 'facultySearchQuery', e.target.value)}
-                                 className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-xs outline-none focus:ring-2 focus:ring-[#008080] font-bold mb-2 sticky top-0"
-                                 onClick={(e) => e.stopPropagation()}
-                               />
-                               <div className="overflow-y-auto flex-1">
-                                 {(() => {
-                                   const listToSearch = (row.availableFaculties && row.availableFaculties.length > 0) ? row.availableFaculties : faculties;
-                                   const filtered = listToSearch.filter(f => f.name.toLowerCase().includes((row.facultySearchQuery || '').toLowerCase()));
-                                   if (filtered.length === 0) return <div className="p-3 text-center text-slate-400 text-xs font-bold">No faculty found</div>;
-                                   return filtered.map(f => (
-                                     <div 
-                                       key={f.id} 
-                                       onClick={() => {
-                                         handleSubjectChange(idx, 'facultyId', f.id.toString());
-                                         const newSubjects = [...selectedSubjects];
-                                         newSubjects[idx].isFacultyDropdownOpen = false;
-                                         newSubjects[idx].facultySearchQuery = '';
-                                         setSelectedSubjects(newSubjects);
-                                       }}
-                                       className="p-3 hover:bg-slate-50 cursor-pointer border-b border-slate-50 last:border-0 rounded-xl transition-colors"
-                                     >
-                                       <p className="text-sm font-bold" style={{ color: f.isAvailable === false ? '#ef4444' : '#334155' }}>
-                                         {f.name} {f.isAvailable === false ? ' (NOT AVAILABLE)' : ''}
-                                       </p>
-                                       {f.subject && <p className="text-[10px] text-slate-500 font-semibold uppercase tracking-widest">{f.subject}</p>}
-                                     </div>
-                                   ));
-                                 })()}
-                               </div>
-                            </div>
-                          )}
+                            placeholder={row.dayConfigs?.length === 0 ? 'Select Days First' : 'Search Faculty...'}
+                            isClearable
+                            isDisabled={row.dayConfigs?.length === 0}
+                          />
                         </div>
                       </div>
 
