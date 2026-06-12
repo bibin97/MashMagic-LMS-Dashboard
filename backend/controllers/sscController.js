@@ -85,7 +85,7 @@ exports.getMentorsAll = async (req, res) => {
 
 exports.getTimetable = async (req, res) => {
     try {
-        const { date, student_id, status } = req.query;
+        const { start_date, end_date, student_id, status } = req.query;
         let query = `
             SELECT t.*, s.name as student_name, s.course, m.name as mentor_name 
             FROM timetable t
@@ -95,7 +95,8 @@ exports.getTimetable = async (req, res) => {
         `;
         const params = [];
 
-        if (date) { query += ' AND t.date = ?'; params.push(date); }
+        if (start_date) { query += ' AND t.date >= ?'; params.push(start_date); }
+        if (end_date) { query += ' AND t.date <= ?'; params.push(end_date); }
         if (student_id) { query += ' AND t.student_id = ?'; params.push(student_id); }
         if (status) { query += ' AND t.status = ?'; params.push(status); }
 
@@ -248,14 +249,38 @@ exports.updateStudentAcademicSchedule = async (req, res) => {
 
         await connection.query('DELETE FROM faculty_schedules WHERE student_id = ?', [studentId]);
 
+        let subjectsUpdated = false;
+        const [[student]] = await connection.query('SELECT subjects_json FROM students WHERE id = ?', [studentId]);
+        let subjects = [];
+        if (student && student.subjects_json) {
+            try {
+                subjects = typeof student.subjects_json === 'string' ? JSON.parse(student.subjects_json) : student.subjects_json;
+            } catch (e) {}
+        }
+
         if (schedules && Array.isArray(schedules) && schedules.length > 0) {
             for (const s of schedules) {
                 const facId = s.faculty_id ? parseInt(s.faculty_id) : null;
+                
+                if (facId && s.subject) {
+                    const matchingSubject = subjects.find(sub => sub.subject === s.subject);
+                    if (matchingSubject && matchingSubject.faculty_id != facId) {
+                        matchingSubject.faculty_id = facId;
+                        const [[facObj]] = await connection.query('SELECT name FROM users WHERE id = ?', [facId]);
+                        if (facObj) matchingSubject.faculty_name = facObj.name;
+                        subjectsUpdated = true;
+                    }
+                }
+
                 await connection.query(`
                     INSERT INTO faculty_schedules (student_id, day_of_week, start_time, end_time, subject, faculty_id)
                     VALUES (?, ?, ?, ?, ?, ?)
                 `, [studentId, s.day_of_week, s.start_time, s.end_time, s.subject, facId]);
             }
+        }
+        
+        if (subjectsUpdated) {
+            await connection.query('UPDATE students SET subjects_json = ? WHERE id = ?', [JSON.stringify(subjects), studentId]);
         }
 
         await connection.commit();
@@ -278,14 +303,31 @@ exports.createBatchTimetable = async (req, res) => {
             return res.status(400).json({ success: false, message: "No sessions provided" });
         }
 
-        const [[studentObj]] = await connection.query('SELECT mentor_id FROM students WHERE id = ?', [student_id]);
+        const [[studentObj]] = await connection.query('SELECT mentor_id, subjects_json FROM students WHERE id = ?', [student_id]);
         const actualMentorId = studentObj?.mentor_id || null;
+        
+        let subjects = [];
+        if (studentObj && studentObj.subjects_json) {
+            try {
+                subjects = typeof studentObj.subjects_json === 'string' ? JSON.parse(studentObj.subjects_json) : studentObj.subjects_json;
+            } catch (e) {}
+        }
+        let subjectsUpdated = false;
 
         const [maxSessionResult] = await connection.query('SELECT MAX(session_number) as max_sn FROM timetable WHERE student_id = ?', [student_id]);
         let currentSessionNum = (maxSessionResult[0].max_sn || 0) + 1;
 
         for (const session of sessions) {
-            const { date, start_time, end_time, chapter, session_type, notes, faculty_id, faculty_name } = session;
+            const { date, start_time, end_time, chapter, session_type, notes, faculty_id, faculty_name, subject } = session;
+
+            if (faculty_id && subject) {
+               const matchingSubject = subjects.find(sub => sub.subject === subject);
+               if (matchingSubject && matchingSubject.faculty_id != faculty_id) {
+                   matchingSubject.faculty_id = faculty_id;
+                   matchingSubject.faculty_name = faculty_name;
+                   subjectsUpdated = true;
+               }
+            }
 
             const formattedStartTime = convertTo24Hour(start_time);
             const formattedEndTime = convertTo24Hour(end_time);
@@ -300,6 +342,10 @@ exports.createBatchTimetable = async (req, res) => {
                 INSERT INTO timetable (mentor_id, student_id, session_number, date, start_time, end_time, duration, chapter, session_type, status, notes, faculty_id, faculty_name)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'Scheduled', ?, ?, ?)
             `, [actualMentorId, student_id, currentSessionNum++, date, formattedStartTime, formattedEndTime, duration, chapter, session_type || 'Regular Class', notes || '', faculty_id ? parseInt(faculty_id) : null, faculty_name || null]);
+        }
+
+        if (subjectsUpdated) {
+            await connection.query('UPDATE students SET subjects_json = ? WHERE id = ?', [JSON.stringify(subjects), student_id]);
         }
 
         await connection.commit();

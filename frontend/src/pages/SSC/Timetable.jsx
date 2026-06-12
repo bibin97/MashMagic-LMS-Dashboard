@@ -490,6 +490,14 @@ const Timetable = () => {
     });
   };
 
+  const selectedStudent = students.find(s => s.id == formData.student_id);
+  let availableSubjects = [];
+  if (selectedStudent && selectedStudent.subjects_json) {
+    try {
+      availableSubjects = typeof selectedStudent.subjects_json === 'string' ? JSON.parse(selectedStudent.subjects_json) : selectedStudent.subjects_json;
+    } catch (e) {}
+  }
+
   return (
     <div className="space-y-8 pb-20 max-w-[1600px] mx-auto min-h-screen">
       <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-6 bg-white p-6 md:p-8 rounded-[2.5rem] shadow-sm border border-slate-100 border-b-4 border-b-[#008080]">
@@ -1031,12 +1039,26 @@ const Timetable = () => {
                     <div className="space-y-2">
                       <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Subject</label>
                       <input
+                        list="available-subjects-single"
                         type="text"
                         value={formData.subject}
-                        onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setFormData({ ...formData, subject: val });
+                          const subjObj = availableSubjects.find(s => s.subject === val);
+                          if (subjObj && subjObj.faculty_id) {
+                            const fac = faculties.find(f => f.id == subjObj.faculty_id);
+                            setFormData(prev => ({ ...prev, subject: val, faculty_id: subjObj.faculty_id, faculty_name: fac?.name || '' }));
+                          }
+                        }}
                         placeholder="Enter subject name (e.g., Maths, Physics)"
                         className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
                       />
+                      <datalist id="available-subjects-single">
+                        {availableSubjects.map((s, idx) => (
+                          <option key={idx} value={s.subject} />
+                        ))}
+                      </datalist>
                     </div>
 
                     <div className="space-y-2">
@@ -1199,16 +1221,26 @@ const Timetable = () => {
                   />
 
                   <input
+                    list={`available-subjects-modal-${index}`}
                     type="text"
                     placeholder="e.g. Mathematics"
                     value={slot.subject}
                     onChange={(e) => {
                       const newData = [...editScheduleData];
                       newData[index].subject = e.target.value;
+                      const subjObj = availableSubjects.find(s => s.subject === e.target.value);
+                      if (subjObj && subjObj.faculty_id) {
+                         newData[index].faculty_id = subjObj.faculty_id;
+                      }
                       setEditScheduleData(newData);
                     }}
                     className="w-full p-3 bg-white border border-slate-100 rounded-xl text-xs font-bold outline-none"
                   />
+                  <datalist id={`available-subjects-modal-${index}`}>
+                    {availableSubjects.map((s, idx) => (
+                      <option key={idx} value={s.subject} />
+                    ))}
+                  </datalist>
 
                   <div className="flex justify-end items-center gap-2">
                     <select
