@@ -926,7 +926,7 @@ const getAcademicSchedule = async (req, res) => {
                 LEFT JOIN students s ON sa.student_id = s.id
                 WHERE fs.timetable_id IS NULL
             ) combined_schedules
-            ORDER BY date DESC, start_time DESC
+            ORDER BY date DESC, start_time ASC
         `;
         const [rows] = await db.query(query);
         res.status(200).json({ success: true, data: rows });

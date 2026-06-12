@@ -8,7 +8,7 @@ const getAcademicSchedule = async (req, res) => {
             LEFT JOIN faculties u ON fs.faculty_id = u.id
             LEFT JOIN session_attendance sa ON fs.id = sa.session_id
             LEFT JOIN students s ON sa.student_id = s.id
-            ORDER BY fs.date DESC, fs.start_time DESC
+            ORDER BY fs.date DESC, fs.start_time ASC
         `;
         const [rows] = await db.query(query);
         res.status(200).json({ success: true, data: rows });
