@@ -40,6 +40,9 @@ import AHInteractions from './pages/admin/AHInteractions';
 import AHParentMeetings from './pages/admin/AHParentMeetings';
 import FeesManagement from './pages/admin/FeesManagement';
 
+import AdminFacultyTimetable from './pages/admin/FacultyTimetable';
+import AdminStudentSchedules from './pages/admin/StudentSchedules';
+
 // Mentor Panel Pages
 import MentorDashboard from './pages/Mentor/MentorDashboard';
 import MyStudents from './pages/Mentor/MyStudents';
@@ -160,8 +163,8 @@ function App() {
             <Route path="ah-interactions" element={<AHInteractions />} />
             <Route path="ah-meetings" element={<AHParentMeetings />} />
             <Route path="fees" element={<FeesManagement />} />
-            <Route path="faculty-timetable" element={<FacultyTimetable />} />
-            <Route path="student-schedules" element={<StudentSchedules />} />
+            <Route path="faculty-timetable" element={<AdminFacultyTimetable />} />
+            <Route path="student-schedules" element={<AdminStudentSchedules />} />
             <Route path="profile" element={<AdminProfile />} />
             <Route path="account-settings" element={<AccountSettings />} />
           </Route>
