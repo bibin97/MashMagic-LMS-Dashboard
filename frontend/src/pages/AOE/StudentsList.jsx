@@ -326,7 +326,7 @@ const StudentsList = ({ role = 'academic_operation_executive' }) => {
 								<th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Hours</th>
 								<th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Mentor & Faculty</th>
 								<th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest text-center">Level</th>
-								<th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest text-right">Actions</th>
+								<th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest text-right sticky right-0 bg-slate-50/90 backdrop-blur-sm z-10 shadow-[-4px_0_10px_rgba(0,0,0,0.02)]">Actions</th>
 							</tr>
 						</thead>
 						<tbody className="divide-y divide-slate-50">
@@ -429,7 +429,7 @@ const StudentsList = ({ role = 'academic_operation_executive' }) => {
 												{student.assessment_level || 'Unassessed'}
 											</span>
 										</td>
-										<td className="px-8 py-6 text-right">
+										<td className="px-8 py-6 text-right sticky right-0 bg-white/90 backdrop-blur-sm z-10 shadow-[-4px_0_10px_rgba(0,0,0,0.02)]">
 											<div className="flex items-center justify-end gap-2">
 												<button
 													onClick={() => handleView(student)}

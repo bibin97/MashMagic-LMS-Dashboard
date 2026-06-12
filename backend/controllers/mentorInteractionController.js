@@ -256,17 +256,20 @@ const submitSessionReport = async (req, res) => {
         }
 
         // 5. Save Report (with optional flagging if columns exist)
-        try {
-            await db.query(
-                'INSERT INTO mentor_session_reports (student_id, mentor_id, session_type, report_data, is_flagged, flag_reason) VALUES (?, ?, ?, ?, ?, ?)',
-                [student_id, mentor_id, session_type, JSON.stringify(report_data), isFlagged, flagReason]
-            );
-        } catch (dbErr) {
-            // Fallback if columns don't exist yet
-            await db.query(
-                'INSERT INTO mentor_session_reports (student_id, mentor_id, session_type, report_data) VALUES (?, ?, ?, ?)',
-                [student_id, mentor_id, session_type, JSON.stringify(report_data)]
-            );
+        // 5. Save Report (with optional flagging if columns exist)
+        if (session_type !== 'CANCELLED') {
+            try {
+                await db.query(
+                    'INSERT INTO mentor_session_reports (student_id, mentor_id, session_type, report_data, is_flagged, flag_reason) VALUES (?, ?, ?, ?, ?, ?)',
+                    [student_id, mentor_id, session_type, JSON.stringify(report_data), isFlagged, flagReason]
+                );
+            } catch (dbErr) {
+                // Fallback if columns don't exist yet
+                await db.query(
+                    'INSERT INTO mentor_session_reports (student_id, mentor_id, session_type, report_data) VALUES (?, ?, ?, ?)',
+                    [student_id, mentor_id, session_type, JSON.stringify(report_data)]
+                );
+            }
         }
 
         // 6. Update Daily Assignment Status
@@ -281,7 +284,11 @@ const submitSessionReport = async (req, res) => {
             if (typeof assignments === 'string') assignments = JSON.parse(assignments);
             
             const updatedAssignments = assignments.map(a => 
-                a.id === student_id ? { ...a, status: session_type === 'CANCELLED' ? 'CANCELLED' : 'COMPLETED' } : a
+                a.id == student_id ? { 
+                    ...a, 
+                    status: session_type === 'CANCELLED' ? 'CANCELLED' : 'COMPLETED',
+                    ...(session_type === 'CANCELLED' && report_data.cancel_reason ? { cancel_reason: report_data.cancel_reason } : {})
+                } : a
             );
 
             await db.query(
