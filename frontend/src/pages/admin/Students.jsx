@@ -482,7 +482,7 @@ const Students = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 px-2">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
         <button 
           onClick={() => setActiveTab('enrolled_scholars')}
           className={`p-8 rounded-[35px] border shadow-sm flex flex-col gap-2 transition-all text-left ${activeTab === 'enrolled_scholars' ? 'bg-[#008080] border-[#008080] text-white scale-105 shadow-xl shadow-[#008080]/20' : 'bg-white/70 backdrop-blur-md border-white/60 hover:bg-white hover:shadow-md'}`}
@@ -494,22 +494,6 @@ const Students = () => {
           </div>
         </button>
         
-        <button 
-          onClick={() => setActiveTab('active_plus')}
-          className={`p-8 rounded-[35px] border shadow-sm flex flex-col gap-2 transition-all text-left ${activeTab === 'active_plus' ? 'bg-[#008080] border-[#008080] text-white scale-105 shadow-xl shadow-[#008080]/20' : 'bg-white/70 backdrop-blur-md border-white/60 hover:bg-white hover:shadow-md'}`}
-        >
-          <span className={`text-[10px] font-black uppercase tracking-widest ${activeTab === 'active_plus' ? 'text-white/80' : 'text-[#10B981]'}`}>Active Plus</span>
-          <div className={`flex items-end gap-3 font-black tracking-tighter ${activeTab === 'active_plus' ? 'text-white' : 'text-slate-900'}`}>
-            <span className="text-4xl leading-none">
-              {students.filter(s => s.status === 'active' && s.course_completed !== 1 && s.mentorship_completed !== 1).length}
-            </span>
-            <div className={`flex items-center gap-1.5 mb-1 px-2 py-0.5 rounded-full ${activeTab === 'active_plus' ? 'bg-white/20' : 'bg-[#10B981]/10'}`}>
-               <div className={`w-1.5 h-1.5 rounded-full animate-pulse ${activeTab === 'active_plus' ? 'bg-white' : 'bg-[#10B981]'}`}></div>
-               <span className={`text-[10px] uppercase tracking-widest ${activeTab === 'active_plus' ? 'text-white' : 'text-[#10B981]'}`}>Live</span>
-            </div>
-          </div>
-        </button>
-
         <button 
           onClick={() => setActiveTab('mentorship_completed')}
           className={`p-8 rounded-[35px] border shadow-sm flex flex-col gap-2 transition-all text-left ${activeTab === 'mentorship_completed' ? 'bg-emerald-600 border-emerald-600 text-white scale-105 shadow-xl shadow-emerald-500/20' : 'bg-white/70 backdrop-blur-md border-white/60 hover:bg-white hover:shadow-md'}`}
@@ -537,9 +521,7 @@ const Students = () => {
         columns={columns}
         data={useMemo(() => {
           let filtered = sortStudentsByOption(filteredStudents, sortBy);
-          if (activeTab === 'active_plus') {
-            filtered = filtered.filter(s => s.status === 'active' && s.course_completed !== 1 && s.mentorship_completed !== 1);
-          } else if (activeTab === 'mentorship_completed') {
+          if (activeTab === 'mentorship_completed') {
             filtered = filtered.filter(s => s.mentorship_completed === 1);
           } else if (activeTab === 'completed') {
             filtered = filtered.filter(s => s.course_completed === 1);
