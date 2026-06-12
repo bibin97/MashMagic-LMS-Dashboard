@@ -26,6 +26,7 @@ const StudentInteractionLog = () => {
  const [isPaused, setIsPaused] = useState(false);
  const [sessionType, setSessionType] = useState(null); // 'DEEP', 'MEDIUM', 'QUICK', 'CANCELLED'
  const [formData, setFormData] = useState({});
+ const [files, setFiles] = useState([]);
  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
 
  useEffect(() => {
@@ -72,6 +73,7 @@ const StudentInteractionLog = () => {
    setSelectedStudent(student);
    setSessionType(type || 'TUITION');
    setSubmitted(false);
+   setFiles([]);
    
    // Initialize form data based on type
    if (type === 'DEEP') {
@@ -165,11 +167,20 @@ const StudentInteractionLog = () => {
        });
      } else {
        // New Structured Interaction System
-       await api.post('/mentor-interactions/submit-report', {
-         student_id: selectedStudent.id,
-         session_type: sessionType,
-         next_session_type: formData.next_session_type || 'QUICK',
-         report_data: formData
+       const formDataObj = new FormData();
+       formDataObj.append('student_id', selectedStudent.id);
+       formDataObj.append('session_type', sessionType);
+       formDataObj.append('next_session_type', formData.next_session_type || 'QUICK');
+       formDataObj.append('report_data', JSON.stringify(formData));
+       
+       if (files && files.length > 0) {
+           files.forEach(file => {
+               formDataObj.append('files', file);
+           });
+       }
+
+       await api.post('/mentor-interactions/submit-report', formDataObj, {
+           headers: { 'Content-Type': 'multipart/form-data' }
        });
      }
 
@@ -716,6 +727,34 @@ const StudentInteractionLog = () => {
                 </div>
              </div>
           )}
+
+         {/* File Upload Section */}
+         {sessionType !== 'CANCELLED' && sessionType !== 'TUITION' && (
+            <div className="space-y-4 bg-slate-50 p-6 rounded-3xl border border-slate-100">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-8 h-8 rounded-full bg-[#008080]/10 flex items-center justify-center">
+                  <Upload size={16} className="text-[#008080]" />
+                </div>
+                <div>
+                  <h4 className="text-xs font-black text-slate-900 uppercase tracking-widest">Attach Files</h4>
+                  <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Upload any screenshots, documents, or proofs</p>
+                </div>
+              </div>
+              <div className="flex flex-col gap-3">
+                <input 
+                  type="file" 
+                  multiple 
+                  onChange={(e) => setFiles(Array.from(e.target.files))}
+                  className="block w-full text-xs font-bold text-slate-500 file:mr-4 file:py-3 file:px-6 file:rounded-xl file:border-0 file:text-[10px] file:font-black file:uppercase file:tracking-widest file:bg-[#008080] file:text-white hover:file:bg-[#006666] file:cursor-pointer file:transition-colors bg-white border border-slate-200 rounded-xl"
+                />
+                {files.length > 0 && (
+                  <p className="text-[10px] font-black text-[#008080] uppercase tracking-widest ml-2 flex items-center gap-1">
+                    <CheckCircle2 size={12} /> {files.length} file(s) selected
+                  </p>
+                )}
+              </div>
+            </div>
+         )}
 
          <div className="pt-8">
            <button

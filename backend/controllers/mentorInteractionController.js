@@ -209,10 +209,23 @@ const generateAssignments = async (mentor_id, today) => {
 const submitSessionReport = async (req, res) => {
     try {
         const mentor_id = req.user.id;
-        const { student_id, session_type, next_session_type, report_data } = req.body;
+        let { student_id, session_type, next_session_type, report_data } = req.body;
+
+        if (typeof report_data === 'string') {
+            try {
+                report_data = JSON.parse(report_data);
+            } catch(e) {
+                console.error("Error parsing report_data:", e);
+            }
+        }
 
         if (!student_id || !session_type || !report_data) {
             return res.status(400).json({ success: false, message: 'Missing required fields' });
+        }
+
+        // Add uploaded files to report_data
+        if (req.files && req.files.length > 0) {
+            report_data.files = req.files.map(file => file.path);
         }
 
         // 4. Fraud Check (Module 7)
