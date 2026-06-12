@@ -350,6 +350,17 @@ const Students = () => {
               <span className="text-[8px] font-black uppercase tracking-wider text-slate-400">Current Cycle Limit: <span className="text-slate-700">{Math.round(row.paid_hours || 0)} hrs</span></span>
             </div>
 
+            {row.subject_hours && row.subject_hours.length > 0 && (
+              <div className="flex flex-col gap-0.5 mt-1 border-t border-slate-200 pt-1.5 w-full">
+                {row.subject_hours.map((sh, idx) => (
+                  <div key={idx} className="flex justify-between items-center text-[8px] font-black uppercase text-slate-500">
+                    <span className="truncate max-w-[80px]">{sh.subject}</span>
+                    <span className="text-slate-700 ml-1 whitespace-nowrap">{sh.consumed_hours} / {sh.allocated_hours} Hrs</span>
+                  </div>
+                ))}
+              </div>
+            )}
+
             {isSuperAdmin && (
               <button
                 onClick={(e) => { e.stopPropagation(); handleAddInstallmentClick(row); }}

@@ -377,11 +377,10 @@ const StudentsList = ({ role = 'academic_operation_executive' }) => {
 										</td>
 										<td className="px-8 py-6">
 											<div className="flex flex-col gap-1">
-												<div className="flex items-center gap-2">
-													<Clock size={14} className="text-[#008080]" />
-													<span className="text-xs font-black text-slate-700 tracking-widest">
-														{student.total_lifetime_consumed_hours || 0} / {student.total_hours || 0} Hrs
-													</span>
+												<div className="flex flex-col gap-0.5">
+													<span className="text-[8px] font-black uppercase tracking-wider text-slate-400">Lifetime Hours: <span className="text-[#008080] font-black">{student.total_lifetime_consumed_hours || 0} / {student.total_hours || 0} hrs</span></span>
+													<span className="text-[8px] font-black uppercase tracking-wider text-slate-400">Current Cycle Consumed: <span className="text-slate-700">{student.consumed_hours || 0} hrs</span></span>
+													<span className="text-[8px] font-black uppercase tracking-wider text-slate-400">Current Cycle Limit: <span className="text-slate-700">{Math.round(student.paid_hours || 0)} hrs</span></span>
 												</div>
 												{student.subject_hours && student.subject_hours.length > 0 && (
 													<div className="flex flex-col gap-0.5 mt-1 border-t border-slate-100 pt-1 w-full min-w-[120px]">
