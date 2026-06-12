@@ -1900,5 +1900,114 @@ module.exports = {
     getStudentDetailsForAdmin,
     getAHParentInteractions,
     getAHFacultyInteractions,
-    getAHParentMeetings
+    getAHParentMeetings,
+    getFacultyTimetable: async (req, res) => {
+        try {
+            const { faculty_id, subject, day_of_week } = req.query;
+            let sql = `
+                SELECT t.*, f.name as faculty_name 
+                FROM faculty_timetable t
+                JOIN faculties f ON t.faculty_id = f.id
+                WHERE 1=1
+            `;
+            const params = [];
+            if (faculty_id) { sql += ' AND t.faculty_id = ?'; params.push(faculty_id); }
+            if (subject) { sql += ' AND t.subject = ?'; params.push(subject); }
+            if (day_of_week) { sql += ' AND t.day_of_week = ?'; params.push(day_of_week); }
+            
+            sql += ' ORDER BY f.name ASC, FIELD(t.day_of_week, "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"), t.start_time ASC';
+            
+            const [rows] = await db.query(sql, params);
+            res.status(200).json({ success: true, data: rows });
+        } catch (e) { res.status(500).json({ success: false, message: e.message }); }
+    },
+    addFacultyTimetableSlot: async (req, res) => {
+        try {
+            const { faculty_id, subject, day_of_week, start_time, end_time } = req.body;
+            if (!faculty_id || !subject || !day_of_week || !start_time || !end_time) {
+                return res.status(400).json({ success: false, message: "All fields are required" });
+            }
+            
+            const [existing] = await db.query(
+                'SELECT id FROM faculty_timetable WHERE faculty_id = ? AND day_of_week = ? AND start_time = ? AND end_time = ?',
+                [faculty_id, day_of_week, start_time, end_time]
+            );
+            if (existing.length > 0) {
+                return res.status(400).json({ success: false, message: "This exact time slot already exists for this faculty." });
+            }
+
+            await db.query(
+                'INSERT INTO faculty_timetable (faculty_id, subject, day_of_week, start_time, end_time) VALUES (?, ?, ?, ?, ?)',
+                [faculty_id, subject, day_of_week, start_time, end_time]
+            );
+            res.status(201).json({ success: true, message: "Timetable slot added successfully" });
+        } catch (e) { res.status(500).json({ success: false, message: e.message }); }
+    },
+    removeFacultyTimetableSlot: async (req, res) => {
+        try {
+            const { id } = req.params;
+            await db.query('DELETE FROM faculty_timetable WHERE id = ?', [id]);
+            res.status(200).json({ success: true, message: "Timetable slot removed successfully" });
+        } catch (e) { res.status(500).json({ success: false, message: e.message }); }
+    },
+    getAvailableFacultiesForSubject: async (req, res) => {
+        try {
+            const { subject } = req.query;
+            if (!subject) return res.status(400).json({ success: false, message: "Subject is required" });
+
+            const sql = `
+                SELECT DISTINCT f.id, f.name 
+                FROM faculty_timetable t
+                JOIN faculties f ON t.faculty_id = f.id
+                WHERE t.subject = ? 
+                AND NOT EXISTS (
+                    SELECT 1 FROM faculty_schedules fs 
+                    WHERE fs.faculty_id = t.faculty_id 
+                    AND fs.day_of_week = t.day_of_week 
+                    AND fs.start_time = t.start_time 
+                    AND fs.end_time = t.end_time
+                )
+                ORDER BY f.name ASC
+            `;
+            const [rows] = await db.query(sql, [subject]);
+            res.status(200).json({ success: true, data: rows });
+        } catch (e) { res.status(500).json({ success: false, message: e.message }); }
+    },
+    getAvailableSlotsForFaculty: async (req, res) => {
+        try {
+            const { facultyId } = req.params;
+            const { subject } = req.query;
+            
+            if (!subject) return res.status(400).json({ success: false, message: "Subject is required" });
+
+            const sql = `
+                SELECT t.id, t.day_of_week, t.start_time, t.end_time 
+                FROM faculty_timetable t
+                WHERE t.faculty_id = ? AND t.subject = ?
+                AND NOT EXISTS (
+                    SELECT 1 FROM faculty_schedules fs 
+                    WHERE fs.faculty_id = t.faculty_id 
+                    AND fs.day_of_week = t.day_of_week 
+                    AND fs.start_time = t.start_time 
+                    AND fs.end_time = t.end_time
+                )
+                ORDER BY FIELD(t.day_of_week, "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"), t.start_time ASC
+            `;
+            const [rows] = await db.query(sql, [facultyId, subject]);
+            res.status(200).json({ success: true, data: rows });
+        } catch (e) { res.status(500).json({ success: false, message: e.message }); }
+    },
+    getStudentSchedules: async (req, res) => {
+        try {
+            const sql = `
+                SELECT fs.*, s.name as student_name, f.name as faculty_name 
+                FROM faculty_schedules fs
+                JOIN students s ON fs.student_id = s.id
+                JOIN faculties f ON fs.faculty_id = f.id
+                ORDER BY FIELD(fs.day_of_week, "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"), fs.start_time ASC
+            `;
+            const [rows] = await db.query(sql);
+            res.status(200).json({ success: true, data: rows });
+        } catch (e) { res.status(500).json({ success: false, message: e.message }); }
+    }
 };

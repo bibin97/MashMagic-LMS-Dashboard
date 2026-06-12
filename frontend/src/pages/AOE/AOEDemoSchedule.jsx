@@ -9,7 +9,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 
 const AOEDemoSchedule = () => {
-  const [activeTab, setActiveTab] = useState('schedule');
+  const [activeTab, setActiveTab] = useState('demo');
   const [loading, setLoading] = useState(false);
   const [faculties, setFaculties] = useState([]);
   const [students, setStudents] = useState([]);
@@ -145,24 +145,27 @@ const AOEDemoSchedule = () => {
 
   const handleCreateSchedule = async (e) => {
     e.preventDefault();
-    if (!formData.faculty_id) {
+    const isPreDemo = activeTab === 'schedule_pre_demo';
+    
+    if (!isPreDemo && !formData.faculty_id) {
       toast.error('Please select a faculty');
       return;
     }
     
     try {
       if (formData.id) {
-        await api.put(`/aoe/demo-schedules/${formData.id}`, formData);
+        await api.put(`/aoe/demo-schedules/${formData.id}`, { ...formData, type: isPreDemo ? 'pre-demo' : 'demo' });
         toast.success('Demo Schedule Updated Successfully');
         setShowEditModal(false);
       } else {
-        await api.post('/aoe/demo-schedules', formData);
+        await api.post('/aoe/demo-schedules', { ...formData, type: isPreDemo ? 'pre-demo' : 'demo' });
         toast.success('Demo Schedule Created Successfully');
       }
       
       setFormData({
         id: undefined,
         demo_id: '',
+        type: 'demo',
         student_name: '',
         student_type: 'new',
         syllabus: '',
@@ -176,6 +179,7 @@ const AOEDemoSchedule = () => {
         hour_rate: '',
         meeting_link: ''
       });
+      setActiveTab(isPreDemo ? 'pre-demo' : 'demo');
       fetchDemos();
     } catch (error) {
       toast.error(error.response?.data?.message || (formData.id ? 'Failed to update schedule' : 'Failed to create schedule'));
@@ -186,6 +190,7 @@ const AOEDemoSchedule = () => {
     setFormData({
       id: demo.id,
       demo_id: demo.demo_id || '',
+      type: demo.type || 'demo',
       student_name: demo.student_name || '',
       student_type: demo.student_type || 'new',
       syllabus: demo.syllabus || '',
@@ -250,8 +255,9 @@ const AOEDemoSchedule = () => {
   };
 
   const filteredDemos = demoList.filter(d => 
-    d.student_name?.toLowerCase().includes(deferredSearchTerm.toLowerCase()) || 
-    d.faculty_name?.toLowerCase().includes(deferredSearchTerm.toLowerCase())
+    (activeTab === 'pre-demo' ? d.type === 'pre-demo' : (!d.type || d.type === 'demo')) &&
+    (d.student_name?.toLowerCase().includes(deferredSearchTerm.toLowerCase()) || 
+     d.faculty_name?.toLowerCase().includes(deferredSearchTerm.toLowerCase()))
   );
 
   return (
@@ -268,33 +274,41 @@ const AOEDemoSchedule = () => {
       {/* Tabs Menu */}
       <div className="flex flex-wrap gap-4 p-2 bg-slate-50/80 backdrop-blur-md rounded-[2rem] border border-slate-200 shadow-inner">
         <button
-          onClick={() => setActiveTab('schedule')}
+          onClick={() => setActiveTab('demo')}
           className={`flex-1 min-w-[200px] py-4 rounded-[1.5rem] text-[10px] font-black uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3 ${
-            activeTab === 'schedule'
+            activeTab === 'demo'
               ? 'bg-white text-[#008080] shadow-md border-b-2 border-b-[#008080]'
               : 'text-slate-500 hover:bg-slate-100'
           }`}
         >
-          <Plus size={16} /> Schedule Demo
+          <ListTodo size={16} /> Demo Schedule
         </button>
         <button
-          onClick={() => setActiveTab('list')}
+          onClick={() => setActiveTab('pre-demo')}
           className={`flex-1 min-w-[200px] py-4 rounded-[1.5rem] text-[10px] font-black uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3 ${
-            activeTab === 'list'
-              ? 'bg-white text-[#008080] shadow-md border-b-2 border-b-[#008080]'
+            activeTab === 'pre-demo'
+              ? 'bg-white text-emerald-600 shadow-md border-b-2 border-b-emerald-600'
               : 'text-slate-500 hover:bg-slate-100'
           }`}
         >
-          <ListTodo size={16} /> Demo List
+          <Target size={16} /> Pre-Demo
         </button>
       </div>
 
       {/* Content Area */}
-      {activeTab === 'schedule' ? (
-        <div className="bg-white p-8 rounded-[3rem] shadow-sm border border-slate-100">
-          <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight mb-8 flex items-center gap-3">
-            <Target className="text-[#008080]" /> Schedule New Demo
-          </h2>
+      {activeTab === 'schedule_demo' || activeTab === 'schedule_pre_demo' ? (
+        <div className="bg-white p-8 rounded-[3rem] shadow-sm border border-slate-100 animate-in fade-in zoom-in duration-500">
+          <div className="flex justify-between items-center mb-8">
+            <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight flex items-center gap-3">
+              <Target className="text-[#008080]" /> Schedule New {activeTab === 'schedule_pre_demo' ? 'Pre-Demo' : 'Demo'}
+            </h2>
+            <button 
+              onClick={() => setActiveTab(activeTab === 'schedule_pre_demo' ? 'pre-demo' : 'demo')}
+              className="p-2 text-slate-400 hover:text-slate-600 transition-colors"
+            >
+              <XCircle size={24} />
+            </button>
+          </div>
           
           <form onSubmit={handleCreateSchedule} className="space-y-8">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -457,10 +471,10 @@ const AOEDemoSchedule = () => {
 
               <div className="space-y-2 relative">
                 <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 flex items-center gap-2">
-                  <Presentation size={12}/> Faculty *
+                  <Presentation size={12}/> Faculty {activeTab !== 'schedule_pre_demo' && '*'}
                 </label>
                 <input
-                  type="text" required
+                  type="text" required={activeTab !== 'schedule_pre_demo'}
                   value={formData.faculty_name_input}
                   onFocus={() => setShowFacultySuggestions(true)}
                   onBlur={() => setTimeout(() => setShowFacultySuggestions(false), 200)}
@@ -501,10 +515,10 @@ const AOEDemoSchedule = () => {
 
               <div className="space-y-2">
                 <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 flex items-center gap-2">
-                  <CalendarDays size={12}/> Date *
+                  <CalendarDays size={12}/> Date {activeTab !== 'schedule_pre_demo' && '*'}
                 </label>
                 <input
-                  type="date" required
+                  type="date" required={activeTab !== 'schedule_pre_demo'}
                   value={formData.date}
                   onChange={(e) => setFormData({ ...formData, date: e.target.value })}
                   className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
@@ -513,10 +527,10 @@ const AOEDemoSchedule = () => {
 
               <div className="space-y-2">
                 <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 flex items-center gap-2">
-                  <Clock size={12}/> Start Time *
+                  <Clock size={12}/> Start Time {activeTab !== 'schedule_pre_demo' && '*'}
                 </label>
                 <input
-                  type="time" required
+                  type="time" required={activeTab !== 'schedule_pre_demo'}
                   value={formData.start_time}
                   onChange={(e) => setFormData({ ...formData, start_time: e.target.value })}
                   className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
@@ -525,10 +539,10 @@ const AOEDemoSchedule = () => {
 
               <div className="space-y-2">
                 <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 flex items-center gap-2">
-                  <Clock size={12}/> End Time *
+                  <Clock size={12}/> End Time {activeTab !== 'schedule_pre_demo' && '*'}
                 </label>
                 <input
-                  type="time" required
+                  type="time" required={activeTab !== 'schedule_pre_demo'}
                   value={formData.end_time}
                   onChange={(e) => setFormData({ ...formData, end_time: e.target.value })}
                   className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
@@ -573,11 +587,23 @@ const AOEDemoSchedule = () => {
           </form>
         </div>
       ) : (
-        <div className="bg-white p-8 rounded-[3rem] shadow-sm border border-slate-100 space-y-6">
-          <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-            <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight flex items-center gap-3">
-              <ListTodo className="text-[#008080]" /> Scheduled Demos
-            </h2>
+        <div className="bg-white p-8 rounded-[3rem] shadow-sm border border-slate-100 space-y-6 animate-in fade-in duration-500">
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-4 border-b border-slate-50 pb-6">
+            <div className="flex items-center gap-6">
+              <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight flex items-center gap-3">
+                <ListTodo className={activeTab === 'pre-demo' ? 'text-emerald-600' : 'text-[#008080]'} /> 
+                {activeTab === 'pre-demo' ? 'Pre-Demos' : 'Scheduled Demos'}
+              </h2>
+              <button
+                onClick={() => {
+                  setFormData({ id: undefined, demo_id: '', student_name: '', student_type: 'new', syllabus: '', section: '', subject: '', faculty_id: '', faculty_name_input: '', date: new Date().toISOString().split('T')[0], start_time: '', end_time: '', hour_rate: '', meeting_link: '' });
+                  setActiveTab(activeTab === 'pre-demo' ? 'schedule_pre_demo' : 'schedule_demo');
+                }}
+                className={`px-6 py-2.5 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-md transition-all flex items-center gap-2 ${activeTab === 'pre-demo' ? 'bg-emerald-500 hover:bg-emerald-600' : 'bg-[#008080] hover:bg-[#006666]'}`}
+              >
+                <Plus size={14} /> Add {activeTab === 'pre-demo' ? 'Pre-Demo' : 'Demo'}
+              </button>
+            </div>
             <div className="relative w-full sm:w-auto">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
               <input
@@ -671,8 +697,8 @@ const AOEDemoSchedule = () => {
                   <div className="space-y-2 mb-6 text-xs font-bold text-slate-600">
                     {demo.date && <p className="flex items-center gap-2"><CalendarDays size={14} className="text-slate-400"/> {new Date(demo.date).toLocaleDateString('en-GB')}</p>}
                     <p className="flex items-center gap-2"><BookOpen size={14} className="text-slate-400"/> {demo.subject}</p>
-                    <p className="flex items-center gap-2"><Presentation size={14} className="text-slate-400"/> {demo.faculty_name}</p>
-                    <p className="flex items-center gap-2"><Clock size={14} className="text-slate-400"/> {demo.start_time} - {demo.end_time}</p>
+                    {demo.faculty_name && <p className="flex items-center gap-2"><Presentation size={14} className="text-slate-400"/> {demo.faculty_name}</p>}
+                    {demo.start_time && demo.end_time && <p className="flex items-center gap-2"><Clock size={14} className="text-slate-400"/> {demo.start_time} - {demo.end_time}</p>}
                     {demo.meeting_link && (
                       <p className="flex items-center gap-2">
                         <Video size={14} className="text-slate-400"/> 
@@ -683,34 +709,37 @@ const AOEDemoSchedule = () => {
                     )}
                   </div>
 
-                  <div className="flex items-center gap-3 pt-4 border-t border-slate-100">
-                    {(() => {
-                      let isLive = false;
-                      if (demo.start_time && demo.end_time) {
-                        const [startH, startM] = demo.start_time.split(':').map(Number);
-                        const [endH, endM] = demo.end_time.split(':').map(Number);
-                        const startMins = startH * 60 + startM;
-                        const endMins = endH * 60 + endM;
-                        isLive = currentTimeMinutes >= startMins && currentTimeMinutes <= endMins;
-                      }
+                  {demo.type !== 'pre-demo' && (
+                    <div className="flex items-center gap-3 pt-4 border-t border-slate-100">
+                      {(() => {
+                        let isLive = false;
+                        if (demo.start_time && demo.end_time) {
+                          const [startH, startM] = demo.start_time.split(':').map(Number);
+                          const [endH, endM] = demo.end_time.split(':').map(Number);
+                          const startMins = startH * 60 + startM;
+                          const endMins = endH * 60 + endM;
+                          isLive = currentTimeMinutes >= startMins && currentTimeMinutes <= endMins;
+                        }
 
-                      return (
-                        <button className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 ${
-                          isLive 
-                            ? 'bg-rose-500 text-white animate-pulse shadow-[0_0_15px_rgba(244,63,94,0.5)]' 
-                            : 'bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white'
-                        }`}>
-                          <Video size={14} className={isLive ? "text-white" : ""} /> Live
-                        </button>
-                      );
-                    })()}
-                    <button 
-                      onClick={() => openEvaluationModal(demo)}
-                      className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 ${demo.status === 'completed' ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200' : 'bg-slate-900 text-white hover:bg-slate-800'}`}
-                    >
-                      <RefreshCcw size={14}/> {demo.status === 'completed' ? 'View/Edit' : 'Update'}
-                    </button>
-                  </div>
+                        return (
+                          <button className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 ${
+                            isLive 
+                              ? 'bg-rose-500 text-white animate-pulse shadow-[0_0_15px_rgba(244,63,94,0.5)]' 
+                              : 'bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white'
+                          }`}>
+                            <Video size={14} className={isLive ? "text-white" : ""} /> Live
+                          </button>
+                        );
+                      })()}
+                      
+                      <button 
+                        onClick={() => openEvaluationModal(demo)}
+                        className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${demo.status === 'completed' ? 'bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white' : 'bg-slate-50 text-slate-400 hover:bg-slate-800 hover:text-white'}`}
+                      >
+                        {demo.status === 'completed' ? 'Update Eval' : 'Evaluate'}
+                      </button>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
@@ -809,7 +838,7 @@ const AOEDemoSchedule = () => {
                 onClick={() => {
                   setShowEditModal(false);
                   setFormData({
-                    id: undefined, demo_id: '', student_name: '', student_type: 'new', syllabus: '', section: '', subject: '', faculty_id: '', faculty_name_input: '', start_time: '', end_time: '', hour_rate: '', meeting_link: ''
+                    id: undefined, demo_id: '', type: 'demo', student_name: '', student_type: 'new', syllabus: '', section: '', subject: '', faculty_id: '', faculty_name_input: '', start_time: '', end_time: '', hour_rate: '', meeting_link: ''
                   });
                 }} 
                 className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-slate-400 hover:text-rose-500 shadow-sm transition-all"
@@ -864,9 +893,9 @@ const AOEDemoSchedule = () => {
                 </div>
 
                 <div className="space-y-2 relative">
-                  <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 flex items-center gap-2"><Presentation size={12}/> Faculty *</label>
+                  <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 flex items-center gap-2"><Presentation size={12}/> Faculty {formData.type !== 'pre-demo' && '*'}</label>
                   <input
-                    type="text" required
+                    type="text" required={formData.type !== 'pre-demo'}
                     value={formData.faculty_name_input}
                     onFocus={() => setShowFacultySuggestions(true)}
                     onBlur={() => setTimeout(() => setShowFacultySuggestions(false), 200)}
@@ -900,18 +929,18 @@ const AOEDemoSchedule = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 flex items-center gap-2"><CalendarDays size={12}/> Date *</label>
-                  <input type="date" required value={formData.date} onChange={(e) => setFormData({ ...formData, date: e.target.value })} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none" />
+                  <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 flex items-center gap-2"><CalendarDays size={12}/> Date {formData.type !== 'pre-demo' && '*'}</label>
+                  <input type="date" required={formData.type !== 'pre-demo'} value={formData.date} onChange={(e) => setFormData({ ...formData, date: e.target.value })} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none" />
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 flex items-center gap-2"><Clock size={12}/> Start Time *</label>
-                  <input type="time" required value={formData.start_time} onChange={(e) => setFormData({ ...formData, start_time: e.target.value })} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none" />
+                  <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 flex items-center gap-2"><Clock size={12}/> Start Time {formData.type !== 'pre-demo' && '*'}</label>
+                  <input type="time" required={formData.type !== 'pre-demo'} value={formData.start_time} onChange={(e) => setFormData({ ...formData, start_time: e.target.value })} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none" />
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 flex items-center gap-2"><Clock size={12}/> End Time *</label>
-                  <input type="time" required value={formData.end_time} onChange={(e) => setFormData({ ...formData, end_time: e.target.value })} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none" />
+                  <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 flex items-center gap-2"><Clock size={12}/> End Time {formData.type !== 'pre-demo' && '*'}</label>
+                  <input type="time" required={formData.type !== 'pre-demo'} value={formData.end_time} onChange={(e) => setFormData({ ...formData, end_time: e.target.value })} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none" />
                 </div>
 
                 <div className="space-y-2">

@@ -43,7 +43,13 @@ const {
     getStudentDetailsForAdmin,
     getAHParentInteractions,
     getAHFacultyInteractions,
-    getAHParentMeetings
+    getAHParentMeetings,
+    getFacultyTimetable,
+    addFacultyTimetableSlot,
+    removeFacultyTimetableSlot,
+    getAvailableFacultiesForSubject,
+    getAvailableSlotsForFaculty,
+    getStudentSchedules
 } = require('../controllers/adminController');
 
 const { updateInteractionLog, getInteractionHistory } = require('../controllers/mentorHeadController');
@@ -156,5 +162,12 @@ router.delete('/sub-admins/:id', deleteSubAdmin);
 router.get('/student-logs-full', getAllStudentLogs);
 router.get('/faculty-logs-full', getAllFacultyLogs);
 router.get('/daily-hours/:studentId', getDailyHours);
+// Scheduling System Routes
+router.get('/faculty-timetable', requireRole('super_admin', 'sub_admin', 'mentor_head'), getFacultyTimetable);
+router.post('/faculty-timetable', requireRole('super_admin', 'sub_admin', 'mentor_head'), addFacultyTimetableSlot);
+router.delete('/faculty-timetable/:id', requireRole('super_admin', 'sub_admin', 'mentor_head'), removeFacultyTimetableSlot);
+router.get('/available-faculties', requireRole('super_admin', 'sub_admin', 'mentor_head'), getAvailableFacultiesForSubject);
+router.get('/faculty-available-slots/:facultyId', requireRole('super_admin', 'sub_admin', 'mentor_head'), getAvailableSlotsForFaculty);
+router.get('/student-schedules', requireRole('super_admin', 'sub_admin', 'mentor_head'), getStudentSchedules);
 
 module.exports = router;

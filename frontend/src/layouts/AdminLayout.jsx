@@ -14,7 +14,9 @@ import {
  ScrollText,
  MessageSquare,
  Presentation,
- IndianRupee
+ IndianRupee,
+ Calendar,
+ Clock
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
@@ -65,6 +67,8 @@ const AdminLayout = () => {
    { path: '/admin/ah-interactions', icon: <MessageSquare size={20} />, label: 'AH Interactions', perm: 'logs' },
    { path: '/admin/ah-meetings', icon: <Presentation size={20} />, label: 'AH Meetings', perm: 'logs' },
    { path: '/admin/fees', icon: <IndianRupee size={20} />, label: 'Fee Management', perm: 'fees' },
+   { path: '/admin/faculty-timetable', icon: <Calendar size={20} />, label: 'Faculty Timetable', perm: 'faculties' },
+   { path: '/admin/student-schedules', icon: <Clock size={20} />, label: 'Student Schedules', perm: 'students' },
    { path: '/admin/audit-logs', icon: <FileText size={20} />, label: 'Audit Trail', perm: 'logs' },
 
  ].filter(item => {

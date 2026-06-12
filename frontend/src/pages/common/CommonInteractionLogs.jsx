@@ -1,4 +1,4 @@
-import React, {  useState, useEffect , useDeferredValue } from 'react';
+import React, {  useState, useEffect , useDeferredValue, useMemo } from 'react';
 import api from '../../services/api';
 import { 
     ScrollText, Search, User, Clock, Calendar, 

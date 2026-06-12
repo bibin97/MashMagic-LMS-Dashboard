@@ -160,6 +160,8 @@ function App() {
             <Route path="ah-interactions" element={<AHInteractions />} />
             <Route path="ah-meetings" element={<AHParentMeetings />} />
             <Route path="fees" element={<FeesManagement />} />
+            <Route path="faculty-timetable" element={<FacultyTimetable />} />
+            <Route path="student-schedules" element={<StudentSchedules />} />
             <Route path="profile" element={<AdminProfile />} />
             <Route path="account-settings" element={<AccountSettings />} />
           </Route>

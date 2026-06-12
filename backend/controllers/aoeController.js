@@ -1029,7 +1029,7 @@ const getDemoSchedules = async (req, res) => {
         const [rows] = await db.query(`
             SELECT d.*, f.name as faculty_name 
             FROM aoe_demo_schedules d
-            JOIN faculties f ON d.faculty_id = f.id
+            LEFT JOIN faculties f ON d.faculty_id = f.id
             ORDER BY d.created_at DESC
         `);
         res.status(200).json({ success: true, data: rows });
@@ -1041,14 +1041,14 @@ const getDemoSchedules = async (req, res) => {
 
 const createDemoSchedule = async (req, res) => {
     try {
-        const { demo_id, date, student_name, student_type, syllabus, section, subject, faculty_id, start_time, end_time, hour_rate, meeting_link } = req.body;
+        const { demo_id, type, date, student_name, student_type, syllabus, section, subject, faculty_id, start_time, end_time, hour_rate, meeting_link } = req.body;
         const aoe_id = req.user.id;
 
         await db.query(`
             INSERT INTO aoe_demo_schedules 
-                (aoe_id, demo_id, date, student_name, student_type, syllabus, section, subject, faculty_id, start_time, end_time, hour_rate, meeting_link)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        `, [aoe_id, demo_id || null, date || null, student_name, student_type || 'new', syllabus || null, section || null, subject, faculty_id, start_time, end_time, hour_rate || 0, meeting_link || null]);
+                (aoe_id, demo_id, type, date, student_name, student_type, syllabus, section, subject, faculty_id, start_time, end_time, hour_rate, meeting_link)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `, [aoe_id, demo_id || null, type || 'demo', date || null, student_name, student_type || 'new', syllabus || null, section || null, subject || null, faculty_id || null, start_time || null, end_time || null, hour_rate || 0, meeting_link || null]);
 
         res.status(201).json({ success: true, message: 'Demo schedule created successfully' });
     } catch (error) {
@@ -1060,13 +1060,13 @@ const createDemoSchedule = async (req, res) => {
 const editDemoSchedule = async (req, res) => {
     try {
         const { id } = req.params;
-        const { date, student_name, student_type, syllabus, section, subject, faculty_id, start_time, end_time, hour_rate, meeting_link } = req.body;
+        const { type, date, student_name, student_type, syllabus, section, subject, faculty_id, start_time, end_time, hour_rate, meeting_link } = req.body;
         
         await db.query(`
             UPDATE aoe_demo_schedules 
-            SET date=?, student_name=?, student_type=?, syllabus=?, section=?, subject=?, faculty_id=?, start_time=?, end_time=?, hour_rate=?, meeting_link=?
+            SET type=?, date=?, student_name=?, student_type=?, syllabus=?, section=?, subject=?, faculty_id=?, start_time=?, end_time=?, hour_rate=?, meeting_link=?
             WHERE id=?
-        `, [date || null, student_name, student_type, syllabus, section, subject, faculty_id, start_time, end_time, hour_rate, meeting_link || null, id]);
+        `, [type || 'demo', date || null, student_name, student_type || 'new', syllabus || null, section || null, subject || null, faculty_id || null, start_time || null, end_time || null, hour_rate || 0, meeting_link || null, id]);
         
         res.status(200).json({ success: true, message: 'Demo schedule updated successfully' });
     } catch (error) {

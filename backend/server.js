@@ -527,6 +527,16 @@ const startServer = async () => {
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 );`,
 
+                `CREATE TABLE IF NOT EXISTS faculty_timetable (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    faculty_id INT NOT NULL,
+                    subject VARCHAR(100) NOT NULL,
+                    day_of_week ENUM('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday') NOT NULL,
+                    start_time VARCHAR(20) NOT NULL,
+                    end_time VARCHAR(20) NOT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                );`,
+
                 `CREATE TABLE IF NOT EXISTS student_marks (
                     id INT AUTO_INCREMENT PRIMARY KEY,
                     student_id INT NOT NULL,
