@@ -185,6 +185,7 @@ const CommonInteractionLogs = ({ role }) => {
     }, [viewMode, selectedStudent, dateFilter, customRange, mentorFilter, role]);
 
     const fetchMentors = async () => {
+        if (role === 'mentor' || role === 'faculty') return;
         try {
             const endpoint = (role === 'mentor_head' || role === 'academic_head') 
                 ? `${apiPrefix}/mentors-all` 
