@@ -72,9 +72,26 @@ const StudentsList = ({ role = 'academic_operation_executive' }) => {
 			const mentorParam = filterMentor !== 'all' ? `&mentor_id=${filterMentor}` : '';
 			const facultyParam = filterFaculty !== 'all' ? `&faculty_id=${filterFaculty}` : '';
 			const res = await api.get(`${apiPath}/students-all?search=${searchTerm}&sortBy=${sortBy}&course=${filterCourse}${mentorParam}${facultyParam}`);
-			if (res.data.success) {
-				setStudents((res.data.data || []).sort((a, b) => (a.name || '').localeCompare(b.name || '')));
-			}
+			
+			// Inject mock hours for specific students requested by user
+			const mockHours = {
+				"Saif": { total_lifetime_consumed_hours: 70, total_hours: 72, consumed_hours: 70, paid_hours: 72, subject_hours: [{subject: 'Arabic', consumed_hours: 36, allocated_hours: 38}, {subject: 'Maths', consumed_hours: 34, allocated_hours: 34}] },
+				"Aman": { total_lifetime_consumed_hours: 60, total_hours: 72, consumed_hours: 60, paid_hours: 72, subject_hours: [{subject: 'Mal', consumed_hours: 24, allocated_hours: 36}, {subject: 'Science', consumed_hours: 18, allocated_hours: 18}, {subject: 'Maths', consumed_hours: 18, allocated_hours: 18}] },
+				"Hamdan": { total_lifetime_consumed_hours: 36, total_hours: 36, consumed_hours: 36, paid_hours: 36, subject_hours: [{subject: 'English', consumed_hours: 22, allocated_hours: 22}, {subject: 'Hindi', consumed_hours: 14, allocated_hours: 14}] },
+				"Sami": { total_lifetime_consumed_hours: 69, total_hours: 72, consumed_hours: 69, paid_hours: 72, subject_hours: [{subject: 'Maths', consumed_hours: 36, allocated_hours: 36}, {subject: 'Physics', consumed_hours: 15, allocated_hours: 18}, {subject: 'Chemi', consumed_hours: 18, allocated_hours: 18}] }
+			};
+
+			let fetchedStudents = res.data.data || [];
+			fetchedStudents = fetchedStudents.map(student => {
+				// Try to match by exact name or if the name contains the mock name
+				const mockKey = Object.keys(mockHours).find(key => student.name.toLowerCase().includes(key.toLowerCase()));
+				if (mockKey) {
+					return { ...student, ...mockHours[mockKey] };
+				}
+				return student;
+			});
+
+			setStudents(fetchedStudents.sort((a, b) => (a.name || '').localeCompare(b.name || '')));
 		} catch (error) {
 			toast.error("Failed to load students directory");
 		} finally {
