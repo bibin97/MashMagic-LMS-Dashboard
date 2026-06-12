@@ -100,6 +100,23 @@ const calculateStudentHours = async (students, db) => {
 
         const studentData = consumedMap[s.id] || { totalMins: 0, subjects: {} };
         
+        // Ensure registered subjects are included even if no sessions/history exists
+        let registeredSubjects = [];
+        try {
+            if (s.subjects_json) {
+                registeredSubjects = typeof s.subjects_json === 'string' ? JSON.parse(s.subjects_json) : s.subjects_json;
+            }
+        } catch(e) {}
+        
+        registeredSubjects.forEach(rs => {
+            let subjName = rs.subject || 'Unknown';
+            if (Array.isArray(subjName)) subjName = subjName.join(', ');
+            
+            if (!studentData.subjects[subjName]) {
+                studentData.subjects[subjName] = { allocated: 0, consumedMins: 0 };
+            }
+        });
+        
         // Sum historical baseline to totalMins
         let historicalTotalMins = 0;
         const subject_hours = [];

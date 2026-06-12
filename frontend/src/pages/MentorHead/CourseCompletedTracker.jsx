@@ -107,20 +107,26 @@ const CourseCompletedTracker = () => {
  className="w-full bg-white border border-slate-200 rounded-2xl pl-12 pr-4 py-3 text-sm font-bold text-slate-700 focus:outline-none focus:border-[#008080] focus:ring-4 focus:ring-[#008080]/10 transition-all placeholder:text-slate-600 placeholder:font-medium"
  />
  </div>
- <div className="flex gap-2">
- {['all', 'completed', 'pending'].map((f) => (
- <button
- key={f}
- onClick={() => setFilter(f)}
- className={`px-6 py-3 rounded-2xl text-xs font-black uppercase tracking-widest transition-all ${filter === f
- ? 'bg-[#008080] text-white shadow-lg shadow-[#008080]/30 -translate-y-0.5'
- : 'bg-white text-slate-500 border border-slate-200 hover:bg-slate-50'
- }`}
- >
- {f.replace('_', ' ')}
- </button>
- ))}
- </div>
+  <div className="flex gap-2">
+    <button
+      onClick={() => setFilter('all')}
+      className={`px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${filter === 'all' ? 'bg-[#008080] text-white shadow-lg shadow-[#008080]/30 -translate-y-0.5' : 'bg-white text-slate-500 border border-slate-200 hover:bg-slate-50'}`}
+    >
+      Mark Completions
+    </button>
+    <button
+      onClick={() => setFilter('completed')}
+      className={`px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${filter === 'completed' ? 'bg-[#008080] text-white shadow-lg shadow-[#008080]/30 -translate-y-0.5' : 'bg-white text-slate-500 border border-slate-200 hover:bg-slate-50'}`}
+    >
+      Completed
+    </button>
+    <button
+      onClick={() => setFilter('pending')}
+      className={`px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${filter === 'pending' ? 'bg-[#008080] text-white shadow-lg shadow-[#008080]/30 -translate-y-0.5' : 'bg-white text-slate-500 border border-slate-200 hover:bg-slate-50'}`}
+    >
+      In Progress
+    </button>
+  </div>
  </div>
 
  {/* Table */}
@@ -133,7 +139,7 @@ const CourseCompletedTracker = () => {
  <th className="p-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">Course & Grade</th>
  <th className="p-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">Assigned To</th>
  <th className="p-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">Status</th>
- <th className="p-4 rounded-tr-xl text-[10px] font-black text-slate-600 uppercase tracking-widest text-right">Actions</th>
+ {filter === 'all' && <th className="p-4 rounded-tr-xl text-[10px] font-black text-slate-600 uppercase tracking-widest text-right">Actions</th>}
  </tr>
  </thead>
  <tbody>
@@ -167,6 +173,7 @@ const CourseCompletedTracker = () => {
  </span>
  )}
  </td>
+ {filter === 'all' && (
  <td className="p-4 text-right">
  <button
  onClick={() => toggleStatus(student.id, isCompleted)}
@@ -188,6 +195,7 @@ const CourseCompletedTracker = () => {
  )}
  </button>
  </td>
+ )}
  </tr>
  );
  }) : (

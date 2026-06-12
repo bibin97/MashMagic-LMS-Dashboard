@@ -37,6 +37,7 @@ const AOEDemoSchedule = () => {
     subject: '',
     faculty_id: '',
     faculty_name_input: '',
+    date: new Date().toISOString().split('T')[0],
     start_time: '',
     end_time: '',
     hour_rate: '',
@@ -58,7 +59,10 @@ const AOEDemoSchedule = () => {
     remarks: ''
   });
 
-  const totalScore = 
+  // Edit Modal State
+  const [showEditModal, setShowEditModal] = useState(false);
+
+  const evalTotalScore = 
     (Number(evalData.prep_score) || 0) + 
     (Number(evalData.comm_score) || 0) + 
     (Number(evalData.concept_score) || 0) + 
@@ -150,6 +154,7 @@ const AOEDemoSchedule = () => {
       if (formData.id) {
         await api.put(`/aoe/demo-schedules/${formData.id}`, formData);
         toast.success('Demo Schedule Updated Successfully');
+        setShowEditModal(false);
       } else {
         await api.post('/aoe/demo-schedules', formData);
         toast.success('Demo Schedule Created Successfully');
@@ -165,13 +170,13 @@ const AOEDemoSchedule = () => {
         subject: '',
         faculty_id: '',
         faculty_name_input: '',
+        date: new Date().toISOString().split('T')[0],
         start_time: '',
         end_time: '',
         hour_rate: '',
         meeting_link: ''
       });
       fetchDemos();
-      setActiveTab('list');
     } catch (error) {
       toast.error(error.response?.data?.message || (formData.id ? 'Failed to update schedule' : 'Failed to create schedule'));
     }
@@ -188,12 +193,13 @@ const AOEDemoSchedule = () => {
       subject: demo.subject || '',
       faculty_id: demo.faculty_id || '',
       faculty_name_input: demo.faculty_name || '',
+      date: demo.date ? demo.date.substring(0, 10) : new Date().toISOString().split('T')[0],
       start_time: demo.start_time ? demo.start_time.substring(0, 5) : '',
       end_time: demo.end_time ? demo.end_time.substring(0, 5) : '',
       hour_rate: demo.hour_rate || '',
       meeting_link: demo.meeting_link || ''
     });
-    setActiveTab('schedule');
+    setShowEditModal(true);
   };
 
   const handleToggleSuccess = async (demoId) => {
@@ -256,41 +262,7 @@ const AOEDemoSchedule = () => {
             <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600">
               <Target size={24} />
             </div>
-            <div>
-              <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight">
-                {formData.id ? 'Edit Demo Schedule' : 'Schedule New Demo'}
-              </h2>
-              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">
-                {formData.id ? 'Update demo class details' : 'Fill in the details for the new demo class'}
-              </p>
             </div>
-            {formData.id && (
-              <button
-                type="button"
-                onClick={() => {
-                  setFormData({
-                    id: undefined,
-                    demo_id: '',
-                    student_name: '',
-                    student_type: 'new',
-                    syllabus: '',
-                    section: '',
-                    subject: '',
-                    faculty_id: '',
-                    faculty_name_input: '',
-                    start_time: '',
-                    end_time: '',
-                    hour_rate: '',
-                    meeting_link: ''
-                  });
-                  setActiveTab('list');
-                }}
-                className="ml-auto px-4 py-2 bg-slate-100 text-slate-600 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-200 transition-colors"
-              >
-                Cancel Edit
-              </button>
-            )}
-          </div>
       </div>
 
       {/* Tabs Menu */}
@@ -321,7 +293,7 @@ const AOEDemoSchedule = () => {
       {activeTab === 'schedule' ? (
         <div className="bg-white p-8 rounded-[3rem] shadow-sm border border-slate-100">
           <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight mb-8 flex items-center gap-3">
-            <Target className="text-[#008080]" /> New Demo Schedule
+            <Target className="text-[#008080]" /> Schedule New Demo
           </h2>
           
           <form onSubmit={handleCreateSchedule} className="space-y-8">
@@ -331,11 +303,10 @@ const AOEDemoSchedule = () => {
                   <Target size={12}/> Demo ID *
                 </label>
                 <input
-                  type="text" required
+                  type="text" required readOnly
                   value={formData.demo_id}
-                  onChange={(e) => setFormData({ ...formData, demo_id: e.target.value })}
-                  className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
-                  placeholder="Enter Demo ID"
+                  className="w-full p-4 bg-slate-100 border border-slate-200 text-slate-500 rounded-2xl text-xs font-bold outline-none cursor-not-allowed"
+                  placeholder="Auto-generated ID"
                 />
               </div>
 
@@ -530,6 +501,18 @@ const AOEDemoSchedule = () => {
 
               <div className="space-y-2">
                 <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 flex items-center gap-2">
+                  <CalendarDays size={12}/> Date *
+                </label>
+                <input
+                  type="date" required
+                  value={formData.date}
+                  onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                  className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 flex items-center gap-2">
                   <Clock size={12}/> Start Time *
                 </label>
                 <input
@@ -584,7 +567,7 @@ const AOEDemoSchedule = () => {
                 type="submit"
                 className="px-10 py-4 bg-[#008080] text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-xl hover:bg-[#006666] transition-all flex items-center gap-2"
               >
-                <Save size={16} /> {formData.id ? 'Update Schedule' : 'Save Schedule'}
+                <Save size={16} /> Save Schedule
               </button>
             </div>
           </form>
@@ -686,6 +669,7 @@ const AOEDemoSchedule = () => {
                   </div>
                   
                   <div className="space-y-2 mb-6 text-xs font-bold text-slate-600">
+                    {demo.date && <p className="flex items-center gap-2"><CalendarDays size={14} className="text-slate-400"/> {new Date(demo.date).toLocaleDateString('en-GB')}</p>}
                     <p className="flex items-center gap-2"><BookOpen size={14} className="text-slate-400"/> {demo.subject}</p>
                     <p className="flex items-center gap-2"><Presentation size={14} className="text-slate-400"/> {demo.faculty_name}</p>
                     <p className="flex items-center gap-2"><Clock size={14} className="text-slate-400"/> {demo.start_time} - {demo.end_time}</p>
@@ -754,7 +738,7 @@ const AOEDemoSchedule = () => {
               
               <div className="bg-indigo-50/50 p-6 rounded-[2rem] border border-indigo-100 text-center mb-8">
                 <p className="text-[10px] font-black text-indigo-500 uppercase tracking-[0.2em] mb-2">Total Score</p>
-                <h3 className="text-4xl font-black text-indigo-900">{totalScore} <span className="text-xl text-indigo-400">/ 50</span></h3>
+                <h3 className="text-4xl font-black text-indigo-900">{evalTotalScore} <span className="text-xl text-indigo-400">/ 50</span></h3>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -809,6 +793,163 @@ const AOEDemoSchedule = () => {
           </div>
         </div>
       )}
+
+      {/* Edit Demo Modal */}
+      {showEditModal && formData.id && (
+        <div className="fixed inset-0 bg-[#008080]/60 backdrop-blur-md z-[9999] flex items-center justify-center p-4">
+          <div className="bg-white rounded-[3rem] shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
+            <div className="p-8 border-b border-slate-50 flex justify-between items-center bg-slate-50/50">
+              <div>
+                <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tight">Edit Demo Schedule</h2>
+                <p className="text-[10px] font-black text-[#008080] uppercase tracking-widest mt-1">
+                  Update details for {formData.student_name}
+                </p>
+              </div>
+              <button 
+                onClick={() => {
+                  setShowEditModal(false);
+                  setFormData({
+                    id: undefined, demo_id: '', student_name: '', student_type: 'new', syllabus: '', section: '', subject: '', faculty_id: '', faculty_name_input: '', start_time: '', end_time: '', hour_rate: '', meeting_link: ''
+                  });
+                }} 
+                className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-slate-400 hover:text-rose-500 shadow-sm transition-all"
+              >
+                <XCircle size={24} />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateSchedule} className="flex-1 overflow-y-auto p-10 space-y-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 flex items-center gap-2"><Target size={12}/> Demo ID *</label>
+                  <input
+                    type="text" required readOnly
+                    value={formData.demo_id}
+                    className="w-full p-4 bg-slate-100 border border-slate-200 text-slate-500 rounded-2xl text-xs font-bold outline-none cursor-not-allowed"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 flex items-center gap-2"><Target size={12}/> Student Type *</label>
+                  <select required value={formData.student_type} onChange={(e) => setFormData({ ...formData, student_type: e.target.value })} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none">
+                    <option value="new">New Student</option>
+                    <option value="existing">Existing Student</option>
+                  </select>
+                </div>
+
+                <div className="space-y-2 relative">
+                  <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 flex items-center gap-2"><User size={12}/> Student Name *</label>
+                  <input type="text" required value={formData.student_name} onChange={(e) => setFormData({ ...formData, student_name: e.target.value })} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none" />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 flex items-center gap-2"><BookOpen size={12}/> Syllabus *</label>
+                  <select required value={formData.syllabus} onChange={(e) => setFormData({ ...formData, syllabus: e.target.value })} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none">
+                    <option value="" disabled>Select Syllabus</option>
+                    {SYLLABUS_OPTIONS.map(s => <option key={s} value={s}>{s}</option>)}
+                  </select>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 flex items-center gap-2"><Target size={12}/> Section *</label>
+                  <select required value={formData.section} onChange={(e) => setFormData({ ...formData, section: e.target.value })} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none">
+                    <option value="" disabled>Select Section</option>
+                    {SECTION_OPTIONS.map(s => <option key={s} value={s}>{s}</option>)}
+                  </select>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 flex items-center gap-2"><BookOpen size={12}/> Subject *</label>
+                  <input type="text" required value={formData.subject} onChange={(e) => setFormData({ ...formData, subject: e.target.value })} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none" />
+                </div>
+
+                <div className="space-y-2 relative">
+                  <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 flex items-center gap-2"><Presentation size={12}/> Faculty *</label>
+                  <input
+                    type="text" required
+                    value={formData.faculty_name_input}
+                    onFocus={() => setShowFacultySuggestions(true)}
+                    onBlur={() => setTimeout(() => setShowFacultySuggestions(false), 200)}
+                    onChange={(e) => {
+                      setFormData({ ...formData, faculty_name_input: e.target.value, faculty_id: '' });
+                      setShowFacultySuggestions(true);
+                    }}
+                    className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
+                    placeholder="Search faculty..."
+                  />
+                  {showFacultySuggestions && (
+                    <div className="absolute z-50 w-full mt-1 bg-white border border-slate-100 rounded-2xl shadow-xl max-h-40 overflow-y-auto top-full left-0">
+                      {faculties
+                        .filter(f => f.name.toLowerCase().includes(formData.faculty_name_input.toLowerCase()) || (f.subject && f.subject.toLowerCase().includes(formData.faculty_name_input.toLowerCase())))
+                        .map(f => (
+                          <div 
+                            key={f.id}
+                            className="px-4 py-3 hover:bg-slate-50 cursor-pointer border-b border-slate-50 last:border-0 transition-colors"
+                            onMouseDown={(e) => {
+                              e.preventDefault();
+                              setFormData({ ...formData, faculty_name_input: f.name, faculty_id: f.id });
+                              setShowFacultySuggestions(false);
+                            }}
+                          >
+                            <div className="text-xs font-bold text-slate-800">{f.name}</div>
+                            {f.subject && <div className="text-[9px] text-slate-400">{f.subject}</div>}
+                          </div>
+                        ))}
+                    </div>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 flex items-center gap-2"><CalendarDays size={12}/> Date *</label>
+                  <input type="date" required value={formData.date} onChange={(e) => setFormData({ ...formData, date: e.target.value })} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none" />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 flex items-center gap-2"><Clock size={12}/> Start Time *</label>
+                  <input type="time" required value={formData.start_time} onChange={(e) => setFormData({ ...formData, start_time: e.target.value })} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none" />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 flex items-center gap-2"><Clock size={12}/> End Time *</label>
+                  <input type="time" required value={formData.end_time} onChange={(e) => setFormData({ ...formData, end_time: e.target.value })} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none" />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 flex items-center gap-2"><DollarSign size={12}/> Hourly Rate</label>
+                  <input type="number" step="0.01" min="0" value={formData.hour_rate} onChange={(e) => setFormData({ ...formData, hour_rate: e.target.value })} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none" />
+                </div>
+
+                <div className="space-y-2 md:col-span-2">
+                  <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 flex items-center gap-2"><Video size={12}/> Meeting Link (e.g. Google Meet / Zoom)</label>
+                  <input type="text" value={formData.meeting_link} onChange={(e) => setFormData({ ...formData, meeting_link: e.target.value })} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none" />
+                </div>
+              </div>
+
+              <div className="flex gap-4 pt-8 border-t border-slate-50">
+                <button
+                  type="button" 
+                  onClick={() => {
+                    setShowEditModal(false);
+                    setFormData({
+                      id: undefined, demo_id: '', student_name: '', student_type: 'new', syllabus: '', section: '', subject: '', faculty_id: '', faculty_name_input: '', date: new Date().toISOString().split('T')[0], start_time: '', end_time: '', hour_rate: '', meeting_link: ''
+                    });
+                  }}
+                  className="flex-1 py-4 bg-slate-100 text-slate-600 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-200 transition-all"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="flex-[2] py-4 bg-[#008080] text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl hover:bg-[#006666] transition-all flex items-center justify-center gap-2"
+                >
+                  <Save size={16} /> Update Demo
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };

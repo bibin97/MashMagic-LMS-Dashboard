@@ -26,6 +26,7 @@ const OperationsHub = ({ section }) => {
 	const deferredSearchTerm = useDeferredValue(searchTerm);
   const [data, setData] = useState({});
   const [loading, setLoading] = useState(false);
+  const [courseCompletionTab, setCourseCompletionTab] = useState('mark');
 
   const [ratingModal, setRatingModal] = useState({
     show: false,
@@ -668,12 +669,42 @@ const OperationsHub = ({ section }) => {
     }
   };
 
-  const renderCourseCompletions = () => (
+  const renderCourseCompletions = () => {
+    const filteredData = activeData.filter(item => {
+      if (courseCompletionTab === 'completed') return item.course_completed;
+      if (courseCompletionTab === 'in_progress') return !item.course_completed;
+      return true; // 'mark' tab shows all, or you could change logic if you only want to show in_progress here
+    });
+
+    return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100 overflow-x-auto">
         <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight mb-6 flex items-center gap-3">
           <GraduationCap className="text-teal-500" /> Student Course Completions
         </h2>
+
+        {/* Tabs */}
+        <div className="flex gap-2 mb-6 border-b border-slate-100 pb-4">
+          <button
+            onClick={() => setCourseCompletionTab('mark')}
+            className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${courseCompletionTab === 'mark' ? 'bg-teal-500 text-white shadow-md' : 'bg-slate-50 text-slate-500 hover:bg-slate-100'}`}
+          >
+            Mark Completions
+          </button>
+          <button
+            onClick={() => setCourseCompletionTab('completed')}
+            className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${courseCompletionTab === 'completed' ? 'bg-teal-500 text-white shadow-md' : 'bg-slate-50 text-slate-500 hover:bg-slate-100'}`}
+          >
+            Course Completed
+          </button>
+          <button
+            onClick={() => setCourseCompletionTab('in_progress')}
+            className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${courseCompletionTab === 'in_progress' ? 'bg-teal-500 text-white shadow-md' : 'bg-slate-50 text-slate-500 hover:bg-slate-100'}`}
+          >
+            In Progress
+          </button>
+        </div>
+
         <div className="w-full overflow-x-auto">
 <table className="w-full min-w-[900px] text-left">
           <thead>
@@ -682,12 +713,12 @@ const OperationsHub = ({ section }) => {
               <th className="pb-3 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Course / Subject</th>
               <th className="pb-3 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Mentor & Faculty</th>
               <th className="pb-3 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Status</th>
-              <th className="pb-3 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Action</th>
+              {courseCompletionTab === 'mark' && <th className="pb-3 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Action</th>}
             </tr>
           </thead>
           <tbody>
-            {activeData.length === 0 && !loading && <tr><td colSpan="5" className="py-4 text-xs font-bold text-slate-400">No students found.</td></tr>}
-            {activeData.map((item) => (
+            {filteredData.length === 0 && !loading && <tr><td colSpan="5" className="py-4 text-xs font-bold text-slate-400">No students found.</td></tr>}
+            {filteredData.map((item) => (
               <tr key={item.id} className="border-b border-slate-50 hover:bg-slate-50 transition-colors">
                 <td className="py-4 text-xs font-black text-slate-900 uppercase">{item.name}</td>
                 <td className="py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">{item.course} / {item.subject}</td>
@@ -699,6 +730,7 @@ const OperationsHub = ({ section }) => {
                     <span className="text-[9px] font-black bg-amber-100 text-amber-600 px-2 py-1 rounded-full uppercase tracking-widest flex items-center w-fit gap-1"><Activity size={12}/> In Progress</span>
                   )}
                 </td>
+                {courseCompletionTab === 'mark' && (
                 <td className="py-4">
                   {!item.course_completed ? (
                     <button 
@@ -715,6 +747,7 @@ const OperationsHub = ({ section }) => {
                     )
                   )}
                 </td>
+                )}
               </tr>
             ))}
           </tbody>
@@ -764,7 +797,8 @@ const OperationsHub = ({ section }) => {
         </div>
       )}
     </div>
-  );
+    );
+  };
 
   return (
     <div className="space-y-8 pb-20">
