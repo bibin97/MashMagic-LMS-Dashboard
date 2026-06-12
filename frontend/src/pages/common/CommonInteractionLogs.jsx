@@ -130,6 +130,7 @@ const CommonInteractionLogs = ({ role }) => {
         if (role === 'mentor_head') return '/mentor-head';
         if (role === 'academic_head') return '/academic-head';
         if (role === 'ssc') return '/ssc';
+        if (role === 'mentor') return '/mentor';
         return '/admin';
     };
     const apiPrefix = getApiPrefix();
@@ -364,7 +365,7 @@ const CommonInteractionLogs = ({ role }) => {
     const handleSaveEdit = async () => {
         setIsSavingEdit(true);
         try {
-            const res = await api.put(`${apiPrefix}/interactions/${editModalLog.source || 'Interaction Hub'}/${editModalLog.id}`, editFormData);
+            const res = await api.put(`/admin/interactions/${editModalLog.source || 'Interaction Hub'}/${editModalLog.id}`, editFormData);
             if (res.data.success) {
                 toast.success('Log updated successfully');
                 setEditModalLog(null);
@@ -381,7 +382,7 @@ const CommonInteractionLogs = ({ role }) => {
         setHistoryModalLog(log);
         setIsLoadingHistory(true);
         try {
-            const res = await api.get(`${apiPrefix}/interactions/${log.source || 'Interaction Hub'}/${log.id}/history`);
+            const res = await api.get(`/admin/interactions/${log.source || 'Interaction Hub'}/${log.id}/history`);
             setHistoryLogs(res.data.data || []);
         } catch (error) {
             toast.error('Failed to load edit history');
@@ -427,12 +428,14 @@ const CommonInteractionLogs = ({ role }) => {
                         >
                             Student Focus
                         </button>
-                        <button 
-                            onClick={() => { setActiveTab('faculty'); resetListFilters(); }}
-                            className={`flex-1 md:flex-none px-8 py-3.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'faculty' ? 'bg-white text-purple-600 shadow-md' : 'text-slate-500 hover:text-slate-700'}`}
-                        >
-                            Faculty Focus
-                        </button>
+                        {role !== 'mentor' && (
+                            <button 
+                                onClick={() => { setActiveTab('faculty'); resetListFilters(); }}
+                                className={`flex-1 md:flex-none px-8 py-3.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'faculty' ? 'bg-white text-purple-600 shadow-md' : 'text-slate-500 hover:text-slate-700'}`}
+                            >
+                                Faculty Focus
+                            </button>
+                        )}
                     </div>
                 </div>
 
@@ -451,13 +454,20 @@ const CommonInteractionLogs = ({ role }) => {
                             </div>
                             
                             <div className="flex items-center gap-2">
-                                <button 
-                                    onClick={() => setShowListFilter(!showListFilter)}
-                                    className={`flex items-center gap-3 px-6 py-4 rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all border ${showListFilter ? 'bg-yellow-400 text-slate-900 border-[#008080]' : 'bg-white text-slate-600 border-slate-100 hover:border-[#008080]'}`}
-                                >
-                                    <CalendarClock size={16} />
-                                    Date Filter
-                                </button>
+                                <input 
+                                    type="date"
+                                    className="px-6 py-4 bg-white border border-slate-100 rounded-2xl text-[10px] font-black uppercase tracking-widest text-slate-600 outline-none focus:ring-4 ring-[#008080]/10 transition-all cursor-pointer shadow-sm hover:border-[#008080]"
+                                    value={listDateFilter === 'custom' ? listCustomRange.start : ''}
+                                    onChange={(e) => {
+                                        if (e.target.value) {
+                                            setListDateFilter('custom');
+                                            setListCustomRange({ start: e.target.value, end: e.target.value });
+                                        } else {
+                                            setListDateFilter('all');
+                                            setListCustomRange({ start: '', end: '' });
+                                        }
+                                    }}
+                                />
                                 <button 
                                     onClick={() => exportToExcel()}
                                     className="flex items-center gap-3 px-6 py-4 rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all border bg-[#008080] text-white border-[#008080] hover:bg-[#006666] active:scale-95 shadow-sm"
@@ -481,42 +491,6 @@ const CommonInteractionLogs = ({ role }) => {
                         </div>
                     </div>
 
-                    {showListFilter && (
-                        <div className="px-8 py-6 bg-slate-50 border-b border-slate-100 animate-in slide-in-from-top-4 duration-500">
-                            <div className="flex flex-wrap items-center gap-4">
-                                <div className="flex items-center gap-2">
-                                    <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest mr-2">Time Filter:</span>
-                                    {['all', 'today', 'week', 'month', 'custom'].map((opt) => (
-                                        <button
-                                            key={opt}
-                                            onClick={() => setListDateFilter(opt)}
-                                            className={`px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${listDateFilter === opt ? 'bg-[#008080] text-white shadow-md' : 'bg-white text-slate-500 border border-slate-100 hover:border-[#008080]/30'}`}
-                                        >
-                                            {opt.replace('all', 'Global')}
-                                        </button>
-                                    ))}
-                                </div>
-                                
-                                {listDateFilter === 'custom' && (
-                                    <div className="flex items-center gap-3 animate-in fade-in zoom-in duration-300">
-                                        <input 
-                                            type="date"
-                                            className="bg-white px-4 py-2 rounded-xl border border-slate-100 text-[10px] font-black uppercase tracking-widest outline-none focus:ring-4 focus:ring-[#008080]/5"
-                                            value={listCustomRange.start}
-                                            onChange={(e) => setListCustomRange({...listCustomRange, start: e.target.value})}
-                                        />
-                                        <span className="text-slate-300">to</span>
-                                        <input 
-                                            type="date"
-                                            className="bg-white px-4 py-2 rounded-xl border border-slate-100 text-[10px] font-black uppercase tracking-widest outline-none focus:ring-4 focus:ring-[#008080]/5"
-                                            value={listCustomRange.end}
-                                            onChange={(e) => setListCustomRange({...listCustomRange, end: e.target.value})}
-                                        />
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    )}
 
                     <div className="overflow-x-auto">
                         <table className="w-full text-left border-collapse">
@@ -813,22 +787,22 @@ const CommonInteractionLogs = ({ role }) => {
                                                                         </span>
                                                                         <div className="flex items-center gap-2">
                                                                             {(role === 'mentor_head' || role === 'super_admin' || role === 'academic_head') && (
-                                                                                <>
-                                                                                    <button
-                                                                                        onClick={(e) => { e.stopPropagation(); handleOpenHistory(log); }}
-                                                                                        className="w-10 h-10 rounded-xl flex items-center justify-center bg-blue-50 text-blue-500 hover:bg-blue-100 transition-colors shadow-sm"
-                                                                                        title="View Edit History"
-                                                                                    >
-                                                                                        <History size={16} strokeWidth={2.5} />
-                                                                                    </button>
-                                                                                    <button
-                                                                                        onClick={(e) => { e.stopPropagation(); handleOpenEdit(log); }}
-                                                                                        className="w-10 h-10 rounded-xl flex items-center justify-center bg-emerald-50 text-emerald-600 hover:bg-emerald-100 transition-colors shadow-sm"
-                                                                                        title="Edit Interaction"
-                                                                                    >
-                                                                                        <Pencil size={16} strokeWidth={2.5} />
-                                                                                    </button>
-                                                                                </>
+                                                                                <button
+                                                                                    onClick={(e) => { e.stopPropagation(); handleOpenHistory(log); }}
+                                                                                    className="w-10 h-10 rounded-xl flex items-center justify-center bg-blue-50 text-blue-500 hover:bg-blue-100 transition-colors shadow-sm"
+                                                                                    title="View Edit History"
+                                                                                >
+                                                                                    <History size={16} strokeWidth={2.5} />
+                                                                                </button>
+                                                                            )}
+                                                                            {(role === 'mentor_head' || role === 'super_admin' || role === 'academic_head' || role === 'mentor') && (
+                                                                                <button
+                                                                                    onClick={(e) => { e.stopPropagation(); handleOpenEdit(log); }}
+                                                                                    className="w-10 h-10 rounded-xl flex items-center justify-center bg-emerald-50 text-emerald-600 hover:bg-emerald-100 transition-colors shadow-sm"
+                                                                                    title="Edit Interaction"
+                                                                                >
+                                                                                    <Pencil size={16} strokeWidth={2.5} />
+                                                                                </button>
                                                                             )}
                                                                             <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-500 ${
                                                                                 expandedLogId === log.id 

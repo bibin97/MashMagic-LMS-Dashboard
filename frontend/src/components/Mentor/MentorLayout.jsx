@@ -11,7 +11,8 @@ import {
   CalendarClock, 
   Calendar, 
   GraduationCap, 
-  ClipboardList 
+  ClipboardList,
+  ScrollText
 } from 'lucide-react';
 import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
@@ -51,6 +52,7 @@ const MentorLayout = () => {
     { path: '/mentor/students-data', icon: <ClipboardList size={18} />, label: 'Students Data' },
     { path: '/mentor/tasks', icon: <ListTodo size={18} />, label: 'Tasks', badge: pendingTasksCount },
     { path: '/mentor/interaction-logs', icon: <MessageSquare size={18} />, label: 'Student Interactions' },
+    { path: '/mentor/logs-history', icon: <ScrollText size={18} />, label: 'Logs History' },
   ];
 
   return (

@@ -80,6 +80,7 @@ import MentorHeadNotifications from './pages/MentorHead/MentorHeadNotifications'
 
 // Mentor Interaction Tracking
 import FacultyTracking from './pages/Mentor/FacultyTracking';
+import MentorInteractions from './pages/Mentor/MentorInteractions';
 
 // AOE Pages
 import AOEDashboard from './pages/AOE/AcademicHeadDashboard';
@@ -323,6 +324,7 @@ function App() {
             <Route path="students/:id" element={<StudentDetails />} />
             <Route path="tasks" element={<MyTasks />} />
             <Route path="interaction-logs" element={<StudentInteractionLog />} />
+            <Route path="logs-history" element={<MentorInteractions />} />
             <Route path="faculty-logs" element={<FacultyTracking />} />
             <Route path="exams" element={<Exams />} />
             <Route path="students-data" element={<StudentsData />} />

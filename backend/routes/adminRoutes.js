@@ -113,8 +113,8 @@ router.get('/mentor-distribution', requireRole('super_admin', 'sub_admin'), getM
 router.get('/task-analytics', requireRole('super_admin', 'sub_admin'), getTaskAnalytics);
 router.get('/live-monitoring', requireRole('super_admin', 'sub_admin'), getLiveMonitoring);
 
-router.put('/interactions/:source/:id', requireRole('super_admin', 'sub_admin', 'mentor_head'), updateInteractionLog);
-router.get('/interactions/:source/:id/history', requireRole('super_admin', 'sub_admin', 'mentor_head'), getInteractionHistory);
+router.put('/interactions/:source/:id', requireRole('super_admin', 'sub_admin', 'mentor_head', 'mentor'), updateInteractionLog);
+router.get('/interactions/:source/:id/history', requireRole('super_admin', 'sub_admin', 'mentor_head', 'mentor'), getInteractionHistory);
 
 // View AH Interactions & Meetings
 router.get('/ah-parent-interactions', requireRole('super_admin', 'sub_admin'), getAHParentInteractions);
