@@ -608,9 +608,9 @@ const MentorDetails = () => {
            <p className="text-slate-600 font-bold text-sm">Score each area 1-5. Total score determines level.</p>
          </div>
 
-         <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-x-auto">
-           <table className="w-full text-left border-collapse min-w-[600px]">
-             <thead>
+         <div className="bg-white rounded-2xl shadow-sm border border-slate-200">
+           <table className="w-full text-left border-collapse md:min-w-[600px]">
+             <thead className="hidden md:table-header-group">
                <tr className="bg-[#005050] text-white">
                  <th className="p-4 text-sm font-bold border-b border-[#006060]">Assessment Area</th>
                  <th className="hidden md:table-cell p-4 text-sm font-bold border-b border-[#006060]">1 — Poor</th>
@@ -619,7 +619,7 @@ const MentorDetails = () => {
                  <th className="p-4 text-sm font-bold border-b border-[#006060] text-center min-w-[150px]">Score (circle)</th>
                </tr>
              </thead>
-             <tbody className="divide-y divide-slate-100">
+             <tbody className="divide-y divide-slate-100 flex flex-col md:table-row-group">
                {[
                  { 
                    id: 'q1', 
@@ -647,18 +647,18 @@ const MentorDetails = () => {
                    l1: 'Avoids studying', l3: 'Neutral', l5: 'Confident and motivated' 
                  }
                ].map((row, index) => (
-                 <tr key={row.id} className={index % 2 === 0 ? 'bg-emerald-50/30' : 'bg-white'}>
-                   <td className="p-4 text-sm font-bold text-slate-800">{row.area}</td>
+                 <tr key={row.id} className={`flex flex-col md:table-row border-b md:border-none border-slate-100 ${index % 2 === 0 ? 'bg-emerald-50/30' : 'bg-white'}`}>
+                   <td className="p-4 pb-2 md:pb-4 text-sm font-bold text-slate-800 md:w-auto">{row.area}</td>
                    <td className="hidden md:table-cell p-4 text-xs italic text-slate-500">{row.l1}</td>
                    <td className="hidden md:table-cell p-4 text-xs italic text-slate-500">{row.l3}</td>
                    <td className="hidden md:table-cell p-4 text-xs italic text-slate-500">{row.l5}</td>
-                   <td className="p-4 text-center">
-                     <div className="flex items-center justify-center gap-1.5">
+                   <td className="p-4 pt-2 md:pt-4 md:text-center flex justify-start md:justify-center">
+                     <div className="flex items-center justify-start md:justify-center gap-2 md:gap-1.5 w-full overflow-x-auto no-scrollbar py-1">
                        {[1, 2, 3, 4, 5].map(val => (
                          <button
                            key={val}
                            onClick={() => setAssessmentScores(prev => ({ ...prev, [row.id]: val }))}
-                           className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all ${assessmentScores[row.id] === val ? 'bg-[#008080] text-white shadow-md ring-2 ring-[#008080] ring-offset-1' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+                           className={`shrink-0 w-10 h-10 md:w-8 md:h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all ${assessmentScores[row.id] === val ? 'bg-[#008080] text-white shadow-md ring-2 ring-[#008080] ring-offset-1 scale-110' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
                          >
                            {val}
                          </button>
