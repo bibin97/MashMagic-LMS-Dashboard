@@ -35,19 +35,19 @@ const CourseCompletedTracker = () => {
  const token = sessionStorage.getItem('token');
  const newStatus = !currentStatus;
 
- await axios.put(`/api/mentor-head/students/${studentId}/course-complete`,
+ await axios.put(`/api/mentor-head/students/${studentId}/mentorship-complete`,
  { isCompleted: newStatus },
  { headers: { Authorization: `Bearer ${token}` } }
  );
 
  setStudents(prev => prev.map(s => {
  if (s.id === studentId) {
- return { ...s, course_completed: newStatus ? 1 : 0 };
+ return { ...s, mentorship_completed: newStatus ? 1 : 0 };
  }
  return s;
  }));
 
- toast.success(newStatus ? 'Marked as Course Completed' : 'Unmarked Course Completed');
+ toast.success(newStatus ? 'Marked as Mentorship Completed' : 'Unmarked Mentorship Completed');
  } catch (error) {
  toast.error("Failed to update status");
  }
@@ -57,14 +57,14 @@ const CourseCompletedTracker = () => {
  const matchesSearch = student.name?.toLowerCase().includes(deferredSearchTerm.toLowerCase()) ||
  student.course?.toLowerCase().includes(deferredSearchTerm.toLowerCase());
 
- if (filter === 'completed') return matchesSearch && student.course_completed === 1;
- if (filter === 'pending') return matchesSearch && student.course_completed !== 1;
+ if (filter === 'completed') return matchesSearch && student.mentorship_completed === 1;
+ if (filter === 'pending') return matchesSearch && student.mentorship_completed !== 1;
  return matchesSearch;
  });
 
  if (loading) return <div className="p-8 text-center text-slate-600 font-bold">Loading records...</div>;
 
-  const completedCount = students.filter(s => s.course_completed === 1).length;
+  const completedCount = students.filter(s => s.mentorship_completed === 1).length;
   const inProgressCount = students.length - completedCount;
 
   return (
@@ -149,7 +149,7 @@ const CourseCompletedTracker = () => {
  </thead>
  <tbody>
  {filteredStudents.length > 0 ? filteredStudents.map(student => {
- const isCompleted = student.course_completed === 1;
+  const isCompleted = student.mentorship_completed === 1;
 
  return (
  <tr key={student.id} className="border-b border-slate-50 transition-colors group hover:bg-slate-50/50">
