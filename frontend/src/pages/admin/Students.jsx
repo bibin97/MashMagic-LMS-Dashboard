@@ -125,6 +125,7 @@ const Students = () => {
    enrollment_type: student.enrollment_type || '',
    nextInstallment: student.next_installment_date ? student.next_installment_date.split('T')[0] : '',
    course_completed: student.course_completed || 0,
+   mentorship_completed: student.mentorship_completed || 0,
    status: student.status || 'active',
    timetable: student.timetable_summary || '',
    total_fees: student.total_fees || '',
@@ -309,6 +310,14 @@ const Students = () => {
               <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-emerald-50 text-emerald-600 border border-emerald-100 text-[8px] font-black uppercase tracking-tighter whitespace-nowrap">
                 <svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>
                 Course Completed
+              </span>
+            </div>
+          )}
+          {row.mentorship_completed === 1 && (
+            <div className="mt-1">
+              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-teal-50 text-teal-600 border border-teal-100 text-[8px] font-black uppercase tracking-tighter whitespace-nowrap">
+                <svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>
+                Mentorship Completed
               </span>
             </div>
           )}
@@ -693,7 +702,7 @@ const Students = () => {
      {/* Status */}
      <div className="pt-4 border-t border-slate-100">
        <h4 className="text-[11px] font-black text-slate-700 uppercase tracking-widest mb-3 flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-purple-500"></span> Status</h4>
-       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
          <div className="flex flex-col gap-1.5">
            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Account Status</label>
            <select className="p-3.5 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-2 focus:ring-[#008080]/20 transition-all" value={editFormData.status} onChange={(e) => setEditFormData({ ...editFormData, status: e.target.value })} disabled={!isEditingModal}>
@@ -706,8 +715,14 @@ const Students = () => {
          </div>
          <div className="flex flex-col gap-1.5">
            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Course Progress</label>
-           <button type="button" onClick={() => setEditFormData({ ...editFormData, course_completed: editFormData.course_completed === 1 ? 0 : 1 })} disabled={!isEditingModal} className={`p-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border-2 flex items-center justify-center gap-3 ${editFormData.course_completed === 1 ? 'bg-emerald-500 border-emerald-500 text-white shadow-lg' : 'bg-slate-50 border-slate-100 text-slate-400'}`}>
+           <button type="button" onClick={() => setEditFormData({ ...editFormData, course_completed: editFormData.course_completed === 1 ? 0 : 1 })} disabled={!isEditingModal} className={`p-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border-2 flex items-center justify-center gap-3 ${editFormData.course_completed === 1 ? 'bg-teal-500 border-teal-500 text-white shadow-lg' : 'bg-slate-50 border-slate-100 text-slate-400'}`}>
              {editFormData.course_completed === 1 ? <><CheckCircle size={14} /> Completed</> : <><Clock size={14} /> In Progress</>}
+           </button>
+         </div>
+         <div className="flex flex-col gap-1.5">
+           <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Mentorship Progress</label>
+           <button type="button" onClick={() => setEditFormData({ ...editFormData, mentorship_completed: editFormData.mentorship_completed === 1 ? 0 : 1 })} disabled={!isEditingModal} className={`p-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border-2 flex items-center justify-center gap-3 ${editFormData.mentorship_completed === 1 ? 'bg-emerald-500 border-emerald-500 text-white shadow-lg' : 'bg-slate-50 border-slate-100 text-slate-400'}`}>
+             {editFormData.mentorship_completed === 1 ? <><CheckCircle size={14} /> Completed</> : <><Clock size={14} /> In Progress</>}
            </button>
          </div>
        </div>

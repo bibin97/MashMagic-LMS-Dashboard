@@ -768,7 +768,7 @@ const updateStudentForAdmin = async (req, res) => {
                 total_fees = ?, total_hours = ?, hour = ?,
                 syllabus = ?, school_name = ?, preferred_language = ?,
                 country = ?, admission_date = ?, meeting_link = ?,
-                enrollment_type = ?, course = ?
+                enrollment_type = ?, course = ?, mentorship_completed = ?
             WHERE id = ?`,
             [
                 name, email, phone_number, grade, subject,
@@ -776,7 +776,7 @@ const updateStudentForAdmin = async (req, res) => {
                 total_fees || null, total_hours || null, hour || null,
                 syllabus || null, school_name || null, preferred_language || null,
                 country || null, admission_date || null, meeting_link || null,
-                enrollment_type || null, course || null, id
+                enrollment_type || null, course || null, req.body.mentorship_completed || 0, id
             ]
         );
 
