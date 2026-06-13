@@ -45,6 +45,18 @@ const calculateStudentHours = async (students, db) => {
         consumedMap[id] = { totalMins: 0, subjects: {} };
     });
 
+    let facultyMappings = [];
+    try {
+        const [rows] = await db.query(`
+            SELECT fs.student_id, fs.subject, GROUP_CONCAT(DISTINCT u.name SEPARATOR ', ') as faculty_names
+            FROM faculty_schedules fs
+            JOIN faculties u ON fs.faculty_id = u.id
+            WHERE fs.student_id IN (?)
+            GROUP BY fs.student_id, fs.subject
+        `, [studentIds]);
+        facultyMappings = rows;
+    } catch(e) {}
+
     // Populate historical base
     baseSubjects.forEach(bs => {
         if (!consumedMap[bs.student_id].subjects[bs.subject_name]) {
@@ -122,10 +134,16 @@ const calculateStudentHours = async (students, db) => {
         const subject_hours = [];
         for (const [subjName, data] of Object.entries(studentData.subjects)) {
             const subjConsumedHours = data.consumedMins / 60;
+            let facNames = '';
+            const mapping = facultyMappings.find(fm => fm.student_id === s.id && (fm.subject === subjName || (fm.subject || '').toLowerCase() === (subjName || '').toLowerCase()));
+            if (mapping) {
+                facNames = mapping.faculty_names;
+            }
             subject_hours.push({
                 subject: subjName,
                 consumed_hours: parseFloat(subjConsumedHours.toFixed(2)),
-                allocated_hours: data.allocated
+                allocated_hours: data.allocated,
+                faculties: facNames
             });
             // We only add the historical base because dynamically tracked session mins are already in studentData.totalMins
             // Wait, studentData.totalMins only has dynamically tracked sessions.

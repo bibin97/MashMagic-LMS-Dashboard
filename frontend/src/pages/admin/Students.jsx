@@ -355,22 +355,24 @@ const Students = () => {
                   {row.payment_alert_level || 'Safe'}
                 </span>
               </div>
-              <span className="text-[9px] font-bold text-slate-500">
-                {Math.round(((row.consumed_hours || 0) / (row.paid_hours || 1)) * 100)}%
-              </span>
             </div>
             
             <div className="flex flex-col gap-0.5">
               <span className="text-[8px] font-black uppercase tracking-wider text-slate-400">Lifetime Hours: <span className="text-[#008080] font-black">{row.total_lifetime_consumed_hours || 0} / {row.total_hours || 0} hrs</span></span>
-              <span className="text-[8px] font-black uppercase tracking-wider text-slate-400">Current Cycle Consumed: <span className="text-slate-700">{row.consumed_hours || 0} hrs</span></span>
-              <span className="text-[8px] font-black uppercase tracking-wider text-slate-400">Current Cycle Limit: <span className="text-slate-700">{Math.round(row.paid_hours || 0)} hrs</span></span>
             </div>
 
             {row.subject_hours && row.subject_hours.length > 0 && (
-              <div className="flex flex-col gap-0.5 mt-1 border-t border-slate-200 pt-1.5 w-full">
+              <div className="flex flex-col gap-1 mt-1 border-t border-slate-200 pt-1.5 w-full">
                 {row.subject_hours.map((sh, idx) => (
-                  <div key={idx} className="flex justify-between items-center text-[8px] font-black uppercase text-slate-500">
-                    <span className="truncate max-w-[80px]">{sh.subject}</span>
+                  <div key={idx} className="flex justify-between items-start text-[8px] font-black uppercase text-slate-500">
+                    <div className="flex flex-col gap-0.5 max-w-[100px]">
+                      <span className="truncate text-slate-700">{sh.subject}</span>
+                      {sh.faculties && (
+                        <span className="text-[7px] text-[#008080] tracking-tighter truncate flex items-center gap-1">
+                          <span className="w-1 h-1 rounded-full bg-[#008080]"></span> {sh.faculties}
+                        </span>
+                      )}
+                    </div>
                     <span className="text-slate-700 ml-1 whitespace-nowrap">{sh.consumed_hours} / {sh.allocated_hours} Hrs</span>
                   </div>
                 ))}
