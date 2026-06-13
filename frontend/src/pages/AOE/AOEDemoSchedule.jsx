@@ -97,28 +97,7 @@ const AOEDemoSchedule = () => {
     return () => clearInterval(interval);
   }, []);
 
-  useEffect(() => {
-    let maxId = 0;
-    demoList.forEach(d => {
-      if (d.demo_id && String(d.demo_id).toLowerCase().startsWith('de')) {
-        const num = parseInt(String(d.demo_id).substring(2));
-        if (!isNaN(num) && num > maxId) maxId = num;
-      } else if (d.demo_id && !isNaN(parseInt(d.demo_id))) {
-         const num = parseInt(d.demo_id);
-         if (num > maxId) maxId = num;
-      }
-    });
-    
-    const nextId = `de${String(maxId + 1).padStart(2, '0')}`;
-    
-    setFormData(prev => {
-      // Only overwrite if it's empty, or if the current automatically populated ID is stale/duplicate
-      if (!prev.demo_id || (String(prev.demo_id).toLowerCase().startsWith('de') && parseInt(String(prev.demo_id).substring(2)) <= maxId)) {
-        return { ...prev, demo_id: nextId };
-      }
-      return prev;
-    });
-  }, [demoList]);
+
 
   const fetchStudents = async () => {
     try {

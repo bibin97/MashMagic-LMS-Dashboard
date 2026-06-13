@@ -35,9 +35,10 @@ const StaffManagement = () => {
  setLoading(true);
   const apiPath = user?.role === 'academic_head' ? '/academic-head/staff' : '/admin/staff';
   const response = await api.get(apiPath);
- setStaff(response.data.data);
- setFilteredStaff(response.data.data);
- setLoading(false);
+  const staffData = (response.data.data || []).filter(s => s.role !== 'student');
+  setStaff(staffData);
+  setFilteredStaff(staffData);
+  setLoading(false);
  } catch (error) {
  toast.error("Failed to fetch staff members");
  setLoading(false);
@@ -131,8 +132,16 @@ const StaffManagement = () => {
  });
  };
 
- const columns = [
- { header: 'Full Name', accessor: 'name' },
+  const columns = [
+    {
+      header: 'No.',
+      width: '60px',
+      render: (row, { index }) => (
+        <span className="text-xs font-black text-slate-400">{index + 1}</span>
+      )
+    },
+    { 
+      header: 'Staff Member', accessor: 'name' },
  { header: 'Email', accessor: 'email' },
  {
  header: 'Staff Role',

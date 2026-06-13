@@ -148,6 +148,15 @@ const Approvals = () => {
                               <span className={`text-[9px] font-black uppercase tracking-widest mt-0.5 inline-block ${user.role === 'student' ? 'text-slate-400' : 'text-[#008080]'}`}>
                                 {user.role.replace('_', ' ')}
                               </span>
+                              <div className="flex items-center gap-2 mt-2">
+                                 <Calendar size={12} className="text-slate-400" />
+                                 <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                                   Registered: {new Date(user.created_at).toLocaleString('en-IN', {
+                                     day: '2-digit', month: 'short', year: 'numeric',
+                                     hour: '2-digit', minute: '2-digit', hour12: true
+                                   })}
+                                 </span>
+                              </div>
                             </div>
                           </div>
                         </td>

@@ -500,7 +500,7 @@ const Students = () => {
         >
           <span className={`text-[10px] font-black uppercase tracking-widest transition-colors ${activeTab === 'mentorship_completed' ? 'text-white/80' : 'text-emerald-600 group-hover:text-emerald-700'}`}>Mentorship Completed</span>
           <div className={`flex items-end gap-3 font-black tracking-tighter ${activeTab === 'mentorship_completed' ? 'text-white' : 'text-slate-900'}`}>
-            <span className="text-4xl leading-none">{students.filter(s => s.mentorship_completed === 1).length}</span>
+            <span className="text-4xl leading-none">{students.filter(s => s.mentorship_completed == 1).length}</span>
             <span className={`text-[10px] mb-1 uppercase tracking-widest ${activeTab === 'mentorship_completed' ? 'text-white/80' : 'text-slate-600'}`}>Total</span>
           </div>
         </button>
@@ -511,7 +511,7 @@ const Students = () => {
         >
           <span className={`text-[10px] font-black uppercase tracking-widest transition-colors ${activeTab === 'completed' ? 'text-white/80' : 'text-teal-600 group-hover:text-teal-700'}`}>Course Completed</span>
           <div className={`flex items-end gap-3 font-black tracking-tighter ${activeTab === 'completed' ? 'text-white' : 'text-slate-900'}`}>
-            <span className="text-4xl leading-none">{students.filter(s => s.course_completed === 1).length}</span>
+            <span className="text-4xl leading-none">{students.filter(s => s.course_completed == 1).length}</span>
             <span className={`text-[10px] mb-1 uppercase tracking-widest ${activeTab === 'completed' ? 'text-white/80' : 'text-slate-600'}`}>Total</span>
           </div>
         </button>
@@ -522,9 +522,9 @@ const Students = () => {
         data={useMemo(() => {
           let filtered = sortStudentsByOption(filteredStudents, sortBy);
           if (activeTab === 'mentorship_completed') {
-            filtered = filtered.filter(s => s.mentorship_completed === 1);
+            filtered = filtered.filter(s => s.mentorship_completed == 1);
           } else if (activeTab === 'completed') {
-            filtered = filtered.filter(s => s.course_completed === 1);
+            filtered = filtered.filter(s => s.course_completed == 1);
           }
           return filtered;
         }, [filteredStudents, sortBy, activeTab])}
