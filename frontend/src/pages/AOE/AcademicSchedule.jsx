@@ -184,40 +184,49 @@ return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String
       {/* Tabs and Search Bar */}
       <div className="bg-white p-4 md:p-6 rounded-[1.5rem] md:rounded-[2.5rem] border border-slate-100 shadow-sm space-y-4 md:space-y-6">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6">
-          <div className="flex p-1.5 bg-slate-100 rounded-[1rem] md:rounded-2xl gap-2 overflow-x-auto no-scrollbar items-center">
-            <button
-              onClick={() => { setActiveTab('today'); setFilterDate(''); }}
-              className={`flex items-center gap-2 md:gap-3 px-4 md:px-6 py-2.5 md:py-3 rounded-xl text-[9px] md:text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${
-                activeTab === 'today' ? 'bg-white text-slate-900 shadow-md' : 'text-slate-400 hover:text-slate-600'
-              }`}
-            >
-              <div className={`w-2 h-2 rounded-full ${activeTab === 'today' ? 'bg-emerald-500' : 'bg-slate-300'}`}></div>
-              Live/Today
-            </button>
+          <div className="flex gap-2 items-center w-full md:w-auto">
+            <div className="flex p-1.5 bg-slate-100 rounded-[1rem] md:rounded-2xl gap-2 overflow-x-auto no-scrollbar items-center">
+              <button
+                onClick={() => { setActiveTab('today'); setFilterDate(''); }}
+                className={`flex items-center gap-2 md:gap-3 px-4 md:px-6 py-2.5 md:py-3 rounded-xl text-[9px] md:text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${
+                  activeTab === 'today' ? 'bg-white text-slate-900 shadow-md' : 'text-slate-400 hover:text-slate-600'
+                }`}
+              >
+                <div className={`w-2 h-2 rounded-full ${activeTab === 'today' ? 'bg-emerald-500' : 'bg-slate-300'}`}></div>
+                Live/Today
+              </button>
 
-            <div className={`flex items-center gap-2 md:gap-3 px-4 md:px-6 py-2.5 md:py-3 rounded-xl text-[9px] md:text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${
-              activeTab === 'calendar' ? 'bg-white text-slate-900 shadow-md' : 'text-slate-400 hover:text-slate-600'
-            }`}>
-               <CalendarClock size={14} className={activeTab === 'calendar' ? 'text-indigo-500' : ''} />
-               <input 
-                  type="date" 
-                  value={filterDate}
-                  onChange={(e) => { setFilterDate(e.target.value); setActiveTab('calendar'); }}
-                  className="bg-transparent border-none outline-none cursor-pointer text-slate-600 font-bold"
-                  title="Filter by specific date"
-               />
-               {!filterDate && <span className="ml-1 opacity-60">Upcoming</span>}
+              <button
+                onClick={() => { setActiveTab('completed'); setFilterDate(''); }}
+                className={`flex items-center gap-2 md:gap-3 px-4 md:px-6 py-2.5 md:py-3 rounded-xl text-[9px] md:text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${
+                  activeTab === 'completed' ? 'bg-white text-slate-900 shadow-md' : 'text-slate-400 hover:text-slate-600'
+                }`}
+              >
+                <div className={`w-2 h-2 rounded-full ${activeTab === 'completed' ? 'bg-slate-500' : 'bg-slate-300'}`}></div>
+                Completed
+              </button>
             </div>
 
-            <button
-              onClick={() => { setActiveTab('completed'); setFilterDate(''); }}
-              className={`flex items-center gap-2 md:gap-3 px-4 md:px-6 py-2.5 md:py-3 rounded-xl text-[9px] md:text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${
-                activeTab === 'completed' ? 'bg-white text-slate-900 shadow-md' : 'text-slate-400 hover:text-slate-600'
-              }`}
-            >
-              <div className={`w-2 h-2 rounded-full ${activeTab === 'completed' ? 'bg-slate-500' : 'bg-slate-300'}`}></div>
-              Completed
-            </button>
+            <input 
+                type="date"
+                className={`px-4 md:px-6 py-2.5 md:py-3.5 bg-white border rounded-xl md:rounded-2xl text-[9px] md:text-[10px] font-black uppercase tracking-widest outline-none focus:ring-4 transition-all cursor-pointer shadow-sm ${
+                    activeTab === 'calendar' ? 'border-[#008080] text-[#008080] ring-[#008080]/10' : 'border-slate-100 text-slate-600 hover:border-[#008080]'
+                }`}
+                value={filterDate}
+                onChange={(e) => { 
+                    setFilterDate(e.target.value); 
+                    if (e.target.value) setActiveTab('calendar');
+                    else setActiveTab('today');
+                }}
+            />
+            { activeTab === 'calendar' && filterDate && (
+                <button 
+                    onClick={() => { setFilterDate(''); setActiveTab('today'); }}
+                    className="w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-xl md:rounded-2xl bg-rose-50 text-rose-600 border border-rose-100 hover:bg-rose-600 hover:text-white transition-all shrink-0"
+                >
+                    <X size={16} />
+                </button>
+            ) }
           </div>
 
           <div className="flex-1 max-w-md relative w-full">
@@ -242,6 +251,9 @@ return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String
             <div className="flex-grow p-4 md:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6">
               
               <div className="flex items-center gap-4 md:gap-6 w-full md:w-auto md:min-w-[200px]">
+                <div className="flex flex-col items-center justify-center shrink-0 w-8 h-8 md:w-10 md:h-10 rounded-full bg-slate-100 text-slate-400 font-black text-[10px] md:text-xs">
+                  #{idx + 1}
+                </div>
                 <div className="w-12 h-12 md:w-14 md:h-14 bg-slate-50 rounded-xl md:rounded-[1.5rem] flex items-center justify-center text-slate-600 group-hover:bg-[#008080] group-hover:text-white transition-all duration-700 -rotate-3 group-hover:rotate-0 shrink-0">
                   <Users size={20} />
                 </div>

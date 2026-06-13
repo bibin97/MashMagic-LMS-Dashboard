@@ -149,6 +149,7 @@ router.put('/demo-schedules/:id', editDemoSchedule);
 router.delete('/demo-schedules/:id', deleteDemoSchedule);
 router.put('/demo-schedules/:id/evaluate', updateDemoEvaluation);
 router.put('/demo-schedules/:id/toggle-success', toggleDemoSuccess);
+router.post('/demo-schedules/fix-ids', aoeController.fixDemoIds);
 
 // Faculty Performance Index
 router.get('/faculty-performance', getFacultyPerformance);

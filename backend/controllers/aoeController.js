@@ -1026,6 +1026,42 @@ const reportAHParentMeeting = async (req, res) => {
 
 const getDemoSchedules = async (req, res) => {
     try {
+        await db.query(`
+            CREATE TABLE IF NOT EXISTS aoe_demo_schedules (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                aoe_id INT,
+                demo_id VARCHAR(50),
+                type VARCHAR(50) DEFAULT 'demo',
+                date DATE,
+                student_name VARCHAR(255),
+                student_type VARCHAR(50),
+                syllabus VARCHAR(50),
+                section VARCHAR(50),
+                subject VARCHAR(100),
+                faculty_id INT,
+                start_time TIME,
+                end_time TIME,
+                hour_rate DECIMAL(10,2) DEFAULT 0.00,
+                meeting_link VARCHAR(255),
+                status VARCHAR(50) DEFAULT 'pending',
+                prep_score INT DEFAULT 0,
+                comm_score INT DEFAULT 0,
+                concept_score INT DEFAULT 0,
+                engage_score INT DEFAULT 0,
+                parent_score INT DEFAULT 0,
+                total_score INT DEFAULT 0,
+                remarks TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+
+        // Also ensure 'type' column exists if the table was created before
+        try {
+            await db.query('ALTER TABLE aoe_demo_schedules ADD COLUMN type VARCHAR(50) DEFAULT "demo"');
+        } catch (e) {
+            // Ignore if column already exists
+        }
+
         const [rows] = await db.query(`
             SELECT d.*, f.name as faculty_name 
             FROM aoe_demo_schedules d
@@ -1035,6 +1071,19 @@ const getDemoSchedules = async (req, res) => {
         res.status(200).json({ success: true, data: rows });
     } catch (error) {
         console.error("GET_DEMOS_ERROR:", error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+const fixDemoIds = async (req, res) => {
+    try {
+        const [demos] = await db.query('SELECT id, demo_id FROM aoe_demo_schedules ORDER BY created_at ASC');
+        for (let i = 0; i < demos.length; i++) {
+            const demoIdStr = `DE${String(i + 1).padStart(2, '0')}`;
+            await db.query('UPDATE aoe_demo_schedules SET demo_id = ? WHERE id = ?', [demoIdStr, demos[i].id]);
+        }
+        res.status(200).json({ success: true, message: 'Fixed demo IDs' });
+    } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
 };
@@ -1431,10 +1480,13 @@ const addExamScore = async (req, res) => {
 module.exports = {
     getExamAnalytics, getDashboardStats, getAllFacultyActivity, getAvailableFaculties, getDropdownData, registerStudent, registerFaculty, registerSSC, getStudentInteractionLogs, getFacultyInteractionLogs, getAcademicActions, getDailyFacultyChecks, checkFacultySessionToday, uncheckFacultySession, getFacultyDirectory, getAcademicDocuments, uploadAcademicDocument, deleteAcademicDocument, getLiveClassEvaluations, submitLiveClassEvaluation, getPendingFacultyLogs, verifyFacultyLog, editFaculty, getFacultyEditHistory, getAllFacultyEditHistory, deleteFaculty, editStudent, deleteStudent, getStudentById, getStudents, getMentors, editMentor, deleteMentor, getLiveMonitoring, getStaff, syncLegacyData, saveExamPlan, getAcademicSchedule,
     getAHParentInteractions, createAHParentInteraction, getAHFacultyInteractions,    createAHFacultyInteraction,
+    saveStaffMeeting,
+    updateStaffMeeting,
+    deleteStaffMeeting,
+    fixDemoIds,
     getAHParentMeetings,
     scheduleAHParentMeeting,
     reportAHParentMeeting,
-    getDemoSchedules,
     getDemoSchedules,
     createDemoSchedule,
     editDemoSchedule,

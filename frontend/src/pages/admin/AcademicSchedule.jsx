@@ -230,6 +230,9 @@ return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String
             <div className="flex-grow p-4 md:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6">
               
               <div className="flex items-center gap-4 md:gap-6 w-full md:w-auto md:min-w-[200px]">
+                <div className="flex flex-col items-center justify-center shrink-0 w-8 h-8 md:w-10 md:h-10 rounded-full bg-slate-100 text-slate-400 font-black text-[10px] md:text-xs">
+                  #{idx + 1}
+                </div>
                 <div className="w-12 h-12 md:w-14 md:h-14 bg-slate-50 rounded-xl md:rounded-[1.5rem] flex items-center justify-center text-slate-600 group-hover:bg-[#008080] group-hover:text-white transition-all duration-700 -rotate-3 group-hover:rotate-0 shrink-0">
                   <Users size={20} />
                 </div>
