@@ -401,6 +401,8 @@ const OperationsHub = ({ section }) => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
       )}
     </div>
     );
