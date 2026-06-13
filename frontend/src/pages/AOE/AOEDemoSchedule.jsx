@@ -309,10 +309,11 @@ const AOEDemoSchedule = () => {
                   <Target size={12}/> Demo ID *
                 </label>
                 <input
-                  type="text" required readOnly
+                  type="text" required
                   value={formData.demo_id}
-                  className="w-full p-4 bg-slate-100 border border-slate-200 text-slate-500 rounded-2xl text-xs font-bold outline-none cursor-not-allowed"
-                  placeholder="Auto-generated ID"
+                  onChange={(e) => setFormData({ ...formData, demo_id: e.target.value })}
+                  className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
+                  placeholder="Enter Demo ID"
                 />
               </div>
 
@@ -842,9 +843,10 @@ const AOEDemoSchedule = () => {
                 <div className="space-y-2">
                   <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 flex items-center gap-2"><Target size={12}/> Demo ID *</label>
                   <input
-                    type="text" required readOnly
+                    type="text" required
                     value={formData.demo_id}
-                    className="w-full p-4 bg-slate-100 border border-slate-200 text-slate-500 rounded-2xl text-xs font-bold outline-none cursor-not-allowed"
+                    onChange={(e) => setFormData({ ...formData, demo_id: e.target.value })}
+                    className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
                   />
                 </div>
 

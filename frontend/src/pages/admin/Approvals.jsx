@@ -144,18 +144,26 @@ const Approvals = () => {
                               {user.name.charAt(0)}
                             </div>
                             <div>
-                              <span className="text-sm font-black text-slate-800 block uppercase tracking-tight">{user.name}</span>
-                              <span className={`text-[9px] font-black uppercase tracking-widest mt-0.5 inline-block ${user.role === 'student' ? 'text-slate-400' : 'text-[#008080]'}`}>
-                                {user.role.replace('_', ' ')}
-                              </span>
-                              <div className="flex items-center gap-2 mt-2">
-                                 <Calendar size={12} className="text-slate-400" />
-                                 <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
-                                   Registered: {new Date(user.created_at).toLocaleString('en-IN', {
-                                     day: '2-digit', month: 'short', year: 'numeric',
-                                     hour: '2-digit', minute: '2-digit', hour12: true
-                                   })}
-                                 </span>
+                            <div className="flex flex-col gap-1.5 py-1">
+                              <div className="flex items-center gap-2">
+                                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest w-10">Name</span>
+                                <span className="text-sm font-black text-slate-800 uppercase tracking-tight">- {user.name}</span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest w-10">Role</span>
+                                <span className="text-[10px] font-black text-slate-700 uppercase tracking-tight flex items-center gap-1">- 
+                                  <span className={`px-2 py-0.5 rounded-md tracking-widest ${user.role === 'student' ? 'bg-slate-100 text-slate-500' : 'bg-[#008080]/10 text-[#008080]'}`}>
+                                    {user.role.replace('_', ' ')}
+                                  </span>
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest w-10">Date</span>
+                                <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">- {new Date(user.created_at).toLocaleDateString('en-GB')}</span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest w-10">Time</span>
+                                <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">- {new Date(user.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}</span>
                               </div>
                             </div>
                           </div>
