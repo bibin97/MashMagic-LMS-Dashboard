@@ -117,7 +117,8 @@ const getFacultyQualityChecks = async (req, res) => {
             LEFT JOIN users f ON t.faculty_id = f.id
             JOIN students s ON t.student_id = s.id
             WHERE t.date = CURDATE()
-            ORDER BY t.start_time ASC
+            ORDER BY RAND(DAYOFYEAR(CURDATE()) + YEAR(CURDATE()))
+            LIMIT 15
         `);
 
         res.status(200).json({ success: true, data: { evaluations, liveSessions } });
