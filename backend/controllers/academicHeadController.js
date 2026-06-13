@@ -1,14 +1,14 @@
 const db = require('../config/db');
 
-const getDailyFacultyRotation = async (req, res) => {
+const getDailyStudentRotation = async (req, res) => {
     try {
         const ah_id = req.user.id;
         
         // Check if rotation already generated for today
         const [existing] = await db.query(`
-            SELECT r.*, f.name as faculty_name, f.phone_number, f.subject
-            FROM ah_faculty_rotation r
-            JOIN users f ON r.faculty_id = f.id
+            SELECT r.*, s.name as student_name, s.contact as phone_number
+            FROM ah_student_rotation r
+            JOIN students s ON r.student_id = s.id
             WHERE r.academic_head_id = ? AND r.rotation_date = CURDATE()
         `, [ah_id]);
 
@@ -16,60 +16,86 @@ const getDailyFacultyRotation = async (req, res) => {
             return res.status(200).json({ success: true, data: existing });
         } else if (existing.length > 0) {
             // Clear incomplete rotation to regenerate
-            await db.query('DELETE FROM ah_faculty_rotation WHERE academic_head_id = ? AND rotation_date = CURDATE()', [ah_id]);
+            await db.query('DELETE FROM ah_student_rotation WHERE academic_head_id = ? AND rotation_date = CURDATE()', [ah_id]);
         }
 
-        // If not, fetch 15 faculties who haven't been in rotation recently
-        const [faculties] = await db.query(`
-            SELECT id FROM users 
-            WHERE role = 'faculty' AND status = 'active'
-            ORDER BY (SELECT MAX(rotation_date) FROM ah_faculty_rotation WHERE faculty_id = users.id) ASC, RAND()
+        // Fetch 15 students who haven't been in rotation recently
+        const [students] = await db.query(`
+            SELECT id, name, subjects_json, contact 
+            FROM students 
+            WHERE status = 'active'
+            ORDER BY (SELECT MAX(rotation_date) FROM ah_student_rotation WHERE student_id = students.id) ASC, RAND()
             LIMIT 15
         `);
 
-        if (faculties.length === 0) {
+        if (students.length === 0) {
             return res.status(200).json({ success: true, data: [] });
         }
 
-        // Insert into rotation
-        const insertPromises = faculties.map(f => 
-            db.query(`
-                INSERT INTO ah_faculty_rotation (faculty_id, academic_head_id, rotation_date)
-                VALUES (?, ?, CURDATE())
-            `, [f.id, ah_id])
-        );
+        // Prepare rotations
+        const insertPromises = students.map(async (st) => {
+            // Get previous round
+            const [history] = await db.query(`SELECT MAX(round_number) as last_round FROM ah_student_rotation WHERE student_id = ?`, [st.id]);
+            let last_round = 0;
+            if (history.length > 0 && history[0].last_round) {
+                last_round = history[0].last_round;
+            }
+
+            let subjects = [];
+            try {
+                if (st.subjects_json) {
+                    subjects = JSON.parse(st.subjects_json);
+                }
+            } catch (e) {
+                console.error("Error parsing subjects JSON for student", st.id);
+            }
+
+            const next_round = last_round + 1;
+            const total_subjects = subjects.length;
+            let subject_name = 'General';
+
+            if (total_subjects > 0) {
+                const subjectIndex = (next_round - 1) % total_subjects;
+                subject_name = subjects[subjectIndex];
+            }
+
+            return db.query(`
+                INSERT INTO ah_student_rotation (student_id, academic_head_id, round_number, total_subjects, subject_name, rotation_date)
+                VALUES (?, ?, ?, ?, ?, CURDATE())
+            `, [st.id, ah_id, next_round, total_subjects, subject_name]);
+        });
+        
         await Promise.all(insertPromises);
 
         // Fetch newly created rotation
         const [newRotation] = await db.query(`
-            SELECT r.*, f.name as faculty_name, f.phone_number, f.subject
-            FROM ah_faculty_rotation r
-            JOIN users f ON r.faculty_id = f.id
+            SELECT r.*, s.name as student_name, s.contact as phone_number
+            FROM ah_student_rotation r
+            JOIN students s ON r.student_id = s.id
             WHERE r.academic_head_id = ? AND r.rotation_date = CURDATE()
         `, [ah_id]);
 
         res.status(200).json({ success: true, data: newRotation });
     } catch (error) {
-        console.error("Error generating daily rotation:", error);
+        console.error("Error generating daily student rotation:", error);
         res.status(500).json({ success: false, message: "Server error" });
     }
 };
 
-const updateFacultyRotation = async (req, res) => {
+const updateStudentRotation = async (req, res) => {
     try {
         const { id } = req.params;
-        const { status, next_call_date, notes } = req.body;
-        const ah_id = req.user.id;
+        const { status, notes, next_call_date } = req.body;
 
         await db.query(`
-            UPDATE ah_faculty_rotation 
-            SET status = ?, next_call_date = ?, notes = ?
-            WHERE id = ? AND academic_head_id = ?
-        `, [status, next_call_date || null, notes, id, ah_id]);
+            UPDATE ah_student_rotation 
+            SET status = ?, notes = ?, next_call_date = ?
+            WHERE id = ?
+        `, [status, notes || null, next_call_date || null, id]);
 
         res.status(200).json({ success: true, message: "Rotation updated" });
     } catch (error) {
-        console.error("Error updating rotation:", error);
+        console.error("Error updating student rotation:", error);
         res.status(500).json({ success: false, message: "Server error" });
     }
 };
@@ -324,8 +350,8 @@ const editDailyUpdate = async (req, res) => {
 };
 
 module.exports = {
-    getDailyFacultyRotation,
-    updateFacultyRotation,
+    getDailyStudentRotation,
+    updateStudentRotation,
     getFacultyQualityChecks,
     addFacultyQualityCheck,
     getParentMeetings,
