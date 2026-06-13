@@ -10,8 +10,12 @@ import { useNavigate } from 'react-router-dom';
 
 const formatTime12h = (time24) => {
   if (!time24) return '';
-  const [hours, minutes] = time24.split(':');
+  const timeStr = String(time24);
+  const parts = timeStr.split(':');
+  if (parts.length < 2) return timeStr;
+  const [hours, minutes] = parts;
   let h = parseInt(hours, 10);
+  if (isNaN(h)) return timeStr;
   const ampm = h >= 12 ? 'PM' : 'AM';
   h = h % 12 || 12;
   return `${h}:${minutes} ${ampm}`;
@@ -96,8 +100,8 @@ const AOEDemoSchedule = () => {
   useEffect(() => {
     let maxId = 0;
     demoList.forEach(d => {
-      if (d.demo_id && d.demo_id.toLowerCase().startsWith('de')) {
-        const num = parseInt(d.demo_id.substring(2));
+      if (d.demo_id && String(d.demo_id).toLowerCase().startsWith('de')) {
+        const num = parseInt(String(d.demo_id).substring(2));
         if (!isNaN(num) && num > maxId) maxId = num;
       } else if (d.demo_id && !isNaN(parseInt(d.demo_id))) {
          const num = parseInt(d.demo_id);
@@ -109,7 +113,7 @@ const AOEDemoSchedule = () => {
     
     setFormData(prev => {
       // Only overwrite if it's empty, or if the current automatically populated ID is stale/duplicate
-      if (!prev.demo_id || (prev.demo_id.toLowerCase().startsWith('de') && parseInt(prev.demo_id.substring(2)) <= maxId)) {
+      if (!prev.demo_id || (String(prev.demo_id).toLowerCase().startsWith('de') && parseInt(String(prev.demo_id).substring(2)) <= maxId)) {
         return { ...prev, demo_id: nextId };
       }
       return prev;
