@@ -119,21 +119,45 @@ const getFacultyQualityChecks = async (req, res) => {
             ORDER BY q.date DESC
         `);
 
-        // Fetch live scheduled sessions for today (from timetable)
         const [liveSessions] = await db.query(`
             SELECT t.id, t.student_id, t.faculty_id, t.start_time, t.end_time, COALESCE(t.chapter, t.session_type, 'General Session') as topic, t.status, s.meeting_link,
-                   f.name as faculty_name, s.name as student_name,
-                   r.id as rotation_id, r.status as call_status, r.notes, r.next_call_date
+                   f.name as faculty_name, s.name as student_name, s.subjects_json
             FROM timetable t
             LEFT JOIN users f ON t.faculty_id = f.id
             JOIN students s ON t.student_id = s.id
-            LEFT JOIN ah_student_rotation r ON r.student_id = s.id AND r.rotation_date = CURDATE() AND r.academic_head_id = ?
             WHERE t.date = CURDATE()
             ORDER BY RAND(DAYOFYEAR(CURDATE()) + YEAR(CURDATE()))
             LIMIT 15
-        `, [req.user.id]);
+        `);
 
-        res.status(200).json({ success: true, data: { evaluations, liveSessions } });
+        try {
+            await db.query('ALTER TABLE ah_faculty_quality ADD COLUMN student_id INT DEFAULT NULL');
+        } catch (e) {}
+
+        const sessionsWithRotation = await Promise.all(liveSessions.map(async (session) => {
+            let total_subjects = 1;
+            try {
+                if (session.subjects_json) {
+                    const parsed = JSON.parse(session.subjects_json);
+                    total_subjects = parsed.length > 0 ? parsed.length : 1;
+                }
+            } catch (e) {}
+
+            const [evalCountRes] = await db.query('SELECT COUNT(*) as count FROM ah_faculty_quality WHERE student_id = ?', [session.student_id]);
+            const total_evaluations = evalCountRes[0].count || 0;
+
+            const round_number = Math.floor(total_evaluations / total_subjects) + 1;
+            const subject_count = (total_evaluations % total_subjects) + 1;
+
+            return {
+                ...session,
+                round_number,
+                subject_count,
+                total_subjects
+            };
+        }));
+
+        res.status(200).json({ success: true, data: { evaluations, liveSessions: sessionsWithRotation } });
     } catch (error) {
         console.error("Error fetching faculty quality:", error);
         res.status(500).json({ success: false, message: "Server error" });
@@ -142,18 +166,22 @@ const getFacultyQualityChecks = async (req, res) => {
 
 const addFacultyQualityCheck = async (req, res) => {
     try {
-        const { faculty_id, class_topic, score, remarks } = req.body;
+        const { faculty_id, student_id, class_topic, score, remarks } = req.body;
         const ah_id = req.user.id;
         const proof_url = req.file ? req.file.path : null;
         
         try {
             await db.query('ALTER TABLE ah_faculty_quality ADD COLUMN proof_url VARCHAR(500) DEFAULT NULL');
         } catch (e) {}
+        
+        try {
+            await db.query('ALTER TABLE ah_faculty_quality ADD COLUMN student_id INT DEFAULT NULL');
+        } catch (e) {}
 
         await db.query(`
-            INSERT INTO ah_faculty_quality (faculty_id, academic_head_id, class_topic, score, remarks, proof_url)
-            VALUES (?, ?, ?, ?, ?, ?)
-        `, [faculty_id, ah_id, class_topic, score, remarks, proof_url]);
+            INSERT INTO ah_faculty_quality (faculty_id, academic_head_id, class_topic, score, remarks, proof_url, student_id)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        `, [faculty_id, ah_id, class_topic, score, remarks, proof_url, student_id || null]);
         
         res.status(201).json({ success: true, message: "Quality check added successfully" });
     } catch (error) {
