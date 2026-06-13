@@ -97,15 +97,20 @@ const StudentRow = ({ student, navigate }) => {
             </div>
               <div className="flex flex-col gap-0.5 mt-2">
               <span className="text-[8px] font-black uppercase tracking-wider text-slate-400">Lifetime Hours: <span className="text-[#008080] font-black">{student.total_lifetime_consumed_hours || 0} / {student.total_hours || 0} hrs</span></span>
-              <span className="text-[8px] font-black uppercase tracking-wider text-slate-400">Cycle Consumed: <span className="text-slate-700">{student.consumed_hours || 0} hrs</span></span>
-              <span className="text-[8px] font-black uppercase tracking-wider text-slate-400">Cycle Limit: <span className="text-slate-700">{Math.round(student.paid_hours || 0)} hrs</span></span>
               {student.subject_hours && student.subject_hours.length > 0 && (
-                <div className="mt-1 pt-1 border-t border-slate-200 flex flex-col gap-0.5">
+                <div className="mt-1 pt-1 border-t border-slate-200 flex flex-col gap-1">
                   <span className="text-[7px] font-black text-[#008080] uppercase tracking-widest mb-0.5">Subject Breakdown</span>
                   {student.subject_hours.map((sh, idx) => (
-                    <div key={idx} className="flex justify-between items-center text-[8px] font-black uppercase text-slate-500">
-                      <span>{sh.subject}</span>
-                      <span className="text-slate-700 ml-2">{sh.consumed_hours} / {sh.allocated_hours} Hrs</span>
+                    <div key={idx} className="flex justify-between items-start text-[8px] font-black uppercase text-slate-500">
+                      <div className="flex flex-col gap-0.5 max-w-[100px]">
+                        <span className="truncate text-slate-700">{sh.subject}</span>
+                        {sh.faculties && (
+                            <span className="text-[7px] text-[#008080] tracking-tighter truncate flex items-center gap-1">
+                                <span className="w-1 h-1 rounded-full bg-[#008080]"></span> {sh.faculties}
+                            </span>
+                        )}
+                      </div>
+                      <span className="text-slate-700 ml-2 whitespace-nowrap">{sh.consumed_hours} / {sh.allocated_hours} Hrs</span>
                     </div>
                   ))}
                 </div>
