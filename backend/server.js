@@ -47,7 +47,7 @@ app.post('/api/fix-demos-now', async (req, res) => {
     try {
         const [demos] = await pool.query('SELECT id, demo_id FROM aoe_demo_schedules ORDER BY created_at ASC');
         for (let i = 0; i < demos.length; i++) {
-            const demoIdStr = `DE${String(i + 1).padStart(2, '0')}`;
+            const demoIdStr = `de${String(i + 1).padStart(2, '0')}`;
             await pool.query('UPDATE aoe_demo_schedules SET demo_id = ? WHERE id = ?', [demoIdStr, demos[i].id]);
         }
         res.status(200).json({ success: true, message: 'Fixed demo IDs' });

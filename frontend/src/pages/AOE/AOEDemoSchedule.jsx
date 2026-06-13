@@ -8,6 +8,15 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
+const formatTime12h = (time24) => {
+  if (!time24) return '';
+  const [hours, minutes] = time24.split(':');
+  let h = parseInt(hours, 10);
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  h = h % 12 || 12;
+  return `${h}:${minutes} ${ampm}`;
+};
+
 const AOEDemoSchedule = () => {
   const [activeTab, setActiveTab] = useState('demo');
   const [loading, setLoading] = useState(false);
@@ -87,7 +96,7 @@ const AOEDemoSchedule = () => {
   useEffect(() => {
     let maxId = 0;
     demoList.forEach(d => {
-      if (d.demo_id && d.demo_id.startsWith('DE')) {
+      if (d.demo_id && d.demo_id.toLowerCase().startsWith('de')) {
         const num = parseInt(d.demo_id.substring(2));
         if (!isNaN(num) && num > maxId) maxId = num;
       } else if (d.demo_id && !isNaN(parseInt(d.demo_id))) {
@@ -96,11 +105,11 @@ const AOEDemoSchedule = () => {
       }
     });
     
-    const nextId = `DE${String(maxId + 1).padStart(2, '0')}`;
+    const nextId = `de${String(maxId + 1).padStart(2, '0')}`;
     
     setFormData(prev => {
       // Only overwrite if it's empty, or if the current automatically populated ID is stale/duplicate
-      if (!prev.demo_id || (prev.demo_id.startsWith('DE') && parseInt(prev.demo_id.substring(2)) <= maxId)) {
+      if (!prev.demo_id || (prev.demo_id.toLowerCase().startsWith('de') && parseInt(prev.demo_id.substring(2)) <= maxId)) {
         return { ...prev, demo_id: nextId };
       }
       return prev;
@@ -698,7 +707,7 @@ const AOEDemoSchedule = () => {
                     {demo.date && <p className="flex items-center gap-2"><CalendarDays size={14} className="text-slate-400"/> {new Date(demo.date).toLocaleDateString('en-GB')}</p>}
                     <p className="flex items-center gap-2"><BookOpen size={14} className="text-slate-400"/> {demo.subject}</p>
                     {demo.faculty_name && <p className="flex items-center gap-2"><Presentation size={14} className="text-slate-400"/> {demo.faculty_name}</p>}
-                    {demo.start_time && demo.end_time && <p className="flex items-center gap-2"><Clock size={14} className="text-slate-400"/> {demo.start_time} - {demo.end_time}</p>}
+                    {demo.start_time && demo.end_time && <p className="flex items-center gap-2"><Clock size={14} className="text-slate-400"/> {formatTime12h(demo.start_time)} - {formatTime12h(demo.end_time)}</p>}
                     {demo.meeting_link && (
                       <p className="flex items-center gap-2">
                         <Video size={14} className="text-slate-400"/> 
