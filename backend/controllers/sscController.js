@@ -218,14 +218,25 @@ exports.getStudentAcademicSchedule = async (req, res) => {
                     
                     if (p.dayConfigs && Array.isArray(p.dayConfigs)) {
                         p.dayConfigs.forEach(dc => {
-                            generatedSchedules.push({
+                            const newSlot = {
                                 day_of_week: dc.day,
                                 start_time: convertTo24Hour(dc.startTime) || '10:00:00',
                                 end_time: convertTo24Hour(dc.endTime) || '11:00:00',
                                 subject: subjectStr,
                                 faculty_id: pFacultyId,
                                 faculty_name: pFacultyName
-                            });
+                            };
+                            
+                            // Prevent duplicates
+                            const isDuplicate = generatedSchedules.some(s => 
+                                s.day_of_week === newSlot.day_of_week &&
+                                s.start_time === newSlot.start_time &&
+                                s.end_time === newSlot.end_time
+                            );
+
+                            if (!isDuplicate) {
+                                generatedSchedules.push(newSlot);
+                            }
                         });
                     }
                 });

@@ -455,7 +455,7 @@ const AOEDemoSchedule = () => {
                   { id: 'prep', label: 'Basic Setup', field: 'prep_score' },
                   { id: 'comm', label: 'Communication', field: 'comm_score' },
                   { id: 'concept', label: 'Concept Delivery', field: 'concept_score' },
-                  { id: 'engage', label: 'Engagement', field: 'engage_score' },
+                  { id: 'engage', label: 'Student Engagement', field: 'engage_score' },
                   { id: 'parent', label: 'Parent Response', field: 'parent_score' }
                 ].map((item) => (
                   <div key={item.id} className="space-y-2">
@@ -939,7 +939,9 @@ const AOEDemoSchedule = () => {
           <div className="bg-white rounded-[3rem] shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-hidden flex flex-col">
             <div className="p-8 border-b border-slate-50 flex justify-between items-center bg-slate-50/50">
               <div>
-                <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tight">Evaluate Demo</h2>
+                <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tight">
+                  {selectedDemo?.type === 'pre-demo' ? 'Evaluate Pre-Demo' : 'Evaluate Demo'}
+                </h2>
                 <p className="text-[10px] font-black text-[#008080] uppercase tracking-widest mt-1">
                   {selectedDemo.student_name} • {selectedDemo.faculty_name}
                 </p>
