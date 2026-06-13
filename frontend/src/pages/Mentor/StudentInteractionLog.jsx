@@ -452,7 +452,7 @@ const StudentInteractionLog = () => {
           <div className="flex items-center gap-2 p-3 bg-white/5 rounded-2xl border border-white/10 backdrop-blur-md">
             <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></div>
             <p className="text-[10px] font-bold text-white uppercase tracking-widest">
-              Completed {assignedStudents.filter(s => s.status === 'COMPLETED').length} / {assignedStudents.length} Sessions Today
+              Interaction Log
             </p>
           </div>
         </div>

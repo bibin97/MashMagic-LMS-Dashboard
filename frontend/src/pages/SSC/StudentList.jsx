@@ -203,7 +203,7 @@ const SSCStudentList = () => {
     });
 
     if (activeTab === 'active_plus') {
-      filtered = filtered.filter(s => s.status === 'active' && s.course_completed !== 1);
+      filtered = filtered.filter(s => s.course_completed !== 1);
     } else if (activeTab === 'completed') {
       filtered = filtered.filter(s => s.course_completed === 1);
     }
@@ -246,7 +246,7 @@ const SSCStudentList = () => {
           <span className={`text-[10px] font-black uppercase tracking-widest ${activeTab === 'active_plus' ? 'text-white/80' : 'text-indigo-600'}`}>Active Plus</span>
           <div className={`flex items-end gap-3 font-black tracking-tighter ${activeTab === 'active_plus' ? 'text-white' : 'text-slate-900'}`}>
             <span className="text-4xl leading-none">
-              {students.filter(s => s.status === 'active' && s.course_completed !== 1).length}
+              {students.filter(s => s.course_completed !== 1).length}
             </span>
             <div className={`flex items-center gap-1.5 mb-1 px-2 py-0.5 rounded-full ${activeTab === 'active_plus' ? 'bg-white/20' : 'bg-indigo-600/10'}`}>
                <div className={`w-1.5 h-1.5 rounded-full animate-pulse ${activeTab === 'active_plus' ? 'bg-white' : 'bg-indigo-600'}`}></div>

@@ -709,37 +709,35 @@ const AOEDemoSchedule = () => {
                     )}
                   </div>
 
-                  {demo.type !== 'pre-demo' && (
-                    <div className="flex items-center gap-3 pt-4 border-t border-slate-100">
-                      {(() => {
-                        let isLive = false;
-                        if (demo.start_time && demo.end_time) {
-                          const [startH, startM] = demo.start_time.split(':').map(Number);
-                          const [endH, endM] = demo.end_time.split(':').map(Number);
-                          const startMins = startH * 60 + startM;
-                          const endMins = endH * 60 + endM;
-                          isLive = currentTimeMinutes >= startMins && currentTimeMinutes <= endMins;
-                        }
+                  <div className="flex items-center gap-3 pt-4 border-t border-slate-100">
+                    {(() => {
+                      let isLive = false;
+                      if (demo.start_time && demo.end_time) {
+                        const [startH, startM] = demo.start_time.split(':').map(Number);
+                        const [endH, endM] = demo.end_time.split(':').map(Number);
+                        const startMins = startH * 60 + startM;
+                        const endMins = endH * 60 + endM;
+                        isLive = currentTimeMinutes >= startMins && currentTimeMinutes <= endMins;
+                      }
 
-                        return (
-                          <button className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 ${
-                            isLive 
-                              ? 'bg-rose-500 text-white animate-pulse shadow-[0_0_15px_rgba(244,63,94,0.5)]' 
-                              : 'bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white'
-                          }`}>
-                            <Video size={14} className={isLive ? "text-white" : ""} /> Live
-                          </button>
-                        );
-                      })()}
-                      
-                      <button 
-                        onClick={() => openEvaluationModal(demo)}
-                        className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${demo.status === 'completed' ? 'bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white' : 'bg-slate-50 text-slate-400 hover:bg-slate-800 hover:text-white'}`}
-                      >
-                        {demo.status === 'completed' ? 'Update Eval' : 'Evaluate'}
-                      </button>
-                    </div>
-                  )}
+                      return (
+                        <button className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 ${
+                          isLive 
+                            ? 'bg-rose-500 text-white animate-pulse shadow-[0_0_15px_rgba(244,63,94,0.5)]' 
+                            : 'bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white'
+                        }`}>
+                          <Video size={14} className={isLive ? "text-white" : ""} /> Live
+                        </button>
+                      );
+                    })()}
+                    
+                    <button 
+                      onClick={() => openEvaluationModal(demo)}
+                      className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${demo.status === 'completed' ? 'bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white' : 'bg-slate-50 text-slate-400 hover:bg-slate-800 hover:text-white'}`}
+                    >
+                      {demo.status === 'completed' ? 'Update Eval' : 'Evaluate'}
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
@@ -772,7 +770,7 @@ const AOEDemoSchedule = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 {[
-                  { label: 'Preparation', field: 'prep_score' },
+                  { label: selectedDemo?.type === 'pre-demo' ? 'Basic Setup' : 'Preparation', field: 'prep_score' },
                   { label: 'Communication', field: 'comm_score' },
                   { label: 'Concept Delivery', field: 'concept_score' },
                   { label: 'Student Engagement', field: 'engage_score' },

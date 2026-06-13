@@ -183,23 +183,37 @@ const generateAssignments = async (mentor_id, today) => {
     const medium = [];
     const quick = [];
 
-    // Prioritize onboarding students first (they must be DEEP sessions), then High, Medium, Low
-    const onboardingPool = selectedForToday.filter(s => s.onboarding_status === 'pending');
-    const high = selectedForToday.filter(s => s.onboarding_status !== 'pending' && s.priority_category === 'High');
-    const med = selectedForToday.filter(s => s.onboarding_status !== 'pending' && s.priority_category === 'Medium');
-    const low = selectedForToday.filter(s => s.onboarding_status !== 'pending' && !['High', 'Medium'].includes(s.priority_category));
+    const firstDayPool = [];
+    const restPool = [];
 
-    const combinedPool = [...onboardingPool, ...high, ...med, ...low];
-
-    // Allocate strictly based on priority. Mentors will decide the next session type in their reports.
-    for (let i = 0; i < combinedPool.length; i++) {
-        const student = combinedPool[i];
-        if (student.onboarding_status === 'pending' || student.priority_category === 'High') {
-            deep.push({ ...student, sessionType: 'DEEP', status: 'PENDING' });
-        } else if (student.priority_category === 'Medium') {
-            medium.push({ ...student, sessionType: 'MEDIUM', status: 'PENDING' });
+    // First day students (pending onboarding) MUST get DEEP
+    for (let s of selectedForToday) {
+        if (s.onboarding_status === 'pending') {
+            firstDayPool.push(s);
         } else {
-            quick.push({ ...student, sessionType: 'QUICK', status: 'PENDING' });
+            restPool.push(s);
+        }
+    }
+
+    for (let s of firstDayPool) {
+        deep.push({ ...s, sessionType: 'DEEP', status: 'PENDING' });
+    }
+
+    // Sort the rest by priority to decide who gets Deep/Med/Quick
+    const priorityWeight = { 'High': 3, 'Medium': 2, 'Low': 1 };
+    restPool.sort((a, b) => (priorityWeight[b.priority_category] || 0) - (priorityWeight[a.priority_category] || 0));
+
+    // Fill quotas: 5 DEEP, 5 MEDIUM, remaining QUICK
+    const maxDeep = 5;
+    const maxMedium = 5;
+
+    for (let s of restPool) {
+        if (deep.length < maxDeep) {
+            deep.push({ ...s, sessionType: 'DEEP', status: 'PENDING' });
+        } else if (medium.length < maxMedium) {
+            medium.push({ ...s, sessionType: 'MEDIUM', status: 'PENDING' });
+        } else {
+            quick.push({ ...s, sessionType: 'QUICK', status: 'PENDING' });
         }
     }
 

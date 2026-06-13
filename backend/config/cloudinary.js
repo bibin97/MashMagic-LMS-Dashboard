@@ -12,7 +12,7 @@ const storage = new CloudinaryStorage({
     cloudinary: cloudinary,
     params: {
         folder: 'mashmagic_docs',
-        allowed_formats: ['jpg', 'png', 'pdf', 'docx', 'xlsx'],
+        allowed_formats: ['jpg', 'jpeg', 'png', 'webp', 'heic', 'pdf', 'docx', 'xlsx'],
         resource_type: 'auto'
     }
 });
