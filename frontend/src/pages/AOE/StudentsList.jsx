@@ -42,6 +42,10 @@ const StudentsList = ({ role = 'academic_operation_executive' }) => {
 		q1: 0, q2: 0, q3: 0, q4: 0, q5: 0
 	});
 
+	// Edit Hours State
+	const [editHoursModal, setEditHoursModal] = useState({ show: false, student: null, total_hours: 0, total_lifetime_consumed_hours: 0 });
+	const [isUpdatingHours, setIsUpdatingHours] = useState(false);
+
 	// Base API path based on role
 	const apiPath = role === 'mentor_head' ? '/mentor-head' : '/aoe';
 	// Navigation base path (frontend routes)
@@ -155,6 +159,29 @@ const StudentsList = ({ role = 'academic_operation_executive' }) => {
 		setAssessmentStudent(student);
 		setAssessmentScores({ q1: 0, q2: 0, q3: 0, q4: 0, q5: 0 });
 		setIsAssessmentModalOpen(true);
+	};
+
+	const handleEditHoursSubmit = async (e) => {
+		e.preventDefault();
+		if (!editHoursModal.student) return;
+		setIsUpdatingHours(true);
+		try {
+			const res = await api.put(`/academic-head/students/${editHoursModal.student.id}/hours`, {
+				total_hours: editHoursModal.total_hours,
+				total_lifetime_consumed_hours: editHoursModal.total_lifetime_consumed_hours
+			});
+			if (res.data.success) {
+				toast.success('Hours updated successfully!');
+				setEditHoursModal({ show: false, student: null, total_hours: 0, total_lifetime_consumed_hours: 0 });
+				fetchStudents();
+			} else {
+				toast.error(res.data.message || 'Failed to update hours');
+			}
+		} catch (error) {
+			toast.error('Error updating hours');
+		} finally {
+			setIsUpdatingHours(false);
+		}
 	};
 
 	const calculateAssessmentScore = () => {
@@ -397,7 +424,23 @@ const StudentsList = ({ role = 'academic_operation_executive' }) => {
 										<td className="px-8 py-6">
 											<div className="flex flex-col gap-1">
 												<div className="flex flex-col gap-0.5">
-													<span className="text-[8px] font-black uppercase tracking-wider text-slate-400">Lifetime Hours: <span className="text-[#008080] font-black">{student.total_lifetime_consumed_hours || 0} / {student.total_hours || 0} hrs</span></span>
+													<span className="text-[8px] font-black uppercase tracking-wider text-slate-400 flex items-center gap-1">
+														Lifetime Hours: <span className="text-[#008080] font-black">{student.total_lifetime_consumed_hours || 0} / {student.total_hours || 0} hrs</span>
+														{role === 'academic_head' && (
+															<button 
+																onClick={() => setEditHoursModal({ 
+																	show: true, 
+																	student, 
+																	total_hours: student.total_hours || 0, 
+																	total_lifetime_consumed_hours: student.total_lifetime_consumed_hours || 0 
+																})}
+																className="text-slate-400 hover:text-indigo-500 transition-colors ml-1"
+																title="Edit Hours"
+															>
+																<Pencil size={10} />
+															</button>
+														)}
+													</span>
 												</div>
 												{student.subject_hours && student.subject_hours.length > 0 && (
 													<div className="flex flex-col gap-1 mt-1 border-t border-slate-100 pt-1.5 w-full min-w-[120px]">
@@ -748,6 +791,56 @@ const StudentsList = ({ role = 'academic_operation_executive' }) => {
 							</div>
 
 						</div>
+					</div>
+				</div>
+			)}
+			{/* Edit Hours Modal */}
+			{editHoursModal.show && (
+				<div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-in fade-in duration-200">
+					<div className="bg-white rounded-[2rem] w-full max-w-sm overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200">
+						<div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+							<div>
+								<h2 className="text-lg font-black text-slate-900 uppercase tracking-tight flex items-center gap-2">
+									<Clock className="text-indigo-500" size={18} /> Edit Hours
+								</h2>
+								<p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">
+									{editHoursModal.student?.name}
+								</p>
+							</div>
+							<button onClick={() => setEditHoursModal({ show: false, student: null, total_hours: 0, total_lifetime_consumed_hours: 0 })} className="text-slate-400 hover:text-rose-500 transition-colors">
+								<XCircle size={20} />
+							</button>
+						</div>
+						<form onSubmit={handleEditHoursSubmit} className="p-6 space-y-4">
+							<div className="space-y-2">
+								<label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Total Allocated Hours</label>
+								<input 
+									type="number"
+									step="0.01"
+									value={editHoursModal.total_hours}
+									onChange={(e) => setEditHoursModal({...editHoursModal, total_hours: e.target.value})}
+									className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all"
+									required
+								/>
+							</div>
+							<div className="space-y-2">
+								<label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Total Lifetime Consumed</label>
+								<input 
+									type="number"
+									step="0.01"
+									value={editHoursModal.total_lifetime_consumed_hours}
+									onChange={(e) => setEditHoursModal({...editHoursModal, total_lifetime_consumed_hours: e.target.value})}
+									className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all"
+									required
+								/>
+							</div>
+							<div className="pt-2 flex justify-end gap-3">
+								<button type="button" onClick={() => setEditHoursModal({ show: false, student: null, total_hours: 0, total_lifetime_consumed_hours: 0 })} className="px-5 py-2.5 text-[10px] font-black text-slate-500 uppercase tracking-widest hover:bg-slate-100 rounded-xl transition-colors">Cancel</button>
+								<button type="submit" disabled={isUpdatingHours} className="px-6 py-2.5 bg-indigo-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-indigo-500/20 hover:bg-indigo-600 transition-colors disabled:opacity-50">
+									{isUpdatingHours ? 'Saving...' : 'Save Changes'}
+								</button>
+							</div>
+						</form>
 					</div>
 				</div>
 			)}

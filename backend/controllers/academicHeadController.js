@@ -84,14 +84,24 @@ const getDailyStudentRotation = async (req, res) => {
 
 const updateStudentRotation = async (req, res) => {
     try {
-        const { id } = req.params;
+        const { id: student_id } = req.params; // Using student_id here
         const { status, notes, next_call_date } = req.body;
+        const ah_id = req.user.id;
 
-        await db.query(`
-            UPDATE ah_student_rotation 
-            SET status = ?, notes = ?, next_call_date = ?
-            WHERE id = ?
-        `, [status, notes || null, next_call_date || null, id]);
+        const [existing] = await db.query('SELECT id FROM ah_student_rotation WHERE student_id = ? AND academic_head_id = ? AND rotation_date = CURDATE()', [student_id, ah_id]);
+
+        if (existing.length > 0) {
+            await db.query(`
+                UPDATE ah_student_rotation 
+                SET status = ?, notes = ?, next_call_date = ?
+                WHERE id = ?
+            `, [status, notes || null, next_call_date || null, existing[0].id]);
+        } else {
+            await db.query(`
+                INSERT INTO ah_student_rotation (student_id, academic_head_id, rotation_date, status, notes, next_call_date, round_number, total_subjects, subject_name)
+                VALUES (?, ?, CURDATE(), ?, ?, ?, 1, 1, 'General')
+            `, [student_id, ah_id, status, notes || null, next_call_date || null]);
+        }
 
         res.status(200).json({ success: true, message: "Rotation updated" });
     } catch (error) {
@@ -111,15 +121,17 @@ const getFacultyQualityChecks = async (req, res) => {
 
         // Fetch live scheduled sessions for today (from timetable)
         const [liveSessions] = await db.query(`
-            SELECT t.id, t.faculty_id, t.start_time, t.end_time, COALESCE(t.chapter, t.session_type, 'General Session') as topic, t.status, s.meeting_link,
-                   f.name as faculty_name, s.name as student_name
+            SELECT t.id, t.student_id, t.faculty_id, t.start_time, t.end_time, COALESCE(t.chapter, t.session_type, 'General Session') as topic, t.status, s.meeting_link,
+                   f.name as faculty_name, s.name as student_name,
+                   r.id as rotation_id, r.status as call_status, r.notes, r.next_call_date
             FROM timetable t
             LEFT JOIN users f ON t.faculty_id = f.id
             JOIN students s ON t.student_id = s.id
+            LEFT JOIN ah_student_rotation r ON r.student_id = s.id AND r.rotation_date = CURDATE() AND r.academic_head_id = ?
             WHERE t.date = CURDATE()
             ORDER BY RAND(DAYOFYEAR(CURDATE()) + YEAR(CURDATE()))
             LIMIT 15
-        `);
+        `, [req.user.id]);
 
         res.status(200).json({ success: true, data: { evaluations, liveSessions } });
     } catch (error) {
@@ -350,9 +362,40 @@ const editDailyUpdate = async (req, res) => {
     }
 };
 
+const updateStudentHours = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { total_hours, total_lifetime_consumed_hours } = req.body;
+
+        let updateQueries = [];
+        let queryParams = [];
+
+        if (total_hours !== undefined) {
+            updateQueries.push('total_hours = ?');
+            queryParams.push(total_hours);
+        }
+
+        if (total_lifetime_consumed_hours !== undefined) {
+            updateQueries.push('total_lifetime_consumed_hours = ?');
+            queryParams.push(total_lifetime_consumed_hours);
+        }
+
+        if (updateQueries.length > 0) {
+            queryParams.push(id);
+            await db.query(`UPDATE students SET ${updateQueries.join(', ')} WHERE id = ?`, queryParams);
+        }
+
+        res.status(200).json({ success: true, message: 'Student hours updated successfully' });
+    } catch (error) {
+        console.error("Error updating student hours:", error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
 module.exports = {
     getDailyStudentRotation,
     updateStudentRotation,
+    updateStudentHours,
     getFacultyQualityChecks,
     addFacultyQualityCheck,
     getParentMeetings,

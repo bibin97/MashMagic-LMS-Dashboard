@@ -32,6 +32,7 @@ router.post('/faculty-quality', upload.single('proof'), academicHeadController.a
 // Daily Student-Subject Rotation
 router.get('/student-rotation', academicHeadController.getDailyStudentRotation);
 router.put('/student-rotation/:id', academicHeadController.updateStudentRotation);
+router.put('/students/:id/hours', academicHeadController.updateStudentHours);
 
 // Parent Meetings
 router.get('/parent-meetings', academicHeadController.getParentMeetings);
