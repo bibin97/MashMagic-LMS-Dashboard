@@ -1,50 +1,36 @@
-import React, {  useState, useEffect , useDeferredValue } from 'react';
+import React, { useState, useEffect, useDeferredValue } from 'react';
 import api from '../../services/api';
-import {
- Search, Users, Calendar, Clock,
- BookOpen, Layers, BarChart3, Activity,
- CheckCircle2, AlertTriangle, User, ExternalLink,
- Filter, Layout, GraduationCap, Briefcase
-} from 'lucide-react';
+import { Search, Users, Calendar, Clock, BookOpen, Layers, BarChart3, Activity, CheckCircle2, AlertTriangle, User, ExternalLink, Filter, Layout, GraduationCap, Briefcase } from 'lucide-react';
 import toast from 'react-hot-toast';
-
 const FacultyLogs = () => {
- const [mentorLogs, setMentorLogs] = useState([]);
- const [facultyLogs, setFacultyLogs] = useState([]);
- const [loading, setLoading] = useState(true);
- const [activeTab, setActiveTab] = useState('mentor'); // 'mentor' or 'faculty'
- const [searchTerm, setSearchTerm] = useState('');
-	const deferredSearchTerm = useDeferredValue(searchTerm);
- const [selectedLog, setSelectedLog] = useState(null);
-
- useEffect(() => {
- fetchLogs();
- }, []);
-
- const fetchLogs = async () => {
- try {
- const res = await api.get('/aoe/faculty-interaction-logs');
- setMentorLogs(res.data.data.mentorLogs);
- setFacultyLogs(res.data.data.facultyLogs);
- } catch (error) {
- toast.error("Failed to fetch faculty interaction logs");
- } finally {
- setLoading(false);
- }
- };
-
- const isMentorTab = activeTab === 'mentor';
- const displayLogs = isMentorTab ? mentorLogs : facultyLogs;
-
- const filteredLogs = displayLogs.filter(log => {
- const text = isMentorTab
- ? `${log.student_name} ${log.mentor_name} ${log.faculty_name} ${log.chapter}`.toLowerCase()
- : `${log.faculty_name} ${log.chapter}`.toLowerCase();
- return text.includes(deferredSearchTerm.toLowerCase());
- });
-
- return (
- <div className="space-y-10 pb-20 max-w-[1600px] mx-auto animate-in fade-in duration-700">
+  const [mentorLogs, setMentorLogs] = useState([]);
+  const [facultyLogs, setFacultyLogs] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('mentor'); // 'mentor' or 'faculty'
+  const [searchTerm, setSearchTerm] = useState('');
+  const deferredSearchTerm = useDeferredValue(searchTerm);
+  const [selectedLog, setSelectedLog] = useState(null);
+  useEffect(() => {
+    fetchLogs();
+  }, []);
+  const fetchLogs = async () => {
+    try {
+      const res = await api.get('/aoe/faculty-interaction-logs');
+      setMentorLogs(res.data.data.mentorLogs);
+      setFacultyLogs(res.data.data.facultyLogs);
+    } catch (error) {
+      toast.error("Failed to fetch faculty interaction logs");
+    } finally {
+      setLoading(false);
+    }
+  };
+  const isMentorTab = activeTab === 'mentor';
+  const displayLogs = isMentorTab ? mentorLogs : facultyLogs;
+  const filteredLogs = displayLogs.filter(log => {
+    const text = isMentorTab ? `${log.student_name} ${log.mentor_name} ${log.faculty_name} ${log.chapter}`.toLowerCase() : `${log.faculty_name} ${log.chapter}`.toLowerCase();
+    return text.includes(deferredSearchTerm.toLowerCase());
+  });
+  return <div className="space-y-10 pb-20 max-w-[1600px] mx-auto animate-in fade-in duration-700">
  {/* Auditing Header */}
  <div className="bg-white p-10 rounded-[3.5rem] shadow-sm border border-slate-100 flex flex-col md:flex-row justify-between items-center gap-6 relative overflow-hidden">
  <div className="absolute top-0 right-0 w-64 h-64 bg-[#008080]/10 rounded-full -mr-32 -mt-32 opacity-40"></div>
@@ -64,48 +50,28 @@ const FacultyLogs = () => {
  <div className="relative z-10 w-full md:w-auto flex flex-col sm:flex-row items-center gap-4">
  {/* Tab Switcher */}
  <div className="flex bg-slate-50 p-1.5 rounded-2xl border border-slate-100">
- <button
- onClick={() => setActiveTab('mentor')}
- className={`px-6 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${isMentorTab ? 'bg-white text-[#008080] shadow-sm border border-slate-100' : 'text-slate-600'}`}
- >
+ <button onClick={() => setActiveTab('mentor')} className={`px-6 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${isMentorTab ? 'bg-white text-[#008080] shadow-sm border border-slate-100' : 'text-slate-600'}`}>
  Mentor Logs
  </button>
- <button
- onClick={() => setActiveTab('faculty')}
- className={`px-6 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${!isMentorTab ? 'bg-white text-[#008080] shadow-sm border border-slate-100' : 'text-slate-600'}`}
- >
+ <button onClick={() => setActiveTab('faculty')} className={`px-6 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${!isMentorTab ? 'bg-white text-[#008080] shadow-sm border border-slate-100' : 'text-slate-600'}`}>
  Faculty Logs
  </button>
  </div>
 
  <div className="relative group min-w-[300px]">
  <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#008080] transition-colors" size={18} />
- <input
- type="text"
- placeholder="Search Sessions..."
- className="w-full pl-12 pr-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-[10px] font-black uppercase tracking-widest focus:bg-white focus:ring-8 ring-[#008080]/5 outline-none transition-all"
- value={searchTerm}
- onChange={(e) => setSearchTerm(e.target.value)}
- />
+ <input type="text" placeholder="Search Sessions..." className="w-full pl-12 pr-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-[10px] font-black uppercase tracking-widest focus:bg-white focus:ring-8 ring-[#008080]/5 outline-none transition-all" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
  </div>
  </div>
  </div>
 
  {/* Logs Area */}
- {loading ? (
- <div className="flex flex-col items-center justify-center p-32 space-y-4">
+ {loading ? <div className="flex flex-col items-center justify-center p-32 space-y-4">
  <div className="w-14 h-14 border-4 border-[#008080] border-t-transparent rounded-full animate-spin"></div>
  <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest animate-pulse">Loading Logs...</p>
- </div>
- ) : isMentorTab ? (
- /* Mentor Audit View */
- <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
- {filteredLogs.map((log) => (
- <div
- key={log.id}
- onClick={() => setSelectedLog(log)}
- className="bg-white rounded-[3rem] p-8 border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-500 group cursor-pointer relative overflow-hidden"
- >
+ </div> : isMentorTab ? (/* Mentor Audit View */
+    <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+ {filteredLogs.map(log => <div key={log.id} onClick={() => setSelectedLog(log)} className="bg-white rounded-[3rem] p-8 border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-500 group cursor-pointer relative overflow-hidden">
  <div className="absolute top-0 right-0 w-2 h-full bg-[#008080]"></div>
 
  <div className="flex justify-between items-start mb-8">
@@ -146,9 +112,7 @@ const FacultyLogs = () => {
  <div className="inline-block bg-slate-50 p-5 rounded-[2rem] border border-slate-100/50 min-w-[120px]">
  <p className="text-[8px] font-black text-slate-600 uppercase tracking-widest mb-1 ">Performance</p>
  <div className="flex justify-end gap-1">
- {[1, 2, 3, 4, 5].map(s => (
- <div key={s} className={`w-2 h-2 rounded-full ${s <= log.student_performance ? 'bg-[#008080]' : 'bg-slate-200'}`}></div>
- ))}
+ {[1, 2, 3, 4, 5].map(s => <div key={s} className={`w-2 h-2 rounded-full ${s <= log.student_performance ? 'bg-[#008080]' : 'bg-slate-200'}`}></div>)}
  </div>
  </div>
  </div>
@@ -166,12 +130,10 @@ const FacultyLogs = () => {
 
  <div className="mt-8 flex justify-between items-center bg-slate-50 px-6 py-4 rounded-[2rem] border border-slate-100/50">
  <div className="flex items-center gap-4">
- {log.risk_level === 'High' && (
- <div className="flex items-center gap-2 text-rose-500 animate-pulse">
+ {log.risk_level === 'High' && <div className="flex items-center gap-2 text-rose-500 animate-pulse">
  <AlertTriangle size={14} />
  <span className="text-[8px] font-black uppercase tracking-widest">CRITICAL RISK</span>
- </div>
- )}
+ </div>}
  <div className="flex items-center gap-1 text-slate-600">
  <span className="text-[8px] font-black uppercase tracking-widest ">{log.session_type}</span>
  </div>
@@ -180,15 +142,12 @@ const FacultyLogs = () => {
  <ExternalLink size={16} />
  </button>
  </div>
- </div>
- ))}
- </div>
- ) : (
- /* Faculty Intake View */
- <div className="bg-white rounded-[3.5rem] border border-slate-100 shadow-sm overflow-hidden overflow-x-auto relative">
+ </div>)}
+ </div>) : (/* Faculty Intake View */
+    <div className="bg-white rounded-[3.5rem] border border-slate-100 shadow-sm overflow-hidden overflow-x-auto relative">
  <table className="w-full text-left">
  <thead>
- <tr className="bg-slate-50/80 border-b border-slate-100">
+ <tr className="bg-slate-50/80 border-b border-slate-100"><th className="py-4 px-6 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">#</th>
  <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest ">Date</th>
  <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest ">Faculty</th>
  <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest ">Focus Chapter</th>
@@ -198,8 +157,7 @@ const FacultyLogs = () => {
  </tr>
  </thead>
  <tbody className="divide-y divide-slate-50">
- {filteredLogs.map((log) => (
- <tr key={log.id} className="hover:bg-slate-50/50 transition-colors group">
+ {filteredLogs.map((log, index) => <tr key={log.id} className="hover:bg-slate-50/50 transition-colors group"><td className="p-6 text-sm font-black text-slate-400 border-b border-slate-50">{index + 1}</td>
  <td className="px-8 py-6">
  <div className="flex flex-col">
  <span className="text-[10px] font-black text-slate-900 tracking-tight">{new Date(log.date).toLocaleDateString()}</span>
@@ -233,21 +191,16 @@ const FacultyLogs = () => {
  View
  </button>
  </td>
- </tr>
- ))}
+ </tr>)}
  </tbody>
  </table>
- {filteredLogs.length === 0 && (
- <div className="p-20 text-center">
+ {filteredLogs.length === 0 && <div className="p-20 text-center">
  <p className="text-xs font-black text-slate-600 uppercase tracking-widest ">No logs found</p>
- </div>
- )}
- </div>
- )}
+ </div>}
+ </div>)}
 
  {/* Modal for Mentor Audit Detail */}
- {selectedLog && isMentorTab && (
- <div className="fixed inset-0 bg-[#008080]/60 backdrop-blur-md z-[1100] flex items-center justify-center p-4 animate-in fade-in duration-300">
+ {selectedLog && isMentorTab && <div className="fixed inset-0 bg-[#008080]/60 backdrop-blur-md z-[1100] flex items-center justify-center p-4 animate-in fade-in duration-300">
  <div className="bg-white rounded-[4rem] shadow-2xl w-full max-w-5xl h-[90vh] overflow-hidden animate-in zoom-in duration-500 border border-white/20 flex flex-col max-h-[90vh] overflow-y-auto">
  <div className="p-10 border-b border-slate-50 flex justify-between items-center bg-[#008080] text-white relative h-32 overflow-hidden">
  <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-32 -mt-32"></div>
@@ -262,10 +215,7 @@ const FacultyLogs = () => {
  </p>
  </div>
  </div>
- <button
- onClick={() => setSelectedLog(null)}
- className="relative z-10 w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center hover:bg-white/30 transition-all border border-white/10 active:scale-90"
- >
+ <button onClick={() => setSelectedLog(null)} className="relative z-10 w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center hover:bg-white/30 transition-all border border-white/10 active:scale-90">
  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M6 18L18 6M6 6l12 12"></path></svg>
  </button>
  </div>
@@ -313,8 +263,7 @@ const FacultyLogs = () => {
  </div>
  </div>
 
- {selectedLog.screenshot_url && (
- <div className="p-6 bg-white border-2 border-slate-50 rounded-[3rem] shadow-sm flex items-center justify-between">
+ {selectedLog.screenshot_url && <div className="p-6 bg-white border-2 border-slate-50 rounded-[3rem] shadow-sm flex items-center justify-between">
  <div className="flex items-center gap-4">
  <div className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-600">
  <Layout size={20} />
@@ -327,25 +276,18 @@ const FacultyLogs = () => {
  <a href={selectedLog.screenshot_url} target="_blank" rel="noreferrer" className="bg-[#008080] text-white p-4 rounded-2xl hover:bg-[#008080] transition-all active:scale-90">
  <ExternalLink size={20} />
  </a>
- </div>
- )}
+ </div>}
  </div>
  </div>
  </div>
 
  <div className="p-10 border-t border-slate-50 bg-slate-50/50 flex justify-end">
- <button
- onClick={() => setSelectedLog(null)}
- className="px-12 py-5 bg-[#008080] text-white rounded-[2rem] text-[10px] font-black uppercase tracking-[0.2em] shadow-xl hover:-translate-y-1 transition-all "
- >
+ <button onClick={() => setSelectedLog(null)} className="px-12 py-5 bg-[#008080] text-white rounded-[2rem] text-[10px] font-black uppercase tracking-[0.2em] shadow-xl hover:-translate-y-1 transition-all ">
  Close
  </button>
  </div>
  </div>
- </div>
- )}
- </div>
- );
+ </div>}
+ </div>;
 };
-
 export default FacultyLogs;

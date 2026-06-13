@@ -1,28 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import {
- Users,
- BookOpen,
- UserCheck,
- Clock,
- Calendar,
- ChevronRight,
- TrendingUp,
- ShieldCheck,
- ClipboardList,
- Activity
-} from 'lucide-react';
+import { Users, BookOpen, UserCheck, Clock, Calendar, ChevronRight, TrendingUp, ShieldCheck, ClipboardList, Activity } from 'lucide-react';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
-import {
- BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, Legend
-} from 'recharts';
-
-const StatCard = ({ title, value, icon: Icon, color, subtitle }) => {
- const isTeal = color.includes('008080') || color.includes('14B8A6');
- const displayColor = isTeal ? 'bg-[#008080]' : color;
- 
- return (
- <div className="bg-white/80 backdrop-blur-xl p-10 rounded-[40px] border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgba(0,0,0,0.08)] hover:-translate-y-2 transition-all duration-500 group relative overflow-hidden">
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, Legend } from 'recharts';
+const StatCard = ({
+  title,
+  value,
+  icon: Icon,
+  color,
+  subtitle
+}) => {
+  const isTeal = color.includes('008080') || color.includes('14B8A6');
+  const displayColor = isTeal ? 'bg-[#008080]' : color;
+  return <div className="bg-white/80 backdrop-blur-xl p-10 rounded-[40px] border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgba(0,0,0,0.08)] hover:-translate-y-2 transition-all duration-500 group relative overflow-hidden">
  <div className={`absolute -right-4 -top-4 w-32 h-32 ${displayColor} opacity-[0.03] rounded-full blur-3xl group-hover:opacity-10 transition-opacity duration-700`}></div>
  
  <div className="flex flex-col gap-8 relative z-10">
@@ -37,83 +27,75 @@ const StatCard = ({ title, value, icon: Icon, color, subtitle }) => {
  </div>
  </div>
  </div>
- </div>
- );
+ </div>;
 };
-
 const AcademicHeadDashboard = () => {
- const [loading, setLoading] = useState(true);
- const [students, setStudents] = useState([]);
- const [selectedStudent, setSelectedStudent] = useState('');
- const [data, setData] = useState({
- stats: {
- totalStudents: 0,
- totalFaculties: 0,
- totalMentors: 0,
- todaySessions: 0
- },
- schedule: [],
- activityFeed: [],
- examAnalytics: []
- });
-
- useEffect(() => {
- fetchDashboardData();
- }, []);
-
- const fetchDashboardData = async () => {
- try {
- const [dashRes, examRes, studentsRes] = await Promise.all([
- api.get('/aoe/dashboard'),
- api.get('/aoe/exam-analytics'),
- api.get('/aoe/students')
- ]);
-
- if (dashRes.data.success) {
- setData(prev => ({
- ...prev,
- ...dashRes.data.data,
- examAnalytics: examRes.data.success ? examRes.data.data : []
- }));
- }
- if (studentsRes.data.success) {
- setStudents((studentsRes.data.data || []).sort((a, b) => (a.name || '').localeCompare(b.name || '')));
- }
- } catch (error) {
- console.error("Error fetching dashboard:", error);
- toast.error("Failed to load dashboard data");
- } finally {
- setLoading(false);
- }
- };
-
- const handleStudentChange = async (e) => {
- const studentId = e.target.value;
- setSelectedStudent(studentId);
- try {
- const params = studentId ? { student_id: studentId } : {};
- const res = await api.get('/aoe/exam-analytics', { params });
- if (res.data.success) {
- setData(prev => ({ ...prev, examAnalytics: res.data.data }));
- }
- } catch (error) {
- toast.error("Failed to load student exam analytics");
- }
- };
-
- if (loading) {
- return (
- <div className="flex items-center justify-center h-[60vh]">
+  const [loading, setLoading] = useState(true);
+  const [students, setStudents] = useState([]);
+  const [selectedStudent, setSelectedStudent] = useState('');
+  const [data, setData] = useState({
+    stats: {
+      totalStudents: 0,
+      totalFaculties: 0,
+      totalMentors: 0,
+      todaySessions: 0
+    },
+    schedule: [],
+    activityFeed: [],
+    examAnalytics: []
+  });
+  useEffect(() => {
+    fetchDashboardData();
+  }, []);
+  const fetchDashboardData = async () => {
+    try {
+      const [dashRes, examRes, studentsRes] = await Promise.all([api.get('/aoe/dashboard'), api.get('/aoe/exam-analytics'), api.get('/aoe/students')]);
+      if (dashRes.data.success) {
+        setData(prev => ({
+          ...prev,
+          ...dashRes.data.data,
+          examAnalytics: examRes.data.success ? examRes.data.data : []
+        }));
+      }
+      if (studentsRes.data.success) {
+        setStudents((studentsRes.data.data || []).sort((a, b) => (a.name || '').localeCompare(b.name || '')));
+      }
+    } catch (error) {
+      console.error("Error fetching dashboard:", error);
+      toast.error("Failed to load dashboard data");
+    } finally {
+      setLoading(false);
+    }
+  };
+  const handleStudentChange = async e => {
+    const studentId = e.target.value;
+    setSelectedStudent(studentId);
+    try {
+      const params = studentId ? {
+        student_id: studentId
+      } : {};
+      const res = await api.get('/aoe/exam-analytics', {
+        params
+      });
+      if (res.data.success) {
+        setData(prev => ({
+          ...prev,
+          examAnalytics: res.data.data
+        }));
+      }
+    } catch (error) {
+      toast.error("Failed to load student exam analytics");
+    }
+  };
+  if (loading) {
+    return <div className="flex items-center justify-center h-[60vh]">
  <div className="flex flex-col items-center gap-4">
  <div className="w-12 h-12 border-4 border-[#008080] border-t-transparent rounded-full animate-spin"></div>
  <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Loading dashboard data...</p>
  </div>
- </div>
- );
- }
-
- return (
- <div className="flex flex-col gap-10 pb-10">
+ </div>;
+  }
+  return <div className="flex flex-col gap-10 pb-10">
  {/* Header Section */}
  <div className="bg-white/70 backdrop-blur-xl p-12 rounded-[40px] border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.04)] flex flex-col md:flex-row justify-between items-center gap-10">
  <div className="text-center md:text-left">
@@ -127,41 +109,21 @@ const AcademicHeadDashboard = () => {
 
   <div className="flex items-center gap-4 bg-slate-50/50 px-8 py-5 rounded-[24px] border border-slate-100/50 shadow-inner group">
   <Activity size={20} strokeWidth={3} className="text-[#008080] group-hover:rotate-180 transition-transform duration-700" />
-  <span className="text-xs font-black text-slate-600 uppercase tracking-[0.25em] leading-none">{new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}</span>
+  <span className="text-xs font-black text-slate-600 uppercase tracking-[0.25em] leading-none">{new Date().toLocaleDateString('en-US', {
+              weekday: 'long',
+              month: 'short',
+              day: 'numeric'
+            })}</span>
   </div>
  </div>
  </div>
 
  {/* KPI Row */}
  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
- <StatCard
- title="Total Students"
- subtitle="Active Enrollments"
- value={data.stats.totalStudents}
- icon={Users}
- color="bg-[#008080]"
- />
- <StatCard
- title="Faculty Members"
- subtitle="Assigned Faculty"
- value={data.stats.totalFaculties}
- icon={ShieldCheck}
- color="bg-[#008080]"
- />
- <StatCard
- title="Total Mentors"
- subtitle="Active Mentors"
- value={data.stats.totalMentors}
- icon={UserCheck}
- color="bg-[#10B981]"
- />
- <StatCard
- title="Today's Sessions"
- subtitle="Scheduled Classes"
- value={data.stats.todaySessions}
- icon={Clock}
- color="bg-[#EF4444]"
- />
+ <StatCard title="Total Students" subtitle="Active Enrollments" value={data.stats.totalStudents} icon={Users} color="bg-[#008080]" />
+ <StatCard title="Faculty Members" subtitle="Assigned Faculty" value={data.stats.totalFaculties} icon={ShieldCheck} color="bg-[#008080]" />
+ <StatCard title="Total Mentors" subtitle="Active Mentors" value={data.stats.totalMentors} icon={UserCheck} color="bg-[#10B981]" />
+ <StatCard title="Today's Sessions" subtitle="Scheduled Classes" value={data.stats.todaySessions} icon={Clock} color="bg-[#EF4444]" />
  </div>
 
  {/* Exam Analytics Graph Section */}
@@ -172,15 +134,9 @@ const AcademicHeadDashboard = () => {
  <p className="text-slate-600 text-[10px] font-black uppercase tracking-[0.25em]">Average marks across all academic subjects</p>
  </div>
  <div className="flex items-center gap-5 w-full lg:w-auto">
- <select 
- value={selectedStudent} 
- onChange={handleStudentChange}
- className="flex-1 lg:min-w-[280px] bg-slate-50/80 border border-slate-100 text-slate-800 text-xs rounded-[20px] px-6 py-4 font-black uppercase tracking-widest focus:outline-none focus:ring-4 focus:ring-[#008080]/5 cursor-pointer shadow-inner appearance-none transition-all"
- >
+ <select value={selectedStudent} onChange={handleStudentChange} className="flex-1 lg:min-w-[280px] bg-slate-50/80 border border-slate-100 text-slate-800 text-xs rounded-[20px] px-6 py-4 font-black uppercase tracking-widest focus:outline-none focus:ring-4 focus:ring-[#008080]/5 cursor-pointer shadow-inner appearance-none transition-all">
  <option value="">Global Class Average</option>
- {students.map(student => (
- <option key={student.id} value={student.id}>{student.name}</option>
- ))}
+ {students.map(student => <option key={student.id} value={student.id}>{student.name}</option>)}
  </select>
  <div className="w-14 h-14 bg-[#008080]/10 rounded-[20px] border border-[#008080]/20 flex items-center justify-center text-[#008080] shrink-0 shadow-sm">
  <TrendingUp size={28} />
@@ -189,46 +145,46 @@ const AcademicHeadDashboard = () => {
  </div>
 
  <div className="h-[400px] w-full relative">
- {data.examAnalytics.length > 0 ? (
- <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
- <BarChart data={data.examAnalytics} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
+ {data.examAnalytics.length > 0 ? <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
+ <BarChart data={data.examAnalytics} margin={{
+            top: 20,
+            right: 30,
+            left: 20,
+            bottom: 20
+          }}>
  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
- <XAxis
- dataKey="subject"
- axisLine={false}
- tickLine={false}
- tick={{ fill: '#94a3b8', fontSize: 10, fontWeight: 900 }}
- dy={10}
- />
- <YAxis
- axisLine={false}
- tickLine={false}
- tick={{ fill: '#94a3b8', fontSize: 10, fontWeight: 900 }}
- domain={[0, 100]}
- />
- <Tooltip
- cursor={{ fill: '#f8fafc' }}
- contentStyle={{ borderRadius: '20px', border: 'none', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)', fontWeight: 'bold' }}
- />
- <Legend wrapperStyle={{ paddingTop: '20px', fontSize: '10px', fontWeight: 'bold', textTransform: 'uppercase' }} />
- <Bar
- name="Average Marks (%)"
- dataKey="percentage"
- radius={[12, 12, 0, 0]}
- barSize={60}
- >
- {data.examAnalytics.map((entry, index) => (
- <Cell key={`cell-${index}`} fill={entry.percentage > 75 ? '#008080' : entry.percentage > 50 ? '#6366F1' : '#F59E0B'} fillOpacity={0.8} />
- ))}
+ <XAxis dataKey="subject" axisLine={false} tickLine={false} tick={{
+              fill: '#94a3b8',
+              fontSize: 10,
+              fontWeight: 900
+            }} dy={10} />
+ <YAxis axisLine={false} tickLine={false} tick={{
+              fill: '#94a3b8',
+              fontSize: 10,
+              fontWeight: 900
+            }} domain={[0, 100]} />
+ <Tooltip cursor={{
+              fill: '#f8fafc'
+            }} contentStyle={{
+              borderRadius: '20px',
+              border: 'none',
+              boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)',
+              fontWeight: 'bold'
+            }} />
+ <Legend wrapperStyle={{
+              paddingTop: '20px',
+              fontSize: '10px',
+              fontWeight: 'bold',
+              textTransform: 'uppercase'
+            }} />
+ <Bar name="Average Marks (%)" dataKey="percentage" radius={[12, 12, 0, 0]} barSize={60}>
+ {data.examAnalytics.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.percentage > 75 ? '#008080' : entry.percentage > 50 ? '#6366F1' : '#F59E0B'} fillOpacity={0.8} />)}
  </Bar>
  </BarChart>
- </ResponsiveContainer>
- ) : (
- <div className="h-full flex flex-col items-center justify-center text-slate-200">
+ </ResponsiveContainer> : <div className="h-full flex flex-col items-center justify-center text-slate-200">
  <Activity size={60} strokeWidth={1} />
  <p className="text-[10px] font-black uppercase tracking-widest mt-4">No exam data available.</p>
- </div>
- )}
+ </div>}
  </div>
  </section>
 
@@ -248,19 +204,16 @@ const AcademicHeadDashboard = () => {
  </div>
 
  <div className="p-4">
- {data.schedule.length === 0 ? (
- <div className="py-20 flex flex-col items-center text-center">
+ {data.schedule.length === 0 ? <div className="py-20 flex flex-col items-center text-center">
  <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center text-slate-200 mb-6 border border-slate-100">
  <Calendar size={40} />
  </div>
  <h4 className="text-lg font-bold text-slate-900 ">No scheduled sessions for today.</h4>
  <p className="text-slate-600 text-sm max-w-xs mx-auto mt-2 font-medium">Any new schedules added by mentors will appear here in real-time.</p>
- </div>
- ) : (
- <div className="overflow-x-auto">
+ </div> : <div className="overflow-x-auto">
  <table className="w-full text-left border-separate border-spacing-y-2">
  <thead>
- <tr>
+ <tr><th className="py-4 px-6 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">#</th>
  <th className="px-8 py-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">Timeline</th>
  <th className="px-8 py-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">Student & Subject</th>
  <th className="px-8 py-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">Faculty In-Charge</th>
@@ -269,8 +222,7 @@ const AcademicHeadDashboard = () => {
  </tr>
  </thead>
  <tbody>
- {data.schedule.map((session, idx) => (
- <tr key={session.id} className="group hover:bg-slate-50/80 transition-all duration-300">
+ {data.schedule.map((session, idx) => <tr key={session.id} className="group hover:bg-slate-50/80 transition-all duration-300"><td className="p-6 text-sm font-black text-slate-400 border-b border-slate-50">{idx + 1}</td>
  <td className="px-8 py-6 first:rounded-l-[2rem]">
  <div className="flex items-center gap-3">
  <div className="w-12 h-12 bg-[#008080]/5 rounded-[18px] flex items-center justify-center text-[#008080] border border-[#008080]/10 group-hover:bg-[#008080] group-hover:text-white transition-all duration-500">
@@ -297,12 +249,7 @@ const AcademicHeadDashboard = () => {
  </div>
  </td>
  <td className="px-8 py-6">
- <span className={`px-4 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest shadow-sm border ${session.status === 'Completed'
- ? 'bg-emerald-50 text-emerald-600 border-emerald-100'
- : session.status === 'Cancelled'
- ? 'bg-rose-50 text-rose-600 border-rose-100'
- : 'bg-amber-50 text-amber-600 border-amber-100 animate-pulse'
- }`}>
+ <span className={`px-4 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest shadow-sm border ${session.status === 'Completed' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : session.status === 'Cancelled' ? 'bg-rose-50 text-rose-600 border-rose-100' : 'bg-amber-50 text-amber-600 border-amber-100 animate-pulse'}`}>
  {session.status}
  </span>
  </td>
@@ -311,12 +258,10 @@ const AcademicHeadDashboard = () => {
  <ChevronRight size={22} strokeWidth={3} />
  </button>
  </td>
- </tr>
- ))}
+ </tr>)}
  </tbody>
  </table>
- </div>
- )}
+ </div>}
  </div>
  </section>
 
@@ -335,22 +280,20 @@ const AcademicHeadDashboard = () => {
  </div>
 
  <div className="space-y-6">
- {!data.activityFeed || data.activityFeed.length === 0 ? (
- <p className="text-center py-10 text-slate-600 font-bold ">No activity recorded yet today.</p>
- ) : (
- data.activityFeed.map((activity, i) => (
- <div key={i} className="flex gap-8 p-8 rounded-[32px] bg-slate-50/40 border border-transparent hover:border-slate-100 hover:bg-white hover:shadow-[0_15px_40px_rgba(0,0,0,0.04)] transition-all duration-500 group relative overflow-hidden">
+ {!data.activityFeed || data.activityFeed.length === 0 ? <p className="text-center py-10 text-slate-600 font-bold ">No activity recorded yet today.</p> : data.activityFeed.map((activity, i) => <div key={i} className="flex gap-8 p-8 rounded-[32px] bg-slate-50/40 border border-transparent hover:border-slate-100 hover:bg-white hover:shadow-[0_15px_40px_rgba(0,0,0,0.04)] transition-all duration-500 group relative overflow-hidden">
  <div className="absolute top-0 right-0 w-24 h-24 bg-[#008080]/5 rounded-bl-[40px] -mr-8 -mt-8 opacity-0 group-hover:opacity-100 transition-all duration-700"></div>
- <div className={`w-14 h-14 rounded-[20px] flex items-center justify-center shrink-0 shadow-sm border border-white relative z-10 transition-transform group-hover:scale-110 group-hover:rotate-6 ${activity.type === 'Student Report' ? 'bg-[#008080] text-white' :
- activity.type === 'Student Interaction' ? 'bg-[#10B981] text-white' :
- 'bg-[#6366F1] text-white'
- }`}>
+ <div className={`w-14 h-14 rounded-[20px] flex items-center justify-center shrink-0 shadow-sm border border-white relative z-10 transition-transform group-hover:scale-110 group-hover:rotate-6 ${activity.type === 'Student Report' ? 'bg-[#008080] text-white' : activity.type === 'Student Interaction' ? 'bg-[#10B981] text-white' : 'bg-[#6366F1] text-white'}`}>
  <ClipboardList size={22} strokeWidth={2.5} />
  </div>
  <div className="flex-1 min-w-0 relative z-10">
  <div className="flex flex-col sm:flex-row justify-between items-start mb-3 gap-2">
  <h4 className="text-lg font-black text-slate-800 tracking-tight leading-none uppercase">{activity.type} — {activity.student_name}</h4>
- <span className="text-[9px] font-black text-slate-600 bg-white border border-slate-100 px-3 py-1 rounded-full uppercase tracking-widest shrink-0">{new Date(activity.date).toLocaleString([], { hour: '2-digit', minute: '2-digit', day: '2-digit', month: 'short' })}</span>
+ <span className="text-[9px] font-black text-slate-600 bg-white border border-slate-100 px-3 py-1 rounded-full uppercase tracking-widest shrink-0">{new Date(activity.date).toLocaleString([], {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    day: '2-digit',
+                    month: 'short'
+                  })}</span>
  </div>
  <p className="text-sm font-bold text-slate-500 line-clamp-2 mb-4 leading-relaxed opacity-80 decoration-[#008080]/30">"{activity.details || 'No additional details provided.'}"</p>
  <div className="flex items-center gap-4">
@@ -358,9 +301,7 @@ const AcademicHeadDashboard = () => {
  <span className="text-[10px] font-black text-[#008080] uppercase tracking-[0.2em]">LOGGED BY: {activity.origin_name}</span>
  </div>
  </div>
- </div>
- ))
- )}
+ </div>)}
  </div>
  </div>
 
@@ -394,8 +335,6 @@ const AcademicHeadDashboard = () => {
  </div>
  </div>
  </div>
- </div>
- );
+ </div>;
 };
-
 export default AcademicHeadDashboard;

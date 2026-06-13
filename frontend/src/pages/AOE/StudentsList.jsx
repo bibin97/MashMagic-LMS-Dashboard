@@ -1,246 +1,242 @@
-import React, {  useState, useEffect, useMemo , useDeferredValue } from 'react';
-import {
-	Users, Search, Filter, Edit2, Trash2, X, Save, Pencil,
-	GraduationCap, BookOpen, Clock, Activity, Calendar, Eye, ClipboardList
-} from 'lucide-react';
+import React, { useState, useEffect, useMemo, useDeferredValue } from 'react';
+import { Users, Search, Filter, Edit2, Trash2, X, Save, Pencil, GraduationCap, BookOpen, Clock, Activity, Calendar, Eye, ClipboardList } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
 import StudentListFilterDropdown, { sortStudentsByOption } from '../../components/StudentListFilterDropdown';
 import { premiumConfirm } from '../../utils/premiumConfirm';
 import { mockStudentHours } from '../../utils/mockStudentHours';
+const StudentsList = ({
+  role = 'academic_operation_executive'
+}) => {
+  const [students, setStudents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const deferredSearchTerm = useDeferredValue(searchTerm);
+  const [filterCourse, setFilterCourse] = useState('all');
+  const [sortBy, setSortBy] = useState('join_newest');
+  const [mentors, setMentors] = useState([]);
+  const [faculties, setFaculties] = useState([]);
+  const [filterMentor, setFilterMentor] = useState('all');
+  const [filterFaculty, setFilterFaculty] = useState('all');
+  const [activeTab, setActiveTab] = useState('enrolled_scholars'); // 'enrolled_scholars', 'active_plus', 'completed'
+  const [expandedStudentId, setExpandedStudentId] = useState(null);
 
-const StudentsList = ({ role = 'academic_operation_executive' }) => {
-	const [students, setStudents] = useState([]);
-	const [loading, setLoading] = useState(true);
-	const [searchTerm, setSearchTerm] = useState('');
-	const deferredSearchTerm = useDeferredValue(searchTerm);
-	const [filterCourse, setFilterCourse] = useState('all');
-	const [sortBy, setSortBy] = useState('join_newest');
-	const [mentors, setMentors] = useState([]);
-	const [faculties, setFaculties] = useState([]);
-	const [filterMentor, setFilterMentor] = useState('all');
-	const [filterFaculty, setFilterFaculty] = useState('all');
-	
-	const [activeTab, setActiveTab] = useState('enrolled_scholars'); // 'enrolled_scholars', 'active_plus', 'completed'
-	const [expandedStudentId, setExpandedStudentId] = useState(null);
-	
+  // Assign Mentor Modal States
+  const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
+  const [selectedStudentForAssign, setSelectedStudentForAssign] = useState(null);
+  const [selectedMentorId, setSelectedMentorId] = useState('');
+  const [isAssigning, setIsAssigning] = useState(false);
+  const [assignSearchTerm, setAssignSearchTerm] = useState('');
+  const deferredAssignSearchTerm = useDeferredValue(assignSearchTerm);
+  const [isAssignDropdownOpen, setIsAssignDropdownOpen] = useState(false);
 
-	// Assign Mentor Modal States
-	const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
-	const [selectedStudentForAssign, setSelectedStudentForAssign] = useState(null);
-	const [selectedMentorId, setSelectedMentorId] = useState('');
-	const [isAssigning, setIsAssigning] = useState(false);
-	const [assignSearchTerm, setAssignSearchTerm] = useState('');
-	const deferredAssignSearchTerm = useDeferredValue(assignSearchTerm);
-	const [isAssignDropdownOpen, setIsAssignDropdownOpen] = useState(false);
+  // Quick Assessment State
+  const [isAssessmentModalOpen, setIsAssessmentModalOpen] = useState(false);
+  const [assessmentStudent, setAssessmentStudent] = useState(null);
+  const [assessmentScores, setAssessmentScores] = useState({
+    q1: 0,
+    q2: 0,
+    q3: 0,
+    q4: 0,
+    q5: 0
+  });
 
-	// Quick Assessment State
-	const [isAssessmentModalOpen, setIsAssessmentModalOpen] = useState(false);
-	const [assessmentStudent, setAssessmentStudent] = useState(null);
-	const [assessmentScores, setAssessmentScores] = useState({
-		q1: 0, q2: 0, q3: 0, q4: 0, q5: 0
-	});
+  // Edit Hours State
+  const [editHoursModal, setEditHoursModal] = useState({
+    show: false,
+    student: null,
+    total_hours: 0,
+    total_lifetime_consumed_hours: 0
+  });
+  const [isUpdatingHours, setIsUpdatingHours] = useState(false);
 
-	// Edit Hours State
-	const [editHoursModal, setEditHoursModal] = useState({ show: false, student: null, total_hours: 0, total_lifetime_consumed_hours: 0 });
-	const [isUpdatingHours, setIsUpdatingHours] = useState(false);
+  // Base API path based on role
+  const apiPath = role === 'mentor_head' ? '/mentor-head' : '/aoe';
+  // Navigation base path (frontend routes)
+  const navBasePath = role === 'mentor_head' ? '/mentor-head' : role === 'academic_head' ? '/academic-head' : '/aoe';
+  const navigate = useNavigate();
+  const coursesList = ["Mission X", "Classmate", "Crash 45", "Bright Bridge", "Magic Revision"];
+  useEffect(() => {
+    fetchDropdownData();
+  }, []);
+  useEffect(() => {
+    fetchStudents();
+  }, [role, searchTerm, sortBy, filterCourse, filterMentor, filterFaculty]);
+  const fetchDropdownData = async () => {
+    try {
+      const res = await api.get(`${apiPath}/dropdowns`);
+      if (res.data.success) {
+        setMentors(res.data.data.mentors || []);
+        setFaculties(res.data.data.faculties || []);
+      }
+    } catch (error) {
+      console.error("Dropdown fetch error:", error);
+    }
+  };
+  const fetchStudents = async () => {
+    try {
+      const mentorParam = filterMentor !== 'all' ? `&mentor_id=${filterMentor}` : '';
+      const facultyParam = filterFaculty !== 'all' ? `&faculty_id=${filterFaculty}` : '';
+      const res = await api.get(`${apiPath}/students-all?search=${searchTerm}&sortBy=${sortBy}&course=${filterCourse}${mentorParam}${facultyParam}`);
 
-	// Base API path based on role
-	const apiPath = role === 'mentor_head' ? '/mentor-head' : '/aoe';
-	// Navigation base path (frontend routes)
-	const navBasePath = role === 'mentor_head' ? '/mentor-head' : role === 'academic_head' ? '/academic-head' : '/aoe';
-	const navigate = useNavigate();
-
-	const coursesList = ["Mission X", "Classmate", "Crash 45", "Bright Bridge", "Magic Revision"];
-
-	useEffect(() => {
-		fetchDropdownData();
-	}, []);
-
-	useEffect(() => {
-		fetchStudents();
-	}, [role, searchTerm, sortBy, filterCourse, filterMentor, filterFaculty]);
-
-	const fetchDropdownData = async () => {
-		try {
-			const res = await api.get(`${apiPath}/dropdowns`);
-			if (res.data.success) {
-				setMentors(res.data.data.mentors || []);
-				setFaculties(res.data.data.faculties || []);
-			}
-		} catch (error) { console.error("Dropdown fetch error:", error); }
-	};
-
-	const fetchStudents = async () => {
-		try {
-			const mentorParam = filterMentor !== 'all' ? `&mentor_id=${filterMentor}` : '';
-			const facultyParam = filterFaculty !== 'all' ? `&faculty_id=${filterFaculty}` : '';
-			const res = await api.get(`${apiPath}/students-all?search=${searchTerm}&sortBy=${sortBy}&course=${filterCourse}${mentorParam}${facultyParam}`);
-			
-			// Inject mock hours for specific students requested by user
-			let fetchedStudents = res.data.data || [];
-			fetchedStudents = fetchedStudents.map(student => {
-				// Try to match by exact name or if the name contains the mock name
-				const mockKey = Object.keys(mockStudentHours).find(key => student.name.toLowerCase().includes(key.toLowerCase()));
-				if (mockKey) {
-					const mockObj = mockStudentHours[mockKey];
-					return { 
-						...student, 
-						...mockObj,
-						consumed_hours: (parseFloat(student.consumed_hours) || 0) + (mockObj.consumed_hours || 0),
-						total_lifetime_consumed_hours: (parseFloat(student.total_lifetime_consumed_hours) || 0) + (mockObj.total_lifetime_consumed_hours || 0)
-					};
-				}
-				return student;
-			});
-
-			setStudents(fetchedStudents.sort((a, b) => (a.name || '').localeCompare(b.name || '')));
-		} catch (error) {
-			toast.error("Failed to load students directory");
-		} finally {
-			setLoading(false);
-		}
-	};
-
-	const handleEdit = (student) => {
-		navigate(`${navBasePath}/edit-student/${student.id}`);
-	};
-
-	const handleView = (student) => {
-		navigate(`${navBasePath}/students/${student.id}`);
-	};
-
-	const handleDelete = async (studentParam) => {
-		const id = typeof studentParam === 'object' ? studentParam.id : studentParam;
-		const name = typeof studentParam === 'object' ? studentParam.name : 'this student';
-
-		premiumConfirm(async () => {
-			try {
-				const res = await api.delete(`${apiPath}/students/${id}`);
-				if (res.data.success) {
-					toast.success("Student record deleted");
-					fetchStudents();
-				}
-			} catch (error) {
-				toast.error(error.response?.data?.message || "Delete failed");
-			}
-		}, {
-			name: name,
-			title: 'Delete Student Record',
-			message: `Are you sure you want to permanently delete student ${name}? This action will remove all their data from the database forever and cannot be undone.`,
-			type: 'danger'
-		});
-	};
-
-	
-	const handleAssignSubmit = async (e) => {
-		e.preventDefault();
-		if (!selectedMentorId) {
-			toast.error('Please select a mentor');
-			return;
-		}
-		setIsAssigning(true);
-		try {
-			const res = await api.put(`${apiPath}/students/${selectedStudentForAssign.id}/assign`, { mentorId: selectedMentorId });
-			if (res.data.success) {
-				toast.success('Mentor assigned successfully');
-				setIsAssignModalOpen(false);
-				fetchStudents();
-			}
-		} catch (error) {
-			toast.error(error.response?.data?.message || 'Failed to assign mentor');
-		} finally {
-			setIsAssigning(false);
-		}
-	};
-
-	const handleOpenAssessment = (student) => {
-		setAssessmentStudent(student);
-		setAssessmentScores({ q1: 0, q2: 0, q3: 0, q4: 0, q5: 0 });
-		setIsAssessmentModalOpen(true);
-	};
-
-	const handleEditHoursSubmit = async (e) => {
-		e.preventDefault();
-		if (!editHoursModal.student) return;
-		setIsUpdatingHours(true);
-		try {
-			const res = await api.put(`/academic-head/students/${editHoursModal.student.id}/hours`, {
-				total_hours: editHoursModal.total_hours,
-				total_lifetime_consumed_hours: editHoursModal.total_lifetime_consumed_hours
-			});
-			if (res.data.success) {
-				toast.success('Hours updated successfully!');
-				setEditHoursModal({ show: false, student: null, total_hours: 0, total_lifetime_consumed_hours: 0 });
-				fetchStudents();
-			} else {
-				toast.error(res.data.message || 'Failed to update hours');
-			}
-		} catch (error) {
-			toast.error('Error updating hours');
-		} finally {
-			setIsUpdatingHours(false);
-		}
-	};
-
-	const calculateAssessmentScore = () => {
-		return Object.values(assessmentScores).reduce((a, b) => a + b, 0);
-	};
-
-	const getAssessmentLevel = (score) => {
-		if (score >= 5 && score <= 12) return 'Level 1';
-		if (score >= 13 && score <= 19) return 'Level 2';
-		if (score >= 20 && score <= 25) return 'Level 3';
-		return 'Pending';
-	};
-
-	const handleSubmitAssessment = async () => {
-		const totalScore = calculateAssessmentScore();
-		if (totalScore === 0) {
-			toast.error('Please complete the assessment before submitting');
-			return;
-		}
-		const level = getAssessmentLevel(totalScore);
-		try {
-			await api.put(`/mentor-head/students/${assessmentStudent.id}/assessment-level`, { level });
-			toast.success(`Assessment submitted! Score: ${totalScore} (${level})`);
-			setIsAssessmentModalOpen(false);
-			fetchStudents();
-		} catch (error) {
-			toast.error('Failed to submit assessment');
-		}
-	};
-
-	const filteredStudents = useMemo(() => {
-		const filtered = students.filter(s => {
-			const nameStr = s.name || '';
-			const regStr = s.registration_number || '';
-			const gradeStr = s.grade || '';
-
-			const matchesSearch = nameStr.toLowerCase().includes(deferredSearchTerm.toLowerCase()) ||
-				regStr.toLowerCase().includes(deferredSearchTerm.toLowerCase()) ||
-				gradeStr.toLowerCase().includes(deferredSearchTerm.toLowerCase());
-			const matchesCourse = filterCourse === 'all' || s.course === filterCourse;
-            
-            let matchesTab = true;
-            if (activeTab === 'active_plus') {
-                const isActive = (s.status === 'active' || s.isActive === 1);
-                const isCompleted = role === 'mentor_head' ? s.mentorship_completed === 1 : s.course_completed === 1;
-                matchesTab = isActive && !isCompleted;
-            } else if (activeTab === 'completed') {
-                matchesTab = role === 'mentor_head' ? s.mentorship_completed === 1 : s.course_completed === 1;
-            }
-
-			return matchesSearch && matchesCourse && matchesTab;
-		});
-		return sortStudentsByOption(filtered, sortBy);
-	}, [students, searchTerm, filterCourse, sortBy, activeTab, role]);
-
-	if (loading) return <div className="p-20 text-center font-black text-slate-600 animate-pulse">SYNCING STUDENT RECORDS...</div>;
-
-	return (
-		<div className="space-y-8 animate-in fade-in duration-700">
+      // Inject mock hours for specific students requested by user
+      let fetchedStudents = res.data.data || [];
+      fetchedStudents = fetchedStudents.map(student => {
+        // Try to match by exact name or if the name contains the mock name
+        const mockKey = Object.keys(mockStudentHours).find(key => student.name.toLowerCase().includes(key.toLowerCase()));
+        if (mockKey) {
+          const mockObj = mockStudentHours[mockKey];
+          return {
+            ...student,
+            ...mockObj,
+            consumed_hours: (parseFloat(student.consumed_hours) || 0) + (mockObj.consumed_hours || 0),
+            total_lifetime_consumed_hours: (parseFloat(student.total_lifetime_consumed_hours) || 0) + (mockObj.total_lifetime_consumed_hours || 0)
+          };
+        }
+        return student;
+      });
+      setStudents(fetchedStudents.sort((a, b) => (a.name || '').localeCompare(b.name || '')));
+    } catch (error) {
+      toast.error("Failed to load students directory");
+    } finally {
+      setLoading(false);
+    }
+  };
+  const handleEdit = student => {
+    navigate(`${navBasePath}/edit-student/${student.id}`);
+  };
+  const handleView = student => {
+    navigate(`${navBasePath}/students/${student.id}`);
+  };
+  const handleDelete = async studentParam => {
+    const id = typeof studentParam === 'object' ? studentParam.id : studentParam;
+    const name = typeof studentParam === 'object' ? studentParam.name : 'this student';
+    premiumConfirm(async () => {
+      try {
+        const res = await api.delete(`${apiPath}/students/${id}`);
+        if (res.data.success) {
+          toast.success("Student record deleted");
+          fetchStudents();
+        }
+      } catch (error) {
+        toast.error(error.response?.data?.message || "Delete failed");
+      }
+    }, {
+      name: name,
+      title: 'Delete Student Record',
+      message: `Are you sure you want to permanently delete student ${name}? This action will remove all their data from the database forever and cannot be undone.`,
+      type: 'danger'
+    });
+  };
+  const handleAssignSubmit = async e => {
+    e.preventDefault();
+    if (!selectedMentorId) {
+      toast.error('Please select a mentor');
+      return;
+    }
+    setIsAssigning(true);
+    try {
+      const res = await api.put(`${apiPath}/students/${selectedStudentForAssign.id}/assign`, {
+        mentorId: selectedMentorId
+      });
+      if (res.data.success) {
+        toast.success('Mentor assigned successfully');
+        setIsAssignModalOpen(false);
+        fetchStudents();
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to assign mentor');
+    } finally {
+      setIsAssigning(false);
+    }
+  };
+  const handleOpenAssessment = student => {
+    setAssessmentStudent(student);
+    setAssessmentScores({
+      q1: 0,
+      q2: 0,
+      q3: 0,
+      q4: 0,
+      q5: 0
+    });
+    setIsAssessmentModalOpen(true);
+  };
+  const handleEditHoursSubmit = async e => {
+    e.preventDefault();
+    if (!editHoursModal.student) return;
+    setIsUpdatingHours(true);
+    try {
+      const res = await api.put(`/academic-head/students/${editHoursModal.student.id}/hours`, {
+        total_hours: editHoursModal.total_hours,
+        total_lifetime_consumed_hours: editHoursModal.total_lifetime_consumed_hours
+      });
+      if (res.data.success) {
+        toast.success('Hours updated successfully!');
+        setEditHoursModal({
+          show: false,
+          student: null,
+          total_hours: 0,
+          total_lifetime_consumed_hours: 0
+        });
+        fetchStudents();
+      } else {
+        toast.error(res.data.message || 'Failed to update hours');
+      }
+    } catch (error) {
+      toast.error('Error updating hours');
+    } finally {
+      setIsUpdatingHours(false);
+    }
+  };
+  const calculateAssessmentScore = () => {
+    return Object.values(assessmentScores).reduce((a, b) => a + b, 0);
+  };
+  const getAssessmentLevel = score => {
+    if (score >= 5 && score <= 12) return 'Level 1';
+    if (score >= 13 && score <= 19) return 'Level 2';
+    if (score >= 20 && score <= 25) return 'Level 3';
+    return 'Pending';
+  };
+  const handleSubmitAssessment = async () => {
+    const totalScore = calculateAssessmentScore();
+    if (totalScore === 0) {
+      toast.error('Please complete the assessment before submitting');
+      return;
+    }
+    const level = getAssessmentLevel(totalScore);
+    try {
+      await api.put(`/mentor-head/students/${assessmentStudent.id}/assessment-level`, {
+        level
+      });
+      toast.success(`Assessment submitted! Score: ${totalScore} (${level})`);
+      setIsAssessmentModalOpen(false);
+      fetchStudents();
+    } catch (error) {
+      toast.error('Failed to submit assessment');
+    }
+  };
+  const filteredStudents = useMemo(() => {
+    const filtered = students.filter(s => {
+      const nameStr = s.name || '';
+      const regStr = s.registration_number || '';
+      const gradeStr = s.grade || '';
+      const matchesSearch = nameStr.toLowerCase().includes(deferredSearchTerm.toLowerCase()) || regStr.toLowerCase().includes(deferredSearchTerm.toLowerCase()) || gradeStr.toLowerCase().includes(deferredSearchTerm.toLowerCase());
+      const matchesCourse = filterCourse === 'all' || s.course === filterCourse;
+      let matchesTab = true;
+      if (activeTab === 'active_plus') {
+        const isActive = s.status === 'active' || s.isActive === 1;
+        const isCompleted = role === 'mentor_head' ? s.mentorship_completed === 1 : s.course_completed === 1;
+        matchesTab = isActive && !isCompleted;
+      } else if (activeTab === 'completed') {
+        matchesTab = role === 'mentor_head' ? s.mentorship_completed === 1 : s.course_completed === 1;
+      }
+      return matchesSearch && matchesCourse && matchesTab;
+    });
+    return sortStudentsByOption(filtered, sortBy);
+  }, [students, searchTerm, filterCourse, sortBy, activeTab, role]);
+  if (loading) return <div className="p-20 text-center font-black text-slate-600 animate-pulse">SYNCING STUDENT RECORDS...</div>;
+  return <div className="space-y-8 animate-in fade-in duration-700">
 			{/* Header */}
 			<div className="bg-white p-6 md:p-10 rounded-[3rem] border border-slate-100 shadow-sm space-y-8">
 				<div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
@@ -254,13 +250,7 @@ const StudentsList = ({ role = 'academic_operation_executive' }) => {
 
 					<div className="relative group w-full lg:w-96">
 						<Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#008080] transition-colors" size={18} />
-						<input
-							type="text"
-							placeholder="SEARCH BY NAME OR REG #..."
-							className="pl-14 pr-8 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold uppercase tracking-[0.1em] focus:ring-4 ring-[#008080]/10 w-full shadow-sm transition-all outline-none focus:bg-white"
-							value={searchTerm}
-							onChange={(e) => setSearchTerm(e.target.value)}
-						/>
+						<input type="text" placeholder="SEARCH BY NAME OR REG #..." className="pl-14 pr-8 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold uppercase tracking-[0.1em] focus:ring-4 ring-[#008080]/10 w-full shadow-sm transition-all outline-none focus:bg-white" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
 					</div>
 				</div>
 
@@ -271,21 +261,13 @@ const StudentsList = ({ role = 'academic_operation_executive' }) => {
 						<span className="text-[9px] font-black uppercase text-slate-500 tracking-widest">Quick Filters:</span>
 					</div>
 
-					<select
-						value={filterCourse}
-						onChange={(e) => setFilterCourse(e.target.value)}
-						className="px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-black uppercase tracking-widest text-slate-600 outline-none focus:ring-4 ring-[#008080]/10 transition-all cursor-pointer shadow-sm hover:bg-white"
-					>
+					<select value={filterCourse} onChange={e => setFilterCourse(e.target.value)} className="px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-black uppercase tracking-widest text-slate-600 outline-none focus:ring-4 ring-[#008080]/10 transition-all cursor-pointer shadow-sm hover:bg-white">
 						<option value="all">All Courses</option>
 						{coursesList.map(c => <option key={c} value={c}>{c}</option>)}
 					</select>
 
 					<div className="relative">
-						<select 
-							value={filterMentor}
-							onChange={(e) => setFilterMentor(e.target.value)}
-							className="h-14 pl-6 pr-12 rounded-2xl bg-slate-50 border border-slate-100 text-[10px] font-black uppercase tracking-widest outline-none focus:ring-4 ring-[#008080]/10 focus:border-[#008080] transition-all appearance-none cursor-pointer min-w-[160px] shadow-sm hover:bg-white"
-						>
+						<select value={filterMentor} onChange={e => setFilterMentor(e.target.value)} className="h-14 pl-6 pr-12 rounded-2xl bg-slate-50 border border-slate-100 text-[10px] font-black uppercase tracking-widest outline-none focus:ring-4 ring-[#008080]/10 focus:border-[#008080] transition-all appearance-none cursor-pointer min-w-[160px] shadow-sm hover:bg-white">
 							<option value="all">All Mentors</option>
 							{mentors.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
 						</select>
@@ -293,11 +275,7 @@ const StudentsList = ({ role = 'academic_operation_executive' }) => {
 					</div>
 
 					<div className="relative">
-						<select 
-							value={filterFaculty}
-							onChange={(e) => setFilterFaculty(e.target.value)}
-							className="h-14 pl-6 pr-12 rounded-2xl bg-slate-50 border border-slate-100 text-[10px] font-black uppercase tracking-widest outline-none focus:ring-4 ring-[#008080]/10 focus:border-[#008080] transition-all appearance-none cursor-pointer min-w-[160px] shadow-sm hover:bg-white"
-						>
+						<select value={filterFaculty} onChange={e => setFilterFaculty(e.target.value)} className="h-14 pl-6 pr-12 rounded-2xl bg-slate-50 border border-slate-100 text-[10px] font-black uppercase tracking-widest outline-none focus:ring-4 ring-[#008080]/10 focus:border-[#008080] transition-all appearance-none cursor-pointer min-w-[160px] shadow-sm hover:bg-white">
 							<option value="all">All Faculties</option>
 							{faculties.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
 						</select>
@@ -311,10 +289,7 @@ const StudentsList = ({ role = 'academic_operation_executive' }) => {
 			</div>
 
 			<div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-				<button 
-                    onClick={() => setActiveTab('enrolled_scholars')}
-                    className={`p-8 rounded-[2.5rem] border shadow-sm flex flex-col gap-2 transition-all ${activeTab === 'enrolled_scholars' ? 'bg-[#008080] border-[#008080] text-white scale-105 shadow-xl shadow-[#008080]/20' : 'bg-white border-slate-100 hover:shadow-xl hover:shadow-[#008080]/5 hover:-translate-y-1'}`}
-                >
+				<button onClick={() => setActiveTab('enrolled_scholars')} className={`p-8 rounded-[2.5rem] border shadow-sm flex flex-col gap-2 transition-all ${activeTab === 'enrolled_scholars' ? 'bg-[#008080] border-[#008080] text-white scale-105 shadow-xl shadow-[#008080]/20' : 'bg-white border-slate-100 hover:shadow-xl hover:shadow-[#008080]/5 hover:-translate-y-1'}`}>
 					<span className={`text-[10px] font-black uppercase tracking-widest transition-colors ${activeTab === 'enrolled_scholars' ? 'text-white/80' : 'text-slate-600 group-hover:text-[#008080]'}`}>Enrolled Scholars</span>
 					<div className={`flex items-end gap-3 font-black tracking-tighter ${activeTab === 'enrolled_scholars' ? 'text-white' : 'text-slate-900'}`}>
 						<span className="text-4xl leading-none">{students.length}</span>
@@ -322,18 +297,15 @@ const StudentsList = ({ role = 'academic_operation_executive' }) => {
 					</div>
 				</button>
 
-				<button 
-                    onClick={() => setActiveTab('active_plus')}
-                    className={`p-8 rounded-[2.5rem] border shadow-sm flex flex-col gap-2 transition-all ${activeTab === 'active_plus' ? 'bg-[#008080] border-[#008080] text-white scale-105 shadow-xl shadow-[#008080]/20' : 'bg-white border-slate-100 hover:shadow-xl hover:shadow-[#008080]/5 hover:-translate-y-1'}`}
-                >
+				<button onClick={() => setActiveTab('active_plus')} className={`p-8 rounded-[2.5rem] border shadow-sm flex flex-col gap-2 transition-all ${activeTab === 'active_plus' ? 'bg-[#008080] border-[#008080] text-white scale-105 shadow-xl shadow-[#008080]/20' : 'bg-white border-slate-100 hover:shadow-xl hover:shadow-[#008080]/5 hover:-translate-y-1'}`}>
 					<span className={`text-[10px] font-black uppercase tracking-widest ${activeTab === 'active_plus' ? 'text-white/80' : 'text-[#008080]'}`}>Active Plus</span>
 					<div className={`flex items-end gap-3 font-black tracking-tighter ${activeTab === 'active_plus' ? 'text-white' : 'text-slate-900'}`}>
 						<span className="text-4xl leading-none">
                             {students.filter(s => {
-                                const isActive = (s.status === 'active' || s.isActive === 1);
-                                const isCompleted = role === 'mentor_head' ? s.mentorship_completed === 1 : s.course_completed === 1;
-                                return isActive && !isCompleted;
-                            }).length}
+              const isActive = s.status === 'active' || s.isActive === 1;
+              const isCompleted = role === 'mentor_head' ? s.mentorship_completed === 1 : s.course_completed === 1;
+              return isActive && !isCompleted;
+            }).length}
                         </span>
 						<div className={`flex items-center gap-1.5 mb-1 px-2 py-0.5 rounded-full ${activeTab === 'active_plus' ? 'bg-white/20' : 'bg-[#008080]/10'}`}>
 							<div className={`w-1.5 h-1.5 rounded-full animate-pulse ${activeTab === 'active_plus' ? 'bg-white' : 'bg-[#008080]'}`}></div>
@@ -342,11 +314,7 @@ const StudentsList = ({ role = 'academic_operation_executive' }) => {
 					</div>
 				</button>
 
-                {(role === 'mentor_head' || role === 'academic_operation_executive' || role === 'aoe' || role === 'ssc' || role === 'academic_head') && (
-                <button 
-                    onClick={() => setActiveTab('completed')}
-                    className={`p-8 rounded-[2.5rem] border shadow-sm flex flex-col gap-2 transition-all ${activeTab === 'completed' ? 'bg-emerald-600 border-emerald-600 text-white scale-105 shadow-xl shadow-emerald-500/20' : 'bg-white border-slate-100 hover:shadow-xl hover:shadow-emerald-500/5 hover:-translate-y-1'}`}
-                >
+                {(role === 'mentor_head' || role === 'academic_operation_executive' || role === 'aoe' || role === 'ssc' || role === 'academic_head') && <button onClick={() => setActiveTab('completed')} className={`p-8 rounded-[2.5rem] border shadow-sm flex flex-col gap-2 transition-all ${activeTab === 'completed' ? 'bg-emerald-600 border-emerald-600 text-white scale-105 shadow-xl shadow-emerald-500/20' : 'bg-white border-slate-100 hover:shadow-xl hover:shadow-emerald-500/5 hover:-translate-y-1'}`}>
 					<span className={`text-[10px] font-black uppercase tracking-widest transition-colors ${activeTab === 'completed' ? 'text-white/80' : 'text-emerald-600 hover:text-emerald-700'}`}>
                         {role === 'mentor_head' ? 'Mentorship Completed' : 'Course Completed'}
                     </span>
@@ -356,8 +324,7 @@ const StudentsList = ({ role = 'academic_operation_executive' }) => {
                         </span>
 						<span className={`text-[10px] mb-1 uppercase tracking-widest ${activeTab === 'completed' ? 'text-white/80' : 'text-slate-600'}`}>Total Achievers</span>
 					</div>
-				</button>
-                )}
+				</button>}
 			</div>
 
 			{/* Table */}
@@ -365,7 +332,7 @@ const StudentsList = ({ role = 'academic_operation_executive' }) => {
 				<div className="overflow-x-auto">
 					<table className="w-full text-left">
 						<thead>
-							<tr className="bg-slate-50/50 border-b border-slate-100">
+							<tr className="bg-slate-50/50 border-b border-slate-100"><th className="py-4 px-6 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">#</th>
 								<th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest w-[80px]">No.</th>
 								<th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Student Information</th>
 								<th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Course & Grade</th>
@@ -376,8 +343,7 @@ const StudentsList = ({ role = 'academic_operation_executive' }) => {
 							</tr>
 						</thead>
 						<tbody className="divide-y divide-slate-50">
-							{filteredStudents.length > 0 ? filteredStudents.map((student, index) => (
-								<React.Fragment key={student.id}>
+							{filteredStudents.length > 0 ? filteredStudents.map((student, index) => <React.Fragment key={student.id}>
 									<tr className="hover:bg-[#008080]/10/20 transition-all group">
 										<td className="px-8 py-6 font-black text-slate-400 text-[12px]">{index + 1}</td>
 										<td className="px-8 py-6">
@@ -391,22 +357,18 @@ const StudentsList = ({ role = 'academic_operation_executive' }) => {
 
 														
 														{/* Student Badge System */}
-														{role === 'mentor_head' && !student.mentor_id && (
-															<span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-50 text-amber-600 border border-amber-200 text-[9px] font-black uppercase tracking-widest whitespace-nowrap animate-pulse">
+														{role === 'mentor_head' && !student.mentor_id && <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-50 text-amber-600 border border-amber-200 text-[9px] font-black uppercase tracking-widest whitespace-nowrap animate-pulse">
 																NEW
-															</span>
-														)}
+															</span>}
 
 														{student.badge === 'Gold' && <span title="Mentorship Plan" className="text-lg cursor-help">🥇</span>}
 														{student.badge === 'Silver' && <span title="Tuition Plan" className="text-lg cursor-help">🥈</span>}
 														{student.badge === 'Diamond' && <span title="Mentorship & Tuition Plan" className="text-lg cursor-help">💎</span>}
 
-														{(role === 'mentor_head' ? student.mentorship_completed === 1 : student.course_completed === 1) && (
-															<span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md border text-[9px] font-black uppercase tracking-widest whitespace-nowrap ${role === 'mentor_head' ? 'bg-teal-50 text-teal-600 border-teal-200' : 'bg-emerald-50 text-emerald-600 border-emerald-200'}`}>
+														{(role === 'mentor_head' ? student.mentorship_completed === 1 : student.course_completed === 1) && <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md border text-[9px] font-black uppercase tracking-widest whitespace-nowrap ${role === 'mentor_head' ? 'bg-teal-50 text-teal-600 border-teal-200' : 'bg-emerald-50 text-emerald-600 border-emerald-200'}`}>
 																<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>
 															{role === 'mentor_head' ? 'Mentorship Completed' : 'Course Completed'}
-															</span>
-														)}
+															</span>}
 													</div>
 													<div className="text-[10px] font-bold text-slate-600 uppercase tracking-widest mt-0.5">
 														Joined {new Date(student.created_at).toLocaleDateString()}
@@ -426,39 +388,27 @@ const StudentsList = ({ role = 'academic_operation_executive' }) => {
 												<div className="flex flex-col gap-0.5">
 													<span className="text-[8px] font-black uppercase tracking-wider text-slate-400 flex items-center gap-1">
 														Lifetime Hours: <span className="text-[#008080] font-black">{student.total_lifetime_consumed_hours || 0} / {student.total_hours || 0} hrs</span>
-														{role === 'academic_head' && (
-															<button 
-																onClick={() => setEditHoursModal({ 
-																	show: true, 
-																	student, 
-																	total_hours: student.total_hours || 0, 
-																	total_lifetime_consumed_hours: student.total_lifetime_consumed_hours || 0 
-																})}
-																className="text-slate-400 hover:text-indigo-500 transition-colors ml-1"
-																title="Edit Hours"
-															>
+														{role === 'academic_head' && <button onClick={() => setEditHoursModal({
+                          show: true,
+                          student,
+                          total_hours: student.total_hours || 0,
+                          total_lifetime_consumed_hours: student.total_lifetime_consumed_hours || 0
+                        })} className="text-slate-400 hover:text-indigo-500 transition-colors ml-1" title="Edit Hours">
 																<Pencil size={10} />
-															</button>
-														)}
+															</button>}
 													</span>
 												</div>
-												{student.subject_hours && student.subject_hours.length > 0 && (
-													<div className="flex flex-col gap-1 mt-1 border-t border-slate-100 pt-1.5 w-full min-w-[120px]">
-														{student.subject_hours.map((sh, idx) => (
-															<div key={idx} className="flex justify-between items-start text-[9px] font-black uppercase text-slate-500">
+												{student.subject_hours && student.subject_hours.length > 0 && <div className="flex flex-col gap-1 mt-1 border-t border-slate-100 pt-1.5 w-full min-w-[120px]">
+														{student.subject_hours.map((sh, idx) => <div key={idx} className="flex justify-between items-start text-[9px] font-black uppercase text-slate-500">
 																<div className="flex flex-col gap-0.5 max-w-[100px]">
 																	<span className="truncate text-slate-700">{sh.subject}</span>
-																	{sh.faculties && (
-																		<span className="text-[7px] text-[#008080] tracking-tighter truncate flex items-center gap-1">
+																	{sh.faculties && <span className="text-[7px] text-[#008080] tracking-tighter truncate flex items-center gap-1">
 																			<span className="w-1 h-1 rounded-full bg-[#008080]"></span> {sh.faculties}
-																		</span>
-																	)}
+																		</span>}
 																</div>
 																<span className="text-slate-700 ml-2 whitespace-nowrap">{sh.consumed_hours} / {sh.allocated_hours} Hrs</span>
-															</div>
-														))}
-													</div>
-												)}
+															</div>)}
+													</div>}
 											</div>
 										</td>
 										<td className="px-8 py-6">
@@ -469,131 +419,83 @@ const StudentsList = ({ role = 'academic_operation_executive' }) => {
 												</div>
 												<div className="flex items-center gap-2">
 													<div className="w-1.5 h-1.5 rounded-full bg-purple-500 shrink-0"></div>
-													{student.faculty_name ? (
-														<button 
-															type="button" 
-															onClick={(e) => { 
-																e.stopPropagation(); 
-																setExpandedStudentId(expandedStudentId === student.id ? null : student.id);
-															}}
-															className="text-[10px] font-black text-[#008080] hover:text-[#006666] underline uppercase tracking-widest cursor-pointer text-left block"
-														>
+													{student.faculty_name ? <button type="button" onClick={e => {
+                        e.stopPropagation();
+                        setExpandedStudentId(expandedStudentId === student.id ? null : student.id);
+                      }} className="text-[10px] font-black text-[#008080] hover:text-[#006666] underline uppercase tracking-widest cursor-pointer text-left block">
 															View Faculties ({student.faculty_name.split(',').length})
-														</button>
-													) : (
-														<span className="text-[10px] font-black text-slate-700 uppercase">Faculty: N/A</span>
-													)}
+														</button> : <span className="text-[10px] font-black text-slate-700 uppercase">Faculty: N/A</span>}
 												</div>
 											</div>
 										</td>
 										<td className="px-8 py-6 text-center">
-											<span className={`inline-flex items-center justify-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest whitespace-nowrap shadow-sm border ${
-												student.assessment_level === 'Level 1' ? 'bg-rose-50 text-rose-600 border-rose-200' :
-												student.assessment_level === 'Level 2' ? 'bg-amber-50 text-amber-600 border-amber-200' :
-												student.assessment_level === 'Level 3' ? 'bg-emerald-50 text-emerald-600 border-emerald-200' :
-												'bg-slate-50 text-slate-500 border-slate-200'
-											}`}>
+											<span className={`inline-flex items-center justify-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest whitespace-nowrap shadow-sm border ${student.assessment_level === 'Level 1' ? 'bg-rose-50 text-rose-600 border-rose-200' : student.assessment_level === 'Level 2' ? 'bg-amber-50 text-amber-600 border-amber-200' : student.assessment_level === 'Level 3' ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : 'bg-slate-50 text-slate-500 border-slate-200'}`}>
 												{student.assessment_level || 'Unassessed'}
 											</span>
 										</td>
 										<td className="px-8 py-6 text-right sticky right-0 bg-white/90 backdrop-blur-sm z-10 shadow-[-4px_0_10px_rgba(0,0,0,0.02)]">
 											<div className="flex items-center justify-end gap-2">
-												<button
-													onClick={() => handleView(student)}
-													className="p-2.5 bg-white border-2 border-slate-200 rounded-xl text-slate-400 hover:border-[#008080] hover:text-[#008080] transition-all shadow-sm"
-													title="View Details"
-												>
+												<button onClick={() => handleView(student)} className="p-2.5 bg-white border-2 border-slate-200 rounded-xl text-slate-400 hover:border-[#008080] hover:text-[#008080] transition-all shadow-sm" title="View Details">
 													<Eye size={16} />
 												</button>
-												{role === 'mentor_head' && (
-													<>
-														<button
-															onClick={() => handleOpenAssessment(student)}
-															className="p-2.5 bg-white border-2 border-emerald-200 rounded-xl text-emerald-600 hover:bg-emerald-50 hover:border-emerald-300 transition-all shadow-sm group/assess"
-															title="Quick Assessment"
-														>
+												{role === 'mentor_head' && <>
+														<button onClick={() => handleOpenAssessment(student)} className="p-2.5 bg-white border-2 border-emerald-200 rounded-xl text-emerald-600 hover:bg-emerald-50 hover:border-emerald-300 transition-all shadow-sm group/assess" title="Quick Assessment">
 															<ClipboardList size={16} />
 														</button>
-														<button
-															onClick={() => {
-																setSelectedStudentForAssign(student);
-																setSelectedMentorId(student.mentor_id || '');
-																setIsAssignModalOpen(true);
-															}}
-															className="p-2.5 bg-white border-2 border-emerald-200 rounded-xl text-emerald-600 hover:bg-emerald-600 hover:text-white transition-all shadow-sm group/assign"
-															title="Assign Mentor"
-														>
-															<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+														<button onClick={() => {
+                        setSelectedStudentForAssign(student);
+                        setSelectedMentorId(student.mentor_id || '');
+                        setIsAssignModalOpen(true);
+                      }} className="p-2.5 bg-white border-2 border-emerald-200 rounded-xl text-emerald-600 hover:bg-emerald-600 hover:text-white transition-all shadow-sm group/assign" title="Assign Mentor">
+															<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><line x1="19" y1="8" x2="19" y2="14" /><line x1="22" y1="11" x2="16" y2="11" /></svg>
 														</button>
-													</>
-												)}
+													</>}
 
-												{(role === 'academic_operation_executive' || role === 'academic_head') && (
-													<>
-														<button
-															onClick={() => handleEdit(student)}
-															className="p-2.5 bg-white border-2 border-[#008080]/40 rounded-xl text-[#008080] hover:bg-[#008080] hover:text-white transition-all shadow-sm group/edit"
-															title="Edit Student"
-														>
+												{(role === 'academic_operation_executive' || role === 'academic_head') && <>
+														<button onClick={() => handleEdit(student)} className="p-2.5 bg-white border-2 border-[#008080]/40 rounded-xl text-[#008080] hover:bg-[#008080] hover:text-white transition-all shadow-sm group/edit" title="Edit Student">
 															<Edit2 size={16} />
 														</button>
-														<button
-															onClick={() => handleDelete(student)}
-															className="p-2.5 bg-white border-2 border-rose-200 rounded-xl text-rose-600 hover:bg-rose-600 hover:text-white transition-all shadow-sm"
-															title="Delete Student"
-														>
+														<button onClick={() => handleDelete(student)} className="p-2.5 bg-white border-2 border-rose-200 rounded-xl text-rose-600 hover:bg-rose-600 hover:text-white transition-all shadow-sm" title="Delete Student">
 															<Trash2 size={16} />
 														</button>
-													</>
-												)}
+													</>}
 											</div>
 										</td>
 									</tr>
-									{expandedStudentId === student.id && (
-										<tr className="bg-slate-50/80 border-b border-slate-100">
+									{expandedStudentId === student.id && <tr className="bg-slate-50/80 border-b border-slate-100">
 											<td colSpan="4" className="p-8">
 												<div className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-inner animate-in fade-in slide-in-from-top-2 duration-300">
 													<div className="flex items-center justify-between pb-4 border-b border-slate-100 mb-4 pl-2">
 														<h4 className="text-xs font-black text-slate-900 flex items-center gap-2 uppercase tracking-tight">
 															<span className="w-2 h-2 rounded-full bg-[#008080]"></span> Assigned Faculties: {student.name.toUpperCase()}
 														</h4>
-														<button 
-															onClick={() => setExpandedStudentId(null)}
-															className="text-slate-400 hover:text-slate-600 p-1 rounded-lg hover:bg-slate-50 transition-all"
-														>
+														<button onClick={() => setExpandedStudentId(null)} className="text-slate-400 hover:text-slate-600 p-1 rounded-lg hover:bg-slate-50 transition-all">
 															<span className="text-[10px] font-black uppercase text-slate-400 hover:text-slate-600">Close</span>
 														</button>
 													</div>
 													<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-														{student.faculty_name.split(',').map((f, i) => (
-															<div key={i} className="flex items-center gap-3 bg-slate-50 p-4 rounded-2xl border border-slate-100 shadow-sm hover:bg-white hover:border-[#008080]/30 transition-all group">
+														{student.faculty_name.split(',').map((f, i) => <div key={i} className="flex items-center gap-3 bg-slate-50 p-4 rounded-2xl border border-slate-100 shadow-sm hover:bg-white hover:border-[#008080]/30 transition-all group">
 																<div className="w-8 h-8 bg-[#008080]/10 text-[#008080] rounded-xl flex items-center justify-center font-black text-xs uppercase shrink-0 group-hover:bg-[#008080] group-hover:text-white transition-all">
 																	{f.trim().charAt(0)}
 																</div>
 																<span className="text-xs font-black text-slate-800 uppercase tracking-tight truncate">{f.trim()}</span>
-															</div>
-														))}
+															</div>)}
 													</div>
 												</div>
 											</td>
-										</tr>
-									)}
-								</React.Fragment>
-							)) : (
-								<tr>
+										</tr>}
+								</React.Fragment>) : <tr>
 									<td colSpan="4" className="px-8 py-20 text-center">
 										<p className="text-slate-600 font-black text-[10px] uppercase tracking-[0.3em]">No students found</p>
 									</td>
-								</tr>
-							)}
+								</tr>}
 						</tbody>
 					</table>
 				</div>
 			</div>
 
 			{/* Assign Mentor Modal */}
-			{isAssignModalOpen && selectedStudentForAssign && (
-				<div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-in fade-in duration-200">
+			{isAssignModalOpen && selectedStudentForAssign && <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-in fade-in duration-200">
 					<div className="bg-white rounded-3xl w-full max-w-md shadow-2xl border border-slate-100 animate-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto">
 						<div className="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50 rounded-t-3xl">
 							<div>
@@ -607,49 +509,29 @@ const StudentsList = ({ role = 'academic_operation_executive' }) => {
 						<form onSubmit={handleAssignSubmit} className="p-6 space-y-6">
 							<div className="space-y-2 relative">
 								<label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Select Mentor</label>
-								<div 
-									className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl text-xs font-bold uppercase tracking-widest cursor-pointer hover:bg-slate-100 transition-colors flex justify-between items-center"
-									onClick={() => setIsAssignDropdownOpen(!isAssignDropdownOpen)}
-								>
+								<div className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl text-xs font-bold uppercase tracking-widest cursor-pointer hover:bg-slate-100 transition-colors flex justify-between items-center" onClick={() => setIsAssignDropdownOpen(!isAssignDropdownOpen)}>
 									<span>{selectedMentorId ? mentors.find(m => m.id === selectedMentorId)?.name : 'Choose a mentor...'}</span>
 									<span className="text-slate-400 text-[10px]">▼</span>
 								</div>
 								
-								{isAssignDropdownOpen && (
-									<div className="absolute z-50 w-full mt-2 bg-white border border-slate-200 rounded-2xl shadow-xl overflow-hidden top-full left-0">
+								{isAssignDropdownOpen && <div className="absolute z-50 w-full mt-2 bg-white border border-slate-200 rounded-2xl shadow-xl overflow-hidden top-full left-0">
 										<div className="p-3 border-b border-slate-100 sticky top-0 bg-white">
 											<div className="relative">
 												<Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-												<input 
-													type="text"
-													autoFocus
-													placeholder="Search mentor name..."
-													value={assignSearchTerm}
-													onChange={(e) => setAssignSearchTerm(e.target.value)}
-													className="w-full pl-9 pr-3 py-2.5 text-xs font-bold border border-slate-200 rounded-xl outline-none focus:border-[#008080] focus:ring-2 ring-[#008080]/20"
-												/>
+												<input type="text" autoFocus placeholder="Search mentor name..." value={assignSearchTerm} onChange={e => setAssignSearchTerm(e.target.value)} className="w-full pl-9 pr-3 py-2.5 text-xs font-bold border border-slate-200 rounded-xl outline-none focus:border-[#008080] focus:ring-2 ring-[#008080]/20" />
 											</div>
 										</div>
 										<div className="max-h-48 overflow-y-auto p-2">
-											{mentors.filter(m => m.name.toLowerCase().includes(deferredAssignSearchTerm.toLowerCase())).map(m => (
-												<div 
-													key={m.id}
-													onClick={() => {
-														setSelectedMentorId(m.id);
-														setIsAssignDropdownOpen(false);
-														setAssignSearchTerm('');
-													}}
-													className={`px-4 py-3 text-xs font-bold uppercase tracking-widest cursor-pointer rounded-xl transition-colors ${selectedMentorId === m.id ? 'bg-[#008080]/10 text-[#008080]' : 'text-slate-700 hover:bg-slate-50'}`}
-												>
+											{mentors.filter(m => m.name.toLowerCase().includes(deferredAssignSearchTerm.toLowerCase())).map(m => <div key={m.id} onClick={() => {
+                  setSelectedMentorId(m.id);
+                  setIsAssignDropdownOpen(false);
+                  setAssignSearchTerm('');
+                }} className={`px-4 py-3 text-xs font-bold uppercase tracking-widest cursor-pointer rounded-xl transition-colors ${selectedMentorId === m.id ? 'bg-[#008080]/10 text-[#008080]' : 'text-slate-700 hover:bg-slate-50'}`}>
 													{m.name}
-												</div>
-											))}
-											{mentors.filter(m => m.name.toLowerCase().includes(deferredAssignSearchTerm.toLowerCase())).length === 0 && (
-												<div className="px-4 py-6 text-xs text-slate-500 text-center font-bold uppercase tracking-widest">No mentors found</div>
-											)}
+												</div>)}
+											{mentors.filter(m => m.name.toLowerCase().includes(deferredAssignSearchTerm.toLowerCase())).length === 0 && <div className="px-4 py-6 text-xs text-slate-500 text-center font-bold uppercase tracking-widest">No mentors found</div>}
 										</div>
-									</div>
-								)}
+									</div>}
 							</div>
 							<div className="flex justify-end gap-3 pt-2">
 								<button type="button" onClick={() => setIsAssignModalOpen(false)} className="px-6 py-3 rounded-xl border border-slate-200 text-slate-600 text-[10px] font-black uppercase tracking-widest hover:bg-slate-50 transition-colors">
@@ -661,12 +543,10 @@ const StudentsList = ({ role = 'academic_operation_executive' }) => {
 							</div>
 						</form>
 					</div>
-				</div>
-			)}
+				</div>}
 
 			{/* Quick Assessment Modal */}
-			{isAssessmentModalOpen && assessmentStudent && (
-				<div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[1000] flex items-center justify-center p-4 animate-in fade-in duration-300">
+			{isAssessmentModalOpen && assessmentStudent && <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[1000] flex items-center justify-center p-4 animate-in fade-in duration-300">
 					<div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-4xl overflow-hidden animate-in slide-in-from-bottom-4 duration-500 border border-slate-100 flex flex-col max-h-[90vh]">
 						
 						{/* Header */}
@@ -694,7 +574,7 @@ const StudentsList = ({ role = 'academic_operation_executive' }) => {
 							<div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-x-auto">
 								<table className="w-full text-left border-collapse min-w-[600px]">
 									<thead>
-										<tr className="bg-[#005050] text-white">
+										<tr className="bg-[#005050] text-white"><th className="py-4 px-6 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">#</th>
 											<th className="p-4 text-sm font-bold border-b border-[#006060]">Assessment Area</th>
 											<th className="hidden md:table-cell p-4 text-sm font-bold border-b border-[#006060]">1 — Poor</th>
 											<th className="hidden md:table-cell p-4 text-sm font-bold border-b border-[#006060]">3 — Average</th>
@@ -703,53 +583,52 @@ const StudentsList = ({ role = 'academic_operation_executive' }) => {
 										</tr>
 									</thead>
 									<tbody className="divide-y divide-slate-100">
-										{[
-											{ 
-												id: 'q1', 
-												area: 'How many days per week does the student study?', 
-												l1: 'Never', l3: '3 days', l5: 'Daily' 
-											},
-											{ 
-												id: 'q2', 
-												area: 'How quickly does student complete homework?', 
-												l1: 'Never does it', l3: 'Sometimes', l5: 'Always on time' 
-											},
-											{ 
-												id: 'q3', 
-												area: 'Can student explain what they learned?', 
-												l1: 'Cannot explain', l3: 'Partially', l5: 'Clearly in own words' 
-											},
-											{ 
-												id: 'q4', 
-												area: 'Does student cover all subjects in the week?', 
-												l1: '1-2 subjects only', l3: 'Some balance', l5: 'All subjects' 
-											},
-											{ 
-												id: 'q5', 
-												area: 'How motivated and confident is the student?', 
-												l1: 'Avoids studying', l3: 'Neutral', l5: 'Confident and motivated' 
-											}
-										].map((row, index) => (
-											<tr key={row.id} className={index % 2 === 0 ? 'bg-emerald-50/30' : 'bg-white'}>
+										{[{
+                  id: 'q1',
+                  area: 'How many days per week does the student study?',
+                  l1: 'Never',
+                  l3: '3 days',
+                  l5: 'Daily'
+                }, {
+                  id: 'q2',
+                  area: 'How quickly does student complete homework?',
+                  l1: 'Never does it',
+                  l3: 'Sometimes',
+                  l5: 'Always on time'
+                }, {
+                  id: 'q3',
+                  area: 'Can student explain what they learned?',
+                  l1: 'Cannot explain',
+                  l3: 'Partially',
+                  l5: 'Clearly in own words'
+                }, {
+                  id: 'q4',
+                  area: 'Does student cover all subjects in the week?',
+                  l1: '1-2 subjects only',
+                  l3: 'Some balance',
+                  l5: 'All subjects'
+                }, {
+                  id: 'q5',
+                  area: 'How motivated and confident is the student?',
+                  l1: 'Avoids studying',
+                  l3: 'Neutral',
+                  l5: 'Confident and motivated'
+                }].map((row, index) => <tr key={row.id} className={index % 2 === 0 ? 'bg-emerald-50/30' : 'bg-white'}><td className="p-6 text-sm font-black text-slate-400 border-b border-slate-50">{index + 1}</td>
 												<td className="p-4 text-sm font-bold text-slate-800">{row.area}</td>
 												<td className="hidden md:table-cell p-4 text-xs italic text-slate-500">{row.l1}</td>
 												<td className="hidden md:table-cell p-4 text-xs italic text-slate-500">{row.l3}</td>
 												<td className="hidden md:table-cell p-4 text-xs italic text-slate-500">{row.l5}</td>
 												<td className="p-4 text-center">
 													<div className="flex items-center justify-center gap-1.5">
-														{[1, 2, 3, 4, 5].map(val => (
-															<button
-																key={val}
-																onClick={() => setAssessmentScores(prev => ({ ...prev, [row.id]: val }))}
-																className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all ${assessmentScores[row.id] === val ? 'bg-[#008080] text-white shadow-md ring-2 ring-[#008080] ring-offset-1' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
-															>
+														{[1, 2, 3, 4, 5].map((val, index) => <button key={val} onClick={() => setAssessmentScores(prev => ({
+                        ...prev,
+                        [row.id]: val
+                      }))} className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all ${assessmentScores[row.id] === val ? 'bg-[#008080] text-white shadow-md ring-2 ring-[#008080] ring-offset-1' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}>
 																{val}
-															</button>
-														))}
+															</button>)}
 													</div>
 												</td>
-											</tr>
-										))}
+											</tr>)}
 									</tbody>
 								</table>
 							</div>
@@ -781,22 +660,16 @@ const StudentsList = ({ role = 'academic_operation_executive' }) => {
 									<p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Total Score</p>
 									<p className="text-2xl font-black text-slate-900">{calculateAssessmentScore()}</p>
 								</div>
-								<button
-									onClick={handleSubmitAssessment}
-									disabled={calculateAssessmentScore() < 5}
-									className={`px-8 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 shadow-xl ${calculateAssessmentScore() >= 5 ? 'bg-[#008080] text-white shadow-[#008080]/30 hover:bg-[#006060] hover:-translate-y-0.5' : 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-none'}`}
-								>
+								<button onClick={handleSubmitAssessment} disabled={calculateAssessmentScore() < 5} className={`px-8 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 shadow-xl ${calculateAssessmentScore() >= 5 ? 'bg-[#008080] text-white shadow-[#008080]/30 hover:bg-[#006060] hover:-translate-y-0.5' : 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-none'}`}>
 									<Save size={16} /> Submit Score
 								</button>
 							</div>
 
 						</div>
 					</div>
-				</div>
-			)}
+				</div>}
 			{/* Edit Hours Modal */}
-			{editHoursModal.show && (
-				<div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-in fade-in duration-200">
+			{editHoursModal.show && <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-in fade-in duration-200">
 					<div className="bg-white rounded-[2rem] w-full max-w-sm overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200">
 						<div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
 							<div>
@@ -807,46 +680,44 @@ const StudentsList = ({ role = 'academic_operation_executive' }) => {
 									{editHoursModal.student?.name}
 								</p>
 							</div>
-							<button onClick={() => setEditHoursModal({ show: false, student: null, total_hours: 0, total_lifetime_consumed_hours: 0 })} className="text-slate-400 hover:text-rose-500 transition-colors">
+							<button onClick={() => setEditHoursModal({
+            show: false,
+            student: null,
+            total_hours: 0,
+            total_lifetime_consumed_hours: 0
+          })} className="text-slate-400 hover:text-rose-500 transition-colors">
 								<XCircle size={20} />
 							</button>
 						</div>
 						<form onSubmit={handleEditHoursSubmit} className="p-6 space-y-4">
 							<div className="space-y-2">
 								<label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Total Allocated Hours</label>
-								<input 
-									type="number"
-									step="0.01"
-									value={editHoursModal.total_hours}
-									onChange={(e) => setEditHoursModal({...editHoursModal, total_hours: e.target.value})}
-									className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all"
-									required
-								/>
+								<input type="number" step="0.01" value={editHoursModal.total_hours} onChange={e => setEditHoursModal({
+              ...editHoursModal,
+              total_hours: e.target.value
+            })} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all" required />
 							</div>
 							<div className="space-y-2">
 								<label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Total Lifetime Consumed</label>
-								<input 
-									type="number"
-									step="0.01"
-									value={editHoursModal.total_lifetime_consumed_hours}
-									onChange={(e) => setEditHoursModal({...editHoursModal, total_lifetime_consumed_hours: e.target.value})}
-									className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all"
-									required
-								/>
+								<input type="number" step="0.01" value={editHoursModal.total_lifetime_consumed_hours} onChange={e => setEditHoursModal({
+              ...editHoursModal,
+              total_lifetime_consumed_hours: e.target.value
+            })} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all" required />
 							</div>
 							<div className="pt-2 flex justify-end gap-3">
-								<button type="button" onClick={() => setEditHoursModal({ show: false, student: null, total_hours: 0, total_lifetime_consumed_hours: 0 })} className="px-5 py-2.5 text-[10px] font-black text-slate-500 uppercase tracking-widest hover:bg-slate-100 rounded-xl transition-colors">Cancel</button>
+								<button type="button" onClick={() => setEditHoursModal({
+              show: false,
+              student: null,
+              total_hours: 0,
+              total_lifetime_consumed_hours: 0
+            })} className="px-5 py-2.5 text-[10px] font-black text-slate-500 uppercase tracking-widest hover:bg-slate-100 rounded-xl transition-colors">Cancel</button>
 								<button type="submit" disabled={isUpdatingHours} className="px-6 py-2.5 bg-indigo-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-indigo-500/20 hover:bg-indigo-600 transition-colors disabled:opacity-50">
 									{isUpdatingHours ? 'Saving...' : 'Save Changes'}
 								</button>
 							</div>
 						</form>
 					</div>
-				</div>
-			)}
-		</div>
-	);
+				</div>}
+		</div>;
 };
-
 export default StudentsList;
-

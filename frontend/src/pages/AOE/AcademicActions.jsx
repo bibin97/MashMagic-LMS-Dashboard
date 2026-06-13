@@ -1,22 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
-import {
-  Activity, ShieldAlert, CheckCircle2, User, 
-  Calendar, Target, Star, BookOpen, GraduationCap,
-  Save, Calculator
-} from 'lucide-react';
+import { Activity, ShieldAlert, CheckCircle2, User, Calendar, Target, Star, BookOpen, GraduationCap, Save, Calculator } from 'lucide-react';
 import toast from 'react-hot-toast';
-
 const AcademicActions = () => {
   const [faculties, setFaculties] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectedFaculty, setSelectedFaculty] = useState('');
-  
+
   // Default to current month e.g., "2026-06"
   const currentDate = new Date();
   const currentMonthYear = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
   const [selectedMonth, setSelectedMonth] = useState(currentMonthYear);
-
   const [formData, setFormData] = useState({
     demo_conversion_rate: 0,
     attendance_punctuality: 0,
@@ -24,17 +18,14 @@ const AcademicActions = () => {
     student_exam_improvement: 0,
     academic_head_rating: 0
   });
-
   useEffect(() => {
     fetchFaculties();
   }, []);
-
   useEffect(() => {
     if (selectedFaculty && selectedMonth) {
       fetchPerformanceData();
     }
   }, [selectedFaculty, selectedMonth]);
-
   const fetchFaculties = async () => {
     try {
       const res = await api.get('/aoe/dropdowns');
@@ -45,7 +36,6 @@ const AcademicActions = () => {
       toast.error("Failed to fetch faculties");
     }
   };
-
   const fetchPerformanceData = async () => {
     try {
       setLoading(true);
@@ -74,8 +64,7 @@ const AcademicActions = () => {
       setLoading(false);
     }
   };
-
-  const handleSave = async (e) => {
+  const handleSave = async e => {
     e.preventDefault();
     try {
       await api.post('/aoe/faculty-performance', {
@@ -88,25 +77,18 @@ const AcademicActions = () => {
       toast.error(error.response?.data?.message || "Failed to save data");
     }
   };
-
   const handleInputChange = (field, value, max) => {
     let val = parseFloat(value);
     if (isNaN(val)) val = 0;
     if (val > max) val = max;
     if (val < 0) val = 0;
-    setFormData(prev => ({ ...prev, [field]: val }));
+    setFormData(prev => ({
+      ...prev,
+      [field]: val
+    }));
   };
-
-  const totalScore = (
-    parseFloat(formData.demo_conversion_rate || 0) +
-    parseFloat(formData.attendance_punctuality || 0) +
-    parseFloat(formData.parent_feedback || 0) +
-    parseFloat(formData.student_exam_improvement || 0) +
-    parseFloat(formData.academic_head_rating || 0)
-  ).toFixed(2);
-
-  return (
-    <div className="space-y-10 pb-20 max-w-[1200px] mx-auto animate-in fade-in duration-700">
+  const totalScore = (parseFloat(formData.demo_conversion_rate || 0) + parseFloat(formData.attendance_punctuality || 0) + parseFloat(formData.parent_feedback || 0) + parseFloat(formData.student_exam_improvement || 0) + parseFloat(formData.academic_head_rating || 0)).toFixed(2);
+  return <div className="space-y-10 pb-20 max-w-[1200px] mx-auto animate-in fade-in duration-700">
       <div className="bg-[#008080] p-10 rounded-[3.5rem] shadow-sm flex flex-col md:flex-row justify-between items-center gap-6 relative overflow-hidden text-white">
         <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-32 -mt-32"></div>
         <div className="relative z-10 flex items-center gap-6">
@@ -129,42 +111,27 @@ const AcademicActions = () => {
         <div className="flex flex-col md:flex-row gap-6">
           <div className="flex-1 space-y-2">
             <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 flex items-center gap-2">
-              <User size={12} className="text-[#008080]"/> Select Faculty
+              <User size={12} className="text-[#008080]" /> Select Faculty
             </label>
-            <select
-              value={selectedFaculty}
-              onChange={(e) => setSelectedFaculty(e.target.value)}
-              className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
-            >
+            <select value={selectedFaculty} onChange={e => setSelectedFaculty(e.target.value)} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none">
               <option value="">-- Choose Faculty --</option>
-              {faculties.map(f => (
-                <option key={f.id} value={f.id}>{f.name} ({f.subject})</option>
-              ))}
+              {faculties.map(f => <option key={f.id} value={f.id}>{f.name} ({f.subject})</option>)}
             </select>
           </div>
           <div className="flex-1 space-y-2">
             <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 flex items-center gap-2">
-              <Calendar size={12} className="text-[#008080]"/> Select Month
+              <Calendar size={12} className="text-[#008080]" /> Select Month
             </label>
-            <input
-              type="month"
-              value={selectedMonth}
-              onChange={(e) => setSelectedMonth(e.target.value)}
-              className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
-            />
+            <input type="month" value={selectedMonth} onChange={e => setSelectedMonth(e.target.value)} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none" />
           </div>
         </div>
 
-        {selectedFaculty && selectedMonth && (
-          <form onSubmit={handleSave} className="animate-in slide-in-from-bottom-4">
-            {loading ? (
-              <div className="py-20 flex justify-center"><div className="w-10 h-10 border-4 border-[#008080] border-t-transparent rounded-full animate-spin"></div></div>
-            ) : (
-              <div className="border border-slate-100 rounded-[2rem] overflow-hidden">
+        {selectedFaculty && selectedMonth && <form onSubmit={handleSave} className="animate-in slide-in-from-bottom-4">
+            {loading ? <div className="py-20 flex justify-center"><div className="w-10 h-10 border-4 border-[#008080] border-t-transparent rounded-full animate-spin"></div></div> : <div className="border border-slate-100 rounded-[2rem] overflow-hidden">
                 <div className="w-full overflow-x-auto">
 <table className="w-full text-left">
                   <thead>
-                    <tr className="bg-[#008080] text-white">
+                    <tr className="bg-[#008080] text-white"><th className="py-4 px-6 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">#</th>
                       <th className="px-8 py-5 text-xs font-black uppercase tracking-widest w-2/3">Performance Dimension</th>
                       <th className="px-8 py-5 text-xs font-black uppercase tracking-widest text-center w-1/3">Weight / Score</th>
                     </tr>
@@ -194,7 +161,7 @@ const AcademicActions = () => {
                       </td>
                       <td className="px-8 py-6">
                         <div className="flex items-center justify-center gap-2">
-                          <input type="number" step="0.1" value={formData.attendance_punctuality} onChange={(e) => handleInputChange('attendance_punctuality', e.target.value, 15)} className="w-20 text-center p-3 bg-white border border-slate-200 rounded-xl font-black text-slate-700 focus:border-[#008080] focus:ring-2 ring-[#008080]/20 outline-none transition-all" />
+                          <input type="number" step="0.1" value={formData.attendance_punctuality} onChange={e => handleInputChange('attendance_punctuality', e.target.value, 15)} className="w-20 text-center p-3 bg-white border border-slate-200 rounded-xl font-black text-slate-700 focus:border-[#008080] focus:ring-2 ring-[#008080]/20 outline-none transition-all" />
                           <span className="text-xs font-black text-slate-400">/ 15%</span>
                         </div>
                       </td>
@@ -208,7 +175,7 @@ const AcademicActions = () => {
                       </td>
                       <td className="px-8 py-6">
                         <div className="flex items-center justify-center gap-2">
-                          <input type="number" step="0.1" value={formData.parent_feedback} onChange={(e) => handleInputChange('parent_feedback', e.target.value, 20)} className="w-20 text-center p-3 bg-white border border-slate-200 rounded-xl font-black text-slate-700 focus:border-[#008080] focus:ring-2 ring-[#008080]/20 outline-none transition-all" />
+                          <input type="number" step="0.1" value={formData.parent_feedback} onChange={e => handleInputChange('parent_feedback', e.target.value, 20)} className="w-20 text-center p-3 bg-white border border-slate-200 rounded-xl font-black text-slate-700 focus:border-[#008080] focus:ring-2 ring-[#008080]/20 outline-none transition-all" />
                           <span className="text-xs font-black text-slate-400">/ 20%</span>
                         </div>
                       </td>
@@ -222,7 +189,7 @@ const AcademicActions = () => {
                       </td>
                       <td className="px-8 py-6">
                         <div className="flex items-center justify-center gap-2">
-                          <input type="number" step="0.1" value={formData.student_exam_improvement} onChange={(e) => handleInputChange('student_exam_improvement', e.target.value, 25)} className="w-20 text-center p-3 bg-white border border-slate-200 rounded-xl font-black text-slate-700 focus:border-[#008080] focus:ring-2 ring-[#008080]/20 outline-none transition-all" />
+                          <input type="number" step="0.1" value={formData.student_exam_improvement} onChange={e => handleInputChange('student_exam_improvement', e.target.value, 25)} className="w-20 text-center p-3 bg-white border border-slate-200 rounded-xl font-black text-slate-700 focus:border-[#008080] focus:ring-2 ring-[#008080]/20 outline-none transition-all" />
                           <span className="text-xs font-black text-slate-400">/ 25%</span>
                         </div>
                       </td>
@@ -236,7 +203,7 @@ const AcademicActions = () => {
                       </td>
                       <td className="px-8 py-6">
                         <div className="flex items-center justify-center gap-2">
-                          <input type="number" step="0.1" value={formData.academic_head_rating} onChange={(e) => handleInputChange('academic_head_rating', e.target.value, 15)} className="w-20 text-center p-3 bg-white border border-slate-200 rounded-xl font-black text-slate-700 focus:border-[#008080] focus:ring-2 ring-[#008080]/20 outline-none transition-all" />
+                          <input type="number" step="0.1" value={formData.academic_head_rating} onChange={e => handleInputChange('academic_head_rating', e.target.value, 15)} className="w-20 text-center p-3 bg-white border border-slate-200 rounded-xl font-black text-slate-700 focus:border-[#008080] focus:ring-2 ring-[#008080]/20 outline-none transition-all" />
                           <span className="text-xs font-black text-slate-400">/ 15%</span>
                         </div>
                       </td>
@@ -261,13 +228,9 @@ const AcademicActions = () => {
                     <Save size={16} /> Save Performance Index
                   </button>
                 </div>
-              </div>
-            )}
-          </form>
-        )}
+              </div>}
+          </form>}
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default AcademicActions;

@@ -1,184 +1,169 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import {
- User, Phone, MapPin, Calendar, ArrowLeft, GraduationCap, Clock, Activity, ShieldCheck, Users, AlertCircle, Edit2, Trash2, X, Save, ChevronRight, Search, Filter, Lock, Unlock, ClipboardList
-} from 'lucide-react';
+import { User, Phone, MapPin, Calendar, ArrowLeft, GraduationCap, Clock, Activity, ShieldCheck, Users, AlertCircle, Edit2, Trash2, X, Save, ChevronRight, Search, Filter, Lock, Unlock, ClipboardList } from 'lucide-react';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
 import { premiumConfirm } from '../../utils/premiumConfirm';
-
 const MentorDetails = () => {
- const { id } = useParams();
- const navigate = useNavigate();
- const [mentorData, setMentorData] = useState(null);
- const [loading, setLoading] = useState(true);
- const [isEditModalOpen, setIsEditModalOpen] = useState(false);
- const [editingStudent, setEditingStudent] = useState(null);
- const [isEditingStudentModal, setIsEditingStudentModal] = useState(false);
+  const {
+    id
+  } = useParams();
+  const navigate = useNavigate();
+  const [mentorData, setMentorData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingStudent, setEditingStudent] = useState(null);
+  const [isEditingStudentModal, setIsEditingStudentModal] = useState(false);
 
- // Quick Assessment State
- const [isAssessmentModalOpen, setIsAssessmentModalOpen] = useState(false);
- const [assessmentStudent, setAssessmentStudent] = useState(null);
- const [assessmentScores, setAssessmentScores] = useState({
-   q1: 0,
-   q2: 0,
-   q3: 0,
-   q4: 0,
-   q5: 0
- });
+  // Quick Assessment State
+  const [isAssessmentModalOpen, setIsAssessmentModalOpen] = useState(false);
+  const [assessmentStudent, setAssessmentStudent] = useState(null);
+  const [assessmentScores, setAssessmentScores] = useState({
+    q1: 0,
+    q2: 0,
+    q3: 0,
+    q4: 0,
+    q5: 0
+  });
 
- // Search & Filter States
- const [studentSearch, setStudentSearch] = useState('');
- const [studentFilter, setStudentFilter] = useState('all');
- const [studentSort, setStudentSort] = useState('desc');
-
- const fetchMentorDetails = async () => {
- try {
- const [detailsRes, monitoringRes] = await Promise.all([
- api.get(`/mentor-head/mentor/${id}/details`),
- api.get(`/mentor-head/mentors/${id}/monitoring`)
- ]);
-
- if (detailsRes.data.success && monitoringRes.data.success) {
- setMentorData({
- ...detailsRes.data.data,
- monitoring: monitoringRes.data.data
- });
- }
- } catch (error) {
- console.error('Error details:', error);
- const msg = error.response?.data?.message || "Failed to fetch mentor details";
- const detail = error.response?.data?.error || "";
- toast.error(`${msg}: ${detail}`);
- } finally {
- setLoading(false);
- }
- };
-
- useEffect(() => {
- if (id) fetchMentorDetails();
- }, [id]);
-
- const enrichedStudents = useMemo(() => {
- if (!mentorData) return [];
- const { assignedStudents, logs, facultyLogs } = mentorData;
-
- return assignedStudents.map(student => {
- const studentLogs = logs.filter(l => l.student_id === student.id);
- const studentFacultyLogs = facultyLogs.filter(l => l.student_id === student.id);
- const lastLog = studentLogs.sort((a, b) => new Date(b.date) - new Date(a.date))[0];
-
- return {
- ...student,
- lastInteractionDate: lastLog ? lastLog.date : null,
- totalInteractions: studentLogs.length,
- verificationCount: studentFacultyLogs.length
- };
- });
- }, [mentorData]);
-
- const filteredStudents = useMemo(() => {
- let result = enrichedStudents.filter(s => {
- const matchesSearch = s.name.toLowerCase().includes(studentSearch.toLowerCase()) ||
- s.faculty_name?.toLowerCase().includes(studentSearch.toLowerCase());
- const matchesFilter = studentFilter === 'all' || s.onboarding_status === studentFilter;
- return matchesSearch && matchesFilter;
- });
-
- return result.sort((a, b) => {
- if (studentSort === 'desc') return b.id - a.id;
- if (studentSort === 'asc') return a.id - b.id;
- return 0;
- });
- }, [enrichedStudents, studentSearch, studentFilter, studentSort]);
-
- const handleEditStudent = (student) => {
- setEditingStudent({ ...student });
- setIsEditingStudentModal(false);
- setIsEditModalOpen(true);
- };
-
- const handleOpenAssessment = (student) => {
-   setAssessmentStudent(student);
-   setAssessmentScores({ q1: 0, q2: 0, q3: 0, q4: 0, q5: 0 });
-   setIsAssessmentModalOpen(true);
- };
-
- const calculateAssessmentScore = () => {
-   return Object.values(assessmentScores).reduce((a, b) => a + b, 0);
- };
-
- const getAssessmentLevel = (score) => {
-   if (score >= 5 && score <= 12) return 'Level 1';
-   if (score >= 13 && score <= 19) return 'Level 2';
-   if (score >= 20 && score <= 25) return 'Level 3';
-   return 'Pending';
- };
-
- const handleSubmitAssessment = async () => {
-   const totalScore = calculateAssessmentScore();
-   if (totalScore === 0) {
-     toast.error('Please complete the assessment before submitting');
-     return;
-   }
-   const level = getAssessmentLevel(totalScore);
-   try {
-     toast.success(`Assessment submitted! Score: ${totalScore} (${level})`);
-     setIsAssessmentModalOpen(false);
-   } catch (error) {
-     toast.error('Failed to submit assessment');
-   }
- };
-
- const handleUpdateStudent = async () => {
- try {
- const res = await api.put(`/mentor-head/students/${editingStudent.id}`, editingStudent);
- if (res.data.success) {
- toast.success('Student details updated');
- setIsEditModalOpen(false);
- fetchMentorDetails(); // Refresh
- }
- } catch (error) {
- toast.error(error.response?.data?.message || 'Update failed');
- }
- };
-
- const handleDeleteStudent = async (studentId, studentName) => {
- premiumConfirm(async () => {
- try {
- const res = await api.delete(`/mentor-head/students/${studentId}`);
- if (res.data.success) {
- toast.success('Student removed');
- fetchMentorDetails(); // Refresh
- }
- } catch (error) {
- toast.error(error.response?.data?.message || 'Delete failed');
- }
- }, { 
- name: studentName,
- title: 'Delete Student Record', 
- message: `Are you sure you want to permanently delete student ${studentName}? This action will remove all their data from the database forever and cannot be undone.`,
- type: 'danger'
- });
- };
-
-
-
- if (loading) {
- return (
- <div className="flex flex-col items-center justify-center h-screen gap-4">
+  // Search & Filter States
+  const [studentSearch, setStudentSearch] = useState('');
+  const [studentFilter, setStudentFilter] = useState('all');
+  const [studentSort, setStudentSort] = useState('desc');
+  const fetchMentorDetails = async () => {
+    try {
+      const [detailsRes, monitoringRes] = await Promise.all([api.get(`/mentor-head/mentor/${id}/details`), api.get(`/mentor-head/mentors/${id}/monitoring`)]);
+      if (detailsRes.data.success && monitoringRes.data.success) {
+        setMentorData({
+          ...detailsRes.data.data,
+          monitoring: monitoringRes.data.data
+        });
+      }
+    } catch (error) {
+      console.error('Error details:', error);
+      const msg = error.response?.data?.message || "Failed to fetch mentor details";
+      const detail = error.response?.data?.error || "";
+      toast.error(`${msg}: ${detail}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+  useEffect(() => {
+    if (id) fetchMentorDetails();
+  }, [id]);
+  const enrichedStudents = useMemo(() => {
+    if (!mentorData) return [];
+    const {
+      assignedStudents,
+      logs,
+      facultyLogs
+    } = mentorData;
+    return assignedStudents.map(student => {
+      const studentLogs = logs.filter(l => l.student_id === student.id);
+      const studentFacultyLogs = facultyLogs.filter(l => l.student_id === student.id);
+      const lastLog = studentLogs.sort((a, b) => new Date(b.date) - new Date(a.date))[0];
+      return {
+        ...student,
+        lastInteractionDate: lastLog ? lastLog.date : null,
+        totalInteractions: studentLogs.length,
+        verificationCount: studentFacultyLogs.length
+      };
+    });
+  }, [mentorData]);
+  const filteredStudents = useMemo(() => {
+    let result = enrichedStudents.filter(s => {
+      const matchesSearch = s.name.toLowerCase().includes(studentSearch.toLowerCase()) || s.faculty_name?.toLowerCase().includes(studentSearch.toLowerCase());
+      const matchesFilter = studentFilter === 'all' || s.onboarding_status === studentFilter;
+      return matchesSearch && matchesFilter;
+    });
+    return result.sort((a, b) => {
+      if (studentSort === 'desc') return b.id - a.id;
+      if (studentSort === 'asc') return a.id - b.id;
+      return 0;
+    });
+  }, [enrichedStudents, studentSearch, studentFilter, studentSort]);
+  const handleEditStudent = student => {
+    setEditingStudent({
+      ...student
+    });
+    setIsEditingStudentModal(false);
+    setIsEditModalOpen(true);
+  };
+  const handleOpenAssessment = student => {
+    setAssessmentStudent(student);
+    setAssessmentScores({
+      q1: 0,
+      q2: 0,
+      q3: 0,
+      q4: 0,
+      q5: 0
+    });
+    setIsAssessmentModalOpen(true);
+  };
+  const calculateAssessmentScore = () => {
+    return Object.values(assessmentScores).reduce((a, b) => a + b, 0);
+  };
+  const getAssessmentLevel = score => {
+    if (score >= 5 && score <= 12) return 'Level 1';
+    if (score >= 13 && score <= 19) return 'Level 2';
+    if (score >= 20 && score <= 25) return 'Level 3';
+    return 'Pending';
+  };
+  const handleSubmitAssessment = async () => {
+    const totalScore = calculateAssessmentScore();
+    if (totalScore === 0) {
+      toast.error('Please complete the assessment before submitting');
+      return;
+    }
+    const level = getAssessmentLevel(totalScore);
+    try {
+      toast.success(`Assessment submitted! Score: ${totalScore} (${level})`);
+      setIsAssessmentModalOpen(false);
+    } catch (error) {
+      toast.error('Failed to submit assessment');
+    }
+  };
+  const handleUpdateStudent = async () => {
+    try {
+      const res = await api.put(`/mentor-head/students/${editingStudent.id}`, editingStudent);
+      if (res.data.success) {
+        toast.success('Student details updated');
+        setIsEditModalOpen(false);
+        fetchMentorDetails(); // Refresh
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Update failed');
+    }
+  };
+  const handleDeleteStudent = async (studentId, studentName) => {
+    premiumConfirm(async () => {
+      try {
+        const res = await api.delete(`/mentor-head/students/${studentId}`);
+        if (res.data.success) {
+          toast.success('Student removed');
+          fetchMentorDetails(); // Refresh
+        }
+      } catch (error) {
+        toast.error(error.response?.data?.message || 'Delete failed');
+      }
+    }, {
+      name: studentName,
+      title: 'Delete Student Record',
+      message: `Are you sure you want to permanently delete student ${studentName}? This action will remove all their data from the database forever and cannot be undone.`,
+      type: 'danger'
+    });
+  };
+  if (loading) {
+    return <div className="flex flex-col items-center justify-center h-screen gap-4">
  <div className="relative">
  <div className="w-16 h-16 border-4 border-[#008080] border-t-[#008080] rounded-full animate-spin"></div>
  <Activity className="absolute inset-0 m-auto text-[#008080] animate-pulse" size={20} />
  </div>
  <p className="text-slate-600 font-black text-[10px] uppercase tracking-widest animate-pulse">Syncing Dashboard...</p>
- </div>
- );
- }
-
- if (!mentorData) {
- return (
- <div className="flex flex-col items-center justify-center h-screen gap-6">
+ </div>;
+  }
+  if (!mentorData) {
+    return <div className="flex flex-col items-center justify-center h-screen gap-6">
  <div className="w-24 h-24 bg-rose-50 rounded-full flex items-center justify-center text-rose-500 shadow-xl shadow-rose-100">
  <AlertCircle size={48} />
  </div>
@@ -186,29 +171,24 @@ const MentorDetails = () => {
  <h2 className="text-3xl font-black text-slate-900 tracking-tight">Mentor Not Found</h2>
  <p className="text-slate-500 font-bold mt-2">The record you are looking for does not exist or has been removed.</p>
  </div>
- <button
- onClick={() => navigate(-1)}
- className="px-8 py-3 bg-[#008080] text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-[#008080]/30 hover:scale-105 transition-transform"
- >
+ <button onClick={() => navigate(-1)} className="px-8 py-3 bg-[#008080] text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-[#008080]/30 hover:scale-105 transition-transform">
  Return to Directory
  </button>
- </div>
- );
- }
-
- const { profile, logs, facultyLogs, monitoring } = mentorData;
- const totalStudentsCount = monitoring?.assignedStudents?.length || 0;
- const connectedToday = monitoring?.todayConnectionCount || 0;
- const progressPercent = totalStudentsCount > 0 ? (connectedToday / totalStudentsCount) * 100 : 0;
-
- return (
- <div className="max-w-[1600px] mx-auto space-y-8 pb-20 animate-in fade-in slide-in-from-bottom-4 duration-700">
+ </div>;
+  }
+  const {
+    profile,
+    logs,
+    facultyLogs,
+    monitoring
+  } = mentorData;
+  const totalStudentsCount = monitoring?.assignedStudents?.length || 0;
+  const connectedToday = monitoring?.todayConnectionCount || 0;
+  const progressPercent = totalStudentsCount > 0 ? connectedToday / totalStudentsCount * 100 : 0;
+  return <div className="max-w-[1600px] mx-auto space-y-8 pb-20 animate-in fade-in slide-in-from-bottom-4 duration-700">
  {/* Header Navigation */}
  <div className="flex items-center justify-between px-4">
- <button
- onClick={() => navigate(-1)}
- className="group flex items-center gap-2 text-slate-600 hover:text-[#008080] transition-all font-bold uppercase tracking-widest text-[10px]"
- >
+ <button onClick={() => navigate(-1)} className="group flex items-center gap-2 text-slate-600 hover:text-[#008080] transition-all font-bold uppercase tracking-widest text-[10px]">
  <div className="p-2 bg-white rounded-xl shadow-sm border border-slate-100 group-hover:bg-[#008080]/10 group-hover:border-[#008080] transition-all">
  <ArrowLeft size={14} />
  </div>
@@ -299,10 +279,9 @@ const MentorDetails = () => {
  <span className="text-lg font-black text-[#008080]">{progressPercent.toFixed(0)}%</span>
  </div>
  <div className="h-3 w-full bg-slate-800 rounded-full overflow-hidden border border-slate-700 shadow-inner">
- <div
- className="h-full bg-gradient-to-r from-emerald-400 via-[#008080] to-purple-600 transition-all duration-1000 shadow-[0_0_15px_rgba(79,70,229,0.3)]"
- style={{ width: `${progressPercent}%` }}
- ></div>
+ <div className="h-full bg-gradient-to-r from-emerald-400 via-[#008080] to-purple-600 transition-all duration-1000 shadow-[0_0_15px_rgba(79,70,229,0.3)]" style={{
+                width: `${progressPercent}%`
+              }}></div>
  </div>
  </div>
  </div>
@@ -311,13 +290,35 @@ const MentorDetails = () => {
 
  {/* SECTION 2: KPI SUMMARY ROW */}
  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
- {[
- { label: 'Total Students', value: totalStudentsCount, icon: Users, color: 'text-[#008080]', bg: 'bg-[#008080]/10', unit: 'Members' },
- { label: 'Connected Today', value: connectedToday, icon: Activity, color: 'text-emerald-600', bg: 'bg-emerald-50', unit: 'Sessions' },
- { label: 'Total Interactions', value: logs.length, icon: GraduationCap, color: 'text-[#008080]', bg: 'bg-[#008080]/10', unit: 'Logs' },
- { label: 'Total Verifications', value: facultyLogs?.length || 0, icon: ShieldCheck, color: 'text-purple-600', bg: 'bg-purple-50', unit: 'Checks' }
- ].map((kpi, idx) => (
- <div key={idx} className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group">
+ {[{
+        label: 'Total Students',
+        value: totalStudentsCount,
+        icon: Users,
+        color: 'text-[#008080]',
+        bg: 'bg-[#008080]/10',
+        unit: 'Members'
+      }, {
+        label: 'Connected Today',
+        value: connectedToday,
+        icon: Activity,
+        color: 'text-emerald-600',
+        bg: 'bg-emerald-50',
+        unit: 'Sessions'
+      }, {
+        label: 'Total Interactions',
+        value: logs.length,
+        icon: GraduationCap,
+        color: 'text-[#008080]',
+        bg: 'bg-[#008080]/10',
+        unit: 'Logs'
+      }, {
+        label: 'Total Verifications',
+        value: facultyLogs?.length || 0,
+        icon: ShieldCheck,
+        color: 'text-purple-600',
+        bg: 'bg-purple-50',
+        unit: 'Checks'
+      }].map((kpi, idx) => <div key={idx} className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group">
  <div className="flex items-center justify-between mb-6">
  <div className={`w-14 h-14 ${kpi.bg} rounded-2xl flex items-center justify-center ${kpi.color} group-hover:scale-110 transition-transform`}>
  <kpi.icon size={26} />
@@ -329,8 +330,7 @@ const MentorDetails = () => {
  <span className="text-[10px] font-black text-slate-300 uppercase">{kpi.unit}</span>
  </div>
  <div className="text-[10px] font-black text-slate-600 uppercase tracking-widest">{kpi.label}</div>
- </div>
- ))}
+ </div>)}
  </div>
 
  {/* SECTION 3: ASSIGNED STUDENTS & FACULTY (FULL WIDTH) */}
@@ -349,21 +349,11 @@ const MentorDetails = () => {
  <div className="flex items-center gap-4 w-full md:w-auto">
  <div className="relative flex-grow md:flex-grow-0 md:min-w-[350px]">
  <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-600" size={18} />
- <input
- type="text"
- placeholder="Search by student or faculty identity..."
- value={studentSearch}
- onChange={(e) => setStudentSearch(e.target.value)}
- className="w-full bg-white border border-slate-200 rounded-[1.5rem] py-4 pl-14 pr-6 text-sm font-bold focus:shadow-2xl focus:shadow-[#008080] focus:border-[#008080] transition-all outline-none"
- />
+ <input type="text" placeholder="Search by student or faculty identity..." value={studentSearch} onChange={e => setStudentSearch(e.target.value)} className="w-full bg-white border border-slate-200 rounded-[1.5rem] py-4 pl-14 pr-6 text-sm font-bold focus:shadow-2xl focus:shadow-[#008080] focus:border-[#008080] transition-all outline-none" />
  </div>
  <div className="relative">
  <Filter size={16} className="absolute left-5 top-1/2 -translate-y-1/2 text-[#008080]" />
- <select
- value={studentFilter}
- onChange={(e) => setStudentFilter(e.target.value)}
- className="bg-white border border-slate-200 text-[#008080] rounded-[1.5rem] py-4 pl-12 pr-10 text-[11px] font-black uppercase tracking-widest appearance-none focus:ring-4 focus:ring-[#008080] outline-none cursor-pointer"
- >
+ <select value={studentFilter} onChange={e => setStudentFilter(e.target.value)} className="bg-white border border-slate-200 text-[#008080] rounded-[1.5rem] py-4 pl-12 pr-10 text-[11px] font-black uppercase tracking-widest appearance-none focus:ring-4 focus:ring-[#008080] outline-none cursor-pointer">
  <option value="all">All Status</option>
  <option value="pending">Onboarding</option>
  <option value="completed">Active</option>
@@ -371,11 +361,7 @@ const MentorDetails = () => {
  </div>
  <div className="relative">
  <Clock size={16} className="absolute left-5 top-1/2 -translate-y-1/2 text-[#008080]" />
- <select
- value={studentSort}
- onChange={(e) => setStudentSort(e.target.value)}
- className="bg-white border border-slate-200 text-[#008080] rounded-[1.5rem] py-4 pl-12 pr-10 text-[11px] font-black uppercase tracking-widest appearance-none focus:ring-4 focus:ring-[#008080] outline-none cursor-pointer"
- >
+ <select value={studentSort} onChange={e => setStudentSort(e.target.value)} className="bg-white border border-slate-200 text-[#008080] rounded-[1.5rem] py-4 pl-12 pr-10 text-[11px] font-black uppercase tracking-widest appearance-none focus:ring-4 focus:ring-[#008080] outline-none cursor-pointer">
  <option value="desc">Newest First</option>
  <option value="asc">Oldest First</option>
  </select>
@@ -386,7 +372,7 @@ const MentorDetails = () => {
  <div className="overflow-x-auto">
  <table className="w-full text-left">
  <thead>
- <tr className="bg-slate-50/50">
+ <tr className="bg-slate-50/50"><th className="py-4 px-6 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">#</th>
  <th className="px-10 py-6 text-[10px] font-black text-slate-600 uppercase tracking-[0.2em]">Student Identity</th>
  <th className="px-10 py-6 text-[10px] font-black text-slate-600 uppercase tracking-[0.2em]">Assigned Faculty</th>
  <th className="px-10 py-6 text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] text-center">Last Interaction</th>
@@ -397,16 +383,13 @@ const MentorDetails = () => {
  </tr>
  </thead>
  <tbody className="divide-y divide-slate-100">
- {filteredStudents.length > 0 ? filteredStudents.map((s) => (
- <tr key={s.id} className="hover:bg-[#008080]/10/20 transition-all group">
+ {filteredStudents.length > 0 ? filteredStudents.map((s, index) => <tr key={s.id} className="hover:bg-[#008080]/10/20 transition-all group"><td className="p-6 text-sm font-black text-slate-400 border-b border-slate-50">{index + 1}</td>
  <td className="px-10 py-8">
  <div className="flex flex-col">
  <span className="text-base font-black text-slate-900 group-hover:text-[#008080] transition-colors">{s.name}</span>
  <div className="flex items-center gap-2 mt-1">
  <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">{s.grade} • {s.course}</span>
- {s.is_shifted && (
- <span className="px-2 py-0.5 bg-rose-50 text-rose-500 rounded text-[8px] font-black uppercase tracking-widest border border-rose-100">Shifted from {s.shifted_from}</span>
- )}
+ {s.is_shifted && <span className="px-2 py-0.5 bg-rose-50 text-rose-500 rounded text-[8px] font-black uppercase tracking-widest border border-rose-100">Shifted from {s.shifted_from}</span>}
  </div>
  </div>
  </td>
@@ -419,14 +402,10 @@ const MentorDetails = () => {
  </div>
  </td>
  <td className="px-10 py-8 text-center">
- {s.lastInteractionDate ? (
- <div className="flex flex-col items-center">
+ {s.lastInteractionDate ? <div className="flex flex-col items-center">
  <span className="text-xs font-black text-slate-700">{new Date(s.lastInteractionDate).toLocaleDateString()}</span>
  <span className="text-[9px] font-bold text-slate-300 uppercase tracking-widest">Chronological</span>
- </div>
- ) : (
- <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest ">No Data</span>
- )}
+ </div> : <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest ">No Data</span>}
  </td>
  <td className="px-10 py-8 text-center">
  <div className="inline-flex items-center justify-center w-10 h-10 rounded-2xl bg-[#008080]/10 text-[#008080] text-xs font-black border border-[#008080] shadow-sm">
@@ -445,33 +424,19 @@ const MentorDetails = () => {
  </td>
  <td className="px-10 py-8 text-right">
  <div className="flex items-center justify-end gap-3">
- <button
- onClick={() => handleOpenAssessment(s)}
- className="p-2.5 bg-white border border-emerald-200 rounded-xl text-emerald-600 hover:bg-emerald-50 hover:border-emerald-300 transition-all shadow-sm flex items-center gap-2"
- title="Quick Assessment"
- >
+ <button onClick={() => handleOpenAssessment(s)} className="p-2.5 bg-white border border-emerald-200 rounded-xl text-emerald-600 hover:bg-emerald-50 hover:border-emerald-300 transition-all shadow-sm flex items-center gap-2" title="Quick Assessment">
  <ClipboardList size={16} />
  <span className="text-[10px] font-black uppercase tracking-widest">Assess</span>
  </button>
- <button
- onClick={() => handleEditStudent(s)}
- className="p-2.5 bg-white border border-slate-200 rounded-xl text-[#008080] hover:bg-[#008080]/10 transition-all shadow-sm"
- title="Edit Student"
- >
+ <button onClick={() => handleEditStudent(s)} className="p-2.5 bg-white border border-slate-200 rounded-xl text-[#008080] hover:bg-[#008080]/10 transition-all shadow-sm" title="Edit Student">
  <Edit2 size={16} />
  </button>
- <button
- onClick={() => handleDeleteStudent(s.id, s.name)}
- className="p-2.5 bg-white border border-slate-200 rounded-xl text-rose-600 hover:bg-rose-50 transition-all shadow-sm"
- title="Delete Student"
- >
+ <button onClick={() => handleDeleteStudent(s.id, s.name)} className="p-2.5 bg-white border border-slate-200 rounded-xl text-rose-600 hover:bg-rose-50 transition-all shadow-sm" title="Delete Student">
  <Trash2 size={16} />
  </button>
  </div>
  </td>
- </tr>
- )) : (
- <tr>
+ </tr>) : <tr>
  <td colSpan="7" className="px-10 py-24 text-center">
  <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center text-slate-200 mx-auto mb-6 shadow-inner">
  <Search size={40} />
@@ -479,27 +444,21 @@ const MentorDetails = () => {
  <h4 className="text-xl font-black text-slate-900 tracking-tight">Data Not Found</h4>
  <p className="text-slate-600 font-bold uppercase tracking-[0.2em] text-[10px] mt-2">Try adjusting your search or filters</p>
  </td>
- </tr>
- )}
+ </tr>}
  </tbody>
  </table>
  </div>
  </div>
 
  {/* Student Edit Modal */}
- {isEditModalOpen && editingStudent && (
- <div className="fixed inset-0 bg-[#008080]/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
+ {isEditModalOpen && editingStudent && <div className="fixed inset-0 bg-[#008080]/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
  <div className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-lg overflow-hidden animate-in slide-in-from-bottom-4 duration-300 border border-white/20 max-h-[90vh] overflow-y-auto">
  <div className="px-8 py-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
  <div className="flex items-center gap-4">
  <h2 className="text-lg font-black text-slate-900 flex items-center gap-3 ">
  <Edit2 size={20} className="text-[#008080]" /> Edit Student Registry
  </h2>
- <button 
- type="button" 
- onClick={() => setIsEditingStudentModal(prev => !prev)}
- className={`px-3 py-1.5 rounded-xl flex items-center gap-2 text-[9px] font-black uppercase tracking-widest transition-all ${isEditingStudentModal ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-white text-slate-400 hover:text-slate-600 border border-slate-200'}`}
- >
+ <button type="button" onClick={() => setIsEditingStudentModal(prev => !prev)} className={`px-3 py-1.5 rounded-xl flex items-center gap-2 text-[9px] font-black uppercase tracking-widest transition-all ${isEditingStudentModal ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-white text-slate-400 hover:text-slate-600 border border-slate-200'}`}>
  {isEditingStudentModal ? <><Unlock size={12} /> Editing</> : <><Lock size={12} /> Unlock</>}
  </button>
  </div>
@@ -511,79 +470,56 @@ const MentorDetails = () => {
  <div className="grid grid-cols-2 gap-6">
  <div>
  <label className="block text-[10px] font-black text-slate-600 uppercase tracking-widest mb-2 ml-1">Student Name</label>
- <input
- type="text"
- value={editingStudent.name}
- onChange={(e) => setEditingStudent(prev => ({ ...prev, name: e.target.value }))}
- disabled={!isEditingStudentModal}
- className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-xs font-bold rounded-2xl px-5 py-4 focus:outline-none focus:ring-4 focus:ring-[#008080] focus:border-[#008080] transition-all"
- />
+ <input type="text" value={editingStudent.name} onChange={e => setEditingStudent(prev => ({
+                ...prev,
+                name: e.target.value
+              }))} disabled={!isEditingStudentModal} className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-xs font-bold rounded-2xl px-5 py-4 focus:outline-none focus:ring-4 focus:ring-[#008080] focus:border-[#008080] transition-all" />
  </div>
  <div>
  <label className="block text-[10px] font-black text-slate-600 uppercase tracking-widest mb-2 ml-1">Grade / Level</label>
- <input
- type="text"
- value={editingStudent.grade}
- onChange={(e) => setEditingStudent(prev => ({ ...prev, grade: e.target.value }))}
- disabled={!isEditingStudentModal}
- className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-xs font-bold rounded-2xl px-5 py-4 focus:outline-none focus:ring-4 focus:ring-[#008080] focus:border-[#008080] transition-all"
- />
+ <input type="text" value={editingStudent.grade} onChange={e => setEditingStudent(prev => ({
+                ...prev,
+                grade: e.target.value
+              }))} disabled={!isEditingStudentModal} className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-xs font-bold rounded-2xl px-5 py-4 focus:outline-none focus:ring-4 focus:ring-[#008080] focus:border-[#008080] transition-all" />
  </div>
  </div>
  <div className="grid grid-cols-2 gap-6">
  <div>
  <label className="block text-[10px] font-black text-slate-600 uppercase tracking-widest mb-2 ml-1">Email Address</label>
- <input
- type="email"
- value={editingStudent.email}
- onChange={(e) => setEditingStudent(prev => ({ ...prev, email: e.target.value }))}
- disabled={!isEditingStudentModal}
- className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-xs font-bold rounded-2xl px-5 py-4 focus:outline-none focus:ring-4 focus:ring-[#008080] focus:border-[#008080] transition-all"
- />
+ <input type="email" value={editingStudent.email} onChange={e => setEditingStudent(prev => ({
+                ...prev,
+                email: e.target.value
+              }))} disabled={!isEditingStudentModal} className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-xs font-bold rounded-2xl px-5 py-4 focus:outline-none focus:ring-4 focus:ring-[#008080] focus:border-[#008080] transition-all" />
  </div>
  <div>
  <label className="block text-[10px] font-black text-slate-600 uppercase tracking-widest mb-2 ml-1">Phone Number</label>
- <input
- type="text"
- value={editingStudent.phone_number}
- onChange={(e) => setEditingStudent(prev => ({ ...prev, phone_number: e.target.value }))}
- disabled={!isEditingStudentModal}
- className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-xs font-bold rounded-2xl px-5 py-4 focus:outline-none focus:ring-4 focus:ring-[#008080] focus:border-[#008080] transition-all"
- />
+ <input type="text" value={editingStudent.phone_number} onChange={e => setEditingStudent(prev => ({
+                ...prev,
+                phone_number: e.target.value
+              }))} disabled={!isEditingStudentModal} className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-xs font-bold rounded-2xl px-5 py-4 focus:outline-none focus:ring-4 focus:ring-[#008080] focus:border-[#008080] transition-all" />
  </div>
  </div>
  <div>
  <label className="block text-[10px] font-black text-slate-600 uppercase tracking-widest mb-2 ml-1">Course / Subject</label>
- <input
- type="text"
- value={editingStudent.course}
- onChange={(e) => setEditingStudent(prev => ({ ...prev, course: e.target.value }))}
- disabled={!isEditingStudentModal}
- className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-xs font-bold rounded-2xl px-5 py-4 focus:outline-none focus:ring-4 focus:ring-[#008080] focus:border-[#008080] transition-all"
- />
+ <input type="text" value={editingStudent.course} onChange={e => setEditingStudent(prev => ({
+              ...prev,
+              course: e.target.value
+            }))} disabled={!isEditingStudentModal} className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-xs font-bold rounded-2xl px-5 py-4 focus:outline-none focus:ring-4 focus:ring-[#008080] focus:border-[#008080] transition-all" />
  </div>
  </div>
  <div className={`px-8 py-6 border-t border-slate-100 bg-slate-50/50 flex justify-end gap-3 transition-opacity duration-300 ${!isEditingStudentModal ? 'opacity-60 pointer-events-none' : ''}`}>
- <button
- onClick={() => setIsEditModalOpen(false)}
- className="px-8 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest text-slate-600 hover:text-slate-600 hover:bg-slate-100 transition-all"
- >
+ <button onClick={() => setIsEditModalOpen(false)} className="px-8 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest text-slate-600 hover:text-slate-600 hover:bg-slate-100 transition-all">
  Discard
  </button>
- <button
- onClick={handleUpdateStudent}
- className="px-8 py-3.5 bg-[#008080] text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-[#008080]/30 hover:bg-[#008080] hover:-translate-y-0.5 active:scale-95 transition-all flex items-center gap-2"
- >
+ <button onClick={handleUpdateStudent} className="px-8 py-3.5 bg-[#008080] text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-[#008080]/30 hover:bg-[#008080] hover:-translate-y-0.5 active:scale-95 transition-all flex items-center gap-2">
  <Save size={16} /> Secure Updates
  </button>
  </div>
  </div>
- </div>
- )}
+ </div>}
 
  {/* Quick Assessment Modal */}
- {isAssessmentModalOpen && assessmentStudent && (
-   <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[1000] flex items-center justify-center p-4 animate-in fade-in duration-300">
+ {isAssessmentModalOpen && assessmentStudent && <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[1000] flex items-center justify-center p-4 animate-in fade-in duration-300">
      <div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-4xl overflow-hidden animate-in slide-in-from-bottom-4 duration-500 border border-slate-100 flex flex-col max-h-[90vh]">
        
        {/* Header */}
@@ -611,7 +547,7 @@ const MentorDetails = () => {
          <div className="bg-white rounded-2xl shadow-sm border border-slate-200">
            <table className="w-full text-left border-collapse md:min-w-[600px]">
              <thead className="hidden md:table-header-group">
-               <tr className="bg-[#005050] text-white">
+               <tr className="bg-[#005050] text-white"><th className="py-4 px-6 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">#</th>
                  <th className="p-4 text-sm font-bold border-b border-[#006060]">Assessment Area</th>
                  <th className="hidden md:table-cell p-4 text-sm font-bold border-b border-[#006060]">1 — Poor</th>
                  <th className="hidden md:table-cell p-4 text-sm font-bold border-b border-[#006060]">3 — Average</th>
@@ -620,53 +556,52 @@ const MentorDetails = () => {
                </tr>
              </thead>
              <tbody className="divide-y divide-slate-100 flex flex-col md:table-row-group">
-               {[
-                 { 
-                   id: 'q1', 
-                   area: 'How many days per week does the student study?', 
-                   l1: 'Never', l3: '3 days', l5: 'Daily' 
-                 },
-                 { 
-                   id: 'q2', 
-                   area: 'How quickly does student complete homework?', 
-                   l1: 'Never does it', l3: 'Sometimes', l5: 'Always on time' 
-                 },
-                 { 
-                   id: 'q3', 
-                   area: 'Can student explain what they learned?', 
-                   l1: 'Cannot explain', l3: 'Partially', l5: 'Clearly in own words' 
-                 },
-                 { 
-                   id: 'q4', 
-                   area: 'Does student cover all subjects in the week?', 
-                   l1: '1-2 subjects only', l3: 'Some balance', l5: 'All subjects' 
-                 },
-                 { 
-                   id: 'q5', 
-                   area: 'How motivated and confident is the student?', 
-                   l1: 'Avoids studying', l3: 'Neutral', l5: 'Confident and motivated' 
-                 }
-               ].map((row, index) => (
-                 <tr key={row.id} className={`flex flex-col md:table-row border-b md:border-none border-slate-100 ${index % 2 === 0 ? 'bg-emerald-50/30' : 'bg-white'}`}>
+               {[{
+                  id: 'q1',
+                  area: 'How many days per week does the student study?',
+                  l1: 'Never',
+                  l3: '3 days',
+                  l5: 'Daily'
+                }, {
+                  id: 'q2',
+                  area: 'How quickly does student complete homework?',
+                  l1: 'Never does it',
+                  l3: 'Sometimes',
+                  l5: 'Always on time'
+                }, {
+                  id: 'q3',
+                  area: 'Can student explain what they learned?',
+                  l1: 'Cannot explain',
+                  l3: 'Partially',
+                  l5: 'Clearly in own words'
+                }, {
+                  id: 'q4',
+                  area: 'Does student cover all subjects in the week?',
+                  l1: '1-2 subjects only',
+                  l3: 'Some balance',
+                  l5: 'All subjects'
+                }, {
+                  id: 'q5',
+                  area: 'How motivated and confident is the student?',
+                  l1: 'Avoids studying',
+                  l3: 'Neutral',
+                  l5: 'Confident and motivated'
+                }].map((row, index) => <tr key={row.id} className={`flex flex-col md:table-row border-b md:border-none border-slate-100 ${index % 2 === 0 ? 'bg-emerald-50/30' : 'bg-white'}`}><td className="p-6 text-sm font-black text-slate-400 border-b border-slate-50">{index + 1}</td>
                    <td className="p-4 pb-2 md:pb-4 text-sm font-bold text-slate-800 md:w-auto">{row.area}</td>
                    <td className="hidden md:table-cell p-4 text-xs italic text-slate-500">{row.l1}</td>
                    <td className="hidden md:table-cell p-4 text-xs italic text-slate-500">{row.l3}</td>
                    <td className="hidden md:table-cell p-4 text-xs italic text-slate-500">{row.l5}</td>
                    <td className="p-4 pt-2 md:pt-4 md:text-center flex justify-start md:justify-center">
                      <div className="flex items-center justify-start md:justify-center gap-2 md:gap-1.5 w-full overflow-x-auto no-scrollbar py-1">
-                       {[1, 2, 3, 4, 5].map(val => (
-                         <button
-                           key={val}
-                           onClick={() => setAssessmentScores(prev => ({ ...prev, [row.id]: val }))}
-                           className={`shrink-0 w-10 h-10 md:w-8 md:h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all ${assessmentScores[row.id] === val ? 'bg-[#008080] text-white shadow-md ring-2 ring-[#008080] ring-offset-1 scale-110' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
-                         >
+                       {[1, 2, 3, 4, 5].map((val, index) => <button key={val} onClick={() => setAssessmentScores(prev => ({
+                        ...prev,
+                        [row.id]: val
+                      }))} className={`shrink-0 w-10 h-10 md:w-8 md:h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all ${assessmentScores[row.id] === val ? 'bg-[#008080] text-white shadow-md ring-2 ring-[#008080] ring-offset-1 scale-110' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}>
                            {val}
-                         </button>
-                       ))}
+                         </button>)}
                      </div>
                    </td>
-                 </tr>
-               ))}
+                 </tr>)}
              </tbody>
            </table>
          </div>
@@ -698,22 +633,15 @@ const MentorDetails = () => {
              <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Total Score</p>
              <p className="text-2xl font-black text-slate-900">{calculateAssessmentScore()}</p>
            </div>
-           <button
-             onClick={handleSubmitAssessment}
-             disabled={calculateAssessmentScore() < 5}
-             className={`px-8 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 shadow-xl ${calculateAssessmentScore() >= 5 ? 'bg-[#008080] text-white shadow-[#008080]/30 hover:bg-[#006060] hover:-translate-y-0.5' : 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-none'}`}
-           >
+           <button onClick={handleSubmitAssessment} disabled={calculateAssessmentScore() < 5} className={`px-8 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 shadow-xl ${calculateAssessmentScore() >= 5 ? 'bg-[#008080] text-white shadow-[#008080]/30 hover:bg-[#006060] hover:-translate-y-0.5' : 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-none'}`}>
              <Save size={16} /> Submit Score
            </button>
          </div>
 
        </div>
      </div>
-   </div>
- )}
+   </div>}
 
- </div>
- );
+ </div>;
 };
-
 export default MentorDetails;

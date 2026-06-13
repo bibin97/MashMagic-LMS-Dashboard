@@ -1,106 +1,68 @@
-import React, {  useState, useEffect , useDeferredValue } from 'react';
-import {
- Users, Search, Edit2, Trash2, X, Save, Eye,
- ShieldCheck, Activity, MapPin, Phone, Mail, Calendar, Briefcase, Filter, Check
-} from 'lucide-react';
+import React, { useState, useEffect, useDeferredValue } from 'react';
+import { Users, Search, Edit2, Trash2, X, Save, Eye, ShieldCheck, Activity, MapPin, Phone, Mail, Calendar, Briefcase, Filter, Check } from 'lucide-react';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
 import { premiumConfirm } from '../../utils/premiumConfirm';
-
-const SUBJECT_OPTIONS = [
-  "Mathematics", "Science", "Social Science", "English", "Malayalam", 
-  "Hindi", "Physics", "Chemistry", "Biology", "Accountancy", 
-  "Business Studies", "Economics", "Computer Science", "Arabic", "French", "IT", "EVS"
-];
-
+const SUBJECT_OPTIONS = ["Mathematics", "Science", "Social Science", "English", "Malayalam", "Hindi", "Physics", "Chemistry", "Biology", "Accountancy", "Business Studies", "Economics", "Computer Science", "Arabic", "French", "IT", "EVS"];
 const FacultyDirectory = () => {
- const [faculties, setFaculties] = useState([]);
- const [loading, setLoading] = useState(true);
- const [searchTerm, setSearchTerm] = useState('');
-	const deferredSearchTerm = useDeferredValue(searchTerm);
- const [selectedFaculty, setSelectedFaculty] = useState(null);
- const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
-
- const [selectedSyllabi, setSelectedSyllabi] = useState([]);
- const [selectedSections, setSelectedSections] = useState([]);
- const [selectedSubjects, setSelectedSubjects] = useState([]);
- const [isFilterOpen, setIsFilterOpen] = useState(false);
-
- const toggleSyllabus = (syl) => {
-   setSelectedSyllabi(prev => 
-     prev.includes(syl) ? prev.filter(s => s !== syl) : [...prev, syl]
-   );
- };
-
- const toggleSection = (sec) => {
-   setSelectedSections(prev => 
-     prev.includes(sec) ? prev.filter(s => s !== sec) : [...prev, sec]
-   );
- };
-
- const toggleSubject = (sub) => {
-   setSelectedSubjects(prev => 
-     prev.includes(sub) ? prev.filter(s => s !== sub) : [...prev, sub]
-   );
- };
-
- useEffect(() => {
- fetchFaculties();
- }, []);
-
- const fetchFaculties = async () => {
- try {
- const res = await api.get('/mentor-head/faculties-all');
- if (res.data.success) {
- setFaculties(res.data.data);
- }
- } catch (error) {
- toast.error("Failed to load faculty directory");
- } finally {
- setLoading(false);
- }
- };
-
- const filteredFaculties = faculties.filter(f => {
-   const matchesSearch = deferredSearchTerm === '' ||
-     f.name.toLowerCase().includes(deferredSearchTerm.toLowerCase()) ||
-     f.email?.toLowerCase().includes(deferredSearchTerm.toLowerCase()) ||
-     f.subject?.toLowerCase().includes(deferredSearchTerm.toLowerCase());
-     
-   let matchesSyllabus = true;
-   if (selectedSyllabi.length > 0) {
-     const fSyllabus = f.syllabus 
-       ? (typeof f.syllabus === 'string' ? f.syllabus.split(',') : (Array.isArray(f.syllabus) ? f.syllabus : [f.syllabus]))
-       : [];
-     const normalizedSyllabi = fSyllabus.map(s => s.trim().toUpperCase());
-     matchesSyllabus = selectedSyllabi.some(syl => normalizedSyllabi.includes(syl.toUpperCase()));
-   }
-
-   let matchesSection = true;
-   if (selectedSections.length > 0) {
-     const fSection = f.section 
-       ? (typeof f.section === 'string' ? f.section.split(',') : (Array.isArray(f.section) ? f.section : [f.section]))
-       : [];
-     const normalizedSections = fSection.map(s => s.trim().toUpperCase());
-     matchesSection = selectedSections.some(sec => normalizedSections.includes(sec.toUpperCase()));
-   }
-
-   let matchesSubject = true;
-   if (selectedSubjects.length > 0) {
-     const fSubject = f.subject 
-       ? (typeof f.subject === 'string' ? f.subject.split(',') : (Array.isArray(f.subject) ? f.subject : [f.subject]))
-       : [];
-     const normalizedSubjects = fSubject.map(s => s.trim().toUpperCase());
-     matchesSubject = selectedSubjects.some(sub => normalizedSubjects.includes(sub.toUpperCase()));
-   }
-
-   return matchesSearch && matchesSyllabus && matchesSection && matchesSubject;
- });
-
- if (loading) return <div className="p-20 text-center font-black text-slate-600 animate-pulse">SYNCING FACULTY DATA...</div>;
-
- return (
- <div className="space-y-8 animate-in fade-in duration-700">
+  const [faculties, setFaculties] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const deferredSearchTerm = useDeferredValue(searchTerm);
+  const [selectedFaculty, setSelectedFaculty] = useState(null);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [selectedSyllabi, setSelectedSyllabi] = useState([]);
+  const [selectedSections, setSelectedSections] = useState([]);
+  const [selectedSubjects, setSelectedSubjects] = useState([]);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const toggleSyllabus = syl => {
+    setSelectedSyllabi(prev => prev.includes(syl) ? prev.filter(s => s !== syl) : [...prev, syl]);
+  };
+  const toggleSection = sec => {
+    setSelectedSections(prev => prev.includes(sec) ? prev.filter(s => s !== sec) : [...prev, sec]);
+  };
+  const toggleSubject = sub => {
+    setSelectedSubjects(prev => prev.includes(sub) ? prev.filter(s => s !== sub) : [...prev, sub]);
+  };
+  useEffect(() => {
+    fetchFaculties();
+  }, []);
+  const fetchFaculties = async () => {
+    try {
+      const res = await api.get('/mentor-head/faculties-all');
+      if (res.data.success) {
+        setFaculties(res.data.data);
+      }
+    } catch (error) {
+      toast.error("Failed to load faculty directory");
+    } finally {
+      setLoading(false);
+    }
+  };
+  const filteredFaculties = faculties.filter(f => {
+    const matchesSearch = deferredSearchTerm === '' || f.name.toLowerCase().includes(deferredSearchTerm.toLowerCase()) || f.email?.toLowerCase().includes(deferredSearchTerm.toLowerCase()) || f.subject?.toLowerCase().includes(deferredSearchTerm.toLowerCase());
+    let matchesSyllabus = true;
+    if (selectedSyllabi.length > 0) {
+      const fSyllabus = f.syllabus ? typeof f.syllabus === 'string' ? f.syllabus.split(',') : Array.isArray(f.syllabus) ? f.syllabus : [f.syllabus] : [];
+      const normalizedSyllabi = fSyllabus.map(s => s.trim().toUpperCase());
+      matchesSyllabus = selectedSyllabi.some(syl => normalizedSyllabi.includes(syl.toUpperCase()));
+    }
+    let matchesSection = true;
+    if (selectedSections.length > 0) {
+      const fSection = f.section ? typeof f.section === 'string' ? f.section.split(',') : Array.isArray(f.section) ? f.section : [f.section] : [];
+      const normalizedSections = fSection.map(s => s.trim().toUpperCase());
+      matchesSection = selectedSections.some(sec => normalizedSections.includes(sec.toUpperCase()));
+    }
+    let matchesSubject = true;
+    if (selectedSubjects.length > 0) {
+      const fSubject = f.subject ? typeof f.subject === 'string' ? f.subject.split(',') : Array.isArray(f.subject) ? f.subject : [f.subject] : [];
+      const normalizedSubjects = fSubject.map(s => s.trim().toUpperCase());
+      matchesSubject = selectedSubjects.some(sub => normalizedSubjects.includes(sub.toUpperCase()));
+    }
+    return matchesSearch && matchesSyllabus && matchesSection && matchesSubject;
+  });
+  if (loading) return <div className="p-20 text-center font-black text-slate-600 animate-pulse">SYNCING FACULTY DATA...</div>;
+  return <div className="space-y-8 animate-in fade-in duration-700">
  {/* Header */}
  <div className="bg-white p-10 rounded-[4rem] border border-slate-100 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
  <div>
@@ -119,35 +81,19 @@ const FacultyDirectory = () => {
   <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
     <div className="relative group min-w-[300px] flex-1 md:flex-initial">
       <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#008080] transition-colors" size={18} />
-      <input
-        type="text"
-        placeholder="FILTER BY NAME OR EMAIL..."
-        className="pl-14 pr-8 py-4 bg-slate-50 border border-slate-100 rounded-3xl text-xs font-bold uppercase tracking-[0.1em] focus:ring-4 ring-[#008080]/10 w-full shadow-sm transition-all outline-none focus:bg-white"
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-      />
+      <input type="text" placeholder="FILTER BY NAME OR EMAIL..." className="pl-14 pr-8 py-4 bg-slate-50 border border-slate-100 rounded-3xl text-xs font-bold uppercase tracking-[0.1em] focus:ring-4 ring-[#008080]/10 w-full shadow-sm transition-all outline-none focus:bg-white" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
     </div>
-    <button 
-      onClick={() => setIsFilterOpen(!isFilterOpen)}
-      className={`flex items-center gap-2 px-5 py-4 rounded-3xl text-xs font-black uppercase tracking-widest border transition-all ${
-        isFilterOpen || (selectedSyllabi.length + selectedSections.length + selectedSubjects.length) > 0
-          ? 'bg-[#008080]/10 text-[#008080] border-[#008080]' 
-          : 'bg-slate-50 text-slate-600 border-slate-100 hover:bg-slate-100'
-      }`}
-    >
+    <button onClick={() => setIsFilterOpen(!isFilterOpen)} className={`flex items-center gap-2 px-5 py-4 rounded-3xl text-xs font-black uppercase tracking-widest border transition-all ${isFilterOpen || selectedSyllabi.length + selectedSections.length + selectedSubjects.length > 0 ? 'bg-[#008080]/10 text-[#008080] border-[#008080]' : 'bg-slate-50 text-slate-600 border-slate-100 hover:bg-slate-100'}`}>
       <Filter size={16} /> Filters
-      {(selectedSyllabi.length + selectedSections.length + selectedSubjects.length) > 0 && (
-        <span className="ml-1 px-2 py-0.5 rounded-full text-[9px] font-black bg-[#008080] text-white">
+      {selectedSyllabi.length + selectedSections.length + selectedSubjects.length > 0 && <span className="ml-1 px-2 py-0.5 rounded-full text-[9px] font-black bg-[#008080] text-white">
           {selectedSyllabi.length + selectedSections.length + selectedSubjects.length}
-        </span>
-      )}
+        </span>}
     </button>
   </div>
   </div>
 
   {/* Collapsible Filter Panel */}
-  {isFilterOpen && (
-    <div className="bg-white p-8 rounded-[3rem] border border-slate-100 shadow-sm space-y-6 animate-in slide-in-from-top-4 duration-300">
+  {isFilterOpen && <div className="bg-white p-8 rounded-[3rem] border border-slate-100 shadow-sm space-y-6 animate-in slide-in-from-top-4 duration-300">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Syllabus Filter */}
         <div className="space-y-3">
@@ -155,23 +101,12 @@ const FacultyDirectory = () => {
           <div className="flex flex-wrap gap-2">
             {['CBSE', 'STATE'].map(syl => {
               const isSelected = selectedSyllabi.includes(syl);
-              return (
-                <button
-                  key={syl}
-                  type="button"
-                  onClick={() => toggleSyllabus(syl)}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all border ${
-                    isSelected 
-                      ? 'bg-[#008080]/10 text-[#008080] border-[#008080]' 
-                      : 'bg-slate-50 text-slate-600 border-slate-100 hover:bg-slate-100'
-                  }`}
-                >
+              return <button key={syl} type="button" onClick={() => toggleSyllabus(syl)} className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all border ${isSelected ? 'bg-[#008080]/10 text-[#008080] border-[#008080]' : 'bg-slate-50 text-slate-600 border-slate-100 hover:bg-slate-100'}`}>
                   <div className={`w-3 h-3 rounded-sm border flex items-center justify-center ${isSelected ? 'bg-[#008080] border-[#008080]' : 'border-slate-300'}`}>
                     {isSelected && <Check size={8} className="text-white" />}
                   </div>
                   {syl}
-                </button>
-              );
+                </button>;
             })}
           </div>
         </div>
@@ -182,23 +117,12 @@ const FacultyDirectory = () => {
           <div className="flex flex-wrap gap-2">
             {['LP', 'UP', 'HS', 'HSS'].map(sec => {
               const isSelected = selectedSections.includes(sec);
-              return (
-                <button
-                  key={sec}
-                  type="button"
-                  onClick={() => toggleSection(sec)}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all border ${
-                    isSelected 
-                      ? 'bg-[#008080]/10 text-[#008080] border-[#008080]' 
-                      : 'bg-slate-50 text-slate-600 border-slate-100 hover:bg-slate-100'
-                  }`}
-                >
+              return <button key={sec} type="button" onClick={() => toggleSection(sec)} className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all border ${isSelected ? 'bg-[#008080]/10 text-[#008080] border-[#008080]' : 'bg-slate-50 text-slate-600 border-slate-100 hover:bg-slate-100'}`}>
                   <div className={`w-3 h-3 rounded-sm border flex items-center justify-center ${isSelected ? 'bg-[#008080] border-[#008080]' : 'border-slate-300'}`}>
                     {isSelected && <Check size={8} className="text-white" />}
                   </div>
                   {sec}
-                </button>
-              );
+                </button>;
             })}
           </div>
         </div>
@@ -208,49 +132,30 @@ const FacultyDirectory = () => {
       <div className="space-y-3">
         <div className="flex justify-between items-center">
           <h4 className="text-xs font-black text-slate-500 uppercase tracking-widest">Subject Focus</h4>
-          {selectedSubjects.length > 0 && (
-            <button 
-              type="button" 
-              onClick={() => setSelectedSubjects([])}
-              className="text-[10px] font-black text-rose-500 uppercase tracking-widest hover:underline"
-            >
+          {selectedSubjects.length > 0 && <button type="button" onClick={() => setSelectedSubjects([])} className="text-[10px] font-black text-rose-500 uppercase tracking-widest hover:underline">
               Clear Subjects
-            </button>
-          )}
+            </button>}
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2">
           {SUBJECT_OPTIONS.map(sub => {
             const isSelected = selectedSubjects.includes(sub);
-            return (
-              <button
-                key={sub}
-                type="button"
-                onClick={() => toggleSubject(sub)}
-                className={`flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-[11px] font-bold transition-all border truncate ${
-                  isSelected 
-                    ? 'bg-[#008080]/10 text-[#008080] border-[#008080]' 
-                    : 'bg-slate-50 text-slate-600 border-slate-100 hover:bg-slate-100'
-                }`}
-                title={sub}
-              >
+            return <button key={sub} type="button" onClick={() => toggleSubject(sub)} className={`flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-[11px] font-bold transition-all border truncate ${isSelected ? 'bg-[#008080]/10 text-[#008080] border-[#008080]' : 'bg-slate-50 text-slate-600 border-slate-100 hover:bg-slate-100'}`} title={sub}>
                 <div className={`w-3 h-3 rounded-sm border flex flex-shrink-0 items-center justify-center ${isSelected ? 'bg-[#008080] border-[#008080]' : 'border-slate-300'}`}>
                   {isSelected && <Check size={8} className="text-white" />}
                 </div>
                 <span className="truncate">{sub}</span>
-              </button>
-            );
+              </button>;
           })}
         </div>
       </div>
-    </div>
-  )}
+    </div>}
 
  {/* List */}
  <div className="bg-white rounded-[3rem] border border-slate-100 shadow-sm overflow-hidden">
  <div className="overflow-x-auto">
  <table className="w-full text-left border-collapse">
  <thead>
- <tr className="bg-slate-50/50 border-b border-slate-100">
+ <tr className="bg-slate-50/50 border-b border-slate-100"><th className="py-4 px-6 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">#</th>
  <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest w-[80px]">No.</th>
  <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Faculty</th>
  <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Email</th>
@@ -261,8 +166,7 @@ const FacultyDirectory = () => {
  </tr>
  </thead>
  <tbody className="divide-y divide-slate-50">
- {filteredFaculties.length > 0 ? filteredFaculties.map((faculty, index) => (
- <tr key={faculty.id} className="hover:bg-emerald-50/20 transition-all group">
+ {filteredFaculties.length > 0 ? filteredFaculties.map((faculty, index) => <tr key={faculty.id} className="hover:bg-emerald-50/20 transition-all group">
  <td className="px-8 py-6 font-black text-slate-400 text-[12px]">{index + 1}</td>
  <td className="px-8 py-6">
  <div className="flex items-center gap-4">
@@ -294,42 +198,31 @@ const FacultyDirectory = () => {
  </div>
  </td>
  <td className="px-8 py-6">
- <span className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${String(faculty.status || 'active').toLowerCase() === 'active'
- ? 'bg-emerald-50 text-emerald-600 border-emerald-100'
- : 'bg-rose-50 text-rose-600 border-rose-100'
- }`}>
+ <span className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${String(faculty.status || 'active').toLowerCase() === 'active' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-rose-50 text-rose-600 border-rose-100'}`}>
  <Activity size={12} className={String(faculty.status || 'active').toLowerCase() === 'active' ? 'text-emerald-500' : 'text-rose-500'} />
  {faculty.status || 'active'}
  </span>
  </td>
  <td className="px-8 py-6 text-right">
- <button
- onClick={() => {
- setSelectedFaculty(faculty);
- setIsDetailModalOpen(true);
- }}
- className="p-2.5 bg-white border border-slate-200 rounded-xl text-[#008080] hover:bg-[#008080]/10 transition-all shadow-sm"
- title="View Profile"
- >
+ <button onClick={() => {
+                  setSelectedFaculty(faculty);
+                  setIsDetailModalOpen(true);
+                }} className="p-2.5 bg-white border border-slate-200 rounded-xl text-[#008080] hover:bg-[#008080]/10 transition-all shadow-sm" title="View Profile">
  <Eye size={16} />
  </button>
  </td>
- </tr>
- )) : (
- <tr>
+ </tr>) : <tr>
  <td colSpan={7} className="px-8 py-20 text-center">
  <p className="text-slate-600 font-black text-[10px] uppercase tracking-[0.3em]">System empty or no faculty found</p>
  </td>
- </tr>
- )}
+ </tr>}
  </tbody>
  </table>
  </div>
  </div>
 
  {/* Faculty Detail Modal */}
- {isDetailModalOpen && selectedFaculty && (
- <div className="fixed inset-0 bg-[#008080]/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4 animate-in fade-in duration-300">
+ {isDetailModalOpen && selectedFaculty && <div className="fixed inset-0 bg-[#008080]/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4 animate-in fade-in duration-300">
  <div className="bg-white rounded-[3.5rem] shadow-2xl w-full max-w-2xl overflow-hidden animate-in slide-in-from-bottom-8 duration-500 max-h-[90vh] overflow-y-auto">
  <div className="px-10 py-8 border-b border-slate-50 flex justify-between items-center bg-slate-50/50">
  <div className="flex items-center gap-4">
@@ -341,10 +234,7 @@ const FacultyDirectory = () => {
  <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">Academic Professional Profile</p>
  </div>
  </div>
- <button
- onClick={() => setIsDetailModalOpen(false)}
- className="w-12 h-12 flex items-center justify-center bg-white rounded-2xl text-slate-400 hover:text-slate-900 shadow-sm border border-slate-100 transition-all"
- >
+ <button onClick={() => setIsDetailModalOpen(false)} className="w-12 h-12 flex items-center justify-center bg-white rounded-2xl text-slate-400 hover:text-slate-900 shadow-sm border border-slate-100 transition-all">
  <X size={20} />
  </button>
  </div>
@@ -390,19 +280,13 @@ const FacultyDirectory = () => {
  <p className="text-xs font-black text-slate-900 uppercase">Verified Teaching Faculty</p>
  </div>
  </div>
- <button
- onClick={() => setIsDetailModalOpen(false)}
- className="px-8 py-3.5 bg-[#008080] text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-emerald-700 transition-all shadow-lg"
- >
+ <button onClick={() => setIsDetailModalOpen(false)} className="px-8 py-3.5 bg-[#008080] text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-emerald-700 transition-all shadow-lg">
  Close Registry
  </button>
  </div>
  </div>
  </div>
- </div>
- )}
- </div>
- );
+ </div>}
+ </div>;
 };
-
 export default FacultyDirectory;

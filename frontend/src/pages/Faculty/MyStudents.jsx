@@ -1,73 +1,57 @@
-import React, {  useState, useEffect, useMemo , useDeferredValue } from 'react';
+import React, { useState, useEffect, useMemo, useDeferredValue } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from '../../services/api';
-import {
- Search,
- User,
- ChevronRight,
- MoreHorizontal,
- GraduationCap,
- MapPin,
- Hash
-} from 'lucide-react';
+import { Search, User, ChevronRight, MoreHorizontal, GraduationCap, MapPin, Hash } from 'lucide-react';
 import toast from 'react-hot-toast';
 import StudentListFilterDropdown, { sortStudentsByOption } from '../../components/StudentListFilterDropdown';
-
 const FacultyStudents = () => {
- const [students, setStudents] = useState([]);
- const [loading, setLoading] = useState(true);
- const [searchTerm, setSearchTerm] = useState('');
-	const deferredSearchTerm = useDeferredValue(searchTerm);
- const [sortBy, setSortBy] = useState('');
- const navigate = useNavigate();
-
- useEffect(() => {
- fetchStudents();
- }, []);
-
- const fetchStudents = async () => {
- try {
- const res = await axios.get('/faculty/students');
- if (res.data.success) {
- setStudents((res.data.data || []).sort((a, b) => (a.name || '').localeCompare(b.name || '')));
- }
- } catch (error) {
- toast.error("Failed to load students");
- } finally {
- setLoading(false);
- }
- };
-
- const StatusBadge = ({ status }) => {
- const colors = {
- Green: 'bg-emerald-50 text-emerald-600 border-emerald-100',
- Yellow: 'bg-amber-50 text-amber-600 border-amber-100',
- Red: 'bg-rose-50 text-rose-600 border-rose-100'
- };
- const labels = {
- Green: 'Good',
- Yellow: 'Average',
- Red: 'Poor'
- };
- return (
- <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border ${colors[status] || colors.Green}`}>
+  const [students, setStudents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const deferredSearchTerm = useDeferredValue(searchTerm);
+  const [sortBy, setSortBy] = useState('');
+  const navigate = useNavigate();
+  useEffect(() => {
+    fetchStudents();
+  }, []);
+  const fetchStudents = async () => {
+    try {
+      const res = await axios.get('/faculty/students');
+      if (res.data.success) {
+        setStudents((res.data.data || []).sort((a, b) => (a.name || '').localeCompare(b.name || '')));
+      }
+    } catch (error) {
+      toast.error("Failed to load students");
+    } finally {
+      setLoading(false);
+    }
+  };
+  const StatusBadge = ({
+    status
+  }) => {
+    const colors = {
+      Green: 'bg-emerald-50 text-emerald-600 border-emerald-100',
+      Yellow: 'bg-amber-50 text-amber-600 border-amber-100',
+      Red: 'bg-rose-50 text-rose-600 border-rose-100'
+    };
+    const labels = {
+      Green: 'Good',
+      Yellow: 'Average',
+      Red: 'Poor'
+    };
+    return <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border ${colors[status] || colors.Green}`}>
  {labels[status] || status}
- </span>
- );
- };
-
- const filteredStudents = useMemo(() => {
- const filtered = students.filter(s => {
+ </span>;
+  };
+  const filteredStudents = useMemo(() => {
+    const filtered = students.filter(s => {
       const nameStr = s.name || '';
       const rollStr = s.roll_number || '';
-      return nameStr.toLowerCase().includes(deferredSearchTerm.toLowerCase()) ||
-             rollStr.toLowerCase().includes(deferredSearchTerm.toLowerCase());
- });
- return sortStudentsByOption(filtered, sortBy);
- }, [students, searchTerm, sortBy]);
-
- return (
- <div className="space-y-8">
+      return nameStr.toLowerCase().includes(deferredSearchTerm.toLowerCase()) || rollStr.toLowerCase().includes(deferredSearchTerm.toLowerCase());
+    });
+    return sortStudentsByOption(filtered, sortBy);
+  }, [students, searchTerm, sortBy]);
+  return <div className="space-y-8">
  {/* Page Title */}
  <div>
  <h2 className="text-3xl font-black text-slate-900 tracking-tighter uppercase ">Assigned Roster</h2>
@@ -78,13 +62,7 @@ const FacultyStudents = () => {
  <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
  <div className="relative group flex-1 max-w-md">
  <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#008080] transition-colors" size={18} />
- <input
- type="text"
- placeholder="Search students by name or roll number..."
- className="w-full pl-14 pr-6 py-4 bg-white border border-slate-200 rounded-[1.5rem] text-sm font-medium focus:outline-none focus:ring-4 focus:ring-[#008080]/5 focus:border-[#008080] transition-all shadow-sm"
- value={searchTerm}
- onChange={(e) => setSearchTerm(e.target.value)}
- />
+ <input type="text" placeholder="Search students by name or roll number..." className="w-full pl-14 pr-6 py-4 bg-white border border-slate-200 rounded-[1.5rem] text-sm font-medium focus:outline-none focus:ring-4 focus:ring-[#008080]/5 focus:border-[#008080] transition-all shadow-sm" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
  </div>
  <div className="flex gap-4">
  <StudentListFilterDropdown value={sortBy} onChange={setSortBy} />
@@ -100,7 +78,7 @@ const FacultyStudents = () => {
  <div className="hidden md:block overflow-x-auto">
  <table className="w-full text-left border-collapse">
  <thead>
- <tr className="bg-slate-50/50">
+ <tr className="bg-slate-50/50"><th className="py-4 px-6 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">#</th>
  <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Student Information</th>
  <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Roll Number</th>
  <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Department</th>
@@ -110,15 +88,9 @@ const FacultyStudents = () => {
  </tr>
  </thead>
  <tbody className="divide-y divide-slate-50">
- {loading ? (
- [1, 2, 3, 4, 5].map(i => (
- <tr key={i} className="animate-pulse">
+ {loading ? [1, 2, 3, 4, 5].map((i, index) => <tr key={i} className="animate-pulse"><td className="p-6 text-sm font-black text-slate-400 border-b border-slate-50">{index + 1}</td>
  <td colSpan="5" className="px-8 py-6"><div className="h-4 bg-slate-100 rounded w-full"></div></td>
- </tr>
- ))
- ) : filteredStudents.length > 0 ? (
- filteredStudents.map((student) => (
- <tr key={student.id} className="hover:bg-slate-50/80 transition-all group">
+ </tr>) : filteredStudents.length > 0 ? filteredStudents.map((student, index) => <tr key={student.id} className="hover:bg-slate-50/80 transition-all group"><td className="p-6 text-sm font-black text-slate-400 border-b border-slate-50">{index + 1}</td>
  <td className="px-8 py-6">
  <div className="flex items-center gap-4">
  <div className="w-12 h-12 bg-[#008080]/10 rounded-2xl flex items-center justify-center text-white font-black text-xl group-hover:bg-[#008080] group-hover:text-white transition-all duration-500">
@@ -146,38 +118,26 @@ const FacultyStudents = () => {
  </td>
  <td className="px-8 py-6">
  <div className="flex flex-col gap-1 min-w-[120px]">
- {student.subject_hours && student.subject_hours.length > 0 ? (
- student.subject_hours.map((sh, idx) => (
- <div key={idx} className="flex justify-between items-center text-[10px] font-black uppercase text-[#008080]">
+ {student.subject_hours && student.subject_hours.length > 0 ? student.subject_hours.map((sh, idx) => <div key={idx} className="flex justify-between items-center text-[10px] font-black uppercase text-[#008080]">
  <span>{sh.subject}</span>
  <span className="text-slate-700 ml-2">{sh.consumed_hours} / {sh.allocated_hours} Hrs</span>
- </div>
- ))
- ) : (
- <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">No subject hours logged</span>
- )}
+ </div>) : <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">No subject hours logged</span>}
  </div>
  </td>
  <td className="px-8 py-6">
  <div className="flex flex-col items-center gap-2">
  <span className="text-xs font-black text-slate-900 tabular-nums">{student.attendance_percentage}%</span>
  <div className="w-24 h-1.5 bg-slate-100 rounded-full overflow-hidden">
- <div
- className={`h-full rounded-full transition-all duration-1000 ${parseFloat(student.attendance_percentage) > 85 ? 'bg-emerald-500' :
- parseFloat(student.attendance_percentage) > 75 ? 'bg-amber-500' : 'bg-rose-500'
- }`}
- style={{ width: `${student.attendance_percentage}%` }}
- ></div>
+ <div className={`h-full rounded-full transition-all duration-1000 ${parseFloat(student.attendance_percentage) > 85 ? 'bg-emerald-500' : parseFloat(student.attendance_percentage) > 75 ? 'bg-amber-500' : 'bg-rose-500'}`} style={{
+                      width: `${student.attendance_percentage}%`
+                    }}></div>
  </div>
  </div>
  </td>
  <td className="px-8 py-6">
  <StatusBadge status={student.performance_status || 'Green'} />
  </td>
- </tr>
- ))
- ) : (
- <tr>
+ </tr>) : <tr>
  <td colSpan="5" className="px-8 py-20 text-center">
  <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center text-slate-300 mx-auto mb-6">
  <GraduationCap size={40} />
@@ -185,14 +145,11 @@ const FacultyStudents = () => {
  <p className="text-slate-900 font-black text-xl">No students found</p>
  <p className="text-slate-600 font-bold uppercase tracking-widest text-[10px] mt-2">Adjust your search filters or check your assignments</p>
  </td>
- </tr>
- )}
+ </tr>}
  </tbody>
  </table>
  </div>
  </div>
- </div>
- );
+ </div>;
 };
-
 export default FacultyStudents;

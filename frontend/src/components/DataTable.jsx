@@ -93,7 +93,7 @@ const DataTable = ({
  <table className="w-full text-left border-collapse">
  <thead>
  <tr className="bg-slate-50/40">
- {columns.map((col, index) => (
+ {enhancedColumns.map((col, index) => (
  <th key={index} className="px-8 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 border-b border-slate-100/50" style={{ width: col.width }}>
  {col.header}
  </th>
@@ -105,7 +105,7 @@ const DataTable = ({
  {loading ? (
  [...Array(6)].map((_, i) => (
  <tr key={i} className="animate-pulse">
- {columns.map((_, j) => (
+ {enhancedColumns.map((_, j) => (
  <td key={j} className="px-8 py-6"><div className="h-4 bg-slate-100 rounded-[6px] w-full"></div></td>
  ))}
  <td className="px-8 py-6"><div className="h-8 bg-slate-100 rounded-[10px] w-full"></div></td>
@@ -113,7 +113,7 @@ const DataTable = ({
  ))
  ) : data.length === 0 ? (
  <tr>
- <td colSpan={columns.length + 1} className="px-8 py-24 text-center">
+ <td colSpan={enhancedColumns.length + 1} className="px-8 py-24 text-center">
  <div className="flex flex-col items-center gap-4 animate-in fade-in zoom-in duration-500">
  <div className="w-20 h-20 bg-slate-50 rounded-[28px] flex items-center justify-center border border-slate-100 shadow-inner">
  <Search size={32} className="text-slate-200" />
@@ -131,7 +131,7 @@ const DataTable = ({
  return (
  <React.Fragment key={row.id !== undefined ? row.id : rowIndex}>
  <tr className="group hover:bg-[#F8FAFC]/80 transition-all duration-300">
- {columns.map((col, colIndex) => (
+ {enhancedColumns.map((col, colIndex) => (
  <td key={colIndex} className="px-8 py-6 whitespace-nowrap text-sm text-slate-600 font-bold">
  {col.render ? col.render(row, { isExpanded, onToggle: () => handleToggle(row.id !== undefined ? row.id : rowIndex), index: rowIndex }) : row[col.accessor]}
  </td>
@@ -197,7 +197,7 @@ const DataTable = ({
  </tr>
  {isExpanded && renderSubRow && (
    <tr className="bg-slate-50/80 border-b border-slate-100">
-     <td colSpan={columns.length + (hasActions ? 1 : 0)} className="p-8">
+     <td colSpan={enhancedColumns.length + (hasActions ? 1 : 0)} className="p-8">
        {renderSubRow(row, () => handleToggle(row.id !== undefined ? row.id : rowIndex))}
      </td>
    </tr>
@@ -233,7 +233,7 @@ const DataTable = ({
  {/* Primary Info (First Column) */}
  <div className="flex items-center justify-between">
  <div className="flex-1 overflow-hidden">
- <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{columns[0].header}</div>
+ <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">#{rowIndex + 1} &bull; {columns[0].header}</div>
  <div className="font-bold text-slate-900 truncate">
  {columns[0].render ? columns[0].render(row, { isExpanded, onToggle: () => handleToggle(row.id !== undefined ? row.id : rowIndex), index: rowIndex }) : row[columns[0].accessor]}
  </div>

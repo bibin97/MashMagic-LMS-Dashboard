@@ -1,64 +1,42 @@
-import React, {  useState, useEffect , useDeferredValue } from 'react';
+import React, { useState, useEffect, useDeferredValue } from 'react';
 import axios from '../../services/api';
-import {
- ClipboardList,
- Search,
- Calendar,
- BookOpen,
- ArrowUpRight,
- SearchX,
- Clock,
- User,
- CheckCircle2,
- XCircle,
- HelpCircle,
- ShieldAlert,
- Eye,
- X
-} from 'lucide-react';
+import { ClipboardList, Search, Calendar, BookOpen, ArrowUpRight, SearchX, Clock, User, CheckCircle2, XCircle, HelpCircle, ShieldAlert, Eye, X } from 'lucide-react';
 import toast from 'react-hot-toast';
-
 const StudentLogs = () => {
- const [logs, setLogs] = useState([]);
- const [loading, setLoading] = useState(true);
- const [searchTerm, setSearchTerm] = useState('');
-	const deferredSearchTerm = useDeferredValue(searchTerm);
- const [viewingLog, setViewingLog] = useState(null);
-
- useEffect(() => {
- fetchLogs();
- }, []);
-
- const fetchLogs = async () => {
- try {
- const res = await axios.get('/faculty/faculty-logs');
- if (res.data.success) {
- setLogs(res.data.data);
- }
- } catch (error) {
- toast.error("Failed to load logs");
- } finally {
- setLoading(false);
- }
- };
-
- const filteredLogs = logs.filter(l =>
- l.student_name.toLowerCase().includes(deferredSearchTerm.toLowerCase()) ||
- l.chapter.toLowerCase().includes(deferredSearchTerm.toLowerCase()) ||
- l.mentor_name?.toLowerCase().includes(deferredSearchTerm.toLowerCase())
- );
-
- const getHomeworkStatusIcon = (status) => {
- switch (status) {
- case 'Completed': return <CheckCircle2 size={16} className="text-emerald-500" />;
- case 'Partially Completed': return <HelpCircle size={16} className="text-amber-500" />;
- case 'Not Done': return <XCircle size={16} className="text-rose-500" />;
- default: return null;
- }
- };
-
- return (
- <div className="space-y-10">
+  const [logs, setLogs] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const deferredSearchTerm = useDeferredValue(searchTerm);
+  const [viewingLog, setViewingLog] = useState(null);
+  useEffect(() => {
+    fetchLogs();
+  }, []);
+  const fetchLogs = async () => {
+    try {
+      const res = await axios.get('/faculty/faculty-logs');
+      if (res.data.success) {
+        setLogs(res.data.data);
+      }
+    } catch (error) {
+      toast.error("Failed to load logs");
+    } finally {
+      setLoading(false);
+    }
+  };
+  const filteredLogs = logs.filter(l => l.student_name.toLowerCase().includes(deferredSearchTerm.toLowerCase()) || l.chapter.toLowerCase().includes(deferredSearchTerm.toLowerCase()) || l.mentor_name?.toLowerCase().includes(deferredSearchTerm.toLowerCase()));
+  const getHomeworkStatusIcon = status => {
+    switch (status) {
+      case 'Completed':
+        return <CheckCircle2 size={16} className="text-emerald-500" />;
+      case 'Partially Completed':
+        return <HelpCircle size={16} className="text-amber-500" />;
+      case 'Not Done':
+        return <XCircle size={16} className="text-rose-500" />;
+      default:
+        return null;
+    }
+  };
+  return <div className="space-y-10">
  {/* Header Area */}
  <div className="flex flex-col md:flex-row justify-between items-center gap-8">
  <div>
@@ -69,13 +47,7 @@ const StudentLogs = () => {
  <div className="w-full md:w-auto flex flex-col sm:flex-row gap-4">
  <div className="relative group">
  <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#008080] transition-colors" size={18} />
- <input
- type="text"
- placeholder="Search by student, chapter or mentor..."
- className="bg-white border border-slate-200 pl-14 pr-8 py-4 rounded-[1.5rem] text-sm font-medium focus:outline-none focus:ring-4 focus:ring-[#008080]/5 focus:border-[#008080] transition-all shadow-sm min-w-[350px]"
- value={searchTerm}
- onChange={(e) => setSearchTerm(e.target.value)}
- />
+ <input type="text" placeholder="Search by student, chapter or mentor..." className="bg-white border border-slate-200 pl-14 pr-8 py-4 rounded-[1.5rem] text-sm font-medium focus:outline-none focus:ring-4 focus:ring-[#008080]/5 focus:border-[#008080] transition-all shadow-sm min-w-[350px]" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
  </div>
  </div>
  </div>
@@ -85,7 +57,7 @@ const StudentLogs = () => {
  <div className="overflow-x-auto">
  <table className="w-full text-left border-collapse">
  <thead>
- <tr className="bg-slate-50 border-b border-slate-100 font-black text-[10px] text-slate-600 uppercase tracking-widest ">
+ <tr className="bg-slate-50 border-b border-slate-100 font-black text-[10px] text-slate-600 uppercase tracking-widest "><th className="py-4 px-6 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">#</th>
  <th className="px-8 py-6">Date & Session</th>
  <th className="px-8 py-6">Student & Mentor</th>
  <th className="px-8 py-6">Chapter & Topics</th>
@@ -95,15 +67,9 @@ const StudentLogs = () => {
  </tr>
  </thead>
  <tbody className="divide-y divide-slate-100">
- {loading ? (
- [1, 2, 3, 4, 5].map(i => (
- <tr key={i} className="animate-pulse">
+ {loading ? [1, 2, 3, 4, 5].map((i, index) => <tr key={i} className="animate-pulse"><td className="p-6 text-sm font-black text-slate-400 border-b border-slate-50">{index + 1}</td>
  <td colSpan="6" className="px-8 py-6 h-20 bg-slate-50/50"></td>
- </tr>
- ))
- ) : filteredLogs.length > 0 ? (
- filteredLogs.map((log) => (
- <tr key={log.id} className="hover:bg-[#008080]/10/20 transition-all group">
+ </tr>) : filteredLogs.length > 0 ? filteredLogs.map((log, index) => <tr key={log.id} className="hover:bg-[#008080]/10/20 transition-all group"><td className="p-6 text-sm font-black text-slate-400 border-b border-slate-50">{index + 1}</td>
  <td className="px-8 py-6">
  <div className="flex flex-col">
  <span className="font-black text-slate-900 text-sm whitespace-nowrap">{new Date(log.date).toLocaleDateString()}</span>
@@ -135,26 +101,16 @@ const StudentLogs = () => {
  </div>
  </td>
  <td className="px-8 py-6 text-center">
- {log.test_score ? (
- <span className="px-4 py-1.5 bg-[#008080] text-white rounded-full text-[10px] font-black tracking-widest shadow-lg shadow-[#008080]/30">
+ {log.test_score ? <span className="px-4 py-1.5 bg-[#008080] text-white rounded-full text-[10px] font-black tracking-widest shadow-lg shadow-[#008080]/30">
  {log.test_score}
- </span>
- ) : (
- <span className="text-[10px] font-black text-slate-300 uppercase ">No Test</span>
- )}
+ </span> : <span className="text-[10px] font-black text-slate-300 uppercase ">No Test</span>}
  </td>
  <td className="px-8 py-6 text-right">
- <button
- onClick={() => setViewingLog(log)}
- className="p-3 bg-white border border-slate-200 rounded-xl text-slate-600 hover:text-[#008080] hover:border-[#008080] transition-all shadow-sm hover:shadow-md active:scale-95"
- >
+ <button onClick={() => setViewingLog(log)} className="p-3 bg-white border border-slate-200 rounded-xl text-slate-600 hover:text-[#008080] hover:border-[#008080] transition-all shadow-sm hover:shadow-md active:scale-95">
  <Eye size={18} />
  </button>
  </td>
- </tr>
- ))
- ) : (
- <tr>
+ </tr>) : <tr>
  <td colSpan="6" className="py-20 text-center">
  <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center text-slate-200 mx-auto mb-6">
  <SearchX size={40} />
@@ -162,16 +118,14 @@ const StudentLogs = () => {
  <h3 className="text-xl font-black text-slate-900 tracking-tight ">No logs found</h3>
  <p className="text-slate-600 font-bold uppercase tracking-widest text-[10px] mt-2">We couldn't find any interaction records</p>
  </td>
- </tr>
- )}
+ </tr>}
  </tbody>
  </table>
  </div>
  </div>
 
  {/* View Details Modal */}
- {viewingLog && (
- <div className="fixed inset-0 bg-[#008080]/60 backdrop-blur-md z-[2000] flex items-center justify-center p-6 animate-in fade-in duration-300">
+ {viewingLog && <div className="fixed inset-0 bg-[#008080]/60 backdrop-blur-md z-[2000] flex items-center justify-center p-6 animate-in fade-in duration-300">
  <div className="bg-white rounded-[3.5rem] shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto animate-in zoom-in slide-in-from-bottom-10 duration-500">
  <div className="sticky top-0 bg-white/80 backdrop-blur-xl px-10 py-8 border-b border-slate-100 flex justify-between items-center z-10">
  <div className="flex items-center gap-6">
@@ -194,9 +148,7 @@ const StudentLogs = () => {
  <div className="bg-slate-50 p-6 rounded-3xl border border-slate-100">
  <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest mb-2">Performance</p>
  <div className="flex gap-1.5">
- {[1, 2, 3, 4, 5].map(star => (
- <div key={star} className={`w-2.5 h-2.5 rounded-full ${star <= (viewingLog.student_performance || 0) ? 'bg-amber-400' : 'bg-slate-200'}`}></div>
- ))}
+ {[1, 2, 3, 4, 5].map(star => <div key={star} className={`w-2.5 h-2.5 rounded-full ${star <= (viewingLog.student_performance || 0) ? 'bg-amber-400' : 'bg-slate-200'}`}></div>)}
  </div>
  </div>
  <div className="bg-slate-50 p-6 rounded-3xl border border-slate-100">
@@ -280,16 +232,9 @@ const StudentLogs = () => {
  </div>
  </div>
 
- {viewingLog.screenshot_url && (
- <a
- href={viewingLog.screenshot_url}
- target="_blank"
- rel="noreferrer"
- className="relative bg-white text-slate-900 px-8 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-black/20 "
- >
+ {viewingLog.screenshot_url && <a href={viewingLog.screenshot_url} target="_blank" rel="noreferrer" className="relative bg-white text-slate-900 px-8 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-black/20 ">
  View Attachment
- </a>
- )}
+ </a>}
  </div>
 
  {/* Mentor Memo */}
@@ -303,10 +248,7 @@ const StudentLogs = () => {
  </div>
  </div>
  </div>
- </div>
- )}
- </div>
- );
+ </div>}
+ </div>;
 };
-
 export default StudentLogs;

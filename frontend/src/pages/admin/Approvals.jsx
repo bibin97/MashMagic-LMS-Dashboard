@@ -1,30 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import {
- Activity,
- CheckCircle,
- XCircle,
- Loader2,
- Shield,
- User,
- Calendar,
- ArrowUpRight,
- Mail,
- MapPin,
- Phone,
- UserCheck
-} from 'lucide-react';
+import { Activity, CheckCircle, XCircle, Loader2, Shield, User, Calendar, ArrowUpRight, Mail, MapPin, Phone, UserCheck } from 'lucide-react';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
 import { premiumConfirm } from '../../utils/premiumConfirm';
-
 const Approvals = () => {
   const [pendingUsers, setPendingUsers] = useState([]);
   const [loading, setLoading] = useState(true);
-
   useEffect(() => {
     fetchAllData();
   }, []);
-
   const fetchAllData = async () => {
     setLoading(true);
     try {
@@ -37,10 +21,11 @@ const Approvals = () => {
       setLoading(false);
     }
   };
-
   const handleApprove = async (id, role) => {
     try {
-      await api.put(`/admin/approve/${id}`, { role });
+      await api.put(`/admin/approve/${id}`, {
+        role
+      });
       toast.success(`${role === 'student' ? 'Student' : 'User'} approved successfully`);
       setPendingUsers(prev => prev.filter(user => !(user.id === id && user.role === role)));
       // Trigger notification refresh
@@ -50,11 +35,12 @@ const Approvals = () => {
       toast.error("Failed to approve user");
     }
   };
-
   const handleReject = async (id, role, name = 'this user') => {
     premiumConfirm(async () => {
       try {
-        await api.put(`/admin/reject/${id}`, { role });
+        await api.put(`/admin/reject/${id}`, {
+          role
+        });
         toast.success(`${role === 'student' ? 'Student' : 'User'} rejected successfully`);
         setPendingUsers(prev => prev.filter(user => !(user.id === id && user.role === role)));
         if (window.refetchNotifications) window.refetchNotifications();
@@ -62,35 +48,35 @@ const Approvals = () => {
         console.error('Reject error:', error);
         toast.error("Failed to reject user");
       }
-    }, { 
+    }, {
       name: name,
-      title: 'Reject Registration', 
+      title: 'Reject Registration',
       message: `Are you sure you want to reject this ${role === 'student' ? 'student' : 'user'}?`,
       type: 'danger'
     });
   };
-
-  const getRoleBadgeStyle = (role) => {
+  const getRoleBadgeStyle = role => {
     switch (role) {
-      case 'academic_head': return 'bg-purple-50 text-purple-700 border-purple-200';
-      case 'mentor_head': return 'bg-[#008080]/10 text-[#008080] border-[#008080]/20';
-      case 'faculty': return 'bg-emerald-50 text-emerald-700 border-emerald-200';
-      case 'mentor': return 'bg-[#008080]/10 text-[#008080] border-[#008080]/20';
-      case 'student': return 'bg-slate-100 text-slate-600 border-slate-200';
-      default: return 'bg-gray-50 text-gray-700 border-gray-200';
+      case 'academic_head':
+        return 'bg-purple-50 text-purple-700 border-purple-200';
+      case 'mentor_head':
+        return 'bg-[#008080]/10 text-[#008080] border-[#008080]/20';
+      case 'faculty':
+        return 'bg-emerald-50 text-emerald-700 border-emerald-200';
+      case 'mentor':
+        return 'bg-[#008080]/10 text-[#008080] border-[#008080]/20';
+      case 'student':
+        return 'bg-slate-100 text-slate-600 border-slate-200';
+      default:
+        return 'bg-gray-50 text-gray-700 border-gray-200';
     }
   };
-
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
+    return <div className="flex items-center justify-center h-64">
         <Loader2 className="w-8 h-8 text-[#008080] animate-spin" />
-      </div>
-    );
+      </div>;
   }
-
-  return (
-    <div className="space-y-8">
+  return <div className="space-y-8">
       {/* Header */}
       <div className="bg-white/70 backdrop-blur-xl p-12 rounded-[40px] border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.04)] flex flex-col md:flex-row justify-between items-center gap-10">
         <div className="text-center md:text-left">
@@ -132,12 +118,10 @@ const Approvals = () => {
           </div>
           
           <div className="flex-1 min-h-[400px]">
-            {pendingUsers.length > 0 ? (
-              <div className="overflow-x-auto">
+            {pendingUsers.length > 0 ? <div className="overflow-x-auto">
                 <table className="w-full text-left">
                   <tbody className="divide-y divide-slate-50">
-                    {pendingUsers.map((user) => (
-                      <tr key={`${user.role}-${user.id}`} className="hover:bg-slate-50/50 transition-all group">
+                    {pendingUsers.map((user, index) => <tr key={`${user.role}-${user.id}`} className="hover:bg-slate-50/50 transition-all group"><td className="p-6 text-sm font-black text-slate-400 border-b border-slate-50">{index + 1}</td>
                         <td className="p-6">
                           <div className="flex items-center gap-4">
                             <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-slate-400 font-black border border-slate-100 group-hover:text-[#008080] transition-all">
@@ -163,7 +147,11 @@ const Approvals = () => {
                               </div>
                               <div className="flex items-center gap-2">
                                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest w-10">Time</span>
-                                <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">- {new Date(user.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}</span>
+                                <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">- {new Date(user.created_at).toLocaleTimeString('en-US', {
+                                hour: '2-digit',
+                                minute: '2-digit',
+                                hour12: true
+                              })}</span>
                               </div>
                             </div>
                           </div>
@@ -179,22 +167,16 @@ const Approvals = () => {
                             </button>
                           </div>
                         </td>
-                      </tr>
-                    ))}
+                      </tr>)}
                   </tbody>
                 </table>
-              </div>
-            ) : (
-              <div className="flex flex-col items-center justify-center py-20 text-slate-400">
+              </div> : <div className="flex flex-col items-center justify-center py-20 text-slate-400">
                 <CheckCircle size={32} className="mb-4 opacity-20" />
                 <p className="text-[10px] font-black uppercase tracking-widest">No pending staff</p>
-              </div>
-            )}
+              </div>}
           </div>
         </div>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default Approvals;
