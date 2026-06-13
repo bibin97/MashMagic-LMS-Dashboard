@@ -203,9 +203,7 @@ const SSCStudentList = () => {
     });
 
     if (activeTab === 'active_plus') {
-      filtered = filtered.filter(s => s.status === 'active' && s.course_completed !== 1 && s.mentorship_completed !== 1);
-    } else if (activeTab === 'mentorship_completed') {
-      filtered = filtered.filter(s => s.mentorship_completed === 1);
+      filtered = filtered.filter(s => s.status === 'active' && s.course_completed !== 1);
     } else if (activeTab === 'completed') {
       filtered = filtered.filter(s => s.course_completed === 1);
     }
@@ -229,7 +227,7 @@ const SSCStudentList = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
         <button 
           onClick={() => setActiveTab('enrolled_scholars')}
           className={`p-8 rounded-[35px] border shadow-sm flex flex-col gap-2 transition-all text-left ${activeTab === 'enrolled_scholars' ? 'bg-indigo-600 border-indigo-600 text-white scale-105 shadow-xl shadow-indigo-600/20' : 'bg-white border-slate-100 hover:shadow-xl hover:shadow-indigo-600/5 hover:-translate-y-1'}`}
@@ -248,23 +246,12 @@ const SSCStudentList = () => {
           <span className={`text-[10px] font-black uppercase tracking-widest ${activeTab === 'active_plus' ? 'text-white/80' : 'text-indigo-600'}`}>Active Plus</span>
           <div className={`flex items-end gap-3 font-black tracking-tighter ${activeTab === 'active_plus' ? 'text-white' : 'text-slate-900'}`}>
             <span className="text-4xl leading-none">
-              {students.filter(s => s.status === 'active' && s.course_completed !== 1 && s.mentorship_completed !== 1).length}
+              {students.filter(s => s.status === 'active' && s.course_completed !== 1).length}
             </span>
             <div className={`flex items-center gap-1.5 mb-1 px-2 py-0.5 rounded-full ${activeTab === 'active_plus' ? 'bg-white/20' : 'bg-indigo-600/10'}`}>
                <div className={`w-1.5 h-1.5 rounded-full animate-pulse ${activeTab === 'active_plus' ? 'bg-white' : 'bg-indigo-600'}`}></div>
                <span className={`text-[10px] uppercase tracking-widest ${activeTab === 'active_plus' ? 'text-white' : 'text-indigo-600'}`}>Live</span>
             </div>
-          </div>
-        </button>
-
-        <button 
-          onClick={() => setActiveTab('mentorship_completed')}
-          className={`p-8 rounded-[35px] border shadow-sm flex flex-col gap-2 transition-all text-left ${activeTab === 'mentorship_completed' ? 'bg-teal-600 border-teal-600 text-white scale-105 shadow-xl shadow-teal-500/20' : 'bg-white border-slate-100 hover:shadow-xl hover:shadow-teal-500/5 hover:-translate-y-1'}`}
-        >
-          <span className={`text-[10px] font-black uppercase tracking-widest transition-colors ${activeTab === 'mentorship_completed' ? 'text-white/80' : 'text-teal-600 hover:text-teal-700'}`}>Mentorship Completed</span>
-          <div className={`flex items-end gap-3 font-black tracking-tighter ${activeTab === 'mentorship_completed' ? 'text-white' : 'text-slate-900'}`}>
-            <span className="text-4xl leading-none">{students.filter(s => s.mentorship_completed === 1).length}</span>
-            <span className={`text-[10px] mb-1 uppercase tracking-widest ${activeTab === 'mentorship_completed' ? 'text-white/80' : 'text-slate-600'}`}>Total Achievers</span>
           </div>
         </button>
 

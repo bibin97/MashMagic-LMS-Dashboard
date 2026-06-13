@@ -315,7 +315,7 @@ const StudentsList = ({ role = 'academic_operation_executive' }) => {
 					</div>
 				</button>
 
-                {(role === 'mentor_head' || role === 'aoe' || role === 'ssc') && (
+                {(role === 'mentor_head' || role === 'academic_operation_executive' || role === 'aoe' || role === 'ssc' || role === 'academic_head') && (
                 <button 
                     onClick={() => setActiveTab('completed')}
                     className={`p-8 rounded-[2.5rem] border shadow-sm flex flex-col gap-2 transition-all ${activeTab === 'completed' ? 'bg-emerald-600 border-emerald-600 text-white scale-105 shadow-xl shadow-emerald-500/20' : 'bg-white border-slate-100 hover:shadow-xl hover:shadow-emerald-500/5 hover:-translate-y-1'}`}
