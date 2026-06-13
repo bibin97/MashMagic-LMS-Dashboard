@@ -422,64 +422,6 @@ const OperationsHub = ({ section }) => {
     );
   };
 
-              <div>
-                <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight flex items-center gap-3">
-                  <Activity className="text-indigo-500" /> Update Rotation Status
-                </h2>
-                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">
-                  Student: {rotationModal.rotation?.student_name}
-                </p>
-              </div>
-              <button onClick={() => setRotationModal({ ...rotationModal, show: false })} className="text-slate-400 hover:text-rose-500 transition-colors">
-                <X size={24} />
-              </button>
-            </div>
-            <form onSubmit={handleRotationSubmit} className="p-8 space-y-6">
-              <div className="space-y-2">
-                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Call Status</label>
-                <select 
-                  value={rotationModal.status}
-                  onChange={(e) => setRotationModal({...rotationModal, status: e.target.value})}
-                  className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all"
-                >
-                  <option value="Pending">Pending</option>
-                  <option value="Called">Called</option>
-                  <option value="Missed">Missed</option>
-                </select>
-              </div>
-              <div className="space-y-2">
-                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Next Call Date</label>
-                <input 
-                  type="date"
-                  value={rotationModal.next_call_date}
-                  onChange={(e) => setRotationModal({...rotationModal, next_call_date: e.target.value})}
-                  className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all"
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Call Notes / Updates</label>
-                <textarea 
-                  value={rotationModal.notes}
-                  onChange={(e) => setRotationModal({...rotationModal, notes: e.target.value})}
-                  className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all"
-                  rows="3"
-                  placeholder="Enter details from the call..."
-                ></textarea>
-              </div>
-              <div className="pt-4 flex justify-end gap-4">
-                <button type="button" onClick={() => setRotationModal({ ...rotationModal, show: false })} className="px-6 py-3 text-[10px] font-black text-slate-500 uppercase tracking-widest hover:text-slate-700">Cancel</button>
-                <button type="submit" disabled={submittingRotation} className="px-8 py-3 bg-indigo-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-indigo-500/20 hover:bg-indigo-600 transition-colors disabled:opacity-50">
-                  {submittingRotation ? 'Saving...' : 'Save Update'}
-                </button>
-              </div>
-              </form>
-            </div>
-          </div>
-        )}
-      </div>
-    );
-  };
-
   const renderParentsMeeting = () => (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
       <ParentMeetings isEmbedded={true} />
