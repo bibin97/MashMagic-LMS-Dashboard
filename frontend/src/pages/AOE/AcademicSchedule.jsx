@@ -4,7 +4,7 @@ import {
   CalendarClock, Clock, BookOpen, Users,
   Search, Filter, ChevronRight, Activity, Radio, Video,
   Calendar, AlertCircle, Bell, CheckSquare, MessageSquareText, Lock, 
-  ShieldCheck, Timer, XCircle
+  ShieldCheck, Timer, XCircle, X
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
