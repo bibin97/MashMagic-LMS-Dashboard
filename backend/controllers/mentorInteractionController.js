@@ -239,7 +239,12 @@ const submitSessionReport = async (req, res) => {
 
         // Add uploaded files to report_data
         if (req.files && req.files.length > 0) {
-            report_data.files = req.files.map(file => file.path);
+            report_data.files = req.files.map(file => {
+                if (file.path && file.path.startsWith('http')) {
+                    return file.path;
+                }
+                return '/uploads/' + file.filename;
+            });
         }
 
         // 4. Fraud Check (Module 7)

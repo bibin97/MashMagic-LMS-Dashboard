@@ -134,7 +134,7 @@ const OperationsHub = ({ section }) => {
     if (!rotationModal.rotation) return;
     setSubmittingRotation(true);
     try {
-      const response = await api.put(`/academic-head/student-rotation/${rotationModal.rotation.id}`, {
+      const response = await api.put(`/academic-head/student-rotation/${rotationModal.rotation.student_id}`, {
         status: rotationModal.status,
         notes: rotationModal.notes,
         next_call_date: rotationModal.next_call_date
@@ -231,8 +231,8 @@ const OperationsHub = ({ section }) => {
           {liveSessions.map((session, i) => (
             <div key={session.id || i} className="bg-emerald-50/30 p-4 md:p-6 rounded-[2rem] border border-emerald-100/70 hover:shadow-lg hover:shadow-emerald-100/30 transition-all flex flex-col md:flex-row md:items-center justify-between gap-4 group">
               <div className="flex items-center gap-4 flex-1 min-w-[200px]">
-                <div className="w-10 h-10 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center shrink-0">
-                  <Clock size={18} />
+                <div className="w-10 h-10 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center shrink-0 font-black text-sm shadow-sm">
+                  {i + 1}
                 </div>
                 <div className="min-w-0">
                   <span className="inline-block text-[9px] font-black bg-emerald-500 text-white px-2.5 py-0.5 rounded-full uppercase tracking-widest mb-1.5">
@@ -268,33 +268,49 @@ const OperationsHub = ({ section }) => {
                   </span>
                 )}
                 
-                <button 
-                  onClick={() => {
-                    if (!session.faculty_id) {
-                      toast.error("Cannot evaluate: Faculty not assigned to this session.");
-                      return;
-                    }
-                    setRatingModal({ 
-                      show: true, 
-                      session, 
-                      remarks: '', 
-                      proofFile: null,
-                      ratings: { 
-                        lighting: 0, 
-                        audioQuality: 0, 
-                        videoQuality: 0, 
-                        internetStability: 0, 
-                        screenSharing: 0, 
-                        writingBoardVisibility: 0, 
-                        virtualBackground: 0, 
-                        devicePositioning: 0 
-                      } 
-                    });
-                  }}
-                  className="text-[9px] font-black text-white bg-[#008080] px-4 py-2.5 rounded-xl hover:bg-[#006666] uppercase tracking-widest transition-all shadow-md shadow-[#008080]/20 hover:-translate-y-0.5 active:translate-y-0"
-                >
-                  Updates
-                </button>
+                <div className="flex gap-2 items-center mt-2 md:mt-0">
+                  <button 
+                    onClick={() => {
+                      if (!session.faculty_id) {
+                        toast.error("Cannot evaluate: Faculty not assigned to this session.");
+                        return;
+                      }
+                      setRatingModal({ 
+                        show: true, 
+                        session, 
+                        remarks: '', 
+                        proofFile: null,
+                        ratings: { 
+                          lighting: 0, 
+                          audioQuality: 0, 
+                          videoQuality: 0, 
+                          internetStability: 0, 
+                          screenSharing: 0, 
+                          writingBoardVisibility: 0, 
+                          virtualBackground: 0, 
+                          devicePositioning: 0 
+                        } 
+                      });
+                    }}
+                    className="text-[9px] font-black text-white bg-[#008080] px-4 py-2.5 rounded-xl hover:bg-[#006666] uppercase tracking-widest transition-all shadow-md shadow-[#008080]/20 hover:-translate-y-0.5 active:translate-y-0"
+                  >
+                    Updates
+                  </button>
+                  <button 
+                    onClick={() => {
+                      setRotationModal({ 
+                        show: true, 
+                        rotation: session, 
+                        status: session.call_status || 'Pending', 
+                        notes: session.notes || '', 
+                        next_call_date: session.next_call_date ? new Date(session.next_call_date).toISOString().split('T')[0] : '' 
+                      });
+                    }}
+                    className="text-[9px] font-black text-white bg-indigo-500 px-4 py-2.5 rounded-xl hover:bg-indigo-600 uppercase tracking-widest transition-all shadow-md shadow-indigo-500/20 hover:-translate-y-0.5 active:translate-y-0"
+                  >
+                    Mark Status
+                  </button>
+                </div>
               </div>
             </div>
           ))}
@@ -412,6 +428,65 @@ const OperationsHub = ({ section }) => {
                   className="px-8 py-3 bg-[#008080] text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-[#008080]/20 hover:bg-[#006666] transition-colors disabled:opacity-50"
                 >
                   {submittingRating ? 'Submitting...' : 'Submit Evaluation'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {rotationModal.show && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white rounded-[2.5rem] w-full max-w-lg overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto">
+            <div className="p-8 pb-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+              <div>
+                <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight flex items-center gap-3">
+                  <Activity className="text-indigo-500" /> Update Call Status
+                </h2>
+                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">
+                  Student: {rotationModal.rotation?.student_name} | Sub: {rotationModal.rotation?.topic}
+                </p>
+              </div>
+              <button onClick={() => setRotationModal({ ...rotationModal, show: false })} className="text-slate-400 hover:text-rose-500 transition-colors">
+                <X size={24} />
+              </button>
+            </div>
+            <form onSubmit={handleRotationSubmit} className="p-8 space-y-6">
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Call Status</label>
+                <select 
+                  value={rotationModal.status}
+                  onChange={(e) => setRotationModal({...rotationModal, status: e.target.value})}
+                  className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all"
+                >
+                  <option value="Pending">Pending</option>
+                  <option value="Called">Called</option>
+                  <option value="Missed">Missed</option>
+                </select>
+              </div>
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Next Call Date</label>
+                <input 
+                  type="date"
+                  value={rotationModal.next_call_date}
+                  onChange={(e) => setRotationModal({...rotationModal, next_call_date: e.target.value})}
+                  className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Call Notes / Updates</label>
+                <textarea 
+                  value={rotationModal.notes}
+                  onChange={(e) => setRotationModal({...rotationModal, notes: e.target.value})}
+                  className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all"
+                  rows="3"
+                  placeholder="Enter details from the call..."
+                ></textarea>
+              </div>
+              <div className="pt-4 flex justify-end gap-4">
+                <button type="button" onClick={() => setRotationModal({ ...rotationModal, show: false })} className="px-6 py-3 text-[10px] font-black text-slate-500 uppercase tracking-widest hover:text-slate-700">Cancel</button>
+                <button type="submit" disabled={submittingRotation} className="px-8 py-3 bg-indigo-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-indigo-500/20 hover:bg-indigo-600 transition-colors disabled:opacity-50">
+                  {submittingRotation ? 'Saving...' : 'Save Update'}
                 </button>
               </div>
             </form>
