@@ -221,7 +221,7 @@ function App() {
             <Route path="live-monitoring" element={<AOELiveMonitoring />} />
             <Route path="academic-schedule" element={<AOEAcademicSchedule />} />
             <Route path="interactions" element={<Interactions />} />
-            <Route path="parent-meetings" element={<ParentMeetings />} />
+            <Route path="meetings" element={<ParentMeetings />} />
             <Route path="demo-schedule" element={<AOEDemoSchedule />} />
             <Route path="daily-updates" element={<AHDailyUpdates />} />
             <Route path="exam-scores" element={<AoeExams />} />
