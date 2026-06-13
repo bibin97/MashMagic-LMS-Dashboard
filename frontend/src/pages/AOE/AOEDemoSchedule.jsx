@@ -4,7 +4,7 @@ import toast from 'react-hot-toast';
 import { 
   CalendarDays, ListTodo, Plus, Target, Presentation, 
   Video, RefreshCcw, Save, XCircle, Search, Clock, DollarSign, User, BookOpen,
-  CheckCircle, CheckCircle2, Pencil, Trash2, Star
+  CheckCircle, CheckCircle2, Pencil, Trash2, Star, MessageSquare
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
