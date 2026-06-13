@@ -169,10 +169,12 @@ const OperationsHub = ({ section }) => {
     try {
       if (tab === 'academic_quality') {
         const qualityRes = await api.get('/academic-head/faculty-quality');
-        setData(prev => ({ ...prev, [tab]: qualityRes.data.data }));
-      } else if (tab === 'faculty_rotation') {
         const rotationRes = await api.get('/academic-head/faculty-rotation');
-        setData(prev => ({ ...prev, [tab]: rotationRes.data.data }));
+        setData(prev => ({ 
+          ...prev, 
+          academic_quality: qualityRes.data.data,
+          faculty_rotation: rotationRes.data.data
+        }));
       } else {
         let endpoint = '';
         if (tab === 'parent_meetings') endpoint = '/academic-head/parent-meetings';
@@ -212,6 +214,10 @@ const OperationsHub = ({ section }) => {
 
     return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      
+      {/* Include the Rotation Table directly inside Live Class Updates */}
+      {renderFacultyRotation()}
+
       <div className="bg-white p-6 md:p-8 rounded-[2rem] shadow-sm border border-slate-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div>
           <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight">Live Class Observations</h2>
@@ -421,6 +427,7 @@ const OperationsHub = ({ section }) => {
   };
 
   const renderFacultyRotation = () => {
+    const rotationData = data['faculty_rotation'] || [];
     return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="bg-white p-6 md:p-8 rounded-[2rem] shadow-sm border border-slate-100 mb-6">
@@ -439,10 +446,10 @@ const OperationsHub = ({ section }) => {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50">
-              {(!activeData || activeData.length === 0) && !loading && (
+              {rotationData.length === 0 && !loading && (
                 <tr><td colSpan="6" className="py-6 text-center text-xs font-bold text-slate-400">No rotation data available for today.</td></tr>
               )}
-              {activeData?.map((rotation) => (
+              {rotationData.map((rotation) => (
                 <tr key={rotation.id} className="hover:bg-slate-50/50 transition-colors">
                   <td className="px-6 py-4 text-sm font-black text-slate-900 uppercase">{rotation.faculty_name}</td>
                   <td className="px-6 py-4 text-xs font-bold text-slate-600 uppercase">{rotation.subject || 'N/A'}</td>

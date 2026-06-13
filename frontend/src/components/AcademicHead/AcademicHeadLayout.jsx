@@ -10,7 +10,6 @@ const AcademicHeadLayout = () => {
  const [isCollapsed, setIsCollapsed] = useState(false);
 
   const navItems = [
-   { path: '/academic-head/faculty-rotation', icon: <Target size={18} />, label: 'Daily Faculty Rotation' },
    { path: '/academic-head/academic-quality', icon: <Target size={18} />, label: 'Live Class Updates' },
    { path: '/academic-head/students', icon: <GraduationCap size={18} />, label: 'Students' },
    { path: '/academic-head/faculties', icon: <Briefcase size={18} />, label: 'Faculties' },

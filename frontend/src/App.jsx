@@ -235,9 +235,8 @@ function App() {
               <AcademicHeadLayout />
             </ProtectedRoute>
           }>
-            <Route index element={<Navigate to="/academic-head/faculty-rotation" replace />} />
-            <Route path="dashboard" element={<Navigate to="/academic-head/faculty-rotation" replace />} />
-            <Route path="faculty-rotation" element={<OperationsHub section="faculty_rotation" />} />
+            <Route index element={<Navigate to="/academic-head/academic-quality" replace />} />
+            <Route path="dashboard" element={<Navigate to="/academic-head/academic-quality" replace />} />
             <Route path="academic-quality" element={<OperationsHub section="academic_quality" />} />
             <Route path="students" element={<StudentsListAcademic role="academic_head" />} />
             <Route path="students/:id" element={<StudentDetails />} />
