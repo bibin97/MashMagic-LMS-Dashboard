@@ -167,6 +167,7 @@ const Approvals = () => {
                               </div>
                             </div>
                           </div>
+                          </div>
                         </td>
                         <td className="p-6 text-right">
                           <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
