@@ -801,64 +801,28 @@ const Registrations = () => {
                   {selectedSubjects.map((row, idx) => (
                     <div key={idx} className="bg-white p-8 rounded-[3rem] border border-slate-100 shadow-xl shadow-slate-200/20 relative animate-in slide-in-from-right-4 duration-500 space-y-8">
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-start">
-                        {/* Custom Subject Dropdown (Multiple Selection) */}
-                        <div className="flex flex-col gap-2 relative" ref={el => subRefs.current[idx] = el}>
+                        {/* Subject Dropdown (React-Select Multi) */}
+                        <div className="flex flex-col gap-2 relative">
                           <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Subjects</label>
-                          <div 
-                            onClick={() => {
+                          <Select
+                            isMulti
+                            isSearchable
+                            options={SUBJECT_OPTIONS.map(sub => ({ value: sub, label: sub }))}
+                            styles={customSelectStyles}
+                            value={(Array.isArray(row.subject) ? row.subject : (row.subject ? [row.subject] : [])).map(sub => ({ value: sub, label: sub }))}
+                            onChange={(selectedOptions) => {
+                              const selectedValues = selectedOptions ? selectedOptions.map(opt => opt.value) : [];
                               const newSubjects = [...selectedSubjects];
-                              newSubjects[idx].isSubjectDropdownOpen = !newSubjects[idx].isSubjectDropdownOpen;
+                              newSubjects[idx].subject = selectedValues;
                               setSelectedSubjects(newSubjects);
+                              
+                              if (fetchTimeoutRef.current) clearTimeout(fetchTimeoutRef.current);
+                              fetchTimeoutRef.current = setTimeout(() => {
+                                fetchAvailableFaculties(idx, newSubjects[idx].subject, newSubjects[idx].dayConfigs);
+                              }, 500);
                             }}
-                            className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold text-slate-700 cursor-pointer flex justify-between items-center"
-                          >
-                            <span className="truncate">
-                              {Array.isArray(row.subject) && row.subject.length > 0 
-                                  ? row.subject.join(', ') 
-                                  : (typeof row.subject === 'string' && row.subject ? row.subject : 'Select Subjects')}
-                            </span>
-                            <span className="text-slate-400">▼</span>
-                          </div>
-
-                          {row.isSubjectDropdownOpen && (
-                            <div className="absolute top-[100%] left-0 w-full bg-white border border-slate-100 rounded-2xl shadow-2xl z-[110] mt-1 p-3 max-h-60 overflow-y-auto animate-in fade-in zoom-in-95 duration-200">
-                              {SUBJECT_OPTIONS.map(sub => {
-                                const isSelected = Array.isArray(row.subject) ? row.subject.includes(sub) : row.subject === sub;
-                                return (
-                                  <div 
-                                    key={sub} 
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      const newSubjects = [...selectedSubjects];
-                                      let current = Array.isArray(newSubjects[idx].subject) 
-                                          ? newSubjects[idx].subject 
-                                          : (newSubjects[idx].subject ? [newSubjects[idx].subject] : []);
-                                      
-                                      if (current.includes(sub)) {
-                                          current = current.filter(s => s !== sub);
-                                      } else {
-                                          current = [...current, sub];
-                                      }
-                                      newSubjects[idx].subject = current;
-                                      setSelectedSubjects(newSubjects);
-                                      
-                                      // Trigger debounced faculty fetch
-                                      if (fetchTimeoutRef.current) clearTimeout(fetchTimeoutRef.current);
-                                      fetchTimeoutRef.current = setTimeout(() => {
-                                        fetchAvailableFaculties(idx, newSubjects[idx].subject, newSubjects[idx].dayConfigs);
-                                      }, 500);
-                                    }}
-                                    className={`flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all ${isSelected ? 'bg-[#008080]/10 text-[#008080]' : 'hover:bg-slate-50 text-slate-600'}`}
-                                  >
-                                    <div className={`w-5 h-5 rounded-lg border flex items-center justify-center transition-colors ${isSelected ? 'bg-[#008080] border-[#008080]' : 'border-slate-300'}`}>
-                                      {isSelected && <CheckCircle size={12} className="text-white" />}
-                                    </div>
-                                    <span className="text-[11px] font-bold uppercase tracking-tight">{sub}</span>
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          )}
+                            placeholder="Select Subjects..."
+                          />
                         </div>
 
                         {/* Days Picker (Dropdown to toggle) */}
@@ -999,6 +963,7 @@ const Registrations = () => {
                             }}
                             placeholder={row.dayConfigs?.length === 0 ? 'Select Days First' : 'Search Faculty...'}
                             isClearable
+                            isSearchable
                             isDisabled={row.dayConfigs?.length === 0}
                           />
                         </div>
