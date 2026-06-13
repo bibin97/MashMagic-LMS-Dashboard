@@ -756,6 +756,25 @@ const startServer = async () => {
                     FOREIGN KEY (aoe_id) REFERENCES users(id) ON DELETE CASCADE
                 );`,
 
+                `CREATE TABLE IF NOT EXISTS fee_structures (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    entity_type VARCHAR(50) NOT NULL,
+                    entity_id VARCHAR(50) NOT NULL,
+                    total_fee DECIMAL(10,2) NOT NULL,
+                    total_hours INT NOT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                );`,
+
+                `CREATE TABLE IF NOT EXISTS fee_installments (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    fee_structure_id INT NOT NULL,
+                    installment_number INT NOT NULL,
+                    installment_date DATE NOT NULL,
+                    installment_amount DECIMAL(10,2) NOT NULL,
+                    status VARCHAR(50) DEFAULT 'pending',
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (fee_structure_id) REFERENCES fee_structures(id) ON DELETE CASCADE
+                );`,
 
                 // Add new columns to aoe_demo_schedules
                 'ALTER TABLE aoe_demo_schedules ADD COLUMN demo_id VARCHAR(50) NULL;',
