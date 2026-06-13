@@ -414,7 +414,23 @@ const Timetable = () => {
       toast.error("Please select a student first");
       return;
     }
-    setEditScheduleData([...studentSchedule]);
+    
+    // Auto-fill missing faculty assignments from the official registration (availableSubjects)
+    const enrichedSchedule = studentSchedule.map(slot => {
+      if (!slot.faculty_id && slot.subject) {
+        const subjObj = availableSubjects.find(s => s.subject === slot.subject);
+        if (subjObj && (subjObj.facultyId || subjObj.faculty_id)) {
+          return { 
+            ...slot, 
+            faculty_id: subjObj.facultyId || subjObj.faculty_id,
+            faculty_name: subjObj.facultyName || subjObj.faculty_name 
+          };
+        }
+      }
+      return slot;
+    });
+
+    setEditScheduleData(enrichedSchedule);
     setShowScheduleModal(true);
   };
 

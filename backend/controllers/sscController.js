@@ -199,6 +199,23 @@ exports.getStudentAcademicSchedule = async (req, res) => {
         `, [studentId]);
         
         if (schedules && schedules.length > 0) {
+            const [[student]] = await db.query('SELECT subjects_json FROM students WHERE id = ?', [studentId]);
+            if (student && student.subjects_json) {
+                let subjects = [];
+                try {
+                    subjects = typeof student.subjects_json === 'string' ? JSON.parse(student.subjects_json) : student.subjects_json;
+                } catch (e) {}
+                
+                schedules.forEach(s => {
+                    if (!s.faculty_id && s.subject) {
+                        const matchingSubject = subjects.find(sub => sub.subject === s.subject);
+                        if (matchingSubject && (matchingSubject.facultyId || matchingSubject.faculty_id)) {
+                            s.faculty_id = matchingSubject.facultyId || matchingSubject.faculty_id;
+                            s.faculty_name = matchingSubject.facultyName || matchingSubject.faculty_name || null;
+                        }
+                    }
+                });
+            }
             return res.status(200).json({ success: true, data: schedules });
         }
 
