@@ -213,8 +213,8 @@ exports.getStudentAcademicSchedule = async (req, res) => {
             if (Array.isArray(parsed)) {
                 parsed.forEach(p => {
                     let subjectStr = Array.isArray(p.subject) ? p.subject.join(', ') : p.subject;
-                    let pFacultyId = p.faculty_id || student.faculty_id || null;
-                    let pFacultyName = p.faculty_name || student.faculty_name || null;
+                    let pFacultyId = p.faculty_id || p.facultyId || student.faculty_id || null;
+                    let pFacultyName = p.faculty_name || p.facultyName || student.faculty_name || null;
                     
                     if (p.dayConfigs && Array.isArray(p.dayConfigs)) {
                         p.dayConfigs.forEach(dc => {
@@ -264,10 +264,14 @@ exports.updateStudentAcademicSchedule = async (req, res) => {
                 
                 if (facId && s.subject) {
                     const matchingSubject = subjects.find(sub => sub.subject === s.subject);
-                    if (matchingSubject && matchingSubject.faculty_id != facId) {
+                    if (matchingSubject && matchingSubject.faculty_id != facId && matchingSubject.facultyId != facId) {
                         matchingSubject.faculty_id = facId;
+                        matchingSubject.facultyId = facId;
                         const [[facObj]] = await connection.query('SELECT name FROM users WHERE id = ?', [facId]);
-                        if (facObj) matchingSubject.faculty_name = facObj.name;
+                        if (facObj) {
+                            matchingSubject.faculty_name = facObj.name;
+                            matchingSubject.facultyName = facObj.name;
+                        }
                         subjectsUpdated = true;
                     }
                 }
@@ -322,9 +326,11 @@ exports.createBatchTimetable = async (req, res) => {
 
             if (faculty_id && subject) {
                const matchingSubject = subjects.find(sub => sub.subject === subject);
-               if (matchingSubject && matchingSubject.faculty_id != faculty_id) {
+               if (matchingSubject && matchingSubject.faculty_id != faculty_id && matchingSubject.facultyId != faculty_id) {
                    matchingSubject.faculty_id = faculty_id;
+                   matchingSubject.facultyId = faculty_id;
                    matchingSubject.faculty_name = faculty_name;
+                   matchingSubject.facultyName = faculty_name;
                    subjectsUpdated = true;
                }
             }
