@@ -24,7 +24,7 @@ const DailyUpdatesView = ({ role = 'admin' }) => {
       // Wait, we exposed it under admin, aoe, etc. Let's just use the current role prefix if possible or just use /admin/daily-updates.
       // Wait, the easiest is to hit the endpoint for the current role.
       let endpoint = '/ssc/daily-updates';
-      if (role === 'academic_operation_executive') endpoint = '/aoe/daily-updates';
+      if (role === 'aoe' || role === 'academic_operation_executive') endpoint = '/aoe/daily-updates';
       else if (role === 'mentor_head') endpoint = '/mentor-head/daily-updates';
       else if (role === 'academic_head') endpoint = '/academic-head/daily-updates';
 
