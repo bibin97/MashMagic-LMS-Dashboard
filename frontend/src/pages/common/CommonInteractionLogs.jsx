@@ -560,39 +560,6 @@ const CommonInteractionLogs = ({
                                     </button>
                                 ))}
                             </div>
-                            
-                            <div className="shrink-0 flex items-center gap-3 bg-slate-50 px-5 py-3 rounded-[20px] border border-slate-100 shadow-inner">
-                                <CalendarClock size={18} className="text-[#008080]" />
-                                <div className="text-[10px] font-black uppercase tracking-widest text-slate-500">
-                                    Interaction Date:
-                                </div>
-                                <DatePicker
-                                    value={mentorDateFilters[selectedMentorTab] || ''}
-                                    onChange={(date) => {
-                                        setMentorDateFilters(prev => ({
-                                            ...prev,
-                                            [selectedMentorTab]: date ? date.format("YYYY-MM-DD") : null
-                                        }));
-                                    }}
-                                    format="YYYY-MM-DD"
-                                    placeholder="Select Date"
-                                    inputClass="bg-white border border-slate-200 text-xs font-bold text-slate-700 rounded-xl px-4 py-2 outline-none focus:ring-4 focus:ring-[#008080]/10 w-36 cursor-pointer shadow-sm"
-                                />
-                                {mentorDateFilters[selectedMentorTab] && (
-                                    <button
-                                        onClick={() => {
-                                            setMentorDateFilters(prev => ({
-                                                ...prev,
-                                                [selectedMentorTab]: null
-                                            }));
-                                        }}
-                                        className="w-8 h-8 flex items-center justify-center rounded-xl bg-rose-50 text-rose-500 hover:bg-rose-500 hover:text-white transition-all shadow-sm"
-                                        title="Clear Date Filter"
-                                    >
-                                        <X size={14} strokeWidth={3} />
-                                    </button>
-                                )}
-                            </div>
                         </div>
                     </div>
                 )}
@@ -606,7 +573,37 @@ const CommonInteractionLogs = ({
                             </div>
                             
                             <div className="flex items-center gap-2">
-                                {!(activeTab === 'student' && role === 'mentor_head') && (
+                                {activeTab === 'student' && role === 'mentor_head' ? (
+                                    <div className="shrink-0 flex items-center gap-3 bg-white px-5 py-4 rounded-2xl border border-slate-100 shadow-sm hover:border-[#008080] transition-all">
+                                        <CalendarClock size={16} className="text-[#008080]" />
+                                        <DatePicker
+                                            value={mentorDateFilters[selectedMentorTab] || ''}
+                                            onChange={(date) => {
+                                                setMentorDateFilters(prev => ({
+                                                    ...prev,
+                                                    [selectedMentorTab]: date ? date.format("YYYY-MM-DD") : null
+                                                }));
+                                            }}
+                                            format="YYYY-MM-DD"
+                                            placeholder="Select Date..."
+                                            inputClass="bg-transparent border-none text-[10px] font-black uppercase tracking-widest text-slate-600 outline-none w-28 cursor-pointer"
+                                        />
+                                        {mentorDateFilters[selectedMentorTab] && (
+                                            <button
+                                                onClick={() => {
+                                                    setMentorDateFilters(prev => ({
+                                                        ...prev,
+                                                        [selectedMentorTab]: null
+                                                    }));
+                                                }}
+                                                className="w-6 h-6 flex items-center justify-center rounded-lg bg-rose-50 text-rose-500 hover:bg-rose-500 hover:text-white transition-all shadow-sm"
+                                                title="Clear Date Filter"
+                                            >
+                                                <X size={12} strokeWidth={3} />
+                                            </button>
+                                        )}
+                                    </div>
+                                ) : (
                                     <DatePicker 
                                       multiple 
                                       value={listCustomDates} 
