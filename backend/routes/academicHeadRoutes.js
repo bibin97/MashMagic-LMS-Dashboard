@@ -3,6 +3,7 @@ const router = express.Router();
 const { requireAuth } = require('../middleware/authMiddleware');
 const { requireRole } = require('../middleware/roleMiddleware');
 const academicHeadController = require('../controllers/academicHeadController');
+const { getDailyUpdates } = require('../controllers/sscController');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
@@ -41,6 +42,7 @@ router.get('/parent-meetings', academicHeadController.getParentMeetings);
 router.get('/exam-scores', academicHeadController.getExamScores);
 
 // Daily Updates
+router.get('/daily-updates', getDailyUpdates);
 router.put('/daily-updates/:id', academicHeadController.editDailyUpdate);
 
 // Student Growth

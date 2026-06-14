@@ -78,34 +78,49 @@ const approveUser = async (req, res) => {
         let result = { affectedRows: 0 };
         let nameRow;
 
-        // 1. Try to find and update in users table first
-        [[nameRow]] = await db.query('SELECT name, role, email, phone_number FROM users WHERE id = ?', [id]);
-        if (nameRow) {
-            [result] = await db.query('UPDATE users SET status = "active", isApproved = 1, isActive = 1 WHERE id = ?', [id]);
-            
-            if (nameRow.role === 'student' || role === 'student') {
-                await db.query('UPDATE students SET status = "active", isApproved = 1 WHERE user_id = ? OR id = ?', [id, id]);
-            } else if (nameRow.role === 'faculty' || role === 'faculty') {
-                const [facUpdate] = await db.query('UPDATE faculties SET status = "active" WHERE email = ? OR phone_number = ? OR name = ?', [nameRow.email, nameRow.phone_number, nameRow.name]);
-                if (facUpdate.affectedRows === 0) {
-                    await db.query('INSERT INTO faculties (name, email, phone_number, status, subject) VALUES (?, ?, ?, ?, ?)', [nameRow.name, nameRow.email, nameRow.phone_number, 'active', null]);
+        if (role === 'student') {
+            [[nameRow]] = await db.query('SELECT name FROM students WHERE id = ?', [id]);
+            if (nameRow) {
+                // Check if students table has isApproved column
+                const [cols] = await db.query('SHOW COLUMNS FROM students LIKE "isApproved"');
+                if (cols.length > 0) {
+                    [result] = await db.query('UPDATE students SET status = "active", isApproved = 1 WHERE id = ?', [id]);
+                } else {
+                    [result] = await db.query('UPDATE students SET status = "active" WHERE id = ?', [id]);
                 }
-            } else if (nameRow.role === 'mentor' || role === 'mentor') {
-                const [menUpdate] = await db.query('UPDATE mentors SET status = "active" WHERE email = ? OR phone_number = ? OR name = ?', [nameRow.email, nameRow.phone_number, nameRow.name]);
-                if (menUpdate.affectedRows === 0) {
-                    await db.query('INSERT INTO mentors (name, email, phone_number, status) VALUES (?, ?, ?, ?)', [nameRow.name, nameRow.email, nameRow.phone_number, 'active']);
+                
+                const [[studentData]] = await db.query('SELECT user_id FROM students WHERE id = ?', [id]);
+                if (studentData?.user_id) {
+                    // Update user if linked
+                    const [userCols] = await db.query('SHOW COLUMNS FROM users LIKE "isApproved"');
+                    if (userCols.length > 0) {
+                        await db.query('UPDATE users SET status = "active", isApproved = 1, isActive = 1 WHERE id = ?', [studentData.user_id]);
+                    } else {
+                        await db.query('UPDATE users SET status = "active", isActive = 1 WHERE id = ?', [studentData.user_id]);
+                    }
                 }
             }
         } else {
-            // 2. If not found in users, try students table
-            [[nameRow]] = await db.query('SELECT name FROM students WHERE id = ?', [id]);
+            // 1. Try to find and update in users table first
+            [[nameRow]] = await db.query('SELECT name, role, email, phone_number FROM users WHERE id = ?', [id]);
             if (nameRow) {
-                [result] = await db.query('UPDATE students SET status = "active", isApproved = 1 WHERE id = ?', [id]);
+                const [userCols] = await db.query('SHOW COLUMNS FROM users LIKE "isApproved"');
+                if (userCols.length > 0) {
+                    [result] = await db.query('UPDATE users SET status = "active", isApproved = 1, isActive = 1 WHERE id = ?', [id]);
+                } else {
+                    [result] = await db.query('UPDATE users SET status = "active", isActive = 1 WHERE id = ?', [id]);
+                }
                 
-                // If there's a user_id linked, update that too
-                const [[studentData]] = await db.query('SELECT user_id FROM students WHERE id = ?', [id]);
-                if (studentData?.user_id) {
-                    await db.query('UPDATE users SET status = "active", isApproved = 1, isActive = 1 WHERE id = ?', [studentData.user_id]);
+                if (nameRow.role === 'faculty' || role === 'faculty') {
+                    const [facUpdate] = await db.query('UPDATE faculties SET status = "active" WHERE email = ? OR phone_number = ? OR name = ?', [nameRow.email, nameRow.phone_number, nameRow.name]);
+                    if (facUpdate.affectedRows === 0) {
+                        await db.query('INSERT INTO faculties (name, email, phone_number, status, subject) VALUES (?, ?, ?, ?, ?)', [nameRow.name, nameRow.email, nameRow.phone_number, 'active', null]);
+                    }
+                } else if (nameRow.role === 'mentor' || role === 'mentor') {
+                    const [menUpdate] = await db.query('UPDATE mentors SET status = "active" WHERE email = ? OR phone_number = ? OR name = ?', [nameRow.email, nameRow.phone_number, nameRow.name]);
+                    if (menUpdate.affectedRows === 0) {
+                        await db.query('INSERT INTO mentors (name, email, phone_number, status) VALUES (?, ?, ?, ?)', [nameRow.name, nameRow.email, nameRow.phone_number, 'active']);
+                    }
                 }
             }
         }
@@ -115,15 +130,20 @@ const approveUser = async (req, res) => {
         }
 
         // Automatically clear all related "Pending Approval" notifications from the activity feed
-        await db.query(`
-            DELETE FROM admin_notifications 
-            WHERE related_id = ? 
-            AND action_type IN ('student_registration', 'faculty_registration', 'mentor_registration', 'ssc_registration', 'faculty_onboarding', 'mentor_head_onboarding')
-        `, [id]);
+        try {
+            await db.query(`
+                DELETE FROM admin_notifications 
+                WHERE related_id = ? 
+                AND action_type IN ('student_registration', 'faculty_registration', 'mentor_registration', 'ssc_registration', 'faculty_onboarding', 'mentor_head_onboarding')
+            `, [id]);
 
-        await db.query('INSERT INTO admin_notifications (message) VALUES (?)', [
-            `<b>Approval Success:</b> ${nameRow?.name || id} is now <span style="color:#008080">Active</span>.`
-        ]);
+            await db.query('INSERT INTO admin_notifications (message) VALUES (?)', [
+                `<b>Approval Success:</b> ${nameRow?.name || id} is now <span style="color:#008080">Active</span>.`
+            ]);
+        } catch (notifErr) {
+            console.error("Error creating notification:", notifErr);
+            // Don't fail the approval if notification fails
+        }
         res.status(200).json({ success: true, message: "Approved successfully" });
     } catch (error) {
         console.error("APPROVE_USER_ERROR:", error);
@@ -196,8 +216,7 @@ const blockUser = async (req, res) => {
 // @access  Private (super_admin, admin)
 const getPendingUsers = async (req, res) => {
     try {
-        // 1. Fetch non-student users (Faculties, Mentors, SSCs, etc.)
-        // We use a robust check for the timestamp column name in users table
+        // 1. Fetch non-student users
         const [tableInfo] = await db.query('SHOW COLUMNS FROM users');
         const hasCreatedAt = tableInfo.some(c => c.Field === 'createdAt');
         const hasCreatedAtSnake = tableInfo.some(c => c.Field === 'created_at');
@@ -212,7 +231,25 @@ const getPendingUsers = async (req, res) => {
             AND u.role != 'student'
         `);
 
-        const uniqueRows = users.map(r => ({
+        // 2. Fetch student users
+        const [studentCols] = await db.query('SHOW COLUMNS FROM students');
+        const sHasCreated = studentCols.some(c => c.Field === 'createdAt');
+        const sHasCreatedSnake = studentCols.some(c => c.Field === 'created_at');
+        const sTimeCol = sHasCreated ? 's.createdAt' : (sHasCreatedSnake ? 's.created_at' : 's.id');
+        
+        let students = [];
+        try {
+            [students] = await db.query(`
+                SELECT s.id, s.name, s.email, s.contact as phone_number, 'student' as role, s.country as place, s.status, ${sTimeCol} as created_at,
+                       NULL as registered_by_name
+                FROM students s
+                WHERE s.status = "pending"
+            `);
+        } catch (err) {
+            console.error("Error fetching pending students:", err);
+        }
+
+        const uniqueRows = [...users, ...students].map(r => ({
             ...r,
             created_at: r.created_at || new Date()
         }));

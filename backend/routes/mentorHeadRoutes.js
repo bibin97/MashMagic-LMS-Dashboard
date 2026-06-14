@@ -38,6 +38,7 @@ const {
     updateInteractionLog,
     getInteractionHistory
 } = require('../controllers/mentorHeadController');
+const { getDailyUpdates } = require('../controllers/sscController');
 const { requireAuth } = require('../middleware/authMiddleware');
 const { requireRole } = require('../middleware/roleMiddleware');
 
@@ -69,6 +70,7 @@ router.get('/exam-analytics', getExamAnalytics);
 // Student Management for Mentor Head (Unified)
 router.get('/students-all', getStudents);
 router.get('/students', getStudents);
+router.get('/daily-updates', getDailyUpdates);
 router.get('/students/:id', getStudentById);
 router.put('/students/:id', editStudent);
 router.delete('/students/:id', deleteStudent);

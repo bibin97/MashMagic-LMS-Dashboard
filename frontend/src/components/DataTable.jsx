@@ -32,6 +32,7 @@ const DataTable = ({
  const handleToggle = onToggleExpand || ((id) => setInternalExpandedId(currentExpandedId === id ? null : id));
  const useFilterDropdown = filterValue !== undefined && onFilterChange;
  const hasActions = onView || onEdit || onApprove || onBlock || onDelete || extraActions.length > 0;
+ const enhancedColumns = columns || [];
  return (
  <div className="bg-white/70 backdrop-blur-xl rounded-[28px] border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.04)] overflow-hidden transition-all duration-500">
  <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center p-6 md:p-8 border-b border-slate-100/50 gap-6 w-full">

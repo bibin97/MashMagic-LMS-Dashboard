@@ -4,7 +4,7 @@ import toast from 'react-hot-toast';
 import { 
   CalendarDays, ListTodo, Plus, Target, Presentation, 
   Video, RefreshCcw, Save, XCircle, Search, Clock, DollarSign, User, BookOpen,
-  CheckCircle, CheckCircle2, Pencil, Trash2, Star, MessageSquare
+  CheckCircle, CheckCircle2, Pencil, Trash2, Star, MessageSquare, Link as LinkIcon
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -335,20 +335,153 @@ const AOEDemoSchedule = () => {
           {activeTab === 'schedule_pre_demo' ? (
             <form onSubmit={handlePreDemoSubmit} className="space-y-8">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-                {/* Demo ID */}
                 <div className="space-y-2">
                   <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 flex items-center gap-2">
-                    <Target size={12}/> Demo ID
+                    <Target size={12}/> Demo ID *
                   </label>
                   <input
-                    type="text"
+                    type="text" required
                     value={formData.demo_id}
                     onChange={(e) => setFormData({ ...formData, demo_id: e.target.value })}
                     className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
                     placeholder="Enter Demo ID"
                   />
                 </div>
-                {/* Faculty */}
+
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 flex items-center gap-2">
+                    <Target size={12}/> Student Type *
+                  </label>
+                  <select
+                    required
+                    value={formData.student_type}
+                    onChange={(e) => setFormData({ ...formData, student_type: e.target.value })}
+                    className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
+                  >
+                    <option value="new">New Student</option>
+                    <option value="existing">Existing Student</option>
+                  </select>
+                </div>
+
+                <div className="space-y-2 relative">
+                  <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 flex items-center gap-2">
+                    <User size={12}/> Student Name *
+                  </label>
+                  <input
+                    type="text" required
+                    value={formData.student_name}
+                    onFocus={() => setShowSuggestions(true)}
+                    onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setFormData({ ...formData, student_name: val });
+                      setShowSuggestions(true);
+                    }}
+                    className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
+                    placeholder="Type to search or enter new name"
+                  />
+                  
+                  {/* Custom Autocomplete Dropdown */}
+                  {showSuggestions && formData.student_name && (
+                    <div className="absolute z-50 w-full mt-1 bg-white border border-slate-100 rounded-2xl shadow-xl max-h-60 overflow-y-auto top-full left-0">
+                      {students
+                        .filter(s => s.name.toLowerCase().includes(formData.student_name.toLowerCase()))
+                        .map(s => (
+                          <div 
+                            key={s.id}
+                            className="px-4 py-3 hover:bg-slate-50 cursor-pointer border-b border-slate-50 last:border-0 transition-colors"
+                            onMouseDown={(e) => {
+                              e.preventDefault();
+                              setFormData({ 
+                                ...formData, 
+                                student_name: s.name,
+                                student_type: 'existing',
+                                syllabus: s.syllabus || '',
+                                section: s.section || s.grade || ''
+                              });
+                              setShowSuggestions(false);
+                            }}
+                          >
+                            <div className="text-xs font-bold text-slate-800">{s.name}</div>
+                            {s.email && <div className="text-[9px] text-slate-400">{s.email}</div>}
+                          </div>
+                        ))}
+                      {students.filter(s => s.name.toLowerCase().includes(formData.student_name.toLowerCase())).length === 0 && (
+                        <div className="px-4 py-4 text-[10px] text-slate-500 font-bold text-center">
+                          No matches found. Will be added as a new student.
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 flex items-center gap-2">
+                    <BookOpen size={12}/> Syllabus *
+                  </label>
+                  <select
+                    required
+                    value={formData.syllabus}
+                    onChange={(e) => setFormData({ ...formData, syllabus: e.target.value })}
+                    className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
+                  >
+                    <option value="" disabled>Select Syllabus</option>
+                    {SYLLABUS_OPTIONS.map(s => (
+                      <option key={s} value={s}>{s}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 flex items-center gap-2">
+                    <Target size={12}/> Section *
+                  </label>
+                  <input
+                    type="text" required
+                    value={formData.section}
+                    onChange={(e) => setFormData({ ...formData, section: e.target.value })}
+                    className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
+                    placeholder="E.g., 10th Grade"
+                  />
+                </div>
+
+                <div className="space-y-2 relative">
+                  <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 flex items-center gap-2">
+                    <BookOpen size={12}/> Subject *
+                  </label>
+                  <input
+                    type="text" required
+                    value={formData.subject}
+                    onFocus={() => setShowSubjectSuggestions(true)}
+                    onBlur={() => setTimeout(() => setShowSubjectSuggestions(false), 200)}
+                    onChange={(e) => {
+                      setFormData({ ...formData, subject: e.target.value });
+                      setShowSubjectSuggestions(true);
+                    }}
+                    className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
+                    placeholder="E.g., Mathematics"
+                  />
+                  {showSubjectSuggestions && formData.subject && (
+                    <div className="absolute z-50 w-full mt-1 bg-white border border-slate-100 rounded-2xl shadow-xl max-h-60 overflow-y-auto top-full left-0">
+                      {uniqueSubjects
+                        .filter(subj => subj.toLowerCase().includes(formData.subject.toLowerCase()))
+                        .map((subj, idx) => (
+                          <div 
+                            key={idx}
+                            className="px-4 py-3 hover:bg-slate-50 cursor-pointer border-b border-slate-50 last:border-0 transition-colors"
+                            onMouseDown={(e) => {
+                              e.preventDefault();
+                              setFormData({ ...formData, subject: subj });
+                              setShowSubjectSuggestions(false);
+                            }}
+                          >
+                            <div className="text-xs font-bold text-slate-800">{subj}</div>
+                          </div>
+                        ))}
+                    </div>
+                  )}
+                </div>
+
                 <div className="space-y-2 relative">
                   <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 flex items-center gap-2">
                     <Presentation size={12}/> Faculty *
@@ -392,45 +525,7 @@ const AOEDemoSchedule = () => {
                     </div>
                   )}
                 </div>
-                {/* Subject */}
-                <div className="space-y-2 relative">
-                  <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 flex items-center gap-2">
-                    <BookOpen size={12}/> Subject
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.subject}
-                    onFocus={() => setShowSubjectSuggestions(true)}
-                    onBlur={() => setTimeout(() => setShowSubjectSuggestions(false), 200)}
-                    onChange={(e) => {
-                      setFormData({ ...formData, subject: e.target.value });
-                      setShowSubjectSuggestions(true);
-                    }}
-                    className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
-                    placeholder="E.g., Mathematics"
-                  />
-                  {/* Subject Autocomplete Dropdown */}
-                  {showSubjectSuggestions && formData.subject && (
-                    <div className="absolute z-50 w-full mt-1 bg-white border border-slate-100 rounded-2xl shadow-xl max-h-60 overflow-y-auto top-full left-0">
-                      {uniqueSubjects
-                        .filter(subj => subj.toLowerCase().includes(formData.subject.toLowerCase()))
-                        .map((subj, idx) => (
-                          <div 
-                            key={idx}
-                            className="px-4 py-3 hover:bg-slate-50 cursor-pointer border-b border-slate-50 last:border-0 transition-colors"
-                            onMouseDown={(e) => {
-                              e.preventDefault();
-                              setFormData({ ...formData, subject: subj });
-                              setShowSubjectSuggestions(false);
-                            }}
-                          >
-                            <div className="text-xs font-bold text-slate-800">{subj}</div>
-                          </div>
-                        ))}
-                    </div>
-                  )}
-                </div>
-                {/* Date */}
+
                 <div className="space-y-2">
                   <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 flex items-center gap-2">
                     <CalendarDays size={12}/> Date *
@@ -440,6 +535,57 @@ const AOEDemoSchedule = () => {
                     value={formData.date}
                     onChange={(e) => setFormData({ ...formData, date: e.target.value })}
                     className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 flex items-center gap-2">
+                      <Clock size={12}/> Start Time *
+                    </label>
+                    <input
+                      type="time" required
+                      value={formData.start_time}
+                      onChange={(e) => setFormData({ ...formData, start_time: e.target.value })}
+                      className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 flex items-center gap-2">
+                      <Clock size={12}/> End Time *
+                    </label>
+                    <input
+                      type="time" required
+                      value={formData.end_time}
+                      onChange={(e) => setFormData({ ...formData, end_time: e.target.value })}
+                      className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 flex items-center gap-2">
+                    <LinkIcon size={12}/> Meeting Link
+                  </label>
+                  <input
+                    type="url"
+                    value={formData.meeting_link}
+                    onChange={(e) => setFormData({ ...formData, meeting_link: e.target.value })}
+                    className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
+                    placeholder="https://..."
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 flex items-center gap-2">
+                    <DollarSign size={12}/> Hour Rate *
+                  </label>
+                  <input
+                    type="number" min="0" required
+                    value={formData.hour_rate}
+                    onChange={(e) => setFormData({ ...formData, hour_rate: e.target.value })}
+                    className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
+                    placeholder="Rate per hour"
                   />
                 </div>
               </div>
