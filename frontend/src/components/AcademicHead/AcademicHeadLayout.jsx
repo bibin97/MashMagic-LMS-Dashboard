@@ -27,9 +27,6 @@ const AcademicHeadLayout = () => {
      colorClass: 'blue',
      children: [
         { path: '/academic-head/aoe/registrations', icon: <UserPlus size={18} />, label: 'Registrations' },
-        { path: '/academic-head/aoe/students', icon: <GraduationCap size={18} />, label: 'Students' },
-        { path: '/academic-head/aoe/mentors', icon: <Users size={18} />, label: 'Mentors' },
-        { path: '/academic-head/aoe/faculties', icon: <Briefcase size={18} />, label: 'Faculties' },
         { path: '/academic-head/aoe/academic-schedule', icon: <ScrollText size={18} />, label: 'Academic Schedule' },
         { path: '/academic-head/aoe/interactions', icon: <MessageSquare size={18} />, label: 'Interactions' }
      ]
@@ -39,7 +36,6 @@ const AcademicHeadLayout = () => {
      icon: <Users size={18} />,
      colorClass: 'violet',
      children: [
-        { path: '/academic-head/ssc/students', icon: <Users size={18} />, label: 'Student List' },
         { path: '/academic-head/ssc/timetable', icon: <Clock size={18} />, label: 'Timetable Area' }
      ]
    }

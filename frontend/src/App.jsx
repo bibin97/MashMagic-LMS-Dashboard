@@ -223,7 +223,7 @@ function App() {
             <Route path="interactions" element={<Interactions />} />
             <Route path="meetings" element={<ParentMeetings />} />
             <Route path="demo-schedule" element={<AOEDemoSchedule />} />
-            <Route path="daily-updates" element={<AHDailyUpdates />} />
+            <Route path="daily-updates" element={<AOEDailyUpdates />} />
             <Route path="exam-scores" element={<AoeExams />} />
             <Route path="profile" element={<AdminProfile />} />
             <Route path="account-settings" element={<AccountSettings />} />
@@ -250,6 +250,7 @@ function App() {
             <Route path="faculty-replacement" element={<OperationsHub section="faculty_replacement" />} />
             <Route path="escalations" element={<OperationsHub section="escalation" />} />
             <Route path="course-completions" element={<OperationsHub section="course_completions" />} />
+            <Route path="daily-updates" element={<AHDailyUpdates />} />
             
             {/* AOE Panels inside Academic Head */}
             <Route path="aoe/dashboard" element={<AOEDashboard />} />
