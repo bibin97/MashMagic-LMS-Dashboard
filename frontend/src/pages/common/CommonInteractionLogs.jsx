@@ -529,7 +529,6 @@ const CommonInteractionLogs = ({
                                 Faculty Focus
                             </button>}
                     </div>
-                    </div>
                 </div>
 
                 {activeTab === 'student' && role === 'mentor_head' && (
