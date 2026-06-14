@@ -829,20 +829,191 @@ const createStudentLog = async (req, res) => {
     }
 };
 
-// @desc    Get mentor student logs
+// @desc    Get mentor student logs (Unified Audit for Mentor)
 // @route   GET /api/mentor/student-logs
 const getStudentLogs = async (req, res) => {
     try {
         const mentorId = req.user.id;
+        const { student_id, startDate, endDate } = req.query;
+
+        let whereClause = 'WHERE 1=1 AND mentor_id = ?';
+        if (student_id) whereClause += ' AND student_id = ?';
+        if (startDate) whereClause += ' AND created_at >= ?';
+        if (endDate) whereClause += ' AND created_at <= ?';
+
+        const buildParams = () => {
+            let p = [mentorId];
+            if (student_id) p.push(student_id);
+            if (startDate) p.push(startDate);
+            if (endDate) p.push(endDate + ' 23:59:59');
+            return p;
+        };
+
+        const params = [
+            ...buildParams(),
+            ...buildParams(),
+            ...buildParams(),
+            ...buildParams()
+        ];
+
         const [rows] = await db.query(`
-            SELECT logs.*, s.name as student_name 
-            FROM student_interaction_logs logs
-            JOIN students s ON logs.student_id = s.id
-            WHERE s.mentor_id = ? 
-            ORDER BY logs.created_at DESC
-        `, [mentorId]);
+            SELECT * FROM (
+                SELECT 
+                    CONVERT('Interaction Hub' USING utf8mb4) COLLATE utf8mb4_unicode_ci as source,
+                    r.id, r.mentor_id, r.student_id, r.created_at,
+                    CONVERT(COALESCE(m.name, u.name) USING utf8mb4) COLLATE utf8mb4_unicode_ci as mentor_name, 
+                    CONVERT(s.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as student_name,
+                    CAST(r.session_type AS CHAR) as session_number,
+                    CONVERT(r.session_type USING utf8mb4) COLLATE utf8mb4_unicode_ci as session_type,
+                    CONVERT(COALESCE(
+                        JSON_UNQUOTE(JSON_EXTRACT(r.report_data, '$.notes')), 
+                        JSON_UNQUOTE(JSON_EXTRACT(r.report_data, '$.action_plan')),
+                        JSON_UNQUOTE(JSON_EXTRACT(r.report_data, '$.next_task')),
+                        JSON_UNQUOTE(JSON_EXTRACT(r.report_data, '$.study_status')),
+                        JSON_UNQUOTE(JSON_EXTRACT(r.report_data, '$.main_problem')),
+                        r.session_type
+                    ) USING utf8mb4) COLLATE utf8mb4_unicode_ci as mentor_notes,
+                    CAST(JSON_UNQUOTE(JSON_EXTRACT(r.report_data, '$.self_clarity')) AS CHAR) as understanding_level,
+                    CAST(JSON_UNQUOTE(JSON_EXTRACT(r.report_data, '$.confidence')) AS CHAR) as student_confidence,
+                    NULL as stress_level,
+                    r.is_flagged,
+                    CONVERT(r.flag_reason USING utf8mb4) COLLATE utf8mb4_unicode_ci as flag_reason,
+                    NULL as screenshot_url,
+                    r.report_data as report_data
+                FROM mentor_session_reports r
+                LEFT JOIN users u ON r.mentor_id = u.id AND u.role = 'mentor'
+                LEFT JOIN mentors m ON (r.mentor_id = m.id OR (u.id IS NOT NULL AND (m.phone_number = u.email OR m.email = u.email OR m.name = u.name)))
+                JOIN students s ON r.student_id = s.id
+                ${whereClause.replace(/student_id/g, 'r.student_id').replace(/mentor_id/g, 'r.mentor_id').replace(/created_at/g, 'r.created_at')}
+
+                UNION ALL
+
+                SELECT 
+                    CONVERT('Session Log' USING utf8mb4) COLLATE utf8mb4_unicode_ci as source,
+                    l.id, l.mentor_id, l.student_id, l.created_at,
+                    CONVERT(COALESCE(m.name, u.name) USING utf8mb4) COLLATE utf8mb4_unicode_ci as mentor_name, 
+                    CONVERT(s.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as student_name,
+                    CONVERT('S-Log' USING utf8mb4) COLLATE utf8mb4_unicode_ci as session_number,
+                    CONVERT('MEDIUM' USING utf8mb4) COLLATE utf8mb4_unicode_ci as session_type,
+                    CONVERT(CONCAT(l.main_issue, ': ', l.action_type) USING utf8mb4) COLLATE utf8mb4_unicode_ci as mentor_notes,
+                    CAST(l.understanding_after_session AS CHAR) as understanding_level,
+                    CAST(l.session_quality_rating AS CHAR) as student_confidence,
+                    CAST(l.stress_level AS CHAR) as stress_level,
+                    NULL as is_flagged,
+                    NULL as flag_reason,
+                    NULL as screenshot_url,
+                    JSON_OBJECT(
+                        'connection_method', l.connection_method,
+                        'session_duration_minutes', l.session_duration_minutes,
+                        'focus_level', l.focus_level,
+                        'energy_level', l.energy_level,
+                        'stress_level', l.stress_level,
+                        'homework_status', l.homework_status,
+                        'revision_done', l.revision_done,
+                        'doubts_present', l.doubts_present,
+                        'main_issue', l.main_issue,
+                        'secondary_issue', l.secondary_issue,
+                        'weak_subject', l.weak_subject,
+                        'problem_clarity', l.problem_clarity,
+                        'action_type', l.action_type,
+                        'action_detail', l.action_detail,
+                        'action_specific', l.action_specific,
+                        'student_engagement', l.student_engagement,
+                        'understanding_after_session', l.understanding_after_session,
+                        'previous_task_status', l.previous_task_status,
+                        'followup_required', l.followup_required,
+                        'followup_date', l.followup_date,
+                        'student_status', l.student_status,
+                        'session_quality_rating', l.session_quality_rating
+                    ) as report_data
+                FROM mentor_session_logs l
+                LEFT JOIN users u ON l.mentor_id = u.id AND u.role = 'mentor'
+                LEFT JOIN mentors m ON (l.mentor_id = m.id OR (u.id IS NOT NULL AND (m.phone_number = u.email OR m.email = u.email OR m.name = u.name)))
+                JOIN students s ON l.student_id = s.id
+                ${whereClause.replace(/student_id/g, 'l.student_id').replace(/mentor_id/g, 'l.mentor_id').replace(/created_at/g, 'l.created_at')}
+
+                UNION ALL
+
+                SELECT 
+                    CONVERT('Quick Log' USING utf8mb4) COLLATE utf8mb4_unicode_ci as source,
+                    logs.id, logs.mentor_id, logs.student_id, logs.created_at,
+                    CONVERT(COALESCE(m.name, u.name) USING utf8mb4) COLLATE utf8mb4_unicode_ci as mentor_name, 
+                    CONVERT(s.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as student_name,
+                    CONVERT('Q-Log' USING utf8mb4) COLLATE utf8mb4_unicode_ci as session_number,
+                    CONVERT('QUICK' USING utf8mb4) COLLATE utf8mb4_unicode_ci as session_type,
+                    CONVERT(logs.mentor_notes USING utf8mb4) COLLATE utf8mb4_unicode_ci as mentor_notes,
+                    CAST(logs.self_clarity AS CHAR) as understanding_level,
+                    CAST(logs.confidence AS CHAR) as student_confidence,
+                    CAST(logs.exam_anxiety AS CHAR) as stress_level,
+                    NULL as is_flagged,
+                    NULL as flag_reason,
+                    CONVERT(logs.screenshot_url USING utf8mb4) COLLATE utf8mb4_unicode_ci as screenshot_url,
+                    JSON_OBJECT(
+                        'connection_method', logs.connection_method,
+                        'self_clarity', logs.self_clarity,
+                        'confusing_topic', logs.confusing_topic,
+                        'can_solve_independently', logs.can_solve_independently,
+                        'homework_status', logs.homework_status,
+                        'homework_difficulty', logs.homework_difficulty,
+                        'revision_quality', logs.revision_quality,
+                        'confidence', logs.confidence,
+                        'motivation_level', logs.motivation_level,
+                        'focus_level', logs.focus_level,
+                        'exam_anxiety', logs.exam_anxiety,
+                        'student_requests', logs.student_requests,
+                        'parent_update_priority', logs.parent_update_priority,
+                        'mentor_action_needed', logs.mentor_action_needed,
+                        'connected_today', logs.connected_today
+                    ) as report_data
+                FROM student_interaction_logs logs
+                LEFT JOIN users u ON logs.mentor_id = u.id AND u.role = 'mentor'
+                LEFT JOIN mentors m ON (logs.mentor_id = m.id OR (u.id IS NOT NULL AND (m.phone_number = u.email OR m.email = u.email OR m.name = u.name)))
+                JOIN students s ON logs.student_id = s.id
+                ${whereClause.replace(/student_id/g, 'logs.student_id').replace(/mentor_id/g, 'logs.mentor_id').replace(/created_at/g, 'logs.created_at')}
+
+                UNION ALL
+
+                SELECT 
+                    CONVERT('Mentorship' USING utf8mb4) COLLATE utf8mb4_unicode_ci as source,
+                    ml.id, ml.mentor_id, ml.student_id, ml.created_at,
+                    CONVERT(COALESCE(m.name, u.name) USING utf8mb4) COLLATE utf8mb4_unicode_ci as mentor_name, 
+                    CONVERT(s.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as student_name,
+                    CONVERT('M-Log' USING utf8mb4) COLLATE utf8mb4_unicode_ci as session_number,
+                    'DEEP' as session_type,
+                    CONVERT(ml.action_details USING utf8mb4) as mentor_notes,
+                    NULL as understanding_level,
+                    NULL as student_confidence,
+                    NULL as stress_level,
+                    NULL as is_flagged,
+                    NULL as flag_reason,
+                    NULL as screenshot_url,
+                    JSON_OBJECT(
+                        'session_date', ml.session_date,
+                        'main_issue', ml.main_issue,
+                        'secondary_issue', ml.secondary_issue,
+                        'weak_subject', ml.weak_subject,
+                        'consistency_rating', ml.consistency_rating,
+                        'focus_rating', ml.focus_rating,
+                        'effort_level', ml.effort_level,
+                        'homework_status', ml.homework_status,
+                        'action_type', ml.action_type,
+                        'action_details', ml.action_details,
+                        'follow_up_required', ml.follow_up_required,
+                        'follow_up_date', ml.follow_up_date,
+                        'priority', ml.priority,
+                        'student_status', ml.student_status
+                    ) as report_data
+                FROM mentorship_logs ml
+                LEFT JOIN users u ON ml.mentor_id = u.id AND u.role = 'mentor'
+                LEFT JOIN mentors m ON (ml.mentor_id = m.id OR (u.id IS NOT NULL AND (m.phone_number = u.email OR m.email = u.email OR m.name = u.name)))
+                JOIN students s ON ml.student_id = s.id
+                ${whereClause.replace(/student_id/g, 'ml.student_id').replace(/mentor_id/g, 'ml.mentor_id').replace(/created_at/g, 'ml.created_at')}
+            ) as unified_logs
+            ORDER BY created_at DESC
+        `, params);
         res.status(200).json({ success: true, data: rows });
     } catch (error) {
+        console.error("GET_STUDENT_LOGS_ERROR:", error);
         res.status(500).json({ success: false, message: error.message });
     }
 };

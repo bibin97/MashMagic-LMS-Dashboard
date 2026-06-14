@@ -191,13 +191,51 @@ const CommonInteractionLogs = ({
       console.error("Error fetching mentors:", error);
     }
   };
+  const getResolvedDates = (filter, customRange) => {
+    let startDate = filter === 'custom' ? customRange.start : undefined;
+    let endDate = filter === 'custom' ? customRange.end : undefined;
+    if (filter !== 'all' && filter !== 'custom') {
+      const today = new Date();
+      const yyyyMmDd = (d) => {
+        const m = (d.getMonth() + 1).toString().padStart(2, '0');
+        const day = d.getDate().toString().padStart(2, '0');
+        return `${d.getFullYear()}-${m}-${day}`;
+      };
+      if (filter === 'today') {
+        startDate = yyyyMmDd(today);
+        endDate = startDate;
+      } else if (filter === 'yesterday') {
+        const d = new Date(today);
+        d.setDate(d.getDate() - 1);
+        startDate = yyyyMmDd(d);
+        endDate = startDate;
+      } else if (filter === 'this_week') {
+        const d = new Date(today);
+        d.setDate(d.getDate() - d.getDay());
+        startDate = yyyyMmDd(d);
+        endDate = yyyyMmDd(today);
+      } else if (filter === 'this_month') {
+        const d = new Date(today.getFullYear(), today.getMonth(), 1);
+        startDate = yyyyMmDd(d);
+        endDate = yyyyMmDd(today);
+      } else if (filter === 'last_month') {
+        const d1 = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+        const d2 = new Date(today.getFullYear(), today.getMonth(), 0);
+        startDate = yyyyMmDd(d1);
+        endDate = yyyyMmDd(d2);
+      }
+    }
+    return { startDate, endDate };
+  };
+
   const fetchEntities = async () => {
     try {
       setLoading(true);
       let endpoint;
+      const { startDate, endDate } = getResolvedDates(listDateFilter, listCustomRange);
       const params = {
-        startDate: listDateFilter === 'custom' ? listCustomRange.start : undefined,
-        endDate: listDateFilter === 'custom' ? listCustomRange.end : undefined,
+        startDate,
+        endDate,
         dateFilter: listDateFilter !== 'all' ? listDateFilter : undefined
       };
       if (activeTab === 'student') {
@@ -234,10 +272,11 @@ const CommonInteractionLogs = ({
   const fetchLogs = async () => {
     try {
       setLoading(true);
+      const { startDate, endDate } = getResolvedDates(dateFilter, customRange);
       const params = {
         dateFilter,
-        startDate: customRange.start,
-        endDate: customRange.end,
+        startDate,
+        endDate,
         mentor_id: mentorFilter !== 'all' ? mentorFilter : undefined,
         student_id: activeTab === 'student' ? selectedStudent.id : undefined,
         faculty_id: activeTab === 'faculty' ? selectedStudent.id : undefined
@@ -503,9 +542,7 @@ const CommonInteractionLogs = ({
                 setSelectedStudent(entity);
                 setViewMode('detail');
               }}><td className="p-6 text-sm font-black text-slate-400 border-b border-slate-50">{index + 1}</td>
-                                            <td className="px-10 py-6 text-center text-slate-400 font-black text-xs">
-                                                {index + 1}
-                                            </td>
+
                                             <td className="px-10 py-6">
                                                 <div className="flex items-center gap-4">
                                                     <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-white font-black text-lg shadow-lg ${activeTab === 'student' ? 'bg-[#008080]' : 'bg-purple-600'}`}>
