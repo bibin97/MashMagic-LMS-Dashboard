@@ -836,8 +836,8 @@ const getStudentLogs = async (req, res) => {
         const mentorId = req.user.id;
         const { student_id, startDate, endDate } = req.query;
 
-        let whereClause = 'WHERE 1=1 AND mentor_id = ?';
-        if (student_id) whereClause += ' AND student_id = ?';
+        let whereClause = 'WHERE 1=1 AND s.mentor_id = ?';
+        if (student_id) whereClause += ' AND s.id = ?';
         if (startDate) whereClause += ' AND created_at >= ?';
         if (endDate) whereClause += ' AND created_at <= ?';
 
@@ -884,7 +884,7 @@ const getStudentLogs = async (req, res) => {
                 LEFT JOIN users u ON r.mentor_id = u.id AND u.role = 'mentor'
                 LEFT JOIN mentors m ON (r.mentor_id = m.id OR (u.id IS NOT NULL AND (m.phone_number = u.email OR m.email = u.email OR m.name = u.name)))
                 JOIN students s ON r.student_id = s.id
-                ${whereClause.replace(/student_id/g, 'r.student_id').replace(/mentor_id/g, 'r.mentor_id').replace(/created_at/g, 'r.created_at')}
+                ${whereClause.replace(/created_at/g, 'r.created_at')}
 
                 UNION ALL
 
@@ -930,7 +930,7 @@ const getStudentLogs = async (req, res) => {
                 LEFT JOIN users u ON l.mentor_id = u.id AND u.role = 'mentor'
                 LEFT JOIN mentors m ON (l.mentor_id = m.id OR (u.id IS NOT NULL AND (m.phone_number = u.email OR m.email = u.email OR m.name = u.name)))
                 JOIN students s ON l.student_id = s.id
-                ${whereClause.replace(/student_id/g, 'l.student_id').replace(/mentor_id/g, 'l.mentor_id').replace(/created_at/g, 'l.created_at')}
+                ${whereClause.replace(/created_at/g, 'l.created_at')}
 
                 UNION ALL
 
@@ -969,7 +969,7 @@ const getStudentLogs = async (req, res) => {
                 LEFT JOIN users u ON logs.mentor_id = u.id AND u.role = 'mentor'
                 LEFT JOIN mentors m ON (logs.mentor_id = m.id OR (u.id IS NOT NULL AND (m.phone_number = u.email OR m.email = u.email OR m.name = u.name)))
                 JOIN students s ON logs.student_id = s.id
-                ${whereClause.replace(/student_id/g, 'logs.student_id').replace(/mentor_id/g, 'logs.mentor_id').replace(/created_at/g, 'logs.created_at')}
+                ${whereClause.replace(/created_at/g, 'logs.created_at')}
 
                 UNION ALL
 
@@ -1007,7 +1007,7 @@ const getStudentLogs = async (req, res) => {
                 LEFT JOIN users u ON ml.mentor_id = u.id AND u.role = 'mentor'
                 LEFT JOIN mentors m ON (ml.mentor_id = m.id OR (u.id IS NOT NULL AND (m.phone_number = u.email OR m.email = u.email OR m.name = u.name)))
                 JOIN students s ON ml.student_id = s.id
-                ${whereClause.replace(/student_id/g, 'ml.student_id').replace(/mentor_id/g, 'ml.mentor_id').replace(/created_at/g, 'ml.created_at')}
+                ${whereClause.replace(/created_at/g, 'ml.created_at')}
             ) as unified_logs
             ORDER BY created_at DESC
         `, params);
