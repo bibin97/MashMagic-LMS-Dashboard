@@ -606,23 +606,25 @@ const CommonInteractionLogs = ({
                             </div>
                             
                             <div className="flex items-center gap-2">
-                                <DatePicker 
-                                  multiple 
-                                  value={listCustomDates} 
-                                  onChange={(dates) => {
-                                    if (dates && dates.length > 0) {
-                                      const formatted = dates.map(d => d.format("YYYY-MM-DD"));
-                                      setListCustomDates(formatted);
-                                      setListDateFilter('custom_multiple');
-                                    } else {
-                                      setListCustomDates([]);
-                                      setListDateFilter('all');
-                                    }
-                                  }}
-                                  placeholder="Select Dates..."
-                                  inputClass="px-6 py-4 bg-white border border-slate-100 rounded-2xl text-[10px] font-black uppercase tracking-widest text-slate-600 outline-none focus:ring-4 ring-[#008080]/10 transition-all cursor-pointer shadow-sm hover:border-[#008080]"
-                                  containerClassName="w-48"
-                                />
+                                {!(activeTab === 'student' && role === 'mentor_head') && (
+                                    <DatePicker 
+                                      multiple 
+                                      value={listCustomDates} 
+                                      onChange={(dates) => {
+                                        if (dates && dates.length > 0) {
+                                          const formatted = dates.map(d => d.format("YYYY-MM-DD"));
+                                          setListCustomDates(formatted);
+                                          setListDateFilter('custom_multiple');
+                                        } else {
+                                          setListCustomDates([]);
+                                          setListDateFilter('all');
+                                        }
+                                      }}
+                                      placeholder="Select Dates..."
+                                      inputClass="px-6 py-4 bg-white border border-slate-100 rounded-2xl text-[10px] font-black uppercase tracking-widest text-slate-600 outline-none focus:ring-4 ring-[#008080]/10 transition-all cursor-pointer shadow-sm hover:border-[#008080]"
+                                      containerClassName="w-48"
+                                    />
+                                )}
                                 <button onClick={() => exportToExcel()} className="flex items-center gap-3 px-6 py-4 rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all border bg-[#008080] text-white border-[#008080] hover:bg-[#006666] active:scale-95 shadow-sm">
                                     Export Logs
                                 </button>
