@@ -321,7 +321,7 @@ const AOEDemoSchedule = () => {
         <div className="bg-white p-8 rounded-[3rem] shadow-sm border border-slate-100 animate-in fade-in zoom-in duration-500">
           <div className="flex justify-between items-center mb-8">
             <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight flex items-center gap-3">
-              <Target className="text-[#008080]" /> Schedule New {activeTab === 'schedule_pre_demo' ? 'Pre-Demo' : 'Demo'}
+              <Target className="text-[#008080]" /> {activeTab === 'schedule_pre_demo' ? 'Add Pre-Demo Evaluation' : 'Schedule New Demo'}
             </h2>
             <button 
               onClick={() => setActiveTab(activeTab === 'schedule_pre_demo' ? 'pre-demo' : 'demo')}
@@ -789,7 +789,7 @@ const AOEDemoSchedule = () => {
                 }}
                 className={`px-6 py-2.5 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-md transition-all flex items-center gap-2 ${activeTab === 'pre-demo' ? 'bg-emerald-500 hover:bg-emerald-600' : 'bg-[#008080] hover:bg-[#006666]'}`}
               >
-                <Plus size={14} /> Add {activeTab === 'pre-demo' ? 'Pre-Demo' : 'Demo'}
+                <Plus size={14} /> Add {activeTab === 'pre-demo' ? 'Pre-Demo Evaluation' : 'Demo'}
               </button>
             </div>
             <div className="relative w-full sm:w-auto">
