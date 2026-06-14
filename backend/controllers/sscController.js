@@ -138,6 +138,15 @@ exports.createSession = async (req, res) => {
         const diffMins = Math.round(diffMs / 60000);
         const duration = `${Math.floor(diffMins / 60)}h ${diffMins % 60}m`;
 
+        // Check for duplicates
+        const [existing] = await db.query(
+            'SELECT id FROM timetable WHERE student_id = ? AND date = ? AND start_time = ? AND end_time = ? AND chapter = ?',
+            [student_id, date, formattedStartTime, formattedEndTime, chapter]
+        );
+        if (existing.length > 0) {
+            return res.status(409).json({ success: false, message: "Duplicate timetable entry already exists for this slot." });
+        }
+
         const [result] = await db.query(`
             INSERT INTO timetable (mentor_id, student_id, session_number, date, start_time, end_time, duration, chapter, session_type, status, notes, faculty_id, faculty_name)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -230,8 +239,8 @@ exports.getStudentAcademicSchedule = async (req, res) => {
             if (Array.isArray(parsed)) {
                 parsed.forEach(p => {
                     let subjectStr = Array.isArray(p.subject) ? p.subject.join(', ') : p.subject;
-                    let pFacultyId = p.faculty_id || p.facultyId || student.faculty_id || null;
-                    let pFacultyName = p.faculty_name || p.facultyName || student.faculty_name || null;
+                    let pFacultyId = p.faculty_id || p.facultyId || null; // Removed fallback to student.faculty_id
+                    let pFacultyName = p.faculty_name || p.facultyName || null; // Removed fallback to student.faculty_name
                     
                     if (p.dayConfigs && Array.isArray(p.dayConfigs)) {
                         p.dayConfigs.forEach(dc => {
@@ -365,6 +374,13 @@ exports.createBatchTimetable = async (req, res) => {
 
             const formattedStartTime = convertTo24Hour(start_time);
             const formattedEndTime = convertTo24Hour(end_time);
+
+            // Check for duplicates
+            const [existing] = await connection.query(
+                'SELECT id FROM timetable WHERE student_id = ? AND date = ? AND start_time = ? AND end_time = ? AND chapter = ?',
+                [student_id, date, formattedStartTime, formattedEndTime, chapter]
+            );
+            if (existing.length > 0) continue; // Skip duplicates silently
 
             const start = new Date(`1970-01-01T${formattedStartTime}`);
             const end = new Date(`1970-01-01T${formattedEndTime}`);

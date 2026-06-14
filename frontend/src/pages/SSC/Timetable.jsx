@@ -5,7 +5,8 @@ import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 import { premiumConfirm } from '../../utils/premiumConfirm';
 import { useAuth } from '../../context/AuthContext';
-import DatePicker from "react-multi-date-picker";
+import MultiDatePicker from "react-multi-date-picker";
+const DatePicker = MultiDatePicker.default ? MultiDatePicker.default : MultiDatePicker;
 
 const formatTo24hTime = (timeStr) => {
   if (!timeStr) return '10:00';

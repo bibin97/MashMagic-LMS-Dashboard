@@ -3,7 +3,8 @@ import api from '../../services/api';
 import { ScrollText, Search, User, Clock, Calendar, ChevronLeft, ChevronRight, History, ExternalLink, ArrowLeft, Users, ShieldAlert, CheckSquare, Filter, BookOpen, ChevronDown, SlidersHorizontal, X, SortAsc, CalendarClock, Pencil } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import toast from 'react-hot-toast';
-import DatePicker from "react-multi-date-picker";
+import MultiDatePicker from "react-multi-date-picker";
+const DatePicker = MultiDatePicker.default ? MultiDatePicker.default : MultiDatePicker;
 const DEEP_QUESTION_LABELS = {
   student_status_before: 'Student Status Before Session',
   main_problem: 'Main Problem/Concern Raised',

@@ -7,7 +7,8 @@ import {
   ShieldCheck, Timer, XCircle, X
 } from 'lucide-react';
 import toast from 'react-hot-toast';
-import DatePicker from "react-multi-date-picker";
+import MultiDatePicker from "react-multi-date-picker";
+const DatePicker = MultiDatePicker.default ? MultiDatePicker.default : MultiDatePicker;
 
 const checkIsLive = (session) => {
   if (!session.start_time || !session.end_time || !session.date) return false;
