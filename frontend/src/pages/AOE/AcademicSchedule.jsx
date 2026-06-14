@@ -1,4 +1,4 @@
-import React, {  useState, useEffect , useDeferredValue } from 'react';
+import React, { useState, useEffect, useDeferredValue } from 'react';
 import api from '../../services/api';
 import {
   CalendarClock, Clock, BookOpen, Users,
@@ -7,6 +7,7 @@ import {
   ShieldCheck, Timer, XCircle, X
 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import DatePicker from "react-multi-date-picker";
 
 const checkIsLive = (session) => {
   if (!session.start_time || !session.end_time || !session.date) return false;
@@ -39,7 +40,7 @@ const AcademicSchedule = () => {
   const [searchTerm, setSearchTerm] = useState('');
 	const deferredSearchTerm = useDeferredValue(searchTerm);
   const [activeTab, setActiveTab] = useState('today');
-  const [filterDate, setFilterDate] = useState('');
+  const [filterDate, setFilterDate] = useState([]); // Now an array for multiple dates
   const [joinedSessions, setJoinedSessions] = useState(() => {
     try { return JSON.parse(localStorage.getItem('joinedSessions')) || {}; } catch { return {}; }
   });
@@ -91,8 +92,8 @@ const AcademicSchedule = () => {
     } else if (activeTab === 'calendar') {
       return filtered.filter(s => {
         const sessionDate = s.date.split('T')[0];
-        if (filterDate) {
-           return sessionDate === filterDate && s.status !== 'Completed';
+        if (filterDate && filterDate.length > 0) {
+           return filterDate.includes(sessionDate) && s.status !== 'Completed';
         }
         return sessionDate > todayStr && s.status !== 'Completed';
       });
@@ -187,7 +188,7 @@ return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String
           <div className="flex gap-2 items-center w-full md:w-auto">
             <div className="flex p-1.5 bg-slate-100 rounded-[1rem] md:rounded-2xl gap-2 overflow-x-auto no-scrollbar items-center">
               <button
-                onClick={() => { setActiveTab('today'); setFilterDate(''); }}
+                onClick={() => { setActiveTab('today'); setFilterDate([]); }}
                 className={`flex items-center gap-2 md:gap-3 px-4 md:px-6 py-2.5 md:py-3 rounded-xl text-[9px] md:text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${
                   activeTab === 'today' ? 'bg-white text-slate-900 shadow-md' : 'text-slate-400 hover:text-slate-600'
                 }`}
@@ -197,7 +198,7 @@ return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String
               </button>
 
               <button
-                onClick={() => { setActiveTab('completed'); setFilterDate(''); }}
+                onClick={() => { setActiveTab('completed'); setFilterDate([]); }}
                 className={`flex items-center gap-2 md:gap-3 px-4 md:px-6 py-2.5 md:py-3 rounded-xl text-[9px] md:text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${
                   activeTab === 'completed' ? 'bg-white text-slate-900 shadow-md' : 'text-slate-400 hover:text-slate-600'
                 }`}
@@ -207,21 +208,28 @@ return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String
               </button>
             </div>
 
-            <input 
-                type="date"
-                className={`px-4 md:px-6 py-2.5 md:py-3.5 bg-white border rounded-xl md:rounded-2xl text-[9px] md:text-[10px] font-black uppercase tracking-widest outline-none focus:ring-4 transition-all cursor-pointer shadow-sm ${
+            <DatePicker
+                multiple
+                value={filterDate}
+                onChange={(dates) => { 
+                    if (dates && dates.length > 0) {
+                        const formatted = dates.map(d => d.format("YYYY-MM-DD"));
+                        setFilterDate(formatted);
+                        setActiveTab('calendar');
+                    } else {
+                        setFilterDate([]);
+                        setActiveTab('today');
+                    }
+                }}
+                placeholder="Select Dates"
+                inputClass={`px-4 md:px-6 py-2.5 md:py-3.5 bg-white border rounded-xl md:rounded-2xl text-[9px] md:text-[10px] font-black uppercase tracking-widest outline-none focus:ring-4 transition-all cursor-pointer shadow-sm ${
                     activeTab === 'calendar' ? 'border-[#008080] text-[#008080] ring-[#008080]/10' : 'border-slate-100 text-slate-600 hover:border-[#008080]'
                 }`}
-                value={filterDate}
-                onChange={(e) => { 
-                    setFilterDate(e.target.value); 
-                    if (e.target.value) setActiveTab('calendar');
-                    else setActiveTab('today');
-                }}
+                containerClassName="w-40 md:w-48 relative z-50"
             />
-            { activeTab === 'calendar' && filterDate && (
+            { activeTab === 'calendar' && filterDate && filterDate.length > 0 && (
                 <button 
-                    onClick={() => { setFilterDate(''); setActiveTab('today'); }}
+                    onClick={() => { setFilterDate([]); setActiveTab('today'); }}
                     className="w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-xl md:rounded-2xl bg-rose-50 text-rose-600 border border-rose-100 hover:bg-rose-600 hover:text-white transition-all shrink-0"
                 >
                     <X size={16} />

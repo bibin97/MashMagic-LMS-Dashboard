@@ -3,6 +3,7 @@ import api from '../../services/api';
 import { ScrollText, Search, User, Clock, Calendar, ChevronLeft, ChevronRight, History, ExternalLink, ArrowLeft, Users, ShieldAlert, CheckSquare, Filter, BookOpen, ChevronDown, SlidersHorizontal, X, SortAsc, CalendarClock, Pencil } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import toast from 'react-hot-toast';
+import DatePicker from "react-multi-date-picker";
 const DEEP_QUESTION_LABELS = {
   student_status_before: 'Student Status Before Session',
   main_problem: 'Main Problem/Concern Raised',
@@ -110,6 +111,7 @@ const CommonInteractionLogs = ({
     start: '',
     end: ''
   });
+  const [listCustomDates, setListCustomDates] = useState([]);
   const [showListFilter, setShowListFilter] = useState(false);
   const [selectedLogTab, setSelectedLogTab] = useState('ALL');
   const [sortOrder, setSortOrder] = useState('newest'); // 'newest' or 'oldest'
@@ -223,6 +225,13 @@ const CommonInteractionLogs = ({
         const d2 = new Date(today.getFullYear(), today.getMonth(), 0);
         startDate = yyyyMmDd(d1);
         endDate = yyyyMmDd(d2);
+      }
+    } else if (filter === 'custom_multiple') {
+      // If we need a single start/end range to fetch logs from backend covering all dates
+      if (listCustomDates.length > 0) {
+        const sortedDates = [...listCustomDates].sort();
+        startDate = sortedDates[0];
+        endDate = sortedDates[sortedDates.length - 1];
       }
     }
     return { startDate, endDate };
@@ -435,6 +444,7 @@ const CommonInteractionLogs = ({
       start: '',
       end: ''
     });
+    setListCustomDates([]);
     setShowListFilter(false);
   };
   const filteredEntities = useMemo(() => {
@@ -449,7 +459,15 @@ const CommonInteractionLogs = ({
         }
       }
     });
-    if (listDateFilter !== 'all') {
+    if (listDateFilter === 'custom_multiple' && listCustomDates.length > 0) {
+      base = base.filter(e => {
+        const logDate = latestLogMap[e.id];
+        if (!logDate) return false;
+        const d = new Date(logDate);
+        const yyyyMmDd = `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}-${d.getDate().toString().padStart(2, '0')}`;
+        return listCustomDates.includes(yyyyMmDd);
+      });
+    } else if (listDateFilter !== 'all') {
       base = base.filter(e => latestLogMap[e.id] !== undefined);
     }
     base.sort((a, b) => {
@@ -491,21 +509,23 @@ const CommonInteractionLogs = ({
                             </div>
                             
                             <div className="flex items-center gap-2">
-                                <input type="date" className="px-6 py-4 bg-white border border-slate-100 rounded-2xl text-[10px] font-black uppercase tracking-widest text-slate-600 outline-none focus:ring-4 ring-[#008080]/10 transition-all cursor-pointer shadow-sm hover:border-[#008080]" value={listDateFilter === 'custom' ? listCustomRange.start : ''} onChange={e => {
-                if (e.target.value) {
-                  setListDateFilter('custom');
-                  setListCustomRange({
-                    start: e.target.value,
-                    end: e.target.value
-                  });
-                } else {
-                  setListDateFilter('all');
-                  setListCustomRange({
-                    start: '',
-                    end: ''
-                  });
-                }
-              }} />
+                                <DatePicker 
+                                  multiple 
+                                  value={listCustomDates} 
+                                  onChange={(dates) => {
+                                    if (dates && dates.length > 0) {
+                                      const formatted = dates.map(d => d.format("YYYY-MM-DD"));
+                                      setListCustomDates(formatted);
+                                      setListDateFilter('custom_multiple');
+                                    } else {
+                                      setListCustomDates([]);
+                                      setListDateFilter('all');
+                                    }
+                                  }}
+                                  placeholder="Select Dates..."
+                                  inputClass="px-6 py-4 bg-white border border-slate-100 rounded-2xl text-[10px] font-black uppercase tracking-widest text-slate-600 outline-none focus:ring-4 ring-[#008080]/10 transition-all cursor-pointer shadow-sm hover:border-[#008080]"
+                                  containerClassName="w-48"
+                                />
                                 <button onClick={() => exportToExcel()} className="flex items-center gap-3 px-6 py-4 rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all border bg-[#008080] text-white border-[#008080] hover:bg-[#006666] active:scale-95 shadow-sm">
                                     Export Logs
                                 </button>

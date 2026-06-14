@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
 import { Users, Clock, Calendar, Search, Plus, Filter, Target, Trash2, Edit2, CheckCircle, XCircle, AlertCircle, RefreshCcw, Save, CalendarClock, ChevronDown, Info } from 'lucide-react';
 import toast from 'react-hot-toast';
+import DatePicker from "react-multi-date-picker";
 import { useNavigate } from 'react-router-dom';
 import { premiumConfirm } from '../../utils/premiumConfirm';
 import { useAuth } from '../../context/AuthContext';
@@ -203,7 +204,7 @@ const Timetable = () => {
     setBulkSessions([]);
     setFormData({
       student_id: filters.student_id || '',
-      date: new Date().toISOString().split('T')[0],
+      date: [new Date().toISOString().split('T')[0]],
       start_time: '',
       end_time: '',
       chapter: '',
@@ -222,7 +223,7 @@ const Timetable = () => {
     setEditingSession(session);
     setFormData({
       student_id: session.student_id,
-      date: new Date(session.date).toISOString().split('T')[0],
+      date: [new Date(session.date).toISOString().split('T')[0]],
       start_time: (session.start_time || '10:00').substring(0, 5),
       end_time: (session.end_time || '11:00').substring(0, 5),
       chapter: session.chapter || '',
@@ -242,7 +243,7 @@ const Timetable = () => {
     setEditingSession(session);
     setFormData({
       student_id: session.student_id,
-      date: new Date(session.date).toISOString().split('T')[0],
+      date: [new Date(session.date).toISOString().split('T')[0]],
       start_time: (session.start_time || '10:00').substring(0, 5),
       end_time: (session.end_time || '11:00').substring(0, 5),
       chapter: session.chapter || '',
@@ -294,11 +295,19 @@ const Timetable = () => {
 
       try {
         if (editingSession) {
-          await api.put(`/mentor/timetable/${editingSession.id}`, formData);
+          const updateData = { ...formData, date: Array.isArray(formData.date) ? formData.date[0] : formData.date };
+          await api.put(`/mentor/timetable/${editingSession.id}`, updateData);
           toast.success("Session updated");
         } else {
-          await api.post('/mentor/timetable', formData);
-          toast.success("Session created");
+          const dates = Array.isArray(formData.date) ? formData.date : [formData.date];
+          for (const dateStr of dates) {
+            await api.post('/mentor/timetable', { ...formData, date: dateStr });
+          }
+          if (dates.length > 1) {
+            toast.success(`${dates.length} Sessions created`);
+          } else {
+            toast.success("Session created");
+          }
         }
         setShowModal(false);
         setEditingSession(null);
@@ -563,19 +572,21 @@ const Timetable = () => {
         <div className="flex items-center gap-6 pt-6 border-t border-slate-50">
           <div className="flex items-center gap-3">
             <label className="text-[9px] font-black text-slate-600 uppercase ">Custom Range:</label>
-            <div className="flex items-center bg-slate-50 p-1.5 rounded-xl border border-slate-100">
-              <input
-                type="date"
-                value={filters.start_date}
-                onChange={(e) => setFilters({ ...filters, start_date: e.target.value })}
-                className="bg-transparent border-none px-3 py-1 text-[10px] font-bold text-slate-600 outline-none"
-              />
-              <span className="text-slate-300 px-2 text-[10px] font-black">→</span>
-              <input
-                type="date"
-                value={filters.end_date}
-                onChange={(e) => setFilters({ ...filters, end_date: e.target.value })}
-                className="bg-transparent border-none px-3 py-1 text-[10px] font-bold text-slate-600 outline-none"
+            <label className="text-[9px] font-black text-slate-600 uppercase ">Custom Range:</label>
+            <div className="flex items-center bg-slate-50 p-1.5 rounded-xl border border-slate-100 z-50 relative">
+              <DatePicker
+                range
+                value={[filters.start_date, filters.end_date].filter(Boolean)}
+                onChange={(dates) => {
+                  if (dates && dates.length > 0) {
+                    const sorted = dates.map(d => d.format("YYYY-MM-DD")).sort();
+                    setFilters({ ...filters, start_date: sorted[0], end_date: sorted[sorted.length - 1] || sorted[0] });
+                  } else {
+                    setFilters({ ...filters, start_date: '', end_date: '' });
+                  }
+                }}
+                placeholder="Select Date Range..."
+                inputClass="bg-transparent border-none px-3 py-1 text-[10px] font-bold text-slate-600 outline-none w-48"
               />
             </div>
           </div>
@@ -677,12 +688,21 @@ const Timetable = () => {
                   </div>
                   <div className="space-y-4">
                     <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">New Target Date *</label>
-                    <input
-                      type="date"
-                      required
+                    <DatePicker
+                      multiple={!editingSession}
                       value={formData.date}
-                      onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                      className="w-full p-6 bg-slate-50 border border-slate-100 rounded-[2rem] text-lg font-black focus:bg-white focus:ring-8 ring-indigo-500/10 transition-all outline-none"
+                      onChange={(dates) => {
+                        if (Array.isArray(dates)) {
+                          setFormData({ ...formData, date: dates.map(d => d.format("YYYY-MM-DD")) });
+                        } else if (dates) {
+                          setFormData({ ...formData, date: [dates.format("YYYY-MM-DD")] });
+                        } else {
+                          setFormData({ ...formData, date: [] });
+                        }
+                      }}
+                      containerClassName="w-full relative z-50"
+                      inputClass="w-full p-6 bg-slate-50 border border-slate-100 rounded-[2rem] text-lg font-black focus:bg-white focus:ring-8 ring-indigo-500/10 transition-all outline-none cursor-pointer"
+                      placeholder="Select Target Date(s)"
                     />
                   </div>
                 </div>
@@ -706,12 +726,21 @@ const Timetable = () => {
 
                     <div className="space-y-2">
                       <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Session Date *</label>
-                      <input
-                        type="date"
-                        required
+                      <DatePicker
+                        multiple={!editingSession}
                         value={formData.date}
-                        onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                        className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
+                        onChange={(dates) => {
+                          if (Array.isArray(dates)) {
+                            setFormData({ ...formData, date: dates.map(d => d.format("YYYY-MM-DD")) });
+                          } else if (dates) {
+                            setFormData({ ...formData, date: [dates.format("YYYY-MM-DD")] });
+                          } else {
+                            setFormData({ ...formData, date: [] });
+                          }
+                        }}
+                        containerClassName="w-full relative z-50"
+                        inputClass="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none cursor-pointer"
+                        placeholder="Select Date(s)"
                       />
                     </div>
 
