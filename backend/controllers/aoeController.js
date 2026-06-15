@@ -651,6 +651,17 @@ const editStudent = async (req, res) => {
         const [[student]] = await db.query('SELECT name, user_id FROM students WHERE id = ?', [id]);
         if (!student) return res.status(404).json({ success: false, message: "Student not found" });
 
+        // Add email duplication check to prevent autofill bugs overwriting other users' emails
+        if (email) {
+            const [[existingEmail]] = await db.query('SELECT id, role FROM users WHERE email = ? AND id != ?', [email, student.user_id || 0]);
+            if (existingEmail) {
+                return res.status(400).json({ 
+                    success: false, 
+                    message: `Email conflict: ${email} is already registered to a ${existingEmail.role}. Please check your browser's autofill settings.` 
+                });
+            }
+        }
+
         // Prepare primary faculty/subject for legacy columns
         let primaryFacultyId = null;
         let primaryFacultyName = null;
