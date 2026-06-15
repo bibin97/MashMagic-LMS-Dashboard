@@ -25,7 +25,7 @@ const mysql = require('mysql2/promise');
 async function main() {
     const targetEmails = [
         'naveenabatty@gmail.com',
-        'noorjahank999@gmail.com',
+        'noorjahanck999@gmail.com',
         'amruthabinbubi98@gmail.com',
         'sameehaeahya333@gmail.com'
     ];
