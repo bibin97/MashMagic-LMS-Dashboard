@@ -51,10 +51,10 @@ async function main() {
 
     try {
         for (const email of targetEmails) {
-            // Check if user exists as active faculty in users table (using TRIM to ignore trailing spaces)
+            // Check if user exists as active faculty in users table (using LIKE to bypass any hidden characters)
             const [users] = await db.query(
-                "SELECT id as user_id, name, email, phone_number, password FROM users WHERE TRIM(email) = ? AND TRIM(role) = 'faculty' AND TRIM(status) = 'active'", 
-                [email]
+                "SELECT id as user_id, name, email, phone_number, password FROM users WHERE email LIKE ? AND role LIKE '%faculty%' AND status LIKE '%active%'", 
+                [`%${email.trim()}%`]
             );
 
             if (users.length === 0) {
