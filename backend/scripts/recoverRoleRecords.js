@@ -26,7 +26,7 @@ async function main() {
     const [orphanedFaculties] = await db.query(`
         SELECT u.id as user_id, u.name, u.email, u.phone_number, u.status
         FROM users u
-        LEFT JOIN faculties f ON f.user_id = u.id
+        LEFT JOIN faculties f ON f.email = u.email
         WHERE u.role = 'faculty'
           AND u.status = 'active'
           AND f.id IS NULL
@@ -39,7 +39,7 @@ async function main() {
     const [orphanedMentors] = await db.query(`
         SELECT u.id as user_id, u.name, u.email, u.phone_number, u.status
         FROM users u
-        LEFT JOIN mentors m ON m.user_id = u.id
+        LEFT JOIN mentors m ON m.email = u.email
         WHERE u.role = 'mentor'
           AND u.status = 'active'
           AND m.id IS NULL
@@ -55,14 +55,14 @@ async function main() {
             try {
                 const [[emailDup]] = await db.query('SELECT id FROM faculties WHERE email = ? LIMIT 1', [u.email]);
                 if (emailDup) {
-                    await db.query('UPDATE faculties SET user_id = ?, status = "active" WHERE id = ?', [u.user_id, emailDup.id]);
-                    console.log(`  ✔ Linked existing faculty record (id=${emailDup.id}) to user_id=${u.user_id} for ${u.name}`);
+                    await db.query('UPDATE faculties SET status = "active" WHERE id = ?', [emailDup.id]);
+                    console.log(`  ✔ Re-activated existing faculty record (id=${emailDup.id}) for ${u.name}`);
                 } else {
                     await db.query(
-                        'INSERT INTO faculties (user_id, name, email, phone_number, status, subject) VALUES (?, ?, ?, ?, "active", NULL)',
-                        [u.user_id, u.name, u.email, u.phone_number]
+                        'INSERT INTO faculties (name, email, phone_number, status, subject) VALUES (?, ?, ?, "active", NULL)',
+                        [u.name, u.email, u.phone_number]
                     );
-                    console.log(`  ✔ Created new faculty record for ${u.name} (user_id=${u.user_id})`);
+                    console.log(`  ✔ Created new faculty record for ${u.name}`);
                 }
             } catch (err) {
                 console.error(`  ✗ Failed to repair ${u.name}: ${err.message}`);
@@ -77,14 +77,14 @@ async function main() {
             try {
                 const [[emailDup]] = await db.query('SELECT id FROM mentors WHERE email = ? LIMIT 1', [u.email]);
                 if (emailDup) {
-                    await db.query('UPDATE mentors SET user_id = ?, status = "active" WHERE id = ?', [u.user_id, emailDup.id]);
-                    console.log(`  ✔ Linked existing mentor record (id=${emailDup.id}) to user_id=${u.user_id} for ${u.name}`);
+                    await db.query('UPDATE mentors SET status = "active" WHERE id = ?', [emailDup.id]);
+                    console.log(`  ✔ Re-activated existing mentor record (id=${emailDup.id}) for ${u.name}`);
                 } else {
                     await db.query(
-                        'INSERT INTO mentors (user_id, name, email, phone_number, status) VALUES (?, ?, ?, ?, "active")',
-                        [u.user_id, u.name, u.email, u.phone_number]
+                        'INSERT INTO mentors (name, email, phone_number, status) VALUES (?, ?, ?, "active")',
+                        [u.name, u.email, u.phone_number]
                     );
-                    console.log(`  ✔ Created new mentor record for ${u.name} (user_id=${u.user_id})`);
+                    console.log(`  ✔ Created new mentor record for ${u.name}`);
                 }
             } catch (err) {
                 console.error(`  ✗ Failed to repair ${u.name}: ${err.message}`);

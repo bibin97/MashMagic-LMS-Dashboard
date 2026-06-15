@@ -138,50 +138,50 @@ const approveUser = async (req, res) => {
             const effectiveRole = nameRow.role || role;
 
             if (effectiveRole === 'faculty') {
-                // Duplicate protection: check by user_id OR email
+                // Duplicate protection: check by email
                 const [[facDup]] = await conn.query(
-                    'SELECT id FROM faculties WHERE email = ? OR user_id = ? LIMIT 1',
-                    [nameRow.email, nameRow.user_id]
+                    'SELECT id FROM faculties WHERE email = ? LIMIT 1',
+                    [nameRow.email]
                 );
 
                 if (facDup) {
-                    // Re-link and re-activate existing record
+                    // Re-activate existing record
                     await conn.query(
-                        'UPDATE faculties SET status = "active", user_id = ? WHERE id = ?',
-                        [nameRow.user_id, facDup.id]
+                        'UPDATE faculties SET status = "active" WHERE id = ?',
+                        [facDup.id]
                     );
                 } else {
                     // Create new faculty record
                     await conn.query(
-                        'INSERT INTO faculties (user_id, name, email, phone_number, status, subject) VALUES (?, ?, ?, ?, "active", NULL)',
-                        [nameRow.user_id, nameRow.name, nameRow.email, nameRow.phone_number]
+                        'INSERT INTO faculties (name, email, phone_number, status, subject) VALUES (?, ?, ?, "active", NULL)',
+                        [nameRow.name, nameRow.email, nameRow.phone_number]
                     );
                 }
 
                 // Post-insert verification (still within transaction)
-                const [[facCheck]] = await conn.query('SELECT id FROM faculties WHERE user_id = ? AND status = "active" LIMIT 1', [nameRow.user_id]);
+                const [[facCheck]] = await conn.query('SELECT id FROM faculties WHERE email = ? AND status = "active" LIMIT 1', [nameRow.email]);
                 if (!facCheck) throw new Error('Faculty record creation verification failed after insert.');
 
             } else if (effectiveRole === 'mentor') {
-                // Duplicate protection: check by user_id OR email
+                // Duplicate protection: check by email
                 const [[menDup]] = await conn.query(
-                    'SELECT id FROM mentors WHERE email = ? OR user_id = ? LIMIT 1',
-                    [nameRow.email, nameRow.user_id]
+                    'SELECT id FROM mentors WHERE email = ? LIMIT 1',
+                    [nameRow.email]
                 );
 
                 if (menDup) {
                     await conn.query(
-                        'UPDATE mentors SET status = "active", user_id = ? WHERE id = ?',
-                        [nameRow.user_id, menDup.id]
+                        'UPDATE mentors SET status = "active" WHERE id = ?',
+                        [menDup.id]
                     );
                 } else {
                     await conn.query(
-                        'INSERT INTO mentors (user_id, name, email, phone_number, status) VALUES (?, ?, ?, ?, "active")',
-                        [nameRow.user_id, nameRow.name, nameRow.email, nameRow.phone_number]
+                        'INSERT INTO mentors (name, email, phone_number, status) VALUES (?, ?, ?, "active")',
+                        [nameRow.name, nameRow.email, nameRow.phone_number]
                     );
                 }
 
-                const [[menCheck]] = await conn.query('SELECT id FROM mentors WHERE user_id = ? AND status = "active" LIMIT 1', [nameRow.user_id]);
+                const [[menCheck]] = await conn.query('SELECT id FROM mentors WHERE email = ? AND status = "active" LIMIT 1', [nameRow.email]);
                 if (!menCheck) throw new Error('Mentor record creation verification failed after insert.');
 
             } else if (effectiveRole === 'staff' || effectiveRole === 'ssc_staff') {

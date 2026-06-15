@@ -64,10 +64,10 @@ async function main() {
 
             const user = users[0];
 
-            // Check if they already exist in faculties table by email OR user_id
+            // Check if they already exist in faculties table by email
             const [existingFaculties] = await db.query(
-                "SELECT id FROM faculties WHERE email = ? OR user_id = ?",
-                [email, user.user_id]
+                "SELECT id FROM faculties WHERE email = ?",
+                [email]
             );
 
             if (existingFaculties.length > 0) {
@@ -79,11 +79,11 @@ async function main() {
             console.log(`Attempting to insert faculty record for ${user.name} (${user.email})...`);
             
             await db.query(
-                "INSERT INTO faculties (user_id, name, email, phone_number, status, subject) VALUES (?, ?, ?, ?, 'active', NULL)",
-                [user.user_id, user.name, user.email, user.phone_number]
+                "INSERT INTO faculties (name, email, phone_number, status, subject) VALUES (?, ?, ?, 'active', NULL)",
+                [user.name, user.email, user.phone_number]
             );
 
-            report.inserted.push({ email, name: user.name, user_id: user.user_id });
+            report.inserted.push({ email, name: user.name });
         }
 
         // If we reach here without errors, commit the transaction
