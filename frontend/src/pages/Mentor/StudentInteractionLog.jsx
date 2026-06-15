@@ -668,6 +668,22 @@ const StudentInteractionLog = () => {
 
 
 
+          {/* Interaction Details Area */}
+          {(sessionType === 'DEEP' || sessionType === 'MEDIUM' || sessionType === 'QUICK') && (
+             <div className="space-y-3 mb-8">
+                <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Today's Interaction Details</label>
+                <textarea 
+                   name="interaction_details" 
+                   rows="3" 
+                   required
+                   value={formData.interaction_details || ''} 
+                   onChange={handleChange} 
+                   className="w-full p-6 bg-slate-50 border border-slate-200 rounded-[2rem] text-sm font-bold text-slate-900 outline-none focus:bg-white focus:border-[#008080] focus:ring-4 focus:ring-[#008080]/10 transition-all placeholder:text-slate-400" 
+                   placeholder="Type detailed notes about today's interaction..."
+                ></textarea>
+             </div>
+          )}
+
           {/* Next Attention Level & Notes */}
           {(sessionType === 'DEEP' || sessionType === 'MEDIUM' || sessionType === 'QUICK') && (
             <div className={`p-8 rounded-[3rem] border space-y-6 transition-all ${formData.next_session_type === 'DEEP' ? 'bg-rose-950 border-rose-900 shadow-[0_0_40px_rgba(244,63,94,0.1)]' : 'bg-[#008080] border-slate-800'}`}>

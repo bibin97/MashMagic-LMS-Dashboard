@@ -15,6 +15,7 @@ const DEEP_QUESTION_LABELS = {
   followup_required: 'Follow-up Required?',
   followup_when: 'When?',
   next_session_type: 'Next Attention Level',
+  interaction_details: 'Today\'s Interaction Details',
   quick_notes: 'Additional Notes',
   // legacy
   student_status: 'Student Status'
@@ -27,6 +28,7 @@ const MEDIUM_QUESTION_LABELS = {
   next_task: 'Next Task Assigned',
   upgrade_to_deep: 'Need Deep Session?',
   next_session_type: 'Next Attention Level',
+  interaction_details: 'Today\'s Interaction Details',
   quick_notes: 'Additional Notes',
   // legacy
   issue_category: 'Issue Category'
@@ -38,6 +40,7 @@ const QUICK_QUESTION_LABELS = {
   immediate_concern: 'Immediate Concern?',
   immediate_concern_category: 'Concern Category',
   next_session_type: 'Next Attention Level',
+  interaction_details: 'Today\'s Interaction Details',
   quick_notes: 'Additional Notes',
   // legacy
   connection_method: 'Connection Method',
@@ -1220,7 +1223,7 @@ const CommonInteractionLogs = ({
                         </div>
                         
                         <div className="p-6 overflow-y-auto flex-1 space-y-6">
-                            {(editModalLog.source === 'Interaction Hub' || !editModalLog.source) && Object.keys(editFormData.report_data || {}).map(key => <div key={key}>
+                            {(!editModalLog.source || editModalLog.source.startsWith('Hub:')) && Object.keys(editFormData.report_data || {}).map(key => <div key={key}>
                                     <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 ml-1">
                                         {DEEP_QUESTION_LABELS[key] || MEDIUM_QUESTION_LABELS[key] || QUICK_QUESTION_LABELS[key] || key.replace(/_/g, ' ')}
                                     </label>
