@@ -356,40 +356,208 @@ const CommonInteractionLogs = ({
       toast.dismiss(loadingToast);
       toast.success("Excel exported successfully");
     } catch (error) {
+    if (role === 'mentor' || role === 'faculty') return;
+    try {
+      const endpoint = role === 'mentor_head' || role === 'academic_head' ? `${apiPrefix}/mentors-all` : `${apiPrefix}/mentors`;
+      const res = await api.get(endpoint);
+      setMentors(res.data.data || []);
+    } catch (error) {
+      console.error("Error fetching mentors:", error);
+    }
+  };
+  const getResolvedDates = (filter, customRange) => {
+    let startDate = filter === 'custom' ? customRange.start : undefined;
+    let endDate = filter === 'custom' ? customRange.end : undefined;
+    if (filter !== 'all' && filter !== 'custom') {
+      const today = new Date();
+      const yyyyMmDd = (d) => {
+        const m = (d.getMonth() + 1).toString().padStart(2, '0');
+        const day = d.getDate().toString().padStart(2, '0');
+        return `${d.getFullYear()}-${m}-${day}`;
+      };
+      if (filter === 'today') {
+        startDate = yyyyMmDd(today);
+        endDate = startDate;
+      } else if (filter === 'yesterday') {
+        const d = new Date(today);
+        d.setDate(d.getDate() - 1);
+        startDate = yyyyMmDd(d);
+        endDate = startDate;
+      } else if (filter === 'this_week') {
+        const d = new Date(today);
+        d.setDate(d.getDate() - d.getDay());
+        startDate = yyyyMmDd(d);
+        endDate = yyyyMmDd(today);
+      } else if (filter === 'this_month') {
+        const d = new Date(today.getFullYear(), today.getMonth(), 1);
+        startDate = yyyyMmDd(d);
+        endDate = yyyyMmDd(today);
+      } else if (filter === 'last_month') {
+        const d1 = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+        const d2 = new Date(today.getFullYear(), today.getMonth(), 0);
+        startDate = yyyyMmDd(d1);
+        endDate = yyyyMmDd(d2);
+      }
+    } else if (filter === 'custom_multiple') {
+      // If we need a single start/end range to fetch logs from backend covering all dates
+      if (listCustomDates.length > 0) {
+        const sortedDates = [...listCustomDates].sort();
+        startDate = sortedDates[0];
+        endDate = sortedDates[sortedDates.length - 1];
+      }
+    }
+    return { startDate, endDate };
+  };
+
+  const fetchEntities = async () => {
+    try {
+      setLoading(true);
+      let endpoint;
+      const { startDate, endDate } = getResolvedDates(listDateFilter, listCustomRange);
+      const params = {
+        startDate,
+        endDate,
+        dateFilter: listDateFilter !== 'all' ? listDateFilter : undefined
+      };
+      if (activeTab === 'student') {
+        endpoint = role === 'mentor_head' || role === 'academic_head' ? `${apiPrefix}/students-all` : `${apiPrefix}/students`;
+      } else {
+        if (role !== 'mentor_head' && role !== 'academic_head') {
+          endpoint = `${apiPrefix}/faculties`;
+        } else {
+          endpoint = role === 'mentor_head' || role === 'academic_head' ? `${apiPrefix}/mentors-all` : `${apiPrefix}/mentors`;
+        }
+      }
+      const res = await api.get(endpoint, {
+        params
+      });
+      setEntities(res.data.data || []);
+
+      // Also fetch logs for filtering and sorting
+      let logsEndpoint;
+      if (activeTab === 'student') {
+        logsEndpoint = `${apiPrefix}/student-logs`;
+      } else {
+        logsEndpoint = role === 'mentor_head' ? `${apiPrefix}/mentor-logs` : `${apiPrefix}/faculty-logs`;
+      }
+      const logsRes = await api.get(logsEndpoint, {
+        params
+      });
+      setListLogs(logsRes.data.data || []);
+    } catch (error) {
+      toast.error(`Failed to load ${activeTab}s`);
+    } finally {
+      setLoading(false);
+    }
+  };
+  const fetchLogs = async () => {
+    try {
+      setLoading(true);
+      const { startDate, endDate } = getResolvedDates(dateFilter, customRange);
+      const params = {
+        dateFilter,
+        startDate,
+        endDate,
+        mentor_id: mentorFilter !== 'all' ? mentorFilter : undefined,
+        student_id: activeTab === 'student' ? selectedStudent.id : undefined,
+        faculty_id: activeTab === 'faculty' ? selectedStudent.id : undefined
+      };
+      let endpoint;
+      if (activeTab === 'student') {
+        endpoint = `${apiPrefix}/student-logs`;
+      } else {
+        if (role === 'mentor_head') {
+          endpoint = `${apiPrefix}/mentor-logs`;
+        } else {
+          endpoint = `${apiPrefix}/faculty-logs`;
+        }
+      }
+      const res = await api.get(endpoint, {
+        params
+      });
+      setLogs(res.data.data || []);
+    } catch (error) {
+      toast.error("Failed to load interaction history");
+    } finally {
+      setLoading(false);
+    }
+  };
+  const exportToExcel = async (studentId = null) => {
+    const loadingToast = toast.loading("Preparing Excel export...");
+    try {
+      const params = {
+        dateFilter: studentId ? dateFilter : listDateFilter,
+        startDate: studentId ? dateFilter === 'custom' ? customRange.start : undefined : listDateFilter === 'custom' ? listCustomRange.start : undefined,
+        endDate: studentId ? dateFilter === 'custom' ? customRange.end : undefined : listDateFilter === 'custom' ? listCustomRange.end : undefined,
+        student_id: studentId || undefined,
+        mentor_id: studentId && mentorFilter !== 'all' ? mentorFilter : undefined
+      };
+      let endpoint;
+      if (activeTab === 'student') {
+        endpoint = `${apiPrefix}/student-logs`;
+      } else {
+        endpoint = role === 'mentor_head' ? `${apiPrefix}/mentor-logs` : `${apiPrefix}/faculty-logs`;
+      }
+      const res = await api.get(endpoint, {
+        params
+      });
+      const exportData = res.data.data || [];
+      if (exportData.length === 0) {
+        toast.dismiss(loadingToast);
+        toast.error("No logs found to export");
+        return;
+      }
+      const excelData = exportData.map(item => {
+        let reportAnswersStr = "";
+        if (item.report_data) {
+          try {
+            const parsed = typeof item.report_data === 'string' ? JSON.parse(item.report_data) : item.report_data;
+            reportAnswersStr = Object.entries(parsed).map(([k, v]) => {
+              let label = k.replace(/_/g, ' ');
+              label = label.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+              const sessionTypeUpper = (item.session_type || '').toUpperCase();
+              if (sessionTypeUpper === 'DEEP' && DEEP_QUESTION_LABELS[k]) {
+                label = DEEP_QUESTION_LABELS[k];
+              } else if (sessionTypeUpper === 'MEDIUM' && MEDIUM_QUESTION_LABELS[k]) {
+                label = MEDIUM_QUESTION_LABELS[k];
+              } else if (sessionTypeUpper === 'QUICK' && QUICK_QUESTION_LABELS[k]) {
+                label = QUICK_QUESTION_LABELS[k];
+              }
+              return `${label}: ${v}`;
+            }).join(" | ");
+          } catch (e) {}
+        }
+        return {
+          "ID": item.id,
+          "Date": item.created_at || item.date,
+          "Student Name": item.student_name,
+          "Mentor/Faculty Name": item.mentor_name || item.faculty_name,
+          "Source/Type": item.source || item.type,
+          "Session Type": item.session_type,
+          "Notes/Remarks": item.mentor_notes || item.notes || item.remarks,
+          "Understanding Level (%)": item.understanding_level,
+          "Confidence (1-5)": item.student_confidence,
+          "Stress Level": item.stress_level,
+          "Is Flagged": item.is_flagged ? "Yes" : "No",
+          "Flag Reason": item.flag_reason,
+          "Detailed Questionnaire Responses": reportAnswersStr
+        };
+      });
+      const worksheet = XLSX.utils.json_to_sheet(excelData);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Interaction_Logs");
+      const fileName = studentId ? `${selectedStudent?.name || 'student'}_interaction_logs.xlsx` : `all_student_interaction_logs.xlsx`;
+      XLSX.writeFile(workbook, fileName.toLowerCase().replace(/\s+/g, "_"));
+      toast.dismiss(loadingToast);
+      toast.success("Excel exported successfully");
+    } catch (error) {
       console.error("Export failed:", error);
       toast.dismiss(loadingToast);
       toast.error("Failed to export logs");
     }
   };
   const handleOpenEdit = log => {
-    setEditModalLog(log);
-    let parsedReport = {};
-    if (log.report_data) {
-      try {
-        parsedReport = typeof log.report_data === 'string' ? JSON.parse(log.report_data) : log.report_data;
-      } catch (e) {}
-    }
-    setEditFormData({
-      notes: log.mentor_notes || log.notes || log.remarks || '',
-      report_data: parsedReport,
-      main_issue: log.main_issue || '',
-      action_type: log.action_type || ''
-    });
-  };
-  const handleSaveEdit = async () => {
-    setIsSavingEdit(true);
-    try {
-      const res = await api.put(`/admin/interactions/${editModalLog.source || 'Interaction Hub'}/${editModalLog.id}`, editFormData);
-      if (res.data.success) {
-        toast.success('Log updated successfully');
-        setEditModalLog(null);
-        fetchLogs(); // refresh logs
-      }
-    } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to save edits');
-    } finally {
-      setIsSavingEdit(false);
-    }
+    navigate(`edit/${log.id}`, { state: { log } });
   };
   const handleOpenHistory = async log => {
     setHistoryModalLog(log);
@@ -1181,66 +1349,6 @@ const CommonInteractionLogs = ({
                     </div>
                 </div>}
 
-            {/* Edit Modal */}
-            {editModalLog && <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-200">
-                    <div className="bg-white rounded-[2rem] w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl">
-                        <div className="p-6 border-b border-slate-100 flex items-center justify-between">
-                            <div>
-                                <h3 className="text-lg font-black text-slate-900 uppercase tracking-widest">Edit Interaction Log</h3>
-                                <p className="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-widest">Modify details for this session</p>
-                            </div>
-                            <button onClick={() => setEditModalLog(null)} className="p-2 hover:bg-slate-100 rounded-xl transition-colors">
-                                <X size={20} className="text-slate-400" />
-                            </button>
-                        </div>
-                        
-                        <div className="p-6 overflow-y-auto flex-1 space-y-6">
-                            {(!editModalLog.source || editModalLog.source === 'Interaction Hub' || editModalLog.source.startsWith('Hub:')) && (
-      <div className="bg-white">
-          <InteractionFormUI 
-            sessionType={(editModalLog.session_type || editModalLog.source.replace('Hub: ', '') || 'QUICK').toUpperCase()} 
-            formData={editFormData.report_data || {}} 
-            setFormData={(newData) => setEditFormData({...editFormData, report_data: newData})} 
-          />
-      </div>
-    )}
-
-                            {editModalLog.source === 'Session Log' && <>
-                                    <div>
-                                        <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 ml-1">Main Issue</label>
-                                        <input type="text" className="w-full bg-slate-50 border border-slate-200 rounded-xl p-4 text-xs font-bold focus:ring-2 focus:ring-[#008080]/20 outline-none" value={editFormData.main_issue || ''} onChange={e => setEditFormData({
-                ...editFormData,
-                main_issue: e.target.value
-              })} />
-                                    </div>
-                                    <div>
-                                        <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 ml-1">Action Type</label>
-                                        <input type="text" className="w-full bg-slate-50 border border-slate-200 rounded-xl p-4 text-xs font-bold focus:ring-2 focus:ring-[#008080]/20 outline-none" value={editFormData.action_type || ''} onChange={e => setEditFormData({
-                ...editFormData,
-                action_type: e.target.value
-              })} />
-                                    </div>
-                                </>}
-
-                            {editModalLog.source === 'Interaction Log' && <div>
-                                    <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 ml-1">Mentor Notes</label>
-                                    <textarea className="w-full bg-slate-50 border border-slate-200 rounded-xl p-4 text-xs font-bold focus:ring-2 focus:ring-[#008080]/20 outline-none min-h-[120px]" value={editFormData.notes || ''} onChange={e => setEditFormData({
-              ...editFormData,
-              notes: e.target.value
-            })} />
-                                </div>}
-                        </div>
-
-                        <div className="p-6 border-t border-slate-100 flex justify-end gap-3 bg-slate-50 rounded-b-[2rem]">
-                            <button onClick={() => setEditModalLog(null)} className="px-6 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest text-slate-500 hover:bg-slate-200 transition-colors">
-                                Cancel
-                            </button>
-                            <button onClick={handleSaveEdit} disabled={isSavingEdit} className="px-8 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest bg-[#008080] text-white hover:bg-[#006666] transition-colors disabled:opacity-50">
-                                {isSavingEdit ? 'Saving...' : 'Save Changes'}
-                            </button>
-                        </div>
-                    </div>
-                </div>}
         </div>;
 };
 export default CommonInteractionLogs;

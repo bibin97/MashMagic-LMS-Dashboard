@@ -29,6 +29,7 @@ import Faculties from './pages/admin/Faculties';
 import Tasks from './pages/admin/Tasks';
 import Reports from './pages/admin/Reports';
 import InteractionLogs from './pages/admin/InteractionLogs';
+import EditInteractionLog from './pages/common/EditInteractionLog';
 import Approvals from './pages/admin/Approvals';
 import DailyMentorHeadReport from './pages/admin/DailyMentorHeadReport';
 import AdminManagement from './pages/admin/AdminManagement';
@@ -153,6 +154,7 @@ function App() {
             <Route path="reports" element={<Reports />} />
             <Route path="mentor-head-report" element={<DailyMentorHeadReport />} />
             <Route path="logs" element={<InteractionLogs />} />
+            <Route path="logs/edit/:id" element={<EditInteractionLog />} />
             <Route path="audit-logs" element={<AuditLogs />} />
             <Route path="approvals" element={<Approvals />} />
             <Route path="admin-management" element={<AdminManagement />} />
@@ -161,6 +163,7 @@ function App() {
             <Route path="academic-schedule" element={<AdminAcademicSchedule />} />
             <Route path="daily-updates" element={<AdminDailyUpdates />} />
             <Route path="ah-interactions" element={<AHInteractions />} />
+            <Route path="ah-interactions/edit/:id" element={<EditInteractionLog />} />
             <Route path="ah-meetings" element={<AHParentMeetings />} />
             <Route path="fees" element={<FeesManagement />} />
             <Route path="faculty-timetable" element={<AdminFacultyTimetable />} />
@@ -190,6 +193,7 @@ function App() {
             <Route path="course-completed" element={<CourseCompletedTracker />} />
             <Route path="tasks" element={<MentorHeadTasks />} />
             <Route path="interactions" element={<MentorHeadInteractions />} />
+            <Route path="interactions/edit/:id" element={<EditInteractionLog />} />
             <Route path="notifications" element={<MentorHeadNotifications />} />
             <Route path="profile" element={<AdminProfile />} />
             <Route path="account-settings" element={<AccountSettings />} />
@@ -221,6 +225,7 @@ function App() {
             <Route path="live-monitoring" element={<AOELiveMonitoring />} />
             <Route path="academic-schedule" element={<AOEAcademicSchedule />} />
             <Route path="interactions" element={<Interactions />} />
+            <Route path="interactions/edit/:id" element={<EditInteractionLog />} />
             <Route path="meetings" element={<ParentMeetings />} />
             <Route path="demo-schedule" element={<AOEDemoSchedule />} />
             <Route path="daily-updates" element={<AOEDailyUpdates />} />
@@ -265,6 +270,7 @@ function App() {
             <Route path="aoe/live-monitoring" element={<AOELiveMonitoring />} />
             <Route path="aoe/academic-schedule" element={<AOEAcademicSchedule />} />
             <Route path="aoe/interactions" element={<Interactions />} />
+            <Route path="aoe/interactions/edit/:id" element={<EditInteractionLog />} />
             <Route path="aoe/meetings" element={<ParentMeetings />} />
             <Route path="aoe/demo-schedule" element={<AOEDemoSchedule />} />
             <Route path="aoe/demo-schedule/edit/:id" element={<EditDemoSchedule />} />
@@ -330,6 +336,7 @@ function App() {
             <Route path="tasks" element={<MyTasks />} />
             <Route path="interaction-logs" element={<StudentInteractionLog />} />
             <Route path="logs-history" element={<MentorInteractions />} />
+            <Route path="logs-history/edit/:id" element={<EditInteractionLog />} />
             <Route path="faculty-logs" element={<FacultyTracking />} />
             <Route path="exams" element={<Exams />} />
             <Route path="students-data" element={<StudentsData />} />
