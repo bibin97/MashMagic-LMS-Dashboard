@@ -315,7 +315,7 @@ const Login = () => {
                     </button>
                   </div>
 
-                  {(role === 'Super Admin' || role === 'Academic Head' || role === 'AOE' || role === 'Mentor Head') && role !== 'SSC' && (
+                  {(role === 'Super Admin' || role === 'Academic Head' || role === 'AOE' || role === 'Mentor Head' || role === 'Faculty') && role !== 'SSC' && (
                     <div className="flex justify-center pt-2 border-t border-white/5">
                       <button 
                         type="button"

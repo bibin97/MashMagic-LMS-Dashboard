@@ -9,7 +9,7 @@ const getDailyAssignments = async (req, res) => {
             `SELECT id, onboarding_status FROM students 
              WHERE mentor_id = ? 
              AND (LOWER(enrollment_type) LIKE '%mentorship%' OR LOWER(enrollment_type) = 'both')
-             AND status != 'inactive' AND course_completed = 0`,
+             AND status != 'inactive' AND course_completed = 0 AND mentorship_completed = 0`,
             [mentor_id]
         );
 
@@ -48,13 +48,16 @@ const getDailyAssignments = async (req, res) => {
                 if (savedAssignments && savedAssignments.length > 0) {
                     const studentIds = savedAssignments.map(a => a.id);
                     const [latestStudents] = await db.query(
-                        `SELECT id, name, priority_category, enrollment_type, badge, onboarding_status 
+                        `SELECT id, name, priority_category, enrollment_type, badge, onboarding_status, mentorship_completed 
                          FROM students 
                          WHERE id IN (?)`,
                         [studentIds]
                     );
                     const studentMap = new Map(latestStudents.map(s => [s.id, s]));
-                    savedAssignments = savedAssignments.map(assignment => {
+                    savedAssignments = savedAssignments.filter(assignment => {
+                        const latest = studentMap.get(assignment.id);
+                        return latest && latest.mentorship_completed !== 1;
+                    }).map(assignment => {
                         const latest = studentMap.get(assignment.id);
                         if (latest) {
                             return {
@@ -105,7 +108,7 @@ const generateAssignments = async (mentor_id, today) => {
          FROM students 
          WHERE mentor_id = ? 
          AND (LOWER(enrollment_type) LIKE '%mentorship%' OR LOWER(enrollment_type) = 'both')
-         AND status != 'inactive' AND course_completed = 0
+         AND status != 'inactive' AND course_completed = 0 AND mentorship_completed = 0
          ORDER BY id ASC`,
         [mentor_id]
     );
