@@ -983,18 +983,24 @@ const Timetable = () => {
                             const slot = studentSchedule[idx];
                             
                             let facId = slot.faculty_id;
-                            if (!facId && slot.faculty_name) {
-                              const found = faculties.find(f => f.name.toLowerCase() === slot.faculty_name.toLowerCase());
+                            let facName = slot.faculty_name || '';
+                            if (!facId && facName) {
+                              const found = faculties.find(f => f.name.toLowerCase() === facName.toLowerCase());
                               if (found) facId = found.id;
+                            }
+                            if (facId && !facName) {
+                              const found = faculties.find(f => String(f.id) === String(facId));
+                              if (found) facName = found.name;
                             }
 
                             setFormData({
                               ...formData,
                               start_time: formatTo24hTime(slot.start_time),
                               end_time: formatTo24hTime(slot.end_time),
-                              chapter: slot.subject || '',
+                              subject: slot.subject || '',
+                              chapter: '',
                               faculty_id: facId ? String(facId) : '',
-                              faculty_name: slot.faculty_name || ''
+                              faculty_name: facName
                             });
                             setSelectedSlot(idx);
                           }}
@@ -1226,16 +1232,17 @@ const Timetable = () => {
             </div>
 
             <div className="flex-1 overflow-y-auto p-10 space-y-6">
-              <div className="hidden lg:grid grid-cols-5 gap-4 px-4 text-[9px] font-black text-slate-400 uppercase tracking-widest">
+              <div className="hidden lg:grid grid-cols-6 gap-4 px-4 text-[9px] font-black text-slate-400 uppercase tracking-widest">
                 <div className="col-span-1">Day of Week</div>
                 <div className="col-span-1">Start Time</div>
                 <div className="col-span-1">End Time</div>
                 <div className="col-span-1">Subject</div>
+                <div className="col-span-1">Faculty</div>
                 <div className="col-span-1 text-right">Actions</div>
               </div>
 
               {editScheduleData.map((slot, index) => (
-                <div key={index} className="grid grid-cols-1 lg:grid-cols-5 gap-4 items-center bg-slate-50 p-4 rounded-2xl border border-slate-100 group hover:border-[#008080] transition-all relative">
+                <div key={index} className="grid grid-cols-1 lg:grid-cols-6 gap-4 items-center bg-slate-50 p-4 rounded-2xl border border-slate-100 group hover:border-[#008080] transition-all relative">
                   <select
                     value={slot.day_of_week}
                     onChange={(e) => {
@@ -1279,8 +1286,11 @@ const Timetable = () => {
                       const newData = [...editScheduleData];
                       newData[index].subject = e.target.value;
                       const subjObj = availableSubjects.find(s => s.subject === e.target.value);
-                      if (subjObj && subjObj.faculty_id) {
-                         newData[index].faculty_id = subjObj.faculty_id;
+                      if (subjObj) {
+                        const facId = subjObj.faculty_id || subjObj.facultyId || null;
+                        const facName = subjObj.faculty_name || subjObj.facultyName || '';
+                        if (facId) newData[index].faculty_id = String(facId);
+                        if (facName) newData[index].faculty_name = facName;
                       }
                       setEditScheduleData(newData);
                     }}
@@ -1292,19 +1302,30 @@ const Timetable = () => {
                     ))}
                   </datalist>
 
-                  <div className="flex justify-end items-center gap-2">
-                    <select
-                      value={slot.faculty_id || ''}
-                      onChange={(e) => {
-                        const newData = [...editScheduleData];
-                        newData[index].faculty_id = e.target.value;
-                        setEditScheduleData(newData);
-                      }}
-                      className="p-3 bg-white border border-slate-100 rounded-xl text-[10px] font-bold outline-none max-w-[120px]"
-                    >
-                      <option value="">Select Faculty</option>
-                      {faculties.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
-                    </select>
+                  <select
+                    value={slot.faculty_id || ''}
+                    onChange={(e) => {
+                      const newData = [...editScheduleData];
+                      newData[index].faculty_id = e.target.value;
+                      const fac = faculties.find(f => String(f.id) === String(e.target.value));
+                      newData[index].faculty_name = fac ? fac.name : '';
+                      setEditScheduleData(newData);
+                    }}
+                    className="w-full p-3 bg-white border border-slate-100 rounded-xl text-[10px] font-bold outline-none"
+                  >
+                    <option value="">Select Faculty</option>
+                    {availableSubjects.length > 0 && (() => {
+                      const assignedFacIds = new Set(availableSubjects.map(s => String(s.faculty_id || s.facultyId)).filter(Boolean));
+                      const assigned = faculties.filter(f => assignedFacIds.has(String(f.id)));
+                      const others = faculties.filter(f => !assignedFacIds.has(String(f.id)));
+                      return (<>
+                        {assigned.length > 0 && <optgroup label="Assigned to Student">{assigned.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}</optgroup>}
+                        {others.length > 0 && <optgroup label="Other Faculties">{others.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}</optgroup>}
+                      </>);
+                    })()}
+                    {availableSubjects.length === 0 && faculties.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
+                  </select>
+                  <div className="flex justify-end">
                     <button onClick={() => removeScheduleSlot(index)} className="p-3 text-rose-500 hover:bg-rose-50 rounded-xl transition-all">
                       <Trash2 size={16} />
                     </button>

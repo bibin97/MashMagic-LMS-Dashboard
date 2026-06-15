@@ -1480,11 +1480,26 @@ const getStudentAcademicSchedule = async (req, res) => {
             SELECT fs.*, u.name as faculty_name 
             FROM faculty_schedules fs
             LEFT JOIN users u ON fs.faculty_id = u.id
-            WHERE fs.student_id = ?
+            WHERE fs.student_id = ? AND (fs.is_deleted IS NULL OR fs.is_deleted = 0)
             ORDER BY FIELD(fs.day_of_week, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'), fs.start_time ASC
         `, [studentId]);
         
         if (schedules && schedules.length > 0) {
+            // Enrich schedules with faculty info from subjects_json if missing
+            const [[student2]] = await db.query('SELECT subjects_json FROM students WHERE id = ?', [studentId]);
+            if (student2 && student2.subjects_json) {
+                let subjects2 = [];
+                try { subjects2 = typeof student2.subjects_json === 'string' ? JSON.parse(student2.subjects_json) : student2.subjects_json; } catch (e) {}
+                schedules.forEach(s => {
+                    if (!s.faculty_id && s.subject) {
+                        const m = subjects2.find(sub => sub.subject === s.subject);
+                        if (m && (m.facultyId || m.faculty_id)) {
+                            s.faculty_id = m.facultyId || m.faculty_id;
+                            s.faculty_name = m.facultyName || m.faculty_name || null;
+                        }
+                    }
+                });
+            }
             return res.status(200).json({ success: true, data: schedules });
         }
 
@@ -1500,19 +1515,27 @@ const getStudentAcademicSchedule = async (req, res) => {
             if (Array.isArray(parsed)) {
                 parsed.forEach(p => {
                     let subjectStr = Array.isArray(p.subject) ? p.subject.join(', ') : p.subject;
-                    let pFacultyId = p.faculty_id || student.faculty_id || null;
-                    let pFacultyName = p.faculty_name || student.faculty_name || null;
+                    let pFacultyId = p.faculty_id || p.facultyId || null;
+                    let pFacultyName = p.faculty_name || p.facultyName || null;
                     
                     if (p.dayConfigs && Array.isArray(p.dayConfigs)) {
                         p.dayConfigs.forEach(dc => {
-                            generatedSchedules.push({
+                            const newSlot = {
                                 day_of_week: dc.day,
                                 start_time: convertTo24Hour(dc.startTime) || '10:00:00',
                                 end_time: convertTo24Hour(dc.endTime) || '11:00:00',
                                 subject: subjectStr,
                                 faculty_id: pFacultyId,
                                 faculty_name: pFacultyName
-                            });
+                            };
+                            // Prevent exact duplicates (same day + time + subject)
+                            const isDuplicate = generatedSchedules.some(s =>
+                                s.day_of_week === newSlot.day_of_week &&
+                                s.start_time === newSlot.start_time &&
+                                s.end_time === newSlot.end_time &&
+                                s.subject === newSlot.subject
+                            );
+                            if (!isDuplicate) generatedSchedules.push(newSlot);
                         });
                     }
                 });

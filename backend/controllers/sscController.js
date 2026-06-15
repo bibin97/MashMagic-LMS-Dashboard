@@ -224,7 +224,7 @@ exports.getStudentAcademicSchedule = async (req, res) => {
             SELECT fs.*, u.name as faculty_name 
             FROM faculty_schedules fs
             LEFT JOIN users u ON fs.faculty_id = u.id
-            WHERE fs.student_id = ?
+            WHERE fs.student_id = ? AND (fs.is_deleted IS NULL OR fs.is_deleted = 0)
             ORDER BY FIELD(fs.day_of_week, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'), fs.start_time ASC
         `, [studentId]);
         
@@ -274,11 +274,12 @@ exports.getStudentAcademicSchedule = async (req, res) => {
                                 faculty_name: pFacultyName
                             };
                             
-                            // Prevent duplicates
+                            // Prevent exact duplicates (same day + time + subject)
                             const isDuplicate = generatedSchedules.some(s => 
                                 s.day_of_week === newSlot.day_of_week &&
                                 s.start_time === newSlot.start_time &&
-                                s.end_time === newSlot.end_time
+                                s.end_time === newSlot.end_time &&
+                                s.subject === newSlot.subject
                             );
 
                             if (!isDuplicate) {
