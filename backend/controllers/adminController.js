@@ -105,7 +105,7 @@ const approveUser = async (req, res) => {
             [[nameRow]] = await db.query('SELECT id as user_id, name, email FROM students WHERE id = ?', [id]);
         } else {
             [[nameRow]] = await db.query(
-                'SELECT id as user_id, name, role, email, phone_number FROM users WHERE id = ? AND status = "pending"',
+                'SELECT id as user_id, name, role, email, phone_number, password FROM users WHERE id = ? AND status = "pending"',
                 [id]
             );
         }
@@ -153,8 +153,8 @@ const approveUser = async (req, res) => {
                 } else {
                     // Create new faculty record
                     await conn.query(
-                        'INSERT INTO faculties (name, email, phone_number, status, subject) VALUES (?, ?, ?, "active", NULL)',
-                        [nameRow.name, nameRow.email, nameRow.phone_number]
+                        'INSERT INTO faculties (name, email, phone_number, password, status, subject) VALUES (?, ?, ?, ?, "active", NULL)',
+                        [nameRow.name, nameRow.email, nameRow.phone_number, nameRow.password]
                     );
                 }
 

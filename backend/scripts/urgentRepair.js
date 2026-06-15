@@ -53,7 +53,7 @@ async function main() {
         for (const email of targetEmails) {
             // Check if user exists as active faculty in users table
             const [users] = await db.query(
-                "SELECT id as user_id, name, email, phone_number FROM users WHERE email = ? AND role = 'faculty' AND status = 'active'", 
+                "SELECT id as user_id, name, email, phone_number, password FROM users WHERE email = ? AND role = 'faculty' AND status = 'active'", 
                 [email]
             );
 
@@ -79,8 +79,8 @@ async function main() {
             console.log(`Attempting to insert faculty record for ${user.name} (${user.email})...`);
             
             await db.query(
-                "INSERT INTO faculties (name, email, phone_number, status, subject) VALUES (?, ?, ?, 'active', NULL)",
-                [user.name, user.email, user.phone_number]
+                "INSERT INTO faculties (name, email, phone_number, password, status, subject) VALUES (?, ?, ?, ?, 'active', NULL)",
+                [user.name, user.email, user.phone_number, user.password]
             );
 
             report.inserted.push({ email, name: user.name });

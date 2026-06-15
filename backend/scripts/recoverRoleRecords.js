@@ -24,7 +24,7 @@ async function main() {
 
     // ── 1. Find orphaned faculty users ──────────────────────────────────────────
     const [orphanedFaculties] = await db.query(`
-        SELECT u.id as user_id, u.name, u.email, u.phone_number, u.status
+        SELECT u.id as user_id, u.name, u.email, u.phone_number, u.status, u.password
         FROM users u
         LEFT JOIN faculties f ON f.email = u.email
         WHERE u.role = 'faculty'
@@ -37,7 +37,7 @@ async function main() {
 
     // ── 2. Find orphaned mentor users ────────────────────────────────────────────
     const [orphanedMentors] = await db.query(`
-        SELECT u.id as user_id, u.name, u.email, u.phone_number, u.status
+        SELECT u.id as user_id, u.name, u.email, u.phone_number, u.status, u.password
         FROM users u
         LEFT JOIN mentors m ON m.email = u.email
         WHERE u.role = 'mentor'
@@ -59,8 +59,8 @@ async function main() {
                     console.log(`  ✔ Re-activated existing faculty record (id=${emailDup.id}) for ${u.name}`);
                 } else {
                     await db.query(
-                        'INSERT INTO faculties (name, email, phone_number, status, subject) VALUES (?, ?, ?, "active", NULL)',
-                        [u.name, u.email, u.phone_number]
+                        'INSERT INTO faculties (name, email, phone_number, password, status, subject) VALUES (?, ?, ?, ?, "active", NULL)',
+                        [u.name, u.email, u.phone_number, u.password]
                     );
                     console.log(`  ✔ Created new faculty record for ${u.name}`);
                 }
