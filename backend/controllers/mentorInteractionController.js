@@ -395,11 +395,127 @@ const getWeeklyCoverage = async (req, res) => {
     }
 };
 
+const updateSessionReport = async (req, res) => {
+    try {
+        const mentor_id = req.user.id;
+        const { id: student_id } = req.params;
+        let { session_type, next_session_type, report_data } = req.body;
+
+        if (typeof report_data === 'string') {
+            try { report_data = JSON.parse(report_data); } catch(e) {}
+        }
+
+        if (req.files && req.files.length > 0) {
+            report_data.files = req.files.map(file => {
+                if (file.path && file.path.startsWith('http')) return file.path;
+                return '/uploads/' + file.filename;
+            });
+        }
+
+        const today = new Date().toISOString().split('T')[0];
+        
+        const [existing] = await db.query(
+            'SELECT id, report_data FROM mentor_session_reports WHERE mentor_id = ? AND student_id = ? AND DATE(created_at) = ? ORDER BY id DESC LIMIT 1',
+            [mentor_id, student_id, today]
+        );
+
+        if (existing.length === 0) {
+            return res.status(404).json({ success: false, message: 'No interaction logged today for this student' });
+        }
+
+        if (!report_data.files && existing[0].report_data) {
+            let oldData = existing[0].report_data;
+            if (typeof oldData === 'string') {
+                try { oldData = JSON.parse(oldData); } catch(e) { oldData = {}; }
+            }
+            if (oldData.files) {
+                report_data.files = oldData.files;
+            }
+        }
+
+        await db.query(
+            'UPDATE mentor_session_reports SET session_type = ?, report_data = ? WHERE id = ?',
+            [session_type, JSON.stringify(report_data), existing[0].id]
+        );
+
+        res.status(200).json({ success: true, message: 'Interaction updated successfully' });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+const deleteSessionReport = async (req, res) => {
+    try {
+        const mentor_id = req.user.id;
+        const { id: student_id } = req.params;
+        const today = new Date().toISOString().split('T')[0];
+
+        await db.query(
+            'DELETE FROM mentor_session_reports WHERE mentor_id = ? AND student_id = ? AND DATE(created_at) = ?',
+            [mentor_id, student_id, today]
+        );
+
+        const [assignmentRow] = await db.query(
+            'SELECT id, assignments FROM daily_assignments WHERE mentor_id = ? AND date = ?',
+            [mentor_id, today]
+        );
+
+        if (assignmentRow.length > 0) {
+            let assignments = assignmentRow[0].assignments;
+            if (typeof assignments === 'string') {
+                try { assignments = JSON.parse(assignments); } catch(e) { assignments = []; }
+            }
+            
+            const updatedAssignments = assignments.map(a => 
+                a.id == student_id ? { ...a, status: 'PENDING' } : a
+            );
+
+            await db.query(
+                'UPDATE daily_assignments SET assignments = ? WHERE id = ?',
+                [JSON.stringify(updatedAssignments), assignmentRow[0].id]
+            );
+        }
+
+        res.status(200).json({ success: true, message: 'Interaction deleted' });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+const getTodaySessionReport = async (req, res) => {
+    try {
+        const mentor_id = req.user.id;
+        const { id: student_id } = req.params;
+        const today = new Date().toISOString().split('T')[0];
+
+        const [existing] = await db.query(
+            'SELECT report_data FROM mentor_session_reports WHERE mentor_id = ? AND student_id = ? AND DATE(created_at) = ? ORDER BY id DESC LIMIT 1',
+            [mentor_id, student_id, today]
+        );
+
+        if (existing.length === 0) {
+            return res.status(404).json({ success: false, message: 'No interaction logged today' });
+        }
+
+        let report_data = existing[0].report_data;
+        if (typeof report_data === 'string') {
+            try { report_data = JSON.parse(report_data); } catch(e) { report_data = {}; }
+        }
+
+        res.status(200).json({ success: true, data: report_data });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
 module.exports = {
     getDailyAssignments,
     submitSessionReport,
     getHighRiskStudents,
     getWeeklyCoverage,
+    updateSessionReport,
+    deleteSessionReport,
+    getTodaySessionReport,
     togglePause: async (req, res) => { 
         try { 
             const mentor_id = req.user.id; 

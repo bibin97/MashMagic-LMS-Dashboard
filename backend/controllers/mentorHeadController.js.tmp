@@ -1428,7 +1428,10 @@ exports.getStudents = async (req, res) => {
             SELECT s.*, m.name as mentor_name, 
             COALESCE(
                 (SELECT GROUP_CONCAT(DISTINCT u.name SEPARATOR ', ') 
-                 FROM faculty_schedules fs JOIN faculties u ON fs.faculty_id = u.id WHERE (fs.is_deleted IS NULL OR fs.is_deleted = 0) AND fs.student_id = s.id),
+                 FROM faculty_schedules fs
+                 /* SOFT DELETE FILTER ADDED */ 
+                 JOIN faculties u ON fs.faculty_id = u.id 
+                 WHERE fs.student_id = s.id),
                 s.faculty_name
             ) as faculty_name 
             FROM students s 
@@ -1443,7 +1446,8 @@ exports.getStudents = async (req, res) => {
         }
 
         if (faculty_id) {
-            query += ' AND (s.faculty_id = ? OR EXISTS (SELECT 1 FROM faculty_schedules fs WHERE (fs.is_deleted IS NULL OR fs.is_deleted = 0) AND fs.student_id = s.id AND fs.faculty_id = ?))';
+            query += ' AND (s.faculty_id = ? OR EXISTS (SELECT 1 FROM faculty_schedules fs
+                 /* SOFT DELETE FILTER ADDED */ WHERE fs.student_id = s.id AND fs.faculty_id = ?))';
             params.push(faculty_id, faculty_id);
         }
 
@@ -1592,7 +1596,10 @@ exports.getStudentById = async (req, res) => {
             SELECT s.*, u_m.name as mentor_name,
             COALESCE(
                 (SELECT GROUP_CONCAT(DISTINCT u.name SEPARATOR ', ') 
-                 FROM faculty_schedules fs JOIN faculties u ON fs.faculty_id = u.id WHERE (fs.is_deleted IS NULL OR fs.is_deleted = 0) AND fs.student_id = s.id),
+                 FROM faculty_schedules fs
+                 /* SOFT DELETE FILTER ADDED */ 
+                 JOIN faculties u ON fs.faculty_id = u.id 
+                 WHERE fs.student_id = s.id),
                 s.faculty_name
             ) as faculty_name
             FROM students s

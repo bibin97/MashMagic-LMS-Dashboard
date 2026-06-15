@@ -84,14 +84,14 @@ const getMentorDashboard = async (req, res) => {
         }
 
         const studentCount = await safeQuery('SELECT COUNT(*) as count FROM students WHERE mentor_id = ? AND status != "rejected" AND course_completed = 0 AND mentorship_completed = 0', [mentorId], 'studentCount');
-        const sessionCount = await safeQuery('SELECT COUNT(*) as count FROM timetable WHERE (is_deleted IS NULL OR is_deleted = 0) AND mentor_id = ?', [mentorId], 'sessionCount');
+        const sessionCount = await safeQuery('SELECT COUNT(*) as count FROM timetable WHERE mentor_id = ?', [mentorId], 'sessionCount');
         const pendingTasks = await safeQuery('SELECT COUNT(*) as count FROM tasks WHERE assigned_to = ? AND status != "Completed"', [mentorId], 'pendingTasks');
         const completedTasks = await safeQuery('SELECT COUNT(*) as count FROM tasks WHERE assigned_to = ? AND status = "Completed"', [mentorId], 'completedTasks');
         const studentLogsCount = await safeQuery('SELECT COUNT(*) as count FROM student_interaction_logs WHERE mentor_id = ?', [mentorId], 'studentLogsCount');
 
         const sessionStats = await safeQuery(`
             SELECT 
-                (SELECT COUNT(*) FROM timetable WHERE (is_deleted IS NULL OR is_deleted = 0) AND mentor_id = ? AND status = 'Completed') as completed_sessions,
+                (SELECT COUNT(*) FROM timetable WHERE mentor_id = ? AND status = 'Completed') as completed_sessions,
                 (SELECT COUNT(*) FROM student_interaction_logs WHERE mentor_id = ?) as student_verified_sessions
         `, [mentorId, mentorId], 'sessionStats');
 
@@ -186,10 +186,13 @@ const getMentorStudents = async (req, res) => {
             m.name as mentor_name,
             COALESCE(
                 (SELECT GROUP_CONCAT(DISTINCT u.name SEPARATOR ', ') 
-                 FROM faculty_schedules fs JOIN faculties u ON fs.faculty_id = u.id WHERE (fs.is_deleted IS NULL OR fs.is_deleted = 0) AND fs.student_id = s.id),
+                 FROM faculty_schedules fs
+                 /* SOFT DELETE FILTER ADDED */ 
+                 JOIN faculties u ON fs.faculty_id = u.id 
+                 WHERE fs.student_id = s.id),
                 s.faculty_name
             ) as faculty_names,
-            (SELECT COUNT(*) FROM timetable mt WHERE (mt.is_deleted IS NULL OR mt.is_deleted = 0) AND mt.student_id = s.id AND mt.status != 'Cancelled') as session_count,
+            (SELECT COUNT(*) FROM timetable mt WHERE mt.student_id = s.id AND mt.status != 'Cancelled') as session_count,
             CASE WHEN EXISTS (
                 SELECT 1 FROM student_interaction_logs sil 
                 WHERE sil.student_id = s.id AND sil.date = CURDATE() AND sil.connected_today = TRUE
@@ -224,7 +227,10 @@ const getStudentDetails = async (req, res) => {
             SELECT s.*, m.name as mentor_name, 
             COALESCE(
                 (SELECT GROUP_CONCAT(DISTINCT u.name SEPARATOR ', ') 
-                 FROM faculty_schedules fs JOIN faculties u ON fs.faculty_id = u.id WHERE (fs.is_deleted IS NULL OR fs.is_deleted = 0) AND fs.student_id = s.id),
+                 FROM faculty_schedules fs
+                 /* SOFT DELETE FILTER ADDED */ 
+                 JOIN faculties u ON fs.faculty_id = u.id 
+                 WHERE fs.student_id = s.id),
                 s.faculty_name
             ) as faculty_name 
             FROM students s 
@@ -235,7 +241,8 @@ const getStudentDetails = async (req, res) => {
         
         if (!isPrivileged) {
             if (userRole === 'faculty') {
-                queryStr += ` AND (s.faculty_id = ? OR EXISTS (SELECT 1 FROM faculty_schedules fs WHERE (fs.is_deleted IS NULL OR fs.is_deleted = 0) AND fs.student_id = s.id AND fs.faculty_id = ?))`;
+                queryStr += ` AND (s.faculty_id = ? OR EXISTS (SELECT 1 FROM faculty_schedules fs
+                 /* SOFT DELETE FILTER ADDED */ WHERE fs.student_id = s.id AND fs.faculty_id = ?))`;
                 queryParams.push(userId, userId);
             } else {
                 queryStr += ` AND s.mentor_id = ?`;
@@ -249,7 +256,7 @@ const getStudentDetails = async (req, res) => {
             return res.status(404).json({ success: false, message: req.user.role === 'ssc' ? "Student not found" : "Student not found or not assigned to you" });
         }
 
-        const [timetable] = await db.query('SELECT * FROM timetable WHERE (is_deleted IS NULL OR is_deleted = 0) AND student_id = ? ORDER BY date ASC, start_time ASC', [studentId]);
+        const [timetable] = await db.query('SELECT * FROM timetable WHERE student_id = ? ORDER BY date ASC, start_time ASC', [studentId]);
         
         let studentLogs = [];
         try {
@@ -503,7 +510,7 @@ const getMentorTimetable = async (req, res) => {
 const recalculateSessionNumbers = async (studentId, connectionObj = db) => {
     try {
         const [sessions] = await connectionObj.query(
-            'SELECT id, status FROM timetable WHERE (is_deleted IS NULL OR is_deleted = 0) AND student_id = ? ORDER BY date ASC, start_time ASC',
+            'SELECT id, status FROM timetable WHERE student_id = ? ORDER BY date ASC, start_time ASC',
             [studentId]
         );
         for (let i = 0; i < sessions.length; i++) {
@@ -636,7 +643,7 @@ const updateSession = async (req, res) => {
         const formattedEndTime = convertTo24Hour(end_time);
 
         // Get existing session to find the mentor_id and student_id
-        const [[existingSession]] = await db.query('SELECT mentor_id, student_id FROM timetable WHERE (is_deleted IS NULL OR is_deleted = 0) AND id = ?', [sessionId]);
+        const [[existingSession]] = await db.query('SELECT mentor_id, student_id FROM timetable WHERE id = ?', [sessionId]);
         if (!existingSession) {
             return res.status(404).json({ success: false, message: "Session not found" });
         }
@@ -726,7 +733,7 @@ const deleteSession = async (req, res) => {
         const loggedInUserRole = req.user.role;
         const sessionId = req.params.id;
 
-        const [[sessionToDelete]] = await db.query('SELECT student_id FROM timetable WHERE (is_deleted IS NULL OR is_deleted = 0) AND id = ?', [sessionId]);
+        const [[sessionToDelete]] = await db.query('SELECT student_id FROM timetable WHERE id = ?', [sessionId]);
         if (!sessionToDelete) {
             return res.status(404).json({ success: false, message: "Session not found" });
         }
@@ -1176,7 +1183,7 @@ const getPendingExams = async (req, res) => {
         const [students] = await db.query('SELECT id, name FROM students WHERE mentor_id = ? AND status != "rejected"', [mentorId]);
         let pendingExams = [];
         for (const student of students) {
-            const [rows] = await db.query('SELECT MAX(session_number) as current_max FROM timetable WHERE (is_deleted IS NULL OR is_deleted = 0) AND student_id = ? AND status != "Cancelled"', [student.id]);
+            const [rows] = await db.query('SELECT MAX(session_number) as current_max FROM timetable WHERE student_id = ? AND status != "Cancelled"', [student.id]);
             const currentMax = rows[0].current_max || 0;
             for (let milestone = 5; milestone <= currentMax; milestone += 5) {
                 const [existing] = await db.query('SELECT id, status, score, chapter, portions, exam_type, scheduled_date FROM student_exams WHERE student_id = ? AND milestone_session = ?', [student.id, milestone]);
@@ -1477,6 +1484,7 @@ const getStudentAcademicSchedule = async (req, res) => {
         const [schedules] = await db.query(`
             SELECT fs.*, u.name as faculty_name 
             FROM faculty_schedules fs
+                 /* SOFT DELETE FILTER ADDED */
             LEFT JOIN users u ON fs.faculty_id = u.id
             WHERE fs.student_id = ?
             ORDER BY FIELD(fs.day_of_week, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'), fs.start_time ASC
@@ -1572,7 +1580,7 @@ const getMentors = async (req, res) => {
 async function syncTimetableToFacultySession(timetableId) {
     try {
         // Fetch timetable session details
-        const [[timetableSession]] = await db.query('SELECT * FROM timetable WHERE (is_deleted IS NULL OR is_deleted = 0) AND id = ?', [timetableId]);
+        const [[timetableSession]] = await db.query('SELECT * FROM timetable WHERE id = ?', [timetableId]);
         if (!timetableSession) {
             // Timetable session was deleted - find and delete synced faculty_sessions
             const [[existingSync]] = await db.query('SELECT id FROM faculty_sessions WHERE timetable_id = ?', [timetableId]);

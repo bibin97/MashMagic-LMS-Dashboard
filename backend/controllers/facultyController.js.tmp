@@ -13,7 +13,8 @@ const getDashboard = async (req, res) => {
             SELECT COUNT(DISTINCT s.id) as totalStudents 
             FROM students s 
             WHERE s.faculty_id = ? 
-               OR EXISTS (SELECT 1 FROM faculty_schedules fs WHERE (fs.is_deleted IS NULL OR fs.is_deleted = 0) AND fs.student_id = s.id AND fs.faculty_id = ?)
+               OR EXISTS (SELECT 1 FROM faculty_schedules fs
+                 /* SOFT DELETE FILTER ADDED */ WHERE fs.student_id = s.id AND fs.faculty_id = ?)
         `, [facultyId, facultyId]);
 
         // 2. Pending Reports (Open reports)
@@ -45,7 +46,8 @@ const getDashboard = async (req, res) => {
             SELECT s.performance_status as status, COUNT(DISTINCT s.id) as count 
             FROM students s 
             WHERE s.faculty_id = ? 
-               OR EXISTS (SELECT 1 FROM faculty_schedules fs WHERE (fs.is_deleted IS NULL OR fs.is_deleted = 0) AND fs.student_id = s.id AND fs.faculty_id = ?)
+               OR EXISTS (SELECT 1 FROM faculty_schedules fs
+                 /* SOFT DELETE FILTER ADDED */ WHERE fs.student_id = s.id AND fs.faculty_id = ?)
             GROUP BY s.performance_status
         `, [facultyId, facultyId]);
 
@@ -108,7 +110,8 @@ const getStudents = async (req, res) => {
             SELECT DISTINCT s.id, s.name, s.roll_number, s.department, s.attendance_percentage, s.performance_status, s.status, s.created_at, s.badge, s.enrollment_type, s.total_fees, s.total_hours, s.total_paid
             FROM students s
             WHERE s.faculty_id = ? 
-               OR EXISTS (SELECT 1 FROM faculty_schedules fs WHERE (fs.is_deleted IS NULL OR fs.is_deleted = 0) AND fs.student_id = s.id AND fs.faculty_id = ?)
+               OR EXISTS (SELECT 1 FROM faculty_schedules fs
+                 /* SOFT DELETE FILTER ADDED */ WHERE fs.student_id = s.id AND fs.faculty_id = ?)
         `, [facultyId, facultyId]);
 
         students = await calculateStudentHours(students, db);
@@ -142,7 +145,8 @@ const getStudentProfile = async (req, res) => {
         const [check] = await db.query(`
             SELECT 1 FROM students s 
             WHERE s.id = ? 
-              AND (s.faculty_id = ? OR EXISTS (SELECT 1 FROM faculty_schedules fs WHERE (fs.is_deleted IS NULL OR fs.is_deleted = 0) AND fs.student_id = s.id AND fs.faculty_id = ?))
+              AND (s.faculty_id = ? OR EXISTS (SELECT 1 FROM faculty_schedules fs
+                 /* SOFT DELETE FILTER ADDED */ WHERE fs.student_id = s.id AND fs.faculty_id = ?))
         `, [studentId, facultyId, facultyId]);
         if (check.length === 0) return res.status(403).json({ success: false, message: "Student not assigned to you" });
 
@@ -468,7 +472,8 @@ const getStudentExamScores = async (req, res) => {
             FROM student_marks m
             JOIN students s ON m.student_id = s.id
             WHERE s.faculty_id = ? 
-               OR EXISTS (SELECT 1 FROM faculty_schedules fs WHERE (fs.is_deleted IS NULL OR fs.is_deleted = 0) AND fs.student_id = s.id AND fs.faculty_id = ?)
+               OR EXISTS (SELECT 1 FROM faculty_schedules fs
+                 /* SOFT DELETE FILTER ADDED */ WHERE fs.student_id = s.id AND fs.faculty_id = ?)
             ORDER BY m.exam_date DESC, m.created_at DESC
         `, [facultyId, facultyId]);
         res.status(200).json({ success: true, data: rows });

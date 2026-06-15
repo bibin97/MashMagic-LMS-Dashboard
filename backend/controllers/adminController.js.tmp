@@ -986,7 +986,7 @@ const addStudentInstallment = async (req, res) => {
 
         // Calculate total consumed hours up to now
         const [sessions] = await db.query(
-            'SELECT duration FROM timetable WHERE (is_deleted IS NULL OR is_deleted = 0) AND status = "Completed" AND student_id = ?',
+            'SELECT duration FROM timetable WHERE status = "Completed" AND student_id = ?',
             [id]
         );
         let total_consumed_mins = 0;
@@ -1067,7 +1067,7 @@ const getStudentDetailsForAdmin = async (req, res) => {
 
         // Calculate consumed hours
         const [sessions] = await db.query(
-            'SELECT duration FROM timetable WHERE (is_deleted IS NULL OR is_deleted = 0) AND status = "Completed" AND student_id = ?', [id]
+            'SELECT duration FROM timetable WHERE status = "Completed" AND student_id = ?', [id]
         );
         let total_consumed_mins = 0;
         sessions.forEach(s => {
@@ -1150,7 +1150,10 @@ const getAllStudentsForAdmin = async (req, res) => {
                 mentor_name as mentor, mentor_id,
                 COALESCE(
                     (SELECT GROUP_CONCAT(DISTINCT u.name SEPARATOR ', ') 
-                     FROM faculty_schedules fs JOIN faculties u ON fs.faculty_id = u.id WHERE (fs.is_deleted IS NULL OR fs.is_deleted = 0) AND fs.student_id = students.id),
+                     FROM faculty_schedules fs
+                 /* SOFT DELETE FILTER ADDED */ 
+                     JOIN faculties u ON fs.faculty_id = u.id 
+                     WHERE fs.student_id = students.id),
                     students.faculty_name
                 ) as faculty, 
                 subject, time_table as timetable_summary, 
@@ -1182,7 +1185,8 @@ const getAllStudentsForAdmin = async (req, res) => {
         }
 
         if (req.query.faculty_id) {
-            sql += ' AND (faculty_id = ? OR EXISTS (SELECT 1 FROM faculty_schedules fs WHERE (fs.is_deleted IS NULL OR fs.is_deleted = 0) AND fs.student_id = students.id AND fs.faculty_id = ?))';
+            sql += ' AND (faculty_id = ? OR EXISTS (SELECT 1 FROM faculty_schedules fs
+                 /* SOFT DELETE FILTER ADDED */ WHERE fs.student_id = students.id AND fs.faculty_id = ?))';
             params.push(req.query.faculty_id, req.query.faculty_id);
         }
 
@@ -1427,8 +1431,8 @@ const getAllMentorsForAdmin = async (req, res) => {
                 (SELECT COUNT(*) FROM student_interaction_logs sil WHERE sil.mentor_id = u.id) as logsReportCount,
                 (SELECT COUNT(DISTINCT s.faculty_id) FROM students s WHERE s.mentor_id = u.id AND s.faculty_id IS NOT NULL AND s.status = 'active') as facultyCount,
                 (SELECT COUNT(*) FROM students s WHERE s.mentor_id = u.id AND LOWER(s.performance_status) = 'critical' AND s.status = 'active') as criticalStudentsCount,
-                (SELECT COUNT(*) FROM timetable WHERE (is_deleted IS NULL OR is_deleted = 0) AND mentor_id = u.id AND status = 'Completed') as completedSessions,
-                (SELECT COUNT(*) FROM timetable WHERE (is_deleted IS NULL OR is_deleted = 0) AND mentor_id = u.id) as totalSessions
+                (SELECT COUNT(*) FROM timetable WHERE mentor_id = u.id AND status = 'Completed') as completedSessions,
+                (SELECT COUNT(*) FROM timetable WHERE mentor_id = u.id) as totalSessions
             FROM mentors u
             ${whereSQL}
             ORDER BY u.name ASC
@@ -1476,11 +1480,13 @@ const getAllFacultiesForAdmin = async (req, res) => {
                 u.id, u.name, u.email, u.phone_number as phone, u.status, u.subject, u.syllabus, u.section,
                 (SELECT COUNT(DISTINCT s.id) 
                  FROM students s 
-                 WHERE (s.faculty_id = u.id OR EXISTS (SELECT 1 FROM faculty_schedules fs WHERE (fs.is_deleted IS NULL OR fs.is_deleted = 0) AND fs.student_id = s.id AND fs.faculty_id = u.id)) 
+                 WHERE (s.faculty_id = u.id OR EXISTS (SELECT 1 FROM faculty_schedules fs
+                 /* SOFT DELETE FILTER ADDED */ WHERE fs.student_id = s.id AND fs.faculty_id = u.id)) 
                    AND s.status = 'active') as studentsUnder,
                 (SELECT COUNT(DISTINCT s.mentor_id) 
                  FROM students s 
-                 WHERE (s.faculty_id = u.id OR EXISTS (SELECT 1 FROM faculty_schedules fs WHERE (fs.is_deleted IS NULL OR fs.is_deleted = 0) AND fs.student_id = s.id AND fs.faculty_id = u.id)) 
+                 WHERE (s.faculty_id = u.id OR EXISTS (SELECT 1 FROM faculty_schedules fs
+                 /* SOFT DELETE FILTER ADDED */ WHERE fs.student_id = s.id AND fs.faculty_id = u.id)) 
                    AND s.mentor_id IS NOT NULL 
                    AND s.status = 'active') as mentorsUnder
             FROM faculties u
@@ -1853,7 +1859,7 @@ module.exports = {
             
             // 2. Fetch current maximum session count from timetable to find upcoming milestones
             const [rows] = await db.query(
-                'SELECT MAX(session_number) as current_max FROM timetable WHERE (is_deleted IS NULL OR is_deleted = 0) AND student_id = ? AND status != "Cancelled"',
+                'SELECT MAX(session_number) as current_max FROM timetable WHERE student_id = ? AND status != "Cancelled"',
                 [studentId]
             );
             const currentMax = rows[0]?.current_max || 0;
@@ -2048,7 +2054,7 @@ module.exports = {
             
             // 2. Fetch current maximum session count from timetable to find upcoming milestones
             const [rows] = await db.query(
-                'SELECT MAX(session_number) as current_max FROM timetable WHERE (is_deleted IS NULL OR is_deleted = 0) AND student_id = ? AND status != "Cancelled"',
+                'SELECT MAX(session_number) as current_max FROM timetable WHERE student_id = ? AND status != "Cancelled"',
                 [studentId]
             );
             const currentMax = rows[0]?.current_max || 0;
@@ -2163,7 +2169,8 @@ module.exports = {
                 JOIN faculties f ON t.faculty_id = f.id
                 WHERE t.subject = ? 
                 AND NOT EXISTS (
-                    SELECT 1 FROM faculty_schedules fs 
+                    SELECT 1 FROM faculty_schedules fs
+                 /* SOFT DELETE FILTER ADDED */ 
                     WHERE fs.faculty_id = t.faculty_id 
                     AND fs.day_of_week = t.day_of_week 
                     AND fs.start_time = t.start_time 
@@ -2187,7 +2194,8 @@ module.exports = {
                 FROM faculty_timetable t
                 WHERE t.faculty_id = ? AND t.subject = ?
                 AND NOT EXISTS (
-                    SELECT 1 FROM faculty_schedules fs 
+                    SELECT 1 FROM faculty_schedules fs
+                 /* SOFT DELETE FILTER ADDED */ 
                     WHERE fs.faculty_id = t.faculty_id 
                     AND fs.day_of_week = t.day_of_week 
                     AND fs.start_time = t.start_time 
@@ -2204,6 +2212,7 @@ module.exports = {
             const sql = `
                 SELECT fs.*, s.name as student_name, f.name as faculty_name 
                 FROM faculty_schedules fs
+                 /* SOFT DELETE FILTER ADDED */
                 JOIN students s ON fs.student_id = s.id
                 JOIN faculties f ON fs.faculty_id = f.id
                 ORDER BY FIELD(fs.day_of_week, "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"), fs.start_time ASC

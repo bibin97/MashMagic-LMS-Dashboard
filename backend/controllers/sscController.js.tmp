@@ -28,12 +28,13 @@ exports.getStudentsTrack = async (req, res) => {
             m.name as mentor_name,
             COALESCE(
                 (SELECT GROUP_CONCAT(DISTINCT u.name SEPARATOR ', ') 
-                 FROM faculty_schedules fs 
+                 FROM faculty_schedules fs
+                 /* SOFT DELETE FILTER ADDED */ 
                  JOIN users u ON fs.faculty_id = u.id 
                  WHERE fs.student_id = s.id),
                 s.faculty_name
             ) as faculty_names,
-            (SELECT COUNT(*) FROM timetable mt WHERE (mt.is_deleted IS NULL OR mt.is_deleted = 0) AND mt.student_id = s.id AND mt.status != 'Cancelled') as session_count,
+            (SELECT COUNT(*) FROM timetable mt WHERE mt.student_id = s.id AND mt.status != 'Cancelled') as session_count,
             CASE WHEN EXISTS (
                 SELECT 1 FROM student_interaction_logs sil 
                 WHERE sil.student_id = s.id AND sil.date = CURDATE() AND sil.connected_today = TRUE
@@ -146,7 +147,7 @@ exports.createSession = async (req, res) => {
         const [student] = await db.query('SELECT mentor_id FROM students WHERE id = ?', [student_id]);
         const mentor_id = student[0]?.mentor_id || null;
 
-        const [maxSessionResult] = await db.query('SELECT MAX(session_number) as max_sn FROM timetable WHERE (is_deleted IS NULL OR is_deleted = 0) AND student_id = ?', [student_id]);
+        const [maxSessionResult] = await db.query('SELECT MAX(session_number) as max_sn FROM timetable WHERE student_id = ?', [student_id]);
         const nextSessionNumber = (maxSessionResult[0].max_sn || 0) + 1;
 
         const formattedStartTime = convertTo24Hour(start_time);
@@ -160,7 +161,7 @@ exports.createSession = async (req, res) => {
 
         // Check for duplicates
         const [existing] = await db.query(
-            'SELECT id FROM timetable WHERE (is_deleted IS NULL OR is_deleted = 0) AND student_id = ? AND date = ? AND start_time = ? AND end_time = ? AND chapter = ? AND (faculty_id = ? OR (? IS NULL AND faculty_id IS NULL))',
+            'SELECT id FROM timetable WHERE student_id = ? AND date = ? AND start_time = ? AND end_time = ? AND chapter = ? AND (faculty_id = ? OR (? IS NULL AND faculty_id IS NULL))',
             [student_id, date, formattedStartTime, formattedEndTime, chapter, faculty_id || null, faculty_id || null]
         );
         if (existing.length > 0) {
@@ -222,6 +223,7 @@ exports.getStudentAcademicSchedule = async (req, res) => {
         const [schedules] = await db.query(`
             SELECT fs.*, u.name as faculty_name 
             FROM faculty_schedules fs
+                 /* SOFT DELETE FILTER ADDED */
             LEFT JOIN users u ON fs.faculty_id = u.id
             WHERE fs.student_id = ?
             ORDER BY FIELD(fs.day_of_week, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'), fs.start_time ASC
@@ -375,7 +377,7 @@ exports.createBatchTimetable = async (req, res) => {
         }
         let subjectsUpdated = false;
 
-        const [maxSessionResult] = await connection.query('SELECT MAX(session_number) as max_sn FROM timetable WHERE (is_deleted IS NULL OR is_deleted = 0) AND student_id = ?', [student_id]);
+        const [maxSessionResult] = await connection.query('SELECT MAX(session_number) as max_sn FROM timetable WHERE student_id = ?', [student_id]);
         let currentSessionNum = (maxSessionResult[0].max_sn || 0) + 1;
 
         for (const session of sessions) {
@@ -397,7 +399,7 @@ exports.createBatchTimetable = async (req, res) => {
 
             // Check for duplicates
             const [existing] = await connection.query(
-                'SELECT id FROM timetable WHERE (is_deleted IS NULL OR is_deleted = 0) AND student_id = ? AND date = ? AND start_time = ? AND end_time = ? AND chapter = ? AND (faculty_id = ? OR (? IS NULL AND faculty_id IS NULL))',
+                'SELECT id FROM timetable WHERE student_id = ? AND date = ? AND start_time = ? AND end_time = ? AND chapter = ? AND (faculty_id = ? OR (? IS NULL AND faculty_id IS NULL))',
                 [student_id, date, formattedStartTime, formattedEndTime, chapter, faculty_id || null, faculty_id || null]
             );
             if (existing.length > 0) continue; // Skip duplicates silently

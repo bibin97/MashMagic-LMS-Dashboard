@@ -119,7 +119,9 @@ const Registrations = () => {
   ]);
 
   const [facultyForm, setFacultyForm] = useState({
-    name: '', email: '', phone_number: '', place: '', password: '', confirmPassword: '', availability: ['']
+    name: '', email: '', phone_number: '', place: '', password: '', confirmPassword: '', availability: [''],
+    primary_subject: '', secondary_subjects: [], section: '', qualification: '', experience: '', 
+    teaching_mode: 'Both', joining_date: new Date().toISOString().split('T')[0], syllabus: [], languages_proficiency: []
   });
 
   const [sscForm, setSscForm] = useState({
@@ -1056,6 +1058,86 @@ const Registrations = () => {
                     <Lock size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-emerald-600 transition-colors" />
                     <input type="password" name="confirmPassword" required value={facultyForm.confirmPassword} onChange={handleFacultyChange} className="w-full p-3 pl-12 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-emerald-100 font-bold" placeholder="••••••••" />
                   </div>
+                </div>
+              </div>
+
+              {/* Advanced Faculty Profile Fields */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6 p-6 bg-emerald-50/50 border border-emerald-100 rounded-3xl">
+                <div className="flex flex-col gap-2">
+                  <label className="text-[10px] font-black text-emerald-800 uppercase tracking-widest ml-1">Primary Subject</label>
+                  <Select
+                    options={[{value:'Mathematics',label:'Mathematics'},{value:'Physics',label:'Physics'},{value:'Chemistry',label:'Chemistry'},{value:'Biology',label:'Biology'},{value:'English',label:'English'}]}
+                    value={facultyForm.primary_subject ? { value: facultyForm.primary_subject, label: facultyForm.primary_subject } : null}
+                    onChange={(sel) => setFacultyForm({...facultyForm, primary_subject: sel ? sel.value : ''})}
+                    styles={customSelectStyles}
+                    placeholder="Select Primary Subject"
+                    isClearable
+                  />
+                </div>
+                <div className="flex flex-col gap-2">
+                  <label className="text-[10px] font-black text-emerald-800 uppercase tracking-widest ml-1">Secondary Subjects</label>
+                  <Select
+                    isMulti
+                    options={[{value:'Mathematics',label:'Mathematics'},{value:'Physics',label:'Physics'},{value:'Chemistry',label:'Chemistry'},{value:'Biology',label:'Biology'},{value:'English',label:'English'}]}
+                    value={facultyForm.secondary_subjects.map(s => ({ value: s, label: s }))}
+                    onChange={(sel) => setFacultyForm({...facultyForm, secondary_subjects: sel ? sel.map(s => s.value) : []})}
+                    styles={customSelectStyles}
+                    placeholder="Select Secondary Subjects"
+                  />
+                </div>
+                <div className="flex flex-col gap-2">
+                  <label className="text-[10px] font-black text-emerald-800 uppercase tracking-widest ml-1">Section Coverage</label>
+                  <Select
+                    options={gradeOptions}
+                    value={facultyForm.section ? { value: facultyForm.section, label: facultyForm.section } : null}
+                    onChange={(sel) => setFacultyForm({...facultyForm, section: sel ? sel.value : ''})}
+                    styles={customSelectStyles}
+                    placeholder="Select Section"
+                    isClearable
+                  />
+                </div>
+                <div className="flex flex-col gap-2">
+                  <label className="text-[10px] font-black text-emerald-800 uppercase tracking-widest ml-1">Highest Qualification</label>
+                  <input type="text" value={facultyForm.qualification} onChange={(e) => setFacultyForm({...facultyForm, qualification: e.target.value})} className="w-full p-3 bg-white border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-emerald-600 font-bold" placeholder="e.g. MSc, BEd" />
+                </div>
+                <div className="flex flex-col gap-2">
+                  <label className="text-[10px] font-black text-emerald-800 uppercase tracking-widest ml-1">Experience</label>
+                  <input type="text" value={facultyForm.experience} onChange={(e) => setFacultyForm({...facultyForm, experience: e.target.value})} className="w-full p-3 bg-white border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-emerald-600 font-bold" placeholder="e.g. 5 Years" />
+                </div>
+                <div className="flex flex-col gap-2">
+                  <label className="text-[10px] font-black text-emerald-800 uppercase tracking-widest ml-1">Teaching Mode</label>
+                  <Select
+                    options={[{value:'Online',label:'Online'},{value:'Offline',label:'Offline'},{value:'Both',label:'Both'}]}
+                    value={{ value: facultyForm.teaching_mode, label: facultyForm.teaching_mode }}
+                    onChange={(sel) => setFacultyForm({...facultyForm, teaching_mode: sel.value})}
+                    styles={customSelectStyles}
+                  />
+                </div>
+                <div className="flex flex-col gap-2">
+                  <label className="text-[10px] font-black text-emerald-800 uppercase tracking-widest ml-1">Joining Date</label>
+                  <input type="date" value={facultyForm.joining_date} onChange={(e) => setFacultyForm({...facultyForm, joining_date: e.target.value})} className="w-full p-3 bg-white border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-emerald-600 font-bold" />
+                </div>
+                <div className="flex flex-col gap-2">
+                  <label className="text-[10px] font-black text-emerald-800 uppercase tracking-widest ml-1">Syllabus Expertise</label>
+                  <Select
+                    isMulti
+                    options={syllabusOptions}
+                    value={facultyForm.syllabus.map(s => ({ value: s, label: s }))}
+                    onChange={(sel) => setFacultyForm({...facultyForm, syllabus: sel ? sel.map(s => s.value) : []})}
+                    styles={customSelectStyles}
+                    placeholder="Select Syllabus"
+                  />
+                </div>
+                <div className="flex flex-col gap-2 md:col-span-2">
+                  <label className="text-[10px] font-black text-emerald-800 uppercase tracking-widest ml-1">Language Proficiency</label>
+                  <Select
+                    isMulti
+                    options={languageOptions}
+                    value={facultyForm.languages_proficiency.map(s => ({ value: s, label: s }))}
+                    onChange={(sel) => setFacultyForm({...facultyForm, languages_proficiency: sel ? sel.map(s => s.value) : []})}
+                    styles={customSelectStyles}
+                    placeholder="Select Languages"
+                  />
                 </div>
               </div>
 

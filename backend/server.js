@@ -293,6 +293,13 @@ const startServer = async () => {
                 'ALTER TABLE student_exams ADD COLUMN chapter VARCHAR(255) NULL;',
                 'ALTER TABLE users ADD COLUMN interaction_paused BOOLEAN DEFAULT FALSE;',
                 'ALTER TABLE users ADD COLUMN current_rotation_index INT DEFAULT 0;',
+                'ALTER TABLE timetable ADD COLUMN is_deleted BOOLEAN DEFAULT FALSE;',
+                'ALTER TABLE timetable ADD COLUMN deleted_at DATETIME NULL;',
+                'ALTER TABLE faculty_schedules ADD COLUMN is_deleted BOOLEAN DEFAULT FALSE;',
+                'ALTER TABLE faculty_schedules ADD COLUMN deleted_at DATETIME NULL;',
+                
+                // Cleanup: remove emails from students that belong to a staff member
+                'UPDATE students s INNER JOIN users u ON s.email = u.email SET s.email = NULL WHERE u.role != "student";',
                 'ALTER TABLE mentors ADD COLUMN interaction_paused BOOLEAN DEFAULT FALSE;',
                 'ALTER TABLE mentors ADD COLUMN current_rotation_index INT DEFAULT 0;',
                 'ALTER TABLE student_exams ADD COLUMN portions TEXT NULL;',

@@ -9,5 +9,8 @@ router.post('/submit-report', protect, upload.array('files', 5), controller.subm
 router.get('/high-risk-students', protect, controller.getHighRiskStudents);
 router.get('/weekly-coverage', protect, controller.getWeeklyCoverage);
 router.post('/toggle-pause', protect, controller.togglePause);
+router.get('/report/:id/today', protect, controller.getTodaySessionReport);
+router.put('/report/:id', protect, upload.array('files', 5), controller.updateSessionReport);
+router.delete('/report/:id', protect, controller.deleteSessionReport);
 
 module.exports = router;
