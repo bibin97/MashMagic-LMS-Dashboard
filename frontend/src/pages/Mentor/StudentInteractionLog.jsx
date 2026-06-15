@@ -5,19 +5,6 @@ import InteractionFormUI from '../../components/common/InteractionFormUI';
 import {
  MessageSquare, CheckCircle, ArrowLeft, Target, AlertCircle, BarChart3,
  CloudLightning, FileText, Camera, Phone, UserCheck, HeartPulse, Brain,
- Clock, Activity, BookOpen, Smile, Plus, Frown, Meh, MoreHorizontal, Upload, ImageIcon, Loader2, Zap, TrendingUp, ShieldAlert, CheckCircle2, ChevronRight, XCircle, Play, Pause
-} from 'lucide-react';
-import toast from 'react-hot-toast';
-import Modal from '../../components/Modal';
-
-const StudentInteractionLog = () => {
- const location = useLocation();
- const navigate = useNavigate();
-
-import InteractionFormUI from '../../components/common/InteractionFormUI';
-import {
- MessageSquare, CheckCircle, ArrowLeft, Target, AlertCircle, BarChart3,
- CloudLightning, FileText, Camera, Phone, UserCheck, HeartPulse, Brain,
  Clock, Activity, BookOpen, Smile, Plus, Frown, Meh, MoreHorizontal, Upload, ImageIcon, Loader2, Zap, TrendingUp, ShieldAlert, CheckCircle2, ChevronRight, XCircle, Play, Pause, Edit2, Trash2
 } from 'lucide-react';
 import toast from 'react-hot-toast';
