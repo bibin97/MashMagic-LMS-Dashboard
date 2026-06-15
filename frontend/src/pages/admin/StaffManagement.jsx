@@ -182,9 +182,9 @@ const StaffManagement = () => {
  </p>
  </div>
  <div className="bg-[#008080] px-8 py-5 rounded-[24px] border border-slate-800 shadow-2xl flex items-center gap-5 group hover:translate-x-1 transition-all">
- <ShieldCheck className="text-[#008080]" size={20} strokeWidth={2.5} />
+ <ShieldCheck className="text-white" size={20} strokeWidth={2.5} />
  <div className="flex flex-col">
- <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] leading-none mb-1">Total Staff</span>
+ <span className="text-[10px] font-black text-white uppercase tracking-[0.2em] leading-none mb-1">Total Staff</span>
  <span className="text-2xl font-black text-white leading-none tabular-nums tracking-tighter">{staff.length}</span>
  </div>
  </div>

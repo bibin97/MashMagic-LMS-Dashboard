@@ -1456,10 +1456,11 @@ const getStaffMembers = async (req, res) => {
     try {
         const query = `
             SELECT id, name, email, phone_number as phone, role, status, createdAt as created_at FROM users
+            WHERE role NOT IN ('student')
             UNION ALL
             SELECT id, name, email, phone_number as phone, role, status, createdAt as created_at FROM mentors
             UNION ALL
-            SELECT id, name, email, phone_number as phone, role, status, createdAt as created_at FROM faculties
+            SELECT id, name, email, phone_number as phone, 'faculty' as role, status, createdAt as created_at FROM faculties
             ORDER BY role ASC, name ASC
         `;
         const [rows] = await db.query(query);
