@@ -177,21 +177,21 @@ const FacultyDirectory = () => {
  <table className="w-full text-left border-collapse">
  <thead>
  <tr className="bg-slate-50/50 border-b border-slate-100">
- <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest w-[80px]">No.</th>
- <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Faculty</th>
- <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Email</th>
- <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Phone</th>
- <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Place</th>
- <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Status</th>
- <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest text-right">Actions</th>
+ <th className="px-6 py-4 text-[10px] font-black text-slate-600 uppercase tracking-widest w-[80px]">No.</th>
+ <th className="px-6 py-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">Faculty</th>
+ <th className="px-6 py-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">Email</th>
+ <th className="px-6 py-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">Phone</th>
+ <th className="px-6 py-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">Place</th>
+ <th className="px-6 py-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">Status</th>
+ <th className="px-6 py-4 text-[10px] font-black text-slate-600 uppercase tracking-widest text-right">Actions</th>
  </tr>
  </thead>
  <tbody className="divide-y divide-slate-50">
  {filteredFaculties.length > 0 ? filteredFaculties.map((faculty, index) => <tr key={faculty.id} className="hover:bg-emerald-50/20 transition-all group">
- <td className="px-8 py-6 font-black text-slate-400 text-[12px]">{index + 1}</td>
- <td className="px-8 py-6">
+ <td className="px-6 py-4 font-black text-slate-400 text-[12px]">{index + 1}</td>
+ <td className="px-6 py-4">
  <div className="flex items-center gap-4">
- <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-[#008080] rounded-2xl flex items-center justify-center text-white text-lg font-black shadow-lg shadow-emerald-100">
+ <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-[#008080] rounded-xl flex items-center justify-center text-white text-lg font-black shadow-lg shadow-emerald-100">
  {faculty.name?.charAt(0)}
  </div>
  <div className="min-w-0">
@@ -200,31 +200,31 @@ const FacultyDirectory = () => {
  </div>
  </div>
  </td>
- <td className="px-8 py-6">
+ <td className="px-6 py-4">
  <div className="flex items-center gap-2 text-xs font-bold text-slate-600 truncate max-w-[200px]" title={faculty.email}>
  <Mail size={14} className="text-slate-300" />
  {faculty.email || 'N/A'}
  </div>
  </td>
- <td className="px-8 py-6">
+ <td className="px-6 py-4">
  <div className="flex items-center gap-2 text-xs font-bold text-slate-600">
  <Phone size={14} className="text-slate-300" />
  {faculty.phone_number || 'N/A'}
  </div>
  </td>
- <td className="px-8 py-6">
+ <td className="px-6 py-4">
  <div className="flex items-center gap-2 text-xs font-bold text-slate-600 uppercase tracking-wider">
  <MapPin size={14} className="text-slate-300" />
  {faculty.place || 'N/A'}
  </div>
  </td>
- <td className="px-8 py-6">
+ <td className="px-6 py-4">
  <span className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${String(faculty.status || 'active').toLowerCase() === 'active' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-rose-50 text-rose-600 border-rose-100'}`}>
  <Activity size={12} className={String(faculty.status || 'active').toLowerCase() === 'active' ? 'text-emerald-500' : 'text-rose-500'} />
  {faculty.status || 'active'}
  </span>
  </td>
- <td className="px-8 py-6 text-right">
+ <td className="px-6 py-4 text-right">
  <button onClick={() => {
                   setSelectedFaculty(faculty);
                   setIsDetailModalOpen(true);

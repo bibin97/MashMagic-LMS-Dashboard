@@ -186,12 +186,12 @@ const MentorsList = () => {
  <table className="w-full text-left border-collapse">
  <thead>
  <tr className="bg-slate-50/50 border-b border-slate-100">
- <th className="p-6 text-[10px] font-black text-slate-600 uppercase tracking-widest w-[60px]">No.</th>
- <th className="p-6 text-[10px] font-black text-slate-600 uppercase tracking-widest min-w-[200px]">Mentor</th>
- <th className="p-6 text-[10px] font-black text-slate-600 uppercase tracking-widest text-center">Total Students</th>
- <th className="p-6 text-[10px] font-black text-slate-600 uppercase tracking-widest text-center">Connected Today</th>
- <th className="p-6 text-[10px] font-black text-slate-600 uppercase tracking-widest min-w-[250px]">Connection Progress</th>
- <th className="p-6 text-[10px] font-black text-slate-600 uppercase tracking-widest text-right">Actions</th>
+ <th className="px-6 py-4 text-[10px] font-black text-slate-600 uppercase tracking-widest w-[60px]">No.</th>
+ <th className="px-6 py-4 text-[10px] font-black text-slate-600 uppercase tracking-widest min-w-[200px]">Mentor</th>
+ <th className="px-6 py-4 text-[10px] font-black text-slate-600 uppercase tracking-widest text-center">Total Students</th>
+ <th className="px-6 py-4 text-[10px] font-black text-slate-600 uppercase tracking-widest text-center">Connected Today</th>
+ <th className="px-6 py-4 text-[10px] font-black text-slate-600 uppercase tracking-widest min-w-[250px]">Connection Progress</th>
+ <th className="px-6 py-4 text-[10px] font-black text-slate-600 uppercase tracking-widest text-right">Actions</th>
  </tr>
  </thead>
  <tbody className="divide-y divide-slate-50">
@@ -201,8 +201,8 @@ const MentorsList = () => {
               const progress = total > 0 ? connected / total * 100 : 0;
               return <React.Fragment key={mentor.mentor_id}>
  <tr className="hover:bg-slate-50/50 transition-colors group">
- <td className="p-6 font-black text-slate-400 text-[12px]">{index + 1}</td>
- <td className="p-6">
+ <td className="px-6 py-4 font-black text-slate-400 text-[12px]">{index + 1}</td>
+ <td className="px-6 py-4">
  <div className="flex items-center gap-4">
  <div className="w-10 h-10 bg-gradient-to-br from-[#008080] via-[#008080] to-purple-700 rounded-xl flex items-center justify-center text-white font-black shadow-lg shadow-[#008080] group-hover:scale-110 transition-transform uppercase">
  {mentor.mentor_name.charAt(0)}
@@ -213,17 +213,17 @@ const MentorsList = () => {
  </div>
  </div>
  </td>
- <td className="p-6 text-center">
+ <td className="px-6 py-4 text-center">
  <button onClick={() => handleViewStudents(mentor)} className="text-[10px] font-black text-slate-600 bg-white px-3 py-1.5 rounded-lg border border-slate-100 hover:bg-[#008080] hover:text-white hover:border-[#008080] transition-all cursor-pointer shadow-sm">
  {total} STUDENTS
  </button>
  </td>
- <td className="p-6 text-center">
+ <td className="px-6 py-4 text-center">
  <span className="text-sm font-black text-emerald-600 bg-emerald-50 px-3 py-1 rounded-lg border border-emerald-100">
  {connected}
  </span>
  </td>
- <td className="p-6">
+ <td className="px-6 py-4">
  <div className="flex items-center gap-4">
  <div className="flex-1 h-2.5 bg-slate-100 rounded-full overflow-hidden border border-slate-200 shadow-inner">
  <div className="h-full bg-gradient-to-r from-emerald-400 to-[#008080] transition-all duration-1000" style={{
@@ -235,7 +235,7 @@ const MentorsList = () => {
  </span>
  </div>
  </td>
- <td className="p-6 text-right">
+ <td className="px-6 py-4 text-right">
  <div className="flex items-center justify-end gap-2">
  <button onClick={e => {
                         e.stopPropagation();
