@@ -51,14 +51,14 @@ async function main() {
 
     try {
         for (const email of targetEmails) {
-            // Check if user exists as active faculty in users table (using LIKE to bypass any hidden characters)
+            // Check if user exists in users table (matching only by email to bypass any role/status quirks)
             const [users] = await db.query(
-                "SELECT id as user_id, name, email, phone_number, password FROM users WHERE email LIKE ? AND role LIKE '%faculty%' AND status LIKE '%active%'", 
+                "SELECT id as user_id, name, email, phone_number, password FROM users WHERE email LIKE ?", 
                 [`%${email.trim()}%`]
             );
 
             if (users.length === 0) {
-                report.skipped.push({ email, reason: 'Not found in users table as active faculty' });
+                report.skipped.push({ email, reason: 'Not found in users table at all' });
                 continue;
             }
 
