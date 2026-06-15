@@ -1573,6 +1573,7 @@ module.exports = {
     updateStudentForAdmin,
     updateUserForAdmin,
     getStudentPortalLogins,
+    healthCheck,
     // @desc    Get exam analytics for graphs
     getExamAnalytics: async (req, res) => {
         try {
