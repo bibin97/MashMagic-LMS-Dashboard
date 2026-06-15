@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useDeferredValue, useMemo } from 'react';
 import api from '../../services/api';
-import { ScrollText, Search, User, Clock, Calendar, ChevronLeft, ChevronRight, History, ExternalLink, ArrowLeft, Users, ShieldAlert, CheckSquare, Filter, BookOpen, ChevronDown, SlidersHorizontal, X, SortAsc, CalendarClock, Pencil } from 'lucide-react';
+import { ScrollText, Search, User, Clock, Calendar, ChevronLeft, ChevronRight, History, ExternalLink, ArrowLeft, Users, ShieldAlert, CheckSquare, Filter, BookOpen, ChevronDown, SlidersHorizontal, X, SortAsc, CalendarClock, Pencil, Trash2 } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import toast from 'react-hot-toast';
 
@@ -102,6 +102,21 @@ const CommonInteractionLogs = ({
   const [historyModalLog, setHistoryModalLog] = useState(null);
   const [historyLogs, setHistoryLogs] = useState([]);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
+
+  const handleDeleteLog = async (log) => {
+    if (!window.confirm("Are you sure you want to delete this log? This action cannot be undone.")) return;
+    try {
+      const source = log.source || log.session_type || 'student_interaction_logs';
+      const endpoint = `${getApiPrefix()}/logs/${log.id}?source=${encodeURIComponent(source)}`;
+      const res = await api.delete(endpoint);
+      if (res.data?.success) {
+        toast.success("Log deleted successfully");
+        fetchLogs();
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to delete log");
+    }
+  };
 
   // Dynamic API prefix based on role
   const getApiPrefix = () => {
@@ -807,11 +822,17 @@ const CommonInteractionLogs = ({
                           }} className="w-10 h-10 rounded-xl flex items-center justify-center bg-blue-50 text-blue-500 hover:bg-blue-100 transition-colors shadow-sm" title="View Edit History">
                                                                                     <History size={16} strokeWidth={2.5} />
                                                                                 </button>}
-                                                                            {(role === 'mentor_head' || role === 'super_admin' || role === 'academic_head' || role === 'mentor') && <button onClick={e => {
+                                                                            {(role === 'mentor_head' || role === 'super_admin' || role === 'academic_head') && <button onClick={e => {
                             e.stopPropagation();
                             handleOpenEdit(log);
                           }} className="w-10 h-10 rounded-xl flex items-center justify-center bg-emerald-50 text-emerald-600 hover:bg-emerald-100 transition-colors shadow-sm" title="Edit Interaction">
                                                                                     <Pencil size={16} strokeWidth={2.5} />
+                                                                                </button>}
+                                                                            {role === 'mentor_head' && <button onClick={e => {
+                            e.stopPropagation();
+                            handleDeleteLog(log);
+                          }} className="w-10 h-10 rounded-xl flex items-center justify-center bg-rose-50 text-rose-600 hover:bg-rose-100 transition-colors shadow-sm" title="Delete Interaction">
+                                                                                    <Trash2 size={16} strokeWidth={2.5} />
                                                                                 </button>}
                                                                             <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-500 ${expandedLogId === log.id ? 'bg-yellow-400 text-slate-900 rotate-180 scale-110 shadow-lg' : 'bg-slate-50 text-slate-400 group-hover:bg-slate-100'}`}>
                                                                                 <ChevronDown size={18} strokeWidth={3} />
