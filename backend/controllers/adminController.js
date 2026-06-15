@@ -1455,10 +1455,11 @@ const getAllMentorsForAdmin = async (req, res) => {
 const getStaffMembers = async (req, res) => {
     try {
         const query = `
-            SELECT id, name, email, phone_number as phone, role, status, createdAt as created_at FROM users
-            WHERE role NOT IN ('student')
+            SELECT id, name, email, phone_number as phone, role, status, createdAt as created_at 
+            FROM users
+            WHERE role IN ('super_admin', 'sub_admin', 'mentor_head', 'academic_head', 'ssc', 'academic_operation_executive')
             UNION ALL
-            SELECT id, name, email, phone_number as phone, role, status, createdAt as created_at FROM mentors
+            SELECT id, name, email, phone_number as phone, 'mentor' as role, status, createdAt as created_at FROM mentors
             UNION ALL
             SELECT id, name, email, phone_number as phone, 'faculty' as role, status, createdAt as created_at FROM faculties
             ORDER BY role ASC, name ASC
@@ -1469,6 +1470,7 @@ const getStaffMembers = async (req, res) => {
         res.status(500).json({ success: false, message: error.message });
     }
 };
+
 
 // @desc    Get All Faculties
 // @route   GET /api/admin/faculties
