@@ -949,6 +949,8 @@ exports.getMentorActivityDashboard = async (req, res) => {
                 u.email,
                 u.phone_number,
                 u.place,
+                u.status,
+                u.isActive,
                 (SELECT COUNT(*) FROM students WHERE mentor_id = u.id AND status != 'rejected') AS total_assigned_students,
                 (SELECT COUNT(DISTINCT student_id) FROM student_interaction_logs WHERE mentor_id = u.id AND date = CURDATE() AND connected_today = TRUE) AS students_connected_today,
                 (SELECT COUNT(*) FROM tasks WHERE mentor_id = u.id AND status = 'Completed' AND DATE(created_at) = CURDATE()) AS tasks_completed_today

@@ -92,6 +92,27 @@ const FacultyDirectory = () => {
   </div>
   </div>
 
+  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm flex flex-col gap-2 group transition-all hover:shadow-xl hover:shadow-[#008080]/5 hover:-translate-y-1">
+      <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest group-hover:text-[#008080] transition-colors">Total Faculties</span>
+      <div className="flex items-end gap-3 font-black text-slate-900 tracking-tighter">
+        <span className="text-4xl leading-none">{faculties.length}</span>
+        <span className="text-[10px] text-slate-600 mb-1 uppercase tracking-widest">Database Total</span>
+      </div>
+    </div>
+    
+    <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm flex flex-col gap-2 group transition-all hover:shadow-xl hover:shadow-[#008080]/5 hover:-translate-y-1">
+      <span className="text-[10px] font-black text-[#008080] uppercase tracking-widest">Active Pulse</span>
+      <div className="flex items-end gap-3 font-black text-slate-900 tracking-tighter">
+        <span className="text-4xl leading-none">{faculties.filter(f => String(f.status || 'active').toLowerCase() === 'active').length}</span>
+        <div className="flex items-center gap-1.5 mb-1 bg-[#008080]/10 px-2 py-0.5 rounded-full">
+           <div className="w-1.5 h-1.5 rounded-full bg-[#008080] animate-pulse"></div>
+           <span className="text-[10px] text-[#008080] uppercase tracking-widest">Live</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
   {/* Collapsible Filter Panel */}
   {isFilterOpen && <div className="bg-white p-8 rounded-[3rem] border border-slate-100 shadow-sm space-y-6 animate-in slide-in-from-top-4 duration-300">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -180,7 +201,7 @@ const FacultyDirectory = () => {
  </div>
  </td>
  <td className="px-8 py-6">
- <div className="flex items-center gap-2 text-xs font-bold text-slate-600 break-all">
+ <div className="flex items-center gap-2 text-xs font-bold text-slate-600 truncate max-w-[200px]" title={faculty.email}>
  <Mail size={14} className="text-slate-300" />
  {faculty.email || 'N/A'}
  </div>
