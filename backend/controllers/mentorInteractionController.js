@@ -151,26 +151,58 @@ const generateAssignments = async (mentor_id, today) => {
         nextStartIndex = 0;
     }
 
-    // Fill selectedForToday starting with onboarding students first, then carryOverStudents
-    const onboardingStudents = students.filter(s => s.onboarding_status === 'pending');
-    selectedForToday = [...onboardingStudents];
-    const carryOverSet = new Set(onboardingStudents.map(s => s.id));
+    const deep = [];
+    const medium = [];
+    const quick = [];
+    const carryOverSet = new Set();
 
+    // 1. Mandatory First Day Students -> DEEP
+    const onboardingStudents = students.filter(s => s.onboarding_status === 'pending');
+    for (const s of onboardingStudents) {
+        deep.push({ ...s, sessionType: 'DEEP', status: 'PENDING' });
+        carryOverSet.add(s.id);
+    }
+
+    // 2. Carry Over Students
     for (const s of carryOverStudents) {
         if (!carryOverSet.has(s.id)) {
-            selectedForToday.push(s);
-            carryOverSet.add(s.id);
+            // Assign based on priority without exceeding quotas if possible
+            if (s.priority_category === 'High') {
+                if (deep.length < 5) {
+                    deep.push({ ...s, sessionType: 'DEEP', status: 'PENDING' });
+                    carryOverSet.add(s.id);
+                }
+            } else if (s.priority_category === 'Medium') {
+                if (medium.length < 5) {
+                    medium.push({ ...s, sessionType: 'MEDIUM', status: 'PENDING' });
+                    carryOverSet.add(s.id);
+                }
+            } else {
+                if (quick.length < 5) {
+                    quick.push({ ...s, sessionType: 'QUICK', status: 'PENDING' });
+                    carryOverSet.add(s.id);
+                }
+            }
         }
     }
 
-    // Now pick new students from rotation until we reach exactly 15 students
+    // 3. Scan rotation to fill quotas
     let currIdx = nextStartIndex;
     let attempts = 0;
-    while (selectedForToday.length < 15 && attempts < students.length) {
+    
+    while ((deep.length < 5 || medium.length < 5 || quick.length < 5) && attempts < students.length) {
         const candidate = students[currIdx];
         if (!carryOverSet.has(candidate.id)) {
-            selectedForToday.push(candidate);
-            carryOverSet.add(candidate.id);
+            if (candidate.priority_category === 'High' && deep.length < 5) {
+                deep.push({ ...candidate, sessionType: 'DEEP', status: 'PENDING' });
+                carryOverSet.add(candidate.id);
+            } else if (candidate.priority_category === 'Medium' && medium.length < 5) {
+                medium.push({ ...candidate, sessionType: 'MEDIUM', status: 'PENDING' });
+                carryOverSet.add(candidate.id);
+            } else if ((candidate.priority_category === 'Stable' || candidate.priority_category === 'Low' || !candidate.priority_category) && quick.length < 5) {
+                quick.push({ ...candidate, sessionType: 'QUICK', status: 'PENDING' });
+                carryOverSet.add(candidate.id);
+            }
         }
         currIdx = (currIdx + 1) % students.length;
         attempts++;
@@ -180,38 +212,6 @@ const generateAssignments = async (mentor_id, today) => {
     const newRotationIndex = currIdx;
     await db.query('UPDATE users SET current_rotation_index = ? WHERE id = ?', [newRotationIndex, mentor_id]);
     await db.query('UPDATE mentors SET current_rotation_index = ? WHERE id = ?', [newRotationIndex, mentor_id]);
-
-    // 4. Distribute into session types (Deep, Medium, Quick)
-    const deep = [];
-    const medium = [];
-    const quick = [];
-
-    const firstDayPool = [];
-    const restPool = [];
-
-    // First day students (pending onboarding) MUST get DEEP
-    for (let s of selectedForToday) {
-        if (s.onboarding_status === 'pending') {
-            firstDayPool.push(s);
-        } else {
-            restPool.push(s);
-        }
-    }
-
-    for (let s of firstDayPool) {
-        deep.push({ ...s, sessionType: 'DEEP', status: 'PENDING' });
-    }
-
-    // Assign directly based on mentor's explicit priority selection
-    for (let s of restPool) {
-        if (s.priority_category === 'High') {
-            deep.push({ ...s, sessionType: 'DEEP', status: 'PENDING' });
-        } else if (s.priority_category === 'Medium') {
-            medium.push({ ...s, sessionType: 'MEDIUM', status: 'PENDING' });
-        } else {
-            quick.push({ ...s, sessionType: 'QUICK', status: 'PENDING' });
-        }
-    }
 
     return [...deep, ...medium, ...quick];
 };
