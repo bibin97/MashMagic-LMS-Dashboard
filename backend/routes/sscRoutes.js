@@ -1,5 +1,6 @@
 const express = require('express');
-\nconst { getFacultyChangeHistory } = require('../controllers/facultyHistoryController');
+const router = express.Router();
+const { getFacultyChangeHistory } = require('../controllers/facultyHistoryController');
 const { getDashboardStats, getStudentsTrack, getDailyUpdates } = require('../controllers/sscController');
 const { getStudentById, saveExamPlan } = require('../controllers/aoeController');
 const { requireAuth } = require('../middleware/authMiddleware');
@@ -83,4 +84,4 @@ module.exports = router;
 
 
 // Get faculty change history
-router.get('/students/:id/faculty-history', verifyToken, getFacultyChangeHistory);
+router.get('/students/:id/faculty-history', getFacultyChangeHistory);

@@ -1,5 +1,5 @@
 const db = require('../config/db');
-const bcrypt = require('bcryptjs');
+const bcrypt = require('bcrypt');
 const { logFacultyChanges } = require('../utils/facultyChangeLogger');
 const User = require('../models/userModel');
 
