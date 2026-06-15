@@ -276,7 +276,7 @@ const InteractionFormUI = ({ sessionType, formData, setFormData, isReadOnly = fa
            </h4>
            <div className="flex flex-wrap gap-4">
              {(Array.isArray(formData.files || formData.file) ? (formData.files || formData.file) : (typeof (formData.files || formData.file) === 'string' ? (formData.files || formData.file).split(',') : [])).map((f, i) => (
-                <a key={i} href={`${import.meta.env.VITE_API_URL}${f.startsWith('/') ? f : '/' + f}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 bg-white border border-slate-200 p-3 rounded-2xl hover:border-[#008080] hover:shadow-md transition-all group">
+                <a key={i} href={f.startsWith('http') ? f : `${import.meta.env.VITE_API_URL}${f.startsWith('/') ? f : '/' + f}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 bg-white border border-slate-200 p-3 rounded-2xl hover:border-[#008080] hover:shadow-md transition-all group">
                    <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-[#008080]/10 group-hover:text-[#008080]">
                      <Download size={16} />
                    </div>

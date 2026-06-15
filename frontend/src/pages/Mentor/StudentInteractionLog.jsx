@@ -5,7 +5,7 @@ import InteractionFormUI from '../../components/common/InteractionFormUI';
 import {
  MessageSquare, CheckCircle, ArrowLeft, Target, AlertCircle, BarChart3,
  CloudLightning, FileText, Camera, Phone, UserCheck, HeartPulse, Brain,
- Clock, Activity, BookOpen, Smile, Plus, Frown, Meh, MoreHorizontal, Upload, ImageIcon, Loader2, Zap, TrendingUp, ShieldAlert, CheckCircle2, ChevronRight, XCircle, Play, Pause, Edit2, Trash2
+ Clock, Activity, BookOpen, Smile, Plus, Frown, Meh, MoreHorizontal, Upload, ImageIcon, Loader2, Zap, TrendingUp, ShieldAlert, CheckCircle2, ChevronRight, XCircle, Play, Pause
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Modal from '../../components/Modal';
@@ -22,7 +22,6 @@ const StudentInteractionLog = () => {
  const [selectedStudent, setSelectedStudent] = useState(null);
  const [activeTab, setActiveTab] = useState('both'); // 'both', 'mentorship', 'tuition'
  const [statusFilter, setStatusFilter] = useState('pending'); // 'pending', 'completed'
- const [isEditingLog, setIsEditingLog] = useState(false);
  
  // Form States
  const [isPaused, setIsPaused] = useState(false);
@@ -410,18 +409,7 @@ const StudentInteractionLog = () => {
                                    {isCompleted ? 'Report Logged' : isCancelled ? 'Cancelled' : 'Awaiting Interaction'}
                                  </span>
                                </div>
-                               {statusFilter === 'pending' ? (
-                                  <ChevronRight size={20} className="text-slate-300 group-hover:text-slate-900 transition-colors" />
-                               ) : (
-                                  <div className="flex gap-2">
-                                     <button onClick={(e) => { e.stopPropagation(); handleEditInteraction(student, sessionType); }} className="p-2 bg-emerald-100 text-emerald-600 rounded-xl hover:bg-emerald-200 transition-colors" title="Edit Interaction">
-                                        <Edit2 size={16} />
-                                     </button>
-                                     <button onClick={(e) => { e.stopPropagation(); handleDeleteInteraction(student.id); }} className="p-2 bg-red-100 text-red-600 rounded-xl hover:bg-red-200 transition-colors" title="Delete Interaction">
-                                        <Trash2 size={16} />
-                                     </button>
-                                  </div>
-                               )}
+                               <ChevronRight size={20} className="text-slate-300 group-hover:text-slate-900 transition-colors" />
                              </div>
                            </div>
                          );
