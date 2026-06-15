@@ -1195,7 +1195,7 @@ const CommonInteractionLogs = ({
                         </div>
                         
                         <div className="p-6 overflow-y-auto flex-1 space-y-6">
-                            {(!editModalLog.source || editModalLog.source.startsWith('Hub:')) && (
+                            {(!editModalLog.source || editModalLog.source === 'Interaction Hub' || editModalLog.source.startsWith('Hub:')) && (
       <div className="bg-white">
           <InteractionFormUI 
             sessionType={(editModalLog.session_type || editModalLog.source.replace('Hub: ', '') || 'QUICK').toUpperCase()} 
