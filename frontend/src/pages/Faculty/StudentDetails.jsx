@@ -202,7 +202,7 @@ const StudentDetails = () => {
  <div className="w-full overflow-x-auto">
 <table className="w-full text-left">
  <thead>
- <tr><th className="py-4 px-6 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">#</th>
+ <tr>
  <th className="px-8 py-5 text-[10px] font-black text-slate-600 uppercase tracking-widest">Session Topic</th>
  <th className="px-8 py-5 text-[10px] font-black text-slate-600 uppercase tracking-widest">Date</th>
  <th className="px-8 py-5 text-[10px] font-black text-slate-600 uppercase tracking-widest">Status</th>

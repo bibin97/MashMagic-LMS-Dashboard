@@ -213,7 +213,7 @@ const AcademicHeadDashboard = () => {
  </div> : <div className="overflow-x-auto">
  <table className="w-full text-left border-separate border-spacing-y-2">
  <thead>
- <tr><th className="py-4 px-6 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">#</th>
+ <tr>
  <th className="px-8 py-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">Timeline</th>
  <th className="px-8 py-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">Student & Subject</th>
  <th className="px-8 py-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">Faculty In-Charge</th>

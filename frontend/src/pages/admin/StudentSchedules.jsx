@@ -31,7 +31,7 @@ const StudentSchedules = () => {
                 <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse">
                         <thead>
-                            <tr className="bg-slate-50 border-b border-slate-100"><th className="py-4 px-6 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">#</th>
+                            <tr className="bg-slate-50 border-b border-slate-100">
                                 <th className="px-6 py-4 text-xs font-black text-slate-500 uppercase tracking-widest">Student</th>
                                 <th className="px-6 py-4 text-xs font-black text-slate-500 uppercase tracking-widest">Faculty</th>
                                 <th className="px-6 py-4 text-xs font-black text-slate-500 uppercase tracking-widest">Subject</th>

@@ -147,7 +147,7 @@ const FacultyLogs = () => {
     <div className="bg-white rounded-[3.5rem] border border-slate-100 shadow-sm overflow-hidden overflow-x-auto relative">
  <table className="w-full text-left">
  <thead>
- <tr className="bg-slate-50/80 border-b border-slate-100"><th className="py-4 px-6 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">#</th>
+ <tr className="bg-slate-50/80 border-b border-slate-100">
  <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest ">Date</th>
  <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest ">Faculty</th>
  <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest ">Focus Chapter</th>

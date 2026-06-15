@@ -23,7 +23,27 @@ exports.getDashboardStats = async (req, res) => {
 // @route   GET /api/ssc/students
 exports.getStudentsTrack = async (req, res) => {
     try {
-        const [rows] = await db.query('SELECT * FROM students WHERE status != "rejected" ORDER BY name ASC');
+        const [rows] = await db.query(`
+            SELECT s.*, 
+            m.name as mentor_name,
+            COALESCE(
+                (SELECT GROUP_CONCAT(DISTINCT u.name SEPARATOR ', ') 
+                 FROM faculty_schedules fs 
+                 JOIN users u ON fs.faculty_id = u.id 
+                 WHERE fs.student_id = s.id),
+                s.faculty_name
+            ) as faculty_names,
+            (SELECT COUNT(*) FROM timetable mt WHERE mt.student_id = s.id AND mt.status != 'Cancelled') as session_count,
+            CASE WHEN EXISTS (
+                SELECT 1 FROM student_interaction_logs sil 
+                WHERE sil.student_id = s.id AND sil.date = CURDATE() AND sil.connected_today = TRUE
+            ) THEN 1 ELSE 0 END as connected_today,
+            s.onboarding_status
+            FROM students s
+            LEFT JOIN users m ON s.mentor_id = m.id
+            WHERE s.status != 'rejected'
+            ORDER BY s.name ASC
+        `);
         const { calculateStudentHours } = require('../utils/studentHoursHelper');
         const augmentedRows = await calculateStudentHours(rows, db);
         res.status(200).json({ success: true, data: augmentedRows });

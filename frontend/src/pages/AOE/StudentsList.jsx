@@ -332,7 +332,7 @@ const StudentsList = ({
 				<div className="overflow-x-auto">
 					<table className="w-full text-left">
 						<thead>
-							<tr className="bg-slate-50/50 border-b border-slate-100"><th className="py-4 px-6 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">#</th>
+							<tr className="bg-slate-50/50 border-b border-slate-100">
 								<th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest w-[80px]">No.</th>
 								<th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Student Information</th>
 								<th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Course & Grade</th>
@@ -574,7 +574,7 @@ const StudentsList = ({
 							<div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-x-auto">
 								<table className="w-full text-left border-collapse min-w-[600px]">
 									<thead>
-										<tr className="bg-[#005050] text-white"><th className="py-4 px-6 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">#</th>
+										<tr className="bg-[#005050] text-white">
 											<th className="p-4 text-sm font-bold border-b border-[#006060]">Assessment Area</th>
 											<th className="hidden md:table-cell p-4 text-sm font-bold border-b border-[#006060]">1 — Poor</th>
 											<th className="hidden md:table-cell p-4 text-sm font-bold border-b border-[#006060]">3 — Average</th>

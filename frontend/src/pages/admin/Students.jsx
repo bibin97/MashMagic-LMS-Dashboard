@@ -880,7 +880,7 @@ const Students = () => {
                  <div className="w-full overflow-x-auto">
 <table className="w-full text-left">
                    <thead className="sticky top-0 bg-white shadow-sm">
-                     <tr><th className="py-4 px-6 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">#</th>
+                     <tr>
                        <th className="py-3 px-5 text-[9px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">Date</th>
                        <th className="py-3 px-5 text-[9px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">Amount</th>
                        <th className="py-3 px-5 text-[9px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">Paid Hours</th>

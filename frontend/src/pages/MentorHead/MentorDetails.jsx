@@ -372,7 +372,7 @@ const MentorDetails = () => {
  <div className="overflow-x-auto">
  <table className="w-full text-left">
  <thead>
- <tr className="bg-slate-50/50"><th className="py-4 px-6 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">#</th>
+ <tr className="bg-slate-50/50">
  <th className="px-10 py-6 text-[10px] font-black text-slate-600 uppercase tracking-[0.2em]">Student Identity</th>
  <th className="px-10 py-6 text-[10px] font-black text-slate-600 uppercase tracking-[0.2em]">Assigned Faculty</th>
  <th className="px-10 py-6 text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] text-center">Last Interaction</th>
@@ -547,7 +547,7 @@ const MentorDetails = () => {
          <div className="bg-white rounded-2xl shadow-sm border border-slate-200">
            <table className="w-full text-left border-collapse md:min-w-[600px]">
              <thead className="hidden md:table-header-group">
-               <tr className="bg-[#005050] text-white"><th className="py-4 px-6 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">#</th>
+               <tr className="bg-[#005050] text-white">
                  <th className="p-4 text-sm font-bold border-b border-[#006060]">Assessment Area</th>
                  <th className="hidden md:table-cell p-4 text-sm font-bold border-b border-[#006060]">1 — Poor</th>
                  <th className="hidden md:table-cell p-4 text-sm font-bold border-b border-[#006060]">3 — Average</th>

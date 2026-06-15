@@ -390,20 +390,23 @@ const Timetable = () => {
   };
   
   const addToBatch = () => {
-    if (!formData.student_id || !formData.date || !formData.start_time || !formData.end_time) {
+    if (!formData.student_id || !formData.date || formData.date.length === 0 || !formData.start_time || !formData.end_time) {
       toast.error("Please fill all required fields for this session");
       return;
     }
     
-    const updatedSessions = [...bulkSessions, { ...formData }];
+    const dates = Array.isArray(formData.date) ? formData.date : [formData.date];
+    const newSessions = dates.map(dateStr => ({ ...formData, date: dateStr }));
+    
+    const updatedSessions = [...bulkSessions, ...newSessions];
     updatedSessions.sort((a, b) => {
       if (a.date !== b.date) {
-        return a.date.localeCompare(b.date);
+        return String(a.date).localeCompare(String(b.date));
       }
-      return a.start_time.localeCompare(b.start_time);
+      return String(a.start_time).localeCompare(String(b.start_time));
     });
     setBulkSessions(updatedSessions);
-    toast.success("Session added to list");
+    toast.success(`${newSessions.length} session(s) added to list`);
     setFormData({
       ...formData,
       start_time: '',

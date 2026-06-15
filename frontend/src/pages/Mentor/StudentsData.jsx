@@ -251,7 +251,7 @@ const StudentsData = () => {
                               <div className="w-full overflow-x-auto">
 <table className="w-full text-left border-collapse">
                                 <thead className="bg-slate-50">
-                                  <tr><th className="py-4 px-6 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">#</th>
+                                  <tr>
                                     <th className="py-4 px-6 text-[10px] font-black text-slate-500 uppercase tracking-widest">Date</th>
                                     <th className="py-4 px-6 text-[10px] font-black text-slate-500 uppercase tracking-widest">Topic</th>
                                     <th className="py-4 px-6 text-[10px] font-black text-slate-500 uppercase tracking-widest">Status</th>

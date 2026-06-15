@@ -168,7 +168,7 @@ const StudentDetails = () => {
  <div className="overflow-x-auto">
  <table className="w-full text-left border-collapse">
  <thead>
- <tr className="border-b border-slate-50"><th className="py-4 px-6 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">#</th>
+ <tr className="border-b border-slate-50">
  <th className="py-6 px-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">#Sess</th>
  <th className="py-6 px-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">Date</th>
  <th className="py-6 px-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">Timing</th>
@@ -360,7 +360,7 @@ const StudentDetails = () => {
           <div className="w-full overflow-x-auto">
 <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-slate-50/50"><th className="py-4 px-6 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">#</th>
+              <tr className="bg-slate-50/50">
                 <th className="py-5 px-6 text-[10px] font-black text-slate-500 uppercase tracking-widest">Date</th>
                 <th className="py-5 px-6 text-[10px] font-black text-slate-500 uppercase tracking-widest">Topic / Session</th>
                 <th className="py-5 px-6 text-[10px] font-black text-slate-500 uppercase tracking-widest">Status</th>

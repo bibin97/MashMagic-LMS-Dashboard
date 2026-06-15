@@ -76,7 +76,7 @@ const DailyMentorHeadReport = () => {
  <div className="overflow-x-auto">
  <table className="w-full text-left border-collapse">
  <thead>
- <tr className="border-b border-slate-100 bg-slate-50"><th className="py-4 px-6 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">#</th>
+ <tr className="border-b border-slate-100 bg-slate-50">
  <th className="p-4 text-[10px] font-black text-slate-600 uppercase tracking-widest rounded-tl-xl text-center">Date</th>
  <th className="p-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">Mentor Head Name</th>
  <th className="p-4 text-[10px] font-black text-slate-600 uppercase tracking-widest text-center">Total Students</th>

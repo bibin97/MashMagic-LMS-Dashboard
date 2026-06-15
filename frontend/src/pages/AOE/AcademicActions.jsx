@@ -131,7 +131,7 @@ const AcademicActions = () => {
                 <div className="w-full overflow-x-auto">
 <table className="w-full text-left">
                   <thead>
-                    <tr className="bg-[#008080] text-white"><th className="py-4 px-6 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">#</th>
+                    <tr className="bg-[#008080] text-white">
                       <th className="px-8 py-5 text-xs font-black uppercase tracking-widest w-2/3">Performance Dimension</th>
                       <th className="px-8 py-5 text-xs font-black uppercase tracking-widest text-center w-1/3">Weight / Score</th>
                     </tr>

@@ -173,7 +173,7 @@ const SSCStudentList = () => {
   const fetchStudents = async () => {
     try {
       setLoading(true);
-      const res = await api.get('/mentor/students');
+      const res = await api.get('/ssc/students');
       let realStudents = res.data.data || [];
       // Inject mock hours for specific students requested by user
       realStudents = realStudents.map(student => {

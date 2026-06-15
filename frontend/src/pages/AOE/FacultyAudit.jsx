@@ -61,7 +61,7 @@ const FacultyAudit = () => {
             <div className="overflow-x-auto">
                 <table className="w-full text-left border-separate border-spacing-0">
                     <thead>
-                        <tr className="bg-slate-50"><th className="py-4 px-6 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">#</th>
+                        <tr className="bg-slate-50">
                             <th className="p-6 text-[10px] font-black text-slate-600 uppercase tracking-widest border-b border-slate-100 rounded-tl-[1.5rem]">Student</th>
                             <th className="p-6 text-[10px] font-black text-slate-600 uppercase tracking-widest border-b border-slate-100">Faculty</th>
                             <th className="p-6 text-[10px] font-black text-slate-600 uppercase tracking-widest border-b border-slate-100">Subject</th>

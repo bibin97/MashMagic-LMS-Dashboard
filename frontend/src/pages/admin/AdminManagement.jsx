@@ -159,7 +159,7 @@ const AdminManagement = () => {
  <div className="overflow-x-auto">
  <table className="w-full text-left border-collapse">
  <thead>
- <tr className="bg-slate-50/40 border-b border-slate-100/50"><th className="py-4 px-6 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">#</th>
+ <tr className="bg-slate-50/40 border-b border-slate-100/50">
  <th className="p-8 text-[11px] font-black text-slate-600 uppercase tracking-[0.2em] ">Admin Name</th>
  <th className="p-8 text-[11px] font-black text-slate-600 uppercase tracking-[0.2em] ">Contact Details</th>
  <th className="p-8 text-[11px] font-black text-slate-600 uppercase tracking-[0.2em] ">Status</th>

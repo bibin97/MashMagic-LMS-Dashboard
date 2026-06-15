@@ -185,7 +185,7 @@ const MentorsList = () => {
  <div className="overflow-x-auto">
  <table className="w-full text-left border-collapse">
  <thead>
- <tr className="bg-slate-50/50 border-b border-slate-100"><th className="py-4 px-6 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">#</th>
+ <tr className="bg-slate-50/50 border-b border-slate-100">
  <th className="p-6 text-[10px] font-black text-slate-600 uppercase tracking-widest w-[60px]">No.</th>
  <th className="p-6 text-[10px] font-black text-slate-600 uppercase tracking-widest min-w-[200px]">Mentor</th>
  <th className="p-6 text-[10px] font-black text-slate-600 uppercase tracking-widest text-center">Total Students</th>
