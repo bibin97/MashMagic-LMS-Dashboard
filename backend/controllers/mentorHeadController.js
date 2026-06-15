@@ -1,6 +1,7 @@
 const db = require('../config/db');
 const bcrypt = require('bcrypt');
 const User = require('../models/userModel');
+const { logFacultyChanges } = require('../utils/facultyChangeLogger');
 
 // @desc    Register a new mentor
 // @route   POST /api/mentor-head/register-mentor
@@ -1366,6 +1367,7 @@ exports.editStudent = async (req, res) => {
         }
 
         // --- SYNC FACULTY SCHEDULES ---
+        await logFacultyChanges(id, finalSubjects, req.user);
         await db.query('UPDATE faculty_schedules SET is_deleted = 1, deleted_at = CURRENT_TIMESTAMP WHERE student_id = ?', [id]);
 
         if (finalSubjects && Array.isArray(finalSubjects) && finalSubjects.length > 0) {

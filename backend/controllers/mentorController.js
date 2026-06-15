@@ -1,4 +1,6 @@
 const db = require('../config/db');
+const path = require('path');
+const { logFacultyChanges } = require('../utils/facultyChangeLogger');
 
 const convertTo24Hour = (timeStr) => {
     if (!timeStr) return null;
@@ -1536,6 +1538,8 @@ const updateStudentAcademicSchedule = async (req, res) => {
         const { schedules } = req.body; // Array of {day_of_week, start_time, end_time, subject, faculty_id}
 
         // 1. Delete existing schedules
+        const mappedSubjects = schedules ? schedules.map(s => ({ subject: s.subject, facultyId: s.faculty_id })) : [];
+        await logFacultyChanges(studentId, mappedSubjects, req.user);
         await connection.query('UPDATE faculty_schedules SET is_deleted = 1, deleted_at = CURRENT_TIMESTAMP WHERE student_id = ?', [studentId]);
 
         // 2. Insert new schedules

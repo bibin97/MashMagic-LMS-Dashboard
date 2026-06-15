@@ -1,5 +1,5 @@
 const express = require('express');
-const router = express.Router();
+\nconst { getFacultyChangeHistory } = require('../controllers/facultyHistoryController');
 const { requireAuth } = require('../middleware/authMiddleware');
 const { requireRole } = require('../middleware/roleMiddleware');
 const academicHeadController = require('../controllers/academicHeadController');
@@ -64,3 +64,6 @@ router.get('/course-completions', academicHeadController.getCourseCompletions);
 router.post('/course-completions/:id', upload.single('completion_file'), academicHeadController.markCourseCompleted);
 
 module.exports = router;
+
+// Get faculty change history
+router.get('/students/:id/faculty-history', verifyToken, getFacultyChangeHistory);

@@ -1,4 +1,5 @@
 const db = require('../config/db');
+const { logFacultyChanges } = require('../utils/facultyChangeLogger');
 
 // @desc    Get SSC Dashboard Stats
 // @route   GET /api/ssc/dashboard
@@ -340,7 +341,9 @@ exports.updateStudentAcademicSchedule = async (req, res) => {
             }
         }
         
+        
         if (subjectsUpdated) {
+            await logFacultyChanges(studentId, subjects, req.user);
             await connection.query('UPDATE students SET subjects_json = ? WHERE id = ?', [JSON.stringify(subjects), studentId]);
         }
 

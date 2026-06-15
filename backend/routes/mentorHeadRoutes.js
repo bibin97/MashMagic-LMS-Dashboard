@@ -1,5 +1,5 @@
 const express = require('express');
-const router = express.Router();
+\nconst { getFacultyChangeHistory } = require('../controllers/facultyHistoryController');
 const {
     registerMentor,
     getDashboardStats,
@@ -98,3 +98,6 @@ router.put('/mentors/:mentorId', editMentor);
 router.delete('/mentors/:mentorId', deleteMentor);
 
 module.exports = router;
+
+// Get faculty change history
+router.get('/students/:id/faculty-history', verifyToken, getFacultyChangeHistory);

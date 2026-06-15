@@ -1,5 +1,5 @@
 const express = require('express');
-const router = express.Router();
+\nconst { getFacultyChangeHistory } = require('../controllers/facultyHistoryController');
 const { requireAuth } = require('../middleware/authMiddleware');
 const { requireRole } = require('../middleware/roleMiddleware');
 const { getDailyHours } = require('../controllers/mentorController');
@@ -175,3 +175,6 @@ router.get('/faculty-available-slots/:facultyId', requireRole('super_admin', 'su
 router.get('/student-schedules', requireRole('super_admin', 'sub_admin', 'mentor_head'), getStudentSchedules);
 
 module.exports = router;
+
+// Get faculty change history
+router.get('/students/:id/faculty-history', verifyToken, getFacultyChangeHistory);

@@ -1,5 +1,5 @@
 const express = require('express');
-const router = express.Router();
+\nconst { getFacultyChangeHistory } = require('../controllers/facultyHistoryController');
 const {
     getMentorDashboard,
     getMentorStudents,
@@ -71,3 +71,6 @@ router.get('/mentors-all', requireRole('mentor', 'ssc', 'super_admin', 'admin', 
 
 
 module.exports = router;
+
+// Get faculty change history
+router.get('/students/:id/faculty-history', verifyToken, getFacultyChangeHistory);

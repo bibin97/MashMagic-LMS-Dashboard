@@ -514,6 +514,22 @@ const startServer = async () => {
                     is_read TINYINT(1) DEFAULT 0,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 );`,
+                
+                `CREATE TABLE IF NOT EXISTS faculty_change_history (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    student_id INT NOT NULL,
+                    subject VARCHAR(100),
+                    old_faculty_id INT,
+                    old_faculty_name VARCHAR(255),
+                    new_faculty_id INT,
+                    new_faculty_name VARCHAR(255),
+                    changed_by_id INT,
+                    changed_by_name VARCHAR(255),
+                    changed_by_role VARCHAR(50),
+                    changed_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (student_id) REFERENCES students(id)
+                );`,
+
                 'ALTER TABLE mentor_session_reports ADD COLUMN is_flagged TINYINT(1) DEFAULT 0;',
                 'ALTER TABLE mentor_session_reports ADD COLUMN flag_reason TEXT;',
 

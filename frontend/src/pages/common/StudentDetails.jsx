@@ -17,6 +17,9 @@ const StudentDetails = () => {
   const [fees, setFees] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('info'); // info, timetable, logs
+  const [facultyHistory, setFacultyHistory] = useState([]);
+  const [showFacultyHistory, setShowFacultyHistory] = useState(false);
+  const [loadingHistory, setLoadingHistory] = useState(false);
 
   const isAdmin = ['super_admin', 'sub_admin', 'mentor_head', 'academic_head'].includes(user?.role);
   const isSSC = user?.role === 'ssc';
@@ -86,6 +89,44 @@ const StudentDetails = () => {
       setLoading(false);
     }
   };
+
+  const fetchFacultyHistory = async () => {
+    try {
+      setLoadingHistory(true);
+      let endpoint;
+      const role = user?.role;
+      if (role === 'academic_operation_executive' || role === 'aoe') {
+        endpoint = `/aoe/students/${id}/faculty-history`;
+      } else if (role === 'ssc') {
+        endpoint = `/ssc/students/${id}/faculty-history`;
+      } else if (role === 'faculty') {
+        endpoint = `/faculty/students/${id}/faculty-history`;
+      } else if (role === 'mentor_head') {
+        endpoint = `/mentor-head/students/${id}/faculty-history`;
+      } else if (role === 'academic_head') {
+        endpoint = `/academic-head/students/${id}/faculty-history`;
+      } else if (isAdmin) {
+        endpoint = `/admin/students/${id}/faculty-history`;
+      } else {
+        endpoint = `/mentor/students/${id}/faculty-history`;
+      }
+
+      const res = await api.get(endpoint);
+      if (res.data.success) {
+        setFacultyHistory(res.data.data || []);
+      }
+    } catch (error) {
+      console.error("Error fetching faculty history:", error);
+    } finally {
+      setLoadingHistory(false);
+    }
+  };
+
+  useEffect(() => {
+    if (activeTab === 'timetable' && showFacultyHistory && facultyHistory.length === 0) {
+      fetchFacultyHistory();
+    }
+  }, [activeTab, showFacultyHistory]);
   const handleUpdateStatus = async (sessionId, currentSession, newStatus) => {
     if (isAdmin || isMentor) {
       try {
@@ -363,8 +404,13 @@ const StudentDetails = () => {
                 {activeTab === 'timetable' && <div className="space-y-8">
                         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                             <h3 className="text-2xl font-black text-slate-900 tracking-tight">Session Timetable</h3>
-                            <div className="flex items-center gap-2 px-4 py-2 bg-slate-50 rounded-xl text-[10px] font-black text-slate-500 uppercase tracking-widest border border-slate-100">
-                                <Clock size={12} /> Live Schedule
+                            <div className="flex gap-2">
+                                <button onClick={() => setShowFacultyHistory(true)} className="flex items-center gap-2 px-4 py-2 bg-[#008080]/10 hover:bg-[#008080]/20 rounded-xl text-[10px] font-black text-[#008080] uppercase tracking-widest border border-[#008080]/20 transition-colors">
+                                    <History size={12} /> Faculty History
+                                </button>
+                                <div className="flex items-center gap-2 px-4 py-2 bg-slate-50 rounded-xl text-[10px] font-black text-slate-500 uppercase tracking-widest border border-slate-100">
+                                    <Clock size={12} /> Live Schedule
+                                </div>
                             </div>
                         </div>
 
@@ -520,6 +566,80 @@ const StudentDetails = () => {
                         </section>
                     </div>}
             </div>
+
+            {/* Faculty History Modal */}
+            {showFacultyHistory && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-300">
+                    <div className="bg-white p-8 rounded-[2rem] shadow-2xl w-full max-w-3xl max-h-[80vh] overflow-hidden flex flex-col relative">
+                        <div className="flex justify-between items-center mb-6">
+                            <div>
+                                <h3 className="text-xl font-black text-slate-900 flex items-center gap-3">
+                                    <History className="text-[#008080]" /> Faculty Change History
+                                </h3>
+                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">
+                                    Tracking faculty assignments for {student?.name}
+                                </p>
+                            </div>
+                            <button onClick={() => setShowFacultyHistory(false)} className="text-slate-400 hover:text-slate-600 transition-colors bg-slate-50 p-2 rounded-xl">
+                                ✕
+                            </button>
+                        </div>
+                        
+                        <div className="flex-1 overflow-y-auto pr-4 space-y-6">
+                            {loadingHistory ? (
+                                <div className="py-20 text-center">
+                                    <div className="w-8 h-8 border-4 border-[#008080] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Loading History...</p>
+                                </div>
+                            ) : facultyHistory.length > 0 ? (
+                                Object.entries(facultyHistory.reduce((acc, curr) => {
+                                    if (!acc[curr.subject]) acc[curr.subject] = [];
+                                    acc[curr.subject].push(curr);
+                                    return acc;
+                                }, {})).map(([subject, changes]) => (
+                                    <div key={subject} className="bg-slate-50 rounded-[1.5rem] p-6 border border-slate-100 relative">
+                                        <div className="absolute top-0 right-0 px-4 py-1.5 bg-white text-[#008080] text-[9px] font-black uppercase tracking-widest rounded-bl-2xl rounded-tr-[1.5rem] border-b border-l border-slate-100">
+                                            {subject}
+                                        </div>
+                                        <div className="space-y-4 mt-2 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-slate-200 before:to-transparent">
+                                            {changes.map((change, idx) => (
+                                                <div key={idx} className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
+                                                    <div className="flex items-center justify-center w-10 h-10 rounded-full border border-white bg-slate-200 text-slate-500 shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2">
+                                                        <User size={16} />
+                                                    </div>
+                                                    <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
+                                                        <div className="flex justify-between items-center mb-1">
+                                                            <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">
+                                                                {new Date(change.changed_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+                                                            </span>
+                                                            <span className="text-[9px] font-black text-slate-400">
+                                                                {new Date(change.changed_at).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}
+                                                            </span>
+                                                        </div>
+                                                        <p className="text-sm font-black text-slate-800 my-2">
+                                                            {change.old_faculty_name || 'Unassigned'} <span className="text-slate-400 mx-1">→</span> <span className="text-[#008080]">{change.new_faculty_name || 'Unassigned'}</span>
+                                                        </p>
+                                                        <div className="mt-2 text-[9px] font-bold text-slate-500 bg-slate-50 px-3 py-1.5 rounded-lg w-fit">
+                                                            Changed by: {change.changed_by_name} ({change.changed_by_role})
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                ))
+                            ) : (
+                                <div className="py-20 text-center">
+                                    <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center text-slate-300 mx-auto mb-4">
+                                        <History size={32} />
+                                    </div>
+                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">No faculty changes recorded yet.</p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>;
 };
 const InfoItem = ({

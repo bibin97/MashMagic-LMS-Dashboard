@@ -1,5 +1,5 @@
 const express = require('express');
-const router = express.Router();
+\nconst { getFacultyChangeHistory } = require('../controllers/facultyHistoryController');
 const {
     getDropdownData,
     registerStudent,
@@ -158,3 +158,6 @@ router.get('/faculty-performance', getFacultyPerformance);
 router.post('/faculty-performance', saveFacultyPerformance);
 
 module.exports = router;
+
+// Get faculty change history
+router.get('/students/:id/faculty-history', verifyToken, getFacultyChangeHistory);

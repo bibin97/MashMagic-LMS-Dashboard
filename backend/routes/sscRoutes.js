@@ -1,5 +1,5 @@
 const express = require('express');
-const router = express.Router();
+\nconst { getFacultyChangeHistory } = require('../controllers/facultyHistoryController');
 const { getDashboardStats, getStudentsTrack, getDailyUpdates } = require('../controllers/sscController');
 const { getStudentById, saveExamPlan } = require('../controllers/aoeController');
 const { requireAuth } = require('../middleware/authMiddleware');
@@ -81,3 +81,6 @@ router.post('/timetable/batch', createBatchTimetable);
 
 module.exports = router;
 
+
+// Get faculty change history
+router.get('/students/:id/faculty-history', verifyToken, getFacultyChangeHistory);
