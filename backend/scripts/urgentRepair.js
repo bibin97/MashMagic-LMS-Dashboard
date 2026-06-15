@@ -51,9 +51,9 @@ async function main() {
 
     try {
         for (const email of targetEmails) {
-            // Check if user exists as active faculty in users table
+            // Check if user exists as active faculty in users table (using TRIM to ignore trailing spaces)
             const [users] = await db.query(
-                "SELECT id as user_id, name, email, phone_number, password FROM users WHERE email = ? AND role = 'faculty' AND status = 'active'", 
+                "SELECT id as user_id, name, email, phone_number, password FROM users WHERE TRIM(email) = ? AND TRIM(role) = 'faculty' AND TRIM(status) = 'active'", 
                 [email]
             );
 
@@ -63,11 +63,12 @@ async function main() {
             }
 
             const user = users[0];
+            const cleanEmail = user.email ? user.email.trim() : email;
 
             // Check if they already exist in faculties table by email
             const [existingFaculties] = await db.query(
-                "SELECT id FROM faculties WHERE email = ?",
-                [email]
+                "SELECT id FROM faculties WHERE TRIM(email) = ?",
+                [cleanEmail]
             );
 
             if (existingFaculties.length > 0) {
@@ -80,10 +81,10 @@ async function main() {
             
             await db.query(
                 "INSERT INTO faculties (name, email, phone_number, password, status, subject) VALUES (?, ?, ?, ?, 'active', NULL)",
-                [user.name, user.email, user.phone_number, user.password]
+                [user.name ? user.name.trim() : user.name, cleanEmail, user.phone_number, user.password]
             );
 
-            report.inserted.push({ email, name: user.name });
+            report.inserted.push({ email: cleanEmail, name: user.name });
         }
 
         // If we reach here without errors, commit the transaction
