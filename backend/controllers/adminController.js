@@ -2163,8 +2163,7 @@ module.exports = {
                 JOIN faculties f ON t.faculty_id = f.id
                 WHERE t.subject = ? 
                 AND NOT EXISTS (
-                    SELECT 1 FROM faculty_schedules fs 
-                    WHERE fs.faculty_id = t.faculty_id 
+                    SELECT 1 FROM faculty_schedules fs WHERE (fs.is_deleted IS NULL OR fs.is_deleted = 0) AND fs.faculty_id = t.faculty_id 
                     AND fs.day_of_week = t.day_of_week 
                     AND fs.start_time = t.start_time 
                     AND fs.end_time = t.end_time
@@ -2187,8 +2186,7 @@ module.exports = {
                 FROM faculty_timetable t
                 WHERE t.faculty_id = ? AND t.subject = ?
                 AND NOT EXISTS (
-                    SELECT 1 FROM faculty_schedules fs 
-                    WHERE fs.faculty_id = t.faculty_id 
+                    SELECT 1 FROM faculty_schedules fs WHERE (fs.is_deleted IS NULL OR fs.is_deleted = 0) AND fs.faculty_id = t.faculty_id 
                     AND fs.day_of_week = t.day_of_week 
                     AND fs.start_time = t.start_time 
                     AND fs.end_time = t.end_time

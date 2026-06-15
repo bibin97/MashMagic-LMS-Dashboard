@@ -270,8 +270,7 @@ const getAvailableFaculties = async (req, res) => {
 
         const [conflicts] = await db.query(`
             SELECT DISTINCT faculty_id 
-            FROM faculty_schedules fs 
-            WHERE (${conflictConditions}) 
+            FROM faculty_schedules fs WHERE (fs.is_deleted IS NULL OR fs.is_deleted = 0) AND (${conflictConditions}) 
             AND faculty_id IN (${placeholders})
         `, params);
 
