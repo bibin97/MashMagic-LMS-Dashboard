@@ -72,64 +72,85 @@ const getUserById = async (req, res) => {
 // @route   PUT /api/admin/approve/:id
 // @access  Private (super_admin, admin)
 const approveUser = async (req, res) => {
+    let transactionStarted = false;
     try {
         const { role } = req.body;
         const { id } = req.params;
         let result = { affectedRows: 0 };
         let nameRow;
 
+        // 1. Fetch user to ensure they exist
         if (role === 'student') {
             [[nameRow]] = await db.query('SELECT name FROM students WHERE id = ?', [id]);
-            if (nameRow) {
-                // Check if students table has isApproved column
-                const [cols] = await db.query('SHOW COLUMNS FROM students LIKE "isApproved"');
-                if (cols.length > 0) {
-                    [result] = await db.query('UPDATE students SET status = "active", isApproved = 1 WHERE id = ?', [id]);
-                } else {
-                    [result] = await db.query('UPDATE students SET status = "active" WHERE id = ?', [id]);
-                }
-                
-                const [[studentData]] = await db.query('SELECT user_id FROM students WHERE id = ?', [id]);
-                if (studentData?.user_id) {
-                    // Update user if linked
-                    const [userCols] = await db.query('SHOW COLUMNS FROM users LIKE "isApproved"');
-                    if (userCols.length > 0) {
-                        await db.query('UPDATE users SET status = "active", isApproved = 1, isActive = 1 WHERE id = ?', [studentData.user_id]);
-                    } else {
-                        await db.query('UPDATE users SET status = "active", isActive = 1 WHERE id = ?', [studentData.user_id]);
-                    }
-                }
-            }
         } else {
-            // 1. Try to find and update in users table first
-            [[nameRow]] = await db.query('SELECT name, role, email, phone_number FROM users WHERE id = ?', [id]);
-            if (nameRow) {
-                const [userCols] = await db.query('SHOW COLUMNS FROM users LIKE "isApproved"');
-                if (userCols.length > 0) {
-                    [result] = await db.query('UPDATE users SET status = "active", isApproved = 1, isActive = 1 WHERE id = ?', [id]);
-                } else {
-                    [result] = await db.query('UPDATE users SET status = "active", isActive = 1 WHERE id = ?', [id]);
-                }
-                
-                if (nameRow.role === 'faculty' || role === 'faculty') {
-                    const [facUpdate] = await db.query('UPDATE faculties SET status = "active" WHERE email = ? OR phone_number = ? OR name = ?', [nameRow.email, nameRow.phone_number, nameRow.name]);
-                    if (facUpdate.affectedRows === 0) {
-                        await db.query('INSERT INTO faculties (name, email, phone_number, status, subject) VALUES (?, ?, ?, ?, ?)', [nameRow.name, nameRow.email, nameRow.phone_number, 'active', null]);
-                    }
-                } else if (nameRow.role === 'mentor' || role === 'mentor') {
-                    const [menUpdate] = await db.query('UPDATE mentors SET status = "active" WHERE email = ? OR phone_number = ? OR name = ?', [nameRow.email, nameRow.phone_number, nameRow.name]);
-                    if (menUpdate.affectedRows === 0) {
-                        await db.query('INSERT INTO mentors (name, email, phone_number, status) VALUES (?, ?, ?, ?)', [nameRow.name, nameRow.email, nameRow.phone_number, 'active']);
-                    }
-                }
-            }
+            [[nameRow]] = await db.query('SELECT id as user_id, name, role, email, phone_number FROM users WHERE id = ?', [id]);
         }
 
-        if (!nameRow || result.affectedRows === 0) {
+        if (!nameRow) {
             return res.status(404).json({ success: false, message: "User/Student not found" });
         }
 
-        // Automatically clear all related "Pending Approval" notifications from the activity feed
+        // --- BEGIN TRANSACTION ---
+        await db.query('START TRANSACTION');
+        transactionStarted = true;
+
+        if (role === 'student') {
+            const [cols] = await db.query('SHOW COLUMNS FROM students LIKE "isApproved"');
+            if (cols.length > 0) {
+                [result] = await db.query('UPDATE students SET status = "active", isApproved = 1 WHERE id = ?', [id]);
+            } else {
+                [result] = await db.query('UPDATE students SET status = "active" WHERE id = ?', [id]);
+            }
+            
+            const [[studentData]] = await db.query('SELECT user_id FROM students WHERE id = ?', [id]);
+            if (studentData?.user_id) {
+                const [userCols] = await db.query('SHOW COLUMNS FROM users LIKE "isApproved"');
+                if (userCols.length > 0) {
+                    await db.query('UPDATE users SET status = "active", isApproved = 1, isActive = 1 WHERE id = ?', [studentData.user_id]);
+                } else {
+                    await db.query('UPDATE users SET status = "active", isActive = 1 WHERE id = ?', [studentData.user_id]);
+                }
+            }
+        } else {
+            const [userCols] = await db.query('SHOW COLUMNS FROM users LIKE "isApproved"');
+            if (userCols.length > 0) {
+                [result] = await db.query('UPDATE users SET status = "active", isApproved = 1, isActive = 1 WHERE id = ?', [id]);
+            } else {
+                [result] = await db.query('UPDATE users SET status = "active", isActive = 1 WHERE id = ?', [id]);
+            }
+            
+            if (nameRow.role === 'faculty' || role === 'faculty') {
+                // Duplicate check
+                const [facDup] = await db.query('SELECT id FROM faculties WHERE email = ? OR user_id = ?', [nameRow.email, nameRow.user_id]);
+                
+                if (facDup.length > 0) {
+                    // Update existing to ensure status is active and linked
+                    const [facUpdate] = await db.query('UPDATE faculties SET status = "active", user_id = ? WHERE id = ?', [nameRow.user_id, facDup[0].id]);
+                } else {
+                    // Insert new faculty
+                    await db.query('INSERT INTO faculties (user_id, name, email, phone_number, status, subject) VALUES (?, ?, ?, ?, ?, ?)', [nameRow.user_id, nameRow.name, nameRow.email, nameRow.phone_number, 'active', null]);
+                }
+                
+                // Verify faculty creation (Post-Commit readiness)
+                const [checkFac] = await db.query('SELECT id FROM faculties WHERE user_id = ?', [nameRow.user_id]);
+                if (checkFac.length === 0) throw new Error("Faculty record verification failed.");
+            } else if (nameRow.role === 'mentor' || role === 'mentor') {
+                const [menDup] = await db.query('SELECT id FROM mentors WHERE email = ?', [nameRow.email]);
+                if (menDup.length > 0) {
+                    await db.query('UPDATE mentors SET status = "active" WHERE id = ?', [menDup[0].id]);
+                } else {
+                    await db.query('INSERT INTO mentors (name, email, phone_number, status) VALUES (?, ?, ?, ?)', [nameRow.name, nameRow.email, nameRow.phone_number, 'active']);
+                }
+            }
+        }
+
+        // Remove from pending users handled implicitly since their status is no longer "pending"
+        
+        // --- COMMIT TRANSACTION ---
+        await db.query('COMMIT');
+        transactionStarted = false;
+
+        // Clear notifications
         try {
             await db.query(`
                 DELETE FROM admin_notifications 
@@ -142,12 +163,14 @@ const approveUser = async (req, res) => {
             ]);
         } catch (notifErr) {
             console.error("Error creating notification:", notifErr);
-            // Don't fail the approval if notification fails
         }
         res.status(200).json({ success: true, message: "Approved successfully" });
     } catch (error) {
+        if (transactionStarted) {
+            await db.query('ROLLBACK');
+        }
         console.error("APPROVE_USER_ERROR:", error);
-        res.status(500).json({ success: false, message: "Server Error", error: error.message });
+        res.status(500).json({ success: false, message: "Server Error during approval transaction", error: error.message });
     }
 };
 
@@ -1466,6 +1489,60 @@ const getAHParentMeetings = async (req, res) => {
         `);
         res.json({ success: true, data: rows });
     } catch (error) { res.status(500).json({ success: false, message: error.message }); }
+};
+
+// @desc    Admin Health Check
+// @route   GET /api/admin/health-check
+// @access  Private (super_admin)
+const healthCheck = async (req, res) => {
+    try {
+        const [missingFaculties] = await db.query(`
+            SELECT u.id, u.name, u.email 
+            FROM users u 
+            LEFT JOIN faculties f ON u.email = f.email OR u.id = f.user_id 
+            WHERE u.role = 'faculty' AND u.status = 'active' AND f.id IS NULL
+        `);
+
+        const [dupEmails] = await db.query(`
+            SELECT email, COUNT(*) as count 
+            FROM faculties 
+            GROUP BY email 
+            HAVING count > 1
+        `);
+
+        const [dupUsers] = await db.query(`
+            SELECT user_id, COUNT(*) as count 
+            FROM faculties 
+            WHERE user_id IS NOT NULL
+            GROUP BY user_id 
+            HAVING count > 1
+        `);
+
+        const [orphans] = await db.query(`
+            SELECT f.id, f.email, f.user_id 
+            FROM faculties f 
+            LEFT JOIN users u ON f.email = u.email OR f.user_id = u.id 
+            WHERE u.id IS NULL
+        `);
+
+        res.status(200).json({
+            success: true,
+            data: {
+                missingFaculties: missingFaculties.length,
+                missingFacultiesData: missingFaculties,
+                duplicateFacultyEmails: dupEmails.length,
+                duplicateFacultyEmailsData: dupEmails,
+                duplicateFacultyUserIds: dupUsers.length,
+                duplicateFacultyUserIdsData: dupUsers,
+                orphanFaculties: orphans.length,
+                orphanFacultiesData: orphans,
+                isHealthy: missingFaculties.length === 0 && dupEmails.length === 0 && dupUsers.length === 0
+            }
+        });
+    } catch (error) {
+        console.error("HEALTH_CHECK_ERROR:", error);
+        res.status(500).json({ success: false, message: "Health check failed", error: error.message });
+    }
 };
 
 module.exports = {

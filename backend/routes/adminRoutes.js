@@ -49,7 +49,8 @@ const {
     removeFacultyTimetableSlot,
     getAvailableFacultiesForSubject,
     getAvailableSlotsForFaculty,
-    getStudentSchedules
+    getStudentSchedules,
+    healthCheck
 } = require('../controllers/adminController');
 
 const { updateInteractionLog, getInteractionHistory } = require('../controllers/mentorHeadController');
@@ -137,6 +138,9 @@ router.put('/block/:id', requireRole('super_admin', 'sub_admin'), blockUser);
 router.put('/users/:id', requireRole('super_admin', 'sub_admin'), updateUserForAdmin);
 router.put('/students/:id', requireRole('super_admin', 'sub_admin'), updateStudentForAdmin);
 router.post('/students/:id/installments', requireRole('super_admin', 'sub_admin'), addStudentInstallment);
+
+// Health Check
+router.get('/health-check', requireRole('super_admin'), healthCheck);
 
 // Fees Management
 router.get('/fees/:entity_type', requireRole('super_admin', 'sub_admin'), getFees);

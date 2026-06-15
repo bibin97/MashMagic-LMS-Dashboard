@@ -409,6 +409,7 @@ const Timetable = () => {
     toast.success(`${newSessions.length} session(s) added to list`);
     setFormData({
       ...formData,
+      date: [],
       start_time: '',
       end_time: '',
       chapter: '',

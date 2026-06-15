@@ -160,11 +160,11 @@ exports.createSession = async (req, res) => {
 
         // Check for duplicates
         const [existing] = await db.query(
-            'SELECT id FROM timetable WHERE student_id = ? AND date = ? AND start_time = ? AND end_time = ? AND chapter = ?',
-            [student_id, date, formattedStartTime, formattedEndTime, chapter]
+            'SELECT id FROM timetable WHERE student_id = ? AND date = ? AND start_time = ? AND end_time = ? AND chapter = ? AND (faculty_id = ? OR (? IS NULL AND faculty_id IS NULL))',
+            [student_id, date, formattedStartTime, formattedEndTime, chapter, faculty_id || null, faculty_id || null]
         );
         if (existing.length > 0) {
-            return res.status(409).json({ success: false, message: "Duplicate timetable entry already exists for this slot." });
+            return res.status(409).json({ success: false, message: "Duplicate timetable entry already exists for this slot with the same faculty." });
         }
 
         const [result] = await db.query(`
