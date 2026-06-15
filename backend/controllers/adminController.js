@@ -544,7 +544,8 @@ const getAllStudentLogs = async (req, res) => {
                     'followup_required', l.followup_required,
                     'followup_date', l.followup_date,
                     'student_status', l.student_status,
-                    'session_quality_rating', l.session_quality_rating
+                    'session_quality_rating', l.session_quality_rating,
+                    'files', l.interaction_files
                 ) as report_data
             FROM mentor_session_logs l
             LEFT JOIN users u ON l.mentor_id = u.id AND u.role = 'mentor'
@@ -583,7 +584,8 @@ const getAllStudentLogs = async (req, res) => {
                     'student_requests', logs.student_requests,
                     'parent_update_priority', logs.parent_update_priority,
                     'mentor_action_needed', logs.mentor_action_needed,
-                    'connected_today', logs.connected_today
+                    'connected_today', logs.connected_today,
+                    'files', logs.screenshot_url
                 ) as report_data
             FROM student_interaction_logs logs
             LEFT JOIN users u ON logs.mentor_id = u.id AND u.role = 'mentor'

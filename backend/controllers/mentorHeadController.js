@@ -174,7 +174,8 @@ exports.getStudentInteractionLogs = async (req, res) => {
                         'student_requests', sil.student_requests,
                         'parent_update_priority', sil.parent_update_priority,
                         'mentor_action_needed', sil.mentor_action_needed,
-                        'connected_today', sil.connected_today
+                        'connected_today', sil.connected_today,
+                        'files', sil.screenshot_url
                     ) as report_data
                 FROM student_interaction_logs sil
                 LEFT JOIN users u ON sil.mentor_id = u.id AND u.role = 'mentor'
@@ -216,7 +217,8 @@ exports.getStudentInteractionLogs = async (req, res) => {
                         'followup_required', msl.followup_required,
                         'followup_date', msl.followup_date,
                         'student_status', msl.student_status,
-                        'session_quality_rating', msl.session_quality_rating
+                        'session_quality_rating', msl.session_quality_rating,
+                        'files', msl.interaction_files
                     ) as report_data
                 FROM mentor_session_logs msl
                 LEFT JOIN users u ON msl.mentor_id = u.id AND u.role = 'mentor'
