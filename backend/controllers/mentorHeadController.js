@@ -1777,7 +1777,7 @@ exports.updateInteractionLog = async (req, res) => {
         let tableName = '';
         let oldDataQuery = '';
         
-        if (source === 'Interaction Hub') {
+        if (source === 'Interaction Hub' || source.startsWith('Hub:')) {
             tableName = 'mentor_session_reports';
             oldDataQuery = 'SELECT report_data FROM mentor_session_reports WHERE id = ?';
         } else if (source === 'Session Log') {
