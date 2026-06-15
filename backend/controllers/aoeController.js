@@ -710,8 +710,13 @@ const editStudent = async (req, res) => {
             await db.query(userUpdateQuery, userParams);
         }
 
-        // --- SYNC FACULTY SCHEDULES ---
-        await db.query('UPDATE faculty_schedules SET is_deleted = 1, deleted_at = CURRENT_TIMESTAMP WHERE student_id = ?', [id]);
+        // --- SYNC FACULTY SCHEDULES --- (soft delete existing, then re-insert)
+        try {
+            await db.query('UPDATE faculty_schedules SET is_deleted = 1, deleted_at = CURRENT_TIMESTAMP WHERE student_id = ?', [id]);
+        } catch (softErr) {
+            // Fallback: delete physically if is_deleted column missing
+            await db.query('DELETE FROM faculty_schedules WHERE student_id = ?', [id]);
+        }
 
         if (finalSubjects && Array.isArray(finalSubjects) && finalSubjects.length > 0) {
             for (const sub of finalSubjects) {

@@ -150,13 +150,19 @@ const approveUser = async (req, res) => {
         await db.query('COMMIT');
         transactionStarted = false;
 
-        // Clear notifications
+        // Clear notifications (soft delete - hide from UI)
         try {
-            await db.query(`
-                DELETE FROM admin_notifications 
-                WHERE related_id = ? 
-                AND action_type IN ('student_registration', 'faculty_registration', 'mentor_registration', 'ssc_registration', 'faculty_onboarding', 'mentor_head_onboarding')
-            `, [id]);
+            // Try soft delete first, fallback to hard delete if column missing
+            try {
+                await db.query(`
+                    UPDATE admin_notifications SET is_deleted = 1, deleted_at = CURRENT_TIMESTAMP
+                    WHERE related_id = ? 
+                    AND action_type IN ('student_registration', 'faculty_registration', 'mentor_registration', 'ssc_registration', 'faculty_onboarding', 'mentor_head_onboarding')
+                `, [id]);
+            } catch (softErr) {
+                // Column may not exist yet - skip notification clear
+                console.warn('Soft delete skipped for notifications (column may be missing):', softErr.message);
+            }
 
             await db.query('INSERT INTO admin_notifications (message) VALUES (?)', [
                 `<b>Approval Success:</b> ${nameRow?.name || id} is now <span style="color:#008080">Active</span>.`
@@ -318,12 +324,16 @@ const rejectUser = async (req, res) => {
         if (result.affectedRows === 0) {
             return res.status(404).json({ success: false, message: "User/Student not found" });
         }
-        // Automatically clear all related "Pending Approval" notifications from the activity feed
-        await db.query(`
-            DELETE FROM admin_notifications 
-            WHERE related_id = ? 
-            AND action_type IN ('student_registration', 'faculty_registration', 'mentor_registration', 'ssc_registration', 'faculty_onboarding', 'mentor_head_onboarding')
-        `, [id]);
+        // Automatically clear all related "Pending Approval" notifications from the activity feed (soft delete)
+        try {
+            await db.query(`
+                UPDATE admin_notifications SET is_deleted = 1, deleted_at = CURRENT_TIMESTAMP
+                WHERE related_id = ? 
+                AND action_type IN ('student_registration', 'faculty_registration', 'mentor_registration', 'ssc_registration', 'faculty_onboarding', 'mentor_head_onboarding')
+            `, [id]);
+        } catch (softErr) {
+            console.warn('Soft delete skipped for reject notifications:', softErr.message);
+        }
 
         res.status(200).json({ success: true, message: "Registration rejected" });
     } catch (error) {
