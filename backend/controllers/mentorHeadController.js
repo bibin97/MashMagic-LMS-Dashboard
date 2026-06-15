@@ -1811,10 +1811,26 @@ exports.updateInteractionLog = async (req, res) => {
         }
 
         // Save history
-        await db.query(
-            'INSERT INTO interaction_edit_history (log_id, log_source, edited_by, edited_by_role, previous_data, new_data) VALUES (?, ?, ?, ?, ?, ?)',
-            [id, source, req.user.id, req.user.role, JSON.stringify(oldData), JSON.stringify(newData)]
-        );
+        try {
+            await db.query(`
+                CREATE TABLE IF NOT EXISTS interaction_edit_history (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    log_id INT NOT NULL,
+                    log_source VARCHAR(50) NOT NULL,
+                    edited_by INT NOT NULL,
+                    edited_by_role VARCHAR(50),
+                    previous_data JSON,
+                    new_data JSON,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            `);
+            await db.query(
+                'INSERT INTO interaction_edit_history (log_id, log_source, edited_by, edited_by_role, previous_data, new_data) VALUES (?, ?, ?, ?, ?, ?)',
+                [id, source, req.user.id, req.user.role, JSON.stringify(oldData), JSON.stringify(newData)]
+            );
+        } catch (historyErr) {
+            console.error("Failed to save history:", historyErr);
+        }
 
         res.status(200).json({ success: true, message: 'Log updated successfully' });
     } catch (error) {
@@ -1828,6 +1844,20 @@ exports.updateInteractionLog = async (req, res) => {
 exports.getInteractionHistory = async (req, res) => {
     try {
         const { source, id } = req.params;
+        
+        // Ensure table exists
+        await db.query(`
+            CREATE TABLE IF NOT EXISTS interaction_edit_history (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                log_id INT NOT NULL,
+                log_source VARCHAR(50) NOT NULL,
+                edited_by INT NOT NULL,
+                edited_by_role VARCHAR(50),
+                previous_data JSON,
+                new_data JSON,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
         
         const [history] = await db.query(`
             SELECT h.*, u.name as editor_name 
