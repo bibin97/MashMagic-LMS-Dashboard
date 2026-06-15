@@ -441,6 +441,35 @@ const StudentInteractionLog = () => {
                        })}
                     {assignedStudents.filter(s => {
                         const sStatus = s.status?.toUpperCase() || 'PENDING';
+                        const matchesStatus = statusFilter === 'completed' ? (sStatus === 'COMPLETED' || sStatus === 'CANCELLED') : (sStatus !== 'COMPLETED' && sStatus !== 'CANCELLED');
+                        const matchesTab = activeTab === 'both' ? isDiamondCategory(s) : isGoldCategory(s);
+                        return matchesStatus && matchesTab;
+                    }).length === 0 && (
+                      <div className="col-span-full py-20 text-center bg-slate-50/50 rounded-[3rem] border border-dashed border-slate-200 animate-in fade-in zoom-in duration-500">
+                         <p className="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">All students in your today's fleet are {statusFilter === 'pending' ? 'accounted for' : 'awaiting action'}.</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+   );
+ }
+
+ // Interaction Form Screen
+ return (
+   <div className="max-w-4xl mx-auto space-y-10 p-6 pb-20 animate-in fade-in slide-in-from-bottom-4 duration-500">
+     <button
+       onClick={() => { setSelectedStudent(null); setSubmitted(false); setIsEditingLog(false); }}
+       className="flex items-center gap-2 text-slate-600 hover:text-[#008080] font-black text-[10px] uppercase tracking-widest transition-colors mb-4"
+     >
+       <ArrowLeft size={16} /> Return to Dashboard
+     </button>
+
+     <header className={`border p-10 rounded-[3rem] shadow-2xl relative overflow-hidden transition-all ${sessionType === 'CANCELLED' ? 'bg-slate-900 border-slate-800' : sessionType === 'DEEP' ? 'bg-rose-950 border-rose-900' : sessionType === 'MEDIUM' ? 'bg-amber-950 border-amber-900' : sessionType === 'QUICK' ? 'bg-blue-950 border-blue-900' : 'bg-[#008080] border-slate-800'}`}>
         <div className={`absolute top-0 right-0 w-80 h-80 rounded-full -mr-40 -mt-40 opacity-10 ${sessionType === 'CANCELLED' ? 'bg-slate-500' : sessionType === 'DEEP' ? 'bg-rose-500' : sessionType === 'MEDIUM' ? 'bg-amber-500' : sessionType === 'QUICK' ? 'bg-blue-500' : 'bg-[#008080]'}`}></div>
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="flex items-center gap-6">
