@@ -6,71 +6,40 @@ import toast from 'react-hot-toast';
 import MultiDatePicker from "react-multi-date-picker";
 const DatePicker = MultiDatePicker.default ? MultiDatePicker.default : MultiDatePicker;
 const DEEP_QUESTION_LABELS = {
-  student_status_before: 'Student Status Before Session',
-  main_problem: 'Main Problem/Concern Raised',
-  root_cause: 'Root Cause of the Problem',
-  mentor_guidance: 'Mentor Guidance / Advice Provided',
-  action_plan: 'Agreed Action Plan / Next Steps',
-  student_response: 'Student Response / Motivation Level',
-  followup_required: 'Is Follow-up Required?',
-  followup_when: 'Follow-up Date / Timeline',
-  priority_tag: 'Priority Level (Category)',
-  next_session_type: 'Next Session Scheduled Type',
-  session_date: 'Session Date',
-  main_issue: 'Main Issue',
-  secondary_issue: 'Secondary Issue',
-  weak_subject: 'Weak Subject',
-  consistency_rating: 'Consistency Rating',
-  focus_rating: 'Focus Rating',
-  effort_level: 'Effort Level',
-  homework_status: 'Homework Status',
-  action_type: 'Action Type',
-  action_details: 'Action Details',
-  follow_up_required: 'Follow-up Required?',
-  follow_up_date: 'Follow-up Date',
-  priority: 'Priority',
+  student_status_before: 'Planned Task Completed?',
+  main_problem: 'Main Problem',
+  root_cause: 'Root Cause',
+  mentor_guidance: 'Mentor Guidance',
+  action_plan: 'Action Plan',
+  student_response: 'Student Response',
+  followup_required: 'Follow-up Required?',
+  followup_when: 'When?',
+  next_session_type: 'Next Attention Level',
+  quick_notes: 'Additional Notes',
+  // legacy
   student_status: 'Student Status'
 };
 const MEDIUM_QUESTION_LABELS = {
-  progress: 'Current Progress Status',
-  class_attendance: 'Class Attendance Status',
-  issue_found: 'Any Issues Found?',
-  issue_category: 'Issue Category',
-  quick_guidance: 'Quick Guidance Provided',
-  next_task: 'Next Task / Action Required',
-  upgrade_to_deep: 'Should Upgrade to DEEP Session?',
-  next_session_type: 'Next Session Scheduled Type',
-  connection_method: 'Connection Method',
-  session_duration_minutes: 'Session Duration (Minutes)',
-  focus_level: 'Focus Level',
-  energy_level: 'Energy Level',
-  stress_level: 'Stress Level',
-  homework_status: 'Homework Status',
-  revision_done: 'Revision Done',
-  doubts_present: 'Doubts Present',
-  main_issue: 'Main Issue',
-  secondary_issue: 'Secondary Issue',
-  weak_subject: 'Weak Subject',
-  problem_clarity: 'Problem Clarity',
-  action_type: 'Action Type',
-  action_detail: 'Action Detail',
-  action_specific: 'Action Specific / Task Assigned',
-  student_engagement: 'Student Engagement',
-  understanding_after_session: 'Understanding After Session',
-  previous_task_status: 'Previous Task Status',
-  followup_required: 'Follow-up Required?',
-  followup_date: 'Follow-up Date',
-  student_status: 'Student Status',
-  session_quality_rating: 'Session Quality Rating'
+  progress: 'Progress Since Last Session',
+  class_attendance: 'Class Attendance',
+  issue_found: 'Any Issue Found?',
+  quick_guidance: 'Guidance Given',
+  next_task: 'Next Task Assigned',
+  upgrade_to_deep: 'Need Deep Session?',
+  next_session_type: 'Next Attention Level',
+  quick_notes: 'Additional Notes',
+  // legacy
+  issue_category: 'Issue Category'
 };
 const QUICK_QUESTION_LABELS = {
-  availability: 'Call Availability Status',
-  study_status: 'Today\'s Study Status',
-  attendance: 'Attendance Confirmed',
-  immediate_concern: 'Any Immediate Concerns?',
-  motivation_given: 'Motivation/Encouragement Given?',
-  quick_notes: 'Session Discussion Notes',
-  next_session_type: 'Next Session Scheduled Type',
+  availability: 'Student Available?',
+  study_status: 'Study Status',
+  attendance: 'Class Attendance',
+  immediate_concern: 'Immediate Concern?',
+  immediate_concern_category: 'Concern Category',
+  next_session_type: 'Next Attention Level',
+  quick_notes: 'Additional Notes'
+  // legacy
   connection_method: 'Connection Method',
   self_clarity: 'Self Clarity',
   confusing_topic: 'Confusing Topic',
@@ -951,7 +920,7 @@ const CommonInteractionLogs = ({
                                                                                         </p>
                                                                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                                                             {Object.entries(parsedReportData).map(([key, val]) => {
-                                if (['notes', 'quick_notes', 'notes_text', 'root_cause', 'mentor_guidance', 'action_plan', 'quick_guidance', 'next_task', 'study_status'].includes(key)) return null;
+                                if (['notes', 'notes_text'].includes(key)) return null;
                                 let label = key.replace(/_/g, ' ');
                                 label = label.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
                                 const sessionTypeUpper = (log.session_type || '').toUpperCase();
@@ -963,9 +932,9 @@ const CommonInteractionLogs = ({
                                   label = QUICK_QUESTION_LABELS[key];
                                 }
                                 if (val === null || val === undefined || val === '') return null;
-                                return <div key={key} className="p-6 bg-slate-50 border border-slate-100 rounded-3xl flex flex-col gap-2 shadow-inner">
+                                return <div key={key} className={`p-6 bg-slate-50 border border-slate-100 rounded-3xl flex flex-col gap-2 shadow-inner ${String(val).length > 50 ? 'col-span-1 md:col-span-2' : ''}`}>
                                                                                                         <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{label}</span>
-                                                                                                        <span className="text-sm font-bold text-slate-800 leading-relaxed">{String(val)}</span>
+                                                                                                        <span className="text-sm font-bold text-slate-800 leading-relaxed whitespace-pre-wrap">{String(val)}</span>
                                                                                                     </div>;
                               })}
                                                                                         </div>
@@ -1113,7 +1082,7 @@ const CommonInteractionLogs = ({
                                                             </p>
                                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                                 {Object.entries(parsedReportData).map(([key, val]) => {
-                      if (['notes', 'quick_notes', 'notes_text', 'root_cause', 'mentor_guidance', 'action_plan', 'quick_guidance', 'next_task', 'study_status'].includes(key)) return null;
+                      if (['notes', 'notes_text'].includes(key)) return null;
                       let label = key.replace(/_/g, ' ');
                       label = label.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
                       const sessionTypeUpper = (log.session_type || '').toUpperCase();
