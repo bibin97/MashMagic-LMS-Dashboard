@@ -202,18 +202,11 @@ const generateAssignments = async (mentor_id, today) => {
         deep.push({ ...s, sessionType: 'DEEP', status: 'PENDING' });
     }
 
-    // Sort the rest by priority to decide who gets Deep/Med/Quick
-    const priorityWeight = { 'High': 3, 'Medium': 2, 'Low': 1 };
-    restPool.sort((a, b) => (priorityWeight[b.priority_category] || 0) - (priorityWeight[a.priority_category] || 0));
-
-    // Fill quotas: 5 DEEP, 5 MEDIUM, remaining QUICK
-    const maxDeep = 5;
-    const maxMedium = 5;
-
+    // Assign directly based on mentor's explicit priority selection
     for (let s of restPool) {
-        if (deep.length < maxDeep) {
+        if (s.priority_category === 'High') {
             deep.push({ ...s, sessionType: 'DEEP', status: 'PENDING' });
-        } else if (medium.length < maxMedium) {
+        } else if (s.priority_category === 'Medium') {
             medium.push({ ...s, sessionType: 'MEDIUM', status: 'PENDING' });
         } else {
             quick.push({ ...s, sessionType: 'QUICK', status: 'PENDING' });
