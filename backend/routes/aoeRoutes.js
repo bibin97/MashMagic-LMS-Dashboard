@@ -61,7 +61,8 @@ const {
     addExamScore,
     getFacultyPerformance,
     saveFacultyPerformance,
-    toggleDemoSuccess
+    toggleDemoSuccess,
+    getNextDemoId
 } = require('../controllers/aoeController');
 
 // Debug route
@@ -144,6 +145,7 @@ router.put('/parent-meetings/:id/report', reportAHParentMeeting);
 
 // Demo Schedules
 router.get('/demo-schedules', getDemoSchedules);
+router.get('/demo-schedules/next-id', getNextDemoId);
 router.post('/demo-schedules', createDemoSchedule);
 router.put('/demo-schedules/:id', editDemoSchedule);
 router.delete('/demo-schedules/:id', deleteDemoSchedule);

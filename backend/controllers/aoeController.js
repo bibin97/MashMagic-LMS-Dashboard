@@ -1101,18 +1101,60 @@ const fixDemoIds = async (req, res) => {
     }
 };
 
+const getNextDemoId = async (req, res) => {
+    try {
+        const { type } = req.query; // 'demo' or 'pre-demo'
+        const prefix = 'DE';
+        const [rows] = await db.query(
+            'SELECT demo_id FROM aoe_demo_schedules WHERE type = ? AND demo_id IS NOT NULL AND demo_id != "" ORDER BY created_at ASC',
+            [type || 'demo']
+        );
+        // Extract numbers from existing IDs of this type
+        const usedNumbers = rows
+            .map(r => r.demo_id)
+            .filter(id => id && id.startsWith(prefix))
+            .map(id => parseInt(id.slice(prefix.length), 10))
+            .filter(n => !isNaN(n));
+
+        let nextNum = 1;
+        while (usedNumbers.includes(nextNum)) nextNum++;
+        const nextId = `${prefix}${String(nextNum).padStart(2, '0')}`;
+        res.status(200).json({ success: true, next_id: nextId });
+    } catch (error) {
+        console.error('GET_NEXT_DEMO_ID_ERROR:', error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
 const createDemoSchedule = async (req, res) => {
     try {
-        const { demo_id, type, date, student_name, student_type, syllabus, section, subject, faculty_id, start_time, end_time, hour_rate, meeting_link } = req.body;
+        const { type, date, student_name, student_type, syllabus, section, subject, faculty_id, start_time, end_time, hour_rate, meeting_link } = req.body;
         const aoe_id = req.user.id;
+        const demoType = type || 'demo';
+        const prefix = 'DE';
+
+        // Auto-generate unique demo_id for this type
+        const [rows] = await db.query(
+            'SELECT demo_id FROM aoe_demo_schedules WHERE type = ? AND demo_id IS NOT NULL AND demo_id != "" ORDER BY created_at ASC',
+            [demoType]
+        );
+        const usedNumbers = rows
+            .map(r => r.demo_id)
+            .filter(id => id && id.startsWith(prefix))
+            .map(id => parseInt(id.slice(prefix.length), 10))
+            .filter(n => !isNaN(n));
+
+        let nextNum = 1;
+        while (usedNumbers.includes(nextNum)) nextNum++;
+        const auto_demo_id = `${prefix}${String(nextNum).padStart(2, '0')}`;
 
         await db.query(`
             INSERT INTO aoe_demo_schedules 
                 (aoe_id, demo_id, type, date, student_name, student_type, syllabus, section, subject, faculty_id, start_time, end_time, hour_rate, meeting_link)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        `, [aoe_id, demo_id || null, type || 'demo', date || null, student_name, student_type || 'new', syllabus || null, section || null, subject || null, faculty_id || null, start_time || null, end_time || null, hour_rate || 0, meeting_link || null]);
+        `, [aoe_id, auto_demo_id, demoType, date || null, student_name, student_type || 'new', syllabus || null, section || null, subject || null, faculty_id || null, start_time || null, end_time || null, hour_rate || 0, meeting_link || null]);
 
-        res.status(201).json({ success: true, message: 'Demo schedule created successfully' });
+        res.status(201).json({ success: true, message: 'Demo schedule created successfully', demo_id: auto_demo_id });
     } catch (error) {
         console.error("CREATE_DEMO_ERROR:", error);
         res.status(500).json({ success: false, message: error.message });
@@ -1498,6 +1540,7 @@ module.exports = {
     scheduleAHParentMeeting,
     reportAHParentMeeting,
     getDemoSchedules,
+    getNextDemoId,
     createDemoSchedule,
     editDemoSchedule,
     deleteDemoSchedule,

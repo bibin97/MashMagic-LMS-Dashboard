@@ -32,6 +32,8 @@ const AOEDemoSchedule = () => {
   const [demoList, setDemoList] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
 	const deferredSearchTerm = useDeferredValue(searchTerm);
+  const [nextDemoId, setNextDemoId] = useState('DE01');
+  const [nextPreDemoId, setNextPreDemoId] = useState('DE01');
   const navigate = useNavigate();
 
   // Current time state for Live button logic
@@ -88,6 +90,7 @@ const AOEDemoSchedule = () => {
     fetchFaculties();
     fetchStudents();
     fetchDemos();
+    fetchNextIds();
     
     // Update time every minute
     const interval = setInterval(() => {
@@ -135,14 +138,22 @@ const AOEDemoSchedule = () => {
     }
   };
 
+  const fetchNextIds = async () => {
+    try {
+      const [demoRes, preDemoRes] = await Promise.all([
+        api.get('/aoe/demo-schedules/next-id?type=demo'),
+        api.get('/aoe/demo-schedules/next-id?type=pre-demo')
+      ]);
+      if (demoRes.data.success) setNextDemoId(demoRes.data.next_id);
+      if (preDemoRes.data.success) setNextPreDemoId(preDemoRes.data.next_id);
+    } catch (error) {
+      console.error('Failed to fetch next demo IDs', error);
+    }
+  };
+
 
   const handlePreDemoSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.demo_id) {
-      toast.error('Please enter a Demo ID');
-      return;
-    }
-    
     try {
       const scheduleRes = await api.post('/aoe/demo-schedules', { ...formData, type: 'pre-demo', status: 'completed' });
       const newId = scheduleRes.data.demo?.id || scheduleRes.data.id;
@@ -158,6 +169,7 @@ const AOEDemoSchedule = () => {
       });
       setEvalData({ prep_score: 0, comm_score: 0, concept_score: 0, engage_score: 0, parent_score: 0, remarks: '' });
       fetchDemos();
+      fetchNextIds();
     } catch (error) {
       console.error(error);
       toast.error('Failed to create pre-demo evaluation');
@@ -202,6 +214,7 @@ const AOEDemoSchedule = () => {
       });
       setActiveTab(isPreDemo ? 'pre-demo' : 'demo');
       fetchDemos();
+      fetchNextIds();
     } catch (error) {
       toast.error(error.response?.data?.message || (formData.id ? 'Failed to update schedule' : 'Failed to create schedule'));
     }
@@ -337,15 +350,13 @@ const AOEDemoSchedule = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
                 <div className="space-y-2">
                   <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 flex items-center gap-2">
-                    <Target size={12}/> Demo ID *
+                    <Target size={12}/> Pre-Demo ID (Auto)
                   </label>
-                  <input
-                    type="text" required
-                    value={formData.demo_id}
-                    onChange={(e) => setFormData({ ...formData, demo_id: e.target.value })}
-                    className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
-                    placeholder="Enter Demo ID"
-                  />
+                  <div className="w-full p-4 bg-[#008080]/10 border-2 border-[#008080]/30 rounded-2xl text-sm font-black text-[#008080] tracking-widest flex items-center gap-2">
+                    <Target size={14} className="shrink-0" />
+                    {nextPreDemoId}
+                    <span className="ml-auto text-[9px] font-bold text-slate-400 uppercase">Auto-assigned</span>
+                  </div>
                 </div>
 
                 <div className="space-y-2 relative">
@@ -449,15 +460,23 @@ const AOEDemoSchedule = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div className="space-y-2">
                 <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 flex items-center gap-2">
-                  <Target size={12}/> Demo ID *
+                  <Target size={12}/> Demo ID {formData.id ? '(Editable)' : '(Auto)'}
                 </label>
-                <input
-                  type="text" required
-                  value={formData.demo_id}
-                  onChange={(e) => setFormData({ ...formData, demo_id: e.target.value })}
-                  className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
-                  placeholder="Enter Demo ID"
-                />
+                {formData.id ? (
+                  <input
+                    type="text" required
+                    value={formData.demo_id}
+                    onChange={(e) => setFormData({ ...formData, demo_id: e.target.value })}
+                    className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
+                    placeholder="Demo ID"
+                  />
+                ) : (
+                  <div className="w-full p-4 bg-[#008080]/10 border-2 border-[#008080]/30 rounded-2xl text-sm font-black text-[#008080] tracking-widest flex items-center gap-2">
+                    <Target size={14} className="shrink-0" />
+                    {nextDemoId}
+                    <span className="ml-auto text-[9px] font-bold text-slate-400 uppercase">Auto-assigned</span>
+                  </div>
+                )}
               </div>
 
               <div className="space-y-2">
