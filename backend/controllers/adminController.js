@@ -2124,5 +2124,6 @@ module.exports = {
             const [rows] = await db.query(sql);
             res.status(200).json({ success: true, data: rows });
         } catch (e) { res.status(500).json({ success: false, message: e.message }); }
-    }
+    },
+    healthCheck
 };
