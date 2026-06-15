@@ -28,14 +28,9 @@ const AOELayout = () => {
  { path: '/aoe/students', icon: <GraduationCap size={18} />, label: 'Students' },
  { path: '/aoe/mentors', icon: <Users size={18} />, label: 'Mentors' },
  { path: '/aoe/faculties', icon: <Briefcase size={18} />, label: 'Faculties' },
-  { path: '/aoe/live-monitoring', icon: <Activity size={18} />, label: 'Live Monitoring' },
   { path: '/aoe/academic-schedule', icon: <ScrollText size={18} />, label: 'Academic Schedule' },
-  { path: '/aoe/tasks', icon: <Briefcase size={18} />, label: 'Workforce Tasks' },
-  { path: '/aoe/interactions', icon: <MessageSquare size={18} />, label: 'Interactions' },
   { path: '/aoe/meetings', icon: <Presentation size={18} />, label: 'Parent Meetings' },
-  { path: '/aoe/checking', icon: <ShieldAlert size={18} />, label: 'Institutional Audit' },
   { path: '/aoe/demo-schedule', icon: <CalendarDays size={18} />, label: 'Demo Schedule' },
-  { path: '/aoe/daily-updates', icon: <ScrollText size={18} />, label: 'Daily Updates' },
   { path: '/aoe/exam-scores', icon: <ScrollText size={18} />, label: 'Exam Scores' },
  ];
 
