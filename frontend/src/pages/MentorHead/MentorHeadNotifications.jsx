@@ -83,8 +83,8 @@ const MentorHeadNotifications = () => {
       }
     }, {
       title: 'Clear Notifications',
-      message: 'Are you sure you want to permanently clear all notifications? This action will remove all alerts from the database and cannot be undone.',
-      type: 'danger'
+      message: 'Are you sure you want to clear all notifications? This action will hide all alerts from your view.',
+      type: 'warning'
     });
   };
 
