@@ -327,6 +327,7 @@ const getPendingUsers = async (req, res) => {
             LEFT JOIN users rb ON u.registeredBy = rb.id
             WHERE u.status = "pending"
             AND u.role != 'student'
+            AND (u.is_deleted IS NULL OR u.is_deleted = 0)
         `);
 
         // 2. Fetch student users
@@ -1173,7 +1174,7 @@ const getAllStudentsForAdmin = async (req, res) => {
                 enrollment_type,
                 admission_type,
                 subjects_json
-            FROM students WHERE 1=1
+            FROM students WHERE (is_deleted IS NULL OR is_deleted = 0)
         `;
         let params = [];
 

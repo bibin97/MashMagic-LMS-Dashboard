@@ -28,6 +28,7 @@ app.use('/api/upload', require('./routes/uploadRoutes'));
 app.use('/api/tasks', require('./routes/taskRoutes'));
 app.use('/api/register', require('./routes/registrationRoutes'));
 app.use('/api/mentor-head', require('./routes/mentorHeadRoutes'));
+app.use('/api/recovery', require('./routes/recoveryRoutes'));
 app.use('/api/mentor', require('./routes/mentorRoutes'));
 app.use('/api/academic-head', require('./routes/academicHeadRoutes'));
 app.use('/api/aoe', require('./routes/aoeRoutes'));
