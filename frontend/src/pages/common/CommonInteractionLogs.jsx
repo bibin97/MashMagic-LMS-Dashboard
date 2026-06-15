@@ -38,7 +38,7 @@ const QUICK_QUESTION_LABELS = {
   immediate_concern: 'Immediate Concern?',
   immediate_concern_category: 'Concern Category',
   next_session_type: 'Next Attention Level',
-  quick_notes: 'Additional Notes'
+  quick_notes: 'Additional Notes',
   // legacy
   connection_method: 'Connection Method',
   self_clarity: 'Self Clarity',
