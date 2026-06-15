@@ -896,7 +896,41 @@ const CommonInteractionLogs = ({
                                                                                     <div className="absolute top-4 left-4 opacity-5">
                                                                                         <svg width="40" height="40" viewBox="0 0 24 24" fill="currentColor"><path d="M14.017 21L14.017 18C14.017 16.8954 14.9124 16 16.017 16H19.017C20.1216 16 21.017 16.8954 21.017 18V21C21.017 22.1046 20.1216 23 19.017 23H16.017C14.9124 23 14.017 22.1046 14.017 21ZM14.017 21V18C14.017 16.8954 14.9124 16 16.017 16H19.017C20.1216 16 21.017 16.8954 21.017 18V21C21.017 22.1046 20.1216 23 19.017 23H16.017C14.9124 23 14.017 22.1046 14.017 21ZM3 18C3 16.8954 3.89543 16 5 16H8C9.10457 16 10 16.8954 10 18V21C10 22.1046 9.10457 23 8 23H5C3.89543 23 3 22.1046 3 21V18ZM3 18V16C3 13.7909 4.79086 12 7 12H10V14H7C5.89543 14 5 14.8954 5 16V18H3Z" /></svg>
                                                                                     </div>
-                                                                                    {log.mentor_notes || log.notes || log.remarks || 'No notes provided for this session.'}
+                                                                                    {(() => {
+                                                                                            let parsedReportData = null;
+                                                                                            if (log.report_data) {
+                                                                                                try { parsedReportData = typeof log.report_data === 'string' ? JSON.parse(log.report_data) : log.report_data; } catch (e) {}
+                                                                                            }
+                                                                                            const sessionTypeUpper = (log.session_type || '').toUpperCase();
+                                                                                            
+                                                                                            if (parsedReportData) {
+                                                                                                if (sessionTypeUpper === 'DEEP' && (parsedReportData.root_cause || parsedReportData.mentor_guidance || parsedReportData.action_plan)) {
+                                                                                                    return (
+                                                                                                        <div className="space-y-6">
+                                                                                                            {parsedReportData.root_cause && <div><p className="text-[10px] font-black uppercase tracking-widest text-rose-500 mb-1">Root Cause</p><p className="whitespace-pre-wrap">{parsedReportData.root_cause}</p></div>}
+                                                                                                            {parsedReportData.mentor_guidance && <div><p className="text-[10px] font-black uppercase tracking-widest text-rose-500 mb-1">Mentor Guidance</p><p className="whitespace-pre-wrap">{parsedReportData.mentor_guidance}</p></div>}
+                                                                                                            {parsedReportData.action_plan && <div><p className="text-[10px] font-black uppercase tracking-widest text-rose-500 mb-1">Action Plan</p><p className="whitespace-pre-wrap">{parsedReportData.action_plan}</p></div>}
+                                                                                                        </div>
+                                                                                                    );
+                                                                                                } else if (sessionTypeUpper === 'MEDIUM' && (parsedReportData.quick_guidance || parsedReportData.next_task)) {
+                                                                                                    return (
+                                                                                                        <div className="space-y-6">
+                                                                                                            {parsedReportData.quick_guidance && <div><p className="text-[10px] font-black uppercase tracking-widest text-purple-500 mb-1">Guidance Given</p><p className="whitespace-pre-wrap">{parsedReportData.quick_guidance}</p></div>}
+                                                                                                            {parsedReportData.next_task && <div><p className="text-[10px] font-black uppercase tracking-widest text-purple-500 mb-1">Next Task Assigned</p><p className="whitespace-pre-wrap">{parsedReportData.next_task}</p></div>}
+                                                                                                        </div>
+                                                                                                    );
+                                                                                                } else if (sessionTypeUpper === 'QUICK' && (parsedReportData.study_status || parsedReportData.quick_notes)) {
+                                                                                                    return (
+                                                                                                        <div className="space-y-6">
+                                                                                                            {parsedReportData.study_status && <div><p className="text-[10px] font-black uppercase tracking-widest text-[#008080] mb-1">Study Status</p><p className="whitespace-pre-wrap">{parsedReportData.study_status}</p></div>}
+                                                                                                            {parsedReportData.quick_notes && <div><p className="text-[10px] font-black uppercase tracking-widest text-[#008080] mb-1">Notes</p><p className="whitespace-pre-wrap">{parsedReportData.quick_notes}</p></div>}
+                                                                                                        </div>
+                                                                                                    );
+                                                                                                }
+                                                                                            }
+                                                                                            const defaultNotes = log.mentor_notes || log.notes || log.remarks;
+                                                                                            return defaultNotes && !['QUICK', 'MEDIUM', 'DEEP'].includes(defaultNotes) ? defaultNotes : 'No notes provided for this session.';
+                                                                                        })()}
                                                                                 </div>
                                                                             </div>
 
@@ -917,7 +951,7 @@ const CommonInteractionLogs = ({
                                                                                         </p>
                                                                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                                                             {Object.entries(parsedReportData).map(([key, val]) => {
-                                if (['notes', 'quick_notes', 'notes_text'].includes(key)) return null;
+                                if (['notes', 'quick_notes', 'notes_text', 'root_cause', 'mentor_guidance', 'action_plan', 'quick_guidance', 'next_task', 'study_status'].includes(key)) return null;
                                 let label = key.replace(/_/g, ' ');
                                 label = label.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
                                 const sessionTypeUpper = (log.session_type || '').toUpperCase();
@@ -1079,7 +1113,7 @@ const CommonInteractionLogs = ({
                                                             </p>
                                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                                 {Object.entries(parsedReportData).map(([key, val]) => {
-                      if (['notes', 'quick_notes', 'notes_text'].includes(key)) return null;
+                      if (['notes', 'quick_notes', 'notes_text', 'root_cause', 'mentor_guidance', 'action_plan', 'quick_guidance', 'next_task', 'study_status'].includes(key)) return null;
                       let label = key.replace(/_/g, ' ');
                       label = label.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
                       const sessionTypeUpper = (log.session_type || '').toUpperCase();
