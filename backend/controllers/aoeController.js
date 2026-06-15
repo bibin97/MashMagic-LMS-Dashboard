@@ -777,7 +777,7 @@ const deleteStudent = async (req, res) => {
 
 const getStudentById = async (req, res) => {
     try {
-        const [[s]] = await db.query(`
+        const [rows] = await db.query(`
             SELECT s.*, m.name as mentor_name, 
             COALESCE(
                 (SELECT GROUP_CONCAT(DISTINCT u.name SEPARATOR ', ') 
@@ -790,8 +790,15 @@ const getStudentById = async (req, res) => {
             LEFT JOIN mentors m ON s.mentor_id = m.id 
             WHERE s.id = ?
         `, [req.params.id]);
-        res.status(200).json({ success: true, data: s });
-    } catch (e) { res.status(500).json({ success: false, message: e.message }); }
+
+        if (!rows || rows.length === 0) {
+            return res.status(404).json({ success: false, message: "Student not found" });
+        }
+        res.status(200).json({ success: true, data: rows[0] });
+    } catch (e) {
+        console.error("GET_STUDENT_BY_ID_ERROR:", e);
+        res.status(500).json({ success: false, message: e.message });
+    }
 };
 
 const { calculateStudentHours } = require('../utils/studentHoursHelper');
