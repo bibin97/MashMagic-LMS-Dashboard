@@ -735,7 +735,7 @@ const deleteSession = async (req, res) => {
             return res.status(404).json({ success: false, message: "Session not found" });
         }
 
-        let query = 'DELETE FROM timetable WHERE id = ?';
+        let query = 'UPDATE timetable SET is_deleted = 1, deleted_at = CURRENT_TIMESTAMP WHERE id = ?';
         let params = [sessionId];
 
         if (loggedInUserRole === 'mentor') {
@@ -1540,7 +1540,7 @@ const updateStudentAcademicSchedule = async (req, res) => {
         const { schedules } = req.body; // Array of {day_of_week, start_time, end_time, subject, faculty_id}
 
         // 1. Delete existing schedules
-        await connection.query('DELETE FROM faculty_schedules WHERE student_id = ?', [studentId]);
+        await connection.query('UPDATE faculty_schedules SET is_deleted = 1, deleted_at = CURRENT_TIMESTAMP WHERE student_id = ?', [studentId]);
 
         // 2. Insert new schedules
         if (schedules && Array.isArray(schedules) && schedules.length > 0) {
@@ -1581,8 +1581,8 @@ async function syncTimetableToFacultySession(timetableId) {
             // Timetable session was deleted - find and delete synced faculty_sessions
             const [[existingSync]] = await db.query('SELECT id FROM faculty_sessions WHERE timetable_id = ?', [timetableId]);
             if (existingSync) {
-                await db.query('DELETE FROM session_attendance WHERE session_id = ?', [existingSync.id]);
-                await db.query('DELETE FROM faculty_sessions WHERE id = ?', [existingSync.id]);
+                await db.query('UPDATE session_attendance SET is_deleted = 1, deleted_at = CURRENT_TIMESTAMP WHERE session_id = ?', [existingSync.id]);
+                await db.query('UPDATE faculty_sessions SET is_deleted = 1, deleted_at = CURRENT_TIMESTAMP WHERE id = ?', [existingSync.id]);
             }
             return;
         }
@@ -1595,8 +1595,8 @@ async function syncTimetableToFacultySession(timetableId) {
         if (!faculty_id) {
             const [[existingSync]] = await db.query('SELECT id FROM faculty_sessions WHERE timetable_id = ?', [timetableId]);
             if (existingSync) {
-                await db.query('DELETE FROM session_attendance WHERE session_id = ?', [existingSync.id]);
-                await db.query('DELETE FROM faculty_sessions WHERE id = ?', [existingSync.id]);
+                await db.query('UPDATE session_attendance SET is_deleted = 1, deleted_at = CURRENT_TIMESTAMP WHERE session_id = ?', [existingSync.id]);
+                await db.query('UPDATE faculty_sessions SET is_deleted = 1, deleted_at = CURRENT_TIMESTAMP WHERE id = ?', [existingSync.id]);
             }
             return;
         }

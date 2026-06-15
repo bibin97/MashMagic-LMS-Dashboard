@@ -1362,7 +1362,7 @@ exports.editStudent = async (req, res) => {
         }
 
         // --- SYNC FACULTY SCHEDULES ---
-        await db.query('DELETE FROM faculty_schedules WHERE student_id = ?', [id]);
+        await db.query('UPDATE faculty_schedules SET is_deleted = 1, deleted_at = CURRENT_TIMESTAMP WHERE student_id = ?', [id]);
 
         if (finalSubjects && Array.isArray(finalSubjects) && finalSubjects.length > 0) {
             for (const sub of finalSubjects) {
@@ -1681,7 +1681,7 @@ exports.deleteInteractionLog = async (req, res) => {
                 return res.status(400).json({ success: false, message: "Invalid log source provided" });
         }
 
-        const [result] = await db.query(`DELETE FROM ${tableName} WHERE id = ?`, [id]);
+        const [result] = await db.query(`UPDATE ${tableName} SET is_deleted = 1, deleted_at = CURRENT_TIMESTAMP WHERE id = ?`, [id]);
 
         if (result.affectedRows === 0) {
             return res.status(404).json({ success: false, message: "Log not found or already deleted" });

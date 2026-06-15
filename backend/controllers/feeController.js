@@ -94,7 +94,7 @@ const saveFee = async (req, res) => {
                 [total_fee, total_hours, feeId]
             );
             // Delete old installments
-            await connection.query('DELETE FROM fee_installments WHERE fee_structure_id = ?', [feeId]);
+            await connection.query('UPDATE fee_installments SET is_deleted = 1, deleted_at = CURRENT_TIMESTAMP WHERE fee_structure_id = ?', [feeId]);
         } else {
             const [result] = await connection.query(
                 'INSERT INTO fee_structures (entity_type, entity_id, total_fee, total_hours) VALUES (?, ?, ?, ?)',

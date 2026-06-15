@@ -343,7 +343,7 @@ const deleteDocument = async (req, res) => {
         if (doc.length === 0) return res.status(404).json({ success: false, message: "Document not found" });
 
         // Optionally delete from Cloudinary here if you have the public_id
-        await db.query('DELETE FROM faculty_documents WHERE id = ?', [req.params.id]);
+        await db.query('UPDATE faculty_documents SET is_deleted = 1, deleted_at = CURRENT_TIMESTAMP WHERE id = ?', [req.params.id]);
         res.status(200).json({ success: true, message: "Document deleted" });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });

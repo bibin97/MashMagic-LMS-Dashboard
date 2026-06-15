@@ -502,7 +502,7 @@ const uploadAcademicDocument = async (req, res) => {
 
 const deleteAcademicDocument = async (req, res) => {
     try {
-        await db.query('DELETE FROM academic_documents WHERE id = ?', [req.params.id]);
+        await db.query('UPDATE academic_documents SET is_deleted = 1, deleted_at = CURRENT_TIMESTAMP WHERE id = ?', [req.params.id]);
         res.status(200).json({ success: true, message: "Deleted" });
     } catch (e) { res.status(500).json({ success: false, message: e.message }); }
 };
@@ -711,7 +711,7 @@ const editStudent = async (req, res) => {
         }
 
         // --- SYNC FACULTY SCHEDULES ---
-        await db.query('DELETE FROM faculty_schedules WHERE student_id = ?', [id]);
+        await db.query('UPDATE faculty_schedules SET is_deleted = 1, deleted_at = CURRENT_TIMESTAMP WHERE student_id = ?', [id]);
 
         if (finalSubjects && Array.isArray(finalSubjects) && finalSubjects.length > 0) {
             for (const sub of finalSubjects) {
@@ -1127,7 +1127,7 @@ const editDemoSchedule = async (req, res) => {
 const deleteDemoSchedule = async (req, res) => {
     try {
         const { id } = req.params;
-        await db.query('DELETE FROM aoe_demo_schedules WHERE id=?', [id]);
+        await db.query('UPDATE aoe_demo_schedules SET is_deleted = 1, deleted_at = CURRENT_TIMESTAMP WHERE id=?', [id]);
         res.status(200).json({ success: true, message: 'Demo schedule deleted successfully' });
     } catch (error) {
         console.error("DELETE_DEMO_ERROR:", error);

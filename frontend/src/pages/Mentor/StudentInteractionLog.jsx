@@ -1,3 +1,422 @@
+import React, { useState, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import api from '../../services/api';
+import InteractionFormUI from '../../components/common/InteractionFormUI';
+import {
+ MessageSquare, CheckCircle, ArrowLeft, Target, AlertCircle, BarChart3,
+ CloudLightning, FileText, Camera, Phone, UserCheck, HeartPulse, Brain,
+ Clock, Activity, BookOpen, Smile, Plus, Frown, Meh, MoreHorizontal, Upload, ImageIcon, Loader2, Zap, TrendingUp, ShieldAlert, CheckCircle2, ChevronRight, XCircle, Play, Pause
+} from 'lucide-react';
+import toast from 'react-hot-toast';
+import Modal from '../../components/Modal';
+
+const StudentInteractionLog = () => {
+ const location = useLocation();
+ const navigate = useNavigate();
+
+ const [loading, setLoading] = useState(false);
+ const [assignedLoading, setAssignedLoading] = useState(true);
+ const [submitted, setSubmitted] = useState(false);
+ const [allStudents, setAllStudents] = useState([]);
+ const [assignedStudents, setAssignedStudents] = useState([]);
+ const [selectedStudent, setSelectedStudent] = useState(null);
+ const [activeTab, setActiveTab] = useState('both'); // 'both', 'mentorship', 'tuition'
+ const [statusFilter, setStatusFilter] = useState('pending'); // 'pending', 'completed'
+ 
+ // Form States
+ const [isPaused, setIsPaused] = useState(false);
+ const [sessionType, setSessionType] = useState(null); // 'DEEP', 'MEDIUM', 'QUICK', 'CANCELLED'
+ const [formData, setFormData] = useState({});
+ const [files, setFiles] = useState([]);
+ const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+
+ useEffect(() => {
+   fetchAssignedStudents();
+   fetchAllStudents();
+ }, [selectedDate]);
+
+ const fetchAssignedStudents = async () => {
+   setAssignedLoading(true);
+   try {
+     const res = await api.get(`/mentor-interactions/daily-assignments?date=${selectedDate}`);
+     setAssignedStudents(res.data.data);
+     if (res.data.is_paused !== undefined) {
+       setIsPaused(res.data.is_paused);
+     }
+   } catch (error) {
+     toast.error("Failed to load daily assignments");
+   } finally {
+     setAssignedLoading(false);
+   }
+ };
+
+ const handleTogglePause = async () => {
+   try {
+     const res = await api.post('/mentor-interactions/toggle-pause');
+     setIsPaused(res.data.is_paused);
+     toast.success(res.data.is_paused ? "Interaction Rotation Paused" : "Interaction Rotation Resumed");
+     fetchAssignedStudents();
+   } catch (error) {
+     toast.error("Failed to toggle pause status");
+   }
+ };
+
+ const fetchAllStudents = async () => {
+   try {
+     const res = await api.get('/mentor/students');
+     setAllStudents(res.data.data);
+   } catch (error) {
+     console.error("Failed to load all students");
+   }
+ };
+
+ const handleStudentSelect = (student, type) => {
+   setSelectedStudent(student);
+   setSessionType(type || 'TUITION');
+   setSubmitted(false);
+   setFiles([]);
+   
+   // Initialize form data based on type
+   if (type === 'DEEP') {
+     setFormData({
+       student_status_before: 'Yes',
+       main_problem: 'No major issue',
+       root_cause: '',
+       mentor_guidance: '',
+       action_plan: '',
+       student_response: 'Positive / motivated',
+       followup_required: 'No',
+       followup_when: 'Tomorrow',
+       attention_level: 'Stable',
+       next_session_type: 'MEDIUM'
+     });
+   } else if (type === 'MEDIUM') {
+     setFormData({
+       progress: 'Good',
+       class_attendance: 'Regular',
+       issue_found: 'No',
+       issue_category: 'Academic',
+       quick_guidance: '',
+       next_task: '',
+       upgrade_to_deep: 'No',
+       next_session_type: 'QUICK'
+     });
+   } else if (type === 'QUICK') {
+     setFormData({
+       availability: 'Attended call',
+       study_status: 'Studied properly',
+       attendance: 'Attended',
+       immediate_concern: 'No',
+       immediate_concern_category: 'Academic',
+       next_session_type: 'QUICK',
+       quick_notes: ''
+     });
+   } else {
+     // Simple Tuition Tracking
+     setFormData({
+       date: new Date().toISOString().split('T')[0],
+       attendance: 'Present',
+       notes: ''
+     });
+   }
+ };
+
+ const handleChange = (e) => {
+   const { name, value } = e.target;
+   setFormData(prev => ({ ...prev, [name]: value }));
+ };
+
+ const handleSubmit = async (e) => {
+   e.preventDefault();
+   setLoading(true);
+
+    try {
+      if (sessionType === 'CANCELLED') {
+        if (!formData.cancel_reason) {
+          toast.error("Cancellation Reason is mandatory");
+          setLoading(false);
+          return;
+        }
+      } else if (sessionType === 'DEEP') {
+        if (!formData.action_plan || !formData.main_problem || !formData.root_cause || !formData.mentor_guidance) {
+          toast.error("Please fill all mandatory fields (Problem, Root Cause, Guidance, and Action Plan)");
+          setLoading(false);
+          return;
+        }
+      } else if (sessionType === 'MEDIUM') {
+        if (!formData.next_task) {
+          toast.error("Next Task is mandatory for Medium sessions");
+          setLoading(false);
+          return;
+        }
+      } else if (sessionType === 'QUICK') {
+        if (!formData.study_status) {
+          toast.error("Today's Study Status is mandatory");
+          setLoading(false);
+          return;
+        }
+      }
+
+     if (sessionType === 'TUITION') {
+       // Old legacy logging or simple tracking for tuition
+       await api.post('/mentor/student-log', {
+         ...formData,
+         student_id: selectedStudent.id,
+         student_name: selectedStudent.name,
+         connection_method: 'Other',
+         mentor_notes: formData.notes
+       });
+     } else {
+       // New Structured Interaction System
+       const formDataObj = new FormData();
+       formDataObj.append('student_id', selectedStudent.id);
+       formDataObj.append('session_type', sessionType);
+       formDataObj.append('next_session_type', formData.next_session_type || 'QUICK');
+       formDataObj.append('report_data', JSON.stringify(formData));
+       
+       if (files && files.length > 0) {
+           files.forEach(file => {
+               formDataObj.append('files', file);
+           });
+       }
+
+       await api.post('/mentor-interactions/submit-report', formDataObj, {
+           headers: { 'Content-Type': 'multipart/form-data' }
+       });
+     }
+
+     toast.success("Interaction submitted successfully!");
+     setSubmitted(true);
+     fetchAssignedStudents(); // Refresh daily list
+     fetchAllStudents(); // Refresh all students list
+   } catch (error) {
+     toast.error(error.response?.data?.message || "Submission failed");
+   } finally {
+     setLoading(false);
+   }
+ };
+
+ const isDiamondCategory = (s) => {
+    if (!s) return false;
+    const badge = s.badge?.toLowerCase();
+    const type = s.enrollment_type?.toLowerCase();
+    return badge === 'diamond' || 
+           type === 'both' || 
+           type === 'mentorship and tuition' || 
+           type === 'mentorship & tuition' || 
+           type === 'mentorship + tuition' ||
+           (type && type.includes('mentorship') && type.includes('tuition'));
+  };
+
+ const isGoldCategory = (s) => {
+    if (!s) return false;
+    if (isDiamondCategory(s)) return false;
+    const badge = s.badge?.toLowerCase();
+    const type = s.enrollment_type?.toLowerCase();
+    return badge === 'gold' || 
+           (type && type.includes('mentorship')) ||
+           type === 'mentorship only';
+  };
+
+ const isSilverCategory = (s) => !isDiamondCategory(s) && !isGoldCategory(s);
+
+ const getSessionIcon = (type) => {
+   switch(type) {
+     case 'DEEP': return <Activity className="text-rose-500" size={20} />;
+     case 'MEDIUM': return <TrendingUp className="text-amber-500" size={20} />;
+     case 'QUICK': return <Zap className="text-blue-500" size={20} />;
+     default: return <UserCheck className="text-slate-400" size={20} />;
+   }
+ };
+
+ const getSessionColor = (type) => {
+   switch(type) {
+     case 'DEEP': return 'bg-rose-50 border-rose-100 text-rose-600';
+     case 'MEDIUM': return 'bg-amber-50 border-amber-100 text-amber-600';
+     case 'QUICK': return 'bg-blue-50 border-blue-100 text-blue-600';
+     default: return 'bg-slate-50 border-slate-100 text-slate-600';
+   }
+ };
+
+ // Main List Screen
+ if (!selectedStudent) {
+   return (
+     <div className="max-w-6xl mx-auto p-4 md:p-10 pb-20 space-y-12 animate-in fade-in slide-in-from-bottom-6 duration-700">
+       <header className="bg-white/70 backdrop-blur-xl p-8 md:p-14 rounded-[40px] md:rounded-[48px] border border-white/60 shadow-[0_20px_50px_rgba(0,0,0,0.06)] flex flex-col md:flex-row justify-between items-center gap-10">
+         <div className="text-center md:text-left">
+           <h1 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tighter uppercase leading-none mb-4">Mentor Execution Hub</h1>
+           <p className="text-slate-600 text-[11px] font-black uppercase tracking-[0.3em] mt-3 flex items-center gap-3 justify-center md:justify-start">
+             <div className="w-2 h-2 rounded-full bg-[#008080] animate-ping"></div>
+             Decision-Driven Mentorship Platform
+           </p>
+         </div>
+          <div className="flex gap-4">
+             <div className="p-6 bg-rose-50 rounded-3xl border border-rose-100 text-center">
+                 <p className="text-[10px] font-black text-rose-600 uppercase mb-1">Deep</p>
+                 <p className="text-2xl font-black text-rose-900">{assignedStudents.filter(s => s.sessionType === 'DEEP').length || 0}</p>
+             </div>
+             <div className="p-6 bg-amber-50 rounded-3xl border border-amber-100 text-center">
+                 <p className="text-[10px] font-black text-amber-600 uppercase mb-1">Med</p>
+                 <p className="text-2xl font-black text-amber-900">{assignedStudents.filter(s => s.sessionType === 'MEDIUM').length || 0}</p>
+             </div>
+             <div className="p-6 bg-blue-50 rounded-3xl border border-blue-100 text-center">
+                 <p className="text-[10px] font-black text-blue-600 uppercase mb-1">Quick</p>
+                 <p className="text-2xl font-black text-blue-900">{assignedStudents.filter(s => s.sessionType === 'QUICK').length || 0}</p>
+             </div>
+          </div>
+       </header>
+
+        <div className="space-y-4">
+         {/* Main Category Tabs & Pause Toggle */}
+         <div className="flex flex-col md:flex-row justify-between items-center gap-4 p-2 bg-white/50 backdrop-blur-md rounded-[28px] border border-slate-200/50 sticky top-4 z-50 shadow-sm">
+           <div className="flex flex-wrap gap-4 flex-1 w-full">
+             {[
+               { id: 'both', label: `Mentorship + Tuition (${allStudents.filter(isDiamondCategory).length})`, color: 'bg-purple-600' },
+               { id: 'mentorship', label: `Mentorship Only (${allStudents.filter(isGoldCategory).length})`, color: 'bg-amber-500' }
+             ].map(tab => (
+               <button
+                 key={tab.id}
+                 onClick={() => setActiveTab(tab.id)}
+                 className={`flex-1 py-4 px-6 rounded-[22px] text-[11px] font-black uppercase tracking-widest transition-all ${activeTab === tab.id ? `${tab.color} text-white shadow-lg` : 'text-slate-600 hover:bg-white'}`}
+               >
+                 {tab.label}
+               </button>
+             ))}
+           </div>
+           <div className="flex items-center gap-3 shrink-0">
+             <input
+               type="date"
+               value={selectedDate}
+               onChange={(e) => setSelectedDate(e.target.value)}
+               className="bg-white border border-slate-200 rounded-2xl py-3 px-4 text-xs font-black text-slate-600 outline-none focus:ring-2 focus:ring-[#008080]"
+             />
+             <button
+               onClick={handleTogglePause}
+               className={`px-6 py-3 rounded-[22px] text-[11px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${isPaused ? 'bg-red-500 text-white shadow-red-200 shadow-lg' : 'bg-green-500 text-white shadow-green-200 shadow-lg'}`}
+             >
+               {isPaused ? <Play fill="currentColor" size={16} /> : <Pause fill="currentColor" size={16} />}
+               {isPaused ? 'Resume Rotation' : 'Pause Rotation'}
+             </button>
+           </div>
+         </div>
+
+         {!!isPaused && (
+           <div className="p-6 bg-rose-50 border border-rose-200 rounded-3xl flex items-center justify-center gap-4 animate-in fade-in zoom-in duration-500">
+             <AlertCircle className="text-rose-500" size={24} />
+             <p className="text-[11px] font-black text-rose-700 lowercase tracking-widest">Interaction Rotation is currently paused. You will not receive new assignments until you resume.</p>
+           </div>
+         )}
+
+         {/* Sub-Tabs: Status Filter */}
+         <div className="flex justify-center gap-3">
+           <button
+             onClick={() => setStatusFilter('pending')}
+             className={`px-8 py-3 rounded-2xl text-[9px] font-black uppercase tracking-[0.2em] transition-all flex items-center gap-3 ${statusFilter === 'pending' ? 'bg-rose-500 text-white shadow-xl shadow-rose-200' : 'bg-white text-slate-400 border border-slate-100 hover:border-rose-200'}`}
+           >
+             <div className={`w-2 h-2 rounded-full ${statusFilter === 'pending' ? 'bg-white animate-pulse' : 'bg-rose-500'}`}></div>
+             Awaiting Interaction ({
+               assignedStudents.filter(s => s.status?.toUpperCase() !== 'COMPLETED' && s.status?.toUpperCase() !== 'CANCELLED' && (activeTab === 'both' ? isDiamondCategory(s) : isGoldCategory(s))).length
+             })
+           </button>
+           <button
+             onClick={() => setStatusFilter('completed')}
+             className={`px-8 py-3 rounded-2xl text-[9px] font-black uppercase tracking-[0.2em] transition-all flex items-center gap-3 ${statusFilter === 'completed' ? 'bg-emerald-500 text-white shadow-xl shadow-emerald-200' : 'bg-white text-slate-400 border border-slate-100 hover:border-emerald-200'}`}
+           >
+             <div className={`w-2 h-2 rounded-full ${statusFilter === 'completed' ? 'bg-white animate-pulse' : 'bg-emerald-500'}`}></div>
+             Completed Today ({
+               assignedStudents.filter(s => (s.status?.toUpperCase() === 'COMPLETED' || s.status?.toUpperCase() === 'CANCELLED') && (activeTab === 'both' ? isDiamondCategory(s) : isGoldCategory(s))).length
+             })
+           </button>
+         </div>
+       </div>
+
+       {/* Main Content Area */}
+       <div className="min-h-[400px]">
+         {assignedLoading ? (
+           <div className="flex flex-col items-center justify-center py-40 gap-4">
+             <Loader2 size={40} className="animate-spin text-[#008080]" />
+             <p className="text-xs font-black text-slate-400 uppercase tracking-widest">Loading Data...</p>
+           </div>
+         ) : (
+           <div className="space-y-10 animate-in fade-in duration-500">
+             {activeTab !== 'tuition' && (
+                <div className="space-y-8">
+                  <div className="flex items-center justify-between px-4">
+                     <h3 className="text-sm font-black text-slate-900 uppercase tracking-[0.2em] flex items-center gap-3">
+                         <ShieldAlert size={18} className="text-[#008080]" /> 
+                         {statusFilter === 'pending' ? 'Pending Execution Fleet' : 'Concluded Interactions'}
+                     </h3>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {(assignedStudents.length > 0 ? assignedStudents : [])
+                       .filter(s => {
+                         const matchesStatus = statusFilter === 'completed' 
+                           ? (s.status === 'COMPLETED' || s.status === 'CANCELLED') 
+                           : (s.status !== 'COMPLETED' && s.status !== 'CANCELLED');
+                         const matchesTab = activeTab === 'both' ? isDiamondCategory(s) : isGoldCategory(s);
+                         return matchesStatus && matchesTab;
+                       })
+                       .map(student => {
+                         const sessionType = student.sessionType || 'QUICK';
+                         const isCompleted = student.status === 'COMPLETED';
+                         const isCancelled = student.status === 'CANCELLED';
+                         return (
+                           <button
+                             key={student.id}
+                             onClick={() => handleStudentSelect(student, sessionType)}
+                             className={`group relative overflow-hidden p-8 rounded-[3rem] border transition-all text-left flex flex-col justify-between h-64 ${isCompleted ? 'bg-emerald-50/50 border-emerald-100' : isCancelled ? 'bg-rose-50/50 border-rose-100' : 'bg-white border-slate-100 hover:shadow-2xl hover:scale-[1.02] hover:border-slate-200 active:scale-95'}`}
+                           >
+                             <div className={`absolute top-0 right-0 w-32 h-32 rounded-full -mr-16 -mt-16 opacity-10 transition-transform group-hover:scale-150 duration-700 ${getSessionColor(sessionType).split(' ')[0]}`}></div>
+                             
+                             <div>
+                               <div className="flex justify-between items-start mb-4">
+                                 <div className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest border ${getSessionColor(sessionType)}`}>
+                                   {sessionType} SESSION
+                                 </div>
+                                 {isCompleted && <CheckCircle2 className="text-emerald-500" size={24} />}
+                                 {isCancelled && <XCircle className="text-rose-500" size={24} />}
+                               </div>
+                               <h3 className="text-2xl font-black text-slate-900 tracking-tight leading-none uppercase mb-2 truncate">{student.name}</h3>
+                               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest truncate">MM-{student.id.toString().padStart(4, '0')} • {student.priority_category || 'Stable'} Priority</p>
+                               
+                               <div className="mt-4 flex items-center gap-2 p-2 bg-slate-50 rounded-xl border border-slate-100" title={`Consumed: ${student.consumed_hours || 0} | Paid Limit: ${student.paid_hours || 0}`}>
+                                  <div className={`w-2 h-2 rounded-full ${student.payment_alert_level === 'Critical' ? 'bg-rose-500 animate-pulse' : student.payment_alert_level === 'Warning' ? 'bg-amber-500 animate-pulse' : 'bg-emerald-400'} shrink-0`}></div>
+                                  <div className="flex flex-col gap-0.5">
+                                    <p className={`text-[9px] font-black uppercase truncate leading-none ${student.payment_alert_level === 'Critical' ? 'text-rose-600' : student.payment_alert_level === 'Warning' ? 'text-amber-600' : 'text-emerald-600'}`}>
+                                      {student.payment_alert_level || 'Safe'} • {Math.round(((student.consumed_hours || 0) / (student.paid_hours || 1)) * 100)}%
+                                    </p>
+                                    <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest leading-none">
+                                      {student.consumed_hours || 0} hrs cycle consumed / {Math.round(student.paid_hours || 0)} hrs cycle limit
+                                    </p>
+                                  </div>
+                                </div>
+                             </div>
+
+                             <div className="flex items-center justify-between mt-6">
+                               <div className="flex items-center gap-3">
+                                 <div className={`w-10 h-10 rounded-2xl flex items-center justify-center ${getSessionColor(sessionType)}`}>
+                                   {getSessionIcon(sessionType)}
+                                 </div>
+                                 <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                   {isCompleted ? 'Report Logged' : isCancelled ? 'Cancelled' : 'Awaiting Interaction'}
+                                 </span>
+                               </div>
+                               <ChevronRight size={20} className="text-slate-300 group-hover:text-slate-900 transition-colors" />
+                             </div>
+                           </button>
+                         );
+                       })}
+                    {assignedStudents.filter(s => {
+                        const sStatus = s.status?.toUpperCase() || 'PENDING';
+                        const matchesStatus = statusFilter === 'completed' ? (sStatus === 'COMPLETED' || sStatus === 'CANCELLED') : (sStatus !== 'COMPLETED' && sStatus !== 'CANCELLED');
+                        const matchesTab = activeTab === 'both' ? isDiamondCategory(s) : isGoldCategory(s);
+                        return matchesStatus && matchesTab;
+                    }).length === 0 && (
+                      <div className="col-span-full py-20 text-center bg-slate-50/50 rounded-[3rem] border border-dashed border-slate-200 animate-in fade-in zoom-in duration-500">
+                         <p className="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">All students in your today's fleet are {statusFilter === 'pending' ? 'accounted for' : 'awaiting action'}.</p>
+                      </div>
+                    )}
                   </div>
                 </div>
               )}

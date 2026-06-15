@@ -352,18 +352,18 @@ const deleteUser = async (req, res) => {
 // Helper for student cleanup
 async function cleanupStudentDependencies(studentId) {
     const queries = [
-        'DELETE FROM student_interaction_logs WHERE student_id = ?',
-        'DELETE FROM faculty_interaction_logs WHERE student_id = ?',
-        'DELETE FROM student_verification WHERE student_id = ?',
-        'DELETE FROM daily_hours_log WHERE student_id = ?',
-        'DELETE FROM student_marks WHERE student_id = ?',
-        'DELETE FROM student_exams WHERE student_id = ?',
-        'DELETE FROM session_attendance WHERE student_id = ?',
-        'DELETE FROM student_reports WHERE student_id = ?',
-        'DELETE FROM live_class_feedbacks WHERE student_id = ?',
-        'DELETE FROM timetable WHERE student_id = ?',
-        'DELETE FROM student_daily_updates WHERE student_id = ?',
-        'DELETE FROM faculty_class_updates WHERE student_id = ?'
+        'UPDATE student_interaction_logs SET is_deleted = 1, deleted_at = CURRENT_TIMESTAMP WHERE student_id = ?',
+        'UPDATE faculty_interaction_logs SET is_deleted = 1, deleted_at = CURRENT_TIMESTAMP WHERE student_id = ?',
+        'UPDATE student_verification SET is_deleted = 1, deleted_at = CURRENT_TIMESTAMP WHERE student_id = ?',
+        'UPDATE daily_hours_log SET is_deleted = 1, deleted_at = CURRENT_TIMESTAMP WHERE student_id = ?',
+        'UPDATE student_marks SET is_deleted = 1, deleted_at = CURRENT_TIMESTAMP WHERE student_id = ?',
+        'UPDATE student_exams SET is_deleted = 1, deleted_at = CURRENT_TIMESTAMP WHERE student_id = ?',
+        'UPDATE session_attendance SET is_deleted = 1, deleted_at = CURRENT_TIMESTAMP WHERE student_id = ?',
+        'UPDATE student_reports SET is_deleted = 1, deleted_at = CURRENT_TIMESTAMP WHERE student_id = ?',
+        'UPDATE live_class_feedbacks SET is_deleted = 1, deleted_at = CURRENT_TIMESTAMP WHERE student_id = ?',
+        'UPDATE timetable SET is_deleted = 1, deleted_at = CURRENT_TIMESTAMP WHERE student_id = ?',
+        'UPDATE student_daily_updates SET is_deleted = 1, deleted_at = CURRENT_TIMESTAMP WHERE student_id = ?',
+        'UPDATE faculty_class_updates SET is_deleted = 1, deleted_at = CURRENT_TIMESTAMP WHERE student_id = ?'
     ];
     for (const q of queries) {
         try { await db.query(q, [studentId]); } catch (e) {}
@@ -790,7 +790,7 @@ const markNotificationRead = async (req, res) => {
 // @route   DELETE /api/admin/notifications/:id
 const deleteNotification = async (req, res) => {
     try {
-        await db.query('DELETE FROM admin_notifications WHERE id = ?', [req.params.id]);
+        await db.query('UPDATE admin_notifications SET is_deleted = 1, deleted_at = CURRENT_TIMESTAMP WHERE id = ?', [req.params.id]);
         res.status(200).json({ success: true, message: "Notification deleted" });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
@@ -801,7 +801,7 @@ const deleteNotification = async (req, res) => {
 // @route   DELETE /api/admin/notifications/clear-all
 const clearAllNotifications = async (req, res) => {
     try {
-        await db.query('DELETE FROM admin_notifications');
+        await db.query('UPDATE admin_notifications SET is_deleted = 1, deleted_at = CURRENT_TIMESTAMP');
         res.status(200).json({ success: true, message: "All notifications cleared" });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
@@ -1298,7 +1298,7 @@ const deleteSubAdmin = async (req, res) => {
         await db.query('UPDATE tasks SET assigned_by = NULL WHERE assigned_by = ?', [id]);
         await db.query('UPDATE tasks SET assigned_to = NULL WHERE assigned_to = ?', [id]);
 
-        await db.query('DELETE FROM users WHERE id = ?', [id]);
+        await db.query('UPDATE users SET is_deleted = 1, deleted_at = CURRENT_TIMESTAMP WHERE id = ?', [id]);
         res.status(200).json({ success: true, message: "Sub Admin deleted successfully. Integrity maintained." });
     } catch (error) {
         console.error("DELETE_SUBADMIN_ERROR:", error);
@@ -2061,7 +2061,7 @@ module.exports = {
     removeFacultyTimetableSlot: async (req, res) => {
         try {
             const { id } = req.params;
-            await db.query('DELETE FROM faculty_timetable WHERE id = ?', [id]);
+            await db.query('UPDATE faculty_timetable SET is_deleted = 1, deleted_at = CURRENT_TIMESTAMP WHERE id = ?', [id]);
             res.status(200).json({ success: true, message: "Timetable slot removed successfully" });
         } catch (e) { res.status(500).json({ success: false, message: e.message }); }
     },

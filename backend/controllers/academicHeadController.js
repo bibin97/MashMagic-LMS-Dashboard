@@ -16,7 +16,7 @@ const getDailyStudentRotation = async (req, res) => {
             return res.status(200).json({ success: true, data: existing });
         } else if (existing.length > 0) {
             // Clear incomplete rotation to regenerate
-            await db.query('DELETE FROM ah_student_rotation WHERE academic_head_id = ? AND rotation_date = CURDATE()', [ah_id]);
+            await db.query('UPDATE ah_student_rotation SET is_deleted = 1, deleted_at = CURRENT_TIMESTAMP WHERE academic_head_id = ? AND rotation_date = CURDATE()', [ah_id]);
         }
 
         // Fetch 15 students who haven't been in rotation recently

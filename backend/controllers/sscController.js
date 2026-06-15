@@ -209,7 +209,7 @@ exports.updateSession = async (req, res) => {
 exports.deleteSession = async (req, res) => {
     try {
         const sessionId = req.params.id;
-        await db.query('DELETE FROM timetable WHERE id = ?', [sessionId]);
+        await db.query('UPDATE timetable SET is_deleted = 1, deleted_at = CURRENT_TIMESTAMP WHERE id = ?', [sessionId]);
         res.status(200).json({ success: true, message: "Session deleted" });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
@@ -304,7 +304,7 @@ exports.updateStudentAcademicSchedule = async (req, res) => {
         const studentId = req.params.id;
         const { schedules } = req.body;
 
-        await connection.query('DELETE FROM faculty_schedules WHERE student_id = ?', [studentId]);
+        await connection.query('UPDATE faculty_schedules SET is_deleted = 1, deleted_at = CURRENT_TIMESTAMP WHERE student_id = ?', [studentId]);
 
         let subjectsUpdated = false;
         const [[student]] = await connection.query('SELECT subjects_json FROM students WHERE id = ?', [studentId]);

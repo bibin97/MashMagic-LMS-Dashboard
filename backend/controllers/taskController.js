@@ -136,7 +136,7 @@ const updateTaskStatus = async (req, res) => {
 // @access  Private (super_admin)
 const deleteTask = async (req, res) => {
     try {
-        const [result] = await db.query('DELETE FROM tasks WHERE id = ?', [req.params.id]);
+        const [result] = await db.query('UPDATE tasks SET is_deleted = 1, deleted_at = CURRENT_TIMESTAMP WHERE id = ?', [req.params.id]);
         if (result.affectedRows === 0) {
             return res.status(404).json({ success: false, message: "Task not found" });
         }
