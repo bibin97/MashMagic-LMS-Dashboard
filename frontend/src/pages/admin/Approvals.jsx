@@ -23,18 +23,21 @@ const Approvals = () => {
   };
   const handleApprove = async (id, role) => {
     try {
-      await api.put(`/admin/approve/${id}`, {
-        role
-      });
-      toast.success(`${role === 'student' ? 'Student' : 'User'} approved successfully`);
-      setPendingUsers(prev => prev.filter(user => !(user.id === id && user.role === role)));
-      // Trigger notification refresh
-      if (window.refetchNotifications) window.refetchNotifications();
+      const res = await api.put(`/admin/approve/${id}`, { role });
+      if (res.data.success) {
+        toast.success(res.data.message || `User approved successfully`);
+        // Only remove from queue AFTER confirmed success
+        setPendingUsers(prev => prev.filter(user => !(user.id === id && user.role === role)));
+        if (window.refetchNotifications) window.refetchNotifications();
+      }
     } catch (error) {
+      // Do NOT remove from queue on failure - user must remain visible
+      const msg = error.response?.data?.message || "Approval failed. Please try again.";
+      toast.error(msg);
       console.error('Approve error:', error);
-      toast.error("Failed to approve user");
     }
   };
+
   const handleReject = async (id, role, name = 'this user') => {
     premiumConfirm(async () => {
       try {

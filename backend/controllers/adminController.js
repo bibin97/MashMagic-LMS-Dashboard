@@ -72,111 +72,180 @@ const getUserById = async (req, res) => {
 // @route   PUT /api/admin/approve/:id
 // @access  Private (super_admin, admin)
 const approveUser = async (req, res) => {
-    let transactionStarted = false;
+    // We use a dedicated single connection (not pool) so that BEGIN/COMMIT/ROLLBACK
+    // are all on the same connection and form a true atomic transaction.
+    const conn = await db.getConnection();
+    const approvedBy = req.user?.id || null;
+    const approvedByRole = req.user?.role || null;
+    let auditId = null;
+    let nameRow = null;
+
     try {
         const { role } = req.body;
         const { id } = req.params;
-        let result = { affectedRows: 0 };
-        let nameRow;
 
-        // 1. Fetch user to ensure they exist
+        // ── 0. Ensure audit table exists ────────────────────────────────────────
+        await db.query(`
+            CREATE TABLE IF NOT EXISTS approval_audit_logs (
+                id            INT AUTO_INCREMENT PRIMARY KEY,
+                user_id       INT NOT NULL,
+                role          VARCHAR(50),
+                approved_by   INT,
+                approved_by_role VARCHAR(50),
+                old_status    VARCHAR(30) DEFAULT 'pending',
+                new_status    VARCHAR(30),
+                success       TINYINT(1) DEFAULT 0,
+                error_message TEXT,
+                created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+
+        // ── 1. Validate: fetch user details BEFORE transaction ──────────────────
         if (role === 'student') {
-            [[nameRow]] = await db.query('SELECT name FROM students WHERE id = ?', [id]);
+            [[nameRow]] = await db.query('SELECT id as user_id, name, email FROM students WHERE id = ?', [id]);
         } else {
-            [[nameRow]] = await db.query('SELECT id as user_id, name, role, email, phone_number FROM users WHERE id = ?', [id]);
+            [[nameRow]] = await db.query(
+                'SELECT id as user_id, name, role, email, phone_number FROM users WHERE id = ? AND status = "pending"',
+                [id]
+            );
         }
 
         if (!nameRow) {
-            return res.status(404).json({ success: false, message: "User/Student not found" });
+            return res.status(404).json({ success: false, message: "User not found or already approved/rejected" });
         }
 
-        // --- BEGIN TRANSACTION ---
-        await db.query('START TRANSACTION');
-        transactionStarted = true;
+        // ── 2. Insert audit log (pending) ────────────────────────────────────────
+        const [auditInsert] = await db.query(
+            'INSERT INTO approval_audit_logs (user_id, role, approved_by, approved_by_role, old_status, new_status, success) VALUES (?, ?, ?, ?, ?, ?, ?)',
+            [nameRow.user_id, nameRow.role || role, approvedBy, approvedByRole, 'pending', 'active', 0]
+        );
+        auditId = auditInsert.insertId;
+
+        // ── 3. BEGIN real transaction on dedicated connection ────────────────────
+        await conn.beginTransaction();
 
         if (role === 'student') {
-            const [cols] = await db.query('SHOW COLUMNS FROM students LIKE "isApproved"');
-            if (cols.length > 0) {
-                [result] = await db.query('UPDATE students SET status = "active", isApproved = 1 WHERE id = ?', [id]);
-            } else {
-                [result] = await db.query('UPDATE students SET status = "active" WHERE id = ?', [id]);
-            }
-            
-            const [[studentData]] = await db.query('SELECT user_id FROM students WHERE id = ?', [id]);
+            // Student flow: update students table + linked users row
+            await conn.query('UPDATE students SET status = "active", isApproved = 1 WHERE id = ?', [id]);
+            const [[studentData]] = await conn.query('SELECT user_id FROM students WHERE id = ?', [id]);
             if (studentData?.user_id) {
-                const [userCols] = await db.query('SHOW COLUMNS FROM users LIKE "isApproved"');
-                if (userCols.length > 0) {
-                    await db.query('UPDATE users SET status = "active", isApproved = 1, isActive = 1 WHERE id = ?', [studentData.user_id]);
-                } else {
-                    await db.query('UPDATE users SET status = "active", isActive = 1 WHERE id = ?', [studentData.user_id]);
-                }
+                await conn.query('UPDATE users SET status = "active", isApproved = 1, isActive = 1 WHERE id = ?', [studentData.user_id]);
             }
         } else {
-            const [userCols] = await db.query('SHOW COLUMNS FROM users LIKE "isApproved"');
-            if (userCols.length > 0) {
-                [result] = await db.query('UPDATE users SET status = "active", isApproved = 1, isActive = 1 WHERE id = ?', [id]);
-            } else {
-                [result] = await db.query('UPDATE users SET status = "active", isActive = 1 WHERE id = ?', [id]);
-            }
-            
-            if (nameRow.role === 'faculty' || role === 'faculty') {
-                // Duplicate check
-                const [facDup] = await db.query('SELECT id FROM faculties WHERE email = ? OR user_id = ?', [nameRow.email, nameRow.user_id]);
-                
-                if (facDup.length > 0) {
-                    // Update existing to ensure status is active and linked
-                    const [facUpdate] = await db.query('UPDATE faculties SET status = "active", user_id = ? WHERE id = ?', [nameRow.user_id, facDup[0].id]);
+            // Non-student: update users table first
+            await conn.query('UPDATE users SET status = "active", isApproved = 1, isActive = 1 WHERE id = ?', [id]);
+
+            const effectiveRole = nameRow.role || role;
+
+            if (effectiveRole === 'faculty') {
+                // Duplicate protection: check by user_id OR email
+                const [[facDup]] = await conn.query(
+                    'SELECT id FROM faculties WHERE email = ? OR user_id = ? LIMIT 1',
+                    [nameRow.email, nameRow.user_id]
+                );
+
+                if (facDup) {
+                    // Re-link and re-activate existing record
+                    await conn.query(
+                        'UPDATE faculties SET status = "active", user_id = ? WHERE id = ?',
+                        [nameRow.user_id, facDup.id]
+                    );
                 } else {
-                    // Insert new faculty
-                    await db.query('INSERT INTO faculties (user_id, name, email, phone_number, status, subject) VALUES (?, ?, ?, ?, ?, ?)', [nameRow.user_id, nameRow.name, nameRow.email, nameRow.phone_number, 'active', null]);
+                    // Create new faculty record
+                    await conn.query(
+                        'INSERT INTO faculties (user_id, name, email, phone_number, status, subject) VALUES (?, ?, ?, ?, "active", NULL)',
+                        [nameRow.user_id, nameRow.name, nameRow.email, nameRow.phone_number]
+                    );
                 }
-                
-                // Verify faculty creation (Post-Commit readiness)
-                const [checkFac] = await db.query('SELECT id FROM faculties WHERE user_id = ?', [nameRow.user_id]);
-                if (checkFac.length === 0) throw new Error("Faculty record verification failed.");
-            } else if (nameRow.role === 'mentor' || role === 'mentor') {
-                const [menDup] = await db.query('SELECT id FROM mentors WHERE email = ?', [nameRow.email]);
-                if (menDup.length > 0) {
-                    await db.query('UPDATE mentors SET status = "active" WHERE id = ?', [menDup[0].id]);
+
+                // Post-insert verification (still within transaction)
+                const [[facCheck]] = await conn.query('SELECT id FROM faculties WHERE user_id = ? AND status = "active" LIMIT 1', [nameRow.user_id]);
+                if (!facCheck) throw new Error('Faculty record creation verification failed after insert.');
+
+            } else if (effectiveRole === 'mentor') {
+                // Duplicate protection: check by user_id OR email
+                const [[menDup]] = await conn.query(
+                    'SELECT id FROM mentors WHERE email = ? OR user_id = ? LIMIT 1',
+                    [nameRow.email, nameRow.user_id]
+                );
+
+                if (menDup) {
+                    await conn.query(
+                        'UPDATE mentors SET status = "active", user_id = ? WHERE id = ?',
+                        [nameRow.user_id, menDup.id]
+                    );
                 } else {
-                    await db.query('INSERT INTO mentors (name, email, phone_number, status) VALUES (?, ?, ?, ?)', [nameRow.name, nameRow.email, nameRow.phone_number, 'active']);
+                    await conn.query(
+                        'INSERT INTO mentors (user_id, name, email, phone_number, status) VALUES (?, ?, ?, ?, "active")',
+                        [nameRow.user_id, nameRow.name, nameRow.email, nameRow.phone_number]
+                    );
                 }
+
+                const [[menCheck]] = await conn.query('SELECT id FROM mentors WHERE user_id = ? AND status = "active" LIMIT 1', [nameRow.user_id]);
+                if (!menCheck) throw new Error('Mentor record creation verification failed after insert.');
+
+            } else if (effectiveRole === 'staff' || effectiveRole === 'ssc_staff') {
+                // Staff: just user table update is sufficient (no separate staff table)
+                // No additional role table needed for staff
             }
+            // mentor_head, sub_admin, super_admin: user table update is sufficient
         }
 
-        // Remove from pending users handled implicitly since their status is no longer "pending"
-        
-        // --- COMMIT TRANSACTION ---
-        await db.query('COMMIT');
-        transactionStarted = false;
+        // ── 4. COMMIT ────────────────────────────────────────────────────────────
+        await conn.commit();
+        conn.release();
 
-        // Clear notifications (soft delete - hide from UI)
+        // ── 5. Post-commit audit update ──────────────────────────────────────────
+        await db.query('UPDATE approval_audit_logs SET success = 1 WHERE id = ?', [auditId]);
+
+        // ── 6. Post-commit validation (independent from transaction) ─────────────
         try {
-            // Try soft delete first, fallback to hard delete if column missing
-            try {
-                await db.query(`
-                    UPDATE admin_notifications SET is_deleted = 1, deleted_at = CURRENT_TIMESTAMP
-                    WHERE related_id = ? 
-                    AND action_type IN ('student_registration', 'faculty_registration', 'mentor_registration', 'ssc_registration', 'faculty_onboarding', 'mentor_head_onboarding')
-                `, [id]);
-            } catch (softErr) {
-                // Column may not exist yet - skip notification clear
-                console.warn('Soft delete skipped for notifications (column may be missing):', softErr.message);
+            const [[userCheck]] = await db.query('SELECT status FROM users WHERE id = ? LIMIT 1', [nameRow.user_id]);
+            if (!userCheck || userCheck.status !== 'active') {
+                console.error(`CRITICAL: Post-commit validation failed for user_id=${nameRow.user_id}. Status mismatch.`);
+                await db.query(
+                    'INSERT INTO admin_notifications (message) VALUES (?)',
+                    [`<b style="color:red">⚠ Recovery Needed:</b> User ${nameRow.name} (ID: ${nameRow.user_id}) may have a data inconsistency. Please check manually.`]
+                );
             }
+        } catch (validErr) {
+            console.error('Post-commit validation error:', validErr.message);
+        }
 
+        // ── 7. Notifications ─────────────────────────────────────────────────────
+        try {
+            await db.query(`
+                UPDATE admin_notifications SET is_deleted = 1, deleted_at = CURRENT_TIMESTAMP
+                WHERE related_id = ?
+                AND action_type IN ('student_registration', 'faculty_registration', 'mentor_registration', 'ssc_registration', 'faculty_onboarding', 'mentor_head_onboarding')
+            `, [id]);
             await db.query('INSERT INTO admin_notifications (message) VALUES (?)', [
                 `<b>Approval Success:</b> ${nameRow?.name || id} is now <span style="color:#008080">Active</span>.`
             ]);
         } catch (notifErr) {
-            console.error("Error creating notification:", notifErr);
+            console.error('Notification error (non-critical):', notifErr.message);
         }
-        res.status(200).json({ success: true, message: "Approved successfully" });
+
+        return res.status(200).json({ success: true, message: `${nameRow?.name || 'User'} approved successfully` });
+
     } catch (error) {
-        if (transactionStarted) {
-            await db.query('ROLLBACK');
+        // ── ROLLBACK on any error ─────────────────────────────────────────────
+        try { await conn.rollback(); } catch (_) {}
+        conn.release();
+
+        // Update audit log with failure
+        if (auditId) {
+            try {
+                await db.query(
+                    'UPDATE approval_audit_logs SET success = 0, error_message = ? WHERE id = ?',
+                    [error.message, auditId]
+                );
+            } catch (_) {}
         }
-        console.error("APPROVE_USER_ERROR:", error);
-        res.status(500).json({ success: false, message: "Server Error during approval transaction", error: error.message });
+
+        console.error('APPROVE_USER_ERROR:', error.message);
+        // IMPORTANT: return 500 so frontend knows approval failed and keeps user in queue
+        return res.status(500).json({ success: false, message: `Approval failed: ${error.message}. User remains in pending queue.` });
     }
 };
 
@@ -324,7 +393,7 @@ const rejectUser = async (req, res) => {
         if (result.affectedRows === 0) {
             return res.status(404).json({ success: false, message: "User/Student not found" });
         }
-        // Automatically clear all related "Pending Approval" notifications from the activity feed (soft delete)
+        // Soft delete pending approval notifications (only hides from UI, data stays in DB)
         try {
             await db.query(`
                 UPDATE admin_notifications SET is_deleted = 1, deleted_at = CURRENT_TIMESTAMP
@@ -769,11 +838,12 @@ const getStudentPortalLogins = async (req, res) => {
 const getAdminNotifications = async (req, res) => {
     try {
         const { role } = req.user;
-        let query = 'SELECT * FROM admin_notifications';
+        // Exclude soft-deleted notifications - they stay in DB but hidden from UI
+        let query = 'SELECT * FROM admin_notifications WHERE (is_deleted IS NULL OR is_deleted = 0)';
         let params = [];
 
         if (role === 'mentor_head') {
-            query += " WHERE action_type IN ('mentorship_report', 'fraud_alert', 'mentor_registration') OR (action_type = 'staff_update' AND message LIKE '%Mentor%')";
+            query += " AND (action_type IN ('mentorship_report', 'fraud_alert', 'mentor_registration') OR (action_type = 'staff_update' AND message LIKE '%Mentor%'))";
         }
 
         query += ' ORDER BY created_at DESC LIMIT 100';
@@ -796,23 +866,31 @@ const markNotificationRead = async (req, res) => {
     }
 };
 
-// @desc    Delete Single Notification
+// @desc    Delete Single Notification (Soft Delete - only hides from notification UI, data stays in DB)
 // @route   DELETE /api/admin/notifications/:id
 const deleteNotification = async (req, res) => {
     try {
-        await db.query('UPDATE admin_notifications SET is_deleted = 1, deleted_at = CURRENT_TIMESTAMP WHERE id = ?', [req.params.id]);
-        res.status(200).json({ success: true, message: "Notification deleted" });
+        try {
+            await db.query('UPDATE admin_notifications SET is_deleted = 1, deleted_at = CURRENT_TIMESTAMP WHERE id = ?', [req.params.id]);
+        } catch (softErr) {
+            console.warn('is_deleted column missing, notification delete skipped:', softErr.message);
+        }
+        res.status(200).json({ success: true, message: "Notification hidden from view" });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
 };
 
-// @desc    Clear All Notifications
+// @desc    Clear All Notifications (Soft Delete - only hides from notification UI, data stays in DB)
 // @route   DELETE /api/admin/notifications/clear-all
 const clearAllNotifications = async (req, res) => {
     try {
-        await db.query('UPDATE admin_notifications SET is_deleted = 1, deleted_at = CURRENT_TIMESTAMP');
-        res.status(200).json({ success: true, message: "All notifications cleared" });
+        try {
+            await db.query('UPDATE admin_notifications SET is_deleted = 1, deleted_at = CURRENT_TIMESTAMP WHERE (is_deleted IS NULL OR is_deleted = 0)');
+        } catch (softErr) {
+            console.warn('is_deleted column missing, bulk notification clear skipped:', softErr.message);
+        }
+        res.status(200).json({ success: true, message: "All notifications cleared from view" });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
