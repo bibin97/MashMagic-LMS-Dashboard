@@ -908,41 +908,26 @@ const CommonInteractionLogs = ({
 
                                                                             {/* Questionnaire Section */}
                                                                             {(() => {
-                          let parsedReportData = null;
-                          if (log.report_data) {
-                            try {
-                              parsedReportData = typeof log.report_data === 'string' ? JSON.parse(log.report_data) : log.report_data;
-                            } catch (e) {
-                              console.error("Failed to parse report_data:", e);
-                            }
-                          }
-                          if (!parsedReportData) return null;
-                          return <div className="space-y-4">
-                                                                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                                                                                            <BookOpen size={12} /> Questionnaire Responses
-                                                                                        </p>
-                                                                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                                                            {Object.entries(parsedReportData).map(([key, val]) => {
-                                if (['notes', 'notes_text'].includes(key)) return null;
-                                let label = key.replace(/_/g, ' ');
-                                label = label.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
-                                const sessionTypeUpper = (log.session_type || '').toUpperCase();
-                                if (sessionTypeUpper === 'DEEP' && DEEP_QUESTION_LABELS[key]) {
-                                  label = DEEP_QUESTION_LABELS[key];
-                                } else if (sessionTypeUpper === 'MEDIUM' && MEDIUM_QUESTION_LABELS[key]) {
-                                  label = MEDIUM_QUESTION_LABELS[key];
-                                } else if (sessionTypeUpper === 'QUICK' && QUICK_QUESTION_LABELS[key]) {
-                                  label = QUICK_QUESTION_LABELS[key];
-                                }
-                                if (val === null || val === undefined || val === '') return null;
-                                return <div key={key} className={`p-6 bg-slate-50 border border-slate-100 rounded-3xl flex flex-col gap-2 shadow-inner ${String(val).length > 50 ? 'col-span-1 md:col-span-2' : ''}`}>
-                                                                                                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{label}</span>
-                                                                                                        <span className="text-sm font-bold text-slate-800 leading-relaxed whitespace-pre-wrap">{String(val)}</span>
-                                                                                                    </div>;
-                              })}
-                                                                                        </div>
-                                                                                    </div>;
-                        })()}
+  let parsedReportData = null;
+  if (log.report_data) {
+    try {
+      parsedReportData = typeof log.report_data === 'string' ? JSON.parse(log.report_data) : log.report_data;
+    } catch (e) {
+      console.error("Failed to parse report_data:", e);
+    }
+  }
+  if (!parsedReportData) return null;
+  return (
+    <div className="space-y-4 mt-8">
+      <InteractionFormUI 
+        sessionType={(log.session_type || 'QUICK').toUpperCase()} 
+        formData={parsedReportData} 
+        setFormData={() => {}} 
+        isReadOnly={true} 
+      />
+    </div>
+  );
+})()}
 
                                                                             {/* Metrics Grid */}
                                                                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -1070,41 +1055,26 @@ const CommonInteractionLogs = ({
 
                                                 {/* Questionnaire Section */}
                                                 {(() => {
-                let parsedReportData = null;
-                if (log.report_data) {
-                  try {
-                    parsedReportData = typeof log.report_data === 'string' ? JSON.parse(log.report_data) : log.report_data;
-                  } catch (e) {
-                    console.error("Failed to parse report_data:", e);
-                  }
-                }
-                if (!parsedReportData) return null;
-                return <div className="space-y-4">
-                                                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                                                                <BookOpen size={12} /> Questionnaire Responses
-                                                            </p>
-                                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                                {Object.entries(parsedReportData).map(([key, val]) => {
-                      if (['notes', 'notes_text'].includes(key)) return null;
-                      let label = key.replace(/_/g, ' ');
-                      label = label.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
-                      const sessionTypeUpper = (log.session_type || '').toUpperCase();
-                      if (sessionTypeUpper === 'DEEP' && DEEP_QUESTION_LABELS[key]) {
-                        label = DEEP_QUESTION_LABELS[key];
-                      } else if (sessionTypeUpper === 'MEDIUM' && MEDIUM_QUESTION_LABELS[key]) {
-                        label = MEDIUM_QUESTION_LABELS[key];
-                      } else if (sessionTypeUpper === 'QUICK' && QUICK_QUESTION_LABELS[key]) {
-                        label = QUICK_QUESTION_LABELS[key];
-                      }
-                      if (val === null || val === undefined || val === '') return null;
-                      return <div key={key} className="p-6 bg-slate-50 border border-slate-100 rounded-3xl flex flex-col gap-2 shadow-inner">
-                                                                            <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{label}</span>
-                                                                            <span className="text-sm font-bold text-slate-800 leading-relaxed">{String(val)}</span>
-                                                                        </div>;
-                    })}
-                                                            </div>
-                                                        </div>;
-              })()}
+  let parsedReportData = null;
+  if (log.report_data) {
+    try {
+      parsedReportData = typeof log.report_data === 'string' ? JSON.parse(log.report_data) : log.report_data;
+    } catch (e) {
+      console.error("Failed to parse report_data:", e);
+    }
+  }
+  if (!parsedReportData) return null;
+  return (
+    <div className="space-y-4 mt-8">
+      <InteractionFormUI 
+        sessionType={(log.session_type || 'QUICK').toUpperCase()} 
+        formData={parsedReportData} 
+        setFormData={() => {}} 
+        isReadOnly={true} 
+      />
+    </div>
+  );
+})()}
 
                                                 {/* Metrics Grid */}
                                                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -1223,18 +1193,15 @@ const CommonInteractionLogs = ({
                         </div>
                         
                         <div className="p-6 overflow-y-auto flex-1 space-y-6">
-                            {(!editModalLog.source || editModalLog.source.startsWith('Hub:')) && Object.keys(editFormData.report_data || {}).map(key => <div key={key}>
-                                    <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 ml-1">
-                                        {DEEP_QUESTION_LABELS[key] || MEDIUM_QUESTION_LABELS[key] || QUICK_QUESTION_LABELS[key] || key.replace(/_/g, ' ')}
-                                    </label>
-                                    <textarea className="w-full bg-slate-50 border border-slate-200 rounded-xl p-4 text-xs font-bold focus:ring-2 focus:ring-[#008080]/20 outline-none min-h-[80px]" value={editFormData.report_data[key] || ''} onChange={e => setEditFormData({
-              ...editFormData,
-              report_data: {
-                ...editFormData.report_data,
-                [key]: e.target.value
-              }
-            })} />
-                                </div>)}
+                            {(!editModalLog.source || editModalLog.source.startsWith('Hub:')) && (
+      <div className="bg-white">
+          <InteractionFormUI 
+            sessionType={(editModalLog.session_type || editModalLog.source.replace('Hub: ', '') || 'QUICK').toUpperCase()} 
+            formData={editFormData.report_data || {}} 
+            setFormData={(newData) => setEditFormData({...editFormData, report_data: newData})} 
+          />
+      </div>
+    )}
 
                             {editModalLog.source === 'Session Log' && <>
                                     <div>
