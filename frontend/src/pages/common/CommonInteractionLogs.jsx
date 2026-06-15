@@ -227,11 +227,7 @@ const CommonInteractionLogs = ({
       if (activeTab === 'student') {
         endpoint = role === 'mentor_head' || role === 'academic_head' ? `${apiPrefix}/students-all` : `${apiPrefix}/students`;
       } else {
-        if (role !== 'mentor_head' && role !== 'academic_head') {
-          endpoint = `${apiPrefix}/faculties`;
-        } else {
-          endpoint = role === 'mentor_head' || role === 'academic_head' ? `${apiPrefix}/mentors-all` : `${apiPrefix}/mentors`;
-        }
+        endpoint = role === 'mentor_head' ? `${apiPrefix}/faculties-all` : `${apiPrefix}/faculties`;
       }
       const res = await api.get(endpoint, {
         params
@@ -243,7 +239,7 @@ const CommonInteractionLogs = ({
       if (activeTab === 'student') {
         logsEndpoint = `${apiPrefix}/student-logs`;
       } else {
-        logsEndpoint = role === 'mentor_head' ? `${apiPrefix}/mentor-logs` : `${apiPrefix}/faculty-logs`;
+        logsEndpoint = `${apiPrefix}/faculty-logs`;
       }
       const logsRes = await api.get(logsEndpoint, {
         params
@@ -271,11 +267,7 @@ const CommonInteractionLogs = ({
       if (activeTab === 'student') {
         endpoint = `${apiPrefix}/student-logs`;
       } else {
-        if (role === 'mentor_head') {
-          endpoint = `${apiPrefix}/mentor-logs`;
-        } else {
-          endpoint = `${apiPrefix}/faculty-logs`;
-        }
+        endpoint = `${apiPrefix}/faculty-logs`;
       }
       const res = await api.get(endpoint, {
         params
