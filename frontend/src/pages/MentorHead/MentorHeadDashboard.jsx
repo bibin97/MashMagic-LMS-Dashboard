@@ -20,7 +20,8 @@ const MentorHeadDashboard = () => {
   const [stats, setStats] = useState({
     totalMentors: 0,
     totalInteractions: 0,
-    avgEfficiency: 0
+    avgEfficiency: 0,
+    totalFaculties: 0
   });
   const [dailySummary, setDailySummary] = useState({
     totalStudents: 0,
@@ -67,7 +68,8 @@ const MentorHeadDashboard = () => {
         setStats({
           totalMentors: mentors.length,
           totalInteractions,
-          avgEfficiency: mentors.length > 0 ? (totalInteractions / mentors.length).toFixed(1) : 0
+          avgEfficiency: mentors.length > 0 ? (totalInteractions / mentors.length).toFixed(1) : 0,
+          totalFaculties: statsRes.data.totalFaculties || 0
         });
       }
 
@@ -121,41 +123,52 @@ const MentorHeadDashboard = () => {
  </div>
  </div>
 
- {/* Stats Overview */}
- <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
- <div className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-500 group">
- <div className="flex items-center justify-between mb-4">
- <div className="w-12 h-12 bg-[#008080]/10 rounded-2xl flex items-center justify-center text-[#008080] group-hover:scale-110 transition-transform">
- <Users size={24} />
- </div>
- <span className="text-[10px] font-black text-[#008080] uppercase tracking-widest bg-[#008080]/10 px-3 py-1 rounded-full">Active</span>
- </div>
- <h3 className="text-3xl font-black text-slate-900">{stats.totalMentors}</h3>
- <p className="text-slate-600 text-xs font-bold uppercase tracking-widest mt-1">Total Mentors</p>
- </div>
+  {/* Stats Overview */}
+  <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+  <div className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-500 group">
+  <div className="flex items-center justify-between mb-4">
+  <div className="w-12 h-12 bg-[#008080]/10 rounded-2xl flex items-center justify-center text-[#008080] group-hover:scale-110 transition-transform">
+  <Users size={24} />
+  </div>
+  <span className="text-[10px] font-black text-[#008080] uppercase tracking-widest bg-[#008080]/10 px-3 py-1 rounded-full">Active</span>
+  </div>
+  <h3 className="text-3xl font-black text-slate-900">{stats.totalMentors}</h3>
+  <p className="text-slate-600 text-xs font-bold uppercase tracking-widest mt-1">Total Mentors</p>
+  </div>
 
- <div className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-500 group">
- <div className="flex items-center justify-between mb-4">
- <div className="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600 group-hover:scale-110 transition-transform">
- <CheckCircle2 size={24} />
- </div>
- <span className="text-[10px] font-black text-emerald-400 uppercase tracking-widest bg-emerald-50 px-3 py-1 rounded-full">Completed</span>
- </div>
- <h3 className="text-3xl font-black text-slate-900">{stats.totalInteractions}</h3>
- <p className="text-slate-600 text-xs font-bold uppercase tracking-widest mt-1">Total Interactions</p>
- </div>
+  <div className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-500 group">
+  <div className="flex items-center justify-between mb-4">
+  <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600 group-hover:scale-110 transition-transform">
+  <User size={24} />
+  </div>
+  <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest bg-indigo-50 px-3 py-1 rounded-full">Active</span>
+  </div>
+  <h3 className="text-3xl font-black text-slate-900">{stats.totalFaculties}</h3>
+  <p className="text-slate-600 text-xs font-bold uppercase tracking-widest mt-1">Total Faculties</p>
+  </div>
 
- <div className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-500 group">
- <div className="flex items-center justify-between mb-4">
- <div className="w-12 h-12 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-600 group-hover:scale-110 transition-transform">
- <TrendingUp size={24} />
- </div>
- <span className="text-[10px] font-black text-amber-400 uppercase tracking-widest bg-amber-50 px-3 py-1 rounded-full">Efficiency</span>
- </div>
- <h3 className="text-3xl font-black text-slate-900">{stats.avgEfficiency}</h3>
- <p className="text-slate-600 text-xs font-bold uppercase tracking-widest mt-1">Avg Updates/Mentor</p>
- </div>
- </div>
+  <div className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-500 group">
+  <div className="flex items-center justify-between mb-4">
+  <div className="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600 group-hover:scale-110 transition-transform">
+  <CheckCircle2 size={24} />
+  </div>
+  <span className="text-[10px] font-black text-emerald-400 uppercase tracking-widest bg-emerald-50 px-3 py-1 rounded-full">Completed</span>
+  </div>
+  <h3 className="text-3xl font-black text-slate-900">{stats.totalInteractions}</h3>
+  <p className="text-slate-600 text-xs font-bold uppercase tracking-widest mt-1">Total Interactions</p>
+  </div>
+
+  <div className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-500 group">
+  <div className="flex items-center justify-between mb-4">
+  <div className="w-12 h-12 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-600 group-hover:scale-110 transition-transform">
+  <TrendingUp size={24} />
+  </div>
+  <span className="text-[10px] font-black text-amber-400 uppercase tracking-widest bg-amber-50 px-3 py-1 rounded-full">Efficiency</span>
+  </div>
+  <h3 className="text-3xl font-black text-slate-900">{stats.avgEfficiency}</h3>
+  <p className="text-slate-600 text-xs font-bold uppercase tracking-widest mt-1">Avg Updates/Mentor</p>
+  </div>
+  </div>
 
  {/* Daily Student Verification Summary */}
  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

@@ -1549,9 +1549,12 @@ exports.getDashboardStats = async (req, res) => {
             WHERE u.status = 'active'
         `);
 
+        const [facultyCount] = await db.query("SELECT COUNT(*) as count FROM faculties WHERE status = 'active'");
+
         res.status(200).json({
             success: true,
-            data: mentors
+            data: mentors,
+            totalFaculties: facultyCount[0].count
         });
     } catch (error) {
         console.error('Error in getMentorHeadDashboard:', error);
