@@ -1090,16 +1090,24 @@ const getDemoSchedules = async (req, res) => {
 
 const fixDemoIds = async (req, res) => {
     try {
-        const [demos] = await db.query('SELECT id, demo_id FROM aoe_demo_schedules ORDER BY created_at ASC');
+        // Fix demo type IDs
+        const [demos] = await db.query("SELECT id, demo_id, type FROM aoe_demo_schedules WHERE type = 'demo' OR type IS NULL ORDER BY created_at ASC");
         for (let i = 0; i < demos.length; i++) {
             const demoIdStr = `DE${String(i + 1).padStart(2, '0')}`;
-            await db.query('UPDATE aoe_demo_schedules SET demo_id = ? WHERE id = ?', [demoIdStr, demos[i].id]);
+            await db.query("UPDATE aoe_demo_schedules SET demo_id = ?, type = 'demo' WHERE id = ?", [demoIdStr, demos[i].id]);
         }
-        res.status(200).json({ success: true, message: 'Fixed demo IDs' });
+        // Fix pre-demo type IDs
+        const [preDemos] = await db.query("SELECT id, demo_id FROM aoe_demo_schedules WHERE type = 'pre-demo' ORDER BY created_at ASC");
+        for (let i = 0; i < preDemos.length; i++) {
+            const demoIdStr = `DE${String(i + 1).padStart(2, '0')}`;
+            await db.query('UPDATE aoe_demo_schedules SET demo_id = ? WHERE id = ?', [demoIdStr, preDemos[i].id]);
+        }
+        res.status(200).json({ success: true, message: `Fixed IDs: ${demos.length} demos, ${preDemos.length} pre-demos` });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
 };
+
 
 const getNextDemoId = async (req, res) => {
     try {
