@@ -3,6 +3,19 @@ const bcrypt = require('bcrypt');
 const { logFacultyChanges } = require('../utils/facultyChangeLogger');
 const User = require('../models/userModel');
 
+const ensureAoeDemoScheduleColumns = async () => {
+    try {
+        await db.query('ALTER TABLE aoe_demo_schedules ADD COLUMN type VARCHAR(50) DEFAULT "demo"');
+    } catch (e) {
+        // column already exists
+    }
+    try {
+        await db.query('ALTER TABLE aoe_demo_schedules ADD COLUMN faculty_name VARCHAR(255) NULL');
+    } catch (e) {
+        // column already exists
+    }
+};
+
 // @desc    Get dashboard metrics and today's schedule
 const getDashboardStats = async (req, res) => {
     try {
@@ -1071,17 +1084,7 @@ const getDemoSchedules = async (req, res) => {
             )
         `);
 
-        // Also ensure 'type' column exists if the table was created before
-        try {
-            await db.query('ALTER TABLE aoe_demo_schedules ADD COLUMN type VARCHAR(50) DEFAULT "demo"');
-        } catch (e) {
-            // Ignore if column already exists
-        }
-        try {
-            await db.query('ALTER TABLE aoe_demo_schedules ADD COLUMN faculty_name VARCHAR(255) NULL');
-        } catch (e) {
-            // Ignore if column already exists
-        }
+        await ensureAoeDemoScheduleColumns();
 
         const [rows] = await db.query(`
             SELECT d.*, COALESCE(d.faculty_name, f.name) as faculty_name 
@@ -1144,6 +1147,7 @@ const getNextDemoId = async (req, res) => {
 
 const createDemoSchedule = async (req, res) => {
     try {
+        await ensureAoeDemoScheduleColumns();
         const { type, date, student_name, student_type, syllabus, section, subject, faculty_id, faculty_name_input, start_time, end_time, hour_rate, meeting_link } = req.body;
         const aoe_id = req.user.id;
         const demoType = type || 'demo';
@@ -1191,6 +1195,7 @@ const createDemoSchedule = async (req, res) => {
 
 const editDemoSchedule = async (req, res) => {
     try {
+        await ensureAoeDemoScheduleColumns();
         const { id } = req.params;
         const { demo_id, type, date, student_name, student_type, syllabus, section, subject, faculty_id, faculty_name_input, start_time, end_time, hour_rate, meeting_link } = req.body;
         const normalizedFacultyName = (faculty_name_input || '').trim();
