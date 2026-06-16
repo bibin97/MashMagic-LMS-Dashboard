@@ -260,6 +260,19 @@ const StudentInteractionLog = () => {
    }
  };
 
+ const getInteractionDisplayCount = (student) => {
+   if (!student) return null;
+   const possibleCount =
+     student.today_interaction_number ??
+     student.interaction_number ??
+     student.today_interaction_count ??
+     student.interaction_count_today ??
+     student.interactions_today ??
+     student.interactionCount ??
+     student.session_count_today;
+   return typeof possibleCount === 'number' && possibleCount > 0 ? possibleCount : null;
+ };
+
  // Main List Screen
  if (!selectedStudent) {
    return (
@@ -524,6 +537,12 @@ const StudentInteractionLog = () => {
 
      {!submitted ? (
        <form onSubmit={handleSubmit} className="bg-white p-6 md:p-12 rounded-[3.5rem] shadow-2xl border border-slate-50 space-y-12 relative">
+         <div className="absolute top-8 left-8 z-20 px-4 py-2 rounded-xl bg-slate-50 border border-slate-200">
+           <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Interaction Count</p>
+           <p className="text-sm font-black text-slate-900 mt-1">
+             {getInteractionDisplayCount(selectedStudent) ? `#${getInteractionDisplayCount(selectedStudent)}` : 'N/A'}
+           </p>
+         </div>
          
          {sessionType !== 'CANCELLED' && (
            <div className="absolute top-8 right-8 z-20">

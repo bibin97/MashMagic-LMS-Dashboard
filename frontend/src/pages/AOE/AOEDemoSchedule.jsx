@@ -51,6 +51,7 @@ const AOEDemoSchedule = () => {
     section: '',
     subject: '',
     faculty_id: '',
+    registered_faculty_input: '',
     faculty_name_input: '',
     date: new Date().toISOString().split('T')[0],
     start_time: '',
@@ -85,6 +86,12 @@ const AOEDemoSchedule = () => {
     (Number(evalData.parent_score) || 0);
 
   const uniqueSubjects = Array.from(new Set(faculties.map(f => f.subject).filter(Boolean)));
+  const registeredFacultyCount = faculties.length;
+  const isRegisteredFacultyName = (name) => {
+    const normalized = (name || '').trim().toLowerCase();
+    if (!normalized) return false;
+    return faculties.some((f) => (f.name || '').trim().toLowerCase() === normalized);
+  };
 
   useEffect(() => {
     fetchFaculties();
@@ -155,7 +162,21 @@ const AOEDemoSchedule = () => {
   const handlePreDemoSubmit = async (e) => {
     e.preventDefault();
     try {
-      const scheduleRes = await api.post('/aoe/demo-schedules', { ...formData, type: 'pre-demo', status: 'completed' });
+      const typedDemoFacultyName = (formData.faculty_name_input || '').trim();
+      const registeredFacultyName = (formData.registered_faculty_input || '').trim();
+      const exactRegisteredFacultyMatch = faculties.find(
+        (f) => (f.name || '').trim().toLowerCase() === registeredFacultyName.toLowerCase()
+      );
+
+      const payload = {
+        ...formData,
+        faculty_id: exactRegisteredFacultyMatch ? exactRegisteredFacultyMatch.id : (formData.faculty_id || ''),
+        faculty_name_input: typedDemoFacultyName || registeredFacultyName,
+        type: 'pre-demo',
+        status: 'completed'
+      };
+
+      const scheduleRes = await api.post('/aoe/demo-schedules', payload);
       const newId = scheduleRes.data.demo?.id || scheduleRes.data.id;
       
       if (newId) {
@@ -165,7 +186,7 @@ const AOEDemoSchedule = () => {
       toast.success('Pre-Demo Evaluated Successfully');
       setActiveTab('pre-demo');
       setFormData({
-        id: undefined, demo_id: '', type: 'demo', student_name: '', student_type: 'new', syllabus: '', section: '', subject: '', faculty_id: '', faculty_name_input: '', date: new Date().toISOString().split('T')[0], start_time: '', end_time: '', hour_rate: '', meeting_link: ''
+        id: undefined, demo_id: '', type: 'demo', student_name: '', student_type: 'new', syllabus: '', section: '', subject: '', faculty_id: '', registered_faculty_input: '', faculty_name_input: '', date: new Date().toISOString().split('T')[0], start_time: '', end_time: '', hour_rate: '', meeting_link: ''
       });
       setEvalData({ prep_score: 0, comm_score: 0, concept_score: 0, engage_score: 0, parent_score: 0, remarks: '' });
       fetchDemos();
@@ -179,19 +200,32 @@ const AOEDemoSchedule = () => {
   const handleCreateSchedule = async (e) => {
     e.preventDefault();
     const isPreDemo = activeTab === 'schedule_pre_demo';
-    
-    if (!isPreDemo && !formData.faculty_id) {
-      toast.error('Please select a faculty');
+
+    const typedDemoFacultyName = (formData.faculty_name_input || '').trim();
+    const registeredFacultyName = (formData.registered_faculty_input || '').trim();
+    const exactRegisteredFacultyMatch = faculties.find(
+      (f) => (f.name || '').trim().toLowerCase() === registeredFacultyName.toLowerCase()
+    );
+
+    if (!isPreDemo && !typedDemoFacultyName) {
+      toast.error('Please enter demo faculty name');
       return;
     }
-    
+
+    const payload = {
+      ...formData,
+      faculty_id: exactRegisteredFacultyMatch ? exactRegisteredFacultyMatch.id : (formData.faculty_id || ''),
+      faculty_name_input: typedDemoFacultyName,
+      type: isPreDemo ? 'pre-demo' : 'demo'
+    };
+
     try {
       if (formData.id) {
-        await api.put(`/aoe/demo-schedules/${formData.id}`, { ...formData, type: isPreDemo ? 'pre-demo' : 'demo' });
+        await api.put(`/aoe/demo-schedules/${formData.id}`, payload);
         toast.success('Demo Schedule Updated Successfully');
         setShowEditModal(false);
       } else {
-        await api.post('/aoe/demo-schedules', { ...formData, type: isPreDemo ? 'pre-demo' : 'demo' });
+        await api.post('/aoe/demo-schedules', payload);
         toast.success('Demo Schedule Created Successfully');
       }
       
@@ -205,6 +239,7 @@ const AOEDemoSchedule = () => {
         section: '',
         subject: '',
         faculty_id: '',
+        registered_faculty_input: '',
         faculty_name_input: '',
         date: new Date().toISOString().split('T')[0],
         start_time: '',
@@ -231,6 +266,7 @@ const AOEDemoSchedule = () => {
       section: demo.section || '',
       subject: demo.subject || '',
       faculty_id: demo.faculty_id || '',
+      registered_faculty_input: demo.faculty_id ? (faculties.find((f) => f.id === demo.faculty_id)?.name || demo.faculty_name || '') : '',
       faculty_name_input: demo.faculty_name || '',
       date: demo.date ? demo.date.substring(0, 10) : new Date().toISOString().split('T')[0],
       start_time: demo.start_time ? demo.start_time.substring(0, 5) : '',
@@ -361,32 +397,32 @@ const AOEDemoSchedule = () => {
 
                 <div className="space-y-2 relative">
                   <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 flex items-center gap-2">
-                    <Presentation size={12}/> Faculty (Optional)
+                    <Presentation size={12}/> Registered Faculty (Optional) <span className="text-[9px] text-slate-400">Registered: {registeredFacultyCount}</span>
                   </label>
                   <input
                     type="text"
-                    value={formData.faculty_name_input}
+                    value={formData.registered_faculty_input}
                     onFocus={() => setShowFacultySuggestions(true)}
                     onBlur={() => setTimeout(() => setShowFacultySuggestions(false), 200)}
                     onChange={(e) => {
-                      setFormData({ ...formData, faculty_name_input: e.target.value, faculty_id: '' });
+                      setFormData({ ...formData, registered_faculty_input: e.target.value, faculty_id: '' });
                       setShowFacultySuggestions(true);
                     }}
                     className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
-                    placeholder="Search faculty..."
+                    placeholder="Search registered faculty..."
                   />
                   
                   {showFacultySuggestions && (
                     <div className="absolute z-50 w-full mt-1 bg-white border border-slate-100 rounded-2xl shadow-xl max-h-60 overflow-y-auto top-full left-0">
                       {faculties
-                        .filter(f => f.name.toLowerCase().includes(formData.faculty_name_input.toLowerCase()) || (f.subject && f.subject.toLowerCase().includes(formData.faculty_name_input.toLowerCase())))
+                        .filter(f => f.name.toLowerCase().includes(formData.registered_faculty_input.toLowerCase()) || (f.subject && f.subject.toLowerCase().includes(formData.registered_faculty_input.toLowerCase())))
                         .map(f => (
                           <div 
                             key={f.id}
                             className="px-4 py-3 hover:bg-slate-50 cursor-pointer border-b border-slate-50 last:border-0 transition-colors"
                             onMouseDown={(e) => {
                               e.preventDefault();
-                              setFormData({ ...formData, faculty_name_input: f.name, faculty_id: f.id });
+                              setFormData({ ...formData, registered_faculty_input: f.name, faculty_id: f.id });
                               setShowFacultySuggestions(false);
                             }}
                           >
@@ -394,13 +430,36 @@ const AOEDemoSchedule = () => {
                             {f.subject && <div className="text-[9px] text-slate-400">{f.subject}</div>}
                           </div>
                         ))}
-                      {faculties.filter(f => f.name.toLowerCase().includes(formData.faculty_name_input.toLowerCase())).length === 0 && (
+                      {faculties.filter(f => f.name.toLowerCase().includes(formData.registered_faculty_input.toLowerCase())).length === 0 && (
                         <div className="px-4 py-4 text-[10px] text-slate-500 font-bold text-center">
-                          No faculty found matching this name.
+                          No registered faculty match.
                         </div>
                       )}
                     </div>
                   )}
+                  {!!formData.registered_faculty_input && (
+                    <p className={`mt-2 text-[10px] font-bold ${isRegisteredFacultyName(formData.registered_faculty_input) ? 'text-emerald-600' : 'text-amber-600'}`}>
+                      {isRegisteredFacultyName(formData.registered_faculty_input)
+                        ? 'Registered faculty detected.'
+                        : 'Type and pick from registered list (optional field).'}
+                    </p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 flex items-center gap-2">
+                    <Presentation size={12}/> Demo Faculty Name (Optional)
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.faculty_name_input}
+                    onChange={(e) => setFormData({ ...formData, faculty_name_input: e.target.value })}
+                    className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
+                    placeholder="Type demo faculty name..."
+                  />
+                  <p className="text-[10px] font-bold text-amber-600">
+                    This name is used only in demo/pre-demo list. Faculty master list/database will not auto-add.
+                  </p>
                 </div>
               </div>
 
@@ -626,32 +685,32 @@ const AOEDemoSchedule = () => {
 
               <div className="space-y-2 relative">
                 <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 flex items-center gap-2">
-                  <Presentation size={12}/> Faculty {activeTab !== 'schedule_pre_demo' && '*'}
+                  <Presentation size={12}/> Registered Faculty (Optional) <span className="text-[9px] text-slate-400">Registered: {registeredFacultyCount}</span>
                 </label>
                 <input
-                  type="text" required={activeTab !== 'schedule_pre_demo'}
-                  value={formData.faculty_name_input}
+                  type="text"
+                  value={formData.registered_faculty_input}
                   onFocus={() => setShowFacultySuggestions(true)}
                   onBlur={() => setTimeout(() => setShowFacultySuggestions(false), 200)}
                   onChange={(e) => {
-                    setFormData({ ...formData, faculty_name_input: e.target.value, faculty_id: '' });
+                    setFormData({ ...formData, registered_faculty_input: e.target.value, faculty_id: '' });
                     setShowFacultySuggestions(true);
                   }}
                   className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
-                  placeholder="Search faculty..."
+                  placeholder="Search registered faculty..."
                 />
                 
                 {showFacultySuggestions && (
                   <div className="absolute z-50 w-full mt-1 bg-white border border-slate-100 rounded-2xl shadow-xl max-h-60 overflow-y-auto top-full left-0">
                     {faculties
-                      .filter(f => f.name.toLowerCase().includes(formData.faculty_name_input.toLowerCase()) || (f.subject && f.subject.toLowerCase().includes(formData.faculty_name_input.toLowerCase())))
+                      .filter(f => f.name.toLowerCase().includes(formData.registered_faculty_input.toLowerCase()) || (f.subject && f.subject.toLowerCase().includes(formData.registered_faculty_input.toLowerCase())))
                       .map(f => (
                         <div 
                           key={f.id}
                           className="px-4 py-3 hover:bg-slate-50 cursor-pointer border-b border-slate-50 last:border-0 transition-colors"
                           onMouseDown={(e) => {
                             e.preventDefault();
-                            setFormData({ ...formData, faculty_name_input: f.name, faculty_id: f.id });
+                            setFormData({ ...formData, registered_faculty_input: f.name, faculty_id: f.id });
                             setShowFacultySuggestions(false);
                           }}
                         >
@@ -659,13 +718,37 @@ const AOEDemoSchedule = () => {
                           {f.subject && <div className="text-[9px] text-slate-400">{f.subject}</div>}
                         </div>
                       ))}
-                    {faculties.filter(f => f.name.toLowerCase().includes(formData.faculty_name_input.toLowerCase())).length === 0 && (
+                    {faculties.filter(f => f.name.toLowerCase().includes(formData.registered_faculty_input.toLowerCase())).length === 0 && (
                       <div className="px-4 py-4 text-[10px] text-slate-500 font-bold text-center">
-                        No faculty found matching this name.
+                        No registered faculty match.
                       </div>
                     )}
                   </div>
                 )}
+                {!!formData.registered_faculty_input && (
+                  <p className={`mt-2 text-[10px] font-bold ${isRegisteredFacultyName(formData.registered_faculty_input) ? 'text-emerald-600' : 'text-amber-600'}`}>
+                    {isRegisteredFacultyName(formData.registered_faculty_input)
+                      ? 'Registered faculty detected.'
+                      : 'Type and pick from registered list (optional field).'}
+                  </p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 flex items-center gap-2">
+                  <Presentation size={12}/> Demo Faculty Name {activeTab !== 'schedule_pre_demo' && '*'}
+                </label>
+                <input
+                  type="text"
+                  required={activeTab !== 'schedule_pre_demo'}
+                  value={formData.faculty_name_input}
+                  onChange={(e) => setFormData({ ...formData, faculty_name_input: e.target.value })}
+                  className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
+                  placeholder="Type demo faculty name..."
+                />
+                <p className="text-[10px] font-bold text-amber-600">
+                  This name is used for demo list only. It will not be added to faculty master list.
+                </p>
               </div>
 
               <div className="space-y-2">
@@ -752,7 +835,7 @@ const AOEDemoSchedule = () => {
               </h2>
               <button
                 onClick={() => {
-                  setFormData({ id: undefined, demo_id: '', student_name: '', student_type: 'new', syllabus: '', section: '', subject: '', faculty_id: '', faculty_name_input: '', date: new Date().toISOString().split('T')[0], start_time: '', end_time: '', hour_rate: '', meeting_link: '' });
+                  setFormData({ id: undefined, demo_id: '', student_name: '', student_type: 'new', syllabus: '', section: '', subject: '', faculty_id: '', registered_faculty_input: '', faculty_name_input: '', date: new Date().toISOString().split('T')[0], start_time: '', end_time: '', hour_rate: '', meeting_link: '' });
                   setActiveTab(activeTab === 'pre-demo' ? 'schedule_pre_demo' : 'schedule_demo');
                 }}
                 className={`px-6 py-2.5 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-md transition-all flex items-center gap-2 ${activeTab === 'pre-demo' ? 'bg-emerald-500 hover:bg-emerald-600' : 'bg-[#008080] hover:bg-[#006666]'}`}
@@ -994,7 +1077,7 @@ const AOEDemoSchedule = () => {
                 onClick={() => {
                   setShowEditModal(false);
                   setFormData({
-                    id: undefined, demo_id: '', type: 'demo', student_name: '', student_type: 'new', syllabus: '', section: '', subject: '', faculty_id: '', faculty_name_input: '', start_time: '', end_time: '', hour_rate: '', meeting_link: ''
+                    id: undefined, demo_id: '', type: 'demo', student_name: '', student_type: 'new', syllabus: '', section: '', subject: '', faculty_id: '', registered_faculty_input: '', faculty_name_input: '', start_time: '', end_time: '', hour_rate: '', meeting_link: ''
                   });
                 }} 
                 className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-slate-400 hover:text-rose-500 shadow-sm transition-all"
@@ -1050,30 +1133,30 @@ const AOEDemoSchedule = () => {
                 </div>
 
                 <div className="space-y-2 relative">
-                  <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 flex items-center gap-2"><Presentation size={12}/> Faculty {formData.type !== 'pre-demo' && '*'}</label>
+                  <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 flex items-center gap-2"><Presentation size={12}/> Registered Faculty (Optional) <span className="text-[9px] text-slate-400">Registered: {registeredFacultyCount}</span></label>
                   <input
-                    type="text" required={formData.type !== 'pre-demo'}
-                    value={formData.faculty_name_input}
+                    type="text"
+                    value={formData.registered_faculty_input}
                     onFocus={() => setShowFacultySuggestions(true)}
                     onBlur={() => setTimeout(() => setShowFacultySuggestions(false), 200)}
                     onChange={(e) => {
-                      setFormData({ ...formData, faculty_name_input: e.target.value, faculty_id: '' });
+                      setFormData({ ...formData, registered_faculty_input: e.target.value, faculty_id: '' });
                       setShowFacultySuggestions(true);
                     }}
                     className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
-                    placeholder="Search faculty..."
+                    placeholder="Search registered faculty..."
                   />
                   {showFacultySuggestions && (
                     <div className="absolute z-50 w-full mt-1 bg-white border border-slate-100 rounded-2xl shadow-xl max-h-40 overflow-y-auto top-full left-0">
                       {faculties
-                        .filter(f => f.name.toLowerCase().includes(formData.faculty_name_input.toLowerCase()) || (f.subject && f.subject.toLowerCase().includes(formData.faculty_name_input.toLowerCase())))
+                        .filter(f => f.name.toLowerCase().includes(formData.registered_faculty_input.toLowerCase()) || (f.subject && f.subject.toLowerCase().includes(formData.registered_faculty_input.toLowerCase())))
                         .map(f => (
                           <div 
                             key={f.id}
                             className="px-4 py-3 hover:bg-slate-50 cursor-pointer border-b border-slate-50 last:border-0 transition-colors"
                             onMouseDown={(e) => {
                               e.preventDefault();
-                              setFormData({ ...formData, faculty_name_input: f.name, faculty_id: f.id });
+                              setFormData({ ...formData, registered_faculty_input: f.name, faculty_id: f.id });
                               setShowFacultySuggestions(false);
                             }}
                           >
@@ -1081,8 +1164,32 @@ const AOEDemoSchedule = () => {
                             {f.subject && <div className="text-[9px] text-slate-400">{f.subject}</div>}
                           </div>
                         ))}
+                      {faculties.filter(f => f.name.toLowerCase().includes(formData.registered_faculty_input.toLowerCase())).length === 0 && (
+                        <div className="px-4 py-4 text-[10px] text-slate-500 font-bold text-center">
+                          No registered faculty match.
+                        </div>
+                      )}
                     </div>
                   )}
+                  {!!formData.registered_faculty_input && (
+                    <p className={`mt-2 text-[10px] font-bold ${isRegisteredFacultyName(formData.registered_faculty_input) ? 'text-emerald-600' : 'text-amber-600'}`}>
+                      {isRegisteredFacultyName(formData.registered_faculty_input)
+                        ? 'Registered faculty detected.'
+                        : 'Type and pick from registered list (optional field).'}
+                    </p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 flex items-center gap-2"><Presentation size={12}/> Demo Faculty Name {formData.type !== 'pre-demo' && '*'}</label>
+                  <input
+                    type="text"
+                    required={formData.type !== 'pre-demo'}
+                    value={formData.faculty_name_input}
+                    onChange={(e) => setFormData({ ...formData, faculty_name_input: e.target.value })}
+                    className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
+                    placeholder="Type demo faculty name..."
+                  />
                 </div>
 
                 <div className="space-y-2">
@@ -1117,7 +1224,7 @@ const AOEDemoSchedule = () => {
                   onClick={() => {
                     setShowEditModal(false);
                     setFormData({
-                      id: undefined, demo_id: '', student_name: '', student_type: 'new', syllabus: '', section: '', subject: '', faculty_id: '', faculty_name_input: '', date: new Date().toISOString().split('T')[0], start_time: '', end_time: '', hour_rate: '', meeting_link: ''
+                      id: undefined, demo_id: '', student_name: '', student_type: 'new', syllabus: '', section: '', subject: '', faculty_id: '', registered_faculty_input: '', faculty_name_input: '', date: new Date().toISOString().split('T')[0], start_time: '', end_time: '', hour_rate: '', meeting_link: ''
                     });
                   }}
                   className="flex-1 py-4 bg-slate-100 text-slate-600 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-200 transition-all"

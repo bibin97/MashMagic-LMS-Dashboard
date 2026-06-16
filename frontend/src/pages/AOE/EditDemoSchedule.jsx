@@ -23,6 +23,7 @@ const EditDemoSchedule = () => {
     section: '',
     subject: '',
     faculty_id: '',
+    faculty_name_input: '',
     start_time: '',
     end_time: '',
     hour_rate: ''
@@ -47,6 +48,7 @@ const EditDemoSchedule = () => {
         section: demo.section || '',
         subject: demo.subject || '',
         faculty_id: demo.faculty_id || '',
+        faculty_name_input: demo.faculty_name || '',
         start_time: demo.start_time || '',
         end_time: demo.end_time || '',
         hour_rate: demo.hour_rate || ''
@@ -81,17 +83,33 @@ const EditDemoSchedule = () => {
   };
 
   const uniqueSubjects = Array.from(new Set(faculties.map(f => f.subject).filter(Boolean)));
+  const registeredFacultyCount = faculties.length;
+  const isRegisteredFacultyName = (name) => {
+    const normalized = (name || '').trim().toLowerCase();
+    if (!normalized) return false;
+    return faculties.some((f) => (f.name || '').trim().toLowerCase() === normalized);
+  };
 
   const handleUpdateSchedule = async (e) => {
     e.preventDefault();
-    if (!formData.faculty_id) {
-      toast.error('Please select a faculty');
+    const typedFacultyName = (formData.faculty_name_input || '').trim();
+    if (!typedFacultyName) {
+      toast.error('Please enter a faculty name');
       return;
     }
-    
+
+    const exactFacultyMatch = faculties.find(
+      (f) => (f.name || '').trim().toLowerCase() === typedFacultyName.toLowerCase()
+    );
+    const payload = {
+      ...formData,
+      faculty_id: exactFacultyMatch ? exactFacultyMatch.id : (formData.faculty_id || ''),
+      faculty_name_input: typedFacultyName
+    };
+
     setLoading(true);
     try {
-      await api.put(`/aoe/demo-schedules/${formData.id}`, formData);
+      await api.put(`/aoe/demo-schedules/${formData.id}`, payload);
       toast.success('Demo Schedule Updated Successfully');
       navigate('/aoe/demo-schedule');
     } catch (error) {
@@ -271,21 +289,33 @@ const EditDemoSchedule = () => {
               )}
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-2 relative">
               <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 flex items-center gap-2">
-                <Presentation size={12}/> Faculty *
+                <Presentation size={12}/> Faculty * <span className="text-[9px] text-slate-400">Registered: {registeredFacultyCount}</span>
               </label>
-              <select
+              <input
+                type="text"
                 required
-                value={formData.faculty_id}
-                onChange={(e) => setFormData({ ...formData, faculty_id: e.target.value })}
+                value={formData.faculty_name_input}
+                onChange={(e) => {
+                  setFormData({ ...formData, faculty_name_input: e.target.value, faculty_id: '' });
+                }}
                 className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
-              >
-                <option value="">Select Faculty</option>
-                {faculties.map(f => (
-                  <option key={f.id} value={f.id}>{f.name} - {f.subject}</option>
+                placeholder="Search or type faculty name..."
+                list="edit-demo-faculty-list"
+              />
+              <datalist id="edit-demo-faculty-list">
+                {faculties.map((f) => (
+                  <option key={f.id} value={f.name} />
                 ))}
-              </select>
+              </datalist>
+              {!!formData.faculty_name_input && (
+                <p className={`mt-2 text-[10px] font-bold ${isRegisteredFacultyName(formData.faculty_name_input) ? 'text-emerald-600' : 'text-amber-600'}`}>
+                  {isRegisteredFacultyName(formData.faculty_name_input)
+                    ? 'Registered faculty detected.'
+                    : 'Not in registered list. Will be saved for this demo only.'}
+                </p>
+              )}
             </div>
 
             <div className="space-y-2">

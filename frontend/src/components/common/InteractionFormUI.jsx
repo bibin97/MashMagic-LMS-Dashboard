@@ -1,12 +1,22 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { AlertCircle, Brain, Paperclip, Download } from 'lucide-react';
 
 const InteractionFormUI = ({ sessionType, formData, setFormData, isReadOnly = false }) => {
+  const [expandedFields, setExpandedFields] = useState({});
+
   const handleChange = (e) => {
     if (isReadOnly) return;
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
+
+  const expandField = (fieldName) => {
+    setExpandedFields((prev) => ({ ...prev, [fieldName]: true }));
+  };
+
+  const getRows = (fieldName, baseRows, expandedRows = 8) => (
+    expandedFields[fieldName] ? expandedRows : baseRows
+  );
 
   const renderButtonOptions = (field, options, activeColor, inactiveColor, defaultLabel = '') => (
     <div className="flex gap-2 w-full">
@@ -35,7 +45,7 @@ const InteractionFormUI = ({ sessionType, formData, setFormData, isReadOnly = fa
   );
 
   return (
-    <div className={`space-y-8 ${isReadOnly ? 'pointer-events-none opacity-95' : ''}`}>
+    <div className={`space-y-8 ${isReadOnly ? 'opacity-95' : ''}`}>
       {sessionType === 'DEEP' && (
         <div className="space-y-10">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 bg-slate-50 p-6 rounded-[2.5rem] border border-slate-100 items-end">
@@ -69,7 +79,7 @@ const InteractionFormUI = ({ sessionType, formData, setFormData, isReadOnly = fa
 
           <div className="space-y-2 relative group">
             <label className="text-[10px] font-black text-rose-600 uppercase tracking-widest ml-1 absolute -top-3 left-6 bg-white px-2">Action Plan</label>
-            <textarea name="action_plan" rows="3" value={formData.action_plan || ''} onChange={handleChange} readOnly={isReadOnly} className="w-full p-8 bg-rose-50/50 border-2 border-rose-100 focus:border-rose-300 rounded-[2.5rem] text-lg font-black text-slate-900 outline-none transition-all placeholder:text-rose-200 shadow-[0_10px_40px_rgba(244,63,94,0.05)]" placeholder="What should student do before next session?"></textarea>
+            <textarea name="action_plan" rows={getRows('action_plan', 3)} value={formData.action_plan || ''} onChange={handleChange} onClick={() => expandField('action_plan')} onFocus={() => expandField('action_plan')} readOnly={isReadOnly} className={`w-full p-8 bg-rose-50/50 border-2 border-rose-100 focus:border-rose-300 rounded-[2.5rem] text-lg font-black text-slate-900 outline-none transition-all placeholder:text-rose-200 shadow-[0_10px_40px_rgba(244,63,94,0.05)] ${isReadOnly ? 'cursor-pointer' : ''}`} placeholder="What should student do before next session?"></textarea>
           </div>
 
           <div className="p-8 bg-slate-50 rounded-[2.5rem] border border-slate-100 flex flex-col md:flex-row items-center justify-between gap-6">
@@ -196,11 +206,13 @@ const InteractionFormUI = ({ sessionType, formData, setFormData, isReadOnly = fa
           <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Today's Interaction Details</label>
           <textarea 
             name="interaction_details" 
-            rows="3" 
+            rows={getRows('interaction_details', 3)} 
             value={formData.interaction_details || ''} 
             onChange={handleChange} 
+            onClick={() => expandField('interaction_details')}
+            onFocus={() => expandField('interaction_details')}
             readOnly={isReadOnly}
-            className="w-full p-6 bg-slate-50 border border-slate-200 rounded-[2rem] text-sm font-bold text-slate-900 outline-none focus:bg-white focus:border-[#008080] focus:ring-4 focus:ring-[#008080]/10 transition-all placeholder:text-slate-400" 
+            className={`w-full p-6 bg-slate-50 border border-slate-200 rounded-[2rem] text-sm font-bold text-slate-900 outline-none focus:bg-white focus:border-[#008080] focus:ring-4 focus:ring-[#008080]/10 transition-all placeholder:text-slate-400 ${isReadOnly ? 'cursor-pointer' : ''}`} 
             placeholder="Type detailed notes about today's interaction..."
           ></textarea>
         </div>
@@ -240,11 +252,13 @@ const InteractionFormUI = ({ sessionType, formData, setFormData, isReadOnly = fa
             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Additional Notes (Optional)</label>
             <textarea 
               name="quick_notes" 
-              rows="2" 
+              rows={getRows('quick_notes', 2, 6)} 
               value={formData.quick_notes || ''} 
               onChange={handleChange} 
+              onClick={() => expandField('quick_notes')}
+              onFocus={() => expandField('quick_notes')}
               readOnly={isReadOnly}
-              className="w-full p-4 bg-white/5 border border-white/10 rounded-[1.5rem] text-sm font-bold text-white outline-none focus:bg-white/10 transition-all placeholder:text-slate-600" 
+              className={`w-full p-4 bg-white/5 border border-white/10 rounded-[1.5rem] text-sm font-bold text-white outline-none focus:bg-white/10 transition-all placeholder:text-slate-600 ${isReadOnly ? 'cursor-pointer' : ''}`} 
               placeholder="Anything important noticed?"
             ></textarea>
           </div>

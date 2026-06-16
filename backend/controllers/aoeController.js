@@ -1054,6 +1054,7 @@ const getDemoSchedules = async (req, res) => {
                 section VARCHAR(50),
                 subject VARCHAR(100),
                 faculty_id INT,
+                faculty_name VARCHAR(255),
                 start_time TIME,
                 end_time TIME,
                 hour_rate DECIMAL(10,2) DEFAULT 0.00,
@@ -1076,9 +1077,14 @@ const getDemoSchedules = async (req, res) => {
         } catch (e) {
             // Ignore if column already exists
         }
+        try {
+            await db.query('ALTER TABLE aoe_demo_schedules ADD COLUMN faculty_name VARCHAR(255) NULL');
+        } catch (e) {
+            // Ignore if column already exists
+        }
 
         const [rows] = await db.query(`
-            SELECT d.*, f.name as faculty_name 
+            SELECT d.*, COALESCE(d.faculty_name, f.name) as faculty_name 
             FROM aoe_demo_schedules d
             LEFT JOIN faculties f ON d.faculty_id = f.id
             ORDER BY d.created_at DESC
@@ -1138,10 +1144,22 @@ const getNextDemoId = async (req, res) => {
 
 const createDemoSchedule = async (req, res) => {
     try {
-        const { type, date, student_name, student_type, syllabus, section, subject, faculty_id, start_time, end_time, hour_rate, meeting_link } = req.body;
+        const { type, date, student_name, student_type, syllabus, section, subject, faculty_id, faculty_name_input, start_time, end_time, hour_rate, meeting_link } = req.body;
         const aoe_id = req.user.id;
         const demoType = type || 'demo';
         const prefix = 'DE';
+        const normalizedFacultyName = (faculty_name_input || '').trim();
+
+        let resolvedFacultyId = faculty_id || null;
+        if (!resolvedFacultyId && normalizedFacultyName) {
+            const [matchedFaculty] = await db.query(
+                'SELECT id FROM faculties WHERE LOWER(TRIM(name)) = LOWER(TRIM(?)) LIMIT 1',
+                [normalizedFacultyName]
+            );
+            if (matchedFaculty.length > 0) {
+                resolvedFacultyId = matchedFaculty[0].id;
+            }
+        }
 
         // Auto-generate unique demo_id for this type
         const [rows] = await db.query(
@@ -1160,9 +1178,9 @@ const createDemoSchedule = async (req, res) => {
 
         await db.query(`
             INSERT INTO aoe_demo_schedules 
-                (aoe_id, demo_id, type, date, student_name, student_type, syllabus, section, subject, faculty_id, start_time, end_time, hour_rate, meeting_link)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        `, [aoe_id, auto_demo_id, demoType, date || null, student_name, student_type || 'new', syllabus || null, section || null, subject || null, faculty_id || null, start_time || null, end_time || null, hour_rate || 0, meeting_link || null]);
+                (aoe_id, demo_id, type, date, student_name, student_type, syllabus, section, subject, faculty_id, faculty_name, start_time, end_time, hour_rate, meeting_link)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `, [aoe_id, auto_demo_id, demoType, date || null, student_name, student_type || 'new', syllabus || null, section || null, subject || null, resolvedFacultyId, normalizedFacultyName || null, start_time || null, end_time || null, hour_rate || 0, meeting_link || null]);
 
         res.status(201).json({ success: true, message: 'Demo schedule created successfully', demo_id: auto_demo_id });
     } catch (error) {
@@ -1174,13 +1192,25 @@ const createDemoSchedule = async (req, res) => {
 const editDemoSchedule = async (req, res) => {
     try {
         const { id } = req.params;
-        const { demo_id, type, date, student_name, student_type, syllabus, section, subject, faculty_id, start_time, end_time, hour_rate, meeting_link } = req.body;
+        const { demo_id, type, date, student_name, student_type, syllabus, section, subject, faculty_id, faculty_name_input, start_time, end_time, hour_rate, meeting_link } = req.body;
+        const normalizedFacultyName = (faculty_name_input || '').trim();
+
+        let resolvedFacultyId = faculty_id || null;
+        if (!resolvedFacultyId && normalizedFacultyName) {
+            const [matchedFaculty] = await db.query(
+                'SELECT id FROM faculties WHERE LOWER(TRIM(name)) = LOWER(TRIM(?)) LIMIT 1',
+                [normalizedFacultyName]
+            );
+            if (matchedFaculty.length > 0) {
+                resolvedFacultyId = matchedFaculty[0].id;
+            }
+        }
         
         await db.query(`
             UPDATE aoe_demo_schedules 
-            SET demo_id=?, type=?, date=?, student_name=?, student_type=?, syllabus=?, section=?, subject=?, faculty_id=?, start_time=?, end_time=?, hour_rate=?, meeting_link=?
+            SET demo_id=?, type=?, date=?, student_name=?, student_type=?, syllabus=?, section=?, subject=?, faculty_id=?, faculty_name=?, start_time=?, end_time=?, hour_rate=?, meeting_link=?
             WHERE id=?
-        `, [demo_id || null, type || 'demo', date || null, student_name, student_type || 'new', syllabus || null, section || null, subject || null, faculty_id || null, start_time || null, end_time || null, hour_rate || 0, meeting_link || null, id]);
+        `, [demo_id || null, type || 'demo', date || null, student_name, student_type || 'new', syllabus || null, section || null, subject || null, resolvedFacultyId, normalizedFacultyName || null, start_time || null, end_time || null, hour_rate || 0, meeting_link || null, id]);
         
         res.status(200).json({ success: true, message: 'Demo schedule updated successfully' });
     } catch (error) {
