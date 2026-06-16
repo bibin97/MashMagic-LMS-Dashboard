@@ -10,8 +10,9 @@ const EditInteractionLog = () => {
     const navigate = useNavigate();
     const { id } = useParams();
     
-    // Attempt to get log from navigation state
+    // Attempt to get log and apiPrefix from navigation state
     const initialLog = location.state?.log || null;
+    const apiPrefix = location.state?.apiPrefix || '/admin';
     
     const [log, setLog] = useState(initialLog);
     const [editFormData, setEditFormData] = useState({});
@@ -45,7 +46,8 @@ const EditInteractionLog = () => {
         if (!log) return;
         setIsSaving(true);
         try {
-            const res = await api.put(`/admin/interactions/${log.source || 'Interaction Hub'}/${log.id}`, editFormData);
+            const endpoint = `${apiPrefix}/interactions/${encodeURIComponent(log.source || 'Interaction Hub')}/${log.id}`;
+            const res = await api.put(endpoint, editFormData);
             if (res.data.success) {
                 toast.success('Log updated successfully');
                 navigate(-1);

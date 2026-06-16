@@ -1695,7 +1695,7 @@ exports.deleteInteractionLog = async (req, res) => {
                 }
         }
 
-        const [result] = await db.query(`UPDATE ${tableName} SET is_deleted = 1, deleted_at = CURRENT_TIMESTAMP WHERE id = ?`, [id]);
+        const [result] = await db.query(`DELETE FROM ${tableName} WHERE id = ?`, [id]);
 
         if (result.affectedRows === 0) {
             return res.status(404).json({ success: false, message: "Log not found or already deleted" });

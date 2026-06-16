@@ -430,17 +430,16 @@ const CommonInteractionLogs = ({
       } catch (e) {
         parsedReport = {};
       }
-      const fallbackFiles = getLogFiles(log);
-      initialData = {
-        report_data: {
-          ...parsedReport,
-          files: parsedReport.files || fallbackFiles
-        }
-      };
-    }
-    setEditFiles([]);
-    setEditModalLog(log);
-    setEditFormData(initialData);
+    const fallbackFiles = getLogFiles(log);
+    const logDataToPass = {
+      ...log,
+      report_data: {
+        ...parsedReport,
+        files: parsedReport.files || fallbackFiles
+      }
+    };
+    
+    navigate(`edit/${log.id}`, { state: { log: logDataToPass, apiPrefix } });
   };
 
   const handleSaveEdit = async () => {
