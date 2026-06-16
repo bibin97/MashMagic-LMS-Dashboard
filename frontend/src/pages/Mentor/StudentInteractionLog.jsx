@@ -451,7 +451,6 @@ const StudentInteractionLog = () => {
             </div>
           )}
         </div>
-      </div>
 
       {/* Read-only Report Modal for Completed Students */}
       {viewReportModal && (
@@ -486,6 +485,7 @@ const StudentInteractionLog = () => {
           </div>
         </div>
       )}
+     </div>
    );
  }
 
