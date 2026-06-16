@@ -191,8 +191,7 @@ const StudentInteractionLog = () => {
        }
      }
 
-     toast.success(isEditingLog ? "Interaction updated successfully!" : "Interaction submitted successfully!");
-     setIsEditingLog(false);
+     toast.success("Interaction submitted successfully!");
      setSubmitted(true);
      fetchAssignedStudents(); // Refresh daily list
      fetchAllStudents(); // Refresh all students list
@@ -438,7 +437,7 @@ const StudentInteractionLog = () => {
  return (
    <div className="max-w-4xl mx-auto space-y-10 p-6 pb-20 animate-in fade-in slide-in-from-bottom-4 duration-500">
      <button
-       onClick={() => { setSelectedStudent(null); setSubmitted(false); setIsEditingLog(false); }}
+       onClick={() => { setSelectedStudent(null); setSubmitted(false); }}
        className="flex items-center gap-2 text-slate-600 hover:text-[#008080] font-black text-[10px] uppercase tracking-widest transition-colors mb-4"
      >
        <ArrowLeft size={16} /> Return to Dashboard
