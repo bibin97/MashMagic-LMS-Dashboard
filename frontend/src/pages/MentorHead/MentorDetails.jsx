@@ -543,68 +543,66 @@ const MentorDetails = () => {
          <div className="mb-6">
            <p className="text-slate-600 font-bold text-sm">Score each area 1-5. Total score determines level.</p>
          </div>
-
-         <div className="bg-white rounded-2xl shadow-sm border border-slate-200">
-           <table className="w-full text-left border-collapse md:min-w-[600px]">
-             <thead className="hidden md:table-header-group">
-               <tr className="bg-[#005050] text-white">
-                 <th className="p-4 text-sm font-bold border-b border-[#006060]">Assessment Area</th>
-                 <th className="hidden md:table-cell p-4 text-sm font-bold border-b border-[#006060]">1 — Poor</th>
-                 <th className="hidden md:table-cell p-4 text-sm font-bold border-b border-[#006060]">3 — Average</th>
-                 <th className="hidden md:table-cell p-4 text-sm font-bold border-b border-[#006060]">5 — Strong</th>
-                 <th className="p-4 text-sm font-bold border-b border-[#006060] text-center min-w-[150px]">Score (circle)</th>
-               </tr>
-             </thead>
-             <tbody className="divide-y divide-slate-100 flex flex-col md:table-row-group">
-               {[{
-                  id: 'q1',
-                  area: 'How many days per week does the student study?',
-                  l1: 'Never',
-                  l3: '3 days',
-                  l5: 'Daily'
-                }, {
-                  id: 'q2',
-                  area: 'How quickly does student complete homework?',
-                  l1: 'Never does it',
-                  l3: 'Sometimes',
-                  l5: 'Always on time'
-                }, {
-                  id: 'q3',
-                  area: 'Can student explain what they learned?',
-                  l1: 'Cannot explain',
-                  l3: 'Partially',
-                  l5: 'Clearly in own words'
-                }, {
-                  id: 'q4',
-                  area: 'Does student cover all subjects in the week?',
-                  l1: '1-2 subjects only',
-                  l3: 'Some balance',
-                  l5: 'All subjects'
-                }, {
-                  id: 'q5',
-                  area: 'How motivated and confident is the student?',
-                  l1: 'Avoids studying',
-                  l3: 'Neutral',
-                  l5: 'Confident and motivated'
-                }].map((row, index) => <tr key={row.id} className={`flex flex-col md:table-row border-b md:border-none border-slate-100 ${index % 2 === 0 ? 'bg-emerald-50/30' : 'bg-white'}`}><td className="p-6 text-sm font-black text-slate-400 border-b border-slate-50">{index + 1}</td>
-                   <td className="p-4 pb-2 md:pb-4 text-sm font-bold text-slate-800 md:w-auto">{row.area}</td>
-                   <td className="hidden md:table-cell p-4 text-xs italic text-slate-500">{row.l1}</td>
-                   <td className="hidden md:table-cell p-4 text-xs italic text-slate-500">{row.l3}</td>
-                   <td className="hidden md:table-cell p-4 text-xs italic text-slate-500">{row.l5}</td>
-                   <td className="p-4 pt-2 md:pt-4 md:text-center flex justify-start md:justify-center">
-                     <div className="flex items-center justify-start md:justify-center gap-2 md:gap-1.5 w-full overflow-x-auto no-scrollbar py-1">
-                       {[1, 2, 3, 4, 5].map((val, index) => <button key={val} onClick={() => setAssessmentScores(prev => ({
-                        ...prev,
-                        [row.id]: val
-                      }))} className={`shrink-0 w-10 h-10 md:w-8 md:h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all ${assessmentScores[row.id] === val ? 'bg-[#008080] text-white shadow-md ring-2 ring-[#008080] ring-offset-1 scale-110' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}>
-                           {val}
-                         </button>)}
-                     </div>
-                   </td>
-                 </tr>)}
-             </tbody>
-           </table>
-         </div>
+         <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+            <div className="hidden md:grid md:grid-cols-[1fr_120px_120px_120px_160px] bg-[#005050] text-white">
+              <div className="p-4 text-sm font-bold border-b border-[#006060]">Assessment Area</div>
+              <div className="p-4 text-sm font-bold border-b border-[#006060]">1 — Poor</div>
+              <div className="p-4 text-sm font-bold border-b border-[#006060]">3 — Average</div>
+              <div className="p-4 text-sm font-bold border-b border-[#006060]">5 — Strong</div>
+              <div className="p-4 text-sm font-bold border-b border-[#006060] text-center">Score (circle)</div>
+            </div>
+            <div className="divide-y divide-slate-100">
+              {[{
+                   id: 'q1',
+                   area: 'How many days per week does the student study?',
+                   l1: 'Never',
+                   l3: '3 days',
+                   l5: 'Daily'
+                 }, {
+                   id: 'q2',
+                   area: 'How quickly does student complete homework?',
+                   l1: 'Never does it',
+                   l3: 'Sometimes',
+                   l5: 'Always on time'
+                 }, {
+                   id: 'q3',
+                   area: 'Can student explain what they learned?',
+                   l1: 'Cannot explain',
+                   l3: 'Partially',
+                   l5: 'Clearly in own words'
+                 }, {
+                   id: 'q4',
+                   area: 'Does student cover all subjects in the week?',
+                   l1: '1-2 subjects only',
+                   l3: 'Some balance',
+                   l5: 'All subjects'
+                 }, {
+                   id: 'q5',
+                   area: 'How motivated and confident is the student?',
+                   l1: 'Avoids studying',
+                   l3: 'Neutral',
+                   l5: 'Confident and motivated'
+                 }].map((row, index) => <div key={row.id} className={`flex flex-col md:grid md:grid-cols-[1fr_120px_120px_120px_160px] md:items-center p-5 md:p-0 ${index % 2 === 0 ? 'bg-emerald-50/30' : 'bg-white'}`}>
+                    <div className="w-full p-0 md:p-4 text-sm font-bold text-slate-800 mb-4 md:mb-0 flex items-start gap-2">
+                      <span className="text-emerald-600 font-black">{index + 1}.</span>
+                      <span>{row.area}</span>
+                    </div>
+                    <div className="hidden md:block p-4 text-[11px] italic text-slate-500 leading-tight">{row.l1}</div>
+                    <div className="hidden md:block p-4 text-[11px] italic text-slate-500 leading-tight">{row.l3}</div>
+                    <div className="hidden md:block p-4 text-[11px] italic text-slate-500 leading-tight">{row.l5}</div>
+                    <div className="w-full p-0 md:p-4 flex justify-start md:justify-center pl-6 md:pl-0">
+                      <div className="flex items-center gap-2">
+                        {[1, 2, 3, 4, 5].map((val) => <button key={val} onClick={() => setAssessmentScores(prev => ({
+                         ...prev,
+                         [row.id]: val
+                       }))} className={`shrink-0 w-10 h-10 md:w-8 md:h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all ${assessmentScores[row.id] === val ? 'bg-[#008080] text-white shadow-md ring-2 ring-[#008080] ring-offset-1 scale-110' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}>
+                            {val}
+                          </button>)}
+                      </div>
+                    </div>
+                  </div>)}
+            </div>
+          </div>
        </div>
 
        {/* Footer with Levels and Submit */}
