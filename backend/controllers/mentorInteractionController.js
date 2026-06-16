@@ -163,17 +163,11 @@ const generateAssignments = async (mentor_id, today) => {
         carryOverSet.add(s.id);
     }
 
-    // 2. Carry Over Students
+    // 2. Mark carry-over students in the carryOverSet so they're excluded from today's rotation
+    // NOTE: Carry-over students are NOT added to today's 15-student rotation
+    // They will be fetched separately via /yesterday-pending endpoint
     for (const s of carryOverStudents) {
         if (!carryOverSet.has(s.id)) {
-            // Add carry-overs WITHOUT counting them towards today's quota
-            if (s.priority_category === 'High') {
-                deep.push({ ...s, sessionType: 'DEEP', status: 'PENDING', is_carry_over: true });
-            } else if (s.priority_category === 'Medium') {
-                medium.push({ ...s, sessionType: 'MEDIUM', status: 'PENDING', is_carry_over: true });
-            } else {
-                quick.push({ ...s, sessionType: 'QUICK', status: 'PENDING', is_carry_over: true });
-            }
             carryOverSet.add(s.id);
         }
     }
@@ -317,6 +311,60 @@ const submitSessionReport = async (req, res) => {
             );
         }
 
+        // 6b. Update the ORIGINAL assignment record where student was first assigned
+        // This ensures historical records show final completion state regardless of how many days passed
+        // Example: If assigned 16-Jun, still pending 17-18-Jun, completed 19-Jun → updates 16-Jun record
+        if (session_type !== 'CANCELLED') {
+            // Find the ORIGINAL assignment record where this student was first assigned to this mentor
+            const [allAssignments] = await db.query(
+                'SELECT id, date, assignments FROM daily_assignments WHERE mentor_id = ? ORDER BY date ASC',
+                [mentor_id]
+            );
+
+            let originalRecord = null;
+
+            for (let record of allAssignments) {
+                let assignments = record.assignments;
+                if (typeof assignments === 'string') {
+                    try {
+                        assignments = JSON.parse(assignments);
+                    } catch (e) {
+                        assignments = [];
+                    }
+                }
+                
+                // Check if this student is in this record
+                const studentFound = assignments.some(a => a.id == student_id);
+                if (studentFound) {
+                    originalRecord = record;
+                    break; // Found the original (first) record
+                }
+            }
+
+            // Update the original record to mark student as COMPLETED
+            if (originalRecord) {
+                let assignments = originalRecord.assignments;
+                if (typeof assignments === 'string') {
+                    try {
+                        assignments = JSON.parse(assignments);
+                    } catch (e) {
+                        assignments = [];
+                    }
+                }
+                
+                const updatedAssignments = assignments.map(a =>
+                    a.id == student_id ? { ...a, status: 'COMPLETED' } : a
+                );
+
+                await db.query(
+                    'UPDATE daily_assignments SET assignments = ? WHERE id = ?',
+                    [JSON.stringify(updatedAssignments), originalRecord.id]
+                );
+
+                console.log(`[ORIGINAL ASSIGNMENT UPDATE] Student ${student_id} marked COMPLETED in original assignment from ${originalRecord.date}`);
+            }
+        }
+
         if (session_type === 'CANCELLED') {
             return res.status(200).json({ success: true, message: 'Session cancelled and logged' });
         }
@@ -327,11 +375,13 @@ const submitSessionReport = async (req, res) => {
         let currentP = currentStudent?.priority_category || 'Stable';
         let finalPriority = currentP;
 
-        if (next_session_type === 'DEEP') finalPriority = 'High';
-        else if (next_session_type === 'MEDIUM') finalPriority = 'Medium';
-        else if (next_session_type === 'QUICK') finalPriority = 'Stable';
-
-        // Note: Automatic intelligence is bypassed as per mentor's manual override requirement.
+        // ONLY update priority if next_session_type is explicitly provided by the mentor
+        if (next_session_type) {
+            if (next_session_type === 'DEEP') finalPriority = 'High';
+            else if (next_session_type === 'MEDIUM') finalPriority = 'Medium';
+            else if (next_session_type === 'QUICK') finalPriority = 'Stable';
+        }
+        // If next_session_type is not provided, keep current priority_category
 
         await db.query(
             'UPDATE students SET priority_category = ?, last_session_type = ?, last_session_date = ? WHERE id = ?',
@@ -514,6 +564,46 @@ const getTodaySessionReport = async (req, res) => {
     }
 };
 
+const getYesterdayPending = async (req, res) => {
+    try {
+        const mentor_id = req.user.id;
+        const today = new Date().toISOString().split('T')[0];
+        
+        // Calculate yesterday's date
+        const yesterdayDate = new Date();
+        yesterdayDate.setDate(yesterdayDate.getDate() - 1);
+        const yesterday = yesterdayDate.toISOString().split('T')[0];
+
+        // Fetch yesterday's assignments
+        const [yesterdayRecord] = await db.query(
+            'SELECT assignments FROM daily_assignments WHERE mentor_id = ? AND date = ?',
+            [mentor_id, yesterday]
+        );
+
+        if (yesterdayRecord.length === 0) {
+            return res.status(200).json({ success: true, data: [] });
+        }
+
+        let assignments = yesterdayRecord[0].assignments;
+        if (typeof assignments === 'string') {
+            try {
+                assignments = JSON.parse(assignments);
+            } catch (e) {
+                console.error("JSON_PARSE_ERROR in getYesterdayPending:", e);
+                assignments = [];
+            }
+        }
+
+        // Filter for PENDING status only
+        const pendingStudents = (assignments || []).filter(a => a.status === 'PENDING');
+
+        res.status(200).json({ success: true, data: pendingStudents });
+    } catch (error) {
+        console.error("getYesterdayPending Error:", error);
+        res.status(500).json({ success: false, message: 'Server Error' });
+    }
+};
+
 
 module.exports = {
     getDailyAssignments,
@@ -523,6 +613,7 @@ module.exports = {
     updateSessionReport,
     deleteSessionReport,
     getTodaySessionReport,
+    getYesterdayPending,
     togglePause: async (req, res) => { 
         try { 
             const mentor_id = req.user.id; 

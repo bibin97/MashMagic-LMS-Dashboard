@@ -19,9 +19,10 @@ const StudentInteractionLog = () => {
  const [submitted, setSubmitted] = useState(false);
  const [allStudents, setAllStudents] = useState([]);
  const [assignedStudents, setAssignedStudents] = useState([]);
+ const [yesterdayPending, setYesterdayPending] = useState([]);
  const [selectedStudent, setSelectedStudent] = useState(null);
  const [activeTab, setActiveTab] = useState('both'); // 'both', 'mentorship', 'tuition'
- const [statusFilter, setStatusFilter] = useState('pending'); // 'pending', 'completed'
+ const [statusFilter, setStatusFilter] = useState('pending'); // 'pending', 'completed', 'yesterday'
  
  // View report modal for completed students
  const [viewReportModal, setViewReportModal] = useState(null); // { student, reportData, sessionType }
@@ -36,6 +37,7 @@ const StudentInteractionLog = () => {
 
  useEffect(() => {
    fetchAssignedStudents();
+   fetchYesterdayPending();
    fetchAllStudents();
  }, [selectedDate]);
 
@@ -51,6 +53,16 @@ const StudentInteractionLog = () => {
      toast.error("Failed to load daily assignments");
    } finally {
      setAssignedLoading(false);
+   }
+ };
+
+ const fetchYesterdayPending = async () => {
+   try {
+     const res = await api.get('/mentor-interactions/yesterday-pending');
+     setYesterdayPending(res.data.data || []);
+   } catch (error) {
+     console.error("Failed to load yesterday's pending:", error);
+     setYesterdayPending([]);
    }
  };
 
@@ -208,6 +220,7 @@ const StudentInteractionLog = () => {
      toast.success("Interaction submitted successfully!");
      setSubmitted(true);
      fetchAssignedStudents(); // Refresh daily list
+     fetchYesterdayPending(); // Refresh yesterday pending list
      fetchAllStudents(); // Refresh all students list
     } catch (error) {
      console.error('Submission error:', error?.response?.data || error?.message || error);
@@ -239,8 +252,6 @@ const StudentInteractionLog = () => {
            (type && type.includes('mentorship')) ||
            type === 'mentorship only';
   };
-
- const isSilverCategory = (s) => !isDiamondCategory(s) && !isGoldCategory(s);
 
  const getSessionIcon = (type) => {
    switch(type) {
@@ -349,7 +360,7 @@ const StudentInteractionLog = () => {
              className={`px-8 py-3 rounded-2xl text-[9px] font-black uppercase tracking-[0.2em] transition-all flex items-center gap-3 ${statusFilter === 'pending' ? 'bg-rose-500 text-white shadow-xl shadow-rose-200' : 'bg-white text-slate-400 border border-slate-100 hover:border-rose-200'}`}
            >
              <div className={`w-2 h-2 rounded-full ${statusFilter === 'pending' ? 'bg-white animate-pulse' : 'bg-rose-500'}`}></div>
-             Awaiting Interaction ({
+             Student Interaction ({
                assignedStudents.filter(s => s.status?.toUpperCase() !== 'COMPLETED' && s.status?.toUpperCase() !== 'CANCELLED' && (activeTab === 'both' ? isDiamondCategory(s) : isGoldCategory(s))).length
              })
            </button>
@@ -361,6 +372,13 @@ const StudentInteractionLog = () => {
              Completed Today ({
                assignedStudents.filter(s => (s.status?.toUpperCase() === 'COMPLETED' || s.status?.toUpperCase() === 'CANCELLED') && (activeTab === 'both' ? isDiamondCategory(s) : isGoldCategory(s))).length
              })
+           </button>
+           <button
+             onClick={() => setStatusFilter('yesterday')}
+             className={`px-8 py-3 rounded-2xl text-[9px] font-black uppercase tracking-[0.2em] transition-all flex items-center gap-3 ${statusFilter === 'yesterday' ? 'bg-amber-500 text-white shadow-xl shadow-amber-200' : 'bg-white text-slate-400 border border-slate-100 hover:border-amber-200'}`}
+           >
+             <div className={`w-2 h-2 rounded-full ${statusFilter === 'yesterday' ? 'bg-white animate-pulse' : 'bg-amber-500'}`}></div>
+             Yesterday Pending ({yesterdayPending.length})
            </button>
          </div>
        </div>
@@ -374,12 +392,12 @@ const StudentInteractionLog = () => {
            </div>
          ) : (
            <div className="space-y-10 animate-in fade-in duration-500">
-             {activeTab !== 'tuition' && (
+             {statusFilter !== 'yesterday' && activeTab !== 'tuition' && (
                 <div className="space-y-8">
                   <div className="flex items-center justify-between px-4">
                      <h3 className="text-sm font-black text-slate-900 uppercase tracking-[0.2em] flex items-center gap-3">
                          <ShieldAlert size={18} className="text-[#008080]" /> 
-                         {statusFilter === 'pending' ? 'Pending Execution Fleet' : 'Concluded Interactions'}
+                         {statusFilter === 'pending' ? 'Student Interaction Fleet' : 'Concluded Interactions'}
                      </h3>
                   </div>
 
@@ -466,6 +484,62 @@ const StudentInteractionLog = () => {
                   </div>
                 </div>
               )}
+
+             {statusFilter === 'yesterday' && (
+               <div className="space-y-8">
+                  <div className="flex items-center justify-between px-4">
+                     <h3 className="text-sm font-black text-slate-900 uppercase tracking-[0.2em] flex items-center gap-3">
+                         <Clock size={18} className="text-amber-500" /> 
+                         Yesterday Pending Students
+                     </h3>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {yesterdayPending.map(student => {
+                         const sessionType = student.sessionType || 'QUICK';
+                         return (
+                           <div
+                             key={student.id}
+                             onClick={() => handleStudentSelect(student, sessionType)}
+                             className={`group relative overflow-hidden p-8 rounded-[3rem] border transition-all text-left flex flex-col justify-between h-64 bg-amber-50/50 border-amber-100 cursor-pointer hover:shadow-2xl hover:scale-[1.02] hover:border-amber-200 active:scale-95`}
+                           >
+                             <div className={`absolute top-0 right-0 w-32 h-32 rounded-full -mr-16 -mt-16 opacity-10 transition-transform group-hover:scale-150 duration-700 ${getSessionColor(sessionType).split(' ')[0]}`}></div>
+                             
+                             <div>
+                               <div className="flex justify-between items-start mb-4">
+                                 <div className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest border ${getSessionColor(sessionType)}`}>
+                                   {sessionType} SESSION
+                                 </div>
+                                 <div className="px-3 py-1.5 bg-amber-100 text-amber-700 border border-amber-300 rounded-full text-[8px] font-black uppercase tracking-widest flex items-center gap-1 shadow-sm">
+                                   <Clock size={10} /> From Yesterday
+                                 </div>
+                               </div>
+                               <h3 className="text-2xl font-black text-slate-900 tracking-tight leading-none uppercase mb-2 truncate">{student.name}</h3>
+                               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest truncate">MM-{student.id.toString().padStart(4, '0')} • {student.priority_category || 'Stable'} Priority</p>
+                             </div>
+
+                             <div className="flex items-center justify-between mt-6">
+                               <div className="flex items-center gap-3">
+                                 <div className={`w-10 h-10 rounded-2xl flex items-center justify-center ${getSessionColor(sessionType)}`}>
+                                   {getSessionIcon(sessionType)}
+                                 </div>
+                                 <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                   Pending from Yesterday
+                                 </span>
+                               </div>
+                               <ChevronRight size={20} className="text-slate-300 group-hover:text-slate-900 transition-colors" />
+                             </div>
+                           </div>
+                         );
+                       })}
+                    {yesterdayPending.length === 0 && (
+                      <div className="col-span-full py-20 text-center bg-slate-50/50 rounded-[3rem] border border-dashed border-slate-200 animate-in fade-in zoom-in duration-500">
+                         <p className="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">No pending students from yesterday. All caught up!</p>
+                      </div>
+                    )}
+                  </div>
+               </div>
+             )}
             </div>
           )}
         </div>

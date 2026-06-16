@@ -18,6 +18,7 @@ const handleUpload = (req, res, next) => {
 };
 
 router.get('/daily-assignments', protect, controller.getDailyAssignments);
+router.get('/yesterday-pending', protect, controller.getYesterdayPending);
 router.post('/submit-report', protect, handleUpload, controller.submitSessionReport);
 router.get('/high-risk-students', protect, controller.getHighRiskStudents);
 router.get('/weekly-coverage', protect, controller.getWeeklyCoverage);
