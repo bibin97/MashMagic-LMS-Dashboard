@@ -356,6 +356,22 @@ const CommonInteractionLogs = ({
         };
       });
       const worksheet = XLSX.utils.json_to_sheet(excelData);
+      // Set proper column widths
+      worksheet['!cols'] = [
+        { wch: 8 },  // ID
+        { wch: 20 }, // Date
+        { wch: 22 }, // Student Name
+        { wch: 22 }, // Mentor/Faculty Name
+        { wch: 16 }, // Source/Type
+        { wch: 14 }, // Session Type
+        { wch: 35 }, // Notes/Remarks
+        { wch: 20 }, // Understanding Level
+        { wch: 14 }, // Confidence
+        { wch: 14 }, // Stress Level
+        { wch: 10 }, // Is Flagged
+        { wch: 22 }, // Flag Reason
+        { wch: 50 }, // Detailed Responses
+      ];
       const workbook = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(workbook, worksheet, "Interaction_Logs");
       const fileName = studentId ? `${selectedStudent?.name || 'student'}_interaction_logs.xlsx` : `all_student_interaction_logs.xlsx`;

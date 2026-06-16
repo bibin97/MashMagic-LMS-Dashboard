@@ -40,6 +40,10 @@ const AcademicSchedule = () => {
   const [searchTerm, setSearchTerm] = useState('');
 	const deferredSearchTerm = useDeferredValue(searchTerm);
   const [activeTab, setActiveTab] = useState('today');
+  const [exportModal, setExportModal] = useState(false);
+  const [exportDateFrom, setExportDateFrom] = useState('');
+  const [exportDateTo, setExportDateTo] = useState('');
+  const [exportLoading, setExportLoading] = useState(false);
   const [joinedSessions, setJoinedSessions] = useState(() => {
     try { return JSON.parse(localStorage.getItem('joinedSessions')) || {}; } catch { return {}; }
   });
@@ -113,20 +117,69 @@ const AcademicSchedule = () => {
   const currentData = getFilteredData();
 
   const handleExport = () => {
-    const dataToExport = currentData.map(session => ({
-      "Student Name": session.student_name,
-      "Faculty Name": session.faculty_name,
-      "Topic": session.topic || 'General Session',
-      "Date": session.date ? new Date(session.date).toLocaleDateString('en-GB') : 'TBD',
-      "Start Time": session.start_time || 'TBD',
-      "End Time": session.end_time || 'TBD',
-      "Status": session.status,
-      "Minutes Taken": session.minutes_taken || 'N/A'
-    }));
-    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Academic_Schedule");
-    XLSX.writeFile(workbook, "Academic_Schedule.xlsx");
+    setExportLoading(true);
+    try {
+      let dataToFilter = schedule;
+
+      // Filter by date range if set
+      if (exportDateFrom) {
+        dataToFilter = dataToFilter.filter(s => {
+          const d = (s.date || '').split('T')[0];
+          return d >= exportDateFrom;
+        });
+      }
+      if (exportDateTo) {
+        dataToFilter = dataToFilter.filter(s => {
+          const d = (s.date || '').split('T')[0];
+          return d <= exportDateTo;
+        });
+      }
+
+      const dataToExport = dataToFilter.map(session => ({
+        "Student Name": session.student_name || '',
+        "Faculty Name": session.faculty_name || '',
+        "Subject": session.subject || '',
+        "Topic / Chapter": session.topic || session.chapter || 'General Session',
+        "Date": session.date ? new Date(session.date).toLocaleDateString('en-GB') : 'TBD',
+        "Start Time": session.start_time ? new Date(`2000-01-01T${session.start_time}`).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }) : 'TBD',
+        "End Time": session.end_time ? new Date(`2000-01-01T${session.end_time}`).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }) : 'TBD',
+        "Status": session.status || '',
+        "Minutes Taken": session.minutes_taken || 'N/A'
+      }));
+
+      if (dataToExport.length === 0) {
+        toast.error('No data found for the selected date range');
+        setExportLoading(false);
+        return;
+      }
+
+      const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+
+      // Set proper column widths
+      worksheet['!cols'] = [
+        { wch: 22 }, // Student Name
+        { wch: 22 }, // Faculty Name
+        { wch: 16 }, // Subject
+        { wch: 28 }, // Topic
+        { wch: 14 }, // Date
+        { wch: 13 }, // Start Time
+        { wch: 13 }, // End Time
+        { wch: 16 }, // Status
+        { wch: 14 }, // Minutes Taken
+      ];
+
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Academic_Schedule");
+      const fromLabel = exportDateFrom || 'all';
+      const toLabel = exportDateTo || 'dates';
+      XLSX.writeFile(workbook, `Academic_Schedule_${fromLabel}_to_${toLabel}.xlsx`);
+      toast.success(`Exported ${dataToExport.length} sessions`);
+      setExportModal(false);
+    } catch (e) {
+      toast.error('Export failed');
+    } finally {
+      setExportLoading(false);
+    }
   };
 
   const localTodayStr = (() => {
@@ -587,6 +640,64 @@ return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String
             <div className="flex gap-4">
               <button onClick={handleComplete} className="flex-1 py-4 bg-emerald-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-emerald-700 transition-all">Close Phase</button>
               <button onClick={() => setIsCompleteModalOpen(false)} className="px-8 py-4 bg-slate-50 text-slate-600 rounded-2xl font-black text-xs uppercase tracking-widest">Back</button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Export Modal */}
+      {exportModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm">
+          <div className="bg-white rounded-[2rem] shadow-2xl p-8 w-full max-w-md mx-4">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h3 className="text-lg font-black text-slate-900 flex items-center gap-3"><Download className="text-[#008080]" size={20} /> Export Schedule</h3>
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Select date range to export</p>
+              </div>
+              <button onClick={() => setExportModal(false)} className="w-9 h-9 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400 hover:text-slate-700">
+                ✕
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest">From Date</label>
+                <input
+                  type="date"
+                  value={exportDateFrom}
+                  onChange={e => setExportDateFrom(e.target.value)}
+                  className="w-full p-3.5 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:ring-4 ring-[#008080]/10 focus:bg-white transition-all"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest">To Date</label>
+                <input
+                  type="date"
+                  value={exportDateTo}
+                  onChange={e => setExportDateTo(e.target.value)}
+                  className="w-full p-3.5 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:ring-4 ring-[#008080]/10 focus:bg-white transition-all"
+                />
+              </div>
+
+              <div className="bg-slate-50 rounded-2xl p-4 text-[10px] font-bold text-slate-500 leading-relaxed border border-slate-100">
+                💡 <strong>Tip:</strong> Leave both dates empty to export all sessions. Select only one date to export that single day. Select a range to export multiple days.
+              </div>
+
+              <div className="flex gap-3 pt-2">
+                <button
+                  onClick={() => setExportModal(false)}
+                  className="flex-1 py-3.5 bg-slate-50 text-slate-600 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-100 transition-all"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleExport}
+                  disabled={exportLoading}
+                  className="flex-[2] py-3.5 bg-[#008080] text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-[#006666] transition-all shadow-lg shadow-[#008080]/30 flex items-center justify-center gap-2 disabled:opacity-60"
+                >
+                  {exportLoading ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <Download size={14} />}
+                  {exportLoading ? 'Exporting...' : 'Export to Excel'}
+                </button>
+              </div>
             </div>
           </div>
         </div>

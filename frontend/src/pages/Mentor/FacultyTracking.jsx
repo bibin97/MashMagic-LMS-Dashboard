@@ -32,6 +32,10 @@ const FacultyTracking = () => {
   const [selectedLog, setSelectedLog] = useState(null);
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
   const [isInteractionModalOpen, setIsInteractionModalOpen] = useState(false);
+  const [exportModal, setExportModal] = useState(false);
+  const [exportDateFrom, setExportDateFrom] = useState('');
+  const [exportDateTo, setExportDateTo] = useState('');
+  const [exportLoading, setExportLoading] = useState(false);
 
   // Review Form State
   const [reviewData, setReviewData] = useState({
@@ -111,33 +115,78 @@ const FacultyTracking = () => {
   );
 
   const exportToExcel = async () => {
-    if (filteredLogs.length === 0) {
-      toast.error("No data to export");
-      return;
-    }
-    const XLSX = await import('xlsx');
-    const exportData = filteredLogs.map(log => ({
-      'Student Name': log.student_name || 'N/A',
-      'Subject': log.subject || 'N/A',
-      'Faculty': log.faculty_name || 'N/A',
-      'Date': log.date ? new Date(log.date).toLocaleDateString() : 'N/A',
-      'Time': log.created_at ? new Date(log.created_at).toLocaleTimeString() : 'N/A',
-      'Observation': log.todays_observation || 'PENDING REVIEW',
-      'Topic Taught': log.topic_taught || 'N/A',
-      'Duration': log.class_duration || 'N/A',
-      'Homework Given': log.homework_given ? 'Yes' : 'No',
-      'Homework Details': log.homework_details || 'N/A',
-      'Attention Level': log.attention_level || 'N/A',
-      'Participation Level': log.participation_level || 'N/A',
-      'Understanding Level': log.understanding_level || 'N/A',
-      'Issue Detected': log.issue_flag ? 'Yes' : 'No',
-      'Issue Type': log.issue_type || 'N/A'
-    }));
+    setExportLoading(true);
+    try {
+      let dataToExport = [...filteredLogs];
 
-    const ws = XLSX.utils.json_to_sheet(exportData);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Daily Updates");
-    XLSX.writeFile(wb, "Mentor_Daily_Updates_Report.xlsx");
+      if (exportDateFrom) {
+        dataToExport = dataToExport.filter(l => {
+          const d = (l.date || l.created_at || '').split('T')[0];
+          return d >= exportDateFrom;
+        });
+      }
+      if (exportDateTo) {
+        dataToExport = dataToExport.filter(l => {
+          const d = (l.date || l.created_at || '').split('T')[0];
+          return d <= exportDateTo;
+        });
+      }
+
+      if (dataToExport.length === 0) {
+        toast.error('No data found for the selected date range');
+        setExportLoading(false);
+        return;
+      }
+
+      const XLSX = await import('xlsx');
+      const exportData = dataToExport.map(log => ({
+        'Student Name': log.student_name || 'N/A',
+        'Subject': log.subject || 'N/A',
+        'Faculty': log.faculty_name || 'N/A',
+        'Date': log.date ? new Date(log.date).toLocaleDateString('en-GB') : 'N/A',
+        'Time': log.created_at ? new Date(log.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }) : 'N/A',
+        'Observation': log.todays_observation || 'PENDING REVIEW',
+        'Topic Taught': log.topic_taught || 'N/A',
+        'Duration (mins)': log.class_duration || 'N/A',
+        'Homework Given': log.homework_given ? 'Yes' : 'No',
+        'Homework Details': log.homework_details || 'N/A',
+        'Attention Level': log.attention_level || 'N/A',
+        'Participation Level': log.participation_level || 'N/A',
+        'Understanding Level': log.understanding_level || 'N/A',
+        'Issue Detected': log.issue_flag ? 'Yes' : 'No',
+        'Issue Type': log.issue_type || 'N/A'
+      }));
+
+      const ws = XLSX.utils.json_to_sheet(exportData);
+      ws['!cols'] = [
+        { wch: 22 }, // Student Name
+        { wch: 16 }, // Subject
+        { wch: 22 }, // Faculty
+        { wch: 14 }, // Date
+        { wch: 12 }, // Time
+        { wch: 18 }, // Observation
+        { wch: 25 }, // Topic Taught
+        { wch: 16 }, // Duration
+        { wch: 16 }, // Homework Given
+        { wch: 30 }, // Homework Details
+        { wch: 16 }, // Attention
+        { wch: 18 }, // Participation
+        { wch: 18 }, // Understanding
+        { wch: 14 }, // Issue Detected
+        { wch: 18 }, // Issue Type
+      ];
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Daily Updates");
+      const fromLabel = exportDateFrom || 'all';
+      const toLabel = exportDateTo || 'dates';
+      XLSX.writeFile(wb, `Faculty_Log_${fromLabel}_to_${toLabel}.xlsx`);
+      toast.success(`Exported ${exportData.length} records`);
+      setExportModal(false);
+    } catch (e) {
+      toast.error('Export failed');
+    } finally {
+      setExportLoading(false);
+    }
   };
 
   const getObservationColor = (obs) => {
@@ -194,7 +243,7 @@ const FacultyTracking = () => {
                     onChange={e => setSearchTerm(e.target.value)}
                   />
                </div>
-               <button onClick={exportToExcel} className="bg-[#008080] p-5 rounded-[24px] border border-[#008080] text-white hover:bg-[#006666] hover:border-[#006666] transition-all shadow-sm shadow-[#008080]/20 flex items-center justify-center group" title="Export to Excel">
+               <button onClick={() => setExportModal(true)} className="bg-[#008080] p-5 rounded-[24px] border border-[#008080] text-white hover:bg-[#006666] hover:border-[#006666] transition-all shadow-sm shadow-[#008080]/20 flex items-center justify-center group" title="Export to Excel">
                   <Download size={20} className="group-hover:scale-110 transition-transform" />
                </button>
                <button className="bg-white p-5 rounded-[24px] border border-slate-200 text-slate-400 hover:text-slate-900 transition-all shadow-sm">
@@ -677,6 +726,45 @@ const FacultyTracking = () => {
            {/* Detailed View is already handled in-line in history tab, but could be a modal too */}
         </div>
       )}
+
+    {/* Export Date Range Modal */}
+    {exportModal && (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm">
+        <div className="bg-white rounded-[2rem] shadow-2xl p-8 w-full max-w-md mx-4">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h3 className="text-lg font-black text-slate-900 flex items-center gap-3"><Download className="text-[#008080]" size={20} /> Export Faculty Logs</h3>
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Select date range to export</p>
+            </div>
+            <button onClick={() => setExportModal(false)} className="w-9 h-9 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400 hover:text-slate-700">✕</button>
+          </div>
+          <div className="space-y-4">
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest">From Date</label>
+              <input type="date" value={exportDateFrom} onChange={e => setExportDateFrom(e.target.value)}
+                className="w-full p-3.5 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:ring-4 ring-[#008080]/10 focus:bg-white transition-all" />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest">To Date</label>
+              <input type="date" value={exportDateTo} onChange={e => setExportDateTo(e.target.value)}
+                className="w-full p-3.5 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:ring-4 ring-[#008080]/10 focus:bg-white transition-all" />
+            </div>
+            <div className="bg-slate-50 rounded-2xl p-4 text-[10px] font-bold text-slate-500 leading-relaxed border border-slate-100">
+              💡 Leave both empty to export all. Pick one date for a single day. Pick a range for multiple days.
+            </div>
+            <div className="flex gap-3 pt-2">
+              <button onClick={() => setExportModal(false)}
+                className="flex-1 py-3.5 bg-slate-50 text-slate-600 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-100 transition-all">Cancel</button>
+              <button onClick={exportToExcel} disabled={exportLoading}
+                className="flex-[2] py-3.5 bg-[#008080] text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-[#006666] transition-all shadow-lg shadow-[#008080]/30 flex items-center justify-center gap-2 disabled:opacity-60">
+                {exportLoading ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <Download size={14} />}
+                {exportLoading ? 'Exporting...' : 'Export to Excel'}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    )}
 
     </div>
   );
