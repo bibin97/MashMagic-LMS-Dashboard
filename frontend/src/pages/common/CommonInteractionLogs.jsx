@@ -91,7 +91,6 @@ const CommonInteractionLogs = ({
   const [listCustomDates, setListCustomDates] = useState([]);
   const [selectedMentorTab, setSelectedMentorTab] = useState('all');
   const [mentorDateFilters, setMentorDateFilters] = useState({});
-  const [showListFilter, setShowListFilter] = useState(false);
   const [selectedLogTab, setSelectedLogTab] = useState('ALL');
   const [sortOrder, setSortOrder] = useState('newest'); // 'newest' or 'oldest'
   const [staffTypeFilter, setStaffTypeFilter] = useState('all'); // 'all', 'mentor', 'faculty'
@@ -285,7 +284,7 @@ const CommonInteractionLogs = ({
         params
       });
       setListLogs(logsRes.data.data || []);
-    } catch (error) {
+    } catch {
       toast.error(`Failed to load ${activeTab}s`);
     } finally {
       setLoading(false);
@@ -313,7 +312,7 @@ const CommonInteractionLogs = ({
         params
       });
       setLogs(res.data.data || []);
-    } catch (error) {
+    } catch {
       toast.error("Failed to load interaction history");
     } finally {
       setLoading(false);
@@ -427,7 +426,7 @@ const CommonInteractionLogs = ({
         parsedReport = log.report_data
           ? (typeof log.report_data === 'string' ? JSON.parse(log.report_data) : log.report_data)
           : {};
-      } catch (e) {
+      } catch {
         parsedReport = {};
       }
       const fallbackFiles = getLogFiles(log);
@@ -482,7 +481,7 @@ const CommonInteractionLogs = ({
     try {
       const res = await api.get(`/admin/interactions/${log.source || 'Interaction Hub'}/${log.id}/history`);
       setHistoryLogs(res.data.data || []);
-    } catch (error) {
+    } catch {
       toast.error('Failed to load edit history');
       setHistoryLogs([]);
     } finally {
@@ -507,7 +506,6 @@ const CommonInteractionLogs = ({
       end: ''
     });
     setListCustomDates([]);
-    setShowListFilter(false);
   };
   const filteredEntities = useMemo(() => {
     let base = entities.filter(e => e.name?.toLowerCase().includes(deferredSearchTerm.toLowerCase()) || e.email?.toLowerCase().includes(deferredSearchTerm.toLowerCase()) || e.registration_number?.toLowerCase().includes(deferredSearchTerm.toLowerCase()));
@@ -962,7 +960,11 @@ const CommonInteractionLogs = ({
                             {(() => {
                               let parsedReportData = null;
                               if (log.report_data) {
-                                try { parsedReportData = typeof log.report_data === 'string' ? JSON.parse(log.report_data) : log.report_data; } catch (e) { }
+                                try {
+                                  parsedReportData = typeof log.report_data === 'string' ? JSON.parse(log.report_data) : log.report_data;
+                                } catch (e) {
+                                  // Ignore JSON parse errors for report data
+                                }
                               }
                               const sessionTypeUpper = (log.session_type || '').toUpperCase();
 

@@ -1725,16 +1725,22 @@ exports.deleteInteractionLog = async (req, res) => {
 
         // If this is a student interaction, reset the daily assignment status back to PENDING
         if (studentId && mentorId) {
-            const today = new Date().toISOString().split('T')[0];
+            const todayDate = new Date();
+            const today = todayDate.toISOString().split('T')[0];
+            
+            const yesterdayDate = new Date();
+            yesterdayDate.setDate(yesterdayDate.getDate() - 1);
+            const yesterday = yesterdayDate.toISOString().split('T')[0];
+            
             try {
-                // Get today's assignments
+                // Get today and yesterday's assignments
                 const [existing] = await db.query(
-                    'SELECT id, assignments FROM daily_assignments WHERE mentor_id = ? AND date = ?',
-                    [mentorId, today]
+                    'SELECT id, assignments, date FROM daily_assignments WHERE mentor_id = ? AND date IN (?, ?)',
+                    [mentorId, today, yesterday]
                 );
 
-                if (existing.length > 0) {
-                    let assignments = existing[0].assignments;
+                for (const row of existing) {
+                    let assignments = row.assignments;
                     if (typeof assignments === 'string') {
                         try {
                             assignments = JSON.parse(assignments);
@@ -1743,19 +1749,23 @@ exports.deleteInteractionLog = async (req, res) => {
                         }
                     }
 
-                    // Find the student in today's assignments and reset status to PENDING
+                    let changed = false;
+                    // Find the student and reset status to PENDING
                     const updatedAssignments = assignments.map(a => {
                         if (a.id === studentId) {
+                            changed = true;
                             return { ...a, status: 'PENDING' };
                         }
                         return a;
                     });
 
-                    // Update daily_assignments with new status
-                    await db.query(
-                        'UPDATE daily_assignments SET assignments = ? WHERE id = ?',
-                        [JSON.stringify(updatedAssignments), existing[0].id]
-                    );
+                    if (changed) {
+                        // Update daily_assignments with new status
+                        await db.query(
+                            'UPDATE daily_assignments SET assignments = ? WHERE id = ?',
+                            [JSON.stringify(updatedAssignments), row.id]
+                        );
+                    }
                 }
             } catch (err) {
                 console.error("Failed to reset daily assignment status:", err);
