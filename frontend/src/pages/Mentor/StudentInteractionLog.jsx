@@ -195,11 +195,13 @@ const StudentInteractionLog = () => {
      setSubmitted(true);
      fetchAssignedStudents(); // Refresh daily list
      fetchAllStudents(); // Refresh all students list
-   } catch (error) {
-     toast.error(error.response?.data?.message || "Submission failed");
-   } finally {
+    } catch (error) {
+     console.error('Submission error:', error?.response?.data || error?.message || error);
+     const msg = error?.response?.data?.message || error?.message || 'Submission failed';
+     toast.error(msg);
+    } finally {
      setLoading(false);
-   }
+    }
  };
 
  const isDiamondCategory = (s) => {

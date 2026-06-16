@@ -230,7 +230,12 @@ const submitSessionReport = async (req, res) => {
         }
 
         if (!student_id || !session_type || !report_data) {
-            return res.status(400).json({ success: false, message: 'Missing required fields' });
+            return res.status(400).json({ success: false, message: 'Missing required fields: student_id, session_type, and report_data are required' });
+        }
+
+        // Log upload warning if files failed to upload
+        if (req.uploadError) {
+            console.warn('[SUBMIT REPORT] File upload failed, proceeding without files:', req.uploadError);
         }
 
         // Add uploaded files to report_data
@@ -351,7 +356,7 @@ const submitSessionReport = async (req, res) => {
         res.status(200).json({ success: true, message: 'Report submitted and student state updated', flagged: isFlagged });
     } catch (error) {
         console.error('Submit Session Report Error:', error);
-        res.status(500).json({ success: false, message: 'Server Error' });
+        res.status(500).json({ success: false, message: error.message || 'Server Error' });
     }
 };
 
