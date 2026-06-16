@@ -23,6 +23,10 @@ const StudentInteractionLog = () => {
  const [activeTab, setActiveTab] = useState('both'); // 'both', 'mentorship', 'tuition'
  const [statusFilter, setStatusFilter] = useState('pending'); // 'pending', 'completed'
  
+ // View report modal for completed students
+ const [viewReportModal, setViewReportModal] = useState(null); // { student, reportData, sessionType }
+ const [viewReportLoading, setViewReportLoading] = useState(false);
+
  // Form States
  const [isPaused, setIsPaused] = useState(false);
  const [sessionType, setSessionType] = useState(null); // 'DEEP', 'MEDIUM', 'QUICK', 'CANCELLED'
@@ -60,6 +64,22 @@ const StudentInteractionLog = () => {
      toast.error("Failed to toggle pause status");
    }
  };
+
+ const handleViewCompletedReport = async (student) => {
+    setViewReportLoading(true);
+    try {
+      const res = await api.get(`/mentor-interactions/report/${student.id}/today?date=${selectedDate}`);
+      setViewReportModal({
+        student,
+        reportData: res.data.data || {},
+        sessionType: res.data.session_type || student.sessionType || 'QUICK'
+      });
+    } catch (error) {
+      toast.error('Could not load interaction report for this date');
+    } finally {
+      setViewReportLoading(false);
+    }
+  };
 
  const fetchAllStudents = async () => {
    try {
@@ -180,15 +200,9 @@ const StudentInteractionLog = () => {
            });
        }
 
-       if (isEditingLog) {
-           await api.put(`/mentor-interactions/report/${selectedStudent.id}`, formDataObj, {
-               headers: { 'Content-Type': 'multipart/form-data' }
-           });
-       } else {
-           await api.post('/mentor-interactions/submit-report', formDataObj, {
-               headers: { 'Content-Type': 'multipart/form-data' }
-           });
-       }
+       await api.post('/mentor-interactions/submit-report', formDataObj, {
+           headers: { 'Content-Type': 'multipart/form-data' }
+       });
      }
 
      toast.success("Interaction submitted successfully!");
@@ -372,8 +386,14 @@ const StudentInteractionLog = () => {
                          return (
                            <div
                              key={student.id}
-                             onClick={() => statusFilter === 'pending' && handleStudentSelect(student, sessionType)}
-                             className={`group relative overflow-hidden p-8 rounded-[3rem] border transition-all text-left flex flex-col justify-between h-64 ${isCompleted ? 'bg-emerald-50/50 border-emerald-100' : isCancelled ? 'bg-rose-50/50 border-rose-100' : 'bg-white border-slate-100 hover:shadow-2xl hover:scale-[1.02] hover:border-slate-200 active:scale-95 cursor-pointer'}`}
+                             onClick={() => {
+                                if (statusFilter === 'pending') handleStudentSelect(student, sessionType);
+                                else if (isCompleted || isCancelled) handleViewCompletedReport(student);
+                             }}
+                             className={`group relative overflow-hidden p-8 rounded-[3rem] border transition-all text-left flex flex-col justify-between h-64 ${
+                                isCompleted ? 'bg-emerald-50/50 border-emerald-100 cursor-pointer hover:shadow-xl hover:scale-[1.02]' 
+                                : isCancelled ? 'bg-rose-50/50 border-rose-100 cursor-pointer hover:shadow-xl hover:scale-[1.02]' 
+                                : 'bg-white border-slate-100 hover:shadow-2xl hover:scale-[1.02] hover:border-slate-200 active:scale-95 cursor-pointer'}`}
                            >
                              <div className={`absolute top-0 right-0 w-32 h-32 rounded-full -mr-16 -mt-16 opacity-10 transition-transform group-hover:scale-150 duration-700 ${getSessionColor(sessionType).split(' ')[0]}`}></div>
                              
@@ -432,6 +452,40 @@ const StudentInteractionLog = () => {
           )}
         </div>
       </div>
+
+      {/* Read-only Report Modal for Completed Students */}
+      {viewReportModal && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4" onClick={() => setViewReportModal(null)}>
+          <div className="bg-white rounded-[2.5rem] shadow-2xl border border-slate-100 w-full max-w-2xl max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+            <div className="p-8 border-b border-slate-100 flex items-center justify-between sticky top-0 bg-white z-10 rounded-t-[2.5rem]">
+              <div>
+                <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight">{viewReportModal.student.name}</h2>
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">{viewReportModal.sessionType} Session • {selectedDate} • Read Only</p>
+              </div>
+              <button onClick={() => setViewReportModal(null)} className="p-3 hover:bg-slate-100 rounded-xl transition-colors">
+                <XCircle size={20} className="text-slate-500" />
+              </button>
+            </div>
+            <div className="p-8">
+              <InteractionFormUI
+                sessionType={viewReportModal.sessionType}
+                formData={viewReportModal.reportData}
+                setFormData={() => {}}
+                isReadOnly={true}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {viewReportLoading && (
+        <div className="fixed inset-0 z-[9998] flex items-center justify-center bg-black/30 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl p-8 shadow-2xl flex items-center gap-4">
+            <Loader2 size={24} className="animate-spin text-[#008080]" />
+            <span className="text-xs font-black text-slate-600 uppercase tracking-widest">Loading Report...</span>
+          </div>
+        </div>
+      )}
    );
  }
 

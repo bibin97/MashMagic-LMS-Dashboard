@@ -491,15 +491,16 @@ const getTodaySessionReport = async (req, res) => {
     try {
         const mentor_id = req.user.id;
         const { id: student_id } = req.params;
-        const today = new Date().toISOString().split('T')[0];
+        const dateParam = req.query.date;
+        const targetDate = dateParam || new Date().toISOString().split('T')[0];
 
         const [existing] = await db.query(
-            'SELECT report_data FROM mentor_session_reports WHERE mentor_id = ? AND student_id = ? AND DATE(created_at) = ? ORDER BY id DESC LIMIT 1',
-            [mentor_id, student_id, today]
+            'SELECT id, report_data, session_type, created_at FROM mentor_session_reports WHERE mentor_id = ? AND student_id = ? AND DATE(created_at) = ? ORDER BY id DESC LIMIT 1',
+            [mentor_id, student_id, targetDate]
         );
 
         if (existing.length === 0) {
-            return res.status(404).json({ success: false, message: 'No interaction logged today' });
+            return res.status(404).json({ success: false, message: 'No interaction logged for this date' });
         }
 
         let report_data = existing[0].report_data;
@@ -507,11 +508,12 @@ const getTodaySessionReport = async (req, res) => {
             try { report_data = JSON.parse(report_data); } catch(e) { report_data = {}; }
         }
 
-        res.status(200).json({ success: true, data: report_data });
+        res.status(200).json({ success: true, data: report_data, session_type: existing[0].session_type, report_id: existing[0].id });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
 };
+
 
 module.exports = {
     getDailyAssignments,
