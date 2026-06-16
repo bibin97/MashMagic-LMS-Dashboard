@@ -1655,6 +1655,7 @@ exports.deleteInteractionLog = async (req, res) => {
         let tableName = "";
         switch (source) {
             case "Student Call":
+            case "Quick Log":
             case "student_interaction_logs":
                 tableName = "student_interaction_logs";
                 break;
@@ -1662,6 +1663,13 @@ exports.deleteInteractionLog = async (req, res) => {
             case "mentor_session_reports":
                 tableName = "mentor_session_reports";
                 break;
+            default:
+                if (typeof source === 'string' && source.startsWith('Hub:')) {
+                    tableName = "mentor_session_reports";
+                    break;
+                }
+                // continue with exact source matches below
+                switch (source) {
             case "Faculty Tracking":
             case "faculty_interaction_logs":
                 tableName = "faculty_interaction_logs";
@@ -1683,7 +1691,8 @@ exports.deleteInteractionLog = async (req, res) => {
                 tableName = "student_reports";
                 break;
             default:
-                return res.status(400).json({ success: false, message: "Invalid log source provided" });
+                    return res.status(400).json({ success: false, message: "Invalid log source provided" });
+                }
         }
 
         const [result] = await db.query(`UPDATE ${tableName} SET is_deleted = 1, deleted_at = CURRENT_TIMESTAMP WHERE id = ?`, [id]);

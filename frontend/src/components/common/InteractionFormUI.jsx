@@ -3,6 +3,7 @@ import { AlertCircle, Brain, Paperclip, Download } from 'lucide-react';
 
 const InteractionFormUI = ({ sessionType, formData, setFormData, isReadOnly = false }) => {
   const [expandedFields, setExpandedFields] = useState({});
+  const API_BASE_URL = import.meta.env.VITE_API_URL || window.location.origin;
 
   const handleChange = (e) => {
     if (isReadOnly) return;
@@ -17,6 +18,22 @@ const InteractionFormUI = ({ sessionType, formData, setFormData, isReadOnly = fa
   const getRows = (fieldName, baseRows, expandedRows = 8) => (
     expandedFields[fieldName] ? expandedRows : baseRows
   );
+
+  const normalizeFileUrl = (filePath) => {
+    if (!filePath || typeof filePath !== 'string') return '#';
+    const trimmed = filePath.trim();
+    if (!trimmed) return '#';
+    if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) return trimmed;
+
+    let cleanPath = trimmed
+      .replace(/^undefined\/?/i, '/')
+      .replace(/\/undefined\/+/gi, '/')
+      .replace(/\/+/g, '/');
+    if (!cleanPath.startsWith('/')) cleanPath = `/${cleanPath}`;
+
+    const base = API_BASE_URL.replace(/\/$/, '');
+    return `${base}${cleanPath}`;
+  };
 
   const renderButtonOptions = (field, options, activeColor, inactiveColor, defaultLabel = '') => (
     <div className="flex gap-2 w-full">
@@ -45,7 +62,11 @@ const InteractionFormUI = ({ sessionType, formData, setFormData, isReadOnly = fa
   );
 
   return (
-    <div className={`space-y-8 ${isReadOnly ? 'opacity-95' : ''}`}>
+    <div
+      className={`space-y-8 ${isReadOnly ? 'opacity-95' : ''}`}
+      onClick={isReadOnly ? (e) => e.stopPropagation() : undefined}
+      onMouseDown={isReadOnly ? (e) => e.stopPropagation() : undefined}
+    >
       {sessionType === 'DEEP' && (
         <div className="space-y-10">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 bg-slate-50 p-6 rounded-[2.5rem] border border-slate-100 items-end">
@@ -290,7 +311,7 @@ const InteractionFormUI = ({ sessionType, formData, setFormData, isReadOnly = fa
            </h4>
            <div className="flex flex-wrap gap-4">
              {(Array.isArray(formData.files || formData.file) ? (formData.files || formData.file) : (typeof (formData.files || formData.file) === 'string' ? (formData.files || formData.file).split(',') : [])).map((f, i) => (
-                <a key={i} href={f.startsWith('http') ? f : `${import.meta.env.VITE_API_URL}${f.startsWith('/') ? f : '/' + f}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 bg-white border border-slate-200 p-3 rounded-2xl hover:border-[#008080] hover:shadow-md transition-all group">
+                <a key={i} href={normalizeFileUrl(f)} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 bg-white border border-slate-200 p-3 rounded-2xl hover:border-[#008080] hover:shadow-md transition-all group">
                    <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-[#008080]/10 group-hover:text-[#008080]">
                      <Download size={16} />
                    </div>

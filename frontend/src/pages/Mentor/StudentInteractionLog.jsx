@@ -535,15 +535,17 @@ const StudentInteractionLog = () => {
         </div>
      </header>
 
+     <div className="px-2">
+       <div className="inline-flex items-center gap-4 px-5 py-3 rounded-2xl bg-slate-50 border border-slate-200">
+         <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Interaction Count</p>
+         <p className="text-sm font-black text-slate-900">
+           {getInteractionDisplayCount(selectedStudent) ? `#${getInteractionDisplayCount(selectedStudent)}` : 'N/A'}
+         </p>
+       </div>
+     </div>
+
      {!submitted ? (
        <form onSubmit={handleSubmit} className="bg-white p-6 md:p-12 rounded-[3.5rem] shadow-2xl border border-slate-50 space-y-12 relative">
-         <div className="absolute top-8 left-8 z-20 px-4 py-2 rounded-xl bg-slate-50 border border-slate-200">
-           <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Interaction Count</p>
-           <p className="text-sm font-black text-slate-900 mt-1">
-             {getInteractionDisplayCount(selectedStudent) ? `#${getInteractionDisplayCount(selectedStudent)}` : 'N/A'}
-           </p>
-         </div>
-         
          {sessionType !== 'CANCELLED' && (
            <div className="absolute top-8 right-8 z-20">
              <button
