@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useDeferredValue, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
-import { ScrollText, Search, User, Clock, Calendar, ChevronLeft, ChevronRight, History, ExternalLink, ArrowLeft, Users, ShieldAlert, CheckSquare, Filter, BookOpen, ChevronDown, SlidersHorizontal, X, SortAsc, CalendarClock, Pencil, Trash2 } from 'lucide-react';
+import { ScrollText, Search, User, Clock, Calendar, ChevronLeft, ChevronRight, History, ExternalLink, ArrowLeft, Users, ShieldAlert, CheckSquare, Filter, BookOpen, ChevronDown, SlidersHorizontal, X, SortAsc, CalendarClock, Pencil, Trash2, Paperclip } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import toast from 'react-hot-toast';
 
@@ -100,6 +100,7 @@ const CommonInteractionLogs = ({
   // New state variables for Edit and History Modal
   const [editModalLog, setEditModalLog] = useState(null);
   const [editFormData, setEditFormData] = useState({});
+  const [editFiles, setEditFiles] = useState([]);
   const [isSavingEdit, setIsSavingEdit] = useState(false);
   const [historyModalLog, setHistoryModalLog] = useState(null);
   const [historyLogs, setHistoryLogs] = useState([]);
@@ -129,6 +130,28 @@ const CommonInteractionLogs = ({
     return '/admin';
   };
   const apiPrefix = getApiPrefix();
+  const API_BASE_URL = import.meta.env.VITE_API_URL || window.location.origin;
+  const normalizeFileUrl = (filePath) => {
+    if (!filePath || typeof filePath !== 'string') return '#';
+    const trimmed = filePath.trim();
+    if (!trimmed) return '#';
+    if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) return trimmed;
+    let cleanPath = trimmed
+      .replace(/^undefined\/?/i, '/')
+      .replace(/\/undefined\/+/gi, '/')
+      .replace(/^\/?mentor-head\/undefined\/?/i, '/')
+      .replace(/\/+/g, '/');
+    if (!cleanPath.startsWith('/')) cleanPath = `/${cleanPath}`;
+    if (cleanPath.startsWith('/uploads/')) cleanPath = `/api${cleanPath}`;
+    return `${API_BASE_URL.replace(/\/$/, '')}${cleanPath}`;
+  };
+  const getLogFiles = (logOrReport) => {
+    if (!logOrReport) return [];
+    const rawFiles = logOrReport.files || logOrReport.file || logOrReport.screenshot_url || logOrReport.interaction_files;
+    if (Array.isArray(rawFiles)) return rawFiles.filter(Boolean);
+    if (typeof rawFiles === 'string') return rawFiles.split(',').map((f) => f.trim()).filter(Boolean);
+    return [];
+  };
   const groupLogsByDate = logsList => {
     const groups = {};
     const sorted = [...logsList].sort((a, b) => {
@@ -387,7 +410,69 @@ const CommonInteractionLogs = ({
     }
   };
   const handleOpenEdit = log => {
-    navigate(`edit/${log.id}`, { state: { log } });
+    const source = log.source || 'Interaction Hub';
+    let initialData = {};
+    if (source === 'Session Log') {
+      initialData = {
+        main_issue: log.main_issue || '',
+        action_type: log.action_type || ''
+      };
+    } else if (source === 'Interaction Log' || source === 'Quick Log') {
+      initialData = {
+        notes: log.notes || log.mentor_notes || ''
+      };
+    } else {
+      let parsedReport = {};
+      try {
+        parsedReport = log.report_data
+          ? (typeof log.report_data === 'string' ? JSON.parse(log.report_data) : log.report_data)
+          : {};
+      } catch (e) {
+        parsedReport = {};
+      }
+      const fallbackFiles = getLogFiles(log);
+      initialData = {
+        report_data: {
+          ...parsedReport,
+          files: parsedReport.files || fallbackFiles
+        }
+      };
+    }
+    setEditFiles([]);
+    setEditModalLog(log);
+    setEditFormData(initialData);
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editModalLog) return;
+    setIsSavingEdit(true);
+    try {
+      const source = editModalLog.source || 'Interaction Hub';
+      const endpoint = `${apiPrefix}/interactions/${encodeURIComponent(source)}/${editModalLog.id}`;
+      const formPayload = new FormData();
+
+      if (source === 'Session Log') {
+        formPayload.append('main_issue', editFormData.main_issue || '');
+        formPayload.append('action_type', editFormData.action_type || '');
+      } else if (source === 'Interaction Log' || source === 'Quick Log') {
+        formPayload.append('notes', editFormData.notes || '');
+      } else {
+        const currentReportData = editFormData.report_data || {};
+        formPayload.append('report_data', JSON.stringify(currentReportData));
+      }
+
+      editFiles.forEach((file) => formPayload.append('files', file));
+
+      await api.put(endpoint, formPayload);
+      toast.success('Interaction updated successfully');
+      setEditModalLog(null);
+      setEditFiles([]);
+      fetchLogs();
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to update interaction');
+    } finally {
+      setIsSavingEdit(false);
+    }
   };
 
   const handleOpenHistory = async log => {
@@ -1194,7 +1279,10 @@ const CommonInteractionLogs = ({
                                 <h3 className="text-lg font-black text-slate-900 uppercase tracking-widest">Edit Interaction Log</h3>
                                 <p className="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-widest">Modify details for this session</p>
                             </div>
-                            <button onClick={() => setEditModalLog(null)} className="p-2 hover:bg-slate-100 rounded-xl transition-colors">
+                            <button onClick={() => {
+              setEditModalLog(null);
+              setEditFiles([]);
+            }} className="p-2 hover:bg-slate-100 rounded-xl transition-colors">
                                 <X size={20} className="text-slate-400" />
                             </button>
                         </div>
@@ -1203,7 +1291,7 @@ const CommonInteractionLogs = ({
                             {(!editModalLog.source || editModalLog.source === 'Interaction Hub' || editModalLog.source.startsWith('Hub:')) && (
       <div className="bg-white">
           <InteractionFormUI 
-            sessionType={(editModalLog.session_type || editModalLog.source.replace('Hub: ', '') || 'QUICK').toUpperCase()} 
+            sessionType={(editModalLog.session_type || (editModalLog.source || '').replace('Hub: ', '') || 'QUICK').toUpperCase()} 
             formData={editFormData.report_data || {}} 
             setFormData={(newData) => setEditFormData({...editFormData, report_data: newData})} 
           />
@@ -1227,13 +1315,61 @@ const CommonInteractionLogs = ({
                                     </div>
                                 </>}
 
-                            {editModalLog.source === 'Interaction Log' && <div>
+                            {(editModalLog.source === 'Interaction Log' || editModalLog.source === 'Quick Log') && <div>
                                     <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 ml-1">Mentor Notes</label>
                                     <textarea className="w-full bg-slate-50 border border-slate-200 rounded-xl p-4 text-xs font-bold focus:ring-2 focus:ring-[#008080]/20 outline-none min-h-[120px]" value={editFormData.notes || ''} onChange={e => setEditFormData({
               ...editFormData,
               notes: e.target.value
             })} />
                                 </div>}
+
+                            {/* Existing Uploaded Files */}
+                            {(() => {
+      const source = editModalLog.source || 'Interaction Hub';
+      let existingFiles = [];
+      if (source === 'Session Log' || source === 'Interaction Log' || source === 'Quick Log') {
+        existingFiles = getLogFiles(editModalLog);
+      } else {
+        existingFiles = getLogFiles(editFormData.report_data || {});
+      }
+      if (!existingFiles.length) return null;
+      return (
+        <div className="space-y-3">
+          <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">
+            Existing Files
+          </label>
+          <div className="flex flex-wrap gap-3">
+            {existingFiles.map((f, i) => (
+              <a
+                key={`${f}-${i}`}
+                href={normalizeFileUrl(f)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-slate-200 bg-slate-50 hover:bg-white text-[10px] font-black uppercase tracking-widest text-slate-600"
+              >
+                <Paperclip size={12} /> File {i + 1}
+              </a>
+            ))}
+          </div>
+        </div>
+      );
+    })()}
+
+                            {/* Upload New Files */}
+                            <div className="space-y-2">
+                                <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 ml-1">Upload Additional Files</label>
+                                <input
+                                  type="file"
+                                  multiple
+                                  onChange={(e) => setEditFiles(Array.from(e.target.files || []))}
+                                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs font-bold outline-none"
+                                />
+                                {editFiles.length > 0 && (
+                                  <p className="text-[10px] font-black text-[#008080] uppercase tracking-widest">
+                                    {editFiles.length} file(s) selected for upload
+                                  </p>
+                                )}
+                            </div>
                         </div>
 
                         <div className="p-6 border-t border-slate-100 flex justify-end gap-3 bg-slate-50 rounded-b-[2rem]">

@@ -42,6 +42,7 @@ const {
 const { getDailyUpdates } = require('../controllers/sscController');
 const { requireAuth } = require('../middleware/authMiddleware');
 const { requireRole } = require('../middleware/roleMiddleware');
+const upload = require('../middleware/uploadMiddleware');
 
 // All routes require mentor_head role
 router.use(requireAuth);
@@ -83,7 +84,7 @@ router.get('/faculty-logs', getFacultyInteractionLogs);
 router.get('/mentor-logs', getMentorInteractionLogs);
 router.get('/faculty-intelligence', getFacultyIntelligenceLogs);
 router.delete('/logs/:id', deleteInteractionLog);
-router.put('/interactions/:source/:id', updateInteractionLog);
+router.put('/interactions/:source/:id', upload.array('files', 5), updateInteractionLog);
 router.get('/interactions/:source/:id/history', getInteractionHistory);
 
 // Faculty Management for Mentor Head

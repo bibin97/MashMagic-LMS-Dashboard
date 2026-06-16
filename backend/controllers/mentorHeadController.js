@@ -1787,6 +1787,7 @@ exports.updateInteractionLog = async (req, res) => {
     try {
         const { source, id } = req.params;
         const { report_data, notes, main_issue, action_type } = req.body;
+        const uploadedFiles = (req.files || []).map((file) => `/uploads/${file.filename}`);
         
         let tableName = '';
         let oldDataQuery = '';
@@ -1796,10 +1797,10 @@ exports.updateInteractionLog = async (req, res) => {
             oldDataQuery = 'SELECT report_data FROM mentor_session_reports WHERE id = ?';
         } else if (source === 'Session Log') {
             tableName = 'mentor_session_logs';
-            oldDataQuery = 'SELECT main_issue, action_type FROM mentor_session_logs WHERE id = ?';
-        } else if (source === 'Interaction Log') {
+            oldDataQuery = 'SELECT main_issue, action_type, interaction_files FROM mentor_session_logs WHERE id = ?';
+        } else if (source === 'Interaction Log' || source === 'Quick Log') {
             tableName = 'student_interaction_logs';
-            oldDataQuery = 'SELECT mentor_notes FROM student_interaction_logs WHERE id = ?';
+            oldDataQuery = 'SELECT mentor_notes, screenshot_url FROM student_interaction_logs WHERE id = ?';
         } else {
             return res.status(400).json({ success: false, message: 'Invalid source' });
         }
@@ -1813,15 +1814,72 @@ exports.updateInteractionLog = async (req, res) => {
         let newData = {};
 
         if (tableName === 'mentor_session_reports') {
-            const reportStr = typeof report_data === 'string' ? report_data : JSON.stringify(report_data);
+            let incomingReport = {};
+            try {
+                incomingReport = typeof report_data === 'string' ? JSON.parse(report_data) : (report_data || {});
+            } catch (e) {
+                incomingReport = {};
+            }
+
+            let previousReport = {};
+            try {
+                previousReport = oldData.report_data
+                    ? (typeof oldData.report_data === 'string' ? JSON.parse(oldData.report_data) : oldData.report_data)
+                    : {};
+            } catch (e) {
+                previousReport = {};
+            }
+
+            const previousFiles = Array.isArray(previousReport.files)
+                ? previousReport.files
+                : (typeof previousReport.files === 'string' && previousReport.files
+                    ? previousReport.files.split(',').map((f) => f.trim()).filter(Boolean)
+                    : []);
+            const incomingFiles = Array.isArray(incomingReport.files)
+                ? incomingReport.files
+                : (typeof incomingReport.files === 'string' && incomingReport.files
+                    ? incomingReport.files.split(',').map((f) => f.trim()).filter(Boolean)
+                    : []);
+            const mergedFiles = [...new Set([...(incomingFiles.length > 0 ? incomingFiles : previousFiles), ...uploadedFiles])];
+
+            const updatedReport = {
+                ...previousReport,
+                ...incomingReport,
+                files: mergedFiles
+            };
+
+            const reportStr = JSON.stringify(updatedReport);
             await db.query('UPDATE mentor_session_reports SET report_data = ? WHERE id = ?', [reportStr, id]);
             newData = { report_data: reportStr };
         } else if (tableName === 'mentor_session_logs') {
-            await db.query('UPDATE mentor_session_logs SET main_issue = ?, action_type = ? WHERE id = ?', [main_issue, action_type, id]);
-            newData = { main_issue, action_type };
+            let oldInteractionFiles = [];
+            try {
+                oldInteractionFiles = oldData.interaction_files
+                    ? (typeof oldData.interaction_files === 'string' ? JSON.parse(oldData.interaction_files) : oldData.interaction_files)
+                    : [];
+            } catch (e) {
+                oldInteractionFiles = [];
+            }
+
+            const interactionFiles = [...new Set([...(Array.isArray(oldInteractionFiles) ? oldInteractionFiles : []), ...uploadedFiles])];
+            await db.query(
+                'UPDATE mentor_session_logs SET main_issue = ?, action_type = ?, interaction_files = ? WHERE id = ?',
+                [main_issue, action_type, JSON.stringify(interactionFiles), id]
+            );
+            newData = { main_issue, action_type, interaction_files: interactionFiles };
         } else if (tableName === 'student_interaction_logs') {
-            await db.query('UPDATE student_interaction_logs SET mentor_notes = ? WHERE id = ?', [notes, id]);
-            newData = { mentor_notes: notes };
+            const previousScreenshots = (oldData.screenshot_url || '')
+                .split(',')
+                .map((f) => f.trim())
+                .filter(Boolean);
+            const mergedScreenshots = [...new Set([...previousScreenshots, ...uploadedFiles])];
+            const screenshotValue = mergedScreenshots.join(',');
+
+            await db.query(
+                'UPDATE student_interaction_logs SET mentor_notes = ?, screenshot_url = ? WHERE id = ?',
+                [notes, screenshotValue, id]
+            );
+            newData = { mentor_notes: notes, screenshot_url: screenshotValue };
         }
 
         // Save history
