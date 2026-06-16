@@ -1695,10 +1695,72 @@ exports.deleteInteractionLog = async (req, res) => {
                 }
         }
 
+        // First, fetch the record to get student_id and mentor_id BEFORE deleting
+        let studentId, mentorId;
+        if (tableName === "student_interaction_logs") {
+            const [record] = await db.query('SELECT student_id, mentor_id FROM student_interaction_logs WHERE id = ?', [id]);
+            if (record.length > 0) {
+                studentId = record[0].student_id;
+                mentorId = record[0].mentor_id;
+            }
+        } else if (tableName === "mentor_session_reports") {
+            const [record] = await db.query('SELECT student_id, mentor_id FROM mentor_session_reports WHERE id = ?', [id]);
+            if (record.length > 0) {
+                studentId = record[0].student_id;
+                mentorId = record[0].mentor_id;
+            }
+        } else if (tableName === "mentor_session_logs") {
+            const [record] = await db.query('SELECT student_id, mentor_id FROM mentor_session_logs WHERE id = ?', [id]);
+            if (record.length > 0) {
+                studentId = record[0].student_id;
+                mentorId = record[0].mentor_id;
+            }
+        }
+
         const [result] = await db.query(`DELETE FROM ${tableName} WHERE id = ?`, [id]);
 
         if (result.affectedRows === 0) {
             return res.status(404).json({ success: false, message: "Log not found or already deleted" });
+        }
+
+        // If this is a student interaction, reset the daily assignment status back to PENDING
+        if (studentId && mentorId) {
+            const today = new Date().toISOString().split('T')[0];
+            try {
+                // Get today's assignments
+                const [existing] = await db.query(
+                    'SELECT id, assignments FROM daily_assignments WHERE mentor_id = ? AND date = ?',
+                    [mentorId, today]
+                );
+
+                if (existing.length > 0) {
+                    let assignments = existing[0].assignments;
+                    if (typeof assignments === 'string') {
+                        try {
+                            assignments = JSON.parse(assignments);
+                        } catch (e) {
+                            assignments = [];
+                        }
+                    }
+
+                    // Find the student in today's assignments and reset status to PENDING
+                    const updatedAssignments = assignments.map(a => {
+                        if (a.id === studentId) {
+                            return { ...a, status: 'PENDING' };
+                        }
+                        return a;
+                    });
+
+                    // Update daily_assignments with new status
+                    await db.query(
+                        'UPDATE daily_assignments SET assignments = ? WHERE id = ?',
+                        [JSON.stringify(updatedAssignments), existing[0].id]
+                    );
+                }
+            } catch (err) {
+                console.error("Failed to reset daily assignment status:", err);
+                // Don't fail the deletion if this update fails, but log it
+            }
         }
 
         // Notify admin about the deletion
@@ -1711,7 +1773,7 @@ exports.deleteInteractionLog = async (req, res) => {
 
         res.status(200).json({
             success: true,
-            message: "Interaction log permanently deleted"
+            message: "Interaction log permanently deleted and student status reset to awaiting"
         });
     } catch (error) {
         console.error('Error in deleteInteractionLog:', error);
