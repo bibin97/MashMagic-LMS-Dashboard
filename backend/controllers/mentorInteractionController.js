@@ -166,42 +166,42 @@ const generateAssignments = async (mentor_id, today) => {
     // 2. Carry Over Students
     for (const s of carryOverStudents) {
         if (!carryOverSet.has(s.id)) {
-            // Assign based on priority without exceeding quotas if possible
+            // Add carry-overs WITHOUT counting them towards today's quota
             if (s.priority_category === 'High') {
-                if (deep.length < 5) {
-                    deep.push({ ...s, sessionType: 'DEEP', status: 'PENDING' });
-                    carryOverSet.add(s.id);
-                }
+                deep.push({ ...s, sessionType: 'DEEP', status: 'PENDING', is_carry_over: true });
             } else if (s.priority_category === 'Medium') {
-                if (medium.length < 5) {
-                    medium.push({ ...s, sessionType: 'MEDIUM', status: 'PENDING' });
-                    carryOverSet.add(s.id);
-                }
+                medium.push({ ...s, sessionType: 'MEDIUM', status: 'PENDING', is_carry_over: true });
             } else {
-                if (quick.length < 5) {
-                    quick.push({ ...s, sessionType: 'QUICK', status: 'PENDING' });
-                    carryOverSet.add(s.id);
-                }
+                quick.push({ ...s, sessionType: 'QUICK', status: 'PENDING', is_carry_over: true });
             }
+            carryOverSet.add(s.id);
         }
     }
 
-    // 3. Scan rotation to fill quotas
+    // 3. Scan rotation to fill quotas FOR TODAY (max 5 each, excluding carry-overs and onboarding)
     let currIdx = nextStartIndex;
     let attempts = 0;
     
-    while ((deep.length < 5 || medium.length < 5 || quick.length < 5) && attempts < students.length) {
+    // We only count students who are NOT carry-overs and NOT onboarding for today's quota
+    let todayDeep = 0;
+    let todayMedium = 0;
+    let todayQuick = 0;
+    
+    while ((todayDeep < 5 || todayMedium < 5 || todayQuick < 5) && attempts < students.length) {
         const candidate = students[currIdx];
         if (!carryOverSet.has(candidate.id)) {
-            if (candidate.priority_category === 'High' && deep.length < 5) {
+            if (candidate.priority_category === 'High' && todayDeep < 5) {
                 deep.push({ ...candidate, sessionType: 'DEEP', status: 'PENDING' });
                 carryOverSet.add(candidate.id);
-            } else if (candidate.priority_category === 'Medium' && medium.length < 5) {
+                todayDeep++;
+            } else if (candidate.priority_category === 'Medium' && todayMedium < 5) {
                 medium.push({ ...candidate, sessionType: 'MEDIUM', status: 'PENDING' });
                 carryOverSet.add(candidate.id);
-            } else if ((candidate.priority_category === 'Stable' || candidate.priority_category === 'Low' || !candidate.priority_category) && quick.length < 5) {
+                todayMedium++;
+            } else if ((candidate.priority_category === 'Stable' || candidate.priority_category === 'Low' || !candidate.priority_category) && todayQuick < 5) {
                 quick.push({ ...candidate, sessionType: 'QUICK', status: 'PENDING' });
                 carryOverSet.add(candidate.id);
+                todayQuick++;
             }
         }
         currIdx = (currIdx + 1) % students.length;

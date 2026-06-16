@@ -415,6 +415,11 @@ const StudentInteractionLog = () => {
                                  <div className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest border ${getSessionColor(sessionType)}`}>
                                    {sessionType} SESSION
                                  </div>
+                                 {student.is_carry_over && (
+                                   <div className="px-3 py-1.5 bg-orange-100 text-orange-600 border border-orange-200 rounded-full text-[8px] font-black uppercase tracking-widest flex items-center gap-1 shadow-sm">
+                                     <Clock size={10} /> Carry Over
+                                   </div>
+                                 )}
                                  {isCompleted && <CheckCircle2 className="text-emerald-500" size={24} />}
                                  {isCancelled && <XCircle className="text-rose-500" size={24} />}
                                </div>

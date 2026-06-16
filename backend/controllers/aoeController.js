@@ -4,15 +4,21 @@ const { logFacultyChanges } = require('../utils/facultyChangeLogger');
 const User = require('../models/userModel');
 
 const ensureAoeDemoScheduleColumns = async () => {
-    try {
-        await db.query('ALTER TABLE aoe_demo_schedules ADD COLUMN type VARCHAR(50) DEFAULT "demo"');
-    } catch (e) {
-        // column already exists
-    }
-    try {
-        await db.query('ALTER TABLE aoe_demo_schedules ADD COLUMN faculty_name VARCHAR(255) NULL');
-    } catch (e) {
-        // column already exists
+    const columnsToAdd = [
+        'ALTER TABLE aoe_demo_schedules ADD COLUMN type VARCHAR(50) DEFAULT "demo"',
+        'ALTER TABLE aoe_demo_schedules ADD COLUMN faculty_name VARCHAR(255) NULL',
+        'ALTER TABLE aoe_demo_schedules ADD COLUMN date DATE NULL',
+        'ALTER TABLE aoe_demo_schedules ADD COLUMN syllabus VARCHAR(255) NULL',
+        'ALTER TABLE aoe_demo_schedules ADD COLUMN section VARCHAR(255) NULL',
+        'ALTER TABLE aoe_demo_schedules ADD COLUMN meeting_link VARCHAR(255) NULL'
+    ];
+
+    for (const query of columnsToAdd) {
+        try {
+            await db.query(query);
+        } catch (e) {
+            // column already exists
+        }
     }
 };
 
