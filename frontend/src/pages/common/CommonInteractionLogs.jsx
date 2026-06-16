@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useDeferredValue, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import { ScrollText, Search, User, Clock, Calendar, ChevronLeft, ChevronRight, History, ExternalLink, ArrowLeft, Users, ShieldAlert, CheckSquare, Filter, BookOpen, ChevronDown, SlidersHorizontal, X, SortAsc, CalendarClock, Pencil, Trash2 } from 'lucide-react';
 import * as XLSX from 'xlsx';
@@ -64,6 +65,7 @@ const QUICK_QUESTION_LABELS = {
 const CommonInteractionLogs = ({
   role
 }) => {
+  const navigate = useNavigate();
   const [viewMode, setViewMode] = useState('list'); // 'list' or 'detail'
   const [activeTab, setActiveTab] = useState('student'); // 'student' or 'faculty'
   const [entities, setEntities] = useState([]);
