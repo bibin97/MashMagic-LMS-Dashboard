@@ -28,8 +28,13 @@ const InteractionFormUI = ({ sessionType, formData, setFormData, isReadOnly = fa
     let cleanPath = trimmed
       .replace(/^undefined\/?/i, '/')
       .replace(/\/undefined\/+/gi, '/')
+      .replace(/^\/?mentor-head\/undefined\/?/i, '/')
       .replace(/\/+/g, '/');
     if (!cleanPath.startsWith('/')) cleanPath = `/${cleanPath}`;
+
+    if (cleanPath.startsWith('/uploads/')) {
+      cleanPath = `/api${cleanPath}`;
+    }
 
     const base = API_BASE_URL.replace(/\/$/, '');
     return `${base}${cleanPath}`;
