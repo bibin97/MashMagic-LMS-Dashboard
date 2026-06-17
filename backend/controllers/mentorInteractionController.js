@@ -516,6 +516,19 @@ const updateSessionReport = async (req, res) => {
             [session_type, JSON.stringify(report_data), existing[0].id]
         );
 
+        if (next_session_type) {
+            const [[currentStudent]] = await db.query('SELECT priority_category FROM students WHERE id = ?', [student_id]);
+            let finalPriority = currentStudent?.priority_category || 'Stable';
+            if (next_session_type === 'DEEP') finalPriority = 'High';
+            else if (next_session_type === 'MEDIUM') finalPriority = 'Medium';
+            else if (next_session_type === 'QUICK') finalPriority = 'Stable';
+
+            await db.query(
+                'UPDATE students SET priority_category = ?, last_session_type = ? WHERE id = ?',
+                [finalPriority, session_type, student_id]
+            );
+        }
+
         res.status(200).json({ success: true, message: 'Interaction updated successfully' });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });

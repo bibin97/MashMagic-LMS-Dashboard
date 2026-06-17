@@ -166,7 +166,7 @@ const InteractionFormUI = ({ sessionType, formData, setFormData, isReadOnly = fa
               <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Need Deep Session?</label>
               <div className="flex gap-2">
                 {['Yes', 'No'].map(opt => (
-                  <button key={opt} type="button" onClick={() => !isReadOnly && setFormData({...formData, upgrade_to_deep: opt})} disabled={isReadOnly} className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase transition-all ${formData.upgrade_to_deep === opt ? 'bg-amber-600 text-white shadow-md' : 'bg-white text-slate-400 border border-slate-200 hover:bg-slate-100'}`}>{opt}</button>
+                  <button key={opt} type="button" onClick={() => !isReadOnly && setFormData({...formData, upgrade_to_deep: opt, next_session_type: opt === 'Yes' ? 'DEEP' : 'QUICK'})} disabled={isReadOnly} className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase transition-all ${formData.upgrade_to_deep === opt ? 'bg-amber-600 text-white shadow-md' : 'bg-white text-slate-400 border border-slate-200 hover:bg-slate-100'}`}>{opt}</button>
                 ))}
               </div>
             </div>
@@ -211,7 +211,7 @@ const InteractionFormUI = ({ sessionType, formData, setFormData, isReadOnly = fa
               </label>
               <div className="flex gap-2">
                 {['Yes', 'No'].map(opt => (
-                  <button key={opt} type="button" onClick={() => !isReadOnly && setFormData({...formData, immediate_concern: opt})} disabled={isReadOnly} className={`px-6 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${formData.immediate_concern === opt ? (opt === 'Yes' ? 'bg-rose-500 text-white shadow-md' : 'bg-[#008080] text-white shadow-md') : 'bg-slate-100 text-slate-400'}`}>{opt}</button>
+                  <button key={opt} type="button" onClick={() => !isReadOnly && setFormData({...formData, immediate_concern: opt, next_session_type: opt === 'Yes' ? 'MEDIUM' : 'QUICK'})} disabled={isReadOnly} className={`px-6 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${formData.immediate_concern === opt ? (opt === 'Yes' ? 'bg-rose-500 text-white shadow-md' : 'bg-[#008080] text-white shadow-md') : 'bg-slate-100 text-slate-400'}`}>{opt}</button>
                 ))}
               </div>
             </div>
