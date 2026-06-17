@@ -407,7 +407,7 @@ const submitSessionReport = async (req, res) => {
         // If next_session_type is not provided, keep current priority_category
 
         await db.query(
-            'UPDATE students SET priority_category = ?, last_session_type = ?, last_session_date = ? WHERE id = ?',
+            'UPDATE students SET priority_category = ?, last_session_type = ?, last_session_date = ?, onboarding_status = "completed" WHERE id = ?',
             [finalPriority, session_type, interactionDate, student_id]
         );
 
