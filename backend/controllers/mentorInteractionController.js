@@ -269,33 +269,44 @@ const submitSessionReport = async (req, res) => {
             }
         }
 
-        // 5. Save Report (with optional flagging if columns exist)
-        // 5. Save Report (with optional flagging if columns exist)
+        // 5. Save Report - with duplicate check to prevent double-submit on retry
+        const today = new Date().toISOString().split('T')[0];
+        const interactionDate = req.body.interaction_date || today;
+
         if (session_type !== 'CANCELLED') {
-            try {
-                if (req.body.interaction_date) {
-                    const created_at_val = `${req.body.interaction_date} 23:59:59`;
+            // Duplicate check: don't insert if already saved for same student+mentor on same date
+            const [existingLog] = await db.query(
+                'SELECT id FROM mentor_session_reports WHERE mentor_id = ? AND student_id = ? AND DATE(created_at) = ? LIMIT 1',
+                [mentor_id, student_id, interactionDate]
+            );
+
+            if (existingLog.length === 0) {
+                try {
+                    if (req.body.interaction_date) {
+                        const created_at_val = `${req.body.interaction_date} 23:59:59`;
+                        await db.query(
+                            'INSERT INTO mentor_session_reports (student_id, mentor_id, session_type, report_data, is_flagged, flag_reason, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)',
+                            [student_id, mentor_id, session_type, JSON.stringify(report_data), isFlagged, flagReason, created_at_val]
+                        );
+                    } else {
+                        await db.query(
+                            'INSERT INTO mentor_session_reports (student_id, mentor_id, session_type, report_data, is_flagged, flag_reason) VALUES (?, ?, ?, ?, ?, ?)',
+                            [student_id, mentor_id, session_type, JSON.stringify(report_data), isFlagged, flagReason]
+                        );
+                    }
+                } catch (dbErr) {
+                    console.error('[SUBMIT REPORT] Insert with flags failed, using fallback:', dbErr.message);
                     await db.query(
-                        'INSERT INTO mentor_session_reports (student_id, mentor_id, session_type, report_data, is_flagged, flag_reason, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)',
-                        [student_id, mentor_id, session_type, JSON.stringify(report_data), isFlagged, flagReason, created_at_val]
-                    );
-                } else {
-                    await db.query(
-                        'INSERT INTO mentor_session_reports (student_id, mentor_id, session_type, report_data, is_flagged, flag_reason) VALUES (?, ?, ?, ?, ?, ?)',
-                        [student_id, mentor_id, session_type, JSON.stringify(report_data), isFlagged, flagReason]
+                        'INSERT INTO mentor_session_reports (student_id, mentor_id, session_type, report_data) VALUES (?, ?, ?, ?)',
+                        [student_id, mentor_id, session_type, JSON.stringify(report_data)]
                     );
                 }
-            } catch (dbErr) {
-                // Fallback if columns don't exist yet
-                await db.query(
-                    'INSERT INTO mentor_session_reports (student_id, mentor_id, session_type, report_data) VALUES (?, ?, ?, ?)',
-                    [student_id, mentor_id, session_type, JSON.stringify(report_data)]
-                );
+            } else {
+                console.log(`[SUBMIT REPORT] Duplicate detected for student ${student_id} on ${interactionDate}, skipping insert.`);
             }
         }
 
-        // 6. Update Today's List status
-        const interactionDate = req.body.interaction_date || new Date().toISOString().split('T')[0];
+        // 6. Update assignment list status
         const [existing] = await db.query(
             'SELECT id, assignments FROM daily_assignments WHERE mentor_id = ? AND date = ?',
             [mentor_id, interactionDate]
@@ -393,7 +404,7 @@ const submitSessionReport = async (req, res) => {
 
         await db.query(
             'UPDATE students SET priority_category = ?, last_session_type = ?, last_session_date = ? WHERE id = ?',
-            [finalPriority, session_type, today, student_id]
+            [finalPriority, session_type, interactionDate, student_id]
         );
 
         // Notify Admin of new session report
