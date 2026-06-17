@@ -24,7 +24,7 @@ const FacultyTimetable = () => {
     }
   };
   const filteredTimetable = timetable
-  //  .filter(item => item.student_name?.toLowerCase().includes(deferredSearchTerm.toLowerCase()) || item.student_subject?.toLowerCase().includes(deferredSearchTerm.toLowerCase())); 
+  .filter(item => item.student_name?.toLowerCase().includes(deferredSearchTerm.toLowerCase()) || item.student_subject?.toLowerCase().includes(deferredSearchTerm.toLowerCase())); 
   return <div className="p-4 md:p-8 space-y-8 max-w-[1600px] mx-auto min-h-screen">
     <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
       <div className="space-y-1">
