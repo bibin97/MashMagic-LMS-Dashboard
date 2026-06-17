@@ -33,7 +33,8 @@ const EditInteractionLog = () => {
             setEditFormData({
                 main_issue: initialLog.main_issue || '',
                 notes: initialLog.notes || '',
-                report_data: parsedReport
+                report_data: parsedReport,
+                interaction_date: initialLog.created_at ? new Date(initialLog.created_at).toISOString().split('T')[0] : (initialLog.date ? new Date(initialLog.date).toISOString().split('T')[0] : '')
             });
         } else {
             // If they land on this page directly without state, we navigate back.
@@ -80,6 +81,16 @@ const EditInteractionLog = () => {
 
                 <div className="bg-white rounded-[2rem] shadow-sm border border-slate-100 p-6 md:p-8">
                     <div className="space-y-8">
+                        <div className="mb-6">
+                            <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 ml-1">Interaction Date</label>
+                            <input 
+                                type="date" 
+                                className="w-full md:w-1/3 bg-slate-50 border border-slate-200 rounded-xl p-4 text-xs font-bold focus:ring-2 focus:ring-[#008080]/20 outline-none" 
+                                value={editFormData.interaction_date || ''} 
+                                onChange={e => setEditFormData({...editFormData, interaction_date: e.target.value})} 
+                            />
+                        </div>
+
                         {(!log.source || log.source === 'Interaction Hub' || log.source.startsWith('Hub:')) && (
                             <InteractionFormUI 
                                 sessionType={(log.session_type || log.source.replace('Hub: ', '') || 'QUICK').toUpperCase()} 

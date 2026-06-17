@@ -282,7 +282,8 @@ const submitSessionReport = async (req, res) => {
 
             if (existingLog.length === 0) {
                 // created_at is always set to interactionDate so yesterday pending logs show yesterday's date in DB and dashboard
-                const created_at_val = `${interactionDate} 23:59:59`;
+                // Using 12:00:00 instead of 23:59:59 to prevent timezone crossover to the next day in IST
+                const created_at_val = `${interactionDate} 12:00:00`;
                 try {
                     await db.query(
                         'INSERT INTO mentor_session_reports (student_id, mentor_id, session_type, report_data, is_flagged, flag_reason, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)',

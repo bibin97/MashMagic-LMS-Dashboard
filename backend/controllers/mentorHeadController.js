@@ -1858,7 +1858,7 @@ exports.updateStudentAssessmentLevel = async (req, res) => {
 exports.updateInteractionLog = async (req, res) => {
     try {
         const { source, id } = req.params;
-        const { report_data, notes, main_issue, action_type } = req.body;
+        const { report_data, notes, main_issue, action_type, interaction_date } = req.body;
         const uploadedFiles = (req.files || []).map((file) => `/uploads/${file.filename}`);
         
         let tableName = '';
@@ -1866,13 +1866,13 @@ exports.updateInteractionLog = async (req, res) => {
         
         if (source === 'Interaction Hub' || source.startsWith('Hub:')) {
             tableName = 'mentor_session_reports';
-            oldDataQuery = 'SELECT report_data FROM mentor_session_reports WHERE id = ?';
+            oldDataQuery = 'SELECT report_data, created_at FROM mentor_session_reports WHERE id = ?';
         } else if (source === 'Session Log') {
             tableName = 'mentor_session_logs';
-            oldDataQuery = 'SELECT main_issue, action_type, interaction_files FROM mentor_session_logs WHERE id = ?';
+            oldDataQuery = 'SELECT main_issue, action_type, interaction_files, date, created_at FROM mentor_session_logs WHERE id = ?';
         } else if (source === 'Interaction Log' || source === 'Quick Log') {
             tableName = 'student_interaction_logs';
-            oldDataQuery = 'SELECT mentor_notes, screenshot_url FROM student_interaction_logs WHERE id = ?';
+            oldDataQuery = 'SELECT mentor_notes, screenshot_url, date, created_at FROM student_interaction_logs WHERE id = ?';
         } else {
             return res.status(400).json({ success: false, message: 'Invalid source' });
         }
@@ -1921,8 +1921,15 @@ exports.updateInteractionLog = async (req, res) => {
             };
 
             const reportStr = JSON.stringify(updatedReport);
-            await db.query('UPDATE mentor_session_reports SET report_data = ? WHERE id = ?', [reportStr, id]);
-            newData = { report_data: reportStr };
+            
+            if (interaction_date) {
+                const newCreatedAt = `${interaction_date} 12:00:00`;
+                await db.query('UPDATE mentor_session_reports SET report_data = ?, created_at = ? WHERE id = ?', [reportStr, newCreatedAt, id]);
+                newData = { report_data: reportStr, created_at: newCreatedAt };
+            } else {
+                await db.query('UPDATE mentor_session_reports SET report_data = ? WHERE id = ?', [reportStr, id]);
+                newData = { report_data: reportStr };
+            }
         } else if (tableName === 'mentor_session_logs') {
             let oldInteractionFiles = [];
             try {
@@ -1934,11 +1941,21 @@ exports.updateInteractionLog = async (req, res) => {
             }
 
             const interactionFiles = [...new Set([...(Array.isArray(oldInteractionFiles) ? oldInteractionFiles : []), ...uploadedFiles])];
-            await db.query(
-                'UPDATE mentor_session_logs SET main_issue = ?, action_type = ?, interaction_files = ? WHERE id = ?',
-                [main_issue, action_type, JSON.stringify(interactionFiles), id]
-            );
-            newData = { main_issue, action_type, interaction_files: interactionFiles };
+            
+            if (interaction_date) {
+                const newCreatedAt = `${interaction_date} 12:00:00`;
+                await db.query(
+                    'UPDATE mentor_session_logs SET main_issue = ?, action_type = ?, interaction_files = ?, date = ?, created_at = ? WHERE id = ?',
+                    [main_issue, action_type, JSON.stringify(interactionFiles), interaction_date, newCreatedAt, id]
+                );
+                newData = { main_issue, action_type, interaction_files: interactionFiles, date: interaction_date, created_at: newCreatedAt };
+            } else {
+                await db.query(
+                    'UPDATE mentor_session_logs SET main_issue = ?, action_type = ?, interaction_files = ? WHERE id = ?',
+                    [main_issue, action_type, JSON.stringify(interactionFiles), id]
+                );
+                newData = { main_issue, action_type, interaction_files: interactionFiles };
+            }
         } else if (tableName === 'student_interaction_logs') {
             const previousScreenshots = (oldData.screenshot_url || '')
                 .split(',')
@@ -1947,11 +1964,20 @@ exports.updateInteractionLog = async (req, res) => {
             const mergedScreenshots = [...new Set([...previousScreenshots, ...uploadedFiles])];
             const screenshotValue = mergedScreenshots.join(',');
 
-            await db.query(
-                'UPDATE student_interaction_logs SET mentor_notes = ?, screenshot_url = ? WHERE id = ?',
-                [notes, screenshotValue, id]
-            );
-            newData = { mentor_notes: notes, screenshot_url: screenshotValue };
+            if (interaction_date) {
+                const newCreatedAt = `${interaction_date} 12:00:00`;
+                await db.query(
+                    'UPDATE student_interaction_logs SET mentor_notes = ?, screenshot_url = ?, date = ?, created_at = ? WHERE id = ?',
+                    [notes, screenshotValue, interaction_date, newCreatedAt, id]
+                );
+                newData = { mentor_notes: notes, screenshot_url: screenshotValue, date: interaction_date, created_at: newCreatedAt };
+            } else {
+                await db.query(
+                    'UPDATE student_interaction_logs SET mentor_notes = ?, screenshot_url = ? WHERE id = ?',
+                    [notes, screenshotValue, id]
+                );
+                newData = { mentor_notes: notes, screenshot_url: screenshotValue };
+            }
         }
 
         // Save history
