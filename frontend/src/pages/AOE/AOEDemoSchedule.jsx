@@ -397,69 +397,61 @@ const AOEDemoSchedule = () => {
 
                 <div className="space-y-2 relative">
                   <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 flex items-center gap-2">
-                    <Presentation size={12}/> Registered Faculty (Optional) <span className="text-[9px] text-slate-400">Registered: {registeredFacultyCount}</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.registered_faculty_input}
-                    onFocus={() => setShowFacultySuggestions(true)}
-                    onBlur={() => setTimeout(() => setShowFacultySuggestions(false), 200)}
-                    onChange={(e) => {
-                      setFormData({ ...formData, registered_faculty_input: e.target.value, faculty_id: '' });
-                      setShowFacultySuggestions(true);
-                    }}
-                    className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
-                    placeholder="Search registered faculty..."
-                  />
-                  
-                  {showFacultySuggestions && (
-                    <div className="absolute z-50 w-full mt-1 bg-white border border-slate-100 rounded-2xl shadow-xl max-h-60 overflow-y-auto top-full left-0">
-                      {faculties
-                        .filter(f => f.name.toLowerCase().includes(formData.registered_faculty_input.toLowerCase()) || (f.subject && f.subject.toLowerCase().includes(formData.registered_faculty_input.toLowerCase())))
-                        .map(f => (
-                          <div 
-                            key={f.id}
-                            className="px-4 py-3 hover:bg-slate-50 cursor-pointer border-b border-slate-50 last:border-0 transition-colors"
-                            onMouseDown={(e) => {
-                              e.preventDefault();
-                              setFormData({ ...formData, registered_faculty_input: f.name, faculty_id: f.id });
-                              setShowFacultySuggestions(false);
-                            }}
-                          >
-                            <div className="text-xs font-bold text-slate-800">{f.name}</div>
-                            {f.subject && <div className="text-[9px] text-slate-400">{f.subject}</div>}
-                          </div>
-                        ))}
-                      {faculties.filter(f => f.name.toLowerCase().includes(formData.registered_faculty_input.toLowerCase())).length === 0 && (
-                        <div className="px-4 py-4 text-[10px] text-slate-500 font-bold text-center">
-                          No registered faculty match.
-                        </div>
-                      )}
-                    </div>
-                  )}
-                  {!!formData.registered_faculty_input && (
-                    <p className={`mt-2 text-[10px] font-bold ${isRegisteredFacultyName(formData.registered_faculty_input) ? 'text-emerald-600' : 'text-amber-600'}`}>
-                      {isRegisteredFacultyName(formData.registered_faculty_input)
-                        ? 'Registered faculty detected.'
-                        : 'Type and pick from registered list (optional field).'}
-                    </p>
-                  )}
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 flex items-center gap-2">
-                    <Presentation size={12}/> Demo Faculty Name (Optional)
+                    <Presentation size={12}/> Faculty Name
+                    <span className="ml-auto text-[9px] font-bold text-slate-400 normal-case">Type any name or pick from {registeredFacultyCount} registered</span>
                   </label>
                   <input
                     type="text"
                     value={formData.faculty_name_input}
-                    onChange={(e) => setFormData({ ...formData, faculty_name_input: e.target.value })}
+                    onFocus={() => setShowFacultySuggestions(true)}
+                    onBlur={() => setTimeout(() => setShowFacultySuggestions(false), 200)}
+                    onChange={(e) => {
+                      setFormData({ ...formData, faculty_name_input: e.target.value, registered_faculty_input: e.target.value, faculty_id: '' });
+                      setShowFacultySuggestions(true);
+                    }}
                     className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
-                    placeholder="Type demo faculty name..."
+                    placeholder="Type faculty name (registered or new demo faculty)..."
                   />
-                  <p className="text-[10px] font-bold text-amber-600">
-                    This name is used only in demo/pre-demo list. Faculty master list/database will not auto-add.
-                  </p>
+
+                  {showFacultySuggestions && formData.faculty_name_input && (
+                    <div className="absolute z-50 w-full mt-1 bg-white border border-slate-100 rounded-2xl shadow-xl max-h-60 overflow-y-auto top-full left-0">
+                      {faculties
+                        .filter(f =>
+                          f.name.toLowerCase().includes(formData.faculty_name_input.toLowerCase()) ||
+                          (f.subject && f.subject.toLowerCase().includes(formData.faculty_name_input.toLowerCase()))
+                        )
+                        .map(f => (
+                          <div
+                            key={f.id}
+                            className="px-4 py-3 hover:bg-emerald-50 cursor-pointer border-b border-slate-50 last:border-0 transition-colors flex items-center justify-between"
+                            onMouseDown={(e) => {
+                              e.preventDefault();
+                              setFormData({ ...formData, faculty_name_input: f.name, registered_faculty_input: f.name, faculty_id: f.id });
+                              setShowFacultySuggestions(false);
+                            }}
+                          >
+                            <div>
+                              <div className="text-xs font-bold text-slate-800">{f.name}</div>
+                              {f.subject && <div className="text-[9px] text-slate-400">{f.subject}</div>}
+                            </div>
+                            <span className="text-[8px] font-black text-emerald-600 bg-emerald-50 border border-emerald-200 px-2 py-1 rounded-full">REGISTERED</span>
+                          </div>
+                        ))}
+                      {faculties.filter(f => f.name.toLowerCase().includes(formData.faculty_name_input.toLowerCase())).length === 0 && (
+                        <div className="px-4 py-4 text-[10px] text-indigo-500 font-bold text-center flex items-center justify-center gap-2">
+                          ✦ Demo only — will not be added to database
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {formData.faculty_name_input && (
+                    <p className={`mt-2 text-[10px] font-bold ${isRegisteredFacultyName(formData.faculty_name_input) ? 'text-emerald-600' : 'text-indigo-500'}`}>
+                      {isRegisteredFacultyName(formData.faculty_name_input)
+                        ? '✓ Registered faculty — linked to faculty profile'
+                        : '✦ Demo faculty name — for demo list only, not added to database'}
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -597,8 +589,8 @@ const AOEDemoSchedule = () => {
                         </div>
                       ))}
                     {students.filter(s => s.name.toLowerCase().includes(formData.student_name.toLowerCase())).length === 0 && (
-                      <div className="px-4 py-4 text-[10px] text-slate-500 font-bold text-center">
-                        No matches found. Will be added as a new student.
+                      <div className="px-4 py-4 text-[10px] text-indigo-500 font-bold text-center flex items-center justify-center gap-2">
+                        ✦ Demo only — will not be added to database
                       </div>
                     )}
                   </div>
@@ -685,70 +677,62 @@ const AOEDemoSchedule = () => {
 
               <div className="space-y-2 relative">
                 <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 flex items-center gap-2">
-                  <Presentation size={12}/> Registered Faculty (Optional) <span className="text-[9px] text-slate-400">Registered: {registeredFacultyCount}</span>
-                </label>
-                <input
-                  type="text"
-                  value={formData.registered_faculty_input}
-                  onFocus={() => setShowFacultySuggestions(true)}
-                  onBlur={() => setTimeout(() => setShowFacultySuggestions(false), 200)}
-                  onChange={(e) => {
-                    setFormData({ ...formData, registered_faculty_input: e.target.value, faculty_id: '' });
-                    setShowFacultySuggestions(true);
-                  }}
-                  className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
-                  placeholder="Search registered faculty..."
-                />
-                
-                {showFacultySuggestions && (
-                  <div className="absolute z-50 w-full mt-1 bg-white border border-slate-100 rounded-2xl shadow-xl max-h-60 overflow-y-auto top-full left-0">
-                    {faculties
-                      .filter(f => f.name.toLowerCase().includes(formData.registered_faculty_input.toLowerCase()) || (f.subject && f.subject.toLowerCase().includes(formData.registered_faculty_input.toLowerCase())))
-                      .map(f => (
-                        <div 
-                          key={f.id}
-                          className="px-4 py-3 hover:bg-slate-50 cursor-pointer border-b border-slate-50 last:border-0 transition-colors"
-                          onMouseDown={(e) => {
-                            e.preventDefault();
-                            setFormData({ ...formData, registered_faculty_input: f.name, faculty_id: f.id });
-                            setShowFacultySuggestions(false);
-                          }}
-                        >
-                          <div className="text-xs font-bold text-slate-800">{f.name}</div>
-                          {f.subject && <div className="text-[9px] text-slate-400">{f.subject}</div>}
-                        </div>
-                      ))}
-                    {faculties.filter(f => f.name.toLowerCase().includes(formData.registered_faculty_input.toLowerCase())).length === 0 && (
-                      <div className="px-4 py-4 text-[10px] text-slate-500 font-bold text-center">
-                        No registered faculty match.
-                      </div>
-                    )}
-                  </div>
-                )}
-                {!!formData.registered_faculty_input && (
-                  <p className={`mt-2 text-[10px] font-bold ${isRegisteredFacultyName(formData.registered_faculty_input) ? 'text-emerald-600' : 'text-amber-600'}`}>
-                    {isRegisteredFacultyName(formData.registered_faculty_input)
-                      ? 'Registered faculty detected.'
-                      : 'Type and pick from registered list (optional field).'}
-                  </p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 flex items-center gap-2">
-                  <Presentation size={12}/> Demo Faculty Name {activeTab !== 'schedule_pre_demo' && '*'}
+                  <Presentation size={12}/> Faculty Name {activeTab !== 'schedule_pre_demo' && <span className="text-rose-500">*</span>}
+                  <span className="ml-auto text-[9px] font-bold text-slate-400 normal-case">Type any name or pick from {registeredFacultyCount} registered</span>
                 </label>
                 <input
                   type="text"
                   required={activeTab !== 'schedule_pre_demo'}
                   value={formData.faculty_name_input}
-                  onChange={(e) => setFormData({ ...formData, faculty_name_input: e.target.value })}
+                  onFocus={() => setShowFacultySuggestions(true)}
+                  onBlur={() => setTimeout(() => setShowFacultySuggestions(false), 200)}
+                  onChange={(e) => {
+                    setFormData({ ...formData, faculty_name_input: e.target.value, registered_faculty_input: e.target.value, faculty_id: '' });
+                    setShowFacultySuggestions(true);
+                  }}
                   className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
-                  placeholder="Type demo faculty name..."
+                  placeholder="Type faculty name (registered or new demo faculty)..."
                 />
-                <p className="text-[10px] font-bold text-amber-600">
-                  This name is used for demo list only. It will not be added to faculty master list.
-                </p>
+
+                {showFacultySuggestions && formData.faculty_name_input && (
+                  <div className="absolute z-50 w-full mt-1 bg-white border border-slate-100 rounded-2xl shadow-xl max-h-60 overflow-y-auto top-full left-0">
+                    {faculties
+                      .filter(f =>
+                        f.name.toLowerCase().includes(formData.faculty_name_input.toLowerCase()) ||
+                        (f.subject && f.subject.toLowerCase().includes(formData.faculty_name_input.toLowerCase()))
+                      )
+                      .map(f => (
+                        <div
+                          key={f.id}
+                          className="px-4 py-3 hover:bg-emerald-50 cursor-pointer border-b border-slate-50 last:border-0 transition-colors flex items-center justify-between"
+                          onMouseDown={(e) => {
+                            e.preventDefault();
+                            setFormData({ ...formData, faculty_name_input: f.name, registered_faculty_input: f.name, faculty_id: f.id });
+                            setShowFacultySuggestions(false);
+                          }}
+                        >
+                          <div>
+                            <div className="text-xs font-bold text-slate-800">{f.name}</div>
+                            {f.subject && <div className="text-[9px] text-slate-400">{f.subject}</div>}
+                          </div>
+                          <span className="text-[8px] font-black text-emerald-600 bg-emerald-50 border border-emerald-200 px-2 py-1 rounded-full">REGISTERED</span>
+                        </div>
+                      ))}
+                    {faculties.filter(f => f.name.toLowerCase().includes(formData.faculty_name_input.toLowerCase())).length === 0 && (
+                      <div className="px-4 py-4 text-[10px] text-indigo-500 font-bold text-center flex items-center justify-center gap-2">
+                        ✦ Demo only — will not be added to database
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {formData.faculty_name_input && (
+                  <p className={`mt-2 text-[10px] font-bold ${isRegisteredFacultyName(formData.faculty_name_input) ? 'text-emerald-600' : 'text-indigo-500'}`}>
+                    {isRegisteredFacultyName(formData.faculty_name_input)
+                      ? '✓ Registered faculty — linked to faculty profile'
+                      : '✦ Demo faculty name — for demo list only, not added to database'}
+                  </p>
+                )}
               </div>
 
               <div className="space-y-2">
