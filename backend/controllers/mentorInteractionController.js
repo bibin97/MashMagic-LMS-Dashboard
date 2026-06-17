@@ -281,25 +281,29 @@ const submitSessionReport = async (req, res) => {
             );
 
             if (existingLog.length === 0) {
+                // created_at is always set to interactionDate so yesterday pending logs show yesterday's date in DB and dashboard
+                const created_at_val = `${interactionDate} 23:59:59`;
                 try {
-                    if (req.body.interaction_date) {
-                        const created_at_val = `${req.body.interaction_date} 23:59:59`;
+                    await db.query(
+                        'INSERT INTO mentor_session_reports (student_id, mentor_id, session_type, report_data, is_flagged, flag_reason, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)',
+                        [student_id, mentor_id, session_type, JSON.stringify(report_data), isFlagged, flagReason, created_at_val]
+                    );
+                } catch (dbErr) {
+                    // Fallback: insert without flag columns but still set created_at correctly
+                    console.error('[SUBMIT REPORT] Insert with flags failed, using fallback:', dbErr.message);
+                    try {
                         await db.query(
-                            'INSERT INTO mentor_session_reports (student_id, mentor_id, session_type, report_data, is_flagged, flag_reason, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)',
-                            [student_id, mentor_id, session_type, JSON.stringify(report_data), isFlagged, flagReason, created_at_val]
+                            'INSERT INTO mentor_session_reports (student_id, mentor_id, session_type, report_data, created_at) VALUES (?, ?, ?, ?, ?)',
+                            [student_id, mentor_id, session_type, JSON.stringify(report_data), created_at_val]
                         );
-                    } else {
+                    } catch (fallbackErr) {
+                        // Last resort fallback without created_at
+                        console.error('[SUBMIT REPORT] Fallback with created_at failed:', fallbackErr.message);
                         await db.query(
-                            'INSERT INTO mentor_session_reports (student_id, mentor_id, session_type, report_data, is_flagged, flag_reason) VALUES (?, ?, ?, ?, ?, ?)',
-                            [student_id, mentor_id, session_type, JSON.stringify(report_data), isFlagged, flagReason]
+                            'INSERT INTO mentor_session_reports (student_id, mentor_id, session_type, report_data) VALUES (?, ?, ?, ?)',
+                            [student_id, mentor_id, session_type, JSON.stringify(report_data)]
                         );
                     }
-                } catch (dbErr) {
-                    console.error('[SUBMIT REPORT] Insert with flags failed, using fallback:', dbErr.message);
-                    await db.query(
-                        'INSERT INTO mentor_session_reports (student_id, mentor_id, session_type, report_data) VALUES (?, ?, ?, ?)',
-                        [student_id, mentor_id, session_type, JSON.stringify(report_data)]
-                    );
                 }
             } else {
                 console.log(`[SUBMIT REPORT] Duplicate detected for student ${student_id} on ${interactionDate}, skipping insert.`);
