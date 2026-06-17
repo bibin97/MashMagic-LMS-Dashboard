@@ -823,6 +823,7 @@ const startServer = async () => {
                 'RENAME TABLE mentor_timetable TO timetable;',
                 'ALTER TABLE timetable ADD COLUMN faculty_id INT NULL;',
                 'ALTER TABLE timetable ADD COLUMN faculty_name VARCHAR(255) NULL;',
+                'ALTER TABLE timetable ADD COLUMN subject VARCHAR(100) NULL;',
                 'ALTER TABLE timetable ADD COLUMN is_deleted BOOLEAN DEFAULT FALSE;',
                 'ALTER TABLE timetable ADD COLUMN deleted_at DATETIME NULL;',
                 'ALTER TABLE timetable ADD COLUMN session_mode VARCHAR(50) DEFAULT "Online";',

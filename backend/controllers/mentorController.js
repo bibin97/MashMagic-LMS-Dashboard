@@ -603,12 +603,12 @@ const createSession = async (req, res) => {
         const [result] = await db.query(`
             INSERT INTO timetable (
                 mentor_id, student_id, session_number, date, start_time, end_time,
-                duration, chapter, session_type, status, status_reason, notes, 
+                duration, chapter, subject, session_type, status, status_reason, notes, 
                 faculty_id, faculty_name, session_mode
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `, [
             targetMentorId, student_id, session_number, date, formattedStartTime, formattedEndTime,
-            duration, chapter, session_type, status || 'Scheduled', status_reason, notes,
+            duration, chapter, req.body.subject || null, session_type, status || 'Scheduled', status_reason, notes,
             (faculty_id ? parseInt(faculty_id) : null), faculty_name || null, session_mode || 'Online'
         ]);
 
@@ -689,13 +689,13 @@ const updateSession = async (req, res) => {
 
         let query = `
             UPDATE timetable 
-            SET date = ?, start_time = ?, end_time = ?, duration = ?, chapter = ?, 
+            SET date = ?, start_time = ?, end_time = ?, duration = ?, chapter = ?, subject = ?,
                 session_type = ?, status = ?, status_reason = ?, notes = ?,
                 faculty_id = ?, faculty_name = ?, session_mode = ?
             WHERE id = ?
         `;
         let params = [
-            date, formattedStartTime, formattedEndTime, duration, chapter, 
+            date, formattedStartTime, formattedEndTime, duration, chapter, req.body.subject || null,
             session_type, status, status_reason, notes,
             faculty_id || null, faculty_name || null, session_mode || 'Online',
             sessionId
