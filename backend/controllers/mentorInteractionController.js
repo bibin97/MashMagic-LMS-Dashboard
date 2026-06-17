@@ -273,10 +273,18 @@ const submitSessionReport = async (req, res) => {
         // 5. Save Report (with optional flagging if columns exist)
         if (session_type !== 'CANCELLED') {
             try {
-                await db.query(
-                    'INSERT INTO mentor_session_reports (student_id, mentor_id, session_type, report_data, is_flagged, flag_reason) VALUES (?, ?, ?, ?, ?, ?)',
-                    [student_id, mentor_id, session_type, JSON.stringify(report_data), isFlagged, flagReason]
-                );
+                if (req.body.interaction_date) {
+                    const created_at_val = `${req.body.interaction_date} 23:59:59`;
+                    await db.query(
+                        'INSERT INTO mentor_session_reports (student_id, mentor_id, session_type, report_data, is_flagged, flag_reason, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)',
+                        [student_id, mentor_id, session_type, JSON.stringify(report_data), isFlagged, flagReason, created_at_val]
+                    );
+                } else {
+                    await db.query(
+                        'INSERT INTO mentor_session_reports (student_id, mentor_id, session_type, report_data, is_flagged, flag_reason) VALUES (?, ?, ?, ?, ?, ?)',
+                        [student_id, mentor_id, session_type, JSON.stringify(report_data), isFlagged, flagReason]
+                    );
+                }
             } catch (dbErr) {
                 // Fallback if columns don't exist yet
                 await db.query(
@@ -286,11 +294,11 @@ const submitSessionReport = async (req, res) => {
             }
         }
 
-        // 6. Update Daily Assignment Status
-        const today = new Date().toISOString().split('T')[0];
+        // 6. Update Today's List status
+        const interactionDate = req.body.interaction_date || new Date().toISOString().split('T')[0];
         const [existing] = await db.query(
             'SELECT id, assignments FROM daily_assignments WHERE mentor_id = ? AND date = ?',
-            [mentor_id, today]
+            [mentor_id, interactionDate]
         );
 
         if (existing.length > 0) {

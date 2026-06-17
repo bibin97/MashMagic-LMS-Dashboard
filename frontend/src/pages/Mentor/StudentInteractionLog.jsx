@@ -21,6 +21,7 @@ const StudentInteractionLog = () => {
  const [assignedStudents, setAssignedStudents] = useState([]);
  const [yesterdayPending, setYesterdayPending] = useState([]);
  const [selectedStudent, setSelectedStudent] = useState(null);
+ const [isYesterdayLog, setIsYesterdayLog] = useState(false);
  const [activeTab, setActiveTab] = useState('both'); // 'both', 'mentorship', 'tuition'
  const [statusFilter, setStatusFilter] = useState('pending'); // 'pending', 'completed', 'yesterday'
  
@@ -102,11 +103,12 @@ const StudentInteractionLog = () => {
    }
  };
 
- const handleStudentSelect = (student, type) => {
+ const handleStudentSelect = (student, type, isYesterday = false) => {
    setSelectedStudent(student);
    setSessionType(type || 'TUITION');
    setSubmitted(false);
    setFiles([]);
+   setIsYesterdayLog(isYesterday);
    
    // Initialize form data based on type
    if (type === 'DEEP') {
@@ -205,6 +207,12 @@ const StudentInteractionLog = () => {
        formDataObj.append('session_type', sessionType);
        formDataObj.append('next_session_type', formData.next_session_type || 'QUICK');
        formDataObj.append('report_data', JSON.stringify(formData));
+       
+       if (isYesterdayLog) {
+           const yesterdayDate = new Date();
+           yesterdayDate.setDate(yesterdayDate.getDate() - 1);
+           formDataObj.append('interaction_date', yesterdayDate.toISOString().split('T')[0]);
+       }
        
        if (files && files.length > 0) {
            files.forEach(file => {
@@ -500,7 +508,7 @@ const StudentInteractionLog = () => {
                          return (
                            <div
                              key={student.id}
-                             onClick={() => handleStudentSelect(student, sessionType)}
+                             onClick={() => handleStudentSelect(student, sessionType, true)}
                              className={`group relative overflow-hidden p-8 rounded-[3rem] border transition-all text-left flex flex-col justify-between h-64 bg-amber-50/50 border-amber-100 cursor-pointer hover:shadow-2xl hover:scale-[1.02] hover:border-amber-200 active:scale-95`}
                            >
                              <div className={`absolute top-0 right-0 w-32 h-32 rounded-full -mr-16 -mt-16 opacity-10 transition-transform group-hover:scale-150 duration-700 ${getSessionColor(sessionType).split(' ')[0]}`}></div>
