@@ -172,38 +172,41 @@ const generateAssignments = async (mentor_id, today) => {
         }
     }
 
-    // 3. Scan rotation to fill quotas FOR TODAY (max 5 each, excluding carry-overs and onboarding)
+    // 3. Scan rotation to fill exactly 15 students FOR TODAY (excluding carry-overs and onboarding)
     let currIdx = nextStartIndex;
     let attempts = 0;
+    let selectedCount = 0;
     
-    // We only count students who are NOT carry-overs and NOT onboarding for today's quota
-    let todayDeep = 0;
-    let todayMedium = 0;
-    let todayQuick = 0;
-    
-    while ((todayDeep < 5 || todayMedium < 5 || todayQuick < 5) && attempts < students.length) {
+    // We select up to 15 students sequentially
+    // If mentor has <= 15 total students, this loop will just select all of them.
+    while (selectedCount < 15 && attempts < students.length) {
         const candidate = students[currIdx];
         if (!carryOverSet.has(candidate.id)) {
-            if (candidate.priority_category === 'High' && todayDeep < 5) {
+            // Determine session type strictly based on last_session_type (from Next Attention Level), fallback to priority
+            const assignedType = candidate.last_session_type || 
+                (candidate.priority_category === 'High' ? 'DEEP' : 
+                 candidate.priority_category === 'Medium' ? 'MEDIUM' : 'QUICK');
+
+            if (assignedType === 'DEEP') {
                 deep.push({ ...candidate, sessionType: 'DEEP', status: 'PENDING' });
-                carryOverSet.add(candidate.id);
-                todayDeep++;
-            } else if (candidate.priority_category === 'Medium' && todayMedium < 5) {
+            } else if (assignedType === 'MEDIUM') {
                 medium.push({ ...candidate, sessionType: 'MEDIUM', status: 'PENDING' });
-                carryOverSet.add(candidate.id);
-                todayMedium++;
-            } else if ((candidate.priority_category === 'Stable' || candidate.priority_category === 'Low' || !candidate.priority_category) && todayQuick < 5) {
+            } else {
                 quick.push({ ...candidate, sessionType: 'QUICK', status: 'PENDING' });
-                carryOverSet.add(candidate.id);
-                todayQuick++;
             }
+            
+            carryOverSet.add(candidate.id);
+            selectedCount++;
         }
         currIdx = (currIdx + 1) % students.length;
         attempts++;
     }
 
     // Advance the rotation index for the next day
-    const newRotationIndex = currIdx;
+    // Only update rotation index if there are more than 15 students. 
+    // If <= 15, we want to just start at 0 (or keep it as is, since it selects all anyway).
+    const newRotationIndex = students.length > 15 ? currIdx : 0;
+    
     await db.query('UPDATE users SET current_rotation_index = ? WHERE id = ?', [newRotationIndex, mentor_id]);
     await db.query('UPDATE mentors SET current_rotation_index = ? WHERE id = ?', [newRotationIndex, mentor_id]);
 
@@ -409,7 +412,7 @@ const submitSessionReport = async (req, res) => {
 
         await db.query(
             'UPDATE students SET priority_category = ?, last_session_type = ?, last_session_date = ?, onboarding_status = "completed" WHERE id = ?',
-            [finalPriority, session_type, interactionDate, student_id]
+            [finalPriority, next_session_type || session_type, interactionDate, student_id]
         );
 
         // Notify Admin of new session report
