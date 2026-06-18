@@ -2,6 +2,16 @@ const db = require('../config/db');
 const path = require('path');
 const { logFacultyChanges } = require('../utils/facultyChangeLogger');
 
+// Helper: write to audit_logs table
+async function logAudit({ action, entity = 'timetable', entity_id = null, user_id = null, user_role = null, old_data = null, new_data = null, details = null }) {
+    try {
+        await db.query(
+            'INSERT INTO audit_logs (action, entity, entity_id, user_id, user_role, old_data, new_data, details) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+            [action, entity, entity_id, user_id, user_role, old_data ? JSON.stringify(old_data) : null, new_data ? JSON.stringify(new_data) : null, details]
+        );
+    } catch (e) { /* non-blocking */ }
+}
+
 const convertTo24Hour = (timeStr) => {
     if (!timeStr) return null;
     timeStr = timeStr.trim().toLowerCase();
@@ -615,6 +625,15 @@ const createSession = async (req, res) => {
         await syncTimetableToFacultySession(result.insertId);
         await recalculateSessionNumbers(student_id);
 
+        await logAudit({
+            action: 'CREATE_SESSION',
+            entity_id: result.insertId,
+            user_id: req.user.id,
+            user_role: req.user.role,
+            new_data: req.body,
+            details: `Mentor created session for student ${student_id}`
+        });
+
         res.status(201).json({ success: true, message: "Session created successfully", id: result.insertId });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
@@ -638,10 +657,11 @@ const updateSession = async (req, res) => {
         const formattedEndTime = convertTo24Hour(end_time);
 
         // Get existing session to find the mentor_id and student_id
-        const [[existingSession]] = await db.query('SELECT mentor_id, student_id FROM timetable WHERE (is_deleted IS NULL OR is_deleted = 0) AND id = ?', [sessionId]);
-        if (!existingSession) {
+        const [existing] = await db.query('SELECT * FROM timetable WHERE (is_deleted IS NULL OR is_deleted = 0) AND id = ?', [sessionId]);
+        if (existing.length === 0) {
             return res.status(404).json({ success: false, message: "Session not found" });
         }
+        const existingSession = existing[0];
         // Keep existing mentor_id; do not replace with SSC/admin ID
         const targetMentorId = existingSession.mentor_id || null;
 
@@ -715,6 +735,16 @@ const updateSession = async (req, res) => {
         await syncTimetableToFacultySession(sessionId);
         await recalculateSessionNumbers(existingSession.student_id);
 
+        await logAudit({
+            action: 'UPDATE_SESSION',
+            entity_id: sessionId,
+            user_id: req.user.id,
+            user_role: req.user.role,
+            old_data: existingSession,
+            new_data: req.body,
+            details: `Mentor updated session ${sessionId}`
+        });
+
         res.status(200).json({ success: true, message: "Session updated successfully" });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
@@ -749,6 +779,15 @@ const deleteSession = async (req, res) => {
 
         await syncTimetableToFacultySession(sessionId);
         await recalculateSessionNumbers(sessionToDelete.student_id);
+
+        await logAudit({
+            action: 'DELETE_SESSION',
+            entity_id: sessionId,
+            user_id: req.user.id,
+            user_role: req.user.role,
+            old_data: sessionToDelete,
+            details: `Mentor deleted session ${sessionId}`
+        });
 
         res.status(200).json({ success: true, message: "Session deleted" });
     } catch (error) {
@@ -1127,12 +1166,12 @@ const createBatchTimetable = async (req, res) => {
             const [result] = await connection.query(`
                 INSERT INTO timetable (
                     mentor_id, student_id, session_number, date, start_time, end_time,
-                    duration, chapter, session_type, status, notes, 
+                    duration, chapter, subject, session_type, status, notes, 
                     faculty_id, faculty_name, session_mode
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'Scheduled', ?, ?, ?, ?)
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Scheduled', ?, ?, ?, ?)
             `, [
                 actualMentorId, student_id, currentSessionNum++, date, formattedStartTime, formattedEndTime,
-                duration, chapter, session_type || 'Regular Class', notes || '',
+                duration, chapter, session.subject || null, session_type || 'Regular Class', notes || '',
                 (faculty_id ? parseInt(faculty_id) : null), faculty_name || null, session_mode || 'Online'
             ]);
 
@@ -1560,10 +1599,13 @@ const updateStudentAcademicSchedule = async (req, res) => {
         const studentId = req.params.id;
         const { schedules } = req.body; // Array of {day_of_week, start_time, end_time, subject, faculty_id}
 
-        // 1. Delete existing schedules
+        // 1. Soft-delete existing schedules
         const mappedSubjects = schedules ? schedules.map(s => ({ subject: s.subject, facultyId: s.faculty_id })) : [];
         await logFacultyChanges(studentId, mappedSubjects, req.user);
         await connection.query('UPDATE faculty_schedules SET is_deleted = 1, deleted_at = CURRENT_TIMESTAMP WHERE student_id = ?', [studentId]);
+
+        const [[studentRow]] = await connection.query('SELECT mentor_id FROM students WHERE id = ?', [studentId]);
+        const actualMentorId = studentRow?.mentor_id || null;
 
         // 2. Insert new schedules
         if (schedules && Array.isArray(schedules) && schedules.length > 0) {
@@ -1573,6 +1615,61 @@ const updateStudentAcademicSchedule = async (req, res) => {
                     INSERT INTO faculty_schedules (student_id, day_of_week, start_time, end_time, subject, faculty_id)
                     VALUES (?, ?, ?, ?, ?, ?)
                 `, [studentId, s.day_of_week, s.start_time, s.end_time, s.subject, facId]);
+            }
+
+            // ── AUTO-SYNC: Generate timetable entries for the next 4 weeks ──
+            const dayMap = { Sunday:0, Monday:1, Tuesday:2, Wednesday:3, Thursday:4, Friday:5, Saturday:6 };
+
+            function getUpcomingDates(dayOfWeekStr, numWeeks = 4) {
+                const dates = [];
+                const targetDay = dayMap[dayOfWeekStr];
+                if (targetDay === undefined) return dates;
+                let d = new Date();
+                d.setDate(d.getDate() + ((targetDay + 7 - d.getDay()) % 7));
+                for (let i = 0; i < numWeeks; i++) {
+                    dates.push(d.toISOString().split('T')[0]);
+                    d.setDate(d.getDate() + 7);
+                }
+                return dates;
+            }
+
+            for (const s of schedules) {
+                const facId = s.faculty_id ? parseInt(s.faculty_id) : null;
+                const upcomingDates = getUpcomingDates(s.day_of_week, 4);
+                const start24 = s.start_time;
+                const end24 = s.end_time;
+                const startD = new Date(`1970-01-01T${start24}`);
+                const endD = new Date(`1970-01-01T${end24}`);
+                const diffMins = Math.round((endD - startD) / 60000);
+                const duration = diffMins > 0 ? `${Math.floor(diffMins / 60)}h ${diffMins % 60}m` : '0h 0m';
+
+                let faculty_name = null;
+                if (facId) {
+                    const [[facObj]] = await connection.query('SELECT name FROM users WHERE id = ?', [facId]);
+                    if (facObj) faculty_name = facObj.name;
+                }
+
+                for (const date of upcomingDates) {
+                    const [existing] = await connection.query(
+                        'SELECT id FROM timetable WHERE student_id = ? AND date = ? AND start_time = ? AND (is_deleted IS NULL OR is_deleted = 0)',
+                        [studentId, date, start24]
+                    );
+                    if (existing.length === 0) {
+                        await connection.query(`
+                            INSERT INTO timetable (mentor_id, student_id, session_number, date, start_time, end_time, duration, chapter, subject, session_type, status, notes, faculty_id, faculty_name, session_mode)
+                            VALUES (?, ?, 0, ?, ?, ?, ?, '', ?, 'Regular Class', 'Scheduled', '', ?, ?, 'Online')
+                        `, [actualMentorId, studentId, date, start24, end24, duration, s.subject || '', facId, faculty_name]);
+                    }
+                }
+            }
+
+            // Recalculate session numbers
+            const [allSessions] = await connection.query(
+                'SELECT id FROM timetable WHERE student_id = ? AND (is_deleted IS NULL OR is_deleted = 0) ORDER BY date ASC, start_time ASC',
+                [studentId]
+            );
+            for (let i = 0; i < allSessions.length; i++) {
+                await connection.query('UPDATE timetable SET session_number = ? WHERE id = ?', [i + 1, allSessions[i].id]);
             }
         }
 

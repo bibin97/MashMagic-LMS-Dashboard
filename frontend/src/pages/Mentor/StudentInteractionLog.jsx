@@ -211,7 +211,10 @@ const StudentInteractionLog = () => {
        if (isYesterdayLog) {
            const yesterdayDate = new Date();
            yesterdayDate.setDate(yesterdayDate.getDate() - 1);
-           formDataObj.append('interaction_date', yesterdayDate.toISOString().split('T')[0]);
+           const yyyy = yesterdayDate.getFullYear();
+           const mm = String(yesterdayDate.getMonth() + 1).padStart(2, '0');
+           const dd = String(yesterdayDate.getDate()).padStart(2, '0');
+           formDataObj.append('interaction_date', `${yyyy}-${mm}-${dd}`);
        }
        
        if (files && files.length > 0) {
@@ -609,7 +612,11 @@ const StudentInteractionLog = () => {
             <div>
               <h1 className="text-3xl font-black text-white tracking-tight leading-none uppercase mb-2">{selectedStudent.name}</h1>
               <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">
-                {sessionType} SESSION • {new Date().toLocaleDateString('en-GB')}
+                {sessionType} SESSION • {(() => {
+                  const d = new Date();
+                  if (isYesterdayLog) d.setDate(d.getDate() - 1);
+                  return d.toLocaleDateString('en-GB');
+                })()}
               </p>
             </div>
           </div>

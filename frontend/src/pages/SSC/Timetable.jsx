@@ -1131,6 +1131,19 @@ const Timetable = () => {
                       />
                     </div>
 
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black text-[#008080] uppercase tracking-widest ml-1">Attention Level (Session Type)</label>
+                      <select
+                        value={formData.session_type || 'Regular Class'}
+                        onChange={(e) => setFormData({ ...formData, session_type: e.target.value })}
+                        className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] outline-none focus:ring-4 ring-[#008080]/10 transition-all cursor-pointer text-[#008080]"
+                      >
+                        {['Regular Class', 'DEEP', 'MEDIUM', 'QUICK'].map(s => (
+                          <option key={s} value={s}>{s.toUpperCase()}</option>
+                        ))}
+                      </select>
+                    </div>
+
                     {editingSession && (
                       <div className="col-span-full grid grid-cols-1 md:grid-cols-2 gap-8 pt-8 border-t border-slate-100">
                         <div className="space-y-2">

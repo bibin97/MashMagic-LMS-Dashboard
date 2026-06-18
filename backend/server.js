@@ -573,6 +573,20 @@ const startServer = async () => {
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 );`,
 
+                `CREATE TABLE IF NOT EXISTS audit_logs (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    action VARCHAR(255) NOT NULL,
+                    entity VARCHAR(100) DEFAULT 'timetable',
+                    entity_id INT NULL,
+                    user_id INT NULL,
+                    user_role VARCHAR(50) NULL,
+                    old_data JSON NULL,
+                    new_data JSON NULL,
+                    details TEXT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                );`,
+
+
                 `CREATE TABLE IF NOT EXISTS faculty_timetable (
                     id INT AUTO_INCREMENT PRIMARY KEY,
                     faculty_id INT NOT NULL,

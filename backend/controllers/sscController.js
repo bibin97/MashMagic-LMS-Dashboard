@@ -1,6 +1,16 @@
 const db = require('../config/db');
 const { logFacultyChanges } = require('../utils/facultyChangeLogger');
 
+// Helper: write to audit_logs table
+async function logAudit({ action, entity = 'timetable', entity_id = null, user_id = null, user_role = null, old_data = null, new_data = null, details = null }) {
+    try {
+        await db.query(
+            'INSERT INTO audit_logs (action, entity, entity_id, user_id, user_role, old_data, new_data, details) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+            [action, entity, entity_id, user_id, user_role, old_data ? JSON.stringify(old_data) : null, new_data ? JSON.stringify(new_data) : null, details]
+        );
+    } catch (e) { /* non-blocking */ }
+}
+
 // @desc    Get SSC Dashboard Stats
 // @route   GET /api/ssc/dashboard
 exports.getDashboardStats = async (req, res) => {
@@ -173,6 +183,15 @@ exports.createSession = async (req, res) => {
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `, [mentor_id, student_id, nextSessionNumber, date, formattedStartTime, formattedEndTime, duration, chapter, subject || null, session_type, status, notes, faculty_id || null, faculty_name]);
 
+        await logAudit({
+            action: 'CREATE_SESSION',
+            entity_id: result.insertId,
+            user_id: req.user.id,
+            user_role: req.user.role,
+            new_data: req.body,
+            details: `SSC created session for student ${student_id}`
+        });
+
         res.status(201).json({ success: true, message: "Session created", data: { id: result.insertId } });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
@@ -193,11 +212,23 @@ exports.updateSession = async (req, res) => {
         const diffMins = Math.round(diffMs / 60000);
         const duration = `${Math.floor(diffMins / 60)}h ${diffMins % 60}m`;
 
+        const [[oldSession]] = await db.query('SELECT * FROM timetable WHERE id = ?', [sessionId]);
+
         await db.query(`
             UPDATE timetable 
             SET date = ?, start_time = ?, end_time = ?, duration = ?, chapter = ?, subject = ?, session_type = ?, status = ?, notes = ?, faculty_id = ?, faculty_name = ?
             WHERE id = ?
         `, [date, formattedStartTime, formattedEndTime, duration, chapter, subject || null, session_type, status, notes, faculty_id || null, faculty_name, sessionId]);
+
+        await logAudit({
+            action: 'UPDATE_SESSION',
+            entity_id: sessionId,
+            user_id: req.user.id,
+            user_role: req.user.role,
+            old_data: oldSession,
+            new_data: req.body,
+            details: `SSC updated session ${sessionId}`
+        });
 
         res.status(200).json({ success: true, message: "Session updated" });
     } catch (error) {
@@ -208,7 +239,18 @@ exports.updateSession = async (req, res) => {
 exports.deleteSession = async (req, res) => {
     try {
         const sessionId = req.params.id;
+        const [[oldSession]] = await db.query('SELECT * FROM timetable WHERE id = ?', [sessionId]);
         await db.query('UPDATE timetable SET is_deleted = 1, deleted_at = CURRENT_TIMESTAMP WHERE id = ?', [sessionId]);
+        
+        await logAudit({
+            action: 'DELETE_SESSION',
+            entity_id: sessionId,
+            user_id: req.user.id,
+            user_role: req.user.role,
+            old_data: oldSession,
+            details: `SSC deleted session ${sessionId}`
+        });
+
         res.status(200).json({ success: true, message: "Session deleted" });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
