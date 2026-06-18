@@ -9,6 +9,20 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Modal from '../../components/Modal';
+import MultiDatePicker from 'react-multi-date-picker';
+const DatePicker = MultiDatePicker.default ? MultiDatePicker.default : MultiDatePicker;
+
+// Get today's date as YYYY-MM-DD local string
+const getTodayStr = () => {
+ const d = new Date();
+ return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+};
+// Subtract 1 day from a YYYY-MM-DD string
+const subtractOneDay = (dateStr) => {
+ const d = new Date(dateStr + 'T00:00:00');
+ d.setDate(d.getDate() - 1);
+ return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+};
 
 const StudentInteractionLog = () => {
  const location = useLocation();
@@ -59,7 +73,8 @@ const StudentInteractionLog = () => {
 
  const fetchYesterdayPending = async () => {
    try {
-     const res = await api.get('/mentor-interactions/yesterday-pending');
+     // Pass selectedDate so backend calculates "day before selectedDate" correctly
+     const res = await api.get(`/mentor-interactions/yesterday-pending?date=${selectedDate}`);
      setYesterdayPending(res.data.data || []);
    } catch (error) {
      console.error("Failed to load yesterday's pending:", error);
@@ -209,12 +224,8 @@ const StudentInteractionLog = () => {
        formDataObj.append('report_data', JSON.stringify(formData));
        
        if (isYesterdayLog) {
-           const yesterdayDate = new Date();
-           yesterdayDate.setDate(yesterdayDate.getDate() - 1);
-           const yyyy = yesterdayDate.getFullYear();
-           const mm = String(yesterdayDate.getMonth() + 1).padStart(2, '0');
-           const dd = String(yesterdayDate.getDate()).padStart(2, '0');
-           formDataObj.append('interaction_date', `${yyyy}-${mm}-${dd}`);
+           // Interaction date = selectedDate - 1
+           formDataObj.append('interaction_date', subtractOneDay(selectedDate));
        }
        
        if (files && files.length > 0) {
@@ -341,12 +352,27 @@ const StudentInteractionLog = () => {
              ))}
            </div>
            <div className="flex items-center gap-3 shrink-0">
-             <input
-               type="date"
-               value={selectedDate}
-               onChange={(e) => setSelectedDate(e.target.value)}
-               className="bg-white border border-slate-200 rounded-2xl py-3 px-4 text-xs font-black text-slate-600 outline-none focus:ring-2 focus:ring-[#008080]"
-             />
+              {/* Date Picker - AOE style, blocks future dates */}
+              <div className="relative z-50">
+                <DatePicker
+                  value={selectedDate}
+                  onChange={(dateObj) => {
+                    if (dateObj) {
+                      const formatted = dateObj.format('YYYY-MM-DD');
+                      if (formatted <= getTodayStr()) {
+                        setSelectedDate(formatted);
+                        setStatusFilter('pending');
+                      } else {
+                        toast.error('Cannot select a future date');
+                      }
+                    }
+                  }}
+                  maxDate={new Date()}
+                  placeholder="Select Date"
+                  inputClass="bg-white border border-slate-200 rounded-2xl py-3 px-4 text-xs font-black text-slate-600 outline-none focus:ring-2 focus:ring-[#008080] cursor-pointer min-w-[140px]"
+                  containerClassName="relative z-50"
+                />
+              </div>
              <button
                onClick={handleTogglePause}
                className={`px-6 py-3 rounded-[22px] text-[11px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${isPaused ? 'bg-red-500 text-white shadow-red-200 shadow-lg' : 'bg-green-500 text-white shadow-green-200 shadow-lg'}`}
@@ -371,7 +397,7 @@ const StudentInteractionLog = () => {
              className={`px-8 py-3 rounded-2xl text-[9px] font-black uppercase tracking-[0.2em] transition-all flex items-center gap-3 ${statusFilter === 'pending' ? 'bg-rose-500 text-white shadow-xl shadow-rose-200' : 'bg-white text-slate-400 border border-slate-100 hover:border-rose-200'}`}
            >
              <div className={`w-2 h-2 rounded-full ${statusFilter === 'pending' ? 'bg-white animate-pulse' : 'bg-rose-500'}`}></div>
-             Student Interaction ({
+             {selectedDate === getTodayStr() ? 'Student Interaction' : `Interactions (${selectedDate})`} ({
                assignedStudents.filter(s => s.status?.toUpperCase() !== 'COMPLETED' && s.status?.toUpperCase() !== 'CANCELLED' && (activeTab === 'both' ? isDiamondCategory(s) : isGoldCategory(s))).length
              })
            </button>
@@ -380,7 +406,7 @@ const StudentInteractionLog = () => {
              className={`px-8 py-3 rounded-2xl text-[9px] font-black uppercase tracking-[0.2em] transition-all flex items-center gap-3 ${statusFilter === 'completed' ? 'bg-emerald-500 text-white shadow-xl shadow-emerald-200' : 'bg-white text-slate-400 border border-slate-100 hover:border-emerald-200'}`}
            >
              <div className={`w-2 h-2 rounded-full ${statusFilter === 'completed' ? 'bg-white animate-pulse' : 'bg-emerald-500'}`}></div>
-             Completed Today ({
+             Completed {selectedDate === getTodayStr() ? 'Today' : selectedDate} ({
                assignedStudents.filter(s => (s.status?.toUpperCase() === 'COMPLETED' || s.status?.toUpperCase() === 'CANCELLED') && (activeTab === 'both' ? isDiamondCategory(s) : isGoldCategory(s))).length
              })
            </button>
@@ -389,7 +415,7 @@ const StudentInteractionLog = () => {
              className={`px-8 py-3 rounded-2xl text-[9px] font-black uppercase tracking-[0.2em] transition-all flex items-center gap-3 ${statusFilter === 'yesterday' ? 'bg-amber-500 text-white shadow-xl shadow-amber-200' : 'bg-white text-slate-400 border border-slate-100 hover:border-amber-200'}`}
            >
              <div className={`w-2 h-2 rounded-full ${statusFilter === 'yesterday' ? 'bg-white animate-pulse' : 'bg-amber-500'}`}></div>
-             Yesterday Pending ({yesterdayPending.length})
+             {selectedDate === getTodayStr() ? 'Yesterday Pending' : `${subtractOneDay(selectedDate)} Pending`} ({yesterdayPending.length})
            </button>
          </div>
        </div>
@@ -612,11 +638,7 @@ const StudentInteractionLog = () => {
             <div>
               <h1 className="text-3xl font-black text-white tracking-tight leading-none uppercase mb-2">{selectedStudent.name}</h1>
               <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">
-                {sessionType} SESSION • {(() => {
-                  const d = new Date();
-                  if (isYesterdayLog) d.setDate(d.getDate() - 1);
-                  return d.toLocaleDateString('en-GB');
-                })()}
+                 {sessionType} SESSION • {isYesterdayLog ? subtractOneDay(selectedDate) : selectedDate}
               </p>
             </div>
           </div>

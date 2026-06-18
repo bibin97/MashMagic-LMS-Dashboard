@@ -13,6 +13,12 @@ const getDailyAssignments = async (req, res) => {
             [mentor_id]
         );
 
+        // Support past date viewing (for date picker)
+        const dateParam = req.query.date;
+        const today = new Date().toISOString().split('T')[0];
+        const targetDate = dateParam || today;
+        const isToday = targetDate === today;
+
         let [mentorRows] = await db.query('SELECT interaction_paused FROM users WHERE id = ?', [mentor_id]);
         if (mentorRows.length === 0) {
             [mentorRows] = await db.query('SELECT interaction_paused FROM mentors WHERE id = ?', [mentor_id]);
@@ -20,10 +26,10 @@ const getDailyAssignments = async (req, res) => {
         const mentor = mentorRows[0];
         const isPaused = mentor ? mentor.interaction_paused : false;
 
-        // Check if assignments already exist for today
+        // Check if assignments already exist for targetDate
         const [existing] = await db.query(
             'SELECT assignments FROM daily_assignments WHERE mentor_id = ? AND date = ?',
-            [mentor_id, today]
+            [mentor_id, targetDate]
         );
 
         if (existing.length > 0) {
@@ -48,7 +54,7 @@ const getDailyAssignments = async (req, res) => {
                 if (savedAssignments && savedAssignments.length > 0) {
                     const studentIds = savedAssignments.map(a => a.id);
                     const [latestStudents] = await db.query(
-                        `SELECT id, name, priority_category, enrollment_type, badge, onboarding_status, mentorship_completed 
+                    `SELECT id, name, priority_category, enrollment_type, badge, onboarding_status, last_session_type, mentorship_completed 
                          FROM students 
                          WHERE id IN (?)`,
                         [studentIds]
@@ -76,7 +82,12 @@ const getDailyAssignments = async (req, res) => {
             }
         }
 
-        // Generate new assignments
+        // Past date: if no record exists, return empty (no generation for past dates)
+        if (!isToday) {
+            return res.status(200).json({ success: true, data: [], is_paused: isPaused });
+        }
+
+        // Generate new assignments (only for today)
         const assignments = await generateAssignments(mentor_id, today);
         
         // Save to DB
@@ -104,7 +115,7 @@ const generateAssignments = async (mentor_id, today) => {
     }
 
     const [students] = await db.query(
-        `SELECT id, name, priority_category, enrollment_type, badge, onboarding_status 
+        `SELECT id, name, priority_category, enrollment_type, badge, onboarding_status, last_session_type 
          FROM students 
          WHERE mentor_id = ? 
          AND (LOWER(enrollment_type) LIKE '%mentorship%' OR LOWER(enrollment_type) = 'both')
@@ -529,7 +540,7 @@ const updateSessionReport = async (req, res) => {
 
             await db.query(
                 'UPDATE students SET priority_category = ?, last_session_type = ? WHERE id = ?',
-                [finalPriority, session_type, student_id]
+                [finalPriority, next_session_type || session_type, student_id]
             );
         }
 
@@ -607,16 +618,20 @@ const getTodaySessionReport = async (req, res) => {
 const getYesterdayPending = async (req, res) => {
     try {
         const mentor_id = req.user.id;
-        const today = new Date().toISOString().split('T')[0];
         
-        // Calculate yesterday's date
-        const yesterdayDate = new Date();
-        yesterdayDate.setDate(yesterdayDate.getDate() - 1);
-        const yesterday = yesterdayDate.toISOString().split('T')[0];
+        // Support custom date: if date param given, "yesterday" means date-1 
+        const dateParam = req.query.date;
+        const today = new Date().toISOString().split('T')[0];
+        const referenceDate = dateParam || today;
+        
+        // Calculate "yesterday" relative to the reference date
+        const refDateObj = new Date(referenceDate + 'T00:00:00');
+        refDateObj.setDate(refDateObj.getDate() - 1);
+        const yesterday = refDateObj.toISOString().split('T')[0];
 
         // Fetch yesterday's assignments
         const [yesterdayRecord] = await db.query(
-            'SELECT assignments FROM daily_assignments WHERE mentor_id = ? AND date = ?',
+            'SELECT assignments, is_paused FROM daily_assignments WHERE mentor_id = ? AND date = ?',
             [mentor_id, yesterday]
         );
 
@@ -625,6 +640,7 @@ const getYesterdayPending = async (req, res) => {
         }
 
         let assignments = yesterdayRecord[0].assignments;
+        const wasYesterdayPaused = yesterdayRecord[0].is_paused || false;
         if (typeof assignments === 'string') {
             try {
                 assignments = JSON.parse(assignments);
@@ -634,8 +650,22 @@ const getYesterdayPending = async (req, res) => {
             }
         }
 
-        // Filter for PENDING status only
-        const pendingStudents = (assignments || []).filter(a => a.status === 'PENDING');
+        // If the entire day was paused, don't add any students to yesterday pending
+        if (wasYesterdayPaused) {
+            return res.status(200).json({ success: true, data: [] });
+        }
+
+        // Filter: only students who were NOT completed and NOT cancelled yesterday
+        // Also exclude students who are already completed today (to prevent duplicates)
+        const [todayCompletedRows] = await db.query(
+            'SELECT student_id FROM mentor_session_reports WHERE mentor_id = ? AND DATE(created_at) = ?',
+            [mentor_id, referenceDate]
+        );
+        const completedTodayIds = new Set(todayCompletedRows.map(r => r.student_id));
+
+        const pendingStudents = (assignments || []).filter(a => 
+            a.status === 'PENDING' && !completedTodayIds.has(a.id)
+        );
 
         res.status(200).json({ success: true, data: pendingStudents });
     } catch (error) {
