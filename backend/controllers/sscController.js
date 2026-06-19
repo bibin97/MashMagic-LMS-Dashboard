@@ -152,13 +152,15 @@ exports.getTimetable = async (req, res) => {
 };
 
 exports.createSession = async (req, res) => {
+    const connection = await db.getConnection();
     try {
+        await connection.beginTransaction();
         const { student_id, date, start_time, end_time, chapter, subject, session_type, status, notes, faculty_id, faculty_name } = req.body;
         
-        const [student] = await db.query('SELECT mentor_id FROM students WHERE id = ?', [student_id]);
+        const [student] = await connection.query('SELECT mentor_id FROM students WHERE id = ?', [student_id]);
         const mentor_id = student[0]?.mentor_id || null;
 
-        const [maxSessionResult] = await db.query('SELECT MAX(session_number) as max_sn FROM timetable WHERE (is_deleted IS NULL OR is_deleted = 0) AND student_id = ?', [student_id]);
+        const [maxSessionResult] = await connection.query('SELECT MAX(session_number) as max_sn FROM timetable WHERE (is_deleted IS NULL OR is_deleted = 0) AND student_id = ?', [student_id]);
         const nextSessionNumber = (maxSessionResult[0].max_sn || 0) + 1;
 
         const formattedStartTime = convertTo24Hour(start_time);
@@ -171,18 +173,25 @@ exports.createSession = async (req, res) => {
         const duration = `${Math.floor(diffMins / 60)}h ${diffMins % 60}m`;
 
         // Check for duplicates
-        const [existing] = await db.query(
+        const [existing] = await connection.query(
             'SELECT id FROM timetable WHERE (is_deleted IS NULL OR is_deleted = 0) AND student_id = ? AND date = ? AND start_time = ? AND end_time = ? AND chapter = ? AND (faculty_id = ? OR (? IS NULL AND faculty_id IS NULL))',
             [student_id, date, formattedStartTime, formattedEndTime, chapter, faculty_id || null, faculty_id || null]
         );
         if (existing.length > 0) {
+            await connection.rollback();
             return res.status(409).json({ success: false, message: "Duplicate timetable entry already exists for this slot with the same faculty." });
         }
 
-        const [result] = await db.query(`
+        const [result] = await connection.query(`
             INSERT INTO timetable (mentor_id, student_id, session_number, date, start_time, end_time, duration, chapter, subject, session_type, status, notes, faculty_id, faculty_name)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `, [mentor_id, student_id, nextSessionNumber, date, formattedStartTime, formattedEndTime, duration, chapter, subject || null, session_type, status, notes, faculty_id || null, faculty_name]);
+
+        // Post-Insert Verification
+        const [verify] = await connection.query('SELECT id FROM timetable WHERE id = ?', [result.insertId]);
+        if (verify.length === 0) {
+            throw new Error("CRITICAL FAILURE: Timetable record verification failed after insert.");
+        }
 
         await logAudit({
             action: 'CREATE_SESSION',
@@ -193,14 +202,20 @@ exports.createSession = async (req, res) => {
             details: `SSC created session for student ${student_id}`
         });
 
+        await connection.commit();
         res.status(201).json({ success: true, message: "Session created", data: { id: result.insertId } });
     } catch (error) {
+        await connection.rollback();
         res.status(500).json({ success: false, message: error.message });
+    } finally {
+        connection.release();
     }
 };
 
 exports.updateSession = async (req, res) => {
+    const connection = await db.getConnection();
     try {
+        await connection.beginTransaction();
         const sessionId = req.params.id;
         const { date, start_time, end_time, chapter, subject, session_type, status, notes, faculty_id, faculty_name } = req.body;
 
@@ -213,13 +228,17 @@ exports.updateSession = async (req, res) => {
         const diffMins = Math.round(diffMs / 60000);
         const duration = `${Math.floor(diffMins / 60)}h ${diffMins % 60}m`;
 
-        const [[oldSession]] = await db.query('SELECT * FROM timetable WHERE id = ?', [sessionId]);
+        const [[oldSession]] = await connection.query('SELECT * FROM timetable WHERE id = ?', [sessionId]);
 
-        await db.query(`
+        const [updateResult] = await connection.query(`
             UPDATE timetable 
             SET date = ?, start_time = ?, end_time = ?, duration = ?, chapter = ?, subject = ?, session_type = ?, status = ?, notes = ?, faculty_id = ?, faculty_name = ?
             WHERE id = ?
         `, [date, formattedStartTime, formattedEndTime, duration, chapter, subject || null, session_type, status, notes, faculty_id || null, faculty_name, sessionId]);
+
+        if (updateResult.affectedRows === 0) {
+            throw new Error("CRITICAL FAILURE: No records updated. Session may not exist.");
+        }
 
         await logAudit({
             action: 'UPDATE_SESSION',
@@ -231,18 +250,29 @@ exports.updateSession = async (req, res) => {
             details: `SSC updated session ${sessionId}`
         });
 
+        await connection.commit();
         res.status(200).json({ success: true, message: "Session updated" });
     } catch (error) {
+        await connection.rollback();
         res.status(500).json({ success: false, message: error.message });
+    } finally {
+        connection.release();
     }
 };
 
 exports.deleteSession = async (req, res) => {
+    const connection = await db.getConnection();
     try {
+        await connection.beginTransaction();
         const sessionId = req.params.id;
-        const [[oldSession]] = await db.query('SELECT * FROM timetable WHERE id = ?', [sessionId]);
-        await db.query('UPDATE timetable SET is_deleted = 1, deleted_at = CURRENT_TIMESTAMP WHERE id = ?', [sessionId]);
+        const [[oldSession]] = await connection.query('SELECT * FROM timetable WHERE id = ?', [sessionId]);
         
+        const [updateResult] = await connection.query('UPDATE timetable SET is_deleted = 1, deleted_at = CURRENT_TIMESTAMP WHERE id = ?', [sessionId]);
+        
+        if (updateResult.affectedRows === 0) {
+            throw new Error("CRITICAL FAILURE: No records marked as deleted. Session may not exist.");
+        }
+
         await logAudit({
             action: 'DELETE_SESSION',
             entity_id: sessionId,
@@ -252,9 +282,13 @@ exports.deleteSession = async (req, res) => {
             details: `SSC deleted session ${sessionId}`
         });
 
+        await connection.commit();
         res.status(200).json({ success: true, message: "Session deleted" });
     } catch (error) {
+        await connection.rollback();
         res.status(500).json({ success: false, message: error.message });
+    } finally {
+        connection.release();
     }
 };
 
@@ -399,6 +433,7 @@ exports.updateStudentAcademicSchedule = async (req, res) => {
                 return dates;
             }
 
+            const insertedTimetableIds = [];
             for (const s of schedules) {
                 const facId = s.faculty_id ? parseInt(s.faculty_id) : null;
                 const upcomingDates = getUpcomingDates(s.day_of_week, 4);
@@ -422,11 +457,20 @@ exports.updateStudentAcademicSchedule = async (req, res) => {
                         [studentId, date, start24]
                     );
                     if (existing.length === 0) {
-                        await connection.query(`
+                        const [result] = await connection.query(`
                             INSERT INTO timetable (mentor_id, student_id, session_number, date, start_time, end_time, duration, chapter, subject, session_type, status, notes, faculty_id, faculty_name, session_mode)
                             VALUES (?, ?, 0, ?, ?, ?, ?, '', ?, 'Regular Class', 'Scheduled', '', ?, ?, 'Online')
                         `, [actualMentorId, studentId, date, start24, end24, duration, s.subject || '', facId, faculty_name]);
+                        insertedTimetableIds.push(result.insertId);
                     }
+                }
+            }
+            
+            // Post-Insert Verification
+            if (insertedTimetableIds.length > 0) {
+                const [verifyRows] = await connection.query('SELECT COUNT(id) as count FROM timetable WHERE id IN (?)', [insertedTimetableIds]);
+                if (verifyRows[0].count !== insertedTimetableIds.length) {
+                    throw new Error("CRITICAL FAILURE: Academic Schedule timetable generation verification failed.");
                 }
             }
 
@@ -462,8 +506,18 @@ exports.createBatchTimetable = async (req, res) => {
         const { student_id, sessions } = req.body;
 
         if (!sessions || sessions.length === 0) {
+            await connection.rollback();
             return res.status(400).json({ success: false, message: "No sessions provided" });
         }
+
+        const report = {
+            total_requested: sessions.length,
+            total_saved: 0,
+            total_verified: 0,
+            skipped_duplicates: 0,
+            failed: 0
+        };
+        const insertedIds = [];
 
         const [[studentObj]] = await connection.query('SELECT mentor_id, subjects_json FROM students WHERE id = ?', [student_id]);
         const actualMentorId = studentObj?.mentor_id || null;
@@ -501,7 +555,10 @@ exports.createBatchTimetable = async (req, res) => {
                 'SELECT id FROM timetable WHERE (is_deleted IS NULL OR is_deleted = 0) AND student_id = ? AND date = ? AND start_time = ? AND end_time = ? AND chapter = ? AND (faculty_id = ? OR (? IS NULL AND faculty_id IS NULL))',
                 [student_id, date, formattedStartTime, formattedEndTime, chapter, faculty_id || null, faculty_id || null]
             );
-            if (existing.length > 0) continue; // Skip duplicates silently
+            if (existing.length > 0) {
+                report.skipped_duplicates++;
+                continue;
+            }
 
             const start = new Date(`1970-01-01T${formattedStartTime}`);
             const end = new Date(`1970-01-01T${formattedEndTime}`);
@@ -509,18 +566,39 @@ exports.createBatchTimetable = async (req, res) => {
             const diffMins = Math.round(diffMs / 60000);
             const duration = `${Math.floor(diffMins / 60)}h ${diffMins % 60}m`;
 
-            await connection.query(`
-                INSERT INTO timetable (mentor_id, student_id, session_number, date, start_time, end_time, duration, chapter, subject, session_type, status, notes, faculty_id, faculty_name)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'Scheduled', ?, ?, ?)
-            `, [actualMentorId, student_id, currentSessionNum++, date, formattedStartTime, formattedEndTime, duration, chapter, subject || null, session_type || 'Regular Class', notes || '', faculty_id ? parseInt(faculty_id) : null, faculty_name || null]);
+            try {
+                const [result] = await connection.query(`
+                    INSERT INTO timetable (mentor_id, student_id, session_number, date, start_time, end_time, duration, chapter, subject, session_type, status, notes, faculty_id, faculty_name)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                `, [actualMentorId, student_id, currentSessionNum++, date, formattedStartTime, formattedEndTime, duration, chapter, subject || null, session_type || 'Regular Class', 'Scheduled', notes || '', faculty_id ? parseInt(faculty_id) : null, faculty_name || null]);
+                
+                insertedIds.push(result.insertId);
+                report.total_saved++;
+            } catch (err) {
+                report.failed++;
+                throw err; // Trigger rollback
+            }
         }
 
         if (subjectsUpdated) {
             await connection.query('UPDATE students SET subjects_json = ? WHERE id = ?', [JSON.stringify(subjects), student_id]);
         }
 
+        // Post-Insert Database Verification
+        if (insertedIds.length > 0) {
+            const [verificationResult] = await connection.query(
+                'SELECT COUNT(id) as count FROM timetable WHERE id IN (?)',
+                [insertedIds]
+            );
+            const verifiedCount = verificationResult[0].count;
+            if (verifiedCount !== report.total_saved) {
+                throw new Error(`CRITICAL FAILURE: Timetable verification failed. Expected ${report.total_saved} inserts, found ${verifiedCount}`);
+            }
+            report.total_verified = verifiedCount;
+        }
+
         await connection.commit();
-        res.status(201).json({ success: true, message: "Batch timetable created" });
+        res.status(201).json({ success: true, message: "Batch timetable created", report });
     } catch (error) {
         await connection.rollback();
         res.status(500).json({ success: false, message: error.message });

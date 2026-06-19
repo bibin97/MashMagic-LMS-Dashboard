@@ -15,7 +15,6 @@ const getDailyAssignments = async (req, res) => {
 
         // Support past date viewing (for date picker)
         const dateParam = req.query.date;
-        const today = new Date().toISOString().split('T')[0];
         const targetDate = dateParam || today;
         const isToday = targetDate === today;
 
@@ -225,9 +224,11 @@ const generateAssignments = async (mentor_id, today) => {
 };
 
 const submitSessionReport = async (req, res) => {
+    const connection = await db.getConnection();
     try {
+        await connection.beginTransaction();
         const mentor_id = req.user.id;
-        let { student_id, session_type, next_session_type, report_data } = req.body;
+        let { student_id, session_type, next_session_type, report_data, session_number, session_id } = req.body;
 
         if (typeof report_data === 'string') {
             try {
@@ -260,7 +261,7 @@ const submitSessionReport = async (req, res) => {
         let isFlagged = 0;
         let flagReason = null;
 
-        const [history] = await db.query(
+        const [history] = await connection.query(
             'SELECT report_data FROM mentor_session_reports WHERE student_id = ? ORDER BY created_at DESC LIMIT 1',
             [student_id]
         );
@@ -283,50 +284,69 @@ const submitSessionReport = async (req, res) => {
             }
         }
 
-        // 5. Save Report - with duplicate check to prevent double-submit on retry
+        // 5. Save Report - with exact duplicate check based on session details
         const today = new Date().toISOString().split('T')[0];
         const interactionDate = req.body.interaction_date || today;
 
         if (session_type !== 'CANCELLED') {
-            // Duplicate check: don't insert if already saved for same student+mentor on same date
-            const [existingLog] = await db.query(
-                'SELECT id FROM mentor_session_reports WHERE mentor_id = ? AND student_id = ? AND DATE(created_at) = ? LIMIT 1',
-                [mentor_id, student_id, interactionDate]
-            );
+            // New duplicate logic: Check for exact same session_id or session_number if provided, else check date + session_type
+            let duplicateQuery = 'SELECT id FROM mentor_session_reports WHERE mentor_id = ? AND student_id = ? AND DATE(created_at) = ? AND session_type = ?';
+            let duplicateParams = [mentor_id, student_id, interactionDate, session_type];
+            
+            // If the UI passes session_id, ensure we don't duplicate for the exact same session_id
+            if (session_id) {
+                duplicateQuery = 'SELECT id FROM mentor_session_reports WHERE mentor_id = ? AND student_id = ? AND report_data LIKE ?';
+                duplicateParams = [mentor_id, student_id, `%\"session_id\":\"${session_id}\"%`];
+            }
 
-            if (existingLog.length === 0) {
-                // created_at is always set to interactionDate so yesterday pending logs show yesterday's date in DB and dashboard
-                // Using 12:00:00 instead of 23:59:59 to prevent timezone crossover to the next day in IST
-                const created_at_val = `${interactionDate} 12:00:00`;
-                try {
-                    await db.query(
-                        'INSERT INTO mentor_session_reports (student_id, mentor_id, session_type, report_data, is_flagged, flag_reason, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)',
-                        [student_id, mentor_id, session_type, JSON.stringify(report_data), isFlagged, flagReason, created_at_val]
-                    );
-                } catch (dbErr) {
-                    // Fallback: insert without flag columns but still set created_at correctly
-                    console.error('[SUBMIT REPORT] Insert with flags failed, using fallback:', dbErr.message);
-                    try {
-                        await db.query(
-                            'INSERT INTO mentor_session_reports (student_id, mentor_id, session_type, report_data, created_at) VALUES (?, ?, ?, ?, ?)',
-                            [student_id, mentor_id, session_type, JSON.stringify(report_data), created_at_val]
-                        );
-                    } catch (fallbackErr) {
-                        // Last resort fallback without created_at
-                        console.error('[SUBMIT REPORT] Fallback with created_at failed:', fallbackErr.message);
-                        await db.query(
-                            'INSERT INTO mentor_session_reports (student_id, mentor_id, session_type, report_data) VALUES (?, ?, ?, ?)',
-                            [student_id, mentor_id, session_type, JSON.stringify(report_data)]
-                        );
-                    }
+            const [existingLog] = await connection.query(duplicateQuery, duplicateParams);
+
+            if (existingLog.length > 0) {
+                await connection.rollback();
+                return res.status(409).json({ success: false, message: "A report for this specific interaction already exists." });
+            }
+
+            const created_at_val = `${interactionDate} 12:00:00`;
+            let insertedId = null;
+            try {
+                const [result] = await connection.query(
+                    'INSERT INTO mentor_session_reports (student_id, mentor_id, session_type, report_data, is_flagged, flag_reason, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)',
+                    [student_id, mentor_id, session_type, JSON.stringify(report_data), isFlagged, flagReason, created_at_val]
+                );
+                insertedId = result.insertId;
+            } catch (dbErr) {
+                // Remove fallback to guarantee schema consistency, throwing triggers rollback
+                throw new Error(`CRITICAL FAILURE: Interaction log insert failed: ${dbErr.message}`);
+            }
+
+            // Post-Insert Database Verification
+            const [verifyRows] = await connection.query('SELECT id FROM mentor_session_reports WHERE id = ?', [insertedId]);
+            if (verifyRows.length === 0) {
+                throw new Error("CRITICAL FAILURE: Interaction report verification failed after insert.");
+            }
+            
+            // Check student_interaction_logs if table exists
+            try {
+                // If the table exists and is part of workflow, insert into it too.
+                const [silResult] = await connection.query(`
+                    INSERT INTO student_interaction_logs (student_id, mentor_id, interaction_type, notes, date)
+                    VALUES (?, ?, ?, ?, ?)
+                `, [student_id, mentor_id, session_type, report_data.action_plan || report_data.notes || '', interactionDate]);
+                
+                const [silVerify] = await connection.query('SELECT id FROM student_interaction_logs WHERE id = ?', [silResult.insertId]);
+                if (silVerify.length === 0) {
+                    throw new Error("CRITICAL FAILURE: student_interaction_logs verification failed.");
                 }
-            } else {
-                console.log(`[SUBMIT REPORT] Duplicate detected for student ${student_id} on ${interactionDate}, skipping insert.`);
+            } catch (silErr) {
+                if (silErr.code !== 'ER_NO_SUCH_TABLE') {
+                    throw new Error(`CRITICAL FAILURE: student_interaction_logs insert failed: ${silErr.message}`);
+                }
+                // If table doesn't exist, we safely ignore this check as per prompt ("if this table participates")
             }
         }
 
         // 6. Update assignment list status
-        const [existing] = await db.query(
+        const [existing] = await connection.query(
             'SELECT id, assignments FROM daily_assignments WHERE mentor_id = ? AND date = ?',
             [mentor_id, interactionDate]
         );
@@ -343,7 +363,7 @@ const submitSessionReport = async (req, res) => {
                 } : a
             );
 
-            await db.query(
+            await connection.query(
                 'UPDATE daily_assignments SET assignments = ? WHERE id = ?',
                 [JSON.stringify(updatedAssignments), existing[0].id]
             );
@@ -354,7 +374,7 @@ const submitSessionReport = async (req, res) => {
         // Example: If assigned 16-Jun, still pending 17-18-Jun, completed 19-Jun → updates 16-Jun record
         if (session_type !== 'CANCELLED') {
             // Find the ORIGINAL assignment record where this student was first assigned to this mentor
-            const [allAssignments] = await db.query(
+            const [allAssignments] = await connection.query(
                 'SELECT id, date, assignments FROM daily_assignments WHERE mentor_id = ? ORDER BY date ASC',
                 [mentor_id]
             );
@@ -394,7 +414,7 @@ const submitSessionReport = async (req, res) => {
                     a.id == student_id ? { ...a, status: 'COMPLETED' } : a
                 );
 
-                await db.query(
+                await connection.query(
                     'UPDATE daily_assignments SET assignments = ? WHERE id = ?',
                     [JSON.stringify(updatedAssignments), originalRecord.id]
                 );
@@ -404,12 +424,13 @@ const submitSessionReport = async (req, res) => {
         }
 
         if (session_type === 'CANCELLED') {
+            await connection.commit();
             return res.status(200).json({ success: true, message: 'Session cancelled and logged' });
         }
 
         // 7. Priority Logic (Manual Priority from Mentor)
         // Set priority based on mentor's selection for the next interaction type
-        const [[currentStudent]] = await db.query('SELECT priority_category FROM students WHERE id = ?', [student_id]);
+        const [[currentStudent]] = await connection.query('SELECT priority_category FROM students WHERE id = ?', [student_id]);
         let currentP = currentStudent?.priority_category || 'Stable';
         let finalPriority = currentP;
 
@@ -421,18 +442,18 @@ const submitSessionReport = async (req, res) => {
         }
         // If next_session_type is not provided, keep current priority_category
 
-        await db.query(
+        await connection.query(
             'UPDATE students SET priority_category = ?, last_session_type = ?, last_session_date = ?, onboarding_status = "completed" WHERE id = ?',
             [finalPriority, next_session_type || session_type, interactionDate, student_id]
         );
 
         // Notify Admin of new session report
         try {
-            const [[student]] = await db.query('SELECT name FROM students WHERE id = ?', [student_id]);
+            const [[student]] = await connection.query('SELECT name FROM students WHERE id = ?', [student_id]);
             let msg = `<b>Interaction Hub:</b> Mentor <b>${req.user.name}</b> completed a <b>${session_type}</b> session with <b>${student?.name || student_id}</b>.`;
             if (isFlagged) msg += ` <span style="color: red;">⚠️ Possible Fraud Detected!</span>`;
 
-            await db.query('INSERT INTO admin_notifications (message, related_id, action_type) VALUES (?, ?, ?)', [
+            await connection.query('INSERT INTO admin_notifications (message, related_id, action_type) VALUES (?, ?, ?)', [
                 msg,
                 student_id,
                 'mentor_session_report'
@@ -441,10 +462,14 @@ const submitSessionReport = async (req, res) => {
             console.error("Notification Error:", nErr.message);
         }
 
+        await connection.commit();
         res.status(200).json({ success: true, message: 'Report submitted and student state updated', flagged: isFlagged });
     } catch (error) {
+        await connection.rollback();
         console.error('Submit Session Report Error:', error);
         res.status(500).json({ success: false, message: error.message || 'Server Error' });
+    } finally {
+        connection.release();
     }
 };
 

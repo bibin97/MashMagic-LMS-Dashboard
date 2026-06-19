@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useDeferredValue } from 'react';
-import { Users, Search, Filter, Edit2, Trash2, X, Save, Pencil, GraduationCap, BookOpen, Clock, Activity, Calendar, Eye, ClipboardList, XCircle } from 'lucide-react';
+import { Users, Search, Filter, Edit2, Trash2, X, Save, Pencil, GraduationCap, BookOpen, Clock, Activity, Calendar, Eye, ClipboardList, XCircle, UserMinus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
@@ -149,6 +149,23 @@ const StudentsList = ({
       toast.error(error.response?.data?.message || 'Failed to assign mentor');
     } finally {
       setIsAssigning(false);
+    }
+  };
+
+  const handleRemoveMentor = async student => {
+    if (!await premiumConfirm(`Are you sure you want to remove the mentor from ${student.name}?`)) {
+        return;
+    }
+    try {
+        const res = await api.put(`/mentor-head/students/${student.id}/remove-mentor`);
+        if (res.data.success) {
+            toast.success('Mentor removed successfully');
+            fetchStudents();
+        } else {
+            toast.error(res.data.message || 'Failed to remove mentor');
+        }
+    } catch (error) {
+        toast.error(error.response?.data?.message || 'Error removing mentor');
     }
   };
   const handleOpenAssessment = student => {
@@ -449,6 +466,11 @@ const StudentsList = ({
                       }} className="p-2.5 bg-white border-2 border-emerald-200 rounded-xl text-emerald-600 hover:bg-emerald-600 hover:text-white transition-all shadow-sm group/assign" title="Assign Mentor">
 															<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><line x1="19" y1="8" x2="19" y2="14" /><line x1="22" y1="11" x2="16" y2="11" /></svg>
 														</button>
+                                                        {student.mentor_id && (
+                                                            <button onClick={() => handleRemoveMentor(student)} className="p-2.5 bg-white border-2 border-rose-200 rounded-xl text-rose-500 hover:bg-rose-50 hover:border-rose-300 transition-all shadow-sm group/remove" title="Remove Mentor">
+                                                                <UserMinus size={16} />
+                                                            </button>
+                                                        )}
 													</>}
 
 												{(role === 'academic_operation_executive' || role === 'academic_head') && <>

@@ -37,7 +37,8 @@ const {
     assignMentor,
     updateStudentAssessmentLevel,
     updateInteractionLog,
-    getInteractionHistory
+    getInteractionHistory,
+    removeMentor
 } = require('../controllers/mentorHeadController');
 const { getDailyUpdates } = require('../controllers/sscController');
 const { requireAuth } = require('../middleware/authMiddleware');
@@ -60,6 +61,7 @@ router.get('/dropdowns', getDropdownData);
 router.get('/mentor-activity', getMentorActivityDashboard);
 router.get('/mentors/:mentorId/monitoring', getMentorMonitoringDetails);
 router.put('/students/:studentId/assign', assignMentor);
+router.put('/students/:studentId/remove-mentor', removeMentor);
 router.put('/students/:studentId/shift', shiftStudent);
 router.put('/students/:studentId/assessment-level', updateStudentAssessmentLevel);
 router.get('/daily-student-checks', getDailyStudentChecks);

@@ -1113,6 +1113,69 @@ exports.assignMentor = async (req, res) => {
     }
 };
 
+// @desc    Remove mentor from a student
+// @route   PUT /api/mentor-head/students/:studentId/remove-mentor
+exports.removeMentor = async (req, res) => {
+    const connection = await db.getConnection();
+    try {
+        await connection.beginTransaction();
+        const { studentId } = req.params;
+
+        const [[student]] = await connection.query('SELECT mentor_id FROM students WHERE id = ?', [studentId]);
+        if (!student) {
+            await connection.rollback();
+            return res.status(404).json({ success: false, message: 'Student not found' });
+        }
+
+        const mentorId = student.mentor_id;
+
+        // 1. Remove mentor from student record
+        await connection.query(
+            'UPDATE students SET mentor_id = NULL, mentor_name = NULL WHERE id = ?',
+            [studentId]
+        );
+
+        // 2. Remove student from the mentor's daily assignments (today and future)
+        if (mentorId) {
+            const today = new Date().toISOString().split('T')[0];
+            const [assignments] = await connection.query(
+                'SELECT id, assignments FROM daily_assignments WHERE mentor_id = ? AND date >= ?',
+                [mentorId, today]
+            );
+
+            for (const record of assignments) {
+                let parsed = record.assignments;
+                if (typeof parsed === 'string') {
+                    try {
+                        parsed = JSON.parse(parsed);
+                    } catch (e) {
+                        parsed = [];
+                    }
+                }
+                
+                // Filter out the student
+                const updatedList = parsed.filter(a => a.id != studentId);
+                
+                // If the list changed, update it in the database
+                if (updatedList.length !== parsed.length) {
+                    await connection.query(
+                        'UPDATE daily_assignments SET assignments = ? WHERE id = ?',
+                        [JSON.stringify(updatedList), record.id]
+                    );
+                }
+            }
+        }
+
+        await connection.commit();
+        res.status(200).json({ success: true, message: 'Mentor removed successfully' });
+    } catch (error) {
+        await connection.rollback();
+        res.status(500).json({ success: false, message: error.message });
+    } finally {
+        connection.release();
+    }
+};
+
 // @desc    Get Daily Student Checks (for Mentor Head)
 // @route   GET /api/mentor-head/daily-student-checks
 exports.getDailyStudentChecks = async (req, res) => {

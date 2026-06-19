@@ -1190,7 +1190,7 @@ const createDemoSchedule = async (req, res) => {
             INSERT INTO aoe_demo_schedules 
                 (aoe_id, demo_id, type, date, student_name, student_type, syllabus, section, subject, faculty_id, faculty_name, start_time, end_time, hour_rate, meeting_link)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        `, [aoe_id, auto_demo_id, demoType, date || null, student_name, student_type || 'new', syllabus || null, section || null, subject || null, resolvedFacultyId, normalizedFacultyName || null, start_time || null, end_time || null, hour_rate || 0, meeting_link || null]);
+        `, [aoe_id, auto_demo_id, demoType, date || null, student_name || null, student_type || 'new', syllabus || null, section || null, subject || null, resolvedFacultyId, normalizedFacultyName || null, start_time || null, end_time || null, hour_rate || 0, meeting_link || null]);
 
         res.status(201).json({ success: true, message: 'Demo schedule created successfully', demo_id: auto_demo_id });
     } catch (error) {
@@ -1221,7 +1221,7 @@ const editDemoSchedule = async (req, res) => {
             UPDATE aoe_demo_schedules 
             SET demo_id=?, type=?, date=?, student_name=?, student_type=?, syllabus=?, section=?, subject=?, faculty_id=?, faculty_name=?, start_time=?, end_time=?, hour_rate=?, meeting_link=?
             WHERE id=?
-        `, [demo_id || null, type || 'demo', date || null, student_name, student_type || 'new', syllabus || null, section || null, subject || null, resolvedFacultyId, normalizedFacultyName || null, start_time || null, end_time || null, hour_rate || 0, meeting_link || null, id]);
+        `, [demo_id || null, type || 'demo', date || null, student_name || null, student_type || 'new', syllabus || null, section || null, subject || null, resolvedFacultyId, normalizedFacultyName || null, start_time || null, end_time || null, hour_rate || 0, meeting_link || null, id]);
         
         res.status(200).json({ success: true, message: 'Demo schedule updated successfully' });
     } catch (error) {
