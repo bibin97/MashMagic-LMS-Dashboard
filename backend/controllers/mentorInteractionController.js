@@ -228,16 +228,10 @@ const generateAssignments = async (mentor_id, today) => {
         carryOverSet.add(s.id);
     }
 
-    // 2. Mark carry-over students in the carryOverSet so they're excluded from today's rotation
-    // NOTE: Carry-over students are NOT added to today's 15-student rotation
-    // They will be fetched separately via /yesterday-pending endpoint
-    for (const s of carryOverStudents) {
-        if (!carryOverSet.has(s.id)) {
-            carryOverSet.add(s.id);
-        }
-    }
-
-    // 3. Scan rotation to fill exactly 15 students FOR TODAY 
+    // 2. We no longer add carry-over students to carryOverSet
+    // The user strictly wants the "Student Interaction" tab to show exactly 15 students 
+    // according to pure rotation, even if it means a student appears in both Today's rotation and Yesterday Pending.
+    
     let currIdx = nextStartIndex;
     let attempts = 0;
     
