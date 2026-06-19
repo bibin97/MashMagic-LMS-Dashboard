@@ -565,7 +565,7 @@ const AOEDemoSchedule = () => {
                 />
                 
                 {/* Custom Autocomplete Dropdown */}
-                {showSuggestions && formData.student_name && (
+                {showSuggestions && formData.student_name && activeTab !== 'schedule_pre_demo' && (
                   <div className="absolute z-50 w-full mt-1 bg-white border border-slate-100 rounded-2xl shadow-xl max-h-60 overflow-y-auto top-full left-0">
                     {students
                       .filter(s => s.name.toLowerCase().includes(formData.student_name.toLowerCase()))
@@ -678,12 +678,12 @@ const AOEDemoSchedule = () => {
 
               <div className="space-y-2 relative">
                 <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 flex items-center gap-2">
-                  <Presentation size={12}/> Faculty Name {activeTab !== 'schedule_pre_demo' && <span className="text-rose-500">*</span>}
-                  <span className="ml-auto text-[9px] font-bold text-slate-400 normal-case">Type any name or pick from {registeredFacultyCount} registered</span>
+                  <Presentation size={12}/> {activeTab === 'schedule_pre_demo' ? 'Demo Faculty Name' : 'Faculty Name'} <span className="text-rose-500">*</span>
+                  {activeTab !== 'schedule_pre_demo' && <span className="ml-auto text-[9px] font-bold text-slate-400 normal-case">Type any name or pick from {registeredFacultyCount} registered</span>}
                 </label>
                 <input
                   type="text"
-                  required={activeTab !== 'schedule_pre_demo'}
+                  required={true}
                   value={formData.faculty_name_input}
                   onFocus={() => setShowFacultySuggestions(true)}
                   onBlur={() => setTimeout(() => setShowFacultySuggestions(false), 200)}
@@ -695,7 +695,7 @@ const AOEDemoSchedule = () => {
                   placeholder="Type faculty name (registered or new demo faculty)..."
                 />
 
-                {showFacultySuggestions && formData.faculty_name_input && (
+                {showFacultySuggestions && formData.faculty_name_input && activeTab !== 'schedule_pre_demo' && (
                   <div className="absolute z-50 w-full mt-1 bg-white border border-slate-100 rounded-2xl shadow-xl max-h-60 overflow-y-auto top-full left-0">
                     {faculties
                       .filter(f =>
