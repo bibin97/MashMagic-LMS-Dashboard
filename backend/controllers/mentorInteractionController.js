@@ -78,13 +78,22 @@ const getDailyAssignments = async (req, res) => {
                 }
                 
                 let updated = false;
+                // Convert DB date safely handling timezones
+                let recordDateStr = '';
+                if (record.date instanceof Date) {
+                    const offset = record.date.getTimezoneOffset();
+                    recordDateStr = new Date(record.date.getTime() - (offset*60*1000)).toISOString().split('T')[0];
+                } else {
+                    recordDateStr = String(record.date).split('T')[0];
+                }
+                
                 const updatedAssignments = assignments.map(a => {
                     if (a.id == 187) {
-                        if (record.date === todayStr && a.status === 'COMPLETED') {
+                        if (recordDateStr === todayStr && a.status === 'COMPLETED') {
                             // Revert her TODAY assignment back to PENDING
                             updated = true;
                             return { ...a, status: 'PENDING' };
-                        } else if (record.date < todayStr && a.status === 'PENDING') {
+                        } else if (recordDateStr < todayStr && a.status === 'PENDING') {
                             // Clear her YESTERDAY pending status
                             updated = true;
                             return { ...a, status: 'COMPLETED' };
