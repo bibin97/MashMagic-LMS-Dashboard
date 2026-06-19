@@ -66,13 +66,22 @@ const getDailyAssignments = async (req, res) => {
     try {
         const mentor_id = req.user.id;
         
-        // ONE-TIME SELF-HEALING: Fix any corrupted stuck pending status for Niranjana (ID: 187)
+        // ONE-TIME SELF-HEALING: Fix corrupted Niranjana (ID: 187) record
         try {
+            const todayStr = new Date().toISOString().split('T')[0];
+            // Revert her TODAY assignment back to PENDING because she should be in today's rotation
+            await db.query(`
+                UPDATE daily_assignments 
+                SET assignments = REPLACE(assignments, '"id":187,"status":"COMPLETED"', '"id":187,"status":"PENDING"') 
+                WHERE mentor_id = ? AND date = ? AND assignments LIKE '%"id":187,"status":"COMPLETED"%'
+            `, [mentor_id, todayStr]);
+
+            // Clear her YESTERDAY pending status (which is what actually got stuck originally)
             await db.query(`
                 UPDATE daily_assignments 
                 SET assignments = REPLACE(assignments, '"id":187,"status":"PENDING"', '"id":187,"status":"COMPLETED"') 
-                WHERE mentor_id = ? AND assignments LIKE '%"id":187,"status":"PENDING"%'
-            `, [mentor_id]);
+                WHERE mentor_id = ? AND date < ? AND assignments LIKE '%"id":187,"status":"PENDING"%'
+            `, [mentor_id, todayStr]);
         } catch(e) {}
 
         const today = new Date().toISOString().split('T')[0];
@@ -415,11 +424,12 @@ const submitSessionReport = async (req, res) => {
                 // If table doesn't exist, we safely ignore this check as per prompt ("if this table participates")
             }
         }
-        // 6. Update assignment list status across ALL historical records
+        // 6. Update assignment list status across ALL historical records up to interactionDate
         // If a student's interaction is completed, it should clear them from all past pending lists
+        // BUT it should NOT clear them from future dates (like Today) if they were assigned again
         const [allAssignments] = await connection.query(
-            'SELECT id, assignments FROM daily_assignments WHERE mentor_id = ?',
-            [mentor_id]
+            'SELECT id, date, assignments FROM daily_assignments WHERE mentor_id = ? AND date <= ?',
+            [mentor_id, interactionDate]
         );
 
         for (let record of allAssignments) {
