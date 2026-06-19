@@ -45,7 +45,12 @@ const StudentRow = ({ student, index, navigate, handleToggleConnection, handleCo
         <div className="flex flex-wrap items-center justify-between gap-4 md:gap-8 px-4 md:px-8 py-4 bg-slate-50/50 rounded-2xl border border-slate-100/50 w-full lg:w-auto">
           <div className="text-left" title={`Consumed: ${student.consumed_hours || 0} | Paid: ${student.paid_hours || 0}`}>
             <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Lifetime Hrs: <span className="text-[#008080]">{student.total_lifetime_consumed_hours || 0} / {student.total_hours || 0}</span></p>
-            <p className={`text-xs font-black leading-none mb-1 ${student.payment_alert_level === 'Critical' ? 'text-rose-600' : student.payment_alert_level === 'Warning' ? 'text-amber-600' : 'text-slate-700'}`}>Cycle: {student.consumed_hours || 0} / {student.paid_hours || 0}</p>
+            <div className="flex items-center gap-2 mb-1">
+              {(student.payment_alert_level === 'Critical' || student.payment_alert_level === 'Warning') && (
+                <span className={`w-2 h-2 rounded-full animate-ping ${student.payment_alert_level === 'Critical' ? 'bg-rose-600' : 'bg-amber-600'}`}></span>
+              )}
+              <p className={`text-xs font-black leading-none ${student.payment_alert_level === 'Critical' ? 'text-rose-600' : student.payment_alert_level === 'Warning' ? 'text-amber-600' : 'text-slate-700'}`}>Cycle: {student.consumed_hours || 0} / {student.paid_hours || 0}</p>
+            </div>
             {student.subject_hours && student.subject_hours.length > 0 && (
               <div className="mt-2 border-t border-slate-200 pt-1 w-[120px]">
                 {student.subject_hours.map((sh, idx) => (
