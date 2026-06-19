@@ -658,9 +658,9 @@ const editStudent = async (req, res) => {
     try {
         const { id } = req.params;
         const { 
-            name, email, contact, grade, syllabus, course, hour, 
+            name, email, contact, grade, syllabus, course, total_hours, hour,
             next_installment_date, admission_date, registration_number, 
-            meeting_link, meetingLink, enrollment_type, 
+            meeting_link, meetingLink, enrollment_type, admission_type,
             school_name, preferred_language, country, total_fees, total_paid,
             selectedSubjects, subjects_json, mentor_id, password, rejoining_fee, rejoiningFee
         } = req.body;
@@ -703,18 +703,18 @@ const editStudent = async (req, res) => {
         // Update Students table
         await db.query(
             `UPDATE students SET 
-                name = ?, email = ?, contact = ?, grade = ?, syllabus = ?, course = ?, hour = ?,
+                name = ?, email = ?, contact = ?, grade = ?, syllabus = ?, course = ?, total_hours = ?, hour = ?,
                 next_installment_date = ?, admission_date = ?, registration_number = ?, roll_number = ?,
-                meeting_link = ?, enrollment_type = ?, badge = ?,
+                meeting_link = ?, enrollment_type = ?, admission_type = ?, badge = ?,
                 school_name = ?, preferred_language = ?, country = ?, 
                 total_fees = ?, total_paid = ?,
                 subjects_json = ?, subject = ?, faculty_id = ?, faculty_name = ?, mentor_id = ?,
                 course_completed = ?, rejoining_fee = ?
              WHERE id = ?`, 
             [
-                name, email || null, contact || null, grade || null, syllabus || null, course || null, hour || null,
+                name, email || null, contact || null, grade || null, syllabus || null, course || null, total_hours || hour || null, hour || null,
                 next_installment_date || null, admission_date || null, registration_number || null, registration_number || null,
-                finalMeetingLink || null, enrollment_type || null, badge,
+                finalMeetingLink || null, enrollment_type || null, admission_type || null, badge,
                 school_name || null, preferred_language || null, country || null,
                 total_fees || 0, total_paid || 0,
                 JSON.stringify(finalSubjects), primarySubject || null, primaryFacultyId || null, primaryFacultyName || null, mentor_id || null, 

@@ -132,6 +132,9 @@ const EditStudent = () => {
                     registration_number: student.registration_number || '',
                     meeting_link: student.meeting_link || '',
                     hour: student.hour || '',
+                    total_hours: student.total_hours || student.hour || '',
+                    rejoining_fee: student.rejoining_fee || '',
+                    admission_type: student.admission_type || 'new',
                     next_installment_date: student.next_installment_date ? student.next_installment_date.split('T')[0] : '',
                     admission_date: student.admission_date ? student.admission_date.split('T')[0] : '',
                     enrollment_type: student.enrollment_type || '',
@@ -349,7 +352,11 @@ const EditStudent = () => {
                                     </div>
                                     <div className="flex flex-col gap-2">
                                         <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Total Hours</label>
-                                        <input type="number" name="hour" value={formData.hour} onChange={handleInputChange} className="w-full p-3 bg-white border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-[#008080] font-bold shadow-sm" placeholder="E.g. 100" />
+                                        <input type="number" name="total_hours" value={formData.total_hours} onChange={handleInputChange} className="w-full p-3 bg-white border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-[#008080] font-bold shadow-sm" placeholder="E.g. 100" />
+                                    </div>
+                                    <div className="flex flex-col gap-2">
+                                        <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Rejoining Fee (Optional)</label>
+                                        <input type="number" name="rejoining_fee" value={formData.rejoining_fee} onChange={handleInputChange} className="w-full p-3 bg-white border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-[#008080] font-bold shadow-sm" placeholder="E.g. 1000" />
                                     </div>
                                 </div>
                             </div>
@@ -503,6 +510,14 @@ const EditStudent = () => {
                             <div className="flex flex-col gap-2">
                                 <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Student ID #</label>
                                 <input type="text" name="registration_number" value={formData.registration_number} onChange={handleInputChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-bold" placeholder="E.g. ST-2024-001" />
+                            </div>
+                            
+                            <div className="flex flex-col gap-2">
+                                <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Admission Type</label>
+                                <select name="admission_type" value={formData.admission_type || 'new'} onChange={handleInputChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-bold appearance-none">
+                                    <option value="new">New Admission</option>
+                                    <option value="rejoining">Rejoining</option>
+                                </select>
                             </div>
                         </div>
 

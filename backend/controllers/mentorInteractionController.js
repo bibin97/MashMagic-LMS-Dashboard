@@ -234,10 +234,8 @@ const generateAssignments = async (mentor_id, today) => {
     while (selectedCount < 15 && attempts < students.length) {
         const candidate = students[currIdx];
         if (!carryOverSet.has(candidate.id)) {
-            // Determine session type strictly based on last_session_type (from Next Attention Level), fallback to priority
-            const assignedType = candidate.last_session_type || 
-                (candidate.priority_category === 'High' ? 'DEEP' : 
-                 candidate.priority_category === 'Medium' ? 'MEDIUM' : 'QUICK');
+            // Determine session type strictly based on last_session_type (from Next Attention Level), fallback to QUICK if never interacted
+            const assignedType = candidate.last_session_type || 'QUICK';
 
             if (assignedType === 'DEEP') {
                 deep.push({ ...candidate, sessionType: 'DEEP', status: 'PENDING' });
