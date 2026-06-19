@@ -212,14 +212,9 @@ const getMentorStudents = async (req, res) => {
             FROM students s 
             LEFT JOIN users m ON s.mentor_id = m.id
             WHERE s.status NOT IN ('rejected', 'inactive') AND s.course_completed = 0 AND s.mentorship_completed = 0
+            AND (LOWER(s.enrollment_type) LIKE '%mentorship%' OR LOWER(s.enrollment_type) = 'both')
             ${isPrivileged ? '' : 'AND s.mentor_id = ?'}
-        `;
-
-        if (hideTuitionOnly) {
-            query += " AND (LOWER(s.enrollment_type) LIKE '%mentorship%' OR LOWER(s.enrollment_type) = 'both')";
-        }
-
-        const [rows] = await db.query(query, isPrivileged ? [] : [mentorId]);
+        `, isPrivileged ? [] : [mentorId]);
         const { calculateStudentHours } = require('../utils/studentHoursHelper');
         const augmentedRows = await calculateStudentHours(rows, db);
 
