@@ -8,6 +8,7 @@ const getDailyAssignments = async (req, res) => {
         const [currentStudents] = await db.query(
             `SELECT id, onboarding_status FROM students 
              WHERE mentor_id = ? 
+             AND (LOWER(enrollment_type) LIKE '%mentorship%' OR LOWER(enrollment_type) = 'both')
              AND status != 'inactive' AND course_completed = 0 AND mentorship_completed = 0`,
             [mentor_id]
         );
@@ -158,6 +159,7 @@ const generateAssignments = async (mentor_id, today) => {
         `SELECT id, name, priority_category, enrollment_type, badge, onboarding_status, last_session_type 
          FROM students 
          WHERE mentor_id = ? 
+         AND (LOWER(enrollment_type) LIKE '%mentorship%' OR LOWER(enrollment_type) = 'both')
          AND status != 'inactive' AND course_completed = 0 AND mentorship_completed = 0
          ORDER BY id ASC`,
         [mentor_id]
@@ -222,13 +224,23 @@ const generateAssignments = async (mentor_id, today) => {
         }
     }
 
-    // 3. Scan rotation to fill exactly 15 students FOR TODAY (excluding carry-overs and onboarding)
+    // 3. Scan rotation to fill exactly 15 students FOR TODAY 
     let currIdx = nextStartIndex;
     let attempts = 0;
+    
+    // If total assigned students <= 15, we want all of them in today's rotation
+    if (students.length <= 15) {
+        carryOverSet.clear();
+        for (const s of onboardingStudents) carryOverSet.add(s.id);
+    }
+    
+    // The total daily limit is 15. Carry-over students consume this limit unless total <= 15.
     let selectedCount = onboardingStudents.length;
+    if (students.length > 15) {
+        selectedCount += carryOverStudents.length;
+    }
     
     // We select up to 15 students sequentially
-    // If mentor has <= 15 total students, this loop will just select all of them.
     while (selectedCount < 15 && attempts < students.length) {
         const candidate = students[currIdx];
         if (!carryOverSet.has(candidate.id)) {
