@@ -76,14 +76,54 @@ const getDailyAssignments = async (req, res) => {
                         }
                         return assignment;
                     });
+                // Merge with actual completed logs for this date to ensure carry-over students who were completed today show up
+                const [completedLogs] = await db.query(
+                    `SELECT DISTINCT s.id, s.name, s.priority_category, s.enrollment_type, s.badge, s.onboarding_status,
+                        CASE WHEN msl.session_duration_minutes IS NOT NULL THEN 'MEDIUM' ELSE 'QUICK' END as sessionType
+                     FROM students s
+                     LEFT JOIN student_interaction_logs sil ON s.id = sil.student_id AND DATE(sil.created_at) = ? AND sil.mentor_id = ?
+                     LEFT JOIN mentor_session_logs msl ON s.id = msl.student_id AND DATE(msl.created_at) = ? AND msl.mentor_id = ?
+                     WHERE (sil.id IS NOT NULL OR msl.id IS NOT NULL)`,
+                    [targetDate, mentor_id, targetDate, mentor_id]
+                );
+
+                const finalAssignments = savedAssignments || [];
+                const existingIds = new Set(finalAssignments.map(a => a.id));
+
+                for (const log of completedLogs) {
+                    if (!existingIds.has(log.id)) {
+                        finalAssignments.push({
+                            ...log,
+                            status: 'COMPLETED'
+                        });
+                        existingIds.add(log.id);
+                    } else {
+                        // Ensure it's marked as completed if it exists
+                        const index = finalAssignments.findIndex(a => a.id === log.id);
+                        if (index !== -1 && finalAssignments[index].status !== 'COMPLETED') {
+                            finalAssignments[index].status = 'COMPLETED';
+                        }
+                    }
                 }
-                return res.status(200).json({ success: true, data: savedAssignments || [], is_paused: isPaused });
+
+                return res.status(200).json({ success: true, data: finalAssignments, is_paused: isPaused });
             }
         }
 
-        // Past date: if no record exists, return empty (no generation for past dates)
+        // Past date: if no record exists, return empty (no generation for past dates) but still check completed logs
         if (!isToday) {
-            return res.status(200).json({ success: true, data: [], is_paused: isPaused });
+            const [completedLogs] = await db.query(
+                `SELECT DISTINCT s.id, s.name, s.priority_category, s.enrollment_type, s.badge, s.onboarding_status,
+                    CASE WHEN msl.session_duration_minutes IS NOT NULL THEN 'MEDIUM' ELSE 'QUICK' END as sessionType
+                 FROM students s
+                 LEFT JOIN student_interaction_logs sil ON s.id = sil.student_id AND DATE(sil.created_at) = ? AND sil.mentor_id = ?
+                 LEFT JOIN mentor_session_logs msl ON s.id = msl.student_id AND DATE(msl.created_at) = ? AND msl.mentor_id = ?
+                 WHERE (sil.id IS NOT NULL OR msl.id IS NOT NULL)`,
+                [targetDate, mentor_id, targetDate, mentor_id]
+            );
+            
+            const pastAssignments = completedLogs.map(log => ({ ...log, status: 'COMPLETED' }));
+            return res.status(200).json({ success: true, data: pastAssignments, is_paused: isPaused });
         }
 
         // Generate new assignments (only for today)
@@ -185,7 +225,7 @@ const generateAssignments = async (mentor_id, today) => {
     // 3. Scan rotation to fill exactly 15 students FOR TODAY (excluding carry-overs and onboarding)
     let currIdx = nextStartIndex;
     let attempts = 0;
-    let selectedCount = 0;
+    let selectedCount = onboardingStudents.length;
     
     // We select up to 15 students sequentially
     // If mentor has <= 15 total students, this loop will just select all of them.

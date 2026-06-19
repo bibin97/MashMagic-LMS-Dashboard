@@ -6,7 +6,7 @@ import toast from 'react-hot-toast';
 import StudentListFilterDropdown, { sortStudentsByOption } from '../../components/StudentListFilterDropdown';
 import { mockStudentHours } from '../../utils/mockStudentHours';
 
-const StudentRow = ({ student, navigate, handleToggleConnection, handleCompleteOnboarding, handleLogHoursClick }) => {
+const StudentRow = ({ student, index, navigate, handleToggleConnection, handleCompleteOnboarding, handleLogHoursClick }) => {
   const isPending = student.onboarding_status === 'pending';
   const isNew = student.onboarding_status === 'completed' && (!student.session_count || student.session_count < 5);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -22,6 +22,7 @@ const StudentRow = ({ student, navigate, handleToggleConnection, handleCompleteO
       <div className="flex flex-col lg:flex-row items-center gap-6 w-full">
         {/* Student Profile Info */}
         <div className="flex items-center gap-5 flex-1 min-w-0 w-full">
+          <div className="text-slate-400 font-black text-xl w-6 shrink-0 text-right">{index}.</div>
           <div className={`w-16 h-16 rounded-2xl flex items-center justify-center shrink-0 border transition-all duration-500 ${isPending ? 'bg-amber-100 border-amber-200 text-amber-600' : 'bg-slate-50 border-slate-100 text-[#008080] group-hover:bg-[#008080] group-hover:text-white group-hover:border-[#008080]'}`}>
             <User size={28} strokeWidth={2.5} />
           </div>
@@ -303,9 +304,10 @@ const MyStudents = () => {
  ) : (
   <div className="space-y-4">
     {/* Unified List View */}
-    {filteredStudents.map((student) => (
+    {filteredStudents.map((student, idx) => (
   <StudentRow 
     key={student.id} 
+    index={idx + 1}
     student={student} 
     navigate={navigate} 
     handleToggleConnection={handleToggleConnection} 

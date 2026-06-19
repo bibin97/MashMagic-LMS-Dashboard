@@ -1129,9 +1129,24 @@ exports.removeMentor = async (req, res) => {
 
         const mentorId = student.mentor_id;
 
-        // 1. Remove mentor from student record
+        // Try to add previous_mentor_name column if it doesn't exist (fail silently if it does)
+        try {
+            await connection.query('ALTER TABLE students ADD COLUMN previous_mentor_name VARCHAR(255) NULL');
+            await connection.query('ALTER TABLE students ADD COLUMN previous_mentor_id INT NULL');
+        } catch (e) {
+            // Ignore Duplicate column error
+        }
+
+        // Get mentor name for logging
+        let mentorName = null;
+        if (mentorId) {
+            const [[mentorData]] = await connection.query('SELECT name FROM users WHERE id = ?', [mentorId]);
+            mentorName = mentorData ? mentorData.name : null;
+        }
+
+        // 1. Remove mentor from student record, but save the previous mentor info
         await connection.query(
-            'UPDATE students SET mentor_id = NULL, mentor_name = NULL WHERE id = ?',
+            'UPDATE students SET previous_mentor_id = mentor_id, previous_mentor_name = mentor_name, mentor_id = NULL, mentor_name = NULL WHERE id = ?',
             [studentId]
         );
 

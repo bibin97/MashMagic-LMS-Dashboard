@@ -29,6 +29,7 @@ const MentorHeadLayout = () => {
  { path: '/mentor-head/register-mentor', icon: <UserPlus size={18} />, label: 'Register Mentor' },
  { path: '/mentor-head/mentors', icon: <Users size={18} />, label: 'Mentors List' },
  { path: '/mentor-head/students', icon: <GraduationCap size={18} />, label: 'Students' },
+ { path: '/mentor-head/remove-mentors', icon: <UserPlus size={18} />, label: 'Remove Mentors' },
  { path: '/mentor-head/faculties', icon: <Briefcase size={18} />, label: 'Faculties' },
  { path: '/mentor-head/tasks', icon: <ListTodo size={18} />, label: 'Tasks' },
  { path: '/mentor-head/course-completed', icon: <CheckCircle2 size={18} />, label: 'Mentorship Completed' },

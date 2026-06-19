@@ -81,6 +81,8 @@ import MentorHeadInteractions from './pages/MentorHead/MentorHeadInteractions';
 import MentorHeadTasks from './pages/MentorHead/MentorHeadTasks';
 import FacultyDirectoryMentorHead from './pages/MentorHead/FacultyDirectory';
 import MentorHeadNotifications from './pages/MentorHead/MentorHeadNotifications';
+import MentorsListAcademic from './pages/AcademicHead/MentorsList';
+import RemoveMentors from './pages/MentorHead/RemoveMentors';
 
 // Mentor Interaction Tracking
 import FacultyTracking from './pages/Mentor/FacultyTracking';
@@ -95,7 +97,7 @@ import AcademicActions from './pages/AOE/AcademicActions';
 import AOEAcademicSchedule from './pages/AOE/AcademicSchedule';
 import FacultyDirectory from './pages/AOE/FacultyDirectory';
 import StudentsListAcademic from './pages/AOE/StudentsList';
-import MentorsListAcademic from './pages/AOE/MentorsList';
+import MentorsListAcademicAOE from './pages/AOE/MentorsList';
 import Documents from './pages/AOE/Documents';
 import FacultyAudit from './pages/AOE/FacultyAudit';
 import StudentLogsAcademic from './pages/AOE/StudentLogs';
@@ -187,6 +189,7 @@ function App() {
             <Route path="mentors/:id" element={<MentorDetails />} />
             <Route path="students" element={<StudentsListAcademic role="mentor_head" />} />
             <Route path="students/:id" element={<StudentDetails />} />
+            <Route path="remove-mentors" element={<RemoveMentors />} />
             <Route path="edit-student/:id" element={<EditStudent />} />
             <Route path="edit-faculty/:id" element={<EditFaculty />} />
             <Route path="faculties" element={<FacultyDirectoryMentorHead />} />
@@ -213,7 +216,7 @@ function App() {
             <Route path="students/:id" element={<StudentDetails />} />
             <Route path="edit-student/:id" element={<EditStudent />} />
             <Route path="edit-faculty/:id" element={<EditFaculty />} />
-            <Route path="mentors" element={<MentorsListAcademic />} />
+            <Route path="mentors" element={<MentorsListAcademicAOE />} />
             <Route path="documents" element={<Documents />} />
             <Route path="faculty-audit" element={<FacultyAudit />} />
             <Route path="registrations" element={<Registrations />} />
