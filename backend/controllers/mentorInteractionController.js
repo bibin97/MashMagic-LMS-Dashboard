@@ -45,9 +45,13 @@ const getDailyAssignments = async (req, res) => {
             // Check if any pending onboarding student is missing from savedAssignments
             const savedIds = new Set((savedAssignments || []).map(a => a.id));
             const hasMissingOnboarding = currentStudents.some(s => s.onboarding_status === 'pending' && !savedIds.has(s.id));
+            
+            // Check if any student in savedAssignments is NO LONGER valid (e.g. they were removed, turned inactive, or changed to Tuition Only)
+            const currentIds = new Set(currentStudents.map(s => s.id));
+            const hasInvalidStudents = (savedAssignments || []).some(a => !currentIds.has(a.id));
 
-            // If total students changed significantly or missing onboarding students, regenerate to include new ones
-            if (hasMissingOnboarding || (Array.isArray(savedAssignments) && savedAssignments.length < 15 && currentStudents.length > savedAssignments.length)) {
+            // If total students changed significantly, missing onboarding students, or invalid students exist, regenerate
+            if (hasMissingOnboarding || hasInvalidStudents || (Array.isArray(savedAssignments) && savedAssignments.length < 15 && currentStudents.length > savedAssignments.length)) {
                 // Regenerate
             } else {
                 if (savedAssignments && savedAssignments.length > 0) {
@@ -234,11 +238,8 @@ const generateAssignments = async (mentor_id, today) => {
         for (const s of onboardingStudents) carryOverSet.add(s.id);
     }
     
-    // The total daily limit is 15. Carry-over students consume this limit unless total <= 15.
+    // The total daily limit is 15. We strictly pick 15 students for today's rotation.
     let selectedCount = onboardingStudents.length;
-    if (students.length > 15) {
-        selectedCount += carryOverStudents.length;
-    }
     
     // We select up to 15 students sequentially
     while (selectedCount < 15 && attempts < students.length) {
