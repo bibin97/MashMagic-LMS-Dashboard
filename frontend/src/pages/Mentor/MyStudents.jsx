@@ -161,12 +161,29 @@ const MyStudents = () => {
    const mockKey = Object.keys(mockStudentHours).find(key => student.name && student.name.toLowerCase().includes(key.toLowerCase()));
    if (mockKey) {
      const mockObj = mockStudentHours[mockKey];
-     return { 
-       ...student, 
-       ...mockObj,
-       consumed_hours: (parseFloat(student.consumed_hours) || 0) + (mockObj.consumed_hours || 0),
-       total_lifetime_consumed_hours: (parseFloat(student.total_lifetime_consumed_hours) || 0) + (mockObj.total_lifetime_consumed_hours || 0)
-     };
+      const updatedConsumed = (parseFloat(student.consumed_hours) || 0) + (mockObj.consumed_hours || 0);
+      const updatedPaid = mockObj.paid_hours !== undefined ? mockObj.paid_hours : (parseFloat(student.paid_hours) || 0);
+      
+      let newAlertLevel = 'None';
+      let newThreshold = 0;
+      if (updatedPaid > 0) {
+          newThreshold = (updatedConsumed / updatedPaid) * 100;
+          if (newThreshold >= 90) newAlertLevel = 'Critical';
+          else if (newThreshold >= 70) newAlertLevel = 'Warning';
+      } else if (updatedConsumed > 0) {
+          newAlertLevel = 'Critical';
+          newThreshold = 100;
+      }
+
+      return { 
+        ...student, 
+        ...mockObj,
+        consumed_hours: updatedConsumed,
+        paid_hours: updatedPaid,
+        payment_alert_level: newAlertLevel,
+        payment_threshold_percentage: newThreshold,
+        total_lifetime_consumed_hours: (parseFloat(student.total_lifetime_consumed_hours) || 0) + (mockObj.total_lifetime_consumed_hours || 0)
+      };
    }
    return student;
  });
