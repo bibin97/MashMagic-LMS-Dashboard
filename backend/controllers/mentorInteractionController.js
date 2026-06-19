@@ -76,6 +76,8 @@ const getDailyAssignments = async (req, res) => {
                         }
                         return assignment;
                     });
+                }
+                
                 // Merge with actual completed logs for this date to ensure carry-over students who were completed today show up
                 const [completedLogs] = await db.query(
                     `SELECT DISTINCT s.id, s.name, s.priority_category, s.enrollment_type, s.badge, s.onboarding_status,
