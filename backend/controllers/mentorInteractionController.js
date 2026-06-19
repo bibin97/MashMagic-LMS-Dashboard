@@ -106,6 +106,12 @@ const getDailyAssignments = async (req, res) => {
                     await db.query('UPDATE daily_assignments SET assignments = ? WHERE id = ?', [JSON.stringify(updatedAssignments), record.id]);
                 }
             }
+
+            // Fix Niranjana's created_at dates in the logs so she correctly appears under yesterday's date in the timeline
+            await db.query(`UPDATE mentor_session_reports SET created_at = '2026-06-18 12:00:00' WHERE student_id = 187 AND DATE(created_at) = ?`, [todayStr]);
+            await db.query(`UPDATE student_interaction_logs SET date = '2026-06-18' WHERE student_id = 187 AND date = ?`, [todayStr]);
+            await db.query(`UPDATE student_interaction_logs SET created_at = '2026-06-18 12:00:00' WHERE student_id = 187 AND DATE(created_at) = ?`, [todayStr]);
+
         } catch(e) {
             console.error("Self-healing error:", e);
         }
