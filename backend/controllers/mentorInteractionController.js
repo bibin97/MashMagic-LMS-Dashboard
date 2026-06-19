@@ -8,7 +8,6 @@ const getDailyAssignments = async (req, res) => {
         const [currentStudents] = await db.query(
             `SELECT id, onboarding_status FROM students 
              WHERE mentor_id = ? 
-             AND (LOWER(enrollment_type) LIKE '%mentorship%' OR LOWER(enrollment_type) = 'both')
              AND status != 'inactive' AND course_completed = 0 AND mentorship_completed = 0`,
             [mentor_id]
         );
@@ -159,7 +158,6 @@ const generateAssignments = async (mentor_id, today) => {
         `SELECT id, name, priority_category, enrollment_type, badge, onboarding_status, last_session_type 
          FROM students 
          WHERE mentor_id = ? 
-         AND (LOWER(enrollment_type) LIKE '%mentorship%' OR LOWER(enrollment_type) = 'both')
          AND status != 'inactive' AND course_completed = 0 AND mentorship_completed = 0
          ORDER BY id ASC`,
         [mentor_id]
@@ -689,15 +687,10 @@ const getYesterdayPending = async (req, res) => {
         const today = new Date().toISOString().split('T')[0];
         const referenceDate = dateParam || today;
         
-        // Calculate "yesterday" relative to the reference date
-        const refDateObj = new Date(referenceDate + 'T00:00:00');
-        refDateObj.setDate(refDateObj.getDate() - 1);
-        const yesterday = refDateObj.toISOString().split('T')[0];
-
-        // Fetch yesterday's assignments
+        // Fetch the most recent past assignments (could be yesterday, or Friday if today is Monday)
         const [yesterdayRecord] = await db.query(
-            'SELECT assignments, is_paused FROM daily_assignments WHERE mentor_id = ? AND date = ?',
-            [mentor_id, yesterday]
+            'SELECT assignments, is_paused FROM daily_assignments WHERE mentor_id = ? AND date < ? ORDER BY date DESC LIMIT 1',
+            [mentor_id, referenceDate]
         );
 
         if (yesterdayRecord.length === 0) {
