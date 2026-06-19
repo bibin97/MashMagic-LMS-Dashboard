@@ -131,7 +131,7 @@ const getDailyAssignments = async (req, res) => {
                 `SELECT DISTINCT s.id, s.name, s.priority_category, s.enrollment_type, s.badge, s.onboarding_status,
                     CASE WHEN msl.session_duration_minutes IS NOT NULL THEN 'MEDIUM' ELSE 'QUICK' END as sessionType
                  FROM students s
-                 LEFT JOIN student_interaction_logs sil ON s.id = sil.student_id AND DATE(sil.created_at) = ? AND sil.mentor_id = ?
+                 LEFT JOIN student_interaction_logs sil ON s.id = sil.student_id AND sil.date = ? AND sil.mentor_id = ?
                  LEFT JOIN mentor_session_logs msl ON s.id = msl.student_id AND DATE(msl.created_at) = ? AND msl.mentor_id = ?
                  WHERE (sil.id IS NOT NULL OR msl.id IS NOT NULL)`,
                 [targetDate, mentor_id, targetDate, mentor_id]
@@ -405,85 +405,39 @@ const submitSessionReport = async (req, res) => {
                 // If table doesn't exist, we safely ignore this check as per prompt ("if this table participates")
             }
         }
-
-        // 6. Update assignment list status
-        const [existing] = await connection.query(
-            'SELECT id, assignments FROM daily_assignments WHERE mentor_id = ? AND date = ?',
-            [mentor_id, interactionDate]
+        // 6. Update assignment list status across ALL historical records
+        // If a student's interaction is completed, it should clear them from all past pending lists
+        const [allAssignments] = await connection.query(
+            'SELECT id, assignments FROM daily_assignments WHERE mentor_id = ?',
+            [mentor_id]
         );
 
-        if (existing.length > 0) {
-            let assignments = existing[0].assignments;
-            if (typeof assignments === 'string') assignments = JSON.parse(assignments);
-            
-            const updatedAssignments = assignments.map(a => 
-                a.id == student_id ? { 
-                    ...a, 
-                    status: session_type === 'CANCELLED' ? 'CANCELLED' : 'COMPLETED',
-                    ...(session_type === 'CANCELLED' && report_data.cancel_reason ? { cancel_reason: report_data.cancel_reason } : {})
-                } : a
-            );
-
-            await connection.query(
-                'UPDATE daily_assignments SET assignments = ? WHERE id = ?',
-                [JSON.stringify(updatedAssignments), existing[0].id]
-            );
-        }
-
-        // 6b. Update the ORIGINAL assignment record where student was first assigned
-        // This ensures historical records show final completion state regardless of how many days passed
-        // Example: If assigned 16-Jun, still pending 17-18-Jun, completed 19-Jun → updates 16-Jun record
-        if (session_type !== 'CANCELLED') {
-            // Find the ORIGINAL assignment record where this student was first assigned to this mentor
-            const [allAssignments] = await connection.query(
-                'SELECT id, date, assignments FROM daily_assignments WHERE mentor_id = ? ORDER BY date ASC',
-                [mentor_id]
-            );
-
-            let originalRecord = null;
-
-            for (let record of allAssignments) {
-                let assignments = record.assignments;
-                if (typeof assignments === 'string') {
-                    try {
-                        assignments = JSON.parse(assignments);
-                    } catch (e) {
-                        assignments = [];
-                    }
-                }
-                
-                // Check if this student is in this record
-                const studentFound = assignments.some(a => a.id == student_id);
-                if (studentFound) {
-                    originalRecord = record;
-                    break; // Found the original (first) record
-                }
+        for (let record of allAssignments) {
+            let assignments = record.assignments;
+            if (typeof assignments === 'string') {
+                try { assignments = JSON.parse(assignments); } catch (e) { continue; }
             }
-
-            // Update the original record to mark student as COMPLETED
-            if (originalRecord) {
-                let assignments = originalRecord.assignments;
-                if (typeof assignments === 'string') {
-                    try {
-                        assignments = JSON.parse(assignments);
-                    } catch (e) {
-                        assignments = [];
-                    }
+            
+            let updated = false;
+            const updatedAssignments = assignments.map(a => {
+                if (a.id == student_id && a.status !== 'COMPLETED' && a.status !== 'CANCELLED') {
+                    updated = true;
+                    return { 
+                        ...a, 
+                        status: session_type === 'CANCELLED' ? 'CANCELLED' : 'COMPLETED',
+                        ...(session_type === 'CANCELLED' && report_data.cancel_reason ? { cancel_reason: report_data.cancel_reason } : {})
+                    };
                 }
-                
-                const updatedAssignments = assignments.map(a =>
-                    a.id == student_id ? { ...a, status: 'COMPLETED' } : a
-                );
+                return a;
+            });
 
+            if (updated) {
                 await connection.query(
                     'UPDATE daily_assignments SET assignments = ? WHERE id = ?',
-                    [JSON.stringify(updatedAssignments), originalRecord.id]
+                    [JSON.stringify(updatedAssignments), record.id]
                 );
-
-                console.log(`[ORIGINAL ASSIGNMENT UPDATE] Student ${student_id} marked COMPLETED in original assignment from ${originalRecord.date}`);
             }
         }
-
         if (session_type === 'CANCELLED') {
             await connection.commit();
             return res.status(200).json({ success: true, message: 'Session cancelled and logged' });
