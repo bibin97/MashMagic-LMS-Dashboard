@@ -1,5 +1,67 @@
 const db = require('../config/db');
 
+const returnMergedAssignments = async (savedAssignments, targetDate, mentor_id, isPaused, res) => {
+    if (savedAssignments && savedAssignments.length > 0) {
+        const studentIds = savedAssignments.map(a => a.id);
+        const [latestStudents] = await db.query(
+        `SELECT id, name, priority_category, enrollment_type, badge, onboarding_status, last_session_type, mentorship_completed 
+             FROM students 
+             WHERE id IN (?)`,
+            [studentIds]
+        );
+        const studentMap = new Map(latestStudents.map(s => [s.id, s]));
+        savedAssignments = savedAssignments.filter(assignment => {
+            const latest = studentMap.get(assignment.id);
+            return latest && latest.mentorship_completed !== 1;
+        }).map(assignment => {
+            const latest = studentMap.get(assignment.id);
+            if (latest) {
+                return {
+                    ...assignment,
+                    name: latest.name,
+                    priority_category: latest.priority_category,
+                    enrollment_type: latest.enrollment_type,
+                    badge: latest.badge,
+                    onboarding_status: latest.onboarding_status
+                };
+            }
+            return assignment;
+        });
+    }
+    
+    // Merge with actual completed logs for this date to ensure carry-over students who were completed today show up
+    const [completedLogs] = await db.query(
+        `SELECT DISTINCT s.id, s.name, s.priority_category, s.enrollment_type, s.badge, s.onboarding_status,
+            CASE WHEN msl.session_duration_minutes IS NOT NULL THEN 'MEDIUM' ELSE 'QUICK' END as sessionType
+         FROM students s
+         LEFT JOIN student_interaction_logs sil ON s.id = sil.student_id AND DATE(sil.created_at) = ? AND sil.mentor_id = ?
+         LEFT JOIN mentor_session_logs msl ON s.id = msl.student_id AND DATE(msl.created_at) = ? AND msl.mentor_id = ?
+         WHERE (sil.id IS NOT NULL OR msl.id IS NOT NULL)`,
+        [targetDate, mentor_id, targetDate, mentor_id]
+    );
+
+    const finalAssignments = savedAssignments || [];
+    const existingIds = new Set(finalAssignments.map(a => a.id));
+
+    for (const log of completedLogs) {
+        if (!existingIds.has(log.id)) {
+            finalAssignments.push({
+                ...log,
+                status: 'COMPLETED'
+            });
+            existingIds.add(log.id);
+        } else {
+            // Ensure it's marked as completed if it exists
+            const index = finalAssignments.findIndex(a => a.id === log.id);
+            if (index !== -1 && finalAssignments[index].status !== 'COMPLETED') {
+                finalAssignments[index].status = 'COMPLETED';
+            }
+        }
+    }
+
+    return res.status(200).json({ success: true, data: finalAssignments, is_paused: isPaused });
+};
+
 const getDailyAssignments = async (req, res) => {
     try {
         const mentor_id = req.user.id;
@@ -42,77 +104,24 @@ const getDailyAssignments = async (req, res) => {
                 }
             }
             
-            // Check if any pending onboarding student is missing from savedAssignments
-            const savedIds = new Set((savedAssignments || []).map(a => a.id));
-            const hasMissingOnboarding = currentStudents.some(s => s.onboarding_status === 'pending' && !savedIds.has(s.id));
-            
-            // Check if any student in savedAssignments is NO LONGER valid (e.g. they were removed, turned inactive, or changed to Tuition Only)
-            const currentIds = new Set(currentStudents.map(s => s.id));
-            const hasInvalidStudents = (savedAssignments || []).some(a => !currentIds.has(a.id));
-
-            // If total students changed significantly, missing onboarding students, or invalid students exist, regenerate
-            if (hasMissingOnboarding || hasInvalidStudents || (Array.isArray(savedAssignments) && savedAssignments.length < 15 && currentStudents.length > savedAssignments.length)) {
-                // Regenerate
-            } else {
-                if (savedAssignments && savedAssignments.length > 0) {
-                    const studentIds = savedAssignments.map(a => a.id);
-                    const [latestStudents] = await db.query(
-                    `SELECT id, name, priority_category, enrollment_type, badge, onboarding_status, last_session_type, mentorship_completed 
-                         FROM students 
-                         WHERE id IN (?)`,
-                        [studentIds]
-                    );
-                    const studentMap = new Map(latestStudents.map(s => [s.id, s]));
-                    savedAssignments = savedAssignments.filter(assignment => {
-                        const latest = studentMap.get(assignment.id);
-                        return latest && latest.mentorship_completed !== 1;
-                    }).map(assignment => {
-                        const latest = studentMap.get(assignment.id);
-                        if (latest) {
-                            return {
-                                ...assignment,
-                                name: latest.name,
-                                priority_category: latest.priority_category,
-                                enrollment_type: latest.enrollment_type,
-                                badge: latest.badge,
-                                onboarding_status: latest.onboarding_status
-                            };
-                        }
-                        return assignment;
-                    });
-                }
+            if (isToday) {
+                // Check if any pending onboarding student is missing from savedAssignments
+                const savedIds = new Set((savedAssignments || []).map(a => a.id));
+                const hasMissingOnboarding = currentStudents.some(s => s.onboarding_status === 'pending' && !savedIds.has(s.id));
                 
-                // Merge with actual completed logs for this date to ensure carry-over students who were completed today show up
-                const [completedLogs] = await db.query(
-                    `SELECT DISTINCT s.id, s.name, s.priority_category, s.enrollment_type, s.badge, s.onboarding_status,
-                        CASE WHEN msl.session_duration_minutes IS NOT NULL THEN 'MEDIUM' ELSE 'QUICK' END as sessionType
-                     FROM students s
-                     LEFT JOIN student_interaction_logs sil ON s.id = sil.student_id AND DATE(sil.created_at) = ? AND sil.mentor_id = ?
-                     LEFT JOIN mentor_session_logs msl ON s.id = msl.student_id AND DATE(msl.created_at) = ? AND msl.mentor_id = ?
-                     WHERE (sil.id IS NOT NULL OR msl.id IS NOT NULL)`,
-                    [targetDate, mentor_id, targetDate, mentor_id]
-                );
+                // Check if any student in savedAssignments is NO LONGER valid
+                const currentIds = new Set(currentStudents.map(s => s.id));
+                const hasInvalidStudents = (savedAssignments || []).some(a => !currentIds.has(a.id));
 
-                const finalAssignments = savedAssignments || [];
-                const existingIds = new Set(finalAssignments.map(a => a.id));
-
-                for (const log of completedLogs) {
-                    if (!existingIds.has(log.id)) {
-                        finalAssignments.push({
-                            ...log,
-                            status: 'COMPLETED'
-                        });
-                        existingIds.add(log.id);
-                    } else {
-                        // Ensure it's marked as completed if it exists
-                        const index = finalAssignments.findIndex(a => a.id === log.id);
-                        if (index !== -1 && finalAssignments[index].status !== 'COMPLETED') {
-                            finalAssignments[index].status = 'COMPLETED';
-                        }
-                    }
+                // If total students changed significantly, missing onboarding students, or invalid students exist, regenerate
+                if (hasMissingOnboarding || hasInvalidStudents || (Array.isArray(savedAssignments) && savedAssignments.length < 15 && currentStudents.length > savedAssignments.length)) {
+                    // Drop out of the block to regenerate below
+                } else {
+                    return await returnMergedAssignments(savedAssignments, targetDate, mentor_id, isPaused, res);
                 }
-
-                return res.status(200).json({ success: true, data: finalAssignments, is_paused: isPaused });
+            } else {
+                // Past dates should never regenerate
+                return await returnMergedAssignments(savedAssignments, targetDate, mentor_id, isPaused, res);
             }
         }
 
@@ -711,7 +720,6 @@ const getYesterdayPending = async (req, res) => {
         }
 
         let assignments = yesterdayRecord[0].assignments;
-        const wasYesterdayPaused = yesterdayRecord[0].is_paused || false;
         if (typeof assignments === 'string') {
             try {
                 assignments = JSON.parse(assignments);
@@ -719,11 +727,6 @@ const getYesterdayPending = async (req, res) => {
                 console.error("JSON_PARSE_ERROR in getYesterdayPending:", e);
                 assignments = [];
             }
-        }
-
-        // If the entire day was paused, don't add any students to yesterday pending
-        if (wasYesterdayPaused) {
-            return res.status(200).json({ success: true, data: [] });
         }
 
         // Filter: only students who were NOT completed and NOT cancelled yesterday
