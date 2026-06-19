@@ -66,23 +66,40 @@ const getDailyAssignments = async (req, res) => {
     try {
         const mentor_id = req.user.id;
         
-        // ONE-TIME SELF-HEALING: Fix corrupted Niranjana (ID: 187) record
+        // ONE-TIME SELF-HEALING: Fix corrupted Niranjana (ID: 187) record using precise JSON parsing
         try {
             const todayStr = new Date().toISOString().split('T')[0];
-            // Revert her TODAY assignment back to PENDING because she should be in today's rotation
-            await db.query(`
-                UPDATE daily_assignments 
-                SET assignments = REPLACE(assignments, '"id":187,"status":"COMPLETED"', '"id":187,"status":"PENDING"') 
-                WHERE mentor_id = ? AND date = ? AND assignments LIKE '%"id":187,"status":"COMPLETED"%'
-            `, [mentor_id, todayStr]);
+            const [allAssignments] = await db.query('SELECT id, date, assignments FROM daily_assignments WHERE mentor_id = ?', [mentor_id]);
+            
+            for (let record of allAssignments) {
+                let assignments = record.assignments;
+                if (typeof assignments === 'string') {
+                    try { assignments = JSON.parse(assignments); } catch(e) { continue; }
+                }
+                
+                let updated = false;
+                const updatedAssignments = assignments.map(a => {
+                    if (a.id == 187) {
+                        if (record.date === todayStr && a.status === 'COMPLETED') {
+                            // Revert her TODAY assignment back to PENDING
+                            updated = true;
+                            return { ...a, status: 'PENDING' };
+                        } else if (record.date < todayStr && a.status === 'PENDING') {
+                            // Clear her YESTERDAY pending status
+                            updated = true;
+                            return { ...a, status: 'COMPLETED' };
+                        }
+                    }
+                    return a;
+                });
 
-            // Clear her YESTERDAY pending status (which is what actually got stuck originally)
-            await db.query(`
-                UPDATE daily_assignments 
-                SET assignments = REPLACE(assignments, '"id":187,"status":"PENDING"', '"id":187,"status":"COMPLETED"') 
-                WHERE mentor_id = ? AND date < ? AND assignments LIKE '%"id":187,"status":"PENDING"%'
-            `, [mentor_id, todayStr]);
-        } catch(e) {}
+                if (updated) {
+                    await db.query('UPDATE daily_assignments SET assignments = ? WHERE id = ?', [JSON.stringify(updatedAssignments), record.id]);
+                }
+            }
+        } catch(e) {
+            console.error("Self-healing error:", e);
+        }
 
         const today = new Date().toISOString().split('T')[0];
 
