@@ -81,7 +81,7 @@ import MentorHeadInteractions from './pages/MentorHead/MentorHeadInteractions';
 import MentorHeadTasks from './pages/MentorHead/MentorHeadTasks';
 import FacultyDirectoryMentorHead from './pages/MentorHead/FacultyDirectory';
 import MentorHeadNotifications from './pages/MentorHead/MentorHeadNotifications';
-import MentorsListAcademic from './pages/AcademicHead/MentorsList';
+import MentorsListAcademic from './pages/AOE/MentorsList';
 import RemoveMentors from './pages/MentorHead/RemoveMentors';
 
 // Mentor Interaction Tracking

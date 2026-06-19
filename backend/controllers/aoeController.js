@@ -10,7 +10,8 @@ const ensureAoeDemoScheduleColumns = async () => {
         'ALTER TABLE aoe_demo_schedules ADD COLUMN date DATE NULL',
         'ALTER TABLE aoe_demo_schedules ADD COLUMN syllabus VARCHAR(255) NULL',
         'ALTER TABLE aoe_demo_schedules ADD COLUMN section VARCHAR(255) NULL',
-        'ALTER TABLE aoe_demo_schedules ADD COLUMN meeting_link VARCHAR(255) NULL'
+        'ALTER TABLE aoe_demo_schedules ADD COLUMN meeting_link VARCHAR(255) NULL',
+        'ALTER TABLE aoe_demo_schedules MODIFY COLUMN faculty_id INT NULL'
     ];
 
     for (const query of columnsToAdd) {
@@ -1096,7 +1097,7 @@ const getDemoSchedules = async (req, res) => {
             SELECT d.*, COALESCE(d.faculty_name, f.name) as faculty_name 
             FROM aoe_demo_schedules d
             LEFT JOIN faculties f ON d.faculty_id = f.id
-            ORDER BY d.created_at DESC
+            ORDER BY d.id DESC
         `);
         res.status(200).json({ success: true, data: rows });
     } catch (error) {

@@ -542,6 +542,7 @@ const AOEDemoSchedule = () => {
                 >
                   <option value="new">New Student</option>
                   <option value="existing">Existing Student</option>
+                  <option value="demo">Demo Student</option>
                 </select>
               </div>
 
