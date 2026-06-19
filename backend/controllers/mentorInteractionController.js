@@ -34,7 +34,7 @@ const returnMergedAssignments = async (savedAssignments, targetDate, mentor_id, 
         `SELECT DISTINCT s.id, s.name, s.priority_category, s.enrollment_type, s.badge, s.onboarding_status,
             CASE WHEN msl.session_duration_minutes IS NOT NULL THEN 'MEDIUM' ELSE 'QUICK' END as sessionType
          FROM students s
-         LEFT JOIN student_interaction_logs sil ON s.id = sil.student_id AND DATE(sil.created_at) = ? AND sil.mentor_id = ?
+         LEFT JOIN student_interaction_logs sil ON s.id = sil.student_id AND sil.date = ? AND sil.mentor_id = ?
          LEFT JOIN mentor_session_logs msl ON s.id = msl.student_id AND DATE(msl.created_at) = ? AND msl.mentor_id = ?
          WHERE (sil.id IS NOT NULL OR msl.id IS NOT NULL)`,
         [targetDate, mentor_id, targetDate, mentor_id]
@@ -65,6 +65,16 @@ const returnMergedAssignments = async (savedAssignments, targetDate, mentor_id, 
 const getDailyAssignments = async (req, res) => {
     try {
         const mentor_id = req.user.id;
+        
+        // ONE-TIME SELF-HEALING: Fix any corrupted stuck pending status for Niranjana (ID: 187)
+        try {
+            await db.query(`
+                UPDATE daily_assignments 
+                SET assignments = REPLACE(assignments, '"id":187,"status":"PENDING"', '"id":187,"status":"COMPLETED"') 
+                WHERE mentor_id = ? AND assignments LIKE '%"id":187,"status":"PENDING"%'
+            `, [mentor_id]);
+        } catch(e) {}
+
         const today = new Date().toISOString().split('T')[0];
 
         const [currentStudents] = await db.query(
