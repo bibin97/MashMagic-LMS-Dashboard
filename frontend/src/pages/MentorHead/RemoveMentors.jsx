@@ -18,7 +18,7 @@ const RemoveMentors = () => {
 
   const fetchStudents = async () => {
     try {
-      const res = await api.get('/students');
+      const res = await api.get('/mentor-head/students');
       let data = res.data.data || [];
       // If we are in Mentor Head, we only care about students that have mentors or had mentors.
       // But let's show all students as requested.
