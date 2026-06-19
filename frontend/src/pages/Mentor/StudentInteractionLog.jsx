@@ -5,7 +5,7 @@ import InteractionFormUI from '../../components/common/InteractionFormUI';
 import {
  MessageSquare, CheckCircle, ArrowLeft, Target, AlertCircle, BarChart3,
  CloudLightning, FileText, Camera, Phone, UserCheck, HeartPulse, Brain,
- Clock, Activity, BookOpen, Smile, Plus, Frown, Meh, MoreHorizontal, Upload, ImageIcon, Loader2, Zap, TrendingUp, ShieldAlert, CheckCircle2, ChevronRight, XCircle, Play, Pause
+ Clock, Activity, BookOpen, Smile, Plus, Frown, Meh, MoreHorizontal, Upload, ImageIcon, Loader2, Zap, TrendingUp, ShieldAlert, CheckCircle2, ChevronRight, XCircle, Play, Pause, Calendar
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Modal from '../../components/Modal';
@@ -359,15 +359,10 @@ const StudentInteractionLog = () => {
                   onChange={(dateObj) => {
                     if (dateObj) {
                       const formatted = dateObj.format('YYYY-MM-DD');
-                      if (formatted <= getTodayStr()) {
-                        setSelectedDate(formatted);
-                        setStatusFilter('pending');
-                      } else {
-                        toast.error('Cannot select a future date');
-                      }
+                      setSelectedDate(formatted);
+                      setStatusFilter('pending');
                     }
                   }}
-                  maxDate={new Date()}
                   placeholder="Select Date"
                   inputClass="bg-white border border-slate-200 rounded-2xl py-3 px-4 text-xs font-black text-slate-600 outline-none focus:ring-2 focus:ring-[#008080] cursor-pointer min-w-[140px]"
                   containerClassName="relative z-50"
@@ -420,15 +415,23 @@ const StudentInteractionLog = () => {
          </div>
        </div>
 
-       {/* Main Content Area */}
-       <div className="min-h-[400px]">
-         {assignedLoading ? (
-           <div className="flex flex-col items-center justify-center py-40 gap-4">
-             <Loader2 size={40} className="animate-spin text-[#008080]" />
-             <p className="text-xs font-black text-slate-400 uppercase tracking-widest">Loading Data...</p>
-           </div>
-         ) : (
-           <div className="space-y-10 animate-in fade-in duration-500">
+        {/* Main Content Area */}
+        <div className="min-h-[400px]">
+          {selectedDate > getTodayStr() ? (
+            <div className="flex flex-col items-center justify-center py-40 gap-4">
+              <Calendar size={40} className="text-slate-300" />
+              <p className="text-xs font-black text-slate-500 uppercase tracking-widest text-center max-w-sm">
+                Tomorrow's interactions will be visible tomorrow. <br/>
+                <span className="text-[10px] text-slate-400">Please select today or a past date to view interactions.</span>
+              </p>
+            </div>
+          ) : assignedLoading ? (
+            <div className="flex flex-col items-center justify-center py-40 gap-4">
+              <Loader2 size={40} className="animate-spin text-[#008080]" />
+              <p className="text-xs font-black text-slate-400 uppercase tracking-widest">Loading Data...</p>
+            </div>
+          ) : (
+            <div className="space-y-10 animate-in fade-in duration-500">
              {statusFilter !== 'yesterday' && activeTab !== 'tuition' && (
                 <div className="space-y-8">
                   <div className="flex items-center justify-between px-4">

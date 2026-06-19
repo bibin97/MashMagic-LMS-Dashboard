@@ -122,7 +122,7 @@ exports.getTimetable = async (req, res) => {
             FROM timetable t
             JOIN students s ON t.student_id = s.id
             LEFT JOIN users m ON t.mentor_id = m.id
-            WHERE 1=1
+            WHERE (t.is_deleted IS NULL OR t.is_deleted = 0)
         `;
         const params = [];
 
@@ -142,6 +142,7 @@ exports.getTimetable = async (req, res) => {
                 SUM(CASE WHEN status = 'Completed' THEN 1 ELSE 0 END) as completed,
                 SUM(CASE WHEN status = 'Cancelled' THEN 1 ELSE 0 END) as cancelled
             FROM timetable
+            WHERE is_deleted IS NULL OR is_deleted = 0
         `);
 
         res.status(200).json({ success: true, data: rows, summary: stats[0] });
