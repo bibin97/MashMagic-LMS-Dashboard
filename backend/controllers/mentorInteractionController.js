@@ -383,9 +383,9 @@ const submitSessionReport = async (req, res) => {
             try {
                 // If the table exists and is part of workflow, insert into it too.
                 const [silResult] = await connection.query(`
-                    INSERT INTO student_interaction_logs (student_id, mentor_id, interaction_type, notes, date)
-                    VALUES (?, ?, ?, ?, ?)
-                `, [student_id, mentor_id, session_type, report_data.action_plan || report_data.notes || '', interactionDate]);
+                    INSERT INTO student_interaction_logs (student_id, mentor_id, mentor_notes, connected_today, date)
+                    VALUES (?, ?, ?, 1, ?)
+                `, [student_id, mentor_id, report_data.action_plan || report_data.notes || '', interactionDate]);
                 
                 const [silVerify] = await connection.query('SELECT id FROM student_interaction_logs WHERE id = ?', [silResult.insertId]);
                 if (silVerify.length === 0) {
@@ -705,7 +705,7 @@ const getYesterdayPending = async (req, res) => {
         
         // Fetch the most recent past assignments (could be yesterday, or Friday if today is Monday)
         const [yesterdayRecord] = await db.query(
-            'SELECT assignments, is_paused FROM daily_assignments WHERE mentor_id = ? AND date < ? ORDER BY date DESC LIMIT 1',
+            'SELECT assignments FROM daily_assignments WHERE mentor_id = ? AND date < ? ORDER BY date DESC LIMIT 1',
             [mentor_id, referenceDate]
         );
 
