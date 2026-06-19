@@ -1516,7 +1516,7 @@ exports.getStudents = async (req, res) => {
                 s.faculty_name
             ) as faculty_name 
             FROM students s 
-            LEFT JOIN mentors m ON s.mentor_id = m.id 
+            LEFT JOIN users m ON s.mentor_id = m.id 
             WHERE s.status != 'rejected'
         `;
         let params = [];
