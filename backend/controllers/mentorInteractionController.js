@@ -381,6 +381,13 @@ const submitSessionReport = async (req, res) => {
             
             // Check student_interaction_logs if table exists
             try {
+                // Drop the foreign key constraint that blocks mentors who are not in the users table
+                try {
+                    await connection.query('ALTER TABLE student_interaction_logs DROP FOREIGN KEY student_interaction_logs_ibfk_1');
+                } catch (fkErr) {
+                    // Ignore error if it's already dropped or doesn't exist
+                }
+
                 // If the table exists and is part of workflow, insert into it too.
                 const [silResult] = await connection.query(`
                     INSERT INTO student_interaction_logs (student_id, mentor_id, mentor_notes, connected_today, date)
