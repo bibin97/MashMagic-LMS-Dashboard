@@ -966,6 +966,15 @@ const CommonInteractionLogs = ({
                                   // Ignore JSON parse errors for report data
                                 }
                               }
+                              
+                              if (parsedReportData) {
+                                // Map legacy fields to new UI fields for backwards compatibility
+                                if (parsedReportData.notes && !parsedReportData.quick_notes) parsedReportData.quick_notes = parsedReportData.notes;
+                                if (parsedReportData.notes && !parsedReportData.quick_guidance) parsedReportData.quick_guidance = parsedReportData.notes;
+                                if (parsedReportData.notes && !parsedReportData.mentor_guidance) parsedReportData.mentor_guidance = parsedReportData.notes;
+                                if (parsedReportData.main_problem && !parsedReportData.root_cause) parsedReportData.root_cause = parsedReportData.main_problem;
+                              }
+                              
                               const sessionTypeUpper = (log.session_type || '').toUpperCase();
 
                               if (parsedReportData) {
@@ -1011,6 +1020,15 @@ const CommonInteractionLogs = ({
                               console.error("Failed to parse report_data:", e);
                             }
                           }
+                          
+                          if (parsedReportData) {
+                            // Map legacy fields to new UI fields for backwards compatibility
+                            if (parsedReportData.notes && !parsedReportData.quick_notes) parsedReportData.quick_notes = parsedReportData.notes;
+                            if (parsedReportData.notes && !parsedReportData.quick_guidance) parsedReportData.quick_guidance = parsedReportData.notes;
+                            if (parsedReportData.notes && !parsedReportData.mentor_guidance) parsedReportData.mentor_guidance = parsedReportData.notes;
+                            if (parsedReportData.main_problem && !parsedReportData.root_cause) parsedReportData.root_cause = parsedReportData.main_problem;
+                          }
+                          
                           if (!parsedReportData) return null;
                           return (
                             <div className="space-y-4 mt-8">

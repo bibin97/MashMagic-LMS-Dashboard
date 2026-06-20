@@ -905,11 +905,14 @@ const getStudentLogs = async (req, res) => {
                     CAST(r.session_type AS CHAR) as session_number,
                     CONVERT(r.session_type USING utf8mb4) COLLATE utf8mb4_unicode_ci as session_type,
                     CONVERT(COALESCE(
-                        JSON_UNQUOTE(JSON_EXTRACT(r.report_data, '$.notes')), 
+                        JSON_UNQUOTE(JSON_EXTRACT(r.report_data, '$.quick_notes')),
+                        JSON_UNQUOTE(JSON_EXTRACT(r.report_data, '$.quick_guidance')),
+                        JSON_UNQUOTE(JSON_EXTRACT(r.report_data, '$.mentor_guidance')),
                         JSON_UNQUOTE(JSON_EXTRACT(r.report_data, '$.action_plan')),
                         JSON_UNQUOTE(JSON_EXTRACT(r.report_data, '$.next_task')),
                         JSON_UNQUOTE(JSON_EXTRACT(r.report_data, '$.study_status')),
                         JSON_UNQUOTE(JSON_EXTRACT(r.report_data, '$.main_problem')),
+                        JSON_UNQUOTE(JSON_EXTRACT(r.report_data, '$.notes')),
                         r.session_type
                     ) USING utf8mb4) COLLATE utf8mb4_unicode_ci as mentor_notes,
                     CAST(JSON_UNQUOTE(JSON_EXTRACT(r.report_data, '$.self_clarity')) AS CHAR) as understanding_level,
