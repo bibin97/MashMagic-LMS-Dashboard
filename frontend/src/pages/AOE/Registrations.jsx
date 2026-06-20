@@ -328,7 +328,9 @@ const Registrations = () => {
     setStudentForm(prev => ({
       ...prev,
       name: student.name || '',
-      email: student.email || '',
+      email: '', // Deliberately clear email for rejoining so it can be re-entered
+      password: '',
+      confirmPassword: '',
       contact: student.phone_number || student.contact || '',
       grade: student.grade || '',
       syllabus: student.syllabus || '',
@@ -633,6 +635,7 @@ const Registrations = () => {
                     <input 
                       type={showStudentPassword ? "text" : "password"} 
                       name="password" 
+                      autoComplete="new-password"
                       value={studentForm.password} 
                       onChange={handleStudentChange} 
                       className="w-full p-3 pl-12 pr-12 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-bold" 
@@ -654,6 +657,7 @@ const Registrations = () => {
                     <input 
                       type={showStudentConfirmPassword ? "text" : "password"} 
                       name="confirmPassword" 
+                      autoComplete="new-password"
                       value={studentForm.confirmPassword} 
                       onChange={handleStudentChange} 
                       className="w-full p-3 pl-12 pr-12 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-bold" 
@@ -774,7 +778,7 @@ const Registrations = () => {
                 
                 <div className="flex flex-col gap-2">
                   <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Student ID #</label>
-                  <input type="text" name="registrationNumber" value={studentForm.registrationNumber} onChange={handleStudentChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-bold" placeholder="E.g. ST-2024-001" />
+                  <input type="text" name="registrationNumber" value={studentForm.registrationNumber} onChange={handleStudentChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-bold" placeholder="E.g. ST-2024-001" autoComplete="off" />
                 </div>
               </div>
 
@@ -1008,7 +1012,7 @@ const Registrations = () => {
 
           {activeTab === 'faculty' && (
             <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-10">
-                <form onSubmit={submitFaculty} className="space-y-6">
+                <form onSubmit={submitFaculty} autoComplete="off" className="space-y-6">
                   <div className="flex items-center gap-3 mb-6">
                 <div className="w-8 h-8 bg-emerald-100 text-emerald-600 rounded-lg flex items-center justify-center">
                   <ShieldCheck size={18} />
@@ -1049,14 +1053,14 @@ const Registrations = () => {
                   <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Assign Login Password</label>
                   <div className="relative group">
                     <Lock size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-emerald-600 transition-colors" />
-                    <input type="password" name="password" required value={facultyForm.password} onChange={handleFacultyChange} className="w-full p-3 pl-12 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-emerald-100 font-bold" placeholder="••••••••" />
+                    <input type="password" name="password" required value={facultyForm.password} onChange={handleFacultyChange} className="w-full p-3 pl-12 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-emerald-100 font-bold" placeholder="••••••••" autoComplete="new-password" />
                   </div>
                 </div>
                 <div className="flex flex-col gap-2">
                   <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Confirm Password</label>
                   <div className="relative group">
                     <Lock size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-emerald-600 transition-colors" />
-                    <input type="password" name="confirmPassword" required value={facultyForm.confirmPassword} onChange={handleFacultyChange} className="w-full p-3 pl-12 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-emerald-100 font-bold" placeholder="••••••••" />
+                    <input type="password" name="confirmPassword" required value={facultyForm.confirmPassword} onChange={handleFacultyChange} className="w-full p-3 pl-12 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-emerald-100 font-bold" placeholder="••••••••" autoComplete="new-password" />
                   </div>
                 </div>
               </div>
@@ -1213,7 +1217,7 @@ const Registrations = () => {
           )}
 
           {activeTab === 'ssc' && (
-            <form onSubmit={submitSSC} className="space-y-8 animate-in fade-in slide-in-from-left-4 duration-500 pb-10">
+            <form onSubmit={submitSSC} className="space-y-8 animate-in fade-in slide-in-from-left-4 duration-500 pb-10" autoComplete="off">
               <div className="flex items-center gap-4 mb-8">
                 <div className="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-2xl flex items-center justify-center shadow-sm">
                   <UserPlus size={24} />
@@ -1261,7 +1265,7 @@ const Registrations = () => {
                   <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Login Password</label>
                   <div className="relative group">
                     <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
-                    <input type="password" name="password" required value={sscForm.password} onChange={handleSSCChange} className="w-full p-4 pl-12 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 ring-indigo-500/10 transition-all text-black" placeholder="••••••••" />
+                    <input type="password" name="password" required value={sscForm.password} onChange={handleSSCChange} className="w-full p-4 pl-12 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 ring-indigo-500/10 transition-all text-black" placeholder="••••••••" autoComplete="new-password" />
                   </div>
                 </div>
 
@@ -1269,7 +1273,7 @@ const Registrations = () => {
                   <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Confirm Password</label>
                   <div className="relative group">
                     <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
-                    <input type="password" name="confirmPassword" required value={sscForm.confirmPassword} onChange={handleSSCChange} className="w-full p-4 pl-12 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 ring-indigo-500/10 transition-all text-black" placeholder="••••••••" />
+                    <input type="password" name="confirmPassword" required value={sscForm.confirmPassword} onChange={handleSSCChange} className="w-full p-4 pl-12 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 ring-indigo-500/10 transition-all text-black" placeholder="••••••••" autoComplete="new-password" />
                   </div>
                 </div>
               </div>
