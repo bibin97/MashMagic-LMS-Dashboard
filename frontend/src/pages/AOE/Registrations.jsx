@@ -1233,7 +1233,7 @@ const Registrations = () => {
                   <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Full Name</label>
                   <div className="relative group">
                     <User size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
-                    <input type="text" name="name" required value={sscForm.name} onChange={handleSSCChange} className="w-full p-4 pl-12 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 ring-indigo-500/10 transition-all text-black" placeholder="Enter full name" />
+                    <input type="text" name="name" required autoComplete="off" value={sscForm.name} onChange={handleSSCChange} className="w-full p-4 pl-12 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 ring-indigo-500/10 transition-all text-black" placeholder="Enter full name" />
                   </div>
                 </div>
 
@@ -1249,7 +1249,7 @@ const Registrations = () => {
                   <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Phone Number</label>
                   <div className="relative group">
                     <Phone size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
-                    <input type="tel" name="phone_number" required value={sscForm.phone_number} onChange={handleSSCChange} className="w-full p-4 pl-12 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 ring-indigo-500/10 transition-all text-black" placeholder="Contact number" />
+                    <input type="tel" name="phone_number" required autoComplete="off" value={sscForm.phone_number} onChange={handleSSCChange} className="w-full p-4 pl-12 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 ring-indigo-500/10 transition-all text-black" placeholder="Contact number" />
                   </div>
                 </div>
 
@@ -1257,7 +1257,7 @@ const Registrations = () => {
                   <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Place / City</label>
                   <div className="relative group">
                     <MapPin size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
-                    <input type="text" name="place" required value={sscForm.place} onChange={handleSSCChange} className="w-full p-4 pl-12 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 ring-indigo-500/10 transition-all text-black" placeholder="Work location" />
+                    <input type="text" name="place" required autoComplete="off" value={sscForm.place} onChange={handleSSCChange} className="w-full p-4 pl-12 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:ring-4 ring-indigo-500/10 transition-all text-black" placeholder="Work location" />
                   </div>
                 </div>
 
