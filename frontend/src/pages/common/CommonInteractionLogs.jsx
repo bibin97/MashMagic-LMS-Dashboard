@@ -977,11 +977,13 @@ const CommonInteractionLogs = ({
                                       {parsedReportData.action_plan && <div><p className="text-[10px] font-black uppercase tracking-widest text-rose-500 mb-1">Action Plan</p><p className="whitespace-pre-wrap">{parsedReportData.action_plan}</p></div>}
                                     </div>
                                   );
-                                } else if (sessionTypeUpper === 'MEDIUM' && (parsedReportData.quick_guidance || parsedReportData.next_task)) {
+                                } else if (sessionTypeUpper === 'MEDIUM' && (parsedReportData.quick_guidance || parsedReportData.next_task || parsedReportData.action_detail || parsedReportData.action_specific)) {
                                   return (
                                     <div className="space-y-6">
                                       {parsedReportData.quick_guidance && <div><p className="text-[10px] font-black uppercase tracking-widest text-purple-500 mb-1">Guidance Given</p><p className="whitespace-pre-wrap">{parsedReportData.quick_guidance}</p></div>}
                                       {parsedReportData.next_task && <div><p className="text-[10px] font-black uppercase tracking-widest text-purple-500 mb-1">Next Task Assigned</p><p className="whitespace-pre-wrap">{parsedReportData.next_task}</p></div>}
+                                      {parsedReportData.action_detail && <div><p className="text-[10px] font-black uppercase tracking-widest text-purple-500 mb-1">Action Detail</p><p className="whitespace-pre-wrap">{parsedReportData.action_detail}</p></div>}
+                                      {parsedReportData.action_specific && <div><p className="text-[10px] font-black uppercase tracking-widest text-purple-500 mb-1">Specific Action</p><p className="whitespace-pre-wrap">{parsedReportData.action_specific}</p></div>}
                                     </div>
                                   );
                                 } else if (sessionTypeUpper === 'QUICK' && (parsedReportData.study_status || parsedReportData.quick_notes)) {

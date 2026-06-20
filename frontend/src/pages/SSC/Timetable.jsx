@@ -1069,15 +1069,11 @@ const Timetable = () => {
                           className="w-full p-4 bg-white border border-emerald-200 rounded-2xl text-[11px] font-black text-emerald-700 outline-none focus:ring-4 ring-emerald-500/10 transition-all cursor-pointer"
                         >
                           <option value="">Auto-fill from registered schedule...</option>
-                          {studentSchedule && studentSchedule.map((slot, idx) => {
-                            const currentDay = new Date(formData.date).toLocaleDateString('en-GB', { weekday: 'long' });
-                            if (slot.day_of_week !== currentDay) return null;
-                            return (
-                              <option key={idx} value={idx}>
-                                 {slot.subject} | {(slot.start_time || '').substring(0, 5)} - {(slot.end_time || '').substring(0, 5)} ({slot.faculty_name})
-                              </option>
-                            );
-                          })}
+                          {studentSchedule.map((slot, idx) => (
+                            <option key={idx} value={idx}>
+                              {slot.day_of_week} | {slot.start_time} - {slot.end_time} | {slot.subject} {slot.faculty_name ? `(${slot.faculty_name})` : ''}
+                            </option>
+                          ))}
                         </select>
                       </div>
                     )}

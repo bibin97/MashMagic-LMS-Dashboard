@@ -329,11 +329,12 @@ const registerStudent = async (req, res) => {
         } = req.body;
 
         // Ensure student email does not conflict with staff emails
-        if (email && email.trim() !== '') {
-            const [staffCheck] = await conn.query('SELECT id FROM users WHERE email = ? AND role != "student"', [email]);
+        // If a staff email was auto-filled by the browser, silently remove it
+        let finalEmail = email;
+        if (finalEmail && finalEmail.trim() !== '') {
+            const [staffCheck] = await conn.query('SELECT id FROM users WHERE email = ? AND role != "student"', [finalEmail]);
             if (staffCheck.length > 0) {
-                await conn.release();
-                return res.status(400).json({ success: false, message: "This email is already registered as a Staff member. Please use a different email for the student." });
+                finalEmail = null;
             }
         }
 
@@ -345,7 +346,7 @@ const registerStudent = async (req, res) => {
         if (enrollmentType === 'Mentorship and Tuition') badge = 'Diamond';
 
         await conn.beginTransaction();
-        const [ur] = await conn.query('INSERT INTO users (name, email, phone_number, password, role, status, isApproved, isActive) VALUES (?, ?, ?, ?, "student", "active", 1, 1)', [name, email || null, contact || null, hash]);
+        const [ur] = await conn.query('INSERT INTO users (name, email, phone_number, password, role, status, isApproved, isActive) VALUES (?, ?, ?, ?, "student", "active", 1, 1)', [name, finalEmail || null, contact || null, hash]);
         
         const [studentResult] = await conn.query(`
             INSERT INTO students (
@@ -356,7 +357,7 @@ const registerStudent = async (req, res) => {
                 subjects_json, status, isApproved, priority_category, rejoining_fee, syllabus
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "active", 1, "High", ?, ?)
         `, [
-            name, email || null, hash, ur.insertId, contact || null, grade, course, mentorId || null,
+            name, finalEmail || null, hash, ur.insertId, contact || null, grade, course, mentorId || null,
             admissionDate || null, schoolName || null, preferredLanguage || null, country || null,
             totalFees || 0, totalPaid || 0, totalHours || 0, nextInstallmentDate || null,
             admissionType || 'new', registrationNumber || null, meetingLink || null, enrollmentType || null, badge,
@@ -719,14 +720,20 @@ const editStudent = async (req, res) => {
         const [[student]] = await db.query('SELECT name, user_id FROM students WHERE id = ?', [id]);
         if (!student) return res.status(404).json({ success: false, message: "Student not found" });
 
-        // Add email duplication check to prevent autofill bugs overwriting other users' emails
-        if (email) {
-            const [[existingEmail]] = await db.query('SELECT id, role FROM users WHERE email = ? AND id != ?', [email, student.user_id || 0]);
+        let finalEmail = email;
+        if (finalEmail) {
+            const [[existingEmail]] = await db.query('SELECT id, role, email FROM users WHERE email = ? AND id != ?', [finalEmail, student.user_id || 0]);
             if (existingEmail) {
-                return res.status(400).json({ 
-                    success: false, 
-                    message: `Email conflict: ${email} is already registered to a ${existingEmail.role}. Please check your browser's autofill settings.` 
-                });
+                if (existingEmail.role !== 'student') {
+                    // Browser autofilled a staff email. Revert to student's current email.
+                    const [[currentStudent]] = await db.query('SELECT email FROM students WHERE id = ?', [id]);
+                    finalEmail = currentStudent.email;
+                } else {
+                    return res.status(400).json({ 
+                        success: false, 
+                        message: `Email conflict: ${finalEmail} is already registered to another student. Please use a different email.` 
+                    });
+                }
             }
         }
 
@@ -760,7 +767,7 @@ const editStudent = async (req, res) => {
                 course_completed = ?, rejoining_fee = ?
              WHERE id = ?`, 
             [
-                name, email || null, contact || null, grade || null, syllabus || null, course || null, total_hours || hour || null, hour || null,
+                name, finalEmail || null, contact || null, grade || null, syllabus || null, course || null, total_hours || hour || null, hour || null,
                 next_installment_date || null, admission_date || null, registration_number || null, registration_number || null,
                 finalMeetingLink || null, enrollment_type || null, admission_type || null, badge,
                 school_name || null, preferred_language || null, country || null,
@@ -775,7 +782,7 @@ const editStudent = async (req, res) => {
         // Update linked Users table
         if (student.user_id) {
             let userUpdateQuery = 'UPDATE users SET name = ?, email = ?, phone_number = ?';
-            let userParams = [name, email || null, contact || null];
+            let userParams = [name, finalEmail || null, contact || null];
 
             if (password && password.trim() !== '') {
                 const salt = await bcrypt.genSalt(10);

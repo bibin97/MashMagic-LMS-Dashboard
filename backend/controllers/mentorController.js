@@ -934,7 +934,7 @@ const getStudentLogs = async (req, res) => {
                     CONVERT(s.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as student_name,
                     CONVERT('S-Log' USING utf8mb4) COLLATE utf8mb4_unicode_ci as session_number,
                     CONVERT('MEDIUM' USING utf8mb4) COLLATE utf8mb4_unicode_ci as session_type,
-                    CONVERT(CONCAT(l.main_issue, ': ', l.action_type) USING utf8mb4) COLLATE utf8mb4_unicode_ci as mentor_notes,
+                    CONVERT(COALESCE(l.action_detail, CONCAT_WS(': ', NULLIF(l.main_issue, ''), NULLIF(l.action_type, ''))) USING utf8mb4) COLLATE utf8mb4_unicode_ci as mentor_notes,
                     CAST(l.understanding_after_session AS CHAR) as understanding_level,
                     CAST(l.session_quality_rating AS CHAR) as student_confidence,
                     CAST(l.stress_level AS CHAR) as stress_level,
@@ -1330,8 +1330,8 @@ const getAcademicSchedule = async (req, res) => {
             FROM faculty_sessions fs
             LEFT JOIN faculties u ON fs.faculty_id = u.id
             LEFT JOIN session_attendance sa ON fs.id = sa.session_id
-            LEFT JOIN students s ON sa.student_id = s.id
             LEFT JOIN timetable t ON fs.timetable_id = t.id
+            LEFT JOIN students s ON (sa.student_id = s.id OR t.student_id = s.id)
             WHERE 1=1
         `;
         const params = [];
