@@ -123,7 +123,7 @@ const getFacultyQualityChecks = async (req, res) => {
             SELECT t.id, t.student_id, t.faculty_id, t.start_time, t.end_time, COALESCE(t.chapter, t.session_type, 'General Session') as topic, t.status, s.meeting_link,
                    f.name as faculty_name, s.name as student_name, s.subjects_json
             FROM timetable t
-            LEFT JOIN users f ON t.faculty_id = f.id
+            LEFT JOIN faculties f ON t.faculty_id = f.id
             JOIN students s ON t.student_id = s.id
             WHERE t.date = CURDATE()
             ORDER BY RAND(DAYOFYEAR(CURDATE()) + YEAR(CURDATE()))

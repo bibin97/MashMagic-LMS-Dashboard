@@ -188,6 +188,16 @@ const OperationsHub = ({ section }) => {
     const evaluations = activeData.evaluations || [];
     const liveSessions = activeData.liveSessions || [];
 
+    const now = new Date();
+    const currentTimeInMinutes = now.getHours() * 60 + now.getMinutes();
+
+    const isBlinking = (startTimeStr) => {
+      if (!startTimeStr) return false;
+      const [h, m] = startTimeStr.split(':').map(Number);
+      const startInMinutes = h * 60 + m;
+      return (startInMinutes - currentTimeInMinutes <= 10) && (startInMinutes - currentTimeInMinutes > 0);
+    };
+
     return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
 
@@ -242,7 +252,7 @@ const OperationsHub = ({ section }) => {
               <div className="flex items-center gap-3 justify-end shrink-0">
                 {session.meeting_link ? (
                   <a href={session.meeting_link} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-xs font-black bg-rose-50 border border-rose-100 px-4 py-2 rounded-xl text-rose-600 hover:bg-rose-100 transition-colors shadow-sm group">
-                    <span className="w-2 h-2 bg-rose-500 rounded-full animate-pulse"></span>
+                    <span className={`w-2 h-2 bg-rose-500 rounded-full ${isBlinking(session.start_time) ? 'animate-pulse' : ''}`}></span>
                     <span className="uppercase tracking-widest text-[9px]">Live</span>
                   </a>
                 ) : (

@@ -138,7 +138,7 @@ const getMentorDashboard = async (req, res) => {
         const liveSessions = await safeQuery(`
             SELECT DISTINCT fs.id, fs.faculty_id, fs.topic, fs.date, fs.start_time, fs.end_time, fs.status, u.name as faculty_name, 1 as is_live, s.meeting_link, s.registration_number, s.name as student_name
             FROM faculty_sessions fs
-            JOIN users u ON fs.faculty_id = u.id
+            JOIN faculties u ON fs.faculty_id = u.id
             JOIN session_attendance sa ON fs.id = sa.session_id
             JOIN students s ON sa.student_id = s.id
             WHERE s.mentor_id = ? AND fs.date = CURDATE() AND CURTIME() BETWEEN fs.start_time AND fs.end_time
@@ -148,7 +148,7 @@ const getMentorDashboard = async (req, res) => {
         const upcomingSessions = await safeQuery(`
             SELECT DISTINCT fs.id, fs.faculty_id, fs.topic, fs.date, fs.start_time, fs.end_time, fs.status, u.name as faculty_name, 0 as is_live
             FROM faculty_sessions fs
-            JOIN users u ON fs.faculty_id = u.id
+            JOIN faculties u ON fs.faculty_id = u.id
             JOIN session_attendance sa ON fs.id = sa.session_id
             JOIN students s ON sa.student_id = s.id
             WHERE s.mentor_id = ? AND ((fs.date = CURDATE() AND fs.start_time > CURTIME()) OR fs.date > CURDATE())
@@ -159,7 +159,7 @@ const getMentorDashboard = async (req, res) => {
         const pastSessions = await safeQuery(`
             SELECT DISTINCT fs.id, fs.faculty_id, fs.topic, fs.date, fs.start_time, fs.end_time, fs.status, u.name as faculty_name, 0 as is_live
             FROM faculty_sessions fs
-            JOIN users u ON fs.faculty_id = u.id
+            JOIN faculties u ON fs.faculty_id = u.id
             JOIN session_attendance sa ON fs.id = sa.session_id
             JOIN students s ON sa.student_id = s.id
             WHERE s.mentor_id = ? AND ((fs.date = CURDATE() AND fs.end_time < CURTIME()) OR fs.date < CURDATE())
@@ -1523,7 +1523,7 @@ const getStudentAcademicSchedule = async (req, res) => {
         const [schedules] = await db.query(`
             SELECT fs.*, u.name as faculty_name 
             FROM faculty_schedules fs
-            LEFT JOIN users u ON fs.faculty_id = u.id
+            LEFT JOIN faculties u ON fs.faculty_id = u.id
             WHERE fs.student_id = ? AND (fs.is_deleted IS NULL OR fs.is_deleted = 0)
             ORDER BY FIELD(fs.day_of_week, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'), fs.start_time ASC
         `, [studentId]);

@@ -1066,7 +1066,7 @@ const Registrations = () => {
                 <div className="flex flex-col gap-2">
                   <label className="text-[10px] font-black text-emerald-800 uppercase tracking-widest ml-1">Primary Subject</label>
                   <Select
-                    options={[{value:'Mathematics',label:'Mathematics'},{value:'Physics',label:'Physics'},{value:'Chemistry',label:'Chemistry'},{value:'Biology',label:'Biology'},{value:'English',label:'English'}]}
+                    options={SUBJECT_OPTIONS.map(sub => ({ value: sub, label: sub }))}
                     value={facultyForm.primary_subject ? { value: facultyForm.primary_subject, label: facultyForm.primary_subject } : null}
                     onChange={(sel) => setFacultyForm({...facultyForm, primary_subject: sel ? sel.value : ''})}
                     styles={customSelectStyles}
@@ -1078,7 +1078,7 @@ const Registrations = () => {
                   <label className="text-[10px] font-black text-emerald-800 uppercase tracking-widest ml-1">Secondary Subjects</label>
                   <Select
                     isMulti
-                    options={[{value:'Mathematics',label:'Mathematics'},{value:'Physics',label:'Physics'},{value:'Chemistry',label:'Chemistry'},{value:'Biology',label:'Biology'},{value:'English',label:'English'}]}
+                    options={SUBJECT_OPTIONS.map(sub => ({ value: sub, label: sub }))}
                     value={facultyForm.secondary_subjects.map(s => ({ value: s, label: s }))}
                     onChange={(sel) => setFacultyForm({...facultyForm, secondary_subjects: sel ? sel.map(s => s.value) : []})}
                     styles={customSelectStyles}
