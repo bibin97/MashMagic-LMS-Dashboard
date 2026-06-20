@@ -43,7 +43,15 @@ const Timetable = () => {
   const [students, setStudents] = useState([]);
   const [mentors, setMentors] = useState([]);
   const [faculties, setFaculties] = useState([]);
+  
+  // Custom dropdown states
+  const [isStudentDropdownOpen, setIsStudentDropdownOpen] = useState(false);
   const [studentSearch, setStudentSearch] = useState('');
+  const studentDropdownRef = useRef(null);
+
+  const [subjectsDropdownOpen, setSubjectsDropdownOpen] = useState(false);
+  const subjectDropdownRef = useRef(null);
+
   const [sessionSearch, setSessionSearch] = useState('');
   const [summary, setSummary] = useState({
     total: 0, completed: 0, cancelled: 0, postponed: 0, upcoming: 0
@@ -124,6 +132,19 @@ const Timetable = () => {
       fetchMentors();
     }
   }, [user, filters.mentor_id]);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (subjectDropdownRef.current && !subjectDropdownRef.current.contains(event.target)) {
+        setSubjectsDropdownOpen(false);
+      }
+      if (studentDropdownRef.current && !studentDropdownRef.current.contains(event.target)) {
+        setIsStudentDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const fetchFaculties = async () => {
     try {
@@ -897,32 +918,70 @@ const Timetable = () => {
                     <div className="space-y-2">
                       <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Student Selection *</label>
                       
-                      {!editingSession && (
-                        <div className="relative mb-2">
-                          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
-                          <input 
-                            type="text" 
-                            placeholder="Search student by name or ID..." 
-                            value={studentSearch} 
-                            onChange={(e) => setStudentSearch(e.target.value)}
-                            className="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-xl text-xs focus:ring-2 ring-[#008080]/20 outline-none"
-                          />
+                      {!editingSession ? (
+                        <div className="relative" ref={studentDropdownRef}>
+                          <div 
+                            onClick={() => setIsStudentDropdownOpen(!isStudentDropdownOpen)}
+                            className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold hover:bg-slate-100 transition-all cursor-pointer flex justify-between items-center"
+                          >
+                            <span>
+                              {formData.student_id 
+                                ? (() => {
+                                    const s = students.find(s => String(s.id) === String(formData.student_id));
+                                    return s ? `${s.name} ${s.student_id ? `(${s.student_id})` : ''}` : 'Select Student';
+                                  })()
+                                : 'Select Student'
+                              }
+                            </span>
+                            <span className="text-slate-400">▼</span>
+                          </div>
+                          
+                          {isStudentDropdownOpen && (
+                            <div className="absolute top-[100%] left-0 w-full bg-white border border-slate-100 rounded-2xl shadow-2xl z-[100] mt-2 p-3 animate-in fade-in zoom-in-95 duration-200">
+                              <div className="relative mb-3">
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
+                                <input 
+                                  type="text" 
+                                  autoFocus
+                                  placeholder="Search student by name or ID..." 
+                                  value={studentSearch} 
+                                  onChange={(e) => setStudentSearch(e.target.value)}
+                                  className="w-full pl-9 pr-3 py-2.5 bg-slate-50 border border-slate-100 rounded-xl text-xs focus:bg-white focus:ring-2 ring-[#008080]/20 outline-none"
+                                />
+                              </div>
+                              <div className="max-h-60 overflow-y-auto space-y-1 pr-1 custom-scrollbar">
+                                {students
+                                  .filter(s => s.name.toLowerCase().includes(studentSearch.toLowerCase()) || (s.student_id && s.student_id.toLowerCase().includes(studentSearch.toLowerCase())))
+                                  .map(s => (
+                                    <div 
+                                      key={s.id} 
+                                      onClick={() => {
+                                        setFormData({ ...formData, student_id: s.id });
+                                        setIsStudentDropdownOpen(false);
+                                        setStudentSearch('');
+                                      }}
+                                      className={`px-4 py-3 rounded-xl text-xs cursor-pointer transition-all ${
+                                        String(formData.student_id) === String(s.id) 
+                                          ? 'bg-[#008080] text-white font-bold shadow-md shadow-[#008080]/20' 
+                                          : 'hover:bg-slate-50 text-slate-700 font-medium'
+                                      }`}
+                                    >
+                                      {s.name} {s.student_id ? `(${s.student_id})` : ''}
+                                    </div>
+                                  ))
+                                }
+                                {students.filter(s => s.name.toLowerCase().includes(studentSearch.toLowerCase()) || (s.student_id && s.student_id.toLowerCase().includes(studentSearch.toLowerCase()))).length === 0 && (
+                                  <div className="px-4 py-3 text-xs text-slate-500 text-center">No students found</div>
+                                )}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <div className="w-full p-4 bg-slate-100 border border-slate-200 rounded-2xl text-xs font-bold text-slate-500 cursor-not-allowed">
+                          {editingSession.student_name}
                         </div>
                       )}
-                      
-                      <select
-                        required
-                        disabled={!!editingSession}
-                        value={formData.student_id || ''}
-                        onChange={(e) => setFormData({ ...formData, student_id: e.target.value })}
-                        className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none disabled:opacity-50"
-                      >
-                        <option value="">Select Student</option>
-                        {students
-                          .filter(s => s.name.toLowerCase().includes(studentSearch.toLowerCase()) || (s.student_id && s.student_id.toLowerCase().includes(studentSearch.toLowerCase())))
-                          .map(s => <option key={s.id} value={s.id}>{s.name} {s.student_id ? `(${s.student_id})` : ''}</option>)
-                        }
-                      </select>
                     </div>
 
                     <div className="space-y-2">

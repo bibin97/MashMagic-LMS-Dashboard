@@ -327,6 +327,16 @@ const registerStudent = async (req, res) => {
             admissionType, registrationNumber, meetingLink, enrollmentType,
             selectedSubjects, rejoiningFee, syllabus
         } = req.body;
+
+        // Ensure student email does not conflict with staff emails
+        if (email && email.trim() !== '') {
+            const [staffCheck] = await conn.query('SELECT id FROM users WHERE email = ? AND role != "student"', [email]);
+            if (staffCheck.length > 0) {
+                await conn.release();
+                return res.status(400).json({ success: false, message: "This email is already registered as a Staff member. Please use a different email for the student." });
+            }
+        }
+
         const hash = await bcrypt.hash(password || "student123", 10);
         
         let badge = 'Stable';
@@ -337,7 +347,7 @@ const registerStudent = async (req, res) => {
         await conn.beginTransaction();
         const [ur] = await conn.query('INSERT INTO users (name, email, phone_number, password, role, status, isApproved, isActive) VALUES (?, ?, ?, ?, "student", "active", 1, 1)', [name, email || null, contact || null, hash]);
         
-        await conn.query(`
+        const [studentResult] = await conn.query(`
             INSERT INTO students (
                 name, email, password, user_id, contact, grade, course, mentor_id, 
                 admission_date, school_name, preferred_language, country, 
@@ -353,6 +363,44 @@ const registerStudent = async (req, res) => {
             selectedSubjects ? JSON.stringify(selectedSubjects) : null,
             rejoiningFee || 0, syllabus || null
         ]);
+
+        const studentId = studentResult.insertId;
+
+        if (selectedSubjects && Array.isArray(selectedSubjects) && selectedSubjects.length > 0) {
+            for (const sub of selectedSubjects) {
+                const subjectStr = Array.isArray(sub.subject) 
+                    ? (sub.subject.length > 0 ? sub.subject.join(', ') : null) 
+                    : (sub.subject || null);
+                
+                if (sub.dayConfigs && Array.isArray(sub.dayConfigs) && sub.dayConfigs.length > 0) {
+                    for (const config of sub.dayConfigs) {
+                        if (sub.facultyId && config.day && config.startTime && config.endTime) {
+                            await conn.query(`
+                                INSERT INTO faculty_schedules (
+                                    faculty_id, student_id, subject, day_of_week, start_time, end_time, hourly_rate
+                                ) VALUES (?, ?, ?, ?, ?, ?, ?)
+                            `, [
+                                sub.facultyId, studentId, subjectStr, config.day, config.startTime, config.endTime, sub.hourlyRate || 0
+                            ]);
+                        }
+                    }
+                } else {
+                    const days = sub.days || (sub.day ? [sub.day] : []);
+                    for (const day of days) {
+                        if (sub.facultyId && day && sub.startTime && sub.endTime) {
+                            await conn.query(`
+                                INSERT INTO faculty_schedules (
+                                    faculty_id, student_id, subject, day_of_week, start_time, end_time, hourly_rate
+                                ) VALUES (?, ?, ?, ?, ?, ?, ?)
+                            `, [
+                                sub.facultyId, studentId, subjectStr, day, sub.startTime, sub.endTime, sub.hourlyRate || 0
+                            ]);
+                        }
+                    }
+                }
+            }
+        }
+
         await conn.commit();
         conn.release();
         res.status(201).json({ success: true, message: "Student registered" });
