@@ -230,22 +230,26 @@ const OperationsHub = ({ section }) => {
                 </div>
               </div>
               
-              <div className="flex flex-wrap items-center gap-6 md:gap-12 flex-1 justify-start md:justify-center">
-                <div className="min-w-[120px]">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 flex-1 items-center bg-white/50 p-3 rounded-2xl border border-emerald-100/50">
+                <div className="min-w-0">
                   <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Faculty</p>
-                  <p className="text-xs font-bold text-slate-700 uppercase mt-0.5 truncate">{session.faculty_name || 'Not Assigned'}</p>
+                  <p className="text-xs font-bold text-slate-700 uppercase mt-0.5 truncate" title={session.faculty_name || 'Not Assigned'}>{session.faculty_name || 'Not Assigned'}</p>
                 </div>
-                <div>
+                <div className="min-w-0">
                   <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Subject</p>
-                  <span className="inline-block text-[9px] font-black text-emerald-600 uppercase tracking-widest bg-emerald-100/50 px-2.5 py-1 rounded-lg mt-0.5">
-                    {session.topic || 'General Session'}
-                  </span>
+                  <div className="mt-0.5 truncate" title={session.topic || 'General Session'}>
+                    <span className="inline-block text-[9px] font-black text-emerald-600 uppercase tracking-widest bg-emerald-100/50 px-2.5 py-1 rounded-lg">
+                      {session.topic || 'General Session'}
+                    </span>
+                  </div>
                 </div>
-                <div>
+                <div className="min-w-0">
                   <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Rotation</p>
-                  <span className="inline-block text-[9px] font-black text-indigo-600 uppercase tracking-widest bg-indigo-50 px-2.5 py-1 rounded-lg mt-0.5 shadow-sm border border-indigo-100">
-                    Round {session.round_number || 1} • Sub {session.subject_count || 1}/{session.total_subjects || 1}
-                  </span>
+                  <div className="mt-0.5 truncate">
+                    <span className="inline-block text-[9px] font-black text-indigo-600 uppercase tracking-widest bg-indigo-50 px-2.5 py-1 rounded-lg shadow-sm border border-indigo-100">
+                      Round {session.round_number || 1} • Sub {session.subject_count || 1}/{session.total_subjects || 1}
+                    </span>
+                  </div>
                 </div>
               </div>
 
