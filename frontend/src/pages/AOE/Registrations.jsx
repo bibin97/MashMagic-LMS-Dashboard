@@ -191,8 +191,8 @@ const Registrations = () => {
   ];
 
   const SUBJECT_OPTIONS = [
-    "Mathematics", "Science", "Social Science", "English", "Malayalam", 
-    "Hindi", "Physics", "Chemistry", "Biology", "Accountancy", 
+    "Mathematics", "Science", "Social Science", "Social", "English", "Malayalam", 
+    "Hindi", "Physics", "Chemistry", "Biology", "Accountancy", "Business", 
     "Business Studies", "Economics", "Computer Science", "Arabic", "French", "IT", "EVS"
   ];
 
@@ -1070,12 +1070,12 @@ const Registrations = () => {
                 <div className="flex flex-col gap-2">
                   <label className="text-[10px] font-black text-emerald-800 uppercase tracking-widest ml-1">Primary Subject</label>
                   <Select
+                    isMulti
                     options={SUBJECT_OPTIONS.map(sub => ({ value: sub, label: sub }))}
-                    value={facultyForm.primary_subject ? { value: facultyForm.primary_subject, label: facultyForm.primary_subject } : null}
-                    onChange={(sel) => setFacultyForm({...facultyForm, primary_subject: sel ? sel.value : ''})}
+                    value={facultyForm.primary_subject ? (Array.isArray(facultyForm.primary_subject) ? facultyForm.primary_subject.map(s => ({ value: s, label: s })) : facultyForm.primary_subject.split(',').filter(Boolean).map(s => ({ value: s, label: s }))) : []}
+                    onChange={(sel) => setFacultyForm({...facultyForm, primary_subject: sel ? sel.map(s => s.value) : []})}
                     styles={customSelectStyles}
-                    placeholder="Select Primary Subject"
-                    isClearable
+                    placeholder="Select Primary Subjects"
                   />
                 </div>
                 <div className="flex flex-col gap-2">

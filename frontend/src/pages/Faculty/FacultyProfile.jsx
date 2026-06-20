@@ -20,9 +20,9 @@ const LANG_OPTIONS = [
 ];
 
 const SUBJECT_OPTIONS = [
-  "Mathematics", "Physics", "Chemistry", "Biology", "Science", "Social Science", "History", 
+  "Mathematics", "Physics", "Chemistry", "Biology", "Science", "Social Science", "Social", "History", 
   "Geography", "Political Science", "English", "Hindi", "Malayalam", "Accountancy", 
-  "Business Studies", "Economics", "Computer Science", "Arabic", "French", "IT", "EVS"
+  "Business Studies", "Business", "Economics", "Computer Science", "Arabic", "French", "IT", "EVS"
 ];
 
 const SYLLABUS_OPTIONS = ["CBSE", "STATE", "ICSE", "IGCSE", "IB"];
