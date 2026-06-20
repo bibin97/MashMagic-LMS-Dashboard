@@ -121,7 +121,7 @@ const getFacultyQualityChecks = async (req, res) => {
 
         const [liveSessions] = await db.query(`
             SELECT t.id, t.student_id, t.faculty_id, t.start_time, t.end_time, COALESCE(t.chapter, t.session_type, 'General Session') as topic, t.status, s.meeting_link,
-                   COALESCE(f.name, u.name, (SELECT f2.name FROM faculty_schedules fs2 JOIN faculties f2 ON fs2.faculty_id = f2.id WHERE fs2.student_id = t.student_id AND fs2.topic = COALESCE(t.chapter, t.session_type) LIMIT 1)) as faculty_name, s.name as student_name, s.subjects_json
+                   COALESCE(f.name, u.name, (SELECT f2.name FROM faculty_schedules fs2 JOIN faculties f2 ON fs2.faculty_id = f2.id WHERE fs2.student_id = t.student_id AND fs2.subject = COALESCE(t.chapter, t.session_type) LIMIT 1)) as faculty_name, s.name as student_name, s.subjects_json
             FROM timetable t
             LEFT JOIN faculties f ON t.faculty_id = f.id
             LEFT JOIN users u ON t.faculty_id = u.id
