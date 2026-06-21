@@ -496,7 +496,7 @@ const Timetable = () => {
       const res = await api.get(`/ssc/students/${formData.student_id}/schedule`);
       setStudentSchedule(res.data.data);
     } catch (error) {
-      toast.error(error.response?.data?.message || "Failed to update schedule");
+      toast.error(error.response?.data?.message || error.message || "Failed to update schedule. Database verification failed.");
     }
   };
 

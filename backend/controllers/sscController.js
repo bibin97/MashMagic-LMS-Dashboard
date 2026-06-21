@@ -203,11 +203,18 @@ exports.createSession = async (req, res) => {
             details: `SSC created session for student ${student_id}`
         });
 
-        // Sync with faculty_sessions
+        // Sync with faculty_sessions INSIDE the transaction
         try {
-            await syncTimetableToFacultySession(result.insertId);
+            await syncTimetableToFacultySession(result.insertId, connection);
         } catch (syncErr) {
             console.error("SSC Create Session Sync Error:", syncErr);
+            throw new Error("Failed to sync timetable to faculty_session");
+        }
+
+        // Verify sync
+        const [syncVerify] = await connection.query('SELECT id FROM faculty_sessions WHERE timetable_id = ? AND (is_deleted IS NULL OR is_deleted = 0)', [result.insertId]);
+        if (syncVerify.length === 0) {
+            throw new Error(`CRITICAL FAILURE: Mandatory Sync Verification failed for Session ${result.insertId}.`);
         }
 
         await connection.commit();
@@ -258,11 +265,12 @@ exports.updateSession = async (req, res) => {
             details: `SSC updated session ${sessionId}`
         });
 
-        // Sync with faculty_sessions
+        // Sync with faculty_sessions INSIDE the transaction
         try {
-            await syncTimetableToFacultySession(sessionId);
+            await syncTimetableToFacultySession(sessionId, connection);
         } catch (syncErr) {
             console.error("SSC Update Session Sync Error:", syncErr);
+            throw new Error("Failed to sync updated timetable to faculty_session");
         }
 
         await connection.commit();
@@ -403,6 +411,19 @@ exports.updateStudentAcademicSchedule = async (req, res) => {
         const studentId = req.params.id;
         const { schedules } = req.body;
 
+        if (!schedules || !Array.isArray(schedules) || schedules.length === 0) {
+            await connection.rollback();
+            return res.status(400).json({ success: false, message: "Invalid payload: schedules must be a non-empty array." });
+        }
+
+        // Validate required fields
+        for (const s of schedules) {
+            if (!s.day_of_week || !s.start_time || !s.end_time || !s.subject) {
+                await connection.rollback();
+                return res.status(400).json({ success: false, message: "Invalid payload: Missing required schedule fields." });
+            }
+        }
+
         await connection.query('UPDATE faculty_schedules SET is_deleted = 1, deleted_at = CURRENT_TIMESTAMP WHERE student_id = ?', [studentId]);
 
         let subjectsUpdated = false;
@@ -436,6 +457,11 @@ exports.updateStudentAcademicSchedule = async (req, res) => {
                     INSERT INTO faculty_schedules (student_id, day_of_week, start_time, end_time, subject, faculty_id)
                     VALUES (?, ?, ?, ?, ?, ?)
                 `, [studentId, s.day_of_week, s.start_time, s.end_time, s.subject, facId]);
+            }
+            // Post-Insert Verification for faculty_schedules
+            const [verifySchedulesRows] = await connection.query('SELECT COUNT(id) as count FROM faculty_schedules WHERE student_id = ? AND (is_deleted IS NULL OR is_deleted = 0)', [studentId]);
+            if (verifySchedulesRows[0].count !== schedules.length) {
+                throw new Error(`CRITICAL FAILURE: Registration schedule save verification failed. Expected ${schedules.length} rows, found ${verifySchedulesRows[0].count}.`);
             }
 
             // ── AUTO-SYNC: Generate timetable entries for the next 4 weeks ──
@@ -511,18 +537,50 @@ exports.updateStudentAcademicSchedule = async (req, res) => {
             await connection.query('UPDATE students SET subjects_json = ? WHERE id = ?', [JSON.stringify(subjects), studentId]);
         }
 
-        await connection.commit();
-
-        // Sync generated sessions to faculty_sessions
+        let syncedCount = 0;
+        // Sync generated sessions to faculty_sessions INSIDE the transaction
         for (const tid of insertedTimetableIds) {
             try {
-                await syncTimetableToFacultySession(tid);
+                await syncTimetableToFacultySession(tid, connection);
+                syncedCount++;
             } catch (err) {
                 console.error("Academic schedule timetable sync error for ID", tid, err);
+                throw new Error("Failed to sync timetable to faculty_session");
             }
         }
 
-        res.status(200).json({ success: true, message: "Academic schedule updated successfully" });
+        // Verify faculty_sessions synchronization
+        if (syncedCount !== insertedTimetableIds.length) {
+            throw new Error(`CRITICAL FAILURE: faculty_sessions synchronization failed. Expected ${insertedTimetableIds.length} synced, found ${syncedCount}.`);
+        }
+
+        // Verify Academic Schedule visibility
+        const [visibilityCheck] = await connection.query(`
+            SELECT COUNT(fs.id) as count
+            FROM faculty_sessions fs
+            LEFT JOIN session_attendance sa ON fs.id = sa.session_id
+            LEFT JOIN timetable t ON fs.timetable_id = t.id
+            WHERE (sa.student_id = ? OR t.student_id = ?) AND (fs.is_deleted IS NULL OR fs.is_deleted = 0)
+        `, [studentId, studentId]);
+
+        if (visibilityCheck[0].count === 0 && insertedTimetableIds.length > 0) {
+            throw new Error(`CRITICAL FAILURE: Academic Schedule visibility verification failed. Zero sessions visible for student ${studentId}.`);
+        }
+
+        await connection.commit();
+
+        res.status(200).json({ 
+            success: true, 
+            message: "Academic schedule updated successfully",
+            report: {
+                total_requested: schedules.length,
+                total_saved: schedules.length,
+                total_verified: schedules.length,
+                failed: 0,
+                skipped: 0,
+                visibility_verified: true
+            }
+        });
     } catch (error) {
         await connection.rollback();
         res.status(500).json({ success: false, message: error.message });
@@ -629,16 +687,24 @@ exports.createBatchTimetable = async (req, res) => {
             report.total_verified = verifiedCount;
         }
 
-        await connection.commit();
-
-        // Sync generated sessions to faculty_sessions
+        let syncedCount = 0;
+        // Sync generated sessions to faculty_sessions INSIDE the transaction
         for (const tid of insertedIds) {
             try {
-                await syncTimetableToFacultySession(tid);
+                await syncTimetableToFacultySession(tid, connection);
+                syncedCount++;
             } catch (err) {
                 console.error("Batch timetable sync error for ID", tid, err);
+                throw new Error("Failed to sync timetable to faculty_session");
             }
         }
+
+        // Mandatory Sync Verification
+        if (syncedCount !== insertedIds.length) {
+            throw new Error(`CRITICAL FAILURE: Mandatory Sync Verification failed. Timetable count (${insertedIds.length}) != Faculty Session sync count (${syncedCount}).`);
+        }
+
+        await connection.commit();
 
         res.status(201).json({ success: true, message: "Batch timetable created", report });
     } catch (error) {

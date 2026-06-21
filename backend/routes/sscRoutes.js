@@ -10,9 +10,21 @@ const db = require('../config/db');
 router.get('/debug-db', async (req, res) => {
     const db = require('../config/db');
     try {
-        const [fs] = await db.query('SELECT * FROM faculty_sessions ORDER BY id DESC LIMIT 10');
-        const [tt] = await db.query('SELECT id, faculty_id, date, status FROM timetable ORDER BY id DESC LIMIT 10');
-        res.json({ success: true, fs, tt });
+        const studentId = 471;
+        const [tt] = await db.query('SELECT COUNT(*) as count FROM timetable WHERE student_id = ? AND (is_deleted IS NULL OR is_deleted = 0)', [studentId]);
+        const [fs] = await db.query('SELECT COUNT(*) as count FROM faculty_schedules WHERE student_id = ? AND (is_deleted IS NULL OR is_deleted = 0)', [studentId]);
+        
+        // Let's check exactly why the schedules are not saving or showing
+        // Verify what's in faculty_sessions for this student
+        const [fses] = await db.query(`
+            SELECT COUNT(*) as count 
+            FROM faculty_sessions fses
+            LEFT JOIN session_attendance sa ON fses.id = sa.session_id
+            LEFT JOIN timetable t ON fses.timetable_id = t.id
+            WHERE (sa.student_id = ? OR t.student_id = ?) AND (fses.is_deleted IS NULL OR fses.is_deleted = 0)
+        `, [studentId, studentId]);
+
+        res.json({ success: true, timetable: tt[0].count, faculty_schedules: fs[0].count, faculty_sessions: fses[0].count });
     } catch (e) {
         res.json({ success: false, error: e.message });
     }
