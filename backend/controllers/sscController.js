@@ -1,5 +1,6 @@
 const db = require('../config/db');
 const { logFacultyChanges } = require('../utils/facultyChangeLogger');
+const { syncTimetableToFacultySession } = require('../utils/timetableSync');
 
 // Helper: write to audit_logs table
 async function logAudit({ action, entity = 'timetable', entity_id = null, user_id = null, user_role = null, old_data = null, new_data = null, details = null }) {
@@ -202,6 +203,13 @@ exports.createSession = async (req, res) => {
             details: `SSC created session for student ${student_id}`
         });
 
+        // Sync with faculty_sessions
+        try {
+            await syncTimetableToFacultySession(result.insertId);
+        } catch (syncErr) {
+            console.error("SSC Create Session Sync Error:", syncErr);
+        }
+
         await connection.commit();
         res.status(201).json({ success: true, message: "Session created", data: { id: result.insertId } });
     } catch (error) {
@@ -250,6 +258,13 @@ exports.updateSession = async (req, res) => {
             details: `SSC updated session ${sessionId}`
         });
 
+        // Sync with faculty_sessions
+        try {
+            await syncTimetableToFacultySession(sessionId);
+        } catch (syncErr) {
+            console.error("SSC Update Session Sync Error:", syncErr);
+        }
+
         await connection.commit();
         res.status(200).json({ success: true, message: "Session updated" });
     } catch (error) {
@@ -281,6 +296,13 @@ exports.deleteSession = async (req, res) => {
             old_data: oldSession,
             details: `SSC deleted session ${sessionId}`
         });
+
+        // Sync deletion with faculty_sessions
+        try {
+            await syncTimetableToFacultySession(sessionId);
+        } catch (syncErr) {
+            console.error("SSC Delete Session Sync Error:", syncErr);
+        }
 
         await connection.commit();
         res.status(200).json({ success: true, message: "Session deleted" });
@@ -490,6 +512,16 @@ exports.updateStudentAcademicSchedule = async (req, res) => {
         }
 
         await connection.commit();
+
+        // Sync generated sessions to faculty_sessions
+        for (const tid of insertedTimetableIds) {
+            try {
+                await syncTimetableToFacultySession(tid);
+            } catch (err) {
+                console.error("Academic schedule timetable sync error for ID", tid, err);
+            }
+        }
+
         res.status(200).json({ success: true, message: "Academic schedule updated successfully" });
     } catch (error) {
         await connection.rollback();
@@ -598,6 +630,16 @@ exports.createBatchTimetable = async (req, res) => {
         }
 
         await connection.commit();
+
+        // Sync generated sessions to faculty_sessions
+        for (const tid of insertedIds) {
+            try {
+                await syncTimetableToFacultySession(tid);
+            } catch (err) {
+                console.error("Batch timetable sync error for ID", tid, err);
+            }
+        }
+
         res.status(201).json({ success: true, message: "Batch timetable created", report });
     } catch (error) {
         await connection.rollback();
