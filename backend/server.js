@@ -306,6 +306,10 @@ const startServer = async () => {
                 'ALTER TABLE faculties ADD COLUMN deleted_at DATETIME NULL;',
                 'ALTER TABLE admin_notifications ADD COLUMN is_deleted BOOLEAN DEFAULT FALSE;',
                 'ALTER TABLE admin_notifications ADD COLUMN deleted_at DATETIME NULL;',
+                'ALTER TABLE faculty_sessions ADD COLUMN is_deleted BOOLEAN DEFAULT FALSE;',
+                'ALTER TABLE faculty_sessions ADD COLUMN deleted_at DATETIME NULL;',
+                'ALTER TABLE session_attendance ADD COLUMN is_deleted BOOLEAN DEFAULT FALSE;',
+                'ALTER TABLE session_attendance ADD COLUMN deleted_at DATETIME NULL;',
                 
                 // Cleanup: remove emails from students that belong to a staff member
                 'UPDATE students s INNER JOIN users u ON s.email = u.email SET s.email = NULL WHERE u.role != "student";',
