@@ -411,16 +411,16 @@ exports.updateStudentAcademicSchedule = async (req, res) => {
         const studentId = req.params.id;
         const { schedules } = req.body;
 
-        if (!schedules || !Array.isArray(schedules) || schedules.length === 0) {
+        if (!schedules || !Array.isArray(schedules)) {
             await connection.rollback();
-            return res.status(400).json({ success: false, message: "Invalid payload: schedules must be a non-empty array." });
+            return res.status(400).json({ success: false, message: "Invalid payload: schedules must be an array." });
         }
 
         // Validate required fields
         for (const s of schedules) {
-            if (!s.day_of_week || !s.start_time || !s.end_time || !s.subject) {
+            if (!s.day_of_week || !s.start_time || !s.end_time) {
                 await connection.rollback();
-                return res.status(400).json({ success: false, message: "Invalid payload: Missing required schedule fields." });
+                return res.status(400).json({ success: false, message: "Invalid payload: Missing required schedule fields (day, start time, end time)." });
             }
         }
 

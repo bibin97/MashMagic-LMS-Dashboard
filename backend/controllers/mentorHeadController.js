@@ -321,11 +321,11 @@ exports.getFacultyInteractionLogs = async (req, res) => {
             SELECT * FROM (
                 SELECT 
                     mfi.id, mfi.created_at, mfi.mentor_id, mfi.student_id,
-                    m.name as mentor_name, s.name as student_name,
+                    CONVERT(m.name USING utf8mb4) as mentor_name, CONVERT(s.name USING utf8mb4) as student_name,
                     CONVERT('Faculty Call' USING utf8mb4) as source,
                     CONVERT(mfi.main_issue USING utf8mb4) as notes,
-                    mfi.is_flagged, mfi.flag_reason,
-                    f.name as faculty_name, mfi.faculty_id
+                    mfi.is_flagged, CONVERT(mfi.flag_reason USING utf8mb4) as flag_reason,
+                    CONVERT(f.name USING utf8mb4) as faculty_name, mfi.faculty_id
                 FROM mentor_faculty_interactions mfi
                 LEFT JOIN mentors m ON mfi.mentor_id = m.id
                 LEFT JOIN students s ON mfi.student_id = s.id
@@ -336,11 +336,11 @@ exports.getFacultyInteractionLogs = async (req, res) => {
 
                 SELECT 
                     fil.id, fil.created_at, fil.mentor_id, fil.student_id,
-                    m.name as mentor_name, s.name as student_name,
+                    CONVERT(m.name USING utf8mb4) as mentor_name, CONVERT(s.name USING utf8mb4) as student_name,
                     CONVERT('Faculty Tracking' USING utf8mb4) as source,
                     CONVERT(fil.notes USING utf8mb4) as notes,
-                    0 as is_flagged, NULL as flag_reason,
-                    f.name as faculty_name, fil.faculty_id
+                    0 as is_flagged, CONVERT(NULL USING utf8mb4) as flag_reason,
+                    CONVERT(f.name USING utf8mb4) as faculty_name, fil.faculty_id
                 FROM faculty_interaction_logs fil
                 LEFT JOIN users f ON fil.faculty_id = f.id AND f.role = 'faculty'
                 LEFT JOIN students s ON fil.student_id = s.id
@@ -351,11 +351,11 @@ exports.getFacultyInteractionLogs = async (req, res) => {
 
                 SELECT 
                     sr.id, sr.created_at, NULL as mentor_id, sr.student_id,
-                    NULL as mentor_name, s.name as student_name,
+                    CONVERT(NULL USING utf8mb4) as mentor_name, CONVERT(s.name USING utf8mb4) as student_name,
                     CONVERT('Faculty Intelligence' USING utf8mb4) as source,
                     CONVERT(sr.remarks USING utf8mb4) as notes,
-                    0 as is_flagged, NULL as flag_reason,
-                    f.name as faculty_name, sr.faculty_id
+                    0 as is_flagged, CONVERT(NULL USING utf8mb4) as flag_reason,
+                    CONVERT(f.name USING utf8mb4) as faculty_name, sr.faculty_id
                 FROM student_reports sr
                 LEFT JOIN students s ON sr.student_id = s.id
                 LEFT JOIN faculties f ON sr.faculty_id = f.id

@@ -454,8 +454,10 @@ const Timetable = () => {
       return;
     }
     
+    const currentSchedule = studentSchedule || [];
+    
     // Auto-fill missing faculty assignments from the official registration (availableSubjects)
-    const enrichedSchedule = studentSchedule.map(slot => {
+    const enrichedSchedule = currentSchedule.map(slot => {
       if (!slot.faculty_id && slot.subject) {
         const subjObj = availableSubjects.find(s => s.subject === slot.subject);
         if (subjObj && (subjObj.facultyId || subjObj.faculty_id)) {
