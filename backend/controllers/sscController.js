@@ -435,6 +435,8 @@ exports.updateStudentAcademicSchedule = async (req, res) => {
             } catch (e) {}
         }
 
+        const insertedTimetableIds = [];
+
         if (schedules && Array.isArray(schedules) && schedules.length > 0) {
             for (const s of schedules) {
                 const facId = s.faculty_id ? parseInt(s.faculty_id) : null;
@@ -481,7 +483,6 @@ exports.updateStudentAcademicSchedule = async (req, res) => {
                 return dates;
             }
 
-            const insertedTimetableIds = [];
             for (const s of schedules) {
                 const facId = s.faculty_id ? parseInt(s.faculty_id) : null;
                 const upcomingDates = getUpcomingDates(s.day_of_week, 4);
@@ -554,7 +555,7 @@ exports.updateStudentAcademicSchedule = async (req, res) => {
             throw new Error(`CRITICAL FAILURE: faculty_sessions synchronization failed. Expected ${insertedTimetableIds.length} synced, found ${syncedCount}.`);
         }
 
-        // Verify Academic Schedule visibility
+        // Verify Academic Schedule visibility only if faculty was assigned
         const [visibilityCheck] = await connection.query(`
             SELECT COUNT(fs.id) as count
             FROM faculty_sessions fs
@@ -563,7 +564,13 @@ exports.updateStudentAcademicSchedule = async (req, res) => {
             WHERE (sa.student_id = ? OR t.student_id = ?) AND (fs.is_deleted IS NULL OR fs.is_deleted = 0)
         `, [studentId, studentId]);
 
-        if (visibilityCheck[0].count === 0 && insertedTimetableIds.length > 0) {
+        let timetablesWithFacultyCount = 0;
+        if (insertedTimetableIds.length > 0) {
+            const [withFacRows] = await connection.query('SELECT COUNT(id) as count FROM timetable WHERE id IN (?) AND faculty_id IS NOT NULL', [insertedTimetableIds]);
+            timetablesWithFacultyCount = withFacRows[0].count;
+        }
+
+        if (visibilityCheck[0].count === 0 && timetablesWithFacultyCount > 0) {
             throw new Error(`CRITICAL FAILURE: Academic Schedule visibility verification failed. Zero sessions visible for student ${studentId}.`);
         }
 
