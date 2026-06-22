@@ -1328,9 +1328,10 @@ const getDailyHours = async (req, res) => {
 const getAcademicSchedule = async (req, res) => {
     try {
         const mentorId = req.user.id;
+        let query = `
             SELECT fs.*, 
-                   COALESCE(u.name, f_user.name, t.faculty_name, 'Unassigned') as faculty_name, 
-                   COALESCE(GROUP_CONCAT(DISTINCT s.name SEPARATOR ', '), 'No Student Assigned') as student_name, 
+                   COALESCE(NULLIF(u.name, ''), NULLIF(f_user.name, ''), NULLIF(t.faculty_name, ''), 'Unassigned') as faculty_name, 
+                   COALESCE(NULLIF(GROUP_CONCAT(DISTINCT s.name SEPARATOR ', '), ''), 'No Student Assigned') as student_name, 
                    MAX(s.id) as student_id, 
                    MAX(s.meeting_link) as meeting_link, 
                    MAX(t.session_number) as session_number
