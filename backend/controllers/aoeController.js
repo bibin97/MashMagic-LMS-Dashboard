@@ -1242,13 +1242,13 @@ const createDemoSchedule = async (req, res) => {
         while (usedNumbers.includes(nextNum)) nextNum++;
         const auto_demo_id = `${prefix}${String(nextNum).padStart(2, '0')}`;
 
-        await db.query(`
+        const [result] = await db.query(`
             INSERT INTO aoe_demo_schedules 
                 (aoe_id, demo_id, type, date, student_name, student_type, syllabus, section, subject, faculty_id, faculty_name, start_time, end_time, hour_rate, meeting_link)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `, [aoe_id, auto_demo_id, demoType, date || null, student_name || null, student_type || 'new', syllabus || null, section || null, subject || null, resolvedFacultyId, normalizedFacultyName || null, start_time || null, end_time || null, hour_rate || 0, meeting_link || null]);
 
-        res.status(201).json({ success: true, message: 'Demo schedule created successfully', demo_id: auto_demo_id });
+        res.status(201).json({ success: true, message: 'Demo schedule created successfully', demo_id: auto_demo_id, id: result.insertId });
     } catch (error) {
         console.error("CREATE_DEMO_ERROR:", error);
         res.status(500).json({ success: false, message: error.message });
