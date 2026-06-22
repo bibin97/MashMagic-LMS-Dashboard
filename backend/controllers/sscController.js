@@ -463,7 +463,7 @@ exports.updateStudentAcademicSchedule = async (req, res) => {
             // Post-Insert Verification for faculty_schedules
             const [verifySchedulesRows] = await connection.query('SELECT COUNT(id) as count FROM faculty_schedules WHERE student_id = ? AND (is_deleted IS NULL OR is_deleted = 0)', [studentId]);
             if (Number(verifySchedulesRows[0].count) !== schedules.length) {
-                console.warn(`WARNING: Registration schedule save verification. Expected ${schedules.length} rows, found ${verifySchedulesRows[0].count}.`);
+                throw new Error(`CRITICAL FAILURE: Registration schedule save verification failed. Expected ${schedules.length} rows, found ${verifySchedulesRows[0].count}.`);
             }
 
             // ── AUTO-SYNC: Generate timetable entries for the next 4 weeks ──
@@ -511,6 +511,14 @@ exports.updateStudentAcademicSchedule = async (req, res) => {
                             VALUES (?, ?, 0, ?, ?, ?, ?, '', ?, 'Regular Class', 'Scheduled', '', ?, ?, 'Online')
                         `, [actualMentorId, studentId, date, start24, end24, duration, s.subject || '', facId, faculty_name]);
                         insertedTimetableIds.push(result.insertId);
+                    } else {
+                        // Update existing timetable with latest faculty and subject
+                        await connection.query(`
+                            UPDATE timetable 
+                            SET subject = ?, faculty_id = ?, faculty_name = ?, end_time = ?, duration = ?
+                            WHERE id = ?
+                        `, [s.subject || '', facId, faculty_name, end24, duration, existing[0].id]);
+                        insertedTimetableIds.push(existing[0].id);
                     }
                 }
             }
@@ -519,7 +527,7 @@ exports.updateStudentAcademicSchedule = async (req, res) => {
             if (insertedTimetableIds.length > 0) {
                 const [verifyRows] = await connection.query('SELECT COUNT(id) as count FROM timetable WHERE id IN (?)', [insertedTimetableIds]);
                 if (Number(verifyRows[0].count) !== insertedTimetableIds.length) {
-                    console.warn(`WARNING: Academic Schedule timetable generation verification. Expected ${insertedTimetableIds.length}, found ${verifyRows[0].count}`);
+                    throw new Error(`CRITICAL FAILURE: Academic Schedule timetable generation verification failed. Expected ${insertedTimetableIds.length}, found ${verifyRows[0].count}`);
                 }
             }
 
@@ -552,7 +560,7 @@ exports.updateStudentAcademicSchedule = async (req, res) => {
 
         // Verify faculty_sessions synchronization
         if (syncedCount !== insertedTimetableIds.length) {
-            console.warn(`WARNING: faculty_sessions synchronization mismatch. Expected ${insertedTimetableIds.length} synced, found ${syncedCount}.`);
+            throw new Error(`CRITICAL FAILURE: faculty_sessions synchronization failed. Expected ${insertedTimetableIds.length} synced, found ${syncedCount}.`);
         }
 
         // Verify Academic Schedule visibility only if faculty was assigned
@@ -571,7 +579,7 @@ exports.updateStudentAcademicSchedule = async (req, res) => {
         }
 
         if (Number(visibilityCheck[0].count) === 0 && timetablesWithFacultyCount > 0) {
-            console.warn(`WARNING: Academic Schedule visibility verification. Zero sessions visible for student ${studentId}.`);
+            throw new Error(`CRITICAL FAILURE: Academic Schedule visibility verification failed. Zero sessions visible for student ${studentId}.`);
         }
 
         await connection.commit();
