@@ -82,13 +82,10 @@ const StudentsList = ({
       const facultyParam = filterFaculty !== 'all' ? `&faculty_id=${filterFaculty}` : '';
       const res = await api.get(`${apiPath}/students-all?search=${searchTerm}&sortBy=${sortBy}&course=${filterCourse}${mentorParam}${facultyParam}`);
 
-      // Apply mock hours only for students who have no real subject_hours from the database
+      // Inject mock hours for specific students requested by user
       let fetchedStudents = res.data.data || [];
       fetchedStudents = fetchedStudents.map(student => {
-        // Skip mock injection if student already has real data from the database
-        if (student.subject_hours && student.subject_hours.length > 0) {
-          return student;
-        }
+        // Try to match by exact name or if the name contains the mock name
         const mockKey = Object.keys(mockStudentHours).find(key => student.name.toLowerCase().includes(key.toLowerCase()));
         if (mockKey) {
           const mockObj = mockStudentHours[mockKey];

@@ -112,60 +112,25 @@ const calculateStudentHours = async (students, db) => {
 
         const studentData = consumedMap[s.id] || { totalMins: 0, subjects: {} };
         
-        // 1. Determine Subjects
-        // We prioritize whatever is currently saved in the database for tracking (`studentData.subjects`).
-        // If they have NO tracked subjects yet, we fallback to their registered `subjects_json`
-        let actualSubjects = [];
-        const trackedSubjects = Object.keys(studentData.subjects);
-
-        if (trackedSubjects.length > 0) {
-            actualSubjects = trackedSubjects; // The user has explicitly saved subjects, use them!
-        } else {
-            // Fallback to registration details if nothing is tracked yet
-            let registeredSubjects = [];
-            try {
-                if (s.subjects_json) {
-                    registeredSubjects = typeof s.subjects_json === 'string' ? JSON.parse(s.subjects_json) : s.subjects_json;
-                }
-            } catch(e) {}
-
-            if (registeredSubjects.length > 0) {
-                actualSubjects = registeredSubjects.map(sub => {
-                    if (typeof sub === 'string') return sub;
-                    if (sub.subject && typeof sub.subject === 'string') return sub.subject;
-                    if (sub.subject && Array.isArray(sub.subject)) return sub.subject.join(', ');
-                    return null;
-                }).filter(Boolean);
-            } else if (s.subject) {
-                actualSubjects = s.subject.split(',').map(sub => sub.trim()).filter(Boolean);
-            }
-        }
+        // Only include subjects that have actual sessions or have been explicitly added with allocated hours.
+        // We do not auto-populate registered subjects anymore, as requested by the user.
         
-        // Remove duplicates and normalize
-        actualSubjects = [...new Set(actualSubjects)];
-
-        // 2. Build subject_hours array
+        // Sum historical baseline to totalMins
         const subject_hours = [];
-        actualSubjects.forEach(subjName => {
-            // Find if there is any consumed/allocated data for this exact subject
-            let matchedKey = Object.keys(studentData.subjects).find(k => k.toLowerCase() === subjName.toLowerCase());
-            let data = matchedKey ? studentData.subjects[matchedKey] : { consumedMins: 0, allocated: 0 };
-            
+        for (const [subjName, data] of Object.entries(studentData.subjects)) {
             const subjConsumedHours = data.consumedMins / 60;
-            
             let facNames = '';
             const mapping = facultyMappings.find(fm => fm.student_id === s.id && (fm.subject === subjName || (fm.subject || '').toLowerCase() === (subjName || '').toLowerCase()));
             if (mapping) {
                 facNames = mapping.faculty_names;
             }
-            
             subject_hours.push({
                 subject: subjName,
                 consumed_hours: parseFloat(subjConsumedHours.toFixed(2)),
                 allocated_hours: data.allocated,
                 faculties: facNames
             });
-        });
+        }
 
         // Wait, the `data.consumedMins` above is `historical + dynamically tracked`.
         // So the TRUE total lifetime consumed minutes is `studentData.totalMins` (dynamically tracked) + SUM(historical consumed mins).
@@ -178,7 +143,7 @@ const calculateStudentHours = async (students, db) => {
         const total_lifetime_consumed_hours = total_lifetime_consumed_mins / 60;
         
         // Cycle Limit is the total entitled hours minus whatever they had already consumed before this last payment.
-        // This gives us the size of the "bucket" of hours they have for this cycle (including any carried over hours).
+        // This gives us the size of the "bucket" of hours they have for this cycle (including any carried over hours).\
         let cycle_limit_hours = total_entitled_hours - current_installment_start_hours;
         if (cycle_limit_hours < 0) cycle_limit_hours = 0;
 
