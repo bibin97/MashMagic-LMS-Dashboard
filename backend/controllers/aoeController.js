@@ -402,9 +402,36 @@ const registerStudent = async (req, res) => {
             }
         }
 
+        // --- PHASE 3: REGISTRATION GUARANTEE (VERIFICATION) ---
+        const [verifyResult] = await conn.query('SELECT * FROM students WHERE id = ?', [studentId]);
+        if (verifyResult.length === 0) {
+            throw new Error('Registration Verification Failed: Record not found in database after insert.');
+        }
+        
+        const savedStudent = verifyResult[0];
+        const missingFields = [];
+        
+        // Check mandatory submitted fields
+        const mandatoryCheck = {
+            name: name,
+            grade: grade,
+            course: course,
+            user_id: ur.insertId
+        };
+
+        for (const [key, expectedVal] of Object.entries(mandatoryCheck)) {
+            if (expectedVal && (savedStudent[key] === null || savedStudent[key] === undefined || savedStudent[key] === '')) {
+                missingFields.push(key);
+            }
+        }
+
+        if (missingFields.length > 0) {
+            throw new Error(`Registration Verification Failed: The following mandatory fields failed to save: ${missingFields.join(', ')}`);
+        }
+
         await conn.commit();
         conn.release();
-        res.status(201).json({ success: true, message: "Student registered" });
+        res.status(201).json({ success: true, message: "Student registered successfully with complete data verification" });
     } catch (e) { await conn.rollback(); conn.release(); res.status(500).json({ success: false, message: e.message }); }
 };
 
