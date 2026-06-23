@@ -681,7 +681,7 @@ const editFaculty = async (req, res) => {
         // Log the edit
         try {
             const editorId = req.user.id;
-            const editorName = req.user.name;
+            const editorName = req.user.name || null;
             const changes = `Updated profile for ${name || 'faculty'}`;
             await db.query(
                 `INSERT INTO faculty_edit_logs (faculty_id, edited_by, edited_by_name, changes_summary) VALUES (?, ?, ?, ?)`,
