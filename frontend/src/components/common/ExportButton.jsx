@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { Download, Calendar, X } from 'lucide-react';
 import * as XLSX from 'xlsx';
-import DatePicker, { DateObject } from "react-multi-date-picker";
+import MultiDatePicker, { DateObject } from "react-multi-date-picker";
+
+const DatePicker = MultiDatePicker.default ? MultiDatePicker.default : MultiDatePicker;
 
 const ExportButton = ({ data, filename = "export", dateField = "createdAt", columns = [] }) => {
   const [showModal, setShowModal] = useState(false);
@@ -11,7 +13,31 @@ const ExportButton = ({ data, filename = "export", dateField = "createdAt", colu
   const handleExport = () => {
     let filteredData = [...data];
 
-    if (exportType === 'range' && dateRange.length > 0) {
+    if (exportType === 'today') {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const end = new Date(today);
+      end.setHours(23, 59, 59, 999);
+
+      filteredData = data.filter(item => {
+        const itemDateStr = item[dateField];
+        if (!itemDateStr) return false;
+        
+        let itemDate;
+        if (typeof itemDateStr === 'string' && itemDateStr.includes('-')) {
+            const parts = itemDateStr.split('-');
+            if (parts[0].length === 2 && parts[2].length === 4) { // DD-MM-YYYY
+                itemDate = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);
+            } else {
+                itemDate = new Date(itemDateStr);
+            }
+        } else {
+            itemDate = new Date(itemDateStr);
+        }
+
+        return itemDate >= today && itemDate <= end;
+      });
+    } else if (exportType === 'range' && dateRange.length > 0) {
       const start = new Date(dateRange[0].format("YYYY-MM-DD"));
       start.setHours(0, 0, 0, 0);
 
@@ -93,7 +119,7 @@ const ExportButton = ({ data, filename = "export", dateField = "createdAt", colu
             <div className="p-6 space-y-6">
               <div className="space-y-3">
                 <label className="text-xs font-black uppercase text-slate-700 tracking-wider">Export Options</label>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-3 gap-3">
                   <button
                     onClick={() => setExportType('all')}
                     className={`p-3 rounded-xl border-2 text-xs font-bold transition-all ${
@@ -102,7 +128,17 @@ const ExportButton = ({ data, filename = "export", dateField = "createdAt", colu
                         : 'border-slate-100 hover:border-slate-200 text-slate-500'
                     }`}
                   >
-                    Export All
+                    All Time
+                  </button>
+                  <button
+                    onClick={() => setExportType('today')}
+                    className={`p-3 rounded-xl border-2 text-xs font-bold transition-all ${
+                      exportType === 'today' 
+                        ? 'border-[#008080] bg-[#008080]/5 text-[#008080]' 
+                        : 'border-slate-100 hover:border-slate-200 text-slate-500'
+                    }`}
+                  >
+                    Today
                   </button>
                   <button
                     onClick={() => setExportType('range')}
@@ -112,7 +148,7 @@ const ExportButton = ({ data, filename = "export", dateField = "createdAt", colu
                         : 'border-slate-100 hover:border-slate-200 text-slate-500'
                     }`}
                   >
-                    Custom Date Range
+                    Custom Range
                   </button>
                 </div>
               </div>
