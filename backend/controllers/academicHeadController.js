@@ -1,4 +1,5 @@
 const db = require('../config/db');
+const { calculateStudentHours } = require('../utils/studentHoursHelper');
 
 const getDailyStudentRotation = async (req, res) => {
     try {
@@ -308,22 +309,43 @@ const addEscalation = async (req, res) => {
 
 const getAllStudents = async (req, res) => {
     try {
-        let query = `
-            SELECT id, name, course, subject, grade, mentor_id, mentor_name, faculty_id, faculty_name, course_completed
-            FROM students
-            WHERE mentor_id IS NOT NULL
+        const { mentor_id, faculty_id, search, sortBy, course } = req.query;
+        let sql = `
+            SELECT s.*, m.name as mentor_name,
+            COALESCE(
+                (SELECT GROUP_CONCAT(DISTINCT u.name SEPARATOR ', ') 
+                 FROM faculty_schedules fs JOIN faculties u ON fs.faculty_id = u.id WHERE (fs.is_deleted IS NULL OR fs.is_deleted = 0) AND fs.student_id = s.id),
+                s.faculty_name
+            ) as faculty_name
+            FROM students s
+            LEFT JOIN mentors m ON s.mentor_id = m.id
+            WHERE (s.status != 'rejected' OR s.status IS NULL) AND s.status = 'active'
         `;
         const queryParams = [];
 
-        if (req.query.mentor_id) {
-            query += ` AND mentor_id = ?`;
-            queryParams.push(req.query.mentor_id);
+        if (mentor_id) {
+            sql += ' AND s.mentor_id = ?';
+            queryParams.push(mentor_id);
+        }
+        if (faculty_id) {
+            sql += ' AND (s.faculty_id = ? OR EXISTS (SELECT 1 FROM faculty_schedules fs WHERE (fs.is_deleted IS NULL OR fs.is_deleted = 0) AND fs.student_id = s.id AND fs.faculty_id = ?))';
+            queryParams.push(faculty_id, faculty_id);
+        }
+        if (search) {
+            sql += ' AND (s.name LIKE ? OR s.registration_number LIKE ?)';
+            queryParams.push(`%${search}%`, `%${search}%`);
+        }
+        if (course && course !== 'all') {
+            sql += ' AND s.course = ?';
+            queryParams.push(course);
         }
 
-        query += ` ORDER BY name ASC`;
+        sql += ' ORDER BY s.name ASC';
 
-        const [students] = await db.query(query, queryParams);
-        res.status(200).json({ success: true, data: students });
+        const [rows] = await db.query(sql, queryParams);
+        const augmentedRows = await calculateStudentHours(rows, db);
+
+        res.status(200).json({ success: true, data: augmentedRows });
     } catch (error) {
         console.error("Error fetching all students:", error);
         res.status(500).json({ success: false, message: "Server error" });

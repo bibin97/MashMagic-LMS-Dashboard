@@ -143,7 +143,7 @@ const calculateStudentHours = async (students, db) => {
         const total_lifetime_consumed_hours = total_lifetime_consumed_mins / 60;
         
         // Cycle Limit is the total entitled hours minus whatever they had already consumed before this last payment.
-        // This gives us the size of the "bucket" of hours they have for this cycle (including any carried over hours).\
+        // This gives us the size of the "bucket" of hours they have for this cycle (including any carried over hours).
         let cycle_limit_hours = total_entitled_hours - current_installment_start_hours;
         if (cycle_limit_hours < 0) cycle_limit_hours = 0;
 
