@@ -799,12 +799,29 @@ const StudentsList = ({
                         try {
                             if (editHoursModal.student?.subjects_json) {
                                 const parsed = typeof editHoursModal.student.subjects_json === 'string' ? JSON.parse(editHoursModal.student.subjects_json) : editHoursModal.student.subjects_json;
-                                enrolled = parsed.map(s => s.subject || s.name || s);
+                                enrolled = parsed.map(s => {
+                                    if (typeof s === 'string') return s;
+                                    if (s.subject) {
+                                        if (typeof s.subject === 'string') return s.subject;
+                                        if (Array.isArray(s.subject)) return s.subject.join(', ');
+                                    }
+                                    if (s.name && typeof s.name === 'string') return s.name;
+                                    return String(s);
+                                });
                             }
                         } catch (e) {}
 
-                        const currentSubjects = (editHoursModal.subject_hours || []).map(sh => (sh.subject || sh.subject_name || '').toLowerCase());
-                        const availableToAdd = enrolled.filter(subj => !currentSubjects.includes((subj || '').toLowerCase()));
+                        const currentSubjects = (editHoursModal.subject_hours || []).map(sh => {
+                            let subjStr = sh.subject || sh.subject_name || '';
+                            if (Array.isArray(subjStr)) subjStr = subjStr.join(', ');
+                            return String(subjStr).toLowerCase();
+                        });
+                        
+                        const availableToAdd = enrolled.filter(subj => {
+                            let subjStr = subj || '';
+                            if (Array.isArray(subjStr)) subjStr = subjStr.join(', ');
+                            return !currentSubjects.includes(String(subjStr).toLowerCase());
+                        });
 
                         if (availableToAdd.length > 0) {
                             return (
