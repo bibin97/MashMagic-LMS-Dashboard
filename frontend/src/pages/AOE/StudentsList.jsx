@@ -85,6 +85,11 @@ const StudentsList = ({
       // Inject mock hours for specific students requested by user
       let fetchedStudents = res.data.data || [];
       fetchedStudents = fetchedStudents.map(student => {
+        // Skip mock injection if the Academic Head has explicitly set subjects/hours for this student
+        if (student.has_explicit_subjects) {
+          return student;
+        }
+
         // Try to match by exact name or if the name contains the mock name
         const mockKey = Object.keys(mockStudentHours).find(key => student.name.toLowerCase().includes(key.toLowerCase()));
         if (mockKey) {
