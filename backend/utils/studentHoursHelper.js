@@ -118,6 +118,9 @@ const calculateStudentHours = async (students, db) => {
         // Sum historical baseline to totalMins
         const subject_hours = [];
         for (const [subjName, data] of Object.entries(studentData.subjects)) {
+            // Skip the dummy marker subject
+            if (subjName === '__EDITED__') continue;
+
             const subjConsumedHours = data.consumedMins / 60;
             
             // Do not show accidental 0/0 subjects where NO sessions exist and NO allocated hours exist

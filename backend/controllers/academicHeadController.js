@@ -491,7 +491,7 @@ const updateStudentSubjectHours = async (req, res) => {
         // Delete all existing subject hours for this student
         await conn.query('DELETE FROM student_subjects WHERE student_id = ?', [id]);
 
-        // Insert new ones
+        // Insert new ones (or a dummy to mark as edited)
         if (subject_hours.length > 0) {
             const values = subject_hours.map(sh => {
                 const subj = sh.subject_name || sh.subject;
@@ -511,6 +511,12 @@ const updateStudentSubjectHours = async (req, res) => {
             await conn.query(
                 'INSERT INTO student_subjects (student_id, subject_name, allocated_hours, historical_consumed_hours) VALUES ?',
                 [values]
+            );
+        } else {
+            // Insert a dummy row to mark this student as explicitly edited (so frontend skips mock data)
+            await conn.query(
+                'INSERT INTO student_subjects (student_id, subject_name, allocated_hours, historical_consumed_hours) VALUES (?, ?, ?, ?)',
+                [id, '__EDITED__', 0, 0]
             );
         }
 
