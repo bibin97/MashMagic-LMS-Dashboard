@@ -495,7 +495,7 @@ const getAcademicActions = async (req, res) => {
                 MAX(e.exam_type) as exam_type, MAX(e.scheduled_date) as scheduled_date
             FROM timetable r
             JOIN students s ON r.student_id = s.id
-            JOIN users m ON s.mentor_id = m.id AND m.role = 'mentor'
+            LEFT JOIN mentors m ON s.mentor_id = m.id
             LEFT JOIN student_exams e ON r.student_id = e.student_id AND r.session_number = e.milestone_session
             WHERE (r.session_number % 5 = 0)
             AND r.status = 'Completed'

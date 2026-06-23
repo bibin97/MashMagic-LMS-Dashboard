@@ -52,7 +52,7 @@ exports.getStudentsTrack = async (req, res) => {
             ) THEN 1 ELSE 0 END as connected_today,
             s.onboarding_status
             FROM students s
-            LEFT JOIN users m ON s.mentor_id = m.id
+            LEFT JOIN mentors m ON s.mentor_id = m.id
             WHERE s.status != 'rejected'
             ORDER BY s.name ASC
         `);

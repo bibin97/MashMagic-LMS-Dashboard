@@ -210,7 +210,7 @@ const getMentorStudents = async (req, res) => {
             ) THEN 1 ELSE 0 END as connected_today,
             s.onboarding_status
             FROM students s 
-            LEFT JOIN users m ON s.mentor_id = m.id
+            LEFT JOIN mentors m ON s.mentor_id = m.id
             WHERE s.status NOT IN ('rejected', 'inactive') AND s.course_completed = 0 AND s.mentorship_completed = 0
             AND (LOWER(s.enrollment_type) LIKE '%mentorship%' OR LOWER(s.enrollment_type) = 'both')
             ${isPrivileged ? '' : 'AND s.mentor_id = ?'}
@@ -242,7 +242,7 @@ const getStudentDetails = async (req, res) => {
                 s.faculty_name
             ) as faculty_name 
             FROM students s 
-            LEFT JOIN users m ON s.mentor_id = m.id 
+            LEFT JOIN mentors m ON s.mentor_id = m.id 
             WHERE s.id = ?
         `;
         let queryParams = [studentId];

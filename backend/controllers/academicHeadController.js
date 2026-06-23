@@ -231,7 +231,7 @@ const getStudentGrowth = async (req, res) => {
             SELECT s.id, s.name, s.batch, m.name as mentor_name, f.name as faculty_name,
                    (SELECT AVG(score) FROM student_exams WHERE student_id = s.id) as avg_score
             FROM students s
-            LEFT JOIN users m ON s.mentor_id = m.id
+            LEFT JOIN mentors m ON s.mentor_id = m.id
             LEFT JOIN users f ON s.faculty_id = f.id
             WHERE s.status = 'active'
         `);
