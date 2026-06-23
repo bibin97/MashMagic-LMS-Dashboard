@@ -1,21 +1,11 @@
 const fs = require('fs');
-const mysql = require('mysql2/promise');
 const path = require('path');
-require('dotenv').config({ path: path.join(__dirname, '../backend/.env') });
-
-const dbConfig = {
-    host: process.env.DB_HOST || 'localhost',
-    user: process.env.DB_USER || 'root',
-    password: process.env.DB_PASSWORD || '',
-    database: process.env.DB_NAME || 'mashmagic'
-};
+const db = require('../config/db');
 
 async function runAudit() {
     console.log("Starting Phase 0: Student Field Level Audit...");
-    const connection = await mysql.createConnection(dbConfig);
-    
     try {
-        const [students] = await connection.query('SELECT * FROM students');
+        const [students] = await db.query('SELECT * FROM students');
         
         const requiredFields = [
             'registration_number', 'name', 'email', 'phone_number', 'contact', 
@@ -60,14 +50,14 @@ async function runAudit() {
             auditReport.push(studentAudit);
         });
 
-        const reportPath = path.join(__dirname, '../student_audit_report.json');
+        const reportPath = path.join(__dirname, '../../student_audit_report.json');
         fs.writeFileSync(reportPath, JSON.stringify(auditReport, null, 2));
         console.log(`Audit completed for ${students.length} students. Report saved to student_audit_report.json`);
         
     } catch (e) {
         console.error("Audit failed:", e);
     } finally {
-        await connection.end();
+        process.exit(0);
     }
 }
 
