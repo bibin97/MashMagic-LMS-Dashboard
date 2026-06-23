@@ -408,6 +408,9 @@ const Registrations = () => {
               days: [config.day] // For backward compatibility with some controller logic
             });
           });
+        } else {
+          // Keep the subject-faculty assignment even if no schedule is set
+          flattenedSubjects.push({ ...s });
         }
       });
       const res = await api.post('/aoe/register-student', { ...studentForm, selectedSubjects: flattenedSubjects });
