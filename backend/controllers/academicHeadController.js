@@ -405,11 +405,6 @@ const updateStudentHours = async (req, res) => {
             queryParams.push(total_hours);
         }
 
-        if (total_lifetime_consumed_hours !== undefined) {
-            updateQueries.push('total_lifetime_consumed_hours = ?');
-            queryParams.push(total_lifetime_consumed_hours);
-        }
-
         if (updateQueries.length > 0) {
             queryParams.push(id);
             await db.query(`UPDATE students SET ${updateQueries.join(', ')} WHERE id = ?`, queryParams);
