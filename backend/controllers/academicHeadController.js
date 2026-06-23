@@ -442,9 +442,9 @@ const updateStudentSubjectHours = async (req, res) => {
         if (subject_hours.length > 0) {
             const values = subject_hours.map(sh => [
                 id, 
-                sh.subject_name, 
+                sh.subject_name || sh.subject, 
                 sh.allocated_hours || 0, 
-                sh.historical_consumed_hours || 0
+                sh.historical_consumed_hours ?? sh.consumed_hours ?? 0
             ]);
             await conn.query(
                 'INSERT INTO student_subjects (student_id, subject_name, allocated_hours, historical_consumed_hours) VALUES ?',
