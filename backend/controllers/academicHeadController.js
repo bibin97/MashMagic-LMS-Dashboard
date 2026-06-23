@@ -457,17 +457,57 @@ const updateStudentSubjectHours = async (req, res) => {
         conn = await db.getConnection();
         await conn.beginTransaction();
 
+        // Calculate actual session hours for this student to determine the historical offset
+        const [sessions] = await conn.query(`
+            SELECT 
+                COALESCE(t.chapter, fs.topic, 'Unknown') as subject, 
+                fs.minutes_taken, 
+                t.duration as t_duration, 
+                fs.duration as fs_duration
+            FROM faculty_sessions fs
+            LEFT JOIN timetable t ON fs.timetable_id = t.id
+            LEFT JOIN session_attendance sa ON fs.id = sa.session_id
+            WHERE fs.status = 'Completed' 
+            AND (t.student_id = ? OR sa.student_id = ?)
+        `, [id, id]);
+
+        const liveMins = {};
+        sessions.forEach(s => {
+            const subj = s.subject || 'Unknown';
+            let mins = 0;
+            if (s.minutes_taken) {
+                mins = parseInt(s.minutes_taken, 10);
+            } else {
+                const dur = s.t_duration || s.fs_duration || '';
+                const hMatch = dur.match(/(\d+)h/);
+                const mMatch = dur.match(/(\d+)m/);
+                if (hMatch) mins += parseInt(hMatch[1]) * 60;
+                if (mMatch) mins += parseInt(mMatch[1]);
+            }
+            if (!liveMins[subj]) liveMins[subj] = 0;
+            liveMins[subj] += mins;
+        });
+
         // Delete all existing subject hours for this student
         await conn.query('DELETE FROM student_subjects WHERE student_id = ?', [id]);
 
         // Insert new ones
         if (subject_hours.length > 0) {
-            const values = subject_hours.map(sh => [
-                id, 
-                sh.subject_name || sh.subject, 
-                sh.allocated_hours || 0, 
-                sh.historical_consumed_hours ?? sh.consumed_hours ?? 0
-            ]);
+            const values = subject_hours.map(sh => {
+                const subj = sh.subject_name || sh.subject;
+                const targetHours = parseFloat(sh.historical_consumed_hours ?? sh.consumed_hours ?? 0);
+                const currentLiveHours = (liveMins[subj] || 0) / 60;
+                
+                // Historical offset is the difference between what the Academic Head wants and what the system has tracked
+                const offsetHours = targetHours - currentLiveHours;
+                
+                return [
+                    id, 
+                    subj, 
+                    parseFloat(sh.allocated_hours || 0), 
+                    offsetHours
+                ];
+            });
             await conn.query(
                 'INSERT INTO student_subjects (student_id, subject_name, allocated_hours, historical_consumed_hours) VALUES ?',
                 [values]

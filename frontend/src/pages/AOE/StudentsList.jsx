@@ -801,64 +801,46 @@ const StudentsList = ({
                       </div>
                   )}
 
-                  {/* Add Enrolled Subject Dropdown */}
-                    {(() => {
-                        let enrolled = [];
-                        try {
-                            if (editHoursModal.student?.subjects_json) {
-                                const parsed = typeof editHoursModal.student.subjects_json === 'string' ? JSON.parse(editHoursModal.student.subjects_json) : editHoursModal.student.subjects_json;
-                                enrolled = parsed.map(s => {
-                                    if (typeof s === 'string') return s;
-                                    if (s.subject) {
-                                        if (typeof s.subject === 'string') return s.subject;
-                                        if (Array.isArray(s.subject)) return s.subject.join(', ');
-                                    }
-                                    if (s.name && typeof s.name === 'string') return s.name;
-                                    return String(s);
-                                });
-                            }
-                        } catch (e) {}
-
-                        const currentSubjects = (editHoursModal.subject_hours || []).map(sh => {
-                            let subjStr = sh.subject || sh.subject_name || '';
-                            if (Array.isArray(subjStr)) subjStr = subjStr.join(', ');
-                            return String(subjStr).toLowerCase();
-                        });
-                        
-                        const availableToAdd = enrolled.filter(subj => {
-                            let subjStr = subj || '';
-                            if (Array.isArray(subjStr)) subjStr = subjStr.join(', ');
-                            return !currentSubjects.includes(String(subjStr).toLowerCase());
-                        });
-
-                        if (availableToAdd.length > 0) {
-                            return (
-                                <div className="mt-3">
-                                    <select 
-                                        className="w-full px-2 py-1.5 text-xs border border-slate-200 rounded-lg text-slate-600"
-                                        onChange={(e) => {
-                                            if (!e.target.value) return;
-                                            const newSh = [...(editHoursModal.subject_hours || [])];
-                                            newSh.push({
-                                                subject_name: e.target.value,
-                                                allocated_hours: 0,
-                                                historical_consumed_hours: 0
-                                            });
-                                            setEditHoursModal({ ...editHoursModal, subject_hours: newSh });
-                                            e.target.value = "";
-                                        }}
-                                        defaultValue=""
-                                    >
-                                        <option value="" disabled>+ Add Enrolled Subject</option>
-                                        {availableToAdd.map((subj, idx) => (
-                                            <option key={idx} value={subj}>{subj}</option>
-                                        ))}
-                                    </select>
-                                </div>
-                            );
-                        }
-                        return null;
-                    })()}
+                  {/* Add Subject Section */}
+                  <div className="mt-4 flex gap-2">
+                      <input 
+                          type="text" 
+                          placeholder="Type subject name to add..." 
+                          className="flex-1 px-3 py-2 text-xs border border-slate-200 rounded-lg focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none"
+                          onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                  e.preventDefault();
+                                  if (!e.target.value.trim()) return;
+                                  const newSh = [...(editHoursModal.subject_hours || [])];
+                                  newSh.push({
+                                      subject_name: e.target.value.trim(),
+                                      allocated_hours: 0,
+                                      historical_consumed_hours: 0
+                                  });
+                                  setEditHoursModal({ ...editHoursModal, subject_hours: newSh });
+                                  e.target.value = "";
+                              }
+                          }}
+                      />
+                      <button 
+                          type="button"
+                          className="px-3 py-2 bg-slate-100 text-slate-600 text-xs font-bold rounded-lg hover:bg-slate-200"
+                          onClick={(e) => {
+                              const input = e.currentTarget.previousElementSibling;
+                              if (!input.value.trim()) return;
+                              const newSh = [...(editHoursModal.subject_hours || [])];
+                              newSh.push({
+                                  subject_name: input.value.trim(),
+                                  allocated_hours: 0,
+                                  historical_consumed_hours: 0
+                              });
+                              setEditHoursModal({ ...editHoursModal, subject_hours: newSh });
+                              input.value = "";
+                          }}
+                      >
+                          Add
+                      </button>
+                  </div>
                 </div>
               
 							<div className="pt-2 flex justify-end gap-3">

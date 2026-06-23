@@ -3,7 +3,7 @@ const calculateStudentHours = async (students, db) => {
 
     const studentIds = students.map(s => s.id);
     
-    // Load explicitly set subject hours (Academic Head's display layer)
+    // Check if student_subjects table exists to avoid crash if migration not run
     let baseSubjects = [];
     try {
         const [rows] = await db.query('SELECT * FROM student_subjects WHERE student_id IN (?)', [studentIds]);
@@ -12,7 +12,7 @@ const calculateStudentHours = async (students, db) => {
         // Table doesn't exist yet, ignore
     }
 
-    // Load live session data (for students WITHOUT explicit student_subjects entries)
+    // Try to get subject from timetable
     let sessions = [];
     try {
         const [rows] = await db.query(`
@@ -23,15 +23,14 @@ const calculateStudentHours = async (students, db) => {
         `, [studentIds]);
         sessions = rows;
     } catch (e) {
-        try {
-            const [rows] = await db.query(`
-                SELECT t.student_id, t.duration, fs.minutes_taken 
-                FROM timetable t
-                LEFT JOIN faculty_sessions fs ON t.id = fs.timetable_id
-                WHERE t.status = "Completed" AND t.student_id IN (?)
-            `, [studentIds]);
-            sessions = rows.map(r => ({ ...r, subject: 'Unknown' }));
-        } catch (e2) {}
+        // Fallback if subject column doesn't exist yet
+        const [rows] = await db.query(`
+            SELECT t.student_id, t.duration, fs.minutes_taken 
+            FROM timetable t
+            LEFT JOIN faculty_sessions fs ON t.id = fs.timetable_id
+            WHERE t.status = "Completed" AND t.student_id IN (?)
+        `, [studentIds]);
+        sessions = rows.map(r => ({ ...r, subject: 'Unknown' }));
     }
 
     const [standaloneSessions] = await db.query(`
@@ -41,37 +40,11 @@ const calculateStudentHours = async (students, db) => {
         WHERE fs.status = "Completed" AND fs.timetable_id IS NULL AND sa.student_id IN (?)
     `, [studentIds]);
 
-    // Session consumed map (used only for students WITHOUT explicit student_subjects)
-    const sessionMap = {};
+    const consumedMap = {};
     studentIds.forEach(id => {
-        sessionMap[id] = { totalMins: 0, subjects: {} };
+        consumedMap[id] = { totalMins: 0, subjects: {} };
     });
 
-    const processSession = (session) => {
-        let mins = 0;
-        if (session.minutes_taken !== null && session.minutes_taken !== undefined && session.minutes_taken !== '') {
-            mins = parseInt(session.minutes_taken, 10);
-        } else {
-            const dur = session.duration || '';
-            const hMatch = dur.match(/(\d+)h/);
-            const mMatch = dur.match(/(\d+)m/);
-            if (hMatch) mins += parseInt(hMatch[1]) * 60;
-            if (mMatch) mins += parseInt(mMatch[1]);
-        }
-        if (sessionMap[session.student_id]) {
-            sessionMap[session.student_id].totalMins += mins;
-            const subj = session.subject || 'Unknown';
-            if (!sessionMap[session.student_id].subjects[subj]) {
-                sessionMap[session.student_id].subjects[subj] = { consumedMins: 0, allocated: 0 };
-            }
-            sessionMap[session.student_id].subjects[subj].consumedMins += mins;
-        }
-    };
-
-    sessions.forEach(processSession);
-    standaloneSessions.forEach(processSession);
-
-    // Faculty mappings
     let facultyMappings = [];
     try {
         const [rows] = await db.query(`
@@ -84,84 +57,103 @@ const calculateStudentHours = async (students, db) => {
         facultyMappings = rows;
     } catch(e) {}
 
+    // Populate historical base (the calculated offset)
+    baseSubjects.forEach(bs => {
+        if (!consumedMap[bs.student_id].subjects[bs.subject_name]) {
+            consumedMap[bs.student_id].subjects[bs.subject_name] = {
+                allocated: parseFloat(bs.allocated_hours) || 0,
+                consumedMins: (parseFloat(bs.historical_consumed_hours) || 0) * 60
+            };
+        } else {
+            consumedMap[bs.student_id].subjects[bs.subject_name].allocated = parseFloat(bs.allocated_hours) || 0;
+            consumedMap[bs.student_id].subjects[bs.subject_name].consumedMins += (parseFloat(bs.historical_consumed_hours) || 0) * 60;
+        }
+    });
+
+    const processSession = (session) => {
+        let mins = 0;
+        if (session.minutes_taken !== null && session.minutes_taken !== undefined && session.minutes_taken !== '') {
+            mins = parseInt(session.minutes_taken, 10);
+        } else {
+            const dur = session.duration || '';
+            const hMatch = dur.match(/(\d+)h/);
+            const mMatch = dur.match(/(\d+)m/);
+            
+            if (hMatch) mins += parseInt(hMatch[1]) * 60;
+            if (mMatch) mins += parseInt(mMatch[1]);
+        }
+        
+        if (consumedMap[session.student_id]) {
+            consumedMap[session.student_id].totalMins += mins;
+            
+            const subj = session.subject || 'Unknown';
+            if (!consumedMap[session.student_id].subjects[subj]) {
+                consumedMap[session.student_id].subjects[subj] = { allocated: 0, consumedMins: 0 };
+            }
+            consumedMap[session.student_id].subjects[subj].consumedMins += mins;
+        }
+    };
+
+    sessions.forEach(processSession);
+    standaloneSessions.forEach(processSession);
+
+    // Augment students array
     return students.map(s => {
         const total_fees = parseFloat(s.total_fees) || 0;
         const total_hours = parseInt(s.total_hours) || 0;
         const total_paid = parseFloat(s.total_paid) || 0;
+        
         const current_installment_start_hours = parseFloat(s.current_installment_start_hours) || 0;
-
+        
         let total_entitled_hours = 0;
         if (total_fees > 0) {
+            // Whatever percentage of total fees they paid, they are entitled to that percentage of total hours overall
             total_entitled_hours = (total_paid / total_fees) * total_hours;
         } else if (total_fees === 0 && total_paid > 0) {
             total_entitled_hours = total_hours;
         }
 
-        // Check if Academic Head has explicitly set subjects for this student
-        const explicitSubjects = baseSubjects.filter(bs => bs.student_id === s.id);
-
-        // Only use explicit subjects if at least one has meaningful data (allocated > 0 or consumed > 0)
-        // This avoids showing accidental 0/0 DB entries from old buggy saves
-        const hasMeaningfulExplicitData = explicitSubjects.some(
-            bs => (parseFloat(bs.allocated_hours) || 0) > 0 || (parseFloat(bs.historical_consumed_hours) || 0) > 0
-        );
-
-        let subject_hours = [];
-        let total_lifetime_consumed_hours = 0;
-
-        if (hasMeaningfulExplicitData) {
-            // ── ACADEMIC HEAD MANAGED STUDENT ──
-            // Display exactly what Academic Head set in student_subjects table.
-            // Real session logs are preserved in DB but NOT used for display.
-            subject_hours = explicitSubjects.map(bs => {
-                let facNames = '';
-                const mapping = facultyMappings.find(fm =>
-                    fm.student_id === s.id &&
-                    ((fm.subject || '').toLowerCase() === (bs.subject_name || '').toLowerCase())
-                );
-                if (mapping) facNames = mapping.faculty_names;
-
-                return {
-                    subject: bs.subject_name,
-                    consumed_hours: parseFloat(parseFloat(bs.historical_consumed_hours || 0).toFixed(2)),
-                    allocated_hours: parseFloat(bs.allocated_hours || 0),
-                    faculties: facNames
-                };
-            });
-
-            // Total consumed = sum of what Academic Head explicitly set
-            total_lifetime_consumed_hours = explicitSubjects.reduce(
-                (sum, bs) => sum + (parseFloat(bs.historical_consumed_hours) || 0), 0
-            );
-        } else {
-            // ── SESSION-TRACKED STUDENT (no Academic Head override) ──
-            // Use live session data for display
-            const sessionData = sessionMap[s.id] || { totalMins: 0, subjects: {} };
-            for (const [subjName, data] of Object.entries(sessionData.subjects)) {
-                const subjConsumedHours = data.consumedMins / 60;
-                let facNames = '';
-                const mapping = facultyMappings.find(fm =>
-                    fm.student_id === s.id &&
-                    ((fm.subject || '').toLowerCase() === (subjName || '').toLowerCase())
-                );
-                if (mapping) facNames = mapping.faculty_names;
-
-                subject_hours.push({
-                    subject: subjName,
-                    consumed_hours: parseFloat(subjConsumedHours.toFixed(2)),
-                    allocated_hours: data.allocated,
-                    faculties: facNames
-                });
+        const studentData = consumedMap[s.id] || { totalMins: 0, subjects: {} };
+        
+        // Sum historical baseline to totalMins
+        const subject_hours = [];
+        for (const [subjName, data] of Object.entries(studentData.subjects)) {
+            const subjConsumedHours = data.consumedMins / 60;
+            
+            // Do not show accidental 0/0 subjects where NO sessions exist and NO allocated hours exist
+            if (subjConsumedHours === 0 && data.allocated === 0) continue;
+            
+            let facNames = '';
+            const mapping = facultyMappings.find(fm => fm.student_id === s.id && (fm.subject === subjName || (fm.subject || '').toLowerCase() === (subjName || '').toLowerCase()));
+            if (mapping) {
+                facNames = mapping.faculty_names;
             }
-            total_lifetime_consumed_hours = sessionData.totalMins / 60;
+            subject_hours.push({
+                subject: subjName,
+                consumed_hours: parseFloat(subjConsumedHours.toFixed(2)),
+                allocated_hours: data.allocated,
+                faculties: facNames
+            });
         }
 
+        // Check if student has explicit DB records
+        const explicitSubjects = baseSubjects.filter(bs => bs.student_id === s.id);
+        const hasExplicitSubjects = explicitSubjects.length > 0;
+
+        let total_historical_mins = 0;
+        explicitSubjects.forEach(bs => {
+            total_historical_mins += (parseFloat(bs.historical_consumed_hours) || 0) * 60;
+        });
+
+        const total_lifetime_consumed_mins = studentData.totalMins + total_historical_mins;
+        const total_lifetime_consumed_hours = total_lifetime_consumed_mins / 60;
+        
         let cycle_limit_hours = total_entitled_hours - current_installment_start_hours;
         if (cycle_limit_hours < 0) cycle_limit_hours = 0;
 
         let cycle_consumed_hours = total_lifetime_consumed_hours - current_installment_start_hours;
         if (cycle_consumed_hours < 0) cycle_consumed_hours = 0;
-
+        
         let payment_alert_level = 'None';
         let payment_threshold_percentage = 0;
 
@@ -187,9 +179,8 @@ const calculateStudentHours = async (students, db) => {
             payment_alert_level,
             payment_threshold_percentage: parseFloat(payment_threshold_percentage.toFixed(2)),
             total_lifetime_consumed_hours: parseFloat(total_lifetime_consumed_hours.toFixed(2)),
-            subject_hours,
-            // Flag for frontend to know whether to apply mock data or use DB data
-            has_explicit_subjects: hasMeaningfulExplicitData
+            subject_hours: subject_hours,
+            has_explicit_subjects: hasExplicitSubjects
         };
     });
 };
