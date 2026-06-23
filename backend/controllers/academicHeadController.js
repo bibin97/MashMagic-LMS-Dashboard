@@ -460,7 +460,13 @@ const updateStudentSubjectHours = async (req, res) => {
         // Calculate actual session hours for this student to determine the historical offset
         const [sessions] = await conn.query(`
             SELECT 
-                COALESCE(t.chapter, fs.topic, 'Unknown') as subject, 
+                COALESCE(
+                    t.subject, 
+                    t.chapter, 
+                    (SELECT fsch.subject FROM faculty_schedules fsch WHERE fsch.student_id = sa.student_id AND fsch.faculty_id = fs.faculty_id LIMIT 1),
+                    fs.topic, 
+                    'Unknown'
+                ) as subject, 
                 fs.minutes_taken, 
                 t.duration as t_duration, 
                 fs.duration as fs_duration
