@@ -424,8 +424,11 @@ const updateStudentSubjectHours = async (req, res) => {
         const { subject_hours } = req.body;
 
         if (!Array.isArray(subject_hours)) {
+            require('fs').appendFileSync('update_hours_log.txt', new Date().toISOString() + ' - 400 error: subject_hours must be an array\n');
             return res.status(400).json({ success: false, message: "subject_hours must be an array" });
         }
+
+        require('fs').appendFileSync('update_hours_log.txt', new Date().toISOString() + ' - Incoming subject_hours: ' + JSON.stringify(subject_hours) + '\n');
 
         conn = await db.getConnection();
         await conn.beginTransaction();
@@ -448,9 +451,11 @@ const updateStudentSubjectHours = async (req, res) => {
         }
 
         await conn.commit();
+        require('fs').appendFileSync('update_hours_log.txt', new Date().toISOString() + ' - Successfully committed transaction.\n');
         res.status(200).json({ success: true, message: 'Student subject hours updated successfully' });
     } catch (error) {
         console.error("Error updating student subject hours:", error);
+        require('fs').appendFileSync('update_hours_log.txt', new Date().toISOString() + ' - ERROR: ' + error.message + '\n');
         if (conn) await conn.rollback();
         res.status(500).json({ success: false, message: error.message });
     } finally {
