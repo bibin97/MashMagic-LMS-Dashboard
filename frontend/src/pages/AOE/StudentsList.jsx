@@ -6,7 +6,7 @@ import toast from 'react-hot-toast';
 import StudentListFilterDropdown, { sortStudentsByOption } from '../../components/StudentListFilterDropdown';
 import ExportButton from '../../components/common/ExportButton';
 import { premiumConfirm } from '../../utils/premiumConfirm';
-import { mockStudentHours } from '../../utils/mockStudentHours';
+
 const StudentsList = ({
   role = 'academic_operation_executive'
 }) => {
@@ -81,22 +81,7 @@ const StudentsList = ({
       const facultyParam = filterFaculty !== 'all' ? `&faculty_id=${filterFaculty}` : '';
       const res = await api.get(`${apiPath}/students-all?search=${searchTerm}&sortBy=${sortBy}&course=${filterCourse}${mentorParam}${facultyParam}`);
 
-      // Inject mock hours for specific students requested by user
       let fetchedStudents = res.data.data || [];
-      fetchedStudents = fetchedStudents.map(student => {
-        // Try to match by exact name or if the name contains the mock name
-        const mockKey = Object.keys(mockStudentHours).find(key => student.name.toLowerCase().includes(key.toLowerCase()));
-        if (mockKey) {
-          const mockObj = mockStudentHours[mockKey];
-          return {
-            ...student,
-            ...mockObj,
-            consumed_hours: (parseFloat(student.consumed_hours) || 0) + (mockObj.consumed_hours || 0),
-            total_lifetime_consumed_hours: (parseFloat(student.total_lifetime_consumed_hours) || 0) + (mockObj.total_lifetime_consumed_hours || 0)
-          };
-        }
-        return student;
-      });
       setStudents(fetchedStudents.sort((a, b) => (a.name || '').localeCompare(b.name || '')));
     } catch (error) {
       toast.error("Failed to load students directory");

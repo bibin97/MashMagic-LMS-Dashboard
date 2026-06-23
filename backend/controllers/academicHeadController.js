@@ -396,6 +396,8 @@ const updateStudentHours = async (req, res) => {
     try {
         const { id } = req.params;
         const { total_hours, total_lifetime_consumed_hours } = req.body;
+        
+        require('fs').appendFileSync('update_hours_log2.txt', new Date().toISOString() + ' - updateStudentHours hit for ID ' + id + ', body: ' + JSON.stringify(req.body) + '\n');
 
         let updateQueries = [];
         let queryParams = [];
