@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Search, Filter, ChevronLeft, ChevronRight, Eye, CheckCircle, Ban, Trash2, Pencil, Download } from 'lucide-react';
 import StudentListFilterDropdown from './StudentListFilterDropdown';
+import DatePicker, { DateObject } from "react-multi-date-picker";
+import * as XLSX from 'xlsx';
 
 const DataTable = ({
  columns,
@@ -27,14 +29,77 @@ const DataTable = ({
  onToggleExpand,
  extraActions = [],
 }) => {
- const [internalExpandedId, setInternalExpandedId] = useState(null);
+  const [internalExpandedId, setInternalExpandedId] = useState(null);
+  const [showExportModal, setShowExportModal] = useState(false);
+  const [exportDateRange, setExportDateRange] = useState([]);
+  const [exportType, setExportType] = useState('all');
  const currentExpandedId = expandedRowId !== undefined ? expandedRowId : internalExpandedId;
  const handleToggle = onToggleExpand || ((id) => setInternalExpandedId(currentExpandedId === id ? null : id));
  const useFilterDropdown = filterValue !== undefined && onFilterChange;
- const hasActions = onView || onEdit || onApprove || onBlock || onDelete || extraActions.length > 0;
- const enhancedColumns = columns || [];
- return (
- <div className="bg-white/70 backdrop-blur-xl rounded-[28px] border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.04)] overflow-hidden transition-all duration-500">
+  const hasActions = onView || onEdit || onApprove || onBlock || onDelete || extraActions.length > 0;
+  const enhancedColumns = columns || [];
+
+  const handleSmartExport = () => {
+    let exportData = [...data];
+    if (exportType === 'range' && exportDateRange.length > 0) {
+      const start = new Date(exportDateRange[0].format("YYYY-MM-DD"));
+      start.setHours(0, 0, 0, 0);
+      const end = exportDateRange.length > 1 ? new Date(exportDateRange[1].format("YYYY-MM-DD")) : new Date(start);
+      end.setHours(23, 59, 59, 999);
+
+      exportData = exportData.filter(item => {
+        // Try common date fields
+        const dateStr = item.date || item.createdAt || item.admission_date || item.created_at;
+        if (!dateStr) return true; // keep if no date field to filter by
+
+        let itemDate;
+        if (typeof dateStr === 'string' && dateStr.includes('-')) {
+            const parts = dateStr.split('-');
+            if (parts[0].length === 2 && parts[2]?.length === 4) { // DD-MM-YYYY
+                itemDate = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);
+            } else {
+                itemDate = new Date(dateStr);
+            }
+        } else {
+            itemDate = new Date(dateStr);
+        }
+        return itemDate >= start && itemDate <= end;
+      });
+    }
+
+    if (exportData.length === 0) {
+      alert("No data to export for this date range.");
+      return;
+    }
+
+    if (typeof onExport === 'function') {
+      onExport(exportData);
+      setShowExportModal(false);
+      return;
+    }
+
+    // Fallback: Map columns
+    const sheetData = exportData.map(item => {
+      const row = {};
+      enhancedColumns.forEach(col => {
+        if (col.header !== 'Actions' && col.header !== 'Profile') {
+          let val = item[col.accessor];
+          if (typeof val === 'object') val = JSON.stringify(val);
+          row[col.header] = val || '';
+        }
+      });
+      return row;
+    });
+
+    const ws = XLSX.utils.json_to_sheet(sheetData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Export");
+    XLSX.writeFile(wb, `Data_Export_${new Date().toISOString().split('T')[0]}.xlsx`);
+    setShowExportModal(false);
+  };
+
+  return (
+  <div className="bg-white/70 backdrop-blur-xl rounded-[28px] border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.04)] overflow-hidden transition-all duration-500">
  <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center p-6 md:p-8 border-b border-slate-100/50 gap-6 w-full">
  <div className="relative w-full lg:w-96 group">
  <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#008080] transition-all duration-300" />
@@ -79,15 +144,99 @@ const DataTable = ({
  className="flex-1 lg:flex-none w-full lg:w-auto min-w-[160px]"
  />
  )}
+ {onExport && (
  <button
- onClick={onExport}
+ onClick={() => setShowExportModal(true)}
  className="flex-1 lg:flex-none flex items-center justify-center gap-2.5 px-8 py-3.5 bg-gradient-to-br from-[#006666] to-[#008080] rounded-[18px] text-[11px] font-black uppercase tracking-[0.2em] text-white hover:shadow-lg hover:shadow-[#008080]/30 hover:-translate-y-0.5 transition-all active:scale-95"
  >
  <Download size={16} />
  <span>Export</span>
  </button>
+ )}
  </div>
  </div>
+
+  {/* Export Modal */}
+  {showExportModal && (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-in fade-in duration-200">
+      <div className="bg-white rounded-[2rem] w-full max-w-md shadow-2xl overflow-hidden border border-slate-100">
+        <div className="flex items-center justify-between p-6 border-b border-slate-100 bg-slate-50/50">
+          <h3 className="text-lg font-black text-slate-800 flex items-center gap-2">
+            <Download className="text-[#008080]" size={20} /> Export Data
+          </h3>
+          <button 
+            onClick={() => setShowExportModal(false)}
+            className="text-slate-400 hover:text-slate-600 transition-colors bg-slate-100 hover:bg-slate-200 p-2 rounded-full"
+          >
+            <Ban size={16} />
+          </button>
+        </div>
+        
+        <div className="p-6 space-y-6">
+          <div className="space-y-3">
+            <label className="text-xs font-black uppercase text-slate-700 tracking-wider">Export Options</label>
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                onClick={() => setExportType('all')}
+                className={`p-3 rounded-xl border-2 text-xs font-bold transition-all ${
+                  exportType === 'all' 
+                    ? 'border-[#008080] bg-[#008080]/5 text-[#008080]' 
+                    : 'border-slate-100 hover:border-slate-200 text-slate-500'
+                }`}
+              >
+                Export All
+              </button>
+              <button
+                onClick={() => setExportType('range')}
+                className={`p-3 rounded-xl border-2 text-xs font-bold transition-all ${
+                  exportType === 'range' 
+                    ? 'border-[#008080] bg-[#008080]/5 text-[#008080]' 
+                    : 'border-slate-100 hover:border-slate-200 text-slate-500'
+                }`}
+              >
+                Custom Date Range
+              </button>
+            </div>
+          </div>
+
+          {exportType === 'range' && (
+            <div className="space-y-2 animate-in slide-in-from-top-2 duration-200">
+              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                 Select Date Range
+              </label>
+              <div className="w-full">
+                <DatePicker
+                  value={exportDateRange}
+                  onChange={setExportDateRange}
+                  range
+                  format="YYYY/MM/DD"
+                  containerClassName="w-full"
+                  inputClass="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold focus:border-[#008080] focus:ring-4 focus:ring-[#008080]/10 outline-none transition-all text-slate-700"
+                  placeholder="Select dates..."
+                />
+              </div>
+              <p className="text-[9px] font-bold text-slate-400">If you only want a single date, just click the date twice.</p>
+            </div>
+          )}
+        </div>
+
+        <div className="flex items-center justify-end gap-3 p-6 border-t border-slate-100 bg-slate-50/50">
+          <button 
+            onClick={() => setShowExportModal(false)}
+            className="px-4 py-2 text-xs font-bold text-slate-500 hover:bg-slate-200 bg-slate-100 rounded-xl transition-all"
+          >
+            Cancel
+          </button>
+          <button 
+            onClick={handleSmartExport}
+            className="px-6 py-2 bg-[#008080] hover:bg-[#006060] text-white text-xs font-black uppercase tracking-widest rounded-xl transition-all shadow-md shadow-[#008080]/20"
+          >
+            Generate Excel
+          </button>
+        </div>
+      </div>
+    </div>
+  )}
 
  {/* Desktop View (Table) */}
  <div className="hidden md:block overflow-x-auto custom-scrollbar">

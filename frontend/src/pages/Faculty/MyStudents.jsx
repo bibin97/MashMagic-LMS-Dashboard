@@ -4,6 +4,7 @@ import axios from '../../services/api';
 import { Search, User, ChevronRight, MoreHorizontal, GraduationCap, MapPin, Hash } from 'lucide-react';
 import toast from 'react-hot-toast';
 import StudentListFilterDropdown, { sortStudentsByOption } from '../../components/StudentListFilterDropdown';
+import ExportButton from '../../components/common/ExportButton';
 const FacultyStudents = () => {
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -66,9 +67,18 @@ const FacultyStudents = () => {
  </div>
  <div className="flex gap-4">
  <StudentListFilterDropdown value={sortBy} onChange={setSortBy} />
- <button className="flex items-center gap-3 px-8 py-4 bg-[#008080] text-white rounded-[1.5rem] font-black text-[10px] uppercase tracking-widest hover:bg-[#008080] transition-all shadow-xl shadow-[#008080]/30">
- Export Roster
- </button>
+ <ExportButton 
+    data={filteredStudents}
+    filename="my_students"
+    dateField="created_at"
+    columns={[
+      { header: 'Reg #', accessor: 'roll_number' },
+      { header: 'Name', accessor: 'name' },
+      { header: 'Department', accessor: 'department' },
+      { header: 'Attendance %', accessor: 'attendance_percentage' },
+      { header: 'Performance', accessor: 'performance_status' }
+    ]}
+ />
  </div>
  </div>
 

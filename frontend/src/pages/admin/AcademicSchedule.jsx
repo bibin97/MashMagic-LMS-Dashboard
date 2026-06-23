@@ -6,7 +6,9 @@ import {
   Calendar, AlertCircle, Bell, CheckSquare, MessageSquareText, Lock, 
   ShieldCheck, Timer, XCircle
 } from 'lucide-react';
+import * as XLSX from 'xlsx';
 import toast from 'react-hot-toast';
+import ExportButton from '../../components/common/ExportButton';
 
 const checkIsLive = (session) => {
   if (!session.start_time || !session.end_time || !session.date) return false;
@@ -216,6 +218,25 @@ return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-10 md:pl-12 pr-4 py-3 md:py-3.5 bg-slate-50 border-none rounded-[1rem] md:rounded-2xl text-[9px] md:text-[10px] font-black uppercase tracking-widest focus:bg-white focus:ring-4 ring-[#008080]/5 outline-none transition-all"
+            />
+          </div>
+
+          <div className="flex gap-4">
+            <ExportButton 
+              data={schedule}
+              filename="academic_schedule_admin"
+              dateField="date"
+              columns={[
+                { header: "Student Name", accessor: "student_name" },
+                { header: "Faculty Name", accessor: "faculty_name" },
+                { header: "Subject", accessor: "subject" },
+                { header: "Topic / Chapter", accessor: row => row.topic || row.chapter || 'General Session' },
+                { header: "Date", accessor: row => row.date ? new Date(row.date).toLocaleDateString('en-GB') : 'TBD' },
+                { header: "Start Time", accessor: row => row.start_time ? new Date(`2000-01-01T${row.start_time}`).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }) : 'TBD' },
+                { header: "End Time", accessor: row => row.end_time ? new Date(`2000-01-01T${row.end_time}`).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }) : 'TBD' },
+                { header: "Status", accessor: "status" },
+                { header: "Minutes Taken", accessor: "minutes_taken" }
+              ]}
             />
           </div>
         </div>

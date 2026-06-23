@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
 import StudentListFilterDropdown, { sortStudentsByOption } from '../../components/StudentListFilterDropdown';
+import ExportButton from '../../components/common/ExportButton';
 import { premiumConfirm } from '../../utils/premiumConfirm';
 import { mockStudentHours } from '../../utils/mockStudentHours';
 const StudentsList = ({
@@ -168,19 +169,29 @@ const StudentsList = ({
     if (!editHoursModal.student) return;
     setIsUpdatingHours(true);
     try {
+      // First update total hours
       const res = await api.put(`/academic-head/students/${editHoursModal.student.id}/hours`, {
         total_hours: editHoursModal.total_hours,
         total_lifetime_consumed_hours: editHoursModal.total_lifetime_consumed_hours
       });
+      
+      // Then update subject hours
+      if (editHoursModal.subject_hours) {
+        await api.put(`/academic-head/students/${editHoursModal.student.id}/subject-hours`, {
+            subject_hours: editHoursModal.subject_hours
+        });
+      }
+
       if (res.data.success) {
         toast.success('Hours updated successfully!');
+        fetchStudents();
         setEditHoursModal({
           show: false,
           student: null,
           total_hours: 0,
-          total_lifetime_consumed_hours: 0
+          total_lifetime_consumed_hours: 0,
+          subject_hours: []
         });
-        fetchStudents();
       } else {
         toast.error(res.data.message || 'Failed to update hours');
       }
@@ -208,7 +219,8 @@ const StudentsList = ({
     const level = getAssessmentLevel(totalScore);
     try {
       await api.put(`/mentor-head/students/${assessmentStudent.id}/assessment-level`, {
-        level
+        level,
+        score: totalScore
       });
       toast.success(`Assessment submitted! Score: ${totalScore} (${level})`);
       setIsAssessmentModalOpen(false);
@@ -283,8 +295,26 @@ const StudentsList = ({
 						<Activity size={14} className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
 					</div>
 
-					<div className="lg:ml-auto">
+					<div className="lg:ml-auto flex items-center gap-3">
 						<StudentListFilterDropdown value={sortBy} onChange={setSortBy} />
+                        <ExportButton 
+                            data={filteredStudents}
+                            filename="aoe_students"
+                            dateField="created_at"
+                            columns={[
+                                { header: 'Reg #', accessor: 'registration_number' },
+                                { header: 'Name', accessor: 'name' },
+                                { header: 'Email', accessor: 'email' },
+                                { header: 'Phone', accessor: 'phone_number' },
+                                { header: 'Course', accessor: 'course' },
+                                { header: 'Grade', accessor: 'grade' },
+                                { header: 'Mentor', accessor: 'mentor_name' },
+                                { header: 'Faculty', accessor: 'faculty_names' },
+                                { header: 'Total Hours', accessor: 'total_hours' },
+                                { header: 'Consumed Hours', accessor: 'total_lifetime_consumed_hours' },
+                                { header: 'Status', accessor: 'status' }
+                            ]}
+                        />
 					</div>
 				</div>
 			</div>
@@ -393,7 +423,8 @@ const StudentsList = ({
                           show: true,
                           student,
                           total_hours: student.total_hours || 0,
-                          total_lifetime_consumed_hours: student.total_lifetime_consumed_hours || 0
+                          total_lifetime_consumed_hours: student.total_lifetime_consumed_hours || 0,
+                          subject_hours: student.subject_hours ? JSON.parse(JSON.stringify(student.subject_hours)) : []
                         })} className="text-slate-400 hover:text-indigo-500 transition-colors ml-1" title="Edit Hours">
 																<Pencil size={10} />
 															</button>}
@@ -430,9 +461,27 @@ const StudentsList = ({
 											</div>
 										</td>
 										<td className="px-8 py-6 text-center">
-											<span className={`inline-flex items-center justify-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest whitespace-nowrap shadow-sm border ${student.assessment_level === 'Level 1' ? 'bg-rose-50 text-rose-600 border-rose-200' : student.assessment_level === 'Level 2' ? 'bg-amber-50 text-amber-600 border-amber-200' : student.assessment_level === 'Level 3' ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : 'bg-slate-50 text-slate-500 border-slate-200'}`}>
-												{student.assessment_level || 'Unassessed'}
-											</span>
+												<div className="flex flex-col items-center gap-1 group/score relative">
+                                                <span className={`inline-flex items-center justify-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest whitespace-nowrap shadow-sm border cursor-pointer ${student.assessment_level === 'Level 1' ? 'bg-rose-50 text-rose-600 border-rose-200' : student.assessment_level === 'Level 2' ? 'bg-amber-50 text-amber-600 border-amber-200' : student.assessment_level === 'Level 3' ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : 'bg-slate-50 text-slate-500 border-slate-200'}`}>
+                                                    {student.assessment_level || 'Unassessed'} {student.assessment_score ? `(${student.assessment_score})` : ''}
+                                                </span>
+                                                {student.assessment_history && (
+                                                    <div className="absolute top-full mt-2 right-0 hidden group-hover/score:block bg-white p-3 rounded-xl shadow-xl border border-slate-100 z-50 min-w-[200px] text-left">
+                                                        <p className="text-[10px] font-black uppercase text-slate-400 mb-2 border-b border-slate-100 pb-1">Assessment History</p>
+                                                        <div className="space-y-2 max-h-[150px] overflow-y-auto custom-scrollbar pr-1">
+                                                            {(() => {
+                                                                const history = typeof student.assessment_history === 'string' ? JSON.parse(student.assessment_history) : student.assessment_history;
+                                                                return [...history].reverse().map((h, i) => (
+                                                                    <div key={i} className="flex justify-between items-center text-[10px]">
+                                                                        <span className="text-slate-500">{new Date(h.date).toLocaleDateString()}</span>
+                                                                        <span className="font-bold text-slate-700">{h.level} ({h.score})</span>
+                                                                    </div>
+                                                                ));
+                                                            })()}
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
 										</td>
 										<td className="px-8 py-6 text-right sticky right-0 bg-white/90 backdrop-blur-sm z-10 shadow-[-4px_0_10px_rgba(0,0,0,0.02)]">
 											<div className="flex items-center justify-end gap-2">
@@ -702,8 +751,91 @@ const StudentsList = ({
 								<input type="number" step="0.01" value={editHoursModal.total_lifetime_consumed_hours} onChange={e => setEditHoursModal({
               ...editHoursModal,
               total_lifetime_consumed_hours: e.target.value
-            })} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all" required />
+            })} className="w-full px-3 py-2 text-sm border-2 border-slate-200 rounded-xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all" />
 							</div>
+
+              {/* Subject Hours Editor */}
+              {editHoursModal.subject_hours && editHoursModal.subject_hours.length > 0 && (
+                <div className="flex flex-col gap-2 mt-4 pt-4 border-t border-slate-100">
+                    <span className="text-xs font-black uppercase text-slate-700 tracking-wider">Subject Specific Hours</span>
+                    <div className="space-y-3">
+                        {editHoursModal.subject_hours.map((sh, idx) => (
+                            <div key={idx} className="flex flex-col gap-2 p-3 border border-slate-100 rounded-xl bg-slate-50">
+                                <div className="flex justify-between items-center">
+                                    <span className="text-xs font-bold text-slate-700">{sh.subject || sh.subject_name}</span>
+                                    <button type="button" onClick={() => {
+                                        const newSh = [...editHoursModal.subject_hours];
+                                        newSh.splice(idx, 1);
+                                        setEditHoursModal({ ...editHoursModal, subject_hours: newSh });
+                                    }} className="text-rose-500 hover:text-rose-700 text-[10px] font-black uppercase">
+                                        Delete
+                                    </button>
+                                </div>
+                                <div className="grid grid-cols-2 gap-2">
+                                    <div className="flex flex-col gap-1">
+                                        <label className="text-[10px] font-bold text-slate-400 uppercase">Allocated Hrs</label>
+                                        <input type="number" step="0.01" value={sh.allocated_hours || 0} onChange={e => {
+                                            const newSh = [...editHoursModal.subject_hours];
+                                            newSh[idx].allocated_hours = parseFloat(e.target.value);
+                                            setEditHoursModal({ ...editHoursModal, subject_hours: newSh });
+                                        }} className="w-full px-2 py-1.5 text-xs border border-slate-200 rounded-lg" />
+                                    </div>
+                                    <div className="flex flex-col gap-1">
+                                        <label className="text-[10px] font-bold text-slate-400 uppercase">Consumed Hrs</label>
+                                        <input type="number" step="0.01" value={sh.historical_consumed_hours || sh.consumed_hours || 0} onChange={e => {
+                                            const newSh = [...editHoursModal.subject_hours];
+                                            newSh[idx].historical_consumed_hours = parseFloat(e.target.value);
+                                            setEditHoursModal({ ...editHoursModal, subject_hours: newSh });
+                                        }} className="w-full px-2 py-1.5 text-xs border border-slate-200 rounded-lg" />
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* Add Enrolled Subject Dropdown */}
+                    {(() => {
+                        let enrolled = [];
+                        try {
+                            if (editHoursModal.student?.subjects_json) {
+                                const parsed = typeof editHoursModal.student.subjects_json === 'string' ? JSON.parse(editHoursModal.student.subjects_json) : editHoursModal.student.subjects_json;
+                                enrolled = parsed.map(s => s.subject || s.name || s);
+                            }
+                        } catch (e) {}
+
+                        const currentSubjects = (editHoursModal.subject_hours || []).map(sh => (sh.subject || sh.subject_name || '').toLowerCase());
+                        const availableToAdd = enrolled.filter(subj => !currentSubjects.includes((subj || '').toLowerCase()));
+
+                        if (availableToAdd.length > 0) {
+                            return (
+                                <div className="mt-3">
+                                    <select 
+                                        className="w-full px-2 py-1.5 text-xs border border-slate-200 rounded-lg text-slate-600"
+                                        onChange={(e) => {
+                                            if (!e.target.value) return;
+                                            const newSh = [...(editHoursModal.subject_hours || [])];
+                                            newSh.push({
+                                                subject_name: e.target.value,
+                                                allocated_hours: 0,
+                                                historical_consumed_hours: 0
+                                            });
+                                            setEditHoursModal({ ...editHoursModal, subject_hours: newSh });
+                                            e.target.value = "";
+                                        }}
+                                        defaultValue=""
+                                    >
+                                        <option value="" disabled>+ Add Enrolled Subject</option>
+                                        {availableToAdd.map((subj, idx) => (
+                                            <option key={idx} value={subj}>{subj}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                            );
+                        }
+                        return null;
+                    })()}
+                </div>
+              )}
 							<div className="pt-2 flex justify-end gap-3">
 								<button type="button" onClick={() => setEditHoursModal({
               show: false,

@@ -1912,17 +1912,35 @@ exports.getDropdownData = async (req, res) => {
 exports.updateStudentAssessmentLevel = async (req, res) => {
     try {
         const { studentId } = req.params;
-        const { level } = req.body;
+        const { level, score } = req.body;
         
         if (!studentId || !level) {
             return res.status(400).json({ success: false, message: "Student ID and level are required" });
         }
-        
-        const [result] = await db.query('UPDATE students SET assessment_level = ? WHERE id = ?', [level, studentId]);
-        
-        if (result.affectedRows === 0) {
+
+        // Fetch current to update history
+        const [[current]] = await db.query('SELECT assessment_level, assessment_score, assessment_history FROM students WHERE id = ?', [studentId]);
+        if (!current) {
             return res.status(404).json({ success: false, message: "Student not found" });
         }
+
+        let history = [];
+        if (current.assessment_history) {
+            history = typeof current.assessment_history === 'string' ? JSON.parse(current.assessment_history) : current.assessment_history;
+        }
+
+        history.push({
+            date: new Date().toISOString(),
+            level,
+            score,
+            previous_level: current.assessment_level,
+            previous_score: current.assessment_score
+        });
+        
+        const [result] = await db.query(
+            'UPDATE students SET assessment_level = ?, assessment_score = ?, assessment_history = ? WHERE id = ?', 
+            [level, score || null, JSON.stringify(history), studentId]
+        );
         
         res.status(200).json({ success: true, message: "Assessment level updated successfully" });
     } catch (error) {

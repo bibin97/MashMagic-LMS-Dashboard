@@ -115,29 +115,23 @@ const Faculties = () => {
     return 0;
   });
 
- const handleExport = () => {
-    const headers = ['Faculty Lead', 'Email', 'Phone', 'Mentors Group', 'Total Students', 'Status'];
-    const csvContent = [
-      headers.join(','),
-      ...filteredFaculties.map(f => [
-        `"${f.name}"`,
-        `"${f.email}"`,
-        `"${f.phone || ''}"`,
-        f.mentorsUnder,
-        f.studentsUnder,
-        `"${f.status}"`
-      ].join(','))
-    ].join('\n');
+ const handleExport = (dataToExport = filteredFaculties) => {
+    import('xlsx').then(XLSX => {
+      const exportData = dataToExport.map(f => ({
+        'Name': f.name || '',
+        'Email': f.email || '',
+        'Phone': f.phone || '',
+        'Mentors Assigned': f.mentorsUnder || 0,
+        'Students Assigned': f.studentsUnder || 0,
+        'Status': f.status || '',
+        'Created At': f.created_at ? new Date(f.created_at).toLocaleDateString() : ''
+      }));
 
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
-    link.setAttribute('href', url);
-    link.setAttribute('download', `faculties_export_${new Date().toISOString().split('T')[0]}.csv`);
-    link.style.visibility = 'hidden';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+      const ws = XLSX.utils.json_to_sheet(exportData);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Faculties");
+      XLSX.writeFile(wb, `faculties_export_${new Date().toISOString().split('T')[0]}.xlsx`);
+    });
   };
 
   const handleView = async (faculty) => {

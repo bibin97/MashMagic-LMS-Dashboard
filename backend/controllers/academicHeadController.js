@@ -422,10 +422,52 @@ const updateStudentHours = async (req, res) => {
     }
 };
 
+const updateStudentSubjectHours = async (req, res) => {
+    let conn;
+    try {
+        const { id } = req.params;
+        const { subject_hours } = req.body;
+
+        if (!Array.isArray(subject_hours)) {
+            return res.status(400).json({ success: false, message: "subject_hours must be an array" });
+        }
+
+        conn = await db.getConnection();
+        await conn.beginTransaction();
+
+        // Delete all existing subject hours for this student
+        await conn.query('DELETE FROM student_subjects WHERE student_id = ?', [id]);
+
+        // Insert new ones
+        if (subject_hours.length > 0) {
+            const values = subject_hours.map(sh => [
+                id, 
+                sh.subject_name, 
+                sh.allocated_hours || 0, 
+                sh.historical_consumed_hours || 0
+            ]);
+            await conn.query(
+                'INSERT INTO student_subjects (student_id, subject_name, allocated_hours, historical_consumed_hours) VALUES ?',
+                [values]
+            );
+        }
+
+        await conn.commit();
+        res.status(200).json({ success: true, message: 'Student subject hours updated successfully' });
+    } catch (error) {
+        console.error("Error updating student subject hours:", error);
+        if (conn) await conn.rollback();
+        res.status(500).json({ success: false, message: error.message });
+    } finally {
+        if (conn) conn.release();
+    }
+};
+
 module.exports = {
     getDailyStudentRotation,
     updateStudentRotation,
     updateStudentHours,
+    updateStudentSubjectHours,
     getFacultyQualityChecks,
     addFacultyQualityCheck,
     getParentMeetings,

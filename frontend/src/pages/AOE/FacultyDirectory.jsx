@@ -4,6 +4,7 @@ import api from '../../services/api';
 import { Users, User, Mail, Phone, Calendar, Search, Filter, Activity, Edit2, Trash2, X, Save, BookOpen, MapPin, ShieldCheck, Eye, GraduationCap, History, Check } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { premiumConfirm } from '../../utils/premiumConfirm';
+import ExportButton from '../../components/common/ExportButton';
 const FacultyDirectory = ({
   role = 'academic_operation_executive'
 }) => {
@@ -174,6 +175,20 @@ const FacultyDirectory = ({
                       {selectedSyllabi.length + selectedSections.length + selectedSubjects.length}
                     </span>}
                 </button>
+                <ExportButton 
+                    data={filteredFaculties}
+                    filename="faculty_directory"
+                    dateField="created_at"
+                    columns={[
+                        { header: 'Name', accessor: 'name' },
+                        { header: 'Email', accessor: 'email' },
+                        { header: 'Phone', accessor: 'phone' },
+                        { header: 'Syllabus Focus', accessor: 'syllabus' },
+                        { header: 'Section Focus', accessor: 'section' },
+                        { header: 'Subject Focus', accessor: 'subjects' },
+                        { header: 'Status', accessor: 'status' }
+                    ]}
+                />
               </div>
 
               <select className="bg-white border border-slate-200 rounded-2xl py-3 px-4 text-sm font-bold text-slate-700 outline-none focus:border-[#008080] shadow-sm cursor-pointer w-full md:w-auto" value={sortBy} onChange={e => setSortBy(e.target.value)}>

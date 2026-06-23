@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
 import { Calendar as CalendarIcon, Clock, User, BookOpen, Video, FileEdit, X } from 'lucide-react';
 import toast from 'react-hot-toast';
+import ExportButton from '../../components/common/ExportButton';
 
 const FacultySchedule = () => {
   const [schedule, setSchedule] = useState({ today: [], upcoming: [], completed: [] });
@@ -80,6 +81,19 @@ const FacultySchedule = () => {
           </h1>
           <p className="text-slate-500 font-bold text-xs uppercase tracking-[0.2em]">Manage your classes and submit reports</p>
         </div>
+        <ExportButton 
+          data={[...schedule.today, ...schedule.upcoming, ...schedule.completed]}
+          filename="faculty_schedule"
+          dateField="date"
+          columns={[
+            { header: "Student Name", accessor: "student_name" },
+            { header: "Subject", accessor: "student_subject" },
+            { header: "Date", accessor: row => row.date ? new Date(row.date).toLocaleDateString('en-GB') : 'TBD' },
+            { header: "Start Time", accessor: row => row.start_time ? new Date(`2000-01-01T${row.start_time}`).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }) : 'TBD' },
+            { header: "End Time", accessor: row => row.end_time ? new Date(`2000-01-01T${row.end_time}`).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }) : 'TBD' },
+            { header: "Status", accessor: "status" }
+          ]}
+        />
       </div>
 
       {/* Tabs */}

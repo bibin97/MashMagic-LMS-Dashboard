@@ -416,12 +416,23 @@ exports.updateStudentAcademicSchedule = async (req, res) => {
             return res.status(400).json({ success: false, message: "Invalid payload: schedules must be an array." });
         }
 
-        // Validate required fields
+        // Validate and normalize required fields
         for (const s of schedules) {
             if (!s.day_of_week || !s.start_time || !s.end_time) {
                 await connection.rollback();
                 return res.status(400).json({ success: false, message: "Invalid payload: Missing required schedule fields (day, start time, end time)." });
             }
+            // Normalize time (e.g. "7.30 " -> "07:30:00")
+            const cleanTime = (t) => {
+                let clean = t.replace(/\./g, ':').trim();
+                let parts = clean.split(':');
+                let hh = String(parts[0]).padStart(2, '0');
+                let mm = parts[1] ? String(parts[1]).padEnd(2, '0').substring(0, 2) : '00';
+                let ss = parts[2] ? String(parts[2]).padEnd(2, '0').substring(0, 2) : '00';
+                return `${hh}:${mm}:${ss}`;
+            };
+            s.start_time = cleanTime(s.start_time);
+            s.end_time = cleanTime(s.end_time);
         }
 
         await connection.query('UPDATE faculty_schedules SET is_deleted = 1, deleted_at = CURRENT_TIMESTAMP WHERE student_id = ?', [studentId]);

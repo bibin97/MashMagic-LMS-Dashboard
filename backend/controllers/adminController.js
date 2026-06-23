@@ -1084,6 +1084,9 @@ const getStudentDetailsForAdmin = async (req, res) => {
         const pct = total_paid_hours > 0 ? Math.round((consumed_hours / total_paid_hours) * 100) : 0;
         const alert_level = pct >= 90 ? 'Critical' : pct >= 70 ? 'Warning' : 'Safe';
 
+        // Fetch full timetable details for UI display (in addition to duration aggregation)
+        const [timetable] = await db.query('SELECT * FROM timetable WHERE (is_deleted IS NULL OR is_deleted = 0) AND student_id = ? ORDER BY date ASC, start_time ASC', [id]);
+
         res.json({
             success: true,
             data: {
@@ -1092,7 +1095,8 @@ const getStudentDetailsForAdmin = async (req, res) => {
                 consumed_hours,
                 total_paid_hours,
                 usage_pct: pct,
-                alert_level
+                alert_level,
+                timetable
             }
         });
     } catch (error) {

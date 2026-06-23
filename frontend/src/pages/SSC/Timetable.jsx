@@ -1330,7 +1330,12 @@ const Timetable = () => {
 
                   <input
                     type="time"
-                    value={slot.start_time.substring(0, 5)}
+                    value={(() => {
+                      if (!slot.start_time) return '';
+                      let clean = slot.start_time.replace(/\./g, ':').trim();
+                      let parts = clean.split(':');
+                      return `${String(parts[0]).padStart(2, '0')}:${parts[1] ? String(parts[1]).padEnd(2, '0').substring(0, 2) : '00'}`;
+                    })()}
                     onChange={(e) => {
                       const newData = [...editScheduleData];
                       newData[index].start_time = e.target.value + ':00';
@@ -1341,7 +1346,12 @@ const Timetable = () => {
 
                   <input
                     type="time"
-                    value={slot.end_time.substring(0, 5)}
+                    value={(() => {
+                      if (!slot.end_time) return '';
+                      let clean = slot.end_time.replace(/\./g, ':').trim();
+                      let parts = clean.split(':');
+                      return `${String(parts[0]).padStart(2, '0')}:${parts[1] ? String(parts[1]).padEnd(2, '0').substring(0, 2) : '00'}`;
+                    })()}
                     onChange={(e) => {
                       const newData = [...editScheduleData];
                       newData[index].end_time = e.target.value + ':00';

@@ -4,6 +4,7 @@ import api from '../../services/api';
 import { User, Users, ChevronRight, Search, XCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
 import StudentListFilterDropdown, { sortStudentsByOption } from '../../components/StudentListFilterDropdown';
+import ExportButton from '../../components/common/ExportButton';
 import { mockStudentHours } from '../../utils/mockStudentHours';
 
 const StudentRow = ({ student, navigate }) => {
@@ -286,6 +287,22 @@ const SSCStudentList = () => {
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <StudentListFilterDropdown value={sortBy} onChange={setSortBy} />
+          <ExportButton 
+            data={filteredStudents}
+            filename="ssc_students"
+            dateField="created_at"
+            columns={[
+              { header: 'Reg #', accessor: 'registration_number' },
+              { header: 'Name', accessor: 'name' },
+              { header: 'Course', accessor: 'course' },
+              { header: 'Grade', accessor: 'grade' },
+              { header: 'Mentor', accessor: 'mentor_name' },
+              { header: 'Faculty', accessor: 'faculty_names' },
+              { header: 'Session Count', accessor: 'session_count' },
+              { header: 'Connected Today', accessor: 'connected_today' },
+              { header: 'Status', accessor: 'status' }
+            ]}
+          />
           <div className="flex items-center gap-2 bg-slate-50 p-1 rounded-2xl border border-slate-100">
             <button
               onClick={() => setViewMode('active')}

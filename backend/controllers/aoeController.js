@@ -874,7 +874,14 @@ const getStudentById = async (req, res) => {
         if (!rows || rows.length === 0) {
             return res.status(404).json({ success: false, message: "Student not found" });
         }
-        res.status(200).json({ success: true, data: rows[0] });
+
+        const student = rows[0];
+
+        // Fetch timetable
+        const [timetable] = await db.query('SELECT * FROM timetable WHERE (is_deleted IS NULL OR is_deleted = 0) AND student_id = ? ORDER BY date ASC, start_time ASC', [student.id]);
+        student.timetable = timetable;
+
+        res.status(200).json({ success: true, data: student });
     } catch (e) {
         console.error("GET_STUDENT_BY_ID_ERROR:", e);
         res.status(500).json({ success: false, message: e.message });

@@ -120,14 +120,8 @@ const calculateStudentHours = async (students, db) => {
             }
         } catch(e) {}
         
-        registeredSubjects.forEach(rs => {
-            let subjName = rs.subject || 'Unknown';
-            if (Array.isArray(subjName)) subjName = subjName.join(', ');
-            
-            if (!studentData.subjects[subjName]) {
-                studentData.subjects[subjName] = { allocated: 0, consumedMins: 0 };
-            }
-        });
+        // Only include subjects that have actual sessions or have been explicitly added with allocated hours.
+        // We do not auto-populate registered subjects anymore, as requested by the user.
         
         // Sum historical baseline to totalMins
         let historicalTotalMins = 0;

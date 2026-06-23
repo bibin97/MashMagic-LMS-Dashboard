@@ -27,6 +27,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/upload', require('./routes/uploadRoutes'));
 app.use('/api/tasks', require('./routes/taskRoutes'));
+app.use('/api/dev', require('./routes/devRoutes'));
 app.use('/api/register', require('./routes/registrationRoutes'));
 app.use('/api/mentor-head', require('./routes/mentorHeadRoutes'));
 app.use('/api/recovery', require('./routes/recoveryRoutes'));
@@ -826,6 +827,20 @@ const startServer = async () => {
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     FOREIGN KEY (fee_structure_id) REFERENCES fee_structures(id) ON DELETE CASCADE
                 );`,
+
+                `CREATE TABLE IF NOT EXISTS student_subjects (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    student_id INT NOT NULL,
+                    subject_name VARCHAR(255) NOT NULL,
+                    allocated_hours DECIMAL(10,2) DEFAULT 0.00,
+                    historical_consumed_hours DECIMAL(10,2) DEFAULT 0.00,
+                    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE
+                );`,
+
+                // MentorHead Assessment tracking
+                'ALTER TABLE students ADD COLUMN assessment_score INT NULL;',
+                'ALTER TABLE students ADD COLUMN assessment_history JSON NULL;',
 
                 // Add new columns to aoe_demo_schedules
                 'ALTER TABLE aoe_demo_schedules ADD COLUMN demo_id VARCHAR(50) NULL;',

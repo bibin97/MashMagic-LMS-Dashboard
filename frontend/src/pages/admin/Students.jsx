@@ -101,20 +101,29 @@ const Students = () => {
   const handleSearch = query => {
     setSearchTerm(query);
   };
-  const handleExport = () => {
-    const headers = ['Reg #', 'Name', 'Email', 'Grade', 'Mentor', 'Faculty', 'Status'];
-    const csvContent = [headers.join(','), ...filteredStudents.map(s => [`"${s.registration_number || ''}"`, `"${s.name}"`, `"${s.email}"`, `"${s.grade}"`, `"${s.mentor || ''}"`, `"${s.faculty || ''}"`, `"${s.status}"`].join(','))].join('\n');
-    const blob = new Blob([csvContent], {
-      type: 'text/csv;charset=utf-8;'
+  const handleExport = (dataToExport = filteredStudents) => {
+    import('xlsx').then(XLSX => {
+      const exportData = dataToExport.map(s => ({
+        'Registration Number': s.registration_number || '',
+        'Name': s.name || '',
+        'Email': s.email || '',
+        'Phone': s.phone_number || '',
+        'Grade': s.grade || '',
+        'Syllabus': s.syllabus || '',
+        'Course': s.course || '',
+        'Mentor': s.mentor || 'Not Assigned',
+        'Faculty': s.faculty || 'Not Assigned',
+        'Status': s.status || '',
+        'Onboarding Status': s.onboarding_status || '',
+        'Assessment Level': s.assessment_level || '',
+        'Created At': s.created_at ? new Date(s.created_at).toLocaleDateString() : ''
+      }));
+
+      const ws = XLSX.utils.json_to_sheet(exportData);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Students");
+      XLSX.writeFile(wb, `students_export_${new Date().toISOString().split('T')[0]}.xlsx`);
     });
-    const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
-    link.setAttribute('href', url);
-    link.setAttribute('download', `students_export_${new Date().toISOString().split('T')[0]}.csv`);
-    link.style.visibility = 'hidden';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
   };
   const handleView = student => {
     navigate(`/admin/students/${student.id}`);
