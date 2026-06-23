@@ -755,10 +755,11 @@ const StudentsList = ({
 							</div>
 
               {/* Subject Hours Editor */}
-              {editHoursModal.subject_hours && editHoursModal.subject_hours.length > 0 && (
-                <div className="flex flex-col gap-2 mt-4 pt-4 border-t border-slate-100">
-                    <span className="text-xs font-black uppercase text-slate-700 tracking-wider">Subject Specific Hours</span>
-                    <div className="space-y-3">
+              <div className="flex flex-col gap-2 mt-4 pt-4 border-t border-slate-100">
+                  <span className="text-xs font-black uppercase text-slate-700 tracking-wider">Subject Specific Hours</span>
+                  
+                  {editHoursModal.subject_hours && editHoursModal.subject_hours.length > 0 && (
+                      <div className="space-y-3">
                         {editHoursModal.subject_hours.map((sh, idx) => (
                             <div key={idx} className="flex flex-col gap-2 p-3 border border-slate-100 rounded-xl bg-slate-50">
                                 <div className="flex justify-between items-center">
@@ -791,9 +792,10 @@ const StudentsList = ({
                                 </div>
                             </div>
                         ))}
-                    </div>
+                      </div>
+                  )}
 
-                    {/* Add Enrolled Subject Dropdown */}
+                  {/* Add Enrolled Subject Dropdown */}
                     {(() => {
                         let enrolled = [];
                         try {
@@ -852,7 +854,7 @@ const StudentsList = ({
                         return null;
                     })()}
                 </div>
-              )}
+              
 							<div className="pt-2 flex justify-end gap-3">
 								<button type="button" onClick={() => setEditHoursModal({
               show: false,
