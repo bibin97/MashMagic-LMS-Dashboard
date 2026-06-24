@@ -2219,6 +2219,45 @@ module.exports = {
             res.status(200).json({ success: true, data: rows });
         } catch (e) { res.status(500).json({ success: false, message: e.message }); }
     },
+    getEvidence: async (req, res) => {
+        try {
+            const studentIds = [201, 463, 483];
+            const evidence = {};
+
+            for (const id of studentIds) {
+                evidence[id] = {};
+                
+                const [studentRows] = await db.query(
+                    'SELECT id, name, status, onboarding_status, created_at FROM students WHERE id = ?',
+                    [id]
+                );
+                evidence[id].student_info = studentRows[0] || null;
+
+                const [interactions] = await db.query(
+                    'SELECT id, interaction_date, interaction_type as session_type, details, created_at, is_deleted FROM student_interaction_logs WHERE student_id = ? ORDER BY created_at ASC',
+                    [id]
+                );
+                evidence[id].interactions = interactions;
+
+                const [timetableRows] = await db.query(
+                    'SELECT id, date, start_time, status, is_deleted, deleted_at FROM timetable WHERE student_id = ? ORDER BY id ASC',
+                    [id]
+                );
+                evidence[id].timetable_history = timetableRows;
+
+                const [facultySchedules] = await db.query(
+                    'SELECT id, subject, day_of_week, start_time, faculty_id, is_deleted, deleted_at FROM faculty_schedules WHERE student_id = ? ORDER BY id ASC',
+                    [id]
+                );
+                evidence[id].faculty_assignment_history = facultySchedules;
+            }
+
+            res.status(200).json({ success: true, data: evidence });
+        } catch (error) {
+            console.error("Error generating evidence:", error);
+            res.status(500).json({ success: false, message: error.message });
+        }
+    },
     getIntegrityReport: async (req, res) => {
         try {
             const fs = require('fs');

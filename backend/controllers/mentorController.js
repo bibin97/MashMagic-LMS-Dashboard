@@ -1490,7 +1490,7 @@ const updateAcademicSessionReminder = async (req, res) => {
 // @route   PUT /api/mentor/academic-schedule/:id/complete
 const completeAcademicSession = async (req, res) => {
     try {
-        const { minutes_taken } = req.body;
+        const { minutes_taken, status, cancel_note } = req.body;
         const sessionId = req.params.id;
         const loggedInUserRole = req.user ? req.user.role : '';
 
@@ -1500,22 +1500,25 @@ const completeAcademicSession = async (req, res) => {
             return res.status(403).json({ success: false, message: "This session's duration is locked and cannot be edited." });
         }
 
+        const finalStatus = status || 'Completed';
+        const finalMinutes = minutes_taken || 0;
+
         await db.query(`
             UPDATE faculty_sessions 
-            SET status = 'Completed', minutes_taken = ?, minutes_locked = 1 
+            SET status = ?, minutes_taken = ?, cancel_note = ?, minutes_locked = 1 
             WHERE id = ?
-        `, [minutes_taken, sessionId]);
+        `, [finalStatus, finalMinutes, cancel_note || null, sessionId]);
 
         // Bidirectional sync: if this session is linked to a timetable session, mark it as Completed too
         if (session.length > 0 && session[0].timetable_id) {
             await db.query(`
                 UPDATE timetable 
-                SET status = 'Completed' 
+                SET status = ?, cancel_note = ? 
                 WHERE id = ?
-            `, [session[0].timetable_id]);
+            `, [finalStatus, cancel_note || null, session[0].timetable_id]);
         }
 
-        res.status(200).json({ success: true, message: "Session marked as completed and locked" });
+        res.status(200).json({ success: true, message: `Session marked as ${finalStatus} and locked` });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }

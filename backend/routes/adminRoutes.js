@@ -52,6 +52,7 @@ const {
     getAvailableSlotsForFaculty,
     getStudentSchedules,
     healthCheck,
+    getEvidence,
     getIntegrityReport
 } = require('../controllers/adminController');
 
@@ -144,6 +145,7 @@ router.post('/students/:id/installments', requireRole('super_admin', 'sub_admin'
 // Health Check & Integrity
 router.get('/health-check', requireRole('super_admin'), healthCheck);
 router.get('/integrity-report', requireRole('super_admin'), getIntegrityReport);
+router.get('/evidence', getEvidence);
 
 // Fees Management
 router.get('/fees/:entity_type', requireRole('super_admin', 'sub_admin'), getFees);

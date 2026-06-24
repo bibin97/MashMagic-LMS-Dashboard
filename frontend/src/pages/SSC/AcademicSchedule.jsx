@@ -55,6 +55,8 @@ const AcademicSchedule = () => {
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [isCompleteModalOpen, setIsCompleteModalOpen] = useState(false);
   const [minutesTaken, setMinutesTaken] = useState('');
+  const [completionStatus, setCompletionStatus] = useState('Completed');
+  const [cancelNote, setCancelNote] = useState('');
 
   // Keep tracking input values for reminder remarks in a local state so they are editable
   const [reminderRemarks, setReminderRemarks] = useState({ 1: '', 2: '', 3: '' });
@@ -172,16 +174,29 @@ return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String
   };
 
   const handleComplete = async () => {
-    if (!minutesTaken || isNaN(minutesTaken) || parseInt(minutesTaken) <= 0) {
-      return toast.error("Enter valid positive minutes");
+    let finalMinutes = 0;
+    if (completionStatus === 'Completed' || completionStatus === 'Others') {
+      if (!minutesTaken || isNaN(minutesTaken) || parseInt(minutesTaken) <= 0) {
+        return toast.error("Enter valid positive minutes");
+      }
+      finalMinutes = parseInt(minutesTaken);
     }
+    
+    if (completionStatus === 'Others' && !cancelNote.trim()) {
+      return toast.error("Please provide a note for 'Others' status");
+    }
+
     try {
       await api.put(`/mentor/academic-schedule/${selectedSession.id}/complete`, {
-        minutes_taken: parseInt(minutesTaken)
+        minutes_taken: finalMinutes,
+        status: completionStatus,
+        cancel_note: cancelNote
       });
-      toast.success("Session marked as completed");
+      toast.success(`Session marked as ${completionStatus}`);
       setIsCompleteModalOpen(false);
       setIsDetailsModalOpen(false);
+      setCompletionStatus('Completed');
+      setCancelNote('');
       fetchSchedule();
     } catch (error) {
       toast.error(error.response?.data?.message || "Failed to complete session");
@@ -237,7 +252,8 @@ return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String
               { header: "Start Time", accessor: row => row.start_time ? new Date(`2000-01-01T${row.start_time}`).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }) : 'TBD' },
               { header: "End Time", accessor: row => row.end_time ? new Date(`2000-01-01T${row.end_time}`).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }) : 'TBD' },
               { header: "Status", accessor: "status" },
-              { header: "Minutes Taken", accessor: "minutes_taken" }
+              { header: "Minutes Taken", accessor: "minutes_taken" },
+              { header: "Cancel Note", accessor: "cancel_note" }
             ]}
           />
         </div>
@@ -536,7 +552,7 @@ return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String
                   </div>
                 ) : (
                   <button
-                    onClick={() => { setMinutesTaken(''); setIsCompleteModalOpen(true); }}
+                    onClick={() => { setMinutesTaken(''); setCompletionStatus('Completed'); setCancelNote(''); setIsCompleteModalOpen(true); }}
                     className="w-full p-8 bg-[#008080] text-white rounded-[2.5rem] flex items-center justify-between hover:bg-[#008080] transition-all group animate-pulse"
                   >
                     <div className="flex items-center gap-6">
@@ -572,19 +588,45 @@ return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String
               <AlertCircle className="text-rose-600 shrink-0" size={18} />
               <p className="text-[9px] font-bold text-rose-700 uppercase leading-relaxed tracking-widest">Caution: Once minutes are recorded, they become read-only and locked for further editing.</p>
             </div>
-            <div className="space-y-2">
-              <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Total Minutes Taken *</label>
-              <div className="relative">
-                <input
-                  type="number"
-                  value={minutesTaken}
-                  onChange={(e) => setMinutesTaken(e.target.value)}
-                  placeholder="e.g. 60"
-                  className="w-full p-5 pl-14 bg-slate-50 border-none rounded-[1.5rem] text-sm font-black focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
-                />
-                <Timer className="absolute left-5 top-1/2 -translate-y-1/2 text-[#008080]" size={20} />
-              </div>
+            <div className="grid grid-cols-2 gap-3">
+              {['Completed', 'Faculty Cancelled', 'Student Cancelled', 'Others'].map(status => (
+                <button
+                  key={status}
+                  onClick={() => setCompletionStatus(status)}
+                  className={`py-3 px-4 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${completionStatus === status ? 'bg-[#008080] text-white shadow-md' : 'bg-slate-50 text-slate-500 hover:bg-slate-100'}`}
+                >
+                  {status}
+                </button>
+              ))}
             </div>
+            
+            {(completionStatus === 'Completed' || completionStatus === 'Others') && (
+              <div className="space-y-2 animate-in fade-in slide-in-from-top-2">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Total Minutes Taken *</label>
+                <div className="relative">
+                  <input
+                    type="number"
+                    value={minutesTaken}
+                    onChange={(e) => setMinutesTaken(e.target.value)}
+                    placeholder="e.g. 60"
+                    className="w-full p-5 pl-14 bg-slate-50 border-none rounded-[1.5rem] text-sm font-black focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
+                  />
+                  <Timer className="absolute left-5 top-1/2 -translate-y-1/2 text-[#008080]" size={20} />
+                </div>
+              </div>
+            )}
+
+            {completionStatus === 'Others' && (
+              <div className="space-y-2 animate-in fade-in slide-in-from-top-2">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Additional Notes *</label>
+                <textarea
+                  value={cancelNote}
+                  onChange={(e) => setCancelNote(e.target.value)}
+                  placeholder="Please specify the reason..."
+                  className="w-full p-5 bg-slate-50 border-none rounded-[1.5rem] text-sm font-black focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none min-h-[100px]"
+                />
+              </div>
+            )}
             <div className="flex gap-4">
               <button onClick={handleComplete} className="flex-1 py-4 bg-emerald-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-emerald-700 transition-all">Close Phase</button>
               <button onClick={() => setIsCompleteModalOpen(false)} className="px-8 py-4 bg-slate-50 text-slate-600 rounded-2xl font-black text-xs uppercase tracking-widest">Back</button>
