@@ -84,20 +84,35 @@ const StudentRow = ({ student, navigate }) => {
           <div className="hidden md:block w-[1px] h-10 bg-slate-200"></div>
 
           <div className="flex-1 min-w-0 bg-slate-50 p-2 rounded-xl border border-slate-100" title={`Consumed: ${student.consumed_hours || 0} | Paid: ${student.paid_hours || 0}`}>
-            <p className="text-[8px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Current Cycle Tracking</p>
-            <div className="flex items-center justify-between gap-2 mb-1">
-              <div className="flex items-center gap-1.5">
-                <div className={`w-1.5 h-1.5 rounded-full ${student.payment_alert_level === 'Critical' ? 'bg-rose-500 animate-pulse' : student.payment_alert_level === 'Warning' ? 'bg-amber-500 animate-pulse' : 'bg-emerald-400'} shrink-0`}></div>
-                <p className={`text-[9px] font-black uppercase truncate ${student.payment_alert_level === 'Critical' ? 'text-rose-600' : student.payment_alert_level === 'Warning' ? 'text-amber-600' : 'text-emerald-600'}`}>
-                  {student.payment_alert_level || 'Safe'}
-                </p>
+            <div className="flex gap-4">
+              <div className="flex-1">
+                <div className="flex items-center justify-between mb-1">
+                  <p className="text-[8px] font-black text-slate-400 uppercase tracking-[0.2em]">Current Cycle</p>
+                  <div className="flex items-center gap-1.5" title={student.payment_alert_level}>
+                    <div className={`w-1.5 h-1.5 rounded-full ${student.payment_alert_level === 'Critical' ? 'bg-rose-500 animate-pulse' : student.payment_alert_level === 'Warning' ? 'bg-amber-500 animate-pulse' : 'bg-emerald-400'} shrink-0`}></div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <p className="text-xl font-black tracking-tighter flex items-baseline">
+                    <span className="text-emerald-700">{student.consumed_hours !== undefined ? student.consumed_hours : '0'}</span>
+                    <span className="text-slate-400 mx-1">/</span>
+                    <span className="text-slate-600 font-bold">{student.paid_hours || student.total_entitled_hours || student.total_hours || '0'} hr</span>
+                  </p>
+                </div>
               </div>
-              <span className="text-[10px] font-black text-slate-500">
-                {Math.round(((student.consumed_hours || 0) / (student.paid_hours || 1)) * 100)}%
-              </span>
+              <div className="w-[1px] bg-slate-200"></div>
+              <div className="flex-1">
+                <p className="text-[8px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Total Lifetime</p>
+                <div className="flex items-center gap-1.5">
+                  <p className="text-xl font-black tracking-tighter flex items-baseline">
+                    <span className="text-[#008080]">{student.total_lifetime_consumed_hours || 0}</span>
+                    <span className="text-slate-400 mx-1">/</span>
+                    <span className="text-slate-600 font-bold">{student.total_hours || 0} hr</span>
+                  </p>
+                </div>
+              </div>
             </div>
               <div className="flex flex-col gap-0.5 mt-2">
-              <span className="text-[8px] font-black uppercase tracking-wider text-slate-400">Lifetime Hours: <span className="text-[#008080] font-black">{student.total_lifetime_consumed_hours || 0} / {student.total_hours || 0} hrs</span></span>
               {student.subject_hours && student.subject_hours.length > 0 && (
                 <div className="mt-1 pt-1 border-t border-slate-200 flex flex-col gap-1">
                   <span className="text-[7px] font-black text-[#008080] uppercase tracking-widest mb-0.5">Subject Breakdown</span>
