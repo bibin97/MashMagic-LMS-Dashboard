@@ -130,34 +130,30 @@ const Approvals = () => {
                             <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-slate-400 font-black border border-slate-100 group-hover:text-[#008080] transition-all">
                               {user.name.charAt(0)}
                             </div>
-                            <div>
-                            <div className="flex flex-col gap-1.5 py-1">
-                              <div className="flex items-center gap-2">
-                                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest w-10">Name</span>
-                                <span className="text-sm font-black text-slate-800 uppercase tracking-tight">- {user.name}</span>
+                            <div className="flex-1 w-full grid grid-cols-4 items-center gap-6">
+                              <div className="flex flex-col gap-1.5">
+                                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Name</span>
+                                <span className="text-sm font-black text-slate-800 uppercase tracking-tight">{user.name}</span>
                               </div>
-                              <div className="flex items-center gap-2">
-                                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest w-10">Role</span>
-                                <span className="text-[10px] font-black text-slate-700 uppercase tracking-tight flex items-center gap-1">- 
-                                  <span className={`px-2 py-0.5 rounded-md tracking-widest ${user.role === 'student' ? 'bg-slate-100 text-slate-500' : 'bg-[#008080]/10 text-[#008080]'}`}>
-                                    {user.role.replace('_', ' ')}
-                                  </span>
+                              <div className="flex flex-col gap-1.5 items-start">
+                                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Role</span>
+                                <span className={`px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-widest ${user.role === 'student' ? 'bg-slate-100 text-slate-500' : 'bg-[#008080]/10 text-[#008080]'}`}>
+                                  {user.role.replace('_', ' ')}
                                 </span>
                               </div>
-                              <div className="flex items-center gap-2">
-                                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest w-10">Date</span>
-                                <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">- {new Date(user.created_at).toLocaleDateString('en-GB')}</span>
+                              <div className="flex flex-col gap-1.5">
+                                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Date</span>
+                                <span className="text-sm font-bold text-slate-600 uppercase tracking-tight">{new Date(user.created_at).toLocaleDateString('en-GB')}</span>
                               </div>
-                              <div className="flex items-center gap-2">
-                                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest w-10">Time</span>
-                                <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">- {new Date(user.created_at).toLocaleTimeString('en-US', {
-                                hour: '2-digit',
-                                minute: '2-digit',
-                                hour12: true
-                              })}</span>
+                              <div className="flex flex-col gap-1.5">
+                                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Time</span>
+                                <span className="text-sm font-bold text-slate-600 uppercase tracking-tight">{new Date(user.created_at).toLocaleTimeString('en-US', {
+                                  hour: '2-digit',
+                                  minute: '2-digit',
+                                  hour12: true
+                                })}</span>
                               </div>
                             </div>
-                          </div>
                           </div>
                         </td>
                         <td className="p-6 text-right">
