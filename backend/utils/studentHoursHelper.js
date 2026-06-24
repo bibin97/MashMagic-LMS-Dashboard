@@ -19,7 +19,7 @@ const calculateStudentHours = async (students, db) => {
             SELECT t.student_id, t.duration, COALESCE(t.subject, t.chapter) AS subject, fs.minutes_taken 
             FROM timetable t
             LEFT JOIN faculty_sessions fs ON t.id = fs.timetable_id
-            WHERE t.status = "Completed" AND t.student_id IN (?)
+            WHERE t.status IN ("Completed", "Others", "Faculty Cancelled", "Student Cancelled") AND t.student_id IN (?)
         `, [studentIds]);
         sessions = rows;
     } catch (e) {
@@ -28,7 +28,7 @@ const calculateStudentHours = async (students, db) => {
             SELECT t.student_id, t.duration, fs.minutes_taken 
             FROM timetable t
             LEFT JOIN faculty_sessions fs ON t.id = fs.timetable_id
-            WHERE t.status = "Completed" AND t.student_id IN (?)
+            WHERE t.status IN ("Completed", "Others", "Faculty Cancelled", "Student Cancelled") AND t.student_id IN (?)
         `, [studentIds]);
         sessions = rows.map(r => ({ ...r, subject: 'Unknown' }));
     }
@@ -44,7 +44,7 @@ const calculateStudentHours = async (students, db) => {
             ) AS subject
         FROM faculty_sessions fs
         JOIN session_attendance sa ON fs.id = sa.session_id
-        WHERE fs.status = "Completed" AND fs.timetable_id IS NULL AND sa.student_id IN (?)
+        WHERE fs.status IN ("Completed", "Others", "Faculty Cancelled", "Student Cancelled") AND fs.timetable_id IS NULL AND sa.student_id IN (?)
     `, [studentIds]);
 
     const consumedMap = {};
