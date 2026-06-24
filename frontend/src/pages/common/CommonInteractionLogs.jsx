@@ -4,6 +4,7 @@ import api from '../../services/api';
 import { ScrollText, Search, User, Clock, Calendar, ChevronLeft, ChevronRight, History, ExternalLink, ArrowLeft, Users, ShieldAlert, CheckSquare, Filter, BookOpen, ChevronDown, SlidersHorizontal, X, SortAsc, CalendarClock, Pencil, Trash2, Paperclip } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import toast from 'react-hot-toast';
+import ExportButton from '../../components/common/ExportButton';
 
 import InteractionFormUI from '../../components/common/InteractionFormUI';
 import MultiDatePicker from "react-multi-date-picker";
@@ -318,31 +319,42 @@ const CommonInteractionLogs = ({
       setLoading(false);
     }
   };
-  const exportToExcel = async (studentId = null) => {
-    const loadingToast = toast.loading("Preparing Excel export...");
+  const fetchExportData = async (exportType, dateRange, studentId = null) => {
+    const loadingToast = toast.loading("Fetching logs for export...");
     try {
-      const params = {
-        dateFilter: studentId ? dateFilter : listDateFilter,
-        startDate: studentId ? dateFilter === 'custom' ? customRange.start : undefined : listDateFilter === 'custom' ? listCustomRange.start : undefined,
-        endDate: studentId ? dateFilter === 'custom' ? customRange.end : undefined : listDateFilter === 'custom' ? listCustomRange.end : undefined,
+      let params = {
         student_id: studentId || undefined,
         mentor_id: studentId && mentorFilter !== 'all' ? mentorFilter : undefined
       };
+      
+      if (exportType === 'today') {
+        const todayStr = new Date().toISOString().split('T')[0];
+        params.dateFilter = 'custom';
+        params.startDate = todayStr;
+        params.endDate = todayStr;
+      } else if (exportType === 'range' && dateRange && dateRange.length > 0) {
+        params.dateFilter = 'custom';
+        params.startDate = dateRange[0].format("YYYY-MM-DD");
+        params.endDate = dateRange.length > 1 ? dateRange[1].format("YYYY-MM-DD") : dateRange[0].format("YYYY-MM-DD");
+      } else {
+        params.dateFilter = 'all';
+      }
+
       let endpoint;
       if (activeTab === 'student') {
         endpoint = `${apiPrefix}/student-logs`;
       } else {
         endpoint = role === 'mentor_head' ? `${apiPrefix}/mentor-logs` : `${apiPrefix}/faculty-logs`;
       }
-      const res = await api.get(endpoint, {
-        params
-      });
+      
+      const res = await api.get(endpoint, { params });
       const exportData = res.data.data || [];
       if (exportData.length === 0) {
         toast.dismiss(loadingToast);
-        toast.error("No logs found to export");
-        return;
+        toast.error("No logs found to export for the selected date range");
+        return null;
       }
+      
       const excelData = exportData.map(item => {
         let reportAnswersStr = "";
         if (item.report_data) {
@@ -379,33 +391,14 @@ const CommonInteractionLogs = ({
           "Detailed Questionnaire Responses": reportAnswersStr
         };
       });
-      const worksheet = XLSX.utils.json_to_sheet(excelData);
-      // Set proper column widths
-      worksheet['!cols'] = [
-        { wch: 8 },  // ID
-        { wch: 20 }, // Date
-        { wch: 22 }, // Student Name
-        { wch: 22 }, // Mentor/Faculty Name
-        { wch: 16 }, // Source/Type
-        { wch: 14 }, // Session Type
-        { wch: 35 }, // Notes/Remarks
-        { wch: 20 }, // Understanding Level
-        { wch: 14 }, // Confidence
-        { wch: 14 }, // Stress Level
-        { wch: 10 }, // Is Flagged
-        { wch: 22 }, // Flag Reason
-        { wch: 50 }, // Detailed Responses
-      ];
-      const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, "Interaction_Logs");
-      const fileName = studentId ? `${selectedStudent?.name || 'student'}_interaction_logs.xlsx` : `all_student_interaction_logs.xlsx`;
-      XLSX.writeFile(workbook, fileName.toLowerCase().replace(/\s+/g, "_"));
+      
       toast.dismiss(loadingToast);
-      toast.success("Excel exported successfully");
+      return excelData;
     } catch (error) {
       console.error("Export failed:", error);
       toast.dismiss(loadingToast);
       toast.error("Failed to export logs");
+      return null;
     }
   };
   const handleOpenEdit = log => {
@@ -677,9 +670,12 @@ const CommonInteractionLogs = ({
                   containerClassName="w-48"
                 />
               )}
-              <button onClick={() => exportToExcel()} className="flex items-center gap-3 px-6 py-4 rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all border bg-[#008080] text-white border-[#008080] hover:bg-[#006666] active:scale-95 shadow-sm">
-                Export Logs
-              </button>
+                <ExportButton 
+                  fetchData={(exportType, dateRange) => fetchExportData(exportType, dateRange, null)}
+                  filename="interaction_logs"
+                  buttonText="Export Logs"
+                  customButtonClass="flex items-center gap-3 px-6 py-4 rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all border bg-[#008080] text-white border-[#008080] hover:bg-[#006666] active:scale-95 shadow-sm"
+                />
               {listDateFilter !== 'all' && <button onClick={resetListFilters} className="w-12 h-12 flex items-center justify-center rounded-2xl bg-rose-50 text-rose-600 border border-rose-100 hover:bg-rose-600 hover:text-white transition-all">
                 <X size={18} />
               </button>}
@@ -791,9 +787,12 @@ const CommonInteractionLogs = ({
       </div>
 
       <div className="flex items-center gap-4">
-        <button onClick={() => exportToExcel(selectedStudent.id)} className="flex items-center gap-3 px-8 py-4 rounded-[2rem] text-[10px] font-black uppercase tracking-widest transition-all shadow-sm border bg-[#008080] text-white border-[#008080] hover:bg-[#006666] active:scale-95">
-          Export Timeline
-        </button>
+          <ExportButton 
+            fetchData={(exportType, dateRange) => fetchExportData(exportType, dateRange, selectedStudent.id)}
+            filename={`${selectedStudent?.name || 'student'}_interaction_logs`}
+            buttonText="Export Timeline"
+            customButtonClass="flex items-center gap-3 px-8 py-4 rounded-[2rem] text-[10px] font-black uppercase tracking-widest transition-all shadow-sm border bg-[#008080] text-white border-[#008080] hover:bg-[#006666] active:scale-95"
+          />
         <button onClick={() => setShowFilterPanel(!showFilterPanel)} className={`flex items-center gap-3 px-8 py-4 rounded-[2rem] text-[10px] font-black uppercase tracking-widest transition-all shadow-sm border ${showFilterPanel ? 'bg-yellow-400 text-slate-900 border-[#008080]' : 'bg-white text-slate-600 border-slate-100 hover:border-[#008080]'}`}>
           <SlidersHorizontal size={16} />
           Custom Filter

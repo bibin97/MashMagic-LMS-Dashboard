@@ -5,63 +5,73 @@ import MultiDatePicker, { DateObject } from "react-multi-date-picker";
 
 const DatePicker = MultiDatePicker.default ? MultiDatePicker.default : MultiDatePicker;
 
-const ExportButton = ({ data, filename = "export", dateField = "createdAt", columns = [] }) => {
+const ExportButton = ({ data, fetchData, filename = "export", dateField = "createdAt", columns = [], customButtonClass = null, buttonText = "Export" }) => {
   const [showModal, setShowModal] = useState(false);
   const [dateRange, setDateRange] = useState([]); // [startDate, endDate]
   const [exportType, setExportType] = useState('all'); // 'all', 'range'
 
-  const handleExport = () => {
-    let filteredData = [...data];
+  const handleExport = async () => {
+    let filteredData = [];
 
-    if (exportType === 'today') {
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      const end = new Date(today);
-      end.setHours(23, 59, 59, 999);
+    if (fetchData) {
+      filteredData = await fetchData(exportType, dateRange);
+      if (!filteredData) {
+        setShowModal(false);
+        return;
+      }
+    } else {
+      filteredData = [...data];
 
-      filteredData = data.filter(item => {
-        const itemDateStr = item[dateField];
-        if (!itemDateStr) return false;
-        
-        let itemDate;
-        if (typeof itemDateStr === 'string' && itemDateStr.includes('-')) {
-            const parts = itemDateStr.split('-');
-            if (parts[0].length === 2 && parts[2].length === 4) { // DD-MM-YYYY
-                itemDate = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);
-            } else {
-                itemDate = new Date(itemDateStr);
-            }
-        } else {
-            itemDate = new Date(itemDateStr);
-        }
+      if (exportType === 'today') {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const end = new Date(today);
+        end.setHours(23, 59, 59, 999);
 
-        return itemDate >= today && itemDate <= end;
-      });
-    } else if (exportType === 'range' && dateRange.length > 0) {
-      const start = new Date(dateRange[0].format("YYYY-MM-DD"));
-      start.setHours(0, 0, 0, 0);
+        filteredData = data.filter(item => {
+          const itemDateStr = item[dateField];
+          if (!itemDateStr) return false;
+          
+          let itemDate;
+          if (typeof itemDateStr === 'string' && itemDateStr.includes('-')) {
+              const parts = itemDateStr.split('-');
+              if (parts[0].length === 2 && parts[2].length === 4) { // DD-MM-YYYY
+                  itemDate = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);
+              } else {
+                  itemDate = new Date(itemDateStr);
+              }
+          } else {
+              itemDate = new Date(itemDateStr);
+          }
 
-      const end = dateRange.length > 1 ? new Date(dateRange[1].format("YYYY-MM-DD")) : new Date(start);
-      end.setHours(23, 59, 59, 999);
+          return itemDate >= today && itemDate <= end;
+        });
+      } else if (exportType === 'range' && dateRange.length > 0) {
+        const start = new Date(dateRange[0].format("YYYY-MM-DD"));
+        start.setHours(0, 0, 0, 0);
 
-      filteredData = data.filter(item => {
-        const itemDateStr = item[dateField];
-        if (!itemDateStr) return false;
-        
-        let itemDate;
-        if (typeof itemDateStr === 'string' && itemDateStr.includes('-')) {
-            const parts = itemDateStr.split('-');
-            if (parts[0].length === 2 && parts[2].length === 4) { // DD-MM-YYYY
-                itemDate = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);
-            } else {
-                itemDate = new Date(itemDateStr);
-            }
-        } else {
-            itemDate = new Date(itemDateStr);
-        }
+        const end = dateRange.length > 1 ? new Date(dateRange[1].format("YYYY-MM-DD")) : new Date(start);
+        end.setHours(23, 59, 59, 999);
 
-        return itemDate >= start && itemDate <= end;
-      });
+        filteredData = data.filter(item => {
+          const itemDateStr = item[dateField];
+          if (!itemDateStr) return false;
+          
+          let itemDate;
+          if (typeof itemDateStr === 'string' && itemDateStr.includes('-')) {
+              const parts = itemDateStr.split('-');
+              if (parts[0].length === 2 && parts[2].length === 4) { // DD-MM-YYYY
+                  itemDate = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);
+              } else {
+                  itemDate = new Date(itemDateStr);
+              }
+          } else {
+              itemDate = new Date(itemDateStr);
+          }
+
+          return itemDate >= start && itemDate <= end;
+        });
+      }
     }
 
     if (filteredData.length === 0) {
@@ -96,9 +106,9 @@ const ExportButton = ({ data, filename = "export", dateField = "createdAt", colu
     <>
       <button 
         onClick={() => setShowModal(true)}
-        className="flex items-center gap-2 px-4 py-2 bg-[#008080]/10 hover:bg-[#008080]/20 rounded-xl text-[10px] font-black text-[#008080] uppercase tracking-widest border border-[#008080]/20 transition-all shadow-sm"
+        className={customButtonClass || "flex items-center gap-2 px-4 py-2 bg-[#008080]/10 hover:bg-[#008080]/20 rounded-xl text-[10px] font-black text-[#008080] uppercase tracking-widest border border-[#008080]/20 transition-all shadow-sm"}
       >
-        <Download size={12} /> Export
+        <Download size={12} /> {buttonText}
       </button>
 
       {showModal && (
