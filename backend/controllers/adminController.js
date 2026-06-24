@@ -736,11 +736,11 @@ const getAllFacultyLogs = async (req, res) => {
                 SELECT 
                     fs.id, fs.created_at, NULL as mentor_id, NULL as student_id,
                     NULL as mentor_name, NULL as student_name,
-                    CONVERT('Faculty Session' USING utf8mb4) as source,
-                    CONVERT(fs.topic USING utf8mb4) as notes,
+                    CONVERT('Faculty Session' USING utf8mb4) COLLATE utf8mb4_unicode_ci as source,
+                    CONVERT(fs.topic USING utf8mb4) COLLATE utf8mb4_unicode_ci as notes,
                     NULL as understanding_level, NULL as student_confidence, NULL as stress_level,
                     0 as is_flagged, NULL as flag_reason,
-                    f.name as faculty_name, fs.faculty_id
+                    CONVERT(f.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as faculty_name, fs.faculty_id
                 FROM faculty_sessions fs
                 LEFT JOIN users f ON fs.faculty_id = f.id
                 ${baseWhere('fs', 'faculty_id', 'faculty_id', 'created_at', 'faculty_id', false, false, true)}
