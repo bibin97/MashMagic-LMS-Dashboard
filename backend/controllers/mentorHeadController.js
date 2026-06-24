@@ -317,61 +317,61 @@ exports.getFacultyInteractionLogs = async (req, res) => {
             return p;
         };
 
-        const query = `
-            SELECT * FROM (
-                SELECT 
-                    mfi.id, mfi.created_at, mfi.mentor_id, mfi.student_id,
-                    CONVERT(m.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as mentor_name, CONVERT(s.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as student_name,
-                    CONVERT('Faculty Call' USING utf8mb4) COLLATE utf8mb4_unicode_ci as source,
-                    CONVERT(mfi.main_issue USING utf8mb4) COLLATE utf8mb4_unicode_ci as notes,
-                    mfi.is_flagged, CONVERT(mfi.flag_reason USING utf8mb4) COLLATE utf8mb4_unicode_ci as flag_reason,
-                    CONVERT(f.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as faculty_name, mfi.faculty_id
-                FROM mentor_faculty_interactions mfi
-                LEFT JOIN mentors m ON mfi.mentor_id = m.id
-                LEFT JOIN students s ON mfi.student_id = s.id
-                LEFT JOIN faculties f ON mfi.faculty_id = f.id
-                ${baseWhere('mfi')}
-
-                UNION ALL
-
-                SELECT 
-                    fil.id, fil.created_at, fil.mentor_id, fil.student_id,
-                    CONVERT(m.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as mentor_name, CONVERT(s.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as student_name,
-                    CONVERT('Faculty Tracking' USING utf8mb4) COLLATE utf8mb4_unicode_ci as source,
-                    CONVERT(fil.notes USING utf8mb4) COLLATE utf8mb4_unicode_ci as notes,
-                    0 as is_flagged, CONVERT(NULL USING utf8mb4) COLLATE utf8mb4_unicode_ci as flag_reason,
-                    CONVERT(f.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as faculty_name, fil.faculty_id
-                FROM faculty_interaction_logs fil
-                LEFT JOIN users f ON fil.faculty_id = f.id AND f.role = 'faculty'
-                LEFT JOIN students s ON fil.student_id = s.id
-                LEFT JOIN users m ON fil.mentor_id = m.id AND m.role = 'mentor'
-                ${baseWhere('fil')}
-
-                UNION ALL
-
-                SELECT 
-                    sr.id, sr.created_at, NULL as mentor_id, sr.student_id,
-                    CONVERT(NULL USING utf8mb4) COLLATE utf8mb4_unicode_ci as mentor_name, CONVERT(s.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as student_name,
-                    CONVERT('Faculty Intelligence' USING utf8mb4) COLLATE utf8mb4_unicode_ci as source,
-                    CONVERT(sr.remarks USING utf8mb4) COLLATE utf8mb4_unicode_ci as notes,
-                    0 as is_flagged, CONVERT(NULL USING utf8mb4) COLLATE utf8mb4_unicode_ci as flag_reason,
-                    CONVERT(f.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as faculty_name, sr.faculty_id
-                FROM student_reports sr
-                LEFT JOIN students s ON sr.student_id = s.id
-                LEFT JOIN faculties f ON sr.faculty_id = f.id
-                ${baseWhere('sr', 'student_id', 'faculty_id', 'created_at', 'faculty_id', true, false, true)}
-            ) as unified_faculty_logs
-            ORDER BY created_at DESC
+        const q1Params = getParams(true, true, true);
+        const q1 = `
+            SELECT 
+                mfi.id, mfi.created_at, mfi.mentor_id, mfi.student_id,
+                m.name as mentor_name, s.name as student_name,
+                'Faculty Call' as source,
+                mfi.main_issue as notes,
+                mfi.is_flagged, mfi.flag_reason,
+                f.name as faculty_name, mfi.faculty_id
+            FROM mentor_faculty_interactions mfi
+            LEFT JOIN mentors m ON mfi.mentor_id = m.id
+            LEFT JOIN students s ON mfi.student_id = s.id
+            LEFT JOIN faculties f ON mfi.faculty_id = f.id
+            ${baseWhere('mfi')}
         `;
 
-        const allParams = [
-            ...getParams(true, true, true),
-            ...getParams(true, true, true),
-            ...getParams(true, false, true)
-        ];
+        const q2Params = getParams(true, true, true);
+        const q2 = `
+            SELECT 
+                fil.id, fil.created_at, fil.mentor_id, fil.student_id,
+                m.name as mentor_name, s.name as student_name,
+                'Faculty Tracking' as source,
+                fil.notes as notes,
+                0 as is_flagged, NULL as flag_reason,
+                f.name as faculty_name, fil.faculty_id
+            FROM faculty_interaction_logs fil
+            LEFT JOIN users f ON fil.faculty_id = f.id AND f.role = 'faculty'
+            LEFT JOIN students s ON fil.student_id = s.id
+            LEFT JOIN users m ON fil.mentor_id = m.id AND m.role = 'mentor'
+            ${baseWhere('fil')}
+        `;
 
-        const [rows] = await db.query(query, allParams);
-        res.status(200).json({ success: true, data: rows });
+        const q3Params = getParams(true, false, true);
+        const q3 = `
+            SELECT 
+                sr.id, sr.created_at, NULL as mentor_id, sr.student_id,
+                NULL as mentor_name, s.name as student_name,
+                'Faculty Intelligence' as source,
+                sr.remarks as notes,
+                0 as is_flagged, NULL as flag_reason,
+                f.name as faculty_name, sr.faculty_id
+            FROM student_reports sr
+            LEFT JOIN students s ON sr.student_id = s.id
+            LEFT JOIN faculties f ON sr.faculty_id = f.id
+            ${baseWhere('sr', 'student_id', 'faculty_id', 'created_at', 'faculty_id', true, false, true)}
+        `;
+
+        const [r1] = await db.query(q1, q1Params);
+        const [r2] = await db.query(q2, q2Params);
+        const [r3] = await db.query(q3, q3Params);
+
+        let unified_faculty_logs = [...r1, ...r2, ...r3];
+        unified_faculty_logs.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+        res.status(200).json({ success: true, data: unified_faculty_logs });
     } catch (error) {
         console.error("GET_FACULTY_LOGS_ERROR:", error);
         res.status(500).json({ success: false, message: error.message });
