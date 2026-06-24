@@ -565,21 +565,17 @@ return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String
                     </div>
                   </div>
                 ) : (
-                  <button
-                    onClick={() => { setMinutesTaken(''); setCompletionStatus('Completed'); setCancelNote(''); setIsCompleteModalOpen(true); }}
-                    className="w-full p-8 bg-[#008080] text-white rounded-[2.5rem] flex items-center justify-between hover:bg-[#008080] transition-all group animate-pulse"
-                  >
-                    <div className="flex items-center gap-6">
-                      <div className="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center group-hover:bg-white/20 transition-colors">
-                        <CheckSquare size={32} />
+                  <>
+                    {selectedSession && selectedSession.status === 'Scheduled' && (
+                      <div className="w-full p-6 bg-slate-50 border border-slate-100 rounded-[2rem] flex flex-col items-center justify-center text-center">
+                        <div className="w-12 h-12 bg-slate-200 text-slate-400 rounded-2xl flex items-center justify-center mb-3">
+                          <Clock size={24} />
+                        </div>
+                        <p className="text-[11px] font-black uppercase tracking-widest text-slate-500 mb-1">Session In Progress</p>
+                        <p className="text-[9px] font-bold text-slate-400 max-w-[200px]">Use the audit button on the table to close this session.</p>
                       </div>
-                      <div className="text-left">
-                        <p className="text-xl font-black uppercase tracking-tighter">Mark as Completed</p>
-                        <p className="text-[10px] font-bold opacity-60 uppercase tracking-widest">Verify session hours and close phase</p>
-                      </div>
-                    </div>
-                    <ChevronRight size={28} />
-                  </button>
+                    )}
+                  </>
                 )}
               </div>
             </div>
@@ -641,10 +637,10 @@ return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String
                 />
               </div>
             )}
-            <div className="flex gap-4">
-              <button onClick={handleComplete} className="flex-1 py-4 bg-emerald-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-emerald-700 transition-all">Close Phase</button>
-              <button onClick={() => setIsCompleteModalOpen(false)} className="px-8 py-4 bg-slate-50 text-slate-600 rounded-2xl font-black text-xs uppercase tracking-widest">Back</button>
-            </div>
+              <div className="flex gap-4">
+                <button onClick={handleComplete} className="flex-1 py-4 bg-emerald-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-emerald-700 transition-all">Submit</button>
+                <button onClick={() => setIsCompleteModalOpen(false)} className="px-8 py-4 bg-slate-50 text-slate-600 rounded-2xl font-black text-xs uppercase tracking-widest">Back</button>
+              </div>
           </div>
         </div>
       )}
