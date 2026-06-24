@@ -745,10 +745,11 @@ const getAllFacultyLogs = async (req, res) => {
             ${baseWhere('fs', 'faculty_id', 'faculty_id', 'created_at', 'faculty_id', false, false, true)}
         `;
 
-        const [r1] = await db.query(q1, q1Params);
-        const [r2] = await db.query(q2, q2Params);
-        const [r3] = await db.query(q3, q3Params);
-        const [r4] = await db.query(q4, q4Params);
+        let r1 = [], r2 = [], r3 = [], r4 = [];
+        try { [r1] = await db.query(q1, q1Params); } catch (e) { console.error("Q1 ERROR:", e.message); require('fs').appendFileSync('db_error.log', 'Q1: ' + e.message + '\n'); }
+        try { [r2] = await db.query(q2, q2Params); } catch (e) { console.error("Q2 ERROR:", e.message); require('fs').appendFileSync('db_error.log', 'Q2: ' + e.message + '\n'); }
+        try { [r3] = await db.query(q3, q3Params); } catch (e) { console.error("Q3 ERROR:", e.message); require('fs').appendFileSync('db_error.log', 'Q3: ' + e.message + '\n'); }
+        try { [r4] = await db.query(q4, q4Params); } catch (e) { console.error("Q4 ERROR:", e.message); require('fs').appendFileSync('db_error.log', 'Q4: ' + e.message + '\n'); }
 
         let unified_faculty_logs = [...r1, ...r2, ...r3, ...r4];
         unified_faculty_logs.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
