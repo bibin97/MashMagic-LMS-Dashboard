@@ -1370,7 +1370,9 @@ exports.getExamAnalytics = async (req, res) => {
 };
 
 exports.editStudent = async (req, res) => {
+    const conn = await db.getConnection();
     try {
+        await conn.beginTransaction();
         const { id } = req.params;
         const { 
             name, email, contact, grade, syllabus, course, hour, 
@@ -1383,8 +1385,12 @@ exports.editStudent = async (req, res) => {
         const finalMeetingLink = meetingLink || meeting_link;
         const finalSubjects = selectedSubjects || subjects_json || [];
         
-        const [[student]] = await db.query('SELECT name, user_id FROM students WHERE id = ?', [id]);
-        if (!student) return res.status(404).json({ success: false, message: "Student not found" });
+        const [[student]] = await conn.query('SELECT name, user_id FROM students WHERE id = ?', [id]);
+        if (!student) {
+            await conn.rollback();
+            conn.release();
+            return res.status(404).json({ success: false, message: "Student not found" });
+        }
 
         // Prepare primary faculty/subject for legacy columns
         let primaryFacultyId = null;
@@ -1404,8 +1410,12 @@ exports.editStudent = async (req, res) => {
                       enrollment_type === 'Tuition Only' ? 'Silver' : 
                       (enrollment_type === 'Mentorship & Tuition' || enrollment_type === 'Mentorship and Tuition') ? 'Diamond' : null;
 
+        const { archiveStudent, archiveFacultySchedule } = require('../utils/archiver');
+        await archiveStudent(conn, id, 'UPDATE', req.user);
+        await archiveFacultySchedule(conn, id, 'UPDATE', req.user);
+
         // Update Students table
-        await db.query(
+        await conn.query(
             `UPDATE students SET 
                 name = ?, email = ?, contact = ?, grade = ?, syllabus = ?, course = ?, hour = ?,
                 next_installment_date = ?, admission_date = ?, registration_number = ?, roll_number = ?,
@@ -1413,7 +1423,7 @@ exports.editStudent = async (req, res) => {
                 school_name = ?, preferred_language = ?, country = ?, 
                 total_fees = ?, total_paid = ?,
                 subjects_json = ?, subject = ?, faculty_id = ?, faculty_name = ?, mentor_id = ?,
-                course_completed = ?
+                course_completed = ?, timetable_created = 0
              WHERE id = ?`, 
             [
                 name, email || null, contact || null, grade || null, syllabus || null, course || null, hour || null,
@@ -1441,12 +1451,12 @@ exports.editStudent = async (req, res) => {
 
             userUpdateQuery += ' WHERE id = ?';
             userParams.push(student.user_id);
-            await db.query(userUpdateQuery, userParams);
+            await conn.query(userUpdateQuery, userParams);
         }
 
         // --- SYNC FACULTY SCHEDULES ---
         await logFacultyChanges(id, finalSubjects, req.user);
-        await db.query('UPDATE faculty_schedules SET is_deleted = 1, deleted_at = CURRENT_TIMESTAMP WHERE student_id = ?', [id]);
+        await conn.query('UPDATE faculty_schedules SET is_deleted = 1, deleted_at = CURRENT_TIMESTAMP WHERE student_id = ?', [id]);
 
         if (finalSubjects && Array.isArray(finalSubjects) && finalSubjects.length > 0) {
             for (const sub of finalSubjects) {
@@ -1457,7 +1467,7 @@ exports.editStudent = async (req, res) => {
                 if (sub.dayConfigs && Array.isArray(sub.dayConfigs) && sub.dayConfigs.length > 0) {
                     for (const config of sub.dayConfigs) {
                         if (sub.facultyId && config.day && config.startTime && config.endTime) {
-                            await db.query(`
+                            await conn.query(`
                                 INSERT INTO faculty_schedules (
                                     faculty_id, student_id, subject, day_of_week, start_time, end_time, hourly_rate
                                 ) VALUES (?, ?, ?, ?, ?, ?, ?)
@@ -1470,7 +1480,7 @@ exports.editStudent = async (req, res) => {
                     const days = sub.days || (sub.day ? [sub.day] : []);
                     for (const day of days) {
                         if (sub.facultyId && day && sub.startTime && sub.endTime) {
-                            await db.query(`
+                            await conn.query(`
                                 INSERT INTO faculty_schedules (
                                     faculty_id, student_id, subject, day_of_week, start_time, end_time, hourly_rate
                                 ) VALUES (?, ?, ?, ?, ?, ?, ?)
@@ -1483,9 +1493,47 @@ exports.editStudent = async (req, res) => {
             }
         }
 
-        await db.query('INSERT INTO admin_notifications (message) VALUES (?)', [`Mentor Head (${req.user.name}) updated student profile and sync'd schedule for: ${student.name}`]);
+        const { verifyStudentSave, verifyFacultySchedules } = require('../utils/saveVerifier');
+        
+        const payloadToVerify = {
+            name, email: email || null, contact: contact || null, grade: grade || null, syllabus: syllabus || null, course: course || null,
+            hour: hour || null,
+            next_installment_date: next_installment_date || null, admission_date: admission_date || null,
+            registration_number: registration_number || null, meeting_link: finalMeetingLink || null,
+            enrollment_type: enrollment_type || null, badge,
+            school_name: school_name || null, preferred_language: preferred_language || null, country: country || null,
+            total_fees: total_fees || 0, total_paid: total_paid || 0,
+            subjects_json: JSON.stringify(finalSubjects),
+            course_completed: req.body.course_completed || 0,
+            timetable_created: 0
+        };
+
+        await verifyStudentSave(conn, id, payloadToVerify);
+
+        if (finalSubjects && Array.isArray(finalSubjects) && finalSubjects.length > 0) {
+            let expectedSchedulesCount = 0;
+            for (const sub of finalSubjects) {
+                if (sub.dayConfigs && Array.isArray(sub.dayConfigs) && sub.dayConfigs.length > 0) {
+                    expectedSchedulesCount += sub.dayConfigs.length;
+                } else {
+                    const days = sub.days || (sub.day ? [sub.day] : []);
+                    expectedSchedulesCount += days.length;
+                }
+            }
+            if (expectedSchedulesCount > 0) {
+                await verifyFacultySchedules(conn, id, expectedSchedulesCount);
+            }
+        }
+
+        await conn.query('INSERT INTO admin_notifications (message) VALUES (?)', [`Mentor Head (${req.user.name}) updated student profile and sync'd schedule for: ${student.name}`]);
+        await conn.commit();
+        conn.release();
         res.status(200).json({ success: true, message: 'Student profile updated successfully' });
     } catch (error) { 
+        if (conn) {
+            await conn.rollback();
+            conn.release();
+        }
         console.error("EDIT_STUDENT_ERROR:", error);
         res.status(500).json({ success: false, message: error.message }); 
     }

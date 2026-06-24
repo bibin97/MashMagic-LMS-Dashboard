@@ -1197,13 +1197,22 @@ const createBatchTimetable = async (req, res) => {
 
         await connection.query(updateQuery, updateParams);
 
-        await connection.commit();
-
-        // Sync to faculty_sessions outside the transaction
+        // Sync to faculty_sessions inside the transaction
+        const { syncTimetableToFacultySession } = require('../utils/timetableSync');
         for (const timetableId of insertedIds) {
-            await syncTimetableToFacultySession(timetableId);
+            await syncTimetableToFacultySession(timetableId, connection);
         }
 
+        // Verify sync before commit
+        for (const timetableId of insertedIds) {
+            const [syncVerify] = await connection.query('SELECT id FROM faculty_sessions WHERE timetable_id = ? AND (is_deleted IS NULL OR is_deleted = 0)', [timetableId]);
+            if (syncVerify.length === 0) throw new Error(`Sync verification failed for timetable ID ${timetableId}`);
+        }
+
+        // Also check if onboarding status needs to be tracked properly (it already sets completed)
+        await connection.query('UPDATE students SET timetable_created = 1 WHERE id = ?', [student_id]);
+
+        await connection.commit();
         res.status(201).json({ success: true, message: "Timetable created and onboarding completed" });
     } catch (error) {
         await connection.rollback();
@@ -1688,20 +1697,18 @@ const updateStudentAcademicSchedule = async (req, res) => {
         }
 
         // --- TIMETABLE PERSISTENCE GUARANTEE CHECK ---
-        for (const studentId of studentIds) {
-            const [[studentCheck]] = await connection.query("SELECT status FROM students WHERE id = ?", [studentId]);
-            if (studentCheck && studentCheck.status === 'active') {
-                const [[countCheck]] = await connection.query(
-                    "SELECT COUNT(*) as count FROM timetable WHERE student_id = ? AND (is_deleted IS NULL OR is_deleted = 0)", 
-                    [studentId]
-                );
-                
-                if (countCheck.count === 0) {
-                    await connection.rollback();
-                    console.error(`[PERSISTENCE ERROR] Student ${studentId} generated 0 timetable records. Marking generation as FAILED.`);
-                    require('fs').appendFileSync('integrity_report.json', `\n[${new Date().toISOString()}] FAILED generation for student: ${studentId}`);
-                    return res.status(500).json({ success: false, message: "Timetable Persistence Guarantee failed. Missing records for active student." });
-                }
+        const [[studentCheck]] = await connection.query("SELECT status FROM students WHERE id = ?", [studentId]);
+        if (studentCheck && studentCheck.status === 'active') {
+            const [[countCheck]] = await connection.query(
+                "SELECT COUNT(*) as count FROM timetable WHERE student_id = ? AND (is_deleted IS NULL OR is_deleted = 0)", 
+                [studentId]
+            );
+            
+            if (countCheck.count === 0) {
+                await connection.rollback();
+                console.error(`[PERSISTENCE ERROR] Student ${studentId} generated 0 timetable records. Marking generation as FAILED.`);
+                require('fs').appendFileSync('integrity_report.json', `\n[${new Date().toISOString()}] FAILED generation for student: ${studentId}`);
+                return res.status(500).json({ success: false, message: "Timetable Persistence Guarantee failed. Missing records for active student." });
             }
         }
         // ----------------------------------------------

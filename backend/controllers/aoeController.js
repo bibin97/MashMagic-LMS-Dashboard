@@ -403,30 +403,37 @@ const registerStudent = async (req, res) => {
         }
 
         // --- PHASE 3: REGISTRATION GUARANTEE (VERIFICATION) ---
-        const [verifyResult] = await conn.query('SELECT * FROM students WHERE id = ?', [studentId]);
-        if (verifyResult.length === 0) {
-            throw new Error('Registration Verification Failed: Record not found in database after insert.');
-        }
-        
-        const savedStudent = verifyResult[0];
-        const missingFields = [];
-        
-        // Check mandatory submitted fields
-        const mandatoryCheck = {
-            name: name,
-            grade: grade,
-            course: course,
+        const { verifyStudentSave, verifyFacultySchedules } = require('../utils/saveVerifier');
+
+        // Prepare the exact payload we expect to be saved
+        const payloadToVerify = {
+            name, email: finalEmail || null, contact: contact || null, grade, course, mentor_id: mentorId || null,
+            admission_date: admissionDate || null, school_name: schoolName || null, 
+            preferred_language: preferredLanguage || null, country: country || null,
+            total_fees: totalFees || 0, total_paid: totalPaid || 0, total_hours: totalHours || 0,
+            next_installment_date: nextInstallmentDate || null, admission_type: admissionType || 'new',
+            registration_number: registrationNumber || null, meeting_link: meetingLink || null, 
+            enrollment_type: enrollmentType || null, badge,
+            subjects_json: selectedSubjects ? JSON.stringify(selectedSubjects) : null,
+            rejoining_fee: rejoiningFee || 0, syllabus: syllabus || null,
             user_id: ur.insertId
         };
 
-        for (const [key, expectedVal] of Object.entries(mandatoryCheck)) {
-            if (expectedVal && (savedStudent[key] === null || savedStudent[key] === undefined || savedStudent[key] === '')) {
-                missingFields.push(key);
-            }
-        }
+        await verifyStudentSave(conn, studentId, payloadToVerify);
 
-        if (missingFields.length > 0) {
-            throw new Error(`Registration Verification Failed: The following mandatory fields failed to save: ${missingFields.join(', ')}`);
+        if (selectedSubjects && Array.isArray(selectedSubjects) && selectedSubjects.length > 0) {
+            let expectedSchedulesCount = 0;
+            for (const sub of selectedSubjects) {
+                if (sub.dayConfigs && Array.isArray(sub.dayConfigs) && sub.dayConfigs.length > 0) {
+                    expectedSchedulesCount += sub.dayConfigs.length;
+                } else {
+                    const days = sub.days || (sub.day ? [sub.day] : []);
+                    expectedSchedulesCount += days.length;
+                }
+            }
+            if (expectedSchedulesCount > 0) {
+                await verifyFacultySchedules(conn, studentId, expectedSchedulesCount);
+            }
         }
 
         await conn.commit();
@@ -731,7 +738,9 @@ const deleteFaculty = async (req, res) => {
 };
 
 const editStudent = async (req, res) => {
+    const conn = await db.getConnection();
     try {
+        await conn.beginTransaction();
         const { id } = req.params;
         const { 
             name, email, contact, grade, syllabus, course, total_hours, hour,
@@ -744,18 +753,24 @@ const editStudent = async (req, res) => {
         const finalMeetingLink = meetingLink || meeting_link;
         const finalSubjects = selectedSubjects || subjects_json || [];
         
-        const [[student]] = await db.query('SELECT name, user_id FROM students WHERE id = ?', [id]);
-        if (!student) return res.status(404).json({ success: false, message: "Student not found" });
+        const [[student]] = await conn.query('SELECT name, user_id FROM students WHERE id = ?', [id]);
+        if (!student) {
+            await conn.rollback();
+            conn.release();
+            return res.status(404).json({ success: false, message: "Student not found" });
+        }
 
         let finalEmail = email;
         if (finalEmail) {
-            const [[existingEmail]] = await db.query('SELECT id, role, email FROM users WHERE email = ? AND id != ?', [finalEmail, student.user_id || 0]);
+            const [[existingEmail]] = await conn.query('SELECT id, role, email FROM users WHERE email = ? AND id != ?', [finalEmail, student.user_id || 0]);
             if (existingEmail) {
                 if (existingEmail.role !== 'student') {
                     // Browser autofilled a staff email. Revert to student's current email.
-                    const [[currentStudent]] = await db.query('SELECT email FROM students WHERE id = ?', [id]);
+                    const [[currentStudent]] = await conn.query('SELECT email FROM students WHERE id = ?', [id]);
                     finalEmail = currentStudent.email;
                 } else {
+                    await conn.rollback();
+                    conn.release();
                     return res.status(400).json({ 
                         success: false, 
                         message: `Email conflict: ${finalEmail} is already registered to another student. Please use a different email.` 
@@ -782,8 +797,12 @@ const editStudent = async (req, res) => {
                       enrollment_type === 'Tuition Only' ? 'Silver' : 
                       (enrollment_type === 'Mentorship & Tuition' || enrollment_type === 'Mentorship and Tuition') ? 'Diamond' : null;
 
+        const { archiveStudent, archiveFacultySchedule } = require('../utils/archiver');
+        await archiveStudent(conn, id, 'UPDATE', req.user);
+        await archiveFacultySchedule(conn, id, 'UPDATE', req.user);
+
         // Update Students table
-        await db.query(
+        await conn.query(
             `UPDATE students SET 
                 name = ?, email = ?, contact = ?, grade = ?, syllabus = ?, course = ?, total_hours = ?, hour = ?,
                 next_installment_date = ?, admission_date = ?, registration_number = ?, roll_number = ?,
@@ -791,7 +810,7 @@ const editStudent = async (req, res) => {
                 school_name = ?, preferred_language = ?, country = ?, 
                 total_fees = ?, total_paid = ?,
                 subjects_json = ?, subject = ?, faculty_id = ?, faculty_name = ?, mentor_id = ?,
-                course_completed = ?, rejoining_fee = ?
+                course_completed = ?, rejoining_fee = ?, timetable_created = 0
              WHERE id = ?`, 
             [
                 name, finalEmail || null, contact || null, grade || null, syllabus || null, course || null, total_hours || hour || null, hour || null,
@@ -820,12 +839,12 @@ const editStudent = async (req, res) => {
 
             userUpdateQuery += ' WHERE id = ?';
             userParams.push(student.user_id);
-            await db.query(userUpdateQuery, userParams);
+            await conn.query(userUpdateQuery, userParams);
         }
 
         // --- SYNC FACULTY SCHEDULES --- (soft delete existing, then re-insert)
         await logFacultyChanges(id, finalSubjects, req.user);
-        await db.query('UPDATE faculty_schedules SET is_deleted = 1, deleted_at = CURRENT_TIMESTAMP WHERE student_id = ?', [id]);
+        await conn.query('UPDATE faculty_schedules SET is_deleted = 1, deleted_at = CURRENT_TIMESTAMP WHERE student_id = ?', [id]);
 
         if (finalSubjects && Array.isArray(finalSubjects) && finalSubjects.length > 0) {
             for (const sub of finalSubjects) {
@@ -836,7 +855,7 @@ const editStudent = async (req, res) => {
                 if (sub.dayConfigs && Array.isArray(sub.dayConfigs) && sub.dayConfigs.length > 0) {
                     for (const config of sub.dayConfigs) {
                         if (sub.facultyId && config.day && config.startTime && config.endTime) {
-                            await db.query(`
+                            await conn.query(`
                                 INSERT INTO faculty_schedules (
                                     faculty_id, student_id, subject, day_of_week, start_time, end_time, hourly_rate
                                 ) VALUES (?, ?, ?, ?, ?, ?, ?)
@@ -849,7 +868,7 @@ const editStudent = async (req, res) => {
                     const days = sub.days || (sub.day ? [sub.day] : []);
                     for (const day of days) {
                         if (sub.facultyId && day && sub.startTime && sub.endTime) {
-                            await db.query(`
+                            await conn.query(`
                                 INSERT INTO faculty_schedules (
                                     faculty_id, student_id, subject, day_of_week, start_time, end_time, hourly_rate
                                 ) VALUES (?, ?, ?, ?, ?, ?, ?)
@@ -862,9 +881,46 @@ const editStudent = async (req, res) => {
             }
         }
 
-        await db.query('INSERT INTO admin_notifications (message) VALUES (?)', [`AOE (${req.user ? req.user.name : 'Unknown'}) updated student profile and sync'd schedule for: ${student.name}`]);
+        const { verifyStudentSave, verifyFacultySchedules } = require('../utils/saveVerifier');
+        
+        const payloadToVerify = {
+            name, email: finalEmail || null, contact: contact || null, grade: grade || null, syllabus: syllabus || null, course: course || null,
+            total_hours: total_hours || hour || null, hour: hour || null,
+            next_installment_date: next_installment_date || null, admission_date: admission_date || null,
+            registration_number: registration_number || null, meeting_link: finalMeetingLink || null,
+            enrollment_type: enrollment_type || null, admission_type: admission_type || null, badge,
+            school_name: school_name || null, preferred_language: preferred_language || null, country: country || null,
+            total_fees: total_fees || 0, total_paid: total_paid || 0,
+            subjects_json: JSON.stringify(finalSubjects),
+            course_completed: req.body.course_completed || 0, rejoining_fee: rejoining_fee || rejoiningFee || 0,
+            timetable_created: 0
+        };
+
+        await verifyStudentSave(conn, id, payloadToVerify);
+
+        if (finalSubjects && Array.isArray(finalSubjects) && finalSubjects.length > 0) {
+            let expectedSchedulesCount = 0;
+            for (const sub of finalSubjects) {
+                if (sub.dayConfigs && Array.isArray(sub.dayConfigs) && sub.dayConfigs.length > 0) {
+                    expectedSchedulesCount += sub.dayConfigs.length;
+                } else {
+                    const days = sub.days || (sub.day ? [sub.day] : []);
+                    expectedSchedulesCount += days.length;
+                }
+            }
+            if (expectedSchedulesCount > 0) {
+                await verifyFacultySchedules(conn, id, expectedSchedulesCount);
+            }
+        }
+
+        await conn.query('INSERT INTO admin_notifications (message) VALUES (?)', [`AOE (${req.user ? req.user.name : 'Unknown'}) updated student profile and sync'd schedule for: ${student.name}`]);
+        
+        await conn.commit();
+        conn.release();
         res.status(200).json({ success: true, message: 'Student profile updated successfully' });
     } catch (error) { 
+        await conn.rollback();
+        conn.release();
         console.error("EDIT_STUDENT_ERROR:", error);
         res.status(500).json({ success: false, message: error.message }); 
     }
