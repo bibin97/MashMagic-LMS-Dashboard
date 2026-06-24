@@ -12,7 +12,7 @@ import ExportButton from '../../components/common/ExportButton';
 
 const checkIsLive = (session) => {
   if (!session.start_time || !session.end_time || !session.date) return false;
-  if (session.status === 'Completed') return false;
+  if (session.status !== 'Scheduled') return false;
   
   const now = new Date();
   const sessionDate = new Date(session.date);
@@ -102,14 +102,15 @@ const AcademicSchedule = () => {
       return filtered.filter(s => {
         const sessionDate = s.date.split('T')[0];
         return sessionDate <= todayStr && s.status !== 'Completed';
+        return sessionDate <= todayStr && s.status === 'Scheduled';
       });
     } else if (activeTab === 'upcoming') {
       return filtered.filter(s => {
         const sessionDate = s.date.split('T')[0];
-        return sessionDate > todayStr && s.status !== 'Completed';
+        return sessionDate > todayStr && s.status === 'Scheduled';
       });
     } else {
-      return filtered.filter(s => s.status === 'Completed');
+      return filtered.filter(s => s.status !== 'Scheduled');
     }
   };
 
@@ -215,7 +216,7 @@ return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String
 
   const totalCount = schedule.length;
   const todayCount = schedule.filter(s => s.date && s.date.split('T')[0] === localTodayStr).length;
-  const completedCount = schedule.filter(s => s.status === 'Completed').length;
+  const completedCount = schedule.filter(s => s.status !== 'Scheduled').length;
   const filteredCount = currentData.length;
   if (loading) return (
     <div className="flex flex-col items-center justify-center p-20 space-y-4">
@@ -284,10 +285,10 @@ return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String
 
         <div className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-4">
           <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-500 flex items-center justify-center shrink-0">
-            <CheckSquare size={18} />
+            <CheckSquare size={20} />
           </div>
           <div>
-            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Completed</p>
+            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Verified / Closed</p>
             <p className="text-lg font-black text-slate-900 leading-none">{completedCount}</p>
           </div>
         </div>
@@ -344,7 +345,7 @@ return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String
       <div className="space-y-4">
         {currentData.map((session, idx) => (
           <div key={idx} className="bg-white rounded-[1.5rem] md:rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-500 group overflow-hidden flex flex-col md:flex-row items-stretch">
-            <div className={`w-2 md:w-3 shrink-0 ${session.status === 'Completed' ? 'bg-emerald-500' : 'bg-amber-500'} opacity-40 group-hover:opacity-100 transition-opacity animate-pulse`}></div>
+            <div className={`w-2 md:w-3 shrink-0 ${session.status !== 'Scheduled' ? 'bg-emerald-500' : 'bg-amber-500'} opacity-40 group-hover:opacity-100 transition-opacity animate-pulse`}></div>
             
             <div className="flex-grow p-4 md:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6">
               
@@ -383,16 +384,16 @@ return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String
                   <p className="text-[10px] md:text-xs font-black text-slate-900 truncate">{session.topic || 'General Session'}</p>
                 </div>
 
-                {session.status === 'Completed' && (
+                {session.status !== 'Scheduled' && (
                   <div className="px-3 py-1 bg-emerald-50 text-emerald-600 rounded-lg text-[9px] font-black uppercase flex items-center gap-1">
-                    <Timer size={12} /> {session.minutes_taken}m
+                    <Timer size={12} /> {session.minutes_taken}m ({session.status})
                   </div>
                 )}
               </div>
 
               {activeTab !== 'upcoming' && (
                 <div className="flex items-center justify-end md:justify-start gap-2 md:gap-3 pt-4 md:pt-0 border-t md:border-t-0 md:border-l border-slate-100 md:pl-6 w-full md:w-auto mt-2 md:mt-0">
-                  {session.meeting_link && session.status !== 'Completed' && session.date && session.date.split('T')[0] === localTodayStr && (
+                  {session.meeting_link && session.status === 'Scheduled' && session.date && session.date.split('T')[0] === localTodayStr && (
                     <button 
                       onClick={() => handleJoinSession(session)}
                       title="Watch Session"
@@ -406,7 +407,7 @@ return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String
                     </button>
                   )}
                   
-                  {!session.reminder_1 ? (
+                  {session.status === 'Scheduled' && !session.reminder_1 && (
                     <button 
                       onClick={() => saveQuickReminder1(session)}
                       title="Send Reminder 1"
@@ -414,11 +415,11 @@ return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String
                     >
                       <Bell size={14} /> R1
                     </button>
-                  ) : (
+                  ) || (session.reminder_1 && (
                     <div title="Reminder 1 Sent" className="px-4 h-11 rounded-[1rem] flex items-center justify-center gap-2 font-black uppercase text-[10px] tracking-widest transition-all bg-emerald-50 text-emerald-600 border border-emerald-100 shadow-sm cursor-help" onClick={() => toast(`Reminder 1: ${session.reminder_1_remark}`, { icon: 'ℹ️' })}>
                       <CheckSquare size={14} /> R1
                     </div>
-                  )}
+                  ))}
 
                   <button 
                     onClick={() => openDetailsModal(session)}
@@ -428,15 +429,24 @@ return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String
                     <BookOpen size={16} />
                   </button>
 
-                  {session.status !== 'Completed' && (
-                    <button 
-                      onClick={() => { setSelectedSession(session); setMinutesTaken(''); setIsCompleteModalOpen(true); }}
-                      title="Class Completed"
-                      className="w-11 h-11 bg-[#008080] text-white hover:bg-[#008080] rounded-[1rem] flex items-center justify-center transition-all shadow-sm"
-                    >
-                      <CheckSquare size={16} />
-                    </button>
-                  )}
+                  {session.status === 'Scheduled' && (
+                  <button
+                    onClick={(e) => { e.stopPropagation(); openDetailsModal(session); }}
+                    className="p-3 bg-slate-50 text-slate-400 rounded-xl hover:bg-[#008080] hover:text-white transition-all group-hover:scale-110 shadow-sm"
+                    title="Audit / Close Session"
+                  >
+                    <CheckSquare size={16} />
+                  </button>
+                )}
+                {session.status !== 'Scheduled' && (
+                  <button
+                    onClick={(e) => { e.stopPropagation(); openDetailsModal(session); }}
+                    className="p-3 bg-emerald-50 text-emerald-600 rounded-xl hover:bg-emerald-600 hover:text-white transition-all group-hover:scale-110 shadow-sm"
+                    title="View Closed Session Details"
+                  >
+                    <CheckSquare size={16} />
+                  </button>
+                )}
                 </div>
               )}
             </div>
@@ -532,18 +542,23 @@ return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String
                 <h4 className="text-[10px] font-black text-slate-900 uppercase tracking-[0.2em] flex items-center gap-2">
                   <Activity size={14} className="text-[#008080]" /> Phase Execution
                 </h4>
-                {selectedSession.status === 'Completed' ? (
+                {selectedSession.status !== 'Scheduled' ? (
                   <div className="p-8 bg-emerald-50 rounded-[2.5rem] border border-emerald-100 flex items-center gap-6">
                     <div className="w-16 h-16 bg-emerald-600 text-white rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-200">
                       <ShieldCheck size={32} />
                     </div>
                     <div>
-                      <p className="text-xl font-black text-emerald-900">Session Verified</p>
-                      <div className="flex items-center gap-4 mt-1">
-                        <span className="flex items-center gap-2 text-[10px] font-black text-emerald-600 uppercase tracking-widest bg-white/50 px-3 py-1 rounded-lg">
+                      <p className="text-xl font-black text-emerald-900">Session {selectedSession.status}</p>
+                      <div className="flex flex-col gap-2 mt-2">
+                        <span className="flex items-center gap-2 text-[10px] font-black text-emerald-600 uppercase tracking-widest bg-white/50 px-3 py-1 rounded-lg self-start">
                           <Timer size={12} /> {selectedSession.minutes_taken} Minutes Recorded
                         </span>
-                        <span className="flex items-center gap-2 text-[10px] font-black text-emerald-600 uppercase tracking-widest bg-white/50 px-3 py-1 rounded-lg">
+                        {selectedSession.cancel_note && (
+                          <span className="flex items-center gap-2 text-[10px] font-black text-emerald-600 uppercase tracking-widest bg-white/50 px-3 py-1 rounded-lg self-start">
+                            Note: {selectedSession.cancel_note}
+                          </span>
+                        )}
+                        <span className="flex items-center gap-2 text-[10px] font-black text-emerald-600 uppercase tracking-widest bg-white/50 px-3 py-1 rounded-lg self-start">
                           <Lock size={12} /> Duration Locked
                         </span>
                       </div>
