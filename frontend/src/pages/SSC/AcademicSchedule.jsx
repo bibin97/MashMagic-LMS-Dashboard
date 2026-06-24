@@ -431,22 +431,21 @@ return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String
 
                   {session.status === 'Scheduled' && (
                   <button
-                    onClick={(e) => { e.stopPropagation(); openDetailsModal(session); }}
+                    onClick={(e) => { 
+                      e.stopPropagation(); 
+                      setSelectedSession(session);
+                      setMinutesTaken(''); 
+                      setCompletionStatus('Completed'); 
+                      setCancelNote(''); 
+                      setIsCompleteModalOpen(true); 
+                    }}
                     className="p-3 bg-slate-50 text-slate-400 rounded-xl hover:bg-[#008080] hover:text-white transition-all group-hover:scale-110 shadow-sm"
                     title="Audit / Close Session"
                   >
                     <CheckSquare size={16} />
                   </button>
                 )}
-                {session.status !== 'Scheduled' && (
-                  <button
-                    onClick={(e) => { e.stopPropagation(); openDetailsModal(session); }}
-                    className="p-3 bg-emerald-50 text-emerald-600 rounded-xl hover:bg-emerald-600 hover:text-white transition-all group-hover:scale-110 shadow-sm"
-                    title="View Closed Session Details"
-                  >
-                    <CheckSquare size={16} />
-                  </button>
-                )}
+
                 </div>
               )}
             </div>
