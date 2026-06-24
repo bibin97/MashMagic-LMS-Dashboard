@@ -2219,5 +2219,25 @@ module.exports = {
             res.status(200).json({ success: true, data: rows });
         } catch (e) { res.status(500).json({ success: false, message: e.message }); }
     },
+    getIntegrityReport: async (req, res) => {
+        try {
+            const fs = require('fs');
+            const path = require('path');
+            const reportPath = path.join(__dirname, '../integrity_report.json');
+            
+            if (fs.existsSync(reportPath)) {
+                const reportData = fs.readFileSync(reportPath, 'utf8');
+                res.status(200).json({ success: true, data: JSON.parse(reportData) });
+            } else {
+                res.status(200).json({ 
+                    success: true, 
+                    data: { summary: { status: 'PENDING', missing_timetables_count: 0, orphan_sessions_count: 0 }, missing_timetables: [], orphan_sessions: [] }
+                });
+            }
+        } catch (error) {
+            console.error("Error reading integrity report:", error);
+            res.status(500).json({ success: false, message: "Failed to read report" });
+        }
+    },
     healthCheck
 };

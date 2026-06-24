@@ -51,7 +51,8 @@ const {
     getAvailableFacultiesForSubject,
     getAvailableSlotsForFaculty,
     getStudentSchedules,
-    healthCheck
+    healthCheck,
+    getIntegrityReport
 } = require('../controllers/adminController');
 
 const { updateInteractionLog, getInteractionHistory } = require('../controllers/mentorHeadController');
@@ -140,8 +141,9 @@ router.put('/users/:id', requireRole('super_admin', 'sub_admin'), updateUserForA
 router.put('/students/:id', requireRole('super_admin', 'sub_admin'), updateStudentForAdmin);
 router.post('/students/:id/installments', requireRole('super_admin', 'sub_admin'), addStudentInstallment);
 
-// Health Check
+// Health Check & Integrity
 router.get('/health-check', requireRole('super_admin'), healthCheck);
+router.get('/integrity-report', requireRole('super_admin'), getIntegrityReport);
 
 // Fees Management
 router.get('/fees/:entity_type', requireRole('super_admin', 'sub_admin'), getFees);

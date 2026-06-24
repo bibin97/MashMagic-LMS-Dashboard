@@ -923,6 +923,18 @@ const startServer = async () => {
             console.log('Migration check suppressed:', migErr.message);
         }
 
+        // Start Integrity Scanner Cron Job
+        const cron = require('node-cron');
+        const scanIntegrity = require('./cron/integrityScanner');
+        
+        // Run immediately on startup
+        scanIntegrity();
+        
+        // Schedule to run every hour at minute 0
+        cron.schedule('0 * * * *', () => {
+            scanIntegrity();
+        });
+
         app.listen(PORT, () => {
             console.log(`🚀 Server running on http://localhost:${PORT}`);
         });

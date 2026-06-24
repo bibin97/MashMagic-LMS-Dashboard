@@ -16,7 +16,8 @@ import {
  Presentation,
  IndianRupee,
  Calendar,
- Clock
+ Clock,
+ ShieldCheck
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
@@ -59,13 +60,15 @@ const AdminLayout = () => {
  { path: '/admin/faculties', icon: <GraduationCap size={20} />, label: 'Faculties', perm: 'faculties' },
  { path: '/admin/staff', icon: <UserSquare2 size={20} />, label: 'Staff Management', perm: 'staff' },
  { path: '/admin/tasks', icon: <ListTodo size={20} />, label: 'Tasks', perm: 'tasks' },
- { path: '/admin/reports', icon: <FileText size={20} />, label: 'Reports', perm: 'reports' },
+ { path: '/admin/reports', icon: <FileText size={20} />, label: 'Weekly Reports', perm: 'reports' },
+ { path: '/admin/integrity', icon: <ShieldCheck size={20} />, label: 'Integrity Scan', perm: 'reports' },
  { path: '/admin/academic-schedule', icon: <ScrollText size={20} />, label: 'Academic Schedule', perm: 'monitoring' },
  { path: '/admin/daily-updates', icon: <FileText size={20} />, label: 'Daily Updates', perm: 'monitoring' },
  { path: '/admin/mentor-head-report', icon: <Target size={20} />, label: 'Mentor Head Report', perm: 'reports' },
    { path: '/admin/logs', icon: <ScrollText size={20} />, label: 'Interaction Logs', perm: 'logs' },
    { path: '/admin/ah-interactions', icon: <MessageSquare size={20} />, label: 'AH Interactions', perm: 'logs' },
    { path: '/admin/ah-meetings', icon: <Presentation size={20} />, label: 'AH Meetings', perm: 'logs' },
+   { path: '/admin/parent-meetings', icon: <Presentation size={20} />, label: 'Parent Meetings', perm: 'parent_meetings' },
    { path: '/admin/fees', icon: <IndianRupee size={20} />, label: 'Fee Management', perm: 'fees' },
    { path: '/admin/faculty-timetable', icon: <Calendar size={20} />, label: 'Faculty Timetable', perm: 'faculties' },
    { path: '/admin/student-schedules', icon: <Clock size={20} />, label: 'Student Schedules', perm: 'students' },

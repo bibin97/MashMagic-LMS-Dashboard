@@ -1684,6 +1684,25 @@ const updateStudentAcademicSchedule = async (req, res) => {
             }
         }
 
+        // --- TIMETABLE PERSISTENCE GUARANTEE CHECK ---
+        for (const studentId of studentIds) {
+            const [[studentCheck]] = await connection.query("SELECT status FROM students WHERE id = ?", [studentId]);
+            if (studentCheck && studentCheck.status === 'active') {
+                const [[countCheck]] = await connection.query(
+                    "SELECT COUNT(*) as count FROM timetable WHERE student_id = ? AND (is_deleted IS NULL OR is_deleted = 0)", 
+                    [studentId]
+                );
+                
+                if (countCheck.count === 0) {
+                    await connection.rollback();
+                    console.error(`[PERSISTENCE ERROR] Student ${studentId} generated 0 timetable records. Marking generation as FAILED.`);
+                    require('fs').appendFileSync('integrity_report.json', `\n[${new Date().toISOString()}] FAILED generation for student: ${studentId}`);
+                    return res.status(500).json({ success: false, message: "Timetable Persistence Guarantee failed. Missing records for active student." });
+                }
+            }
+        }
+        // ----------------------------------------------
+
         await connection.commit();
         res.status(200).json({ success: true, message: "Academic schedule updated successfully" });
     } catch (error) {

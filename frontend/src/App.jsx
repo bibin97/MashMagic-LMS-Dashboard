@@ -40,6 +40,7 @@ import AdminAcademicSchedule from './pages/admin/AcademicSchedule';
 import AHInteractions from './pages/admin/AHInteractions';
 import AHParentMeetings from './pages/admin/AHParentMeetings';
 import FeesManagement from './pages/admin/FeesManagement';
+import IntegrityDashboard from './pages/admin/IntegrityDashboard';
 
 import AdminFacultyTimetable from './pages/admin/FacultyTimetable';
 import AdminStudentSchedules from './pages/admin/StudentSchedules';
@@ -158,6 +159,7 @@ function App() {
             <Route path="logs" element={<InteractionLogs />} />
             <Route path="logs/edit/:id" element={<EditInteractionLog />} />
             <Route path="audit-logs" element={<AuditLogs />} />
+            <Route path="integrity" element={<IntegrityDashboard />} />
             <Route path="approvals" element={<Approvals />} />
             <Route path="admin-management" element={<AdminManagement />} />
             <Route path="students/:id" element={<StudentDetails />} />

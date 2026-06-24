@@ -64,16 +64,13 @@ const calculateStudentHours = async (students, db) => {
         facultyMappings = rows;
     } catch(e) {}
 
-    // Populate historical base (the calculated offset)
+    // Populate historical base
     baseSubjects.forEach(bs => {
         if (!consumedMap[bs.student_id].subjects[bs.subject_name]) {
             consumedMap[bs.student_id].subjects[bs.subject_name] = {
                 allocated: parseFloat(bs.allocated_hours) || 0,
                 consumedMins: (parseFloat(bs.historical_consumed_hours) || 0) * 60
             };
-        } else {
-            consumedMap[bs.student_id].subjects[bs.subject_name].allocated = parseFloat(bs.allocated_hours) || 0;
-            consumedMap[bs.student_id].subjects[bs.subject_name].consumedMins += (parseFloat(bs.historical_consumed_hours) || 0) * 60;
         }
     });
 
@@ -122,17 +119,28 @@ const calculateStudentHours = async (students, db) => {
 
         const studentData = consumedMap[s.id] || { totalMins: 0, subjects: {} };
         
+        // Ensure registered subjects are included even if no sessions/history exists
+        let registeredSubjects = [];
+        try {
+            if (s.subjects_json) {
+                registeredSubjects = typeof s.subjects_json === 'string' ? JSON.parse(s.subjects_json) : s.subjects_json;
+            }
+        } catch(e) {}
+        
+        registeredSubjects.forEach(rs => {
+            let subjName = rs.subject || 'Unknown';
+            if (Array.isArray(subjName)) subjName = subjName.join(', ');
+            
+            if (!studentData.subjects[subjName]) {
+                studentData.subjects[subjName] = { allocated: 0, consumedMins: 0 };
+            }
+        });
+        
         // Sum historical baseline to totalMins
+        let historicalTotalMins = 0;
         const subject_hours = [];
         for (const [subjName, data] of Object.entries(studentData.subjects)) {
-            // Skip the dummy marker subject
-            if (subjName === '__EDITED__') continue;
-
             const subjConsumedHours = data.consumedMins / 60;
-            
-            // Do not show accidental 0/0 subjects where NO sessions exist and NO allocated hours exist
-            if (subjConsumedHours === 0 && data.allocated === 0) continue;
-            
             let facNames = '';
             const mapping = facultyMappings.find(fm => fm.student_id === s.id && (fm.subject === subjName || (fm.subject || '').toLowerCase() === (subjName || '').toLowerCase()));
             if (mapping) {
@@ -144,23 +152,27 @@ const calculateStudentHours = async (students, db) => {
                 allocated_hours: data.allocated,
                 faculties: facNames
             });
+            // We only add the historical base because dynamically tracked session mins are already in studentData.totalMins
+            // Wait, studentData.totalMins only has dynamically tracked sessions.
+            // historicalTotalMins should sum ONLY the historical base!
         }
 
-        // Check if student has explicit DB records
-        const explicitSubjects = baseSubjects.filter(bs => bs.student_id === s.id);
-        const hasExplicitSubjects = explicitSubjects.length > 0;
-
+        // Wait, the `data.consumedMins` above is `historical + dynamically tracked`.
+        // So the TRUE total lifetime consumed minutes is `studentData.totalMins` (dynamically tracked) + SUM(historical consumed mins).
         let total_historical_mins = 0;
-        explicitSubjects.forEach(bs => {
+        baseSubjects.filter(bs => bs.student_id === s.id).forEach(bs => {
             total_historical_mins += (parseFloat(bs.historical_consumed_hours) || 0) * 60;
         });
 
         const total_lifetime_consumed_mins = studentData.totalMins + total_historical_mins;
         const total_lifetime_consumed_hours = total_lifetime_consumed_mins / 60;
         
+        // Cycle Limit is the total entitled hours minus whatever they had already consumed before this last payment.
+        // This gives us the size of the "bucket" of hours they have for this cycle (including any carried over hours).
         let cycle_limit_hours = total_entitled_hours - current_installment_start_hours;
         if (cycle_limit_hours < 0) cycle_limit_hours = 0;
 
+        // Consumed hours within THIS cycle
         let cycle_consumed_hours = total_lifetime_consumed_hours - current_installment_start_hours;
         if (cycle_consumed_hours < 0) cycle_consumed_hours = 0;
         
@@ -168,6 +180,7 @@ const calculateStudentHours = async (students, db) => {
         let payment_threshold_percentage = 0;
 
         if (total_fees === 0) {
+            // User requested: "fees onnum illa... fees base ahnu vendathu" -> If no fees, no blinking.
             payment_alert_level = 'None';
             payment_threshold_percentage = 0;
         } else if (cycle_limit_hours > 0) {
@@ -178,6 +191,7 @@ const calculateStudentHours = async (students, db) => {
                 payment_alert_level = 'Warning';
             }
         } else if (cycle_consumed_hours > 0) {
+            // Consumed hours but 0 limit in current cycle AND total_fees > 0
             payment_alert_level = 'Critical';
             payment_threshold_percentage = 100;
         }
@@ -189,8 +203,7 @@ const calculateStudentHours = async (students, db) => {
             payment_alert_level,
             payment_threshold_percentage: parseFloat(payment_threshold_percentage.toFixed(2)),
             total_lifetime_consumed_hours: parseFloat(total_lifetime_consumed_hours.toFixed(2)),
-            subject_hours: subject_hours,
-            has_explicit_subjects: hasExplicitSubjects
+            subject_hours: subject_hours
         };
     });
 };
