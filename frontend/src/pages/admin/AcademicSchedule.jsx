@@ -36,6 +36,9 @@ const checkIsLive = (session) => {
 };
 
 const AcademicSchedule = () => {
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [newScheduleData, setNewScheduleData] = useState([{ day_of_week: 'Monday', start_time: '', end_time: '', subject: '', faculty_id: '' }]);
+  const [minutesTaken, setMinutesTaken] = useState('');
   const [schedule, setSchedule] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');

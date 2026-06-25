@@ -1514,10 +1514,10 @@ exports.editStudent = async (req, res) => {
             let expectedSchedulesCount = 0;
             for (const sub of finalSubjects) {
                 if (sub.dayConfigs && Array.isArray(sub.dayConfigs) && sub.dayConfigs.length > 0) {
-                    expectedSchedulesCount += sub.dayConfigs.length;
+                    expectedSchedulesCount += sub.dayConfigs.filter(c => sub.facultyId && c.day && c.startTime && c.endTime).length;
                 } else {
                     const days = sub.days || (sub.day ? [sub.day] : []);
-                    expectedSchedulesCount += days.length;
+                    expectedSchedulesCount += days.filter(day => sub.facultyId && day && sub.startTime && sub.endTime).length;
                 }
             }
             if (expectedSchedulesCount > 0) {

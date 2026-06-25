@@ -421,14 +421,15 @@ const registerStudent = async (req, res) => {
 
         await verifyStudentSave(conn, studentId, payloadToVerify);
 
-        if (selectedSubjects && Array.isArray(selectedSubjects) && selectedSubjects.length > 0) {
+        const finalSubjects = selectedSubjects;
+        if (finalSubjects && Array.isArray(finalSubjects) && finalSubjects.length > 0) {
             let expectedSchedulesCount = 0;
-            for (const sub of selectedSubjects) {
+            for (const sub of finalSubjects) {
                 if (sub.dayConfigs && Array.isArray(sub.dayConfigs) && sub.dayConfigs.length > 0) {
-                    expectedSchedulesCount += sub.dayConfigs.length;
+                    expectedSchedulesCount += sub.dayConfigs.filter(c => sub.facultyId && c.day && c.startTime && c.endTime).length;
                 } else {
                     const days = sub.days || (sub.day ? [sub.day] : []);
-                    expectedSchedulesCount += days.length;
+                    expectedSchedulesCount += days.filter(day => sub.facultyId && day && sub.startTime && sub.endTime).length;
                 }
             }
             if (expectedSchedulesCount > 0) {
@@ -902,10 +903,10 @@ const editStudent = async (req, res) => {
             let expectedSchedulesCount = 0;
             for (const sub of finalSubjects) {
                 if (sub.dayConfigs && Array.isArray(sub.dayConfigs) && sub.dayConfigs.length > 0) {
-                    expectedSchedulesCount += sub.dayConfigs.length;
+                    expectedSchedulesCount += sub.dayConfigs.filter(c => sub.facultyId && c.day && c.startTime && c.endTime).length;
                 } else {
                     const days = sub.days || (sub.day ? [sub.day] : []);
-                    expectedSchedulesCount += days.length;
+                    expectedSchedulesCount += days.filter(day => sub.facultyId && day && sub.startTime && sub.endTime).length;
                 }
             }
             if (expectedSchedulesCount > 0) {

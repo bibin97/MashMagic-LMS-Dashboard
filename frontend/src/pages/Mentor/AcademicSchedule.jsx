@@ -60,6 +60,9 @@ const AcademicSchedule = () => {
     window.open(session.meeting_link, '_blank');
   };
   const [selectedSession, setSelectedSession] = useState(null);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [newScheduleData, setNewScheduleData] = useState([{ day_of_week: 'Monday', start_time: '', end_time: '', subject: '', faculty_id: '' }]);
+  const [minutesTaken, setMinutesTaken] = useState('');
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
 
   const fetchSchedule = async () => {
