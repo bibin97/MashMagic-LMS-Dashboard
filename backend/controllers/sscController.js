@@ -158,6 +158,10 @@ exports.createSession = async (req, res) => {
         await connection.beginTransaction();
         const { student_id, date, start_time, end_time, chapter, subject, session_type, status, notes, faculty_id, faculty_name } = req.body;
         
+        if (!faculty_id) {
+            return res.status(400).json({ success: false, message: "Please Add Faculty. Faculty is required to create a session." });
+        }
+
         const [student] = await connection.query('SELECT mentor_id FROM students WHERE id = ?', [student_id]);
         const mentor_id = student[0]?.mentor_id || null;
 
@@ -198,7 +202,7 @@ exports.createSession = async (req, res) => {
         // Referential Integrity Verification
         await saveVerifier.verifyReferentialIntegrity(connection, [
             { table: 'students', column: 'id', value: student_id },
-            { table: 'users', column: 'id', value: faculty_id || null }
+            { table: 'users_or_faculties', column: 'id', value: faculty_id || null }
         ]);
 
         await logAudit({
@@ -290,7 +294,7 @@ exports.updateSession = async (req, res) => {
 
         // Referential Integrity Verification
         await saveVerifier.verifyReferentialIntegrity(connection, [
-            { table: 'users', column: 'id', value: faculty_id || null }
+            { table: 'users_or_faculties', column: 'id', value: faculty_id || null }
         ]);
 
         await logAudit({
@@ -490,9 +494,9 @@ exports.updateStudentAcademicSchedule = async (req, res) => {
 
         // Validate and normalize required fields
         for (const s of schedules) {
-            if (!s.day_of_week || !s.start_time || !s.end_time) {
+            if (!s.day_of_week || !s.start_time || !s.end_time || !s.faculty_id) {
                 await connection.rollback();
-                return res.status(400).json({ success: false, message: "Invalid payload: Missing required schedule fields (day, start time, end time)." });
+                return res.status(400).json({ success: false, message: "Invalid payload: Missing required schedule fields (day, start time, end time, faculty)." });
             }
             // Normalize time (e.g. "7.30 " -> "07:30:00")
             const cleanTime = (t) => {

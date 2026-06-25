@@ -562,6 +562,11 @@ const createSession = async (req, res) => {
         const formattedStartTime = convertTo24Hour(start_time);
         const formattedEndTime = convertTo24Hour(end_time);
 
+        if (!faculty_id) {
+            await connection.rollback();
+            return res.status(400).json({ success: false, message: "Please Add Faculty. Faculty is required to create a session." });
+        }
+
         // Resolve student's actual mentor_id
         const [[studentObj]] = await connection.query('SELECT mentor_id FROM students WHERE id = ?', [student_id]);
         if (!studentObj) {
@@ -644,7 +649,7 @@ const createSession = async (req, res) => {
         // Referential Integrity Verification
         await saveVerifier.verifyReferentialIntegrity(connection, [
             { table: 'students', column: 'id', value: student_id },
-            { table: 'users', column: 'id', value: faculty_id || null }
+            { table: 'users_or_faculties', column: 'id', value: faculty_id || null }
         ]);
 
         const { syncTimetableToFacultySession } = require('../utils/timetableSync');
@@ -785,7 +790,7 @@ const updateSession = async (req, res) => {
 
         // Referential Integrity
         await saveVerifier.verifyReferentialIntegrity(connection, [
-            { table: 'users', column: 'id', value: faculty_id || null }
+            { table: 'users_or_faculties', column: 'id', value: faculty_id || null }
         ]);
 
         const { syncTimetableToFacultySession } = require('../utils/timetableSync');

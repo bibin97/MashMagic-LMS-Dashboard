@@ -63,8 +63,21 @@ async function verifyReferentialIntegrity(conn, references) {
     // references is an array of objects: { table, column, value }
     for (const ref of references) {
         if (ref.value === null || ref.value === undefined) continue;
-        const [rows] = await conn.query(`SELECT id FROM ${ref.table} WHERE ${ref.column} = ? AND (is_deleted IS NULL OR is_deleted = 0)`, [ref.value]);
-        if (rows.length === 0) {
+        
+        let found = false;
+        if (ref.table === 'users_or_faculties') {
+            const [rows1] = await conn.query(`SELECT id FROM users WHERE ${ref.column} = ? AND (is_deleted IS NULL OR is_deleted = 0)`, [ref.value]);
+            if (rows1.length > 0) found = true;
+            else {
+                const [rows2] = await conn.query(`SELECT id FROM faculties WHERE ${ref.column} = ? AND (is_deleted IS NULL OR is_deleted = 0)`, [ref.value]);
+                if (rows2.length > 0) found = true;
+            }
+        } else {
+            const [rows] = await conn.query(`SELECT id FROM ${ref.table} WHERE ${ref.column} = ? AND (is_deleted IS NULL OR is_deleted = 0)`, [ref.value]);
+            if (rows.length > 0) found = true;
+        }
+
+        if (!found) {
             const msg = `Referential Integrity Failed: Record not found in ${ref.table} where ${ref.column} = ${ref.value}`;
             await logVerificationFailure(conn, 'REFERENTIAL_INTEGRITY_FAILED', ref.value, msg);
             throw new Error(msg);
