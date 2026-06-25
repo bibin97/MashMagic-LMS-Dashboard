@@ -198,7 +198,7 @@ exports.createSession = async (req, res) => {
         // Referential Integrity Verification
         await saveVerifier.verifyReferentialIntegrity(connection, [
             { table: 'students', column: 'id', value: student_id },
-            { table: 'faculties', column: 'id', value: faculty_id || null }
+            { table: 'users', column: 'id', value: faculty_id || null }
         ]);
 
         await logAudit({
@@ -218,10 +218,12 @@ exports.createSession = async (req, res) => {
             throw new Error("Failed to sync timetable to faculty_session: " + syncErr.message);
         }
 
-        // Verify sync relation
-        const [syncVerify] = await connection.query('SELECT id FROM faculty_sessions WHERE timetable_id = ? AND (is_deleted IS NULL OR is_deleted = 0)', [result.insertId]);
-        if (syncVerify.length === 0) {
-            throw new Error(`CRITICAL FAILURE: Mandatory Sync Verification failed for Session ${result.insertId}.`);
+        // Verify sync relation only if faculty is assigned
+        if (faculty_id) {
+            const [syncVerify] = await connection.query('SELECT id FROM faculty_sessions WHERE timetable_id = ? AND (is_deleted IS NULL OR is_deleted = 0)', [result.insertId]);
+            if (syncVerify.length === 0) {
+                throw new Error(`CRITICAL FAILURE: Mandatory Sync Verification failed for Session ${result.insertId}.`);
+            }
         }
 
         // Final COMMIT
@@ -288,7 +290,7 @@ exports.updateSession = async (req, res) => {
 
         // Referential Integrity Verification
         await saveVerifier.verifyReferentialIntegrity(connection, [
-            { table: 'faculties', column: 'id', value: faculty_id || null }
+            { table: 'users', column: 'id', value: faculty_id || null }
         ]);
 
         await logAudit({
