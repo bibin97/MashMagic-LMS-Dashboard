@@ -1,12 +1,21 @@
 const fs = require('fs');
 const path = require('path');
 const db = require('../config/db'); // Adjust path as needed
-const { logAudit } = require('../utils/auditLogger');
+
 
 // Ensure reports directory exists
 const reportsDir = path.join(__dirname, '../reports');
 if (!fs.existsSync(reportsDir)) {
     fs.mkdirSync(reportsDir, { recursive: true });
+}
+
+async function logAudit({ action, entity = 'database', entity_id = null, user_id = null, user_role = null, old_data = null, new_data = null, details = null }) {
+    try {
+        await db.query(
+            'INSERT INTO audit_logs (action, entity, entity_id, user_id, user_role, old_data, new_data, details) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+            [action, entity, entity_id, user_id, user_role, old_data ? JSON.stringify(old_data) : null, new_data ? JSON.stringify(new_data) : null, details]
+        );
+    } catch (e) { /* ignore */ }
 }
 
 async function runIntegrityCheck() {
