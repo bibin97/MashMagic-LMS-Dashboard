@@ -44,6 +44,9 @@ const StudentsList = ({
     q5: 0
   });
 
+  // View Assessment History State
+  const [viewAssessmentHistoryStudent, setViewAssessmentHistoryStudent] = useState(null);
+
   // Edit Hours State
   const [editHoursModal, setEditHoursModal] = useState({
     show: false,
@@ -468,25 +471,15 @@ const StudentsList = ({
 										</td>
 										<td className="px-8 py-6 text-center">
 												<div className="flex flex-col items-center gap-1 group/score relative">
-                                                <span className={`inline-flex items-center justify-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest whitespace-nowrap shadow-sm border cursor-pointer ${student.assessment_level === 'Level 1' ? 'bg-rose-50 text-rose-600 border-rose-200' : student.assessment_level === 'Level 2' ? 'bg-amber-50 text-amber-600 border-amber-200' : student.assessment_level === 'Level 3' ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : 'bg-slate-50 text-slate-500 border-slate-200'}`}>
+                                                <span 
+                                                    onClick={() => setViewAssessmentHistoryStudent(student)}
+                                                    className={`inline-flex items-center justify-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest whitespace-nowrap shadow-sm border cursor-pointer hover:shadow-md hover:scale-105 transition-all ${student.assessment_level === 'Level 1' ? 'bg-rose-50 text-rose-600 border-rose-200' : student.assessment_level === 'Level 2' ? 'bg-amber-50 text-amber-600 border-amber-200' : student.assessment_level === 'Level 3' ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : 'bg-slate-50 text-slate-500 border-slate-200 hover:bg-slate-100'}`}>
                                                     {student.assessment_level || 'Unassessed'} {student.assessment_score ? `(${student.assessment_score})` : ''}
                                                 </span>
-                                                {student.assessment_history && (
-                                                    <div className="absolute top-full mt-2 right-0 hidden group-hover/score:block bg-white p-3 rounded-xl shadow-xl border border-slate-100 z-50 min-w-[200px] text-left">
-                                                        <p className="text-[10px] font-black uppercase text-slate-400 mb-2 border-b border-slate-100 pb-1">Assessment History</p>
-                                                        <div className="space-y-2 max-h-[150px] overflow-y-auto custom-scrollbar pr-1">
-                                                            {(() => {
-                                                                const history = typeof student.assessment_history === 'string' ? JSON.parse(student.assessment_history) : student.assessment_history;
-                                                                return [...history].reverse().map((h, i) => (
-                                                                    <div key={i} className="flex justify-between items-center text-[10px]">
-                                                                        <span className="text-slate-500">{new Date(h.date).toLocaleDateString()}</span>
-                                                                        <span className="font-bold text-slate-700">{h.level} ({h.score})</span>
-                                                                    </div>
-                                                                ));
-                                                            })()}
-                                                        </div>
-                                                    </div>
-                                                )}
+                                                {/* Tooltip hint on hover */}
+                                                <div className="absolute top-full mt-2 right-1/2 translate-x-1/2 hidden group-hover/score:block bg-slate-800 text-white p-2 rounded-lg shadow-xl z-50 text-[10px] font-black uppercase tracking-widest whitespace-nowrap">
+                                                    Click to view details
+                                                </div>
                                             </div>
 										</td>
 										<td className="px-8 py-6 text-right sticky right-0 bg-white/90 backdrop-blur-sm z-10 shadow-[-4px_0_10px_rgba(0,0,0,0.02)]">
@@ -600,6 +593,150 @@ const StudentsList = ({
 						</form>
 					</div>
 				</div>}
+
+			{/* View Assessment History Modal */}
+			{viewAssessmentHistoryStudent && (
+				<div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[1000] flex items-center justify-center p-4 animate-in fade-in duration-300">
+					<div className="bg-white rounded-[2.5rem] w-full max-w-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
+						{/* Header */}
+						<div className="bg-[#008080] p-6 sm:p-8 flex items-center justify-between relative overflow-hidden">
+							<div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3"></div>
+							<div className="relative z-10">
+								<h3 className="text-xl sm:text-2xl font-black text-white uppercase tracking-tighter flex items-center gap-3">
+									<div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
+										<ClipboardList size={20} className="text-white" />
+									</div>
+									Assessment Details
+								</h3>
+								<p className="text-white/80 text-[10px] sm:text-xs font-bold uppercase tracking-widest mt-2 ml-1">
+									{viewAssessmentHistoryStudent.name} • Quick Assessment Record
+								</p>
+							</div>
+							<button onClick={() => setViewAssessmentHistoryStudent(null)} className="relative z-10 w-10 h-10 flex items-center justify-center bg-white/10 hover:bg-white/20 rounded-xl text-white transition-all shadow-sm border border-white/10">
+								<X size={18} />
+							</button>
+						</div>
+
+						<div className="p-6 sm:p-8 space-y-8 bg-slate-50/50 max-h-[70vh] overflow-y-auto">
+							
+							{/* Current vs Previous Comparison */}
+							{(() => {
+								const currentScore = viewAssessmentHistoryStudent.assessment_score;
+								const currentLevel = viewAssessmentHistoryStudent.assessment_level;
+								let history = [];
+								if (viewAssessmentHistoryStudent.assessment_history) {
+									history = typeof viewAssessmentHistoryStudent.assessment_history === 'string' ? JSON.parse(viewAssessmentHistoryStudent.assessment_history) : viewAssessmentHistoryStudent.assessment_history;
+								}
+								
+								if (!currentLevel) {
+									return (
+										<div className="bg-white p-8 rounded-3xl border border-slate-100 flex flex-col items-center justify-center text-center shadow-sm">
+											<div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-4 border border-slate-100">
+												<Activity size={24} className="text-slate-300" />
+											</div>
+											<h4 className="text-lg font-black text-slate-800 uppercase tracking-tight">No Assessment Taken</h4>
+											<p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-2">This student has not been assessed yet.</p>
+										</div>
+									);
+								}
+
+								const hasHistory = history && history.length > 0;
+								const lastHistory = hasHistory ? history[history.length - 1] : null;
+								
+								// Sometimes the last history might literally just be the current one if it was just saved, let's find the PREVIOUS distinct score if it exists, or just compare to the immediate previous entry.
+								const previousScore = lastHistory?.previous_score;
+								const previousLevel = lastHistory?.previous_level;
+
+								const scoreDiff = (currentScore && previousScore) ? (currentScore - previousScore) : null;
+								
+								return (
+									<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+										{/* Current Score */}
+										<div className="bg-white p-6 rounded-3xl border border-[#008080]/20 shadow-xl shadow-[#008080]/5 relative overflow-hidden group">
+											<div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-[#008080]/5 to-transparent rounded-full -translate-y-1/2 translate-x-1/2"></div>
+											<p className="text-[10px] font-black text-[#008080] uppercase tracking-[0.2em] mb-4">Current Score</p>
+											<div className="flex items-end gap-4">
+												<span className="text-5xl font-black text-slate-900 leading-none">{currentScore || 'N/A'}</span>
+												<span className={`inline-flex px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest mb-1 ${currentLevel === 'Level 1' ? 'bg-rose-50 text-rose-600' : currentLevel === 'Level 2' ? 'bg-amber-50 text-amber-600' : 'bg-emerald-50 text-emerald-600'}`}>
+													{currentLevel}
+												</span>
+											</div>
+											{scoreDiff !== null && (
+												<div className={`mt-4 flex items-center gap-1.5 text-xs font-black uppercase tracking-widest ${scoreDiff > 0 ? 'text-emerald-500' : scoreDiff < 0 ? 'text-rose-500' : 'text-slate-400'}`}>
+													{scoreDiff > 0 ? '↑' : scoreDiff < 0 ? '↓' : '−'} {Math.abs(scoreDiff)} Points {scoreDiff > 0 ? 'Improvement' : scoreDiff < 0 ? 'Decrease' : 'No Change'}
+												</div>
+											)}
+										</div>
+
+										{/* Previous Score */}
+										{hasHistory ? (
+											<div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm relative overflow-hidden">
+												<div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-slate-100 to-transparent rounded-full -translate-y-1/2 translate-x-1/2 opacity-50"></div>
+												<p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
+													Previous Score
+													<span className="px-2 py-0.5 bg-slate-100 text-slate-500 rounded text-[8px]">{new Date(lastHistory.date).toLocaleDateString()}</span>
+												</p>
+												<div className="flex items-end gap-4">
+													<span className="text-4xl font-black text-slate-400 leading-none">{previousScore || 'N/A'}</span>
+													{previousLevel && (
+														<span className="inline-flex px-2 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest mb-1 bg-slate-50 text-slate-400 border border-slate-100">
+															{previousLevel}
+														</span>
+													)}
+												</div>
+											</div>
+										) : (
+											<div className="bg-slate-50/50 p-6 rounded-3xl border border-slate-100 border-dashed flex flex-col items-center justify-center text-center">
+												<span className="text-2xl mb-2">🌱</span>
+												<p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">First Assessment</p>
+												<p className="text-[9px] font-bold text-slate-400 mt-1 max-w-[150px]">No previous score available to compare.</p>
+											</div>
+										)}
+									</div>
+								);
+							})()}
+
+							{/* Detailed Timeline */}
+							{(() => {
+								let history = [];
+								if (viewAssessmentHistoryStudent.assessment_history) {
+									history = typeof viewAssessmentHistoryStudent.assessment_history === 'string' ? JSON.parse(viewAssessmentHistoryStudent.assessment_history) : viewAssessmentHistoryStudent.assessment_history;
+								}
+
+								if (!history || history.length === 0) return null;
+
+								return (
+									<div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm">
+										<h4 className="text-xs font-black text-slate-800 uppercase tracking-widest mb-6 flex items-center gap-2">
+											<Activity size={14} className="text-[#008080]" />
+											Historical Progress
+										</h4>
+										<div className="relative border-l-2 border-slate-100 ml-3 space-y-6">
+											{[...history].reverse().map((h, i) => (
+												<div key={i} className="relative pl-6">
+													<div className={`absolute -left-[5px] top-1 w-2.5 h-2.5 rounded-full ring-4 ring-white ${i === 0 ? 'bg-[#008080]' : 'bg-slate-300'}`}></div>
+													<div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+														<div>
+															<p className="text-xs font-black text-slate-700 uppercase tracking-widest">{h.level} <span className="text-slate-400 font-bold ml-1">({h.score} points)</span></p>
+															<p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">{new Date(h.date).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}</p>
+														</div>
+														{h.previous_score && (
+															<div className="text-[9px] font-black text-slate-400 uppercase tracking-wider bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100 inline-flex self-start sm:self-auto">
+																From: {h.previous_level} ({h.previous_score})
+															</div>
+														)}
+													</div>
+												</div>
+											))}
+										</div>
+									</div>
+								);
+							})()}
+
+						</div>
+					</div>
+				</div>
+			)}
 
 			{/* Quick Assessment Modal */}
 			{isAssessmentModalOpen && assessmentStudent && <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[1000] flex items-center justify-center p-4 animate-in fade-in duration-300">
