@@ -39,8 +39,15 @@ async function runBackup() {
             console.error(`Backup failed: ${error.message}`);
             // Log failure to admin_notifications and audit_logs
             try {
-                await db.query("INSERT INTO admin_notifications (message, is_read) VALUES (?, 0)", [`CRITICAL: Database Backup Failed! ${error.message}`]);
-                await db.query("INSERT INTO audit_logs (action, details) VALUES (?, ?)", ['BACKUP_FAILED', `Error: ${error.message}`]);
+                await db.query("INSERT INTO admin_notifications (message, action_type, is_read) VALUES (?, 'system_backup', 0)", [`CRITICAL: Database Backup Failed! ${error.message}`]);
+                const { logAudit } = require('../utils/auditLogger');
+                await logAudit({
+                    action: 'BACKUP_FAILED',
+                    details: `Error: ${error.message}`,
+                    user_id: 1,
+                    user_role: 'admin',
+                    entity: 'system'
+                });
             } catch (e) {
                 console.error("Failed to write failure logs to DB", e);
             }
@@ -49,7 +56,14 @@ async function runBackup() {
 
         console.log(`Backup successfully created at ${backupFile}`);
         try {
-            await db.query("INSERT INTO audit_logs (action, details) VALUES (?, ?)", ['BACKUP_SUCCESS', `Backup created at ${backupFile}`]);
+            const { logAudit } = require('../utils/auditLogger');
+            await logAudit({
+                action: 'BACKUP_SUCCESS',
+                details: `Backup created at ${backupFile}`,
+                user_id: 1,
+                user_role: 'admin',
+                entity: 'system'
+            });
         } catch (e) {
             console.error("Failed to write success log to DB", e);
         }

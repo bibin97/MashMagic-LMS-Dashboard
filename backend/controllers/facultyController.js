@@ -180,6 +180,16 @@ const createSession = async (req, res) => {
     try {
         await connection.beginTransaction();
 
+        // Duplicate Check
+        const [existing] = await connection.query(
+            'SELECT id FROM faculty_sessions WHERE faculty_id = ? AND topic <=> ? AND date = ? AND (is_deleted IS NULL OR is_deleted = 0)',
+            [facultyId, topic || null, date]
+        );
+        if (existing.length > 0) {
+            await connection.rollback();
+            return res.status(409).json({ success: false, message: "Duplicate session already exists for this topic and date." });
+        }
+
         const [sessionResult] = await connection.query(
             'INSERT INTO faculty_sessions (faculty_id, topic, date, status) VALUES (?, ?, ?, "Scheduled")',
             [facultyId, topic, date]
@@ -187,12 +197,30 @@ const createSession = async (req, res) => {
 
         const sessionId = sessionResult.insertId;
 
-        if (studentIds && studentIds.length > 0) {
+        // Post-Insert Save Verification
+        const saveVerifier = require('../utils/saveVerifier');
+        await saveVerifier.verifySave(connection, 'faculty_sessions', sessionId, {
+            faculty_id: facultyId, topic: topic || null, date, status: 'Scheduled'
+        });
+
+        // Referential Integrity Verification
+        await saveVerifier.verifyReferentialIntegrity(connection, [
+            { table: 'faculties', column: 'id', value: facultyId }
+        ]);
+
+        if (studentIds && Array.isArray(studentIds) && studentIds.length > 0) {
             const attendanceValues = studentIds.map(sid => [sessionId, sid, 'Present']);
             await connection.query(
                 'INSERT INTO session_attendance (session_id, student_id, status) VALUES ?',
                 [attendanceValues]
             );
+
+            // Verify attendance references
+            for (const sid of studentIds) {
+                await saveVerifier.verifyReferentialIntegrity(connection, [
+                    { table: 'students', column: 'id', value: sid }
+                ]);
+            }
         }
 
         await connection.commit();
@@ -222,14 +250,17 @@ const getSessions = async (req, res) => {
 };
 
 const completeSession = async (req, res) => {
+    const connection = await db.getConnection();
     try {
         const { attendance } = req.body; // Array of {student_id, status}
         const sessionId = req.params.id;
 
-        const connection = await db.getConnection();
         await connection.beginTransaction();
 
-        await connection.query('UPDATE faculty_sessions SET status = "Completed" WHERE id = ?', [sessionId]);
+        const [updateResult] = await connection.query('UPDATE faculty_sessions SET status = "Completed" WHERE id = ?', [sessionId]);
+        if (updateResult.affectedRows === 0) {
+            throw new Error("CRITICAL FAILURE: No records updated. Session may not exist.");
+        }
 
         if (attendance && attendance.length > 0) {
             for (const record of attendance) {
@@ -240,11 +271,19 @@ const completeSession = async (req, res) => {
             }
         }
 
+        // Post-Update Verification
+        const [verify] = await connection.query('SELECT status FROM faculty_sessions WHERE id = ?', [sessionId]);
+        if (verify.length === 0 || verify[0].status !== 'Completed') {
+            throw new Error("CRITICAL FAILURE: Update verification failed.");
+        }
+
         await connection.commit();
-        connection.release();
         res.status(200).json({ success: true, message: "Session marked as completed" });
     } catch (error) {
+        await connection.rollback();
         res.status(500).json({ success: false, message: error.message });
+    } finally {
+        connection.release();
     }
 };
 

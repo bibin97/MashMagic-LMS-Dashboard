@@ -548,71 +548,82 @@ const recalculateAllSessionNumbers = async (req, res) => {
 // @desc    Create new session
 // @route   POST /api/mentor/timetable
 const createSession = async (req, res) => {
+    const connection = await db.getConnection();
     try {
+        await connection.beginTransaction();
         const loggedInUserId = req.user.id;
         const loggedInUserRole = req.user.role;
         const {
             student_id, date, start_time, end_time,
             chapter, session_type, status, status_reason, notes,
-            faculty_id, faculty_name, session_mode
+            faculty_id, faculty_name, session_mode, subject
         } = req.body;
 
         const formattedStartTime = convertTo24Hour(start_time);
         const formattedEndTime = convertTo24Hour(end_time);
 
         // Resolve student's actual mentor_id
-        const [[studentObj]] = await db.query('SELECT mentor_id FROM students WHERE id = ?', [student_id]);
+        const [[studentObj]] = await connection.query('SELECT mentor_id FROM students WHERE id = ?', [student_id]);
         if (!studentObj) {
+            await connection.rollback();
             return res.status(404).json({ success: false, message: "Student not found" });
         }
-        // Use student's actual mentor_id; do NOT fallback to SSC/admin user ID
-        // as that would violate FK constraints on mentor_id column
         const targetMentorId = studentObj.mentor_id || null;
+
+        // Duplicate Check using full business key
+        const [existing] = await connection.query(
+            'SELECT id FROM timetable WHERE student_id = ? AND faculty_id <=> ? AND subject <=> ? AND date = ? AND start_time = ? AND end_time = ? AND (is_deleted IS NULL OR is_deleted = 0)',
+            [student_id, faculty_id || null, subject || null, date, formattedStartTime, formattedEndTime]
+        );
+        if (existing.length > 0) {
+            await connection.rollback();
+            await db.query("INSERT INTO audit_logs (action, details, user_id, user_role) VALUES (?, ?, ?, ?)", ['DUPLICATE_TIMETABLE_PREVENTED', `Duplicate attempt for student ${student_id} on ${date}`, req.user.id, req.user.role]);
+            return res.status(409).json({ success: false, message: "Duplicate timetable entry already exists for this slot." });
+        }
 
         // 1. Conflict Check for Student
         const isTakingTime = !['Postponed', 'Cancelled', 'Faculty Cancelled', 'Student Cancelled', 'No Show'].includes(status || 'Scheduled');
-        
         if (isTakingTime) {
-            const [studentConflicts] = await db.query(`
+            const [studentConflicts] = await connection.query(`
                 SELECT id FROM timetable 
                 WHERE student_id = ? AND date = ? 
                 AND status NOT IN ('Postponed', 'Cancelled', 'Faculty Cancelled', 'Student Cancelled', 'No Show')
                 AND (
                     (start_time < ? AND end_time > ?)
-                )
+                ) AND (is_deleted IS NULL OR is_deleted = 0)
             `, [student_id, date, formattedEndTime, formattedStartTime]);
 
             if (studentConflicts.length > 0) {
+                await connection.rollback();
                 return res.status(400).json({ success: false, message: "Student has a time conflict with another session." });
             }
 
             // 2. Conflict Check for Faculty
             if (faculty_id) {
-                const [facultyConflicts] = await db.query(`
+                const [facultyConflicts] = await connection.query(`
                     SELECT id FROM timetable 
                     WHERE faculty_id = ? AND date = ? 
                     AND status NOT IN ('Postponed', 'Cancelled', 'Faculty Cancelled', 'Student Cancelled', 'No Show')
                     AND (
                         (start_time < ? AND end_time > ?)
-                    )
+                    ) AND (is_deleted IS NULL OR is_deleted = 0)
                 `, [faculty_id, date, formattedEndTime, formattedStartTime]);
 
                 if (facultyConflicts.length > 0) {
+                    await connection.rollback();
                     return res.status(400).json({ success: false, message: "Faculty has a time conflict with another session." });
                 }
             }
         }
 
-        // 3. (Session number will be updated by recalculation later)
         const session_number = 0;
-
         const start = new Date(`1970-01-01T${formattedStartTime}`);
         const end = new Date(`1970-01-01T${formattedEndTime}`);
         const diffMs = end - start;
         const diffMins = Math.round(diffMs / 60000);
         const duration = `${Math.floor(diffMins / 60)}h ${diffMins % 60}m`;
 
-        const [result] = await db.query(`
+        const [result] = await connection.query(`
             INSERT INTO timetable (
                 mentor_id, student_id, session_number, date, start_time, end_time,
                 duration, chapter, subject, session_type, status, status_reason, notes, 
@@ -620,12 +631,26 @@ const createSession = async (req, res) => {
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `, [
             targetMentorId, student_id, session_number, date, formattedStartTime, formattedEndTime,
-            duration, chapter, req.body.subject || null, session_type, status || 'Scheduled', status_reason, notes,
+            duration, chapter, subject || null, session_type, status || 'Scheduled', status_reason, notes,
             (faculty_id ? parseInt(faculty_id) : null), faculty_name || null, session_mode || 'Online'
         ]);
 
-        await syncTimetableToFacultySession(result.insertId);
-        await recalculateSessionNumbers(student_id);
+        // Post-Insert Save Verification
+        const saveVerifier = require('../utils/saveVerifier');
+        await saveVerifier.verifySave(connection, 'timetable', result.insertId, {
+            student_id, date, start_time: formattedStartTime, end_time: formattedEndTime, subject: subject || null, faculty_id: faculty_id || null
+        });
+
+        // Referential Integrity Verification
+        await saveVerifier.verifyReferentialIntegrity(connection, [
+            { table: 'students', column: 'id', value: student_id },
+            { table: 'faculties', column: 'id', value: faculty_id || null }
+        ]);
+
+        const { syncTimetableToFacultySession } = require('../utils/timetableSync');
+        await syncTimetableToFacultySession(result.insertId, connection);
+        
+        await recalculateSessionNumbers(student_id, connection);
 
         await logAudit({
             action: 'CREATE_SESSION',
@@ -636,106 +661,137 @@ const createSession = async (req, res) => {
             details: `Mentor created session for student ${student_id}`
         });
 
+        await connection.commit();
         res.status(201).json({ success: true, message: "Session created successfully", id: result.insertId });
     } catch (error) {
+        await connection.rollback();
+        await db.query("INSERT INTO audit_logs (action, details, user_id, user_role) VALUES (?, ?, ?, ?)", ['CREATE_SESSION_FAILED', error.message, req.user?.id, req.user?.role]);
         res.status(500).json({ success: false, message: error.message });
+    } finally {
+        connection.release();
     }
 };
 
 // @desc    Update session
 // @route   PUT /api/mentor/timetable/:id
 const updateSession = async (req, res) => {
+    const connection = await db.getConnection();
     try {
+        await connection.beginTransaction();
         const loggedInUserId = req.user.id;
         const loggedInUserRole = req.user.role;
         const sessionId = req.params.id;
         const {
             date, start_time, end_time,
             chapter, session_type, status, status_reason, notes,
-            faculty_id, faculty_name, session_mode
+            faculty_id, faculty_name, session_mode, subject
         } = req.body;
 
         const formattedStartTime = convertTo24Hour(start_time);
         const formattedEndTime = convertTo24Hour(end_time);
 
-        // Get existing session to find the mentor_id and student_id
-        const [existing] = await db.query('SELECT * FROM timetable WHERE (is_deleted IS NULL OR is_deleted = 0) AND id = ?', [sessionId]);
+        // Get existing session
+        const [existing] = await connection.query('SELECT * FROM timetable WHERE (is_deleted IS NULL OR is_deleted = 0) AND id = ?', [sessionId]);
         if (existing.length === 0) {
+            await connection.rollback();
             return res.status(404).json({ success: false, message: "Session not found" });
         }
         const existingSession = existing[0];
-        // Keep existing mentor_id; do not replace with SSC/admin ID
         const targetMentorId = existingSession.mentor_id || null;
+
+        if (loggedInUserRole === 'mentor' && targetMentorId !== loggedInUserId) {
+            await connection.rollback();
+            return res.status(403).json({ success: false, message: "Not authorized to update this session" });
+        }
+
+        // Archive before update
+        const { archiveTimetable } = require('../utils/archiver');
+        await archiveTimetable(connection, existingSession.student_id, 'UPDATE_BEFORE', { id: req.user?.id, role: req.user?.role });
+
+        // Duplicate Check using full business key
+        const [existingDupe] = await connection.query(
+            'SELECT id FROM timetable WHERE student_id = ? AND faculty_id <=> ? AND subject <=> ? AND date = ? AND start_time = ? AND end_time = ? AND id != ? AND (is_deleted IS NULL OR is_deleted = 0)',
+            [existingSession.student_id, faculty_id || null, subject || null, date, formattedStartTime, formattedEndTime, sessionId]
+        );
+        if (existingDupe.length > 0) {
+            await connection.rollback();
+            await db.query("INSERT INTO audit_logs (action, details, user_id, user_role) VALUES (?, ?, ?, ?)", ['DUPLICATE_TIMETABLE_PREVENTED', `Duplicate attempt during update for session ${sessionId}`, req.user?.id, req.user?.role]);
+            return res.status(409).json({ success: false, message: "Duplicate timetable entry already exists for this slot." });
+        }
 
         // Conflict checks only if the session is active and taking up time
         const isTakingTime = !['Postponed', 'Cancelled', 'Faculty Cancelled', 'Student Cancelled', 'No Show'].includes(status || 'Scheduled');
 
         if (isTakingTime) {
-            // Conflict check excluding current session (Student)
-            const [studentConflicts] = await db.query(`
+            const [studentConflicts] = await connection.query(`
                 SELECT id FROM timetable 
                 WHERE student_id = ? AND date = ? AND id != ?
                 AND status NOT IN ('Postponed', 'Cancelled', 'Faculty Cancelled', 'Student Cancelled', 'No Show')
                 AND (
                     (start_time < ? AND end_time > ?)
-                )
+                ) AND (is_deleted IS NULL OR is_deleted = 0)
             `, [existingSession.student_id, date, sessionId, formattedEndTime, formattedStartTime]);
 
             if (studentConflicts.length > 0) {
+                await connection.rollback();
                 return res.status(400).json({ success: false, message: "Student has a time conflict with another session." });
             }
 
-            // Conflict check excluding current session (Faculty)
             if (faculty_id) {
-                const [facultyConflicts] = await db.query(`
+                const [facultyConflicts] = await connection.query(`
                     SELECT id FROM timetable 
                     WHERE faculty_id = ? AND date = ? AND id != ?
                     AND status NOT IN ('Postponed', 'Cancelled', 'Faculty Cancelled', 'Student Cancelled', 'No Show')
                     AND (
                         (start_time < ? AND end_time > ?)
-                    )
+                    ) AND (is_deleted IS NULL OR is_deleted = 0)
                 `, [faculty_id, date, sessionId, formattedEndTime, formattedStartTime]);
 
                 if (facultyConflicts.length > 0) {
+                    await connection.rollback();
                     return res.status(400).json({ success: false, message: "Faculty has a time conflict with another session." });
                 }
             }
         }
 
-        // Calculate Duration
         const start = new Date(`1970-01-01T${formattedStartTime}`);
         const end = new Date(`1970-01-01T${formattedEndTime}`);
         const diffMs = end - start;
         const diffMins = Math.round(diffMs / 60000);
         const duration = `${Math.floor(diffMins / 60)}h ${diffMins % 60}m`;
 
-        let query = `
+        const [updateResult] = await connection.query(`
             UPDATE timetable 
             SET date = ?, start_time = ?, end_time = ?, duration = ?, chapter = ?, subject = ?,
                 session_type = ?, status = ?, status_reason = ?, notes = ?,
                 faculty_id = ?, faculty_name = ?, session_mode = ?
             WHERE id = ?
-        `;
-        let params = [
-            date, formattedStartTime, formattedEndTime, duration, chapter, req.body.subject || null,
+        `, [
+            date, formattedStartTime, formattedEndTime, duration, chapter, subject || null,
             session_type, status, status_reason, notes,
             faculty_id || null, faculty_name || null, session_mode || 'Online',
             sessionId
-        ];
+        ]);
 
-        if (loggedInUserRole === 'mentor') {
-            query += ' AND mentor_id = ?';
-            params.push(loggedInUserId);
+        if (updateResult.affectedRows === 0) {
+            throw new Error("CRITICAL FAILURE: No records updated.");
         }
 
-        const [result] = await db.query(query, params);
+        // Save Verification
+        const saveVerifier = require('../utils/saveVerifier');
+        await saveVerifier.verifySave(connection, 'timetable', sessionId, {
+            date, start_time: formattedStartTime, end_time: formattedEndTime, subject: subject || null, faculty_id: faculty_id || null
+        });
 
-        if (loggedInUserRole === 'mentor' && result.affectedRows === 0) {
-            return res.status(403).json({ success: false, message: "Not authorized to update this session" });
-        }
+        // Referential Integrity
+        await saveVerifier.verifyReferentialIntegrity(connection, [
+            { table: 'faculties', column: 'id', value: faculty_id || null }
+        ]);
 
-        await syncTimetableToFacultySession(sessionId);
-        await recalculateSessionNumbers(existingSession.student_id);
+        const { syncTimetableToFacultySession } = require('../utils/timetableSync');
+        await syncTimetableToFacultySession(sessionId, connection);
+        
+        await recalculateSessionNumbers(existingSession.student_id, connection);
 
         await logAudit({
             action: 'UPDATE_SESSION',
@@ -747,40 +803,76 @@ const updateSession = async (req, res) => {
             details: `Mentor updated session ${sessionId}`
         });
 
+        await connection.commit();
         res.status(200).json({ success: true, message: "Session updated successfully" });
     } catch (error) {
+        await connection.rollback();
+        await db.query("INSERT INTO audit_logs (action, details, user_id, user_role) VALUES (?, ?, ?, ?)", ['UPDATE_SESSION_FAILED', error.message, req.user?.id, req.user?.role]);
         res.status(500).json({ success: false, message: error.message });
+    } finally {
+        connection.release();
     }
 };
 
 // @desc    Delete session
 const deleteSession = async (req, res) => {
+    const connection = await db.getConnection();
     try {
+        await connection.beginTransaction();
         const loggedInUserId = req.user.id;
         const loggedInUserRole = req.user.role;
         const sessionId = req.params.id;
 
-        const [[sessionToDelete]] = await db.query('SELECT student_id FROM timetable WHERE (is_deleted IS NULL OR is_deleted = 0) AND id = ?', [sessionId]);
+        const [[sessionToDelete]] = await connection.query('SELECT mentor_id, student_id FROM timetable WHERE (is_deleted IS NULL OR is_deleted = 0) AND id = ?', [sessionId]);
         if (!sessionToDelete) {
+            await connection.rollback();
             return res.status(404).json({ success: false, message: "Session not found" });
         }
 
-        let query = 'UPDATE timetable SET is_deleted = 1, deleted_at = CURRENT_TIMESTAMP WHERE id = ?';
-        let params = [sessionId];
-
-        if (loggedInUserRole === 'mentor') {
-            query += ' AND mentor_id = ?';
-            params.push(loggedInUserId);
+        if (loggedInUserRole === 'mentor' && sessionToDelete.mentor_id !== loggedInUserId) {
+            await connection.rollback();
+            return res.status(403).json({ success: false, message: "Not authorized to delete this session" });
         }
 
-        const [result] = await db.query(query, params);
+        // Archive before delete
+        const { archiveTimetable } = require('../utils/archiver');
+        await archiveTimetable(connection, sessionToDelete.student_id, 'DELETE_BEFORE', { id: req.user?.id, role: req.user?.role });
+
+        const [result] = await connection.query('UPDATE timetable SET is_deleted = 1, deleted_at = CURRENT_TIMESTAMP WHERE id = ?', [sessionId]);
 
         if (result.affectedRows === 0) {
-            return res.status(404).json({ success: false, message: "Session not found" });
+            throw new Error("CRITICAL FAILURE: No records marked as deleted.");
         }
 
-        await syncTimetableToFacultySession(sessionId);
-        await recalculateSessionNumbers(sessionToDelete.student_id);
+        const { syncTimetableToFacultySession } = require('../utils/timetableSync');
+        await syncTimetableToFacultySession(sessionId, connection);
+
+        // GUARANTEED DIRECT DELETE: Explicitly soft-delete faculty_sessions linked to this timetable
+        const [linkedSessions] = await connection.query(
+            'SELECT id FROM faculty_sessions WHERE timetable_id = ? AND (is_deleted IS NULL OR is_deleted = 0)',
+            [sessionId]
+        );
+        for (const linked of linkedSessions) {
+            await connection.query(
+                'UPDATE session_attendance SET is_deleted = 1, deleted_at = CURRENT_TIMESTAMP WHERE session_id = ? AND (is_deleted IS NULL OR is_deleted = 0)',
+                [linked.id]
+            );
+            await connection.query(
+                'UPDATE faculty_sessions SET is_deleted = 1, deleted_at = CURRENT_TIMESTAMP WHERE id = ?',
+                [linked.id]
+            );
+        }
+
+        // Verify: No active faculty_sessions should remain for this timetable_id
+        const [remainCheck] = await connection.query(
+            'SELECT COUNT(*) as cnt FROM faculty_sessions WHERE timetable_id = ? AND (is_deleted IS NULL OR is_deleted = 0)',
+            [sessionId]
+        );
+        if (remainCheck[0].cnt > 0) {
+            throw new Error(`CRITICAL FAILURE: ${remainCheck[0].cnt} faculty_session(s) still active after delete for timetable ${sessionId}`);
+        }
+
+        await recalculateSessionNumbers(sessionToDelete.student_id, connection);
 
         await logAudit({
             action: 'DELETE_SESSION',
@@ -791,9 +883,14 @@ const deleteSession = async (req, res) => {
             details: `Mentor deleted session ${sessionId}`
         });
 
+        await connection.commit();
         res.status(200).json({ success: true, message: "Session deleted" });
     } catch (error) {
+        await connection.rollback();
+        await db.query("INSERT INTO audit_logs (action, details, user_id, user_role) VALUES (?, ?, ?, ?)", ['DELETE_SESSION_FAILED', error.message, req.user?.id, req.user?.role]);
         res.status(500).json({ success: false, message: error.message });
+    } finally {
+        connection.release();
     }
 };
 
@@ -1339,18 +1436,27 @@ const getAcademicSchedule = async (req, res) => {
         const mentorId = req.user.id;
         let query = `
             SELECT fs.*, 
-                   COALESCE(NULLIF(TRIM(u.name), ''), NULLIF(TRIM(f_user.name), ''), NULLIF(TRIM(t.faculty_name), ''), 'Unassigned') as faculty_name, 
+                   COALESCE(NULLIF(TRIM(f_user.name), ''), NULLIF(TRIM(u.name), ''), NULLIF(TRIM(t.faculty_name), ''), 'Unassigned') as faculty_name, 
                    COALESCE(NULLIF(TRIM(GROUP_CONCAT(DISTINCT s.name SEPARATOR ', ')), ''), 'No Student Assigned') as student_name, 
                    MAX(s.id) as student_id, 
                    MAX(s.meeting_link) as meeting_link, 
                    MAX(t.session_number) as session_number
             FROM faculty_sessions fs
-            LEFT JOIN faculties u ON fs.faculty_id = u.id
             LEFT JOIN users f_user ON fs.faculty_id = f_user.id AND f_user.role = 'faculty'
+            LEFT JOIN faculties u ON fs.faculty_id = u.id
             LEFT JOIN session_attendance sa ON fs.id = sa.session_id AND (sa.is_deleted IS NULL OR sa.is_deleted = 0)
             LEFT JOIN timetable t ON fs.timetable_id = t.id AND (t.is_deleted IS NULL OR t.is_deleted = 0)
             LEFT JOIN students s ON (sa.student_id = s.id OR t.student_id = s.id)
-            WHERE (fs.is_deleted IS NULL OR fs.is_deleted = 0) AND s.id IS NOT NULL
+            WHERE (fs.is_deleted IS NULL OR fs.is_deleted = 0)
+              AND s.id IS NOT NULL
+              AND (
+                fs.timetable_id IS NULL
+                OR EXISTS (
+                    SELECT 1 FROM timetable tt 
+                    WHERE tt.id = fs.timetable_id 
+                    AND (tt.is_deleted IS NULL OR tt.is_deleted = 0)
+                )
+              )
         `;
         const params = [];
 
@@ -1541,7 +1647,7 @@ const getStudentAcademicSchedule = async (req, res) => {
         const [schedules] = await db.query(`
             SELECT fs.*, u.name as faculty_name 
             FROM faculty_schedules fs
-            LEFT JOIN faculties u ON fs.faculty_id = u.id
+            LEFT JOIN users u ON fs.faculty_id = u.id AND u.role = 'faculty'
             WHERE fs.student_id = ? AND (fs.is_deleted IS NULL OR fs.is_deleted = 0)
             ORDER BY FIELD(fs.day_of_week, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'), fs.start_time ASC
         `, [studentId]);

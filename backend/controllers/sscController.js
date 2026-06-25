@@ -173,14 +173,15 @@ exports.createSession = async (req, res) => {
         const diffMins = Math.round(diffMs / 60000);
         const duration = `${Math.floor(diffMins / 60)}h ${diffMins % 60}m`;
 
-        // Check for duplicates
+        // Check for duplicates using complete business key
         const [existing] = await connection.query(
-            'SELECT id FROM timetable WHERE (is_deleted IS NULL OR is_deleted = 0) AND student_id = ? AND date = ? AND start_time = ? AND end_time = ? AND chapter = ? AND (faculty_id = ? OR (? IS NULL AND faculty_id IS NULL))',
-            [student_id, date, formattedStartTime, formattedEndTime, chapter, faculty_id || null, faculty_id || null]
+            'SELECT id FROM timetable WHERE student_id = ? AND faculty_id <=> ? AND subject <=> ? AND date = ? AND start_time = ? AND end_time = ? AND (is_deleted IS NULL OR is_deleted = 0)',
+            [student_id, faculty_id || null, subject || null, date, formattedStartTime, formattedEndTime]
         );
         if (existing.length > 0) {
             await connection.rollback();
-            return res.status(409).json({ success: false, message: "Duplicate timetable entry already exists for this slot with the same faculty." });
+            await db.query("INSERT INTO audit_logs (action, details, user_id, user_role) VALUES (?, ?, ?, ?)", ['DUPLICATE_TIMETABLE_PREVENTED', `Duplicate attempt for student ${student_id} on ${date}`, req.user.id, req.user.role]);
+            return res.status(409).json({ success: false, message: "Duplicate timetable entry already exists for this slot." });
         }
 
         const [result] = await connection.query(`
@@ -188,11 +189,17 @@ exports.createSession = async (req, res) => {
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `, [mentor_id, student_id, nextSessionNumber, date, formattedStartTime, formattedEndTime, duration, chapter, subject || null, session_type, status, notes, faculty_id || null, faculty_name]);
 
-        // Post-Insert Verification
-        const [verify] = await connection.query('SELECT id FROM timetable WHERE id = ?', [result.insertId]);
-        if (verify.length === 0) {
-            throw new Error("CRITICAL FAILURE: Timetable record verification failed after insert.");
-        }
+        // Post-Insert Save Verification
+        const saveVerifier = require('../utils/saveVerifier');
+        await saveVerifier.verifySave(connection, 'timetable', result.insertId, {
+            student_id, date, start_time: formattedStartTime, end_time: formattedEndTime, subject: subject || null, faculty_id: faculty_id || null
+        });
+
+        // Referential Integrity Verification
+        await saveVerifier.verifyReferentialIntegrity(connection, [
+            { table: 'students', column: 'id', value: student_id },
+            { table: 'faculties', column: 'id', value: faculty_id || null }
+        ]);
 
         await logAudit({
             action: 'CREATE_SESSION',
@@ -208,19 +215,21 @@ exports.createSession = async (req, res) => {
             await syncTimetableToFacultySession(result.insertId, connection);
         } catch (syncErr) {
             console.error("SSC Create Session Sync Error:", syncErr);
-            throw new Error("Failed to sync timetable to faculty_session");
+            throw new Error("Failed to sync timetable to faculty_session: " + syncErr.message);
         }
 
-        // Verify sync
+        // Verify sync relation
         const [syncVerify] = await connection.query('SELECT id FROM faculty_sessions WHERE timetable_id = ? AND (is_deleted IS NULL OR is_deleted = 0)', [result.insertId]);
         if (syncVerify.length === 0) {
             throw new Error(`CRITICAL FAILURE: Mandatory Sync Verification failed for Session ${result.insertId}.`);
         }
 
+        // Final COMMIT
         await connection.commit();
         res.status(201).json({ success: true, message: "Session created", data: { id: result.insertId } });
     } catch (error) {
         await connection.rollback();
+        await db.query("INSERT INTO audit_logs (action, details, user_id, user_role) VALUES (?, ?, ?, ?)", ['CREATE_SESSION_FAILED', error.message, req.user.id, req.user.role]);
         res.status(500).json({ success: false, message: error.message });
     } finally {
         connection.release();
@@ -244,6 +253,22 @@ exports.updateSession = async (req, res) => {
         const duration = `${Math.floor(diffMins / 60)}h ${diffMins % 60}m`;
 
         const [[oldSession]] = await connection.query('SELECT * FROM timetable WHERE id = ?', [sessionId]);
+        if (!oldSession) throw new Error("CRITICAL FAILURE: Session not found.");
+
+        // Archive before update
+        const { archiveTimetable } = require('../utils/archiver');
+        await archiveTimetable(connection, oldSession.student_id, 'UPDATE_BEFORE', { id: req.user?.id, role: req.user?.role });
+
+        // Duplicate Check
+        const [existing] = await connection.query(
+            'SELECT id FROM timetable WHERE student_id = ? AND faculty_id <=> ? AND subject <=> ? AND date = ? AND start_time = ? AND end_time = ? AND id != ? AND (is_deleted IS NULL OR is_deleted = 0)',
+            [oldSession.student_id, faculty_id || null, subject || null, date, formattedStartTime, formattedEndTime, sessionId]
+        );
+        if (existing.length > 0) {
+            await connection.rollback();
+            await db.query("INSERT INTO audit_logs (action, details, user_id, user_role) VALUES (?, ?, ?, ?)", ['DUPLICATE_TIMETABLE_PREVENTED', `Duplicate attempt during update for session ${sessionId}`, req.user?.id, req.user?.role]);
+            return res.status(409).json({ success: false, message: "Duplicate timetable entry already exists for this slot." });
+        }
 
         const [updateResult] = await connection.query(`
             UPDATE timetable 
@@ -254,6 +279,17 @@ exports.updateSession = async (req, res) => {
         if (updateResult.affectedRows === 0) {
             throw new Error("CRITICAL FAILURE: No records updated. Session may not exist.");
         }
+
+        // Save Verification
+        const saveVerifier = require('../utils/saveVerifier');
+        await saveVerifier.verifySave(connection, 'timetable', sessionId, {
+            date, start_time: formattedStartTime, end_time: formattedEndTime, subject: subject || null, faculty_id: faculty_id || null
+        });
+
+        // Referential Integrity Verification
+        await saveVerifier.verifyReferentialIntegrity(connection, [
+            { table: 'faculties', column: 'id', value: faculty_id || null }
+        ]);
 
         await logAudit({
             action: 'UPDATE_SESSION',
@@ -270,13 +306,14 @@ exports.updateSession = async (req, res) => {
             await syncTimetableToFacultySession(sessionId, connection);
         } catch (syncErr) {
             console.error("SSC Update Session Sync Error:", syncErr);
-            throw new Error("Failed to sync updated timetable to faculty_session");
+            throw new Error("Failed to sync updated timetable to faculty_session: " + syncErr.message);
         }
 
         await connection.commit();
         res.status(200).json({ success: true, message: "Session updated" });
     } catch (error) {
         await connection.rollback();
+        await db.query("INSERT INTO audit_logs (action, details, user_id, user_role) VALUES (?, ?, ?, ?)", ['UPDATE_SESSION_FAILED', error.message, req.user?.id, req.user?.role]);
         res.status(500).json({ success: false, message: error.message });
     } finally {
         connection.release();
@@ -289,7 +326,12 @@ exports.deleteSession = async (req, res) => {
         await connection.beginTransaction();
         const sessionId = req.params.id;
         const [[oldSession]] = await connection.query('SELECT * FROM timetable WHERE id = ?', [sessionId]);
-        
+        if (!oldSession) throw new Error("CRITICAL FAILURE: Session not found.");
+
+        // Archive before delete
+        const { archiveTimetable } = require('../utils/archiver');
+        await archiveTimetable(connection, oldSession.student_id, 'DELETE_BEFORE', { id: req.user?.id, role: req.user?.role });
+
         const [updateResult] = await connection.query('UPDATE timetable SET is_deleted = 1, deleted_at = CURRENT_TIMESTAMP WHERE id = ?', [sessionId]);
         
         if (updateResult.affectedRows === 0) {
@@ -305,17 +347,45 @@ exports.deleteSession = async (req, res) => {
             details: `SSC deleted session ${sessionId}`
         });
 
-        // Sync deletion with faculty_sessions
+        // Sync deletion with faculty_sessions INSIDE transaction
         try {
-            await syncTimetableToFacultySession(sessionId);
+            await syncTimetableToFacultySession(sessionId, connection);
         } catch (syncErr) {
             console.error("SSC Delete Session Sync Error:", syncErr);
+            throw new Error("Failed to sync deletion to faculty_session: " + syncErr.message);
+        }
+
+        // GUARANTEED DIRECT DELETE: Explicitly soft-delete faculty_sessions linked to this timetable
+        // This is a safety net in case syncTimetableToFacultySession missed anything
+        const [linkedSessions] = await connection.query(
+            'SELECT id FROM faculty_sessions WHERE timetable_id = ? AND (is_deleted IS NULL OR is_deleted = 0)',
+            [sessionId]
+        );
+        for (const linked of linkedSessions) {
+            await connection.query(
+                'UPDATE session_attendance SET is_deleted = 1, deleted_at = CURRENT_TIMESTAMP WHERE session_id = ? AND (is_deleted IS NULL OR is_deleted = 0)',
+                [linked.id]
+            );
+            await connection.query(
+                'UPDATE faculty_sessions SET is_deleted = 1, deleted_at = CURRENT_TIMESTAMP WHERE id = ?',
+                [linked.id]
+            );
+        }
+
+        // Verify: No active faculty_sessions should remain for this timetable_id
+        const [remainCheck] = await connection.query(
+            'SELECT COUNT(*) as cnt FROM faculty_sessions WHERE timetable_id = ? AND (is_deleted IS NULL OR is_deleted = 0)',
+            [sessionId]
+        );
+        if (remainCheck[0].cnt > 0) {
+            throw new Error(`CRITICAL FAILURE: ${remainCheck[0].cnt} faculty_session(s) still active after delete for timetable ${sessionId}`);
         }
 
         await connection.commit();
         res.status(200).json({ success: true, message: "Session deleted" });
     } catch (error) {
         await connection.rollback();
+        await db.query("INSERT INTO audit_logs (action, details, user_id, user_role) VALUES (?, ?, ?, ?)", ['DELETE_SESSION_FAILED', error.message, req.user?.id, req.user?.role]);
         res.status(500).json({ success: false, message: error.message });
     } finally {
         connection.release();

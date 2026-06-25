@@ -1,5 +1,5 @@
 const calculateStudentHours = async (students, db) => {
-    if (!students || students.length === 0) return students;
+    if (!students || !Array.isArray(students) || students.length === 0) return students;
 
     const studentIds = students.map(s => s.id);
     

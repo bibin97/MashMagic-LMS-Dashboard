@@ -24,6 +24,7 @@ async function captureAndArchive(conn, tableName, archiveTableName, studentId, a
         );
     } catch (e) {
         console.error(`[ARCHIVER ERROR] Failed to archive ${tableName} to ${archiveTableName}:`, e.message);
+        throw new Error(`Archive Protection Failed for ${tableName}: ${e.message}`);
     }
 }
 

@@ -1104,7 +1104,7 @@ const getAcademicSchedule = async (req, res) => {
                     s.meeting_link,
                     fs.minutes_taken
                 FROM faculty_sessions fs
-                LEFT JOIN faculties u ON fs.faculty_id = u.id
+                LEFT JOIN users u ON fs.faculty_id = u.id AND u.role = 'faculty'
                 LEFT JOIN session_attendance sa ON fs.id = sa.session_id
                 LEFT JOIN students s ON sa.student_id = s.id
                 WHERE fs.timetable_id IS NULL
