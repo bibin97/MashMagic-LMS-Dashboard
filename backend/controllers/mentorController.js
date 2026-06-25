@@ -692,6 +692,11 @@ const updateSession = async (req, res) => {
             faculty_id, faculty_name, session_mode, subject
         } = req.body;
 
+        if (!faculty_id) {
+            await connection.rollback();
+            return res.status(400).json({ success: false, message: "Please Add Faculty. Faculty is required for all sessions." });
+        }
+
         const formattedStartTime = convertTo24Hour(start_time);
         const formattedEndTime = convertTo24Hour(end_time);
 

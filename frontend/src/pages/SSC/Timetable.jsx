@@ -354,6 +354,11 @@ const Timetable = () => {
     e.preventDefault();
     
     if (!isBulkMode) {
+      if (!formData.student_id || !formData.date || !formData.start_time || !formData.end_time || !formData.faculty_id) {
+        toast.error("Please Add Faculty. Faculty is required for all sessions.");
+        return;
+      }
+
       if (formData.end_time <= formData.start_time) {
         toast.error("End time must be after start time");
         return;
@@ -491,6 +496,12 @@ const Timetable = () => {
   };
 
   const handleScheduleSubmit = async () => {
+    const invalidSlot = editScheduleData.find(s => !s.faculty_id);
+    if (invalidSlot) {
+      toast.error(`Please assign a faculty for ${invalidSlot.day_of_week} ${invalidSlot.start_time} slot, or remove the slot if not needed.`);
+      return;
+    }
+
     try {
       await api.post(`/ssc/students/${formData.student_id}/schedule`, { schedules: editScheduleData });
       toast.success("Registration schedule updated");

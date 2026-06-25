@@ -249,6 +249,11 @@ exports.updateSession = async (req, res) => {
         const sessionId = req.params.id;
         const { date, start_time, end_time, chapter, subject, session_type, status, notes, faculty_id, faculty_name } = req.body;
 
+        if (!faculty_id) {
+            await connection.rollback();
+            return res.status(400).json({ success: false, message: "Please Add Faculty. Faculty is required for all sessions." });
+        }
+
         const formattedStartTime = convertTo24Hour(start_time);
         const formattedEndTime = convertTo24Hour(end_time);
 
