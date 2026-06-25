@@ -1086,6 +1086,7 @@ const getAcademicSchedule = async (req, res) => {
                 LEFT JOIN users f ON t.faculty_id = f.id
                 JOIN students s ON t.student_id = s.id
                 LEFT JOIN faculty_sessions fs ON t.id = fs.timetable_id
+                WHERE (t.is_deleted IS NULL OR t.is_deleted = 0)
 
                 UNION ALL
 

@@ -1347,10 +1347,10 @@ const getAcademicSchedule = async (req, res) => {
             FROM faculty_sessions fs
             LEFT JOIN faculties u ON fs.faculty_id = u.id
             LEFT JOIN users f_user ON fs.faculty_id = f_user.id AND f_user.role = 'faculty'
-            LEFT JOIN session_attendance sa ON fs.id = sa.session_id
-            LEFT JOIN timetable t ON fs.timetable_id = t.id
+            LEFT JOIN session_attendance sa ON fs.id = sa.session_id AND (sa.is_deleted IS NULL OR sa.is_deleted = 0)
+            LEFT JOIN timetable t ON fs.timetable_id = t.id AND (t.is_deleted IS NULL OR t.is_deleted = 0)
             LEFT JOIN students s ON (sa.student_id = s.id OR t.student_id = s.id)
-            WHERE 1=1
+            WHERE (fs.is_deleted IS NULL OR fs.is_deleted = 0) AND s.id IS NOT NULL
         `;
         const params = [];
 
