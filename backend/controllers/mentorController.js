@@ -1466,7 +1466,6 @@ const getAcademicSchedule = async (req, res) => {
         const params = [];
 
         if (req.user.role !== 'ssc') {
-            query += ' AND fs.timetable_id IS NULL';
             query += ' AND s.mentor_id = ?';
             params.push(mentorId);
         }

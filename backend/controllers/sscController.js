@@ -719,6 +719,13 @@ exports.createBatchTimetable = async (req, res) => {
             return res.status(400).json({ success: false, message: "No sessions provided" });
         }
 
+        for (const s of sessions) {
+            if (!s.faculty_id) {
+                await connection.rollback();
+                return res.status(400).json({ success: false, message: "Please Add Faculty. Faculty is required for all sessions." });
+            }
+        }
+
         const report = {
             total_requested: sessions.length,
             total_saved: 0,
