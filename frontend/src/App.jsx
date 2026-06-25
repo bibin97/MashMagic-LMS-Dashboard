@@ -131,6 +131,7 @@ function App() {
       <Router>
         <Toaster
           position="top-right"
+          containerStyle={{ zIndex: 99999 }}
           toastOptions={{
             className: 'rounded-2xl font-bold text-sm shadow-xl',
             duration: 3000,

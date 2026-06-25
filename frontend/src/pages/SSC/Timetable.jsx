@@ -420,7 +420,7 @@ const Timetable = () => {
   };
   
   const addToBatch = () => {
-    if (!formData.student_id || !formData.date || !formData.start_time || !formData.end_time || !formData.faculty_id) {
+    if (!formData.student_id || !formData.date || (Array.isArray(formData.date) && formData.date.length === 0) || !formData.start_time || !formData.end_time || !formData.faculty_id) {
       toast.error("Please fill all required fields: Student, Date, Start Time, End Time, Faculty");
       return;
     }
