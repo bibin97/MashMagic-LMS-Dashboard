@@ -920,9 +920,10 @@ const editStudent = async (req, res) => {
         conn.release();
         res.status(200).json({ success: true, message: 'Student profile updated successfully' });
     } catch (error) { 
-        await conn.rollback();
-        conn.release();
+        if (conn && conn.rollback) await conn.rollback();
+        if (conn && conn.release) conn.release();
         console.error("EDIT_STUDENT_ERROR:", error);
+        require('fs').appendFileSync('debug_error.txt', new Date().toISOString() + ' - EDIT_STUDENT_ERROR: ' + error.stack + '\n');
         res.status(500).json({ success: false, message: error.message }); 
     }
 };
