@@ -644,7 +644,7 @@ const createSession = async (req, res) => {
         // Referential Integrity Verification
         await saveVerifier.verifyReferentialIntegrity(connection, [
             { table: 'students', column: 'id', value: student_id },
-            { table: 'faculties', column: 'id', value: faculty_id || null }
+            { table: 'users', column: 'id', value: faculty_id || null }
         ]);
 
         const { syncTimetableToFacultySession } = require('../utils/timetableSync');
@@ -785,7 +785,7 @@ const updateSession = async (req, res) => {
 
         // Referential Integrity
         await saveVerifier.verifyReferentialIntegrity(connection, [
-            { table: 'faculties', column: 'id', value: faculty_id || null }
+            { table: 'users', column: 'id', value: faculty_id || null }
         ]);
 
         const { syncTimetableToFacultySession } = require('../utils/timetableSync');

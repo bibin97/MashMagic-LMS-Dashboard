@@ -205,7 +205,7 @@ const createSession = async (req, res) => {
 
         // Referential Integrity Verification
         await saveVerifier.verifyReferentialIntegrity(connection, [
-            { table: 'faculties', column: 'id', value: facultyId }
+            { table: 'users', column: 'id', value: facultyId }
         ]);
 
         if (studentIds && Array.isArray(studentIds) && studentIds.length > 0) {
