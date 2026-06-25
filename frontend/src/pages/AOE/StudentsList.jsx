@@ -640,58 +640,57 @@ const StudentsList = ({
 									);
 								}
 
-								const hasHistory = history && history.length > 0;
-								const lastHistory = hasHistory ? history[history.length - 1] : null;
-								
-								// Sometimes the last history might literally just be the current one if it was just saved, let's find the PREVIOUS distinct score if it exists, or just compare to the immediate previous entry.
-								const previousScore = lastHistory?.previous_score;
-								const previousLevel = lastHistory?.previous_level;
+								const allAssessments = [];
+								if (viewAssessmentHistoryStudent.assessment_history) {
+									const hist = typeof viewAssessmentHistoryStudent.assessment_history === 'string' ? JSON.parse(viewAssessmentHistoryStudent.assessment_history) : viewAssessmentHistoryStudent.assessment_history;
+									allAssessments.push(...hist);
+								}
+								// Add current as an attempt if it's not fully mirrored in history
+								if (currentLevel) {
+									allAssessments.push({
+										level: currentLevel,
+										score: currentScore,
+										date: new Date().toISOString()
+									});
+								}
 
-								const scoreDiff = (currentScore && previousScore) ? (currentScore - previousScore) : null;
-								
+								const getBestScoreForLevel = (lvl) => {
+									// Find the LAST chronological occurrence of this level that has a score
+									const attempts = allAssessments.filter(a => a.level === lvl && a.score != null);
+									if (attempts.length === 0) return null;
+									return attempts[attempts.length - 1]; // The most recent one
+								};
+
+								const levels = [
+									{ name: 'Level 1', data: getBestScoreForLevel('Level 1'), styles: { text: 'text-rose-600', border: 'border-rose-200', gradient: 'from-rose-500/10' } },
+									{ name: 'Level 2', data: getBestScoreForLevel('Level 2'), styles: { text: 'text-amber-600', border: 'border-amber-200', gradient: 'from-amber-500/10' } },
+									{ name: 'Level 3', data: getBestScoreForLevel('Level 3'), styles: { text: 'text-emerald-600', border: 'border-emerald-200', gradient: 'from-emerald-500/10' } }
+								];
+
 								return (
-									<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-										{/* Current Score */}
-										<div className="bg-white p-6 rounded-3xl border border-[#008080]/20 shadow-xl shadow-[#008080]/5 relative overflow-hidden group">
-											<div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-[#008080]/5 to-transparent rounded-full -translate-y-1/2 translate-x-1/2"></div>
-											<p className="text-[10px] font-black text-[#008080] uppercase tracking-[0.2em] mb-4">Current Score</p>
-											<div className="flex items-end gap-4">
-												<span className="text-5xl font-black text-slate-900 leading-none">{currentScore || 'N/A'}</span>
-												<span className={`inline-flex px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest mb-1 ${currentLevel === 'Level 1' ? 'bg-rose-50 text-rose-600' : currentLevel === 'Level 2' ? 'bg-amber-50 text-amber-600' : 'bg-emerald-50 text-emerald-600'}`}>
-													{currentLevel}
-												</span>
+									<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+										{levels.map(lvl => (
+											<div key={lvl.name} className={`bg-white p-6 rounded-3xl shadow-sm relative overflow-hidden transition-all ${lvl.data ? `border ${lvl.styles.border} shadow-md scale-[1.02]` : 'border border-slate-100 opacity-60'}`}>
+												{lvl.data && <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${lvl.styles.gradient} to-transparent rounded-full -translate-y-1/2 translate-x-1/2`}></div>}
+												<p className={`text-[10px] font-black uppercase tracking-[0.2em] mb-4 ${lvl.data ? lvl.styles.text : 'text-slate-400'}`}>{lvl.name}</p>
+												{lvl.data ? (
+													<div>
+														<div className="flex items-end gap-3 relative z-10">
+															<span className="text-5xl font-black text-slate-900 leading-none">{lvl.data.score || 'N/A'}</span>
+															<span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Points</span>
+														</div>
+														<p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-4">
+															{lvl.data.date ? new Date(lvl.data.date).toLocaleDateString() : 'Recorded'}
+														</p>
+													</div>
+												) : (
+													<div className="flex flex-col h-full justify-center">
+														<span className="text-4xl font-black text-slate-200 leading-none mb-3">-</span>
+														<p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Not Reached</p>
+													</div>
+												)}
 											</div>
-											{scoreDiff !== null && (
-												<div className={`mt-4 flex items-center gap-1.5 text-xs font-black uppercase tracking-widest ${scoreDiff > 0 ? 'text-emerald-500' : scoreDiff < 0 ? 'text-rose-500' : 'text-slate-400'}`}>
-													{scoreDiff > 0 ? '↑' : scoreDiff < 0 ? '↓' : '−'} {Math.abs(scoreDiff)} Points {scoreDiff > 0 ? 'Improvement' : scoreDiff < 0 ? 'Decrease' : 'No Change'}
-												</div>
-											)}
-										</div>
-
-										{/* Previous Score */}
-										{hasHistory ? (
-											<div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm relative overflow-hidden">
-												<div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-slate-100 to-transparent rounded-full -translate-y-1/2 translate-x-1/2 opacity-50"></div>
-												<p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
-													Previous Score
-													<span className="px-2 py-0.5 bg-slate-100 text-slate-500 rounded text-[8px]">{new Date(lastHistory.date).toLocaleDateString()}</span>
-												</p>
-												<div className="flex items-end gap-4">
-													<span className="text-4xl font-black text-slate-400 leading-none">{previousScore || 'N/A'}</span>
-													{previousLevel && (
-														<span className="inline-flex px-2 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest mb-1 bg-slate-50 text-slate-400 border border-slate-100">
-															{previousLevel}
-														</span>
-													)}
-												</div>
-											</div>
-										) : (
-											<div className="bg-slate-50/50 p-6 rounded-3xl border border-slate-100 border-dashed flex flex-col items-center justify-center text-center">
-												<span className="text-2xl mb-2">🌱</span>
-												<p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">First Assessment</p>
-												<p className="text-[9px] font-bold text-slate-400 mt-1 max-w-[150px]">No previous score available to compare.</p>
-											</div>
-										)}
+										))}
 									</div>
 								);
 							})()}
