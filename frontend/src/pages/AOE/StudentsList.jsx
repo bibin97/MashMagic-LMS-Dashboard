@@ -655,10 +655,11 @@ const StudentsList = ({
 								}
 
 								const getBestScoreForLevel = (lvl) => {
-									// Find the LAST chronological occurrence of this level that has a score
-									const attempts = allAssessments.filter(a => a.level === lvl && a.score != null);
+									const attempts = allAssessments.filter(a => a.level === lvl);
 									if (attempts.length === 0) return null;
-									return attempts[attempts.length - 1]; // The most recent one
+									const withScore = attempts.filter(a => a.score != null);
+									if (withScore.length > 0) return withScore[withScore.length - 1];
+									return attempts[attempts.length - 1]; 
 								};
 
 								const levels = [
