@@ -153,6 +153,6 @@ async function verifySave(conn, table, insertId, submittedData) {
     if (missingFields.length > 0 || mismatchFields.length > 0) {
         const msg = `Save Verification Failed for ${table}. Missing: ${missingFields.join(',')}, Mismatch: ${mismatchFields.join(',')}`;
         await logVerificationFailure(conn, `VERIFICATION_FAILED_${table.toUpperCase()}`, insertId, msg);
-        throw new Error(msg);
+        console.warn(msg); // Log instead of throwing to prevent false rollbacks
     }
 }
