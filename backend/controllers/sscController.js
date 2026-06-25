@@ -247,7 +247,7 @@ exports.updateSession = async (req, res) => {
     try {
         await connection.beginTransaction();
         const sessionId = req.params.id;
-        const { date, start_time, end_time, chapter, subject, session_type, status, notes, faculty_id, faculty_name } = req.body;
+        const { date, start_time, end_time, chapter, subject, session_type, status, status_reason, notes, faculty_id, faculty_name } = req.body;
 
         if (!faculty_id) {
             await connection.rollback();
@@ -283,9 +283,9 @@ exports.updateSession = async (req, res) => {
 
         const [updateResult] = await connection.query(`
             UPDATE timetable 
-            SET date = ?, start_time = ?, end_time = ?, duration = ?, chapter = ?, subject = ?, session_type = ?, status = ?, notes = ?, faculty_id = ?, faculty_name = ?
+            SET date = ?, start_time = ?, end_time = ?, duration = ?, chapter = ?, subject = ?, session_type = ?, status = ?, cancel_note = ?, notes = ?, faculty_id = ?, faculty_name = ?
             WHERE id = ?
-        `, [date, formattedStartTime, formattedEndTime, duration, chapter, subject || null, session_type, status, notes, faculty_id || null, faculty_name, sessionId]);
+        `, [date, formattedStartTime, formattedEndTime, duration, chapter, subject || null, session_type, status, status_reason || null, notes, faculty_id || null, faculty_name, sessionId]);
 
         if (updateResult.affectedRows === 0) {
             throw new Error("CRITICAL FAILURE: No records updated. Session may not exist.");

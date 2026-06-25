@@ -124,6 +124,18 @@ async function verifySave(conn, table, insertId, submittedData) {
         } else if (expectedVal !== null && dbVal === null) {
             missingFields.push(key);
         } else if (expectedVal !== null && dbVal !== null) {
+            // Handle Date object vs String mismatch
+            if (dbVal instanceof Date && typeof expectedVal === 'string') {
+                const year = dbVal.getFullYear();
+                const month = String(dbVal.getMonth() + 1).padStart(2, '0');
+                const day = String(dbVal.getDate()).padStart(2, '0');
+                const dbDateStr = `${year}-${month}-${day}`;
+                
+                if (dbDateStr === expectedVal) {
+                    continue;
+                }
+            }
+
             // loose comparison
             if (String(expectedVal).trim() !== String(dbVal).trim()) {
                 // Ignore time string formatting differences like '13:00:00' vs '13:00' if possible
