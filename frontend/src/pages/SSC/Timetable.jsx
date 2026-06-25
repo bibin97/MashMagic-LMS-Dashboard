@@ -414,8 +414,8 @@ const Timetable = () => {
   };
   
   const addToBatch = () => {
-    if (!formData.student_id || !formData.date || formData.date.length === 0 || !formData.start_time || !formData.end_time) {
-      toast.error("Please fill all required fields for this session");
+    if (!formData.student_id || !formData.date || (Array.isArray(formData.date) ? formData.date.length === 0 : false) || !formData.start_time || !formData.end_time) {
+      toast.error("Please fill all required fields: Student, Date, Start Time, End Time");
       return;
     }
     
@@ -1333,8 +1333,14 @@ const Timetable = () => {
                     value={(() => {
                       if (!slot.start_time) return '';
                       let clean = slot.start_time.replace(/\./g, ':').trim();
+                      let isPM = /PM/i.test(clean);
+                      let isAM = /AM/i.test(clean);
+                      clean = clean.replace(/[a-zA-Z\s]/g, '').trim();
                       let parts = clean.split(':');
-                      return `${String(parts[0]).padStart(2, '0')}:${parts[1] ? String(parts[1]).padEnd(2, '0').substring(0, 2) : '00'}`;
+                      let hours = parseInt(parts[0] || '0', 10);
+                      if (isPM && hours < 12) hours += 12;
+                      if (isAM && hours === 12) hours = 0;
+                      return `${String(hours).padStart(2, '0')}:${parts[1] ? String(parts[1]).padEnd(2, '0').substring(0, 2) : '00'}`;
                     })()}
                     onChange={(e) => {
                       const newData = [...editScheduleData];
@@ -1349,8 +1355,14 @@ const Timetable = () => {
                     value={(() => {
                       if (!slot.end_time) return '';
                       let clean = slot.end_time.replace(/\./g, ':').trim();
+                      let isPM = /PM/i.test(clean);
+                      let isAM = /AM/i.test(clean);
+                      clean = clean.replace(/[a-zA-Z\s]/g, '').trim();
                       let parts = clean.split(':');
-                      return `${String(parts[0]).padStart(2, '0')}:${parts[1] ? String(parts[1]).padEnd(2, '0').substring(0, 2) : '00'}`;
+                      let hours = parseInt(parts[0] || '0', 10);
+                      if (isPM && hours < 12) hours += 12;
+                      if (isAM && hours === 12) hours = 0;
+                      return `${String(hours).padStart(2, '0')}:${parts[1] ? String(parts[1]).padEnd(2, '0').substring(0, 2) : '00'}`;
                     })()}
                     onChange={(e) => {
                       const newData = [...editScheduleData];

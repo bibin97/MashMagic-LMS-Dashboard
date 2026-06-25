@@ -120,56 +120,48 @@ const Approvals = () => {
             </span>
           </div>
           
-          <div className="flex-1 min-h-[400px]">
-            {pendingUsers.length > 0 ? <div className="overflow-x-auto">
-                <table className="w-full text-left">
-                  <tbody className="divide-y divide-slate-50">
-                    {pendingUsers.map((user, index) => <tr key={`${user.role}-${user.id}`} className="hover:bg-slate-50/50 transition-all group"><td className="p-6 text-sm font-black text-slate-400 border-b border-slate-50">{index + 1}</td>
-                        <td className="p-6">
-                          <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-slate-400 font-black border border-slate-100 group-hover:text-[#008080] transition-all">
-                              {user.name.charAt(0)}
-                            </div>
-                            <div className="flex-1 w-full grid grid-cols-4 items-center gap-6">
-                              <div className="flex flex-col gap-1.5">
-                                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Name</span>
-                                <span className="text-sm font-black text-slate-800 uppercase tracking-tight">{user.name}</span>
-                              </div>
-                              <div className="flex flex-col gap-1.5 items-start">
-                                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Role</span>
-                                <span className={`px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-widest ${user.role === 'student' ? 'bg-slate-100 text-slate-500' : 'bg-[#008080]/10 text-[#008080]'}`}>
-                                  {user.role.replace('_', ' ')}
-                                </span>
-                              </div>
-                              <div className="flex flex-col gap-1.5">
-                                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Date</span>
-                                <span className="text-sm font-bold text-slate-600 uppercase tracking-tight">{new Date(user.created_at).toLocaleDateString('en-GB')}</span>
-                              </div>
-                              <div className="flex flex-col gap-1.5">
-                                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Time</span>
-                                <span className="text-sm font-bold text-slate-600 uppercase tracking-tight">{new Date(user.created_at).toLocaleTimeString('en-US', {
-                                  hour: '2-digit',
-                                  minute: '2-digit',
-                                  hour12: true
-                                })}</span>
-                              </div>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="p-6 text-right">
-                          <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button onClick={() => handleReject(user.id, user.role, user.name)} className="p-2.5 rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white transition-all">
-                              <XCircle size={18} />
-                            </button>
-                            <button onClick={() => handleApprove(user.id, user.role)} className="p-2.5 rounded-xl bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white transition-all">
-                              <CheckCircle size={18} />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>)}
-                  </tbody>
-                </table>
-              </div> : <div className="flex flex-col items-center justify-center py-20 text-slate-400">
+          <div className="flex-1 min-h-[400px] p-8 bg-slate-50/20">
+            {pendingUsers.length > 0 ? (
+              <div className="grid grid-cols-1 gap-4">
+                {pendingUsers.map((user, index) => (
+                  <div key={`${user.role}-${user.id}`} className="bg-white border border-slate-100 rounded-3xl p-6 flex flex-col lg:flex-row items-center gap-6 shadow-sm hover:shadow-md hover:border-[#008080]/30 transition-all group">
+                    <div className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-400 font-black border border-slate-100 group-hover:bg-[#008080] group-hover:text-white transition-all shrink-0 text-lg">
+                      {user.name.charAt(0).toUpperCase()}
+                    </div>
+                    <div className="flex-1 w-full grid grid-cols-2 lg:grid-cols-4 gap-6">
+                      <div className="flex flex-col gap-1.5">
+                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Name</span>
+                        <span className="text-sm font-black text-slate-800 tracking-tight">{user.name}</span>
+                      </div>
+                      <div className="flex flex-col gap-1.5 items-start">
+                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Role</span>
+                        <span className={`px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-widest ${user.role === 'student' ? 'bg-slate-100 text-slate-500' : 'bg-[#008080]/10 text-[#008080]'}`}>
+                          {user.role.replace('_', ' ')}
+                        </span>
+                      </div>
+                      <div className="flex flex-col gap-1.5">
+                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Date</span>
+                        <span className="text-sm font-bold text-slate-600 tracking-tight">{new Date(user.created_at).toLocaleDateString('en-GB')}</span>
+                      </div>
+                      <div className="flex flex-col gap-1.5">
+                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Time</span>
+                        <span className="text-sm font-bold text-slate-600 tracking-tight">{new Date(user.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}</span>
+                      </div>
+                    </div>
+                    <div className="flex flex-row items-center justify-end gap-3 w-full lg:w-auto mt-4 lg:mt-0">
+                      <button onClick={() => handleApprove(user.id, user.role)} className="flex-1 lg:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-emerald-50 text-emerald-600 rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-emerald-500 hover:text-white transition-all shadow-sm">
+                        <Check size={16} strokeWidth={3} />
+                        Approve
+                      </button>
+                      <button onClick={() => handleReject(user.id, user.role, user.name)} className="flex-1 lg:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-rose-50 text-rose-500 rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-rose-500 hover:text-white transition-all shadow-sm">
+                        <X size={16} strokeWidth={3} />
+                        Reject
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : <div className="flex flex-col items-center justify-center py-20 text-slate-400">
                 <CheckCircle size={32} className="mb-4 opacity-20" />
                 <p className="text-[10px] font-black uppercase tracking-widest">No pending staff</p>
               </div>}

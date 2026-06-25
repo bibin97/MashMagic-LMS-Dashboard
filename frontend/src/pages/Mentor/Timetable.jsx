@@ -1013,7 +1013,18 @@ const Timetable = () => {
 
                   <input
                     type="time"
-                    value={slot.start_time.substring(0, 5)}
+                    value={(() => {
+                      if (!slot.start_time) return '';
+                      let clean = slot.start_time.replace(/\./g, ':').trim();
+                      let isPM = /PM/i.test(clean);
+                      let isAM = /AM/i.test(clean);
+                      clean = clean.replace(/[a-zA-Z\s]/g, '').trim();
+                      let parts = clean.split(':');
+                      let hours = parseInt(parts[0] || '0', 10);
+                      if (isPM && hours < 12) hours += 12;
+                      if (isAM && hours === 12) hours = 0;
+                      return `${String(hours).padStart(2, '0')}:${parts[1] ? String(parts[1]).padEnd(2, '0').substring(0, 2) : '00'}`;
+                    })()}
                     onChange={(e) => {
                       const newData = [...editScheduleData];
                       newData[index].start_time = e.target.value + ':00';
@@ -1024,7 +1035,18 @@ const Timetable = () => {
 
                   <input
                     type="time"
-                    value={slot.end_time.substring(0, 5)}
+                    value={(() => {
+                      if (!slot.end_time) return '';
+                      let clean = slot.end_time.replace(/\./g, ':').trim();
+                      let isPM = /PM/i.test(clean);
+                      let isAM = /AM/i.test(clean);
+                      clean = clean.replace(/[a-zA-Z\s]/g, '').trim();
+                      let parts = clean.split(':');
+                      let hours = parseInt(parts[0] || '0', 10);
+                      if (isPM && hours < 12) hours += 12;
+                      if (isAM && hours === 12) hours = 0;
+                      return `${String(hours).padStart(2, '0')}:${parts[1] ? String(parts[1]).padEnd(2, '0').substring(0, 2) : '00'}`;
+                    })()}
                     onChange={(e) => {
                       const newData = [...editScheduleData];
                       newData[index].end_time = e.target.value + ':00';
