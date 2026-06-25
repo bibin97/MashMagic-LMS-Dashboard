@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { premiumConfirm } from '../../utils/premiumConfirm';
 import { useAuth } from '../../context/AuthContext';
 import MultiDatePicker from "react-multi-date-picker";
+import Select from 'react-select';
 const DatePicker = MultiDatePicker.default ? MultiDatePicker.default : MultiDatePicker;
 
 const formatTo24hTime = (timeStr) => {
@@ -497,6 +498,7 @@ const Timetable = () => {
       // Refresh current student's schedule reference
       const res = await api.get(`/ssc/students/${formData.student_id}/schedule`);
       setStudentSchedule(res.data.data);
+      fetchSessions();
     } catch (error) {
       toast.error(error.response?.data?.message || error.message || "Failed to update schedule. Database verification failed.");
     }
@@ -1397,29 +1399,48 @@ const Timetable = () => {
                     ))}
                   </datalist>
 
-                  <select
-                    value={slot.faculty_id || ''}
-                    onChange={(e) => {
+                  <Select
+                    value={
+                      slot.faculty_id
+                        ? { value: slot.faculty_id, label: slot.faculty_name || faculties.find(f => String(f.id) === String(slot.faculty_id))?.name || 'Unknown' }
+                        : null
+                    }
+                    onChange={(selectedOption) => {
                       const newData = [...editScheduleData];
-                      newData[index].faculty_id = e.target.value;
-                      const fac = faculties.find(f => String(f.id) === String(e.target.value));
-                      newData[index].faculty_name = fac ? fac.name : '';
+                      newData[index].faculty_id = selectedOption ? selectedOption.value : '';
+                      newData[index].faculty_name = selectedOption ? selectedOption.label : '';
                       setEditScheduleData(newData);
                     }}
-                    className="w-full p-3 bg-white border border-slate-100 rounded-xl text-[10px] font-bold outline-none"
-                  >
-                    <option value="">Select Faculty</option>
-                    {availableSubjects.length > 0 && (() => {
-                      const assignedFacIds = new Set(availableSubjects.map(s => String(s.faculty_id || s.facultyId)).filter(Boolean));
-                      const assigned = faculties.filter(f => assignedFacIds.has(String(f.id)));
-                      const others = faculties.filter(f => !assignedFacIds.has(String(f.id)));
-                      return (<>
-                        {assigned.length > 0 && <optgroup label="Assigned to Student">{assigned.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}</optgroup>}
-                        {others.length > 0 && <optgroup label="Other Faculties">{others.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}</optgroup>}
-                      </>);
+                    options={(() => {
+                      if (availableSubjects.length > 0) {
+                        const assignedFacIds = new Set(availableSubjects.map(s => String(s.faculty_id || s.facultyId)).filter(Boolean));
+                        const assigned = faculties.filter(f => assignedFacIds.has(String(f.id))).map(f => ({ value: String(f.id), label: f.name }));
+                        const others = faculties.filter(f => !assignedFacIds.has(String(f.id))).map(f => ({ value: String(f.id), label: f.name }));
+                        const groupedOptions = [];
+                        if (assigned.length > 0) groupedOptions.push({ label: 'Assigned to Student', options: assigned });
+                        if (others.length > 0) groupedOptions.push({ label: 'Other Faculties', options: others });
+                        return groupedOptions;
+                      }
+                      return faculties.map(f => ({ value: String(f.id), label: f.name }));
                     })()}
-                    {availableSubjects.length === 0 && faculties.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
-                  </select>
+                    isSearchable
+                    placeholder="Select Faculty"
+                    styles={{
+                      control: (base) => ({
+                        ...base,
+                        borderRadius: '0.75rem',
+                        padding: '0.1rem',
+                        fontSize: '10px',
+                        fontWeight: 'bold',
+                        borderColor: '#f1f5f9',
+                        boxShadow: 'none',
+                        '&:hover': { borderColor: '#008080' }
+                      }),
+                      menuPortal: base => ({ ...base, zIndex: 99999 })
+                    }}
+                    className="w-full"
+                    menuPortalTarget={document.body}
+                  />
                   <div className="flex justify-end">
                     <button onClick={() => removeScheduleSlot(index)} className="p-3 text-rose-500 hover:bg-rose-50 rounded-xl transition-all">
                       <Trash2 size={16} />

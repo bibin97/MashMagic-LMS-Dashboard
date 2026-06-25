@@ -3,6 +3,7 @@ import api from '../../services/api';
 import { Users, Clock, Calendar, Search, Plus, Filter, Target, Trash2, Edit2, CheckCircle, XCircle, AlertCircle, RefreshCcw, Save, CalendarClock, ChevronDown, Info } from 'lucide-react';
 import toast from 'react-hot-toast';
 import MultiDatePicker from "react-multi-date-picker";
+import Select from 'react-select';
 const DatePicker = MultiDatePicker.default ? MultiDatePicker.default : MultiDatePicker;
 import { useNavigate } from 'react-router-dom';
 import { premiumConfirm } from '../../utils/premiumConfirm';
@@ -405,6 +406,7 @@ const Timetable = () => {
       // Refresh current student's schedule reference
       const res = await api.get(`/mentor/students/${formData.student_id}/schedule`);
       setStudentSchedule(res.data.data);
+      fetchSessions();
     } catch (error) {
       toast.error(error.response?.data?.message || "Failed to update schedule");
     }
@@ -1068,18 +1070,37 @@ const Timetable = () => {
                   />
 
                   <div className="flex justify-end items-center gap-2">
-                    <select
-                      value={slot.faculty_id || ''}
-                      onChange={(e) => {
-                        const newData = [...editScheduleData];
-                        newData[index].faculty_id = e.target.value;
-                        setEditScheduleData(newData);
-                      }}
-                      className="p-3 bg-white border border-slate-100 rounded-xl text-[10px] font-bold outline-none max-w-[120px]"
-                    >
-                      <option value="">Select Faculty</option>
-                      {faculties.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
-                    </select>
+                    <div className="w-[150px] text-left">
+                      <Select
+                        value={
+                          slot.faculty_id
+                            ? { value: slot.faculty_id, label: faculties.find(f => String(f.id) === String(slot.faculty_id))?.name || 'Unknown' }
+                            : null
+                        }
+                        onChange={(selectedOption) => {
+                          const newData = [...editScheduleData];
+                          newData[index].faculty_id = selectedOption ? selectedOption.value : '';
+                          setEditScheduleData(newData);
+                        }}
+                        options={faculties.map(f => ({ value: String(f.id), label: f.name }))}
+                        isSearchable
+                        placeholder="Faculty..."
+                        styles={{
+                          control: (base) => ({
+                            ...base,
+                            borderRadius: '0.75rem',
+                            padding: '0.1rem',
+                            fontSize: '10px',
+                            fontWeight: 'bold',
+                            borderColor: '#f1f5f9',
+                            boxShadow: 'none',
+                            '&:hover': { borderColor: '#008080' }
+                          }),
+                          menuPortal: base => ({ ...base, zIndex: 99999 })
+                        }}
+                        menuPortalTarget={document.body}
+                      />
+                    </div>
                     <button onClick={() => removeScheduleSlot(index)} className="p-3 text-rose-500 hover:bg-rose-50 rounded-xl transition-all">
                       <Trash2 size={16} />
                     </button>
