@@ -509,7 +509,7 @@ const Timetable = () => {
       // Refresh current student's schedule reference
       const res = await api.get(`/ssc/students/${formData.student_id}/schedule`);
       setStudentSchedule(res.data.data);
-      fetchSessions();
+      fetchTimetable();
     } catch (error) {
       toast.error(error.response?.data?.message || error.message || "Failed to update schedule. Database verification failed.");
     }
