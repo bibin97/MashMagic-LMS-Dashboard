@@ -9,6 +9,7 @@ import { Eye, Edit2, Ban, Trash2, Filter, Download, Search, UserPlus, CheckCircl
 import { useAuth } from '../../context/AuthContext';
 import { sortStudentsByOption } from '../../components/StudentListFilterDropdown';
 import { mockStudentHours } from '../../utils/mockStudentHours';
+import MobileStudentCard from '../../components/common/MobileStudentCard';
 const Students = () => {
   const navigate = useNavigate();
   const {
@@ -421,6 +422,16 @@ const Students = () => {
           {row.status === 'active' ? 'Active' : row.status === 'inactive' ? 'Backup' : row.status === 'pending' ? 'Pending Approval' : row.status === 'left' ? 'Left' : row.status}
         </span>
   }];
+  const processedStudents = useMemo(() => {
+    let filtered = sortStudentsByOption(filteredStudents, sortBy);
+    if (activeTab === 'mentorship_completed') {
+      filtered = filtered.filter(s => s.mentorship_completed == 1);
+    } else if (activeTab === 'completed') {
+      filtered = filtered.filter(s => s.course_completed == 1);
+    }
+    return filtered;
+  }, [filteredStudents, sortBy, activeTab]);
+
   return <div className="flex flex-col gap-10 pb-10">
       <div className="bg-white/70 backdrop-blur-xl p-12 rounded-[40px] border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.04)] flex flex-col md:flex-row justify-between items-center gap-10">
         <div className="text-center md:text-left">
@@ -469,15 +480,8 @@ const Students = () => {
         </button>
       </div>
 
-      <DataTable columns={columns} data={useMemo(() => {
-      let filtered = sortStudentsByOption(filteredStudents, sortBy);
-      if (activeTab === 'mentorship_completed') {
-        filtered = filtered.filter(s => s.mentorship_completed == 1);
-      } else if (activeTab === 'completed') {
-        filtered = filtered.filter(s => s.course_completed == 1);
-      }
-      return filtered;
-    }, [filteredStudents, sortBy, activeTab])} loading={loading} onSearch={handleSearch} onExport={handleExport} onView={handleView} onEdit={isSuperAdmin ? handleEdit : undefined} onDelete={isSuperAdmin ? handleDelete : undefined} onBlock={isSuperAdmin ? handleBlock : undefined} extraActions={isSuperAdmin ? [student => <button key="fee" title="Fee Management" onClick={e => {
+      <div className="hidden md:block">
+      <DataTable columns={columns} data={processedStudents} loading={loading} onSearch={handleSearch} onExport={handleExport} onView={handleView} onEdit={isSuperAdmin ? handleEdit : undefined} onDelete={isSuperAdmin ? handleDelete : undefined} onBlock={isSuperAdmin ? handleBlock : undefined} extraActions={isSuperAdmin ? [student => <button key="fee" title="Fee Management" onClick={e => {
       e.stopPropagation();
       handleOpenFee(student);
     }} className="p-2 rounded-xl bg-amber-50 text-amber-600 hover:bg-amber-100 border border-amber-100 transition-all">
@@ -500,6 +504,47 @@ const Students = () => {
                 </div>)}
             </div>
           </div>} searchPlaceholder="Search by name, email or reg #" />
+      </div>
+
+      <div className="md:hidden">
+        {loading ? (
+          <div className="flex flex-col gap-3">
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className="bg-white rounded-[16px] p-4 border border-slate-100 shadow-sm animate-pulse flex items-center gap-4">
+                <div className="w-12 h-12 bg-slate-200 rounded-xl shrink-0"></div>
+                <div className="flex flex-col gap-2 flex-1">
+                  <div className="h-4 bg-slate-200 rounded w-1/2"></div>
+                  <div className="h-3 bg-slate-200 rounded w-3/4"></div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : processedStudents.length === 0 ? (
+          <div className="py-20 text-center">
+             <div className="w-20 h-20 mx-auto bg-slate-50 rounded-full flex items-center justify-center mb-4">
+               <Search size={32} className="text-slate-300" />
+             </div>
+             <p className="text-slate-500 font-bold text-sm">No students found</p>
+             <p className="text-slate-400 text-xs mt-1">Try adjusting your filters</p>
+          </div>
+        ) : (
+          <div className="flex flex-col">
+            {processedStudents.map(student => (
+              <MobileStudentCard
+                key={student.id}
+                student={student}
+                isExpanded={expandedRowId === student.id}
+                onToggle={() => setExpandedRowId(expandedRowId === student.id ? null : student.id)}
+                onEdit={isSuperAdmin ? handleEdit : undefined}
+                onView={handleView}
+                onDelete={isSuperAdmin ? handleDelete : undefined}
+                onBlock={isSuperAdmin ? handleBlock : undefined}
+                onAddFee={isSuperAdmin ? handleOpenFee : undefined}
+              />
+            ))}
+          </div>
+        )}
+      </div>
 
     {/* Edit Student Modal */}
  <Modal isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} title="Edit Student Details" size="lg">
