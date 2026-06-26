@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Activity, CheckCircle, XCircle, Loader2, Shield, User, Calendar, ArrowUpRight, Mail, MapPin, Phone, UserCheck } from 'lucide-react';
+import { Activity, CheckCircle, XCircle, Loader2, Shield, User, Calendar, ArrowUpRight, Mail, MapPin, Phone, UserCheck, Check } from 'lucide-react';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
 import { premiumConfirm } from '../../utils/premiumConfirm';
