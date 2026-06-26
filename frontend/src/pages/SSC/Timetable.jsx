@@ -1333,7 +1333,7 @@ const Timetable = () => {
                     value={slot.day_of_week}
                     onChange={(e) => {
                       const newData = [...editScheduleData];
-                      newData[index].day_of_week = e.target.value;
+                      newData[index] = { ...newData[index], day_of_week: e.target.value };
                       setEditScheduleData(newData);
                     }}
                     className="w-full p-3 bg-white border border-slate-100 rounded-xl text-xs font-bold outline-none"
@@ -1357,7 +1357,7 @@ const Timetable = () => {
                     })()}
                     onChange={(e) => {
                       const newData = [...editScheduleData];
-                      newData[index].start_time = e.target.value + ':00';
+                      newData[index] = { ...newData[index], start_time: e.target.value + ':00' };
                       setEditScheduleData(newData);
                     }}
                     className="w-full p-3 bg-white border border-slate-100 rounded-xl text-xs font-bold outline-none"
@@ -1379,7 +1379,7 @@ const Timetable = () => {
                     })()}
                     onChange={(e) => {
                       const newData = [...editScheduleData];
-                      newData[index].end_time = e.target.value + ':00';
+                      newData[index] = { ...newData[index], end_time: e.target.value + ':00' };
                       setEditScheduleData(newData);
                     }}
                     className="w-full p-3 bg-white border border-slate-100 rounded-xl text-xs font-bold outline-none"
@@ -1392,14 +1392,15 @@ const Timetable = () => {
                     value={slot.subject}
                     onChange={(e) => {
                       const newData = [...editScheduleData];
-                      newData[index].subject = e.target.value;
+                      const newObj = { ...newData[index], subject: e.target.value };
                       const subjObj = availableSubjects.find(s => s.subject === e.target.value);
                       if (subjObj) {
                         const facId = subjObj.faculty_id || subjObj.facultyId || null;
                         const facName = subjObj.faculty_name || subjObj.facultyName || '';
-                        if (facId) newData[index].faculty_id = String(facId);
-                        if (facName) newData[index].faculty_name = facName;
+                        if (facId) newObj.faculty_id = String(facId);
+                        if (facName) newObj.faculty_name = facName;
                       }
+                      newData[index] = newObj;
                       setEditScheduleData(newData);
                     }}
                     className="w-full p-3 bg-white border border-slate-100 rounded-xl text-xs font-bold outline-none"
