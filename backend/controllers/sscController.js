@@ -503,14 +503,23 @@ exports.updateStudentAcademicSchedule = async (req, res) => {
                 await connection.rollback();
                 return res.status(400).json({ success: false, message: "Invalid payload: Missing required schedule fields (day, start time, end time, faculty)." });
             }
-            // Normalize time (e.g. "7.30 " -> "07:30:00")
+            // Normalize time (e.g. "7.30 " -> "07:30:00", "6pm" -> "18:00:00")
             const cleanTime = (t) => {
-                let clean = t.replace(/\./g, ':').trim();
+                if (!t) return "00:00:00";
+                let clean = t.replace(/\./g, ':').trim().toLowerCase();
+                const isPM = clean.includes('pm');
+                const isAM = clean.includes('am');
+                clean = clean.replace(/[a-z\s]/g, '').trim();
+                
                 let parts = clean.split(':');
-                let hh = String(parts[0]).padStart(2, '0');
+                let hh = parseInt(parts[0] || '0', 10);
+                if (isNaN(hh)) hh = 0;
+                if (isPM && hh < 12) hh += 12;
+                if (isAM && hh === 12) hh = 0;
+                
                 let mm = parts[1] ? String(parts[1]).padEnd(2, '0').substring(0, 2) : '00';
                 let ss = parts[2] ? String(parts[2]).padEnd(2, '0').substring(0, 2) : '00';
-                return `${hh}:${mm}:${ss}`;
+                return `${String(hh).padStart(2, '0')}:${mm}:${ss}`;
             };
             s.start_time = cleanTime(s.start_time);
             s.end_time = cleanTime(s.end_time);
