@@ -584,6 +584,16 @@ exports.updateStudentAcademicSchedule = async (req, res) => {
                 return dates;
             }
 
+            // Soft delete all future regular classes for this student to wipe the old recurring schedule
+            await connection.query(`
+                UPDATE timetable 
+                SET is_deleted = 1, deleted_at = CURRENT_TIMESTAMP 
+                WHERE student_id = ? 
+                  AND date >= CURRENT_DATE 
+                  AND session_type = 'Regular Class' 
+                  AND status = 'Scheduled'
+            `, [studentId]);
+
             for (const s of schedules) {
                 const facId = s.faculty_id ? parseInt(s.faculty_id) : null;
                 const upcomingDates = getUpcomingDates(s.day_of_week, 4);
@@ -602,23 +612,26 @@ exports.updateStudentAcademicSchedule = async (req, res) => {
                 }
 
                 for (const date of upcomingDates) {
+                    const [result] = await connection.query(`
+                        INSERT INTO timetable (mentor_id, student_id, session_number, date, start_time, end_time, duration, chapter, subject, session_type, status, notes, faculty_id, faculty_name, session_mode, is_deleted)
+                        VALUES (?, ?, 0, ?, ?, ?, ?, '', ?, 'Regular Class', 'Scheduled', '', ?, ?, 'Online', 0)
+                        ON DUPLICATE KEY UPDATE
+                            is_deleted = 0,
+                            mentor_id = VALUES(mentor_id),
+                            end_time = VALUES(end_time),
+                            duration = VALUES(duration),
+                            subject = VALUES(subject),
+                            faculty_id = VALUES(faculty_id),
+                            faculty_name = VALUES(faculty_name),
+                            status = 'Scheduled'
+                    `, [actualMentorId, studentId, date, start24, end24, duration, s.subject || '', facId, faculty_name]);
+                    
+                    // We can't reliably get the insertId if it's an update in some cases, so we fetch it
                     const [existing] = await connection.query(
                         'SELECT id FROM timetable WHERE student_id = ? AND date = ? AND start_time = ? AND (is_deleted IS NULL OR is_deleted = 0)',
                         [studentId, date, start24]
                     );
-                    if (existing.length === 0) {
-                        const [result] = await connection.query(`
-                            INSERT INTO timetable (mentor_id, student_id, session_number, date, start_time, end_time, duration, chapter, subject, session_type, status, notes, faculty_id, faculty_name, session_mode)
-                            VALUES (?, ?, 0, ?, ?, ?, ?, '', ?, 'Regular Class', 'Scheduled', '', ?, ?, 'Online')
-                        `, [actualMentorId, studentId, date, start24, end24, duration, s.subject || '', facId, faculty_name]);
-                        insertedTimetableIds.push(result.insertId);
-                    } else {
-                        // Update existing timetable with latest faculty and subject
-                        await connection.query(`
-                            UPDATE timetable 
-                            SET subject = ?, faculty_id = ?, faculty_name = ?, end_time = ?, duration = ?
-                            WHERE id = ?
-                        `, [s.subject || '', facId, faculty_name, end24, duration, existing[0].id]);
+                    if (existing.length > 0) {
                         insertedTimetableIds.push(existing[0].id);
                     }
                 }
