@@ -293,7 +293,7 @@ const Timetable = () => {
     setEditingSession(session);
     setFormData({
       student_id: session.student_id,
-      date: [new Date(session.date).toISOString().split('T')[0]], // Single date but array format
+      date: formatDate(session.date) || '', // Pass as string instead of array
       start_time: (session.start_time || '10:00').substring(0, 5),
       end_time: (session.end_time || '11:00').substring(0, 5),
       chapter: session.chapter || '',
@@ -314,7 +314,7 @@ const Timetable = () => {
     setEditingSession(session);
     setFormData({
       student_id: session.student_id,
-      date: [new Date(session.date).toISOString().split('T')[0]], // Single date but array format
+      date: formatDate(session.date) || '', // Pass as string instead of array
       start_time: (session.start_time || '10:00').substring(0, 5),
       end_time: (session.end_time || '11:00').substring(0, 5),
       chapter: session.chapter || '',
@@ -529,7 +529,9 @@ const Timetable = () => {
   };
 
   const formatDate = (date) => {
+    if (!date) return '';
     const d = new Date(date);
+    if (isNaN(d.getTime())) return '';
     const year = d.getFullYear();
     const month = String(d.getMonth() + 1).padStart(2, '0');
     const day = String(d.getDate()).padStart(2, '0');

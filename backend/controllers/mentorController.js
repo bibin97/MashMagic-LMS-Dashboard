@@ -621,6 +621,12 @@ const createSession = async (req, res) => {
             }
         }
 
+        let finalFacultyName = faculty_name || null;
+        if (faculty_id) {
+            const [[facObj]] = await connection.query('SELECT name FROM users WHERE id = ?', [faculty_id]);
+            if (facObj) finalFacultyName = facObj.name;
+        }
+
         const session_number = 0;
         const start = new Date(`1970-01-01T${formattedStartTime}`);
         const end = new Date(`1970-01-01T${formattedEndTime}`);
@@ -637,7 +643,7 @@ const createSession = async (req, res) => {
         `, [
             targetMentorId, student_id, session_number, date, formattedStartTime, formattedEndTime,
             duration, chapter, subject || null, session_type, status || 'Scheduled', status_reason, notes,
-            (faculty_id ? parseInt(faculty_id) : null), faculty_name || null, session_mode || 'Online'
+            (faculty_id ? parseInt(faculty_id) : null), finalFacultyName, session_mode || 'Online'
         ]);
 
         // Post-Insert Save Verification
@@ -770,6 +776,12 @@ const updateSession = async (req, res) => {
         const diffMins = Math.round(diffMs / 60000);
         const duration = `${Math.floor(diffMins / 60)}h ${diffMins % 60}m`;
 
+        let finalFacultyName = faculty_name || null;
+        if (faculty_id) {
+            const [[facObj]] = await connection.query('SELECT name FROM users WHERE id = ?', [faculty_id]);
+            if (facObj) finalFacultyName = facObj.name;
+        }
+
         const [updateResult] = await connection.query(`
             UPDATE timetable 
             SET date = ?, start_time = ?, end_time = ?, duration = ?, chapter = ?, subject = ?,
@@ -779,7 +791,7 @@ const updateSession = async (req, res) => {
         `, [
             date, formattedStartTime, formattedEndTime, duration, chapter, subject || null,
             session_type, status, status_reason, notes,
-            faculty_id || null, faculty_name || null, session_mode || 'Online',
+            faculty_id || null, finalFacultyName, session_mode || 'Online',
             sessionId
         ]);
 
@@ -1275,6 +1287,12 @@ const createBatchTimetable = async (req, res) => {
             const diffMins = Math.round(diffMs / 60000);
             const duration = `${Math.floor(diffMins / 60)}h ${diffMins % 60}m`;
 
+            let finalFacultyName = faculty_name || null;
+            if (faculty_id) {
+                const [[facObj]] = await connection.query('SELECT name FROM users WHERE id = ?', [faculty_id]);
+                if (facObj) finalFacultyName = facObj.name;
+            }
+
             const [result] = await connection.query(`
                 INSERT INTO timetable (
                     mentor_id, student_id, session_number, date, start_time, end_time,
@@ -1284,7 +1302,7 @@ const createBatchTimetable = async (req, res) => {
             `, [
                 actualMentorId, student_id, currentSessionNum++, date, formattedStartTime, formattedEndTime,
                 duration, chapter, session.subject || null, session_type || 'Regular Class', notes || '',
-                (faculty_id ? parseInt(faculty_id) : null), faculty_name || null, session_mode || 'Online'
+                (faculty_id ? parseInt(faculty_id) : null), finalFacultyName, session_mode || 'Online'
             ]);
 
             insertedIds.push(result.insertId);

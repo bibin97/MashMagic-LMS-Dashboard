@@ -162,6 +162,12 @@ exports.createSession = async (req, res) => {
             return res.status(400).json({ success: false, message: "Please Add Faculty. Faculty is required to create a session." });
         }
 
+        let finalFacultyName = faculty_name || null;
+        if (faculty_id) {
+            const [[facObj]] = await connection.query('SELECT name FROM users WHERE id = ?', [faculty_id]);
+            if (facObj) finalFacultyName = facObj.name;
+        }
+
         const [student] = await connection.query('SELECT mentor_id FROM students WHERE id = ?', [student_id]);
         const mentor_id = student[0]?.mentor_id || null;
 
@@ -191,7 +197,7 @@ exports.createSession = async (req, res) => {
         const [result] = await connection.query(`
             INSERT INTO timetable (mentor_id, student_id, session_number, date, start_time, end_time, duration, chapter, subject, session_type, status, notes, faculty_id, faculty_name)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        `, [mentor_id, student_id, nextSessionNumber, date, formattedStartTime, formattedEndTime, duration, chapter, subject || null, session_type, status, notes, faculty_id || null, faculty_name]);
+        `, [mentor_id, student_id, nextSessionNumber, date, formattedStartTime, formattedEndTime, duration, chapter, subject || null, session_type, status, notes, faculty_id || null, finalFacultyName]);
 
         // Post-Insert Save Verification
         const saveVerifier = require('../utils/saveVerifier');
@@ -254,6 +260,12 @@ exports.updateSession = async (req, res) => {
             return res.status(400).json({ success: false, message: "Please Add Faculty. Faculty is required for all sessions." });
         }
 
+        let finalFacultyName = faculty_name || null;
+        if (faculty_id) {
+            const [[facObj]] = await connection.query('SELECT name FROM users WHERE id = ?', [faculty_id]);
+            if (facObj) finalFacultyName = facObj.name;
+        }
+
         const formattedStartTime = convertTo24Hour(start_time);
         const formattedEndTime = convertTo24Hour(end_time);
 
@@ -285,7 +297,7 @@ exports.updateSession = async (req, res) => {
             UPDATE timetable 
             SET date = ?, start_time = ?, end_time = ?, duration = ?, chapter = ?, subject = ?, session_type = ?, status = ?, cancel_note = ?, notes = ?, faculty_id = ?, faculty_name = ?
             WHERE id = ?
-        `, [date, formattedStartTime, formattedEndTime, duration, chapter, subject || null, session_type, status, status_reason || null, notes, faculty_id || null, faculty_name, sessionId]);
+        `, [date, formattedStartTime, formattedEndTime, duration, chapter, subject || null, session_type, status, status_reason || null, notes, faculty_id || null, finalFacultyName, sessionId]);
 
         if (updateResult.affectedRows === 0) {
             throw new Error("CRITICAL FAILURE: No records updated. Session may not exist.");
@@ -809,11 +821,17 @@ exports.createBatchTimetable = async (req, res) => {
             const diffMins = Math.round(diffMs / 60000);
             const duration = `${Math.floor(diffMins / 60)}h ${diffMins % 60}m`;
 
+            let finalFacultyName = faculty_name || null;
+            if (faculty_id) {
+                const [[facObj]] = await connection.query('SELECT name FROM users WHERE id = ?', [faculty_id]);
+                if (facObj) finalFacultyName = facObj.name;
+            }
+
             try {
                 const [result] = await connection.query(`
                     INSERT INTO timetable (mentor_id, student_id, session_number, date, start_time, end_time, duration, chapter, subject, session_type, status, notes, faculty_id, faculty_name)
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                `, [actualMentorId, student_id, currentSessionNum++, date, formattedStartTime, formattedEndTime, duration, chapter, subject || null, session_type || 'Regular Class', 'Scheduled', notes || '', faculty_id ? parseInt(faculty_id) : null, faculty_name || null]);
+                `, [actualMentorId, student_id, currentSessionNum++, date, formattedStartTime, formattedEndTime, duration, chapter, subject || null, session_type || 'Regular Class', 'Scheduled', notes || '', faculty_id ? parseInt(faculty_id) : null, finalFacultyName]);
                 
                 insertedIds.push(result.insertId);
                 report.total_saved++;

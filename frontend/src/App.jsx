@@ -169,7 +169,7 @@ function App() {
             <Route path="daily-updates" element={<AdminDailyUpdates />} />
             <Route path="ah-interactions" element={<AHInteractions />} />
             <Route path="ah-interactions/edit/:id" element={<EditInteractionLog />} />
-            <Route path="ah-meetings" element={<AHParentMeetings />} />
+            <Route path="parent-meetings" element={<AHParentMeetings />} />
             <Route path="fees" element={<FeesManagement />} />
             <Route path="faculty-timetable" element={<AdminFacultyTimetable />} />
             <Route path="student-schedules" element={<AdminStudentSchedules />} />
