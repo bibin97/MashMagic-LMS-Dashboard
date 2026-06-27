@@ -118,19 +118,19 @@ const Reports = () => {
 
  return (
  <div className="flex flex-col gap-8">
- <div className="flex flex-col gap-1">
- <h2 className="text-3xl font-black text-slate-900 tracking-tighter uppercase ">Enterprise Analytics</h2>
- <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest mt-1">Configure filters and generate master data exports</p>
+ <div className="flex flex-col gap-1 px-2 md:px-0">
+ <h2 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tighter uppercase ">Enterprise Analytics</h2>
+ <p className="text-slate-500 text-[9px] md:text-[10px] font-bold uppercase tracking-widest mt-1">Configure filters and generate master data exports</p>
  </div>
 
- <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm">
- <div className="flex items-center gap-3 mb-8 pb-6 border-b border-slate-50">
- <div className="p-2.5 bg-[#008080]/10 text-[#008080] rounded-xl">
+ <div className="bg-white p-5 md:p-8 rounded-3xl border border-slate-200 shadow-sm">
+ <div className="flex items-center gap-3 mb-6 md:mb-8 pb-4 md:pb-6 border-b border-slate-50">
+ <div className="p-2.5 bg-[#008080]/10 text-[#008080] rounded-xl shrink-0">
  <Filter size={20} />
  </div>
- <h4 className="text-sm font-black text-slate-800 uppercase tracking-widest">Advanced Export Config</h4>
+ <h4 className="text-xs md:text-sm font-black text-slate-800 uppercase tracking-widest">Advanced Export Config</h4>
  </div>
- <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+ <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8">
  <FilterGroup label="Start Capture Date">
  <input
  type="date"
@@ -161,46 +161,47 @@ const Reports = () => {
  </div>
  </div>
 
- <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
+ <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mt-2 md:mt-4">
  {[
  { type: 'Student', color: 'teal' },
  { type: 'Mentor', color: 'emerald' },
  { type: 'Task', color: 'amber' }
  ].map(({ type, color }) => (
- <div className="bg-white p-8 rounded-[2.5rem] border border-slate-200 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group flex flex-col items-center text-center" key={type}>
- <div className={`w-20 h-20 mb-8 rounded-3xl flex items-center justify-center transition-all group-hover:rotate-12 ${color === 'teal' ? 'bg-[#008080]/10 text-[#008080] shadow-lg shadow-[#008080]' :
- color === 'emerald' ? 'bg-emerald-50 text-emerald-600 shadow-lg shadow-emerald-50' :
- 'bg-amber-50 text-amber-600 shadow-lg shadow-amber-50'
+ <div className="bg-white p-6 md:p-8 rounded-[2rem] md:rounded-[2.5rem] border border-slate-200 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group flex flex-col items-center text-center h-full" key={type}>
+ <div className={`w-16 h-16 md:w-20 md:h-20 mb-6 md:mb-8 rounded-2xl md:rounded-3xl flex items-center justify-center transition-all group-hover:rotate-12 shrink-0 ${color === 'teal' ? 'bg-[#008080]/10 text-[#008080] shadow-lg shadow-[#008080]/20' :
+ color === 'emerald' ? 'bg-emerald-50 text-emerald-600 shadow-lg shadow-emerald-100' :
+ 'bg-amber-50 text-amber-600 shadow-lg shadow-amber-100'
  }`}>
- <FileText size={36} />
+ <FileText size={32} className="md:w-9 md:h-9" />
  </div>
- <h3 className="text-xl font-black text-slate-900 mb-2">{type} Analytics</h3>
- <p className="text-sm text-slate-500 font-medium mb-8">Export all current {type.toLowerCase()} records including meta-properties.</p>
+ <h3 className="text-lg md:text-xl font-black text-slate-900 mb-2 uppercase tracking-tight">{type} Analytics</h3>
+ <p className="text-xs md:text-sm text-slate-500 font-bold md:font-medium mb-6 md:mb-8 leading-relaxed">Export all current {type.toLowerCase()} records including meta-properties.</p>
 
- <div className="flex flex-col gap-2 w-full">
+ <div className="flex flex-col min-[360px]:flex-row gap-3 md:gap-4 w-full mt-auto">
  <button
- className={`w-full py-4 rounded-2xl flex items-center justify-center gap-3 font-bold text-sm transition-all shadow-lg hover:brightness-110 active:scale-95 ${color === 'teal' ? 'bg-[#008080] text-white shadow-[#008080]/30' :
- color === 'emerald' ? 'bg-emerald-600 text-white shadow-emerald-100' :
- 'bg-amber-600 text-white shadow-amber-100'
+ className={`flex-1 w-full min-h-[44px] py-3 md:py-4 rounded-xl md:rounded-2xl flex items-center justify-center gap-2 md:gap-3 font-bold text-[11px] md:text-sm uppercase tracking-widest transition-all shadow-md hover:brightness-110 active:scale-95 whitespace-nowrap ${color === 'teal' ? 'bg-[#008080] text-white shadow-[#008080]/30' :
+ color === 'emerald' ? 'bg-emerald-600 text-white shadow-emerald-200' :
+ 'bg-amber-600 text-white shadow-amber-200'
  }`}
  onClick={() => handleDownload(type, 'csv')}
  >
- <DownloadCloud size={18} />
- <span>Download CSV</span>
+ <DownloadCloud size={16} className="md:w-5 md:h-5 shrink-0" />
+ <span>CSV</span>
  </button>
  <button
- className={`w-full py-4 rounded-2xl flex items-center justify-center gap-3 font-bold text-sm transition-all border-2 group-hover:bg-slate-50 active:scale-95 ${color === 'teal' ? 'border-[#008080] text-[#008080]' :
- color === 'emerald' ? 'border-emerald-100 text-emerald-600' :
- 'border-amber-100 text-amber-600'
+ className={`flex-1 w-full min-h-[44px] py-3 md:py-4 rounded-xl md:rounded-2xl flex items-center justify-center gap-2 md:gap-3 font-bold text-[11px] md:text-sm uppercase tracking-widest transition-all border-2 group-hover:bg-slate-50 active:scale-95 whitespace-nowrap ${color === 'teal' ? 'border-[#008080] text-[#008080]' :
+ color === 'emerald' ? 'border-emerald-200 text-emerald-600' :
+ 'border-amber-200 text-amber-600'
  }`}
  onClick={() => handleDownload(type, 'xlsx')}
  >
- <FileSpreadsheet size={18} />
- <span>Download Excel</span>
+ <FileSpreadsheet size={16} className="md:w-5 md:h-5 shrink-0" />
+ <span>Excel</span>
  </button>
  </div>
  </div>
- ))}
+ ))
+ }
  </div>
  </div>
  );
