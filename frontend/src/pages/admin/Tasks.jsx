@@ -5,7 +5,8 @@ import api from '../../services/api';
 import toast from 'react-hot-toast';
 import { premiumConfirm } from '../../utils/premiumConfirm';
 import { useAuth } from '../../context/AuthContext';
-import { Plus, Calendar, Clock, AlertTriangle } from 'lucide-react';
+import { Plus, Calendar, Clock, AlertTriangle, Eye, Edit2, Trash2, CheckCircle, AlignLeft, UserCog, UserPlus } from 'lucide-react';
+import MobileCard from '../../components/common/MobileCard';
 
 import FilterDropdown from '../../components/FilterDropdown';
 
@@ -15,6 +16,7 @@ const Tasks = () => {
  const [tasks, setTasks] = useState([]);
  const [filteredTasks, setFilteredTasks] = useState([]);
  const [loading, setLoading] = useState(true);
+ const [expandedRowId, setExpandedRowId] = useState(null);
  const [isModalOpen, setIsModalOpen] = useState(false);
  const [assignees, setAssignees] = useState([]);
  const [filterPriority, setFilterPriority] = useState('');
@@ -221,6 +223,112 @@ const Tasks = () => {
  },
  ];
 
+  const renderTaskMobileCard = (row, { isExpanded, onToggle }) => {
+    const initials = row.mentor_name
+      ? row.mentor_name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()
+      : '??';
+
+    const priorityColors = {
+      High: 'bg-rose-50 text-rose-600 border-rose-100',
+      Medium: 'bg-amber-50 text-amber-600 border-amber-100',
+      Low: 'bg-emerald-50 text-emerald-600 border-emerald-100'
+    };
+    
+    const statusColors = {
+      Completed: 'bg-emerald-50 text-emerald-600 border-emerald-100',
+      'In Progress': 'bg-blue-50 text-blue-600 border-blue-100',
+      Pending: 'bg-amber-50 text-amber-600 border-amber-100',
+      Overdue: 'bg-rose-50 text-rose-600 border-rose-100'
+    };
+
+    const currentPriority = row.priority || 'Medium';
+    const currentStatus = row.status || 'Pending';
+
+    const badges = [
+      <span key="priority" className={`px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-widest border ${priorityColors[currentPriority] || priorityColors.Medium}`}>
+        {currentPriority}
+      </span>,
+      <span key="status" className={`px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-widest border ${statusColors[currentStatus] || statusColors.Pending} ${currentStatus === 'Pending' ? 'animate-pulse' : ''}`}>
+        {currentStatus}
+      </span>
+    ];
+
+    const expandedContent = (
+      <div className="space-y-4">
+        <div className="flex flex-col gap-3">
+          {row.description && (
+            <div className="flex items-start gap-2 text-slate-600">
+              <AlignLeft size={14} className="text-slate-400 shrink-0 mt-0.5" />
+              <span className="text-xs font-bold leading-relaxed">{row.description}</span>
+            </div>
+          )}
+          <div className="flex items-center gap-2 text-slate-600">
+            <UserCog size={14} className="text-slate-400 shrink-0" />
+            <span className="text-xs font-bold">Assigned By: {row.assigner_name || 'System Admin'}</span>
+          </div>
+          {row.created_at && (
+            <div className="flex items-center gap-2 text-slate-600">
+              <Clock size={14} className="text-slate-400 shrink-0" />
+              <span className="text-xs font-bold">Created: {new Date(row.created_at).toLocaleDateString('en-GB')}</span>
+            </div>
+          )}
+          {row.updated_at && (
+            <div className="flex items-center gap-2 text-slate-600">
+              <Clock size={14} className="text-slate-400 shrink-0" />
+              <span className="text-xs font-bold">Updated: {new Date(row.updated_at).toLocaleDateString('en-GB')}</span>
+            </div>
+          )}
+          {row.notes && (
+            <div className="flex items-start gap-2 text-slate-600 p-3 bg-slate-50 rounded-xl border border-slate-100">
+              <AlertTriangle size={14} className="text-amber-500 shrink-0 mt-0.5" />
+              <span className="text-[10px] font-bold italic">{row.notes}</span>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+
+    const primaryActions = [
+      { icon: <Eye size={14} />, label: 'View', onClick: () => toast.info('View feature coming soon') },
+    ];
+    
+    if (isSuperAdmin) {
+       primaryActions.push({ icon: <Edit2 size={14} />, label: 'Edit', onClick: () => toast.info('Edit feature coming soon') });
+    }
+
+    const moreActions = [];
+    if (isSuperAdmin) {
+      moreActions.push({ icon: <CheckCircle size={14} />, label: 'Mark Complete', onClick: () => toast.info('Mark complete coming soon') });
+      moreActions.push({ icon: <UserPlus size={14} />, label: 'Reassign', onClick: () => toast.info('Reassign feature coming soon') });
+      moreActions.push({ icon: <Trash2 size={14} />, label: 'Delete', onClick: () => handleDelete(row), danger: true });
+    }
+
+    return (
+      <MobileCard
+        isExpanded={isExpanded}
+        onToggle={onToggle}
+        avatar={
+          <div className="w-10 h-10 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center shrink-0">
+            <span className="text-slate-500 text-sm font-black tracking-tighter">{initials}</span>
+          </div>
+        }
+        title={row.title}
+        subtitle={
+          <div className="flex flex-col gap-1 mt-1">
+            <span className="text-[#008080] font-bold text-xs uppercase tracking-widest">{row.mentor_name || 'Unassigned'}</span>
+            <span className="text-slate-400 text-[10px] flex items-center gap-1 font-black uppercase tracking-widest">
+              <Calendar size={12} className="text-slate-300" /> Due {new Date(row.deadline).toLocaleDateString('en-GB')}
+            </span>
+          </div>
+        }
+        badges={badges}
+        expandedContent={expandedContent}
+        primaryActions={primaryActions}
+        moreActions={moreActions}
+      />
+    );
+  };
+
  return (
  <div className="flex flex-col gap-10 pb-10">
  <div className="bg-white/70 backdrop-blur-xl p-10 rounded-[32px] border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.04)] flex flex-col md:flex-row justify-between items-center gap-8">
@@ -258,6 +366,9 @@ const Tasks = () => {
  onExport={handleExport}
  onDelete={isSuperAdmin ? handleDelete : undefined}
  searchPlaceholder="Filter tasks by objective or mentor..."
+ expandedRowId={expandedRowId}
+ onToggleExpand={(id) => setExpandedRowId(expandedRowId === id ? null : id)}
+ renderMobileCard={renderTaskMobileCard}
  />
 
  <Modal
