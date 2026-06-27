@@ -186,6 +186,7 @@ const FacultySchedule = () => {
                   <span className="px-6 py-3 bg-emerald-50 text-emerald-600 rounded-xl text-xs font-black uppercase tracking-widest border border-emerald-100">
                     Report Submitted
                   </span>
+                )}
               </div>
             </div>
 

@@ -145,7 +145,6 @@ const StudentRow = ({ student, index, navigate, handleToggleConnection, handleCo
             ))}
           </div>
         </div>
-        </div>
       )}
     </div>
 

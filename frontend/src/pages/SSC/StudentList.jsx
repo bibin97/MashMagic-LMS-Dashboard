@@ -184,7 +184,6 @@ const StudentRow = ({ student, navigate }) => {
             ))}
           </div>
         </div>
-        </div>
       )}
     </div>
 
