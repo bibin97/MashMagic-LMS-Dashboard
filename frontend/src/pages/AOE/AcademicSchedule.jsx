@@ -104,7 +104,7 @@ const AcademicSchedule = () => {
         return sessionDate > todayStr && s.status === 'Scheduled';
       });
     } else {
-      return filtered.filter(s => s.status === 'Completed');
+      return filtered.filter(s => s.status !== 'Scheduled');
     }
   };
 
@@ -118,7 +118,7 @@ return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String
 
   const totalCount = schedule.length;
   const todayCount = schedule.filter(s => s.date && s.date.split('T')[0] === localTodayStr).length;
-  const completedCount = schedule.filter(s => s.status === 'Completed').length;
+  const completedCount = schedule.filter(s => s.status !== 'Scheduled').length;
   const filteredCount = currentData.length;
   if (loading) return (
     <div className="flex flex-col items-center justify-center p-20 space-y-4">
