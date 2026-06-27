@@ -449,7 +449,9 @@ const Registrations = () => {
       if (res.data.success) {
         toast.success('Faculty Account Created Successfully!');
         setFacultyForm({
-          name: '', email: '', phone_number: '', place: '', password: '', confirmPassword: '', availability: ['']
+          name: '', email: '', phone_number: '', place: '', password: '', confirmPassword: '', availability: [''],
+          primary_subject: '', secondary_subjects: [], section: '', qualification: '', experience: '', 
+          teaching_mode: 'Both', joining_date: new Date().toISOString().split('T')[0], syllabus: [], languages_proficiency: []
         });
         fetchDropdowns();
       }
