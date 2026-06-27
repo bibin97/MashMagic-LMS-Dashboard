@@ -1660,6 +1660,51 @@ const completeAcademicSession = async (req, res) => {
             `, [finalStatus, cancel_note || null, session[0].timetable_id]);
         }
 
+        // Auto-complete course if consumed hours >= total hours
+        if (finalStatus === 'Completed') {
+            // Find student_id
+            let [studentRows] = await db.query(`
+                SELECT sa.student_id, t.student_id as t_student_id 
+                FROM faculty_sessions fs
+                LEFT JOIN session_attendance sa ON fs.id = sa.session_id
+                LEFT JOIN timetable t ON fs.timetable_id = t.id
+                WHERE fs.id = ?
+            `, [sessionId]);
+
+            if (studentRows.length > 0) {
+                const sId = studentRows[0].student_id || studentRows[0].t_student_id;
+                if (sId) {
+                    // Get all minutes taken
+                    const [allSessions] = await db.query(`
+                        SELECT fs.minutes_taken 
+                        FROM faculty_sessions fs
+                        LEFT JOIN session_attendance sa ON fs.id = sa.session_id
+                        LEFT JOIN timetable t ON fs.timetable_id = t.id
+                        WHERE (sa.student_id = ? OR t.student_id = ?) 
+                        AND (fs.is_deleted IS NULL OR fs.is_deleted = 0)
+                        AND fs.status = 'Completed'
+                    `, [sId, sId]);
+
+                    let totalConsumedMinutes = 0;
+                    allSessions.forEach(s => totalConsumedMinutes += (s.minutes_taken || 0));
+                    const consumedHours = totalConsumedMinutes / 60;
+
+                    // Get allocated hours
+                    const [studentInfo] = await db.query(`SELECT course, course_completed FROM students WHERE id = ?`, [sId]);
+                    if (studentInfo.length > 0 && studentInfo[0].course_completed === 0) {
+                        const courseName = studentInfo[0].course;
+                        const [courseRows] = await db.query(`SELECT total_hours FROM courses WHERE name = ?`, [courseName]);
+                        if (courseRows.length > 0) {
+                            const totalHours = courseRows[0].total_hours;
+                            if (consumedHours >= totalHours) {
+                                await db.query(`UPDATE students SET course_completed = 1, course_completed_date = CURDATE() WHERE id = ?`, [sId]);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         res.status(200).json({ success: true, message: `Session marked as ${finalStatus} and locked` });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });

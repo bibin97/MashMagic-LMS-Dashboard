@@ -807,8 +807,8 @@ exports.createBatchTimetable = async (req, res) => {
 
             // Check for duplicates
             const [existing] = await connection.query(
-                'SELECT id FROM timetable WHERE (is_deleted IS NULL OR is_deleted = 0) AND student_id = ? AND date = ? AND start_time = ? AND end_time = ? AND chapter = ? AND (faculty_id = ? OR (? IS NULL AND faculty_id IS NULL))',
-                [student_id, date, formattedStartTime, formattedEndTime, chapter, faculty_id || null, faculty_id || null]
+                'SELECT id FROM timetable WHERE (is_deleted IS NULL OR is_deleted = 0) AND student_id = ? AND date = ? AND start_time = ? AND end_time = ? AND (subject = ? OR (? IS NULL AND subject IS NULL)) AND (faculty_id = ? OR (? IS NULL AND faculty_id IS NULL))',
+                [student_id, date, formattedStartTime, formattedEndTime, subject || null, subject || null, faculty_id || null, faculty_id || null]
             );
             if (existing.length > 0) {
                 report.skipped_duplicates++;
