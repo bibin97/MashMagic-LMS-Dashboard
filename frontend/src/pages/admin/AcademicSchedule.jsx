@@ -199,12 +199,13 @@ return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String
   
       {/* Tabs and Search Bar */}
       <div className="bg-white p-4 md:p-6 rounded-[1.5rem] md:rounded-[2.5rem] border border-slate-100 shadow-sm space-y-4 md:space-y-6">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6">
-          <div className="flex gap-2 items-center w-full md:w-auto">
-            <div className="flex p-1.5 bg-slate-100 rounded-[1rem] md:rounded-2xl gap-2 overflow-x-auto no-scrollbar items-center">
+        <div className="grid grid-cols-12 gap-3 md:flex md:flex-row md:items-center md:justify-between md:gap-6 w-full">
+          
+          <div className="contents md:flex md:items-center md:gap-2">
+            <div className="col-span-12 md:col-auto flex p-1.5 bg-slate-100 rounded-[1rem] md:rounded-2xl gap-2 items-center w-full md:w-auto order-1 md:order-none">
               <button
                 onClick={() => { setActiveTab('today'); setFilterDate([]); }}
-                className={`flex items-center gap-2 md:gap-3 px-4 md:px-6 py-2.5 md:py-3 rounded-xl text-[9px] md:text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${
+                className={`flex-1 md:flex-none flex items-center justify-center gap-2 md:gap-3 px-2 md:px-6 min-h-[44px] md:min-h-0 py-2 md:py-3 rounded-xl text-[9px] md:text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${
                   activeTab === 'today' ? 'bg-white text-slate-900 shadow-md' : 'text-slate-400 hover:text-slate-600'
                 }`}
               >
@@ -214,7 +215,7 @@ return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String
 
               <button
                 onClick={() => { setActiveTab('completed'); setFilterDate([]); }}
-                className={`flex items-center gap-2 md:gap-3 px-4 md:px-6 py-2.5 md:py-3 rounded-xl text-[9px] md:text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${
+                className={`flex-1 md:flex-none flex items-center justify-center gap-2 md:gap-3 px-2 md:px-6 min-h-[44px] md:min-h-0 py-2 md:py-3 rounded-xl text-[9px] md:text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${
                   activeTab === 'completed' ? 'bg-white text-slate-900 shadow-md' : 'text-slate-400 hover:text-slate-600'
                 }`}
               >
@@ -223,63 +224,67 @@ return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String
               </button>
             </div>
 
-            <DatePicker
-                multiple
-                value={filterDate}
-                onChange={(dates) => { 
-                    if (dates && dates.length > 0) {
-                        const formatted = dates.map(d => d.format("YYYY-MM-DD"));
-                        setFilterDate(formatted);
-                        setActiveTab('calendar');
-                    } else {
-                        setFilterDate([]);
-                        setActiveTab('today');
-                    }
-                }}
-                placeholder="Select Dates"
-                inputClass={`px-4 md:px-6 py-2.5 md:py-3.5 bg-white border rounded-xl md:rounded-2xl text-[9px] md:text-[10px] font-black uppercase tracking-widest outline-none focus:ring-4 transition-all cursor-pointer shadow-sm ${
-                    activeTab === 'calendar' ? 'border-[#008080] text-[#008080] ring-[#008080]/10' : 'border-slate-100 text-slate-600 hover:border-[#008080]'
-                }`}
-                containerClassName="w-40 md:w-48 relative z-50"
-            />
-            { activeTab === 'calendar' && filterDate && filterDate.length > 0 && (
-                <button 
-                    onClick={() => { setFilterDate([]); setActiveTab('today'); }}
-                    className="w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-xl md:rounded-2xl bg-rose-50 text-rose-600 border border-rose-100 hover:bg-rose-600 hover:text-white transition-all shrink-0"
-                >
-                    <XCircle size={16} />
-                </button>
-            ) }
+            <div className="col-span-12 min-[360px]:col-span-8 md:col-auto flex items-center gap-2 w-full md:w-auto order-2 md:order-none">
+              <DatePicker
+                  multiple
+                  value={filterDate}
+                  onChange={(dates) => { 
+                      if (dates && dates.length > 0) {
+                          const formatted = dates.map(d => d.format("YYYY-MM-DD"));
+                          setFilterDate(formatted);
+                          setActiveTab('calendar');
+                      } else {
+                          setFilterDate([]);
+                          setActiveTab('today');
+                      }
+                  }}
+                  placeholder="Select Dates"
+                  inputClass={`w-full min-h-[44px] md:min-h-0 px-4 md:px-6 py-2.5 md:py-3.5 bg-white border rounded-xl md:rounded-2xl text-[9px] md:text-[10px] font-black uppercase tracking-widest outline-none focus:ring-4 transition-all cursor-pointer shadow-sm ${
+                      activeTab === 'calendar' ? 'border-[#008080] text-[#008080] ring-[#008080]/10' : 'border-slate-100 text-slate-600 hover:border-[#008080]'
+                  }`}
+                  containerClassName="w-full md:w-48 relative z-50 flex-1 md:flex-none"
+              />
+              { activeTab === 'calendar' && filterDate && filterDate.length > 0 && (
+                  <button 
+                      onClick={() => { setFilterDate([]); setActiveTab('today'); }}
+                      className="w-11 h-11 md:w-12 md:h-12 flex items-center justify-center rounded-xl md:rounded-2xl bg-rose-50 text-rose-600 border border-rose-100 hover:bg-rose-600 hover:text-white transition-all shrink-0"
+                  >
+                      <XCircle size={16} />
+                  </button>
+              ) }
+            </div>
           </div>
 
-          <div className="flex-1 max-w-md relative w-full">
+          <div className="col-span-12 md:col-auto flex-1 max-w-md relative w-full order-4 md:order-none">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
             <input
               type="text"
               placeholder="Search student or topic..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 md:pl-12 pr-4 py-3 md:py-3.5 bg-slate-50 border-none rounded-[1rem] md:rounded-2xl text-[9px] md:text-[10px] font-black uppercase tracking-widest focus:bg-white focus:ring-4 ring-[#008080]/5 outline-none transition-all"
+              className="w-full min-h-[44px] md:min-h-0 pl-10 md:pl-12 pr-4 py-2.5 md:py-3.5 bg-slate-50 border-none rounded-[1rem] md:rounded-2xl text-[9px] md:text-[10px] font-black uppercase tracking-widest focus:bg-white focus:ring-4 ring-[#008080]/5 outline-none transition-all"
             />
           </div>
 
-          <div className="flex gap-4">
-            <ExportButton 
-              data={schedule}
-              filename="academic_schedule_admin"
-              dateField="date"
-              columns={[
-                { header: "Student Name", accessor: "student_name" },
-                { header: "Faculty Name", accessor: "faculty_name" },
-                { header: "Subject", accessor: "subject" },
-                { header: "Topic / Chapter", accessor: row => row.topic || row.chapter || 'General Session' },
-                { header: "Date", accessor: row => row.date ? new Date(row.date).toLocaleDateString('en-GB') : 'TBD' },
-                { header: "Start Time", accessor: row => row.start_time ? new Date(`2000-01-01T${row.start_time}`).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }) : 'TBD' },
-                { header: "End Time", accessor: row => row.end_time ? new Date(`2000-01-01T${row.end_time}`).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }) : 'TBD' },
-                { header: "Status", accessor: "status" },
-                { header: "Minutes Taken", accessor: "minutes_taken" }
-              ]}
-            />
+          <div className="col-span-12 min-[360px]:col-span-4 md:col-auto flex items-center justify-end w-full md:w-auto order-3 md:order-none">
+            <div className="w-full md:w-auto [&>button]:w-full [&>button]:min-h-[44px] md:[&>button]:min-h-0 [&>button]:flex [&>button]:items-center [&>button]:justify-center">
+              <ExportButton 
+                data={schedule}
+                filename="academic_schedule_admin"
+                dateField="date"
+                columns={[
+                  { header: "Student Name", accessor: "student_name" },
+                  { header: "Faculty Name", accessor: "faculty_name" },
+                  { header: "Subject", accessor: "subject" },
+                  { header: "Topic / Chapter", accessor: row => row.topic || row.chapter || 'General Session' },
+                  { header: "Date", accessor: row => row.date ? new Date(row.date).toLocaleDateString('en-GB') : 'TBD' },
+                  { header: "Start Time", accessor: row => row.start_time ? new Date(`2000-01-01T${row.start_time}`).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }) : 'TBD' },
+                  { header: "End Time", accessor: row => row.end_time ? new Date(`2000-01-01T${row.end_time}`).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }) : 'TBD' },
+                  { header: "Status", accessor: "status" },
+                  { header: "Minutes Taken", accessor: "minutes_taken" }
+                ]}
+              />
+            </div>
           </div>
         </div>
       </div>
