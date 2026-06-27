@@ -185,8 +185,8 @@ exports.createSession = async (req, res) => {
 
         // Check for duplicates using complete business key
         const [existing] = await connection.query(
-            'SELECT id FROM timetable WHERE student_id = ? AND faculty_id <=> ? AND subject <=> ? AND date = ? AND start_time = ? AND end_time = ? AND (is_deleted IS NULL OR is_deleted = 0)',
-            [student_id, faculty_id || null, subject || null, date, formattedStartTime, formattedEndTime]
+            'SELECT id FROM timetable WHERE student_id = ? AND date = ? AND start_time = ? AND (is_deleted IS NULL OR is_deleted = 0)',
+            [student_id, date, formattedStartTime]
         );
         if (existing.length > 0) {
             await connection.rollback();
@@ -252,7 +252,7 @@ exports.updateSession = async (req, res) => {
     const connection = await db.getConnection();
     try {
         await connection.beginTransaction();
-        const sessionId = req.params.id;
+        const sessionId = parseInt(req.params.id, 10);
         const { date, start_time, end_time, chapter, subject, session_type, status, status_reason, notes, faculty_id, faculty_name } = req.body;
 
         if (!faculty_id) {
@@ -284,8 +284,8 @@ exports.updateSession = async (req, res) => {
 
         // Duplicate Check
         const [existing] = await connection.query(
-            'SELECT id FROM timetable WHERE student_id = ? AND faculty_id <=> ? AND subject <=> ? AND date = ? AND start_time = ? AND end_time = ? AND id != ? AND (is_deleted IS NULL OR is_deleted = 0)',
-            [oldSession.student_id, faculty_id || null, subject || null, date, formattedStartTime, formattedEndTime, sessionId]
+            'SELECT id FROM timetable WHERE student_id = ? AND date = ? AND start_time = ? AND id != ? AND (is_deleted IS NULL OR is_deleted = 0)',
+            [oldSession.student_id, date, formattedStartTime, sessionId]
         );
         if (existing.length > 0) {
             await connection.rollback();

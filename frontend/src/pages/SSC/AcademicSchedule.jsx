@@ -54,7 +54,8 @@ const AcademicSchedule = () => {
     localStorage.setItem('joinedSessions', JSON.stringify(newJoined));
     window.open(session.meeting_link, '_blank');
   };
-  const [selectedSession, setSelectedSession] = useState(null);
+  const [isScheduleLoading, setIsScheduleLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [isCompleteModalOpen, setIsCompleteModalOpen] = useState(false);
   const [minutesTaken, setMinutesTaken] = useState('');
@@ -180,6 +181,7 @@ return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String
   };
 
   const handleComplete = async () => {
+    if (isSubmitting) return;
     let finalMinutes = 0;
     if (completionStatus === 'Completed' || completionStatus === 'Others') {
       if (!minutesTaken || isNaN(minutesTaken) || parseInt(minutesTaken) <= 0) {
@@ -192,6 +194,7 @@ return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String
       return toast.error("Please provide a note for 'Others' status");
     }
 
+    setIsSubmitting(true);
     try {
       await api.put(`/mentor/academic-schedule/${selectedSession.id}/complete`, {
         minutes_taken: finalMinutes,
@@ -206,6 +209,8 @@ return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String
       fetchSchedule();
     } catch (error) {
       toast.error(error.response?.data?.message || "Failed to complete session");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 

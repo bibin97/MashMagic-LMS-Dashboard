@@ -68,6 +68,7 @@ const Timetable = () => {
   const [showScheduleModal, setShowScheduleModal] = useState(false);
   const [editScheduleData, setEditScheduleData] = useState([]);
   const [isScheduleLoading, setIsScheduleLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Filters
   const [filters, setFilters] = useState({
@@ -335,12 +336,15 @@ const Timetable = () => {
     const name = typeof sessionParam === 'object' ? sessionParam.student_name : 'the selected';
     
     premiumConfirm(async () => {
+      setIsSubmitting(true);
       try {
         await api.delete(`/ssc/timetable/${id}`);
         toast.success("Session deleted");
         fetchTimetable();
       } catch (error) {
         toast.error(error.response?.data?.message || "Delete failed");
+      } finally {
+        setIsSubmitting(false);
       }
     }, {
       name: `${name}'s Session`,
@@ -352,21 +356,26 @@ const Timetable = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (isSubmitting) return;
+    setIsSubmitting(true);
     
     if (!isBulkMode) {
       if (!formData.student_id || !formData.date || !formData.start_time || !formData.end_time || !formData.faculty_id) {
         toast.error("Please Add Faculty. Faculty is required for all sessions.");
+        setIsSubmitting(false);
         return;
       }
 
       if (formData.end_time <= formData.start_time) {
         toast.error("End time must be after start time");
+        setIsSubmitting(false);
         return;
       }
 
       const needsReason = ['Postponed', 'Cancelled', 'Faculty Cancelled', 'Student Cancelled'].includes(formData.status);
       if (needsReason && !formData.status_reason?.trim()) {
         toast.error(`Please provide a reason for mark as ${formData.status}`);
+        setIsSubmitting(false);
         return;
       }
 
@@ -393,6 +402,8 @@ const Timetable = () => {
         fetchTimetable();
       } catch (error) {
         toast.error(error.response?.data?.message || "Operation failed");
+      } finally {
+        setIsSubmitting(false);
       }
     } else {
       if (bulkSessions.length === 0) {
@@ -415,6 +426,8 @@ const Timetable = () => {
             console.error("Error Response Data:", error.response.data);
         }
         toast.error(error.response?.data?.message || "Batch operation failed");
+      } finally {
+        setIsSubmitting(false);
       }
     }
   };
