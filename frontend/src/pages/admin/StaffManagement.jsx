@@ -5,10 +5,12 @@ import api from '../../services/api';
 import toast from 'react-hot-toast';
 import { premiumConfirm } from '../../utils/premiumConfirm';
 import { useAuth } from '../../context/AuthContext';
-import { ShieldCheck, UserCog, Mail, Phone, Briefcase, Lock, Unlock } from 'lucide-react';
+import { ShieldCheck, UserCog, Mail, Phone, Briefcase, Lock, Unlock, Eye, Edit2, Trash2, Key, Ban, Calendar } from 'lucide-react';
+import MobileCard from '../../components/common/MobileCard';
 
 const StaffManagement = () => {
  const { user } = useAuth();
+ const [expandedRowId, setExpandedRowId] = useState(null);
  const isSuperAdmin = user?.role === 'super_admin';
  const [staff, setStaff] = useState([]);
  const [filteredStaff, setFilteredStaff] = useState([]);
@@ -171,6 +173,85 @@ const StaffManagement = () => {
   },
  ];
 
+  const renderStaffMobileCard = (row, { isExpanded, onToggle }) => {
+    const initials = row.name
+      ? row.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()
+      : '??';
+
+    const statusColors = {
+      active: 'bg-emerald-50 text-emerald-600 border-emerald-100',
+      inactive: 'bg-slate-50 text-slate-600 border-slate-100',
+      pending: 'bg-amber-50 text-amber-600 border-amber-100',
+      left: 'bg-rose-50 text-rose-600 border-rose-100'
+    };
+    const currentStatus = row.status || 'inactive';
+    const statusText = { active: 'Active', inactive: 'Backup', pending: 'Pending', left: 'Left' };
+
+    const badges = [
+      <span key="status" className={`px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-widest border ${statusColors[currentStatus] || statusColors.inactive}`}>
+        {statusText[currentStatus] || currentStatus}
+      </span>
+    ];
+
+    const expandedContent = (
+      <div className="space-y-4">
+        <div className="flex flex-col gap-2">
+          {row.email && (
+            <div className="flex items-center gap-2 text-slate-600">
+              <Mail size={14} className="text-slate-400 shrink-0" />
+              <span className="text-xs font-bold truncate">{row.email}</span>
+            </div>
+          )}
+          {row.phone && (
+            <div className="flex items-center gap-2 text-slate-600">
+              <Phone size={14} className="text-slate-400 shrink-0" />
+              <span className="text-xs font-bold">{row.phone}</span>
+            </div>
+          )}
+          {row.created_at && (
+            <div className="flex items-center gap-2 text-slate-600">
+              <Calendar size={14} className="text-slate-400 shrink-0" />
+              <span className="text-xs font-bold">Joined: {new Date(row.created_at).toLocaleDateString('en-GB')}</span>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+
+    const primaryActions = [
+      { icon: <Eye size={14} />, label: 'View', onClick: () => handleView(row) },
+    ];
+    
+    if (isSuperAdmin) {
+       primaryActions.push({ icon: <Edit2 size={14} />, label: 'Edit', onClick: () => handleEdit(row) });
+    }
+
+    const moreActions = [];
+    if (isSuperAdmin) {
+      moreActions.push({ icon: <Key size={14} />, label: 'Reset Password', onClick: () => toast.info('Reset password coming soon') });
+      moreActions.push({ icon: <Ban size={14} />, label: 'Disable', onClick: () => toast.info('Disable feature coming soon') });
+      moreActions.push({ icon: <Trash2 size={14} />, label: 'Delete', onClick: () => handleDelete(row), danger: true });
+    }
+
+    return (
+      <MobileCard
+        isExpanded={isExpanded}
+        onToggle={onToggle}
+        avatar={
+          <div className="w-10 h-10 rounded-xl bg-[#008080]/10 border border-[#008080]/20 flex items-center justify-center shrink-0">
+            <span className="text-[#008080] text-sm font-black tracking-tighter">{initials}</span>
+          </div>
+        }
+        title={row.name}
+        subtitle={row.role ? row.role.replace('_', ' ').toUpperCase() : 'STAFF'}
+        badges={badges}
+        expandedContent={expandedContent}
+        primaryActions={primaryActions}
+        moreActions={moreActions}
+      />
+    );
+  };
+
  return (
  <div className="flex flex-col gap-10 pb-10">
  <div className="bg-white/70 backdrop-blur-xl p-12 rounded-[40px] border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.04)] flex flex-col md:flex-row justify-between items-center gap-10">
@@ -201,6 +282,9 @@ const StaffManagement = () => {
   onDelete={isSuperAdmin ? handleDelete : undefined}
   onEdit={isSuperAdmin ? handleEdit : undefined}
   searchPlaceholder="Search by name, email or role..."
+  expandedRowId={expandedRowId}
+  onToggleExpand={(id) => setExpandedRowId(expandedRowId === id ? null : id)}
+  renderMobileCard={renderStaffMobileCard}
   />
 
   {/* Staff Detail Modal */}
