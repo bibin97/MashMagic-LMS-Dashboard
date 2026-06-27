@@ -53,8 +53,13 @@ async function syncTimetableToFacultySession(timetableId, conn = null) {
         if (existingSync) {
             const sessionId = existingSync.id;
             
-            const newMinutesTaken = existingSync.minutes_locked ? existingSync.minutes_taken : minutes_taken;
-            const newMinutesLocked = existingSync.minutes_locked ? existingSync.minutes_locked : minutes_locked;
+            let newMinutesTaken = existingSync.minutes_locked ? existingSync.minutes_taken : minutes_taken;
+            let newMinutesLocked = existingSync.minutes_locked ? existingSync.minutes_locked : minutes_locked;
+            
+            // If session is reverted back to Scheduled, unlock it to prevent deadlocks
+            if (status === 'Scheduled') {
+                newMinutesLocked = 0;
+            }
 
             await queryExecutor.query('SET FOREIGN_KEY_CHECKS=0;');
             
