@@ -97,15 +97,15 @@ const AcademicSchedule = () => {
     if (activeTab === 'today') {
       return filtered.filter(s => {
         const sessionDate = s.date.split('T')[0];
-        return sessionDate <= todayStr && s.status !== 'Completed';
+        return sessionDate <= todayStr && s.status === 'Scheduled';
       });
     } else if (activeTab === 'calendar') {
       return filtered.filter(s => {
         const sessionDate = s.date.split('T')[0];
         if (filterDate && filterDate.length > 0) {
-           return filterDate.includes(sessionDate) && s.status !== 'Completed';
+           return filterDate.includes(sessionDate) && s.status === 'Scheduled';
         }
-        return sessionDate > todayStr && s.status !== 'Completed';
+        return sessionDate > todayStr && s.status === 'Scheduled';
       });
     } else {
       return filtered.filter(s => s.status === 'Completed');
