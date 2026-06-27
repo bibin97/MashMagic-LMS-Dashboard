@@ -165,7 +165,7 @@ const StudentDetails = () => {
 
  {activeTab === 'timetable' && <div className="space-y-6">
  <h3 className="text-lg font-black text-slate-900 border-b-2 border-[#008080] pb-2">Academic Roadmap (Sessions)</h3>
- <div className="overflow-x-auto">
+ <div className="hidden md:block overflow-x-auto">
  <table className="w-full text-left border-collapse">
  <thead>
  <tr className="border-b border-slate-50">
@@ -203,6 +203,39 @@ const StudentDetails = () => {
  </tr>}
  </tbody>
  </table>
+ </div>
+
+ <div className="md:hidden flex flex-col gap-4 py-4">
+    {student.timetable.map((session, index) => (
+      <div key={session.id} className="bg-slate-50 p-4 rounded-[2rem] border border-slate-100 flex flex-col gap-3 relative">
+        <div className="flex justify-between items-start">
+          <span className="text-[10px] font-black bg-[#008080] text-white px-3 py-1 rounded-full uppercase tracking-widest">#{session.session_number}</span>
+          <StatusBadge status={session.status} />
+        </div>
+        <div>
+          <p className="text-sm font-black text-slate-700">{session.chapter_topic || 'Pending Assignment'}</p>
+          <div className="flex items-center gap-3 mt-1 text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+            <span>{new Date(session.date).toLocaleDateString('en-GB')}</span>
+            <span>{session.start_time} - {session.end_time}</span>
+          </div>
+          {session.status === 'Postponed' && session.new_date && <p className="text-[10px] text-amber-600 mt-1 uppercase font-bold tracking-widest">New Date: {new Date(session.new_date).toLocaleDateString('en-GB')}</p>}
+        </div>
+        {['super_admin', 'admin', 'ssc'].includes(user?.role) && (
+          <div className="mt-2 pt-3 border-t border-slate-200">
+            <select className="w-full text-[10px] font-black uppercase tracking-widest bg-white border border-slate-200 rounded-lg p-2 outline-none cursor-pointer focus:border-[#008080]" value={session.status} onChange={e => handleUpdateStatus(session.id, session, e.target.value)}>
+              <option value="Scheduled">Schedule</option>
+              <option value="Completed">Complete</option>
+              <option value="Postponed">Postpone</option>
+              <option value="Absent">Absent</option>
+              <option value="Cancelled">Cancel</option>
+            </select>
+          </div>
+        )}
+      </div>
+    ))}
+    {student.timetable.length === 0 && (
+      <div className="text-center py-10 text-slate-400 font-bold text-[10px] uppercase tracking-widest">No sessions scheduled yet.</div>
+    )}
  </div>
  </div>}
 
@@ -357,7 +390,7 @@ const StudentDetails = () => {
           <CheckSquare size={20} className="text-emerald-500" /> Attendance History
         </h3>
         <div className="overflow-hidden rounded-[2rem] border border-slate-100 shadow-sm">
-          <div className="w-full overflow-x-auto">
+          <div className="hidden md:block w-full overflow-x-auto">
 <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-slate-50/50">
@@ -380,8 +413,25 @@ const StudentDetails = () => {
                   <td colSpan="3" className="py-10 text-center text-slate-400 text-[10px] font-black uppercase tracking-widest">No attendance records found.</td>
                 </tr>}
             </tbody>
-          </table>
+           </table>
 </div>
+
+          <div className="md:hidden flex flex-col gap-3 p-4">
+            {student.attendance?.map(att => (
+              <div key={att.id} className="bg-slate-50 p-4 rounded-2xl border border-slate-100 flex flex-col gap-2">
+                <div className="flex justify-between items-start">
+                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{new Date(att.date).toLocaleDateString('en-GB')}</span>
+                  <span className={`px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-widest border ${att.status === 'Present' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-rose-50 text-rose-600 border-rose-100'}`}>
+                    {att.status}
+                  </span>
+                </div>
+                <p className="text-sm font-bold text-slate-900">{att.topic}</p>
+              </div>
+            ))}
+            {(!student.attendance || student.attendance.length === 0) && (
+              <div className="text-center py-10 text-slate-400 text-[10px] font-black uppercase tracking-widest">No attendance records found.</div>
+            )}
+          </div>
         </div>
       </section>
     </div>}

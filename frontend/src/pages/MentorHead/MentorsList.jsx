@@ -4,6 +4,7 @@ import { Users, Search, MoreHorizontal, Phone, MapPin, Loader2, LayoutDashboard,
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 import { premiumConfirm } from '../../utils/premiumConfirm';
+import MobileCard from '../../components/common/MobileCard';
 const MentorsList = () => {
   const navigate = useNavigate();
   const [mentors, setMentors] = useState([]);
@@ -182,7 +183,7 @@ const MentorsList = () => {
   </div>
 
  <div className="bg-white rounded-[2rem] border border-slate-100 shadow-sm overflow-hidden shadow-xl shadow-slate-200/40">
- <div className="overflow-x-auto">
+ <div className="hidden md:block overflow-x-auto">
  <table className="w-full text-left border-collapse">
  <thead>
  <tr className="bg-slate-50/50 border-b border-slate-100">
@@ -304,6 +305,74 @@ const MentorsList = () => {
             })}
  </tbody>
  </table>
+ </div>
+ 
+ <div className="md:hidden flex flex-col gap-4 p-4 bg-slate-50/50">
+  {filteredMentors.map((mentor) => {
+    const total = mentor.total_assigned_students || 0;
+    const connected = mentor.students_connected_today || 0;
+    
+    return (
+      <MobileCard
+        key={mentor.mentor_id}
+        isExpanded={expandedMentorId === mentor.mentor_id}
+        onToggle={() => handleViewStudents(mentor)}
+        avatar={
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#008080] via-[#008080] to-purple-700 text-white flex items-center justify-center font-black shadow-sm">
+            {mentor.mentor_name?.charAt(0)}
+          </div>
+        }
+        title={mentor.mentor_name}
+        subtitle={<span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">ID: {mentor.mentor_id}</span>}
+        badges={[
+          <span key="connected" className="text-[9px] font-black text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-100 uppercase">
+            Connected: {connected} / {total}
+          </span>
+        ]}
+        metrics={[]}
+        expandedContent={
+          <div className="space-y-4">
+            <div className="pt-2 border-t border-slate-100 mt-2">
+              <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-50">
+                <h5 className="text-[10px] font-black text-slate-900 uppercase tracking-wider">Assigned Students ({mentorStudents.length})</h5>
+              </div>
+              {loadingStudents ? (
+                <div className="py-4 text-center">
+                  <div className="inline-block w-4 h-4 border-2 border-[#008080]/30 border-t-[#008080] rounded-full animate-spin mb-2"></div>
+                  <div className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Loading...</div>
+                </div>
+              ) : mentorStudents.length > 0 ? (
+                <div className="space-y-2">
+                  {mentorStudents.map(student => (
+                    <div key={student.id} className="p-3 bg-slate-50 border border-slate-100 rounded-xl">
+                      <div className="flex justify-between items-center mb-1">
+                        <span className="text-[11px] font-black text-slate-900 truncate">{student.name}</span>
+                        <span className="text-[8px] font-bold text-slate-500 uppercase tracking-widest truncate">{student.registration_number || 'REG-PENDING'}</span>
+                      </div>
+                      <div className="flex justify-between text-[9px] font-bold text-slate-500 uppercase">
+                        <span>{student.course || 'N/A'}</span>
+                        <span>Grade {student.grade || 'N/A'}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="py-4 text-center text-[9px] font-bold text-slate-400 uppercase">No students assigned</div>
+              )}
+            </div>
+          </div>
+        }
+        primaryActions={[
+          { icon: <Eye size={14} />, label: 'View', onClick: (e) => { e.stopPropagation(); setSelectedMentorForDetail(mentor); setIsDetailModalOpen(true); } }
+        ]}
+        moreActions={[
+          { icon: <LayoutDashboard size={14} />, label: 'Dashboard', onClick: (e) => { e.stopPropagation(); navigate(`/mentor-head/mentors/${mentor.mentor_id}`); } },
+          { icon: <Edit2 size={14} />, label: 'Edit', onClick: (e) => { e.stopPropagation(); handleEdit(mentor); } },
+          { icon: <Trash2 size={14} />, label: 'Delete', danger: true, onClick: (e) => { e.stopPropagation(); handleDelete(mentor.mentor_id, mentor.mentor_name); } }
+        ]}
+      />
+    );
+  })}
  </div>
  </div>
 

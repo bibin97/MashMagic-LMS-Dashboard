@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import DataTable from '../../components/DataTable';
+import MobileCard from '../../components/common/MobileCard';
 import Modal from '../../components/Modal';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
 import { premiumConfirm } from '../../utils/premiumConfirm';
-import { Eye, Edit2, Ban, Trash2, Filter, Download, UserPlus, Search, UserSquare2, GraduationCap, Check } from 'lucide-react';
+import { Eye, Edit2, Ban, Trash2, Filter, Download, UserPlus, Search, UserSquare2, GraduationCap, Check, Users, Phone, Mail, BookOpen, CheckCircle } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 const SUBJECT_OPTIONS = [
@@ -249,7 +250,93 @@ const Faculties = () => {
   },
  ];
 
- return (
+  const renderFacultyMobileCard = (row, { isExpanded, onToggle }) => {
+    // Generate initials
+    const initials = row.name
+      ? row.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()
+      : '??';
+
+    const statusColors = {
+      active: 'bg-emerald-50 text-emerald-600 border-emerald-100',
+      inactive: 'bg-slate-50 text-slate-600 border-slate-100',
+      pending: 'bg-amber-50 text-amber-600 border-amber-100',
+      left: 'bg-rose-50 text-rose-600 border-rose-100'
+    };
+    const statusText = { active: 'Active', inactive: 'Backup', pending: 'Pending', left: 'Left' };
+    const currentStatus = row.status || 'unknown';
+
+    const badges = [
+      <span key="status" className={`px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-widest border ${statusColors[currentStatus] || statusColors.inactive}`}>
+        {statusText[currentStatus] || currentStatus}
+      </span>
+    ];
+
+    const metrics = [
+      { icon: <Users size={12} />, value: `${row.studentsUnder || 0} Students` },
+      { icon: <UserSquare2 size={12} />, value: `${row.mentorsUnder || 0} Mentors` }
+    ];
+
+    const expandedContent = (
+      <div className="space-y-3">
+        {row.email && (
+          <div className="flex items-center gap-2 text-slate-600">
+            <Mail size={14} className="text-slate-400" />
+            <span className="text-xs font-bold">{row.email}</span>
+          </div>
+        )}
+        {row.subject && (
+          <div className="flex items-start gap-2 text-slate-600">
+            <BookOpen size={14} className="text-slate-400 mt-0.5" />
+            <div className="flex flex-wrap gap-1">
+              {(typeof row.subject === 'string' ? row.subject.split(',') : row.subject || []).map((sub, i) => (
+                <span key={i} className="px-1.5 py-0.5 bg-slate-100 text-slate-600 rounded text-[9px] font-bold uppercase tracking-wider">{sub.trim()}</span>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    );
+
+    const primaryActions = [
+      { icon: <Eye size={14} />, label: 'View', onClick: () => handleView(row) },
+      { icon: <Edit2 size={14} />, label: 'Edit', onClick: () => handleEdit(row) }
+    ];
+
+    const moreActions = [];
+    if (row.status !== 'active') {
+      moreActions.push({ icon: <CheckCircle size={14} />, label: 'Approve', onClick: () => handleApprove(row) });
+    }
+    if (row.status !== 'blocked') {
+      moreActions.push({ icon: <Ban size={14} />, label: 'Block', onClick: () => handleBlock(row) });
+    }
+    moreActions.push({ icon: <Trash2 size={14} />, label: 'Delete', onClick: () => handleDelete(row), danger: true });
+
+    return (
+      <MobileCard
+        isExpanded={isExpanded}
+        onToggle={onToggle}
+        avatar={
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#008080]/10 to-[#008080]/5 border border-[#008080]/20 flex items-center justify-center">
+            <span className="text-[#008080] text-sm font-black tracking-tighter">{initials}</span>
+          </div>
+        }
+        title={row.name}
+        subtitle={
+          <span className="flex items-center gap-1">
+            <Phone size={10} />
+            {row.phone || 'No Phone'}
+          </span>
+        }
+        badges={badges}
+        metrics={metrics}
+        expandedContent={expandedContent}
+        primaryActions={primaryActions}
+        moreActions={moreActions}
+      />
+    );
+  };
+
+  return (
  <div className="flex flex-col gap-10">
   <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
     <div className="flex flex-col">
@@ -417,6 +504,7 @@ const Faculties = () => {
       </button>
     }
     searchPlaceholder="Search leads by name or email..."
+    renderMobileCard={renderFacultyMobileCard}
   />
 
  {/* Edit Faculty Modal */}

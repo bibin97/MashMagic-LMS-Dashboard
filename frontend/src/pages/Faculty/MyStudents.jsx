@@ -5,12 +5,14 @@ import { Search, User, ChevronRight, MoreHorizontal, GraduationCap, MapPin, Hash
 import toast from 'react-hot-toast';
 import StudentListFilterDropdown, { sortStudentsByOption } from '../../components/StudentListFilterDropdown';
 import ExportButton from '../../components/common/ExportButton';
+import MobileCard from '../../components/common/MobileCard';
 const FacultyStudents = () => {
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const deferredSearchTerm = useDeferredValue(searchTerm);
   const [sortBy, setSortBy] = useState('');
+  const [expandedMobileCards, setExpandedMobileCards] = useState({});
   const navigate = useNavigate();
   useEffect(() => {
     fetchStudents();
@@ -158,6 +160,78 @@ const FacultyStudents = () => {
  </tr>}
  </tbody>
  </table>
+ </div>
+
+ {/* Mobile View (Cards) */}
+ <div className="md:hidden flex flex-col gap-4 p-4 bg-slate-50">
+    {loading ? (
+        [1, 2, 3].map(i => <div key={i} className="animate-pulse h-32 bg-white rounded-2xl"></div>)
+    ) : filteredStudents.length > 0 ? (
+        filteredStudents.map((student, index) => {
+            const statusLabels = { Green: 'Good', Yellow: 'Average', Red: 'Poor' };
+            const statusColors = {
+                Green: 'bg-emerald-50 text-emerald-600 border-emerald-100',
+                Yellow: 'bg-amber-50 text-amber-600 border-amber-100',
+                Red: 'bg-rose-50 text-rose-600 border-rose-100'
+            };
+            const studentStatus = student.performance_status || 'Green';
+            const badges = [];
+            
+            badges.push(
+                <span key="status" className={`px-2 py-0.5 rounded-md border text-[9px] font-black uppercase tracking-widest ${statusColors[studentStatus] || statusColors.Green}`}>
+                    {statusLabels[studentStatus] || studentStatus}
+                </span>
+            );
+            if(student.badge === 'Gold') badges.push(<span key="g" title="Mentorship Plan">🥇</span>);
+            if(student.badge === 'Tuition') badges.push(<span key="t" title="Tuition Plan">🥈</span>);
+            if(student.badge === 'Diamond') badges.push(<span key="d" title="Mentorship & Tuition Plan">💎</span>);
+
+            return (
+                <MobileCard
+                    key={student.id}
+                    isExpanded={!!expandedMobileCards[student.id]}
+                    onToggle={() => setExpandedMobileCards(prev => ({ ...prev, [student.id]: !prev[student.id] }))}
+                    avatar={
+                        <div className="w-10 h-10 bg-[#008080]/10 rounded-xl flex items-center justify-center text-[#008080] font-black text-lg">
+                            {student.name.charAt(0)}
+                        </div>
+                    }
+                    title={student.name}
+                    subtitle={<span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{student.department || 'General'} | {student.roll_number || 'N/A'}</span>}
+                    badges={badges}
+                    metrics={[
+                        { icon: null, value: <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Att: <span className="text-[#008080]">{student.attendance_percentage}%</span></div> }
+                    ]}
+                    expandedContent={
+                        <div className="space-y-4">
+                            <div className="pt-2">
+                                <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-2">Subject Hours</span>
+                                {student.subject_hours && student.subject_hours.length > 0 ? (
+                                    <div className="space-y-2">
+                                        {student.subject_hours.map((sh, idx) => (
+                                            <div key={idx} className="flex justify-between items-center text-[10px] font-bold bg-slate-50 p-2 rounded-lg border border-slate-100">
+                                                <span className="text-slate-700 uppercase">{sh.subject}</span>
+                                                <span className="text-slate-600 bg-white border border-slate-200 px-2 py-1 rounded">{sh.consumed_hours} / {sh.allocated_hours} Hrs</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div className="text-[10px] font-bold text-slate-400 uppercase">No subject hours logged</div>
+                                )}
+                            </div>
+                        </div>
+                    }
+                />
+            );
+        })
+    ) : (
+        <div className="py-20 text-center">
+            <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center text-slate-300 mx-auto mb-4 border border-slate-100 shadow-sm">
+                <GraduationCap size={32} />
+            </div>
+            <p className="text-slate-900 font-black text-sm uppercase">No students found</p>
+        </div>
+    )}
  </div>
  </div>
  </div>;

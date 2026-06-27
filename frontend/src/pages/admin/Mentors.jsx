@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import DataTable from '../../components/DataTable';
+import MobileCard from '../../components/common/MobileCard';
 import Modal from '../../components/Modal';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
 import { premiumConfirm } from '../../utils/premiumConfirm';
-import { Eye, Edit2, Ban, Trash2, Filter, Download, UserPlus, Search, ArrowUpRight, Users, ListTodo, TrendingUp } from 'lucide-react';
+import { Eye, Edit2, Ban, Trash2, Filter, Download, UserPlus, Search, ArrowUpRight, Users, ListTodo, TrendingUp, Phone, Mail, CheckCircle, MoreVertical } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 const Mentors = () => {
@@ -259,6 +260,100 @@ const Mentors = () => {
   },
  ];
 
+  const renderMentorMobileCard = (row, { isExpanded, onToggle }) => {
+    const initials = row.name
+      ? row.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()
+      : '??';
+
+    const statusColors = {
+      active: 'bg-emerald-50 text-emerald-600 border-emerald-100',
+      inactive: 'bg-slate-50 text-slate-600 border-slate-100',
+      pending: 'bg-amber-50 text-amber-600 border-amber-100',
+      left: 'bg-rose-50 text-rose-600 border-rose-100'
+    };
+    const currentStatus = row.status || 'unknown';
+    const statusText = { active: 'Active', inactive: 'Inactive', pending: 'Pending', left: 'Left' };
+
+    const badges = [
+      <span key="status" className={`px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-widest border ${statusColors[currentStatus] || statusColors.inactive}`}>
+        {statusText[currentStatus] || currentStatus}
+      </span>
+    ];
+
+    const metrics = [
+      { icon: <Users size={12} />, value: `${row.studentsCount || 0} Students` },
+      { icon: <TrendingUp size={12} />, value: `${row.completionRate || 0}% Perf.` }
+    ];
+
+    const expandedContent = (
+      <div className="space-y-4">
+        <div className="flex flex-col gap-2">
+          {row.email && (
+            <div className="flex items-center gap-2 text-slate-600">
+              <Mail size={14} className="text-slate-400" />
+              <span className="text-xs font-bold">{row.email}</span>
+            </div>
+          )}
+          {row.phone && (
+            <div className="flex items-center gap-2 text-slate-600">
+              <Phone size={14} className="text-slate-400" />
+              <span className="text-xs font-bold">{row.phone}</span>
+            </div>
+          )}
+        </div>
+        
+        {/* Performance Visualization */}
+        <div className="flex flex-col gap-1.5 pt-2 border-t border-slate-100">
+          <div className="flex justify-between items-center text-[10px] font-bold text-slate-500 uppercase">
+            <span>Completed Sessions</span>
+            <span className="text-emerald-600">{row.completedSessions || 0} ({row.completionRate || 0}%)</span>
+          </div>
+          <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+            <div className="h-full bg-emerald-500 rounded-full shadow-[0_0_8px_rgba(16,185,129,0.3)] transition-all duration-1000" style={{ width: `${row.completionRate || 0}%` }}></div>
+          </div>
+        </div>
+      </div>
+    );
+
+    const primaryActions = [
+      { icon: <Eye size={14} />, label: 'View', onClick: () => handleView(row) },
+      { icon: <Edit2 size={14} />, label: 'Edit', onClick: () => handleEdit(row) }
+    ];
+
+    const moreActions = [];
+    if (row.status !== 'active') {
+      moreActions.push({ icon: <CheckCircle size={14} />, label: 'Approve', onClick: () => handleApprove(row) });
+    }
+    if (row.status !== 'blocked') {
+      moreActions.push({ icon: <Ban size={14} />, label: 'Block', onClick: () => handleBlock(row) });
+    }
+    moreActions.push({ icon: <Trash2 size={14} />, label: 'Delete', onClick: () => handleDelete(row), danger: true });
+
+    return (
+      <MobileCard
+        isExpanded={isExpanded}
+        onToggle={onToggle}
+        avatar={
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#10B981]/10 to-[#10B981]/5 border border-[#10B981]/20 flex items-center justify-center">
+            <span className="text-[#10B981] text-sm font-black tracking-tighter">{initials}</span>
+          </div>
+        }
+        title={row.name}
+        subtitle={
+          <span className="flex items-center gap-1 text-[#008080]">
+            <ListTodo size={10} />
+            {row.completedSessions || 0} Sessions
+          </span>
+        }
+        badges={badges}
+        metrics={metrics}
+        expandedContent={expandedContent}
+        primaryActions={primaryActions}
+        moreActions={moreActions}
+      />
+    );
+  };
+
  return (
  <div className="flex flex-col gap-10">
   <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
@@ -311,6 +406,7 @@ const Mentors = () => {
   onView={handleView}
   expandedRowId={expandedRowId}
   onToggleExpand={(id) => setExpandedRowId(expandedRowId === id ? null : id)}
+  renderMobileCard={renderMentorMobileCard}
   renderSubRow={(mentor, onClose) => (
     <div className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-inner animate-in fade-in slide-in-from-top-2 duration-300">
       <div className="flex items-center justify-between pb-4 border-b border-slate-100 mb-6 pl-2">

@@ -28,6 +28,7 @@ const DataTable = ({
  expandedRowId,
  onToggleExpand,
  extraActions = [],
+ renderMobileCard,
 }) => {
   const [internalExpandedId, setInternalExpandedId] = useState(null);
   const [showExportModal, setShowExportModal] = useState(false);
@@ -361,7 +362,7 @@ const DataTable = ({
  </div>
 
  {/* Mobile View (Cards) */}
- <div className="md:hidden divide-y divide-slate-100/50">
+ <div className={`md:hidden ${renderMobileCard ? 'p-4 bg-slate-50/30' : 'divide-y divide-slate-100/50'}`}>
  {loading ? (
  [...Array(3)].map((_, i) => (
  <div key={i} className="p-6 space-y-4 animate-pulse">
@@ -378,6 +379,15 @@ const DataTable = ({
  ) : (
  data.map((row, rowIndex) => {
  const isExpanded = currentExpandedId === (row.id !== undefined ? row.id : rowIndex);
+ 
+ if (renderMobileCard) {
+    return (
+      <React.Fragment key={row.id !== undefined ? row.id : rowIndex}>
+        {renderMobileCard(row, { isExpanded, onToggle: () => handleToggle(row.id !== undefined ? row.id : rowIndex), index: rowIndex })}
+      </React.Fragment>
+    );
+ }
+
  return (
  <div key={row.id !== undefined ? row.id : rowIndex} className="p-6 space-y-5 animate-in fade-in slide-in-from-bottom-2 duration-300">
  {/* Primary Info (First Column) */}

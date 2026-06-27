@@ -6,6 +6,7 @@ import toast from 'react-hot-toast';
 import StudentListFilterDropdown, { sortStudentsByOption } from '../../components/StudentListFilterDropdown';
 import ExportButton from '../../components/common/ExportButton';
 import { premiumConfirm } from '../../utils/premiumConfirm';
+import MobileCard from '../../components/common/MobileCard';
 import { mockStudentHours } from '../../utils/mockStudentHours';
 
 const StudentsList = ({
@@ -369,7 +370,7 @@ const StudentsList = ({
 
 			{/* Table */}
 			<div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-200/20 overflow-hidden">
-				<div className="overflow-x-auto">
+				<div className="hidden md:block overflow-x-auto">
 					<table className="w-full text-left">
 						<thead>
 							<tr className="bg-slate-50/50 border-b border-slate-100">
@@ -540,6 +541,112 @@ const StudentsList = ({
 								</tr>}
 						</tbody>
 					</table>
+				</div>
+
+				<div className="md:hidden flex flex-col gap-4 p-4 bg-slate-50/50">
+					{filteredStudents.length > 0 ? filteredStudents.map((student) => {
+						const primaryActions = [
+							{ icon: <Eye size={14} />, label: 'View', onClick: (e) => { e.stopPropagation(); handleView(student); } }
+						];
+
+						const moreActions = [];
+						
+						if (role === 'mentor_head') {
+							moreActions.push({ icon: <ClipboardList size={14} />, label: 'Assess', onClick: (e) => { e.stopPropagation(); handleOpenAssessment(student); } });
+							moreActions.push({ icon: <Users size={14} />, label: 'Assign', onClick: (e) => {
+								e.stopPropagation();
+								setSelectedStudentForAssign(student);
+								setSelectedMentorId(student.mentor_id || '');
+								setIsAssignModalOpen(true);
+							}});
+						}
+						
+						if (role === 'academic_operation_executive' || role === 'academic_head') {
+							moreActions.push({ icon: <Edit2 size={14} />, label: 'Edit', onClick: (e) => { e.stopPropagation(); handleEdit(student); } });
+							moreActions.push({ icon: <Trash2 size={14} />, label: 'Delete', danger: true, onClick: (e) => { e.stopPropagation(); handleDelete(student); } });
+						}
+
+						const badges = [];
+						if (role === 'mentor_head' && !student.mentor_id) {
+							badges.push(<span key="new" className="px-2 py-0.5 rounded-md bg-amber-50 text-amber-600 border border-amber-200 text-[9px] font-black uppercase tracking-widest animate-pulse">NEW</span>);
+						}
+						if ((role === 'mentor_head' ? student.mentorship_completed === 1 : student.course_completed === 1)) {
+							badges.push(<span key="completed" className={`px-2 py-0.5 rounded-md border text-[9px] font-black uppercase tracking-widest ${role === 'mentor_head' ? 'bg-teal-50 text-teal-600 border-teal-200' : 'bg-emerald-50 text-emerald-600 border-emerald-200'}`}>Completed</span>);
+						}
+
+						return (
+							<MobileCard
+								key={student.id}
+								isExpanded={expandedStudentId === student.id}
+								onToggle={() => setExpandedStudentId(expandedStudentId === student.id ? null : student.id)}
+								avatar={
+									<div className="w-10 h-10 bg-gradient-to-br from-slate-100 to-slate-200 rounded-xl flex items-center justify-center text-slate-600 font-black shadow-inner uppercase">
+										{student.name.charAt(0)}
+									</div>
+								}
+								title={
+									<span className="flex items-center gap-1">
+										{student.name}
+										{student.badge === 'Gold' && '🥇'}
+										{student.badge === 'Silver' && '🥈'}
+										{student.badge === 'Diamond' && '💎'}
+									</span>
+								}
+								subtitle={<span className="text-[10px] font-bold text-slate-400 uppercase">Reg: {student.registration_number || 'PENDING'}</span>}
+								badges={badges}
+								metrics={[
+									{ icon: <BookOpen size={12} />, value: `${student.course || 'N/A'}` },
+									{ icon: <Clock size={12} />, value: `${student.total_lifetime_consumed_hours || 0}/${student.total_hours || 0}h` }
+								]}
+								expandedContent={
+									<div className="space-y-4">
+										<div className="grid grid-cols-2 gap-2 border-b border-slate-100 pb-3">
+											<div>
+												<span className="text-[9px] font-black text-slate-400 uppercase block mb-1">Mentor</span>
+												<span className="text-xs font-bold text-slate-800">{student.mentor_name || 'N/A'}</span>
+											</div>
+											<div>
+												<span className="text-[9px] font-black text-slate-400 uppercase block mb-1">Grade</span>
+												<span className="text-xs font-bold text-[#008080]">{student.grade || 'N/A'}</span>
+											</div>
+										</div>
+
+										{student.subject_hours && student.subject_hours.length > 0 && (
+											<div className="pt-2">
+												<span className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-2">Subject Hours</span>
+												<div className="space-y-2">
+													{student.subject_hours.map((sh, idx) => (
+														<div key={idx} className="flex justify-between items-center text-[10px] font-bold bg-slate-50 p-2 rounded-lg border border-slate-100">
+															<div className="flex flex-col">
+																<span className="text-slate-700 uppercase">{sh.subject}</span>
+																<span className="text-[8px] text-[#008080] uppercase truncate max-w-[120px]">{sh.faculties}</span>
+															</div>
+															<span className="text-slate-600 bg-white border border-slate-200 px-2 py-1 rounded">{sh.consumed_hours}/{sh.allocated_hours}h</span>
+														</div>
+													))}
+												</div>
+											</div>
+										)}
+
+										<div className="pt-3 border-t border-slate-100 flex items-center justify-between">
+											<span className="text-[9px] font-black text-slate-400 uppercase tracking-widest block">Assessment</span>
+											<span 
+												onClick={(e) => { e.stopPropagation(); setViewAssessmentHistoryStudent(student); }}
+												className={`px-2 py-1 rounded text-[9px] font-black uppercase tracking-widest border cursor-pointer hover:shadow-md transition-all ${student.assessment_level === 'Level 1' ? 'bg-rose-50 text-rose-600 border-rose-200' : student.assessment_level === 'Level 2' ? 'bg-amber-50 text-amber-600 border-amber-200' : student.assessment_level === 'Level 3' ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : 'bg-slate-50 text-slate-500 border-slate-200 hover:bg-slate-100'}`}>
+												{student.assessment_level || 'Unassessed'} {student.assessment_score ? `(${student.assessment_score})` : ''}
+											</span>
+										</div>
+									</div>
+								}
+								primaryActions={primaryActions}
+								moreActions={moreActions}
+							/>
+						);
+					}) : (
+						<div className="px-8 py-12 text-center bg-white rounded-2xl border border-slate-100">
+							<p className="text-slate-600 font-black text-[10px] uppercase tracking-[0.3em]">No students found</p>
+						</div>
+					)}
 				</div>
 			</div>
 

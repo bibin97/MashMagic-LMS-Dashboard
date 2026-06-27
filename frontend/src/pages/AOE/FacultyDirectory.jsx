@@ -5,6 +5,7 @@ import { Users, User, Mail, Phone, Calendar, Search, Filter, Activity, Edit2, Tr
 import toast from 'react-hot-toast';
 import { premiumConfirm } from '../../utils/premiumConfirm';
 import ExportButton from '../../components/common/ExportButton';
+import MobileCard from '../../components/common/MobileCard';
 const FacultyDirectory = ({
   role = 'academic_operation_executive'
 }) => {
@@ -17,6 +18,7 @@ const FacultyDirectory = ({
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('directory');
   const [editHistory, setEditHistory] = useState([]);
+  const [expandedCardId, setExpandedCardId] = useState(null);
   const navBasePath = role === 'academic_head' ? '/academic-head' : '/aoe';
   const navigate = useNavigate();
   const [selectedSyllabi, setSelectedSyllabi] = useState([]);
@@ -299,7 +301,7 @@ const FacultyDirectory = ({
               </div>
               <h3 className="text-xl font-black text-slate-900">No Faculty Found</h3>
               <p className="text-slate-500 font-bold max-w-xs mx-auto text-sm">We couldn't find any staff matching your search criteria.</p>
-            </div> : activeTab === 'directory' ? <div className="overflow-x-auto">
+            </div> : activeTab === 'directory' ? <div><div className="hidden md:block overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="bg-slate-50/50">
@@ -368,6 +370,91 @@ const FacultyDirectory = ({
                     </tr>)}
                 </tbody>
               </table>
+              </div>
+              <div className="md:hidden flex flex-col gap-4 p-4 bg-slate-50/50">
+                {filteredFaculties.map((faculty) => {
+                  const initials = faculty.name ? faculty.name.charAt(0).toUpperCase() : '?';
+                  
+                  const badges = [
+                    <span key="status" className={`px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-widest border ${faculty.status === 'active' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-amber-50 text-amber-600 border-amber-100'}`}>
+                      {faculty.status}
+                    </span>
+                  ];
+
+                  const metrics = [
+                    { icon: <GraduationCap size={12} />, value: faculty.subject ? faculty.subject.split(',')[0] : 'Unassigned' }
+                  ];
+
+                  const expandedContent = (
+                    <div className="space-y-4">
+                      <div className="flex flex-col gap-2">
+                        {faculty.email && (
+                          <div className="flex items-center gap-2 text-slate-600">
+                            <Mail size={14} className="text-slate-400" />
+                            <span className="text-xs font-bold">{faculty.email}</span>
+                          </div>
+                        )}
+                        {faculty.phone && (
+                          <div className="flex items-center gap-2 text-slate-600">
+                            <Phone size={14} className="text-slate-400" />
+                            <span className="text-xs font-bold">{faculty.phone}</span>
+                          </div>
+                        )}
+                      </div>
+                      
+                      {faculty.subject && (
+                        <div className="pt-2 border-t border-slate-100">
+                          <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Subject Focus</p>
+                          <div className="flex flex-wrap gap-1.5">
+                            {faculty.subject.split(',').map((sub, idx) => (
+                              <span key={idx} className="px-2 py-1 bg-slate-50 border border-slate-100 text-slate-600 rounded text-[9px] font-black uppercase tracking-widest">
+                                {sub}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+
+                  const primaryActions = [
+                    { icon: <Eye size={14} />, label: 'View', onClick: () => { setSelectedFaculty(faculty); setIsDetailModalOpen(true); } }
+                  ];
+
+                  const moreActions = [
+                    { icon: <Edit2 size={14} />, label: 'Edit', onClick: () => navigate(`${navBasePath}/faculty/edit/${faculty.id}`) },
+                    { icon: <History size={14} />, label: 'History', onClick: () => handleViewHistory(faculty.id) }
+                  ];
+
+                  if (role === 'academic_head') {
+                    moreActions.push({ icon: <Trash2 size={14} />, label: 'Delete', onClick: () => premiumConfirm('Delete Faculty', 'Are you sure you want to remove this faculty member? This cannot be undone.', () => handleDelete(faculty.id)), danger: true });
+                  }
+
+                  return (
+                    <MobileCard
+                      key={faculty.id}
+                      isExpanded={expandedCardId === faculty.id}
+                      onToggle={() => setExpandedCardId(expandedCardId === faculty.id ? null : faculty.id)}
+                      avatar={
+                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#008080] to-[#008080]/80 text-white flex items-center justify-center font-black shadow-sm">
+                          {initials}
+                        </div>
+                      }
+                      title={faculty.name}
+                      subtitle={
+                        <span className="text-slate-500">
+                          Joined: {new Date(faculty.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: '2-digit' })}
+                        </span>
+                      }
+                      badges={badges}
+                      metrics={metrics}
+                      expandedContent={expandedContent}
+                      primaryActions={primaryActions}
+                      moreActions={moreActions}
+                    />
+                  );
+                })}
+              </div>
             </div> : <div className="overflow-x-auto">
               {editHistory.length === 0 ? <div className="p-20 text-center space-y-4">
                   <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto text-slate-300">

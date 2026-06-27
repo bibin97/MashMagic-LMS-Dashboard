@@ -10,6 +10,7 @@ import * as XLSX from 'xlsx';
 import toast from 'react-hot-toast';
 import ExportButton from '../../components/common/ExportButton';
 import MultiDatePicker from "react-multi-date-picker";
+import MobileCard from '../../components/common/MobileCard';
 const DatePicker = MultiDatePicker.default ? MultiDatePicker.default : MultiDatePicker;
 
 const checkIsLive = (session) => {
@@ -59,6 +60,7 @@ const AcademicSchedule = () => {
   };
   const [selectedSession, setSelectedSession] = useState(null);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  const [expandedMobileCards, setExpandedMobileCards] = useState({});
 
   useEffect(() => {
     fetchSchedule();
@@ -285,8 +287,9 @@ return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String
       {/* Timetable Grid */}
       <div className="space-y-4">
         {currentData.map((session, idx) => (
-          <div key={idx} className="bg-white rounded-[1.5rem] md:rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-500 group overflow-hidden flex flex-col md:flex-row items-stretch">
-            <div className={`w-2 md:w-3 shrink-0 ${session.status === 'Completed' ? 'bg-emerald-500' : 'bg-amber-500'} opacity-40 group-hover:opacity-100 transition-opacity animate-pulse`}></div>
+          <React.Fragment key={session.id || idx}>
+          <div className="hidden md:flex bg-white rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-500 group overflow-hidden flex-col md:flex-row items-stretch">
+            <div className={`w-3 shrink-0 ${session.status === 'Completed' ? 'bg-emerald-500' : 'bg-amber-500'} opacity-40 group-hover:opacity-100 transition-opacity animate-pulse`}></div>
             
             <div className="flex-grow p-4 md:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6">
               
@@ -369,6 +372,66 @@ return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String
               )}
             </div>
           </div>
+
+          <div className="md:hidden block">
+            <MobileCard
+              isExpanded={!!expandedMobileCards[session.id || idx]}
+              onToggle={() => setExpandedMobileCards(prev => ({ ...prev, [session.id || idx]: !prev[session.id || idx] }))}
+              avatar={
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 text-white font-black text-xs ${session.status === 'Completed' ? 'bg-emerald-500' : 'bg-amber-500'}`}>
+                  #{idx + 1}
+                </div>
+              }
+              title={session.student_name}
+              subtitle={<span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{session.faculty_name}</span>}
+              badges={
+                session.status === 'Completed' ? 
+                [<span key="comp" className="px-2 py-0.5 bg-emerald-50 text-emerald-600 border border-emerald-100 text-[9px] font-black uppercase tracking-widest rounded-md">Completed</span>] :
+                [<span key="sch" className="px-2 py-0.5 bg-amber-50 text-amber-600 border border-amber-100 text-[9px] font-black uppercase tracking-widest rounded-md animate-pulse">Scheduled</span>]
+              }
+              metrics={[
+                { icon: <Calendar size={12} />, value: session.date ? new Date(session.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : 'TBD' },
+                { icon: <Clock size={12} />, value: session.start_time ? new Date(`2000-01-01T${session.start_time}`).toLocaleString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }) : 'TBD' }
+              ]}
+              expandedContent={
+                <div className="space-y-4">
+                  <div>
+                    <span className="text-[9px] font-black text-slate-400 uppercase block mb-1">Topic</span>
+                    <span className="text-xs font-bold text-slate-800">{session.topic || 'General Session'}</span>
+                  </div>
+                  {session.status === 'Completed' && (
+                    <div>
+                      <span className="text-[9px] font-black text-slate-400 uppercase block mb-1">Duration</span>
+                      <span className="text-xs font-bold text-emerald-600 flex items-center gap-1"><Timer size={12}/> {session.minutes_taken}m</span>
+                    </div>
+                  )}
+                </div>
+              }
+              primaryActions={
+                [
+                  ...(session.meeting_link && session.status !== 'Completed' && session.date && session.date.split('T')[0] === localTodayStr ? [{
+                    icon: <Video size={14} />,
+                    label: 'LIVE',
+                    onClick: () => handleJoinSession(session),
+                    variant: checkIsLive(session) ? 'danger' : 'outline'
+                  }] : []),
+                  {
+                    icon: <BookOpen size={14} />,
+                    label: 'Details',
+                    onClick: () => { setSelectedSession(session); setIsDetailsModalOpen(true); },
+                    variant: 'outline'
+                  },
+                  ...(session.status !== 'Completed' ? [{
+                    icon: <CheckSquare size={14} />,
+                    label: 'Complete',
+                    onClick: () => { setSelectedSession(session); setMinutesTaken(''); setIsCompleteModalOpen(true); },
+                    variant: 'primary'
+                  }] : [])
+                ]
+              }
+            />
+          </div>
+          </React.Fragment>
         ))}
       </div>
 

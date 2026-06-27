@@ -3,6 +3,7 @@ import { Users, Search, Edit2, Trash2, X, Save, Eye, ShieldCheck, Activity, MapP
 import api from '../../services/api';
 import toast from 'react-hot-toast';
 import { premiumConfirm } from '../../utils/premiumConfirm';
+import MobileCard from '../../components/common/MobileCard';
 const SUBJECT_OPTIONS = ["Mathematics", "Science", "Social Science", "English", "Malayalam", "Hindi", "Physics", "Chemistry", "Biology", "Accountancy", "Business Studies", "Economics", "Computer Science", "Arabic", "French", "IT", "EVS"];
 const FacultyDirectory = () => {
   const [faculties, setFaculties] = useState([]);
@@ -11,6 +12,7 @@ const FacultyDirectory = () => {
   const deferredSearchTerm = useDeferredValue(searchTerm);
   const [selectedFaculty, setSelectedFaculty] = useState(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [expandedCardId, setExpandedCardId] = useState(null);
   const [selectedSyllabi, setSelectedSyllabi] = useState([]);
   const [selectedSections, setSelectedSections] = useState([]);
   const [selectedSubjects, setSelectedSubjects] = useState([]);
@@ -173,7 +175,7 @@ const FacultyDirectory = () => {
 
  {/* List */}
  <div className="bg-white rounded-[3rem] border border-slate-100 shadow-sm overflow-hidden">
- <div className="overflow-x-auto">
+ <div className="hidden md:block overflow-x-auto">
  <table className="w-full text-left border-collapse">
  <thead>
  <tr className="bg-slate-50/50 border-b border-slate-100">
@@ -239,6 +241,73 @@ const FacultyDirectory = () => {
  </tr>}
  </tbody>
  </table>
+ </div>
+ 
+ <div className="md:hidden flex flex-col gap-4 p-4 bg-slate-50/50">
+    {filteredFaculties.length > 0 ? filteredFaculties.map((faculty) => {
+      const initials = faculty.name ? faculty.name.charAt(0).toUpperCase() : '?';
+      const statusStr = String(faculty.status || 'active').toLowerCase();
+      
+      const badges = [
+        <span key="status" className={`px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-widest border ${statusStr === 'active' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-rose-50 text-rose-600 border-rose-100'}`}>
+          {faculty.status || 'active'}
+        </span>
+      ];
+
+      const metrics = [
+        { icon: <MapPin size={12} />, value: faculty.place || 'N/A' }
+      ];
+
+      const expandedContent = (
+        <div className="space-y-4">
+          <div className="flex flex-col gap-2">
+            {faculty.email && (
+              <div className="flex items-center gap-2 text-slate-600">
+                <Mail size={14} className="text-slate-400" />
+                <span className="text-xs font-bold">{faculty.email}</span>
+              </div>
+            )}
+            {faculty.phone_number && (
+              <div className="flex items-center gap-2 text-slate-600">
+                <Phone size={14} className="text-slate-400" />
+                <span className="text-xs font-bold">{faculty.phone_number}</span>
+              </div>
+            )}
+          </div>
+          <div className="pt-2 border-t border-slate-100">
+            <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest mt-0.5">ID: {faculty.id}</span>
+          </div>
+        </div>
+      );
+
+      const primaryActions = [
+        { icon: <Eye size={14} />, label: 'Profile', onClick: () => { setSelectedFaculty(faculty); setIsDetailModalOpen(true); } }
+      ];
+
+      return (
+        <MobileCard
+          key={faculty.id}
+          isExpanded={expandedCardId === faculty.id}
+          onToggle={() => setExpandedCardId(expandedCardId === faculty.id ? null : faculty.id)}
+          avatar={
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-[#008080] text-white flex items-center justify-center font-black shadow-sm">
+              {initials}
+            </div>
+          }
+          title={faculty.name}
+          subtitle={<span className="text-slate-500">View Faculty Details</span>}
+          badges={badges}
+          metrics={metrics}
+          expandedContent={expandedContent}
+          primaryActions={primaryActions}
+          moreActions={[]}
+        />
+      );
+    }) : (
+      <div className="p-10 text-center">
+        <p className="text-slate-600 font-black text-[10px] uppercase tracking-[0.3em]">No faculty found</p>
+      </div>
+    )}
  </div>
  </div>
 

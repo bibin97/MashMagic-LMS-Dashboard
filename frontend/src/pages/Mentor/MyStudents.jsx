@@ -5,18 +5,36 @@ import { User, Users, ChevronRight, Search, CheckCircle2, Calendar, Clock, Plus,
 import toast from 'react-hot-toast';
 import StudentListFilterDropdown, { sortStudentsByOption } from '../../components/StudentListFilterDropdown';
 import { mockStudentHours } from '../../utils/mockStudentHours';
+import MobileCard from '../../components/common/MobileCard';
 
 const StudentRow = ({ student, index, navigate, handleToggleConnection, handleCompleteOnboarding, handleLogHoursClick }) => {
   const isPending = student.onboarding_status === 'pending';
   const isNew = student.onboarding_status === 'completed' && (!student.session_count || student.session_count < 5);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isMobileExpanded, setIsMobileExpanded] = useState(false);
 
   const alertClass = student.payment_alert_level === 'Critical' ? 'payment-alert-critical' : student.payment_alert_level === 'Warning' ? 'payment-alert-warning' : '';
 
+  const primaryActions = [
+    { icon: <MessageSquare size={14} />, label: 'Chat', onClick: (e) => { e.stopPropagation(); navigate('/mentor/interaction-logs', { state: { studentId: student.id } }); } }
+  ];
+
+  const badges = [];
+  if (isNew) badges.push(<span key="new" className="px-2 py-0.5 bg-emerald-50 text-emerald-600 border border-emerald-100 text-[9px] font-black uppercase tracking-widest rounded-md animate-pulse">New Member</span>);
+  badges.push(
+    <span key="status" className={`px-2 py-0.5 rounded-md border text-[9px] font-black uppercase tracking-widest ${student.connected_today ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-slate-50 text-slate-500 border-slate-200'}`}>
+      {student.connected_today ? 'Connected' : 'Offline'}
+    </span>
+  );
+  if (student.payment_alert_level === 'Critical' || student.payment_alert_level === 'Warning') {
+    badges.push(<span key="alert" className={`px-2 py-0.5 rounded-md border text-[9px] font-black uppercase tracking-widest ${student.payment_alert_level === 'Critical' ? 'bg-rose-50 text-rose-600 border-rose-200 animate-pulse' : 'bg-amber-50 text-amber-600 border-amber-200 animate-pulse'}`}>{student.payment_alert_level}</span>);
+  }
+
   return (
+    <>
     <div
       onClick={() => navigate(`/mentor/students/${student.id}`)}
-      className={`group relative bg-white border border-slate-100 rounded-[2rem] p-5 flex flex-col gap-6 transition-all duration-500 hover:shadow-2xl hover:-translate-y-1 cursor-pointer ${alertClass}`}
+      className={`hidden md:flex group relative bg-white border border-slate-100 rounded-[2rem] p-5 flex-col gap-6 transition-all duration-500 hover:shadow-2xl hover:-translate-y-1 cursor-pointer ${alertClass}`}
       title={student.payment_alert_level && student.payment_alert_level !== 'None' ? `Payment Alert: ${student.consumed_hours} consumed / ${student.paid_hours} paid hours` : ''}
     >
       <div className="flex flex-col lg:flex-row items-center gap-6 w-full">
@@ -127,8 +145,76 @@ const StudentRow = ({ student, index, navigate, handleToggleConnection, handleCo
             ))}
           </div>
         </div>
+        </div>
       )}
     </div>
+
+    <div className="md:hidden block">
+      <MobileCard
+        isExpanded={isMobileExpanded}
+        onToggle={() => setIsMobileExpanded(!isMobileExpanded)}
+        avatar={
+          <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border text-xl font-black uppercase ${isPending ? 'bg-amber-100 border-amber-200 text-amber-600' : 'bg-gradient-to-br from-[#008080]/10 to-[#008080]/20 border-slate-100 text-[#008080]'}`}>
+            {student.name.charAt(0)}
+          </div>
+        }
+        title={student.name}
+        subtitle={<span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">ID: MM-{student.id.toString().padStart(4, '0')}</span>}
+        badges={badges}
+        metrics={[
+          { icon: <Clock size={12} />, value: `${student.total_lifetime_consumed_hours || 0}/${student.total_hours || 0}h` }
+        ]}
+        expandedContent={
+          <div className="space-y-4">
+            <div className="flex justify-between items-center pb-3 border-b border-slate-100">
+                <span className="text-[9px] font-black text-slate-400 uppercase block mb-1">Course</span>
+                <span className="text-xs font-bold text-slate-800">{student.course || 'N/A'}</span>
+            </div>
+
+            <div className="pt-2">
+                <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-2">Subject Hours</span>
+                {student.subject_hours && student.subject_hours.length > 0 ? (
+                    <div className="space-y-2">
+                        {student.subject_hours.map((sh, idx) => (
+                            <div key={idx} className="flex justify-between items-center text-[10px] font-bold bg-slate-50 p-2 rounded-lg border border-slate-100">
+                                <span className="text-slate-700 uppercase truncate max-w-[120px]" title={sh.subject}>{sh.subject}</span>
+                                <span className="text-slate-600 bg-white border border-slate-200 px-2 py-1 rounded">{sh.consumed_hours}/{sh.allocated_hours}h</span>
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <div className="text-[10px] font-bold text-slate-400 uppercase">N/A</div>
+                )}
+            </div>
+
+            {student.faculty_names && (
+                <div className="pt-3 border-t border-slate-100">
+                    <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-2">Assigned Faculties ({student.faculty_names.split(',').length})</span>
+                    <div className="flex flex-wrap gap-2">
+                        {student.faculty_names.split(',').map((f, i) => (
+                            <span key={i} className="text-[9px] font-black bg-slate-50 border border-slate-200 px-2 py-1 rounded text-slate-600 uppercase">
+                                {f.trim()}
+                            </span>
+                        ))}
+                    </div>
+                </div>
+            )}
+            
+            <div className="pt-4 flex justify-center">
+                <button
+                    onClick={(e) => { e.stopPropagation(); navigate(`/mentor/students/${student.id}`); }}
+                    className="w-full py-2 bg-slate-50 text-[#008080] font-black uppercase text-[10px] rounded-lg border border-slate-100 hover:bg-[#008080] hover:text-white transition-all shadow-sm"
+                >
+                    View Full Details
+                </button>
+            </div>
+          </div>
+        }
+        primaryActions={primaryActions}
+        moreActions={[]}
+      />
+    </div>
+    </>
   );
 };
 

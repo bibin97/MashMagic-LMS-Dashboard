@@ -3,6 +3,7 @@ import api from '../../services/api';
 import { Calendar as CalendarIcon, Clock, User, BookOpen, Video, FileEdit, X } from 'lucide-react';
 import toast from 'react-hot-toast';
 import ExportButton from '../../components/common/ExportButton';
+import MobileCard from '../../components/common/MobileCard';
 
 const FacultySchedule = () => {
   const [schedule, setSchedule] = useState({ today: [], upcoming: [], completed: [] });
@@ -12,6 +13,7 @@ const FacultySchedule = () => {
   // Modal State
   const [showModal, setShowModal] = useState(false);
   const [selectedSession, setSelectedSession] = useState(null);
+  const [expandedMobileCards, setExpandedMobileCards] = useState({});
   const [reportData, setReportData] = useState({
     topic: '',
     homework_given: false,
@@ -140,7 +142,8 @@ const FacultySchedule = () => {
           </div>
         ) : (
           currentList.map(session => (
-            <div key={session.id} className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex flex-col md:flex-row justify-between items-center gap-6">
+            <React.Fragment key={session.id}>
+            <div className="hidden md:flex bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex-col md:flex-row justify-between items-center gap-6">
               <div className="flex items-center gap-6">
                 <div className="w-16 h-16 bg-indigo-50 text-indigo-600 rounded-2xl flex flex-col items-center justify-center">
                   <span className="text-xl font-black">{new Date(session.date).getDate()}</span>
@@ -183,9 +186,56 @@ const FacultySchedule = () => {
                   <span className="px-6 py-3 bg-emerald-50 text-emerald-600 rounded-xl text-xs font-black uppercase tracking-widest border border-emerald-100">
                     Report Submitted
                   </span>
-                )}
               </div>
             </div>
+
+            <div className="md:hidden block">
+              <MobileCard
+                isExpanded={!!expandedMobileCards[session.id]}
+                onToggle={() => setExpandedMobileCards(prev => ({ ...prev, [session.id]: !prev[session.id] }))}
+                avatar={
+                  <div className="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-xl flex flex-col items-center justify-center shrink-0">
+                    <span className="text-[12px] font-black leading-none">{new Date(session.date).getDate()}</span>
+                    <span className="text-[7px] font-bold uppercase tracking-widest">{new Date(session.date).toLocaleString('default', { month: 'short' })}</span>
+                  </div>
+                }
+                title={session.student_name}
+                subtitle={<span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{session.student_subject}</span>}
+                badges={
+                  session.status === 'Completed' ? 
+                  [<span key="comp" className="px-2 py-0.5 bg-emerald-50 text-emerald-600 border border-emerald-100 text-[9px] font-black uppercase tracking-widest rounded-md">Report Submitted</span>] :
+                  []
+                }
+                metrics={[
+                  { icon: <Clock size={12} />, value: session.start_time ? `${session.start_time} - ${session.end_time || 'N/A'}` : 'TBD' }
+                ]}
+                expandedContent={
+                  <div className="space-y-4">
+                    <div className="flex flex-col gap-1">
+                      <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Student Subject</span>
+                      <span className="text-xs font-bold text-slate-800">{session.student_subject}</span>
+                    </div>
+                  </div>
+                }
+                primaryActions={
+                  [
+                    ...(activeTab === 'today' && session.student_meeting_link ? [{
+                      icon: <Video size={14} />,
+                      label: 'Live',
+                      onClick: () => window.open(session.student_meeting_link, '_blank'),
+                      variant: 'danger'
+                    }] : []),
+                    ...((activeTab === 'today' || activeTab === 'completed') && session.status !== 'Completed' ? [{
+                      icon: <FileEdit size={14} />,
+                      label: 'Report',
+                      onClick: () => handleReportClick(session),
+                      variant: 'primary'
+                    }] : [])
+                  ]
+                }
+              />
+            </div>
+            </React.Fragment>
           ))
         )}
       </div>
