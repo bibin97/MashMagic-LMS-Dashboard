@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Shield, UserPlus, Search, Edit, Trash2, CheckCircle, XCircle, Loader2, ShieldCheck, Mail, Phone, Lock, User } from 'lucide-react';
+import { Shield, UserPlus, Search, Edit, Trash2, CheckCircle, XCircle, Loader2, ShieldCheck, Mail, Phone, Lock, User, Eye, EyeOff, MoreVertical, ChevronDown, ChevronUp } from 'lucide-react';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
 import Modal from '../../components/Modal';
@@ -19,34 +19,49 @@ const AdminManagement = () => {
   });
   const [fullControl, setFullControl] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const permissionOptions = [{
-    key: 'dashboard',
-    label: 'Global Dashboard'
-  }, {
-    key: 'admins',
-    label: 'Sub-Admin Management'
-  }, {
-    key: 'approvals',
-    label: 'Registration Approvals'
-  }, {
-    key: 'students',
-    label: 'Student Management'
-  }, {
-    key: 'mentors',
-    label: 'Mentor Management'
-  }, {
-    key: 'faculties',
-    label: 'Faculty Management'
-  }, {
-    key: 'tasks',
-    label: 'Task Management System'
-  }, {
-    key: 'logs',
-    label: 'System Interaction Logs'
-  }, {
-    key: 'monitoring',
-    label: 'Live Monitoring'
-  }];
+  const [expandedAdminId, setExpandedAdminId] = useState(null);
+  const [showPassword, setShowPassword] = useState(false);
+  const [expandedCategories, setExpandedCategories] = useState({});
+  const [activeMoreMenuId, setActiveMoreMenuId] = useState(null);
+  const permissionCategories = [
+    {
+      id: 'dashboard',
+      title: 'Dashboard',
+      options: [
+        { key: 'dashboard', label: 'Global Dashboard' },
+        { key: 'monitoring', label: 'Live Monitoring' }
+      ]
+    },
+    {
+      id: 'student',
+      title: 'Student Management',
+      options: [
+        { key: 'students', label: 'Student Management' },
+        { key: 'approvals', label: 'Registration Approvals' }
+      ]
+    },
+    {
+      id: 'faculty',
+      title: 'Faculty Management',
+      options: [{ key: 'faculties', label: 'Faculty Management' }]
+    },
+    {
+      id: 'mentor',
+      title: 'Mentor Management',
+      options: [{ key: 'mentors', label: 'Mentor Management' }]
+    },
+    {
+      id: 'settings',
+      title: 'Settings & Logs',
+      options: [
+        { key: 'admins', label: 'Sub-Admin Management' },
+        { key: 'tasks', label: 'Task Management System' },
+        { key: 'logs', label: 'System Interaction Logs' }
+      ]
+    }
+  ];
+  
+  const permissionOptions = permissionCategories.flatMap(c => c.options);
   useEffect(() => {
     fetchSubAdmins();
   }, []);
@@ -74,6 +89,7 @@ const AdminManagement = () => {
       permissions: {}
     });
     setFullControl(false);
+    setShowPassword(false);
     setIsModalOpen(true);
   };
   const handleOpenEdit = admin => {
@@ -91,6 +107,7 @@ const AdminManagement = () => {
     // Check if all permissions are true
     const isFull = permissionOptions.every(opt => perms[opt.key]);
     setFullControl(isFull);
+    setShowPassword(false);
     setIsModalOpen(true);
   };
   const handleSubmit = async e => {
@@ -149,15 +166,32 @@ const AdminManagement = () => {
  </div>
  </div>
  </div>
+  return <div className="flex flex-col gap-10 pb-10">
+ <div className="bg-white/70 backdrop-blur-xl p-12 rounded-[40px] border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.04)] flex flex-col md:flex-row justify-between items-center gap-10">
+ <div className="text-center md:text-left">
+ <div className="flex flex-col md:flex-row items-center gap-8">
+ <div className="w-20 h-20 bg-[#008080] rounded-[28px] shadow-2xl shadow-[#008080]/30 flex items-center justify-center group hover:rotate-12 transition-transform duration-700">
+ <ShieldCheck className="text-white" size={36} strokeWidth={2.5} />
+ </div>
+ <div>
+ <h2 className="text-5xl font-black text-slate-900 tracking-tighter leading-none mb-3 ">Sub-Admin Management</h2>
+ <p className="text-slate-600 text-[11px] font-black uppercase tracking-[0.25em] flex items-center justify-center md:justify-start gap-3 mt-1">
+ <div className="w-2 h-2 rounded-full bg-[#008080] animate-pulse"></div>
+ Manage sub-admin accounts and their system permissions
+ </p>
+ </div>
+ </div>
+ </div>
  <button onClick={handleOpenCreate} className="bg-gradient-to-br from-slate-800 to-slate-900 text-[#008080] px-10 py-6 rounded-[24px] font-black text-[11px] uppercase tracking-[0.3em] flex items-center gap-4 hover:shadow-2xl hover:shadow-[#008080]/20 hover:-translate-y-1 transition-all group">
  <UserPlus size={20} strokeWidth={3} className="group-hover:scale-110 transition-transform" />
  <span>Add Sub-Admin</span>
  </button>
  </div>
 
- <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden min-h-[500px]">
+ <div className="bg-white rounded-[2.5rem] md:border border-slate-100 md:shadow-sm overflow-hidden min-h-[500px]">
  <div className="overflow-x-auto">
- <table className="w-full text-left border-collapse">
+ {/* Desktop Table View */}
+ <table className="w-full text-left border-collapse hidden md:table">
  <thead>
  <tr className="bg-slate-50/40 border-b border-slate-100/50">
  <th className="p-8 text-[11px] font-black text-slate-600 uppercase tracking-[0.2em] ">Admin Name</th>
@@ -168,7 +202,7 @@ const AdminManagement = () => {
  </tr>
  </thead>
  <tbody className="divide-y divide-slate-50">
- {subAdmins.map((admin, index) => <tr key={admin.id} className="hover:bg-slate-50/50 transition-colors group"><td className="p-6 text-sm font-black text-slate-400 border-b border-slate-50">{index + 1}</td>
+ {subAdmins.map((admin, index) => <tr key={admin.id} className="hover:bg-slate-50/50 transition-colors group">
  <td className="p-8">
  <div className="flex items-center gap-5">
  <div className="w-14 h-14 bg-gradient-to-br from-[#008080] to-slate-900 rounded-[20px] flex items-center justify-center text-white font-black shadow-xl shadow-[#008080]/20 transition-transform group-hover:scale-110 group-hover:rotate-6">
@@ -223,6 +257,108 @@ const AdminManagement = () => {
  </tr>}
  </tbody>
  </table>
+
+  {/* Mobile Card View */}
+  <div className="md:hidden flex flex-col gap-4 p-4">
+    {subAdmins.map((admin) => (
+      <div key={admin.id} className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+        {/* Collapsed Header */}
+        <div 
+          className="p-5 flex items-center justify-between gap-4 cursor-pointer hover:bg-slate-50 transition-colors"
+          onClick={() => {
+            setExpandedAdminId(expandedAdminId === admin.id ? null : admin.id);
+            setActiveMoreMenuId(null);
+          }}
+        >
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-gradient-to-br from-[#008080] to-slate-900 rounded-2xl flex items-center justify-center text-white font-black shadow-lg shadow-[#008080]/20 shrink-0">
+              {admin.name.charAt(0).toUpperCase()}
+            </div>
+            <div className="flex flex-col">
+              <span className="text-sm font-black text-slate-800 uppercase tracking-tight">{admin.name}</span>
+              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{admin.phone_number || 'No Phone'}</span>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-[0.2em] border ${admin.status === 'active' ? 'bg-[#10B981]/10 text-[#10B981] border-[#10B981]/20' : 'bg-rose-50 text-rose-600 border-rose-100'}`}>
+              {admin.status === 'active' ? 'Active' : admin.status}
+            </span>
+            {expandedAdminId === admin.id ? <ChevronUp size={16} className="text-slate-400" /> : <ChevronDown size={16} className="text-slate-400" />}
+          </div>
+        </div>
+
+        {/* Expanded Content */}
+        {expandedAdminId === admin.id && (
+          <div className="px-5 pb-5 border-t border-slate-50 pt-4 bg-slate-50/30 animate-in slide-in-from-top-2 duration-300">
+            <div className="space-y-4">
+              <div className="flex flex-col gap-1">
+                <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Email Address</span>
+                <span className="text-xs font-bold text-slate-700">{admin.email}</span>
+              </div>
+              <div className="flex flex-col gap-1">
+                <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Created On</span>
+                <span className="text-xs font-bold text-slate-700">{admin.created_at ? new Date(admin.created_at).toLocaleDateString('en-GB') : 'N/A'}</span>
+              </div>
+              
+              <div className="flex flex-col gap-1">
+                <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Permissions Overview</span>
+                <span className="text-xs font-bold text-[#008080] truncate block">
+                  {(() => {
+                    const perms = admin.permissions ? (typeof admin.permissions === 'string' ? JSON.parse(admin.permissions) : admin.permissions) : {};
+                    const activePerms = permissionOptions.filter(opt => perms[opt.key]).map(opt => opt.label);
+                    return activePerms.length > 0 ? activePerms.join(', ') : 'No Access';
+                  })()}
+                </span>
+              </div>
+
+              {/* Mobile Actions */}
+              <div className="pt-4 mt-2 border-t border-slate-100 flex gap-2 relative">
+                <button 
+                  onClick={() => handleOpenEdit(admin)}
+                  className="flex-1 bg-[#008080] text-white py-3 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2"
+                >
+                  <Edit size={14} /> Edit Admin
+                </button>
+                <button 
+                  onClick={() => setActiveMoreMenuId(activeMoreMenuId === admin.id ? null : admin.id)}
+                  className="w-12 bg-slate-100 text-slate-600 rounded-xl flex items-center justify-center relative"
+                >
+                  <MoreVertical size={16} />
+                  
+                  {activeMoreMenuId === admin.id && (
+                    <div className="absolute bottom-full right-0 mb-2 w-48 bg-white rounded-2xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.2)] border border-slate-100 overflow-hidden z-50 animate-in zoom-in-95 duration-200">
+                      <div 
+                        className="p-3 text-xs font-bold text-slate-700 hover:bg-slate-50 flex items-center gap-2"
+                        onClick={(e) => { e.stopPropagation(); handleOpenEdit(admin); setActiveMoreMenuId(null); }}
+                      >
+                        <Lock size={14} className="text-slate-400" /> Reset Password
+                      </div>
+                      <div 
+                        className="p-3 text-xs font-bold text-rose-600 hover:bg-rose-50 flex items-center gap-2 border-t border-slate-100"
+                        onClick={(e) => { e.stopPropagation(); handleDelete(admin.id, admin.name); setActiveMoreMenuId(null); }}
+                      >
+                        <Trash2 size={14} className="text-rose-400" /> Delete Admin
+                      </div>
+                    </div>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    ))}
+
+    {subAdmins.length === 0 && (
+      <div className="flex flex-col items-center justify-center p-10 bg-slate-50/50 rounded-3xl border border-dashed border-slate-200 text-center mt-4">
+        <div className="w-16 h-16 bg-white shadow-sm rounded-full flex items-center justify-center text-slate-300 mb-4">
+          <Shield size={28} />
+        </div>
+        <h3 className="text-sm font-black text-slate-800">No Sub Admins Found</h3>
+        <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1">Tap Add Sub-Admin to create one</p>
+      </div>
+    )}
+  </div>
  </div>
  </div>
 
@@ -287,24 +423,41 @@ const AdminManagement = () => {
  </div>
 
  {/* Password */}
- <div className="space-y-2 md:col-span-2">
- <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">
- {editingAdmin ? "Reset Password (Leave blank to keep)" : "Password"}
- </label>
- <div className="relative group">
- <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#008080] transition-colors" />
- <input type="password" required={!editingAdmin} className="w-full p-4 pl-12 bg-slate-50 border border-slate-100 rounded-2xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] focus:border-[#008080] transition-all font-bold tracking-wide" placeholder="••••••••" value={formData.password} onChange={e => setFormData({
+  <div className="space-y-2 md:col-span-2">
+  <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">
+  {editingAdmin ? "Reset Password (Leave blank to keep)" : "Password"}
+  <span className="text-rose-500 ml-1">{!editingAdmin && "*"}</span>
+  </label>
+  <div className="relative group">
+  <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#008080] transition-colors" />
+  <input type={showPassword ? "text" : "password"} required={!editingAdmin} className="w-full p-4 pl-12 pr-12 bg-slate-50 border border-slate-100 rounded-2xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] focus:border-[#008080] transition-all font-bold tracking-wide" placeholder="••••••••" value={formData.password} onChange={e => setFormData({
                 ...formData,
                 password: e.target.value
               })} />
- </div>
- </div>
+  <button 
+    type="button"
+    onClick={() => setShowPassword(!showPassword)}
+    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+  >
+    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+  </button>
+  </div>
+  {/* Password Strength Indicator */}
+  {formData.password && (
+    <div className="flex gap-1 mt-2 px-1">
+      <div className={`h-1 flex-1 rounded-full ${formData.password.length > 0 ? 'bg-rose-500' : 'bg-slate-200'}`}></div>
+      <div className={`h-1 flex-1 rounded-full ${formData.password.length >= 6 ? 'bg-amber-500' : 'bg-slate-200'}`}></div>
+      <div className={`h-1 flex-1 rounded-full ${formData.password.length >= 8 && /[A-Z]/.test(formData.password) && /[0-9]/.test(formData.password) ? 'bg-emerald-500' : 'bg-slate-200'}`}></div>
+    </div>
+  )}
+  </div>
 
  {/* Permissions Header */}
  <div className="md:col-span-2 pt-4 border-t border-slate-100 flex items-center justify-between">
  <h4 className="text-[11px] font-black text-slate-900 uppercase tracking-[0.2em]">Sub-Admin Permissions</h4>
  <div className="flex items-center gap-3 bg-slate-50 px-4 py-2 rounded-xl border border-slate-100">
- <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest">Full Access Control</span>
+ <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest hidden sm:inline">Full Access Control</span>
+ <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest sm:hidden">Full Access</span>
  <button type="button" onClick={() => {
                 const newVal = !fullControl;
                 setFullControl(newVal);
@@ -314,40 +467,66 @@ const AdminManagement = () => {
                   ...formData,
                   permissions: newPerms
                 });
-              }} className={`w-10 h-5 rounded-full relative transition-all duration-300 ${fullControl ? 'bg-[#008080]' : 'bg-slate-300'}`}>
- <div className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all duration-300 ${fullControl ? 'left-6' : 'left-1'}`}></div>
+              }} className={`w-12 h-6 sm:w-10 sm:h-5 rounded-full relative transition-all duration-300 shadow-inner ${fullControl ? 'bg-[#008080]' : 'bg-slate-300'}`}>
+ <div className={`absolute top-1 sm:top-1 w-4 h-4 sm:w-3 sm:h-3 bg-white rounded-full transition-all duration-300 shadow-sm ${fullControl ? 'left-7 sm:left-6' : 'left-1'}`}></div>
  </button>
  </div>
  </div>
 
- {/* Permissions Grid */}
- <div className="md:col-span-2 grid grid-cols-2 sm:grid-cols-3 gap-3">
- {permissionOptions.map(opt => <button key={opt.key} type="button" onClick={() => {
-              const newPerms = {
-                ...formData.permissions,
-                [opt.key]: !formData.permissions[opt.key]
-              };
-              setFormData({
-                ...formData,
-                permissions: newPerms
-              });
-              // Update general full control toggle check
-              setFullControl(permissionOptions.every(o => newPerms[o.key]));
-            }} className={`p-3 rounded-xl border text-[10px] font-bold text-left transition-all flex items-center gap-3 ${formData.permissions[opt.key] ? 'bg-[#008080]/10 border-[#008080]/20 text-[#008080]' : 'bg-white border-slate-100 text-slate-600 hover:border-slate-200'}`}>
- <div className={`w-3 h-3 rounded-full border-2 transition-all ${formData.permissions[opt.key] ? 'bg-[#008080] border-[#008080]' : 'border-slate-200'}`}></div>
- {opt.label}
- </button>)}
+ {/* Permissions Categories */}
+ <div className="md:col-span-2 space-y-3">
+    {permissionCategories.map((category) => (
+      <div key={category.id} className="bg-slate-50/50 rounded-2xl border border-slate-100 overflow-hidden">
+        <button
+          type="button"
+          onClick={() => setExpandedCategories({
+            ...expandedCategories,
+            [category.id]: !expandedCategories[category.id]
+          })}
+          className="w-full flex items-center justify-between p-4 bg-white/50 hover:bg-slate-50 transition-colors"
+        >
+          <span className="text-[11px] font-black text-slate-700 uppercase tracking-widest">{category.title}</span>
+          {expandedCategories[category.id] ? <ChevronUp size={16} className="text-slate-400" /> : <ChevronDown size={16} className="text-slate-400" />}
+        </button>
+        
+        {expandedCategories[category.id] && (
+          <div className="p-4 pt-0 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 border-t border-slate-100/50 mt-2 pt-4">
+            {category.options.map(opt => (
+              <button key={opt.key} type="button" onClick={() => {
+                const newPerms = {
+                  ...formData.permissions,
+                  [opt.key]: !formData.permissions[opt.key]
+                };
+                setFormData({
+                  ...formData,
+                  permissions: newPerms
+                });
+                setFullControl(permissionOptions.every(o => newPerms[o.key]));
+              }} className={`p-4 sm:p-3 rounded-2xl sm:rounded-xl border text-[11px] sm:text-[10px] font-bold text-left transition-all flex items-center justify-between sm:justify-start gap-3 ${formData.permissions[opt.key] ? 'bg-[#008080]/10 border-[#008080]/20 text-[#008080]' : 'bg-white border-slate-100 text-slate-600 hover:border-slate-200 shadow-sm'}`}>
+                <span className="order-1 sm:order-2">{opt.label}</span>
+                <div className={`w-10 h-5 sm:w-4 sm:h-4 rounded-full sm:rounded-md border-2 relative transition-all order-2 sm:order-1 ${formData.permissions[opt.key] ? 'bg-[#008080] border-[#008080]' : 'bg-slate-100 border-slate-200'}`}>
+                  {/* Mobile toggle dot (hidden on desktop) */}
+                  <div className={`sm:hidden absolute top-0.5 w-3 h-3 bg-white rounded-full transition-all shadow-sm ${formData.permissions[opt.key] ? 'left-6' : 'left-1'}`}></div>
+                  {/* Desktop checkmark (hidden on mobile) */}
+                  {formData.permissions[opt.key] && <div className="hidden sm:block absolute inset-0 flex items-center justify-center text-white"><CheckCircle size={12} strokeWidth={4} /></div>}
+                </div>
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+    ))}
  </div>
  </div>
 
- <div className="pt-4 flex gap-4">
- <button type="button" onClick={() => setIsModalOpen(false)} className="flex-1 p-5 rounded-2xl text-xs font-black uppercase tracking-widest text-slate-600 hover:text-slate-600 hover:bg-slate-50 transition-all">
- Cancel
- </button>
- <button type="submit" disabled={isSubmitting} className="flex-[2] p-5 bg-[#008080] text-white rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-[#008080] transition-all shadow-xl shadow-[#008080]/30 flex items-center justify-center gap-2 disabled:opacity-50">
- {isSubmitting ? <Loader2 className="animate-spin" size={18} /> : <span>{editingAdmin ? "Update Admin" : "Create Sub-Admin"}</span>}
- </button>
- </div>
+  <div className="pt-4 flex flex-col-reverse sm:flex-row gap-3 sm:gap-4">
+  <button type="button" onClick={() => setIsModalOpen(false)} className="w-full sm:flex-1 p-4 sm:p-5 rounded-2xl text-[11px] sm:text-xs font-black uppercase tracking-widest text-slate-600 bg-slate-50 border border-slate-100 hover:bg-slate-100 transition-all text-center">
+  Cancel
+  </button>
+  <button type="submit" disabled={isSubmitting} className="w-full sm:flex-[2] p-4 sm:p-5 bg-[#008080] text-white rounded-2xl text-[11px] sm:text-xs font-black uppercase tracking-widest hover:bg-[#006666] transition-all shadow-lg shadow-[#008080]/30 flex items-center justify-center gap-2 disabled:opacity-50">
+  {isSubmitting ? <Loader2 className="animate-spin" size={18} /> : <span>{editingAdmin ? "Update Admin" : "Create Sub-Admin"}</span>}
+  </button>
+  </div>
  </form>
  </Modal>
  </div>;
