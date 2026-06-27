@@ -58,6 +58,7 @@ const AcademicSchedule = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [isCompleteModalOpen, setIsCompleteModalOpen] = useState(false);
+  const [selectedSession, setSelectedSession] = useState(null);
   const [minutesTaken, setMinutesTaken] = useState('');
   const [completionStatus, setCompletionStatus] = useState('Completed');
   const [cancelNote, setCancelNote] = useState('');

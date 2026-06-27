@@ -529,6 +529,8 @@ const AdminManagement = () => {
   </div>
  </form>
  </Modal>
+ </div>
+ </div>
  </div>;
 };
 export default AdminManagement;
