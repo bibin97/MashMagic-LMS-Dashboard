@@ -138,19 +138,45 @@ const Dashboard = () => {
     if (isMounted) fetchTaskAnalytics();
   }, [taskFilter, isMounted]);
 
+  if (loading) {
+    return (
+      <div className="flex flex-col gap-6 sm:gap-10 animate-pulse">
+        {/* Header Skeleton */}
+        <div className="flex flex-col mb-2">
+          <div className="h-8 sm:h-10 w-48 sm:w-64 bg-slate-200 rounded-lg mb-3"></div>
+          <div className="h-6 w-32 bg-slate-200 rounded-lg"></div>
+        </div>
+
+        {/* Stats Grid Skeleton */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="bg-white/80 p-5 sm:p-7 rounded-[20px] sm:rounded-[24px] h-[120px] sm:h-[140px] border border-white/50 shadow-sm flex flex-col justify-between">
+              <div className="h-3 w-16 bg-slate-200 rounded"></div>
+              <div className="h-8 w-24 bg-slate-200 rounded mt-2"></div>
+              <div className="h-4 w-12 bg-slate-200 rounded mt-auto"></div>
+            </div>
+          ))}
+        </div>
+
+        {/* Chart Skeleton */}
+        <div className="w-full bg-white/80 p-6 sm:p-10 rounded-[24px] sm:rounded-[32px] h-[300px] sm:h-[450px] border border-white/50 shadow-sm"></div>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex flex-col gap-10">
+    <div className="flex flex-col gap-6 sm:gap-10">
       <div className="flex flex-col mb-2">
-        <h2 className="text-4xl font-black text-slate-900 tracking-tighter leading-none mb-3">Workspace Overview</h2>
+        <h2 className="text-2xl sm:text-4xl font-black text-slate-900 tracking-tighter leading-none mb-2 sm:mb-3">Workspace Overview</h2>
         <div className="flex items-center gap-3">
-          <div className="px-3 py-1 bg-[#008080]/10 rounded-lg border border-[#008080]/20">
-            <p className="text-[#008080] text-[10px] font-black uppercase tracking-[0.2em]">System Status: Active</p>
+          <div className="px-2 sm:px-3 py-1 bg-[#008080]/10 rounded-md sm:rounded-lg border border-[#008080]/20">
+            <p className="text-[#008080] text-[9px] sm:text-[10px] font-black uppercase tracking-[0.2em]">System Status: Active</p>
           </div>
         </div>
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
         <StatCard
           title="Total Students"
           value={stats.students}
@@ -180,33 +206,33 @@ const Dashboard = () => {
 
       {/* Charts Section */}
       <div className="flex flex-col gap-6">
-        <div className="w-full bg-white/80 backdrop-blur-xl p-8 sm:p-10 rounded-[32px] border border-white/50 shadow-[0_10px_30px_rgba(0,0,0,0.04)]">
-          <div className="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center gap-4 mb-10 w-full">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-[#006666] to-[#008080] text-white rounded-[16px] flex items-center justify-center shadow-lg shadow-[#008080]/20">
-                <Activity size={20} />
+        <div className="w-full bg-white/80 backdrop-blur-xl p-5 sm:p-10 rounded-[20px] sm:rounded-[32px] border border-white/50 shadow-[0_10px_30px_rgba(0,0,0,0.04)]">
+          <div className="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center gap-4 mb-6 sm:mb-10 w-full">
+            <div className="flex items-center gap-3 sm:gap-4">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-[#006666] to-[#008080] text-white rounded-[12px] sm:rounded-[16px] flex items-center justify-center shadow-lg shadow-[#008080]/20">
+                <Activity size={20} className="w-5 h-5 sm:w-6 sm:h-6" />
               </div>
               <div>
-                <h4 className="text-xl font-black text-slate-800 tracking-tight">Task Performance</h4>
-                <p className="text-[10px] text-slate-600 font-bold uppercase tracking-widest mt-1">Tasks assigned vs completed</p>
+                <h4 className="text-base sm:text-xl font-black text-slate-800 tracking-tight">Task Performance</h4>
+                <p className="text-[9px] sm:text-[10px] text-slate-600 font-bold uppercase tracking-widest mt-0.5 sm:mt-1">Tasks assigned vs completed</p>
               </div>
             </div>
-            <div className="flex items-center gap-6">
-              <div className="hidden md:flex items-center gap-6 mr-4">
-                <div className="flex items-center gap-2">
-                  <div className="w-2.5 h-2.5 rounded-[2px] bg-[#10B981]" />
-                  <span className="text-slate-600 font-bold text-[10px] uppercase tracking-widest">Tasks Assigned</span>
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 w-full sm:w-auto">
+              <div className="flex items-center gap-4 sm:gap-6 w-full sm:w-auto overflow-x-auto custom-scrollbar pb-2 sm:pb-0">
+                <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+                  <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-[2px] bg-[#10B981]" />
+                  <span className="text-slate-600 font-bold text-[9px] sm:text-[10px] uppercase tracking-widest">Tasks Assigned</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-2.5 h-2.5 rounded-[2px] bg-[#000000]" />
-                  <span className="text-slate-600 font-bold text-[10px] uppercase tracking-widest">Task Completed</span>
+                <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+                  <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-[2px] bg-[#000000]" />
+                  <span className="text-slate-600 font-bold text-[9px] sm:text-[10px] uppercase tracking-widest">Task Completed</span>
                 </div>
               </div>
-              <div className="relative group">
+              <div className="relative group w-full sm:w-auto">
                 <select
                   value={taskFilter}
                   onChange={(e) => setTaskFilter(e.target.value)}
-                  className="appearance-none bg-slate-50 border border-slate-200 text-slate-900 text-xs font-bold rounded-2xl focus:ring-[#008080] focus:border-[#008080] block w-full px-6 py-3 transition-all hover:bg-white cursor-pointer min-w-[140px]"
+                  className="appearance-none bg-slate-50 border border-slate-200 text-slate-900 text-xs font-bold rounded-xl sm:rounded-2xl focus:ring-[#008080] focus:border-[#008080] block w-full px-4 sm:px-6 py-2.5 sm:py-3 transition-all hover:bg-white cursor-pointer min-w-full sm:min-w-[140px]"
                 >
                   <option value="today">Today</option>
                   <option value="yesterday">Yesterday</option>
@@ -216,15 +242,15 @@ const Dashboard = () => {
                   <option value="this_month">This Month</option>
                   <option value="last_month">Previous Month</option>
                 </select>
-                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-600 group-hover:text-[#008080] transition-colors">
+                <div className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-600 group-hover:text-[#008080] transition-colors">
                   <ChevronLeft size={16} className="-rotate-90" />
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="flex-1 w-full h-[400px] overflow-x-auto custom-scrollbar">
-            <div style={{ minWidth: `${Math.max(100, taskPerformance.length * 80)}px`, height: '100%' }}>
+          <div className="flex-1 w-full h-[280px] sm:h-[400px] overflow-x-auto custom-scrollbar">
+            <div style={{ minWidth: `${Math.max(100, taskPerformance.length * 60)}px`, height: '100%' }}>
               {isMounted && (
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart
@@ -280,15 +306,15 @@ const Dashboard = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="bg-white/80 backdrop-blur-xl p-8 sm:p-10 rounded-[32px] border border-white/50 shadow-[0_10px_30px_rgba(0,0,0,0.04)] flex flex-col">
-            <div className="flex items-center gap-4 mb-10">
-              <div className="w-12 h-12 bg-gradient-to-br from-slate-800 to-slate-900 text-white rounded-[16px] flex items-center justify-center shadow-lg">
-                <Users size={20} />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+          <div className="bg-white/80 backdrop-blur-xl p-5 sm:p-10 rounded-[20px] sm:rounded-[32px] border border-white/50 shadow-[0_10px_30px_rgba(0,0,0,0.04)] flex flex-col">
+            <div className="flex items-center gap-3 sm:gap-4 mb-6 sm:mb-10">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-slate-800 to-slate-900 text-white rounded-[12px] sm:rounded-[16px] flex items-center justify-center shadow-lg">
+                <Users size={20} className="w-5 h-5 sm:w-6 sm:h-6" />
               </div>
               <div>
-                <h4 className="text-xl font-black text-slate-800 tracking-tight">Student Distribution</h4>
-                <p className="text-[10px] text-slate-600 font-bold uppercase tracking-widest mt-1">Students assigned per mentor</p>
+                <h4 className="text-base sm:text-xl font-black text-slate-800 tracking-tight">Student Distribution</h4>
+                <p className="text-[9px] sm:text-[10px] text-slate-600 font-bold uppercase tracking-widest mt-0.5 sm:mt-1">Students assigned per mentor</p>
               </div>
             </div>
 
@@ -385,15 +411,15 @@ const Dashboard = () => {
             </div>
           </div>
 
-          <div className="bg-white/80 backdrop-blur-xl p-8 sm:p-10 rounded-[32px] border border-white/50 shadow-[0_10px_30px_rgba(0,0,0,0.04)] flex flex-col">
-            <div className="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center gap-4 mb-10 w-full">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-[#F59E0B] to-[#D97706] text-white rounded-[16px] flex items-center justify-center shadow-lg shadow-[#F59E0B]/20">
-                  <ListTodo size={20} />
+          <div className="bg-white/80 backdrop-blur-xl p-5 sm:p-10 rounded-[20px] sm:rounded-[32px] border border-white/50 shadow-[0_10px_30px_rgba(0,0,0,0.04)] flex flex-col">
+            <div className="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center gap-4 mb-6 sm:mb-10 w-full">
+              <div className="flex items-center gap-3 sm:gap-4">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-[#F59E0B] to-[#D97706] text-white rounded-[12px] sm:rounded-[16px] flex items-center justify-center shadow-lg shadow-[#F59E0B]/20">
+                  <ListTodo size={20} className="w-5 h-5 sm:w-6 sm:h-6" />
                 </div>
                 <div>
-                  <h4 className="text-xl font-black text-slate-800 tracking-tight">Daily Student Checks</h4>
-                  <p className="text-[10px] text-slate-600 font-bold uppercase tracking-widest mt-1">Student tracking by Mentor Head</p>
+                  <h4 className="text-base sm:text-xl font-black text-slate-800 tracking-tight">Daily Student Checks</h4>
+                  <p className="text-[9px] sm:text-[10px] text-slate-600 font-bold uppercase tracking-widest mt-0.5 sm:mt-1">Student tracking by Mentor Head</p>
                 </div>
               </div>
             </div>
@@ -426,8 +452,12 @@ const Dashboard = () => {
                   </PieChart>
                 </ResponsiveContainer>
               ) : (
-                <div className="flex items-center justify-center h-full text-sm font-bold text-slate-600">
-                  No check data for today
+                <div className="flex flex-col items-center justify-center h-full bg-slate-50/50 rounded-2xl border border-dashed border-slate-200">
+                  <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center mb-3">
+                    <CheckCircle2 size={24} className="text-slate-400" />
+                  </div>
+                  <p className="text-sm font-bold text-slate-600">No Check Data</p>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Check back later today</p>
                 </div>
               )}
             </div>
@@ -451,22 +481,22 @@ const Dashboard = () => {
       </div>
 
       {/* Trends & Portal Activity Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
         {/* Performance Line Chart Section */}
-        <div className="lg:col-span-2 bg-white/80 backdrop-blur-xl p-8 sm:p-10 rounded-[32px] border border-white/50 shadow-[0_10px_30px_rgba(0,0,0,0.04)]">
-          <div className="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center gap-6 mb-12 w-full">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-[#10B981] to-[#059669] text-white rounded-[16px] flex items-center justify-center shadow-lg shadow-emerald-500/20">
-                <TrendingUp size={20} />
+        <div className="lg:col-span-2 bg-white/80 backdrop-blur-xl p-5 sm:p-10 rounded-[20px] sm:rounded-[32px] border border-white/50 shadow-[0_10px_30px_rgba(0,0,0,0.04)]">
+          <div className="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center gap-4 sm:gap-6 mb-8 sm:mb-12 w-full">
+            <div className="flex items-center gap-3 sm:gap-4">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-[#10B981] to-[#059669] text-white rounded-[12px] sm:rounded-[16px] flex items-center justify-center shadow-lg shadow-emerald-500/20">
+                <TrendingUp size={20} className="w-5 h-5 sm:w-6 sm:h-6" />
               </div>
               <div>
-                <h4 className="text-xl font-black text-slate-800 tracking-tight">Exam Performance Trends</h4>
-                <p className="text-[10px] text-slate-600 font-bold uppercase tracking-widest mt-1">Average score percentages</p>
+                <h4 className="text-base sm:text-xl font-black text-slate-800 tracking-tight">Exam Performance Trends</h4>
+                <p className="text-[9px] sm:text-[10px] text-slate-600 font-bold uppercase tracking-widest mt-0.5 sm:mt-1">Average score percentages</p>
               </div>
             </div>
           </div>
 
-          <div className="w-full h-[350px] relative">
+          <div className="w-full h-[250px] sm:h-[350px] relative">
             {isMounted && (
               <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                 <AreaChart data={examData.length > 0 ? examData : []} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
@@ -526,18 +556,18 @@ const Dashboard = () => {
         </div>
 
         {/* Student Portal Activity Section */}
-        <div className="bg-white/80 backdrop-blur-xl p-8 rounded-[32px] border border-white/50 shadow-[0_10px_30px_rgba(0,0,0,0.04)] flex flex-col h-[480px]">
-          <div className="flex items-center gap-4 mb-6">
-            <div className="w-12 h-12 bg-gradient-to-br from-[#008080] to-[#006666] text-white rounded-[16px] flex items-center justify-center shadow-lg shadow-[#008080]/20">
-              <Activity size={20} />
+        <div className="bg-white/80 backdrop-blur-xl p-5 sm:p-8 rounded-[20px] sm:rounded-[32px] border border-white/50 shadow-[0_10px_30px_rgba(0,0,0,0.04)] flex flex-col h-[400px] sm:h-[480px]">
+          <div className="flex items-center gap-3 sm:gap-4 mb-4 sm:mb-6 shrink-0">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-[#008080] to-[#006666] text-white rounded-[12px] sm:rounded-[16px] flex items-center justify-center shadow-lg shadow-[#008080]/20">
+              <Activity size={20} className="w-5 h-5 sm:w-6 sm:h-6" />
             </div>
             <div>
-              <h4 className="text-lg font-black text-slate-800 tracking-tight">Student Portal Activity</h4>
-              <p className="text-[10px] text-slate-600 font-bold uppercase tracking-widest mt-1">Live Logs</p>
+              <h4 className="text-base sm:text-lg font-black text-slate-800 tracking-tight">Student Portal Activity</h4>
+              <p className="text-[9px] sm:text-[10px] text-slate-600 font-bold uppercase tracking-widest mt-0.5 sm:mt-1">Live Logs</p>
             </div>
           </div>
 
-          <div className="flex-1 overflow-y-auto custom-scrollbar pr-2 space-y-4">
+          <div className="flex-1 overflow-y-auto custom-scrollbar pr-1 sm:pr-2 space-y-3 sm:space-y-4">
             {portalLogins.length > 0 ? (
               portalLogins.map((log) => (
                 <div key={log.id} className="p-4 bg-slate-50/60 rounded-2xl border border-slate-100 hover:border-[#008080]/20 transition-all flex flex-col gap-2">
@@ -567,9 +597,12 @@ const Dashboard = () => {
                 </div>
               ))
             ) : (
-              <div className="flex flex-col items-center justify-center h-full text-slate-400 py-10">
-                <Activity size={32} className="mb-2 opacity-20" />
-                <p className="text-[10px] font-black uppercase tracking-widest">No recent logins</p>
+              <div className="flex flex-col items-center justify-center h-full bg-slate-50/50 rounded-2xl border border-dashed border-slate-200">
+                <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center mb-3">
+                  <Activity size={24} className="text-slate-400" />
+                </div>
+                <p className="text-sm font-bold text-slate-600">No Recent Logins</p>
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Activity logs will appear here</p>
               </div>
             )}
           </div>
