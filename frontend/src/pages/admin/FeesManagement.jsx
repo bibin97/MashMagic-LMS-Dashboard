@@ -109,35 +109,35 @@ const FeesManagement = () => {
     return 'good';
   };
   return <div className="space-y-6">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
-        <div>
-          <h1 className="text-2xl font-black text-slate-900 tracking-tighter uppercase">Fee Management</h1>
-          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
+        <div className="text-center md:text-left">
+          <h1 className="text-2xl md:text-2xl font-black text-slate-900 tracking-tighter uppercase">Fee Management</h1>
+          <p className="text-[9px] md:text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">
             Manage tuition fees and installments
           </p>
         </div>
 
-        <div className="flex bg-slate-100 p-1.5 rounded-2xl">
-          <button onClick={() => setActiveTab('student')} className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${activeTab === 'student' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>
+        <div className="flex w-full md:w-auto bg-slate-100 p-1.5 rounded-2xl">
+          <button onClick={() => setActiveTab('student')} className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3 md:py-2.5 min-h-[44px] md:min-h-0 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${activeTab === 'student' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>
             <Users size={16} /> Students
           </button>
-          <button onClick={() => setActiveTab('staff')} className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${activeTab === 'staff' ? 'bg-white text-emerald-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>
+          <button onClick={() => setActiveTab('staff')} className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3 md:py-2.5 min-h-[44px] md:min-h-0 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${activeTab === 'staff' ? 'bg-white text-emerald-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>
             <Briefcase size={16} /> Staff
           </button>
         </div>
       </div>
 
       {loading ? <div className="flex justify-center p-20"><div className="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin" /></div> : <div className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="bg-slate-50 border-b border-slate-100 text-[10px] font-black uppercase tracking-widest text-slate-500">
-                  <th className="p-4 pl-6">Name / Details</th>
-                  <th className="p-4">Total Fee</th>
-                  <th className="p-4">Total Hours</th>
-                  <th className="p-4">Paid Details</th>
-                  <th className="p-4">Status / Alert</th>
-                  <th className="p-4 pr-6 text-right">Actions</th>
+          <div className="overflow-x-auto overflow-y-auto max-h-[70vh] md:max-h-none custom-scrollbar">
+            <table className="w-full min-w-[900px] text-left border-collapse">
+              <thead className="sticky top-0 z-10 bg-slate-50 shadow-[0_1px_2px_rgba(0,0,0,0.05)]">
+                <tr className="border-b border-slate-100 text-[10px] font-black uppercase tracking-widest text-slate-500 whitespace-nowrap">
+                  <th className="p-4 pl-6 bg-slate-50">Name / Details</th>
+                  <th className="p-4 bg-slate-50">Total Fee</th>
+                  <th className="p-4 bg-slate-50">Total Hours</th>
+                  <th className="p-4 bg-slate-50">Paid Details</th>
+                  <th className="p-4 bg-slate-50">Status / Alert</th>
+                  <th className="p-4 pr-6 text-right bg-slate-50">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -182,13 +182,18 @@ const FeesManagement = () => {
                             </span> : <span className="text-xs text-slate-400">-</span>}
                       </td>
                       <td className="p-4 pr-6 text-right">
-                        <button onClick={() => openFeeModal(entity)} className="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center ml-auto hover:bg-indigo-600 hover:text-white transition-all">
-                          {fee ? <Edit2 size={14} /> : <Plus size={14} />}
+                        <button onClick={() => openFeeModal(entity)} className="w-11 h-11 md:w-8 md:h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center ml-auto hover:bg-indigo-600 hover:text-white transition-all active:scale-95">
+                          {fee ? <Edit2 size={16} className="md:w-3.5 md:h-3.5" /> : <Plus size={16} className="md:w-3.5 md:h-3.5" />}
                         </button>
                       </td>
                     </tr>;
             })}
-                {entities.length === 0 && <tr><td colSpan="6" className="p-8 text-center text-sm text-slate-500 font-bold">No {activeTab}s found</td></tr>}
+                {entities.length === 0 && <tr><td colSpan="6" className="p-12 text-center text-slate-400 font-bold bg-slate-50/30">
+                  <div className="flex flex-col items-center justify-center gap-3">
+                    <Briefcase size={32} className="opacity-20" />
+                    <span>No {activeTab}s found</span>
+                  </div>
+                </td></tr>}
               </tbody>
             </table>
           </div>
