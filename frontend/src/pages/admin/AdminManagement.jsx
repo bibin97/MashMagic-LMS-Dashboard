@@ -166,22 +166,7 @@ const AdminManagement = () => {
  </div>
  </div>
  </div>
-  return <div className="flex flex-col gap-10 pb-10">
- <div className="bg-white/70 backdrop-blur-xl p-12 rounded-[40px] border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.04)] flex flex-col md:flex-row justify-between items-center gap-10">
- <div className="text-center md:text-left">
- <div className="flex flex-col md:flex-row items-center gap-8">
- <div className="w-20 h-20 bg-[#008080] rounded-[28px] shadow-2xl shadow-[#008080]/30 flex items-center justify-center group hover:rotate-12 transition-transform duration-700">
- <ShieldCheck className="text-white" size={36} strokeWidth={2.5} />
- </div>
- <div>
- <h2 className="text-5xl font-black text-slate-900 tracking-tighter leading-none mb-3 ">Sub-Admin Management</h2>
- <p className="text-slate-600 text-[11px] font-black uppercase tracking-[0.25em] flex items-center justify-center md:justify-start gap-3 mt-1">
- <div className="w-2 h-2 rounded-full bg-[#008080] animate-pulse"></div>
- Manage sub-admin accounts and their system permissions
- </p>
- </div>
- </div>
- </div>
+
  <button onClick={handleOpenCreate} className="bg-gradient-to-br from-slate-800 to-slate-900 text-[#008080] px-10 py-6 rounded-[24px] font-black text-[11px] uppercase tracking-[0.3em] flex items-center gap-4 hover:shadow-2xl hover:shadow-[#008080]/20 hover:-translate-y-1 transition-all group">
  <UserPlus size={20} strokeWidth={3} className="group-hover:scale-110 transition-transform" />
  <span>Add Sub-Admin</span>
@@ -529,8 +514,6 @@ const AdminManagement = () => {
   </div>
  </form>
  </Modal>
- </div>
- </div>
  </div>;
 };
 export default AdminManagement;
