@@ -559,23 +559,23 @@ const CommonInteractionLogs = ({
     return base;
   }, [entities, listLogs, deferredSearchTerm, activeTab, listDateFilter, listCustomDates, selectedMentorTab, mentorDateFilters, role]);
   if (viewMode === 'list') {
-    return <div className="space-y-8 animate-in fade-in duration-700">
-      <div className="bg-white/70 backdrop-blur-xl p-10 rounded-[40px] border border-white/60 shadow-xl flex flex-col md:flex-row justify-between items-center gap-8">
+    return <div className="space-y-4 md:space-y-8 animate-in fade-in duration-700">
+      <div className="bg-white/70 backdrop-blur-xl p-5 md:p-10 rounded-[24px] md:rounded-[40px] border border-white/60 shadow-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4 md:gap-8">
         <div>
-          <h2 className="text-4xl font-black text-slate-900 tracking-tighter leading-none mb-3 uppercase">Interaction Archive</h2>
-          <p className="text-slate-600 text-[10px] font-black uppercase tracking-[0.25em]">Centralized monitoring of academic & mentorship logs</p>
+          <h2 className="text-2xl md:text-4xl font-black text-slate-900 tracking-tighter leading-none mb-1 md:mb-3 uppercase">Interaction Archive</h2>
+          <p className="text-slate-600 text-[9px] md:text-[10px] font-black uppercase tracking-[0.25em]">Centralized monitoring of academic &amp; mentorship logs</p>
         </div>
         <div className="flex gap-2 p-1.5 bg-slate-100 rounded-2xl w-full md:w-auto">
           <button onClick={() => {
             setActiveTab('student');
             resetListFilters();
-          }} className={`flex-1 md:flex-none px-8 py-3.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'student' ? 'bg-white text-[#008080] shadow-md' : 'text-slate-500 hover:text-slate-700'}`}>
+          }} className={`flex-1 md:flex-none flex items-center justify-center min-h-[44px] px-6 md:px-8 py-2.5 md:py-3.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'student' ? 'bg-white text-[#008080] shadow-md' : 'text-slate-500 hover:text-slate-700'}`}>
             Student Focus
           </button>
           {role !== 'mentor' && <button onClick={() => {
             setActiveTab('faculty');
             resetListFilters();
-          }} className={`flex-1 md:flex-none px-8 py-3.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'faculty' ? 'bg-white text-purple-600 shadow-md' : 'text-slate-500 hover:text-slate-700'}`}>
+          }} className={`flex-1 md:flex-none flex items-center justify-center min-h-[44px] px-6 md:px-8 py-2.5 md:py-3.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'faculty' ? 'bg-white text-purple-600 shadow-md' : 'text-slate-500 hover:text-slate-700'}`}>
             Faculty Focus
           </button>}
         </div>
@@ -612,18 +612,18 @@ const CommonInteractionLogs = ({
         </div>
       )}
 
-      <div className="bg-white rounded-[40px] border border-slate-100 shadow-2xl overflow-hidden">
-        <div className="p-8 border-b border-slate-50 flex flex-col md:flex-row justify-between items-center gap-6">
-          <div className="flex flex-1 items-center gap-4">
-            <div className="relative flex-1 max-w-md group">
-              <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#008080] transition-colors" size={18} />
-              <input type="text" placeholder={`Search ${activeTab}s by name, email or ID...`} className="w-full pl-16 pr-8 py-5 bg-slate-50 rounded-[2rem] border border-slate-100 text-xs font-bold focus:bg-white focus:ring-4 focus:ring-[#008080]/5 outline-none transition-all" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
+      <div className="bg-white rounded-[24px] md:rounded-[40px] border border-slate-100 shadow-2xl overflow-hidden">
+        <div className="p-4 md:p-8 border-b border-slate-50 flex flex-col gap-3 md:gap-6">
+          {/* Search row */}
+          <div className="flex flex-col md:flex-row gap-3 md:gap-4 items-stretch md:items-center">
+            <div className="relative flex-1 group">
+              <Search className="absolute left-4 md:left-6 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#008080] transition-colors" size={16} />
+              <input type="text" placeholder={`Search ${activeTab}s by name, email or ID...`} className="w-full pl-12 md:pl-16 pr-4 md:pr-8 py-3.5 md:py-5 bg-slate-50 rounded-2xl md:rounded-[2rem] border border-slate-100 text-xs font-bold focus:bg-white focus:ring-4 focus:ring-[#008080]/5 outline-none transition-all min-h-[44px]" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
             </div>
-
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               {activeTab === 'student' && role === 'mentor_head' ? (
-                <div className="shrink-0 flex items-center gap-3 bg-white px-5 py-4 rounded-2xl border border-slate-100 shadow-sm hover:border-[#008080] transition-all">
-                  <CalendarClock size={16} className="text-[#008080]" />
+                <div className="shrink-0 flex items-center gap-2 bg-white px-4 py-3 rounded-2xl border border-slate-100 shadow-sm hover:border-[#008080] transition-all min-h-[44px]">
+                  <CalendarClock size={16} className="text-[#008080] shrink-0" />
                   <DatePicker
                     value={mentorDateFilters[selectedMentorTab] || ''}
                     onChange={(date) => {
@@ -634,7 +634,7 @@ const CommonInteractionLogs = ({
                     }}
                     format="YYYY-MM-DD"
                     placeholder="Select Date..."
-                    inputClass="bg-transparent border-none text-[10px] font-black uppercase tracking-widest text-slate-600 outline-none w-28 cursor-pointer"
+                    inputClass="bg-transparent border-none text-[10px] font-black uppercase tracking-widest text-slate-600 outline-none w-24 cursor-pointer"
                   />
                   {mentorDateFilters[selectedMentorTab] && (
                     <button
@@ -644,7 +644,7 @@ const CommonInteractionLogs = ({
                           [selectedMentorTab]: null
                         }));
                       }}
-                      className="w-6 h-6 flex items-center justify-center rounded-lg bg-rose-50 text-rose-500 hover:bg-rose-500 hover:text-white transition-all shadow-sm"
+                      className="w-7 h-7 flex items-center justify-center rounded-lg bg-rose-50 text-rose-500 hover:bg-rose-500 hover:text-white transition-all shadow-sm shrink-0"
                       title="Clear Date Filter"
                     >
                       <X size={12} strokeWidth={3} />
@@ -666,62 +666,62 @@ const CommonInteractionLogs = ({
                     }
                   }}
                   placeholder="Select Dates..."
-                  inputClass="px-6 py-4 bg-white border border-slate-100 rounded-2xl text-[10px] font-black uppercase tracking-widest text-slate-600 outline-none focus:ring-4 ring-[#008080]/10 transition-all cursor-pointer shadow-sm hover:border-[#008080]"
-                  containerClassName="w-48"
+                  inputClass="px-4 py-3 bg-white border border-slate-100 rounded-2xl text-[10px] font-black uppercase tracking-widest text-slate-600 outline-none focus:ring-4 ring-[#008080]/10 transition-all cursor-pointer shadow-sm hover:border-[#008080] min-h-[44px]"
+                  containerClassName="w-40 md:w-48"
                 />
               )}
-                <ExportButton 
-                  fetchData={(exportType, dateRange) => fetchExportData(exportType, dateRange, null)}
-                  filename="interaction_logs"
-                  buttonText="Export Logs"
-                  customButtonClass="flex items-center gap-3 px-6 py-4 rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all border bg-[#008080] text-white border-[#008080] hover:bg-[#006666] active:scale-95 shadow-sm"
-                />
-              {listDateFilter !== 'all' && <button onClick={resetListFilters} className="w-12 h-12 flex items-center justify-center rounded-2xl bg-rose-50 text-rose-600 border border-rose-100 hover:bg-rose-600 hover:text-white transition-all">
-                <X size={18} />
+              <ExportButton
+                fetchData={(exportType, dateRange) => fetchExportData(exportType, dateRange, null)}
+                filename="interaction_logs"
+                buttonText="Export"
+                customButtonClass="flex items-center gap-2 px-4 md:px-6 py-3 md:py-4 rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all border bg-[#008080] text-white border-[#008080] hover:bg-[#006666] active:scale-95 shadow-sm min-h-[44px] whitespace-nowrap"
+              />
+              {listDateFilter !== 'all' && <button onClick={resetListFilters} className="w-11 h-11 flex items-center justify-center rounded-2xl bg-rose-50 text-rose-600 border border-rose-100 hover:bg-rose-600 hover:text-white transition-all shrink-0">
+                <X size={16} />
               </button>}
             </div>
           </div>
-
+          {/* Entity count */}
           <div className="flex items-center gap-3">
-            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Count:</span>
-            <span className="px-4 py-1.5 bg-slate-50 text-slate-600 rounded-lg text-[10px] font-black border border-slate-100">{filteredEntities.length} Entities</span>
+            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total:</span>
+            <span className="px-3 py-1 bg-slate-50 text-slate-600 rounded-lg text-[10px] font-black border border-slate-100">{filteredEntities.length} Entities</span>
           </div>
         </div>
 
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="bg-slate-50/80 border-b border-slate-100/50">
-                <th className="w-16 px-10 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest text-center">#</th>
-                <th className="px-10 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Name</th>
-                <th className="px-10 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Details</th>
-                <th className="px-10 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Status</th>
-                <th className="px-10 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest text-right">Actions</th>
+        <div className="overflow-x-auto -webkit-overflow-scrolling-touch">
+          <table className="w-full min-w-[640px] text-left border-collapse">
+            <thead className="sticky top-0 z-10">
+              <tr className="bg-slate-50/95 border-b border-slate-100/50 backdrop-blur-sm">
+                <th className="w-12 md:w-16 px-4 md:px-10 py-4 md:py-6 text-[9px] md:text-[10px] font-black text-slate-600 uppercase tracking-widest text-center bg-slate-50">#</th>
+                <th className="px-4 md:px-10 py-4 md:py-6 text-[9px] md:text-[10px] font-black text-slate-600 uppercase tracking-widest bg-slate-50">Name</th>
+                <th className="px-4 md:px-10 py-4 md:py-6 text-[9px] md:text-[10px] font-black text-slate-600 uppercase tracking-widest bg-slate-50 hidden sm:table-cell">Details</th>
+                <th className="px-4 md:px-10 py-4 md:py-6 text-[9px] md:text-[10px] font-black text-slate-600 uppercase tracking-widest bg-slate-50 hidden sm:table-cell">Status</th>
+                <th className="px-4 md:px-10 py-4 md:py-6 text-[9px] md:text-[10px] font-black text-slate-600 uppercase tracking-widest text-right bg-slate-50">Action</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50">
               {loading ? <tr>
-                <td colSpan="4" className="px-10 py-20 text-center">
+                <td colSpan="5" className="px-10 py-20 text-center">
                   <div className="w-10 h-10 border-4 border-[#008080] border-t-transparent rounded-full animate-spin mx-auto"></div>
                 </td>
               </tr> : filteredEntities.length > 0 ? filteredEntities.map((entity, index) => <tr key={entity.id} className="group hover:bg-slate-50/50 transition-colors cursor-pointer" onClick={() => {
                 setSelectedStudent(entity);
                 setViewMode('detail');
-              }}><td className="p-6 text-sm font-black text-slate-400 border-b border-slate-50">{index + 1}</td>
-
-                <td className="px-10 py-6">
-                  <div className="flex items-center gap-4">
-                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-white font-black text-lg shadow-lg ${activeTab === 'student' ? 'bg-[#008080]' : 'bg-purple-600'}`}>
+              }}>
+                <td className="px-4 md:px-10 py-4 md:py-6 text-xs font-black text-slate-400 text-center">{index + 1}</td>
+                <td className="px-4 md:px-10 py-4 md:py-6">
+                  <div className="flex items-center gap-3 md:gap-4">
+                    <div className={`w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl flex items-center justify-center text-white font-black text-base md:text-lg shadow-lg shrink-0 ${activeTab === 'student' ? 'bg-[#008080]' : 'bg-purple-600'}`}>
                       {entity.name?.charAt(0)}
                     </div>
-                    <div>
-                      <p className="text-sm font-black text-slate-900 uppercase tracking-tight">{entity.name}</p>
-                      <p className="text-[10px] font-bold text-slate-400">{entity.email}</p>
+                    <div className="min-w-0">
+                      <p className="text-xs font-black text-slate-900 uppercase tracking-tight truncate">{entity.name}</p>
+                      <p className="text-[10px] font-bold text-slate-400 truncate">{entity.email}</p>
                     </div>
                   </div>
                 </td>
-                <td className="px-10 py-6">
+                <td className="px-4 md:px-10 py-4 md:py-6 hidden sm:table-cell">
                   <div className="flex flex-col">
                     <span className={`text-[10px] font-black uppercase tracking-widest ${activeTab === 'student' ? 'text-[#008080]' : 'text-purple-600'}`}>
                       {entity.course || entity.role || 'General'}
@@ -731,25 +731,25 @@ const CommonInteractionLogs = ({
                     </span>
                   </div>
                 </td>
-                <td className="px-10 py-6">
-                  <div className="flex items-center gap-3">
-                    <div className={`w-2 h-2 rounded-full ${entity.status === 'active' || activeTab === 'student' ? 'bg-emerald-500 animate-pulse' : 'bg-slate-300'}`}></div>
+                <td className="px-4 md:px-10 py-4 md:py-6 hidden sm:table-cell">
+                  <div className="flex items-center gap-2">
+                    <div className={`w-2 h-2 rounded-full shrink-0 ${entity.status === 'active' || activeTab === 'student' ? 'bg-emerald-500 animate-pulse' : 'bg-slate-300'}`}></div>
                     <span className="text-[10px] font-black text-slate-700 uppercase tracking-widest">
-                      {entity.status === 'active' ? 'Active' : activeTab === 'student' ? 'Active Account' : 'Inactive'}
+                      {entity.status === 'active' ? 'Active' : activeTab === 'student' ? 'Active' : 'Inactive'}
                     </span>
                   </div>
                 </td>
-                <td className="px-10 py-6 text-right">
-                  <button className={`inline-flex items-center gap-3 px-6 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all shadow-sm border border-slate-100 bg-white ${activeTab === 'student' ? 'text-[#008080] group-hover:bg-[#008080] group-hover:text-white' : 'text-purple-600 group-hover:bg-purple-600 group-hover:text-white'}`}>
-                    Access Timeline
-                    <ArrowLeft size={14} className="rotate-180 group-hover:translate-x-1 transition-transform" />
+                <td className="px-4 md:px-10 py-4 md:py-6 text-right">
+                  <button className={`inline-flex items-center gap-2 md:gap-3 px-4 md:px-6 py-2.5 md:py-3 min-h-[44px] rounded-xl text-[9px] font-black uppercase tracking-widest transition-all shadow-sm border border-slate-100 bg-white whitespace-nowrap ${activeTab === 'student' ? 'text-[#008080] group-hover:bg-[#008080] group-hover:text-white' : 'text-purple-600 group-hover:bg-purple-600 group-hover:text-white'}`}>
+                    <span className="hidden sm:inline">Access </span>Timeline
+                    <ArrowLeft size={13} className="rotate-180 group-hover:translate-x-1 transition-transform shrink-0" />
                   </button>
                 </td>
               </tr>) : <tr>
-                <td colSpan="5" className="px-10 py-40 text-center">
-                  <History size={48} className="text-slate-200 mx-auto mb-6" />
-                  <p className="text-slate-400 font-black text-[11px] uppercase tracking-[0.3em]">No records found matching your search.</p>
-                  <button onClick={resetListFilters} className="mt-4 px-6 py-2 bg-[#008080] text-white rounded-xl text-[9px] font-black uppercase tracking-widest">
+                <td colSpan="5" className="px-6 py-24 md:py-40 text-center">
+                  <History size={40} className="text-slate-200 mx-auto mb-4" />
+                  <p className="text-slate-400 font-black text-[10px] uppercase tracking-[0.2em] mb-4">No records found matching your search.</p>
+                  <button onClick={resetListFilters} className="mt-2 px-6 py-2.5 min-h-[44px] bg-[#008080] text-white rounded-xl text-[9px] font-black uppercase tracking-widest">
                     Clear Filters
                   </button>
                 </td>
@@ -760,47 +760,46 @@ const CommonInteractionLogs = ({
       </div>
     </div>;
   }
-  return <div className="space-y-10 animate-in fade-in slide-in-from-right-8 duration-700 pb-20">
-    <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
-      <div className="flex items-center gap-8">
+  return <div className="space-y-5 md:space-y-10 animate-in fade-in slide-in-from-right-8 duration-700 pb-20">
+    <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 md:gap-8">
+      <div className="flex items-center gap-4 md:gap-8">
         <button onClick={() => {
           setViewMode('list');
           setSelectedStudent(null);
           resetFilters();
-        }} className="w-16 h-16 bg-white rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-xl hover:border-[#008080] transition-all group flex items-center justify-center active:scale-90">
-          <ArrowLeft size={24} className="text-slate-400 group-hover:text-[#008080] transition-colors" />
+        }} className="w-11 h-11 md:w-16 md:h-16 bg-white rounded-2xl md:rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-xl hover:border-[#008080] transition-all group flex items-center justify-center active:scale-90 shrink-0">
+          <ArrowLeft size={20} className="text-slate-400 group-hover:text-[#008080] transition-colors" />
         </button>
-        <div>
-          <div className="flex items-center gap-3 mb-2">
-            <span className="px-3 py-1 bg-[#008080]/10 text-[#008080] rounded-lg text-[8px] font-black uppercase tracking-widest border border-[#008080]/20">Active Audit</span>
+        <div className="min-w-0">
+          <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+            <span className="px-2.5 py-1 bg-[#008080]/10 text-[#008080] rounded-lg text-[8px] font-black uppercase tracking-widest border border-[#008080]/20">Active Audit</span>
             <span className="text-slate-300">/</span>
-            <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{selectedStudent.registration_number || selectedStudent.id}</span>
+            <span className="text-[9px] md:text-[10px] font-black text-slate-500 uppercase tracking-widest truncate">{selectedStudent.registration_number || selectedStudent.id}</span>
           </div>
-          <h1 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tighter uppercase leading-none">
-            {selectedStudent.name || 'Unknown Entity'}
-            <span className="text-slate-300 font-light mx-4">|</span>
-            <span className={`${activeTab === 'student' ? 'text-[#008080]' : 'text-purple-600'}`}>
+          <h1 className="text-xl md:text-3xl lg:text-5xl font-black text-slate-900 tracking-tighter uppercase leading-tight md:leading-none">
+            <span className="truncate block md:inline">{selectedStudent.name || 'Unknown Entity'}</span>
+            <span className="text-slate-300 font-light mx-2 md:mx-4 hidden md:inline">|</span>
+            <span className={`text-base md:text-3xl lg:text-5xl block md:inline ${activeTab === 'student' ? 'text-[#008080]' : 'text-purple-600'}`}>
               {activeTab === 'student' ? 'Mentorship Audit' : 'Academic Audit'}
             </span>
           </h1>
         </div>
       </div>
 
-      <div className="flex items-center gap-4">
-          <ExportButton 
-            fetchData={(exportType, dateRange) => fetchExportData(exportType, dateRange, selectedStudent.id)}
-            filename={`${selectedStudent?.name || 'student'}_interaction_logs`}
-            buttonText="Export Timeline"
-            customButtonClass="flex items-center gap-3 px-8 py-4 rounded-[2rem] text-[10px] font-black uppercase tracking-widest transition-all shadow-sm border bg-[#008080] text-white border-[#008080] hover:bg-[#006666] active:scale-95"
-          />
-        <button onClick={() => setShowFilterPanel(!showFilterPanel)} className={`flex items-center gap-3 px-8 py-4 rounded-[2rem] text-[10px] font-black uppercase tracking-widest transition-all shadow-sm border ${showFilterPanel ? 'bg-yellow-400 text-slate-900 border-[#008080]' : 'bg-white text-slate-600 border-slate-100 hover:border-[#008080]'}`}>
-          <SlidersHorizontal size={16} />
-          Custom Filter
+      <div className="flex items-center gap-2 md:gap-4 flex-wrap">
+        <ExportButton
+          fetchData={(exportType, dateRange) => fetchExportData(exportType, dateRange, selectedStudent.id)}
+          filename={`${selectedStudent?.name || 'student'}_interaction_logs`}
+          buttonText="Export"
+          customButtonClass="flex items-center gap-2 md:gap-3 px-4 md:px-8 py-3 md:py-4 min-h-[44px] rounded-2xl md:rounded-[2rem] text-[9px] md:text-[10px] font-black uppercase tracking-widest transition-all shadow-sm border bg-[#008080] text-white border-[#008080] hover:bg-[#006666] active:scale-95 whitespace-nowrap"
+        />
+        <button onClick={() => setShowFilterPanel(!showFilterPanel)} className={`flex items-center gap-2 md:gap-3 px-4 md:px-8 py-3 md:py-4 min-h-[44px] rounded-2xl md:rounded-[2rem] text-[9px] md:text-[10px] font-black uppercase tracking-widest transition-all shadow-sm border whitespace-nowrap ${showFilterPanel ? 'bg-yellow-400 text-slate-900 border-[#008080]' : 'bg-white text-slate-600 border-slate-100 hover:border-[#008080]'}`}>
+          <SlidersHorizontal size={15} />
+          <span className="hidden sm:inline">Custom </span>Filter
         </button>
-
-        {(dateFilter !== 'all' || mentorFilter !== 'all' || sortOrder !== 'newest' || staffTypeFilter !== 'all') && <button onClick={resetFilters} className="flex items-center gap-2 px-4 py-4 rounded-[1.5rem] bg-rose-50 text-rose-600 border border-rose-100 text-[9px] font-black uppercase tracking-widest hover:bg-rose-600 hover:text-white transition-all">
+        {(dateFilter !== 'all' || mentorFilter !== 'all' || sortOrder !== 'newest' || staffTypeFilter !== 'all') && <button onClick={resetFilters} className="flex items-center gap-2 px-3 py-3 min-h-[44px] rounded-2xl bg-rose-50 text-rose-600 border border-rose-100 text-[9px] font-black uppercase tracking-widest hover:bg-rose-600 hover:text-white transition-all">
           <X size={14} />
-          Reset
+          <span className="hidden sm:inline">Reset</span>
         </button>}
       </div>
     </header>
@@ -849,12 +848,12 @@ const CommonInteractionLogs = ({
       </div>
     </div> : logs.length > 0 ? <div className="space-y-10">
       {/* Interaction Type Tabs and Sort/Filter Controls */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 bg-slate-50 p-4 rounded-[2.5rem]">
-        <div className="flex flex-wrap gap-3 bg-white p-2 rounded-[2rem] shadow-sm w-fit border border-slate-100">
-          {['ALL', 'QUICK', 'MEDIUM', 'DEEP'].map(tab => <button key={tab} onClick={() => setSelectedLogTab(tab)} className={`px-8 py-3 rounded-[1.5rem] font-black text-[10px] uppercase tracking-[0.15em] transition-all ${selectedLogTab === tab ? 'bg-yellow-400 text-slate-900 shadow-md scale-105' : 'text-slate-400 hover:text-slate-600'}`}>
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 md:gap-6 bg-slate-50 p-3 md:p-4 rounded-2xl md:rounded-[2.5rem]">
+        <div className="flex overflow-x-auto gap-2 md:gap-3 bg-white p-1.5 md:p-2 rounded-2xl md:rounded-[2rem] shadow-sm border border-slate-100 scrollbar-none">
+          {['ALL', 'QUICK', 'MEDIUM', 'DEEP'].map(tab => <button key={tab} onClick={() => setSelectedLogTab(tab)} className={`shrink-0 px-5 md:px-8 py-2.5 md:py-3 min-h-[40px] rounded-xl md:rounded-[1.5rem] font-black text-[10px] uppercase tracking-[0.15em] transition-all ${selectedLogTab === tab ? 'bg-yellow-400 text-slate-900 shadow-md scale-105' : 'text-slate-400 hover:text-slate-600'}`}>
             {tab}
           </button>)}
-          {logs.some(l => !['QUICK', 'MEDIUM', 'DEEP'].includes((l.session_type || l.type || l.source || '').toUpperCase())) && <button onClick={() => setSelectedLogTab('OTHERS')} className={`px-8 py-3 rounded-[1.5rem] font-black text-[10px] uppercase tracking-[0.15em] transition-all ${selectedLogTab === 'OTHERS' ? 'bg-yellow-400 text-slate-900 shadow-md scale-105' : 'text-slate-400 hover:text-slate-600'}`}>
+          {logs.some(l => !['QUICK', 'MEDIUM', 'DEEP'].includes((l.session_type || l.type || l.source || '').toUpperCase())) && <button onClick={() => setSelectedLogTab('OTHERS')} className={`shrink-0 px-5 md:px-8 py-2.5 md:py-3 min-h-[40px] rounded-xl md:rounded-[1.5rem] font-black text-[10px] uppercase tracking-[0.15em] transition-all ${selectedLogTab === 'OTHERS' ? 'bg-yellow-400 text-slate-900 shadow-md scale-105' : 'text-slate-400 hover:text-slate-600'}`}>
             OTHERS
           </button>}
         </div>
@@ -881,78 +880,78 @@ const CommonInteractionLogs = ({
           return <div className="space-y-12">
             {dateKeys.map(dateKey => {
               const dayLogs = grouped[dateKey];
-              return <div key={dateKey} className="space-y-6">
+              return <div key={dateKey} className="space-y-4 md:space-y-6">
                 {/* Day Header */}
-                <div className="bg-[#008080] text-white px-8 py-5 rounded-[2rem] flex items-center justify-between shadow-xl">
-                  <div className="flex items-center gap-3">
-                    <Calendar size={18} className="text-[#008080]" />
-                    <span className="text-xs font-black uppercase tracking-wider">{dateKey}</span>
+                <div className="bg-[#008080] text-white px-4 md:px-8 py-3.5 md:py-5 rounded-2xl md:rounded-[2rem] flex items-center justify-between shadow-xl">
+                  <div className="flex items-center gap-2 md:gap-3">
+                    <Calendar size={16} className="text-white/70 shrink-0" />
+                    <span className="text-[10px] md:text-xs font-black uppercase tracking-wide break-words">{dateKey}</span>
                   </div>
-                  <span className="text-[10px] font-black text-[#008080] uppercase tracking-widest bg-[#008080]/10 px-4 py-1.5 rounded-xl border border-[#008080]/20">{dayLogs.length} Interactions</span>
+                  <span className="text-[9px] md:text-[10px] font-black text-white/80 uppercase tracking-widest bg-white/10 px-3 py-1 rounded-xl border border-white/20 whitespace-nowrap ml-2">{dayLogs.length} Logs</span>
                 </div>
 
                 {/* Timeline list of day's logs */}
-                <div className="space-y-4">
-                  {dayLogs.map(log => <div key={log.id} className="flex flex-col md:flex-row gap-6 pl-4 md:pl-8 relative border-l-2 border-slate-100 py-4 last:border-l-transparent">
+                <div className="space-y-3 md:space-y-4">
+                  {dayLogs.map(log => <div key={log.id} className="flex flex-col md:flex-row gap-3 md:gap-6 pl-3 md:pl-8 relative border-l-2 border-slate-100 py-3 md:py-4 last:border-l-transparent">
                     {/* Exact Time Highlighted */}
-                    <div className="shrink-0 w-32 flex flex-col items-start pt-2">
-                      <span className="inline-block px-3.5 py-2 bg-slate-950 text-white rounded-2xl text-[10px] font-black uppercase tracking-wide shadow-md border border-slate-800">
+                    <div className="flex md:flex-col items-center md:items-start gap-3 md:gap-0 shrink-0 md:w-32 md:pt-2">
+                      <span className="inline-block px-3 py-1.5 md:py-2 bg-slate-950 text-white rounded-xl md:rounded-2xl text-[9px] md:text-[10px] font-black uppercase tracking-wide shadow-md border border-slate-800 whitespace-nowrap">
                         {new Date(log.created_at || log.date).toLocaleTimeString('en-US', {
                           hour: '2-digit',
                           minute: '2-digit',
                           hour12: true
                         })}
                       </span>
-                      <div className="mt-2 text-[9px] font-black uppercase tracking-widest text-[#008080] leading-tight pl-1 max-w-[120px] break-words">
+                      <div className="md:mt-2 text-[9px] font-black uppercase tracking-widest text-[#008080] leading-tight md:pl-1 truncate max-w-[140px] md:max-w-[120px] md:break-words md:whitespace-normal">
                         {role === 'super_admin' || role === 'mentor_head' ? log.mentor_name || log.faculty_name || 'Not Specified' : log.mentor_name || 'Mentor'}
                       </div>
                     </div>
 
                     {/* Full Details Display */}
-                    <div onClick={() => setExpandedLogId(expandedLogId === log.id ? null : log.id)} className={`flex-1 bg-white rounded-[2.5rem] border transition-all relative overflow-hidden group cursor-pointer p-8 ${expandedLogId === log.id ? 'ring-4 ring-slate-900/5 border-[#008080] shadow-2xl' : 'border-slate-100 shadow-sm hover:shadow-xl hover:border-slate-300'}`}>
-                      <div className="flex items-center justify-between mb-4">
-                        <span className={`px-4 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest border ${(log.session_type || log.type || '').toUpperCase() === 'DEEP' ? 'bg-rose-50 text-rose-600 border-rose-100' : (log.session_type || log.type || '').toUpperCase() === 'MEDIUM' ? 'bg-purple-50 text-purple-600 border-purple-100' : 'bg-emerald-50 text-[#008080] border-emerald-100'}`}>
+                    <div onClick={() => setExpandedLogId(expandedLogId === log.id ? null : log.id)} className={`flex-1 bg-white rounded-2xl md:rounded-[2.5rem] border transition-all relative overflow-hidden group cursor-pointer p-4 md:p-8 ${expandedLogId === log.id ? 'ring-2 md:ring-4 ring-slate-900/5 border-[#008080] shadow-2xl' : 'border-slate-100 shadow-sm hover:shadow-xl hover:border-slate-300'}`}>
+                      <div className="flex items-center justify-between mb-3 md:mb-4 gap-2">
+                        <span className={`px-3 md:px-4 py-1 md:py-1.5 rounded-lg md:rounded-xl text-[9px] font-black uppercase tracking-widest border ${(log.session_type || log.type || '').toUpperCase() === 'DEEP' ? 'bg-rose-50 text-rose-600 border-rose-100' : (log.session_type || log.type || '').toUpperCase() === 'MEDIUM' ? 'bg-purple-50 text-purple-600 border-purple-100' : 'bg-emerald-50 text-[#008080] border-emerald-100'}`}>
                           {(log.session_type || log.type || 'QUICK').toUpperCase()}
                         </span>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1.5 md:gap-2">
                           {(role === 'mentor_head' || role === 'super_admin' || role === 'academic_head') && <button onClick={e => {
                             e.stopPropagation();
                             handleOpenHistory(log);
-                          }} className="w-10 h-10 rounded-xl flex items-center justify-center bg-blue-50 text-blue-500 hover:bg-blue-100 transition-colors shadow-sm" title="View Edit History">
-                            <History size={16} strokeWidth={2.5} />
+                          }} className="w-9 h-9 md:w-10 md:h-10 rounded-xl flex items-center justify-center bg-blue-50 text-blue-500 hover:bg-blue-100 transition-colors shadow-sm" title="View Edit History">
+                            <History size={15} strokeWidth={2.5} />
                           </button>}
                           {(role === 'mentor_head' || role === 'super_admin' || role === 'academic_head') && <button onClick={e => {
                             e.stopPropagation();
                             handleOpenEdit(log);
-                          }} className="w-10 h-10 rounded-xl flex items-center justify-center bg-emerald-50 text-emerald-600 hover:bg-emerald-100 transition-colors shadow-sm" title="Edit Interaction">
-                            <Pencil size={16} strokeWidth={2.5} />
+                          }} className="w-9 h-9 md:w-10 md:h-10 rounded-xl flex items-center justify-center bg-emerald-50 text-emerald-600 hover:bg-emerald-100 transition-colors shadow-sm" title="Edit Interaction">
+                            <Pencil size={15} strokeWidth={2.5} />
                           </button>}
                           {role === 'mentor_head' && <button onClick={e => {
                             e.stopPropagation();
                             handleDeleteLog(log);
-                          }} className="w-10 h-10 rounded-xl flex items-center justify-center bg-rose-50 text-rose-600 hover:bg-rose-100 transition-colors shadow-sm" title="Delete Interaction">
-                            <Trash2 size={16} strokeWidth={2.5} />
+                          }} className="w-9 h-9 md:w-10 md:h-10 rounded-xl flex items-center justify-center bg-rose-50 text-rose-600 hover:bg-rose-100 transition-colors shadow-sm" title="Delete Interaction">
+                            <Trash2 size={15} strokeWidth={2.5} />
                           </button>}
-                          <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-500 ${expandedLogId === log.id ? 'bg-yellow-400 text-slate-900 rotate-180 scale-110 shadow-lg' : 'bg-slate-50 text-slate-400 group-hover:bg-slate-100'}`}>
-                            <ChevronDown size={18} strokeWidth={3} />
+                          <div className={`w-9 h-9 md:w-10 md:h-10 rounded-xl flex items-center justify-center transition-all duration-500 ${expandedLogId === log.id ? 'bg-yellow-400 text-slate-900 rotate-180 scale-110 shadow-lg' : 'bg-slate-50 text-slate-400 group-hover:bg-slate-100'}`}>
+                            <ChevronDown size={17} strokeWidth={3} />
                           </div>
                         </div>
                       </div>
 
                       {/* Notes Preview when collapsed, or full detail section when expanded */}
                       {expandedLogId !== log.id ? <div className="mb-2">
-                        <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Notes Preview</p>
-                        <p className="text-sm font-bold text-slate-500 leading-relaxed italic truncate">
-                          "{log.mentor_notes || log.notes || log.remarks || 'No notes provided.'}"
+                        <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Notes Preview</p>
+                        <p className="text-xs md:text-sm font-bold text-slate-500 leading-relaxed italic line-clamp-2 md:truncate break-words">
+                          &ldquo;{log.mentor_notes || log.notes || log.remarks || 'No notes provided.'}&rdquo;
                         </p>
-                      </div> : <div className="mt-6 pt-6 border-t border-slate-100 space-y-8 animate-in slide-in-from-top-4 duration-500">
+                      </div> : <div className="mt-4 md:mt-6 pt-4 md:pt-6 border-t border-slate-100 space-y-6 md:space-y-8 animate-in slide-in-from-top-4 duration-500">
                         {/* Narrative Section */}
                         <div className="relative">
                           <div className="absolute -left-4 top-0 bottom-0 w-1 bg-[#008080] rounded-full opacity-10"></div>
                           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
                             <ScrollText size={12} /> Detailed Notes
                           </p>
-                          <div className="text-sm font-bold text-slate-700 leading-relaxed p-8 bg-slate-50 rounded-[2rem] border border-slate-100 relative shadow-inner">
+                          <div className="text-xs md:text-sm font-bold text-slate-700 leading-relaxed p-4 md:p-8 bg-slate-50 rounded-2xl md:rounded-[2rem] border border-slate-100 relative shadow-inner break-words overflow-hidden">
                             <div className="absolute top-4 left-4 opacity-5">
                               <svg width="40" height="40" viewBox="0 0 24 24" fill="currentColor"><path d="M14.017 21L14.017 18C14.017 16.8954 14.9124 16 16.017 16H19.017C20.1216 16 21.017 16.8954 21.017 18V21C21.017 22.1046 20.1216 23 19.017 23H16.017C14.9124 23 14.017 22.1046 14.017 21ZM14.017 21V18C14.017 16.8954 14.9124 16 16.017 16H19.017C20.1216 16 21.017 16.8954 21.017 18V21C21.017 22.1046 20.1216 23 19.017 23H16.017C14.9124 23 14.017 22.1046 14.017 21ZM3 18C3 16.8954 3.89543 16 5 16H8C9.10457 16 10 16.8954 10 18V21C10 22.1046 9.10457 23 8 23H5C3.89543 23 3 22.1046 3 21V18ZM3 18V16C3 13.7909 4.79086 12 7 12H10V14H7C5.89543 14 5 14.8954 5 16V18H3Z" /></svg>
                             </div>
@@ -1042,7 +1041,7 @@ const CommonInteractionLogs = ({
                         })()}
 
                         {/* Metrics Grid */}
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 md:gap-4">
                           {Object.entries(log).map(([key, val]) => {
                             if (['mentor_notes', 'notes', 'remarks', 'student_id', 'mentor_id', 'id', 'created_at', 'date', 'student_name', 'mentor_name', 'source', 'type', 'session_type', 'session_number', 'report_data'].includes(key)) return null;
                             if (val === null || val === undefined || val === '') return null;
@@ -1097,7 +1096,7 @@ const CommonInteractionLogs = ({
           const timeB = new Date(b.created_at || b.date).getTime();
           return sortOrder === 'newest' ? timeB - timeA : timeA - timeB;
         }).map(log => <div key={log.id} className={`bg-white rounded-[2.5rem] border transition-all relative overflow-hidden group ${expandedLogId === log.id ? 'ring-4 ring-slate-900/5 border-[#008080] shadow-2xl' : 'border-slate-100 shadow-sm hover:shadow-xl hover:border-slate-300'}`}>
-          <div onClick={() => setExpandedLogId(expandedLogId === log.id ? null : log.id)} className="p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-8 cursor-pointer">
+          <div onClick={() => setExpandedLogId(expandedLogId === log.id ? null : log.id)} className="p-4 md:p-8 flex flex-col md:flex-row items-center justify-between gap-4 md:gap-8 cursor-pointer">
             {/* Date & Time Highlight */}
             <div className="flex items-center gap-6 shrink-0">
               <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-white shadow-lg ${selectedLogTab === 'QUICK' ? 'bg-[#008080]' : selectedLogTab === 'MEDIUM' ? 'bg-purple-600' : 'bg-pink-600'}`}>
@@ -1149,15 +1148,15 @@ const CommonInteractionLogs = ({
           </div>
 
           {/* Expanded Content (Accordion) */}
-          {expandedLogId === log.id && <div className="px-8 pb-8 animate-in slide-in-from-top-4 duration-500">
-            <div className="pt-8 border-t border-slate-100 space-y-8">
+          {expandedLogId === log.id && <div className="px-4 md:px-8 pb-4 md:pb-8 animate-in slide-in-from-top-4 duration-500">
+            <div className="pt-4 md:pt-8 border-t border-slate-100 space-y-6 md:space-y-8">
               {/* Narrative Section */}
               <div className="relative">
                 <div className="absolute -left-4 top-0 bottom-0 w-1 bg-[#008080] rounded-full opacity-10"></div>
                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
                   <ScrollText size={12} /> Detailed Notes
                 </p>
-                <div className="text-sm font-bold text-slate-700 leading-relaxed p-8 bg-slate-50 rounded-[2rem] border border-slate-100 relative shadow-inner">
+                <div className="text-xs md:text-sm font-bold text-slate-700 leading-relaxed p-4 md:p-8 bg-slate-50 rounded-2xl md:rounded-[2rem] border border-slate-100 relative shadow-inner break-words overflow-hidden">
                   <div className="absolute top-4 left-4 opacity-5">
                     <svg width="40" height="40" viewBox="0 0 24 24" fill="currentColor"><path d="M14.017 21L14.017 18C14.017 16.8954 14.9124 16 16.017 16H19.017C20.1216 16 21.017 16.8954 21.017 18V21C21.017 22.1046 20.1216 23 19.017 23H16.017C14.9124 23 14.017 22.1046 14.017 21ZM14.017 21V18C14.017 16.8954 14.9124 16 16.017 16H19.017C20.1216 16 21.017 16.8954 21.017 18V21C21.017 22.1046 20.1216 23 19.017 23H16.017C14.9124 23 14.017 22.1046 14.017 21ZM3 18C3 16.8954 3.89543 16 5 16H8C9.10457 16 10 16.8954 10 18V21C10 22.1046 9.10457 23 8 23H5C3.89543 23 3 22.1046 3 21V18ZM3 18V16C3 13.7909 4.79086 12 7 12H10V14H7C5.89543 14 5 14.8954 5 16V18H3Z" /></svg>
                   </div>
@@ -1189,7 +1188,7 @@ const CommonInteractionLogs = ({
               })()}
 
               {/* Metrics Grid */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 md:gap-4">
                 {Object.entries(log).map(([key, val]) => {
                   if (['mentor_notes', 'notes', 'remarks', 'student_id', 'mentor_id', 'id', 'created_at', 'date', 'student_name', 'mentor_name', 'source', 'type', 'session_type', 'session_number', 'report_data'].includes(key)) return null;
                   if (val === null || val === undefined || val === '') return null;
@@ -1214,16 +1213,17 @@ const CommonInteractionLogs = ({
               </div>
             </div>
           </div>}
-        </div>) : <div className="py-32 text-center bg-slate-50 rounded-[3rem] border-2 border-dashed border-slate-200">
-          <p className="text-slate-400 font-black text-xs uppercase tracking-[0.2em]">No {selectedLogTab} sequences identified for this timeline</p>
+        </div>) : <div className="py-16 md:py-32 text-center bg-slate-50 rounded-2xl md:rounded-[3rem] border-2 border-dashed border-slate-200">
+          <History size={36} className="text-slate-200 mx-auto mb-4" />
+          <p className="text-slate-400 font-black text-[10px] uppercase tracking-[0.2em]">No {selectedLogTab} sequences identified for this timeline</p>
         </div>}
       </div>
-    </div> : <div className="py-60 text-center bg-white/50 backdrop-blur-sm rounded-[5rem] border-2 border-dashed border-slate-200 animate-in zoom-in duration-1000">
-      <div className="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center text-slate-200 mx-auto mb-8 border border-slate-100 shadow-inner">
-        <History size={48} />
+    </div> : <div className="py-28 md:py-60 text-center bg-white/50 backdrop-blur-sm rounded-[3rem] md:rounded-[5rem] border-2 border-dashed border-slate-200 animate-in zoom-in duration-1000 px-6">
+      <div className="w-16 h-16 md:w-24 md:h-24 bg-slate-50 rounded-full flex items-center justify-center text-slate-200 mx-auto mb-5 md:mb-8 border border-slate-100 shadow-inner">
+        <History size={36} className="md:w-12 md:h-12" />
       </div>
-      <h3 className="text-2xl font-black text-slate-900 uppercase tracking-tight">No Sessions Found</h3>
-      <p className="text-slate-400 font-bold text-[10px] uppercase tracking-[0.3em] mt-3 max-w-md mx-auto leading-loose">
+      <h3 className="text-xl md:text-2xl font-black text-slate-900 uppercase tracking-tight">No Sessions Found</h3>
+      <p className="text-slate-400 font-bold text-[10px] uppercase tracking-[0.2em] mt-2 md:mt-3 max-w-xs md:max-w-md mx-auto leading-loose">
         No interaction logs found for this user.
       </p>
     </div>}
