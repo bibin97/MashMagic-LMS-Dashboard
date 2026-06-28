@@ -689,7 +689,8 @@ const CommonInteractionLogs = ({
         </div>
 
 
-        <div className="overflow-x-auto -webkit-overflow-scrolling-touch">
+        {/* DESKTOP TABLE (>= md) */}
+        <div className="hidden md:block overflow-x-auto -webkit-overflow-scrolling-touch">
           <table className="w-full min-w-[640px] text-left border-collapse">
             <thead className="sticky top-0 z-10">
               <tr className="bg-slate-50/95 border-b border-slate-100/50 backdrop-blur-sm">
@@ -756,6 +757,46 @@ const CommonInteractionLogs = ({
               </tr>}
             </tbody>
           </table>
+        </div>
+
+        {/* MOBILE CARD LIST (< md) */}
+        <div className="md:hidden space-y-3">
+          {loading ? (
+            <div className="py-20 text-center bg-slate-50/50 rounded-3xl border border-slate-100">
+              <div className="w-10 h-10 border-4 border-[#008080] border-t-transparent rounded-full animate-spin mx-auto"></div>
+            </div>
+          ) : filteredEntities.length > 0 ? (
+            filteredEntities.map((entity, index) => (
+              <div key={entity.id} className="bg-white rounded-2xl border border-slate-100 p-4 shadow-sm hover:shadow-md transition-shadow active:scale-[0.98] cursor-pointer" onClick={() => {
+                setSelectedStudent(entity);
+                setViewMode('detail');
+              }}>
+                <div className="flex items-center gap-3 justify-between">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className={`w-11 h-11 rounded-2xl flex items-center justify-center text-white font-black text-base shadow-sm shrink-0 ${activeTab === 'student' ? 'bg-[#008080]' : 'bg-purple-600'}`}>
+                      {entity.name?.charAt(0)}
+                    </div>
+                    <div className="min-w-0 flex flex-col justify-center">
+                      <p className="text-sm font-black text-slate-900 uppercase tracking-tight truncate">{entity.name}</p>
+                      <p className="text-[10px] font-bold text-slate-400 truncate">{entity.email}</p>
+                    </div>
+                  </div>
+                  <button className={`shrink-0 flex items-center gap-1.5 px-3 h-10 rounded-xl transition-all shadow-sm border border-slate-100 bg-slate-50 ${activeTab === 'student' ? 'text-[#008080]' : 'text-purple-600'}`}>
+                    <span className="text-[9px] font-black uppercase tracking-widest">Timeline</span>
+                    <ArrowLeft size={12} className="rotate-180" />
+                  </button>
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="py-20 text-center bg-slate-50/50 rounded-3xl border border-slate-100">
+              <History size={40} className="text-slate-200 mx-auto mb-4" />
+              <p className="text-slate-400 font-black text-[10px] uppercase tracking-[0.2em] mb-4">No records found matching your search.</p>
+              <button onClick={resetListFilters} className="mt-2 px-6 py-2.5 min-h-[44px] bg-[#008080] text-white rounded-xl text-[9px] font-black uppercase tracking-widest">
+                Clear Filters
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>;
@@ -914,13 +955,13 @@ const CommonInteractionLogs = ({
                           {(log.session_type || log.type || 'QUICK').toUpperCase()}
                         </span>
                         <div className="flex items-center gap-1.5 md:gap-2">
-                          {(role === 'mentor_head' || role === 'super_admin' || role === 'academic_head') && <button onClick={e => {
+                          {(role === 'super_admin' || role === 'admin' || role === 'mentor_head' || role === 'mentor') && <button onClick={e => {
                             e.stopPropagation();
                             handleOpenHistory(log);
                           }} className="w-9 h-9 md:w-10 md:h-10 rounded-xl flex items-center justify-center bg-blue-50 text-blue-500 hover:bg-blue-100 transition-colors shadow-sm" title="View Edit History">
                             <History size={15} strokeWidth={2.5} />
                           </button>}
-                          {(role === 'mentor_head' || role === 'super_admin' || role === 'academic_head') && <button onClick={e => {
+                          {(role === 'super_admin' || role === 'admin' || role === 'mentor_head' || role === 'mentor') && <button onClick={e => {
                             e.stopPropagation();
                             handleOpenEdit(log);
                           }} className="w-9 h-9 md:w-10 md:h-10 rounded-xl flex items-center justify-center bg-emerald-50 text-emerald-600 hover:bg-emerald-100 transition-colors shadow-sm" title="Edit Interaction">
