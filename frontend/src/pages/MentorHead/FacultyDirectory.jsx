@@ -313,8 +313,8 @@ const FacultyDirectory = () => {
 
  {/* Faculty Detail Modal */}
  {isDetailModalOpen && selectedFaculty && <div className="fixed inset-0 bg-[#008080]/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4 animate-in fade-in duration-300">
- <div className="bg-white rounded-[3.5rem] shadow-2xl w-full max-w-2xl overflow-hidden animate-in slide-in-from-bottom-8 duration-500 max-h-[90vh] overflow-y-auto">
- <div className="px-10 py-8 border-b border-slate-50 flex justify-between items-center bg-slate-50/50">
+ <div className="bg-white rounded-[2rem] md:rounded-[3.5rem] shadow-2xl w-full max-w-2xl overflow-hidden animate-in slide-in-from-bottom-8 duration-500 max-h-[90vh] overflow-y-auto">
+ <div className="px-6 py-6 md:px-10 md:py-8 border-b border-slate-50 flex justify-between items-start md:items-center bg-slate-50/50">
  <div className="flex items-center gap-4">
  <div className="w-12 h-12 bg-emerald-600 text-white rounded-2xl flex items-center justify-center font-black text-xl shadow-lg uppercase">
  {selectedFaculty.name.charAt(0)}
@@ -329,8 +329,8 @@ const FacultyDirectory = () => {
  </button>
  </div>
 
- <div className="p-10 space-y-10">
- <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+ <div className="p-6 md:p-10 space-y-8 md:space-y-10">
+ <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10">
  <div className="space-y-6">
  <div className="flex flex-col gap-1">
  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Full Name</span>
@@ -360,17 +360,17 @@ const FacultyDirectory = () => {
  </div>
  </div>
 
- <div className="p-8 bg-slate-50 rounded-[2.5rem] border border-slate-100 flex items-center justify-between">
+ <div className="p-6 md:p-8 bg-slate-50 rounded-[1.5rem] md:rounded-[2.5rem] border border-slate-100 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
  <div className="flex items-center gap-4">
- <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-emerald-600 shadow-sm">
+ <div className="w-12 h-12 shrink-0 bg-white rounded-2xl flex items-center justify-center text-emerald-600 shadow-sm">
  <ShieldCheck size={24} />
  </div>
  <div>
  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Administrative Role</p>
- <p className="text-xs font-black text-slate-900 uppercase">Verified Teaching Faculty</p>
+ <p className="text-xs font-black text-slate-900 uppercase leading-snug">Verified Teaching Faculty</p>
  </div>
  </div>
- <button onClick={() => setIsDetailModalOpen(false)} className="px-8 py-3.5 bg-[#008080] text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-emerald-700 transition-all shadow-lg">
+ <button onClick={() => setIsDetailModalOpen(false)} className="w-full md:w-auto px-8 py-3.5 bg-[#008080] text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-emerald-700 transition-all shadow-lg min-h-[48px]">
  Close Registry
  </button>
  </div>

@@ -30,7 +30,7 @@ const MobileStudentCard = ({
   // Helper for generating avatar initials
   const getInitials = (name) => {
     if (!name) return 'S';
-    return name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+    return String(name).split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
   };
 
   // Helper for status badge styling
@@ -134,8 +134,12 @@ const MobileStudentCard = ({
             </h4>
             <div className="grid grid-cols-2 gap-3">
               <div className="bg-white p-3 rounded-xl border border-slate-100 shadow-sm">
-                <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Faculty</span>
-                <p className="text-xs font-bold text-slate-700 mt-0.5 truncate">{student.faculty || student.faculty_name || 'Unassigned'}</p>
+                <div className="flex flex-col min-w-0">
+                  <span className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1">Assigned Faculty</span>
+                  <span className="text-[10px] font-black uppercase tracking-widest text-slate-700 truncate block">
+                    {student.faculty ? String(student.faculty).split(',').map(f => f.trim()).join(', ') : 'No Faculty'}
+                  </span>
+                </div>
               </div>
               <div className="bg-white p-3 rounded-xl border border-slate-100 shadow-sm">
                 <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Mentor</span>

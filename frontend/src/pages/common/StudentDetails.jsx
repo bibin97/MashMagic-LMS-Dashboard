@@ -225,22 +225,23 @@ const StudentDetails = () => {
             </div>
 
             {/* Navigation Tabs */}
-            <div className="flex gap-2 p-1.5 bg-white border border-slate-100 shadow-sm rounded-[2rem] w-fit mx-auto md:mx-0">
+            {/* Navigation Tabs */}
+            <div className="flex flex-col md:flex-row gap-3 md:gap-2 p-3 md:p-1.5 bg-slate-50 md:bg-white border-none md:border md:border-slate-100 shadow-none md:shadow-sm rounded-[1.5rem] md:rounded-[2rem] w-full md:w-fit mx-auto md:mx-0">
                 {[{
         id: 'info',
-        label: 'Academic Info',
-        icon: <User size={14} />
+        label: 'Academic Information',
+        icon: <User size={16} className="md:w-[14px] md:h-[14px]" />
       }, {
         id: 'timetable',
         label: 'Session Timetable',
-        icon: <Clock size={14} />
+        icon: <Clock size={16} className="md:w-[14px] md:h-[14px]" />
       }, {
         id: 'logs',
         label: 'Interaction History',
-        icon: <History size={14} />
+        icon: <History size={16} className="md:w-[14px] md:h-[14px]" />
       }].map(tab => <button key={tab.id} onClick={() => setActiveTab(tab.id)} className={`
-                            flex items-center gap-2 px-8 py-4 rounded-[1.5rem] text-[10px] font-black uppercase tracking-[0.15em] transition-all
-                            ${activeTab === tab.id ? 'bg-[#008080] text-white shadow-lg shadow-[#008080]/30' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-50'}
+                            flex items-center justify-start md:justify-center gap-3 md:gap-2 px-6 md:px-8 py-4 md:py-4 min-h-[48px] md:min-h-0 rounded-[1.25rem] md:rounded-[1.5rem] text-[11px] md:text-[10px] font-black uppercase tracking-[0.15em] transition-all duration-200
+                            ${activeTab === tab.id ? 'bg-[#008080] text-white shadow-lg shadow-[#008080]/30 border-transparent' : 'bg-white md:bg-transparent text-slate-600 md:text-slate-500 border border-slate-200 md:border-transparent hover:text-slate-800 hover:bg-slate-50'}
                         `}>
                         {tab.icon} {tab.label}
                     </button>)}
