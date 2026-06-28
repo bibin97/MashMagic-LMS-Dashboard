@@ -146,25 +146,26 @@ const MentorHeadTasks = () => {
 
   // Get unique mentor names for filter dropdown
   const availableMentors = [...new Set(tasks.map(t => t.mentor_name).filter(Boolean))];
-  return <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
- <header className="flex flex-col md:flex-row justify-between items-start md:items-center bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 gap-6">
- <div className="flex items-center gap-4">
- <div className="w-12 h-12 bg-[#008080] rounded-2xl flex items-center justify-center text-white shadow-lg shadow-[#008080]/30 rotate-3">
- <ListTodo size={24} />
- </div>
- <div>
- <h1 className="text-2xl font-black text-slate-900 tracking-tight uppercase ">Assigned Tasks</h1>
- <p className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] mt-1">Manage and track tasks assigned to Mentors</p>
- </div>
- </div>
+  return (
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <header className="flex flex-col md:flex-row justify-between items-start md:items-center bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 gap-6">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 bg-[#008080] rounded-2xl flex items-center justify-center text-white shadow-lg shadow-[#008080]/30 rotate-3">
+            <ListTodo size={24} />
+          </div>
+          <div>
+            <h1 className="text-2xl font-black text-slate-900 tracking-tight uppercase ">Assigned Tasks</h1>
+            <p className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] mt-1">Manage and track tasks assigned to Mentors</p>
+          </div>
+        </div>
 
  <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
- {availableMentors.length > 0 && <select className="bg-slate-50 border border-slate-100 rounded-2xl px-5 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 outline-none focus:ring-2 focus:ring-[#008080]" value={filterMentor} onChange={e => setFilterMentor(e.target.value)}>
+ {availableMentors.length > 0 && <select className="w-full sm:w-auto bg-slate-50 border border-slate-100 rounded-2xl px-5 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 outline-none focus:ring-2 focus:ring-[#008080]" value={filterMentor} onChange={e => setFilterMentor(e.target.value)}>
  <option value="">All Mentors</option>
  {availableMentors.map((name, i) => <option key={i} value={name}>{name}</option>)}
  </select>}
 
- <button onClick={() => setIsModalOpen(true)} className="flex items-center justify-center gap-2 bg-[#008080] text-white px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-[#008080] transition-all shadow-xl shadow-[#008080]/30 hover:-translate-y-0.5">
+ <button onClick={() => setIsModalOpen(true)} className="w-full sm:w-auto flex items-center justify-center gap-2 bg-[#008080] text-white px-6 py-3 min-h-[48px] rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-[#008080] transition-all shadow-xl shadow-[#008080]/30 hover:-translate-y-0.5">
  <Plus size={16} />
  Assign Task
  </button>
@@ -172,22 +173,22 @@ const MentorHeadTasks = () => {
  </header>
 
  {loading ? <div className="text-center p-20 text-slate-600 font-bold animate-pulse">Synchronizing Workforce Tasks...</div> : <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden flex flex-col min-h-[500px]">
- <div className="flex flex-col sm:flex-row justify-between items-center p-8 border-b border-slate-100 gap-4">
- <div className="relative w-full sm:w-80 group">
+ <div className="flex flex-col md:flex-row justify-between items-start md:items-center p-4 md:p-8 border-b border-slate-100 gap-4">
+ <div className="relative w-full md:w-80 group">
  <AlertTriangle size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#008080] transition-colors" />
- <input type="text" placeholder="Search tasks by title..." className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-3 pl-12 pr-4 text-xs font-bold outline-none focus:bg-white focus:ring-4 focus:ring-[#008080]/50 focus:border-[#008080] transition-all placeholder:text-slate-600" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
+ <input type="text" placeholder="Search tasks by title..." className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-3 pl-12 pr-4 min-h-[48px] text-xs font-bold outline-none focus:bg-white focus:ring-4 focus:ring-[#008080]/50 focus:border-[#008080] transition-all placeholder:text-slate-600" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
  </div>
- <div className="flex items-center gap-3">
- <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest hidden sm:block">Status:</span>
- <div className="flex bg-slate-100 p-1 rounded-xl">
- {['All', 'Pending', 'Completed'].map(s => <button key={s} onClick={() => setStatusFilter(s)} className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${statusFilter === s ? 'bg-white text-[#008080] shadow-sm' : 'text-slate-500 hover:text-slate-800'}`}>
+ <div className="flex items-center gap-3 w-full md:w-auto overflow-x-auto pb-1 md:pb-0">
+ <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest hidden md:block shrink-0">Status:</span>
+ <div className="flex bg-slate-100 p-1 rounded-xl min-w-max w-full md:w-auto">
+ {['All', 'Pending', 'Completed'].map(s => <button key={s} onClick={() => setStatusFilter(s)} className={`flex-1 md:flex-none px-4 py-2 min-h-[40px] md:min-h-0 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${statusFilter === s ? 'bg-white text-[#008080] shadow-sm' : 'text-slate-500 hover:text-slate-800'}`}>
  {s}
  </button>)}
  </div>
  </div>
  </div>
 
- <div className="overflow-x-auto">
+ <div className="hidden md:block overflow-x-auto">
  <table className="w-full text-left border-collapse">
  <thead>
  <tr className="bg-slate-50/50 border-b border-slate-100">
@@ -287,12 +288,79 @@ const MentorHeadTasks = () => {
  </tbody>
  </table>
  </div>
- <div className="p-6 bg-slate-50/50 border-t border-slate-100 flex justify-between items-center mt-auto">
- <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Total Tasks: {filteredTasks.length}</span>
- <div className="flex gap-2">
- <button className="px-4 py-2 bg-white border border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-600 cursor-not-allowed">Previous</button>
- <button className="px-4 py-2 bg-[#008080] text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-[#008080]/30 ">Page 01</button>
- <button className="px-4 py-2 bg-white border border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-900 shadow-sm hover:bg-slate-50">Next</button>
+ 
+ <div className="md:hidden flex flex-col gap-4 p-4 bg-slate-50/30">
+   {filteredTasks.length === 0 ? (
+     <div className="p-12 text-center flex flex-col items-center gap-4 opacity-50">
+       <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-sm">
+         <ListTodo size={32} className="text-slate-400" />
+       </div>
+       <p className="font-black text-[10px] uppercase tracking-[0.2em] text-slate-500">No active tasks</p>
+     </div>
+   ) : filteredTasks.map((task, index) => {
+     const style = getStatusStyles(task.status, task.deadline);
+     const isOverdue = new Date(task.deadline) < new Date() && task.status !== 'Completed';
+     return (
+       <div key={task.id} className="bg-white rounded-[1.25rem] shadow-sm border border-slate-200 p-5 flex flex-col gap-4 animate-in fade-in duration-300">
+         <div className="flex flex-col gap-2 border-b border-slate-100 pb-4">
+           <span className={`w-fit text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded-md ${task.priority === 'High' ? 'bg-rose-50 text-rose-600 border border-rose-200' : task.priority === 'Medium' ? 'bg-amber-50 text-amber-600 border border-amber-200' : 'bg-emerald-50 text-emerald-600 border border-emerald-200'}`}>
+             {task.priority || 'Standard'} Priority
+           </span>
+           <h3 className="text-sm font-black text-slate-900 leading-tight">{task.title}</h3>
+           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">ID: {task.id.toString().padStart(4, '0')}</p>
+         </div>
+         
+         <div className="grid grid-cols-1 min-[360px]:grid-cols-2 gap-4">
+           <div className="flex flex-col gap-1">
+             <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Assigned To</span>
+             <span className="text-xs font-bold text-slate-700 truncate">{task.mentor_name || 'Unassigned'}</span>
+           </div>
+           <div className="flex flex-col gap-1">
+             <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Assigned By</span>
+             <span className="text-xs font-bold text-slate-700 truncate">{task.assigner_name || 'Admin'}</span>
+           </div>
+           <div className="flex flex-col gap-1">
+             <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Deadline</span>
+             <span className="text-xs font-bold text-slate-700">
+               {new Date(task.deadline).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+             </span>
+           </div>
+           <div className="flex flex-col gap-1">
+             <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Status</span>
+             <span className={`w-fit text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded-md border ${task.status === 'Completed' ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : isOverdue ? 'bg-rose-50 text-rose-600 border-rose-200 shadow-[0_0_0_1px_rgba(225,29,72,0.3)]' : task.status === 'In Progress' ? 'bg-blue-50 text-blue-600 border-blue-200' : 'bg-amber-50 text-amber-600 border-amber-200'}`}>
+               {task.status === 'Completed' ? 'Completed' : isOverdue ? 'Overdue' : task.status || 'Pending'}
+             </span>
+           </div>
+         </div>
+
+         <div className="flex flex-col gap-3 pt-2">
+           {task.status !== 'Completed' && task.assigned_to === user.id && (
+             <>
+               <input type="file" id={`mobile-proof-${task.id}`} className="hidden" onChange={e => handleComplete(task.id, e.target.files[0])} />
+               <label htmlFor={`mobile-proof-${task.id}`} className={`w-full h-[48px] rounded-xl flex items-center justify-center gap-2 bg-[#008080] text-white active:scale-[0.98] transition-all shadow-sm cursor-pointer font-black text-[10px] uppercase tracking-widest ${uploadingId === task.id ? 'opacity-50 cursor-wait' : ''}`}>
+                 <Upload size={16} />
+                 {uploadingId === task.id ? 'Uploading...' : 'Upload & Close'}
+               </label>
+               <button onClick={() => handleComplete(task.id)} className="w-full h-[48px] rounded-xl flex items-center justify-center gap-2 bg-slate-100 text-slate-600 active:bg-slate-200 transition-all font-black text-[10px] uppercase tracking-widest active:scale-[0.98]">
+                 Mark Done
+               </button>
+             </>
+           )}
+           <button onClick={() => handleDelete(task)} className="w-full h-[48px] rounded-xl flex items-center justify-center gap-2 bg-rose-50 text-rose-600 active:bg-rose-100 transition-all border border-rose-100 font-black text-[10px] uppercase tracking-widest active:scale-[0.98]">
+             <AlertCircle size={16} /> Delete Task
+           </button>
+         </div>
+       </div>
+     );
+   })}
+ </div>
+
+ <div className="p-4 md:p-6 bg-slate-50/50 border-t border-slate-100 flex flex-col md:flex-row justify-between items-center gap-4 mt-auto">
+ <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest hidden md:block">Total Tasks: {filteredTasks.length}</span>
+ <div className="flex items-center justify-between w-full md:w-auto gap-2">
+ <button className="flex-1 md:flex-none min-h-[48px] md:min-h-0 px-4 py-2 bg-white border border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-600 active:bg-slate-50">← Prev</button>
+ <button className="flex-1 md:flex-none min-h-[48px] md:min-h-0 px-4 py-2 bg-[#008080] text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-[#008080]/30 ">Page 1</button>
+ <button className="flex-1 md:flex-none min-h-[48px] md:min-h-0 px-4 py-2 bg-white border border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-900 shadow-sm active:bg-slate-50">Next →</button>
  </div>
  </div>
  </div>}
@@ -359,6 +427,7 @@ const MentorHeadTasks = () => {
  </button>
  </form>
  </Modal>
- </div>;
+    </div>
+  );
 };
 export default MentorHeadTasks;
