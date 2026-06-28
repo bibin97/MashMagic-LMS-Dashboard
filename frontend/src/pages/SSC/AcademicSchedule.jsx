@@ -70,12 +70,7 @@ const AcademicSchedule = () => {
     fetchSchedule();
   }, []);
 
-  const [currentTime, setCurrentTime] = useState(new Date());
-
-  useEffect(() => {
-    const timer = setInterval(() => setCurrentTime(new Date()), 10000);
-    return () => clearInterval(timer);
-  }, []);
+  // Removed timer that causes whole component re-render every 10 seconds
 
   const fetchSchedule = async () => {
     try {
@@ -88,12 +83,13 @@ const AcademicSchedule = () => {
     }
   };
 
-  const getFilteredData = () => {
-    const localToday = new Date();
-    const year = localToday.getFullYear();
-    const month = String(localToday.getMonth() + 1).padStart(2, '0');
-    const day = String(localToday.getDate()).padStart(2, '0');
-    const todayStr = `${year}-${month}-${day}`;
+  const localTodayStr = React.useMemo(() => {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  }, []);
+
+  const currentData = React.useMemo(() => {
+    const todayStr = localTodayStr;
 
     let filtered = schedule.filter(session => {
       const matchesSearch =
@@ -119,15 +115,14 @@ const AcademicSchedule = () => {
     } else {
       return filtered.filter(s => s.status !== 'Scheduled');
     }
-  };
+  }, [schedule, deferredSearchTerm, activeTab, filterDate, localTodayStr]);
 
-  const currentData = getFilteredData();
-
-  const localTodayStr = (() => {
-    const d = new Date();
-    
-return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-  })();
+  const { totalCount, todayCount, completedCount, filteredCount } = React.useMemo(() => ({
+    totalCount: schedule.length,
+    todayCount: schedule.filter(s => s.date && s.date.split('T')[0] === localTodayStr).length,
+    completedCount: schedule.filter(s => s.status !== 'Scheduled').length,
+    filteredCount: currentData.length
+  }), [schedule, localTodayStr, currentData]);
 
   const handleReminderSave = async (num, remark) => {
     if (!remark.trim()) return toast("Please type a note to save", { icon: "✍️" });
@@ -225,10 +220,7 @@ return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String
     setIsDetailsModalOpen(true);
   };
 
-  const totalCount = schedule.length;
-  const todayCount = schedule.filter(s => s.date && s.date.split('T')[0] === localTodayStr).length;
-  const completedCount = schedule.filter(s => s.status !== 'Scheduled').length;
-  const filteredCount = currentData.length;
+
   if (loading) return (
     <div className="flex flex-col items-center justify-center p-20 space-y-4">
       <div className="w-12 h-12 border-4 border-[#008080] border-t-transparent rounded-full animate-spin"></div>

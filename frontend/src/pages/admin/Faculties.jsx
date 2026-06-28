@@ -74,47 +74,51 @@ const Faculties = () => {
     }
   };
 
-  const filteredFaculties = faculties.filter(f => {
-    const matchesSearch = searchTerm === '' ||
-      f.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      f.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      f.phone?.toLowerCase().includes(searchTerm.toLowerCase());
-      
-    let matchesSyllabus = true;
-    if (selectedSyllabi.length > 0) {
-      const fSyllabus = f.syllabus 
-        ? (typeof f.syllabus === 'string' ? f.syllabus.split(',') : (Array.isArray(f.syllabus) ? f.syllabus : [f.syllabus]))
-        : [];
-      const normalizedSyllabi = fSyllabus.map(s => s.trim().toUpperCase());
-      matchesSyllabus = selectedSyllabi.some(syl => normalizedSyllabi.includes(syl.toUpperCase()));
-    }
+  const filteredFaculties = React.useMemo(() => {
+    return faculties.filter(f => {
+      const matchesSearch = searchTerm === '' ||
+        f.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        f.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        f.phone?.toLowerCase().includes(searchTerm.toLowerCase());
+        
+      let matchesSyllabus = true;
+      if (selectedSyllabi.length > 0) {
+        const fSyllabus = f.syllabus 
+          ? (typeof f.syllabus === 'string' ? f.syllabus.split(',') : (Array.isArray(f.syllabus) ? f.syllabus : [f.syllabus]))
+          : [];
+        const normalizedSyllabi = fSyllabus.map(s => s.trim().toUpperCase());
+        matchesSyllabus = selectedSyllabi.some(syl => normalizedSyllabi.includes(syl.toUpperCase()));
+      }
 
-    let matchesSection = true;
-    if (selectedSections.length > 0) {
-      const fSection = f.section 
-        ? (typeof f.section === 'string' ? f.section.split(',') : (Array.isArray(f.section) ? f.section : [f.section]))
-        : [];
-      const normalizedSections = fSection.map(s => s.trim().toUpperCase());
-      matchesSection = selectedSections.some(sec => normalizedSections.includes(sec.toUpperCase()));
-    }
+      let matchesSection = true;
+      if (selectedSections.length > 0) {
+        const fSection = f.section 
+          ? (typeof f.section === 'string' ? f.section.split(',') : (Array.isArray(f.section) ? f.section : [f.section]))
+          : [];
+        const normalizedSections = fSection.map(s => s.trim().toUpperCase());
+        matchesSection = selectedSections.some(sec => normalizedSections.includes(sec.toUpperCase()));
+      }
 
-    let matchesSubject = true;
-    if (selectedSubjects.length > 0) {
-      const fSubject = f.subject 
-        ? (typeof f.subject === 'string' ? f.subject.split(',') : (Array.isArray(f.subject) ? f.subject : [f.subject]))
-        : [];
-      const normalizedSubjects = fSubject.map(s => s.trim().toUpperCase());
-      matchesSubject = selectedSubjects.some(sub => normalizedSubjects.includes(sub.toUpperCase()));
-    }
+      let matchesSubject = true;
+      if (selectedSubjects.length > 0) {
+        const fSubject = f.subject 
+          ? (typeof f.subject === 'string' ? f.subject.split(',') : (Array.isArray(f.subject) ? f.subject : [f.subject]))
+          : [];
+        const normalizedSubjects = fSubject.map(s => s.trim().toUpperCase());
+        matchesSubject = selectedSubjects.some(sub => normalizedSubjects.includes(sub.toUpperCase()));
+      }
 
-    return matchesSearch && matchesSyllabus && matchesSection && matchesSubject;
-  });
+      return matchesSearch && matchesSyllabus && matchesSection && matchesSubject;
+    });
+  }, [faculties, searchTerm, selectedSyllabi, selectedSections, selectedSubjects]);
 
-  const sortedFaculties = [...filteredFaculties].sort((a, b) => {
-    if (sortBy === 'newest') return b.id - a.id;
-    if (sortBy === 'oldest') return a.id - b.id;
-    return 0;
-  });
+  const sortedFaculties = React.useMemo(() => {
+    return [...filteredFaculties].sort((a, b) => {
+      if (sortBy === 'newest') return b.id - a.id;
+      if (sortBy === 'oldest') return a.id - b.id;
+      return 0;
+    });
+  }, [filteredFaculties, sortBy]);
 
  const handleExport = (dataToExport = filteredFaculties) => {
     import('xlsx').then(XLSX => {
