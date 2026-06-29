@@ -415,7 +415,7 @@ const getStudentDetails = async (req, res) => {
             FROM mentor_session_logs
             WHERE student_id = ? ${isPrivileged ? '' : 'AND mentor_id = ?'}
             ORDER BY created_at DESC
-        `, isPrivileged ? [studentId] : [studentId, mentorId]);
+        `, isPrivileged ? [studentId] : [studentId, userId]);
 
         const [dailyUpdates] = await db.query(`
             SELECT *, 
