@@ -136,7 +136,7 @@ const DailyMentorHeadReport = () => {
         
         {/* DESKTOP TABLE (Hidden on mobile) */}
         <div className="hidden md:block overflow-x-auto custom-scrollbar">
-          <table className="w-full text-left border-collapse min-w-[600px]">
+          <table className="w-full text-left border-collapse min-w-full md:w-[600px]">
             <thead className="sticky top-0 z-10 bg-slate-50">
               <tr className="border-b border-slate-100">
                 <th className="p-4 text-[10px] font-black text-slate-600 uppercase tracking-widest rounded-tl-xl text-center">No.</th>
@@ -162,7 +162,7 @@ const DailyMentorHeadReport = () => {
                 ))
               ) : filteredReportData.length === 0 ? (
                 <tr>
-                  <td colSpan="4" className="p-12">
+                  <td colSpan="4" className="p-6 md:p-12">
                     <div className="flex flex-col items-center justify-center text-center opacity-60">
                       <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-4">
                         <SearchX size={32} className="text-slate-400" />
@@ -225,7 +225,7 @@ const DailyMentorHeadReport = () => {
             ))
           ) : filteredReportData.length === 0 ? (
             // Empty State Mobile
-            <div className="bg-white rounded-[2rem] p-8 border border-slate-100 shadow-sm flex flex-col items-center text-center">
+            <div className="bg-white rounded-[2rem] p-4 md:p-8 border border-slate-100 shadow-sm flex flex-col items-center text-center">
               <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mb-5 shadow-inner">
                 <SearchX size={36} className="text-slate-300" />
               </div>

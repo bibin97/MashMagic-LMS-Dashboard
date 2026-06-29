@@ -12,7 +12,7 @@ const StatCard = ({
 }) => {
   const isTeal = color.includes('008080') || color.includes('14B8A6');
   const displayColor = isTeal ? 'bg-[#008080]' : color;
-  return <div className="bg-white/80 backdrop-blur-xl p-10 rounded-[40px] border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgba(0,0,0,0.08)] hover:-translate-y-2 transition-all duration-500 group relative overflow-hidden">
+  return <div className="bg-white/80 backdrop-blur-xl p-5 md:p-10 rounded-[40px] border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgba(0,0,0,0.08)] hover:-translate-y-2 transition-all duration-500 group relative overflow-hidden">
  <div className={`absolute -right-4 -top-4 w-32 h-32 ${displayColor} opacity-[0.03] rounded-full blur-3xl group-hover:opacity-10 transition-opacity duration-700`}></div>
  
  <div className="flex flex-col gap-8 relative z-10">
@@ -20,7 +20,7 @@ const StatCard = ({
  <Icon size={32} strokeWidth={2.5} />
  </div>
  <div>
- <h3 className="text-5xl font-black text-slate-800 tabular-nums tracking-tighter leading-none mb-3">{value}</h3>
+ <h3 className="text-3xl md:text-5xl font-black text-slate-800 tabular-nums tracking-tighter leading-none mb-3">{value}</h3>
  <div className="space-y-1">
  <p className="text-[11px] font-black text-slate-600 uppercase tracking-[0.2em] leading-none">{title}</p>
  {subtitle && <p className="text-[9px] font-bold text-slate-300 uppercase tracking-widest leading-none opacity-60 ">{subtitle}</p>}
@@ -97,9 +97,9 @@ const AcademicHeadDashboard = () => {
   }
   return <div className="flex flex-col gap-10 pb-10">
  {/* Header Section */}
- <div className="bg-white/70 backdrop-blur-xl p-12 rounded-[40px] border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.04)] flex flex-col md:flex-row justify-between items-center gap-10">
+ <div className="bg-white/70 backdrop-blur-xl p-6 md:p-12 rounded-[40px] border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.04)] flex flex-col md:flex-row justify-between items-center gap-10">
  <div className="text-center md:text-left">
- <h2 className="text-5xl font-black text-slate-900 tracking-tighter leading-none mb-4 ">Academic Dashboard</h2>
+ <h2 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tighter leading-none mb-4 ">Academic Dashboard</h2>
  <p className="text-slate-600 text-[11px] font-black uppercase tracking-[0.25em] flex items-center justify-center md:justify-start gap-3">
  <div className="w-2 h-2 rounded-full bg-[#008080] animate-pulse shadow-[0_0_10px_rgba(20,184,166,0.5)]"></div>
  Overview of student performance and academic activity
@@ -107,7 +107,7 @@ const AcademicHeadDashboard = () => {
  </div>
  <div className="flex items-center gap-5">
 
-  <div className="flex items-center gap-4 bg-slate-50/50 px-8 py-5 rounded-[24px] border border-slate-100/50 shadow-inner group">
+  <div className="flex items-center gap-4 bg-slate-50/50 px-4 md:px-8 py-5 rounded-[24px] border border-slate-100/50 shadow-inner group">
   <Activity size={20} strokeWidth={3} className="text-[#008080] group-hover:rotate-180 transition-transform duration-700" />
   <span className="text-xs font-black text-slate-600 uppercase tracking-[0.25em] leading-none">{new Date().toLocaleDateString('en-US', {
               weekday: 'long',
@@ -127,7 +127,7 @@ const AcademicHeadDashboard = () => {
  </div>
 
  {/* Exam Analytics Graph Section */}
- <section className="bg-white/80 backdrop-blur-xl rounded-[40px] border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.04)] p-12 animate-in fade-in slide-in-from-bottom-8 duration-1000">
+ <section className="bg-white/80 backdrop-blur-xl rounded-[40px] border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.04)] p-6 md:p-12 animate-in fade-in slide-in-from-bottom-8 duration-1000">
  <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8 mb-16">
  <div>
  <h3 className="text-3xl font-black text-slate-900 tracking-tighter uppercase leading-none mb-3">Exam Performance Analytics</h3>
@@ -190,7 +190,7 @@ const AcademicHeadDashboard = () => {
 
  {/* Today's Schedule Section */}
  <section className="bg-white/80 backdrop-blur-xl rounded-[40px] border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.04)] overflow-hidden animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-200">
- <div className="p-12 border-b border-slate-50 flex flex-col sm:flex-row justify-between items-center gap-6">
+ <div className="p-6 md:p-12 border-b border-slate-50 flex flex-col sm:flex-row justify-between items-center gap-6">
  <div className="text-center sm:text-left">
  <h3 className="text-3xl font-black text-slate-900 tracking-tighter uppercase leading-none mb-3">Academic Timeline</h3>
  <p className="text-slate-600 text-[10px] font-black uppercase tracking-[0.25em]">Today's scheduled classes and sessions</p>
@@ -214,16 +214,16 @@ const AcademicHeadDashboard = () => {
  <table className="w-full text-left border-separate border-spacing-y-2">
  <thead>
  <tr>
- <th className="px-8 py-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">Timeline</th>
- <th className="px-8 py-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">Student & Subject</th>
- <th className="px-8 py-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">Faculty In-Charge</th>
- <th className="px-8 py-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">Status</th>
- <th className="px-8 py-4 text-[10px] font-black text-slate-600 uppercase tracking-widest text-right">Actions</th>
+ <th className="px-4 md:px-8 py-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">Timeline</th>
+ <th className="px-4 md:px-8 py-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">Student & Subject</th>
+ <th className="px-4 md:px-8 py-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">Faculty In-Charge</th>
+ <th className="px-4 md:px-8 py-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">Status</th>
+ <th className="px-4 md:px-8 py-4 text-[10px] font-black text-slate-600 uppercase tracking-widest text-right">Actions</th>
  </tr>
  </thead>
  <tbody>
  {data.schedule.map((session, idx) => <tr key={session.id} className="group hover:bg-slate-50/80 transition-all duration-300"><td className="p-6 text-sm font-black text-slate-400 border-b border-slate-50">{idx + 1}</td>
- <td className="px-8 py-6 first:rounded-l-[2rem]">
+ <td className="px-4 md:px-8 py-6 first:rounded-l-[2rem]">
  <div className="flex items-center gap-3">
  <div className="w-12 h-12 bg-[#008080]/5 rounded-[18px] flex items-center justify-center text-[#008080] border border-[#008080]/10 group-hover:bg-[#008080] group-hover:text-white transition-all duration-500">
  <Clock size={18} strokeWidth={2.5} />
@@ -234,13 +234,13 @@ const AcademicHeadDashboard = () => {
  </div>
  </div>
  </td>
- <td className="px-8 py-6">
+ <td className="px-4 md:px-8 py-6">
  <div className="flex flex-col">
  <span className="text-sm font-black text-slate-900">{session.student_name}</span>
  <span className="text-[10px] font-bold text-[#008080] uppercase tracking-widest mt-0.5">{session.subject || 'Academic Session'}</span>
  </div>
  </td>
- <td className="px-8 py-6">
+ <td className="px-4 md:px-8 py-6">
  <div className="flex items-center gap-3">
  <div className="w-8 h-8 bg-slate-100 rounded-xl flex items-center justify-center text-[10px] font-black text-slate-500 border border-slate-200">
  {session.faculty_name?.charAt(0) || '?'}
@@ -248,12 +248,12 @@ const AcademicHeadDashboard = () => {
  <span className="text-sm font-bold text-slate-600">{session.faculty_name || 'Unassigned'}</span>
  </div>
  </td>
- <td className="px-8 py-6">
+ <td className="px-4 md:px-8 py-6">
  <span className={`px-4 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest shadow-sm border ${session.status === 'Completed' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : session.status === 'Cancelled' ? 'bg-rose-50 text-rose-600 border-rose-100' : 'bg-amber-50 text-amber-600 border-amber-100 animate-pulse'}`}>
  {session.status}
  </span>
  </td>
- <td className="px-8 py-6 text-right last:rounded-r-[40px]">
+ <td className="px-4 md:px-8 py-6 text-right last:rounded-r-[40px]">
  <button className="w-12 h-12 bg-white border border-slate-100 rounded-2xl flex items-center justify-center text-slate-300 hover:text-[#008080] hover:border-[#008080]/40 transition-all hover:shadow-[0_10px_20px_rgba(20,184,166,0.15)] group-hover:-translate-x-2">
  <ChevronRight size={22} strokeWidth={3} />
  </button>
@@ -267,7 +267,7 @@ const AcademicHeadDashboard = () => {
 
  {/* Faculty Intelligence Feed */}
  <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
- <div className="xl:col-span-2 bg-white/80 backdrop-blur-xl rounded-[40px] border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.04)] p-12 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-300">
+ <div className="xl:col-span-2 bg-white/80 backdrop-blur-xl rounded-[40px] border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.04)] p-6 md:p-12 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-300">
  <div className="flex flex-col sm:flex-row justify-between items-center gap-8 mb-12">
  <div className="text-center sm:text-left">
  <h3 className="text-3xl font-black text-slate-900 tracking-tighter uppercase leading-none mb-3">Activity Feed</h3>
@@ -280,7 +280,7 @@ const AcademicHeadDashboard = () => {
  </div>
 
  <div className="space-y-6">
- {!data.activityFeed || data.activityFeed.length === 0 ? <p className="text-center py-10 text-slate-600 font-bold ">No activity recorded yet today.</p> : data.activityFeed.map((activity, i) => <div key={i} className="flex gap-8 p-8 rounded-[32px] bg-slate-50/40 border border-transparent hover:border-slate-100 hover:bg-white hover:shadow-[0_15px_40px_rgba(0,0,0,0.04)] transition-all duration-500 group relative overflow-hidden">
+ {!data.activityFeed || data.activityFeed.length === 0 ? <p className="text-center py-5 md:py-10 text-slate-600 font-bold ">No activity recorded yet today.</p> : data.activityFeed.map((activity, i) => <div key={i} className="flex gap-8 p-4 md:p-8 rounded-[32px] bg-slate-50/40 border border-transparent hover:border-slate-100 hover:bg-white hover:shadow-[0_15px_40px_rgba(0,0,0,0.04)] transition-all duration-500 group relative overflow-hidden">
  <div className="absolute top-0 right-0 w-24 h-24 bg-[#008080]/5 rounded-bl-[40px] -mr-8 -mt-8 opacity-0 group-hover:opacity-100 transition-all duration-700"></div>
  <div className={`w-14 h-14 rounded-[20px] flex items-center justify-center shrink-0 shadow-sm border border-white relative z-10 transition-transform group-hover:scale-110 group-hover:rotate-6 ${activity.type === 'Student Report' ? 'bg-[#008080] text-white' : activity.type === 'Student Interaction' ? 'bg-[#10B981] text-white' : 'bg-[#6366F1] text-white'}`}>
  <ClipboardList size={22} strokeWidth={2.5} />
@@ -306,7 +306,7 @@ const AcademicHeadDashboard = () => {
  </div>
 
  <div className="flex flex-col gap-8">
- <div className="bg-[#008080] p-10 rounded-[3rem] text-white flex flex-col justify-between overflow-hidden relative group">
+ <div className="bg-[#008080] p-5 md:p-10 rounded-[3rem] text-white flex flex-col justify-between overflow-hidden relative group">
  <div className="absolute right-0 top-0 w-64 h-64 bg-white/5 rounded-full -mr-20 -mt-20 blur-3xl group-hover:bg-white/10 transition-all duration-700"></div>
  <div className="relative z-10">
  <div className="flex items-center gap-3 mb-4">
@@ -316,12 +316,12 @@ const AcademicHeadDashboard = () => {
  <h4 className="text-2xl font-black leading-tight">Academic performance <br /><span className="text-[#008080]">trending up</span> by 12.4%</h4>
  </div>
  <div className="relative z-10 mt-10">
- <p className="text-4xl font-black text-emerald-400 tracking-tighter">Gold</p>
+ <p className="text-2xl md:text-4xl font-black text-emerald-400 tracking-tighter">Gold</p>
  <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Cohort Rating</p>
  </div>
  </div>
 
- <div className="bg-[#008080] p-12 rounded-[40px] text-white flex flex-col justify-center relative overflow-hidden group shadow-2xl shadow-[#008080]/30 hover:scale-[1.02] transition-all duration-700">
+ <div className="bg-[#008080] p-6 md:p-12 rounded-[40px] text-white flex flex-col justify-center relative overflow-hidden group shadow-2xl shadow-[#008080]/30 hover:scale-[1.02] transition-all duration-700">
  <div className="absolute left-0 bottom-0 w-64 h-64 bg-black/10 rounded-full -ml-16 -mb-16 blur-3xl group-hover:bg-black/20 transition-all duration-700"></div>
  <div className="relative z-10 flex items-center justify-between">
  <div>

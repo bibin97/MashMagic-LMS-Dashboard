@@ -20,7 +20,7 @@ const StatCard = ({ title, value, icon: Icon, color, trend }) => {
   const displayColor = isTeal ? 'bg-[#008080]' : color;
   
   return (
-    <div className="bg-white/80 backdrop-blur-xl p-8 rounded-[32px] border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgba(0,0,0,0.08)] hover:-translate-y-2 transition-all duration-500 group relative overflow-hidden">
+    <div className="bg-white/80 backdrop-blur-xl p-4 md:p-8 rounded-[32px] border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgba(0,0,0,0.08)] hover:-translate-y-2 transition-all duration-500 group relative overflow-hidden">
       <div className={`absolute -right-4 -top-4 w-24 h-24 ${displayColor} opacity-[0.05] rounded-full blur-2xl group-hover:opacity-10 transition-opacity duration-500`}></div>
       
       <div className="flex flex-col gap-8 relative z-10">
@@ -35,7 +35,7 @@ const StatCard = ({ title, value, icon: Icon, color, trend }) => {
           )}
         </div>
         <div>
-          <h3 className="text-4xl font-black text-slate-800 tabular-nums tracking-tighter leading-none mb-3">{value || 0}</h3>
+          <h3 className="text-2xl md:text-4xl font-black text-slate-800 tabular-nums tracking-tighter leading-none mb-3">{value || 0}</h3>
           <p className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] leading-none">{title}</p>
         </div>
       </div>
@@ -68,9 +68,9 @@ const FacultyDashboard = () => {
   return (
     <div className="flex flex-col gap-10 pb-10">
       {/* Header Section */}
-      <div className="bg-white/70 backdrop-blur-xl p-10 rounded-[32px] border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.04)] flex flex-col md:flex-row justify-between items-center gap-8">
+      <div className="bg-white/70 backdrop-blur-xl p-6 md:p-10 rounded-[32px] border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.04)] flex flex-col md:flex-row justify-between items-center gap-8">
         <div className="text-center md:text-left">
-          <h2 className="text-4xl font-black text-slate-900 tracking-tighter leading-none mb-3 ">Faculty Oversight</h2>
+          <h2 className="text-2xl md:text-4xl font-black text-slate-900 tracking-tighter leading-none mb-3 ">Faculty Oversight</h2>
           <p className="text-slate-600 text-[10px] font-black uppercase tracking-[0.2em] flex items-center justify-center md:justify-start gap-2">
             Monitor student progress and academic performance
           </p>
@@ -119,7 +119,7 @@ const FacultyDashboard = () => {
       {/* Charts Section */}
       <div className="grid grid-cols-1 gap-10">
         {/* Performance Bar Chart */}
-        <div className="bg-white/80 backdrop-blur-xl p-10 md:p-12 rounded-[40px] border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.04)] hover:shadow-xl transition-all duration-700">
+        <div className="bg-white/80 backdrop-blur-xl p-6 md:p-12 rounded-[40px] border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.04)] hover:shadow-xl transition-all duration-700">
           <div className="flex items-center justify-between mb-10">
             <div>
               <h3 className="text-xl font-black text-slate-900 tracking-tight">Performance Distribution</h3>
@@ -173,7 +173,7 @@ const FacultyDashboard = () => {
         </div>
 
         {/* Attendance Line Chart */}
-        <div className="bg-white/80 backdrop-blur-xl p-10 md:p-12 rounded-[40px] border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.04)] hover:shadow-xl transition-all duration-700">
+        <div className="bg-white/80 backdrop-blur-xl p-6 md:p-12 rounded-[40px] border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.04)] hover:shadow-xl transition-all duration-700">
           <div className="flex items-center justify-between mb-10">
             <div>
               <h3 className="text-xl font-black text-slate-900 tracking-tight">Attendance Overview</h3>
@@ -221,18 +221,18 @@ const FacultyDashboard = () => {
       </div>
 
       {/* Bottom Section - Engine Status */}
-      <div className="bg-[#008080] p-12 rounded-[40px] relative overflow-hidden group shadow-2xl shadow-[#008080]/20">
+      <div className="bg-[#008080] p-6 md:p-12 rounded-[40px] relative overflow-hidden group shadow-2xl shadow-[#008080]/20">
         <div className="absolute top-0 right-0 w-96 h-96 bg-[#008080]/20 rounded-full -mr-48 -mt-48 blur-[100px] transition-all duration-1000 group-hover:scale-150"></div>
         <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-10">
           <div className="text-center lg:text-left">
-            <h2 className="text-4xl font-black text-white tracking-tighter uppercase leading-none mb-4">System Status</h2>
+            <h2 className="text-2xl md:text-4xl font-black text-white tracking-tighter uppercase leading-none mb-4">System Status</h2>
             <p className="text-slate-500 font-black uppercase tracking-[0.4em] text-[10px]">All systems operating normally</p>
           </div>
           <div className="flex flex-col sm:flex-row gap-5 w-full lg:w-auto">
-            <button className="bg-gradient-to-br from-[#006666] to-[#008080] text-white px-10 py-5 rounded-[20px] font-black text-[10px] uppercase tracking-[0.2em] hover:shadow-xl hover:shadow-[#008080]/40 hover:-translate-y-1 transition-all">
+            <button className="bg-gradient-to-br from-[#006666] to-[#008080] text-white px-5 md:px-10 py-5 rounded-[20px] font-black text-[10px] uppercase tracking-[0.2em] hover:shadow-xl hover:shadow-[#008080]/40 hover:-translate-y-1 transition-all">
               Generate Summary Report
             </button>
-            <button className="bg-slate-800 text-white px-10 py-5 rounded-[20px] font-black text-[10px] uppercase tracking-[0.2em] hover:bg-slate-700 transition-all">
+            <button className="bg-slate-800 text-white px-5 md:px-10 py-5 rounded-[20px] font-black text-[10px] uppercase tracking-[0.2em] hover:bg-slate-700 transition-all">
               Sync Attendance Log
             </button>
           </div>

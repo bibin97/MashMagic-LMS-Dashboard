@@ -79,7 +79,7 @@ const Documents = () => {
  return (
  <div className="space-y-10 pb-20 max-w-[1600px] mx-auto animate-in fade-in duration-700">
  {/* Header Section */}
- <div className="bg-white p-10 rounded-[3.5rem] shadow-sm border border-slate-100 flex flex-col md:flex-row justify-between items-center gap-6 relative overflow-hidden">
+ <div className="bg-white p-5 md:p-10 rounded-[3.5rem] shadow-sm border border-slate-100 flex flex-col md:flex-row justify-between items-center gap-6 relative overflow-hidden">
  <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-50 rounded-full -mr-32 -mt-32 opacity-40"></div>
  <div className="relative z-10 flex items-center gap-6">
  <div className="w-16 h-16 bg-emerald-500 rounded-3xl flex items-center justify-center text-white shadow-xl shadow-emerald-100 -rotate-6 group hover:rotate-0 transition-all duration-500">
@@ -107,7 +107,7 @@ const Documents = () => {
  </div>
  <button
  onClick={() => setIsModalOpen(true)}
- className="w-full sm:w-auto px-10 py-4 bg-[#008080] text-white rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-emerald-600 transition-all shadow-xl shadow-slate-200 hover:-translate-y-1 active:scale-95 "
+ className="w-full sm:w-auto px-5 md:px-10 py-4 bg-[#008080] text-white rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-emerald-600 transition-all shadow-xl shadow-slate-200 hover:-translate-y-1 active:scale-95 "
  >
  <Plus size={18} /> Ingest Asset
  </button>
@@ -133,7 +133,7 @@ const Documents = () => {
  ) : (
  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
  {filteredDocs.map((doc) => (
- <div key={doc.id} className="bg-white rounded-[3rem] p-8 border border-slate-100 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 group relative overflow-hidden">
+ <div key={doc.id} className="bg-white rounded-[3rem] p-4 md:p-8 border border-slate-100 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 group relative overflow-hidden">
  <div className="absolute top-0 right-0 w-32 h-32 bg-slate-50 rounded-full -mr-16 -mt-16 group-hover:bg-emerald-50 transition-colors duration-500"></div>
 
  <div className="relative z-10 flex items-start justify-between mb-8">
@@ -188,7 +188,7 @@ const Documents = () => {
  {isModalOpen && (
  <div className="fixed inset-0 bg-[#008080]/60 backdrop-blur-md z-[1100] flex items-center justify-center p-4 animate-in fade-in duration-300">
  <div className="bg-white rounded-[4rem] shadow-2xl w-full max-w-2xl overflow-hidden animate-in zoom-in duration-500 border border-white/20 max-h-[90vh] overflow-y-auto">
- <div className="bg-[#008080] p-10 flex justify-between items-center relative h-32 overflow-hidden">
+ <div className="bg-[#008080] p-5 md:p-10 flex justify-between items-center relative h-32 overflow-hidden">
  <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/20 rounded-full -mr-32 -mt-32"></div>
  <div className="relative z-10 flex items-center gap-6">
  <div className="w-16 h-16 bg-white/10 rounded-3xl flex items-center justify-center backdrop-blur-md border border-white/10 text-emerald-400 shadow-xl">
@@ -204,14 +204,14 @@ const Documents = () => {
  </button>
  </div>
 
- <form onSubmit={handleUpload} className="p-12 space-y-8">
+ <form onSubmit={handleUpload} className="p-6 md:p-12 space-y-8">
  <div className="space-y-6">
  <div className="space-y-2">
  <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] ">Asset Title</label>
  <input
  required
  type="text"
- className="w-full px-8 py-5 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-8 ring-[#008080]/5 outline-none transition-all "
+ className="w-full px-4 md:px-8 py-5 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-8 ring-[#008080]/5 outline-none transition-all "
  placeholder="Eg: Q3 Mathematics Syllabus"
  value={newDoc.title}
  onChange={(e) => setNewDoc({ ...newDoc, title: e.target.value })}
@@ -223,7 +223,7 @@ const Documents = () => {
  <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] ">Category</label>
  <div className="relative">
  <select
- className="w-full px-8 py-5 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold appearance-none focus:bg-white outline-none transition-all "
+ className="w-full px-4 md:px-8 py-5 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold appearance-none focus:bg-white outline-none transition-all "
  value={newDoc.category}
  onChange={(e) => setNewDoc({ ...newDoc, category: e.target.value })}
  >
@@ -237,7 +237,7 @@ const Documents = () => {
  <input
  required
  type="text"
- className="w-full px-8 py-5 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-8 ring-[#008080]/5 outline-none transition-all "
+ className="w-full px-4 md:px-8 py-5 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-8 ring-[#008080]/5 outline-none transition-all "
  placeholder="https://drive.google.com/..."
  value={newDoc.file_url}
  onChange={(e) => setNewDoc({ ...newDoc, file_url: e.target.value })}
@@ -249,7 +249,7 @@ const Documents = () => {
  <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] ">Supplied Intelligence (Description)</label>
  <textarea
  rows="4"
- className="w-full px-8 py-5 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white outline-none transition-all resize-none "
+ className="w-full px-4 md:px-8 py-5 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white outline-none transition-all resize-none "
  placeholder="Brief summary of document significance..."
  value={newDoc.description}
  onChange={(e) => setNewDoc({ ...newDoc, description: e.target.value })}

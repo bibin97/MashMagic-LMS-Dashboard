@@ -64,7 +64,7 @@ const StudentRow = ({ student, navigate }) => {
         </div>
 
         {/* Support Team Area */}
-        <div className="flex flex-col md:flex-row items-center gap-8 px-8 py-4 bg-slate-50/50 rounded-[1.5rem] border border-slate-100/50 w-full lg:w-auto min-w-[400px]">
+        <div className="flex flex-col md:flex-row items-center gap-8 px-4 md:px-8 py-4 bg-slate-50/50 rounded-[1.5rem] border border-slate-100/50 w-full lg:w-auto min-w-full md:w-[400px]">
           <div className="flex-1 min-w-0">
             <p className="text-[8px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Academic Mentor</p>
             <div className="flex items-center gap-2">
@@ -335,9 +335,9 @@ const SSCStudentList = () => {
   return (
     <div className="space-y-12 pb-20">
       {/* Page Header */}
-      <div className="bg-white/70 backdrop-blur-xl p-12 rounded-[40px] border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.04)] flex flex-col md:flex-row justify-between items-center gap-10">
+      <div className="bg-white/70 backdrop-blur-xl p-6 md:p-12 rounded-[40px] border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.04)] flex flex-col md:flex-row justify-between items-center gap-10">
         <div className="text-center md:text-left">
-          <h2 className="text-5xl font-black text-slate-900 tracking-tighter leading-none mb-3 ">Student Success Tracker</h2>
+          <h2 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tighter leading-none mb-3 ">Student Success Tracker</h2>
           <p className="text-slate-600 text-[11px] font-black uppercase tracking-[0.25em] flex items-center justify-center md:justify-start gap-3 mt-1">
             <div className="w-2 h-2 rounded-full bg-indigo-600 animate-pulse"></div>
             Coordinating Global Academic Support Teams
@@ -351,22 +351,22 @@ const SSCStudentList = () => {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
         <button 
           onClick={() => setActiveTab('enrolled_scholars')}
-          className={`p-8 rounded-[35px] border shadow-sm flex flex-col gap-2 transition-all text-left ${activeTab === 'enrolled_scholars' ? 'bg-indigo-600 border-indigo-600 text-white scale-105 shadow-xl shadow-indigo-600/20' : 'bg-white border-slate-100 hover:shadow-xl hover:shadow-indigo-600/5 hover:-translate-y-1'}`}
+          className={`p-4 md:p-8 rounded-[35px] border shadow-sm flex flex-col gap-2 transition-all text-left ${activeTab === 'enrolled_scholars' ? 'bg-indigo-600 border-indigo-600 text-white scale-105 shadow-xl shadow-indigo-600/20' : 'bg-white border-slate-100 hover:shadow-xl hover:shadow-indigo-600/5 hover:-translate-y-1'}`}
         >
           <span className={`text-[10px] font-black uppercase tracking-widest transition-colors ${activeTab === 'enrolled_scholars' ? 'text-white/80' : 'text-slate-600 group-hover:text-indigo-600'}`}>Enrolled Scholars</span>
           <div className={`flex items-end gap-3 font-black tracking-tighter ${activeTab === 'enrolled_scholars' ? 'text-white' : 'text-slate-900'}`}>
-            <span className="text-4xl leading-none">{students.length}</span>
+            <span className="text-2xl md:text-4xl leading-none">{students.length}</span>
             <span className={`text-[10px] mb-1 uppercase tracking-widest ${activeTab === 'enrolled_scholars' ? 'text-white/80' : 'text-slate-600'}`}>Total Population</span>
           </div>
         </button>
 
         <button 
           onClick={() => setActiveTab('active_plus')}
-          className={`p-8 rounded-[35px] border shadow-sm flex flex-col gap-2 transition-all text-left ${activeTab === 'active_plus' ? 'bg-indigo-600 border-indigo-600 text-white scale-105 shadow-xl shadow-indigo-600/20' : 'bg-white border-slate-100 hover:shadow-xl hover:shadow-indigo-600/5 hover:-translate-y-1'}`}
+          className={`p-4 md:p-8 rounded-[35px] border shadow-sm flex flex-col gap-2 transition-all text-left ${activeTab === 'active_plus' ? 'bg-indigo-600 border-indigo-600 text-white scale-105 shadow-xl shadow-indigo-600/20' : 'bg-white border-slate-100 hover:shadow-xl hover:shadow-indigo-600/5 hover:-translate-y-1'}`}
         >
           <span className={`text-[10px] font-black uppercase tracking-widest ${activeTab === 'active_plus' ? 'text-white/80' : 'text-indigo-600'}`}>Active Plus</span>
           <div className={`flex items-end gap-3 font-black tracking-tighter ${activeTab === 'active_plus' ? 'text-white' : 'text-slate-900'}`}>
-            <span className="text-4xl leading-none">
+            <span className="text-2xl md:text-4xl leading-none">
               {students.filter(s => s.course_completed !== 1).length}
             </span>
             <div className={`flex items-center gap-1.5 mb-1 px-2 py-0.5 rounded-full ${activeTab === 'active_plus' ? 'bg-white/20' : 'bg-indigo-600/10'}`}>
@@ -378,11 +378,11 @@ const SSCStudentList = () => {
 
         <button 
           onClick={() => setActiveTab('completed')}
-          className={`p-8 rounded-[35px] border shadow-sm flex flex-col gap-2 transition-all text-left ${activeTab === 'completed' ? 'bg-emerald-600 border-emerald-600 text-white scale-105 shadow-xl shadow-emerald-500/20' : 'bg-white border-slate-100 hover:shadow-xl hover:shadow-emerald-500/5 hover:-translate-y-1'}`}
+          className={`p-4 md:p-8 rounded-[35px] border shadow-sm flex flex-col gap-2 transition-all text-left ${activeTab === 'completed' ? 'bg-emerald-600 border-emerald-600 text-white scale-105 shadow-xl shadow-emerald-500/20' : 'bg-white border-slate-100 hover:shadow-xl hover:shadow-emerald-500/5 hover:-translate-y-1'}`}
         >
           <span className={`text-[10px] font-black uppercase tracking-widest transition-colors ${activeTab === 'completed' ? 'text-white/80' : 'text-emerald-600 hover:text-emerald-700'}`}>Course Completed</span>
           <div className={`flex items-end gap-3 font-black tracking-tighter ${activeTab === 'completed' ? 'text-white' : 'text-slate-900'}`}>
-            <span className="text-4xl leading-none">{students.filter(s => s.course_completed === 1).length}</span>
+            <span className="text-2xl md:text-4xl leading-none">{students.filter(s => s.course_completed === 1).length}</span>
             <span className={`text-[10px] mb-1 uppercase tracking-widest ${activeTab === 'completed' ? 'text-white/80' : 'text-slate-600'}`}>Total Achievers</span>
           </div>
         </button>

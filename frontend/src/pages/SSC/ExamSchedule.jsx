@@ -150,7 +150,7 @@ const ExamSchedule = () => {
         </div>;
   return <div className="space-y-8 animate-in fade-in duration-700">
             {/* Header */}
-            <div className="bg-white p-8 md:p-10 rounded-[3rem] border border-slate-100 shadow-sm">
+            <div className="bg-white p-4 md:p-8 md:p-10 rounded-[3rem] border border-slate-100 shadow-sm">
                 <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
                     <div>
                         <div className="flex items-center gap-3 mb-2">
@@ -192,7 +192,7 @@ const ExamSchedule = () => {
           bg: 'bg-blue-50'
         }].map(s => <div key={s.label} className={`${s.bg} p-6 rounded-[2rem] flex flex-col gap-1`}>
                             <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">{s.label}</span>
-                            <span className={`text-4xl font-black ${s.color} tracking-tighter`}>{s.value}</span>
+                            <span className={`text-2xl md:text-4xl font-black ${s.color} tracking-tighter`}>{s.value}</span>
                         </div>)}
                 </div>
 
@@ -221,7 +221,7 @@ const ExamSchedule = () => {
                     <table className="w-full text-left">
                         <thead>
                             <tr className="bg-slate-50/50 border-b border-slate-100">
-                                <th className="px-8 py-5 text-[10px] font-black text-slate-500 uppercase tracking-widest">Student</th>
+                                <th className="px-4 md:px-8 py-5 text-[10px] font-black text-slate-500 uppercase tracking-widest">Student</th>
                                 <th className="px-6 py-5 text-[10px] font-black text-slate-500 uppercase tracking-widest">Milestone</th>
                                 <th className="px-6 py-5 text-[10px] font-black text-slate-500 uppercase tracking-widest">Chapter / Topic</th>
                                 <th className="px-6 py-5 text-[10px] font-black text-slate-500 uppercase tracking-widest">Type</th>
@@ -234,7 +234,7 @@ const ExamSchedule = () => {
                             {filteredExams.length > 0 ? filteredExams.map((exam, index) => {
               const sc = statusConfig[exam.status] || statusConfig.Pending;
               return <tr key={exam.id} className="hover:bg-slate-50/50 transition-all group"><td className="p-6 text-sm font-black text-slate-400 border-b border-slate-50">{index + 1}</td>
-                                        <td className="px-8 py-5">
+                                        <td className="px-4 md:px-8 py-5">
                                             <div className="flex items-center gap-3">
                                                 <div className="w-10 h-10 bg-gradient-to-br from-[#008080]/20 to-[#008080]/10 rounded-xl flex items-center justify-center font-black text-[#008080] text-sm">
                                                     {(exam.student_name || '?').charAt(0)}

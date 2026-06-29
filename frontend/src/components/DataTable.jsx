@@ -154,7 +154,7 @@ const DataTable = ({
  {onExport && (
  <button
  onClick={() => setShowExportModal(true)}
- className="flex-1 lg:flex-none flex items-center justify-center gap-2.5 px-8 py-3.5 bg-gradient-to-br from-[#006666] to-[#008080] rounded-[18px] text-[11px] font-black uppercase tracking-[0.2em] text-white hover:shadow-lg hover:shadow-[#008080]/30 hover:-translate-y-0.5 transition-all active:scale-95"
+ className="flex-1 lg:flex-none flex items-center justify-center gap-2.5 px-4 md:px-8 py-3.5 bg-gradient-to-br from-[#006666] to-[#008080] rounded-[18px] text-[11px] font-black uppercase tracking-[0.2em] text-white hover:shadow-lg hover:shadow-[#008080]/30 hover:-translate-y-0.5 transition-all active:scale-95"
  >
  <Download size={16} />
  <span>Export</span>
@@ -251,11 +251,11 @@ const DataTable = ({
  <thead>
  <tr className="bg-slate-50/40">
  {enhancedColumns.map((col, index) => (
- <th key={index} className="px-8 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 border-b border-slate-100/50" style={{ width: col.width }}>
+ <th key={index} className="px-4 md:px-8 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 border-b border-slate-100/50" style={{ width: col.width }}>
  {col.header}
  </th>
  ))}
- {hasActions && <th className="px-8 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 border-b border-slate-100/50 text-center">Actions</th>}
+ {hasActions && <th className="px-4 md:px-8 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 border-b border-slate-100/50 text-center">Actions</th>}
  </tr>
  </thead>
  <tbody className="divide-y divide-slate-100/50">
@@ -263,14 +263,14 @@ const DataTable = ({
  [...Array(6)].map((_, i) => (
  <tr key={i} className="animate-pulse">
  {enhancedColumns.map((_, j) => (
- <td key={j} className="px-8 py-6"><div className="h-4 bg-slate-100 rounded-[6px] w-full"></div></td>
+ <td key={j} className="px-4 md:px-8 py-6"><div className="h-4 bg-slate-100 rounded-[6px] w-full"></div></td>
  ))}
- <td className="px-8 py-6"><div className="h-8 bg-slate-100 rounded-[10px] w-full"></div></td>
+ <td className="px-4 md:px-8 py-6"><div className="h-8 bg-slate-100 rounded-[10px] w-full"></div></td>
  </tr>
  ))
  ) : data.length === 0 ? (
  <tr>
- <td colSpan={enhancedColumns.length + 1} className="px-8 py-24 text-center">
+ <td colSpan={enhancedColumns.length + 1} className="px-4 md:px-8 py-24 text-center">
  <div className="flex flex-col items-center gap-4 animate-in fade-in zoom-in duration-500">
  <div className="w-20 h-20 bg-slate-50 rounded-[28px] flex items-center justify-center border border-slate-100 shadow-inner">
  <Search size={32} className="text-slate-200" />
@@ -289,12 +289,12 @@ const DataTable = ({
  <React.Fragment key={row.id !== undefined ? row.id : rowIndex}>
  <tr className="group hover:bg-[#F8FAFC]/80 transition-all duration-300">
  {enhancedColumns.map((col, colIndex) => (
- <td key={colIndex} className="px-8 py-6 whitespace-nowrap text-sm text-slate-600 font-bold">
+ <td key={colIndex} className="px-4 md:px-8 py-6 whitespace-nowrap text-sm text-slate-600 font-bold">
  {col.render ? col.render(row, { isExpanded, onToggle: () => handleToggle(row.id !== undefined ? row.id : rowIndex), index: rowIndex }) : row[col.accessor]}
  </td>
  ))}
  {hasActions && (
- <td className="px-8 py-6 text-center">
+ <td className="px-4 md:px-8 py-6 text-center">
  <div className="flex justify-center items-center gap-2">
  {onView && (onViewFilter ? onViewFilter(row) : true) && (
  <button
@@ -354,7 +354,7 @@ const DataTable = ({
  </tr>
  {isExpanded && renderSubRow && (
    <tr className="bg-slate-50/80 border-b border-slate-100">
-     <td colSpan={enhancedColumns.length + (hasActions ? 1 : 0)} className="p-8">
+     <td colSpan={enhancedColumns.length + (hasActions ? 1 : 0)} className="p-4 md:p-8">
        {renderSubRow(row, () => handleToggle(row.id !== undefined ? row.id : rowIndex))}
      </td>
    </tr>
@@ -381,7 +381,7 @@ const DataTable = ({
  </div>
  ))
  ) : data.length === 0 ? (
- <div className="px-8 py-20 text-center text-slate-400 font-bold uppercase tracking-widest text-[10px]">No records detected</div>
+ <div className="px-4 md:px-8 py-20 text-center text-slate-400 font-bold uppercase tracking-widest text-[10px]">No records detected</div>
  ) : (
  data.map((row, rowIndex) => {
  const isExpanded = currentExpandedId === (row.id !== undefined ? row.id : rowIndex);
@@ -479,7 +479,7 @@ const DataTable = ({
      onPageChange={onPageChange} 
    />
  ) : (
- <div className="flex items-center justify-between px-8 py-6 bg-slate-50/20 border-t border-slate-100/50">
+ <div className="flex items-center justify-between px-4 md:px-8 py-6 bg-slate-50/20 border-t border-slate-100/50">
  <div className="flex items-center gap-2">
  <div className="w-2 h-2 rounded-full bg-[#008080] animate-pulse"></div>
  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">Record cluster: {data.length} units detected</span>

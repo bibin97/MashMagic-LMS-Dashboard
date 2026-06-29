@@ -147,7 +147,7 @@ const Profile = () => {
  {/* Main Content Area */}
  <div className="lg:col-span-2 space-y-8">
  {/* Personal Information */}
- <div className="bg-white rounded-[32px] border border-slate-200 p-8 shadow-xl shadow-slate-200/50">
+ <div className="bg-white rounded-[32px] border border-slate-200 p-4 md:p-8 shadow-xl shadow-slate-200/50">
  <div className="flex items-center justify-between mb-8">
  <h3 className="text-xl font-black text-slate-900 flex items-center gap-3 tracking-tight">
  <div className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center text-slate-500">
@@ -234,7 +234,7 @@ const Profile = () => {
  <button 
  type="submit"
  disabled={loading}
- className="w-full md:w-auto flex items-center justify-center gap-3 px-8 py-4 bg-[#008080] text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-[#008080]/20 hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50"
+ className="w-full md:w-auto flex items-center justify-center gap-3 px-4 md:px-8 py-4 bg-[#008080] text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-[#008080]/20 hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50"
  >
  <Save size={18} />
  Synchronize Changes
@@ -244,7 +244,7 @@ const Profile = () => {
  </div>
 
  {/* Security Update */}
- <div className="bg-white rounded-[32px] border border-slate-200 p-8 shadow-xl shadow-slate-200/50">
+ <div className="bg-white rounded-[32px] border border-slate-200 p-4 md:p-8 shadow-xl shadow-slate-200/50">
  <h3 className="text-xl font-black text-slate-900 flex items-center gap-3 tracking-tight mb-8">
  <div className="w-10 h-10 bg-rose-50 rounded-xl flex items-center justify-center text-rose-500">
  <Lock size={20} />
@@ -285,7 +285,7 @@ const Profile = () => {
  <button 
  type="submit"
  disabled={loading}
- className="w-full md:w-auto flex items-center justify-center gap-3 px-8 py-4 bg-[#008080] text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-[#008080]/20 hover:scale-[1.02] active:scale-95 transition-all"
+ className="w-full md:w-auto flex items-center justify-center gap-3 px-4 md:px-8 py-4 bg-[#008080] text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-[#008080]/20 hover:scale-[1.02] active:scale-95 transition-all"
  >
  <Lock size={18} />
  Rotate Passcode

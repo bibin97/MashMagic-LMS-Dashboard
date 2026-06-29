@@ -68,7 +68,7 @@ const FacultyTasks = () => {
  </div>
 
  <div className="flex gap-4">
- <div className="bg-[#008080]/10 px-8 py-5 rounded-[2rem] border border-[#008080] flex items-center gap-4">
+ <div className="bg-[#008080]/10 px-4 md:px-8 py-5 rounded-[2rem] border border-[#008080] flex items-center gap-4">
  <div className="w-10 h-10 bg-[#008080] rounded-2xl flex items-center justify-center text-white">
  <CheckSquare size={20} />
  </div>
@@ -86,7 +86,7 @@ const FacultyTasks = () => {
  [1, 2, 3, 4].map(i => <div key={i} className="h-64 bg-slate-100 rounded-[3.5rem] animate-pulse"></div>)
  ) : tasks.length > 0 ? (
  tasks.map((task) => (
- <div key={task.id} className="bg-white p-12 rounded-[3.5rem] border border-slate-100 shadow-sm hover:shadow-2xl transition-all duration-700 group relative overflow-hidden">
+ <div key={task.id} className="bg-white p-6 md:p-12 rounded-[3.5rem] border border-slate-100 shadow-sm hover:shadow-2xl transition-all duration-700 group relative overflow-hidden">
  <div className="absolute top-0 right-0 w-80 h-80 bg-slate-50 rounded-full -mr-40 -mt-40 transition-transform duration-700 group-hover:scale-150"></div>
 
  <div className="relative z-10">
@@ -133,7 +133,7 @@ const FacultyTasks = () => {
  />
  <label
  htmlFor={`proof-${task.id}`}
- className={`flex items-center gap-3 px-8 py-4 bg-yellow-400 text-slate-900 rounded-2xl font-black text-[10px] uppercase tracking-widest cursor-pointer hover:bg-[#008080] transition-all shadow-xl shadow-slate-200 ${uploadingId === task.id ? 'opacity-50 cursor-wait' : ''
+ className={`flex items-center gap-3 px-4 md:px-8 py-4 bg-yellow-400 text-slate-900 rounded-2xl font-black text-[10px] uppercase tracking-widest cursor-pointer hover:bg-[#008080] transition-all shadow-xl shadow-slate-200 ${uploadingId === task.id ? 'opacity-50 cursor-wait' : ''
  }`}
  >
  <Upload size={14} />

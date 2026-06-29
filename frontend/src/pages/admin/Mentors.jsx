@@ -368,7 +368,7 @@ const Mentors = () => {
  <div className="flex flex-col gap-10">
   <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
     <div className="flex flex-col">
-      <h2 className="text-4xl font-black text-slate-900 tracking-tighter leading-none mb-3 ">Mentor Network</h2>
+      <h2 className="text-2xl md:text-4xl font-black text-slate-900 tracking-tighter leading-none mb-3 ">Mentor Network</h2>
       <p className="text-slate-600 text-[10px] font-black uppercase tracking-[0.2em]">Manage and monitor all mentors and their student assignments</p>
     </div>
     
@@ -387,18 +387,18 @@ const Mentors = () => {
   </div>
 
   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-2">
-    <div className="bg-white/70 backdrop-blur-md p-8 rounded-[35px] border border-white/60 shadow-sm flex flex-col gap-2 group transition-all hover:bg-white hover:shadow-md">
+    <div className="bg-white/70 backdrop-blur-md p-4 md:p-8 rounded-[35px] border border-white/60 shadow-sm flex flex-col gap-2 group transition-all hover:bg-white hover:shadow-md">
       <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest group-hover:text-[#008080] transition-colors">Total Mentors</span>
       <div className="flex items-end gap-3 font-black text-slate-900 tracking-tighter">
-        <span className="text-4xl leading-none">{mentors.length}</span>
+        <span className="text-2xl md:text-4xl leading-none">{mentors.length}</span>
         <span className="text-[10px] text-slate-600 mb-1 uppercase tracking-widest">Database Total</span>
       </div>
     </div>
     
-    <div className="bg-white/70 backdrop-blur-md p-8 rounded-[35px] border border-white/60 shadow-sm flex flex-col gap-2 group transition-all hover:bg-white hover:shadow-md">
+    <div className="bg-white/70 backdrop-blur-md p-4 md:p-8 rounded-[35px] border border-white/60 shadow-sm flex flex-col gap-2 group transition-all hover:bg-white hover:shadow-md">
       <span className="text-[10px] font-black text-[#10B981] uppercase tracking-widest">Active Mentors</span>
       <div className="flex items-end gap-3 font-black text-slate-900 tracking-tighter">
-        <span className="text-4xl leading-none">{mentors.filter(m => m.status === 'active').length}</span>
+        <span className="text-2xl md:text-4xl leading-none">{mentors.filter(m => m.status === 'active').length}</span>
         <div className="flex items-center gap-1.5 mb-1 bg-[#10B981]/10 px-2 py-0.5 rounded-full">
            <div className="w-1.5 h-1.5 rounded-full bg-[#10B981] animate-pulse"></div>
            <span className="text-[10px] text-[#10B981] uppercase tracking-widest">Live</span>
@@ -439,7 +439,7 @@ const Mentors = () => {
           <h5 className="text-xs font-bold text-slate-600 uppercase tracking-widest mb-4 shrink-0">Assigned Students ({mentorStudents.length})</h5>
           <div className="space-y-3 overflow-y-auto pr-2 grow">
             {loadingStudents ? (
-              <div className="text-center py-8 text-[10px] font-black text-slate-600 animate-pulse">FETCHING STUDENTS...</div>
+              <div className="text-center py-4 md:py-8 text-[10px] font-black text-slate-600 animate-pulse">FETCHING STUDENTS...</div>
             ) : mentorStudents.length > 0 ? mentorStudents.map((student) => {
               const isSelected = selectedStudentForExams?.id === student.id;
               return (
@@ -455,7 +455,7 @@ const Mentors = () => {
                 </div>
               );
             }) : (
-              <div className="text-center py-8 text-[10px] font-black text-slate-300 uppercase tracking-widest">No students assigned</div>
+              <div className="text-center py-4 md:py-8 text-[10px] font-black text-slate-300 uppercase tracking-widest">No students assigned</div>
             )}
           </div>
         </div>
@@ -470,9 +470,9 @@ const Mentors = () => {
           </div>
           <div className="space-y-3 overflow-y-auto pr-2 grow">
             {loadingExams ? (
-              <div className="text-center py-8 text-[10px] font-black text-slate-600 animate-pulse">FETCHING ASSESSMENTS...</div>
+              <div className="text-center py-4 md:py-8 text-[10px] font-black text-slate-600 animate-pulse">FETCHING ASSESSMENTS...</div>
             ) : !selectedStudentForExams ? (
-              <div className="text-center py-8 text-[10px] font-black text-slate-300 uppercase tracking-widest">Select a student to view deliverables</div>
+              <div className="text-center py-4 md:py-8 text-[10px] font-black text-slate-300 uppercase tracking-widest">Select a student to view deliverables</div>
             ) : studentExams.length > 0 ? (
               studentExams.map((exam, i) => (
                 <div key={i} className="flex flex-col gap-2 p-4 rounded-2xl border border-slate-100 bg-white hover:shadow-md hover:border-[#008080]/20 transition-all cursor-default group">
@@ -509,7 +509,7 @@ const Mentors = () => {
                 </div>
               ))
             ) : (
-              <div className="text-center py-8 text-[10px] font-black text-slate-300 uppercase tracking-widest">No assessments found</div>
+              <div className="text-center py-4 md:py-8 text-[10px] font-black text-slate-300 uppercase tracking-widest">No assessments found</div>
             )}
           </div>
         </div>
@@ -570,8 +570,8 @@ const Mentors = () => {
  </select>
  </div>
  <div className="flex justify-end gap-3 mt-8">
- <button type="button" className="px-8 py-3.5 rounded-2xl border border-slate-100 text-[10px] font-black uppercase tracking-widest text-slate-600 hover:text-slate-600 hover:bg-slate-50 transition-all" onClick={() => setIsEditModalOpen(false)}>Cancel</button>
- <button type="submit" className="px-10 py-3.5 rounded-2xl bg-gradient-to-br from-[#006666] to-[#008080] text-white text-[10px] font-black uppercase tracking-[0.2em] hover:shadow-lg hover:shadow-[#008080]/30 hover:-translate-y-1 transition-all shadow-md shadow-[#008080]/20">Save Changes</button>
+ <button type="button" className="px-4 md:px-8 py-3.5 rounded-2xl border border-slate-100 text-[10px] font-black uppercase tracking-widest text-slate-600 hover:text-slate-600 hover:bg-slate-50 transition-all" onClick={() => setIsEditModalOpen(false)}>Cancel</button>
+ <button type="submit" className="px-5 md:px-10 py-3.5 rounded-2xl bg-gradient-to-br from-[#006666] to-[#008080] text-white text-[10px] font-black uppercase tracking-[0.2em] hover:shadow-lg hover:shadow-[#008080]/30 hover:-translate-y-1 transition-all shadow-md shadow-[#008080]/20">Save Changes</button>
  </div>
  </form>
  </Modal>

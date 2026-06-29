@@ -627,7 +627,7 @@ const Timetable = () => {
           { label: 'Postponed', value: summary.postponed, icon: AlertCircle, color: 'text-amber-600', bg: 'bg-amber-50/50 border-amber-100/50' },
           { label: 'Cancelled', value: summary.cancelled, icon: XCircle, color: 'text-rose-600', bg: 'bg-rose-50/50 border-rose-100/50' },
         ].map((stat, i) => (
-          <div key={i} className={`${stat.bg} p-8 rounded-[2.5rem] border shadow-sm flex flex-col items-center text-center group hover:shadow-xl hover:-translate-y-2 transition-all duration-500`}>
+          <div key={i} className={`${stat.bg} p-4 md:p-8 rounded-[2.5rem] border shadow-sm flex flex-col items-center text-center group hover:shadow-xl hover:-translate-y-2 transition-all duration-500`}>
             <div className={`w-10 h-10 ${stat.bg.replace('/50', '')} rounded-xl flex items-center justify-center mb-4 text-slate-600 group-hover:scale-110 transition-transform`}>
               <stat.icon size={20} className={stat.color} />
             </div>
@@ -637,7 +637,7 @@ const Timetable = () => {
         ))}
       </div>
 
-      <div className="bg-white p-8 rounded-[3rem] border border-slate-100 shadow-sm space-y-8">
+      <div className="bg-white p-4 md:p-8 rounded-[3rem] border border-slate-100 shadow-sm space-y-8">
         <div className="flex flex-wrap items-end gap-6 justify-between">
           <div className="flex-1 min-w-[240px]">
             <label className="text-[8px] font-black text-slate-600 uppercase tracking-[0.2em] pl-1 mb-2 block">Search Timetable</label>
@@ -738,7 +738,7 @@ const Timetable = () => {
 
           <button
             onClick={() => setFilters({ student_id: '', mentor_id: '', status: '', start_date: '', end_date: '' })}
-            className="px-8 py-4 bg-[#008080] text-white text-[10px] font-black uppercase tracking-widest rounded-2xl hover:bg-[#008080] shadow-xl shadow-slate-100 transition-all active:scale-95 "
+            className="px-4 md:px-8 py-4 bg-[#008080] text-white text-[10px] font-black uppercase tracking-widest rounded-2xl hover:bg-[#008080] shadow-xl shadow-slate-100 transition-all active:scale-95 "
           >
             Reset Filters
           </button>
@@ -783,7 +783,7 @@ const Timetable = () => {
             <div key={session.id} className={`${session.session_type === 'Exam' ? 'bg-amber-50 border-amber-200' : 'bg-white border-slate-100'} rounded-[2.5rem] border shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-500 group overflow-hidden flex flex-col md:flex-row items-stretch`}>
               <div className={`w-3 shrink-0 ${getStatusColor(session.status).split(' ')[0]} opacity-40 group-hover:opacity-100 transition-opacity`}></div>
 
-              <div className="flex-grow p-8 flex flex-col md:flex-row md:items-center justify-between gap-8">
+              <div className="flex-grow p-4 md:p-8 flex flex-col md:flex-row md:items-center justify-between gap-8">
                 <div className="flex items-center gap-6 min-w-[250px]">
                   <div className={`w-16 h-16 rounded-[1.5rem] flex items-center justify-center transition-all duration-700 -rotate-3 group-hover:rotate-0 ${session.session_type === 'Exam' ? 'bg-amber-100 text-amber-600 group-hover:bg-amber-500 group-hover:text-white' : 'bg-slate-50 text-slate-600 group-hover:bg-[#008080] group-hover:text-white'}`}>
                     {session.session_type === 'Exam' ? <Target size={24} /> : <Users size={24} />}
@@ -872,7 +872,7 @@ const Timetable = () => {
       {showModal && (
         <div className="fixed inset-0 bg-[#008080]/60 backdrop-blur-md z-[9999] flex items-center justify-center p-4">
           <div className="bg-white rounded-[3rem] shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between p-8 border-b border-slate-50">
+            <div className="flex items-center justify-between p-4 md:p-8 border-b border-slate-50">
               <div className="flex items-center gap-4 mb-10">
                 <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${rescheduleMode ? 'bg-indigo-50 text-indigo-600' : formData.session_type === 'Exam' ? 'bg-amber-50 text-amber-600' : 'bg-[#008080]/10 text-[#008080]'}`}>
                   {rescheduleMode ? <RefreshCcw size={24} /> : formData.session_type === 'Exam' ? <Target size={24} /> : <Calendar size={24} />}
@@ -891,7 +891,7 @@ const Timetable = () => {
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="p-10 space-y-12">
+            <form onSubmit={handleSubmit} className="p-5 md:p-10 space-y-12">
               {rescheduleMode ? (
                 <div className="space-y-6">
                   <div className="bg-indigo-50 p-6 rounded-[2rem] border border-indigo-100 flex items-center gap-4">
@@ -1322,7 +1322,7 @@ const Timetable = () => {
       {showScheduleModal && (
         <div className="fixed inset-0 bg-[#008080]/60 backdrop-blur-md z-[10000] flex items-center justify-center p-4">
           <div className="bg-white rounded-[3rem] shadow-2xl w-full max-w-5xl max-h-[90vh] overflow-hidden flex flex-col">
-            <div className="p-8 border-b border-slate-50 flex justify-between items-center bg-slate-50/50">
+            <div className="p-4 md:p-8 border-b border-slate-50 flex justify-between items-center bg-slate-50/50">
               <div>
                 <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tight">Manage Registration Schedule</h2>
                 <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mt-1">Configure student's recurring academic timeline</p>
@@ -1332,7 +1332,7 @@ const Timetable = () => {
               </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-10 space-y-6">
+            <div className="flex-1 overflow-y-auto p-5 md:p-10 space-y-6">
               <div className="hidden lg:grid grid-cols-6 gap-4 px-4 text-[9px] font-black text-slate-400 uppercase tracking-widest">
                 <div className="col-span-1">Day of Week</div>
                 <div className="col-span-1">Start Time</div>
@@ -1484,7 +1484,7 @@ const Timetable = () => {
               </button>
             </div>
 
-            <div className="p-8 bg-slate-50 border-t border-slate-100 flex gap-4">
+            <div className="p-4 md:p-8 bg-slate-50 border-t border-slate-100 flex gap-4">
               <button
                 onClick={() => setShowScheduleModal(false)}
                 className="flex-1 py-4 bg-white text-slate-600 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-sm hover:bg-slate-50 transition-all"

@@ -91,19 +91,19 @@ const FacultyStudents = () => {
  <table className="w-full text-left border-collapse">
  <thead>
  <tr className="bg-slate-50/50">
- <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Student Information</th>
- <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Roll Number</th>
- <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Department</th>
- <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Hours</th>
- <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest text-center">Attendance</th>
- <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Performance</th>
+ <th className="px-4 md:px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Student Information</th>
+ <th className="px-4 md:px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Roll Number</th>
+ <th className="px-4 md:px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Department</th>
+ <th className="px-4 md:px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Hours</th>
+ <th className="px-4 md:px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest text-center">Attendance</th>
+ <th className="px-4 md:px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Performance</th>
  </tr>
  </thead>
  <tbody className="divide-y divide-slate-50">
  {loading ? [1, 2, 3, 4, 5].map((i, index) => <tr key={i} className="animate-pulse"><td className="p-6 text-sm font-black text-slate-400 border-b border-slate-50">{index + 1}</td>
- <td colSpan="5" className="px-8 py-6"><div className="h-4 bg-slate-100 rounded w-full"></div></td>
+ <td colSpan="5" className="px-4 md:px-8 py-6"><div className="h-4 bg-slate-100 rounded w-full"></div></td>
  </tr>) : filteredStudents.length > 0 ? filteredStudents.map((student, index) => <tr key={student.id} className="hover:bg-slate-50/80 transition-all group"><td className="p-6 text-sm font-black text-slate-400 border-b border-slate-50">{index + 1}</td>
- <td className="px-8 py-6">
+ <td className="px-4 md:px-8 py-6">
  <div className="flex items-center gap-4">
  <div className="w-12 h-12 bg-[#008080]/10 rounded-2xl flex items-center justify-center text-white font-black text-xl group-hover:bg-[#008080] group-hover:text-white transition-all duration-500">
  {student.name.charAt(0)}
@@ -119,16 +119,16 @@ const FacultyStudents = () => {
  </div>
  </div>
  </td>
- <td className="px-8 py-6 font-bold text-slate-600 font-mono text-xs tracking-wider uppercase">
+ <td className="px-4 md:px-8 py-6 font-bold text-slate-600 font-mono text-xs tracking-wider uppercase">
  {student.roll_number || 'N/A'}
  </td>
- <td className="px-8 py-6">
+ <td className="px-4 md:px-8 py-6">
  <div className="flex items-center gap-2">
  <div className="w-1.5 h-1.5 bg-[#008080] rounded-full"></div>
  <span className="text-xs font-bold text-slate-700 tracking-tight uppercase">{student.department || 'General'}</span>
  </div>
  </td>
- <td className="px-8 py-6">
+ <td className="px-4 md:px-8 py-6">
  <div className="flex flex-col gap-1 min-w-[120px]">
  {student.subject_hours && student.subject_hours.length > 0 ? student.subject_hours.map((sh, idx) => <div key={idx} className="flex justify-between items-center text-[10px] font-black uppercase text-[#008080]">
  <span>{sh.subject}</span>
@@ -136,7 +136,7 @@ const FacultyStudents = () => {
  </div>) : <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">No subject hours logged</span>}
  </div>
  </td>
- <td className="px-8 py-6">
+ <td className="px-4 md:px-8 py-6">
  <div className="flex flex-col items-center gap-2">
  <span className="text-xs font-black text-slate-900 tabular-nums">{student.attendance_percentage}%</span>
  <div className="w-24 h-1.5 bg-slate-100 rounded-full overflow-hidden">
@@ -146,11 +146,11 @@ const FacultyStudents = () => {
  </div>
  </div>
  </td>
- <td className="px-8 py-6">
+ <td className="px-4 md:px-8 py-6">
  <StatusBadge status={student.performance_status || 'Green'} />
  </td>
  </tr>) : <tr>
- <td colSpan="5" className="px-8 py-20 text-center">
+ <td colSpan="5" className="px-4 md:px-8 py-20 text-center">
  <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center text-slate-300 mx-auto mb-6">
  <GraduationCap size={40} />
  </div>

@@ -344,9 +344,9 @@ const Tasks = () => {
 
  return (
  <div className="flex flex-col gap-10 pb-10">
- <div className="bg-white/70 backdrop-blur-xl p-10 rounded-[32px] border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.04)] flex flex-col md:flex-row justify-between items-center gap-8">
+ <div className="bg-white/70 backdrop-blur-xl p-5 md:p-10 rounded-[32px] border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.04)] flex flex-col md:flex-row justify-between items-center gap-8">
  <div className="text-center md:text-left">
- <h2 className="text-4xl font-black text-slate-900 tracking-tighter leading-none mb-3 ">Tasks Management</h2>
+ <h2 className="text-2xl md:text-4xl font-black text-slate-900 tracking-tighter leading-none mb-3 ">Tasks Management</h2>
  <p className="text-slate-600 text-[10px] font-black uppercase tracking-[0.2em] flex items-center justify-center md:justify-start gap-2">
  <div className="w-1.5 h-1.5 rounded-full bg-[#008080] animate-pulse"></div>
  Coordinate and track educational tasks for the mentor network
@@ -355,7 +355,7 @@ const Tasks = () => {
  {isSuperAdmin && (
  <button
  onClick={() => setIsModalOpen(true)}
- className="bg-gradient-to-br from-[#006666] to-[#008080] text-white px-8 py-5 rounded-[20px] font-black text-[10px] uppercase tracking-[0.2em] hover:shadow-xl hover:shadow-[#008080]/40 hover:-translate-y-1 transition-all flex items-center gap-3"
+ className="bg-gradient-to-br from-[#006666] to-[#008080] text-white px-4 md:px-8 py-5 rounded-[20px] font-black text-[10px] uppercase tracking-[0.2em] hover:shadow-xl hover:shadow-[#008080]/40 hover:-translate-y-1 transition-all flex items-center gap-3"
  >
  <Plus size={18} strokeWidth={3} />
  <span>Assign New Task</span>

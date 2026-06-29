@@ -118,7 +118,7 @@ const AoeExams = () => {
   return (
     <div className="space-y-12 pb-20">
       {/* Page Header */}
-      <div className="bg-white p-10 rounded-[3.5rem] border border-slate-100 shadow-sm flex flex-col md:flex-row justify-between items-center gap-8 relative overflow-hidden group">
+      <div className="bg-white p-5 md:p-10 rounded-[3.5rem] border border-slate-100 shadow-sm flex flex-col md:flex-row justify-between items-center gap-8 relative overflow-hidden group">
         <div className="absolute top-0 right-0 w-64 h-64 bg-[#008080]/5 rounded-full -mr-32 -mt-32 blur-3xl transition-transform duration-1000 group-hover:scale-150"></div>
         <div className="text-center md:text-left relative z-10">
           <h1 className="text-3xl font-black text-slate-900 tracking-tighter uppercase ">Exam Score Center</h1>
@@ -130,7 +130,7 @@ const AoeExams = () => {
         <div className="flex items-center gap-4 relative z-10">
           <button
             onClick={() => setShowAddModal(true)}
-            className="bg-[#008080] text-white px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-[#008080]/30 hover:bg-[#008080] transition-all flex items-center gap-3 active:scale-95"
+            className="bg-[#008080] text-white px-4 md:px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-[#008080]/30 hover:bg-[#008080] transition-all flex items-center gap-3 active:scale-95"
           >
             <Plus size={18} />
             Add New Score
@@ -153,7 +153,7 @@ const AoeExams = () => {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-        <button className="bg-white border border-slate-200 px-8 rounded-[1.8rem] flex items-center gap-3 text-slate-600 font-bold text-xs uppercase tracking-widest hover:bg-slate-50 transition-all">
+        <button className="bg-white border border-slate-200 px-4 md:px-8 rounded-[1.8rem] flex items-center gap-3 text-slate-600 font-bold text-xs uppercase tracking-widest hover:bg-slate-50 transition-all">
           <Filter size={18} />
           Filters
         </button>
@@ -165,7 +165,7 @@ const AoeExams = () => {
           [1, 2, 3].map(i => <div key={i} className="h-44 bg-slate-100 rounded-[2.8rem] animate-pulse"></div>)
         ) : filteredScores.length > 0 ? (
           filteredScores.map((score) => (
-            <div key={score.id} className="bg-white p-10 rounded-[2.8rem] border border-slate-100 shadow-sm hover:shadow-2xl transition-all duration-700 group flex flex-col xl:flex-row gap-8 items-start xl:items-center relative overflow-hidden">
+            <div key={score.id} className="bg-white p-5 md:p-10 rounded-[2.8rem] border border-slate-100 shadow-sm hover:shadow-2xl transition-all duration-700 group flex flex-col xl:flex-row gap-8 items-start xl:items-center relative overflow-hidden">
               <div className="absolute top-0 right-0 w-80 h-80 bg-slate-50/50 rounded-full -mr-40 -mt-40 transition-transform duration-1000 group-hover:scale-110"></div>
 
               {/* Score Circle */}
@@ -203,7 +203,7 @@ const AoeExams = () => {
                     <div key={i} className={`w-2 h-2 rounded-full ${i === 1 ? 'bg-[#008080]' : 'bg-slate-200'}`}></div>
                   ))}
                 </div>
-                <button className="px-8 py-4 bg-slate-50 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-[#008080] hover:text-white transition-all flex items-center gap-3 group/btn">
+                <button className="px-4 md:px-8 py-4 bg-slate-50 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-[#008080] hover:text-white transition-all flex items-center gap-3 group/btn">
                   View Analytics
                   <ArrowUpRight size={14} className="group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform" />
                 </button>
@@ -225,7 +225,7 @@ const AoeExams = () => {
       {showAddModal && (
         <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-[#008080]/60 backdrop-blur-xl max-h-[90vh] overflow-y-auto" onClick={() => setShowAddModal(false)}></div>
-          <div className="bg-white w-full max-w-2xl max-h-[90vh] overflow-y-auto p-10 rounded-[3.5rem] relative z-[2001] shadow-2xl animate-in fade-in zoom-in-95 duration-500 border border-slate-100">
+          <div className="bg-white w-full max-w-2xl max-h-[90vh] overflow-y-auto p-5 md:p-10 rounded-[3.5rem] relative z-[2001] shadow-2xl animate-in fade-in zoom-in-95 duration-500 border border-slate-100">
             <div className="flex justify-between items-start mb-10">
               <div>
                 <h2 className="text-3xl font-black text-slate-900 tracking-tight uppercase ">Add Exam Score</h2>

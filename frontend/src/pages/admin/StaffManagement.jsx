@@ -272,15 +272,15 @@ const StaffManagement = () => {
 
  return (
  <div className="flex flex-col gap-10 pb-10">
- <div className="bg-white/70 backdrop-blur-xl p-12 rounded-[40px] border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.04)] flex flex-col md:flex-row justify-between items-center gap-10">
+ <div className="bg-white/70 backdrop-blur-xl p-6 md:p-12 rounded-[40px] border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.04)] flex flex-col md:flex-row justify-between items-center gap-10">
  <div className="text-center md:text-left">
- <h2 className="text-4xl font-black text-slate-900 tracking-tighter leading-none mb-3 ">Staff Directory</h2>
+ <h2 className="text-2xl md:text-4xl font-black text-slate-900 tracking-tighter leading-none mb-3 ">Staff Directory</h2>
  <p className="text-slate-600 text-[11px] font-black uppercase tracking-[0.25em] flex items-center justify-center md:justify-start gap-3 mt-1">
  <div className="w-2 h-2 rounded-full bg-[#008080] animate-pulse"></div>
  Manage all staff members and their system access roles
  </p>
  </div>
- <div className="bg-[#008080] px-8 py-5 rounded-[24px] border border-slate-800 shadow-2xl flex items-center gap-5 group hover:translate-x-1 transition-all">
+ <div className="bg-[#008080] px-4 md:px-8 py-5 rounded-[24px] border border-slate-800 shadow-2xl flex items-center gap-5 group hover:translate-x-1 transition-all">
  <ShieldCheck className="text-white" size={20} strokeWidth={2.5} />
  <div className="flex flex-col">
  <span className="text-[10px] font-black text-white uppercase tracking-[0.2em] leading-none mb-1">Total Staff</span>
@@ -368,7 +368,7 @@ const StaffManagement = () => {
         </div>
 
         <div className="flex justify-end gap-3 mt-4">
-          <button className="px-8 py-4 bg-[#008080] text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-[#008080] transition-all shadow-lg" onClick={() => setIsDetailModalOpen(false)}>Close Profile</button>
+          <button className="px-4 md:px-8 py-4 bg-[#008080] text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-[#008080] transition-all shadow-lg" onClick={() => setIsDetailModalOpen(false)}>Close Profile</button>
         </div>
       </div>
     )}
@@ -487,7 +487,7 @@ const StaffManagement = () => {
  </button>
  <button
  type="submit"
- className="px-8 py-3 rounded-2xl bg-[#008080] text-white text-sm font-bold hover:bg-[#008080] transition-all shadow-lg shadow-[#008080]/30 active:scale-95"
+ className="px-4 md:px-8 py-3 rounded-2xl bg-[#008080] text-white text-sm font-bold hover:bg-[#008080] transition-all shadow-lg shadow-[#008080]/30 active:scale-95"
  >
  Save Changes
  </button>

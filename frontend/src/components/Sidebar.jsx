@@ -63,7 +63,7 @@ const Sidebar = ({ isOpen, setIsOpen, isCollapsed, setIsCollapsed, navItems, tit
       {isCollapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
     </button>
 
-    <div className={`p-8 border-b border-slate-100 flex flex-col items-center transition-all duration-500 overflow-hidden ${isCollapsed ? 'px-2 py-4' : 'px-8 py-6'}`}>
+    <div className={`p-4 md:p-8 border-b border-slate-100 flex flex-col items-center transition-all duration-500 overflow-hidden ${isCollapsed ? 'px-2 py-4' : 'px-4 md:px-8 py-6'}`}>
       <div className="flex items-center justify-center w-full relative">
         <div className={`transition-all duration-500 flex flex-col items-center w-full`}>
           {/* THE 'FULL' LOGO AREA */}

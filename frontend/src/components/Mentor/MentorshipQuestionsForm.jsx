@@ -234,7 +234,7 @@ const MentorshipQuestionsForm = ({ selectedStudent, setSubmitted, fetchStudentLo
                                 e.preventDefault();
                                 uploadFiles(e.dataTransfer.files);
                             }}
-                            className="border-2 border-dashed border-slate-300 rounded-2xl p-8 bg-slate-50 text-center"
+                            className="border-2 border-dashed border-slate-300 rounded-2xl p-4 md:p-8 bg-slate-50 text-center"
                         >
                             <Upload className="mx-auto text-[#008080] mb-2" />
                             <p className="text-sm font-bold text-slate-700">Drag & drop files (image/pdf/audio)</p>

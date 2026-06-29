@@ -88,7 +88,7 @@ const StudentCheckTracker = () => {
     }
   };
 
-  if (loading) return <div className="p-8 text-center text-slate-600 font-bold">Loading tracker...</div>;
+  if (loading) return <div className="p-4 md:p-8 text-center text-slate-600 font-bold">Loading tracker...</div>;
 
   const sortedStudents = students;
 
@@ -283,7 +283,7 @@ const StudentCheckTracker = () => {
           })}
           
           {sortedStudents.length === 0 && (
-            <div className="text-center py-10">
+            <div className="text-center py-5 md:py-10">
               <CheckSquare size={32} className="mx-auto text-slate-300 mb-3" />
               <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">No students found</p>
             </div>

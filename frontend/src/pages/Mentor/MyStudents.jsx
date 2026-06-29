@@ -112,7 +112,7 @@ const StudentRow = ({ student, index, navigate, handleToggleConnection, handleCo
         <div className="flex items-center gap-3 w-full lg:w-auto shrink-0" onClick={(e) => e.stopPropagation()}>
           <button
             onClick={() => navigate('/mentor/interaction-logs', { state: { studentId: student.id } })}
-            className="flex-1 lg:flex-none flex items-center justify-center gap-3 px-8 py-4 bg-[#008080] text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-slate-200 hover:shadow-2xl transition-all active:scale-95"
+            className="flex-1 lg:flex-none flex items-center justify-center gap-3 px-4 md:px-8 py-4 bg-[#008080] text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-slate-200 hover:shadow-2xl transition-all active:scale-95"
             title="Interaction Log"
           >
             <MessageSquare size={16} /> Chat
@@ -381,9 +381,9 @@ const MyStudents = () => {
  return (
  <div className="space-y-12 pb-20">
  {/* Page Header */}
- <div className="bg-white/70 backdrop-blur-xl p-12 rounded-[40px] border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.04)] flex flex-col md:flex-row justify-between items-center gap-10">
+ <div className="bg-white/70 backdrop-blur-xl p-6 md:p-12 rounded-[40px] border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.04)] flex flex-col md:flex-row justify-between items-center gap-10">
  <div className="text-center md:text-left">
- <h2 className="text-5xl font-black text-slate-900 tracking-tighter leading-none mb-3 ">Student Fleet</h2>
+ <h2 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tighter leading-none mb-3 ">Student Fleet</h2>
  <p className="text-slate-600 text-[11px] font-black uppercase tracking-[0.25em] flex items-center justify-center md:justify-start gap-3 mt-1">
  <div className="w-2 h-2 rounded-full bg-[#008080] animate-pulse"></div>
  Direct assignments
@@ -448,7 +448,7 @@ const MyStudents = () => {
  {isTimetableModalOpen && (
  <div className="fixed inset-0 bg-[#008080]/60 backdrop-blur-md z-[9999] flex items-center justify-center p-4">
  <div className="bg-white rounded-[3rem] shadow-2xl w-full max-w-6xl max-h-[90vh] overflow-hidden flex flex-col">
- <div className="px-10 py-8 border-b border-slate-100 flex justify-between items-center bg-white">
+ <div className="px-5 md:px-10 py-4 md:py-8 border-b border-slate-100 flex justify-between items-center bg-white">
  <div>
  <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tight ">Onboarding Workflow</h2>
  <p className="text-[10px] font-bold text-slate-600 uppercase tracking-[0.2em] mt-1">Setup Timetable for {selectedStudent?.name}</p>
@@ -458,7 +458,7 @@ const MyStudents = () => {
  </button>
  </div>
 
- <form onSubmit={handleBatchSubmit} className="flex-1 overflow-y-auto p-10">
+ <form onSubmit={handleBatchSubmit} className="flex-1 overflow-y-auto p-6 md:p-10">
  <div className="space-y-4">
  {batchSessions.map((session, index) => (
  <div key={index} className="grid grid-cols-1 md:grid-cols-5 gap-4 p-6 bg-slate-50 rounded-2xl border border-slate-100 relative group">
@@ -536,7 +536,7 @@ const MyStudents = () => {
  </div>
  </form>
 
- <div className="px-10 py-8 border-t border-slate-100 bg-slate-50/50 flex gap-4">
+ <div className="px-5 md:px-10 py-4 md:py-8 border-t border-slate-100 bg-slate-50/50 flex gap-4">
  <button
  type="submit"
  onClick={handleBatchSubmit}
@@ -544,7 +544,7 @@ const MyStudents = () => {
  >
  <CheckCircle2 size={18} /> Initialize Activation
  </button>
- <button onClick={() => setIsTimetableModalOpen(false)} className="px-8 bg-white border border-slate-200 rounded-2xl font-black text-xs uppercase tracking-widest text-slate-600 hover:bg-rose-50 hover:text-rose-500 transition-all">
+ <button onClick={() => setIsTimetableModalOpen(false)} className="px-4 md:px-8 bg-white border border-slate-200 rounded-2xl font-black text-xs uppercase tracking-widest text-slate-600 hover:bg-rose-50 hover:text-rose-500 transition-all">
  Abort
  </button>
  </div>
@@ -556,14 +556,14 @@ const MyStudents = () => {
  <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
  <div className="absolute inset-0 bg-[#008080]/60 backdrop-blur-sm max-h-[90vh] overflow-y-auto" onClick={() => setIsHoursModalOpen(false)}></div>
  <div className="bg-white rounded-[3rem] w-full max-w-md shadow-2xl overflow-hidden relative z-10 animate-in zoom-in duration-300">
- <div className="px-10 py-8 bg-[#008080] text-white relative">
+ <div className="px-5 md:px-10 py-4 md:py-8 bg-[#008080] text-white relative">
  <div className="absolute top-0 right-0 p-6 opacity-20">
  <Clock size={48} />
  </div>
  <h3 className="text-2xl font-black tracking-tighter uppercase relative z-10">Log Working Hours</h3>
  <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest mt-1 relative z-10">Record time spent for {selectedStudent.name}</p>
  </div>
- <form onSubmit={handleHoursSubmit} className="p-10 space-y-6">
+ <form onSubmit={handleHoursSubmit} className="p-6 md:p-10 space-y-6">
  <div>
  <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest pl-2 mb-2 block">Date</label>
  <input

@@ -91,14 +91,14 @@ const Approvals = () => {
   }
   return <div className="space-y-8">
       {/* Header */}
-      <div className="bg-white/70 backdrop-blur-xl p-12 rounded-[40px] border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.04)] flex flex-col md:flex-row justify-between items-center gap-10">
+      <div className="bg-white/70 backdrop-blur-xl p-6 md:p-12 rounded-[40px] border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.04)] flex flex-col md:flex-row justify-between items-center gap-10">
         <div className="text-center md:text-left">
           <div className="flex flex-col md:flex-row items-center gap-8">
             <div className="w-20 h-20 bg-[#008080] rounded-[28px] shadow-2xl shadow-[#008080]/30 flex items-center justify-center">
               <Shield className="text-white" size={36} strokeWidth={2.5} />
             </div>
             <div>
-              <h2 className="text-4xl font-black text-slate-900 tracking-tighter leading-none mb-3">Verification Hub</h2>
+              <h2 className="text-2xl md:text-4xl font-black text-slate-900 tracking-tighter leading-none mb-3">Verification Hub</h2>
               <p className="text-slate-600 text-[10px] font-black uppercase tracking-[0.2em] flex items-center justify-center md:justify-start gap-3 mt-1">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                 Staff Approvals
@@ -107,7 +107,7 @@ const Approvals = () => {
           </div>
         </div>
         <div className="flex gap-4">
-          <div className="bg-[#008080] px-8 py-4 rounded-[28px] border border-slate-800 shadow-2xl flex items-center gap-4">
+          <div className="bg-[#008080] px-4 md:px-8 py-4 rounded-[28px] border border-slate-800 shadow-2xl flex items-center gap-4">
             <div className="flex flex-col">
               <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none mb-1">Pending</span>
               <span className="text-2xl font-black text-white leading-none">{totalRecords}</span>
@@ -120,7 +120,7 @@ const Approvals = () => {
       <div className="w-full">
         {/* Pending Approvals Table */}
         <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden flex flex-col">
-          <div className="p-8 border-b border-slate-50 flex items-center justify-between bg-slate-50/30">
+          <div className="p-4 md:p-8 border-b border-slate-50 flex items-center justify-between bg-slate-50/30">
             <h3 className="text-xl font-black text-slate-900 tracking-tight flex items-center gap-3">
               <UserCheck className="text-[#008080]" />
               STAFF APPROVALS
@@ -130,7 +130,7 @@ const Approvals = () => {
             </span>
           </div>
           
-          <div className="flex-1 min-h-[400px] p-8 bg-slate-50/20">
+          <div className="flex-1 min-h-[400px] p-4 md:p-8 bg-slate-50/20">
             {pendingUsers.length > 0 ? (
               <div className="grid grid-cols-1 gap-4">
                 {pendingUsers.map((user, index) => (

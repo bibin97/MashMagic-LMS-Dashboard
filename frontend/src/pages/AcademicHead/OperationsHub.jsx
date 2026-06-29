@@ -324,7 +324,7 @@ const OperationsHub = ({ section }) => {
       {ratingModal.show && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-in fade-in duration-200">
           <div className="bg-white rounded-[2.5rem] w-full max-w-xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
-            <div className="p-8 pb-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+            <div className="p-4 md:p-8 pb-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
               <div>
                 <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight flex items-center gap-3">
                   <Star className="text-amber-500 fill-amber-500" size={24} /> Evaluation Updates
@@ -341,7 +341,7 @@ const OperationsHub = ({ section }) => {
               </button>
             </div>
 
-            <form onSubmit={handleRatingSubmit} className="flex-1 overflow-y-auto p-8 space-y-6">
+            <form onSubmit={handleRatingSubmit} className="flex-1 overflow-y-auto p-4 md:p-8 space-y-6">
               <div className="space-y-4">
                 {[
                   { key: 'lighting', label: 'Lighting' },
@@ -409,7 +409,7 @@ const OperationsHub = ({ section }) => {
                 <button 
                   type="submit" 
                   disabled={submittingRating}
-                  className="px-8 py-3 bg-[#008080] text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-[#008080]/20 hover:bg-[#006666] transition-colors disabled:opacity-50"
+                  className="px-4 md:px-8 py-3 bg-[#008080] text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-[#008080]/20 hover:bg-[#006666] transition-colors disabled:opacity-50"
                 >
                   {submittingRating ? 'Submitting...' : 'Submit Evaluation'}
                 </button>
@@ -433,7 +433,7 @@ const OperationsHub = ({ section }) => {
       <div className="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100 overflow-x-auto">
         <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight mb-6">Institution-wide Exam Scores</h2>
         <div className="w-full overflow-x-auto">
-<table className="w-full min-w-[800px] text-left">
+<table className="w-full min-w-full md:w-[800px] text-left">
           <thead>
             <tr className="border-b border-slate-200">
               <th className="pb-3 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Student</th>
@@ -461,13 +461,13 @@ const OperationsHub = ({ section }) => {
 
   const renderStudentGrowth = () => (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="bg-white p-10 rounded-[3rem] shadow-sm border border-slate-100 text-center flex flex-col items-center justify-center min-h-[400px]">
+      <div className="bg-white p-5 md:p-10 rounded-[3rem] shadow-sm border border-slate-100 text-center flex flex-col items-center justify-center min-h-[400px]">
         <div className="w-24 h-24 bg-violet-50 text-violet-500 rounded-full flex items-center justify-center mb-6">
           <TrendingUp size={40} />
         </div>
         <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tighter">Student Growth Analytics</h2>
         <p className="text-slate-500 font-medium max-w-md mt-2">Currently tracking {activeData.length} active students.</p>
-        <button onClick={() => fetchData('student_growth')} className="mt-8 px-8 py-3 bg-slate-900 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:-translate-y-1 transition-all">
+        <button onClick={() => fetchData('student_growth')} className="mt-8 px-4 md:px-8 py-3 bg-slate-900 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:-translate-y-1 transition-all">
           Generate Latest Report
         </button>
       </div>
@@ -617,7 +617,7 @@ const OperationsHub = ({ section }) => {
         </div>
 
         <div className="w-full overflow-x-auto">
-<table className="w-full min-w-[900px] text-left">
+<table className="w-full min-w-full md:w-[900px] text-left">
           <thead>
             <tr className="border-b border-slate-200">
               <th className="pb-3 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Student</th>
@@ -669,7 +669,7 @@ const OperationsHub = ({ section }) => {
       {completionModal.show && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-in fade-in duration-200">
           <div className="bg-white rounded-[2.5rem] w-full max-w-lg overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto">
-            <div className="p-8 pb-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+            <div className="p-4 md:p-8 pb-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
               <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight flex items-center gap-3">
                 <CheckCircle2 className="text-teal-500" /> Complete Course
               </h2>
@@ -677,7 +677,7 @@ const OperationsHub = ({ section }) => {
                 <XCircle size={24} />
               </button>
             </div>
-            <form onSubmit={handleCourseCompletionSubmit} className="p-8 space-y-6">
+            <form onSubmit={handleCourseCompletionSubmit} className="p-4 md:p-8 space-y-6">
               <div className="space-y-2">
                 <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Remarks / Assessment</label>
                 <textarea 
@@ -701,7 +701,7 @@ const OperationsHub = ({ section }) => {
               </div>
               <div className="pt-4 flex justify-end gap-4">
                 <button type="button" onClick={() => setCompletionModal({ ...completionModal, show: false })} className="px-6 py-3 text-[10px] font-black text-slate-500 uppercase tracking-widest hover:text-slate-700">Cancel</button>
-                <button type="submit" className="px-8 py-3 bg-teal-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-teal-500/20 hover:bg-teal-600 transition-colors">Submit Completion</button>
+                <button type="submit" className="px-4 md:px-8 py-3 bg-teal-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-teal-500/20 hover:bg-teal-600 transition-colors">Submit Completion</button>
               </div>
             </form>
           </div>
@@ -738,7 +738,7 @@ const OperationsHub = ({ section }) => {
 
       {/* Render Active Section */}
       <div className="min-h-[500px]">
-        {loading && <div className="text-center py-12"><div className="w-8 h-8 border-4 border-[#008080] border-t-transparent rounded-full animate-spin mx-auto"></div></div>}
+        {loading && <div className="text-center py-6 md:py-12"><div className="w-8 h-8 border-4 border-[#008080] border-t-transparent rounded-full animate-spin mx-auto"></div></div>}
         {!loading && (
           <>
             {activeTab === 'academic_quality' && renderLiveClassUpdates()}

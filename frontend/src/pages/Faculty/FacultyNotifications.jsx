@@ -84,7 +84,7 @@ const FacultyNotifications = () => {
  <button
  key={f}
  onClick={() => setFilter(f)}
- className={`px-8 py-3 rounded-[1.2rem] text-[10px] font-black uppercase tracking-widest transition-all duration-500 ${filter === f ? 'bg-[#008080] text-white shadow-xl shadow-[#008080]/30' : 'text-slate-600 hover:text-white'
+ className={`px-4 md:px-8 py-3 rounded-[1.2rem] text-[10px] font-black uppercase tracking-widest transition-all duration-500 ${filter === f ? 'bg-[#008080] text-white shadow-xl shadow-[#008080]/30' : 'text-slate-600 hover:text-white'
  }`}
  >
  {f}
@@ -102,7 +102,7 @@ const FacultyNotifications = () => {
  <div
  key={notif.id}
  onClick={() => !notif.is_read && markAsRead(notif.id)}
- className={`group relative bg-white p-10 rounded-[3rem] border transition-all duration-700 cursor-pointer overflow-hidden ${notif.is_read
+ className={`group relative bg-white p-5 md:p-10 rounded-[3rem] border transition-all duration-700 cursor-pointer overflow-hidden ${notif.is_read
  ? 'border-slate-100 opacity-70 grayscale'
  : 'border-[#008080] shadow-2xl shadow-[#008080]/5 hover:-translate-y-1'
  }`}

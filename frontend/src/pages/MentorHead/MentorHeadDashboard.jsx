@@ -527,7 +527,7 @@ const MentorHeadDashboard = () => {
               ))}
             </div>
           ) : (
-            <div className="text-center py-8 md:py-16">
+            <div className="text-center py-4 md:py-8 md:py-16">
               <div className="w-10 h-10 md:w-16 md:h-16 bg-slate-50 rounded-full flex items-center justify-center text-slate-300 mx-auto mb-2 md:mb-4">
                 <Activity size={20} className="md:w-8 md:h-8" />
               </div>

@@ -55,13 +55,13 @@ const StudentDetails = () => {
  </button>
 
  {/* Profile Header */}
- <div className="bg-white p-10 rounded-[3rem] shadow-xl shadow-slate-200 border border-slate-50 flex flex-col md:flex-row gap-10 items-center md:items-start relative overflow-hidden">
+ <div className="bg-white p-6 md:p-10 rounded-[3rem] shadow-xl shadow-slate-200 border border-slate-50 flex flex-col md:flex-row gap-10 items-center md:items-start relative overflow-hidden">
  <div className="absolute top-0 right-0 w-64 h-64 bg-[#008080]/10 rounded-full -mr-32 -mt-32 opacity-30"></div>
  <div className="w-40 h-40 bg-slate-50 rounded-[2rem] flex items-center justify-center text-slate-300 relative z-10">
  <User size={80} />
  </div>
  <div className="flex-1 text-center md:text-left relative z-10">
- <h1 className="text-4xl font-black text-slate-900 tracking-tighter uppercase mb-2 flex flex-col md:flex-row items-center gap-3 justify-center md:justify-start">
+ <h1 className="text-2xl md:text-4xl font-black text-slate-900 tracking-tighter uppercase mb-2 flex flex-col md:flex-row items-center gap-3 justify-center md:justify-start">
  {student.name}
  {student.onboarding_status === 'pending' && <span className="px-3 py-1 bg-rose-50 text-rose-600 rounded-xl text-xs font-black uppercase tracking-widest border border-rose-100 shadow-sm not-">
  New Student
@@ -131,7 +131,7 @@ const StudentDetails = () => {
  </div>
 
  {/* Content Area */}
- <div className="bg-white p-10 rounded-[3rem] shadow-xl shadow-slate-200 border border-slate-50 min-h-[400px]">
+ <div className="bg-white p-6 md:p-10 rounded-[3rem] shadow-xl shadow-slate-200 border border-slate-50 min-h-[400px]">
  {activeTab === 'info' && <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
  <section className="space-y-6">
  <h3 className="text-lg font-black text-slate-900 border-b-2 border-[#008080] pb-2 flex items-center gap-3">
@@ -157,7 +157,7 @@ const StudentDetails = () => {
  <h3 className="text-lg font-black text-slate-900 border-b-2 border-[#008080] pb-2 flex items-center gap-3">
  <MessageSquare size={20} className="text-[#008080]" /> Enrollment Notes
  </h3>
- <div className="p-8 bg-slate-50 rounded-[2rem] border border-dashed border-slate-200 text-slate-500 text-sm font-semibold leading-relaxed">
+ <div className="p-4 md:p-8 bg-slate-50 rounded-[2rem] border border-dashed border-slate-200 text-slate-500 text-sm font-semibold leading-relaxed">
  This section contains internal enrollment notes and status updates for the student's academic path. Standard operation procedures apply.
  </div>
  </section>
@@ -234,7 +234,7 @@ const StudentDetails = () => {
       </div>
     ))}
     {student.timetable.length === 0 && (
-      <div className="text-center py-10 text-slate-400 font-bold text-[10px] uppercase tracking-widest">No sessions scheduled yet.</div>
+      <div className="text-center py-5 md:py-10 text-slate-400 font-bold text-[10px] uppercase tracking-widest">No sessions scheduled yet.</div>
     )}
  </div>
  </div>}
@@ -280,7 +280,7 @@ const StudentDetails = () => {
 
  {log.screenshot_url && <a href={log.screenshot_url} target="_blank" rel="noopener noreferrer" className="block mt-4 text-[10px] font-black text-[#008080] hover:underline uppercase tracking-wide">View Screenshot Evidence</a>}
  </div>)}
- {student.studentLogs.length === 0 && <p className="text-slate-600 text-center text-sm font-bold py-10">No student interaction logs found.</p>}
+ {student.studentLogs.length === 0 && <p className="text-slate-600 text-center text-sm font-bold py-5 md:py-10">No student interaction logs found.</p>}
  </div>
  </section>
 
@@ -310,7 +310,7 @@ const StudentDetails = () => {
 
  {log.screenshot_url && <a href={log.screenshot_url} target="_blank" rel="noopener noreferrer" className="block mt-2 text-[10px] font-black text-purple-500 hover:underline uppercase tracking-wide">View Evidence</a>}
  </div>)}
- {student.facultyLogs.length === 0 && <p className="text-slate-600 text-center text-sm font-bold py-10">No faculty interaction logs found.</p>}
+ {student.facultyLogs.length === 0 && <p className="text-slate-600 text-center text-sm font-bold py-5 md:py-10">No faculty interaction logs found.</p>}
  </div>
  </section>
  </div>}
@@ -334,7 +334,7 @@ const StudentDetails = () => {
             <div className="hidden md:flex w-14 h-14 bg-white rounded-2xl border-4 border-slate-50 items-center justify-center text-teal-500 shadow-sm relative z-10">
               <Calendar size={20} />
             </div>
-            <div className="flex-1 bg-slate-50/50 hover:bg-white transition-all border border-slate-100 p-8 rounded-[32px] group hover:shadow-xl hover:shadow-slate-200/50">
+            <div className="flex-1 bg-slate-50/50 hover:bg-white transition-all border border-slate-100 p-4 md:p-8 rounded-[32px] group hover:shadow-xl hover:shadow-slate-200/50">
               <div className="flex flex-col md:flex-row justify-between mb-4 gap-2">
                 <div className="flex items-center gap-3">
                   <div className="bg-[#008080] text-white px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest ">
@@ -371,7 +371,7 @@ const StudentDetails = () => {
                 </div>
                 <h4 className="text-base font-black text-slate-900 mb-1">{mark.subject}</h4>
                 <div className="flex items-end gap-2 mt-4">
-                  <span className="text-4xl font-black text-slate-900 tracking-tighter">{mark.marks}</span>
+                  <span className="text-2xl md:text-4xl font-black text-slate-900 tracking-tighter">{mark.marks}</span>
                   <span className="text-slate-400 font-bold mb-1">/ {mark.total}</span>
                 </div>
                 <div className="mt-4 pt-4 border-t border-slate-50 flex justify-between items-center">
@@ -380,7 +380,7 @@ const StudentDetails = () => {
                 </div>
               </div>
             </div>)}
-          {(!student.marks || student.marks.length === 0) && <div className="col-span-full text-center py-10 bg-slate-50 rounded-[2rem] text-slate-400 text-[10px] font-black uppercase tracking-widest">No exam records available.</div>}
+          {(!student.marks || student.marks.length === 0) && <div className="col-span-full text-center py-5 md:py-10 bg-slate-50 rounded-[2rem] text-slate-400 text-[10px] font-black uppercase tracking-widest">No exam records available.</div>}
         </div>
       </section>
 
@@ -410,7 +410,7 @@ const StudentDetails = () => {
                   </td>
                 </tr>)}
               {(!student.attendance || student.attendance.length === 0) && <tr>
-                  <td colSpan="3" className="py-10 text-center text-slate-400 text-[10px] font-black uppercase tracking-widest">No attendance records found.</td>
+                  <td colSpan="3" className="py-5 md:py-10 text-center text-slate-400 text-[10px] font-black uppercase tracking-widest">No attendance records found.</td>
                 </tr>}
             </tbody>
            </table>
@@ -429,7 +429,7 @@ const StudentDetails = () => {
               </div>
             ))}
             {(!student.attendance || student.attendance.length === 0) && (
-              <div className="text-center py-10 text-slate-400 text-[10px] font-black uppercase tracking-widest">No attendance records found.</div>
+              <div className="text-center py-5 md:py-10 text-slate-400 text-[10px] font-black uppercase tracking-widest">No attendance records found.</div>
             )}
           </div>
         </div>

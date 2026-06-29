@@ -159,7 +159,7 @@ const Interactions = () => {
             })} className="w-full p-4 rounded-xl border border-slate-200 bg-slate-50 text-sm font-medium focus:outline-none focus:border-[#008080] focus:ring-1 focus:ring-[#008080] min-h-[150px]" placeholder={`Enter details about the interaction with the ${activeMainTab}...`} required />
               </div>
 
-              <button type="submit" className="h-12 px-8 rounded-xl bg-[#008080] text-white font-black uppercase text-xs tracking-widest hover:bg-[#006666] transition-all flex items-center justify-center gap-2 w-full md:w-auto">
+              <button type="submit" className="h-12 px-4 md:px-8 rounded-xl bg-[#008080] text-white font-black uppercase text-xs tracking-widest hover:bg-[#006666] transition-all flex items-center justify-center gap-2 w-full md:w-auto">
                 <Save size={16} /> Save Interaction
               </button>
 
@@ -192,7 +192,7 @@ const Interactions = () => {
                         {item.academic_operation_executive_name}
                       </td>
                     </tr>) : <tr>
-                      <td colSpan="4" className="p-8 text-center text-slate-400 font-medium">
+                      <td colSpan="4" className="p-4 md:p-8 text-center text-slate-400 font-medium">
                         No interactions found
                       </td>
                     </tr>}

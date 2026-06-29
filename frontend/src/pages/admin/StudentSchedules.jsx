@@ -201,7 +201,7 @@ const StudentSchedules = () => {
             </thead>
             <tbody className="divide-y divide-slate-50">
               {loading ? (
-                <tr><td colSpan="4" className="p-8 text-center"><div className="w-8 h-8 border-4 border-[#008080] border-t-transparent rounded-full animate-spin mx-auto"></div></td></tr>
+                <tr><td colSpan="4" className="p-4 md:p-8 text-center"><div className="w-8 h-8 border-4 border-[#008080] border-t-transparent rounded-full animate-spin mx-auto"></div></td></tr>
               ) : schedules.length > 0 ? (
                 schedules.map((s, index) => (
                   <tr key={s.id || index} className="hover:bg-slate-50/50 transition-colors">
@@ -223,7 +223,7 @@ const StudentSchedules = () => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="4" className="p-12 text-center text-slate-400">
+                  <td colSpan="4" className="p-6 md:p-12 text-center text-slate-400">
                     <Clock size={48} className="mx-auto mb-4 opacity-50" />
                     <p className="font-semibold text-sm">No student schedules found.</p>
                   </td>
@@ -260,7 +260,7 @@ const StudentSchedules = () => {
           ))
         ) : filteredSchedules.length === 0 ? (
           // EMPTY STATE
-          <div className="bg-white rounded-[2rem] p-8 border border-slate-100 shadow-sm flex flex-col items-center text-center mt-4 opacity-90">
+          <div className="bg-white rounded-[2rem] p-4 md:p-8 border border-slate-100 shadow-sm flex flex-col items-center text-center mt-4 opacity-90">
             <div className="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center mb-5 shadow-inner">
               <SearchX size={40} className="text-slate-300" />
             </div>

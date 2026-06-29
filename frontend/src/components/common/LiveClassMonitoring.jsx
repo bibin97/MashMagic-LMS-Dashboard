@@ -83,12 +83,12 @@ const LiveClassMonitoring = ({ role }) => {
     XLSX.writeFile(workbook, "Live_Classes_Monitoring.xlsx");
   };
 
-  if (loading) return <div className="p-8 text-center text-slate-400 font-bold animate-pulse">Scanning Active Classrooms...</div>;
+  if (loading) return <div className="p-4 md:p-8 text-center text-slate-400 font-bold animate-pulse">Scanning Active Classrooms...</div>;
 
  return (
  <div className="space-y-8 pb-10">
  {/* Control Header */}
- <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm flex flex-col md:flex-row justify-between items-center gap-6">
+ <div className="bg-white p-4 md:p-8 rounded-[2.5rem] border border-slate-100 shadow-sm flex flex-col md:flex-row justify-between items-center gap-6">
  <div className="flex items-center gap-6">
  <div className="w-14 h-14 bg-[#008080] rounded-2xl flex items-center justify-center text-white shadow-xl shadow-[#008080]/30">
  <Video size={28} />

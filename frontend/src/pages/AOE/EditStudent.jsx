@@ -283,9 +283,9 @@ const EditStudent = () => {
                 </div>
             </div>
 
-            <div className="bg-white/70 backdrop-blur-xl p-10 rounded-[40px] border border-white/60 shadow-xl mb-10 flex flex-col md:flex-row justify-between items-center gap-6">
+            <div className="bg-white/70 backdrop-blur-xl p-5 md:p-10 rounded-[40px] border border-white/60 shadow-xl mb-10 flex flex-col md:flex-row justify-between items-center gap-6">
                 <div className="text-center md:text-left">
-                    <h1 className="text-4xl font-black text-slate-900 tracking-tight uppercase mb-2">Reconfigure Profile</h1>
+                    <h1 className="text-2xl md:text-4xl font-black text-slate-900 tracking-tight uppercase mb-2">Reconfigure Profile</h1>
                     <p className="text-slate-600 font-bold text-[10px] uppercase tracking-[0.2em]">Updating account identity for <span className="text-[#008080]">{formData.name}</span></p>
                 </div>
                 <div className="flex items-center gap-4">
@@ -540,7 +540,7 @@ const EditStudent = () => {
 
                             <div className="space-y-6">
                             {selectedSubjects.map((row, idx) => (
-                                <div key={idx} className="bg-white p-8 rounded-[3rem] border border-slate-100 shadow-xl shadow-slate-200/20 relative animate-in slide-in-from-right-4 duration-500 space-y-8">
+                                <div key={idx} className="bg-white p-4 md:p-8 rounded-[3rem] border border-slate-100 shadow-xl shadow-slate-200/20 relative animate-in slide-in-from-right-4 duration-500 space-y-8">
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-start">
                                     
                                     {/* Custom Subject Dropdown (Multiple Selection) */}
@@ -627,7 +627,7 @@ const EditStudent = () => {
                                             <span>▼</span>
                                         </div>
                                         {row.isDayDropdownOpen && (
-                                            <div className="absolute top-[100%] left-0 w-[300px] bg-white border border-slate-100 rounded-2xl shadow-2xl z-[120] mt-1 p-3 animate-in fade-in zoom-in-95 duration-200" onClick={e => e.stopPropagation()}>
+                                            <div className="absolute top-[100%] left-0 w-full md:w-[300px] bg-white border border-slate-100 rounded-2xl shadow-2xl z-[120] mt-1 p-3 animate-in fade-in zoom-in-95 duration-200" onClick={e => e.stopPropagation()}>
                                                 <div className="space-y-2 max-h-60 overflow-y-auto pr-1">
                                                     {DAYS_LIST.map(day => {
                                                         const configIdx = row.dayConfigs?.findIndex(c => c.day === day);
@@ -741,10 +741,10 @@ const EditStudent = () => {
             {/* Submit Button (Outside locked div but visible only when unlocked) */}
             {!isLocked && (
                 <div className="mt-8 flex justify-end gap-4">
-                    <button type="button" onClick={() => navigate(`${basePath}/students`)} className="px-10 py-4 border border-slate-200 text-slate-600 rounded-2xl text-sm font-black uppercase tracking-widest hover:bg-slate-50 transition-colors shadow-sm">
+                    <button type="button" onClick={() => navigate(`${basePath}/students`)} className="px-5 md:px-10 py-4 border border-slate-200 text-slate-600 rounded-2xl text-sm font-black uppercase tracking-widest hover:bg-slate-50 transition-colors shadow-sm">
                         Cancel
                     </button>
-                    <button type="button" onClick={handleSubmit} disabled={saving} className="px-10 py-4 bg-[#008080] text-white rounded-2xl text-sm font-black uppercase tracking-widest hover:bg-[#006666] transition-colors shadow-lg shadow-[#008080]/30 disabled:opacity-50 flex items-center gap-2">
+                    <button type="button" onClick={handleSubmit} disabled={saving} className="px-5 md:px-10 py-4 bg-[#008080] text-white rounded-2xl text-sm font-black uppercase tracking-widest hover:bg-[#006666] transition-colors shadow-lg shadow-[#008080]/30 disabled:opacity-50 flex items-center gap-2">
                         {saving ? 'Updating...' : <><CheckCircle size={18} strokeWidth={3} /> Save Updates</>}
                     </button>
                 </div>

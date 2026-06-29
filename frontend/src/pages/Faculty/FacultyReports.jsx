@@ -54,7 +54,7 @@ const FacultyReports = () => {
  return (
  <div className="space-y-12 pb-20">
  {/* Page Header */}
- <div className="bg-white p-10 rounded-[4rem] border border-slate-100 shadow-sm flex flex-col md:flex-row justify-between items-center gap-8 mb-10">
+ <div className="bg-white p-5 md:p-10 rounded-[4rem] border border-slate-100 shadow-sm flex flex-col md:flex-row justify-between items-center gap-8 mb-10">
  <div className="text-center md:text-left">
  <h1 className="text-3xl font-black text-slate-900 tracking-tighter uppercase ">Faculty Reports</h1>
  <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest mt-2 flex items-center gap-2 justify-center md:justify-start">
@@ -73,7 +73,7 @@ const FacultyReports = () => {
  <input
  type="text"
  placeholder="Search reports..."
- className="bg-white border border-slate-200 pl-14 pr-8 py-4 rounded-[1.5rem] text-sm font-medium focus:outline-none focus:ring-4 focus:ring-[#008080]/5 focus:border-[#008080] transition-all shadow-sm min-w-[300px]"
+ className="bg-white border border-slate-200 pl-14 pr-8 py-4 rounded-[1.5rem] text-sm font-medium focus:outline-none focus:ring-4 focus:ring-[#008080]/5 focus:border-[#008080] transition-all shadow-sm min-w-full md:w-[300px]"
  value={searchTerm}
  onChange={(e) => setSearchTerm(e.target.value)}
  />
@@ -87,7 +87,7 @@ const FacultyReports = () => {
  [1, 2, 3].map(i => <div key={i} className="h-40 bg-slate-100 rounded-[2.5rem] animate-pulse"></div>)
  ) : filteredReports.length > 0 ? (
  filteredReports.map((report) => (
- <div key={report.id} className="bg-white p-10 rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-2xl transition-all duration-700 group flex flex-col lg:flex-row gap-8 items-start lg:items-center relative overflow-hidden">
+ <div key={report.id} className="bg-white p-5 md:p-10 rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-2xl transition-all duration-700 group flex flex-col lg:flex-row gap-8 items-start lg:items-center relative overflow-hidden">
  <div className="absolute top-0 right-0 w-64 h-64 bg-slate-50 rounded-full -mr-32 -mt-32 transition-transform duration-700 group-hover:scale-125"></div>
 
  <div className={`w-20 h-20 rounded-[2rem] flex items-center justify-center relative z-10 ${report.type === 'Academic' ? 'bg-[#008080]/10 text-[#008080]' :
@@ -119,7 +119,7 @@ const FacultyReports = () => {
  <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest mb-1">Status</p>
  <p className="font-bold text-slate-900">{report.status}</p>
  </div>
- <button className="px-8 py-4 bg-[#008080] text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-800 transition-all flex items-center gap-3 shadow-xl shadow-slate-200">
+ <button className="px-4 md:px-8 py-4 bg-[#008080] text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-800 transition-all flex items-center gap-3 shadow-xl shadow-slate-200">
  Full Intel
  <ArrowUpRight size={14} />
  </button>

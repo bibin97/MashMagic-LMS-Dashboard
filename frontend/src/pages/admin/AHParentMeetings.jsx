@@ -64,11 +64,11 @@ const AHParentMeetings = () => {
         </div>
 
         {/* Content */}
-        {loading ? <div className="p-12 text-center text-slate-400 font-medium bg-white rounded-3xl border border-slate-100">
+        {loading ? <div className="p-6 md:p-12 text-center text-slate-400 font-medium bg-white rounded-3xl border border-slate-100">
             Loading meetings...
           </div> : <>
             {activeTab === 'active' && <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {meetings.length === 0 ? <div className="col-span-full bg-white rounded-3xl p-12 border border-slate-100 shadow-sm text-center">
+                {meetings.length === 0 ? <div className="col-span-full bg-white rounded-3xl p-6 md:p-12 border border-slate-100 shadow-sm text-center">
                     <CheckCircle2 size={32} className="mx-auto mb-4 text-slate-300" />
                     <h3 className="text-lg font-black text-slate-700">No Active Meetings</h3>
                     <p className="text-sm font-medium text-slate-500 mt-1">There are no upcoming meetings scheduled right now.</p>
@@ -136,7 +136,7 @@ const AHParentMeetings = () => {
                           </td>
                         </tr>;
                 }) : <tr>
-                          <td colSpan="5" className="p-8 text-center text-slate-400 font-medium">
+                          <td colSpan="5" className="p-4 md:p-8 text-center text-slate-400 font-medium">
                             No completed meetings found
                           </td>
                         </tr>}

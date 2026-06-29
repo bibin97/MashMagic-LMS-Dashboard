@@ -160,7 +160,7 @@ const StudentDetails = () => {
             </button>
 
             {/* Profile Header */}
-            <div className="bg-white p-10 rounded-[3.5rem] shadow-xl shadow-slate-200/40 border border-slate-100 flex flex-col md:flex-row gap-10 items-center md:items-start relative overflow-hidden">
+            <div className="bg-white p-5 md:p-10 rounded-[3.5rem] shadow-xl shadow-slate-200/40 border border-slate-100 flex flex-col md:flex-row gap-10 items-center md:items-start relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-80 h-80 bg-gradient-to-br from-[#008080]/20 to-purple-50/20 rounded-full -mr-40 -mt-40 blur-3xl opacity-60"></div>
                 
                 <div className="relative group">
@@ -172,7 +172,7 @@ const StudentDetails = () => {
 
                 <div className="flex-1 text-center md:text-left relative z-10">
                     <div className="flex flex-col md:flex-row items-center gap-4 mb-4 justify-center md:justify-start">
-                        <h1 className="text-4xl font-black text-slate-900 tracking-tighter uppercase leading-none">
+                        <h1 className="text-2xl md:text-4xl font-black text-slate-900 tracking-tighter uppercase leading-none">
                             {student.name}
                         </h1>
                         <div className="flex flex-wrap gap-2">
@@ -248,7 +248,7 @@ const StudentDetails = () => {
                     </button>)}
             </div>
 
-            <div className="bg-white p-10 rounded-[3.5rem] shadow-xl shadow-slate-200/20 border border-slate-100 min-h-[500px]">
+            <div className="bg-white p-5 md:p-10 rounded-[3.5rem] shadow-xl shadow-slate-200/20 border border-slate-100 min-h-[500px]">
                 {activeTab === 'info' && <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
                         <section className="space-y-8">
                             <div className="flex items-center gap-4 border-b border-slate-100 pb-4">
@@ -288,7 +288,7 @@ const StudentDetails = () => {
                             </div>
                             
                             <div className="space-y-6">
-                                <div className="p-8 bg-[#008080] text-white rounded-[2.5rem] border border-slate-800 shadow-2xl relative overflow-hidden group">
+                                <div className="p-4 md:p-8 bg-[#008080] text-white rounded-[2.5rem] border border-slate-800 shadow-2xl relative overflow-hidden group">
                                     <div className="absolute top-0 right-0 w-32 h-32 bg-[#008080]/20 rounded-full -mr-16 -mt-16 blur-2xl group-hover:scale-150 transition-transform duration-700"></div>
                                     <p className="text-[10px] font-black text-white/60 uppercase tracking-[0.2em] mb-4">Class Schedule</p>
                                     <div className="text-sm font-medium leading-relaxed text-white space-y-2">
@@ -420,21 +420,21 @@ const StudentDetails = () => {
                             <table className="w-full text-left border-collapse">
                                 <thead>
                                     <tr className="bg-slate-50/50">
-                                        <th className="py-6 px-8 text-[10px] font-black text-slate-600 uppercase tracking-widest">#Sess</th>
+                                        <th className="py-6 px-4 md:px-8 text-[10px] font-black text-slate-600 uppercase tracking-widest">#Sess</th>
                                         <th className="py-6 px-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">Date</th>
                                         <th className="py-6 px-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">Time</th>
                                         <th className="py-6 px-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">Topics Covered</th>
-                                        <th className="py-6 px-8 text-[10px] font-black text-slate-600 uppercase tracking-widest text-right">Status</th>
+                                        <th className="py-6 px-4 md:px-8 text-[10px] font-black text-slate-600 uppercase tracking-widest text-right">Status</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-100">
                                     {student.timetable && student.timetable.length > 0 ? student.timetable.map((session, index) => <tr key={session.id} className="hover:bg-slate-50/50 transition-colors group"><td className="p-6 text-sm font-black text-slate-400 border-b border-slate-50">{index + 1}</td>
-                                            <td className="py-8 px-8">
+                                            <td className="py-4 md:py-8 px-4 md:px-8">
                                                 <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center font-black text-slate-600 text-xs shadow-inner">
                                                     #{session.session_number}
                                                 </div>
                                             </td>
-                                            <td className="py-8 px-4">
+                                            <td className="py-4 md:py-8 px-4">
                                                 <p className="text-sm font-black text-slate-700">{new Date(session.date).toLocaleDateString('en-GB', {
                       day: '2-digit',
                       month: 'short',
@@ -442,11 +442,11 @@ const StudentDetails = () => {
                     })}</p>
                                                 {session.status === 'Postponed' && session.new_date && <p className="text-[9px] font-black text-amber-600 mt-1 uppercase">RESCHEDULED: {new Date(session.new_date).toLocaleDateString('en-GB')}</p>}
                                             </td>
-                                            <td className="py-8 px-4 font-bold text-slate-600 text-sm">{session.start_time} - {session.end_time}</td>
-                                            <td className="py-8 px-4">
+                                            <td className="py-4 md:py-8 px-4 font-bold text-slate-600 text-sm">{session.start_time} - {session.end_time}</td>
+                                            <td className="py-4 md:py-8 px-4">
                                                 <p className="text-sm font-bold text-slate-700 line-clamp-1 group-hover:line-clamp-none transition-all">{session.chapter_topic || session.chapter || 'Awaiting Content'}</p>
                                             </td>
-                                            <td className="py-8 px-8 text-right">
+                                            <td className="py-4 md:py-8 px-4 md:px-8 text-right">
                                                 <div className="flex items-center justify-end gap-3">
                                                     <StatusBadge status={session.status} />
                                                     {(isAdmin || isMentor) && <select className="text-[9px] font-black uppercase tracking-widest bg-white border border-slate-200 rounded-xl p-2 outline-none cursor-pointer hover:border-[#008080] transition-all" value={session.status} onChange={e => handleUpdateStatus(session.id, session, e.target.value)}>
@@ -483,7 +483,7 @@ const StudentDetails = () => {
                             </div>
 
                             <div className="space-y-6 max-h-[700px] overflow-y-auto pr-4 scrollbar-hide">
-                                {student.studentLogs && student.studentLogs.length > 0 ? student.studentLogs.map(log => <div key={log.id} className="p-8 bg-slate-50 rounded-[2.5rem] border border-slate-100 hover:shadow-2xl hover:bg-white transition-all relative overflow-hidden group">
+                                {student.studentLogs && student.studentLogs.length > 0 ? student.studentLogs.map(log => <div key={log.id} className="p-4 md:p-8 bg-slate-50 rounded-[2.5rem] border border-slate-100 hover:shadow-2xl hover:bg-white transition-all relative overflow-hidden group">
                                         <div className="absolute top-0 right-0 w-24 h-24 bg-[#008080]/5 rounded-full -mr-12 -mt-12 transition-transform group-hover:scale-150 duration-700"></div>
                                         <div className="flex justify-between items-start mb-6 relative z-10">
                                             <div className="flex flex-col gap-1">
@@ -535,7 +535,7 @@ const StudentDetails = () => {
                             </div>
 
                             <div className="space-y-6 max-h-[700px] overflow-y-auto pr-4 scrollbar-hide">
-                                {student.facultyLogs && student.facultyLogs.length > 0 ? student.facultyLogs.map(log => <div key={log.id} className="p-8 bg-white rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-xl transition-all relative overflow-hidden group">
+                                {student.facultyLogs && student.facultyLogs.length > 0 ? student.facultyLogs.map(log => <div key={log.id} className="p-4 md:p-8 bg-white rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-xl transition-all relative overflow-hidden group">
                                         <div className="absolute top-0 right-0 w-24 h-24 bg-purple-50 rounded-full -mr-12 -mt-12 transition-transform group-hover:scale-150 duration-700"></div>
                                         <div className="flex justify-between items-start mb-6 relative z-10">
                                             <div>
@@ -572,7 +572,7 @@ const StudentDetails = () => {
             {/* Faculty History Modal */}
             {showFacultyHistory && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-300">
-                    <div className="bg-white p-8 rounded-[2rem] shadow-2xl w-full max-w-3xl max-h-[80vh] overflow-hidden flex flex-col relative">
+                    <div className="bg-white p-4 md:p-8 rounded-[2rem] shadow-2xl w-full max-w-3xl max-h-[80vh] overflow-hidden flex flex-col relative">
                         <div className="flex justify-between items-center mb-6">
                             <div>
                                 <h3 className="text-xl font-black text-slate-900 flex items-center gap-3">

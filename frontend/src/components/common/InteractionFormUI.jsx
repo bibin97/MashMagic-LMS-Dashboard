@@ -105,10 +105,10 @@ const InteractionFormUI = ({ sessionType, formData, setFormData, isReadOnly = fa
 
           <div className="space-y-2 relative group">
             <label className="text-[10px] font-black text-rose-600 uppercase tracking-widest ml-1 absolute -top-3 left-6 bg-white px-2">Action Plan</label>
-            <textarea name="action_plan" rows={getRows('action_plan', 3)} value={formData.action_plan || (isReadOnly ? 'No notes provided' : '')} onChange={handleChange} onClick={() => expandField('action_plan')} onFocus={() => expandField('action_plan')} readOnly={isReadOnly} className={`w-full p-8 bg-rose-50/50 border-2 border-rose-100 focus:border-rose-300 rounded-[2.5rem] text-lg font-black text-slate-900 outline-none transition-all placeholder:text-rose-200 shadow-[0_10px_40px_rgba(244,63,94,0.05)] ${isReadOnly ? 'cursor-pointer' : ''}`} placeholder="What should student do before next session?"></textarea>
+            <textarea name="action_plan" rows={getRows('action_plan', 3)} value={formData.action_plan || (isReadOnly ? 'No notes provided' : '')} onChange={handleChange} onClick={() => expandField('action_plan')} onFocus={() => expandField('action_plan')} readOnly={isReadOnly} className={`w-full p-4 md:p-8 bg-rose-50/50 border-2 border-rose-100 focus:border-rose-300 rounded-[2.5rem] text-lg font-black text-slate-900 outline-none transition-all placeholder:text-rose-200 shadow-[0_10px_40px_rgba(244,63,94,0.05)] ${isReadOnly ? 'cursor-pointer' : ''}`} placeholder="What should student do before next session?"></textarea>
           </div>
 
-          <div className="p-8 bg-slate-50 rounded-[2.5rem] border border-slate-100 flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="p-4 md:p-8 bg-slate-50 rounded-[2.5rem] border border-slate-100 flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="flex items-center gap-6">
               <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Follow-up Required?</label>
               <div className="flex gap-2">
@@ -157,11 +157,11 @@ const InteractionFormUI = ({ sessionType, formData, setFormData, isReadOnly = fa
             </div>
             <div className="space-y-2 relative group">
               <label className="text-[10px] font-black text-amber-600 uppercase tracking-widest ml-1 absolute -top-3 left-6 bg-white px-2">Next Task Assigned (Compulsory)</label>
-              <textarea name="next_task" rows="3" value={formData.next_task || (isReadOnly ? 'No notes provided' : '')} onChange={handleChange} readOnly={isReadOnly} className="w-full p-8 bg-amber-50/50 border-2 border-amber-100 focus:border-amber-300 rounded-[2.5rem] text-lg font-black text-slate-900 outline-none transition-all placeholder:text-amber-200 shadow-[0_10px_40px_rgba(245,158,11,0.05)]" placeholder="What is the very next action for the student?"></textarea>
+              <textarea name="next_task" rows="3" value={formData.next_task || (isReadOnly ? 'No notes provided' : '')} onChange={handleChange} readOnly={isReadOnly} className="w-full p-4 md:p-8 bg-amber-50/50 border-2 border-amber-100 focus:border-amber-300 rounded-[2.5rem] text-lg font-black text-slate-900 outline-none transition-all placeholder:text-amber-200 shadow-[0_10px_40px_rgba(245,158,11,0.05)]" placeholder="What is the very next action for the student?"></textarea>
             </div>
           </div>
 
-          <div className="p-8 bg-slate-50 rounded-[2.5rem] border border-slate-100 flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="p-4 md:p-8 bg-slate-50 rounded-[2.5rem] border border-slate-100 flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="flex items-center gap-6">
               <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Need Deep Session?</label>
               <div className="flex gap-2">
@@ -246,7 +246,7 @@ const InteractionFormUI = ({ sessionType, formData, setFormData, isReadOnly = fa
 
       {/* Next Attention Level & Notes */}
       {(sessionType === 'DEEP' || sessionType === 'MEDIUM' || sessionType === 'QUICK') && (
-        <div className={`p-8 rounded-[3rem] border space-y-6 transition-all ${formData.next_session_type === 'DEEP' ? 'bg-rose-950 border-rose-900 shadow-[0_0_40px_rgba(244,63,94,0.1)]' : 'bg-[#008080] border-slate-800'}`}>
+        <div className={`p-4 md:p-8 rounded-[3rem] border space-y-6 transition-all ${formData.next_session_type === 'DEEP' ? 'bg-rose-950 border-rose-900 shadow-[0_0_40px_rgba(244,63,94,0.1)]' : 'bg-[#008080] border-slate-800'}`}>
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             <div>
               <h4 className="text-lg font-black text-white uppercase tracking-tight flex items-center gap-2">

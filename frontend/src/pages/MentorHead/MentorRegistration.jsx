@@ -130,7 +130,7 @@ const MentorRegistration = () => {
       <div className="bg-white rounded-[2rem] md:rounded-[3rem] border border-slate-100 shadow-xl overflow-hidden flex flex-col md:flex-row">
         
         {/* Visual Side */}
-        <div className="md:w-2/5 bg-[#008080] p-8 md:p-12 text-white flex flex-col justify-between relative overflow-hidden">
+        <div className="md:w-2/5 bg-[#008080] p-4 md:p-8 md:p-12 text-white flex flex-col justify-between relative overflow-hidden">
           <div className="absolute top-0 right-0 -mr-20 -mt-20 w-48 h-48 md:w-64 md:h-64 bg-white/10 rounded-full blur-2xl md:blur-3xl opacity-50 animate-pulse"></div>
           <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-48 h-48 md:w-64 md:h-64 bg-white/10 rounded-full blur-2xl md:blur-3xl opacity-50 animate-pulse delay-700"></div>
 

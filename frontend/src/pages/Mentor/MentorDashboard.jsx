@@ -366,7 +366,7 @@ const MentorDashboard = () => {
                 <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Live</span>
               </div>
 
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-slate-900 tracking-tighter uppercase leading-none mb-3">
+              <h1 className="text-2xl md:text-4xl md:text-5xl lg:text-6xl font-black text-slate-900 tracking-tighter uppercase leading-none mb-3">
                 Mentor<br className="hidden sm:block" /> Oversight
               </h1>
               <p className="text-slate-500 text-xs md:text-sm font-semibold max-w-xl leading-relaxed">

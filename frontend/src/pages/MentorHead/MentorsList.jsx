@@ -146,7 +146,7 @@ const MentorsList = () => {
   }
   return <div className="space-y-8 p-4 md:p-8">
  {/* Page Title */}
- <div className="bg-white p-10 rounded-[3rem] border border-slate-100 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+ <div className="bg-white p-5 md:p-10 rounded-[3rem] border border-slate-100 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
  <div>
  <h2 className="text-3xl lg:text-4xl font-black text-slate-900 tracking-tighter uppercase leading-none">Mentor Registry</h2>
  <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest mt-2 flex items-center gap-2">
@@ -162,18 +162,18 @@ const MentorsList = () => {
  </div>
 
   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-    <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm flex flex-col gap-2 group transition-all hover:shadow-xl hover:shadow-[#008080]/5 hover:-translate-y-1">
+    <div className="bg-white p-4 md:p-8 rounded-[2.5rem] border border-slate-100 shadow-sm flex flex-col gap-2 group transition-all hover:shadow-xl hover:shadow-[#008080]/5 hover:-translate-y-1">
       <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest group-hover:text-[#008080] transition-colors">Total Mentors</span>
       <div className="flex items-end gap-3 font-black text-slate-900 tracking-tighter">
-        <span className="text-4xl leading-none">{mentors.length}</span>
+        <span className="text-2xl md:text-4xl leading-none">{mentors.length}</span>
         <span className="text-[10px] text-slate-600 mb-1 uppercase tracking-widest">Database Total</span>
       </div>
     </div>
     
-    <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm flex flex-col gap-2 group transition-all hover:shadow-xl hover:shadow-[#008080]/5 hover:-translate-y-1">
+    <div className="bg-white p-4 md:p-8 rounded-[2.5rem] border border-slate-100 shadow-sm flex flex-col gap-2 group transition-all hover:shadow-xl hover:shadow-[#008080]/5 hover:-translate-y-1">
       <span className="text-[10px] font-black text-[#008080] uppercase tracking-widest">Active Pulse</span>
       <div className="flex items-end gap-3 font-black text-slate-900 tracking-tighter">
-        <span className="text-4xl leading-none">{mentors.filter(m => m.status === 'active' || m.isActive === 1).length}</span>
+        <span className="text-2xl md:text-4xl leading-none">{mentors.filter(m => m.status === 'active' || m.isActive === 1).length}</span>
         <div className="flex items-center gap-1.5 mb-1 bg-[#008080]/10 px-2 py-0.5 rounded-full">
            <div className="w-1.5 h-1.5 rounded-full bg-[#008080] animate-pulse"></div>
            <span className="text-[10px] text-[#008080] uppercase tracking-widest">Live</span>
@@ -267,7 +267,7 @@ const MentorsList = () => {
  </td>
  </tr>
  {expandedMentorId === mentor.mentor_id && <tr className="bg-slate-50/80 border-b border-slate-100">
-     <td colSpan="5" className="p-8">
+     <td colSpan="5" className="p-4 md:p-8">
        <div className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-inner animate-in fade-in slide-in-from-top-2 duration-300">
          <div className="flex items-center justify-between pb-4 border-b border-slate-100 mb-6">
            <h4 className="text-sm font-black text-slate-900 flex items-center gap-2 uppercase tracking-tight">
@@ -277,7 +277,7 @@ const MentorsList = () => {
              <X size={18} />
            </button>
          </div>
-         {loadingStudents ? <div className="text-center py-12 font-black text-slate-400 animate-pulse uppercase tracking-widest text-xs">
+         {loadingStudents ? <div className="text-center py-6 md:py-12 font-black text-slate-400 animate-pulse uppercase tracking-widest text-xs">
              Loading Assigned Students...
            </div> : mentorStudents.length > 0 ? <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
              {mentorStudents.map((student, index) => <div key={student.id} className="p-4 bg-slate-50 border border-slate-100 rounded-2xl flex flex-col gap-3 group hover:bg-white hover:border-[#008080] hover:shadow-lg transition-all">
@@ -295,7 +295,7 @@ const MentorsList = () => {
                    <span className="text-[8px] font-black bg-white border border-slate-200 px-2 py-0.5 rounded-md text-slate-600 uppercase">Grade {student.grade || 'N/A'}</span>
                  </div>
                </div>)}
-           </div> : <div className="text-center py-12 text-slate-400 font-black text-[10px] uppercase tracking-widest">
+           </div> : <div className="text-center py-6 md:py-12 text-slate-400 font-black text-[10px] uppercase tracking-widest">
              No students assigned to this mentor
            </div>}
        </div>
@@ -389,7 +389,7 @@ const MentorsList = () => {
  {/* Mentor Detail Modal */}
  {isDetailModalOpen && selectedMentorForDetail && <div className="fixed inset-0 bg-[#008080]/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4 animate-in fade-in duration-300">
      <div className="bg-white rounded-[3.5rem] shadow-2xl w-full max-w-xl overflow-hidden animate-in slide-in-from-bottom-8 duration-500 max-h-[90vh] overflow-y-auto">
-       <div className="px-10 py-8 border-b border-slate-50 flex justify-between items-center bg-slate-50/50">
+       <div className="px-5 md:px-10 py-4 md:py-8 border-b border-slate-50 flex justify-between items-center bg-slate-50/50">
          <div className="flex items-center gap-4">
            <div className="w-12 h-12 bg-gradient-to-br from-[#008080] to-purple-600 text-white rounded-2xl flex items-center justify-center font-black text-xl shadow-lg uppercase">
              {selectedMentorForDetail.mentor_name.charAt(0)}
@@ -404,7 +404,7 @@ const MentorsList = () => {
          </button>
        </div>
 
-       <div className="p-10 space-y-10">
+       <div className="p-5 md:p-10 space-y-10">
          <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
            <div className="space-y-6">
              <div className="flex flex-col gap-1">
@@ -435,7 +435,7 @@ const MentorsList = () => {
            </div>
          </div>
          
-         <div className="p-8 bg-slate-50 rounded-[2.5rem] border border-slate-100 flex items-center justify-between">
+         <div className="p-4 md:p-8 bg-slate-50 rounded-[2.5rem] border border-slate-100 flex items-center justify-between">
            <div className="flex items-center gap-4">
              <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-[#008080] shadow-sm">
                <ShieldCheck size={24} />
@@ -452,7 +452,7 @@ const MentorsList = () => {
               }} className="px-6 py-3 bg-white border border-slate-200 text-slate-900 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-100 transition-all">
                Edit
              </button>
-             <button onClick={() => navigate(`/mentor-head/mentors/${selectedMentorForDetail.mentor_id}`)} className="px-10 py-4 bg-[#008080] text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-[#008080] transition-all shadow-lg flex-1">
+             <button onClick={() => navigate(`/mentor-head/mentors/${selectedMentorForDetail.mentor_id}`)} className="px-5 md:px-10 py-4 bg-[#008080] text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-[#008080] transition-all shadow-lg flex-1">
                Full Dashboard
              </button>
            </div>
@@ -464,7 +464,7 @@ const MentorsList = () => {
   {/* Edit Mentor Modal */}
   {isEditModalOpen && <div className="fixed inset-0 bg-[#008080]/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
       <div className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-lg overflow-hidden animate-in slide-in-from-bottom-4 duration-300 max-h-[90vh] overflow-y-auto">
-        <div className="px-8 py-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+        <div className="px-4 md:px-8 py-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
           <div className="flex items-center gap-4">
             <h2 className="text-lg font-black text-slate-900 flex items-center gap-3 uppercase tracking-tight">
               <Edit2 size={20} className="text-[#008080]" /> Reconfigure Account
@@ -477,7 +477,7 @@ const MentorsList = () => {
             <X size={20} />
           </button>
         </div>
-        <div className={`p-8 space-y-6 transition-opacity duration-300 ${!isEditingMentorModal ? 'opacity-60 pointer-events-none' : ''}`}>
+        <div className={`p-4 md:p-8 space-y-6 transition-opacity duration-300 ${!isEditingMentorModal ? 'opacity-60 pointer-events-none' : ''}`}>
           <div className="grid grid-cols-2 gap-6">
             <div className="space-y-2">
               <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Mentor Name</label>
@@ -516,11 +516,11 @@ const MentorsList = () => {
             })} disabled={!isEditingMentorModal} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold outline-none focus:ring-2 focus:ring-rose-200 transition-all uppercase placeholder:text-[9px]" />
           </div>
         </div>
-        <div className={`px-8 py-6 border-t border-slate-100 bg-slate-50 flex justify-end gap-3 transition-opacity duration-300 ${!isEditingMentorModal ? 'opacity-60 pointer-events-none' : ''}`}>
-          <button onClick={() => setIsEditModalOpen(false)} className="px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-600 hover:bg-slate-100 transition-all">
+        <div className={`px-4 md:px-8 py-6 border-t border-slate-100 bg-slate-50 flex justify-end gap-3 transition-opacity duration-300 ${!isEditingMentorModal ? 'opacity-60 pointer-events-none' : ''}`}>
+          <button onClick={() => setIsEditModalOpen(false)} className="px-4 md:px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-600 hover:bg-slate-100 transition-all">
             Abort Sync
           </button>
-          <button onClick={handleUpdateMentor} className="px-8 py-3 bg-[#008080] text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-[#008080]/30 hover:-translate-y-0.5 active:scale-95 transition-all">
+          <button onClick={handleUpdateMentor} className="px-4 md:px-8 py-3 bg-[#008080] text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-[#008080]/30 hover:-translate-y-0.5 active:scale-95 transition-all">
             Commit Updates
           </button>
         </div>

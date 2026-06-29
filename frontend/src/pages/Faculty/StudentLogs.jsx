@@ -47,7 +47,7 @@ const StudentLogs = () => {
  <div className="w-full md:w-auto flex flex-col sm:flex-row gap-4">
  <div className="relative group">
  <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#008080] transition-colors" size={18} />
- <input type="text" placeholder="Search by student, chapter or mentor..." className="bg-white border border-slate-200 pl-14 pr-8 py-4 rounded-[1.5rem] text-sm font-medium focus:outline-none focus:ring-4 focus:ring-[#008080]/5 focus:border-[#008080] transition-all shadow-sm min-w-[350px]" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
+ <input type="text" placeholder="Search by student, chapter or mentor..." className="bg-white border border-slate-200 pl-14 pr-8 py-4 rounded-[1.5rem] text-sm font-medium focus:outline-none focus:ring-4 focus:ring-[#008080]/5 focus:border-[#008080] transition-all shadow-sm min-w-full md:w-[350px]" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
  </div>
  </div>
  </div>
@@ -58,19 +58,19 @@ const StudentLogs = () => {
  <table className="w-full text-left border-collapse">
  <thead>
  <tr className="bg-slate-50 border-b border-slate-100 font-black text-[10px] text-slate-600 uppercase tracking-widest ">
- <th className="px-8 py-6">Date & Session</th>
- <th className="px-8 py-6">Student & Mentor</th>
- <th className="px-8 py-6">Chapter & Topics</th>
- <th className="px-8 py-6">Homework Status</th>
- <th className="px-8 py-6 text-center">Test Score</th>
- <th className="px-8 py-6 text-right">Action</th>
+ <th className="px-4 md:px-8 py-6">Date & Session</th>
+ <th className="px-4 md:px-8 py-6">Student & Mentor</th>
+ <th className="px-4 md:px-8 py-6">Chapter & Topics</th>
+ <th className="px-4 md:px-8 py-6">Homework Status</th>
+ <th className="px-4 md:px-8 py-6 text-center">Test Score</th>
+ <th className="px-4 md:px-8 py-6 text-right">Action</th>
  </tr>
  </thead>
  <tbody className="divide-y divide-slate-100">
  {loading ? [1, 2, 3, 4, 5].map((i, index) => <tr key={i} className="animate-pulse"><td className="p-6 text-sm font-black text-slate-400 border-b border-slate-50">{index + 1}</td>
- <td colSpan="6" className="px-8 py-6 h-20 bg-slate-50/50"></td>
+ <td colSpan="6" className="px-4 md:px-8 py-6 h-20 bg-slate-50/50"></td>
  </tr>) : filteredLogs.length > 0 ? filteredLogs.map((log, index) => <tr key={log.id} className="hover:bg-[#008080]/10/20 transition-all group"><td className="p-6 text-sm font-black text-slate-400 border-b border-slate-50">{index + 1}</td>
- <td className="px-8 py-6">
+ <td className="px-4 md:px-8 py-6">
  <div className="flex flex-col">
  <span className="font-black text-slate-900 text-sm whitespace-nowrap">{new Date(log.date).toLocaleDateString()}</span>
  <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest flex items-center gap-1 mt-1">
@@ -78,7 +78,7 @@ const StudentLogs = () => {
  </span>
  </div>
  </td>
- <td className="px-8 py-6">
+ <td className="px-4 md:px-8 py-6">
  <div className="flex flex-col">
  <span className="font-black text-slate-800 text-sm ">{log.student_name}</span>
  <span className="text-[10px] font-black text-[#008080] uppercase tracking-widest mt-1 flex items-center gap-1">
@@ -86,13 +86,13 @@ const StudentLogs = () => {
  </span>
  </div>
  </td>
- <td className="px-8 py-6">
+ <td className="px-4 md:px-8 py-6">
  <div className="max-w-xs">
  <span className="font-bold text-slate-900 text-xs block truncate">{log.chapter}</span>
  <span className="text-[11px] font-medium text-slate-500 line-clamp-1 mt-1">{log.topics_covered}</span>
  </div>
  </td>
- <td className="px-8 py-6">
+ <td className="px-4 md:px-8 py-6">
  <div className="flex items-center gap-3 bg-slate-50 px-4 py-2 rounded-xl border border-slate-100/50 w-fit">
  {getHomeworkStatusIcon(log.homework_status)}
  <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">
@@ -100,12 +100,12 @@ const StudentLogs = () => {
  </span>
  </div>
  </td>
- <td className="px-8 py-6 text-center">
+ <td className="px-4 md:px-8 py-6 text-center">
  {log.test_score ? <span className="px-4 py-1.5 bg-[#008080] text-white rounded-full text-[10px] font-black tracking-widest shadow-lg shadow-[#008080]/30">
  {log.test_score}
  </span> : <span className="text-[10px] font-black text-slate-300 uppercase ">No Test</span>}
  </td>
- <td className="px-8 py-6 text-right">
+ <td className="px-4 md:px-8 py-6 text-right">
  <button onClick={() => setViewingLog(log)} className="p-3 bg-white border border-slate-200 rounded-xl text-slate-600 hover:text-[#008080] hover:border-[#008080] transition-all shadow-sm hover:shadow-md active:scale-95">
  <Eye size={18} />
  </button>
@@ -127,7 +127,7 @@ const StudentLogs = () => {
  {/* View Details Modal */}
  {viewingLog && <div className="fixed inset-0 bg-[#008080]/60 backdrop-blur-md z-[2000] flex items-center justify-center p-6 animate-in fade-in duration-300">
  <div className="bg-white rounded-[3.5rem] shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto animate-in zoom-in slide-in-from-bottom-10 duration-500">
- <div className="sticky top-0 bg-white/80 backdrop-blur-xl px-10 py-8 border-b border-slate-100 flex justify-between items-center z-10">
+ <div className="sticky top-0 bg-white/80 backdrop-blur-xl px-5 md:px-10 py-4 md:py-8 border-b border-slate-100 flex justify-between items-center z-10">
  <div className="flex items-center gap-6">
  <div className="w-16 h-16 bg-[#008080]/10 rounded-[2rem] flex items-center justify-center text-[#008080]">
  <BookOpen size={32} />
@@ -142,7 +142,7 @@ const StudentLogs = () => {
  </button>
  </div>
 
- <div className="p-10 space-y-12">
+ <div className="p-5 md:p-10 space-y-12">
  {/* Key Performance Indicators */}
  <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
  <div className="bg-slate-50 p-6 rounded-3xl border border-slate-100">
@@ -215,7 +215,7 @@ const StudentLogs = () => {
  </div>
 
  {/* Critical Status Row */}
- <div className="p-8 bg-[#008080] rounded-[2.5rem] flex flex-col md:flex-row items-center justify-between gap-8 relative overflow-hidden">
+ <div className="p-4 md:p-8 bg-[#008080] rounded-[2.5rem] flex flex-col md:flex-row items-center justify-between gap-8 relative overflow-hidden">
  <div className="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -mr-20 -mt-20 blur-2xl"></div>
  <div className="relative flex flex-wrap gap-8 items-center">
  <div className="text-center md:text-left">
@@ -232,13 +232,13 @@ const StudentLogs = () => {
  </div>
  </div>
 
- {viewingLog.screenshot_url && <a href={viewingLog.screenshot_url} target="_blank" rel="noreferrer" className="relative bg-white text-slate-900 px-8 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-black/20 ">
+ {viewingLog.screenshot_url && <a href={viewingLog.screenshot_url} target="_blank" rel="noreferrer" className="relative bg-white text-slate-900 px-4 md:px-8 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-black/20 ">
  View Attachment
  </a>}
  </div>
 
  {/* Mentor Memo */}
- <div className="bg-slate-50 p-8 rounded-[2.5rem] border border-slate-100">
+ <div className="bg-slate-50 p-4 md:p-8 rounded-[2.5rem] border border-slate-100">
  <h4 className="text-[10px] font-black text-slate-600 uppercase tracking-widest mb-3 flex items-center gap-2">
  <ShieldAlert size={14} className="text-amber-500" /> Mentor's Internal Memo
  </h4>

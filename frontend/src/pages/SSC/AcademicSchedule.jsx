@@ -509,7 +509,7 @@ const AcademicSchedule = () => {
       {isDetailsModalOpen && selectedSession && (
         <div className="fixed inset-0 bg-[#008080]/60 backdrop-blur-md z-[9999] flex items-center justify-center p-4">
           <div className="bg-white rounded-[3rem] shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-            <div className="sticky top-0 bg-white/80 backdrop-blur-xl px-10 py-6 border-b border-slate-100 flex justify-between items-center z-10">
+            <div className="sticky top-0 bg-white/80 backdrop-blur-xl px-5 md:px-10 py-6 border-b border-slate-100 flex justify-between items-center z-10">
               <div>
                 <h2 className="text-xl font-black text-slate-900 tracking-tight uppercase">Session Insights</h2>
                 <p className="text-[10px] font-black text-[#008080] uppercase tracking-[0.2em] mt-1">{selectedSession.student_name}'s Timeline</p>
@@ -517,7 +517,7 @@ const AcademicSchedule = () => {
               <button onClick={() => setIsDetailsModalOpen(false)} className="w-12 h-12 bg-slate-50 text-slate-600 rounded-2xl flex items-center justify-center hover:bg-rose-50 hover:text-rose-600 transition-all"><XCircle size={24} /></button>
             </div>
 
-            <div className="p-10 space-y-10">
+            <div className="p-5 md:p-10 space-y-10">
               <div className="grid grid-cols-2 gap-8">
                 <div className="space-y-1">
                   <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Faculty Name</p>
@@ -584,7 +584,7 @@ const AcademicSchedule = () => {
                   <Activity size={14} className="text-[#008080]" /> Phase Execution
                 </h4>
                 {selectedSession.status !== 'Scheduled' ? (
-                  <div className="p-8 bg-emerald-50 rounded-[2.5rem] border border-emerald-100 flex items-center gap-6">
+                  <div className="p-4 md:p-8 bg-emerald-50 rounded-[2.5rem] border border-emerald-100 flex items-center gap-6">
                     <div className="w-16 h-16 bg-emerald-600 text-white rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-200">
                       <ShieldCheck size={32} />
                     </div>
@@ -628,7 +628,7 @@ const AcademicSchedule = () => {
       {/* Completion Modal */}
       {isCompleteModalOpen && selectedSession && (
         <div className="fixed inset-0 bg-[#008080]/80 backdrop-blur-md z-[10000] flex items-center justify-center p-4">
-          <div className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-md p-10 space-y-8 max-h-[90vh] overflow-y-auto">
+          <div className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-md p-5 md:p-10 space-y-8 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 bg-emerald-600 text-white rounded-2xl flex items-center justify-center shadow-lg"><CheckSquare size={24} /></div>
               <div>
@@ -681,7 +681,7 @@ const AcademicSchedule = () => {
             )}
               <div className="flex gap-4">
                 <button onClick={handleComplete} className="flex-1 py-4 bg-emerald-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-emerald-700 transition-all">Submit</button>
-                <button onClick={() => setIsCompleteModalOpen(false)} className="px-8 py-4 bg-slate-50 text-slate-600 rounded-2xl font-black text-xs uppercase tracking-widest">Back</button>
+                <button onClick={() => setIsCompleteModalOpen(false)} className="px-4 md:px-8 py-4 bg-slate-50 text-slate-600 rounded-2xl font-black text-xs uppercase tracking-widest">Back</button>
               </div>
           </div>
         </div>

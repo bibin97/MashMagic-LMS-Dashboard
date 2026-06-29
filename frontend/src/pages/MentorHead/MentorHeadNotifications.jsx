@@ -103,7 +103,7 @@ const MentorHeadNotifications = () => {
 
   return (
     <div className="space-y-8 pb-20">
-      <div className="bg-white p-10 rounded-[3rem] border border-slate-100 shadow-sm flex justify-between items-center">
+      <div className="bg-white p-5 md:p-10 rounded-[3rem] border border-slate-100 shadow-sm flex justify-between items-center">
         <div>
           <h2 className="text-3xl font-black text-slate-900 tracking-tighter uppercase flex items-center gap-4">
             <Bell className="text-[#008080]" size={32} />

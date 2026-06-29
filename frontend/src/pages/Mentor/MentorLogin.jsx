@@ -44,7 +44,7 @@ const MentorLogin = () => {
 
  return (
  <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] bg-fixed">
- <div className="max-w-md w-full bg-white p-10 rounded-[2.5rem] shadow-2xl border border-slate-100 relative overflow-hidden">
+ <div className="max-w-md w-full bg-white p-5 md:p-10 rounded-[2.5rem] shadow-2xl border border-slate-100 relative overflow-hidden">
  <div className="absolute top-0 right-0 w-32 h-32 bg-[#008080]/10 rounded-full -mr-16 -mt-16 opacity-50"></div>
 
  <div className="text-center mb-10 relative z-10">

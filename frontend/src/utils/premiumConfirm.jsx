@@ -25,7 +25,7 @@ export const premiumConfirm = (callback, { name = '', title = '', message = '', 
  >
  <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-transparent via-slate-100 to-transparent opacity-20"></div>
  
- <div className="p-10">
+ <div className="p-5 md:p-10">
  <div className="flex flex-col items-center text-center gap-6">
  <div className={`w-20 h-20 ${iconBg} rounded-[28px] flex items-center justify-center shadow-inner border border-white/50`}>
  <Icon className={`h-8 w-8 ${iconColor}`} />

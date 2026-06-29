@@ -250,7 +250,7 @@ const FeesManagement = () => {
 
           {/* ── DESKTOP TABLE (≥ md) ─────────────────────────────── */}
           <div className="hidden md:block overflow-x-auto overflow-y-auto max-h-[70vh] custom-scrollbar">
-            <table className="w-full min-w-[900px] text-left border-collapse">
+            <table className="w-full min-w-full md:w-[900px] text-left border-collapse">
               <thead className="sticky top-0 z-10 bg-slate-50 shadow-[0_1px_2px_rgba(0,0,0,0.05)]">
                 <tr className="border-b border-slate-100 text-[10px] font-black uppercase tracking-widest text-slate-500 whitespace-nowrap">
                   <th className="p-4 pl-6 bg-slate-50">Name / Details</th>
@@ -397,7 +397,7 @@ const FeesManagement = () => {
                           </button>
                         </div>;
                 })}
-                    {formData.installments.length === 0 && <div className="p-8 text-center border-2 border-dashed border-slate-200 rounded-3xl">
+                    {formData.installments.length === 0 && <div className="p-4 md:p-8 text-center border-2 border-dashed border-slate-200 rounded-3xl">
                         <p className="text-xs font-bold text-slate-400">No installments added yet</p>
                       </div>}
                   </div>
@@ -408,7 +408,7 @@ const FeesManagement = () => {
             
             <div className="p-4 md:p-6 border-t border-slate-100 bg-slate-50 flex flex-col-reverse md:flex-row justify-end gap-3 shrink-0">
               <button onClick={() => setIsModalOpen(false)} className="w-full md:w-auto min-h-[44px] px-6 py-3 rounded-xl text-xs font-black text-slate-500 uppercase hover:bg-slate-200 transition-all">Cancel</button>
-              <button form="feeForm" type="submit" className="w-full md:w-auto min-h-[44px] px-8 py-3 rounded-xl text-xs font-black text-white uppercase bg-indigo-600 hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20">Save Details</button>
+              <button form="feeForm" type="submit" className="w-full md:w-auto min-h-[44px] px-4 md:px-8 py-3 rounded-xl text-xs font-black text-white uppercase bg-indigo-600 hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20">Save Details</button>
             </div>
           </div>
         </div>}

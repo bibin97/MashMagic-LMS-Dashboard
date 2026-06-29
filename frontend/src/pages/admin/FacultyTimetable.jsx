@@ -155,7 +155,7 @@ const FacultyTimetable = () => {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-50">
-                            {loading ? <tr><td colSpan="5" className="p-8 text-center"><div className="w-8 h-8 border-4 border-[#008080] border-t-transparent rounded-full animate-spin mx-auto"></div></td></tr> : timetable.length > 0 ? timetable.map((slot, index) => <tr key={slot.id} className="hover:bg-slate-50/50 transition-colors"><td className="p-6 text-sm font-black text-slate-400 border-b border-slate-50">{index + 1}</td>
+                            {loading ? <tr><td colSpan="5" className="p-4 md:p-8 text-center"><div className="w-8 h-8 border-4 border-[#008080] border-t-transparent rounded-full animate-spin mx-auto"></div></td></tr> : timetable.length > 0 ? timetable.map((slot, index) => <tr key={slot.id} className="hover:bg-slate-50/50 transition-colors"><td className="p-6 text-sm font-black text-slate-400 border-b border-slate-50">{index + 1}</td>
                                         <td className="px-6 py-4 font-bold text-slate-800">{slot.faculty_name}</td>
                                         <td className="px-6 py-4 font-semibold text-[#008080] bg-[#008080]/5">{slot.subject}</td>
                                         <td className="px-6 py-4 font-semibold text-slate-600">{slot.day_of_week}</td>
@@ -171,7 +171,7 @@ const FacultyTimetable = () => {
                                             </button>
                                         </td>
                                     </tr>) : <tr>
-                                    <td colSpan="5" className="p-12 text-center text-slate-400">
+                                    <td colSpan="5" className="p-6 md:p-12 text-center text-slate-400">
                                         <Calendar size={48} className="mx-auto mb-4 opacity-50" />
                                         <p className="font-semibold text-sm">No timetable slots found.</p>
                                     </td>

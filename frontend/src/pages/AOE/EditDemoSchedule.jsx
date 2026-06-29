@@ -121,7 +121,7 @@ const EditDemoSchedule = () => {
 
   return (
     <div className="space-y-8 pb-20 max-w-[1200px] mx-auto min-h-screen">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 border-b-4 border-b-[#008080]">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white p-4 md:p-8 rounded-[2.5rem] shadow-sm border border-slate-100 border-b-4 border-b-[#008080]">
         <div className="flex items-center gap-4">
           <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600">
             <Target size={24} />
@@ -144,7 +144,7 @@ const EditDemoSchedule = () => {
         </button>
       </div>
 
-      <div className="bg-white p-8 rounded-[3rem] shadow-sm border border-slate-100">
+      <div className="bg-white p-4 md:p-8 rounded-[3rem] shadow-sm border border-slate-100">
         <form onSubmit={handleUpdateSchedule} className="space-y-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="space-y-2">
@@ -359,7 +359,7 @@ const EditDemoSchedule = () => {
             <button
               type="submit"
               disabled={loading}
-              className="px-10 py-4 bg-[#008080] text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-xl hover:bg-[#006666] transition-all flex items-center gap-2 disabled:opacity-50"
+              className="px-5 md:px-10 py-4 bg-[#008080] text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-xl hover:bg-[#006666] transition-all flex items-center gap-2 disabled:opacity-50"
             >
               {loading ? 'Updating...' : <><Save size={16} /> Update Schedule</>}
             </button>

@@ -27,9 +27,9 @@ const IntegrityDashboard = () => {
         fetchReport();
     }, []);
 
-    if (loading) return <div className="p-8 text-center text-gray-500">Loading integrity scan...</div>;
+    if (loading) return <div className="p-4 md:p-8 text-center text-gray-500">Loading integrity scan...</div>;
 
-    if (!report) return <div className="p-8 text-center text-gray-500">No report available. The scan may not have run yet.</div>;
+    if (!report) return <div className="p-4 md:p-8 text-center text-gray-500">No report available. The scan may not have run yet.</div>;
 
     const { summary, missing_timetables, orphan_sessions } = report;
 

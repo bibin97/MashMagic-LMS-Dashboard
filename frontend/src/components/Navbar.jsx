@@ -318,7 +318,7 @@ const Navbar = ({ onMenuClick }) => {
                 <div className="absolute top-full left-0 right-0 mt-3 bg-white/95 backdrop-blur-xl border border-slate-200 rounded-[24px] shadow-[0_20px_50px_-12px_rgba(0,0,0,0.15)] overflow-hidden z-[1001] animate-in fade-in slide-in-from-top-2 duration-200">
                   <div className="p-3 max-h-[400px] overflow-y-auto">
                     {isSearching && searchResults.length === 0 ? (
-                      <div className="p-8 text-center">
+                      <div className="p-4 md:p-8 text-center">
                         <RefreshCw className="w-6 h-6 text-[#008080] animate-spin mx-auto mb-2" />
                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Searching Database...</p>
                       </div>
@@ -421,7 +421,7 @@ const Navbar = ({ onMenuClick }) => {
                     
                     <div className="overflow-y-auto p-2 space-y-1 flex-grow">
                       {notifications.length === 0 ? (
-                        <div className="py-12 flex flex-col items-center justify-center text-slate-400">
+                        <div className="py-6 md:py-12 flex flex-col items-center justify-center text-slate-400">
                           <Bell size={24} className="mb-2 opacity-20" />
                           <p className="text-xs font-medium">All caught up!</p>
                         </div>

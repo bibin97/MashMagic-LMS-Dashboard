@@ -192,7 +192,7 @@ const ParentMeetings = ({
             })} className="w-full p-4 rounded-xl border border-slate-200 bg-slate-50 text-sm font-medium focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 min-h-[100px]" placeholder="What is the agenda of this meeting?" />
               </div>
 
-              <button type="submit" className="h-12 px-8 rounded-xl bg-indigo-600 text-white font-black uppercase text-xs tracking-widest hover:bg-indigo-700 transition-all flex items-center justify-center gap-2 w-full md:w-auto">
+              <button type="submit" className="h-12 px-4 md:px-8 rounded-xl bg-indigo-600 text-white font-black uppercase text-xs tracking-widest hover:bg-indigo-700 transition-all flex items-center justify-center gap-2 w-full md:w-auto">
                 <Calendar size={16} /> Schedule Meeting
               </button>
 
@@ -200,7 +200,7 @@ const ParentMeetings = ({
           </div>}
 
         {activeTab === 'report' && <div className="space-y-4">
-            {scheduledMeetings.length === 0 ? <div className="bg-white rounded-3xl p-12 border border-slate-100 shadow-sm text-center">
+            {scheduledMeetings.length === 0 ? <div className="bg-white rounded-3xl p-6 md:p-12 border border-slate-100 shadow-sm text-center">
                 <div className="w-16 h-16 bg-slate-50 text-slate-300 rounded-full flex items-center justify-center mx-auto mb-4">
                   <CheckCircle2 size={32} />
                 </div>
@@ -290,7 +290,7 @@ const ParentMeetings = ({
                       </td>
                     </tr>;
               }) : <tr>
-                      <td colSpan="5" className="p-8 text-center text-slate-400 font-medium">
+                      <td colSpan="5" className="p-4 md:p-8 text-center text-slate-400 font-medium">
                         No completed meetings found
                       </td>
                     </tr>}
@@ -348,7 +348,7 @@ const ParentMeetings = ({
                         />
                     );
                 }) : (
-                    <div className="px-8 py-12 text-center bg-white rounded-2xl border border-slate-100">
+                    <div className="px-4 md:px-8 py-6 md:py-12 text-center bg-white rounded-2xl border border-slate-100">
                         <p className="text-slate-600 font-black text-[10px] uppercase tracking-[0.3em]">No completed meetings found</p>
                     </div>
                 )}

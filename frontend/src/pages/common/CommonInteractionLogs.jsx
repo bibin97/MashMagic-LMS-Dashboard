@@ -720,7 +720,7 @@ const CommonInteractionLogs = ({
 
         {/* DESKTOP TABLE (>= md) */}
         <div className="hidden md:block overflow-x-auto -webkit-overflow-scrolling-touch">
-          <table className="w-full min-w-[640px] text-left border-collapse">
+          <table className="w-full min-w-full md:w-[640px] text-left border-collapse">
             <thead className="sticky top-0 z-10">
               <tr className="bg-slate-50/95 border-b border-slate-100/50 backdrop-blur-sm">
                 <th className="w-12 md:w-16 px-4 md:px-10 py-4 md:py-6 text-[9px] md:text-[10px] font-black text-slate-600 uppercase tracking-widest text-center bg-slate-50">#</th>
@@ -732,7 +732,7 @@ const CommonInteractionLogs = ({
             </thead>
             <tbody className="divide-y divide-slate-50">
               {loading ? <tr>
-                <td colSpan="5" className="px-10 py-20 text-center">
+                <td colSpan="5" className="px-5 md:px-10 py-20 text-center">
                   <div className="w-10 h-10 border-4 border-[#008080] border-t-transparent rounded-full animate-spin mx-auto"></div>
                 </td>
               </tr> : filteredEntities.length > 0 ? filteredEntities.map((entity, index) => <tr key={entity.id} className="group hover:bg-slate-50/50 transition-colors cursor-pointer" onClick={() => {
@@ -874,7 +874,7 @@ const CommonInteractionLogs = ({
       </div>
     </header>
 
-    {showFilterPanel && <div className="flex flex-col md:flex-row gap-8 p-10 bg-[#008080] rounded-[3.5rem] shadow-2xl animate-in slide-in-from-top-6 duration-700 items-end">
+    {showFilterPanel && <div className="flex flex-col md:flex-row gap-8 p-5 md:p-10 bg-[#008080] rounded-[3.5rem] shadow-2xl animate-in slide-in-from-top-6 duration-700 items-end">
       <div className="flex-1 w-full">
         <label className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 block ml-2">Start Date</label>
         <div className="relative group">
@@ -1139,7 +1139,7 @@ const CommonInteractionLogs = ({
             </div>
 
             {/* Mentor/Faculty Identity */}
-            <div className="flex-1 border-x border-slate-100 px-8 hidden md:block">
+            <div className="flex-1 border-x border-slate-100 px-4 md:px-8 hidden md:block">
               <div className="flex items-center gap-4">
                 <div className="w-10 h-10 bg-[#008080] rounded-full flex items-center justify-center text-white text-xs font-black shadow-lg">
                   {(role === 'super_admin' || role === 'mentor_head' ? log.mentor_name || log.faculty_name || 'M' : log.mentor_name || 'M').charAt(0)}
@@ -1425,7 +1425,7 @@ const CommonInteractionLogs = ({
           <button onClick={() => setEditModalLog(null)} className="px-6 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest text-slate-500 hover:bg-slate-200 transition-colors">
             Cancel
           </button>
-          <button onClick={handleSaveEdit} disabled={isSavingEdit} className="px-8 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest bg-[#008080] text-white hover:bg-[#006666] transition-colors disabled:opacity-50">
+          <button onClick={handleSaveEdit} disabled={isSavingEdit} className="px-4 md:px-8 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest bg-[#008080] text-white hover:bg-[#006666] transition-colors disabled:opacity-50">
             {isSavingEdit ? 'Saving...' : 'Save Changes'}
           </button>
         </div>

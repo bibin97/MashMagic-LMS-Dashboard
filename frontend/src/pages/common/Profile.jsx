@@ -92,7 +92,7 @@ const ProfileConsole = () => {
 	return (
 		<div className="p-4 md:p-12 max-w-6xl mx-auto animate-in fade-in slide-in-from-bottom-10 duration-1000">
 			{/* Header Area */}
-			<div className="flex flex-col md:flex-row justify-between items-center gap-10 mb-16 bg-white p-10 rounded-[48px] border border-slate-100 shadow-2xl shadow-slate-200/40 relative overflow-hidden">
+			<div className="flex flex-col md:flex-row justify-between items-center gap-10 mb-16 bg-white p-5 md:p-10 rounded-[48px] border border-slate-100 shadow-2xl shadow-slate-200/40 relative overflow-hidden">
 				<div className="absolute top-0 right-0 w-64 h-64 bg-slate-50 rounded-full -mr-32 -mt-32 opacity-50"></div>
 				
 				<div className="flex items-center gap-8 relative z-10 w-full md:w-auto">
@@ -136,7 +136,7 @@ const ProfileConsole = () => {
 					
 					<div className="flex-1">
 						<div className="flex flex-col">
-							<h1 className="text-4xl font-black text-slate-900 tracking-tighter uppercase ">{user?.name}</h1>
+							<h1 className="text-2xl md:text-4xl font-black text-slate-900 tracking-tighter uppercase ">{user?.name}</h1>
 							<div className="flex flex-wrap items-center gap-3 mt-3">
 								<span className="px-4 py-1.5 bg-[#008080]/10 text-[#008080] rounded-full text-[10px] font-black uppercase tracking-widest border border-[#008080]/20">
 									{user?.role?.replace('_', ' ')}
@@ -151,7 +151,7 @@ const ProfileConsole = () => {
 				</div>
 
 				<div className="flex gap-4 relative z-10 shrink-0">
-					<div className="bg-slate-50 px-8 py-5 rounded-[32px] border border-slate-100 text-center flex flex-col items-center justify-center">
+					<div className="bg-slate-50 px-4 md:px-8 py-5 rounded-[32px] border border-slate-100 text-center flex flex-col items-center justify-center">
 						<p className="text-[9px] font-black text-slate-600 uppercase tracking-[0.2em] mb-1">Account Status</p>
 						<div className="flex items-center gap-2">
 							<CheckCircle2 size={14} className="text-emerald-500" />
@@ -164,7 +164,7 @@ const ProfileConsole = () => {
 			<div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
 				{/* Core Identity Panel */}
 				<div className="lg:col-span-2 space-y-8">
-					<div className="bg-white p-10 rounded-[48px] border border-slate-100 shadow-2xl shadow-slate-200/30">
+					<div className="bg-white p-5 md:p-10 rounded-[48px] border border-slate-100 shadow-2xl shadow-slate-200/30">
 						<h3 className="text-xl font-black text-slate-900 uppercase tracking-tight mb-10 flex items-center gap-4">
 							<div className="w-10 h-10 bg-[#008080]/10 rounded-xl flex items-center justify-center text-[#008080]">
 								<User size={20} />
@@ -181,7 +181,7 @@ const ProfileConsole = () => {
 					</div>
 
 					{/* System Information */}
-					<div className="bg-[#008080] p-10 rounded-[48px] shadow-2xl shadow-[#008080]/40 relative overflow-hidden group">
+					<div className="bg-[#008080] p-5 md:p-10 rounded-[48px] shadow-2xl shadow-[#008080]/40 relative overflow-hidden group">
 						<div className="absolute bottom-0 right-0 w-48 h-48 bg-white/5 rounded-full -mb-24 -mr-24 blur-3xl group-hover:bg-[#008080]/10 transition-colors duration-1000"></div>
 						<h3 className="text-xl font-black text-white uppercase tracking-tight mb-10 flex items-center gap-4">
 							<div className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center text-white">
@@ -189,7 +189,7 @@ const ProfileConsole = () => {
 							</div>
 							System Security
 						</h3>
-						<div className="flex items-start gap-6 bg-white/5 p-8 rounded-[32px] border border-white/10 relative z-10">
+						<div className="flex items-start gap-6 bg-white/5 p-4 md:p-8 rounded-[32px] border border-white/10 relative z-10">
 							<div className="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center text-[#008080] shrink-0">
 								<AlertCircle size={24} />
 							</div>
@@ -205,7 +205,7 @@ const ProfileConsole = () => {
 
 				{/* Sidebar Stats/Info */}
 				<div className="space-y-8">
-					<div className="bg-[#008080] p-10 rounded-[48px] shadow-2xl shadow-[#008080]/30 text-white relative overflow-hidden">
+					<div className="bg-[#008080] p-5 md:p-10 rounded-[48px] shadow-2xl shadow-[#008080]/30 text-white relative overflow-hidden">
 						<div className="absolute top-0 left-0 w-32 h-32 bg-white/10 rounded-full -ml-16 -mt-16 blur-2xl"></div>
 						<h4 className="text-[10px] font-black uppercase tracking-[0.3em] mb-6 opacity-70">System Overview</h4>
 						<div className="space-y-6 relative z-10">
@@ -229,7 +229,7 @@ const ProfileConsole = () => {
 						</div>
 					</div>
 
-					<div className="bg-white p-8 rounded-[40px] border border-slate-100 shadow-xl shadow-slate-200/50">
+					<div className="bg-white p-4 md:p-8 rounded-[40px] border border-slate-100 shadow-xl shadow-slate-200/50">
 						<div className="flex items-center justify-between mb-6 px-2">
 							<h4 className="text-xs font-black text-slate-900 uppercase tracking-widest">Recent Activity</h4>
 							<Activity size={14} className="text-slate-300" />
@@ -250,7 +250,7 @@ const ProfileConsole = () => {
 					</div>
 
 					{/* Security Actions */}
-					<div className="bg-rose-50 p-8 rounded-[40px] border border-rose-100/50">
+					<div className="bg-rose-50 p-4 md:p-8 rounded-[40px] border border-rose-100/50">
 						<h4 className="text-[10px] font-black text-rose-600 uppercase tracking-widest mb-4 flex items-center gap-2">
 							<Lock size={12} /> Account Security
 						</h4>

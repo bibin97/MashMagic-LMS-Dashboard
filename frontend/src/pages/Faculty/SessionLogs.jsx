@@ -62,36 +62,36 @@ const SessionLogs = () => {
  <table className="w-full">
  <thead>
  <tr className="bg-slate-50 border-b border-slate-100">
- <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest whitespace-nowrap">Timestamp</th>
- <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest whitespace-nowrap">Student Entity</th>
- <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest whitespace-nowrap">Subject Module</th>
- <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest whitespace-nowrap text-center">Efficiency</th>
- <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest whitespace-nowrap text-center">Risk Vector</th>
- <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest whitespace-nowrap">Operational Notes</th>
+ <th className="px-4 md:px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest whitespace-nowrap">Timestamp</th>
+ <th className="px-4 md:px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest whitespace-nowrap">Student Entity</th>
+ <th className="px-4 md:px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest whitespace-nowrap">Subject Module</th>
+ <th className="px-4 md:px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest whitespace-nowrap text-center">Efficiency</th>
+ <th className="px-4 md:px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest whitespace-nowrap text-center">Risk Vector</th>
+ <th className="px-4 md:px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest whitespace-nowrap">Operational Notes</th>
  </tr>
  </thead>
  <tbody className="divide-y divide-slate-50">
  {filteredLogs.length > 0 ? (
  filteredLogs.map((log) => (
  <tr key={log.id} className="hover:bg-emerald-50/20 transition-all group">
- <td className="px-8 py-6 whitespace-nowrap">
+ <td className="px-4 md:px-8 py-6 whitespace-nowrap">
  <div className="flex flex-col">
  <span className="text-xs font-black text-slate-900">{new Date(log.date).toLocaleDateString()}</span>
  <span className="text-[9px] font-bold text-slate-600 uppercase mt-1">Session {log.session_number}</span>
  </div>
  </td>
- <td className="px-8 py-6 whitespace-nowrap">
+ <td className="px-4 md:px-8 py-6 whitespace-nowrap">
  <div className="flex flex-col">
  <span className="text-sm font-black text-slate-700 group-hover:text-emerald-600 transition-colors uppercase tracking-tight">{log.student_name}</span>
  <span className="text-[9px] font-bold text-slate-600 uppercase mt-1">Mentor: {log.mentor_name}</span>
  </div>
  </td>
- <td className="px-8 py-6 whitespace-nowrap">
+ <td className="px-4 md:px-8 py-6 whitespace-nowrap">
  <div className="bg-slate-50 px-4 py-2 rounded-xl border border-slate-100/50 inline-block">
  <span className="text-xs font-black text-slate-600 uppercase tracking-widest">{log.chapter}</span>
  </div>
  </td>
- <td className="px-8 py-6 text-center whitespace-nowrap">
+ <td className="px-4 md:px-8 py-6 text-center whitespace-nowrap">
  <span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest border ${log.student_performance === 'Excellent' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
  log.student_performance === 'Good' ? 'bg-[#008080]/10 text-[#008080] border-[#008080]' :
  log.student_performance === 'Average' ? 'bg-amber-50 text-amber-600 border-amber-100' :
@@ -100,7 +100,7 @@ const SessionLogs = () => {
  {log.student_performance}
  </span>
  </td>
- <td className="px-8 py-6 text-center whitespace-nowrap">
+ <td className="px-4 md:px-8 py-6 text-center whitespace-nowrap">
  <div className="flex items-center justify-center gap-2">
  <div className={`w-2 h-2 rounded-full ${log.risk_level === 'High' ? 'bg-rose-500 animate-pulse' : log.risk_level === 'Medium' ? 'bg-amber-400' : 'bg-emerald-400'}`}></div>
  <span className={`text-[10px] font-black uppercase tracking-widest ${log.risk_level === 'High' ? 'text-rose-600' : 'text-slate-500'}`}>
@@ -108,7 +108,7 @@ const SessionLogs = () => {
  </span>
  </div>
  </td>
- <td className="px-8 py-6 min-w-[300px]">
+ <td className="px-4 md:px-8 py-6 min-w-full md:w-[300px]">
  <p className="text-[11px] font-bold text-slate-500 line-clamp-2 leading-relaxed">
  {log.issues_reported || log.topics_covered || 'No operational anomalies documented.'}
  </p>

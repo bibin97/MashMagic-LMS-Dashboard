@@ -505,7 +505,7 @@ const Registrations = () => {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`px-8 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all ${activeTab === tab.id
+              className={`px-4 md:px-8 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all ${activeTab === tab.id
                 ? 'bg-white text-[#008080] shadow-sm scale-100'
                 : 'text-slate-500 hover:text-slate-800 scale-95'
                 }`}
@@ -810,7 +810,7 @@ const Registrations = () => {
 
                 <div className="space-y-6">
                   {selectedSubjects.map((row, idx) => (
-                    <div key={idx} className="bg-white p-8 rounded-[3rem] border border-slate-100 shadow-xl shadow-slate-200/20 relative animate-in slide-in-from-right-4 duration-500 space-y-8">
+                    <div key={idx} className="bg-white p-4 md:p-8 rounded-[3rem] border border-slate-100 shadow-xl shadow-slate-200/20 relative animate-in slide-in-from-right-4 duration-500 space-y-8">
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-start">
                         {/* Subject Dropdown (React-Select Multi) */}
                         <div className="flex flex-col gap-2 relative">
@@ -857,7 +857,7 @@ const Registrations = () => {
                           
                           {row.isDayDropdownOpen && (
                             <div 
-                              className="absolute top-[100%] left-0 w-[320px] md:w-[400px] bg-white border border-slate-100 rounded-2xl shadow-2xl z-[100] mt-1 p-4 animate-in fade-in zoom-in-95 duration-200"
+                              className="absolute top-[100%] left-0 w-full md:w-[320px] md:w-[400px] bg-white border border-slate-100 rounded-2xl shadow-2xl z-[100] mt-1 p-4 animate-in fade-in zoom-in-95 duration-200"
                               onClick={(e) => e.stopPropagation()}
                             >
                               <div className="space-y-3">
@@ -1287,7 +1287,7 @@ const Registrations = () => {
                 <button 
                   disabled={loading} 
                   type="submit" 
-                  className="px-10 py-5 bg-indigo-600 text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] hover:bg-[#008080] transition-all shadow-xl shadow-indigo-100 active:scale-95 disabled:opacity-50 flex items-center gap-3"
+                  className="px-5 md:px-10 py-5 bg-indigo-600 text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] hover:bg-[#008080] transition-all shadow-xl shadow-indigo-100 active:scale-95 disabled:opacity-50 flex items-center gap-3"
                 >
                   {loading ? 'Processing...' : 'Complete SSC Registration'}
                   {!loading && <CheckCircle size={18} />}

@@ -70,7 +70,7 @@ const Exams = () => {
   const filteredHistory = history.filter(h => h.student_name.toLowerCase().includes(historySearch.toLowerCase()) || h.score?.toLowerCase().includes(historySearch.toLowerCase()));
   return <div className="space-y-8 pb-20 max-w-[1200px] mx-auto">
  {/* Header Area */}
- <div className="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 border-b-4 border-b-[#008080] overflow-hidden relative">
+ <div className="bg-white p-4 md:p-8 rounded-[2.5rem] shadow-sm border border-slate-100 border-b-4 border-b-[#008080] overflow-hidden relative">
  <div className="absolute top-0 right-0 w-64 h-64 bg-[#008080]/10 rounded-full -mr-32 -mt-32 opacity-50"></div>
 
  <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
@@ -104,7 +104,7 @@ const Exams = () => {
           id: 'history',
           label: 'Exam History',
           count: history.length
-        }].map(tab => <button key={tab.id} onClick={() => setActiveTab(tab.id)} className={`px-8 py-4 rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-3
+        }].map(tab => <button key={tab.id} onClick={() => setActiveTab(tab.id)} className={`px-4 md:px-8 py-4 rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-3
  ${activeTab === tab.id ? 'bg-white text-[#008080] shadow-lg' : 'text-slate-500 hover:text-slate-800'}
  `}>
  {tab.label}
@@ -133,12 +133,12 @@ const Exams = () => {
  All students are currently in compliance with their exam schedules. Keep up the high performance!
  </p>
  </div> : <div className="grid gap-6">
- {pendingExams.map((exam, idx) => <div key={idx} className="bg-white rounded-[3.5rem] p-10 border border-slate-100 shadow-sm hover:shadow-2xl transition-all group flex flex-col xl:flex-row items-center gap-10 animate-in slide-in-from-bottom-2 duration-300 relative overflow-hidden">
+ {pendingExams.map((exam, idx) => <div key={idx} className="bg-white rounded-[3.5rem] p-6 md:p-10 border border-slate-100 shadow-sm hover:shadow-2xl transition-all group flex flex-col xl:flex-row items-center gap-10 animate-in slide-in-from-bottom-2 duration-300 relative overflow-hidden">
  <div className="absolute top-0 right-0 w-32 h-32 bg-[#008080]/10 rounded-full -mr-16 -mt-16 opacity-30"></div>
  
  <div className="w-28 h-28 bg-slate-50 rounded-[2.5rem] flex flex-col items-center justify-center border border-slate-100 group-hover:bg-[#008080] group-hover:text-white group-hover:border-[#008080] transition-all duration-700 shrink-0 rotate-3 group-hover:rotate-0">
  <span className="text-[10px] font-black uppercase tracking-tighter opacity-60">Session</span>
- <span className="text-4xl font-black tracking-tighter ">{exam.milestone}</span>
+ <span className="text-2xl md:text-4xl font-black tracking-tighter ">{exam.milestone}</span>
  </div>
 
  <div className="flex-1 space-y-4">
@@ -192,7 +192,7 @@ const Exams = () => {
  </div>
  </div>
 
- <button onClick={() => handleOpenSubmit(exam)} className="px-10 py-6 bg-[#008080] text-white rounded-[2rem] text-[11px] font-black uppercase tracking-[0.2em] shadow-2xl shadow-[#008080] hover:bg-rose-600 hover:-translate-y-1 transition-all active:scale-95 flex items-center justify-center gap-3 w-full xl:w-fit group-hover:scale-105">
+ <button onClick={() => handleOpenSubmit(exam)} className="px-5 md:px-10 py-6 bg-[#008080] text-white rounded-[2rem] text-[11px] font-black uppercase tracking-[0.2em] shadow-2xl shadow-[#008080] hover:bg-rose-600 hover:-translate-y-1 transition-all active:scale-95 flex items-center justify-center gap-3 w-full xl:w-fit group-hover:scale-105">
  Record Exam Result <ArrowRight size={20} />
  </button>
  </div>)}
@@ -209,32 +209,32 @@ const Exams = () => {
  <table className="w-full text-left">
  <thead className="bg-slate-50 border-b border-slate-100">
  <tr>
- <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Milestone</th>
- <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Student</th>
- <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Recorded Date</th>
- <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Score / Insight</th>
- <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest text-center">Status</th>
+ <th className="px-4 md:px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Milestone</th>
+ <th className="px-4 md:px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Student</th>
+ <th className="px-4 md:px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Recorded Date</th>
+ <th className="px-4 md:px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Score / Insight</th>
+ <th className="px-4 md:px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest text-center">Status</th>
  </tr>
  </thead>
  <tbody className="divide-y divide-slate-50">
  {filteredHistory.map((h, i) => <tr key={i} className="hover:bg-slate-50/50 transition-colors group"><td className="p-6 text-sm font-black text-slate-400 border-b border-slate-50">{i + 1}</td>
- <td className="px-8 py-6">
+ <td className="px-4 md:px-8 py-6">
  <div className="w-12 h-12 bg-[#008080]/10 text-[#008080] rounded-xl flex items-center justify-center font-black ">
  #{h.milestone_session}
  </div>
  </td>
- <td className="px-8 py-6 font-black text-slate-900 ">{h.student_name}</td>
- <td className="px-8 py-6 text-xs font-bold text-slate-500">
+ <td className="px-4 md:px-8 py-6 font-black text-slate-900 ">{h.student_name}</td>
+ <td className="px-4 md:px-8 py-6 text-xs font-bold text-slate-500">
  {new Date(h.created_at).toLocaleDateString('en-GB', {
                     day: '2-digit',
                     month: 'short',
                     year: 'numeric'
                   })}
  </td>
- <td className="px-8 py-6">
+ <td className="px-4 md:px-8 py-6">
  {h.status === 'Completed' ? <span className="text-lg font-black text-[#008080] tracking-tighter ">{h.score}</span> : <span className="text-[10px] font-black text-amber-600 uppercase ">Rescheduled to {new Date(h.postponed_date).toLocaleDateString()}</span>}
  </td>
- <td className="px-8 py-6">
+ <td className="px-4 md:px-8 py-6">
  <div className="flex justify-center">
  <span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest border ${h.status === 'Completed' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-amber-50 text-amber-600 border-amber-100'}`}>
  {h.status}
@@ -252,7 +252,7 @@ const Exams = () => {
  {isSubmitModalOpen && <div className="fixed inset-0 bg-[#008080]/60 backdrop-blur-md z-[1100] flex items-center justify-center p-4 animate-in fade-in duration-300">
  <div className="bg-white rounded-[3.5rem] shadow-2xl w-full max-w-xl overflow-hidden animate-in zoom-in duration-500 border border-white/20 max-h-[90vh] overflow-y-auto">
  {/* Modal Header */}
- <div className="p-10 border-b border-slate-50 flex justify-between items-center bg-[#008080] text-white relative h-32">
+ <div className="p-6 md:p-10 border-b border-slate-50 flex justify-between items-center bg-[#008080] text-white relative h-32">
  <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16"></div>
  <div className="relative z-10">
  <h2 className="text-2xl font-black tracking-tight uppercase">Assessment Status</h2>
@@ -265,7 +265,7 @@ const Exams = () => {
  </button>
  </div>
 
- <form onSubmit={handleSubmit} className="p-12 space-y-10">
+ <form onSubmit={handleSubmit} className="p-6 md:p-12 space-y-10">
  {/* Toggle Selector */}
  <div className="flex p-1.5 bg-slate-100 rounded-2xl border border-slate-200/50">
  <button type="button" onClick={() => setFormData({

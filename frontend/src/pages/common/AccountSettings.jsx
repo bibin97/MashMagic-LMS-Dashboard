@@ -84,7 +84,7 @@ const AccountSettings = () => {
                     >
                         <ArrowLeft size={16} /> Return to Profile
                     </button>
-                    <h1 className="text-4xl font-black text-slate-900 tracking-tighter uppercase leading-none">Account Configuration</h1>
+                    <h1 className="text-2xl md:text-4xl font-black text-slate-900 tracking-tighter uppercase leading-none">Account Configuration</h1>
                     <p className="text-slate-500 text-[10px] font-black uppercase tracking-[0.3em] mt-3">Manage your profile and security settings</p>
                 </div>
                 <div className="flex items-center gap-4 px-6 py-4 bg-emerald-50 rounded-[28px] border border-emerald-100">
@@ -99,7 +99,7 @@ const AccountSettings = () => {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
                 {/* Personal Information Section */}
                 <div className="space-y-8">
-                    <div className="bg-white p-10 rounded-[48px] border border-slate-100 shadow-2xl shadow-slate-200/40 relative overflow-hidden">
+                    <div className="bg-white p-5 md:p-10 rounded-[48px] border border-slate-100 shadow-2xl shadow-slate-200/40 relative overflow-hidden">
                         <div className="absolute top-0 right-0 w-32 h-32 bg-slate-50 rounded-full -mr-16 -mt-16 opacity-50"></div>
                         
                         <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight mb-10 flex items-center gap-4">
@@ -184,7 +184,7 @@ const AccountSettings = () => {
                 {/* Security Section */}
                 {user?.role !== 'mentor' && user?.role !== 'faculty' && (
                 <div className="space-y-8">
-                    <div className="bg-[#008080] p-10 rounded-[48px] shadow-2xl shadow-[#008080]/40 relative overflow-hidden group">
+                    <div className="bg-[#008080] p-5 md:p-10 rounded-[48px] shadow-2xl shadow-[#008080]/40 relative overflow-hidden group">
                         <div className="absolute bottom-0 left-0 w-48 h-48 bg-[#008080]/10 rounded-full -mb-24 -ml-24 blur-3xl transition-colors duration-1000"></div>
                         
                         <h3 className="text-xl font-black text-white uppercase tracking-tight mb-10 flex items-center gap-4">
@@ -251,7 +251,7 @@ const AccountSettings = () => {
                         </form>
                     </div>
 
-                    <div className="bg-slate-50 p-8 rounded-[40px] border border-slate-100 flex items-start gap-4">
+                    <div className="bg-slate-50 p-4 md:p-8 rounded-[40px] border border-slate-100 flex items-start gap-4">
                         <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-amber-500 shrink-0 shadow-sm">
                             <ShieldCheck size={20} />
                         </div>

@@ -150,15 +150,8 @@ const AdminManagement = () => {
  <Loader2 className="w-8 h-8 text-[#008080] animate-spin" />
  </div>;
   }
-  return <div className="flex flex-col gap-10 pb-10">
- <div className="bg-white/70 backdrop-blur-xl p-12 rounded-[40px] border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.04)] flex flex-col md:flex-row justify-between items-center gap-10">
- <div className="text-center md:text-left">
- <div className="flex flex-col md:flex-row items-center gap-8">
- <div className="w-20 h-20 bg-[#008080] rounded-[28px] shadow-2xl shadow-[#008080]/30 flex items-center justify-center group hover:rotate-12 transition-transform duration-700">
- <ShieldCheck className="text-white" size={36} strokeWidth={2.5} />
- </div>
  <div>
- <h2 className="text-5xl font-black text-slate-900 tracking-tighter leading-none mb-3 ">Sub-Admin Management</h2>
+ <h2 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tighter leading-none mb-3 ">Sub-Admin Management</h2>
  <p className="text-slate-600 text-[11px] font-black uppercase tracking-[0.25em] flex items-center justify-center md:justify-start gap-3 mt-1">
  <div className="w-2 h-2 rounded-full bg-[#008080] animate-pulse"></div>
  Manage sub-admin accounts and their system permissions
@@ -167,7 +160,7 @@ const AdminManagement = () => {
  </div>
  </div>
 
- <button onClick={handleOpenCreate} className="bg-gradient-to-br from-slate-800 to-slate-900 text-[#008080] px-10 py-6 rounded-[24px] font-black text-[11px] uppercase tracking-[0.3em] flex items-center gap-4 hover:shadow-2xl hover:shadow-[#008080]/20 hover:-translate-y-1 transition-all group">
+ <button onClick={handleOpenCreate} className="bg-gradient-to-br from-slate-800 to-slate-900 text-[#008080] px-5 md:px-10 py-6 rounded-[24px] font-black text-[11px] uppercase tracking-[0.3em] flex items-center gap-4 hover:shadow-2xl hover:shadow-[#008080]/20 hover:-translate-y-1 transition-all group">
  <UserPlus size={20} strokeWidth={3} className="group-hover:scale-110 transition-transform" />
  <span>Add Sub-Admin</span>
  </button>
@@ -179,16 +172,16 @@ const AdminManagement = () => {
  <table className="w-full text-left border-collapse hidden md:table">
  <thead>
  <tr className="bg-slate-50/40 border-b border-slate-100/50">
- <th className="p-8 text-[11px] font-black text-slate-600 uppercase tracking-[0.2em] ">Admin Name</th>
- <th className="p-8 text-[11px] font-black text-slate-600 uppercase tracking-[0.2em] ">Contact Details</th>
- <th className="p-8 text-[11px] font-black text-slate-600 uppercase tracking-[0.2em] ">Status</th>
- <th className="p-8 text-[11px] font-black text-slate-600 uppercase tracking-[0.2em] ">Created Date</th>
- <th className="p-8 text-[11px] font-black text-slate-600 uppercase tracking-[0.2em] text-right">Actions</th>
+ <th className="p-4 md:p-8 text-[11px] font-black text-slate-600 uppercase tracking-[0.2em] ">Admin Name</th>
+ <th className="p-4 md:p-8 text-[11px] font-black text-slate-600 uppercase tracking-[0.2em] ">Contact Details</th>
+ <th className="p-4 md:p-8 text-[11px] font-black text-slate-600 uppercase tracking-[0.2em] ">Status</th>
+ <th className="p-4 md:p-8 text-[11px] font-black text-slate-600 uppercase tracking-[0.2em] ">Created Date</th>
+ <th className="p-4 md:p-8 text-[11px] font-black text-slate-600 uppercase tracking-[0.2em] text-right">Actions</th>
  </tr>
  </thead>
  <tbody className="divide-y divide-slate-50">
  {subAdmins.map((admin, index) => <tr key={admin.id} className="hover:bg-slate-50/50 transition-colors group">
- <td className="p-8">
+ <td className="p-4 md:p-8">
  <div className="flex items-center gap-5">
  <div className="w-14 h-14 bg-gradient-to-br from-[#008080] to-slate-900 rounded-[20px] flex items-center justify-center text-white font-black shadow-xl shadow-[#008080]/20 transition-transform group-hover:scale-110 group-hover:rotate-6">
  {admin.name.charAt(0).toUpperCase()}
@@ -208,7 +201,7 @@ const AdminManagement = () => {
  <span className="text-xs font-bold text-slate-600">{admin.phone_number || 'No Phone'}</span>
  </div>
  </td>
- <td className="p-8">
+ <td className="p-4 md:p-8">
    <span className={`px-6 py-2.5 rounded-[20px] text-[10px] font-black uppercase tracking-[0.2em] border shadow-sm transition-all group-hover:scale-105 ${admin.status === 'active' ? 'bg-[#10B981]/10 text-[#10B981] border-[#10B981]/20' : admin.status === 'inactive' ? 'bg-slate-50 text-slate-600 border-slate-100' : admin.status === 'pending' ? 'bg-amber-50 text-amber-600 border border-amber-100 animate-pulse' : 'bg-[#EF4444]/10 text-[#EF4444] border-[#EF4444]/20'}`}>
      {admin.status === 'active' ? 'Active' : admin.status === 'inactive' ? 'Backup' : admin.status === 'pending' ? 'Pending' : admin.status === 'left' ? 'Left' : admin.status}
    </span>
@@ -218,7 +211,7 @@ const AdminManagement = () => {
  {admin.created_at ? new Date(admin.created_at).toLocaleDateString('en-GB') : 'N/A'}
  </span>
  </td>
- <td className="p-8 text-right">
+ <td className="p-4 md:p-8 text-right">
  <div className="flex items-center justify-end gap-3 translate-x-4 opacity-0 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-500">
  <button onClick={() => handleOpenEdit(admin)} className="w-12 h-12 rounded-[18px] flex items-center justify-center text-slate-300 hover:text-[#008080] hover:bg-[#008080]/10 transition-all border border-transparent hover:border-[#008080]/20 active:scale-90">
  <Edit size={22} strokeWidth={2.5} />
@@ -335,7 +328,7 @@ const AdminManagement = () => {
     ))}
 
     {subAdmins.length === 0 && (
-      <div className="flex flex-col items-center justify-center p-10 bg-slate-50/50 rounded-3xl border border-dashed border-slate-200 text-center mt-4">
+      <div className="flex flex-col items-center justify-center p-5 md:p-10 bg-slate-50/50 rounded-3xl border border-dashed border-slate-200 text-center mt-4">
         <div className="w-16 h-16 bg-white shadow-sm rounded-full flex items-center justify-center text-slate-300 mb-4">
           <Shield size={28} />
         </div>

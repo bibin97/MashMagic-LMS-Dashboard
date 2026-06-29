@@ -163,7 +163,7 @@ const MentorHeadTasks = () => {
   const availableMentors = [...new Set(tasks.map(t => t.mentor_name).filter(Boolean))];
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <header className="flex flex-col md:flex-row justify-between items-start md:items-center bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 gap-6">
+      <header className="flex flex-col md:flex-row justify-between items-start md:items-center bg-white p-4 md:p-8 rounded-[2.5rem] shadow-sm border border-slate-100 gap-6">
         <div className="flex items-center gap-4">
           <div className="w-12 h-12 bg-[#008080] rounded-2xl flex items-center justify-center text-white shadow-lg shadow-[#008080]/30 rotate-3">
             <ListTodo size={24} />
@@ -306,7 +306,7 @@ const MentorHeadTasks = () => {
  
  <div className="md:hidden flex flex-col gap-4 p-4 bg-slate-50/30">
    {filteredTasks.length === 0 ? (
-     <div className="p-12 text-center flex flex-col items-center gap-4 opacity-50">
+     <div className="p-6 md:p-12 text-center flex flex-col items-center gap-4 opacity-50">
        <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-sm">
          <ListTodo size={32} className="text-slate-400" />
        </div>

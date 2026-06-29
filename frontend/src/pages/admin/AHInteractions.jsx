@@ -67,7 +67,7 @@ const AHInteractions = () => {
 
         {/* Content */}
         <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
-          {loading ? <div className="p-12 text-center text-slate-400 font-medium">Loading records...</div> : <div className="overflow-x-auto">
+          {loading ? <div className="p-6 md:p-12 text-center text-slate-400 font-medium">Loading records...</div> : <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="bg-slate-50 border-b border-slate-100">
@@ -94,7 +94,7 @@ const AHInteractions = () => {
                         {item.academic_head_name}
                       </td>
                     </tr>) : <tr>
-                      <td colSpan="4" className="p-8 text-center text-slate-400 font-medium">
+                      <td colSpan="4" className="p-4 md:p-8 text-center text-slate-400 font-medium">
                         No interactions found for this category
                       </td>
                     </tr>}

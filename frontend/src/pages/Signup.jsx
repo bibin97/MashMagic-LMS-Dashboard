@@ -64,7 +64,7 @@ const Signup = () => {
  </div>
 
  {/* Card */}
- <div className="bg-white p-10 rounded-[2.5rem] shadow-2xl shadow-slate-200 border border-slate-100 relative overflow-hidden">
+ <div className="bg-white p-5 md:p-10 rounded-[2.5rem] shadow-2xl shadow-slate-200 border border-slate-100 relative overflow-hidden">
  <div className="absolute top-0 right-0 w-32 h-32 bg-[#008080]/10 rounded-full -mr-16 -mt-16 opacity-50"></div>
 
  <form onSubmit={handleSubmit} className="flex flex-col gap-6 relative z-10">

@@ -73,7 +73,7 @@ const FacultyDirectory = () => {
   if (loading) return <div className="p-20 text-center font-black text-slate-600 animate-pulse">SYNCING FACULTY DATA...</div>;
   return <div className="space-y-8 animate-in fade-in duration-700">
  {/* Header */}
- <div className="bg-white p-10 rounded-[4rem] border border-slate-100 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+ <div className="bg-white p-5 md:p-10 rounded-[4rem] border border-slate-100 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
  <div>
  <h2 className="text-3xl font-black text-slate-900 tracking-tighter uppercase flex items-center gap-4">
  <div className="w-12 h-12 bg-emerald-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-emerald-200 rotate-3">
@@ -88,7 +88,7 @@ const FacultyDirectory = () => {
  </div>
 
   <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
-    <div className="relative group min-w-[300px] flex-1 md:flex-initial">
+    <div className="relative group min-w-full md:w-[300px] flex-1 md:flex-initial">
       <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#008080] transition-colors" size={18} />
       <input type="text" placeholder="FILTER BY NAME OR EMAIL..." className="pl-14 pr-8 py-4 bg-slate-50 border border-slate-100 rounded-3xl text-xs font-bold uppercase tracking-[0.1em] focus:ring-4 ring-[#008080]/10 w-full shadow-sm transition-all outline-none focus:bg-white" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
     </div>
@@ -102,18 +102,18 @@ const FacultyDirectory = () => {
   </div>
 
   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-    <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm flex flex-col gap-2 group transition-all hover:shadow-xl hover:shadow-[#008080]/5 hover:-translate-y-1">
+    <div className="bg-white p-4 md:p-8 rounded-[2.5rem] border border-slate-100 shadow-sm flex flex-col gap-2 group transition-all hover:shadow-xl hover:shadow-[#008080]/5 hover:-translate-y-1">
       <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest group-hover:text-[#008080] transition-colors">Total Faculties</span>
       <div className="flex items-end gap-3 font-black text-slate-900 tracking-tighter">
-        <span className="text-4xl leading-none">{stats.totalFaculties || 0}</span>
+        <span className="text-2xl md:text-4xl leading-none">{stats.totalFaculties || 0}</span>
         <span className="text-[10px] text-slate-600 mb-1 uppercase tracking-widest">Database Total</span>
       </div>
     </div>
     
-    <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm flex flex-col gap-2 group transition-all hover:shadow-xl hover:shadow-[#008080]/5 hover:-translate-y-1">
+    <div className="bg-white p-4 md:p-8 rounded-[2.5rem] border border-slate-100 shadow-sm flex flex-col gap-2 group transition-all hover:shadow-xl hover:shadow-[#008080]/5 hover:-translate-y-1">
       <span className="text-[10px] font-black text-[#008080] uppercase tracking-widest">Active Pulse</span>
       <div className="flex items-end gap-3 font-black text-slate-900 tracking-tighter">
-        <span className="text-4xl leading-none">{stats.activeFaculties || 0}</span>
+        <span className="text-2xl md:text-4xl leading-none">{stats.activeFaculties || 0}</span>
         <div className="flex items-center gap-1.5 mb-1 bg-[#008080]/10 px-2 py-0.5 rounded-full">
            <div className="w-1.5 h-1.5 rounded-full bg-[#008080] animate-pulse"></div>
            <span className="text-[10px] text-[#008080] uppercase tracking-widest">Live</span>
@@ -123,7 +123,7 @@ const FacultyDirectory = () => {
   </div>
 
   {/* Collapsible Filter Panel */}
-  {isFilterOpen && <div className="bg-white p-8 rounded-[3rem] border border-slate-100 shadow-sm space-y-6 animate-in slide-in-from-top-4 duration-300">
+  {isFilterOpen && <div className="bg-white p-4 md:p-8 rounded-[3rem] border border-slate-100 shadow-sm space-y-6 animate-in slide-in-from-top-4 duration-300">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Syllabus Filter */}
         <div className="space-y-3">
@@ -242,7 +242,7 @@ const FacultyDirectory = () => {
  </button>
  </td>
  </tr>) : <tr>
- <td colSpan={7} className="px-8 py-20 text-center">
+ <td colSpan={7} className="px-4 md:px-8 py-20 text-center">
  <p className="text-slate-600 font-black text-[10px] uppercase tracking-[0.3em]">System empty or no faculty found</p>
  </td>
  </tr>}
@@ -311,7 +311,7 @@ const FacultyDirectory = () => {
         />
       );
     }) : (
-      <div className="p-10 text-center">
+      <div className="p-5 md:p-10 text-center">
         <p className="text-slate-600 font-black text-[10px] uppercase tracking-[0.3em]">No faculty found</p>
       </div>
     )}
@@ -387,7 +387,7 @@ const FacultyDirectory = () => {
  <p className="text-xs font-black text-slate-900 uppercase leading-snug">Verified Teaching Faculty</p>
  </div>
  </div>
- <button onClick={() => setIsDetailModalOpen(false)} className="w-full md:w-auto px-8 py-3.5 bg-[#008080] text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-emerald-700 transition-all shadow-lg min-h-[48px]">
+ <button onClick={() => setIsDetailModalOpen(false)} className="w-full md:w-auto px-4 md:px-8 py-3.5 bg-[#008080] text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-emerald-700 transition-all shadow-lg min-h-[48px]">
  Close Registry
  </button>
  </div>

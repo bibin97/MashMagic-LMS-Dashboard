@@ -310,7 +310,7 @@ const StudentInteractionLog = () => {
  if (!selectedStudent) {
    return (
      <div className="max-w-6xl mx-auto p-4 md:p-10 pb-20 space-y-12 animate-in fade-in slide-in-from-bottom-6 duration-700">
-       <header className="bg-white/70 backdrop-blur-xl p-8 md:p-14 rounded-[40px] md:rounded-[48px] border border-white/60 shadow-[0_20px_50px_rgba(0,0,0,0.06)] flex flex-col md:flex-row justify-between items-center gap-10">
+       <header className="bg-white/70 backdrop-blur-xl p-4 md:p-8 md:p-14 rounded-[40px] md:rounded-[48px] border border-white/60 shadow-[0_20px_50px_rgba(0,0,0,0.06)] flex flex-col md:flex-row justify-between items-center gap-10">
          <div className="text-center md:text-left">
            <h1 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tighter uppercase leading-none mb-4">Mentor Execution Hub</h1>
            <p className="text-slate-600 text-[11px] font-black uppercase tracking-[0.3em] mt-3 flex items-center gap-3 justify-center md:justify-start">
@@ -389,7 +389,7 @@ const StudentInteractionLog = () => {
          <div className="flex justify-center gap-3">
            <button
              onClick={() => setStatusFilter('pending')}
-             className={`px-8 py-3 rounded-2xl text-[9px] font-black uppercase tracking-[0.2em] transition-all flex items-center gap-3 ${statusFilter === 'pending' ? 'bg-rose-500 text-white shadow-xl shadow-rose-200' : 'bg-white text-slate-400 border border-slate-100 hover:border-rose-200'}`}
+             className={`px-4 md:px-8 py-3 rounded-2xl text-[9px] font-black uppercase tracking-[0.2em] transition-all flex items-center gap-3 ${statusFilter === 'pending' ? 'bg-rose-500 text-white shadow-xl shadow-rose-200' : 'bg-white text-slate-400 border border-slate-100 hover:border-rose-200'}`}
            >
              <div className={`w-2 h-2 rounded-full ${statusFilter === 'pending' ? 'bg-white animate-pulse' : 'bg-rose-500'}`}></div>
              {selectedDate === getTodayStr() ? 'Student Interaction' : `Interactions (${selectedDate})`} ({
@@ -398,7 +398,7 @@ const StudentInteractionLog = () => {
            </button>
            <button
              onClick={() => setStatusFilter('completed')}
-             className={`px-8 py-3 rounded-2xl text-[9px] font-black uppercase tracking-[0.2em] transition-all flex items-center gap-3 ${statusFilter === 'completed' ? 'bg-emerald-500 text-white shadow-xl shadow-emerald-200' : 'bg-white text-slate-400 border border-slate-100 hover:border-emerald-200'}`}
+             className={`px-4 md:px-8 py-3 rounded-2xl text-[9px] font-black uppercase tracking-[0.2em] transition-all flex items-center gap-3 ${statusFilter === 'completed' ? 'bg-emerald-500 text-white shadow-xl shadow-emerald-200' : 'bg-white text-slate-400 border border-slate-100 hover:border-emerald-200'}`}
            >
              <div className={`w-2 h-2 rounded-full ${statusFilter === 'completed' ? 'bg-white animate-pulse' : 'bg-emerald-500'}`}></div>
              Completed {selectedDate === getTodayStr() ? 'Today' : selectedDate} ({
@@ -407,7 +407,7 @@ const StudentInteractionLog = () => {
            </button>
            <button
              onClick={() => setStatusFilter('yesterday')}
-             className={`px-8 py-3 rounded-2xl text-[9px] font-black uppercase tracking-[0.2em] transition-all flex items-center gap-3 ${statusFilter === 'yesterday' ? 'bg-amber-500 text-white shadow-xl shadow-amber-200' : 'bg-white text-slate-400 border border-slate-100 hover:border-amber-200'}`}
+             className={`px-4 md:px-8 py-3 rounded-2xl text-[9px] font-black uppercase tracking-[0.2em] transition-all flex items-center gap-3 ${statusFilter === 'yesterday' ? 'bg-amber-500 text-white shadow-xl shadow-amber-200' : 'bg-white text-slate-400 border border-slate-100 hover:border-amber-200'}`}
            >
              <div className={`w-2 h-2 rounded-full ${statusFilter === 'yesterday' ? 'bg-white animate-pulse' : 'bg-amber-500'}`}></div>
              {selectedDate === getTodayStr() ? 'Yesterday Pending' : `${subtractOneDay(selectedDate)} Pending`} ({yesterdayPending.length})
@@ -461,7 +461,7 @@ const StudentInteractionLog = () => {
                                 if (statusFilter === 'pending') handleStudentSelect(student, sessionType);
                                 else if (isCompleted || isCancelled) handleViewCompletedReport(student);
                              }}
-                             className={`group relative overflow-hidden p-8 rounded-[3rem] border transition-all text-left flex flex-col justify-between h-64 ${
+                             className={`group relative overflow-hidden p-4 md:p-8 rounded-[3rem] border transition-all text-left flex flex-col justify-between h-64 ${
                                 isCompleted ? 'bg-emerald-50/50 border-emerald-100 cursor-pointer hover:shadow-xl hover:scale-[1.02]' 
                                 : isCancelled ? 'bg-rose-50/50 border-rose-100 cursor-pointer hover:shadow-xl hover:scale-[1.02]' 
                                 : 'bg-white border-slate-100 hover:shadow-2xl hover:scale-[1.02] hover:border-slate-200 active:scale-95 cursor-pointer'}`}
@@ -541,7 +541,7 @@ const StudentInteractionLog = () => {
                            <div
                              key={student.id}
                              onClick={() => handleStudentSelect(student, sessionType, true)}
-                             className={`group relative overflow-hidden p-8 rounded-[3rem] border transition-all text-left flex flex-col justify-between h-64 bg-amber-50/50 border-amber-100 cursor-pointer hover:shadow-2xl hover:scale-[1.02] hover:border-amber-200 active:scale-95`}
+                             className={`group relative overflow-hidden p-4 md:p-8 rounded-[3rem] border transition-all text-left flex flex-col justify-between h-64 bg-amber-50/50 border-amber-100 cursor-pointer hover:shadow-2xl hover:scale-[1.02] hover:border-amber-200 active:scale-95`}
                            >
                              <div className={`absolute top-0 right-0 w-32 h-32 rounded-full -mr-16 -mt-16 opacity-10 transition-transform group-hover:scale-150 duration-700 ${getSessionColor(sessionType).split(' ')[0]}`}></div>
                              
@@ -588,7 +588,7 @@ const StudentInteractionLog = () => {
       {viewReportModal && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4" onClick={() => setViewReportModal(null)}>
           <div className="bg-white rounded-[2.5rem] shadow-2xl border border-slate-100 w-full max-w-2xl max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
-            <div className="p-8 border-b border-slate-100 flex items-center justify-between sticky top-0 bg-white z-10 rounded-t-[2.5rem]">
+            <div className="p-4 md:p-8 border-b border-slate-100 flex items-center justify-between sticky top-0 bg-white z-10 rounded-t-[2.5rem]">
               <div>
                 <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight">{viewReportModal.student.name}</h2>
                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">{viewReportModal.sessionType} Session • {selectedDate} • Read Only</p>
@@ -597,7 +597,7 @@ const StudentInteractionLog = () => {
                 <XCircle size={20} className="text-slate-500" />
               </button>
             </div>
-            <div className="p-8">
+            <div className="p-4 md:p-8">
               <InteractionFormUI
                 sessionType={viewReportModal.sessionType}
                 formData={viewReportModal.reportData}
@@ -611,7 +611,7 @@ const StudentInteractionLog = () => {
 
       {viewReportLoading && (
         <div className="fixed inset-0 z-[9998] flex items-center justify-center bg-black/30 backdrop-blur-sm">
-          <div className="bg-white rounded-2xl p-8 shadow-2xl flex items-center gap-4">
+          <div className="bg-white rounded-2xl p-4 md:p-8 shadow-2xl flex items-center gap-4">
             <Loader2 size={24} className="animate-spin text-[#008080]" />
             <span className="text-xs font-black text-slate-600 uppercase tracking-widest">Loading Report...</span>
           </div>
@@ -631,7 +631,7 @@ const StudentInteractionLog = () => {
        <ArrowLeft size={16} /> Return to Dashboard
      </button>
 
-     <header className={`border p-10 rounded-[3rem] shadow-2xl relative overflow-hidden transition-all ${sessionType === 'CANCELLED' ? 'bg-slate-900 border-slate-800' : sessionType === 'DEEP' ? 'bg-rose-950 border-rose-900' : sessionType === 'MEDIUM' ? 'bg-amber-950 border-amber-900' : sessionType === 'QUICK' ? 'bg-blue-950 border-blue-900' : 'bg-[#008080] border-slate-800'}`}>
+     <header className={`border p-5 md:p-10 rounded-[3rem] shadow-2xl relative overflow-hidden transition-all ${sessionType === 'CANCELLED' ? 'bg-slate-900 border-slate-800' : sessionType === 'DEEP' ? 'bg-rose-950 border-rose-900' : sessionType === 'MEDIUM' ? 'bg-amber-950 border-amber-900' : sessionType === 'QUICK' ? 'bg-blue-950 border-blue-900' : 'bg-[#008080] border-slate-800'}`}>
         <div className={`absolute top-0 right-0 w-80 h-80 rounded-full -mr-40 -mt-40 opacity-10 ${sessionType === 'CANCELLED' ? 'bg-slate-500' : sessionType === 'DEEP' ? 'bg-rose-500' : sessionType === 'MEDIUM' ? 'bg-amber-500' : sessionType === 'QUICK' ? 'bg-blue-500' : 'bg-[#008080]'}`}></div>
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="flex items-center gap-6">
@@ -679,7 +679,7 @@ const StudentInteractionLog = () => {
 
          {sessionType === 'CANCELLED' && (
            <div className="space-y-6 animate-in fade-in zoom-in duration-300">
-              <div className="p-8 bg-slate-50 border border-slate-200 rounded-[2.5rem] space-y-4">
+              <div className="p-4 md:p-8 bg-slate-50 border border-slate-200 rounded-[2.5rem] space-y-4">
                 <div className="flex items-center gap-3">
                   <XCircle className="text-slate-500" size={24} />
                   <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight">Cancel Interaction</h3>
@@ -747,7 +747,7 @@ const StudentInteractionLog = () => {
        </form>
      ) : (
        <div className="space-y-8 animate-in fade-in zoom-in duration-300">
-         <div className="bg-emerald-50 border border-emerald-100 p-12 rounded-[4rem] text-center shadow-xl">
+         <div className="bg-emerald-50 border border-emerald-100 p-6 md:p-12 rounded-[4rem] text-center shadow-xl">
            <div className="w-20 h-20 bg-emerald-500 text-white rounded-full flex items-center justify-center mx-auto mb-6 shadow-2xl shadow-emerald-200">
              <CheckCircle2 size={40} strokeWidth={3} />
            </div>
@@ -755,7 +755,7 @@ const StudentInteractionLog = () => {
            <p className="text-emerald-600 font-bold text-xs uppercase tracking-widest mb-10">The student's interaction log has been updated successfully.</p>
            <button
              onClick={() => { setSelectedStudent(null); setSubmitted(false); }}
-             className="px-12 py-5 bg-emerald-600 text-white rounded-[2rem] text-xs font-black uppercase tracking-[0.2em] hover:bg-emerald-700 hover:shadow-xl transition-all active:scale-95"
+             className="px-6 md:px-12 py-5 bg-emerald-600 text-white rounded-[2rem] text-xs font-black uppercase tracking-[0.2em] hover:bg-emerald-700 hover:shadow-xl transition-all active:scale-95"
            >
              Continue Today's Plan
            </button>

@@ -56,7 +56,7 @@ const StudentsData = () => {
   const uniqueDays = [...new Set(comprehensiveData.dailyUpdates?.map(u => u.formatted_date) || [])].length;
   return <div className="space-y-8 animate-in fade-in duration-700">
       {/* Header Area */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm relative overflow-hidden group">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-4 md:p-8 rounded-[32px] border border-slate-100 shadow-sm relative overflow-hidden group">
         <div className="absolute right-0 top-0 w-32 h-32 bg-teal-50 rounded-full -mr-16 -mt-16 transition-transform group-hover:scale-110 duration-700 opacity-50" />
         <div className="relative z-10">
           <h1 className="text-3xl font-black text-slate-900 tracking-tighter uppercase flex items-center gap-3">
@@ -85,7 +85,7 @@ const StudentsData = () => {
           </div>
 
           <div className="space-y-3 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
-            {loading ? [...Array(5)].map((_, i) => <div key={i} className="h-24 bg-white rounded-3xl border border-slate-100 animate-pulse" />) : filteredStudents.length === 0 ? <div className="bg-white p-12 rounded-[32px] border border-dashed border-slate-200 text-center">
+            {loading ? [...Array(5)].map((_, i) => <div key={i} className="h-24 bg-white rounded-3xl border border-slate-100 animate-pulse" />) : filteredStudents.length === 0 ? <div className="bg-white p-6 md:p-12 rounded-[32px] border border-dashed border-slate-200 text-center">
                 <AlertCircle className="mx-auto text-slate-200 mb-4" size={48} />
                 <p className="text-sm font-bold text-slate-600 uppercase ">No Students Found</p>
               </div> : filteredStudents.map(student => {
@@ -162,7 +162,7 @@ const StudentsData = () => {
 
               {/* Main Content Card */}
               <div className="bg-white rounded-[40px] border border-slate-100 shadow-sm overflow-hidden min-h-[500px]">
-                <div className="p-8 border-b border-slate-50 flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div className="p-4 md:p-8 border-b border-slate-50 flex flex-col md:flex-row md:items-center justify-between gap-6">
                   <div className="flex gap-4 p-1 bg-slate-100 rounded-2xl">
                     {[{
                   id: 'activity',
@@ -187,13 +187,13 @@ const StudentsData = () => {
                   </div>
                 </div>
 
-                <div className="p-8">
+                <div className="p-4 md:p-8">
                   {updatesLoading ? <div className="flex flex-col items-center justify-center h-64 space-y-4">
                       <div className="w-12 h-12 border-4 border-teal-500/20 border-t-teal-500 rounded-full animate-spin" />
                       <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Loading Data...</p>
                     </div> : <>
                       {detailTab === 'activity' && <div className="space-y-6">
-                          {(comprehensiveData.dailyUpdates || []).length === 0 ? <div className="flex flex-col items-center justify-center h-80 text-center p-12 bg-slate-50/50 rounded-[32px] border border-slate-100">
+                          {(comprehensiveData.dailyUpdates || []).length === 0 ? <div className="flex flex-col items-center justify-center h-80 text-center p-6 md:p-12 bg-slate-50/50 rounded-[32px] border border-slate-100">
                               <TrendingUp className="text-slate-200 mb-6" size={64} />
                               <h4 className="text-lg font-black text-slate-900 tracking-tighter uppercase mb-2">No activity recorded</h4>
                               <p className="text-sm font-bold text-slate-600 max-w-xs">No activity found for this student.</p>
@@ -203,7 +203,7 @@ const StudentsData = () => {
                                   <div className="hidden md:flex w-14 h-14 bg-white rounded-2xl border-4 border-slate-50 items-center justify-center text-teal-500 shadow-sm relative z-10">
                                     <Calendar size={20} />
                                   </div>
-                                  <div className="flex-1 bg-slate-50/50 hover:bg-white transition-all border border-slate-100 p-8 rounded-[32px] group/item hover:shadow-xl hover:shadow-slate-200/50">
+                                  <div className="flex-1 bg-slate-50/50 hover:bg-white transition-all border border-slate-100 p-4 md:p-8 rounded-[32px] group/item hover:shadow-xl hover:shadow-slate-200/50">
                                     <div className="flex flex-col md:flex-row justify-between mb-4 gap-2">
                                       <div className="flex items-center gap-3">
                                         <div className="bg-[#008080] text-white px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest ">{update.formatted_date}</div>
@@ -219,7 +219,7 @@ const StudentsData = () => {
                         </div>}
 
                       {detailTab === 'marks' && <div className="space-y-6">
-                          {(comprehensiveData.marks || []).length === 0 ? <div className="flex flex-col items-center justify-center h-80 text-center p-12 bg-slate-50/50 rounded-[32px] border border-slate-100">
+                          {(comprehensiveData.marks || []).length === 0 ? <div className="flex flex-col items-center justify-center h-80 text-center p-6 md:p-12 bg-slate-50/50 rounded-[32px] border border-slate-100">
                               <GraduationCap className="text-slate-200 mb-6" size={64} />
                               <h4 className="text-lg font-black text-slate-900 tracking-tighter uppercase mb-2">No Mark Records</h4>
                               <p className="text-sm font-bold text-slate-600 max-w-xs">No exam marks found for this student.</p>
@@ -231,7 +231,7 @@ const StudentsData = () => {
                                   </div>
                                   <h4 className="text-base font-black text-slate-900 mb-4">{mark.subject}</h4>
                                   <div className="flex items-end gap-2">
-                                    <span className="text-4xl font-black text-slate-900 tracking-tighter">{mark.marks}</span>
+                                    <span className="text-2xl md:text-4xl font-black text-slate-900 tracking-tighter">{mark.marks}</span>
                                     <span className="text-slate-400 font-bold mb-1">/ {mark.total}</span>
                                   </div>
                                   <div className="mt-4 pt-4 border-t border-slate-200 flex justify-between items-center">
@@ -243,7 +243,7 @@ const StudentsData = () => {
                         </div>}
 
                       {detailTab === 'attendance' && <div className="space-y-6">
-                          {(comprehensiveData.attendance || []).length === 0 ? <div className="flex flex-col items-center justify-center h-80 text-center p-12 bg-slate-50/50 rounded-[32px] border border-slate-100">
+                          {(comprehensiveData.attendance || []).length === 0 ? <div className="flex flex-col items-center justify-center h-80 text-center p-6 md:p-12 bg-slate-50/50 rounded-[32px] border border-slate-100">
                               <CheckCircle2 className="text-slate-200 mb-6" size={64} />
                               <h4 className="text-lg font-black text-slate-900 tracking-tighter uppercase mb-2">No Attendance Logs</h4>
                               <p className="text-sm font-bold text-slate-600 max-w-xs">No session presence history recorded.</p>
@@ -275,7 +275,7 @@ const StudentsData = () => {
                     </>}
                 </div>
               </div>
-            </div> : <div className="bg-white rounded-[40px] border border-slate-100 shadow-sm flex flex-col items-center justify-center h-[700px] p-12 text-center relative overflow-hidden group">
+            </div> : <div className="bg-white rounded-[40px] border border-slate-100 shadow-sm flex flex-col items-center justify-center h-[700px] p-6 md:p-12 text-center relative overflow-hidden group">
               <div className="absolute inset-0 bg-gradient-to-br from-teal-50/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
               <div className="w-32 h-32 bg-slate-50 rounded-full flex items-center justify-center mb-8 relative z-10 transition-transform duration-700 group-hover:scale-110">
                 <Users className="text-slate-200" size={64} />

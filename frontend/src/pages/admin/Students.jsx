@@ -455,9 +455,9 @@ const Students = () => {
   }, [filteredStudents, sortBy, activeTab]);
 
   return <div className="flex flex-col gap-10 pb-10">
-      <div className="bg-white/70 backdrop-blur-xl p-12 rounded-[40px] border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.04)] flex flex-col md:flex-row justify-between items-center gap-10">
+      <div className="bg-white/70 backdrop-blur-xl p-6 md:p-12 rounded-[40px] border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.04)] flex flex-col md:flex-row justify-between items-center gap-10">
         <div className="text-center md:text-left">
-          <h2 className="text-4xl font-black text-slate-900 tracking-tighter leading-none mb-3 ">Student Enrollment</h2>
+          <h2 className="text-2xl md:text-4xl font-black text-slate-900 tracking-tighter leading-none mb-3 ">Student Enrollment</h2>
           <p className="text-slate-600 text-[11px] font-black uppercase tracking-[0.25em] flex items-center justify-center md:justify-start gap-3 mt-1">
             <span className="w-2 h-2 rounded-full bg-[#008080] animate-pulse shadow-[0_0_10px_rgba(20,184,166,0.5)]"></span>
             Comprehensive list of all registered students
@@ -465,7 +465,7 @@ const Students = () => {
         </div>
         
         <div className="flex flex-col sm:flex-row items-center gap-5">
-          <div className="flex items-center gap-4 bg-slate-50/50 px-8 py-5 rounded-[24px] border border-slate-100/50 shadow-inner group">
+          <div className="flex items-center gap-4 bg-slate-50/50 px-4 md:px-8 py-5 rounded-[24px] border border-slate-100/50 shadow-inner group">
             <span className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] leading-none whitespace-nowrap">Sort By</span>
             <div className="w-px h-10 bg-slate-200"></div>
             <select value={sortBy} onChange={e => setSortBy(e.target.value)} className="bg-transparent border-none text-xs font-black uppercase tracking-[0.1em] text-slate-800 outline-none focus:ring-0 cursor-pointer ">
@@ -477,26 +477,26 @@ const Students = () => {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
-        <button onClick={() => setActiveTab('enrolled_scholars')} className={`p-8 rounded-[35px] border shadow-sm flex flex-col gap-2 transition-all text-left ${activeTab === 'enrolled_scholars' ? 'bg-[#008080] border-[#008080] text-white scale-105 shadow-xl shadow-[#008080]/20' : 'bg-white/70 backdrop-blur-md border-white/60 hover:bg-white hover:shadow-md'}`}>
+        <button onClick={() => setActiveTab('enrolled_scholars')} className={`p-4 md:p-8 rounded-[35px] border shadow-sm flex flex-col gap-2 transition-all text-left ${activeTab === 'enrolled_scholars' ? 'bg-[#008080] border-[#008080] text-white scale-105 shadow-xl shadow-[#008080]/20' : 'bg-white/70 backdrop-blur-md border-white/60 hover:bg-white hover:shadow-md'}`}>
           <span className={`text-[10px] font-black uppercase tracking-widest transition-colors ${activeTab === 'enrolled_scholars' ? 'text-white/80' : 'text-slate-600 group-hover:text-[#008080]'}`}>Total Enrollment</span>
           <div className={`flex items-end gap-3 font-black tracking-tighter ${activeTab === 'enrolled_scholars' ? 'text-white' : 'text-slate-900'}`}>
-            <span className="text-4xl leading-none">{students.length}</span>
+            <span className="text-2xl md:text-4xl leading-none">{students.length}</span>
             <span className={`text-[10px] mb-1 uppercase tracking-widest ${activeTab === 'enrolled_scholars' ? 'text-white/80' : 'text-slate-600'}`}>Active Members</span>
           </div>
         </button>
         
-        <button onClick={() => setActiveTab('mentorship_completed')} className={`p-8 rounded-[35px] border shadow-sm flex flex-col gap-2 transition-all text-left ${activeTab === 'mentorship_completed' ? 'bg-emerald-600 border-emerald-600 text-white scale-105 shadow-xl shadow-emerald-500/20' : 'bg-white/70 backdrop-blur-md border-white/60 hover:bg-white hover:shadow-md'}`}>
+        <button onClick={() => setActiveTab('mentorship_completed')} className={`p-4 md:p-8 rounded-[35px] border shadow-sm flex flex-col gap-2 transition-all text-left ${activeTab === 'mentorship_completed' ? 'bg-emerald-600 border-emerald-600 text-white scale-105 shadow-xl shadow-emerald-500/20' : 'bg-white/70 backdrop-blur-md border-white/60 hover:bg-white hover:shadow-md'}`}>
           <span className={`text-[10px] font-black uppercase tracking-widest transition-colors ${activeTab === 'mentorship_completed' ? 'text-white/80' : 'text-emerald-600 group-hover:text-emerald-700'}`}>Mentorship Completed</span>
           <div className={`flex items-end gap-3 font-black tracking-tighter ${activeTab === 'mentorship_completed' ? 'text-white' : 'text-slate-900'}`}>
-            <span className="text-4xl leading-none">{students.filter(s => s.mentorship_completed == 1).length}</span>
+            <span className="text-2xl md:text-4xl leading-none">{students.filter(s => s.mentorship_completed == 1).length}</span>
             <span className={`text-[10px] mb-1 uppercase tracking-widest ${activeTab === 'mentorship_completed' ? 'text-white/80' : 'text-slate-600'}`}>Total</span>
           </div>
         </button>
 
-        <button onClick={() => setActiveTab('completed')} className={`p-8 rounded-[35px] border shadow-sm flex flex-col gap-2 transition-all text-left ${activeTab === 'completed' ? 'bg-teal-600 border-teal-600 text-white scale-105 shadow-xl shadow-teal-500/20' : 'bg-white/70 backdrop-blur-md border-white/60 hover:bg-white hover:shadow-md'}`}>
+        <button onClick={() => setActiveTab('completed')} className={`p-4 md:p-8 rounded-[35px] border shadow-sm flex flex-col gap-2 transition-all text-left ${activeTab === 'completed' ? 'bg-teal-600 border-teal-600 text-white scale-105 shadow-xl shadow-teal-500/20' : 'bg-white/70 backdrop-blur-md border-white/60 hover:bg-white hover:shadow-md'}`}>
           <span className={`text-[10px] font-black uppercase tracking-widest transition-colors ${activeTab === 'completed' ? 'text-white/80' : 'text-teal-600 group-hover:text-teal-700'}`}>Course Completed</span>
           <div className={`flex items-end gap-3 font-black tracking-tighter ${activeTab === 'completed' ? 'text-white' : 'text-slate-900'}`}>
-            <span className="text-4xl leading-none">{students.filter(s => s.course_completed == 1).length}</span>
+            <span className="text-2xl md:text-4xl leading-none">{students.filter(s => s.course_completed == 1).length}</span>
             <span className={`text-[10px] mb-1 uppercase tracking-widest ${activeTab === 'completed' ? 'text-white/80' : 'text-slate-600'}`}>Total</span>
           </div>
         </button>
@@ -814,8 +814,8 @@ const Students = () => {
    </div>
 
    <div className="flex justify-end gap-3 pt-6 mt-4 border-t border-slate-100">
-     <button type="button" className="px-8 py-4 rounded-[18px] border border-slate-100 text-[11px] font-black uppercase tracking-widest text-slate-600 hover:bg-slate-50 transition-all" onClick={() => setIsEditModalOpen(false)}>Cancel</button>
-     <button type="submit" className="px-10 py-4 rounded-[18px] bg-gradient-to-br from-[#006666] to-[#008080] text-white text-[11px] font-black uppercase tracking-[0.2em] hover:shadow-lg hover:shadow-[#008080]/30 hover:-translate-y-1 transition-all shadow-md">Save Changes</button>
+     <button type="button" className="px-4 md:px-8 py-4 rounded-[18px] border border-slate-100 text-[11px] font-black uppercase tracking-widest text-slate-600 hover:bg-slate-50 transition-all" onClick={() => setIsEditModalOpen(false)}>Cancel</button>
+     <button type="submit" className="px-5 md:px-10 py-4 rounded-[18px] bg-gradient-to-br from-[#006666] to-[#008080] text-white text-[11px] font-black uppercase tracking-[0.2em] hover:shadow-lg hover:shadow-[#008080]/30 hover:-translate-y-1 transition-all shadow-md">Save Changes</button>
    </div>
  </form>
  </Modal>
@@ -829,7 +829,7 @@ const Students = () => {
  </div>
  <div className="flex justify-end gap-3 pt-4 border-t border-slate-100">
  <button type="button" className="px-6 py-3 rounded-2xl border border-slate-100 text-[11px] font-black uppercase tracking-widest text-slate-600 hover:bg-slate-50 transition-all font-sans" onClick={() => setIsInstallmentModalOpen(false)}>Cancel</button>
- <button type="submit" className="px-8 py-3 rounded-2xl bg-gradient-to-br from-amber-500 to-amber-600 text-white text-[11px] font-black uppercase tracking-[0.2em] hover:shadow-lg hover:shadow-amber-500/30 hover:-translate-y-1 transition-all font-sans">Submit Payment</button>
+ <button type="submit" className="px-4 md:px-8 py-3 rounded-2xl bg-gradient-to-br from-amber-500 to-amber-600 text-white text-[11px] font-black uppercase tracking-[0.2em] hover:shadow-lg hover:shadow-amber-500/30 hover:-translate-y-1 transition-all font-sans">Submit Payment</button>
  </div>
  </form>
  </Modal>
@@ -838,7 +838,7 @@ const Students = () => {
  {isFeeModalOpen && <div className="fixed inset-0 z-[100] flex items-start justify-center pt-8 px-4 pb-8">
      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm max-h-[90vh] overflow-y-auto" onClick={() => setIsFeeModalOpen(false)} />
      <div className="relative bg-white rounded-[2.5rem] shadow-2xl w-full max-w-3xl max-h-[92vh] overflow-y-auto border border-slate-100 animate-in fade-in slide-in-from-bottom-4 duration-300">
-       <div className="sticky top-0 bg-white/95 backdrop-blur-sm z-10 px-8 pt-8 pb-4 border-b border-slate-100 rounded-t-[2.5rem]">
+       <div className="sticky top-0 bg-white/95 backdrop-blur-sm z-10 px-4 md:px-8 pt-8 pb-4 border-b border-slate-100 rounded-t-[2.5rem]">
          <div className="flex items-center justify-between">
            <div>
              <h2 className="text-xl font-black text-slate-900 tracking-tight">Fee Management</h2>
@@ -850,7 +850,7 @@ const Students = () => {
          </div>
        </div>
 
-       <div className="p-8 space-y-6">
+       <div className="p-4 md:p-8 space-y-6">
          {feeLoading ? <div className="flex justify-center items-center py-20">
              <div className="w-10 h-10 border-4 border-amber-400 border-t-transparent rounded-full animate-spin" />
            </div> : feeDetails ? <>
@@ -978,7 +978,7 @@ const Students = () => {
                      </tr>
                    </thead>
                    <tbody className="divide-y divide-slate-50">
-                     {(feeDetails.installments || []).length === 0 ? <tr><td colSpan="4" className="py-10 text-center text-[10px] font-black text-slate-300 uppercase tracking-widest">No installments recorded yet</td></tr> : (feeDetails.installments || []).map((inst, idx) => <tr key={inst.id || idx} className="hover:bg-slate-50/60 transition-colors"><td className="p-6 text-sm font-black text-slate-400 border-b border-slate-50">{idx + 1}</td>
+                     {(feeDetails.installments || []).length === 0 ? <tr><td colSpan="4" className="py-5 md:py-10 text-center text-[10px] font-black text-slate-300 uppercase tracking-widest">No installments recorded yet</td></tr> : (feeDetails.installments || []).map((inst, idx) => <tr key={inst.id || idx} className="hover:bg-slate-50/60 transition-colors"><td className="p-6 text-sm font-black text-slate-400 border-b border-slate-50">{idx + 1}</td>
                          <td className="py-3 px-5 text-[11px] font-black text-slate-600">{new Date(inst.payment_date).toLocaleDateString('en-GB', {
                             day: '2-digit',
                             month: 'short',
@@ -997,7 +997,7 @@ const Students = () => {
 </div>
                </div>
              </div>
-           </> : <p className="text-center py-10 text-[11px] text-slate-400 font-bold uppercase tracking-widest">No data found.</p>}
+           </> : <p className="text-center py-5 md:py-10 text-[11px] text-slate-400 font-bold uppercase tracking-widest">No data found.</p>}
        </div>
      </div>
    </div>}

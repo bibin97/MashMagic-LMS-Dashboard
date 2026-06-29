@@ -374,7 +374,7 @@ const AcademicSchedule = () => {
       {isDetailsModalOpen && selectedSession && (
         <div className="fixed inset-0 bg-[#008080]/60 backdrop-blur-md z-[9999] flex items-center justify-center p-4">
           <div className="bg-white rounded-[3rem] shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-            <div className="sticky top-0 bg-white/80 backdrop-blur-xl px-10 py-6 border-b border-slate-100 flex justify-between items-center z-10">
+            <div className="sticky top-0 bg-white/80 backdrop-blur-xl px-5 md:px-10 py-6 border-b border-slate-100 flex justify-between items-center z-10">
               <div>
                 <h2 className="text-xl font-black text-slate-900 tracking-tight uppercase">Session Context</h2>
                 <p className="text-[10px] font-black text-[#008080] uppercase tracking-[0.2em] mt-1">Audit View for Mentors</p>
@@ -382,7 +382,7 @@ const AcademicSchedule = () => {
               <button onClick={() => setIsDetailsModalOpen(false)} className="w-12 h-12 bg-slate-50 text-slate-600 rounded-2xl flex items-center justify-center hover:bg-rose-50 hover:text-rose-600 transition-all"><XCircle size={24} /></button>
             </div>
 
-            <div className="p-10 space-y-10">
+            <div className="p-5 md:p-10 space-y-10">
               <div className="grid grid-cols-2 gap-8">
                 <div className="space-y-1">
                   <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Faculty Name</p>
@@ -427,7 +427,7 @@ const AcademicSchedule = () => {
                   <Activity size={14} className="text-[#008080]" /> Phase Metrics
                 </h4>
                 {selectedSession.status === 'Completed' ? (
-                  <div className="p-8 bg-emerald-50 rounded-[2.5rem] border border-emerald-100 flex items-center gap-6">
+                  <div className="p-4 md:p-8 bg-emerald-50 rounded-[2.5rem] border border-emerald-100 flex items-center gap-6">
                     <div className="w-16 h-16 bg-emerald-600 text-white rounded-2xl flex items-center justify-center shadow-lg">
                       <ShieldCheck size={32} />
                     </div>
@@ -441,7 +441,7 @@ const AcademicSchedule = () => {
                     </div>
                   </div>
                 ) : (
-                  <div className="p-8 bg-slate-50 rounded-[2.5rem] border border-slate-100 flex items-center gap-6">
+                  <div className="p-4 md:p-8 bg-slate-50 rounded-[2.5rem] border border-slate-100 flex items-center gap-6">
                     <div className="w-16 h-16 bg-amber-500 text-white rounded-2xl flex items-center justify-center shadow-lg">
                       <Clock size={32} />
                     </div>

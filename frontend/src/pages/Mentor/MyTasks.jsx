@@ -64,13 +64,13 @@ const MyTasks = () => {
 
  return (
  <div className="flex flex-col gap-10 pb-10">
- <header className="bg-white/70 backdrop-blur-xl p-12 rounded-[40px] border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.04)] flex flex-col md:flex-row justify-between items-center gap-10">
+ <header className="bg-white/70 backdrop-blur-xl p-6 md:p-12 rounded-[40px] border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.04)] flex flex-col md:flex-row justify-between items-center gap-10">
  <div className="flex items-center gap-8">
  <div className="w-20 h-20 bg-[#008080] rounded-[28px] shadow-2xl shadow-[#008080]/30 flex items-center justify-center text-white group hover:rotate-12 transition-transform duration-700">
  <ListTodo size={36} strokeWidth={2.5} />
  </div>
  <div>
- <h1 className="text-5xl font-black text-slate-900 tracking-tighter uppercase leading-none mb-3">My Tasks</h1>
+ <h1 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tighter uppercase leading-none mb-3">My Tasks</h1>
  <p className="text-slate-600 text-[11px] font-black uppercase tracking-[0.3em] flex items-center gap-3 mt-1">
  <div className="w-2 h-2 rounded-full bg-[#008080] animate-pulse"></div>
  Assigned Tasks & Action Items

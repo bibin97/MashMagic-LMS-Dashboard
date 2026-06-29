@@ -41,7 +41,7 @@ const FacultySessions = () => {
   return (
     <div className="space-y-12 pb-20 animate-in fade-in duration-700">
       {/* Page Header */}
-      <div className="bg-white/70 backdrop-blur-xl p-10 rounded-[40px] border border-white/60 shadow-sm flex flex-col md:flex-row justify-between items-center gap-6">
+      <div className="bg-white/70 backdrop-blur-xl p-5 md:p-10 rounded-[40px] border border-white/60 shadow-sm flex flex-col md:flex-row justify-between items-center gap-6">
         <div className="flex items-center gap-6">
           <div className="w-16 h-16 bg-[#008080] text-white rounded-[24px] flex items-center justify-center shadow-xl shadow-[#008080]/20">
             <Calendar size={32} />
@@ -79,7 +79,7 @@ const FacultySessions = () => {
           {filteredSessions.map((session) => (
             <div 
               key={session.id} 
-              className="bg-white p-10 rounded-[40px] border border-slate-100 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 group"
+              className="bg-white p-5 md:p-10 rounded-[40px] border border-slate-100 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 group"
             >
               <div className="flex justify-between items-start mb-8">
                 <div className="w-14 h-14 bg-emerald-50 text-emerald-500 rounded-2xl flex items-center justify-center">

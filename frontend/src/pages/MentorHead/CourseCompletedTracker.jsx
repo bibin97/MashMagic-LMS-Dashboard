@@ -79,10 +79,10 @@ const CourseCompletedTracker = () => {
     }
   };
 
-  if (loading && students.length === 0) return <div className="p-8 text-center text-slate-600 font-bold">Loading records...</div>;
+  if (loading && students.length === 0) return <div className="p-4 md:p-8 text-center text-slate-600 font-bold">Loading records...</div>;
   return <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
   {/* Page Title & Stats */}
-  <div className="bg-white p-10 rounded-[4rem] border border-slate-100 shadow-sm mb-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+  <div className="bg-white p-5 md:p-10 rounded-[4rem] border border-slate-100 shadow-sm mb-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
   <div>
   <h2 className="text-3xl font-black text-slate-900 tracking-tighter uppercase flex items-center gap-4">
   <div className="w-12 h-12 bg-emerald-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-emerald-200 rotate-3">
@@ -135,7 +135,7 @@ const CourseCompletedTracker = () => {
  {/* Desktop Table */}
  <div className="hidden md:block bg-white rounded-[2.5rem] p-6 shadow-sm border border-slate-100">
  <div className="overflow-x-auto">
- <table className="w-full text-left border-collapse min-w-[800px]">
+ <table className="w-full text-left border-collapse min-w-full md:w-[800px]">
  <thead>
  <tr className="border-b border-slate-100 bg-slate-50">
  <th className="p-4 rounded-tl-xl text-[10px] font-black text-slate-600 uppercase tracking-widest">Student</th>
@@ -183,7 +183,7 @@ const CourseCompletedTracker = () => {
  </td>}
  </tr>;
             }) : <tr>
- <td colSpan="5" className="p-8 text-center text-slate-600 font-bold">
+ <td colSpan="5" className="p-4 md:p-8 text-center text-slate-600 font-bold">
  No students found matching your criteria.
  </td>
  </tr>}
@@ -251,7 +251,7 @@ const CourseCompletedTracker = () => {
       </div>
     );
   }) : (
-    <div className="bg-white p-8 rounded-3xl border border-slate-100 text-center shadow-sm">
+    <div className="bg-white p-4 md:p-8 rounded-3xl border border-slate-100 text-center shadow-sm">
       <p className="text-sm font-bold text-slate-500">No students found matching your criteria.</p>
     </div>
   )}

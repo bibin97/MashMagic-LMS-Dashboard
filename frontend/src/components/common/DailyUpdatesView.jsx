@@ -77,7 +77,7 @@ const DailyUpdatesView = ({ role = 'admin' }) => {
     <div className="p-4 md:p-8 space-y-8 max-w-[1600px] mx-auto min-h-screen">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div className="space-y-1">
-          <h1 className="text-4xl font-black text-slate-900 uppercase tracking-tighter flex items-center gap-4">
+          <h1 className="text-2xl md:text-4xl font-black text-slate-900 uppercase tracking-tighter flex items-center gap-4">
             Faculty Daily Updates
             <div className="px-3 py-1 bg-indigo-100 text-indigo-600 rounded-full text-[10px] tracking-widest font-black">
               {updates.length} TOTAL
@@ -88,7 +88,7 @@ const DailyUpdatesView = ({ role = 'admin' }) => {
       </div>
 
       <div className="flex flex-wrap items-center gap-3">
-        <div className="relative group min-w-[300px]">
+        <div className="relative group w-full md:w-auto md:min-w-full md:w-[300px]">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" size={18} />
           <input
             type="text"
@@ -119,20 +119,20 @@ const DailyUpdatesView = ({ role = 'admin' }) => {
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-slate-50/50">
-                  <th className="px-8 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] whitespace-nowrap">Submitted At</th>
-                  <th className="px-8 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] whitespace-nowrap">Faculty Details</th>
-                  <th className="px-8 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] whitespace-nowrap">Student Details</th>
-                  <th className="px-8 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] whitespace-nowrap">Class Info</th>
-                  <th className="px-8 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] whitespace-nowrap">Remarks</th>
+                  <th className="px-4 md:px-8 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] whitespace-nowrap">Submitted At</th>
+                  <th className="px-4 md:px-8 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] whitespace-nowrap">Faculty Details</th>
+                  <th className="px-4 md:px-8 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] whitespace-nowrap">Student Details</th>
+                  <th className="px-4 md:px-8 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] whitespace-nowrap">Class Info</th>
+                  <th className="px-4 md:px-8 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] whitespace-nowrap">Remarks</th>
                   {role === 'academic_head' && (
-                    <th className="px-8 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] whitespace-nowrap">Action</th>
+                    <th className="px-4 md:px-8 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] whitespace-nowrap">Action</th>
                   )}
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50">
                 {filteredUpdates.map((update) => (
                   <tr key={update.id} className={`transition-colors ${update.is_late ? 'bg-rose-50/30 hover:bg-rose-50/60' : 'hover:bg-slate-50/50'}`}>
-                    <td className="px-8 py-6 align-top">
+                    <td className="px-4 md:px-8 py-6 align-top">
                       <div className="flex flex-col gap-1">
                         <span className={`text-xs font-black whitespace-nowrap flex items-center gap-2 ${update.is_late ? 'text-rose-600' : 'text-slate-900'}`}>
                           <Calendar size={14} className={update.is_late ? "text-rose-400" : "text-slate-400"} />
@@ -150,7 +150,7 @@ const DailyUpdatesView = ({ role = 'admin' }) => {
                       </div>
                     </td>
 
-                    <td className="px-8 py-6 align-top">
+                    <td className="px-4 md:px-8 py-6 align-top">
                       <div className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-600 flex-shrink-0">
                           <User size={14} />
@@ -159,7 +159,7 @@ const DailyUpdatesView = ({ role = 'admin' }) => {
                       </div>
                     </td>
 
-                    <td className="px-8 py-6 align-top">
+                    <td className="px-4 md:px-8 py-6 align-top">
                       <div className="flex flex-col gap-1">
                         <span className="text-sm font-black text-[#008080] uppercase tracking-tight">{update.student_name}</span>
                         {update.student_grade && (
@@ -170,7 +170,7 @@ const DailyUpdatesView = ({ role = 'admin' }) => {
                       </div>
                     </td>
 
-                    <td className="px-8 py-6 align-top max-w-[250px]">
+                    <td className="px-4 md:px-8 py-6 align-top max-w-[250px]">
                       <div className="space-y-2">
                         <div className="flex items-center gap-2">
                           <span className="px-2 py-1 bg-amber-50 text-amber-600 rounded-lg text-[10px] font-black uppercase tracking-widest border border-amber-100 whitespace-nowrap">
@@ -191,14 +191,14 @@ const DailyUpdatesView = ({ role = 'admin' }) => {
                       </div>
                     </td>
 
-                    <td className="px-8 py-6 align-top max-w-[250px]">
+                    <td className="px-4 md:px-8 py-6 align-top max-w-[250px]">
                       <p className="text-xs font-bold text-slate-600 leading-relaxed bg-slate-50 p-3 rounded-xl border border-slate-100 whitespace-pre-wrap">
                         {update.remarks || 'No remarks provided.'}
                       </p>
                     </td>
 
                     {role === 'academic_head' && (
-                      <td className="px-8 py-6 align-top">
+                      <td className="px-4 md:px-8 py-6 align-top">
                         <button 
                           onClick={() => handleEditClick(update)}
                           className="p-2 bg-indigo-50 text-indigo-600 rounded-lg hover:bg-indigo-100 transition-colors"
@@ -219,14 +219,14 @@ const DailyUpdatesView = ({ role = 'admin' }) => {
       {showEditModal && editingReport && (
         <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white w-full max-w-2xl rounded-[2rem] shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200 max-h-[90vh] overflow-y-auto">
-            <div className="px-8 py-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+            <div className="px-4 md:px-8 py-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
               <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight">Edit Session Report</h2>
               <button onClick={() => setShowEditModal(false)} className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-colors">
                 <X size={20} />
               </button>
             </div>
             
-            <form onSubmit={submitEdit} className="p-8 space-y-6">
+            <form onSubmit={submitEdit} className="p-4 md:p-8 space-y-6">
               
               <div className="grid grid-cols-2 gap-4">
                  <div className="space-y-2">
@@ -318,7 +318,7 @@ const DailyUpdatesView = ({ role = 'admin' }) => {
                 </button>
                 <button 
                   type="submit"
-                  className="px-8 py-3 bg-indigo-600 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-600/20"
+                  className="px-4 md:px-8 py-3 bg-indigo-600 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-600/20"
                 >
                   Save Changes
                 </button>

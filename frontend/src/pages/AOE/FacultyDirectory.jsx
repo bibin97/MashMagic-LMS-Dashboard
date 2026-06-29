@@ -148,7 +148,7 @@ const FacultyDirectory = ({
         {/* Header Section */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div className="space-y-1">
-            <h1 className="text-4xl font-black text-slate-900 uppercase tracking-tighter flex items-center gap-4">
+            <h1 className="text-2xl md:text-4xl font-black text-slate-900 uppercase tracking-tighter flex items-center gap-4">
               Faculty Management
             </h1>
             <p className="text-slate-500 font-bold text-xs uppercase tracking-[0.2em]">Manage academic staff credentials and track modifications</p>
@@ -167,7 +167,7 @@ const FacultyDirectory = ({
         {activeTab === 'directory' && <div className="flex flex-col gap-4 w-full">
             <div className="flex flex-col md:flex-row justify-between items-center gap-3 w-full">
               <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
-                <div className="relative group min-w-[300px] flex-1 md:flex-initial">
+                <div className="relative group min-w-full md:w-[300px] flex-1 md:flex-initial">
                   <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#008080] transition-colors" />
                   <input type="text" placeholder="Search by name, email or subject..." className="w-full bg-white border border-slate-200 rounded-2xl py-3 pl-12 pr-4 text-sm font-bold text-slate-700 outline-none focus:ring-4 focus:ring-[#008080]/10 focus:border-[#008080] transition-all shadow-sm" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
                 </div>
@@ -305,18 +305,18 @@ const FacultyDirectory = ({
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="bg-slate-50/50">
-                    <th className="px-8 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] w-[80px]">No.</th>
-                    <th className="px-8 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Faculty Profile</th>
-                    <th className="px-8 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Subject Focus</th>
-                    <th className="px-8 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Status</th>
-                    <th className="px-8 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Joined Date</th>
-                    <th className="px-8 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] text-right">Actions</th>
+                    <th className="px-4 md:px-8 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] w-[80px]">No.</th>
+                    <th className="px-4 md:px-8 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Faculty Profile</th>
+                    <th className="px-4 md:px-8 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Subject Focus</th>
+                    <th className="px-4 md:px-8 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Status</th>
+                    <th className="px-4 md:px-8 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Joined Date</th>
+                    <th className="px-4 md:px-8 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-50">
                   {filteredFaculties.map((faculty, index) => <tr key={faculty.id} className="hover:bg-slate-50/50 transition-colors group">
-                      <td className="px-8 py-6 font-black text-slate-400 text-[12px]">{index + 1}</td>
-                      <td className="px-8 py-6">
+                      <td className="px-4 md:px-8 py-6 font-black text-slate-400 text-[12px]">{index + 1}</td>
+                      <td className="px-4 md:px-8 py-6">
                         <div className="flex items-center gap-4">
                           <div className="w-12 h-12 bg-[#008080] text-white rounded-2xl flex items-center justify-center font-black text-lg shadow-lg shadow-[#008080]/20 group-hover:scale-110 transition-transform">
                             {faculty.name.charAt(0)}
@@ -329,20 +329,20 @@ const FacultyDirectory = ({
                           </div>
                         </div>
                       </td>
-                      <td className="px-8 py-6">
+                      <td className="px-4 md:px-8 py-6">
                         <div className="flex flex-wrap gap-2">
                           {faculty.subject ? faculty.subject.split(',').map((sub, idx) => <span key={idx} className="px-3 py-1 bg-slate-100 text-slate-600 rounded-lg text-[9px] font-black uppercase tracking-widest border border-slate-200">
                               {sub}
                             </span>) : <span className="text-slate-300 font-bold text-[10px] uppercase">Unassigned</span>}
                         </div>
                       </td>
-                      <td className="px-8 py-6">
+                      <td className="px-4 md:px-8 py-6">
                         <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${faculty.status === 'active' ? 'bg-emerald-100 text-emerald-600' : 'bg-amber-100 text-amber-600'}`}>
                           <div className={`w-1.5 h-1.5 rounded-full ${faculty.status === 'active' ? 'bg-emerald-600' : 'bg-amber-600 animate-pulse'}`} />
                           {faculty.status}
                         </div>
                       </td>
-                      <td className="px-8 py-6">
+                      <td className="px-4 md:px-8 py-6">
                         <p className="text-[11px] font-black text-slate-700 uppercase tracking-widest">
                           {new Date(faculty.created_at).toLocaleDateString('en-GB', {
                       day: '2-digit',
@@ -351,7 +351,7 @@ const FacultyDirectory = ({
                     })}
                         </p>
                       </td>
-                      <td className="px-8 py-6">
+                      <td className="px-4 md:px-8 py-6">
                         <div className="flex items-center justify-end gap-2">
                           <button onClick={() => {
                       setSelectedFaculty(faculty);
@@ -466,15 +466,15 @@ const FacultyDirectory = ({
 <table className="w-full text-left border-collapse">
                   <thead>
                     <tr className="bg-slate-50/50">
-                      <th className="px-8 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Date & Time</th>
-                      <th className="px-8 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Faculty Name</th>
-                      <th className="px-8 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Edited By</th>
-                      <th className="px-8 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Changes Summary</th>
+                      <th className="px-4 md:px-8 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Date & Time</th>
+                      <th className="px-4 md:px-8 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Faculty Name</th>
+                      <th className="px-4 md:px-8 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Edited By</th>
+                      <th className="px-4 md:px-8 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Changes Summary</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-50">
                     {editHistory.map((log, index) => <tr key={log.id} className="hover:bg-slate-50/50 transition-colors"><td className="p-6 text-sm font-black text-slate-400 border-b border-slate-50">{index + 1}</td>
-                        <td className="px-8 py-6">
+                        <td className="px-4 md:px-8 py-6">
                           <p className="text-xs font-black text-slate-900">
                             {new Date(log.edited_at).toLocaleDateString('en-GB', {
                         day: '2-digit',
@@ -489,16 +489,16 @@ const FacultyDirectory = ({
                       })}
                           </p>
                         </td>
-                        <td className="px-8 py-6">
+                        <td className="px-4 md:px-8 py-6">
                           <p className="text-sm font-black text-[#008080] uppercase tracking-tight">{log.faculty_name || 'Unknown Faculty'}</p>
                         </td>
-                        <td className="px-8 py-6">
+                        <td className="px-4 md:px-8 py-6">
                           <div className="flex items-center gap-2 text-slate-600">
                             <User size={14} />
                             <span className="text-xs font-bold">{log.edited_by_name || 'Admin'}</span>
                           </div>
                         </td>
-                        <td className="px-8 py-6">
+                        <td className="px-4 md:px-8 py-6">
                           <span className="inline-block px-3 py-1.5 bg-slate-50 text-slate-600 rounded-xl text-xs font-bold border border-slate-100">
                             {log.changes_summary}
                           </span>

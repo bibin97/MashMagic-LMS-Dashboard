@@ -407,18 +407,18 @@ const StudentsList = ({
 			</div>
 
 			<div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-				<button onClick={() => setActiveTab('enrolled_scholars')} className={`p-8 rounded-[2.5rem] border shadow-sm flex flex-col gap-2 transition-all ${activeTab === 'enrolled_scholars' ? 'bg-[#008080] border-[#008080] text-white scale-105 shadow-xl shadow-[#008080]/20' : 'bg-white border-slate-100 hover:shadow-xl hover:shadow-[#008080]/5 hover:-translate-y-1'}`}>
+				<button onClick={() => setActiveTab('enrolled_scholars')} className={`p-4 md:p-8 rounded-[2.5rem] border shadow-sm flex flex-col gap-2 transition-all ${activeTab === 'enrolled_scholars' ? 'bg-[#008080] border-[#008080] text-white scale-105 shadow-xl shadow-[#008080]/20' : 'bg-white border-slate-100 hover:shadow-xl hover:shadow-[#008080]/5 hover:-translate-y-1'}`}>
 					<span className={`text-[10px] font-black uppercase tracking-widest transition-colors ${activeTab === 'enrolled_scholars' ? 'text-white/80' : 'text-slate-600 group-hover:text-[#008080]'}`}>Enrolled Scholars</span>
 					<div className={`flex items-end gap-3 font-black tracking-tighter ${activeTab === 'enrolled_scholars' ? 'text-white' : 'text-slate-900'}`}>
-						<span className="text-4xl leading-none">{stats.totalEnrollment || 0}</span>
+						<span className="text-2xl md:text-4xl leading-none">{stats.totalEnrollment || 0}</span>
 						<span className={`text-[10px] mb-1 uppercase tracking-widest ${activeTab === 'enrolled_scholars' ? 'text-white/80' : 'text-slate-600'}`}>Total Population</span>
 					</div>
 				</button>
 
-				<button onClick={() => setActiveTab('active_plus')} className={`p-8 rounded-[2.5rem] border shadow-sm flex flex-col gap-2 transition-all ${activeTab === 'active_plus' ? 'bg-[#008080] border-[#008080] text-white scale-105 shadow-xl shadow-[#008080]/20' : 'bg-white border-slate-100 hover:shadow-xl hover:shadow-[#008080]/5 hover:-translate-y-1'}`}>
+				<button onClick={() => setActiveTab('active_plus')} className={`p-4 md:p-8 rounded-[2.5rem] border shadow-sm flex flex-col gap-2 transition-all ${activeTab === 'active_plus' ? 'bg-[#008080] border-[#008080] text-white scale-105 shadow-xl shadow-[#008080]/20' : 'bg-white border-slate-100 hover:shadow-xl hover:shadow-[#008080]/5 hover:-translate-y-1'}`}>
 					<span className={`text-[10px] font-black uppercase tracking-widest ${activeTab === 'active_plus' ? 'text-white/80' : 'text-[#008080]'}`}>Active Plus</span>
 					<div className={`flex items-end gap-3 font-black tracking-tighter ${activeTab === 'active_plus' ? 'text-white' : 'text-slate-900'}`}>
-						<span className="text-4xl leading-none">
+						<span className="text-2xl md:text-4xl leading-none">
                             {role === 'mentor_head' ? (stats.activeMentorshipCount || 0) : (stats.activeCourseCount || 0)}
                         </span>
 						<div className={`flex items-center gap-1.5 mb-1 px-2 py-0.5 rounded-full ${activeTab === 'active_plus' ? 'bg-white/20' : 'bg-[#008080]/10'}`}>
@@ -428,12 +428,12 @@ const StudentsList = ({
 					</div>
 				</button>
 
-                {(role === 'mentor_head' || role === 'academic_operation_executive' || role === 'aoe' || role === 'ssc' || role === 'academic_head') && <button onClick={() => setActiveTab('completed')} className={`p-8 rounded-[2.5rem] border shadow-sm flex flex-col gap-2 transition-all ${activeTab === 'completed' ? 'bg-emerald-600 border-emerald-600 text-white scale-105 shadow-xl shadow-emerald-500/20' : 'bg-white border-slate-100 hover:shadow-xl hover:shadow-emerald-500/5 hover:-translate-y-1'}`}>
+                {(role === 'mentor_head' || role === 'academic_operation_executive' || role === 'aoe' || role === 'ssc' || role === 'academic_head') && <button onClick={() => setActiveTab('completed')} className={`p-4 md:p-8 rounded-[2.5rem] border shadow-sm flex flex-col gap-2 transition-all ${activeTab === 'completed' ? 'bg-emerald-600 border-emerald-600 text-white scale-105 shadow-xl shadow-emerald-500/20' : 'bg-white border-slate-100 hover:shadow-xl hover:shadow-emerald-500/5 hover:-translate-y-1'}`}>
 					<span className={`text-[10px] font-black uppercase tracking-widest transition-colors ${activeTab === 'completed' ? 'text-white/80' : 'text-emerald-600 hover:text-emerald-700'}`}>
                         {role === 'mentor_head' ? 'Mentorship Completed' : 'Course Completed'}
                     </span>
 					<div className={`flex items-end gap-3 font-black tracking-tighter ${activeTab === 'completed' ? 'text-white' : 'text-slate-900'}`}>
-						<span className="text-4xl leading-none">
+						<span className="text-2xl md:text-4xl leading-none">
                             {role === 'mentor_head' ? (stats.mentorshipCompletedCount || 0) : (stats.courseCompletedCount || 0)}
                         </span>
 						<span className={`text-[10px] mb-1 uppercase tracking-widest ${activeTab === 'completed' ? 'text-white/80' : 'text-slate-500'}`}>Total Achievers</span>
@@ -447,20 +447,20 @@ const StudentsList = ({
 					<table className="w-full text-left">
 						<thead>
 							<tr className="bg-slate-50/50 border-b border-slate-100">
-								<th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest w-[80px]">No.</th>
-								<th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Student Information</th>
-								<th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Course & Grade</th>
-								<th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Hours</th>
-								<th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Mentor & Faculty</th>
-								<th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest text-center">Level</th>
-								<th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest text-right sticky right-0 bg-slate-50/90 backdrop-blur-sm z-10 shadow-[-4px_0_10px_rgba(0,0,0,0.02)]">Actions</th>
+								<th className="px-4 md:px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest w-[80px]">No.</th>
+								<th className="px-4 md:px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Student Information</th>
+								<th className="px-4 md:px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Course & Grade</th>
+								<th className="px-4 md:px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Hours</th>
+								<th className="px-4 md:px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Mentor & Faculty</th>
+								<th className="px-4 md:px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest text-center">Level</th>
+								<th className="px-4 md:px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest text-right sticky right-0 bg-slate-50/90 backdrop-blur-sm z-10 shadow-[-4px_0_10px_rgba(0,0,0,0.02)]">Actions</th>
 							</tr>
 						</thead>
 						<tbody className="divide-y divide-slate-50">
 							{filteredStudents.length > 0 ? filteredStudents.map((student, index) => <React.Fragment key={student.id}>
 									<tr className="hover:bg-[#008080]/10/20 transition-all group">
-										<td className="px-8 py-6 font-black text-slate-400 text-[12px]">{(page - 1) * limit + index + 1}</td>
-										<td className="px-8 py-6">
+										<td className="px-4 md:px-8 py-6 font-black text-slate-400 text-[12px]">{(page - 1) * limit + index + 1}</td>
+										<td className="px-4 md:px-8 py-6">
 											<div className="flex items-center gap-4">
 												<div className="w-12 h-12 bg-gradient-to-br from-slate-100 to-slate-200 rounded-2xl flex items-center justify-center text-slate-600 font-black shadow-inner group-hover:from-[#008080] group-hover:to-[#008080] group-hover:text-white transition-all transform group-hover:scale-110">
 													{student.name.charAt(0)}
@@ -491,13 +491,13 @@ const StudentsList = ({
 												</div>
 											</div>
 										</td>
-										<td className="px-8 py-6">
+										<td className="px-4 md:px-8 py-6">
 											<div className="flex flex-col">
 												<span className="text-xs font-black text-slate-700 uppercase tracking-widest">{student.course}</span>
 												<span className="text-[10px] font-bold text-[#008080] uppercase mt-0.5">{student.grade}</span>
 											</div>
 										</td>
-										<td className="px-8 py-6">
+										<td className="px-4 md:px-8 py-6">
 											<div className="flex flex-col gap-1">
 												<div className="flex flex-col gap-0.5">
 													<span className="text-[8px] font-black uppercase tracking-wider text-slate-400 flex items-center gap-1">
@@ -526,7 +526,7 @@ const StudentsList = ({
 													</div>}
 											</div>
 										</td>
-										<td className="px-8 py-6">
+										<td className="px-4 md:px-8 py-6">
 											<div className="space-y-2">
 												<div className="flex items-center gap-2">
 													<div className="w-1.5 h-1.5 rounded-full bg-[#008080]"></div>
@@ -543,7 +543,7 @@ const StudentsList = ({
 												</div>
 											</div>
 										</td>
-										<td className="px-8 py-6 text-center">
+										<td className="px-4 md:px-8 py-6 text-center">
 												<div className="flex flex-col items-center gap-1 group/score relative">
                                                 <span 
                                                     onClick={() => setViewAssessmentHistoryStudent(student)}
@@ -556,7 +556,7 @@ const StudentsList = ({
                                                 </div>
                                             </div>
 										</td>
-										<td className="px-8 py-6 text-right sticky right-0 bg-white/90 backdrop-blur-sm z-10 shadow-[-4px_0_10px_rgba(0,0,0,0.02)]">
+										<td className="px-4 md:px-8 py-6 text-right sticky right-0 bg-white/90 backdrop-blur-sm z-10 shadow-[-4px_0_10px_rgba(0,0,0,0.02)]">
 											<div className="flex items-center justify-end gap-2">
 												<button onClick={() => handleView(student)} className="p-2.5 bg-white border-2 border-slate-200 rounded-xl text-slate-400 hover:border-[#008080] hover:text-[#008080] transition-all shadow-sm" title="View Details">
 													<Eye size={16} />
@@ -586,7 +586,7 @@ const StudentsList = ({
 										</td>
 									</tr>
 									{expandedStudentId === student.id && <tr className="bg-slate-50/80 border-b border-slate-100">
-											<td colSpan="4" className="p-8">
+											<td colSpan="4" className="p-4 md:p-8">
 												<div className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-inner animate-in fade-in slide-in-from-top-2 duration-300">
 													<div className="flex items-center justify-between pb-4 border-b border-slate-100 mb-4 pl-2">
 														<h4 className="text-xs font-black text-slate-900 flex items-center gap-2 uppercase tracking-tight">
@@ -608,7 +608,7 @@ const StudentsList = ({
 											</td>
 										</tr>}
 								</React.Fragment>) : <tr>
-									<td colSpan="7" className="px-8 py-20 text-center">
+									<td colSpan="7" className="px-4 md:px-8 py-20 text-center">
 										<p className="text-slate-600 font-black text-[10px] uppercase tracking-[0.3em]">No students found</p>
 									</td>
 								</tr>}
@@ -716,7 +716,7 @@ const StudentsList = ({
 							/>
 						);
 					}) : (
-						<div className="px-8 py-12 text-center bg-white rounded-2xl border border-slate-100">
+						<div className="px-4 md:px-8 py-6 md:py-12 text-center bg-white rounded-2xl border border-slate-100">
 							<p className="text-slate-600 font-black text-[10px] uppercase tracking-[0.3em]">No students found</p>
 						</div>
 					)}
@@ -785,7 +785,7 @@ const StudentsList = ({
 													</div>
 												))}
 												{mentors.filter(m => m.name.toLowerCase().includes(deferredAssignSearchTerm.toLowerCase())).length === 0 && (
-													<div className="px-4 py-8 text-xs text-slate-400 text-center font-bold uppercase tracking-widest">No mentors found</div>
+													<div className="px-4 py-4 md:py-8 text-xs text-slate-400 text-center font-bold uppercase tracking-widest">No mentors found</div>
 												)}
 											</div>
 										</div>
@@ -852,7 +852,7 @@ const StudentsList = ({
 								
 								if (!currentLevel) {
 									return (
-										<div className="bg-white p-8 rounded-3xl border border-slate-100 flex flex-col items-center justify-center text-center shadow-sm">
+										<div className="bg-white p-4 md:p-8 rounded-3xl border border-slate-100 flex flex-col items-center justify-center text-center shadow-sm">
 											<div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-4 border border-slate-100">
 												<Activity size={24} className="text-slate-300" />
 											</div>
@@ -903,7 +903,7 @@ const StudentsList = ({
 												{lvl.data ? (
 													<div>
 														<div className="flex items-end gap-3 relative z-10">
-															<span className="text-5xl font-black text-slate-900 leading-none">{lvl.data.score || 'N/A'}</span>
+															<span className="text-3xl md:text-5xl font-black text-slate-900 leading-none">{lvl.data.score || 'N/A'}</span>
 															<span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Points</span>
 														</div>
 														<p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-4">
@@ -912,7 +912,7 @@ const StudentsList = ({
 													</div>
 												) : (
 													<div className="flex flex-col h-full justify-center">
-														<span className="text-4xl font-black text-slate-200 leading-none mb-3">-</span>
+														<span className="text-2xl md:text-4xl font-black text-slate-200 leading-none mb-3">-</span>
 														<p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Not Reached</p>
 													</div>
 												)}

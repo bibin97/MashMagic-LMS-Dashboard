@@ -348,7 +348,7 @@ const AOEDemoSchedule = () => {
   return (
     <div className="space-y-8 pb-20 max-w-[1600px] mx-auto min-h-screen">
       {/* Header section */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 border-b-4 border-b-[#008080]">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white p-4 md:p-8 rounded-[2.5rem] shadow-sm border border-slate-100 border-b-4 border-b-[#008080]">
           <div className="flex items-center gap-4 mb-10">
             <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600">
               <Target size={24} />
@@ -382,7 +382,7 @@ const AOEDemoSchedule = () => {
 
       {/* Content Area */}
       {activeTab === 'schedule_demo' || activeTab === 'schedule_pre_demo' ? (
-        <div className="bg-white p-8 rounded-[3rem] shadow-sm border border-slate-100 animate-in fade-in zoom-in duration-500">
+        <div className="bg-white p-4 md:p-8 rounded-[3rem] shadow-sm border border-slate-100 animate-in fade-in zoom-in duration-500">
           <div className="flex justify-between items-center mb-8">
             <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight flex items-center gap-3">
               <Target className="text-[#008080]" /> {activeTab === 'schedule_pre_demo' ? 'Add Pre-Demo Evaluation' : 'Schedule New Demo'}
@@ -473,7 +473,7 @@ const AOEDemoSchedule = () => {
               {/* Evaluation criteria part */}
               <div className="bg-indigo-50/50 p-6 rounded-[2rem] border border-indigo-100 text-center mb-8">
                 <h3 className="text-xl font-black text-slate-900 uppercase tracking-widest mb-2">Evaluation Score</h3>
-                <div className="text-4xl font-black text-indigo-900">{evalTotalScore} <span className="text-xl text-indigo-400">/ 50</span></div>
+                <div className="text-2xl md:text-4xl font-black text-indigo-900">{evalTotalScore} <span className="text-xl text-indigo-400">/ 50</span></div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
@@ -515,7 +515,7 @@ const AOEDemoSchedule = () => {
               <div className="flex justify-end pt-8 border-t border-slate-50">
                 <button
                   type="submit"
-                  className="px-10 py-4 bg-emerald-500 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-xl hover:bg-emerald-600 transition-all flex items-center gap-2"
+                  className="px-5 md:px-10 py-4 bg-emerald-500 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-xl hover:bg-emerald-600 transition-all flex items-center gap-2"
                 >
                   <Save size={16} /> Submit Pre-Demo
                 </button>
@@ -817,7 +817,7 @@ const AOEDemoSchedule = () => {
             <div className="flex justify-end pt-8 border-t border-slate-50">
               <button
                 type="submit"
-                className="px-10 py-4 bg-[#008080] text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-xl hover:bg-[#006666] transition-all flex items-center gap-2"
+                className="px-5 md:px-10 py-4 bg-[#008080] text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-xl hover:bg-[#006666] transition-all flex items-center gap-2"
               >
                 <Save size={16} /> Save Schedule
               </button>
@@ -826,7 +826,7 @@ const AOEDemoSchedule = () => {
           )}
         </div>
       ) : (
-        <div className="bg-white p-8 rounded-[3rem] shadow-sm border border-slate-100 space-y-6 animate-in fade-in duration-500">
+        <div className="bg-white p-4 md:p-8 rounded-[3rem] shadow-sm border border-slate-100 space-y-6 animate-in fade-in duration-500">
           <div className="flex flex-col sm:flex-row justify-between items-center gap-4 border-b border-slate-50 pb-6">
             <div className="flex items-center gap-6">
               <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight flex items-center gap-3">
@@ -991,7 +991,7 @@ const AOEDemoSchedule = () => {
       {showModal && selectedDemo && (
         <div className="fixed inset-0 bg-[#008080]/60 backdrop-blur-md z-[9999] flex items-center justify-center p-4">
           <div className="bg-white rounded-[3rem] shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-hidden flex flex-col">
-            <div className="p-8 border-b border-slate-50 flex justify-between items-center bg-slate-50/50">
+            <div className="p-4 md:p-8 border-b border-slate-50 flex justify-between items-center bg-slate-50/50">
               <div>
                 <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tight">
                   {selectedDemo?.type === 'pre-demo' ? 'Evaluate Pre-Demo' : 'Evaluate Demo'}
@@ -1005,11 +1005,11 @@ const AOEDemoSchedule = () => {
               </button>
             </div>
 
-            <form onSubmit={handleEvaluationSubmit} className="flex-1 overflow-y-auto p-10 space-y-8">
+            <form onSubmit={handleEvaluationSubmit} className="flex-1 overflow-y-auto p-5 md:p-10 space-y-8">
               
               <div className="bg-indigo-50/50 p-6 rounded-[2rem] border border-indigo-100 text-center mb-8">
                 <p className="text-[10px] font-black text-indigo-500 uppercase tracking-[0.2em] mb-2">Total Score</p>
-                <h3 className="text-4xl font-black text-indigo-900">{evalTotalScore} <span className="text-xl text-indigo-400">/ 50</span></h3>
+                <h3 className="text-2xl md:text-4xl font-black text-indigo-900">{evalTotalScore} <span className="text-xl text-indigo-400">/ 50</span></h3>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -1069,7 +1069,7 @@ const AOEDemoSchedule = () => {
       {showEditModal && formData.id && (
         <div className="fixed inset-0 bg-[#008080]/60 backdrop-blur-md z-[9999] flex items-center justify-center p-4">
           <div className="bg-white rounded-[3rem] shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
-            <div className="p-8 border-b border-slate-50 flex justify-between items-center bg-slate-50/50">
+            <div className="p-4 md:p-8 border-b border-slate-50 flex justify-between items-center bg-slate-50/50">
               <div>
                 <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tight">Edit Demo Schedule</h2>
                 <p className="text-[10px] font-black text-[#008080] uppercase tracking-widest mt-1">
@@ -1089,7 +1089,7 @@ const AOEDemoSchedule = () => {
               </button>
             </div>
 
-            <form onSubmit={handleCreateSchedule} className="flex-1 overflow-y-auto p-10 space-y-8">
+            <form onSubmit={handleCreateSchedule} className="flex-1 overflow-y-auto p-5 md:p-10 space-y-8">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="space-y-2">
                   <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 flex items-center gap-2"><Target size={12}/> Demo ID *</label>

@@ -150,7 +150,7 @@ const Login = () => {
       <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-2 bg-white/[0.02] backdrop-blur-3xl rounded-[32px] border border-white/10 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)] overflow-hidden transition-all duration-500">
         
         {/* Visual Branding Section */}
-        <div className="hidden lg:flex flex-col justify-between items-center text-center p-8 lg:p-12 lg:py-20 bg-gradient-to-br from-[#0d9488]/10 to-transparent border-r border-white/5 relative">
+        <div className="hidden lg:flex flex-col justify-between items-center text-center p-4 md:p-8 lg:p-12 lg:py-20 bg-gradient-to-br from-[#0d9488]/10 to-transparent border-r border-white/5 relative">
           <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-5 pointer-events-none" />
           
           <div className="relative z-10 w-full flex flex-col items-center">
@@ -162,7 +162,7 @@ const Login = () => {
               <span className="text-2xl font-black text-white tracking-tighter uppercase">MashMagic <span className="text-[#0d9488]">Hub</span></span>
             </div>
 
-            <h1 className="text-4xl font-black text-white leading-[1.1] mb-6 tracking-tight max-w-md mx-auto">
+            <h1 className="text-2xl md:text-4xl font-black text-white leading-[1.1] mb-6 tracking-tight max-w-md mx-auto">
               Welcome to <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0d9488] to-[#2dd4bf]">MashMagic Portal.</span>
             </h1>
@@ -342,7 +342,7 @@ const Login = () => {
           ) : (
             <div className="relative transition-all duration-300">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-4xl font-black text-white tracking-[0.1em] uppercase drop-shadow-lg">Create Account</h2>
+                <h2 className="text-2xl md:text-4xl font-black text-white tracking-[0.1em] uppercase drop-shadow-lg">Create Account</h2>
                 <button 
                   onClick={() => setIsRegistering(false)}
                   className="p-3 rounded-xl bg-white/5 hover:bg-white/10 text-[#0d9488] transition-all border border-white/5"

@@ -253,9 +253,9 @@ const EditFaculty = () => {
                 </div>
             </div>
 
-            <div className="bg-white/70 backdrop-blur-xl p-10 rounded-[40px] border border-white/60 shadow-xl mb-10 flex flex-col md:flex-row justify-between items-center gap-6">
+            <div className="bg-white/70 backdrop-blur-xl p-5 md:p-10 rounded-[40px] border border-white/60 shadow-xl mb-10 flex flex-col md:flex-row justify-between items-center gap-6">
                 <div className="text-center md:text-left">
-                    <h1 className="text-4xl font-black text-slate-900 tracking-tight uppercase mb-2">Refine Faculty</h1>
+                    <h1 className="text-2xl md:text-4xl font-black text-slate-900 tracking-tight uppercase mb-2">Refine Faculty</h1>
                     <p className="text-slate-600 font-bold text-[10px] uppercase tracking-[0.2em]">Updating professional profile for <span className="text-[#008080]">{formData.name}</span></p>
                 </div>
                 <div className="w-16 h-16 bg-[#008080] rounded-3xl flex items-center justify-center text-white shadow-2xl rotate-3">
@@ -265,7 +265,7 @@ const EditFaculty = () => {
 
             <form onSubmit={handleSubmit} className="space-y-10">
                 {/* Section 1: Core Credentials */}
-                <div className="bg-white p-8 md:p-12 rounded-[48px] border border-slate-100 shadow-2xl shadow-slate-200/40 relative">
+                <div className="bg-white p-4 md:p-8 md:p-12 rounded-[48px] border border-slate-100 shadow-2xl shadow-slate-200/40 relative">
                     {/* Overlay to prevent clicks when disabled (optional, but disabled prop works too) */}
                     <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight mb-10 flex items-center justify-between">
                         <div className="flex items-center gap-4">
@@ -331,7 +331,7 @@ const EditFaculty = () => {
                 </div>
 
                 {/* Section 2: Expertise & Mapping */}
-                <div className="bg-[#008080] p-8 md:p-12 rounded-[48px] shadow-2xl shadow-[#008080]/40 text-white space-y-10 relative">
+                <div className="bg-[#008080] p-4 md:p-8 md:p-12 rounded-[48px] shadow-2xl shadow-[#008080]/40 text-white space-y-10 relative">
                     <h2 className="text-xl font-black uppercase tracking-tight flex items-center justify-between">
                         <div className="flex items-center gap-4">
                             <div className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center text-white">
@@ -362,7 +362,7 @@ const EditFaculty = () => {
                             <div className="flex flex-col gap-2 relative" ref={secondaryRef}>
                                 <label className="text-[10px] font-black uppercase tracking-widest opacity-60">Secondary Subject Expertise</label>
                                 <div onClick={() => toggleDropdown('isSecondaryDropdownOpen')} className="w-full p-4 bg-white/5 border border-white/10 rounded-2xl text-sm font-bold cursor-pointer flex justify-between items-center">
-                                    <span className="truncate max-w-[300px]">{formData.secondary_subjects?.length > 0 ? formData.secondary_subjects.join(', ') : 'Select Secondary Subjects'}</span>
+                                    <span className="truncate max-w-full md:w-[300px]">{formData.secondary_subjects?.length > 0 ? formData.secondary_subjects.join(', ') : 'Select Secondary Subjects'}</span>
                                     <span>▼</span>
                                 </div>
                                 {formData.isSecondaryDropdownOpen && (
@@ -448,7 +448,7 @@ const EditFaculty = () => {
                 </div>
 
                 {/* Section 3: Professional & Logistics */}
-                <div className="bg-white p-8 md:p-12 rounded-[48px] border border-slate-100 shadow-2xl shadow-slate-200/40 space-y-10 relative">
+                <div className="bg-white p-4 md:p-8 md:p-12 rounded-[48px] border border-slate-100 shadow-2xl shadow-slate-200/40 space-y-10 relative">
                     <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight flex items-center justify-between">
                         <div className="flex items-center gap-4">
                             <div className="w-10 h-10 bg-amber-50 rounded-xl flex items-center justify-center text-amber-600">
@@ -521,7 +521,7 @@ const EditFaculty = () => {
 
                 {/* Section 4: Edit History */}
                 {editHistory.length > 0 && (
-                    <div className="bg-white p-8 md:p-12 rounded-[48px] border border-slate-100 shadow-2xl shadow-slate-200/40">
+                    <div className="bg-white p-4 md:p-8 md:p-12 rounded-[48px] border border-slate-100 shadow-2xl shadow-slate-200/40">
                         <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight flex items-center gap-4 mb-10">
                             <div className="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600">
                                 <History size={20} />
@@ -554,10 +554,10 @@ const EditFaculty = () => {
 
                 {/* Form Actions */}
                 <div className="flex flex-col sm:flex-row items-center justify-end gap-6 pt-10">
-                    <button type="button" onClick={() => navigate('/aoe/faculties')} className="w-full sm:w-auto px-10 py-5 rounded-[24px] border border-slate-200 text-slate-600 text-xs font-black uppercase tracking-widest hover:bg-slate-50 transition-all font-sans">
+                    <button type="button" onClick={() => navigate('/aoe/faculties')} className="w-full sm:w-auto px-5 md:px-10 py-5 rounded-[24px] border border-slate-200 text-slate-600 text-xs font-black uppercase tracking-widest hover:bg-slate-50 transition-all font-sans">
                         Discard Changes
                     </button>
-                    <button disabled={saving} type="submit" className="w-full sm:w-auto px-12 py-5 rounded-[24px] bg-[#008080] text-white text-xs font-black uppercase tracking-[0.25em] shadow-2xl hover:bg-[#008080] hover:-translate-y-1 transition-all flex items-center justify-center gap-4 disabled:opacity-50">
+                    <button disabled={saving} type="submit" className="w-full sm:w-auto px-6 md:px-12 py-5 rounded-[24px] bg-[#008080] text-white text-xs font-black uppercase tracking-[0.25em] shadow-2xl hover:bg-[#008080] hover:-translate-y-1 transition-all flex items-center justify-center gap-4 disabled:opacity-50">
                         {saving ? (
                             <>
                                 <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>

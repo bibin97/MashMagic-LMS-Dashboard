@@ -121,7 +121,7 @@ const MentorsList = () => {
     <>
       <div className="space-y-8 animate-in fade-in duration-700 p-4 md:p-8">
         {/* Header */}
-        <div className="bg-white p-10 rounded-[3rem] border border-slate-100 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+        <div className="bg-white p-5 md:p-10 rounded-[3rem] border border-slate-100 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
           <div>
             <h2 className="text-3xl lg:text-4xl font-black text-slate-900 tracking-tighter uppercase leading-none">Mentor Faculty</h2>
             <p className="text-slate-600 text-[10px] font-bold uppercase tracking-widest mt-2 flex items-center gap-2">
@@ -240,7 +240,7 @@ const MentorsList = () => {
                     </div>
 
                     {loadingStudents ? (
-                      <div className="py-10 text-center">
+                      <div className="py-5 md:py-10 text-center">
                         <div className="inline-block w-5 h-5 border-2 border-[#008080]/30 border-t-[#008080] rounded-full animate-spin mb-2"></div>
                         <div className="text-[10px] font-black text-slate-600 uppercase tracking-widest animate-pulse">Synchronizing student records...</div>
                       </div>
@@ -291,7 +291,7 @@ const MentorsList = () => {
                         ))}
                       </div>
                     ) : (
-                      <div className="py-10 bg-slate-50/50 rounded-2xl text-center border border-dashed border-slate-200">
+                      <div className="py-5 md:py-10 bg-slate-50/50 rounded-2xl text-center border border-dashed border-slate-200">
                         <p className="text-slate-600 font-black text-[10px] uppercase tracking-[0.2em] ">No students currently assigned to this mentor</p>
                       </div>
                     )}
@@ -405,7 +405,7 @@ const MentorsList = () => {
         {isDetailModalOpen && selectedMentorForDetail && (
           <div className="fixed inset-0 bg-[#008080]/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4 animate-in fade-in duration-300">
             <div className="bg-white rounded-[3.5rem] shadow-2xl w-full max-w-xl overflow-hidden animate-in slide-in-from-bottom-8 duration-500 max-h-[90vh] overflow-y-auto">
-              <div className="px-10 py-8 border-b border-slate-50 flex justify-between items-center bg-slate-50/50">
+              <div className="px-5 md:px-10 py-4 md:py-8 border-b border-slate-50 flex justify-between items-center bg-slate-50/50">
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 bg-gradient-to-br from-[#008080] to-purple-600 text-white rounded-2xl flex items-center justify-center font-black text-xl shadow-lg">
                     {selectedMentorForDetail.name.charAt(0)}
@@ -423,7 +423,7 @@ const MentorsList = () => {
                 </button>
               </div>
 
-              <div className="p-10 space-y-10">
+              <div className="p-5 md:p-10 space-y-10">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                   <div className="space-y-6">
                     <div className="flex flex-col gap-1">
@@ -464,7 +464,7 @@ const MentorsList = () => {
                   </div>
                 </div>
                 
-                <div className="p-8 bg-slate-50 rounded-[2.5rem] border border-slate-100 flex items-center justify-between">
+                <div className="p-4 md:p-8 bg-slate-50 rounded-[2.5rem] border border-slate-100 flex items-center justify-between">
                   <div className="flex items-center gap-4">
                     <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-[#008080] shadow-sm">
                       <ShieldCheck size={24} />

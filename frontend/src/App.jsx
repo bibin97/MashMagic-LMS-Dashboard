@@ -355,12 +355,12 @@ function App() {
 
           {/* 404 Route */}
           <Route path="*" element={
-            <div className="min-h-screen flex flex-col items-center justify-center p-8 bg-slate-50 text-center">
+            <div className="min-h-screen flex flex-col items-center justify-center p-4 md:p-8 bg-slate-50 text-center">
               <h1 className="text-9xl font-black text-slate-200">404</h1>
               <p className="text-xl font-bold text-slate-600 -mt-8 mb-8 text-black">Access Token Invalid or Page Missing</p>
               <button
                 onClick={() => window.location.href = '/'}
-                className="bg-[#008080] text-white px-8 py-3 rounded-2xl font-bold hover:bg-slate-800 transition-all font-black uppercase tracking-widest text-[10px]"
+                className="bg-[#008080] text-white px-4 md:px-8 py-3 rounded-2xl font-bold hover:bg-slate-800 transition-all font-black uppercase tracking-widest text-[10px]"
               >
                 Return to Safety
               </button>

@@ -72,25 +72,25 @@ const StudentDetails = () => {
  <ChevronLeft size={16} />
  Back to Roster
  </button>
- <button onClick={() => setIsReportModalOpen(true)} className="flex items-center gap-3 px-8 py-3 bg-rose-500 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-rose-600 transition-all shadow-xl shadow-rose-100">
+ <button onClick={() => setIsReportModalOpen(true)} className="flex items-center gap-3 px-4 md:px-8 py-3 bg-rose-500 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-rose-600 transition-all shadow-xl shadow-rose-100">
  <Plus size={16} />
  New Interaction Report
  </button>
  </div>
 
  {/* Profile Overview Card */}
- <div className="bg-[#008080] rounded-[3.5rem] p-12 text-white relative overflow-hidden group">
+ <div className="bg-[#008080] rounded-[3.5rem] p-6 md:p-12 text-white relative overflow-hidden group">
  <div className="absolute top-0 right-0 w-80 h-80 bg-[#008080]/10 rounded-full -mr-40 -mt-40 blur-[80px]"></div>
  <div className="relative z-10 flex flex-col md:flex-row items-center gap-10">
  <div className="w-32 h-32 bg-white/10 backdrop-blur-xl rounded-[2.5rem] flex items-center justify-center border border-white/20 shadow-2xl overflow-hidden group-hover:scale-105 transition-transform duration-700">
- <span className="text-5xl font-black text-white">{data?.profile?.name?.charAt(0)}</span>
+ <span className="text-3xl md:text-5xl font-black text-white">{data?.profile?.name?.charAt(0)}</span>
  </div>
  <div className="text-center md:text-left flex-1">
  <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 mb-4">
  <span className="bg-[#008080] text-[10px] font-black uppercase tracking-[0.2em] px-3 py-1 rounded-full">Active Member</span>
  <span className="bg-white/10 text-[10px] font-black uppercase tracking-[0.2em] px-3 py-1 rounded-full border border-white/10">ID: {data?.profile?.roll_number}</span>
  </div>
- <h1 className="text-5xl font-black tracking-tighter mb-4 ">{data?.profile?.name}</h1>
+ <h1 className="text-3xl md:text-5xl font-black tracking-tighter mb-4 ">{data?.profile?.name}</h1>
  <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-8">
  <div>
  <p className="text-slate-600 text-[10px] font-black uppercase tracking-widest mb-1">Department</p>
@@ -115,7 +115,7 @@ const StudentDetails = () => {
 
  {/* Detailed Info Tabs */}
  <div className="bg-white rounded-[3.5rem] border border-slate-100 shadow-sm overflow-hidden">
- <div className="flex border-b border-slate-100 px-10 pt-8 gap-10">
+ <div className="flex border-b border-slate-100 px-6 md:px-10 pt-8 gap-10 overflow-x-auto no-scrollbar">
  {[{
           id: 'academic',
           label: 'Academic Marks',
@@ -141,7 +141,7 @@ const StudentDetails = () => {
  </button>)}
  </div>
 
- <div className="p-10">
+ <div className="p-6 md:p-10">
  {/* Academic Marks Tab */}
  {activeTab === 'academic' && <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
  <div className="space-y-6">
@@ -160,14 +160,14 @@ const StudentDetails = () => {
  <p className="text-[10px] font-black uppercase text-emerald-500 tracking-widest">Grade: {mark.grade}</p>
  </div>
  </div>)}
- </div> : <div className="bg-slate-50 border-2 border-dashed border-slate-200 rounded-[2.5rem] p-12 text-center">
+ </div> : <div className="bg-slate-50 border-2 border-dashed border-slate-200 rounded-[2.5rem] p-6 md:p-12 text-center">
  <p className="text-slate-600 font-black text-xs uppercase tracking-widest">No mark records found.</p>
  </div>}
  </div>
 
  {/* Academic Summary Placeholder */}
- <div className="bg-[#008080]/10 overflow-hidden rounded-[2.5rem] p-10 relative">
- <div className="absolute top-0 right-0 p-8 opacity-10 rotate-12">
+ <div className="bg-[#008080]/10 overflow-hidden rounded-[2.5rem] p-6 md:p-10 relative">
+ <div className="absolute top-0 right-0 p-4 md:p-8 opacity-10 rotate-12">
  <BookOpen size={120} />
  </div>
  <h4 className="text-[#008080] font-black text-xl mb-4 tracking-tight">Faculty Remarks</h4>
@@ -185,15 +185,15 @@ const StudentDetails = () => {
  {/* Attendance Tab */}
  {activeTab === 'attendance' && <div className="space-y-8">
  <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
- <div className="bg-emerald-50 p-8 rounded-[2rem] border border-emerald-100">
+ <div className="bg-emerald-50 p-4 md:p-8 rounded-[2rem] border border-emerald-100">
  <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-1">Total Present</p>
  <p className="text-3xl font-black text-emerald-700">{data?.attendance?.filter(a => a.status === 'Present').length || 0}</p>
  </div>
- <div className="bg-rose-50 p-8 rounded-[2rem] border border-rose-100">
+ <div className="bg-rose-50 p-4 md:p-8 rounded-[2rem] border border-rose-100">
  <p className="text-[10px] font-black text-rose-600 uppercase tracking-widest mb-1">Total Absents</p>
  <p className="text-3xl font-black text-rose-700">{data?.attendance?.filter(a => a.status === 'Absent').length || 0}</p>
  </div>
- <div className="bg-[#008080]/10 p-8 rounded-[2rem] border border-[#008080]">
+ <div className="bg-[#008080]/10 p-4 md:p-8 rounded-[2rem] border border-[#008080]">
  <p className="text-[10px] font-black text-[#008080] uppercase tracking-widest mb-1">Status Grade</p>
  <p className="text-3xl font-black text-[#008080]">Excellent</p>
  </div>
@@ -203,16 +203,16 @@ const StudentDetails = () => {
 <table className="w-full text-left">
  <thead>
  <tr>
- <th className="px-8 py-5 text-[10px] font-black text-slate-600 uppercase tracking-widest">Session Topic</th>
- <th className="px-8 py-5 text-[10px] font-black text-slate-600 uppercase tracking-widest">Date</th>
- <th className="px-8 py-5 text-[10px] font-black text-slate-600 uppercase tracking-widest">Status</th>
+ <th className="px-4 md:px-8 py-5 text-[10px] font-black text-slate-600 uppercase tracking-widest">Session Topic</th>
+ <th className="px-4 md:px-8 py-5 text-[10px] font-black text-slate-600 uppercase tracking-widest">Date</th>
+ <th className="px-4 md:px-8 py-5 text-[10px] font-black text-slate-600 uppercase tracking-widest">Status</th>
  </tr>
  </thead>
  <tbody className="divide-y divide-slate-100">
  {data?.attendance?.map((att, idx) => <tr key={idx} className="hover:bg-white transition-all">
- <td className="px-8 py-4 font-bold text-slate-900 text-sm">{att.topic}</td>
- <td className="px-8 py-4 text-xs font-medium text-slate-500 uppercase tracking-wider">{new Date(att.date).toLocaleDateString()}</td>
- <td className="px-8 py-4 text-xs">
+ <td className="px-4 md:px-8 py-4 font-bold text-slate-900 text-sm">{att.topic}</td>
+ <td className="px-4 md:px-8 py-4 text-xs font-medium text-slate-500 uppercase tracking-wider">{new Date(att.date).toLocaleDateString()}</td>
+ <td className="px-4 md:px-8 py-4 text-xs">
  <span className={`px-4 py-1.5 rounded-full font-black uppercase text-[9px] tracking-widest shadow-sm ${att.status === 'Present' ? 'bg-emerald-500 text-white' : 'bg-rose-500 text-white'}`}>
  {att.status}
  </span>
@@ -226,7 +226,7 @@ const StudentDetails = () => {
 
  {/* Interaction History Tab */}
  {activeTab === 'interaction' && <div className="space-y-6">
- {data?.reports?.length > 0 ? data.reports.map((report, idx) => <div key={idx} className="bg-slate-50 p-10 rounded-[2.5rem] border border-slate-100 relative group hover:bg-white transition-all duration-500 shadow-sm hover:shadow-xl">
+ {data?.reports?.length > 0 ? data.reports.map((report, idx) => <div key={idx} className="bg-slate-50 p-6 md:p-10 rounded-[2.5rem] border border-slate-100 relative group hover:bg-white transition-all duration-500 shadow-sm hover:shadow-xl">
  <div className="absolute top-8 right-8">
  <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm ${report.status === 'Open' ? 'bg-[#008080] text-white' : 'bg-[#008080] text-white'}`}>
  {report.status}
@@ -282,7 +282,7 @@ const StudentDetails = () => {
  {/* Interaction Report Modal */}
  {isReportModalOpen && <div className="fixed inset-0 z-[2000] flex items-center justify-center p-6 backdrop-blur-3xl bg-[#008080]/10 animate-in fade-in duration-300">
  <div className="bg-white w-full max-w-2xl rounded-[3.5rem] border border-slate-100 shadow-2xl overflow-hidden animate-in zoom-in slide-in-from-bottom-10 duration-500 max-h-[90vh] overflow-y-auto">
- <div className="p-10 border-b border-slate-50 flex justify-between items-center text-white bg-[#008080] relative">
+ <div className="p-6 md:p-10 border-b border-slate-50 flex justify-between items-center text-white bg-[#008080] relative">
  <div className="absolute top-0 right-0 w-40 h-40 bg-[#008080]/10 rounded-full -mr-20 -mt-20 blur-3xl"></div>
  <div className="relative">
  <h3 className="text-2xl font-black tracking-tight ">Submit Report</h3>
@@ -292,11 +292,11 @@ const StudentDetails = () => {
  <ChevronLeft size={24} className="rotate-90" />
  </button>
  </div>
- <form onSubmit={handleReportSubmit} className="p-12 space-y-8">
+ <form onSubmit={handleReportSubmit} className="p-6 md:p-12 space-y-8">
  <div className="grid grid-cols-2 gap-8">
  <div className="space-y-3">
  <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-4">Interaction Type</label>
- <select className="w-full px-8 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:outline-none focus:ring-4 focus:ring-[#008080]/5 focus:border-[#008080] transition-all cursor-pointer" value={reportForm.type} onChange={e => setReportForm({
+ <select className="w-full px-4 md:px-8 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:outline-none focus:ring-4 focus:ring-[#008080]/5 focus:border-[#008080] transition-all cursor-pointer" value={reportForm.type} onChange={e => setReportForm({
                 ...reportForm,
                 type: e.target.value
               })}>
@@ -308,7 +308,7 @@ const StudentDetails = () => {
  </div>
  <div className="space-y-3">
  <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-4">Follow-up Date</label>
- <input type="date" className="w-full px-8 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:outline-none focus:ring-4 focus:ring-[#008080]/5 focus:border-[#008080] transition-all" value={reportForm.follow_up_date} onChange={e => setReportForm({
+ <input type="date" className="w-full px-4 md:px-8 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:outline-none focus:ring-4 focus:ring-[#008080]/5 focus:border-[#008080] transition-all" value={reportForm.follow_up_date} onChange={e => setReportForm({
                 ...reportForm,
                 follow_up_date: e.target.value
               })} />
@@ -317,7 +317,7 @@ const StudentDetails = () => {
 
  <div className="space-y-3">
  <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-4">Observation Remarks</label>
- <textarea placeholder="Enter detailed observation notes..." rows="3" className="w-full px-8 py-6 bg-slate-50 border border-slate-100 rounded-[2rem] text-xs font-bold focus:outline-none focus:ring-4 focus:ring-[#008080]/5 focus:border-[#008080] transition-all resize-none" value={reportForm.remarks} onChange={e => setReportForm({
+ <textarea placeholder="Enter detailed observation notes..." rows="3" className="w-full px-4 md:px-8 py-6 bg-slate-50 border border-slate-100 rounded-[2rem] text-xs font-bold focus:outline-none focus:ring-4 focus:ring-[#008080]/5 focus:border-[#008080] transition-all resize-none" value={reportForm.remarks} onChange={e => setReportForm({
               ...reportForm,
               remarks: e.target.value
             })} required />
@@ -325,7 +325,7 @@ const StudentDetails = () => {
 
  <div className="space-y-3">
  <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-4">Action Taken / Proposed</label>
- <textarea placeholder="Planned corrective actions..." rows="2" className="w-full px-8 py-6 bg-slate-50 border border-slate-100 rounded-[2rem] text-xs font-bold focus:outline-none focus:ring-4 focus:ring-[#008080]/5 focus:border-[#008080] transition-all resize-none" value={reportForm.action_taken} onChange={e => setReportForm({
+ <textarea placeholder="Planned corrective actions..." rows="2" className="w-full px-4 md:px-8 py-6 bg-slate-50 border border-slate-100 rounded-[2rem] text-xs font-bold focus:outline-none focus:ring-4 focus:ring-[#008080]/5 focus:border-[#008080] transition-all resize-none" value={reportForm.action_taken} onChange={e => setReportForm({
               ...reportForm,
               action_taken: e.target.value
             })} />

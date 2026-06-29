@@ -44,7 +44,7 @@ const FacultyAudit = () => {
     </div>;
   return <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
         {/* Header Section */}
-        <div className="bg-white p-10 rounded-[4rem] border border-slate-100 shadow-sm mb-10">
+        <div className="bg-white p-5 md:p-10 rounded-[4rem] border border-slate-100 shadow-sm mb-10">
             <h2 className="text-3xl font-black text-slate-900 tracking-tighter uppercase flex items-center gap-4">
                 <div className="w-12 h-12 bg-[#008080] rounded-2xl flex items-center justify-center text-white shadow-lg shadow-[#008080]/30 rotate-3">
                     <ShieldAlert size={28} />

@@ -116,7 +116,7 @@ const FacultyDocuments = () => {
  />
  <label
  htmlFor="doc-upload"
- className={`flex items-center gap-4 px-10 py-5 bg-[#008080] text-white rounded-[2rem] font-black text-[10px] uppercase tracking-widest cursor-pointer hover:bg-[#008080] transition-all shadow-2xl shadow-[#008080]/30 ${isUploading ? 'opacity-50 cursor-wait' : ''
+ className={`flex items-center gap-4 px-5 md:px-10 py-5 bg-[#008080] text-white rounded-[2rem] font-black text-[10px] uppercase tracking-widest cursor-pointer hover:bg-[#008080] transition-all shadow-2xl shadow-[#008080]/30 ${isUploading ? 'opacity-50 cursor-wait' : ''
  }`}
  >
  {isUploading ? <Clock className="animate-spin" size={18} /> : <Upload size={18} />}
@@ -137,7 +137,7 @@ const FacultyDocuments = () => {
  onChange={(e) => setSearchTerm(e.target.value)}
  />
  </div>
- <div className="flex items-center gap-3 px-8 border-l border-slate-100">
+ <div className="flex items-center gap-3 px-4 md:px-8 border-l border-slate-100">
  <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest leading-none">Total Assets</p>
  <p className="text-xl font-black text-slate-900 tabular-nums">{documents.length}</p>
  </div>

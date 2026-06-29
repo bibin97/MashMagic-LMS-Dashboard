@@ -203,7 +203,7 @@ const FacultyTracking = () => {
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-center gap-8">
         <div>
-          <h2 className="text-4xl font-black text-slate-900 tracking-tighter uppercase leading-none mb-3">Faculty Log Overview</h2>
+          <h2 className="text-2xl md:text-4xl font-black text-slate-900 tracking-tighter uppercase leading-none mb-3">Faculty Log Overview</h2>
           <p className="text-slate-600 text-[10px] font-black uppercase tracking-[0.2em] flex items-center gap-2">
             <Activity size={14} className="text-[#008080]" /> STUDENT PERFORMANCE TRACKER
           </p>
@@ -254,7 +254,7 @@ const FacultyTracking = () => {
             <div className="grid grid-cols-1 gap-6">
                {filteredLogs.map(log => (
                  <div key={log.id} className="bg-white rounded-[32px] border border-slate-100 shadow-xl overflow-hidden hover:border-[#008080]/30 transition-all group">
-                    <div className="p-8 flex flex-col md:flex-row md:items-center justify-between gap-8">
+                    <div className="p-4 md:p-8 flex flex-col md:flex-row md:items-center justify-between gap-8">
                        <div className="flex items-center gap-6">
                           <div className="w-16 h-16 bg-slate-50 rounded-[22px] flex items-center justify-center text-slate-600 group-hover:bg-[#008080]/10 group-hover:text-[#008080] transition-all">
                              <User size={28} />
@@ -291,7 +291,7 @@ const FacultyTracking = () => {
 
                     {/* Expandable Details (when selected) */}
                     {selectedLog?.id === log.id && (
-                      <div className="px-8 pb-10 pt-4 border-t border-slate-50 space-y-10 animate-in slide-in-from-top-4 duration-500">
+                      <div className="px-4 md:px-8 pb-10 pt-4 border-t border-slate-50 space-y-10 animate-in slide-in-from-top-4 duration-500">
                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                             <div className="bg-slate-50/50 p-6 rounded-[24px] border border-slate-100">
                                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Class Context</p>
@@ -369,7 +369,7 @@ const FacultyTracking = () => {
         {activeTab === 'review' && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
              {logs.filter(l => !l.todays_observation).map(log => (
-               <div key={log.id} className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-xl flex flex-col justify-between hover:-translate-y-1 transition-all group">
+               <div key={log.id} className="bg-white p-4 md:p-8 rounded-[32px] border border-slate-100 shadow-xl flex flex-col justify-between hover:-translate-y-1 transition-all group">
                   <div className="space-y-6">
                     <div className="flex justify-between items-start">
                        <div className="w-14 h-14 bg-slate-50 rounded-[20px] flex items-center justify-center text-slate-600 group-hover:bg-amber-50 group-hover:text-amber-600 transition-all">
@@ -424,7 +424,7 @@ const FacultyTracking = () => {
 
              <div className="grid grid-cols-1 gap-6">
                 {interactions.map(item => (
-                  <div key={item.id} className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-xl flex flex-col lg:flex-row gap-10">
+                  <div key={item.id} className="bg-white p-6 md:p-8 rounded-[32px] border border-slate-100 shadow-xl flex flex-col lg:flex-row gap-10">
                      <div className="flex-1 space-y-6">
                         <div className="flex items-center gap-6">
                            <div className="w-16 h-16 bg-[#008080]/10 text-[#008080] rounded-[22px] flex items-center justify-center">
@@ -452,7 +452,7 @@ const FacultyTracking = () => {
                         </div>
                      </div>
 
-                     <div className="lg:w-[400px] bg-slate-50 p-8 rounded-[32px] flex flex-col justify-between">
+                     <div className="lg:w-[400px] bg-slate-50 p-4 md:p-8 rounded-[32px] flex flex-col justify-between">
                         <div className="space-y-6">
                            <div>
                               <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Action Plan</p>
@@ -493,7 +493,7 @@ const FacultyTracking = () => {
       {isReviewModalOpen && selectedLog && (
         <div className="fixed inset-0 bg-[#008080]/60 backdrop-blur-md z-[2000] flex items-center justify-center p-6 animate-in fade-in duration-300">
            <div className="bg-white rounded-[40px] shadow-2xl w-full max-w-2xl overflow-hidden animate-in zoom-in slide-in-from-bottom-10 duration-500 max-h-[90vh] overflow-y-auto">
-              <div className="p-10 border-b border-slate-50 flex justify-between items-center">
+              <div className="p-6 md:p-10 border-b border-slate-50 flex justify-between items-center">
                  <div>
                     <h3 className="text-2xl font-black text-slate-900 uppercase tracking-tighter">Mentor Review</h3>
                     <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mt-1">Analyzing log for {selectedLog.student_name}</p>
@@ -502,8 +502,8 @@ const FacultyTracking = () => {
                     <X size={24} />
                  </button>
               </div>
-              <div className="p-10 space-y-10">
-                 <div className="bg-slate-50 p-8 rounded-[28px] border border-slate-100 space-y-4">
+              <div className="p-6 md:p-10 space-y-10">
+                 <div className="bg-slate-50 p-4 md:p-8 rounded-[28px] border border-slate-100 space-y-4">
                     <div className="flex items-center gap-3 text-amber-500">
                        <AlertCircle size={20} />
                        <span className="text-xs font-black uppercase tracking-widest">Faculty Observation</span>
@@ -561,7 +561,7 @@ const FacultyTracking = () => {
       {isInteractionModalOpen && selectedLog && (
         <div className="fixed inset-0 bg-[#008080]/60 backdrop-blur-md z-[2000] flex items-center justify-center p-6 animate-in fade-in duration-300">
            <div className="bg-white rounded-[40px] shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto animate-in zoom-in slide-in-from-bottom-10 duration-500">
-              <div className="p-10 border-b border-slate-50 flex justify-between items-center sticky top-0 bg-white/80 backdrop-blur-xl z-10">
+              <div className="p-6 md:p-10 border-b border-slate-50 flex justify-between items-center sticky top-0 bg-white/80 backdrop-blur-xl z-10">
                  <div>
                     <h3 className="text-2xl font-black text-slate-900 uppercase tracking-tighter">Interaction Log</h3>
                     <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mt-1">Issue Resolution Tracker • {selectedLog.student_name}</p>
@@ -571,7 +571,7 @@ const FacultyTracking = () => {
                  </button>
               </div>
 
-              <div className="p-10 space-y-12">
+              <div className="p-6 md:p-10 space-y-12">
                  {/* Section 1: Interaction Metadata */}
                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div className="space-y-2">
@@ -730,7 +730,7 @@ const FacultyTracking = () => {
     {/* Export Date Range Modal */}
     {exportModal && (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm">
-        <div className="bg-white rounded-[2rem] shadow-2xl p-8 w-full max-w-md mx-4">
+        <div className="bg-white rounded-[2rem] shadow-2xl p-4 md:p-8 w-full max-w-md mx-4">
           <div className="flex items-center justify-between mb-6">
             <div>
               <h3 className="text-lg font-black text-slate-900 flex items-center gap-3"><Download className="text-[#008080]" size={20} /> Export Faculty Logs</h3>

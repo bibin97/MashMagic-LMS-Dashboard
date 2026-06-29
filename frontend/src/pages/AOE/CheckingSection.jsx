@@ -152,7 +152,7 @@ const CheckingSection = () => {
   };
   return <div className="space-y-10 pb-20">
  {/* Header */}
- <div className="bg-white p-10 rounded-[3rem] border border-slate-100 shadow-sm flex flex-col xl:flex-row justify-between items-start xl:items-center gap-6">
+ <div className="bg-white p-5 md:p-10 rounded-[3rem] border border-slate-100 shadow-sm flex flex-col xl:flex-row justify-between items-start xl:items-center gap-6">
  <div>
  <h2 className="text-3xl font-black text-slate-900 tracking-tighter uppercase ">Institutional Audit Hub</h2>
  <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest mt-2 flex items-center gap-2">
@@ -178,19 +178,19 @@ const CheckingSection = () => {
 <table className="hidden md:table w-full text-left border-collapse min-w-max">
  <thead>
  <tr className="bg-slate-50/50 border-b border-slate-100">
- <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Faculty Member</th>
- <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Session Date</th>
- <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Chapter / Topic</th>
- <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Audit Track</th>
- <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest text-center">Audit Status</th>
- <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest text-right">Verification</th>
+ <th className="px-4 md:px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Faculty Member</th>
+ <th className="px-4 md:px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Session Date</th>
+ <th className="px-4 md:px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Chapter / Topic</th>
+ <th className="px-4 md:px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Audit Track</th>
+ <th className="px-4 md:px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest text-center">Audit Status</th>
+ <th className="px-4 md:px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest text-right">Verification</th>
  </tr>
  </thead>
  <tbody className="divide-y divide-slate-100">
  {sessions.map((session, index) => {
                 const isChecked = session.check_count > 0;
                 return <tr key={`${session.session_id}-${session.student_id}`} className={`group transition-all ${isChecked ? 'bg-emerald-50/30' : 'hover:bg-slate-50/50'}`}><td className="p-6 text-sm font-black text-slate-400 border-b border-slate-50">{index + 1}</td>
- <td className="px-8 py-6">
+ <td className="px-4 md:px-8 py-6">
  <div className="flex items-center gap-3">
  <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xs font-black uppercase ${isChecked ? 'bg-emerald-100 text-emerald-600' : 'bg-slate-100 text-slate-500'}`}>
  {session.faculty_name?.charAt(0)}
@@ -198,14 +198,14 @@ const CheckingSection = () => {
  <span className="font-bold text-slate-700">{session.faculty_name}</span>
  </div>
  </td>
- <td className="px-8 py-6 text-xs font-bold text-slate-500 ">
+ <td className="px-4 md:px-8 py-6 text-xs font-bold text-slate-500 ">
  {new Date(session.date).toLocaleDateString()}
  </td>
- <td className="px-8 py-6">
+ <td className="px-4 md:px-8 py-6">
  <p className="text-xs font-black text-slate-900 uppercase tracking-tight">{session.chapter}</p>
  <p className="text-[10px] text-slate-600 font-bold max-w-[200px] truncate">{session.topics_covered}</p>
  </td>
- <td className="px-8 py-6">
+ <td className="px-4 md:px-8 py-6">
  <p className="text-xs font-black text-slate-800 uppercase tracking-tight">{session.student_name}</p>
  <div className="flex items-center gap-2 mt-1">
  <div className="w-20 h-1.5 bg-slate-100 rounded-full overflow-hidden">
@@ -216,14 +216,14 @@ const CheckingSection = () => {
  <span className="text-[9px] font-black text-[#008080] uppercase ">{session.total_verified_for_student}/30 Audited</span>
  </div>
  </td>
- <td className="px-8 py-6 text-center">
+ <td className="px-4 md:px-8 py-6 text-center">
  {isChecked ? <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-500 text-white rounded-full text-[9px] font-black uppercase tracking-widest">
  <Check size={10} /> Verified
  </span> : <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-100 text-slate-600 rounded-full text-[9px] font-black uppercase tracking-widest">
  <Target size={10} /> Pending
  </span>}
  </td>
- <td className="px-8 py-6 text-right">
+ <td className="px-4 md:px-8 py-6 text-right">
  <div className="flex items-center justify-end gap-2">
  <button onClick={() => handleAddCheck(session.session_id)} className={`p-2.5 rounded-xl border transition-all ${isChecked ? 'bg-emerald-600 border-emerald-600 text-white shadow-lg shadow-emerald-100' : 'bg-white border-slate-200 text-slate-600 hover:text-[#008080] hover:border-[#008080] shadow-sm'}`}>
  <Check size={18} />
@@ -235,7 +235,7 @@ const CheckingSection = () => {
  </td>
  </tr>;
               })}
- {sessions.length === 0 && <tr><td colSpan="6" className="px-8 py-20 text-center text-slate-600 font-bold uppercase tracking-widest text-[10px]">No sessions found for audit.</td></tr>}
+ {sessions.length === 0 && <tr><td colSpan="6" className="px-4 md:px-8 py-20 text-center text-slate-600 font-bold uppercase tracking-widest text-[10px]">No sessions found for audit.</td></tr>}
  </tbody>
  </table>
  <div className="md:hidden flex flex-col gap-4 p-4">
@@ -266,7 +266,7 @@ const CheckingSection = () => {
        />
      );
    })}
-   {sessions.length === 0 && <p className="text-center text-slate-500 py-10">No sessions found</p>}
+   {sessions.length === 0 && <p className="text-center text-slate-500 py-5 md:py-10">No sessions found</p>}
  </div>
 </div>
  </div>}
@@ -278,7 +278,7 @@ const CheckingSection = () => {
  <h3 className="text-xl font-black text-slate-900 mb-2 tracking-tight">No Live Classes Evaluated</h3>
  <p className="text-slate-600 font-bold text-sm">Start by clicking "New Evaluation".</p>
  </div> : <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
- {evaluations.map(ev => <div key={ev.id} className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-200/50 hover:-translate-y-1 transition-all duration-300 relative group">
+ {evaluations.map(ev => <div key={ev.id} className="bg-white p-4 md:p-8 rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-200/50 hover:-translate-y-1 transition-all duration-300 relative group">
  <div className="flex justify-between items-start mb-6">
  <div>
  <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Faculty Name</span>
@@ -326,28 +326,28 @@ const CheckingSection = () => {
 <table className="hidden md:table w-full text-left border-collapse min-w-max">
  <thead>
  <tr className="bg-slate-50/50 border-b border-slate-100">
- <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Date / Session</th>
- <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Faculty / Student</th>
- <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Class Progress</th>
- <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Verification</th>
- <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest text-right">Action</th>
+ <th className="px-4 md:px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Date / Session</th>
+ <th className="px-4 md:px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Faculty / Student</th>
+ <th className="px-4 md:px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Class Progress</th>
+ <th className="px-4 md:px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Verification</th>
+ <th className="px-4 md:px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest text-right">Action</th>
  </tr>
  </thead>
  <tbody className="divide-y divide-slate-100">
  {pendingLogs.map((log, index) => <tr key={log.id} className="hover:bg-slate-50/50 transition-colors"><td className="p-6 text-sm font-black text-slate-400 border-b border-slate-50">{index + 1}</td>
- <td className="px-8 py-6">
+ <td className="px-4 md:px-8 py-6">
  <p className="text-sm font-black text-slate-900">{new Date(log.date).toLocaleDateString()}</p>
  <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">Sess: {log.session_number}</p>
  </td>
- <td className="px-8 py-6">
+ <td className="px-4 md:px-8 py-6">
  <p className="text-sm font-bold text-slate-700">{log.faculty_name || 'N/A'}</p>
  <p className="text-xs font-bold text-[#008080] mt-1">{log.student_name || 'N/A'}</p>
  </td>
- <td className="px-8 py-6 max-w-xs">
+ <td className="px-4 md:px-8 py-6 max-w-xs">
  <p className="text-xs font-bold text-slate-700 truncate"><span className="text-slate-600">Chap:</span> {log.chapter}</p>
  <p className="text-xs font-bold text-slate-700 truncate mt-1"><span className="text-slate-600">Topics:</span> {log.topics_covered}</p>
  </td>
- <td className="px-8 py-6">
+ <td className="px-4 md:px-8 py-6">
  {log.verification_status === 'Pending' ? <span className="px-3 py-1 bg-amber-50 text-amber-600 rounded-lg text-[10px] font-black uppercase tracking-widest border border-amber-100">Pending</span> : log.verification_status === 'Verified' ? <div className="flex flex-col gap-1">
  <span className="px-3 py-1 bg-emerald-50 text-emerald-600 rounded-lg text-[10px] font-black uppercase tracking-widest border border-emerald-100 inline-block w-max">Verified</span>
  {log.verification_remarks && <p className="text-[10px] text-slate-500 max-w-[150px] truncate">{log.verification_remarks}</p>}
@@ -356,7 +356,7 @@ const CheckingSection = () => {
  {log.verification_remarks && <p className="text-[10px] text-slate-500 max-w-[150px] truncate">{log.verification_remarks}</p>}
  </div>}
  </td>
- <td className="px-8 py-6 text-right">
+ <td className="px-4 md:px-8 py-6 text-right">
  <button onClick={() => {
                     setVerifyForm({
                       id: log.id,
@@ -369,7 +369,7 @@ const CheckingSection = () => {
  </button>
  </td>
  </tr>)}
- {pendingLogs.length === 0 && <tr><td colSpan="5" className="px-8 py-20 text-center text-slate-600 font-bold">No daily logs found.</td></tr>}
+ {pendingLogs.length === 0 && <tr><td colSpan="5" className="px-4 md:px-8 py-20 text-center text-slate-600 font-bold">No daily logs found.</td></tr>}
  </tbody>
  </table>
  <div className="md:hidden flex flex-col gap-4 p-4">
@@ -399,7 +399,7 @@ const CheckingSection = () => {
        ]}
      />
    ))}
-   {pendingLogs.length === 0 && <p className="text-center text-slate-500 py-10">No daily logs found</p>}
+   {pendingLogs.length === 0 && <p className="text-center text-slate-500 py-5 md:py-10">No daily logs found</p>}
  </div>
 </div>
  </div>}
@@ -417,10 +417,10 @@ const CheckingSection = () => {
  {isEvalModalOpen && <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
  <div className="absolute inset-0 bg-[#008080]/60 backdrop-blur-sm max-h-[90vh] overflow-y-auto" onClick={() => setIsEvalModalOpen(false)}></div>
  <div className="bg-white rounded-[3rem] w-full max-w-lg shadow-2xl overflow-hidden relative z-10 animate-in zoom-in duration-300">
- <div className="px-10 py-8 bg-[#008080] text-white relative">
+ <div className="px-5 md:px-10 py-4 md:py-8 bg-[#008080] text-white relative">
  <h3 className="text-2xl font-black tracking-tighter uppercase relative z-10">Live Class Check</h3>
  </div>
- <form onSubmit={handleEvalSubmit} className="p-10 space-y-6">
+ <form onSubmit={handleEvalSubmit} className="p-5 md:p-10 space-y-6">
  <div className="grid grid-cols-2 gap-6">
  <div className="col-span-2 md:col-span-1">
  <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest pl-2 mb-2 block">Check Method</label>
@@ -516,10 +516,10 @@ const CheckingSection = () => {
  {isVerifyModalOpen && <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
  <div className="absolute inset-0 bg-[#008080]/60 backdrop-blur-sm max-h-[90vh] overflow-y-auto" onClick={() => setIsVerifyModalOpen(false)}></div>
  <div className="bg-white rounded-[3rem] w-full max-w-md shadow-2xl overflow-hidden relative z-10 animate-in zoom-in duration-300">
- <div className="px-10 py-8 bg-[#008080] text-white relative">
+ <div className="px-5 md:px-10 py-4 md:py-8 bg-[#008080] text-white relative">
  <h3 className="text-2xl font-black tracking-tighter uppercase relative z-10">Verify Faculty Log</h3>
  </div>
- <form onSubmit={handleVerifySubmit} className="p-10 space-y-6">
+ <form onSubmit={handleVerifySubmit} className="p-5 md:p-10 space-y-6">
  <div>
  <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest pl-2 mb-2 block">Verification Status</label>
  <select required className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold shadow-sm outline-none focus:ring-4 focus:ring-emerald-50" value={verifyForm.verification_status} onChange={e => setVerifyForm({

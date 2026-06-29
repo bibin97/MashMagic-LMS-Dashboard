@@ -199,23 +199,23 @@ const RemoveMentors = () => {
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="border-b border-slate-100 bg-slate-50/50">
-                    <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest w-16">#</th>
-                    <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Student</th>
-                    <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Current Mentor</th>
-                    <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Removed Mentor</th>
-                    <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Actions</th>
+                    <th className="px-4 md:px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest w-16">#</th>
+                    <th className="px-4 md:px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Student</th>
+                    <th className="px-4 md:px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Current Mentor</th>
+                    <th className="px-4 md:px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Removed Mentor</th>
+                    <th className="px-4 md:px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
                   {filteredStudents.length > 0 ? (
                     filteredStudents.map((student, idx) => (
                       <tr key={student.id} className="hover:bg-slate-50/80 transition-all duration-200 group">
-                        <td className="px-8 py-6 text-slate-400 font-black">{idx + 1}</td>
-                        <td className="px-8 py-6">
+                        <td className="px-4 md:px-8 py-6 text-slate-400 font-black">{idx + 1}</td>
+                        <td className="px-4 md:px-8 py-6">
                           <p className="font-black text-slate-900 leading-none truncate max-w-[200px]">{student.name}</p>
                           <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">ID: MM-{student.id.toString().padStart(4, '0')}</p>
                         </td>
-                        <td className="px-8 py-6">
+                        <td className="px-4 md:px-8 py-6">
                           {student.mentor_id ? (
                             <span className="bg-[#008080]/10 text-[#008080] px-3 py-1.5 rounded-lg text-xs font-black uppercase tracking-widest inline-block truncate max-w-[150px]">
                               {student.mentor_name}
@@ -224,7 +224,7 @@ const RemoveMentors = () => {
                             <span className="text-slate-300 font-bold text-xs uppercase tracking-widest">No Mentor</span>
                           )}
                         </td>
-                        <td className="px-8 py-6">
+                        <td className="px-4 md:px-8 py-6">
                           {student.previous_mentor_name ? (
                             <span className="bg-rose-50 text-rose-500 px-3 py-1.5 rounded-lg text-xs font-black uppercase tracking-widest inline-block truncate max-w-[150px]">
                               {student.previous_mentor_name}
@@ -233,7 +233,7 @@ const RemoveMentors = () => {
                             <span className="text-slate-300 font-bold text-xs uppercase tracking-widest">None</span>
                           )}
                         </td>
-                        <td className="px-8 py-6 text-right">
+                        <td className="px-4 md:px-8 py-6 text-right">
                           {student.mentor_id && (
                             <button
                               onClick={() => confirmRemoveMentor(student)}
@@ -247,7 +247,7 @@ const RemoveMentors = () => {
                     ))
                   ) : (
                     <tr>
-                      <td colSpan="5" className="px-8 py-20 text-center">
+                      <td colSpan="5" className="px-4 md:px-8 py-20 text-center">
                         <UserX size={32} className="mx-auto text-slate-300 mb-3" />
                         <p className="text-slate-400 font-bold uppercase tracking-widest text-xs">No mentor assignments found.</p>
                       </td>
@@ -303,7 +303,7 @@ const RemoveMentors = () => {
                   </div>
                 ))
               ) : (
-                <div className="py-12 text-center flex flex-col items-center">
+                <div className="py-6 md:py-12 text-center flex flex-col items-center">
                   <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-sm border border-slate-100 mb-4">
                     <UserX size={24} className="text-slate-300" />
                   </div>

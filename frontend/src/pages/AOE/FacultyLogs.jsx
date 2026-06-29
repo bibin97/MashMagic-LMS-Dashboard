@@ -32,7 +32,7 @@ const FacultyLogs = () => {
   });
   return <div className="space-y-10 pb-20 max-w-[1600px] mx-auto animate-in fade-in duration-700">
  {/* Auditing Header */}
- <div className="bg-white p-10 rounded-[3.5rem] shadow-sm border border-slate-100 flex flex-col md:flex-row justify-between items-center gap-6 relative overflow-hidden">
+ <div className="bg-white p-5 md:p-10 rounded-[3.5rem] shadow-sm border border-slate-100 flex flex-col md:flex-row justify-between items-center gap-6 relative overflow-hidden">
  <div className="absolute top-0 right-0 w-64 h-64 bg-[#008080]/10 rounded-full -mr-32 -mt-32 opacity-40"></div>
  <div className="relative z-10 flex items-center gap-6">
  <div className="w-16 h-16 bg-[#008080] rounded-3xl flex items-center justify-center text-white shadow-xl shadow-[#008080]/30 rotate-6 group hover:rotate-0 transition-all duration-500">
@@ -58,7 +58,7 @@ const FacultyLogs = () => {
  </button>
  </div>
 
- <div className="relative group min-w-[300px]">
+ <div className="relative group min-w-full md:w-[300px]">
  <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#008080] transition-colors" size={18} />
  <input type="text" placeholder="Search Sessions..." className="w-full pl-12 pr-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-[10px] font-black uppercase tracking-widest focus:bg-white focus:ring-8 ring-[#008080]/5 outline-none transition-all" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
  </div>
@@ -71,7 +71,7 @@ const FacultyLogs = () => {
  <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest animate-pulse">Loading Logs...</p>
  </div> : isMentorTab ? (/* Mentor Audit View */
     <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
- {filteredLogs.map(log => <div key={log.id} onClick={() => setSelectedLog(log)} className="bg-white rounded-[3rem] p-8 border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-500 group cursor-pointer relative overflow-hidden">
+ {filteredLogs.map(log => <div key={log.id} onClick={() => setSelectedLog(log)} className="bg-white rounded-[3rem] p-4 md:p-8 border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-500 group cursor-pointer relative overflow-hidden">
  <div className="absolute top-0 right-0 w-2 h-full bg-[#008080]"></div>
 
  <div className="flex justify-between items-start mb-8">
@@ -148,23 +148,23 @@ const FacultyLogs = () => {
  <table className="w-full text-left">
  <thead>
  <tr className="bg-slate-50/80 border-b border-slate-100">
- <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest ">Date</th>
- <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest ">Faculty</th>
- <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest ">Focus Chapter</th>
- <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest ">Schedule</th>
- <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest ">Duration</th>
- <th className="px-8 py-6 text-right text-[10px] font-black text-slate-600 uppercase tracking-widest ">Actions</th>
+ <th className="px-4 md:px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest ">Date</th>
+ <th className="px-4 md:px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest ">Faculty</th>
+ <th className="px-4 md:px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest ">Focus Chapter</th>
+ <th className="px-4 md:px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest ">Schedule</th>
+ <th className="px-4 md:px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest ">Duration</th>
+ <th className="px-4 md:px-8 py-6 text-right text-[10px] font-black text-slate-600 uppercase tracking-widest ">Actions</th>
  </tr>
  </thead>
  <tbody className="divide-y divide-slate-50">
  {filteredLogs.map((log, index) => <tr key={log.id} className="hover:bg-slate-50/50 transition-colors group"><td className="p-6 text-sm font-black text-slate-400 border-b border-slate-50">{index + 1}</td>
- <td className="px-8 py-6">
+ <td className="px-4 md:px-8 py-6">
  <div className="flex flex-col">
  <span className="text-[10px] font-black text-slate-900 tracking-tight">{new Date(log.date).toLocaleDateString()}</span>
  <span className="text-[8px] font-bold text-slate-600 uppercase tracking-[0.2em] mt-1">Confirmed</span>
  </div>
  </td>
- <td className="px-8 py-6">
+ <td className="px-4 md:px-8 py-6">
  <div className="flex items-center gap-3">
  <div className="w-9 h-9 bg-white rounded-xl shadow-sm border border-slate-100 flex items-center justify-center text-[#008080]">
  <User size={16} />
@@ -172,21 +172,21 @@ const FacultyLogs = () => {
  <span className="text-xs font-black text-slate-700 tracking-tight uppercase">{log.faculty_name}</span>
  </div>
  </td>
- <td className="px-8 py-6">
+ <td className="px-4 md:px-8 py-6">
  <div className="bg-[#008080]/10/50 px-4 py-2 rounded-xl border border-[#008080]/50 inline-block">
  <span className="text-xs font-black text-[#008080] uppercase tracking-tighter">{log.chapter}</span>
  </div>
  </td>
- <td className="px-8 py-6">
+ <td className="px-4 md:px-8 py-6">
  <div className="flex items-center gap-2 text-slate-600">
  <Clock size={12} />
  <span className="text-[10px] font-bold tracking-tight">{log.start_time} - {log.end_time}</span>
  </div>
  </td>
- <td className="px-8 py-6">
+ <td className="px-4 md:px-8 py-6">
  <span className="text-[10px] font-black text-slate-900 ">{log.duration}</span>
  </td>
- <td className="px-8 py-6 text-right">
+ <td className="px-4 md:px-8 py-6 text-right">
  <button className="px-6 py-2.5 bg-[#008080] text-white rounded-xl text-[9px] font-black uppercase tracking-widest shadow-xl shadow-slate-200/50 hover:bg-[#008080] transition-all opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0">
  View
  </button>
@@ -202,7 +202,7 @@ const FacultyLogs = () => {
  {/* Modal for Mentor Audit Detail */}
  {selectedLog && isMentorTab && <div className="fixed inset-0 bg-[#008080]/60 backdrop-blur-md z-[1100] flex items-center justify-center p-4 animate-in fade-in duration-300">
  <div className="bg-white rounded-[4rem] shadow-2xl w-full max-w-5xl h-[90vh] overflow-hidden animate-in zoom-in duration-500 border border-white/20 flex flex-col max-h-[90vh] overflow-y-auto">
- <div className="p-10 border-b border-slate-50 flex justify-between items-center bg-[#008080] text-white relative h-32 overflow-hidden">
+ <div className="p-5 md:p-10 border-b border-slate-50 flex justify-between items-center bg-[#008080] text-white relative h-32 overflow-hidden">
  <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-32 -mt-32"></div>
  <div className="relative z-10 flex items-center gap-6">
  <div className="w-16 h-16 bg-white/20 rounded-3xl flex items-center justify-center backdrop-blur-md border border-white/20">
@@ -220,14 +220,14 @@ const FacultyLogs = () => {
  </button>
  </div>
 
- <div className="flex-1 overflow-y-auto p-12 space-y-12">
+ <div className="flex-1 overflow-y-auto p-6 md:p-12 space-y-12">
  <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
  <div className="space-y-10">
  <div className="space-y-4">
  <h4 className="text-[10px] font-black text-slate-600 uppercase tracking-widest flex items-center gap-2 h-10 border-b border-slate-50 ">
  <BookOpen size={14} className="text-[#008080]" /> Academic Content
  </h4>
- <div className="bg-slate-50 p-8 rounded-[3.5rem] border border-slate-100/50">
+ <div className="bg-slate-50 p-4 md:p-8 rounded-[3.5rem] border border-slate-100/50">
  <p className="text-[8px] font-black text-[#008080] uppercase tracking-widest mb-2 ">Faculty Syllabus Coverage:</p>
  <h3 className="text-xl font-black text-slate-900 tracking-tight mb-4 uppercase">{selectedLog.chapter}</h3>
  <p className="text-sm font-bold text-slate-600 leading-relaxed ">{selectedLog.topics_covered}</p>
@@ -281,8 +281,8 @@ const FacultyLogs = () => {
  </div>
  </div>
 
- <div className="p-10 border-t border-slate-50 bg-slate-50/50 flex justify-end">
- <button onClick={() => setSelectedLog(null)} className="px-12 py-5 bg-[#008080] text-white rounded-[2rem] text-[10px] font-black uppercase tracking-[0.2em] shadow-xl hover:-translate-y-1 transition-all ">
+ <div className="p-5 md:p-10 border-t border-slate-50 bg-slate-50/50 flex justify-end">
+ <button onClick={() => setSelectedLog(null)} className="px-6 md:px-12 py-5 bg-[#008080] text-white rounded-[2rem] text-[10px] font-black uppercase tracking-[0.2em] shadow-xl hover:-translate-y-1 transition-all ">
  Close
  </button>
  </div>

@@ -255,7 +255,7 @@ const FacultyProfile = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
         {/* Left: Identity Card */}
         <div className="lg:col-span-1 space-y-8">
-          <div className="bg-[#008080] rounded-[3.5rem] p-10 text-white relative overflow-hidden group">
+          <div className="bg-[#008080] rounded-[3.5rem] p-5 md:p-10 text-white relative overflow-hidden group">
             <div className="absolute top-0 right-0 w-64 h-64 bg-[#008080]/10 rounded-full -mr-32 -mt-32 blur-3xl"></div>
 
             <div className="relative z-10 flex flex-col items-center">
@@ -292,7 +292,7 @@ const FacultyProfile = () => {
             </div>
           </div>
 
-          <div className="bg-white p-10 rounded-[2.5rem] border border-slate-100 shadow-sm">
+          <div className="bg-white p-5 md:p-10 rounded-[2.5rem] border border-slate-100 shadow-sm">
             <h4 className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] mb-6">System Privileges</h4>
             <div className="space-y-4">
               {[
@@ -313,7 +313,7 @@ const FacultyProfile = () => {
         {/* Right: Forms */}
         <div className="lg:col-span-2 space-y-8">
           
-          <div className="bg-white p-12 rounded-[3.5rem] border border-slate-100 shadow-sm">
+          <div className="bg-white p-6 md:p-12 rounded-[3.5rem] border border-slate-100 shadow-sm">
             <div className="flex items-center gap-4 mb-10">
               <div className="w-12 h-12 bg-[#008080]/10 rounded-2xl flex items-center justify-center text-[#008080]">
                 <BookOpen size={24} />
@@ -611,7 +611,7 @@ const FacultyProfile = () => {
             <button
               onClick={() => handleProfileUpdate()}
               disabled={loading}
-              className="px-10 py-5 bg-[#008080] text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-800 transition-all inline-flex items-center gap-3 disabled:opacity-50"
+              className="px-5 md:px-10 py-5 bg-[#008080] text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-800 transition-all inline-flex items-center gap-3 disabled:opacity-50"
             >
               {loading ? 'Synchronizing...' : 'Synchronize Profile & Academic Details'}
               <ArrowRight size={14} />

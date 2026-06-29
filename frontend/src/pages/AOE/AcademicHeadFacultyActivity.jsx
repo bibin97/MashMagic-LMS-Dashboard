@@ -132,7 +132,7 @@ const AcademicHeadFacultyActivity = () => {
  </div>
  ) : (
  filteredData.map((item, idx) => (
- <div key={idx} className="bg-white p-10 rounded-[3.5rem] border border-slate-100 shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-700 group flex flex-col lg:flex-row gap-8 items-start relative overflow-hidden">
+ <div key={idx} className="bg-white p-5 md:p-10 rounded-[3.5rem] border border-slate-100 shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-700 group flex flex-col lg:flex-row gap-8 items-start relative overflow-hidden">
  <div className="absolute top-0 right-0 w-80 h-80 bg-slate-50 rounded-full -mr-40 -mt-40 transition-transform duration-700 group-hover:scale-110"></div>
 
  {/* Icon Section */}
@@ -224,7 +224,7 @@ const AcademicHeadFacultyActivity = () => {
   {/* Edit Minutes Modal */}
   {isEditMinutesModalOpen && editingSession && (
     <div className="fixed inset-0 bg-[#008080]/60 backdrop-blur-md z-[9999] flex items-center justify-center p-4">
-      <div className="bg-white rounded-[3rem] shadow-2xl w-full max-w-md p-10 space-y-8 animate-in zoom-in duration-200 max-h-[90vh] overflow-y-auto">
+      <div className="bg-white rounded-[3rem] shadow-2xl w-full max-w-md p-5 md:p-10 space-y-8 animate-in zoom-in duration-200 max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 bg-[#008080] text-white rounded-2xl flex items-center justify-center shadow-lg">
@@ -268,7 +268,7 @@ const AcademicHeadFacultyActivity = () => {
 
           <div className="flex gap-4">
             <button type="submit" className="flex-1 py-4 bg-[#008080] hover:bg-[#008080] text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl transition-all">Save Changes</button>
-            <button type="button" onClick={() => setIsEditMinutesModalOpen(false)} className="px-8 py-4 bg-slate-50 text-slate-600 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-slate-100 transition-colors">Cancel</button>
+            <button type="button" onClick={() => setIsEditMinutesModalOpen(false)} className="px-4 md:px-8 py-4 bg-slate-50 text-slate-600 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-slate-100 transition-colors">Cancel</button>
           </div>
         </form>
       </div>
