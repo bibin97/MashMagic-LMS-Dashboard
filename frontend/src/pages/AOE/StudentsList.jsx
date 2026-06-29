@@ -859,32 +859,32 @@ const StudentsList = ({
 			)}
 
 			{/* Quick Assessment Modal */}
-			{isAssessmentModalOpen && assessmentStudent && <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[1000] flex items-center justify-center p-4 animate-in fade-in duration-300">
-					<div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-4xl overflow-hidden animate-in slide-in-from-bottom-4 duration-500 border border-slate-100 flex flex-col max-h-[90vh]">
+			{isAssessmentModalOpen && assessmentStudent && <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[1000] flex items-center justify-center p-2 sm:p-4 animate-in fade-in duration-300">
+					<div className="bg-white rounded-3xl sm:rounded-[2rem] shadow-2xl w-[95vw] sm:w-full max-w-4xl overflow-hidden animate-in slide-in-from-bottom-4 duration-500 border border-slate-100 flex flex-col max-h-[90vh]">
 						
-						{/* Header */}
-						<div className="px-8 py-6 border-b border-slate-100 flex justify-between items-center bg-[#005050] text-white shrink-0">
+						{/* Sticky Header */}
+						<div className="px-4 sm:px-8 py-4 sm:py-6 border-b border-slate-100 flex justify-between items-center bg-[#005050] text-white shrink-0 sticky top-0 z-20">
 							<div className="flex flex-col">
-								<h2 className="text-2xl font-black flex items-center gap-3 tracking-tight">
-									<ClipboardList size={24} className="text-emerald-400" />
-									Quick Assessment
+								<h2 className="text-xl sm:text-2xl font-black flex items-center gap-2 sm:gap-3 tracking-tight">
+									<ClipboardList size={20} className="text-emerald-400 sm:w-6 sm:h-6 shrink-0" />
+									<span className="truncate">Quick Assessment</span>
 								</h2>
-								<p className="text-xs font-bold text-emerald-100 mt-1 uppercase tracking-widest">
+								<p className="text-[10px] sm:text-xs font-bold text-emerald-100 mt-1 uppercase tracking-widest truncate">
 									{assessmentStudent.name} • First 2 Sessions
 								</p>
 							</div>
-							<button onClick={() => setIsAssessmentModalOpen(false)} className="w-10 h-10 flex items-center justify-center bg-white/10 hover:bg-white/20 rounded-xl text-white transition-all">
+							<button onClick={() => setIsAssessmentModalOpen(false)} className="w-12 h-12 sm:w-10 sm:h-10 shrink-0 flex items-center justify-center bg-white/10 hover:bg-white/20 rounded-xl text-white transition-all">
 								<X size={20} />
 							</button>
 						</div>
 
 						{/* Content */}
-						<div className="p-8 overflow-y-auto custom-scrollbar flex-grow bg-slate-50">
-							<div className="mb-6">
-								<p className="text-slate-600 font-bold text-sm">Score each area 1-5. Total score determines level.</p>
+						<div className="p-4 sm:p-8 overflow-y-auto custom-scrollbar flex-grow bg-slate-50">
+							<div className="mb-4 sm:mb-6">
+								<p className="text-slate-600 font-bold text-xs sm:text-sm">Score each area 1-5. Total score determines level.</p>
 							</div>
 
-							<div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+							<div className="bg-transparent sm:bg-white sm:rounded-2xl sm:shadow-sm sm:border border-slate-200 overflow-hidden">
 								<div className="hidden md:grid md:grid-cols-[1fr_120px_120px_120px_160px] bg-[#005050] text-white">
 									<div className="p-4 text-sm font-bold border-b border-[#006060]">Assessment Area</div>
 									<div className="p-4 text-sm font-bold border-b border-[#006060]">1 — Poor</div>
@@ -892,7 +892,7 @@ const StudentsList = ({
 									<div className="p-4 text-sm font-bold border-b border-[#006060]">5 — Strong</div>
 									<div className="p-4 text-sm font-bold border-b border-[#006060] text-center">Score (circle)</div>
 								</div>
-								<div className="divide-y divide-slate-100">
+								<div className="flex flex-col gap-4 sm:gap-0 sm:divide-y sm:divide-slate-100">
 									{[{
                   id: 'q1',
                   area: 'How many days per week does the student study?',
@@ -923,20 +923,30 @@ const StudentsList = ({
                   l1: 'Avoids studying',
                   l3: 'Neutral',
                   l5: 'Confident and motivated'
-                }].map((row, index) => <div key={row.id} className={`flex flex-col md:grid md:grid-cols-[1fr_120px_120px_120px_160px] md:items-center p-5 md:p-0 ${index % 2 === 0 ? 'bg-emerald-50/30' : 'bg-white'}`}>
-												<div className="w-full p-0 md:p-4 text-sm font-bold text-slate-800 mb-4 md:mb-0 flex items-start gap-2">
-													<span className="text-emerald-600 font-black">{index + 1}.</span> 
+                }].map((row, index) => <div key={row.id} className={`flex flex-col md:grid md:grid-cols-[1fr_120px_120px_120px_160px] md:items-center p-5 sm:p-0 bg-white rounded-2xl sm:rounded-none shadow-sm sm:shadow-none border sm:border-0 border-slate-100 ${index % 2 === 0 ? 'sm:bg-emerald-50/30' : 'sm:bg-white'}`}>
+												<div className="w-full text-sm font-bold text-slate-800 mb-4 md:mb-0 flex items-start gap-2 sm:p-4">
+													<span className="text-emerald-600 font-black shrink-0">{index + 1}.</span> 
 													<span>{row.area}</span>
 												</div>
+												
+												{/* Desktop Legends */}
 												<div className="hidden md:block p-4 text-[11px] italic text-slate-500 leading-tight">{row.l1}</div>
 												<div className="hidden md:block p-4 text-[11px] italic text-slate-500 leading-tight">{row.l3}</div>
 												<div className="hidden md:block p-4 text-[11px] italic text-slate-500 leading-tight">{row.l5}</div>
-												<div className="w-full p-0 md:p-4 flex justify-start md:justify-center pl-6 md:pl-0">
-													<div className="flex items-center gap-1.5 md:gap-2">
+												
+												{/* Mobile Legends */}
+												<div className="md:hidden flex flex-col gap-1.5 mb-4 px-6">
+													<div className="flex items-center justify-between text-[10px] text-slate-500 italic"><span className="font-bold">1</span> <span>{row.l1}</span></div>
+													<div className="flex items-center justify-between text-[10px] text-slate-500 italic"><span className="font-bold">3</span> <span>{row.l3}</span></div>
+													<div className="flex items-center justify-between text-[10px] text-slate-500 italic"><span className="font-bold">5</span> <span>{row.l5}</span></div>
+												</div>
+
+												<div className="w-full flex justify-center md:p-4">
+													<div className="flex flex-wrap items-center justify-center gap-2 sm:gap-1.5 w-full">
 														{[1, 2, 3, 4, 5].map((val) => <button key={val} onClick={() => setAssessmentScores(prev => ({
                         ...prev,
                         [row.id]: val
-                      }))} className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all shrink-0 ${assessmentScores[row.id] === val ? 'bg-[#008080] text-white shadow-md ring-2 ring-[#008080] ring-offset-1' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}>
+                      }))} className={`w-12 h-12 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-base sm:text-sm font-bold transition-all shrink-0 ${assessmentScores[row.id] === val ? 'bg-[#008080] text-white shadow-md ring-2 ring-[#008080] ring-offset-2 sm:ring-offset-1' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}>
 																{val}
 															</button>)}
 													</div>
@@ -946,34 +956,35 @@ const StudentsList = ({
 							</div>
 						</div>
 
-						{/* Footer with Levels and Submit */}
-						<div className="p-6 border-t border-slate-100 bg-white flex flex-col md:flex-row justify-between items-center gap-6 shrink-0">
+						{/* Sticky Footer */}
+						<div className="p-4 sm:p-6 border-t border-slate-100 bg-white flex flex-col md:flex-row justify-between items-center gap-4 sm:gap-6 shrink-0 z-20">
 							
-							<div className="flex items-center gap-2 w-full md:w-auto overflow-x-auto pb-2 md:pb-0">
-								<div className={`px-4 py-3 rounded-xl flex items-center justify-center min-w-[140px] border transition-all ${calculateAssessmentScore() >= 5 && calculateAssessmentScore() <= 12 ? 'bg-rose-100 border-rose-200 shadow-sm scale-105' : 'bg-rose-50/50 border-rose-100/50 opacity-60'}`}>
-									<span className="text-rose-800 font-bold text-xs uppercase tracking-widest">
-										Score 5-12 &rarr; Level 1
+							<div className="flex flex-row flex-wrap md:flex-nowrap items-center gap-2 w-full md:w-auto overflow-hidden">
+								<div className={`flex-1 md:flex-none px-2 sm:px-4 py-2 sm:py-3 rounded-xl flex items-center justify-center min-w-[80px] sm:min-w-[140px] border transition-all ${calculateAssessmentScore() >= 5 && calculateAssessmentScore() <= 12 ? 'bg-rose-100 border-rose-200 shadow-sm md:scale-105' : 'bg-rose-50/50 border-rose-100/50 opacity-60'}`}>
+									<span className="text-rose-800 font-bold text-[10px] sm:text-xs uppercase tracking-widest text-center flex flex-col md:flex-row gap-0.5 md:gap-1">
+										<span>Score 5-12</span><span className="hidden md:inline">&rarr;</span><span>Level 1</span>
 									</span>
 								</div>
-								<div className={`px-4 py-3 rounded-xl flex items-center justify-center min-w-[140px] border transition-all ${calculateAssessmentScore() >= 13 && calculateAssessmentScore() <= 19 ? 'bg-amber-100 border-amber-200 shadow-sm scale-105' : 'bg-amber-50/50 border-amber-100/50 opacity-60'}`}>
-									<span className="text-amber-800 font-bold text-xs uppercase tracking-widest">
-										Score 13-19 &rarr; Level 2
+								<div className={`flex-1 md:flex-none px-2 sm:px-4 py-2 sm:py-3 rounded-xl flex items-center justify-center min-w-[80px] sm:min-w-[140px] border transition-all ${calculateAssessmentScore() >= 13 && calculateAssessmentScore() <= 19 ? 'bg-amber-100 border-amber-200 shadow-sm md:scale-105' : 'bg-amber-50/50 border-amber-100/50 opacity-60'}`}>
+									<span className="text-amber-800 font-bold text-[10px] sm:text-xs uppercase tracking-widest text-center flex flex-col md:flex-row gap-0.5 md:gap-1">
+										<span>Score 13-19</span><span className="hidden md:inline">&rarr;</span><span>Level 2</span>
 									</span>
 								</div>
-								<div className={`px-4 py-3 rounded-xl flex items-center justify-center min-w-[140px] border transition-all ${calculateAssessmentScore() >= 20 && calculateAssessmentScore() <= 25 ? 'bg-emerald-100 border-emerald-200 shadow-sm scale-105' : 'bg-emerald-50/50 border-emerald-100/50 opacity-60'}`}>
-									<span className="text-emerald-800 font-bold text-xs uppercase tracking-widest">
-										Score 20-25 &rarr; Level 3
+								<div className={`flex-1 md:flex-none px-2 sm:px-4 py-2 sm:py-3 rounded-xl flex items-center justify-center min-w-[80px] sm:min-w-[140px] border transition-all ${calculateAssessmentScore() >= 20 && calculateAssessmentScore() <= 25 ? 'bg-emerald-100 border-emerald-200 shadow-sm md:scale-105' : 'bg-emerald-50/50 border-emerald-100/50 opacity-60'}`}>
+									<span className="text-emerald-800 font-bold text-[10px] sm:text-xs uppercase tracking-widest text-center flex flex-col md:flex-row gap-0.5 md:gap-1">
+										<span>Score 20-25</span><span className="hidden md:inline">&rarr;</span><span>Level 3</span>
 									</span>
 								</div>
 							</div>
 
-							<div className="flex items-center gap-4 w-full md:w-auto">
-								<div className="text-right">
+							<div className="flex items-center justify-between md:justify-end gap-4 w-full md:w-auto">
+								<div className="text-left md:text-right shrink-0">
 									<p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Total Score</p>
 									<p className="text-2xl font-black text-slate-900">{calculateAssessmentScore()}</p>
 								</div>
-								<button onClick={handleSubmitAssessment} disabled={calculateAssessmentScore() < 5} className={`px-8 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 shadow-xl ${calculateAssessmentScore() >= 5 ? 'bg-[#008080] text-white shadow-[#008080]/30 hover:bg-[#006060] hover:-translate-y-0.5' : 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-none'}`}>
-									<Save size={16} /> Submit Score
+								<button onClick={handleSubmitAssessment} disabled={Object.values(assessmentScores).includes(0)} className={`flex-1 md:flex-none min-h-[48px] px-6 sm:px-8 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 shadow-xl ${!Object.values(assessmentScores).includes(0) ? 'bg-[#008080] text-white shadow-[#008080]/30 hover:bg-[#006060] hover:-translate-y-0.5' : 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-none'}`}>
+									<Save size={16} className="shrink-0" /> 
+									<span className="truncate">{Object.values(assessmentScores).includes(0) ? 'Complete All' : 'Submit Score'}</span>
 								</button>
 							</div>
 
