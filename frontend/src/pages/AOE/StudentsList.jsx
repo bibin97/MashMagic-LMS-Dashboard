@@ -722,7 +722,12 @@ const StudentsList = ({
 								const currentLevel = viewAssessmentHistoryStudent.assessment_level;
 								let history = [];
 								if (viewAssessmentHistoryStudent.assessment_history) {
-									history = typeof viewAssessmentHistoryStudent.assessment_history === 'string' ? JSON.parse(viewAssessmentHistoryStudent.assessment_history) : viewAssessmentHistoryStudent.assessment_history;
+									try {
+										history = typeof viewAssessmentHistoryStudent.assessment_history === 'string' ? JSON.parse(viewAssessmentHistoryStudent.assessment_history) : viewAssessmentHistoryStudent.assessment_history;
+										if (!Array.isArray(history)) history = [];
+									} catch (e) {
+										history = [];
+									}
 								}
 								
 								if (!currentLevel) {
@@ -739,8 +744,12 @@ const StudentsList = ({
 
 								const allAssessments = [];
 								if (viewAssessmentHistoryStudent.assessment_history) {
-									const hist = typeof viewAssessmentHistoryStudent.assessment_history === 'string' ? JSON.parse(viewAssessmentHistoryStudent.assessment_history) : viewAssessmentHistoryStudent.assessment_history;
-									allAssessments.push(...hist);
+									try {
+										const hist = typeof viewAssessmentHistoryStudent.assessment_history === 'string' ? JSON.parse(viewAssessmentHistoryStudent.assessment_history) : viewAssessmentHistoryStudent.assessment_history;
+										if (Array.isArray(hist)) allAssessments.push(...hist);
+									} catch (e) {
+										// ignore invalid history
+									}
 								}
 								// Add current as an attempt if it's not fully mirrored in history
 								if (currentLevel) {
@@ -797,7 +806,12 @@ const StudentsList = ({
 							{(() => {
 								let history = [];
 								if (viewAssessmentHistoryStudent.assessment_history) {
-									history = typeof viewAssessmentHistoryStudent.assessment_history === 'string' ? JSON.parse(viewAssessmentHistoryStudent.assessment_history) : viewAssessmentHistoryStudent.assessment_history;
+									try {
+										history = typeof viewAssessmentHistoryStudent.assessment_history === 'string' ? JSON.parse(viewAssessmentHistoryStudent.assessment_history) : viewAssessmentHistoryStudent.assessment_history;
+										if (!Array.isArray(history)) history = [];
+									} catch (e) {
+										history = [];
+									}
 								}
 
 								if (!history || history.length === 0) return null;
