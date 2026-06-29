@@ -186,7 +186,7 @@ const StudentsList = ({
   
   // Prevent body scrolling when assessment modal is open
   useEffect(() => {
-    if (isAssessmentModalOpen) {
+    if (isAssessmentModalOpen || isAssignModalOpen) {
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = 'unset';
@@ -194,7 +194,7 @@ const StudentsList = ({
     return () => {
       document.body.style.overflow = 'unset';
     };
-  }, [isAssessmentModalOpen]);
+  }, [isAssessmentModalOpen, isAssignModalOpen]);
   const handleEditHoursSubmit = async e => {
     e.preventDefault();
     if (!editHoursModal.student) return;
@@ -667,55 +667,76 @@ const StudentsList = ({
 			</div>
 
 			{/* Assign Mentor Modal */}
-			{isAssignModalOpen && selectedStudentForAssign && <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-in fade-in duration-200">
-					<div className="bg-white rounded-3xl w-full max-w-md shadow-2xl border border-slate-100 animate-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto">
-						<div className="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50 rounded-t-3xl">
-							<div>
-								<h3 className="text-lg font-black text-slate-800 uppercase tracking-tight">Assign Mentor</h3>
-								<p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">For {selectedStudentForAssign.name}</p>
+			{isAssignModalOpen && selectedStudentForAssign && (
+				<div className="fixed inset-0 z-[1000] flex items-center justify-center p-2 sm:p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
+					<div className="bg-white rounded-3xl sm:rounded-[2rem] w-[95vw] sm:w-full max-w-md shadow-2xl border border-slate-100 animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
+						
+						{/* Sticky Header */}
+						<div className="p-4 sm:p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/90 backdrop-blur-sm shrink-0 sticky top-0 z-20 rounded-t-3xl sm:rounded-t-[2rem]">
+							<div className="flex flex-col overflow-hidden">
+								<h3 className="text-base sm:text-lg font-black text-slate-800 uppercase tracking-tight truncate">Assign Mentor</h3>
+								<p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1 truncate">For {selectedStudentForAssign.name}</p>
 							</div>
-							<button onClick={() => setIsAssignModalOpen(false)} className="w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 text-slate-400 hover:bg-slate-200 hover:text-slate-600 transition-colors">
+							<button onClick={() => setIsAssignModalOpen(false)} className="w-12 h-12 sm:w-8 sm:h-8 shrink-0 flex items-center justify-center rounded-full bg-slate-100 text-slate-400 hover:bg-slate-200 hover:text-slate-600 transition-colors">
 								<X size={16} />
 							</button>
 						</div>
-						<form onSubmit={handleAssignSubmit} className="p-6 space-y-6">
-							<div className="space-y-2 relative">
-								<label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Select Mentor</label>
-								<div className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl text-xs font-bold uppercase tracking-widest cursor-pointer hover:bg-slate-100 transition-colors flex justify-between items-center" onClick={() => setIsAssignDropdownOpen(!isAssignDropdownOpen)}>
-									<span>{selectedMentorId ? mentors.find(m => m.id === selectedMentorId)?.name : 'Choose a mentor...'}</span>
-									<span className="text-slate-400 text-[10px]">▼</span>
-								</div>
-								
-								{isAssignDropdownOpen && <div className="absolute z-50 w-full mt-2 bg-white border border-slate-200 rounded-2xl shadow-xl overflow-hidden top-full left-0">
-										<div className="p-3 border-b border-slate-100 sticky top-0 bg-white">
-											<div className="relative">
-												<Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-												<input type="text" autoFocus placeholder="Search mentor name..." value={assignSearchTerm} onChange={e => setAssignSearchTerm(e.target.value)} className="w-full pl-9 pr-3 py-2.5 text-xs font-bold border border-slate-200 rounded-xl outline-none focus:border-[#008080] focus:ring-2 ring-[#008080]/20" />
+
+						<form onSubmit={handleAssignSubmit} className="flex flex-col flex-grow overflow-hidden">
+							{/* Scrollable Content */}
+							<div className="p-4 sm:p-6 overflow-y-auto custom-scrollbar flex-grow space-y-6">
+								<div className="space-y-2 relative">
+									<label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Select Mentor</label>
+									<div className="w-full min-h-[48px] px-4 py-3 sm:p-4 bg-slate-50 border border-slate-200 rounded-2xl text-xs sm:text-sm font-bold uppercase tracking-widest cursor-pointer hover:bg-slate-100 transition-colors flex justify-between items-center" onClick={() => setIsAssignDropdownOpen(!isAssignDropdownOpen)}>
+										<span className="truncate pr-2">{selectedMentorId ? mentors.find(m => m.id === selectedMentorId)?.name : 'Choose a mentor...'}</span>
+										<span className="text-slate-400 text-[10px] shrink-0">▼</span>
+									</div>
+									
+									{isAssignDropdownOpen && (
+										<div className="absolute z-50 w-full mt-2 bg-white border border-slate-200 rounded-2xl shadow-2xl overflow-hidden top-full left-0 max-h-[50vh] sm:max-h-64 flex flex-col">
+											<div className="p-2 sm:p-3 border-b border-slate-100 bg-slate-50/90 backdrop-blur-sm sticky top-0 shrink-0">
+												<div className="relative flex items-center">
+													<Search size={16} className="absolute left-3 text-slate-400" />
+													<input type="text" autoFocus placeholder="Search mentor name..." value={assignSearchTerm} onChange={e => setAssignSearchTerm(e.target.value)} className="w-full min-h-[48px] sm:min-h-[40px] pl-10 pr-3 py-2.5 text-xs sm:text-sm font-bold border border-slate-200 rounded-xl outline-none focus:border-[#008080] focus:ring-2 ring-[#008080]/20 bg-white" />
+												</div>
+											</div>
+											<div className="overflow-y-auto custom-scrollbar flex-grow p-1.5 sm:p-2">
+												{mentors.filter(m => m.name.toLowerCase().includes(deferredAssignSearchTerm.toLowerCase())).map(m => (
+													<div key={m.id} onClick={() => {
+														setSelectedMentorId(m.id);
+														setIsAssignDropdownOpen(false);
+														setAssignSearchTerm('');
+													}} className={`min-h-[48px] sm:min-h-[40px] px-4 py-3 text-xs sm:text-sm font-bold uppercase tracking-widest cursor-pointer rounded-xl transition-colors flex items-center justify-between gap-3 ${selectedMentorId === m.id ? 'bg-[#008080]/10 text-[#008080]' : 'text-slate-700 hover:bg-slate-50'}`}>
+														<span className="truncate">{m.name}</span>
+														{selectedMentorId === m.id && <span className="w-2 h-2 rounded-full bg-[#008080] shrink-0"></span>}
+													</div>
+												))}
+												{mentors.filter(m => m.name.toLowerCase().includes(deferredAssignSearchTerm.toLowerCase())).length === 0 && (
+													<div className="px-4 py-8 text-xs text-slate-400 text-center font-bold uppercase tracking-widest">No mentors found</div>
+												)}
 											</div>
 										</div>
-										<div className="max-h-48 overflow-y-auto p-2">
-											{mentors.filter(m => m.name.toLowerCase().includes(deferredAssignSearchTerm.toLowerCase())).map(m => <div key={m.id} onClick={() => {
-                  setSelectedMentorId(m.id);
-                  setIsAssignDropdownOpen(false);
-                  setAssignSearchTerm('');
-                }} className={`px-4 py-3 text-xs font-bold uppercase tracking-widest cursor-pointer rounded-xl transition-colors ${selectedMentorId === m.id ? 'bg-[#008080]/10 text-[#008080]' : 'text-slate-700 hover:bg-slate-50'}`}>
-													{m.name}
-												</div>)}
-											{mentors.filter(m => m.name.toLowerCase().includes(deferredAssignSearchTerm.toLowerCase())).length === 0 && <div className="px-4 py-6 text-xs text-slate-500 text-center font-bold uppercase tracking-widest">No mentors found</div>}
-										</div>
-									</div>}
+									)}
+								</div>
 							</div>
-							<div className="flex justify-end gap-3 pt-2">
-								<button type="button" onClick={() => setIsAssignModalOpen(false)} className="px-6 py-3 rounded-xl border border-slate-200 text-slate-600 text-[10px] font-black uppercase tracking-widest hover:bg-slate-50 transition-colors">
+							
+							{/* Sticky Footer */}
+							<div className="p-4 sm:p-6 border-t border-slate-100 bg-white flex flex-col-reverse sm:flex-row justify-end gap-3 shrink-0 sticky bottom-0 z-20">
+								<button type="button" onClick={() => setIsAssignModalOpen(false)} className="w-full sm:w-auto min-h-[48px] px-6 py-3 rounded-xl border border-slate-200 text-slate-600 text-[10px] sm:text-xs font-black uppercase tracking-widest hover:bg-slate-50 transition-colors">
 									Cancel
 								</button>
-								<button type="submit" disabled={isAssigning} className="px-6 py-3 rounded-xl bg-[#008080] text-white text-[10px] font-black uppercase tracking-widest hover:bg-[#006666] transition-colors disabled:opacity-50 flex items-center gap-2 shadow-lg shadow-[#008080]/20">
-									{isAssigning ? 'Assigning...' : <><Save size={14} /> Confirm Assignment</>}
+								<button type="submit" disabled={isAssigning || !selectedMentorId} className={`w-full sm:w-auto min-h-[48px] px-6 py-3 rounded-xl text-[10px] sm:text-xs font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 ${!isAssigning && selectedMentorId ? 'bg-[#008080] text-white hover:bg-[#006666] shadow-lg shadow-[#008080]/20 hover:-translate-y-0.5' : 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-none'}`}>
+									{isAssigning ? (
+										<><div className="w-3 h-3 border-2 border-slate-400 border-t-transparent rounded-full animate-spin"></div> Assigning...</>
+									) : (
+										<><Save size={14} className="shrink-0" /> Confirm</>
+									)}
 								</button>
 							</div>
 						</form>
 					</div>
-				</div>}
+				</div>
+			)}
 
 			{/* View Assessment History Modal */}
 			{viewAssessmentHistoryStudent && (
