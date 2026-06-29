@@ -1643,9 +1643,9 @@ exports.getStudents = async (req, res) => {
         if (filterMode === 'removed') {
             whereConditions += ' AND s.mentor_id IS NULL AND s.previous_mentor_name IS NOT NULL';
         } else if (filterMode === 'completed') {
-            whereConditions += ' AND s.course_status = "completed"';
+            whereConditions += ' AND s.course_completed = 1';
         } else if (filterMode === 'active') {
-            whereConditions += ' AND s.course_status != "completed" AND s.status = "active"';
+            whereConditions += ' AND (s.course_completed IS NULL OR s.course_completed = 0) AND s.status = "active"';
         }
 
         if (search) {
@@ -1705,8 +1705,8 @@ exports.getStudents = async (req, res) => {
                 SELECT 
                     COUNT(*) as totalEnrollment,
                     SUM(CASE WHEN mentor_id IS NULL AND previous_mentor_name IS NOT NULL THEN 1 ELSE 0 END) as removedCount,
-                    SUM(CASE WHEN course_status = 'completed' THEN 1 ELSE 0 END) as courseCompletedCount,
-                    SUM(CASE WHEN course_status != 'completed' AND status = 'active' THEN 1 ELSE 0 END) as activeCount,
+                    SUM(CASE WHEN course_completed = 1 THEN 1 ELSE 0 END) as courseCompletedCount,
+                    SUM(CASE WHEN (course_completed IS NULL OR course_completed = 0) AND status = 'active' THEN 1 ELSE 0 END) as activeCount,
                     SUM(CASE WHEN mentorship_completed = 1 THEN 1 ELSE 0 END) as mentorshipCompletedCount,
                     SUM(CASE WHEN mentorship_completed IS NULL OR mentorship_completed = 0 THEN 1 ELSE 0 END) as mentorshipPendingCount
                 FROM students WHERE status != 'rejected'

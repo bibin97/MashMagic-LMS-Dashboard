@@ -502,7 +502,7 @@ const StudentsList = ({
 														</button>
 													</div>
 													<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-														{student.faculty_name.split(',').map((f, i) => <div key={i} className="flex items-center gap-3 bg-slate-50 p-4 rounded-2xl border border-slate-100 shadow-sm hover:bg-white hover:border-[#008080/30 transition-all group">
+														{student.faculty_name && student.faculty_name.split(',').map((f, i) => <div key={i} className="flex items-center gap-3 bg-slate-50 p-4 rounded-2xl border border-slate-100 shadow-sm hover:bg-white hover:border-[#008080/30 transition-all group">
 																<div className="w-8 h-8 bg-[#008080]/10 text-[#008080] rounded-xl flex items-center justify-center font-black text-xs uppercase shrink-0 group-hover:bg-[#008080] group-hover:text-white transition-all">
 																	{f.trim().charAt(0)}
 																</div>

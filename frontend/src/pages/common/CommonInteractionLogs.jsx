@@ -225,7 +225,7 @@ const CommonInteractionLogs = ({
   const fetchStudentDetails = async () => {
     try {
       if (!selectedStudent) return;
-      const endpoint = activeTab === 'student' ? `/admin/students/${selectedStudent.id}` : `/admin/faculties/${selectedStudent.id}`;
+      const endpoint = activeTab === 'student' ? `${apiPrefix}/students/${selectedStudent.id}` : `${apiPrefix}/faculties/${selectedStudent.id}`;
       const res = await api.get(endpoint);
       setStudentDetails(res.data.data || null);
       
