@@ -61,7 +61,7 @@ const StudentDetails = () => {
  <User size={80} />
  </div>
  <div className="flex-1 text-center md:text-left relative z-10">
- <h1 className="text-2xl md:text-4xl font-black text-slate-900 tracking-tighter uppercase mb-2 flex flex-col md:flex-row items-center gap-3 justify-center md:justify-start">
+ <h1 className="text-2xl md:text-4xl font-black text-slate-900 tracking-tighter uppercase mb-2 flex flex-col md:flex-row items-center gap-3 justify-center md:justify-start break-words px-2 text-center md:text-left">
  {student.name}
  {student.onboarding_status === 'pending' && <span className="px-3 py-1 bg-rose-50 text-rose-600 rounded-xl text-xs font-black uppercase tracking-widest border border-rose-100 shadow-sm not-">
  New Student
@@ -101,7 +101,7 @@ const StudentDetails = () => {
  </div>
 
  {/* Navigation Tabs */}
- <div className="flex flex-wrap justify-center gap-2 p-1.5 bg-slate-100 rounded-3xl w-full md:w-fit">
+ <div className="flex justify-start md:justify-center gap-2 p-1.5 bg-slate-100 rounded-3xl w-full md:w-fit overflow-x-auto no-scrollbar scroll-smooth whitespace-nowrap">
  {[{
         id: 'info',
         label: 'Detailed Info',
@@ -123,7 +123,7 @@ const StudentDetails = () => {
         label: 'Academic Performance',
         icon: <TrendingUp size={14} />
       }].filter(tab => !(isSSC && tab.id === 'logs')).map(tab => <button key={tab.id} onClick={() => setActiveTab(tab.id)} className={`
- flex-1 md:flex-none items-center justify-center gap-2 px-4 md:px-8 py-3 md:py-4 rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest transition-all
+ flex items-center justify-center gap-2 px-6 md:px-8 py-3 md:py-4 rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest transition-all shrink-0
  ${activeTab === tab.id ? 'bg-white text-[#008080] shadow-lg' : 'text-slate-500 hover:text-slate-800'}
  `}>
  {tab.icon} {tab.label}
@@ -208,12 +208,12 @@ const StudentDetails = () => {
  <div className="md:hidden flex flex-col gap-4 py-4">
     {student.timetable.map((session, index) => (
       <div key={session.id} className="bg-slate-50 p-4 rounded-[2rem] border border-slate-100 flex flex-col gap-3 relative">
-        <div className="flex justify-between items-start">
-          <span className="text-[10px] font-black bg-[#008080] text-white px-3 py-1 rounded-full uppercase tracking-widest">#{session.session_number}</span>
-          <StatusBadge status={session.status} />
-        </div>
-        <div>
-          <p className="text-sm font-black text-slate-700">{session.chapter_topic || 'Pending Assignment'}</p>
+         <div className="flex justify-between items-start gap-4">
+           <span className="text-[10px] font-black bg-[#008080] text-white px-3 py-1 rounded-full uppercase tracking-widest shrink-0">#{session.session_number}</span>
+           <div className="shrink-0"><StatusBadge status={session.status} /></div>
+         </div>
+         <div>
+           <p className="text-sm font-black text-slate-700 break-words">{session.chapter_topic || 'Pending Assignment'}</p>
           <div className="flex items-center gap-3 mt-1 text-[10px] font-bold text-slate-500 uppercase tracking-widest">
             <span>{new Date(session.date).toLocaleDateString('en-GB')}</span>
             <span>{session.start_time} - {session.end_time}</span>

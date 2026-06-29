@@ -100,12 +100,12 @@ const StudentsData = () => {
                       {student.name.charAt(0)}
                     </div>
                     <div className="text-left flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <h4 className="text-sm font-black tracking-tight truncate">{student.name}</h4>
+                      <div className="flex flex-wrap items-center gap-2 mb-1">
+                        <h4 className="text-sm font-black tracking-tight break-words">{student.name}</h4>
                         {isNew && <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse shrink-0"></span>}
                       </div>
-                      <div className="flex flex-wrap items-center gap-2">
-                        <p className={`text-[8px] font-bold uppercase tracking-widest opacity-60 truncate`}>
+                      <div className="flex flex-wrap items-center gap-2 mt-1">
+                        <p className={`text-[8px] font-bold uppercase tracking-widest opacity-60 break-words`}>
                           {student.course}
                         </p>
                         {isOnboarding && <span className="px-2 py-0.5 bg-amber-500/10 text-amber-600 text-[7px] font-black uppercase rounded-lg border border-amber-500/20">
@@ -126,7 +126,7 @@ const StudentsData = () => {
         <div className="lg:col-span-8">
           {selectedStudent ? <div className="space-y-6">
               {/* Stats Ribbon */}
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {[{
               label: 'Class Hours',
               value: `${selectedStudent.consumed_hours || 0} / ${selectedStudent.paid_hours || 0}`,
@@ -147,14 +147,14 @@ const StudentsData = () => {
               value: (comprehensiveData.dailyUpdates || []).filter(u => u.formatted_date === new Date().toLocaleDateString('en-GB').split('/').join('-')).length,
               icon: <CheckCircle2 size={20} />,
               color: 'bg-emerald-500'
-            }].map((stat, i) => <div key={i} className={`bg-white p-6 rounded-[32px] border ${stat.label === 'Class Hours' && selectedStudent.payment_alert_level !== 'None' ? 'border-rose-200 shadow-rose-100 animate-pulse' : 'border-slate-100'} shadow-sm flex flex-col gap-4`}>
+            }].map((stat, i) => <div key={i} className={`bg-white p-4 sm:p-6 rounded-[32px] border ${stat.label === 'Class Hours' && selectedStudent.payment_alert_level !== 'None' ? 'border-rose-200 shadow-rose-100 animate-pulse' : 'border-slate-100'} shadow-sm flex flex-col gap-4`}>
                     <div className="flex items-center gap-4">
-                      <div className={`w-12 h-12 ${stat.color} text-white rounded-2xl flex items-center justify-center shadow-lg shrink-0`}>
+                      <div className={`w-10 h-10 sm:w-12 sm:h-12 ${stat.color} text-white rounded-2xl flex items-center justify-center shadow-lg shrink-0`}>
                         {stat.icon}
                       </div>
                       <div className="min-w-0">
-                        <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest truncate">{stat.label}</p>
-                        <p className="text-xl font-black text-slate-900 tracking-tighter truncate">{stat.value}</p>
+                        <p className="text-[9px] sm:text-[10px] font-black text-slate-600 uppercase tracking-widest break-words whitespace-normal leading-tight">{stat.label}</p>
+                        <p className="text-lg sm:text-xl font-black text-slate-900 tracking-tighter break-words whitespace-normal">{stat.value}</p>
                       </div>
                     </div>
                   </div>)}
@@ -163,7 +163,7 @@ const StudentsData = () => {
               {/* Main Content Card */}
               <div className="bg-white rounded-[40px] border border-slate-100 shadow-sm overflow-hidden min-h-[500px]">
                 <div className="p-4 md:p-8 border-b border-slate-50 flex flex-col md:flex-row md:items-center justify-between gap-6">
-                  <div className="flex gap-4 p-1 bg-slate-100 rounded-2xl">
+                  <div className="flex gap-2 sm:gap-4 p-1 bg-slate-100 rounded-2xl overflow-x-auto no-scrollbar scroll-smooth">
                     {[{
                   id: 'activity',
                   label: 'Activity Streams',
@@ -176,7 +176,7 @@ const StudentsData = () => {
                   id: 'attendance',
                   label: 'Attendance',
                   icon: <CheckCircle2 size={14} />
-                }].map(tab => <button key={tab.id} onClick={() => setDetailTab(tab.id)} className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${detailTab === tab.id ? 'bg-white text-teal-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>
+                }].map(tab => <button key={tab.id} onClick={() => setDetailTab(tab.id)} className={`flex items-center justify-center gap-2 px-4 sm:px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap shrink-0 ${detailTab === tab.id ? 'bg-white text-teal-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>
                         {tab.icon} {tab.label}
                       </button>)}
                   </div>
@@ -249,45 +249,6 @@ const StudentsData = () => {
                               <p className="text-sm font-bold text-slate-600 max-w-xs">No session presence history recorded.</p>
                             </div> : <div className="overflow-hidden rounded-[32px] border border-slate-100">
                               <div className="w-full overflow-x-auto">
-<table className="w-full text-left border-collapse">
-                                <thead className="bg-slate-50">
-                                  <tr>
-                                    <th className="py-4 px-6 text-[10px] font-black text-slate-500 uppercase tracking-widest">Date</th>
-                                    <th className="py-4 px-6 text-[10px] font-black text-slate-500 uppercase tracking-widest">Topic</th>
-                                    <th className="py-4 px-6 text-[10px] font-black text-slate-500 uppercase tracking-widest">Status</th>
-                                  </tr>
-                                </thead>
-                                <tbody>
-                                  {comprehensiveData.attendance.map((att, index) => <tr key={att.id} className="border-t border-slate-50 hover:bg-slate-50/30 transition-colors"><td className="p-6 text-sm font-black text-slate-400 border-b border-slate-50">{index + 1}</td>
-                                      <td className="py-4 px-6 text-sm font-bold text-slate-600">{new Date(att.date).toLocaleDateString('en-GB')}</td>
-                                      <td className="py-4 px-6 text-sm font-black text-slate-900">{att.topic}</td>
-                                      <td className="py-4 px-6">
-                                        <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${att.status === 'Present' ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'}`}>
-                                          {att.status}
-                                        </span>
-                                      </td>
-                                    </tr>)}
-                                </tbody>
-                              </table>
-</div>
-                            </div>}
-                        </div>}
-                    </>}
-                </div>
-              </div>
-            </div> : <div className="bg-white rounded-[40px] border border-slate-100 shadow-sm flex flex-col items-center justify-center h-[700px] p-6 md:p-12 text-center relative overflow-hidden group">
-              <div className="absolute inset-0 bg-gradient-to-br from-teal-50/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
-              <div className="w-32 h-32 bg-slate-50 rounded-full flex items-center justify-center mb-8 relative z-10 transition-transform duration-700 group-hover:scale-110">
-                <Users className="text-slate-200" size={64} />
-              </div>
-              <h3 className="text-2xl font-black text-slate-900 tracking-tighter uppercase mb-4 relative z-10">Select a Student</h3>
-              <p className="text-sm font-bold text-slate-600 max-w-sm leading-relaxed relative z-10">
-                Choose a student from the sidebar to visualize their daily activity stream and tracking metrics.
-              </p>
-              <div className="mt-8 flex gap-3 relative z-10 opacity-30">
-                <div className="w-2 h-2 bg-[#008080] rounded-full animate-bounce" />
-                <div className="w-2 h-2 bg-[#008080] rounded-full animate-bounce delay-100" />
-                <div className="w-2 h-2 bg-[#008080] rounded-full animate-bounce delay-200" />
               </div>
             </div>}
         </div>
