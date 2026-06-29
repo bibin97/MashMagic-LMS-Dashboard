@@ -150,21 +150,23 @@ const AdminManagement = () => {
  <Loader2 className="w-8 h-8 text-[#008080] animate-spin" />
  </div>;
   }
- <div>
- <h2 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tighter leading-none mb-3 ">Sub-Admin Management</h2>
- <p className="text-slate-600 text-[11px] font-black uppercase tracking-[0.25em] flex items-center justify-center md:justify-start gap-3 mt-1">
- <div className="w-2 h-2 rounded-full bg-[#008080] animate-pulse"></div>
- Manage sub-admin accounts and their system permissions
- </p>
- </div>
- </div>
- </div>
 
- <button onClick={handleOpenCreate} className="bg-gradient-to-br from-slate-800 to-slate-900 text-[#008080] px-5 md:px-10 py-6 rounded-[24px] font-black text-[11px] uppercase tracking-[0.3em] flex items-center gap-4 hover:shadow-2xl hover:shadow-[#008080]/20 hover:-translate-y-1 transition-all group">
- <UserPlus size={20} strokeWidth={3} className="group-hover:scale-110 transition-transform" />
- <span>Add Sub-Admin</span>
- </button>
- </div>
+  return (
+    <div className="space-y-12 pb-20">
+      {/* Page Header */}
+      <div className="bg-white/70 backdrop-blur-xl p-6 md:p-12 rounded-[40px] border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.04)] flex flex-col md:flex-row justify-between items-center gap-10">
+        <div className="text-center md:text-left">
+          <h2 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tighter leading-none mb-3 ">Sub-Admin Management</h2>
+          <p className="text-slate-600 text-[11px] font-black uppercase tracking-[0.25em] flex items-center justify-center md:justify-start gap-3 mt-1">
+            <div className="w-2 h-2 rounded-full bg-[#008080] animate-pulse"></div>
+            Manage sub-admin accounts and their system permissions
+          </p>
+        </div>
+        <button onClick={handleOpenCreate} className="bg-gradient-to-br from-slate-800 to-slate-900 text-[#008080] px-5 md:px-10 py-6 rounded-[24px] font-black text-[11px] uppercase tracking-[0.3em] flex items-center gap-4 hover:shadow-2xl hover:shadow-[#008080]/20 hover:-translate-y-1 transition-all group">
+          <UserPlus size={20} strokeWidth={3} className="group-hover:scale-110 transition-transform" />
+          <span>Add Sub-Admin</span>
+        </button>
+      </div>
 
  <div className="bg-white rounded-[2.5rem] md:border border-slate-100 md:shadow-sm overflow-hidden min-h-[500px]">
  <div className="overflow-x-auto">
@@ -507,6 +509,7 @@ const AdminManagement = () => {
   </div>
  </form>
  </Modal>
- </div>;
+ </div>
+  );
 };
 export default AdminManagement;
