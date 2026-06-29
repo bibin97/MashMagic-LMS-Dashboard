@@ -255,7 +255,7 @@ const InteractionFormUI = ({ sessionType, formData, setFormData, isReadOnly = fa
               </h4>
               <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Select the intensity for the next interaction</p>
             </div>
-            <div className="flex justify-start sm:justify-center gap-2 p-1.5 bg-white/10 rounded-2xl w-full sm:w-auto overflow-x-auto no-scrollbar scroll-smooth whitespace-nowrap">
+            <div className="flex w-full sm:w-auto gap-1 sm:gap-2 p-1.5 bg-white/10 rounded-2xl justify-between sm:justify-center">
               {[
                 { id: 'DEEP', label: 'Deep', color: 'bg-rose-500 text-white shadow-[0_0_15px_rgba(244,63,94,0.5)]' },
                 { id: 'MEDIUM', label: 'Medium', color: 'bg-amber-500 text-white shadow-lg' },
@@ -266,7 +266,7 @@ const InteractionFormUI = ({ sessionType, formData, setFormData, isReadOnly = fa
                   type="button"
                   onClick={() => !isReadOnly && setFormData({...formData, next_session_type: opt.id})}
                   disabled={isReadOnly}
-                  className={`shrink-0 px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${formData.next_session_type === opt.id ? opt.color : 'text-slate-400 hover:text-white'}`}
+                  className={`flex-1 sm:flex-none shrink min-w-0 px-1 sm:px-6 py-3 rounded-xl text-[9px] sm:text-[10px] font-black uppercase tracking-tight sm:tracking-widest transition-all text-center break-words leading-none sm:leading-normal ${formData.next_session_type === opt.id ? opt.color : 'text-slate-400 hover:text-white'}`}
                 >
                   {opt.label}
                 </button>
