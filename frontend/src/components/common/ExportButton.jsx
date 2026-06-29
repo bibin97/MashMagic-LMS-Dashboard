@@ -5,7 +5,7 @@ import MultiDatePicker, { DateObject } from "react-multi-date-picker";
 
 const DatePicker = MultiDatePicker.default ? MultiDatePicker.default : MultiDatePicker;
 
-const ExportButton = ({ data, fetchData, filename = "export", dateField = "createdAt", columns = [], customButtonClass = null, buttonText = "Export" }) => {
+const ExportButton = ({ data, fetchData, filename = "export", dateField = "createdAt", columns = [], customButtonClass = null, buttonText = "Export", fullWidth = false }) => {
   const [showModal, setShowModal] = useState(false);
   const [dateRange, setDateRange] = useState([]); // [startDate, endDate]
   const [exportType, setExportType] = useState('all'); // 'all', 'range'
@@ -106,7 +106,7 @@ const ExportButton = ({ data, fetchData, filename = "export", dateField = "creat
     <>
       <button 
         onClick={() => setShowModal(true)}
-        className={customButtonClass || "flex items-center gap-2 px-4 py-2 bg-[#008080]/10 hover:bg-[#008080]/20 rounded-xl text-[10px] font-black text-[#008080] uppercase tracking-widest border border-[#008080]/20 transition-all shadow-sm"}
+        className={customButtonClass || `flex items-center gap-2 px-4 py-2 bg-[#008080]/10 hover:bg-[#008080]/20 rounded-xl text-[10px] font-black text-[#008080] uppercase tracking-widest border border-[#008080]/20 transition-all shadow-sm${fullWidth ? ' w-full min-h-[48px] justify-center' : ''}`}
       >
         <Download size={12} /> {buttonText}
       </button>

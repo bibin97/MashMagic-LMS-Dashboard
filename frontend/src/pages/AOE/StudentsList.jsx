@@ -297,7 +297,8 @@ const StudentsList = ({
 				</div>
 
 				{/* Filters Row */}
-				<div className="flex flex-wrap items-center gap-4 pt-6 border-t border-slate-50">
+				{/* Desktop layout (md+): unchanged flat flex-wrap */}
+				<div className="hidden md:flex flex-wrap items-center gap-4 pt-6 border-t border-slate-50">
 					<div className="flex items-center gap-2 bg-slate-100/50 px-4 py-2 rounded-xl">
 						<Activity size={12} className="text-[#008080]" />
 						<span className="text-[9px] font-black uppercase text-slate-500 tracking-widest">Quick Filters:</span>
@@ -330,6 +331,63 @@ const StudentsList = ({
                             data={filteredStudents}
                             filename="aoe_students"
                             dateField="created_at"
+                            columns={[
+                                { header: 'Reg #', accessor: 'registration_number' },
+                                { header: 'Name', accessor: 'name' },
+                                { header: 'Email', accessor: 'email' },
+                                { header: 'Phone', accessor: 'phone_number' },
+                                { header: 'Course', accessor: 'course' },
+                                { header: 'Grade', accessor: 'grade' },
+                                { header: 'Mentor', accessor: 'mentor_name' },
+                                { header: 'Faculty', accessor: 'faculty_names' },
+                                { header: 'Total Hours', accessor: 'total_hours' },
+                                { header: 'Consumed Hours', accessor: 'total_lifetime_consumed_hours' },
+                                { header: 'Status', accessor: 'status' }
+                            ]}
+                        />
+					</div>
+				</div>
+
+				{/* Mobile layout (<md): grid rows */}
+				<div className="md:hidden space-y-3 pt-6 border-t border-slate-50">
+					{/* Row 1: All Courses | All Mentors */}
+					<div className="grid grid-cols-2 gap-3">
+						<select value={filterCourse} onChange={e => setFilterCourse(e.target.value)} className="w-full min-h-[48px] px-3 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-[10px] font-black uppercase tracking-widest text-slate-600 outline-none focus:ring-4 ring-[#008080]/10 transition-all cursor-pointer shadow-sm truncate">
+							<option value="all">All Courses</option>
+							{coursesList.map(c => <option key={c} value={c}>{c}</option>)}
+						</select>
+
+						<div className="relative">
+							<select value={filterMentor} onChange={e => setFilterMentor(e.target.value)} className="w-full min-h-[48px] pl-3 pr-8 py-3 rounded-2xl bg-slate-50 border border-slate-100 text-[10px] font-black uppercase tracking-widest outline-none focus:ring-4 ring-[#008080]/10 focus:border-[#008080] transition-all appearance-none cursor-pointer shadow-sm truncate">
+								<option value="all">All Mentors</option>
+								{mentors.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
+							</select>
+							<Users size={12} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+						</div>
+					</div>
+
+					{/* Row 2: All Faculties | Sort */}
+					<div className="grid grid-cols-2 gap-3">
+						<div className="relative">
+							<select value={filterFaculty} onChange={e => setFilterFaculty(e.target.value)} className="w-full min-h-[48px] pl-3 pr-8 py-3 rounded-2xl bg-slate-50 border border-slate-100 text-[10px] font-black uppercase tracking-widest outline-none focus:ring-4 ring-[#008080]/10 focus:border-[#008080] transition-all appearance-none cursor-pointer shadow-sm truncate">
+								<option value="all">All Faculties</option>
+								{faculties.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
+							</select>
+							<Activity size={12} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+						</div>
+
+						<div className="w-full">
+							<StudentListFilterDropdown value={sortBy} onChange={setSortBy} fullWidth />
+						</div>
+					</div>
+
+					{/* Row 3: Export full width */}
+					<div className="w-full">
+                        <ExportButton 
+                            data={filteredStudents}
+                            filename="aoe_students"
+                            dateField="created_at"
+                            fullWidth
                             columns={[
                                 { header: 'Reg #', accessor: 'registration_number' },
                                 { header: 'Name', accessor: 'name' },
