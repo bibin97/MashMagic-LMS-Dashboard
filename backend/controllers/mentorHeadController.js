@@ -1589,8 +1589,79 @@ exports.deleteStudent = async (req, res) => {
 
 exports.getFaculties = async (req, res) => {
     try {
-        const [rows] = await db.query('SELECT id, name, email, phone_number, place, status, subject, syllabus, section, createdAt FROM faculties ORDER BY name ASC');
-        res.status(200).json({ success: true, data: rows });
+        const { search, syllabus, section, subject, page, limit, stats } = req.query;
+        let whereConditions = '';
+        let params = [];
+        
+        if (search) {
+            whereConditions += ' AND (name LIKE ? OR email LIKE ? OR subject LIKE ?)';
+            params.push(`%${search}%`, `%${search}%`, `%${search}%`);
+        }
+        
+        if (syllabus) {
+            const sylArr = syllabus.split(',');
+            if (sylArr.length > 0) {
+                const conditions = sylArr.map(() => 'syllabus LIKE ?').join(' OR ');
+                whereConditions += ` AND (${conditions})`;
+                sylArr.forEach(s => params.push(`%${s}%`));
+            }
+        }
+        
+        if (section) {
+            const secArr = section.split(',');
+            if (secArr.length > 0) {
+                const conditions = secArr.map(() => 'section LIKE ?').join(' OR ');
+                whereConditions += ` AND (${conditions})`;
+                secArr.forEach(s => params.push(`%${s}%`));
+            }
+        }
+        
+        if (subject) {
+            const subArr = subject.split(',');
+            if (subArr.length > 0) {
+                const conditions = subArr.map(() => 'subject LIKE ?').join(' OR ');
+                whereConditions += ` AND (${conditions})`;
+                subArr.forEach(s => params.push(`%${s}%`));
+            }
+        }
+
+        let query = `SELECT id, name, email, phone_number, place, status, subject, syllabus, section, createdAt FROM faculties WHERE 1=1 ${whereConditions} ORDER BY name ASC`;
+        
+        let total = 0;
+        let responseData = { success: true };
+
+        if (stats === 'true') {
+            const [statsRows] = await db.query(`
+                SELECT 
+                    COUNT(*) as totalFaculties,
+                    SUM(CASE WHEN LOWER(status) = 'active' THEN 1 ELSE 0 END) as activeFaculties
+                FROM faculties
+            `);
+            responseData.stats = statsRows[0];
+        }
+
+        if (page) {
+            const parsedPage = parseInt(page) || 1;
+            const parsedLimit = parseInt(limit) || 50;
+            const offset = (parsedPage - 1) * parsedLimit;
+            
+            const countQuery = `SELECT COUNT(*) as total FROM faculties WHERE 1=1 ${whereConditions}`;
+            const [countRows] = await db.query(countQuery, params);
+            total = countRows[0].total;
+
+            query += ' LIMIT ? OFFSET ?';
+            params.push(parsedLimit, offset);
+            
+            responseData.total = total;
+            responseData.totalPages = Math.ceil(total / parsedLimit);
+            responseData.currentPage = parsedPage;
+        }
+
+        const [rows] = await db.query(query, params);
+        responseData.data = rows;
+        if (!page) responseData.count = rows.length;
+
+        res.status(200).json(responseData);
     } catch (error) { res.status(500).json({ success: false, message: error.message }); }
 };
 

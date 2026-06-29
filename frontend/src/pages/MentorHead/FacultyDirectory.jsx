@@ -4,10 +4,12 @@ import api from '../../services/api';
 import toast from 'react-hot-toast';
 import { premiumConfirm } from '../../utils/premiumConfirm';
 import MobileCard from '../../components/common/MobileCard';
+import Pagination from '../../components/common/Pagination';
 const SUBJECT_OPTIONS = ["Mathematics", "Science", "Social Science", "English", "Malayalam", "Hindi", "Physics", "Chemistry", "Biology", "Accountancy", "Business Studies", "Economics", "Computer Science", "Arabic", "French", "IT", "EVS"];
 const FacultyDirectory = () => {
   const [faculties, setFaculties] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState({ totalFaculties: 0, activeFaculties: 0 });
   const [searchTerm, setSearchTerm] = useState('');
   const deferredSearchTerm = useDeferredValue(searchTerm);
   const [selectedFaculty, setSelectedFaculty] = useState(null);
@@ -17,6 +19,11 @@ const FacultyDirectory = () => {
   const [selectedSections, setSelectedSections] = useState([]);
   const [selectedSubjects, setSelectedSubjects] = useState([]);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  
+  // Pagination State
+  const [page, setPage] = useState(1);
+  const limit = 50;
+  const [totalRecords, setTotalRecords] = useState(0);
   const toggleSyllabus = syl => {
     setSelectedSyllabi(prev => prev.includes(syl) ? prev.filter(s => s !== syl) : [...prev, syl]);
   };
@@ -28,12 +35,33 @@ const FacultyDirectory = () => {
   };
   useEffect(() => {
     fetchFaculties();
-  }, []);
+  }, [page, deferredSearchTerm, selectedSyllabi, selectedSections, selectedSubjects]);
+
+  // Reset page when filters change
+  useEffect(() => {
+    setPage(1);
+  }, [deferredSearchTerm, selectedSyllabi, selectedSections, selectedSubjects]);
+
   const fetchFaculties = async () => {
     try {
-      const res = await api.get('/mentor-head/faculties-all');
+      setLoading(true);
+      const params = new URLSearchParams({
+        page,
+        limit,
+        stats: 'true'
+      });
+      if (deferredSearchTerm) params.append('search', deferredSearchTerm);
+      if (selectedSyllabi.length > 0) params.append('syllabus', selectedSyllabi.join(','));
+      if (selectedSections.length > 0) params.append('section', selectedSections.join(','));
+      if (selectedSubjects.length > 0) params.append('subject', selectedSubjects.join(','));
+
+      const res = await api.get(`/mentor-head/faculties-all?${params.toString()}`);
       if (res.data.success) {
-        setFaculties(res.data.data);
+        setFaculties(res.data.data || []);
+        setTotalRecords(res.data.total || 0);
+        if (res.data.stats) {
+          setStats(res.data.stats);
+        }
       }
     } catch (error) {
       toast.error("Failed to load faculty directory");
@@ -41,28 +69,7 @@ const FacultyDirectory = () => {
       setLoading(false);
     }
   };
-  const filteredFaculties = faculties.filter(f => {
-    const matchesSearch = deferredSearchTerm === '' || f.name.toLowerCase().includes(deferredSearchTerm.toLowerCase()) || f.email?.toLowerCase().includes(deferredSearchTerm.toLowerCase()) || f.subject?.toLowerCase().includes(deferredSearchTerm.toLowerCase());
-    let matchesSyllabus = true;
-    if (selectedSyllabi.length > 0) {
-      const fSyllabus = f.syllabus ? typeof f.syllabus === 'string' ? f.syllabus.split(',') : Array.isArray(f.syllabus) ? f.syllabus : [f.syllabus] : [];
-      const normalizedSyllabi = fSyllabus.map(s => s.trim().toUpperCase());
-      matchesSyllabus = selectedSyllabi.some(syl => normalizedSyllabi.includes(syl.toUpperCase()));
-    }
-    let matchesSection = true;
-    if (selectedSections.length > 0) {
-      const fSection = f.section ? typeof f.section === 'string' ? f.section.split(',') : Array.isArray(f.section) ? f.section : [f.section] : [];
-      const normalizedSections = fSection.map(s => s.trim().toUpperCase());
-      matchesSection = selectedSections.some(sec => normalizedSections.includes(sec.toUpperCase()));
-    }
-    let matchesSubject = true;
-    if (selectedSubjects.length > 0) {
-      const fSubject = f.subject ? typeof f.subject === 'string' ? f.subject.split(',') : Array.isArray(f.subject) ? f.subject : [f.subject] : [];
-      const normalizedSubjects = fSubject.map(s => s.trim().toUpperCase());
-      matchesSubject = selectedSubjects.some(sub => normalizedSubjects.includes(sub.toUpperCase()));
-    }
-    return matchesSearch && matchesSyllabus && matchesSection && matchesSubject;
-  });
+  const filteredFaculties = faculties;
   if (loading) return <div className="p-20 text-center font-black text-slate-600 animate-pulse">SYNCING FACULTY DATA...</div>;
   return <div className="space-y-8 animate-in fade-in duration-700">
  {/* Header */}
@@ -98,7 +105,7 @@ const FacultyDirectory = () => {
     <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm flex flex-col gap-2 group transition-all hover:shadow-xl hover:shadow-[#008080]/5 hover:-translate-y-1">
       <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest group-hover:text-[#008080] transition-colors">Total Faculties</span>
       <div className="flex items-end gap-3 font-black text-slate-900 tracking-tighter">
-        <span className="text-4xl leading-none">{faculties.length}</span>
+        <span className="text-4xl leading-none">{stats.totalFaculties || 0}</span>
         <span className="text-[10px] text-slate-600 mb-1 uppercase tracking-widest">Database Total</span>
       </div>
     </div>
@@ -106,7 +113,7 @@ const FacultyDirectory = () => {
     <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm flex flex-col gap-2 group transition-all hover:shadow-xl hover:shadow-[#008080]/5 hover:-translate-y-1">
       <span className="text-[10px] font-black text-[#008080] uppercase tracking-widest">Active Pulse</span>
       <div className="flex items-end gap-3 font-black text-slate-900 tracking-tighter">
-        <span className="text-4xl leading-none">{faculties.filter(f => String(f.status || 'active').toLowerCase() === 'active').length}</span>
+        <span className="text-4xl leading-none">{stats.activeFaculties || 0}</span>
         <div className="flex items-center gap-1.5 mb-1 bg-[#008080]/10 px-2 py-0.5 rounded-full">
            <div className="w-1.5 h-1.5 rounded-full bg-[#008080] animate-pulse"></div>
            <span className="text-[10px] text-[#008080] uppercase tracking-widest">Live</span>
@@ -310,6 +317,16 @@ const FacultyDirectory = () => {
     )}
  </div>
  </div>
+
+  {/* Pagination Component */}
+  <div className="p-4 md:p-6 border-t border-slate-100 bg-white">
+      <Pagination 
+          currentPage={page} 
+          totalPages={Math.ceil(totalRecords / limit) || 1} 
+          totalRecords={totalRecords} 
+          onPageChange={setPage} 
+      />
+  </div>
 
  {/* Faculty Detail Modal */}
  {isDetailModalOpen && selectedFaculty && <div className="fixed inset-0 bg-[#008080]/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4 animate-in fade-in duration-300">

@@ -194,8 +194,35 @@ const getMentorStudents = async (req, res) => {
     try {
         const mentorId = req.user.id;
         const isPrivileged = ['super_admin', 'admin', 'mentor_head', 'academic_head', 'academic_operation_executive', 'ssc'].includes(req.user.role);
+        
+        const { search, page, limit, viewMode, sortBy } = req.query;
 
-        const [rows] = await db.query(`
+        let whereConditions = `s.status NOT IN ('rejected', 'inactive') AND s.course_completed = 0 AND s.mentorship_completed = 0
+            AND (LOWER(s.enrollment_type) LIKE '%mentorship%' OR LOWER(s.enrollment_type) = 'both')`;
+            
+        let params = [];
+
+        if (!isPrivileged) {
+            whereConditions += ' AND s.mentor_id = ?';
+            params.push(mentorId);
+        }
+
+        if (search) {
+            whereConditions += ' AND (s.name LIKE ? OR s.registration_number LIKE ? OR s.course LIKE ?)';
+            params.push(`%${search}%`, `%${search}%`, `%${search}%`);
+        }
+
+        if (viewMode === 'new') {
+            whereConditions += ' AND s.onboarding_status = "completed"';
+            whereConditions += ` AND (SELECT COUNT(*) FROM timetable mt WHERE (mt.is_deleted IS NULL OR mt.is_deleted = 0) AND mt.student_id = s.id AND mt.status != 'Cancelled') < 5`;
+        }
+
+        let orderByClause = 'ORDER BY s.created_at DESC';
+        if (sortBy === 'name_asc') orderByClause = 'ORDER BY s.name ASC';
+        else if (sortBy === 'name_desc') orderByClause = 'ORDER BY s.name DESC';
+        else if (sortBy === 'join_oldest') orderByClause = 'ORDER BY s.created_at ASC';
+
+        let query = `
             SELECT s.*, 
             m.name as mentor_name,
             COALESCE(
@@ -211,14 +238,39 @@ const getMentorStudents = async (req, res) => {
             s.onboarding_status
             FROM students s 
             LEFT JOIN mentors m ON s.mentor_id = m.id
-            WHERE s.status NOT IN ('rejected', 'inactive') AND s.course_completed = 0 AND s.mentorship_completed = 0
-            AND (LOWER(s.enrollment_type) LIKE '%mentorship%' OR LOWER(s.enrollment_type) = 'both')
-            ${isPrivileged ? '' : 'AND s.mentor_id = ?'}
-        `, isPrivileged ? [] : [mentorId]);
+            WHERE ${whereConditions}
+            ${orderByClause}
+        `;
+
+        let total = 0;
+        let responseData = { success: true };
+
+        if (page) {
+            const parsedPage = parseInt(page) || 1;
+            const parsedLimit = parseInt(limit) || 50;
+            const offset = (parsedPage - 1) * parsedLimit;
+            
+            const countQuery = `SELECT COUNT(*) as total FROM students s WHERE ${whereConditions}`;
+            const [countRows] = await db.query(countQuery, params);
+            total = countRows[0].total;
+
+            query += ' LIMIT ? OFFSET ?';
+            params.push(parsedLimit, offset);
+            
+            responseData.total = total;
+            responseData.totalPages = Math.ceil(total / parsedLimit);
+            responseData.currentPage = parsedPage;
+        }
+
+        const [rows] = await db.query(query, params);
+        
         const { calculateStudentHours } = require('../utils/studentHoursHelper');
         const augmentedRows = await calculateStudentHours(rows, db);
 
-        res.status(200).json({ success: true, data: augmentedRows });
+        responseData.data = augmentedRows;
+        if (!page) responseData.count = augmentedRows.length;
+
+        res.status(200).json(responseData);
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }

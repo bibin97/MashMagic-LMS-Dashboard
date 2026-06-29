@@ -6,6 +6,7 @@ import toast from 'react-hot-toast';
 import StudentListFilterDropdown, { sortStudentsByOption } from '../../components/StudentListFilterDropdown';
 import { mockStudentHours } from '../../utils/mockStudentHours';
 import MobileCard from '../../components/common/MobileCard';
+import Pagination from '../../components/common/Pagination';
 
 const StudentRow = ({ student, index, navigate, handleToggleConnection, handleCompleteOnboarding, handleLogHoursClick }) => {
   const isPending = student.onboarding_status === 'pending';
@@ -233,13 +234,25 @@ const MyStudents = () => {
  ]);
  const navigate = useNavigate();
 
+ // Pagination State
+ const [page, setPage] = useState(1);
+ const limit = 50;
+ const [totalRecords, setTotalRecords] = useState(0);
+
  useEffect(() => {
  fetchStudents();
- }, []);
+ }, [page, deferredSearchTerm, sortBy, viewMode]);
+
+ // Reset page on filter changes
+ useEffect(() => {
+ setPage(1);
+ }, [deferredSearchTerm, sortBy, viewMode]);
 
  const fetchStudents = async () => {
  try {
- const res = await api.get('/mentor/students');
+ setLoading(true);
+ const params = new URLSearchParams({ page, limit, search: deferredSearchTerm, sortBy, viewMode });
+ const res = await api.get(`/mentor/students?${params.toString()}`);
  let realStudents = res.data.data || [];
  // Inject mock hours for specific students requested by user
  realStudents = realStudents.map(student => {
@@ -272,7 +285,8 @@ const MyStudents = () => {
    }
    return student;
  });
- setStudents(realStudents.sort((a, b) => (a.name || '').localeCompare(b.name || '')));
+ setStudents(realStudents);
+ setTotalRecords(res.data.total || 0);
  } catch (error) {
  toast.error("Failed to load students");
  } finally {
@@ -355,24 +369,14 @@ const MyStudents = () => {
  };
 
   const filteredStudents = useMemo(() => {
-    const filtered = students.filter(s => {
-      const isNew = s.onboarding_status === 'pending';
-      if (viewMode === 'new' && !isNew) return false;
-      // In 'active' view, show all students
-      const nameStr = s.name || '';
-      const subjStr = s.subject || '';
-      return nameStr.toLowerCase().includes(deferredSearchTerm.toLowerCase()) ||
-      subjStr.toLowerCase().includes(deferredSearchTerm.toLowerCase());
-    });
-    
-    // Auto-Rotation: Completed interactions move to the bottom
-    const rotated = [...filtered].sort((a, b) => {
+    // Auto-Rotation: Completed interactions move to the bottom within the current page
+    const rotated = [...students].sort((a, b) => {
       if (a.connected_today === b.connected_today) return 0;
       return a.connected_today ? 1 : -1;
     });
 
-    return sortStudentsByOption(rotated, sortBy);
-  }, [students, viewMode, searchTerm, sortBy]);
+    return rotated;
+  }, [students]);
 
  return (
  <div className="space-y-12 pb-20">
@@ -430,6 +434,15 @@ const MyStudents = () => {
  <p className="text-slate-600 font-bold">No students matched your search criteria.</p>
  </div>
   )}
+
+  <div className="p-4 md:p-6 border-t border-slate-100 bg-white rounded-b-[2rem]">
+      <Pagination 
+          currentPage={page} 
+          totalPages={Math.ceil(totalRecords / limit) || 1} 
+          totalRecords={totalRecords} 
+          onPageChange={setPage} 
+      />
+  </div>
 
  {/* Batch Timetable Modal */}
  {isTimetableModalOpen && (
