@@ -132,20 +132,20 @@ const ParentMeetings = ({
         </div>
 
         {/* Tabs - Only show if not AOE */}
-        {!isAOE && <div className="flex gap-2 border-b border-slate-200">
-            <button onClick={() => setActiveTab('schedule')} className={`pb-4 px-4 font-black uppercase text-xs tracking-widest transition-all flex items-center gap-2 ${activeTab === 'schedule' ? 'text-indigo-600 border-b-2 border-indigo-600' : 'text-slate-400 hover:text-slate-600'}`}>
-              <PlusCircle size={16} /> Schedule Meeting
+        {!isAOE && <div className="flex w-full border-b border-slate-200 bg-white sm:bg-transparent rounded-t-3xl sm:rounded-none overflow-hidden">
+            <button onClick={() => setActiveTab('schedule')} className={`flex-1 py-3 px-1 sm:pb-4 sm:px-4 font-black uppercase text-[9px] sm:text-xs tracking-widest transition-all flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 text-center whitespace-normal min-h-[60px] sm:min-h-0 ${activeTab === 'schedule' ? 'text-indigo-600 border-b-2 border-indigo-600 bg-indigo-50/30' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-50'}`}>
+              <PlusCircle size={16} className="shrink-0" /> <span className="leading-tight">Schedule<span className="hidden sm:inline"> Meeting</span></span>
             </button>
-            <button onClick={() => setActiveTab('report')} className={`pb-4 px-4 font-black uppercase text-xs tracking-widest transition-all flex items-center gap-2 ${activeTab === 'report' ? 'text-amber-500 border-b-2 border-amber-500' : 'text-slate-400 hover:text-slate-600'}`}>
-              <ListTodo size={16} /> Report / Active ({pendingCount})
+            <button onClick={() => setActiveTab('report')} className={`flex-1 py-3 px-1 sm:pb-4 sm:px-4 font-black uppercase text-[9px] sm:text-xs tracking-widest transition-all flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 text-center whitespace-normal min-h-[60px] sm:min-h-0 ${activeTab === 'report' ? 'text-amber-500 border-b-2 border-amber-500 bg-amber-50/30' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-50'}`}>
+              <ListTodo size={16} className="shrink-0" /> <span className="leading-tight">Report<span className="hidden sm:inline"> / Active</span><br className="sm:hidden" /> ({pendingCount})</span>
             </button>
-            <button onClick={() => setActiveTab('view')} className={`pb-4 px-4 font-black uppercase text-xs tracking-widest transition-all flex items-center gap-2 ${activeTab === 'view' ? 'text-emerald-500 border-b-2 border-emerald-500' : 'text-slate-400 hover:text-slate-600'}`}>
-              <CheckCircle2 size={16} /> Completed View
+            <button onClick={() => setActiveTab('view')} className={`flex-1 py-3 px-1 sm:pb-4 sm:px-4 font-black uppercase text-[9px] sm:text-xs tracking-widest transition-all flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 text-center whitespace-normal min-h-[60px] sm:min-h-0 ${activeTab === 'view' ? 'text-emerald-500 border-b-2 border-emerald-500 bg-emerald-50/30' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-50'}`}>
+              <CheckCircle2 size={16} className="shrink-0" /> <span className="leading-tight">Completed<span className="hidden sm:inline"> View</span></span>
             </button>
           </div>}
 
         {/* Content */}
-        {activeTab === 'schedule' && <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm max-w-3xl">
+        {activeTab === 'schedule' && <div className="bg-white rounded-3xl p-4 sm:p-6 border border-slate-100 shadow-sm max-w-3xl">
             <form onSubmit={handleScheduleSubmit} className="space-y-6">
               
               <div className="space-y-2">
@@ -206,13 +206,13 @@ const ParentMeetings = ({
                 </div>
                 <h3 className="text-lg font-black text-slate-700">No Pending Meetings</h3>
                 <p className="text-sm font-medium text-slate-500 mt-1">There are no scheduled meetings waiting to be reported.</p>
-              </div> : <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {scheduledMeetings.map(m => <div key={m.id} className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm flex flex-col h-full">
-                    <div className="flex items-start justify-between mb-4">
-                      <div>
-                        <h3 className="font-black text-slate-900 text-lg">{m.student_name}</h3>
-                        <div className="flex items-center gap-2 mt-1 text-xs font-bold text-indigo-600 bg-indigo-50 px-2 py-1 rounded-md w-fit">
-                          <Calendar size={12} /> {new Date(m.meeting_date).toLocaleDateString('en-GB')} at {m.meeting_time}
+              </div> : <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                {scheduledMeetings.map(m => <div key={m.id} className="bg-white rounded-[20px] sm:rounded-3xl p-4 sm:p-6 border border-slate-100 shadow-sm flex flex-col h-full">
+                    <div className="flex items-start justify-between mb-3 sm:mb-4">
+                      <div className="w-full">
+                        <h3 className="font-black text-slate-900 text-base sm:text-lg truncate">{m.student_name}</h3>
+                        <div className="flex items-center gap-1.5 sm:gap-2 mt-1.5 text-[10px] sm:text-xs font-bold text-indigo-600 bg-indigo-50 px-2 py-1 rounded-md w-fit flex-wrap">
+                          <Calendar size={12} className="shrink-0" /> <span>{new Date(m.meeting_date).toLocaleDateString('en-GB')}</span> <span>at {m.meeting_time}</span>
                         </div>
                       </div>
                     </div>
@@ -327,22 +327,35 @@ const ParentMeetings = ({
                                     <Calendar size={10} /> {new Date(m.meeting_date).toLocaleDateString('en-GB')} at {m.meeting_time}
                                 </span>
                             }
-                            content={
-                                <div className="flex flex-col gap-3 mt-3">
+                            expandedContent={
+                                <div className="flex flex-col gap-3">
                                     {m.notes && (
-                                        <div className="pt-2 border-t border-slate-100">
+                                        <div>
                                             <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1">Agenda</span>
-                                            <p className="text-xs text-slate-700 font-medium">{m.notes}</p>
+                                            <p className="text-xs text-slate-700 font-medium break-words bg-slate-50 p-3 rounded-xl border border-slate-100">{m.notes}</p>
                                         </div>
                                     )}
-                                    <div className="pt-2 border-t border-slate-100">
-                                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1">Report / Summary</span>
-                                        <p className="text-xs text-slate-700 font-medium p-2 bg-emerald-50/50 rounded-lg">{summary || '-'}</p>
+                                    <div>
+                                        <span className="text-[9px] font-black text-emerald-500 uppercase tracking-widest block mb-1 flex items-center gap-1"><FileText size={10} /> Report / Summary</span>
+                                        <p className="text-xs text-slate-700 font-medium p-3 bg-emerald-50/50 rounded-xl border border-emerald-100 break-words">{summary || '-'}</p>
                                     </div>
-                                    <div className="pt-2 border-t border-slate-100 flex justify-between items-center">
-                                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest block">Handled By</span>
-                                        <span className="text-xs text-slate-700 font-bold">{m.academic_operation_executive_name}</span>
+                                    <div className="pt-2 border-t border-slate-100 flex justify-between items-center flex-wrap gap-2">
+                                        <div className="flex flex-col">
+                                            <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Handled By</span>
+                                            <span className="text-xs text-slate-700 font-bold truncate max-w-[150px]">{m.academic_operation_executive_name}</span>
+                                        </div>
+                                        <div className="flex flex-col text-right">
+                                            <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Status</span>
+                                            <span className="text-[10px] font-black text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded uppercase tracking-wider">Completed</span>
+                                        </div>
                                     </div>
+                                    {m.meeting_link && (
+                                        <div className="pt-2 border-t border-slate-100">
+                                            <a href={m.meeting_link} target="_blank" rel="noreferrer" className="w-full flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-widest bg-blue-50 text-blue-600 p-2 rounded-xl border border-blue-100 hover:bg-blue-100 transition-colors">
+                                                <Video size={14} /> View Meeting Link
+                                            </a>
+                                        </div>
+                                    )}
                                 </div>
                             }
                         />
