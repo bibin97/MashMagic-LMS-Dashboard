@@ -1594,6 +1594,15 @@ exports.getFaculties = async (req, res) => {
     } catch (error) { res.status(500).json({ success: false, message: error.message }); }
 };
 
+exports.getFacultyById = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const [rows] = await db.query('SELECT * FROM faculties WHERE id = ?', [id]);
+        if (rows.length === 0) return res.status(404).json({ success: false, message: "Faculty not found" });
+        res.status(200).json({ success: true, data: rows[0] });
+    } catch (error) { res.status(500).json({ success: false, message: error.message }); }
+};
+
 exports.getStudents = async (req, res) => {
     try {
         const { mentor_id, faculty_id, search, sortBy, course, enrollment_type } = req.query;
@@ -1639,9 +1648,30 @@ exports.getStudents = async (req, res) => {
             whereConditions += ' AND (s.mentorship_completed IS NULL OR s.mentorship_completed = 0)';
         }
 
+        // Check if previous_mentor_name exists
+        let hasPrevMentorCols = false;
+        try {
+            const [cols] = await db.query("SHOW COLUMNS FROM students LIKE 'previous_mentor_name'");
+            if (cols.length > 0) {
+                hasPrevMentorCols = true;
+            } else {
+                // Try to add it
+                await db.query('ALTER TABLE students ADD COLUMN previous_mentor_name VARCHAR(255) NULL');
+                await db.query('ALTER TABLE students ADD COLUMN previous_mentor_id INT NULL');
+                hasPrevMentorCols = true;
+            }
+        } catch (e) {
+            // No permission to alter or check, assume false
+            hasPrevMentorCols = false;
+        }
+
         const filterMode = req.query.filterMode;
         if (filterMode === 'removed') {
-            whereConditions += ' AND s.mentor_id IS NULL AND s.previous_mentor_name IS NOT NULL';
+            if (hasPrevMentorCols) {
+                whereConditions += ' AND s.mentor_id IS NULL AND s.previous_mentor_name IS NOT NULL';
+            } else {
+                whereConditions += ' AND s.mentor_id IS NULL';
+            }
         } else if (filterMode === 'completed') {
             whereConditions += ' AND s.course_completed = 1';
         } else if (filterMode === 'active') {
@@ -1649,8 +1679,13 @@ exports.getStudents = async (req, res) => {
         }
 
         if (search) {
-            whereConditions += ' AND (s.name LIKE ? OR s.registration_number LIKE ? OR s.grade LIKE ? OR m.name LIKE ? OR s.previous_mentor_name LIKE ?)';
-            params.push(`%${search}%`, `%${search}%`, `%${search}%`, `%${search}%`, `%${search}%`);
+            if (hasPrevMentorCols) {
+                whereConditions += ' AND (s.name LIKE ? OR s.registration_number LIKE ? OR s.grade LIKE ? OR m.name LIKE ? OR s.previous_mentor_name LIKE ?)';
+                params.push(`%${search}%`, `%${search}%`, `%${search}%`, `%${search}%`, `%${search}%`);
+            } else {
+                whereConditions += ' AND (s.name LIKE ? OR s.registration_number LIKE ? OR s.grade LIKE ? OR m.name LIKE ?)';
+                params.push(`%${search}%`, `%${search}%`, `%${search}%`, `%${search}%`);
+            }
         }
 
         // Apply conditions to main query
@@ -1701,16 +1736,17 @@ exports.getStudents = async (req, res) => {
         }
 
         if (req.query.stats === 'true') {
-            const [statsRows] = await db.query(`
+            const statsQueryStr = `
                 SELECT 
                     COUNT(*) as totalEnrollment,
-                    SUM(CASE WHEN mentor_id IS NULL AND previous_mentor_name IS NOT NULL THEN 1 ELSE 0 END) as removedCount,
+                    SUM(CASE WHEN mentor_id IS NULL ${hasPrevMentorCols ? 'AND previous_mentor_name IS NOT NULL' : ''} THEN 1 ELSE 0 END) as removedCount,
                     SUM(CASE WHEN course_completed = 1 THEN 1 ELSE 0 END) as courseCompletedCount,
                     SUM(CASE WHEN (course_completed IS NULL OR course_completed = 0) AND status = 'active' THEN 1 ELSE 0 END) as activeCount,
                     SUM(CASE WHEN mentorship_completed = 1 THEN 1 ELSE 0 END) as mentorshipCompletedCount,
                     SUM(CASE WHEN mentorship_completed IS NULL OR mentorship_completed = 0 THEN 1 ELSE 0 END) as mentorshipPendingCount
                 FROM students WHERE status != 'rejected'
-            `);
+            `;
+            const [statsRows] = await db.query(statsQueryStr);
             responseData.stats = statsRows[0];
         }
 

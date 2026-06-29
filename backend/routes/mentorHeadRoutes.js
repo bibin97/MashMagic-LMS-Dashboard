@@ -23,6 +23,7 @@ const {
     editStudent,
     deleteStudent,
     getFaculties,
+    getFacultyById,
     editFaculty,
     deleteFaculty,
     getMentors,
@@ -91,6 +92,7 @@ router.get('/interactions/:source/:id/history', getInteractionHistory);
 
 // Faculty Management for Mentor Head
 router.get('/faculties-all', getFaculties);
+router.get('/faculties/:id', getFacultyById);
 router.put('/faculties/:id', editFaculty);
 router.delete('/faculties/:id', deleteFaculty);
 
