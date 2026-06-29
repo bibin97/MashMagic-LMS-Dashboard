@@ -71,6 +71,84 @@ const StudentsList = ({
   });
   const [isUpdatingHours, setIsUpdatingHours] = useState(false);
 
+  // Inline Edit Subject Hours State
+  const [inlineEditSubject, setInlineEditSubject] = useState({ studentId: null, index: null, allocatedHours: '' });
+  const [inlineAddSubject, setInlineAddSubject] = useState({ studentId: null, subject: '', allocatedHours: '' });
+  const [isUpdatingInlineHours, setIsUpdatingInlineHours] = useState(false);
+  const predefinedSubjects = ["Physics", "Chemistry", "Mathematics", "Biology", "English", "Computer Science", "Economics", "Business Studies", "Accountancy", "History", "Geography"];
+
+  const handleInlineSaveSubject = async (studentId, currentSubjects, newSubjectObj, editIndex = null) => {
+    try {
+      setIsUpdatingInlineHours(true);
+      let updatedSubjects = [...(currentSubjects || [])];
+      
+      if (editIndex !== null) {
+        updatedSubjects[editIndex] = { ...updatedSubjects[editIndex], allocated_hours: newSubjectObj.allocated_hours };
+      } else {
+        updatedSubjects.push({
+          subject: newSubjectObj.subject,
+          allocated_hours: newSubjectObj.allocated_hours,
+          consumed_hours: 0,
+          faculties: '' 
+        });
+      }
+
+      const res = await api.put(`${apiPath}/students/${studentId}/subject-hours`, {
+          subject_hours: updatedSubjects
+      });
+
+      if (res.data.success) {
+        toast.success(editIndex !== null ? 'Subject hours updated!' : 'Subject added successfully!');
+        setInlineEditSubject({ studentId: null, index: null, allocatedHours: '' });
+        setInlineAddSubject({ studentId: null, subject: '', allocatedHours: '' });
+        
+        setStudents(prev => prev.map(s => {
+          if (s.id === studentId) return { ...s, subject_hours: updatedSubjects };
+          return s;
+        }));
+      } else {
+        toast.error(res.data.message || 'Failed to update subject');
+      }
+    } catch (error) {
+      toast.error('Server error updating subject');
+    } finally {
+      setIsUpdatingInlineHours(false);
+    }
+  };
+
+  const handleInlineDeleteSubject = (student, idxToDelete) => {
+    premiumConfirm(async () => {
+      try {
+        setIsUpdatingInlineHours(true);
+        let updatedSubjects = [...(student.subject_hours || [])];
+        updatedSubjects.splice(idxToDelete, 1);
+        
+        const res = await api.put(`${apiPath}/students/${student.id}/subject-hours`, {
+            subject_hours: updatedSubjects
+        });
+
+        if (res.data.success) {
+          toast.success('Subject deleted successfully!');
+          setStudents(prev => prev.map(s => {
+            if (s.id === student.id) return { ...s, subject_hours: updatedSubjects };
+            return s;
+          }));
+        } else {
+          toast.error(res.data.message || 'Failed to delete subject');
+        }
+      } catch (error) {
+        toast.error('Server error deleting subject');
+      } finally {
+        setIsUpdatingInlineHours(false);
+      }
+    }, {
+      name: `subject ${student.subject_hours[idxToDelete].subject}`,
+      title: 'Delete Subject',
+      message: `Are you sure you want to delete ${student.subject_hours[idxToDelete].subject} for this student?`,
+      type: 'danger'
+    });
+  };
+
   // Base API path based on role
   const apiPath = role === 'mentor_head' ? '/mentor-head' : '/aoe';
   // Navigation base path (frontend routes)
@@ -684,22 +762,156 @@ const StudentsList = ({
 											</div>
 										</div>
 
-										{student.subject_hours && student.subject_hours.length > 0 && (
-											<div className="pt-2">
-												<span className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-2">Subject Hours</span>
-												<div className="space-y-2">
-													{student.subject_hours.map((sh, idx) => (
-														<div key={idx} className="flex justify-between items-center text-[10px] font-bold bg-slate-50 p-2 rounded-lg border border-slate-100">
-															<div className="flex flex-col">
-																<span className="text-slate-700 uppercase">{sh.subject}</span>
-																<span className="text-[8px] text-[#008080] uppercase truncate max-w-[120px]">{sh.faculties}</span>
-															</div>
-															<span className="text-slate-600 bg-white border border-slate-200 px-2 py-1 rounded">{sh.consumed_hours}/{sh.allocated_hours}h</span>
-														</div>
-													))}
-												</div>
+										<div className="pt-2 border-t border-slate-100 mt-3">
+											<div className="flex justify-between items-center mb-2">
+												<span className="text-[9px] font-black text-slate-400 uppercase tracking-widest block">Subject Hours</span>
+												{role === 'academic_head' && inlineAddSubject.studentId !== student.id && (
+													<button onClick={(e) => {
+														e.stopPropagation();
+														setInlineAddSubject({ studentId: student.id, subject: '', allocatedHours: '' });
+													}} className="text-[9px] font-black text-[#008080] hover:text-[#006060] uppercase tracking-widest flex items-center gap-1 bg-emerald-50 px-2 py-1 rounded-md transition-colors">
+														+ Add Subject
+													</button>
+												)}
 											</div>
-										)}
+											<div className="space-y-2">
+												{student.subject_hours && student.subject_hours.map((sh, idx) => {
+													const isEditing = inlineEditSubject.studentId === student.id && inlineEditSubject.index === idx;
+													
+													return (
+														<div key={idx} className="flex flex-col bg-slate-50 p-2 rounded-lg border border-slate-100 gap-2 transition-all">
+															<div className="flex justify-between items-start">
+																<div className="flex flex-col flex-1 min-w-0 mr-2">
+																	<span className="text-[10px] font-bold text-slate-700 uppercase truncate">{sh.subject}</span>
+																	{sh.faculties && <span className="text-[8px] text-[#008080] uppercase truncate max-w-[120px]">{sh.faculties}</span>}
+																</div>
+																
+																{!isEditing && (
+																	<div className="flex items-center gap-2 shrink-0">
+																		<span className="text-[10px] font-bold text-slate-600 bg-white border border-slate-200 px-2 py-1 rounded shadow-sm">{sh.consumed_hours}/{sh.allocated_hours}h</span>
+																		{role === 'academic_head' && (
+																			<div className="flex gap-1 sm:gap-2 border-l border-slate-200 pl-2 ml-1">
+																				<button onClick={(e) => {
+																					e.stopPropagation();
+																					setInlineEditSubject({ studentId: student.id, index: idx, allocatedHours: sh.allocated_hours });
+																				}} className="p-1 sm:p-1.5 text-slate-400 hover:text-indigo-500 hover:bg-indigo-50 rounded transition-colors" title="Edit Hours">
+																					<Edit2 size={12} />
+																				</button>
+																				<button onClick={(e) => {
+																					e.stopPropagation();
+																					handleInlineDeleteSubject(student, idx);
+																				}} className="p-1 sm:p-1.5 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded transition-colors" title="Delete Subject">
+																					<Trash2 size={12} />
+																				</button>
+																			</div>
+																		)}
+																	</div>
+																)}
+															</div>
+															
+															{isEditing && (
+																<div className="flex items-center justify-between gap-2 mt-1 border-t border-slate-100 pt-2 animate-in slide-in-from-top-1">
+																	<div className="flex items-center gap-2 flex-1">
+																		<span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">Hrs:</span>
+																		<input 
+																			type="number" 
+																			min="0"
+																			value={inlineEditSubject.allocatedHours}
+																			onChange={(e) => setInlineEditSubject({...inlineEditSubject, allocatedHours: e.target.value})}
+																			className="w-16 px-2 py-1 text-[10px] font-bold border border-slate-200 rounded focus:border-[#008080] outline-none shadow-sm"
+																			onClick={(e) => e.stopPropagation()}
+																		/>
+																	</div>
+																	<div className="flex gap-1.5 shrink-0">
+																		<button onClick={(e) => {
+																			e.stopPropagation();
+																			if (!inlineEditSubject.allocatedHours || inlineEditSubject.allocatedHours < 0) return toast.error('Invalid hours');
+																			handleInlineSaveSubject(student.id, student.subject_hours, { allocated_hours: inlineEditSubject.allocatedHours }, idx);
+																		}} disabled={isUpdatingInlineHours} className="p-1.5 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 rounded-md transition-colors shadow-sm">
+																			<Check size={14} />
+																		</button>
+																		<button onClick={(e) => {
+																			e.stopPropagation();
+																			setInlineEditSubject({ studentId: null, index: null, allocatedHours: '' });
+																		}} className="p-1.5 bg-rose-50 text-rose-600 hover:bg-rose-100 rounded-md transition-colors shadow-sm">
+																			<X size={14} />
+																		</button>
+																	</div>
+																</div>
+															)}
+														</div>
+													);
+												})}
+
+												{inlineAddSubject.studentId === student.id && (
+													<div className="flex flex-col bg-indigo-50/40 p-3 rounded-xl border border-indigo-100 gap-3 mt-3 animate-in slide-in-from-top-2 shadow-sm">
+														<div className="flex flex-col gap-1.5">
+															<span className="text-[9px] font-black text-indigo-500 uppercase tracking-widest">New Subject Details</span>
+															<select 
+																value={inlineAddSubject.subject}
+																onChange={(e) => setInlineAddSubject({...inlineAddSubject, subject: e.target.value})}
+																className="w-full px-3 py-2 text-[10px] font-bold border border-indigo-200 rounded-lg focus:border-indigo-500 outline-none bg-white text-slate-700 shadow-inner"
+																onClick={(e) => e.stopPropagation()}
+															>
+																<option value="">-- Select Subject --</option>
+																{predefinedSubjects.map(sub => {
+																	const isAssigned = student.subject_hours && student.subject_hours.some(sh => sh.subject === sub);
+																	return (
+																		<option key={sub} value={sub} disabled={isAssigned}>
+																			{sub} {isAssigned ? '(Already Assigned)' : ''}
+																		</option>
+																	);
+																})}
+															</select>
+														</div>
+														<div className="flex items-center justify-between border-t border-indigo-100 pt-2">
+															<div className="flex items-center gap-2">
+																<span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">Allocated:</span>
+																<input 
+																	type="number" 
+																	min="0"
+																	placeholder="0"
+																	value={inlineAddSubject.allocatedHours}
+																	onChange={(e) => setInlineAddSubject({...inlineAddSubject, allocatedHours: e.target.value})}
+																	className="w-16 px-2 py-1.5 text-[10px] font-bold border border-indigo-200 rounded-lg focus:border-indigo-500 outline-none bg-white shadow-inner"
+																	onClick={(e) => e.stopPropagation()}
+																/>
+															</div>
+															<div className="flex gap-2">
+                                                                <button onClick={(e) => {
+																	e.stopPropagation();
+																	setInlineAddSubject({ studentId: null, subject: '', allocatedHours: '' });
+																}} className="px-3 py-1.5 bg-white text-slate-500 hover:bg-slate-50 border border-slate-200 rounded-lg text-[9px] font-black uppercase tracking-widest transition-colors shadow-sm">
+																	Cancel
+																</button>
+																<button onClick={(e) => {
+																	e.stopPropagation();
+																	if (!inlineAddSubject.subject) return toast.error('Please select a subject');
+																	if (!inlineAddSubject.allocatedHours || inlineAddSubject.allocatedHours < 0) return toast.error('Valid hours required');
+																	handleInlineSaveSubject(student.id, student.subject_hours, { subject: inlineAddSubject.subject, allocated_hours: inlineAddSubject.allocatedHours });
+																}} disabled={isUpdatingInlineHours} className="px-3 py-1.5 bg-indigo-500 text-white hover:bg-indigo-600 rounded-lg text-[9px] font-black uppercase tracking-widest shadow-md transition-colors">
+																	Save
+																</button>
+															</div>
+														</div>
+													</div>
+												)}
+												
+												{(!student.subject_hours || student.subject_hours.length === 0) && inlineAddSubject.studentId !== student.id && (
+													<div className="text-center py-4 bg-slate-50/80 border border-slate-100 border-dashed rounded-xl">
+														<span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-2">No subjects allocated</span>
+                                                        {role === 'academic_head' && (
+                                                            <button onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                setInlineAddSubject({ studentId: student.id, subject: '', allocatedHours: '' });
+                                                            }} className="text-[9px] font-black text-indigo-500 hover:text-indigo-600 uppercase tracking-widest underline underline-offset-4">
+                                                                Add First Subject
+                                                            </button>
+                                                        )}
+													</div>
+												)}
+											</div>
+										</div>
 
 										<div className="pt-3 border-t border-slate-100 flex items-center justify-between">
 											<span className="text-[9px] font-black text-slate-400 uppercase tracking-widest block">Assessment</span>
