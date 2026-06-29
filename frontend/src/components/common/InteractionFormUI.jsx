@@ -74,7 +74,7 @@ const InteractionFormUI = ({ sessionType, formData, setFormData, isReadOnly = fa
     >
       {sessionType === 'DEEP' && (
         <div className="space-y-10">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 bg-slate-50 p-6 rounded-[2.5rem] border border-slate-100 items-end">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 bg-slate-50 p-4 sm:p-6 rounded-[2.5rem] border border-slate-100 items-end">
             <div className="space-y-3">
               <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 block">Planned Task Completed?</label>
               {renderButtonOptions('student_status_before', ['Yes', 'Partially', 'No'], 'bg-yellow-400 text-slate-900 shadow-lg', 'bg-white text-slate-400 border border-slate-100 hover:bg-slate-100')}
@@ -109,8 +109,8 @@ const InteractionFormUI = ({ sessionType, formData, setFormData, isReadOnly = fa
           </div>
 
           <div className="p-4 md:p-8 bg-slate-50 rounded-[2.5rem] border border-slate-100 flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="flex items-center gap-6">
-              <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Follow-up Required?</label>
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 w-full sm:w-auto">
+              <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest shrink-0">Follow-up Required?</label>
               <div className="flex gap-2">
                 {['Yes', 'No'].map(opt => (
                   <button key={opt} type="button" onClick={() => !isReadOnly && setFormData({...formData, followup_required: opt})} disabled={isReadOnly} className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase transition-all ${formData.followup_required === opt ? 'bg-yellow-400 text-slate-900 shadow-md' : 'bg-white text-slate-400 border border-slate-200 hover:bg-slate-100'}`}>{opt}</button>
@@ -118,8 +118,8 @@ const InteractionFormUI = ({ sessionType, formData, setFormData, isReadOnly = fa
               </div>
             </div>
             {formData.followup_required === 'Yes' && (
-              <div className="flex items-center gap-4 animate-in slide-in-from-right-4">
-                <span className="text-[10px] font-black text-slate-400 uppercase">When?</span>
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full sm:w-auto animate-in slide-in-from-right-4">
+                <span className="text-[10px] font-black text-slate-400 uppercase shrink-0">When?</span>
                 <select name="followup_when" value={formData.followup_when || ''} onChange={handleChange} disabled={isReadOnly} className="p-3 bg-white border border-slate-200 rounded-2xl text-[10px] font-black uppercase tracking-widest outline-none disabled:opacity-70">
                   <option value="">Select...</option>
                   {['Tomorrow', 'Within 2 days', 'This week'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
@@ -132,14 +132,14 @@ const InteractionFormUI = ({ sessionType, formData, setFormData, isReadOnly = fa
 
       {sessionType === 'MEDIUM' && (
         <div className="space-y-10">
-          <div className="flex flex-col md:flex-row gap-6 bg-slate-50 p-6 rounded-[2.5rem] border border-slate-100 items-end">
-            <div className="flex-1 space-y-3">
+          <div className="flex flex-col md:flex-row gap-6 bg-slate-50 p-4 sm:p-6 rounded-[2.5rem] border border-slate-100 items-end">
+            <div className="flex-1 space-y-3 w-full">
               <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 block">Progress Since Last Session</label>
               {renderButtonOptions('progress', ['Good', 'Average', 'Poor'], 'bg-amber-500 text-white shadow-lg', 'bg-white text-slate-400 border border-slate-100 hover:bg-slate-100')}
             </div>
             <div className="flex-1 space-y-3">
               <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 block">Class Attendance</label>
-              <select name="class_attendance" value={formData.class_attendance || ''} onChange={handleChange} disabled={isReadOnly} className="w-full py-3 px-4 bg-white border border-slate-100 rounded-2xl text-xs font-black uppercase outline-none focus:ring-2 focus:ring-amber-500/20 disabled:opacity-70">
+              <select name="class_attendance" value={formData.class_attendance || ''} onChange={handleChange} disabled={isReadOnly} className="w-full py-3 px-4 bg-white border border-slate-100 rounded-2xl text-xs font-black uppercase outline-none focus:ring-2 focus:ring-amber-500/20 disabled:opacity-70 disabled:bg-slate-50">
                 <option value="">Select...</option>
                 {['Regular', 'Missed 1 class', 'Missed multiple'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
               </select>
@@ -162,8 +162,8 @@ const InteractionFormUI = ({ sessionType, formData, setFormData, isReadOnly = fa
           </div>
 
           <div className="p-4 md:p-8 bg-slate-50 rounded-[2.5rem] border border-slate-100 flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="flex items-center gap-6">
-              <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Need Deep Session?</label>
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 w-full">
+              <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest shrink-0">Need Deep Session?</label>
               <div className="flex gap-2">
                 {['Yes', 'No'].map(opt => (
                   <button key={opt} type="button" onClick={() => !isReadOnly && setFormData({...formData, upgrade_to_deep: opt})} disabled={isReadOnly} className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase transition-all ${formData.upgrade_to_deep === opt ? 'bg-amber-600 text-white shadow-md' : 'bg-white text-slate-400 border border-slate-200 hover:bg-slate-100'}`}>{opt}</button>
@@ -176,7 +176,7 @@ const InteractionFormUI = ({ sessionType, formData, setFormData, isReadOnly = fa
 
       {sessionType === 'QUICK' && (
         <div className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-slate-50 p-6 rounded-[2.5rem] border border-slate-100">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-slate-50 p-4 sm:p-6 rounded-[2.5rem] border border-slate-100">
             <div className="space-y-2">
               <label className="text-[9px] font-black text-slate-600 uppercase tracking-widest ml-1">Student Available?</label>
               <div className="flex gap-1">
@@ -255,7 +255,7 @@ const InteractionFormUI = ({ sessionType, formData, setFormData, isReadOnly = fa
               </h4>
               <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Select the intensity for the next interaction</p>
             </div>
-            <div className="flex gap-2 p-1.5 bg-white/10 rounded-2xl">
+            <div className="flex justify-start sm:justify-center gap-2 p-1.5 bg-white/10 rounded-2xl w-full sm:w-auto overflow-x-auto no-scrollbar scroll-smooth whitespace-nowrap">
               {[
                 { id: 'DEEP', label: 'Deep', color: 'bg-rose-500 text-white shadow-[0_0_15px_rgba(244,63,94,0.5)]' },
                 { id: 'MEDIUM', label: 'Medium', color: 'bg-amber-500 text-white shadow-lg' },
@@ -266,7 +266,7 @@ const InteractionFormUI = ({ sessionType, formData, setFormData, isReadOnly = fa
                   type="button"
                   onClick={() => !isReadOnly && setFormData({...formData, next_session_type: opt.id})}
                   disabled={isReadOnly}
-                  className={`px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${formData.next_session_type === opt.id ? opt.color : 'text-slate-400 hover:text-white'}`}
+                  className={`shrink-0 px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${formData.next_session_type === opt.id ? opt.color : 'text-slate-400 hover:text-white'}`}
                 >
                   {opt.label}
                 </button>

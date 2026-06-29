@@ -318,21 +318,21 @@ const StudentInteractionLog = () => {
              Decision-Driven Mentorship Platform
            </p>
          </div>
-          <div className="flex gap-4">
-             <div className="p-6 bg-rose-50 rounded-3xl border border-rose-100 text-center">
-                 <p className="text-[10px] font-black text-rose-600 uppercase mb-1">Deep</p>
-                 <p className="text-2xl font-black text-rose-900">{assignedStudents.filter(s => s.sessionType === 'DEEP').length || 0}</p>
-             </div>
-             <div className="p-6 bg-amber-50 rounded-3xl border border-amber-100 text-center">
-                 <p className="text-[10px] font-black text-amber-600 uppercase mb-1">Med</p>
-                 <p className="text-2xl font-black text-amber-900">{assignedStudents.filter(s => s.sessionType === 'MEDIUM').length || 0}</p>
-             </div>
-             <div className="p-6 bg-blue-50 rounded-3xl border border-blue-100 text-center">
-                 <p className="text-[10px] font-black text-blue-600 uppercase mb-1">Quick</p>
-                 <p className="text-2xl font-black text-blue-900">{assignedStudents.filter(s => s.sessionType === 'QUICK').length || 0}</p>
-             </div>
-          </div>
-       </header>
+           <div className="flex gap-2 sm:gap-4 flex-wrap sm:flex-nowrap justify-center sm:justify-start w-full md:w-auto">
+              <div className="flex-1 min-w-[80px] p-3 sm:p-6 bg-rose-50 rounded-[1.5rem] sm:rounded-3xl border border-rose-100 text-center">
+                  <p className="text-[9px] sm:text-[10px] font-black text-rose-600 uppercase mb-1">Deep</p>
+                  <p className="text-xl sm:text-2xl font-black text-rose-900">{assignedStudents.filter(s => s.sessionType === 'DEEP').length || 0}</p>
+              </div>
+              <div className="flex-1 min-w-[80px] p-3 sm:p-6 bg-amber-50 rounded-[1.5rem] sm:rounded-3xl border border-amber-100 text-center">
+                  <p className="text-[9px] sm:text-[10px] font-black text-amber-600 uppercase mb-1">Med</p>
+                  <p className="text-xl sm:text-2xl font-black text-amber-900">{assignedStudents.filter(s => s.sessionType === 'MEDIUM').length || 0}</p>
+              </div>
+              <div className="flex-1 min-w-[80px] p-3 sm:p-6 bg-blue-50 rounded-[1.5rem] sm:rounded-3xl border border-blue-100 text-center">
+                  <p className="text-[9px] sm:text-[10px] font-black text-blue-600 uppercase mb-1">Quick</p>
+                  <p className="text-xl sm:text-2xl font-black text-blue-900">{assignedStudents.filter(s => s.sessionType === 'QUICK').length || 0}</p>
+              </div>
+           </div>
+        </header>
 
         <div className="space-y-4">
          {/* Main Category Tabs & Pause Toggle */}
@@ -351,9 +351,9 @@ const StudentInteractionLog = () => {
                </button>
              ))}
            </div>
-           <div className="flex items-center gap-3 shrink-0">
+           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto shrink-0">
               {/* Date Picker - AOE style, blocks future dates */}
-              <div className="relative z-50">
+              <div className="relative z-50 w-full sm:w-auto">
                 <DatePicker
                   value={selectedDate}
                   onChange={(dateObj) => {
@@ -364,13 +364,13 @@ const StudentInteractionLog = () => {
                     }
                   }}
                   placeholder="Select Date"
-                  inputClass="bg-white border border-slate-200 rounded-2xl py-3 px-4 text-xs font-black text-slate-600 outline-none focus:ring-2 focus:ring-[#008080] cursor-pointer min-w-[140px]"
-                  containerClassName="relative z-50"
+                  inputClass="w-full bg-white border border-slate-200 rounded-2xl py-3 px-4 text-xs font-black text-slate-600 outline-none focus:ring-2 focus:ring-[#008080] cursor-pointer min-w-[140px]"
+                  containerClassName="relative z-50 w-full"
                 />
               </div>
              <button
                onClick={handleTogglePause}
-               className={`px-6 py-3 rounded-[22px] text-[11px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${isPaused ? 'bg-red-500 text-white shadow-red-200 shadow-lg' : 'bg-green-500 text-white shadow-green-200 shadow-lg'}`}
+               className={`w-full sm:w-auto justify-center px-6 py-3 rounded-[22px] text-[11px] font-black uppercase tracking-widest transition-all flex items-center gap-2 shrink-0 ${isPaused ? 'bg-red-500 text-white shadow-red-200 shadow-lg' : 'bg-green-500 text-white shadow-green-200 shadow-lg'}`}
              >
                {isPaused ? <Play fill="currentColor" size={16} /> : <Pause fill="currentColor" size={16} />}
                {isPaused ? 'Resume Rotation' : 'Pause Rotation'}
@@ -386,30 +386,30 @@ const StudentInteractionLog = () => {
          )}
 
          {/* Sub-Tabs: Status Filter */}
-         <div className="flex justify-center gap-3">
+         <div className="flex justify-start sm:justify-center gap-3 overflow-x-auto no-scrollbar scroll-smooth whitespace-nowrap w-full py-1 px-1">
            <button
              onClick={() => setStatusFilter('pending')}
-             className={`px-4 md:px-8 py-3 rounded-2xl text-[9px] font-black uppercase tracking-[0.2em] transition-all flex items-center gap-3 ${statusFilter === 'pending' ? 'bg-rose-500 text-white shadow-xl shadow-rose-200' : 'bg-white text-slate-400 border border-slate-100 hover:border-rose-200'}`}
+             className={`shrink-0 px-4 md:px-8 py-3 rounded-2xl text-[9px] font-black uppercase tracking-[0.2em] transition-all flex items-center gap-3 ${statusFilter === 'pending' ? 'bg-rose-500 text-white shadow-xl shadow-rose-200' : 'bg-white text-slate-400 border border-slate-100 hover:border-rose-200'}`}
            >
-             <div className={`w-2 h-2 rounded-full ${statusFilter === 'pending' ? 'bg-white animate-pulse' : 'bg-rose-500'}`}></div>
+             <div className={`w-2 h-2 rounded-full shrink-0 ${statusFilter === 'pending' ? 'bg-white animate-pulse' : 'bg-rose-500'}`}></div>
              {selectedDate === getTodayStr() ? 'Student Interaction' : `Interactions (${selectedDate})`} ({
                assignedStudents.filter(s => s.status?.toUpperCase() !== 'COMPLETED' && s.status?.toUpperCase() !== 'CANCELLED' && (activeTab === 'both' ? isDiamondCategory(s) : isGoldCategory(s))).length
              })
            </button>
            <button
              onClick={() => setStatusFilter('completed')}
-             className={`px-4 md:px-8 py-3 rounded-2xl text-[9px] font-black uppercase tracking-[0.2em] transition-all flex items-center gap-3 ${statusFilter === 'completed' ? 'bg-emerald-500 text-white shadow-xl shadow-emerald-200' : 'bg-white text-slate-400 border border-slate-100 hover:border-emerald-200'}`}
+             className={`shrink-0 px-4 md:px-8 py-3 rounded-2xl text-[9px] font-black uppercase tracking-[0.2em] transition-all flex items-center gap-3 ${statusFilter === 'completed' ? 'bg-emerald-500 text-white shadow-xl shadow-emerald-200' : 'bg-white text-slate-400 border border-slate-100 hover:border-emerald-200'}`}
            >
-             <div className={`w-2 h-2 rounded-full ${statusFilter === 'completed' ? 'bg-white animate-pulse' : 'bg-emerald-500'}`}></div>
+             <div className={`w-2 h-2 rounded-full shrink-0 ${statusFilter === 'completed' ? 'bg-white animate-pulse' : 'bg-emerald-500'}`}></div>
              Completed {selectedDate === getTodayStr() ? 'Today' : selectedDate} ({
                assignedStudents.filter(s => (s.status?.toUpperCase() === 'COMPLETED' || s.status?.toUpperCase() === 'CANCELLED') && (activeTab === 'both' ? isDiamondCategory(s) : isGoldCategory(s))).length
              })
            </button>
            <button
              onClick={() => setStatusFilter('yesterday')}
-             className={`px-4 md:px-8 py-3 rounded-2xl text-[9px] font-black uppercase tracking-[0.2em] transition-all flex items-center gap-3 ${statusFilter === 'yesterday' ? 'bg-amber-500 text-white shadow-xl shadow-amber-200' : 'bg-white text-slate-400 border border-slate-100 hover:border-amber-200'}`}
+             className={`shrink-0 px-4 md:px-8 py-3 rounded-2xl text-[9px] font-black uppercase tracking-[0.2em] transition-all flex items-center gap-3 ${statusFilter === 'yesterday' ? 'bg-amber-500 text-white shadow-xl shadow-amber-200' : 'bg-white text-slate-400 border border-slate-100 hover:border-amber-200'}`}
            >
-             <div className={`w-2 h-2 rounded-full ${statusFilter === 'yesterday' ? 'bg-white animate-pulse' : 'bg-amber-500'}`}></div>
+             <div className={`w-2 h-2 rounded-full shrink-0 ${statusFilter === 'yesterday' ? 'bg-white animate-pulse' : 'bg-amber-500'}`}></div>
              {selectedDate === getTodayStr() ? 'Yesterday Pending' : `${subtractOneDay(selectedDate)} Pending`} ({yesterdayPending.length})
            </button>
          </div>
@@ -481,13 +481,13 @@ const StudentInteractionLog = () => {
                                  {isCompleted && <CheckCircle2 className="text-emerald-500" size={24} />}
                                  {isCancelled && <XCircle className="text-rose-500" size={24} />}
                                </div>
-                               <h3 className="text-2xl font-black text-slate-900 tracking-tight leading-none uppercase mb-2 truncate">{student.name}</h3>
-                               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest truncate">MM-{student.id.toString().padStart(4, '0')} • {student.priority_category || 'Stable'} Priority</p>
+                               <h3 className="text-2xl font-black text-slate-900 tracking-tight leading-none uppercase mb-2 break-words">{student.name}</h3>
+                               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest break-words">MM-{student.id.toString().padStart(4, '0')} • {student.priority_category || 'Stable'} Priority</p>
                                
                                <div className="mt-4 flex items-center gap-2 p-2 bg-slate-50 rounded-xl border border-slate-100" title={`Consumed: ${student.consumed_hours || 0} | Paid Limit: ${student.paid_hours || 0}`}>
                                   <div className={`w-2 h-2 rounded-full ${student.payment_alert_level === 'Critical' ? 'bg-rose-500 animate-pulse' : student.payment_alert_level === 'Warning' ? 'bg-amber-500 animate-pulse' : 'bg-emerald-400'} shrink-0`}></div>
                                   <div className="flex flex-col gap-0.5">
-                                    <p className={`text-[9px] font-black uppercase truncate leading-none ${student.payment_alert_level === 'Critical' ? 'text-rose-600' : student.payment_alert_level === 'Warning' ? 'text-amber-600' : 'text-emerald-600'}`}>
+                                    <p className={`text-[9px] font-black uppercase break-words whitespace-normal leading-tight ${student.payment_alert_level === 'Critical' ? 'text-rose-600' : student.payment_alert_level === 'Warning' ? 'text-amber-600' : 'text-emerald-600'}`}>
                                       {student.payment_alert_level || 'Safe'} • {Math.round(((student.consumed_hours || 0) / (student.paid_hours || 1)) * 100)}%
                                     </p>
                                     <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest leading-none">
@@ -554,8 +554,8 @@ const StudentInteractionLog = () => {
                                    <Clock size={10} /> From Yesterday
                                  </div>
                                </div>
-                               <h3 className="text-2xl font-black text-slate-900 tracking-tight leading-none uppercase mb-2 truncate">{student.name}</h3>
-                               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest truncate">MM-{student.id.toString().padStart(4, '0')} • {student.priority_category || 'Stable'} Priority</p>
+                               <h3 className="text-2xl font-black text-slate-900 tracking-tight leading-none uppercase mb-2 break-words">{student.name}</h3>
+                               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest break-words">MM-{student.id.toString().padStart(4, '0')} • {student.priority_category || 'Stable'} Priority</p>
                              </div>
 
                              <div className="flex items-center justify-between mt-6">
@@ -639,15 +639,15 @@ const StudentInteractionLog = () => {
               {sessionType === 'CANCELLED' ? <XCircle size={24} /> : getSessionIcon(sessionType)}
             </div>
             <div>
-              <h1 className="text-3xl font-black text-white tracking-tight leading-none uppercase mb-2">{selectedStudent.name}</h1>
-              <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">
+              <h1 className="text-3xl font-black text-white tracking-tight leading-none uppercase mb-2 break-words">{selectedStudent.name}</h1>
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] break-words">
                  {sessionType} SESSION • {isYesterdayLog ? subtractOneDay(selectedDate) : selectedDate}
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-2 p-3 bg-white/5 rounded-2xl border border-white/10 backdrop-blur-md">
-            <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></div>
-            <p className="text-[10px] font-bold text-white uppercase tracking-widest">
+          <div className="flex items-center justify-center sm:justify-start gap-2 p-3 bg-white/5 rounded-2xl border border-white/10 backdrop-blur-md w-full sm:w-auto">
+            <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0"></div>
+            <p className="text-[10px] font-bold text-white uppercase tracking-widest break-words text-center sm:text-left leading-tight">
               Completed {assignedStudents.filter(s => s.status === 'COMPLETED').length} / {assignedStudents.length} Sessions Today
             </p>
           </div>
@@ -655,7 +655,7 @@ const StudentInteractionLog = () => {
      </header>
 
      <div className="px-2">
-       <div className="inline-flex items-center gap-4 px-5 py-3 rounded-2xl bg-slate-50 border border-slate-200">
+       <div className="flex flex-col sm:flex-row items-center sm:inline-flex gap-2 sm:gap-4 px-5 py-3 rounded-2xl bg-slate-50 border border-slate-200 w-full sm:w-auto text-center sm:text-left">
          <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Interaction Count</p>
          <p className="text-sm font-black text-slate-900">
            {getInteractionDisplayCount(selectedStudent) ? `#${getInteractionDisplayCount(selectedStudent)}` : 'N/A'}
@@ -737,10 +737,10 @@ const StudentInteractionLog = () => {
            <button
              type="submit"
              disabled={loading}
-             className={`w-full p-6 rounded-[2.5rem] font-black text-sm uppercase tracking-[0.3em] shadow-2xl transition-all disabled:opacity-50 flex items-center justify-center gap-4 active:scale-[0.98] ${sessionType === 'CANCELLED' ? 'bg-slate-800 text-white shadow-slate-200 hover:-translate-y-1' : sessionType === 'DEEP' ? 'bg-rose-600 text-white shadow-rose-200 hover:-translate-y-1' : sessionType === 'MEDIUM' ? 'bg-amber-500 text-white shadow-amber-200 hover:-translate-y-1' : sessionType === 'QUICK' ? 'bg-blue-600 text-white shadow-blue-200 hover:-translate-y-1' : 'bg-[#008080] text-white hover:-translate-y-1'}`}
+             className={`w-full p-4 sm:p-6 rounded-[2rem] sm:rounded-[2.5rem] font-black text-xs sm:text-sm uppercase tracking-widest sm:tracking-[0.3em] shadow-2xl transition-all disabled:opacity-50 flex flex-wrap sm:flex-nowrap items-center justify-center gap-2 sm:gap-4 active:scale-[0.98] ${sessionType === 'CANCELLED' ? 'bg-slate-800 text-white shadow-slate-200 hover:-translate-y-1' : sessionType === 'DEEP' ? 'bg-rose-600 text-white shadow-rose-200 hover:-translate-y-1' : sessionType === 'MEDIUM' ? 'bg-amber-500 text-white shadow-amber-200 hover:-translate-y-1' : sessionType === 'QUICK' ? 'bg-blue-600 text-white shadow-blue-200 hover:-translate-y-1' : 'bg-[#008080] text-white hover:-translate-y-1'}`}
            >
-             {loading ? 'Saving...' : sessionType === 'CANCELLED' ? 'Save Cancelled Interaction' : 'Save Interaction'}
-             {!loading && (sessionType === 'CANCELLED' ? <XCircle size={24} /> : <CheckCircle2 size={24} />)}
+             <span className="break-words text-center">{loading ? 'Saving...' : sessionType === 'CANCELLED' ? 'Save Cancelled Interaction' : 'Save Interaction'}</span>
+             {!loading && (sessionType === 'CANCELLED' ? <XCircle size={24} className="shrink-0" /> : <CheckCircle2 size={24} className="shrink-0" />)}
            </button>
          </div>
 
