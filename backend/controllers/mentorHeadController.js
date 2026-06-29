@@ -297,27 +297,27 @@ exports.getFacultyInteractionLogs = async (req, res) => {
         const { student_id, faculty_id, mentor_id, startDate, endDate } = req.query;
         let params = [];
 
-        const baseWhere = (tableAlias, studentCol = 'student_id', mentorCol = 'mentor_id', dateCol = 'created_at', facultyCol = 'faculty_id', includeStudent = true, includeMentor = true, includeFaculty = true) => {
+        const baseWhere = (tableAlias, studentAlias = 's', mentorAlias = 'm', facultyAlias = 'f') => {
             let clause = 'WHERE 1=1';
-            if (student_id && includeStudent) clause += ` AND ${tableAlias}.${studentCol} = ?`;
-            if (mentor_id && includeMentor) clause += ` AND ${tableAlias}.${mentorCol} = ?`;
-            if (faculty_id && includeFaculty) clause += ` AND ${tableAlias}.${facultyCol} = ?`;
-            if (startDate) clause += ` AND ${tableAlias}.${dateCol} >= ?`;
-            if (endDate) clause += ` AND ${tableAlias}.${dateCol} <= ?`;
+            if (student_id) clause += ` AND ${tableAlias}.student_id = ?`;
+            if (mentor_id) clause += ` AND ${mentorAlias}.id = ?`;
+            if (faculty_id) clause += ` AND ${tableAlias}.faculty_id = ?`;
+            if (startDate) clause += ` AND ${tableAlias}.created_at >= ?`;
+            if (endDate) clause += ` AND ${tableAlias}.created_at <= ?`;
             return clause;
         };
 
-        const getParams = (includeStudent = true, includeMentor = true, includeFaculty = true) => {
+        const getParams = () => {
             let p = [];
-            if (student_id && includeStudent) p.push(student_id);
-            if (mentor_id && includeMentor) p.push(mentor_id);
-            if (faculty_id && includeFaculty) p.push(faculty_id);
+            if (student_id) p.push(student_id);
+            if (mentor_id) p.push(mentor_id);
+            if (faculty_id) p.push(faculty_id);
             if (startDate) p.push(startDate);
             if (endDate) p.push(endDate + ' 23:59:59');
             return p;
         };
 
-        const q1Params = getParams(true, true, true);
+        const q1Params = getParams();
         const q1 = `
             SELECT 
                 mfi.id, mfi.created_at, mfi.mentor_id, mfi.student_id,
@@ -330,13 +330,13 @@ exports.getFacultyInteractionLogs = async (req, res) => {
             LEFT JOIN mentors m ON mfi.mentor_id = m.id
             LEFT JOIN students s ON mfi.student_id = s.id
             LEFT JOIN faculties f ON mfi.faculty_id = f.id
-            ${baseWhere('mfi')}
+            ${baseWhere('mfi', 's', 'm', 'f')}
         `;
 
-        const q2Params = getParams(true, true, true);
+        const q2Params = getParams();
         const q2 = `
             SELECT 
-                fil.id, fil.created_at, fil.mentor_id, fil.student_id,
+                fil.id, fil.created_at, s.mentor_id, fil.student_id,
                 m.name as mentor_name, s.name as student_name,
                 'Faculty Tracking' as source,
                 fil.notes as notes,
@@ -345,15 +345,15 @@ exports.getFacultyInteractionLogs = async (req, res) => {
             FROM faculty_interaction_logs fil
             LEFT JOIN faculties f ON fil.faculty_id = f.id
             LEFT JOIN students s ON fil.student_id = s.id
-            LEFT JOIN mentors m ON fil.mentor_id = m.id
-            ${baseWhere('fil')}
+            LEFT JOIN mentors m ON s.mentor_id = m.id
+            ${baseWhere('fil', 's', 'm', 'f')}
         `;
 
-        const q3Params = getParams(true, false, true);
+        const q3Params = getParams();
         const q3 = `
             SELECT 
-                sr.id, sr.created_at, NULL as mentor_id, sr.student_id,
-                NULL as mentor_name, s.name as student_name,
+                sr.id, sr.created_at, s.mentor_id, sr.student_id,
+                m.name as mentor_name, s.name as student_name,
                 'Faculty Intelligence' as source,
                 sr.remarks as notes,
                 0 as is_flagged, NULL as flag_reason,
@@ -361,7 +361,8 @@ exports.getFacultyInteractionLogs = async (req, res) => {
             FROM student_reports sr
             LEFT JOIN students s ON sr.student_id = s.id
             LEFT JOIN faculties f ON sr.faculty_id = f.id
-            ${baseWhere('sr', 'student_id', 'faculty_id', 'created_at', 'faculty_id', true, false, true)}
+            LEFT JOIN mentors m ON s.mentor_id = m.id
+            ${baseWhere('sr', 's', 'm', 'f')}
         `;
 
         const [r1] = await db.query(q1, q1Params);
