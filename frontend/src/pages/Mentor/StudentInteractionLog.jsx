@@ -336,7 +336,7 @@ const StudentInteractionLog = () => {
 
         <div className="space-y-4">
          {/* Main Category Tabs & Pause Toggle */}
-         <div className="flex flex-col md:flex-row justify-between items-center gap-4 p-2 bg-white/50 backdrop-blur-md rounded-[28px] border border-slate-200/50 sticky top-4 z-50 shadow-sm">
+         <div className="flex flex-col md:flex-row justify-between items-center gap-4 p-2 bg-white/50 backdrop-blur-md rounded-[28px] border border-slate-200/50 relative md:sticky md:top-4 z-20 md:z-50 shadow-sm">
            <div className="flex flex-wrap gap-4 flex-1 w-full">
              {[
                { id: 'both', label: `Mentorship + Tuition (${allStudents.filter(isDiamondCategory).length})`, color: 'bg-purple-600' },
