@@ -1110,7 +1110,43 @@ const { calculateStudentHours } = require('../utils/studentHoursHelper');
 
 const getStudents = async (req, res) => {
     try {
-        const { mentor_id, faculty_id, search, sortBy, course, page, limit, activeTab } = req.query;
+        const { mentor_id, faculty_id, search, sortBy, course, page, limit, activeTab, filterMode, stats } = req.query;
+
+        // Support both old activeTab and new filterMode param
+        const resolvedFilter = filterMode || activeTab || 'enrolled_scholars';
+
+        let baseWhere = `WHERE (s.status != 'rejected' OR s.status IS NULL) AND s.status = 'active'`;
+        let params = [];
+
+        if (mentor_id) {
+            baseWhere += ' AND s.mentor_id = ?';
+            params.push(mentor_id);
+        }
+        if (faculty_id) {
+            const facClause = ' AND (s.faculty_id = ? OR EXISTS (SELECT 1 FROM faculty_schedules fs WHERE (fs.is_deleted IS NULL OR fs.is_deleted = 0) AND fs.student_id = s.id AND fs.faculty_id = ?))';
+            baseWhere += facClause;
+            params.push(faculty_id, faculty_id);
+        }
+        if (course && course !== 'all') {
+            baseWhere += ' AND s.course = ?';
+            params.push(course);
+        }
+        if (search) {
+            baseWhere += ' AND (s.name LIKE ? OR s.registration_number LIKE ?)';
+            const searchParam = `%${search}%`;
+            params.push(searchParam, searchParam);
+        }
+
+        // filterMode-based DB-level filtering
+        let filterClause = '';
+        if (resolvedFilter === 'completed') {
+            filterClause = ' AND s.course_completed = 1';
+        } else if (resolvedFilter === 'active_plus') {
+            // for AOE/academic_head active_plus uses hours threshold (in-memory), don't add DB filter
+        } else if (resolvedFilter === 'enrolled_scholars') {
+            // no extra filter
+        }
+
         let sql = `
             SELECT s.*, m.name as mentor_name, 
             COALESCE(
@@ -1120,39 +1156,14 @@ const getStudents = async (req, res) => {
             ) as faculty_name 
             FROM students s 
             LEFT JOIN mentors m ON s.mentor_id = m.id 
-            WHERE (s.status != 'rejected' OR s.status IS NULL) AND s.status = 'active'
+            ${baseWhere}${filterClause}
         `;
         let countSql = `
             SELECT COUNT(DISTINCT s.id) as total
             FROM students s 
             LEFT JOIN mentors m ON s.mentor_id = m.id 
-            WHERE (s.status != 'rejected' OR s.status IS NULL) AND s.status = 'active'
+            ${baseWhere}${filterClause}
         `;
-        let params = [];
-
-        if (mentor_id) { 
-            sql += ' AND s.mentor_id = ?'; 
-            countSql += ' AND s.mentor_id = ?'; 
-            params.push(mentor_id); 
-        }
-        if (faculty_id) { 
-            const facClause = ' AND (s.faculty_id = ? OR EXISTS (SELECT 1 FROM faculty_schedules fs WHERE (fs.is_deleted IS NULL OR fs.is_deleted = 0) AND fs.student_id = s.id AND fs.faculty_id = ?))';
-            sql += facClause;
-            countSql += facClause;
-            params.push(faculty_id, faculty_id); 
-        }
-        if (course && course !== 'all') {
-            sql += ' AND s.course = ?';
-            countSql += ' AND s.course = ?';
-            params.push(course);
-        }
-        if (search) {
-            const searchClause = ' AND (s.name LIKE ? OR s.registration_number LIKE ?)';
-            sql += searchClause;
-            countSql += searchClause;
-            const searchParam = `%${search}%`;
-            params.push(searchParam, searchParam);
-        }
 
         if (sortBy === 'join_oldest') {
             sql += ' ORDER BY s.id ASC';
@@ -1168,37 +1179,35 @@ const getStudents = async (req, res) => {
         const limitNum = parseInt(limit) || 50;
         const offset = (pageNum - 1) * limitNum;
 
-        if (activeTab === 'active_plus' || activeTab === 'completed') {
+        let responseData = { success: true };
+
+        // Stats for summary cards
+        if (stats === 'true') {
+            const [statsRows] = await db.query(`
+                SELECT 
+                    COUNT(*) as totalEnrollment,
+                    SUM(CASE WHEN course_completed = 1 THEN 1 ELSE 0 END) as courseCompletedCount,
+                    SUM(CASE WHEN (course_completed IS NULL OR course_completed = 0) AND status = 'active' THEN 1 ELSE 0 END) as activeCourseCount,
+                    SUM(CASE WHEN mentorship_completed = 1 THEN 1 ELSE 0 END) as mentorshipCompletedCount,
+                    SUM(CASE WHEN (mentorship_completed IS NULL OR mentorship_completed = 0) AND status = 'active' THEN 1 ELSE 0 END) as activeMentorshipCount
+                FROM students WHERE status != 'rejected'
+            `);
+            responseData.stats = statsRows[0];
+        }
+
+        if (resolvedFilter === 'active_plus') {
             // Need in-memory filtering because hours are calculated in Node
             const [rows] = await db.query(sql, params);
             let augmentedRows = await calculateStudentHours(rows, db);
-            
-            // Mock data injection to match frontend hack
-            const mockStudentHours = require('../../frontend/src/utils/mockStudentHours').mockStudentHours;
-            augmentedRows = augmentedRows.map(student => {
-                if (student.has_explicit_subjects) return student;
-                const mockKey = Object.keys(mockStudentHours).find(key => student.name.toLowerCase().includes(key.toLowerCase()));
-                if (mockKey) {
-                    const mockObj = mockStudentHours[mockKey];
-                    return {
-                        ...student,
-                        ...mockObj,
-                        consumed_hours: (parseFloat(student.consumed_hours) || 0) + (mockObj.consumed_hours || 0),
-                        total_lifetime_consumed_hours: (parseFloat(student.total_lifetime_consumed_hours) || 0) + (mockObj.total_lifetime_consumed_hours || 0)
-                    };
-                }
-                return student;
-            });
 
-            if (activeTab === 'active_plus') {
-                augmentedRows = augmentedRows.filter(s => (s.total_lifetime_consumed_hours || 0) >= 8);
-            } else if (activeTab === 'completed') {
-                augmentedRows = augmentedRows.filter(s => (s.total_lifetime_consumed_hours || 0) >= (s.total_hours || 0) && (s.total_hours || 0) > 0);
-            }
+            // active_plus: students with >= 8 lifetime consumed hours
+            augmentedRows = augmentedRows.filter(s => (s.total_lifetime_consumed_hours || 0) >= 8);
 
             const total = augmentedRows.length;
             const paginatedRows = augmentedRows.slice(offset, offset + limitNum);
-            res.status(200).json({ success: true, total, data: paginatedRows });
+            responseData.total = total;
+            responseData.data = paginatedRows;
+            return res.status(200).json(responseData);
         } else {
             // SQL Pagination
             const [countResult] = await db.query(countSql, params);
@@ -1209,7 +1218,9 @@ const getStudents = async (req, res) => {
 
             const [rows] = await db.query(sql, params);
             const augmentedRows = await calculateStudentHours(rows, db);
-            res.status(200).json({ success: true, total, data: augmentedRows });
+            responseData.total = total;
+            responseData.data = augmentedRows;
+            return res.status(200).json(responseData);
         }
     } catch (e) { res.status(500).json({ success: false, message: e.message }); }
 };
