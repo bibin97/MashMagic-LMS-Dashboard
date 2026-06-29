@@ -52,19 +52,19 @@ const MobileCard = ({
           
           {/* Primary Info */}
           <div className="flex-1 min-w-0 pr-6">
-            <div className="flex items-start justify-between gap-2 mb-1">
-              <div className="flex flex-col min-w-0">
-                <span className="text-sm font-black text-slate-800 uppercase tracking-tight truncate">{title}</span>
+            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-1">
+              <div className="flex flex-col min-w-0 flex-1">
+                <span className="text-sm font-black text-slate-800 uppercase tracking-tight break-words">{title}</span>
                 {subtitle && (
-                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest truncate mt-0.5">
+                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest break-words mt-0.5">
                     {subtitle}
                   </span>
                 )}
               </div>
 
-              {/* Status / Badges - Top Right */}
+              {/* Status / Badges - Below title on mobile, right on desktop */}
               {badges.length > 0 && (
-                <div className="flex flex-wrap justify-end gap-1.5 shrink-0 pl-2">
+                <div className="flex flex-wrap justify-start sm:justify-end gap-1.5 shrink-0 w-full sm:w-auto sm:pl-2 mt-1 sm:mt-0">
                   {badges.map((badge, idx) => (
                     <div key={idx}>{badge}</div>
                   ))}

@@ -384,13 +384,13 @@ const MyStudents = () => {
  <div className="bg-white/70 backdrop-blur-xl p-6 md:p-12 rounded-[40px] border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.04)] flex flex-col md:flex-row justify-between items-center gap-10">
  <div className="text-center md:text-left">
  <h2 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tighter leading-none mb-3 ">Student Fleet</h2>
- <p className="text-slate-600 text-[11px] font-black uppercase tracking-[0.25em] flex items-center justify-center md:justify-start gap-3 mt-1">
+ <p className="text-slate-600 text-[11px] font-black uppercase tracking-[0.25em] flex items-center justify-center md:justify-start gap-2 md:gap-3 mt-1">
  <div className="w-2 h-2 rounded-full bg-[#008080] animate-pulse"></div>
  Direct assignments
  </p>
  </div>
- <div className="w-20 h-20 bg-[#008080] rounded-[28px] shadow-2xl shadow-[#008080]/30 flex items-center justify-center text-white">
- <Users size={36} strokeWidth={2.5} />
+ <div className="w-16 h-16 md:w-20 md:h-20 bg-[#008080] rounded-[24px] md:rounded-[28px] shadow-2xl shadow-[#008080]/30 flex items-center justify-center text-white shrink-0">
+ <Users size={28} className="md:w-[36px] md:h-[36px]" strokeWidth={2.5} />
  </div>
  </div>
 
@@ -430,8 +430,8 @@ const MyStudents = () => {
  )}
 
  {filteredStudents.length === 0 && (
- <div className="col-span-full py-20 text-center bg-white rounded-[2.5rem] border border-dashed border-slate-200">
- <p className="text-slate-600 font-bold">No students matched your search criteria.</p>
+ <div className="col-span-full py-10 md:py-20 px-4 text-center bg-white rounded-[2rem] md:rounded-[2.5rem] border border-dashed border-slate-200 mx-auto w-full">
+ <p className="text-slate-600 font-bold text-sm md:text-base break-words">No students matched your search criteria.</p>
  </div>
   )}
 
