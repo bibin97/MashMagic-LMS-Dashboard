@@ -1815,19 +1815,43 @@ exports.getStudents = async (req, res) => {
         }
 
         if (req.query.stats === 'true') {
-            const statsQueryStr = `
-                SELECT 
-                    COUNT(*) as totalEnrollment,
-                    SUM(CASE WHEN mentor_id IS NULL ${hasPrevMentorCols ? 'AND previous_mentor_name IS NOT NULL' : ''} THEN 1 ELSE 0 END) as removedCount,
-                    SUM(CASE WHEN course_completed = 1 THEN 1 ELSE 0 END) as courseCompletedCount,
-                    SUM(CASE WHEN (course_completed IS NULL OR course_completed = 0) AND status = 'active' THEN 1 ELSE 0 END) as activeCourseCount,
-                    SUM(CASE WHEN (mentorship_completed IS NULL OR mentorship_completed = 0) AND status = 'active' THEN 1 ELSE 0 END) as activeMentorshipCount,
-                    SUM(CASE WHEN mentorship_completed = 1 THEN 1 ELSE 0 END) as mentorshipCompletedCount,
-                    SUM(CASE WHEN mentorship_completed IS NULL OR mentorship_completed = 0 THEN 1 ELSE 0 END) as mentorshipPendingCount
-                FROM students WHERE status != 'rejected'
-            `;
-            const [statsRows] = await db.query(statsQueryStr);
-            responseData.stats = statsRows[0];
+            try {
+                // Check if mentorship_completed column exists
+                const [mcCols] = await db.query("SHOW COLUMNS FROM students LIKE 'mentorship_completed'");
+                const hasMentorshipCompleted = mcCols.length > 0;
+
+                const statsQueryStr = `
+                    SELECT 
+                        COUNT(*) as totalEnrollment,
+                        SUM(CASE WHEN mentor_id IS NULL ${hasPrevMentorCols ? 'AND previous_mentor_name IS NOT NULL' : ''} THEN 1 ELSE 0 END) as removedCount,
+                        SUM(CASE WHEN course_completed = 1 THEN 1 ELSE 0 END) as courseCompletedCount,
+                        SUM(CASE WHEN (course_completed IS NULL OR course_completed = 0) AND status = 'active' THEN 1 ELSE 0 END) as activeCourseCount,
+                        ${hasMentorshipCompleted ? `
+                        SUM(CASE WHEN (mentorship_completed IS NULL OR mentorship_completed = 0) AND status = 'active' THEN 1 ELSE 0 END) as activeMentorshipCount,
+                        SUM(CASE WHEN mentorship_completed = 1 THEN 1 ELSE 0 END) as mentorshipCompletedCount,
+                        SUM(CASE WHEN mentorship_completed IS NULL OR mentorship_completed = 0 THEN 1 ELSE 0 END) as mentorshipPendingCount
+                        ` : `
+                        0 as activeMentorshipCount,
+                        0 as mentorshipCompletedCount,
+                        COUNT(*) as mentorshipPendingCount
+                        `}
+                    FROM students WHERE status != 'rejected'
+                `;
+                const [statsRows] = await db.query(statsQueryStr);
+                responseData.stats = statsRows[0];
+            } catch (statsErr) {
+                console.error("STATS_QUERY_ERROR:", statsErr.message);
+                // Return safe defaults instead of crashing
+                responseData.stats = {
+                    totalEnrollment: 0,
+                    removedCount: 0,
+                    courseCompletedCount: 0,
+                    activeCourseCount: 0,
+                    activeMentorshipCount: 0,
+                    mentorshipCompletedCount: 0,
+                    mentorshipPendingCount: 0
+                };
+            }
         }
 
         res.status(200).json(responseData);

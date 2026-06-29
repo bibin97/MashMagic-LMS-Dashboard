@@ -1183,16 +1183,36 @@ const getStudents = async (req, res) => {
 
         // Stats for summary cards
         if (stats === 'true') {
-            const [statsRows] = await db.query(`
-                SELECT 
-                    COUNT(*) as totalEnrollment,
-                    SUM(CASE WHEN course_completed = 1 THEN 1 ELSE 0 END) as courseCompletedCount,
-                    SUM(CASE WHEN (course_completed IS NULL OR course_completed = 0) AND status = 'active' THEN 1 ELSE 0 END) as activeCourseCount,
-                    SUM(CASE WHEN mentorship_completed = 1 THEN 1 ELSE 0 END) as mentorshipCompletedCount,
-                    SUM(CASE WHEN (mentorship_completed IS NULL OR mentorship_completed = 0) AND status = 'active' THEN 1 ELSE 0 END) as activeMentorshipCount
-                FROM students WHERE status != 'rejected'
-            `);
-            responseData.stats = statsRows[0];
+            try {
+                const [mcCols] = await db.query("SHOW COLUMNS FROM students LIKE 'mentorship_completed'");
+                const hasMentorshipCompleted = mcCols.length > 0;
+
+                const statsQueryStr = `
+                    SELECT 
+                        COUNT(*) as totalEnrollment,
+                        SUM(CASE WHEN course_completed = 1 THEN 1 ELSE 0 END) as courseCompletedCount,
+                        SUM(CASE WHEN (course_completed IS NULL OR course_completed = 0) AND status = 'active' THEN 1 ELSE 0 END) as activeCourseCount,
+                        ${hasMentorshipCompleted ? `
+                        SUM(CASE WHEN mentorship_completed = 1 THEN 1 ELSE 0 END) as mentorshipCompletedCount,
+                        SUM(CASE WHEN (mentorship_completed IS NULL OR mentorship_completed = 0) AND status = 'active' THEN 1 ELSE 0 END) as activeMentorshipCount
+                        ` : `
+                        0 as mentorshipCompletedCount,
+                        0 as activeMentorshipCount
+                        `}
+                    FROM students WHERE status != 'rejected'
+                `;
+                const [statsRows] = await db.query(statsQueryStr);
+                responseData.stats = statsRows[0];
+            } catch (statsErr) {
+                console.error("AOE_STATS_QUERY_ERROR:", statsErr.message);
+                responseData.stats = {
+                    totalEnrollment: 0,
+                    courseCompletedCount: 0,
+                    activeCourseCount: 0,
+                    mentorshipCompletedCount: 0,
+                    activeMentorshipCount: 0
+                };
+            }
         }
 
         if (resolvedFilter === 'active_plus') {
