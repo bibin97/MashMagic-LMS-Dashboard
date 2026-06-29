@@ -247,9 +247,40 @@ const StudentsData = () => {
                               <CheckCircle2 className="text-slate-200 mb-6" size={64} />
                               <h4 className="text-lg font-black text-slate-900 tracking-tighter uppercase mb-2">No Attendance Logs</h4>
                               <p className="text-sm font-bold text-slate-600 max-w-xs">No session presence history recorded.</p>
-                            </div> : <div className="overflow-hidden rounded-[32px] border border-slate-100">
+                            </div> : <div className="overflow-hidden rounded-[32px] border border-slate-100 p-6 bg-slate-50/50">
                               <div className="w-full overflow-x-auto">
+                                <table className="w-full text-left border-collapse">
+                                  <thead>
+                                    <tr className="border-b border-slate-200">
+                                      <th className="p-4 text-[11px] font-black text-slate-600 uppercase tracking-widest">Date</th>
+                                      <th className="p-4 text-[11px] font-black text-slate-600 uppercase tracking-widest">Topic</th>
+                                      <th className="p-4 text-[11px] font-black text-slate-600 uppercase tracking-widest">Status</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    {comprehensiveData.attendance.map((att) => (
+                                      <tr key={att.id} className="border-b border-slate-100 hover:bg-white transition-all">
+                                        <td className="p-4 text-sm font-bold text-slate-900">{att.date ? new Date(att.date).toLocaleDateString('en-GB') : 'N/A'}</td>
+                                        <td className="p-4 text-sm text-slate-600">{att.topic || 'N/A'}</td>
+                                        <td className="p-4">
+                                          <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase ${att.status === 'Present' ? 'bg-teal-100 text-teal-700' : 'bg-rose-100 text-rose-700'}`}>
+                                            {att.status || 'N/A'}
+                                          </span>
+                                        </td>
+                                      </tr>
+                                    ))}
+                                  </tbody>
+                                </table>
+                              </div>
+                            </div>}
+                        </div>}
+                    </>}
+                </div>
               </div>
+            </div> : <div className="flex flex-col items-center justify-center h-full min-h-[500px] bg-white rounded-[40px] border border-slate-100 text-center p-12">
+              <Users className="text-slate-200 mb-6" size={64} />
+              <h3 className="text-xl font-black text-slate-900 uppercase tracking-tighter mb-2">No Student Selected</h3>
+              <p className="text-sm font-bold text-slate-600 max-w-xs">Please select a student from the sidebar to view their detailed tracking information and history.</p>
             </div>}
         </div>
       </div>
