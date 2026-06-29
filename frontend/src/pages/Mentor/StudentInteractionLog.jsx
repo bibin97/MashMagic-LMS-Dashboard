@@ -386,10 +386,10 @@ const StudentInteractionLog = () => {
          )}
 
          {/* Sub-Tabs: Status Filter */}
-         <div className="flex justify-start sm:justify-center gap-3 overflow-x-auto no-scrollbar scroll-smooth whitespace-nowrap w-full py-1 px-1">
+         <div className="flex flex-col sm:flex-row justify-center gap-3 w-full py-1 px-1">
            <button
              onClick={() => setStatusFilter('pending')}
-             className={`shrink-0 px-4 md:px-8 py-3 rounded-2xl text-[9px] font-black uppercase tracking-[0.2em] transition-all flex items-center gap-3 ${statusFilter === 'pending' ? 'bg-rose-500 text-white shadow-xl shadow-rose-200' : 'bg-white text-slate-400 border border-slate-100 hover:border-rose-200'}`}
+             className={`w-full sm:w-auto shrink-0 px-4 md:px-8 py-3 rounded-2xl text-[9px] font-black uppercase tracking-[0.2em] transition-all flex items-center justify-center sm:justify-start gap-3 ${statusFilter === 'pending' ? 'bg-rose-500 text-white shadow-xl shadow-rose-200' : 'bg-white text-slate-400 border border-slate-100 hover:border-rose-200'}`}
            >
              <div className={`w-2 h-2 rounded-full shrink-0 ${statusFilter === 'pending' ? 'bg-white animate-pulse' : 'bg-rose-500'}`}></div>
              {selectedDate === getTodayStr() ? 'Student Interaction' : `Interactions (${selectedDate})`} ({
@@ -398,7 +398,7 @@ const StudentInteractionLog = () => {
            </button>
            <button
              onClick={() => setStatusFilter('completed')}
-             className={`shrink-0 px-4 md:px-8 py-3 rounded-2xl text-[9px] font-black uppercase tracking-[0.2em] transition-all flex items-center gap-3 ${statusFilter === 'completed' ? 'bg-emerald-500 text-white shadow-xl shadow-emerald-200' : 'bg-white text-slate-400 border border-slate-100 hover:border-emerald-200'}`}
+             className={`w-full sm:w-auto shrink-0 px-4 md:px-8 py-3 rounded-2xl text-[9px] font-black uppercase tracking-[0.2em] transition-all flex items-center justify-center sm:justify-start gap-3 ${statusFilter === 'completed' ? 'bg-emerald-500 text-white shadow-xl shadow-emerald-200' : 'bg-white text-slate-400 border border-slate-100 hover:border-emerald-200'}`}
            >
              <div className={`w-2 h-2 rounded-full shrink-0 ${statusFilter === 'completed' ? 'bg-white animate-pulse' : 'bg-emerald-500'}`}></div>
              Completed {selectedDate === getTodayStr() ? 'Today' : selectedDate} ({
@@ -407,7 +407,7 @@ const StudentInteractionLog = () => {
            </button>
            <button
              onClick={() => setStatusFilter('yesterday')}
-             className={`shrink-0 px-4 md:px-8 py-3 rounded-2xl text-[9px] font-black uppercase tracking-[0.2em] transition-all flex items-center gap-3 ${statusFilter === 'yesterday' ? 'bg-amber-500 text-white shadow-xl shadow-amber-200' : 'bg-white text-slate-400 border border-slate-100 hover:border-amber-200'}`}
+             className={`w-full sm:w-auto shrink-0 px-4 md:px-8 py-3 rounded-2xl text-[9px] font-black uppercase tracking-[0.2em] transition-all flex items-center justify-center sm:justify-start gap-3 ${statusFilter === 'yesterday' ? 'bg-amber-500 text-white shadow-xl shadow-amber-200' : 'bg-white text-slate-400 border border-slate-100 hover:border-amber-200'}`}
            >
              <div className={`w-2 h-2 rounded-full shrink-0 ${statusFilter === 'yesterday' ? 'bg-white animate-pulse' : 'bg-amber-500'}`}></div>
              {selectedDate === getTodayStr() ? 'Yesterday Pending' : `${subtractOneDay(selectedDate)} Pending`} ({yesterdayPending.length})
