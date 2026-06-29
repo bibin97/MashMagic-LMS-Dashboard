@@ -18,6 +18,13 @@ const StudentsList = ({
   const [searchTerm, setSearchTerm] = useState('');
   const deferredSearchTerm = useDeferredValue(searchTerm);
   const [filterCourse, setFilterCourse] = useState('all');
+  const [stats, setStats] = useState({
+    totalEnrollment: 0,
+    activeCourseCount: 0,
+    activeMentorshipCount: 0,
+    courseCompletedCount: 0,
+    mentorshipCompletedCount: 0
+  });
   const [sortBy, setSortBy] = useState('join_newest');
   const [mentors, setMentors] = useState([]);
   const [faculties, setFaculties] = useState([]);
@@ -94,7 +101,7 @@ const StudentsList = ({
   const fetchStudents = async () => {
     try {
       setLoading(true);
-      const params = new URLSearchParams({ page, limit, sortBy, activeTab });
+      const params = new URLSearchParams({ page, limit, sortBy, filterMode: activeTab, stats: 'true' });
       if (deferredSearchTerm) params.append('search', deferredSearchTerm);
       if (filterCourse !== 'all') params.append('course', filterCourse);
       if (filterMentor !== 'all') params.append('mentor_id', filterMentor);
@@ -103,10 +110,12 @@ const StudentsList = ({
       const res = await api.get(`${apiPath}/students-all?${params.toString()}`);
 
       let fetchedStudents = res.data.data || [];
-      // Mock data is now injected on the backend for accurate pagination on all tabs.
 
       setStudents(fetchedStudents);
       setTotalRecords(res.data.total || 0);
+      if (res.data.stats) {
+        setStats(res.data.stats);
+      }
     } catch (error) {
       toast.error("Failed to load students directory");
     } finally {
@@ -315,7 +324,7 @@ const StudentsList = ({
 				<button onClick={() => setActiveTab('enrolled_scholars')} className={`p-8 rounded-[2.5rem] border shadow-sm flex flex-col gap-2 transition-all ${activeTab === 'enrolled_scholars' ? 'bg-[#008080] border-[#008080] text-white scale-105 shadow-xl shadow-[#008080]/20' : 'bg-white border-slate-100 hover:shadow-xl hover:shadow-[#008080]/5 hover:-translate-y-1'}`}>
 					<span className={`text-[10px] font-black uppercase tracking-widest transition-colors ${activeTab === 'enrolled_scholars' ? 'text-white/80' : 'text-slate-600 group-hover:text-[#008080]'}`}>Enrolled Scholars</span>
 					<div className={`flex items-end gap-3 font-black tracking-tighter ${activeTab === 'enrolled_scholars' ? 'text-white' : 'text-slate-900'}`}>
-						<span className="text-4xl leading-none">{totalRecords}</span>
+						<span className="text-4xl leading-none">{stats.totalEnrollment || 0}</span>
 						<span className={`text-[10px] mb-1 uppercase tracking-widest ${activeTab === 'enrolled_scholars' ? 'text-white/80' : 'text-slate-600'}`}>Total Population</span>
 					</div>
 				</button>
@@ -324,7 +333,7 @@ const StudentsList = ({
 					<span className={`text-[10px] font-black uppercase tracking-widest ${activeTab === 'active_plus' ? 'text-white/80' : 'text-[#008080]'}`}>Active Plus</span>
 					<div className={`flex items-end gap-3 font-black tracking-tighter ${activeTab === 'active_plus' ? 'text-white' : 'text-slate-900'}`}>
 						<span className="text-4xl leading-none">
-                            {totalRecords}
+                            {role === 'mentor_head' ? (stats.activeMentorshipCount || 0) : (stats.activeCourseCount || 0)}
                         </span>
 						<div className={`flex items-center gap-1.5 mb-1 px-2 py-0.5 rounded-full ${activeTab === 'active_plus' ? 'bg-white/20' : 'bg-[#008080]/10'}`}>
 							<div className={`w-1.5 h-1.5 rounded-full animate-pulse ${activeTab === 'active_plus' ? 'bg-white' : 'bg-[#008080]'}`}></div>
@@ -339,9 +348,9 @@ const StudentsList = ({
                     </span>
 					<div className={`flex items-end gap-3 font-black tracking-tighter ${activeTab === 'completed' ? 'text-white' : 'text-slate-900'}`}>
 						<span className="text-4xl leading-none">
-                            {totalRecords}
+                            {role === 'mentor_head' ? (stats.mentorshipCompletedCount || 0) : (stats.courseCompletedCount || 0)}
                         </span>
-						<span className={`text-[10px] mb-1 uppercase tracking-widest ${activeTab === 'completed' ? 'text-white/80' : 'text-slate-600'}`}>Total Achievers</span>
+						<span className={`text-[10px] mb-1 uppercase tracking-widest ${activeTab === 'completed' ? 'text-white/80' : 'text-slate-500'}`}>Total Achievers</span>
 					</div>
 				</button>}
 			</div>
