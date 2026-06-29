@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
 import { IndianRupee, Clock, Plus, Trash2, Edit2, AlertTriangle, Users, Briefcase, Calculator, Eye } from 'lucide-react';
 import toast from 'react-hot-toast';
+import Pagination from '../../components/common/Pagination';
 const FeesManagement = () => {
   const [activeTab, setActiveTab] = useState('student'); // 'student' or 'staff'
   const [entities, setEntities] = useState([]);
@@ -18,16 +19,28 @@ const FeesManagement = () => {
     total_hours: '',
     installments: []
   });
+  const [page, setPage] = useState(1);
+  const limit = 50;
+  const [totalRecords, setTotalRecords] = useState(0);
+
   useEffect(() => {
     fetchData();
+  }, [activeTab, page]);
+
+  useEffect(() => {
+    setPage(1);
   }, [activeTab]);
+
   const fetchData = async () => {
     setLoading(true);
     try {
       // 1. Fetch all entities (students or staff)
-      const entitiesRes = await api.get(activeTab === 'student' ? '/admin/students' : '/admin/staff');
+      const entitiesRes = await api.get(activeTab === 'student' ? '/admin/students' : '/admin/staff', {
+        params: { page, limit }
+      });
       const entitiesData = activeTab === 'student' ? entitiesRes.data.students : entitiesRes.data.data;
       setEntities(entitiesData || []);
+      setTotalRecords(entitiesRes.data.total || 0);
 
       // 2. Fetch fee structures for the active tab
       const feesRes = await api.get(`/admin/fees/${activeTab}`);
@@ -224,6 +237,15 @@ const FeesManagement = () => {
                 </div>
               );
             })}
+            {/* PAGINATION MOBILE */}
+            <div className="p-4 mt-2 border-t border-slate-100 bg-slate-50">
+              <Pagination 
+                currentPage={page} 
+                totalPages={Math.ceil(totalRecords / limit) || 1} 
+                totalRecords={totalRecords} 
+                onPageChange={setPage} 
+              />
+            </div>
           </div>
 
           {/* ── DESKTOP TABLE (≥ md) ─────────────────────────────── */}
@@ -290,6 +312,16 @@ const FeesManagement = () => {
                 )}
               </tbody>
             </table>
+          </div>
+          
+          {/* PAGINATION DESKTOP */}
+          <div className="hidden md:block p-6 bg-slate-50 border-t border-slate-100">
+            <Pagination 
+              currentPage={page} 
+              totalPages={Math.ceil(totalRecords / limit) || 1} 
+              totalRecords={totalRecords} 
+              onPageChange={setPage} 
+            />
           </div>
         </div>
       )}

@@ -6,6 +6,7 @@ import {
   ChevronDown, Monitor, Smartphone, Globe, ArrowRight, User
 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import Pagination from '../../components/common/Pagination';
 
 const AuditLogs = () => {
   const [notifications, setNotifications] = useState([]);
@@ -19,15 +20,33 @@ const AuditLogs = () => {
   const [isExporting, setIsExporting] = useState(false);
   const [expandedCardIdx, setExpandedCardIdx] = useState(null);
 
+  const [page, setPage] = useState(1);
+  const limit = 50;
+  const [totalRecords, setTotalRecords] = useState(0);
+
   useEffect(() => {
     fetchNotifications();
-  }, []);
+  }, [page, deferredSearchTerm, typeFilter, userFilter, dateFilter]);
+
+  useEffect(() => {
+    // Reset page to 1 on filter changes
+    setPage(1);
+  }, [deferredSearchTerm, typeFilter, userFilter, dateFilter]);
 
   const fetchNotifications = async () => {
     setLoading(true);
     try {
-      const res = await api.get('/admin/notifications');
+      const res = await api.get('/admin/notifications', {
+        params: {
+          page,
+          limit,
+          search: deferredSearchTerm,
+          type: typeFilter,
+          date: dateFilter
+        }
+      });
       setNotifications(res.data.data || []);
+      setTotalRecords(res.data.total || 0);
     } catch (error) {
       toast.error("Failed to load system audit logs");
     } finally {
@@ -59,16 +78,7 @@ const AuditLogs = () => {
     setExpandedCardIdx(prev => prev === idx ? null : idx);
   };
 
-  const filteredLogs = useMemo(() => {
-    return notifications.filter(log => {
-      const matchesSearch = log.message?.toLowerCase().includes(deferredSearchTerm.toLowerCase());
-      const matchesType = typeFilter === 'all' || log.action_type === typeFilter;
-      // User and date filters are mocked logic since API might not return strict fields
-      const matchesUser = userFilter === 'all' || true; 
-      const matchesDate = !dateFilter || new Date(log.created_at).toISOString().startsWith(dateFilter);
-      return matchesSearch && matchesType && matchesUser && matchesDate;
-    });
-  }, [notifications, deferredSearchTerm, typeFilter, userFilter, dateFilter]);
+  const filteredLogs = notifications;
 
   const getIcon = type => {
     if (type?.includes('fraud')) return <ShieldAlert className="text-rose-500" size={20} />;
@@ -284,6 +294,16 @@ const AuditLogs = () => {
           </table>
         </div>
       </div>
+      
+      {/* PAGINATION DESKTOP */}
+      <div className="hidden md:block bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-sm mt-6">
+        <Pagination 
+          currentPage={page} 
+          totalPages={Math.ceil(totalRecords / limit) || 1} 
+          totalRecords={totalRecords} 
+          onPageChange={setPage} 
+        />
+      </div>
 
       {/* MOBILE CARD LAYOUT (Hidden on desktop) */}
       <div className="md:hidden flex flex-col gap-4 px-2">
@@ -432,6 +452,17 @@ const AuditLogs = () => {
         )}
       </div>
 
+      {/* PAGINATION MOBILE */}
+      <div className="md:hidden px-2 mt-4">
+        <div className="bg-white p-4 rounded-[2rem] border border-slate-100 shadow-sm">
+          <Pagination 
+            currentPage={page} 
+            totalPages={Math.ceil(totalRecords / limit) || 1} 
+            totalRecords={totalRecords} 
+            onPageChange={setPage} 
+          />
+        </div>
+      </div>
     </div>
   );
 };

@@ -2,26 +2,38 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Target, CheckCircle2, ShieldAlert, RotateCcw, User, Calendar, Activity, CheckSquare } from 'lucide-react';
 import toast from 'react-hot-toast';
+import Pagination from '../../components/common/Pagination';
 
 const StudentCheckTracker = () => {
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [sortBy, setSortBy] = useState('least_checked');
+  
+  // Pagination State
+  const [page, setPage] = useState(1);
+  const limit = 50;
+  const [totalRecords, setTotalRecords] = useState(0);
 
   useEffect(() => {
     fetchStudentChecks();
-  }, []);
+  }, [page, sortBy]);
+
+  // Reset page to 1 when sort changes
+  useEffect(() => {
+    setPage(1);
+  }, [sortBy]);
 
   const fetchStudentChecks = async () => {
     try {
       const token = sessionStorage.getItem('token');
-      const res = await axios.get('/api/mentor-head/daily-student-checks', {
+      const res = await axios.get(`/api/mentor-head/daily-student-checks?page=${page}&limit=${limit}&sortBy=${sortBy}`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
       });
       if (res.data.success) {
-        setStudents((res.data.data || []).sort((a, b) => (a.name || '').localeCompare(b.name || '')));
+        setStudents(res.data.data || []);
+        setTotalRecords(res.data.total || 0);
       }
     } catch (error) {
       toast.error("Failed to load student checks");
@@ -76,20 +88,9 @@ const StudentCheckTracker = () => {
     }
   };
 
-  const getSortedStudents = () => {
-    return [...students].sort((a, b) => {
-      const countA = a.total_check_count || 0;
-      const countB = b.total_check_count || 0;
-      if (sortBy === 'least_checked') return countA - countB;
-      if (sortBy === 'most_checked') return countB - countA;
-      if (sortBy === 'name') return (a.student_name || '').localeCompare(b.student_name || '');
-      return 0;
-    });
-  };
-
   if (loading) return <div className="p-8 text-center text-slate-600 font-bold">Loading tracker...</div>;
 
-  const sortedStudents = getSortedStudents();
+  const sortedStudents = students;
 
   return (
     <div className="space-y-6 md:space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20">
@@ -287,6 +288,16 @@ const StudentCheckTracker = () => {
               <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">No students found</p>
             </div>
           )}
+        </div>
+
+        {/* Pagination */}
+        <div className="mt-4 md:mt-6 border-t border-slate-100 pt-4 md:pt-6">
+           <Pagination 
+             currentPage={page} 
+             totalPages={Math.ceil(totalRecords / limit) || 1} 
+             totalRecords={totalRecords} 
+             onPageChange={setPage} 
+           />
         </div>
 
       </div>

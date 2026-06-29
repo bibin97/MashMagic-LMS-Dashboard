@@ -2,19 +2,37 @@ import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
 import { Users, FileText, Search, MessageSquare, Briefcase } from 'lucide-react';
 import toast from 'react-hot-toast';
+import Pagination from '../../components/common/Pagination';
+
 const AHInteractions = () => {
   const [activeTab, setActiveTab] = useState('parent'); // 'parent' or 'faculty'
   const [interactions, setInteractions] = useState([]);
   const [loading, setLoading] = useState(true);
+  
+  // Pagination State
+  const [page, setPage] = useState(1);
+  const limit = 50;
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalRecords, setTotalRecords] = useState(0);
+
   useEffect(() => {
     fetchInteractions();
+  }, [activeTab, page]);
+
+  useEffect(() => {
+    setPage(1);
   }, [activeTab]);
+
   const fetchInteractions = async () => {
     setLoading(true);
     try {
-      const endpoint = activeTab === 'parent' ? '/admin/ah-parent-interactions' : '/admin/ah-faculty-interactions';
+      const endpoint = activeTab === 'parent' 
+        ? `/admin/ah-parent-interactions?page=${page}&limit=${limit}` 
+        : `/admin/ah-faculty-interactions?page=${page}&limit=${limit}`;
       const res = await api.get(endpoint);
       setInteractions(res.data.data || []);
+      setTotalPages(res.data.totalPages || 1);
+      setTotalRecords(res.data.total || 0);
     } catch (err) {
       toast.error('Failed to fetch interactions');
     } finally {
@@ -83,6 +101,16 @@ const AHInteractions = () => {
                 </tbody>
               </table>
             </div>}
+            
+          {totalPages > 1 && (
+            <Pagination 
+              currentPage={page} 
+              totalPages={totalPages} 
+              totalRecords={totalRecords} 
+              onPageChange={setPage} 
+              entityName="Interactions"
+            />
+          )}
         </div>
 
       </div>

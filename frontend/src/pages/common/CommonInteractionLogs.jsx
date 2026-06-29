@@ -5,6 +5,7 @@ import { ScrollText, Search, User, Clock, Calendar, ChevronLeft, ChevronRight, H
 import * as XLSX from 'xlsx';
 import toast from 'react-hot-toast';
 import ExportButton from '../../components/common/ExportButton';
+import Pagination from '../../components/common/Pagination';
 
 import InteractionFormUI from '../../components/common/InteractionFormUI';
 import MultiDatePicker from "react-multi-date-picker";
@@ -96,6 +97,11 @@ const CommonInteractionLogs = ({
   const [sortOrder, setSortOrder] = useState('newest'); // 'newest' or 'oldest'
   const [staffTypeFilter, setStaffTypeFilter] = useState('all'); // 'all', 'mentor', 'faculty'
   const [listLogs, setListLogs] = useState([]);
+
+  // Pagination for interaction logs
+  const [page, setPage] = useState(1);
+  const limit = 50;
+  const [totalRecords, setTotalRecords] = useState(0);
 
   // New state variables for Edit and History Modal
   const [editModalLog, setEditModalLog] = useState(null);
@@ -196,10 +202,16 @@ const CommonInteractionLogs = ({
     fetchMentors();
   }, [activeTab, role, listDateFilter, listCustomRange]);
   useEffect(() => {
-    if (viewMode === 'detail' && selectedStudent) {
+    if (selectedStudent) {
+      fetchStudentDetails();
       fetchLogs();
     }
-  }, [viewMode, selectedStudent, dateFilter, customRange, mentorFilter, role]);
+  }, [selectedStudent, dateFilter, customRange, mentorFilter, staffTypeFilter, page]);
+
+  useEffect(() => {
+    // Reset page to 1 when filters change
+    setPage(1);
+  }, [dateFilter, customRange, mentorFilter, staffTypeFilter]);
   const fetchMentors = async () => {
     if (role === 'mentor' || role === 'faculty') return;
     try {
@@ -208,6 +220,19 @@ const CommonInteractionLogs = ({
       setMentors(res.data.data || []);
     } catch (error) {
       console.error("Error fetching mentors:", error);
+    }
+  };
+  const fetchStudentDetails = async () => {
+    try {
+      if (!selectedStudent) return;
+      const endpoint = activeTab === 'student' ? `/admin/students/${selectedStudent.id}` : `/admin/faculties/${selectedStudent.id}`;
+      const res = await api.get(endpoint);
+      setStudentDetails(res.data.data || null);
+      
+      // Reset page when selecting a new student
+      setPage(1);
+    } catch {
+      toast.error("Failed to fetch profile details");
     }
   };
   const getResolvedDates = (filter, customRange) => {
@@ -301,7 +326,9 @@ const CommonInteractionLogs = ({
         endDate,
         mentor_id: mentorFilter !== 'all' ? mentorFilter : undefined,
         student_id: activeTab === 'student' ? selectedStudent.id : undefined,
-        faculty_id: activeTab === 'faculty' ? selectedStudent.id : undefined
+        faculty_id: activeTab === 'faculty' ? selectedStudent.id : undefined,
+        page,
+        limit
       };
       let endpoint;
       if (activeTab === 'student') {
@@ -313,6 +340,7 @@ const CommonInteractionLogs = ({
         params
       });
       setLogs(res.data.data || []);
+      setTotalRecords(res.data.total || 0);
     } catch {
       toast.error("Failed to load interaction history");
     } finally {
@@ -1259,6 +1287,17 @@ const CommonInteractionLogs = ({
           <p className="text-slate-400 font-black text-[10px] uppercase tracking-[0.2em]">No {selectedLogTab} sequences identified for this timeline</p>
         </div>}
       </div>
+      
+      {/* PAGINATION */}
+      <div className="mt-8 bg-white p-4 md:p-6 rounded-[2rem] border border-slate-100 shadow-sm">
+        <Pagination 
+          currentPage={page} 
+          totalPages={Math.ceil(totalRecords / limit) || 1} 
+          totalRecords={totalRecords} 
+          onPageChange={setPage} 
+        />
+      </div>
+
     </div> : <div className="py-28 md:py-60 text-center bg-white/50 backdrop-blur-sm rounded-[3rem] md:rounded-[5rem] border-2 border-dashed border-slate-200 animate-in zoom-in duration-1000 px-6">
       <div className="w-16 h-16 md:w-24 md:h-24 bg-slate-50 rounded-full flex items-center justify-center text-slate-200 mx-auto mb-5 md:mb-8 border border-slate-100 shadow-inner">
         <History size={36} className="md:w-12 md:h-12" />

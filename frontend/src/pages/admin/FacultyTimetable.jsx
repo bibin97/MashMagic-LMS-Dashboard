@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
 import { Calendar, Clock, Plus, Trash2 } from 'lucide-react';
+import Pagination from '../../components/common/Pagination';
+
 const FacultyTimetable = () => {
   const [timetable, setTimetable] = useState([]);
   const [faculties, setFaculties] = useState([]);
@@ -17,11 +19,23 @@ const FacultyTimetable = () => {
     start_time: '10:00',
     end_time: '11:00'
   });
+  const [page, setPage] = useState(1);
+  const limit = 50;
+  const [totalRecords, setTotalRecords] = useState(0);
+
   const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
   const subjects = ['Mathematics', 'Science', 'English', 'History', 'Physics', 'Chemistry', 'Biology', 'Computer Science'];
+  
   useEffect(() => {
     fetchFaculties();
+  }, []);
+
+  useEffect(() => {
     fetchTimetable();
+  }, [filterFaculty, filterSubject, filterDay, page]);
+
+  useEffect(() => {
+    setPage(1);
   }, [filterFaculty, filterSubject, filterDay]);
   const fetchFaculties = async () => {
     try {
@@ -37,12 +51,15 @@ const FacultyTimetable = () => {
       const params = {
         faculty_id: filterFaculty,
         subject: filterSubject,
-        day_of_week: filterDay
+        day_of_week: filterDay,
+        page,
+        limit
       };
       const res = await api.get('/admin/faculty-timetable', {
         params
       });
       setTimetable(res.data.data || []);
+      setTotalRecords(res.data.total || 0);
     } catch (e) {
       toast.error("Failed to load timetable");
     } finally {
@@ -161,6 +178,15 @@ const FacultyTimetable = () => {
                                 </tr>}
                         </tbody>
                     </table>
+                </div>
+
+                <div className="p-4 md:p-6 border-t border-slate-100">
+                  <Pagination 
+                    currentPage={page} 
+                    totalPages={Math.ceil(totalRecords / limit) || 1} 
+                    totalRecords={totalRecords} 
+                    onPageChange={setPage} 
+                  />
                 </div>
             </div>
 

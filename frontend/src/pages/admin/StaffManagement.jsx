@@ -16,6 +16,13 @@ const StaffManagement = () => {
  const [filteredStaff, setFilteredStaff] = useState([]);
  const [loading, setLoading] = useState(true);
  const [sortBy, setSortBy] = useState('newest');
+ const [searchTerm, setSearchTerm] = useState('');
+ 
+ // Pagination State
+ const [page, setPage] = useState(1);
+ const limit = 50;
+ const [totalRecords, setTotalRecords] = useState(0);
+
  const [selectedMember, setSelectedMember] = useState(null);
  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
  const [isEditingModal, setIsEditingModal] = useState(false);
@@ -29,31 +36,32 @@ const StaffManagement = () => {
  });
 
  useEffect(() => {
- fetchStaff();
- }, []);
+   fetchStaff();
+ }, [page, searchTerm]);
+
+ // Reset to page 1 when search changes
+ useEffect(() => {
+   setPage(1);
+ }, [searchTerm]);
 
  const fetchStaff = async () => {
- try {
- setLoading(true);
-  const apiPath = user?.role === 'academic_head' ? '/academic-head/staff' : '/admin/staff';
-  const response = await api.get(apiPath);
-  const staffData = (response.data.data || []).filter(s => s.role !== 'student');
-  setStaff(staffData);
-  setFilteredStaff(staffData);
-  setLoading(false);
- } catch (error) {
- toast.error("Failed to fetch staff members");
- setLoading(false);
- }
+   try {
+     setLoading(true);
+     const apiPath = user?.role === 'academic_head' ? '/academic-head/staff' : '/admin/staff';
+     const response = await api.get(`${apiPath}?page=${page}&limit=${limit}&search=${encodeURIComponent(searchTerm)}`);
+     const staffData = (response.data.data || []).filter(s => s.role !== 'student');
+     setStaff(staffData);
+     setFilteredStaff(staffData);
+     setTotalRecords(response.data.total || 0);
+     setLoading(false);
+   } catch (error) {
+     toast.error("Failed to fetch staff members");
+     setLoading(false);
+   }
  };
 
  const handleSearch = (query) => {
- const filtered = staff.filter(m =>
- m.name?.toLowerCase().includes(query.toLowerCase()) ||
- m.email?.toLowerCase().includes(query.toLowerCase()) ||
- m.role?.toLowerCase().includes(query.toLowerCase())
- );
- setFilteredStaff(filtered);
+   setSearchTerm(query);
  };
 
  const sortedStaff = [...filteredStaff].sort((a, b) => {
@@ -62,27 +70,37 @@ const StaffManagement = () => {
     return 0;
   });
 
-  const handleExport = () => {
-    const headers = ['Name', 'Email', 'Role', 'Status'];
-    const csvContent = [
-      headers.join(','),
-      ...filteredStaff.map(s => [
-        `"${s.name}"`,
-        `"${s.email}"`,
-        `"${s.role}"`,
-        `"${s.status}"`
-      ].join(','))
-    ].join('\n');
+  const handleExport = async () => {
+    try {
+      const toastId = toast.loading('Fetching data for export...');
+      const apiPath = user?.role === 'academic_head' ? '/academic-head/staff' : '/admin/staff';
+      const response = await api.get(`${apiPath}?search=${encodeURIComponent(searchTerm)}&export=true`);
+      const exportData = (response.data.data || []).filter(s => s.role !== 'student');
+      toast.dismiss(toastId);
 
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
-    link.setAttribute('href', url);
-    link.setAttribute('download', `staff_export_${new Date().toISOString().split('T')[0]}.csv`);
-    link.style.visibility = 'hidden';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+      const headers = ['Name', 'Email', 'Role', 'Status'];
+      const csvContent = [
+        headers.join(','),
+        ...exportData.map(s => [
+          `"${s.name}"`,
+          `"${s.email}"`,
+          `"${s.role}"`,
+          `"${s.status}"`
+        ].join(','))
+      ].join('\n');
+
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', `staff_export_${new Date().toISOString().split('T')[0]}.csv`);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (e) {
+      toast.error('Failed to export staff members');
+    }
   };
 
   const handleView = (member) => {
@@ -282,6 +300,10 @@ const StaffManagement = () => {
   onDelete={isSuperAdmin ? handleDelete : undefined}
   onEdit={isSuperAdmin ? handleEdit : undefined}
   searchPlaceholder="Search by name, email or role..."
+  page={page}
+  totalPages={Math.ceil(totalRecords / limit) || 1}
+  totalRecords={totalRecords}
+  onPageChange={setPage}
   expandedRowId={expandedRowId}
   onToggleExpand={(id) => setExpandedRowId(expandedRowId === id ? null : id)}
   renderMobileCard={renderStaffMobileCard}

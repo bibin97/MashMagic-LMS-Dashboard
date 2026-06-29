@@ -10,6 +10,8 @@ import { useAuth } from '../../context/AuthContext';
 import { sortStudentsByOption } from '../../components/StudentListFilterDropdown';
 import { mockStudentHours } from '../../utils/mockStudentHours';
 import MobileStudentCard from '../../components/common/MobileStudentCard';
+import Pagination from '../../components/common/Pagination';
+
 const Students = () => {
   const navigate = useNavigate();
   const {
@@ -23,6 +25,11 @@ const Students = () => {
   const [sortBy, setSortBy] = useState('newest'); // 'newest' or 'oldest'
   const [filterMentor, setFilterMentor] = useState('all');
   const [filterFaculty, setFilterFaculty] = useState('all');
+  
+  // Pagination State
+  const [page, setPage] = useState(1);
+  const limit = 50;
+  const [totalRecords, setTotalRecords] = useState(0);
   const [mentorsList, setMentorsList] = useState([]);
   const [facultiesList, setFacultiesList] = useState([]);
   const [activeTab, setActiveTab] = useState('enrolled_scholars'); // 'enrolled_scholars', 'active_plus', 'completed', 'mentorship_completed'
@@ -64,7 +71,12 @@ const Students = () => {
   useEffect(() => {
     fetchStudents();
     fetchMentors();
-  }, [searchTerm, sortBy]);
+  }, [searchTerm, sortBy, activeTab, page]);
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setPage(1);
+  }, [searchTerm, sortBy, activeTab]);
   const fetchMentors = async () => {
     try {
       const res = await api.get('/admin/mentors');
@@ -74,8 +86,9 @@ const Students = () => {
   const fetchStudents = async () => {
     try {
       setLoading(true);
-      const response = await api.get(`/admin/students?search=${searchTerm}&sortBy=${sortBy}`);
+      const response = await api.get(`/admin/students?search=${searchTerm}&sortBy=${sortBy}&activeTab=${activeTab}&page=${page}&limit=${limit}`);
       let realStudents = response.data.data;
+      setTotalRecords(response.data.total || 0);
 
       // Inject mock hours for specific students requested by user
       realStudents = realStudents.map(student => {
@@ -102,29 +115,38 @@ const Students = () => {
   const handleSearch = query => {
     setSearchTerm(query);
   };
-  const handleExport = (dataToExport = filteredStudents) => {
-    import('xlsx').then(XLSX => {
-      const exportData = dataToExport.map(s => ({
-        'Registration Number': s.registration_number || '',
-        'Name': s.name || '',
-        'Email': s.email || '',
-        'Phone': s.phone_number || '',
-        'Grade': s.grade || '',
-        'Syllabus': s.syllabus || '',
-        'Course': s.course || '',
-        'Mentor': s.mentor || 'Not Assigned',
-        'Faculty': s.faculty || 'Not Assigned',
-        'Status': s.status || '',
-        'Onboarding Status': s.onboarding_status || '',
-        'Assessment Level': s.assessment_level || '',
-        'Created At': s.created_at ? new Date(s.created_at).toLocaleDateString() : ''
-      }));
+  const handleExport = async () => {
+    try {
+      const toastId = toast.loading('Fetching data for export...');
+      const response = await api.get(`/admin/students?search=${searchTerm}&sortBy=${sortBy}&activeTab=${activeTab}&export=true`);
+      let dataToExport = response.data.data;
+      toast.dismiss(toastId);
 
-      const ws = XLSX.utils.json_to_sheet(exportData);
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, "Students");
-      XLSX.writeFile(wb, `students_export_${new Date().toISOString().split('T')[0]}.xlsx`);
-    });
+      import('xlsx').then(XLSX => {
+        const exportData = dataToExport.map(s => ({
+          'Registration Number': s.registration_number || '',
+          'Name': s.name || '',
+          'Email': s.email || '',
+          'Phone': s.phone_number || '',
+          'Grade': s.grade || '',
+          'Syllabus': s.syllabus || '',
+          'Course': s.course || '',
+          'Mentor': s.mentor || 'Not Assigned',
+          'Faculty': s.faculty || 'Not Assigned',
+          'Status': s.status || '',
+          'Onboarding Status': s.onboarding_status || '',
+          'Assessment Level': s.assessment_level || '',
+          'Created At': s.created_at ? new Date(s.created_at).toLocaleDateString() : ''
+        }));
+
+        const ws = XLSX.utils.json_to_sheet(exportData);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Students");
+        XLSX.writeFile(wb, `students_export_${new Date().toISOString().split('T')[0]}.xlsx`);
+      });
+    } catch (e) {
+      toast.error('Failed to export students');
+    }
   };
   const handleView = student => {
     navigate(`/admin/students/${student.id}`);
@@ -481,7 +503,9 @@ const Students = () => {
       </div>
 
       <div className="hidden md:block">
-      <DataTable columns={columns} data={processedStudents} loading={loading} onSearch={handleSearch} onExport={handleExport} onView={handleView} onEdit={isSuperAdmin ? handleEdit : undefined} onDelete={isSuperAdmin ? handleDelete : undefined} onBlock={isSuperAdmin ? handleBlock : undefined} extraActions={isSuperAdmin ? [student => <button key="fee" title="Fee Management" onClick={e => {
+      <DataTable columns={columns} data={processedStudents} loading={loading} onSearch={handleSearch} onExport={handleExport} onView={handleView} onEdit={isSuperAdmin ? handleEdit : undefined} onDelete={isSuperAdmin ? handleDelete : undefined} onBlock={isSuperAdmin ? handleBlock : undefined} 
+      page={page} totalPages={Math.ceil(totalRecords / limit) || 1} totalRecords={totalRecords} onPageChange={setPage}
+      extraActions={isSuperAdmin ? [student => <button key="fee" title="Fee Management" onClick={e => {
       e.stopPropagation();
       handleOpenFee(student);
     }} className="p-2 rounded-xl bg-amber-50 text-amber-600 hover:bg-amber-100 border border-amber-100 transition-all">
@@ -542,6 +566,18 @@ const Students = () => {
                 onAddFee={isSuperAdmin ? handleOpenFee : undefined}
               />
             ))}
+            
+            {/* Mobile Pagination */}
+            {page && Math.ceil(totalRecords / limit) > 0 && (
+              <div className="mt-4">
+                <Pagination 
+                  currentPage={page} 
+                  totalPages={Math.ceil(totalRecords / limit) || 1} 
+                  totalRecords={totalRecords} 
+                  onPageChange={setPage} 
+                />
+              </div>
+            )}
           </div>
         )}
       </div>

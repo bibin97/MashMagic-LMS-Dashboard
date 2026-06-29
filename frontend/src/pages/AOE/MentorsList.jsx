@@ -7,10 +7,14 @@ import api from '../../services/api';
 import toast from 'react-hot-toast';
 import { premiumConfirm } from '../../utils/premiumConfirm';
 import MobileCard from '../../components/common/MobileCard';
+import Pagination from '../../components/common/Pagination';
 
 const MentorsList = () => {
  const [mentors, setMentors] = useState([]);
  const [loading, setLoading] = useState(true);
+ const [page, setPage] = useState(1);
+ const [limit] = useState(50);
+ const [totalRecords, setTotalRecords] = useState(0);
  const [searchTerm, setSearchTerm] = useState('');
 	const deferredSearchTerm = useDeferredValue(searchTerm);
 
@@ -26,20 +30,29 @@ const MentorsList = () => {
  const [loadingStudents, setLoadingStudents] = useState(false);
 
  useEffect(() => {
- fetchMentors();
- }, []);
+  setPage(1);
+ }, [deferredSearchTerm]);
+
+ useEffect(() => {
+  fetchMentors();
+ }, [page, deferredSearchTerm]);
 
  const fetchMentors = async () => {
- try {
- const res = await api.get('/aoe/mentors-all');
- if (res.data.success) {
- setMentors(res.data.data);
- }
- } catch (error) {
- toast.error("Failed to load mentor directory");
- } finally {
- setLoading(false);
- }
+  try {
+   setLoading(true);
+   const params = new URLSearchParams({ page, limit });
+   if (deferredSearchTerm) params.append('search', deferredSearchTerm);
+   
+   const res = await api.get(`/aoe/mentors-all?${params.toString()}`);
+   if (res.data.success) {
+    setMentors(res.data.data);
+    setTotalRecords(res.data.total || 0);
+   }
+  } catch (error) {
+   toast.error("Failed to load mentor directory");
+  } finally {
+   setLoading(false);
+  }
  };
 
  const handleEdit = (mentor) => {
@@ -100,10 +113,7 @@ const MentorsList = () => {
  }
  };
 
- const filteredMentors = mentors.filter(m =>
- m.name.toLowerCase().includes(deferredSearchTerm.toLowerCase()) ||
- m.place?.toLowerCase().includes(deferredSearchTerm.toLowerCase())
- );
+ const filteredMentors = mentors;
 
  if (loading) return <div className="p-20 text-center font-black text-slate-600 animate-pulse">SYNCING MENTOR DIRECTORY...</div>;
 
@@ -378,6 +388,18 @@ const MentorsList = () => {
             </div>
           )}
         </div>
+
+        {/* Pagination Component */}
+        {(!loading && filteredMentors.length > 0) && (
+          <div className="p-4 md:p-6 border-t border-slate-100 bg-slate-50/50 rounded-b-[3rem]">
+            <Pagination 
+              currentPage={page} 
+              totalPages={Math.ceil(totalRecords / limit) || 1} 
+              totalRecords={totalRecords} 
+              onPageChange={setPage} 
+            />
+          </div>
+        )}
 
         {/* Mentor Detail Modal */}
         {isDetailModalOpen && selectedMentorForDetail && (

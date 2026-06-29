@@ -11,17 +11,23 @@ import { useAuth } from '../../context/AuthContext';
 const Mentors = () => {
  const { user } = useAuth();
  const isSuperAdmin = user?.role === 'super_admin';
- const [mentors, setMentors] = useState([]);
- const [filteredMentors, setFilteredMentors] = useState([]);
- const [loading, setLoading] = useState(true);
- const [sortBy, setSortBy] = useState('newest');
- const [selectedMentor, setSelectedMentor] = useState(null);
- const [expandedRowId, setExpandedRowId] = useState(null);
- const [mentorStudents, setMentorStudents] = useState([]);
- const [loadingStudents, setLoadingStudents] = useState(false);
- const [selectedStudentForExams, setSelectedStudentForExams] = useState(null);
- const [studentExams, setStudentExams] = useState([]);
- const [loadingExams, setLoadingExams] = useState(false);
+  const [mentors, setMentors] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [sortBy, setSortBy] = useState('newest');
+  const [searchTerm, setSearchTerm] = useState('');
+  
+  // Pagination State
+  const [page, setPage] = useState(1);
+  const limit = 50;
+  const [totalRecords, setTotalRecords] = useState(0);
+
+  const [selectedMentor, setSelectedMentor] = useState(null);
+  const [expandedRowId, setExpandedRowId] = useState(null);
+  const [mentorStudents, setMentorStudents] = useState([]);
+  const [loadingStudents, setLoadingStudents] = useState(false);
+  const [selectedStudentForExams, setSelectedStudentForExams] = useState(null);
+  const [studentExams, setStudentExams] = useState([]);
+  const [loadingExams, setLoadingExams] = useState(false);
  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
  const [editFormData, setEditFormData] = useState({
  name: '',
@@ -31,64 +37,68 @@ const Mentors = () => {
  role: 'mentor'
  });
 
- useEffect(() => {
- fetchMentors();
- }, []);
+  useEffect(() => {
+    fetchMentors();
+  }, [page, searchTerm, sortBy]);
 
- const fetchMentors = async () => {
- try {
- setLoading(true);
- const response = await api.get('/admin/mentors');
- const realMentors = response.data.data;
+  // Reset to page 1 when search or sorting changes
+  useEffect(() => {
+    setPage(1);
+  }, [searchTerm, sortBy]);
 
- setMentors(realMentors);
- setFilteredMentors(realMentors);
- setLoading(false);
- } catch (error) {
- toast.error("Failed to fetch mentors");
- setLoading(false);
- }
- };
+  const fetchMentors = async () => {
+    try {
+      setLoading(true);
+      const response = await api.get(`/admin/mentors?page=${page}&limit=${limit}&search=${encodeURIComponent(searchTerm)}`);
+      const realMentors = response.data.data;
+      setMentors(realMentors);
+      setTotalRecords(response.data.total || 0);
+      setLoading(false);
+    } catch (error) {
+      toast.error("Failed to fetch mentors");
+      setLoading(false);
+    }
+  };
 
- const handleSearch = (query) => {
- const filtered = mentors.filter(m =>
- m.name?.toLowerCase().includes(query.toLowerCase()) ||
- m.email?.toLowerCase().includes(query.toLowerCase()) ||
- m.phone?.toLowerCase().includes(query.toLowerCase())
- );
- setFilteredMentors(filtered);
- };
+  const handleSearch = (query) => {
+    setSearchTerm(query);
+  };
 
- const sortedMentors = [...filteredMentors].sort((a, b) => {
-    if (sortBy === 'newest') return b.id - a.id;
-    if (sortBy === 'oldest') return a.id - b.id;
-    return 0;
-  });
+  const sortedMentors = mentors; // Sorting handled by backend ideally, or keep as is if no sorting provided by backend for 'newest'. Wait, keeping it simple:
 
- const handleExport = () => {
-   const headers = ['Name', 'Email', 'Phone', 'Students Count', 'Completion Rate', 'Status'];
-   const csvContent = [
-     headers.join(','),
-     ...filteredMentors.map(m => [
-       `"${m.name}"`,
-       `"${m.email}"`,
-       `"${m.phone || ''}"`,
-       m.studentsCount,
-       `"${m.completionRate}%"`,
-       `"${m.status}"`
-     ].join(','))
-   ].join('\n');
+  const handleExport = async () => {
+    try {
+      const toastId = toast.loading('Fetching data for export...');
+      const response = await api.get(`/admin/mentors?search=${encodeURIComponent(searchTerm)}&export=true`);
+      const exportData = response.data.data;
+      toast.dismiss(toastId);
 
-   const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-   const link = document.createElement('a');
-   const url = URL.createObjectURL(blob);
-   link.setAttribute('href', url);
-   link.setAttribute('download', `mentors_export_${new Date().toISOString().split('T')[0]}.csv`);
-   link.style.visibility = 'hidden';
-   document.body.appendChild(link);
-   link.click();
-   document.body.removeChild(link);
- };
+      const headers = ['Name', 'Email', 'Phone', 'Students Count', 'Completion Rate', 'Status'];
+      const csvContent = [
+        headers.join(','),
+        ...exportData.map(m => [
+          `"${m.name}"`,
+          `"${m.email}"`,
+          `"${m.phone || ''}"`,
+          m.studentsCount,
+          `"${m.completionRate}%"`,
+          `"${m.status}"`
+        ].join(','))
+      ].join('\n');
+
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', `mentors_export_${new Date().toISOString().split('T')[0]}.csv`);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (e) {
+      toast.error('Failed to export mentors');
+    }
+  };
 
  const handleSelectStudent = async (student) => {
    setSelectedStudentForExams(student);
@@ -404,6 +414,10 @@ const Mentors = () => {
   onSearch={handleSearch}
   onExport={handleExport}
   onView={handleView}
+  page={page}
+  totalPages={Math.ceil(totalRecords / limit) || 1}
+  totalRecords={totalRecords}
+  onPageChange={setPage}
   expandedRowId={expandedRowId}
   onToggleExpand={(id) => setExpandedRowId(expandedRowId === id ? null : id)}
   renderMobileCard={renderMentorMobileCard}

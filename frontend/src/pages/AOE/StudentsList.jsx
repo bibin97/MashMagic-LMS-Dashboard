@@ -5,6 +5,7 @@ import api from '../../services/api';
 import toast from 'react-hot-toast';
 import StudentListFilterDropdown, { sortStudentsByOption } from '../../components/StudentListFilterDropdown';
 import ExportButton from '../../components/common/ExportButton';
+import Pagination from '../../components/common/Pagination';
 import { premiumConfirm } from '../../utils/premiumConfirm';
 import MobileCard from '../../components/common/MobileCard';
 import { mockStudentHours } from '../../utils/mockStudentHours';
@@ -24,6 +25,11 @@ const StudentsList = ({
   const [filterFaculty, setFilterFaculty] = useState('all');
   const [activeTab, setActiveTab] = useState('enrolled_scholars'); // 'enrolled_scholars', 'active_plus', 'completed'
   const [expandedStudentId, setExpandedStudentId] = useState(null);
+  
+  // Pagination State
+  const [page, setPage] = useState(1);
+  const [limit] = useState(50);
+  const [totalRecords, setTotalRecords] = useState(0);
 
   // Assign Mentor Modal States
   const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
@@ -66,9 +72,14 @@ const StudentsList = ({
   useEffect(() => {
     fetchDropdownData();
   }, []);
+
+  useEffect(() => {
+    setPage(1);
+  }, [searchTerm, sortBy, filterCourse, filterMentor, filterFaculty, activeTab]);
+
   useEffect(() => {
     fetchStudents();
-  }, [role, searchTerm, sortBy, filterCourse, filterMentor, filterFaculty]);
+  }, [role, page, deferredSearchTerm, sortBy, filterCourse, filterMentor, filterFaculty, activeTab]);
   const fetchDropdownData = async () => {
     try {
       const res = await api.get(`${apiPath}/dropdowns`);
@@ -82,32 +93,20 @@ const StudentsList = ({
   };
   const fetchStudents = async () => {
     try {
-      const mentorParam = filterMentor !== 'all' ? `&mentor_id=${filterMentor}` : '';
-      const facultyParam = filterFaculty !== 'all' ? `&faculty_id=${filterFaculty}` : '';
-      const res = await api.get(`${apiPath}/students-all?search=${searchTerm}&sortBy=${sortBy}&course=${filterCourse}${mentorParam}${facultyParam}`);
+      setLoading(true);
+      const params = new URLSearchParams({ page, limit, sortBy, activeTab });
+      if (deferredSearchTerm) params.append('search', deferredSearchTerm);
+      if (filterCourse !== 'all') params.append('course', filterCourse);
+      if (filterMentor !== 'all') params.append('mentor_id', filterMentor);
+      if (filterFaculty !== 'all') params.append('faculty_id', filterFaculty);
+      
+      const res = await api.get(`${apiPath}/students-all?${params.toString()}`);
 
-      // Inject mock hours for specific students requested by user
       let fetchedStudents = res.data.data || [];
-      fetchedStudents = fetchedStudents.map(student => {
-        // Skip mock injection if the Academic Head has explicitly set subjects/hours for this student
-        if (student.has_explicit_subjects) {
-          return student;
-        }
+      // Mock data is now injected on the backend for accurate pagination on all tabs.
 
-        // Try to match by exact name or if the name contains the mock name
-        const mockKey = Object.keys(mockStudentHours).find(key => student.name.toLowerCase().includes(key.toLowerCase()));
-        if (mockKey) {
-          const mockObj = mockStudentHours[mockKey];
-          return {
-            ...student,
-            ...mockObj,
-            consumed_hours: (parseFloat(student.consumed_hours) || 0) + (mockObj.consumed_hours || 0),
-            total_lifetime_consumed_hours: (parseFloat(student.total_lifetime_consumed_hours) || 0) + (mockObj.total_lifetime_consumed_hours || 0)
-          };
-        }
-        return student;
-      });
-      setStudents(fetchedStudents.sort((a, b) => (a.name || '').localeCompare(b.name || '')));
+      setStudents(fetchedStudents);
+      setTotalRecords(res.data.total || 0);
     } catch (error) {
       toast.error("Failed to load students directory");
     } finally {
@@ -239,25 +238,8 @@ const StudentsList = ({
       toast.error('Failed to submit assessment');
     }
   };
-  const filteredStudents = useMemo(() => {
-    const filtered = students.filter(s => {
-      const nameStr = s.name || '';
-      const regStr = s.registration_number || '';
-      const gradeStr = s.grade || '';
-      const matchesSearch = nameStr.toLowerCase().includes(deferredSearchTerm.toLowerCase()) || regStr.toLowerCase().includes(deferredSearchTerm.toLowerCase()) || gradeStr.toLowerCase().includes(deferredSearchTerm.toLowerCase());
-      const matchesCourse = filterCourse === 'all' || s.course === filterCourse;
-      let matchesTab = true;
-      if (activeTab === 'active_plus') {
-        const isActive = s.status === 'active' || s.isActive === 1;
-        const isCompleted = role === 'mentor_head' ? s.mentorship_completed === 1 : s.course_completed === 1;
-        matchesTab = isActive && !isCompleted;
-      } else if (activeTab === 'completed') {
-        matchesTab = role === 'mentor_head' ? s.mentorship_completed === 1 : s.course_completed === 1;
-      }
-      return matchesSearch && matchesCourse && matchesTab;
-    });
-    return sortStudentsByOption(filtered, sortBy);
-  }, [students, searchTerm, filterCourse, sortBy, activeTab, role]);
+  // Backend now handles search, filter, and sorting
+  const filteredStudents = students;
   if (loading) return <div className="p-20 text-center font-black text-slate-600 animate-pulse">SYNCING STUDENT RECORDS...</div>;
   return <div className="space-y-8 animate-in fade-in duration-700">
 			{/* Header */}
@@ -333,7 +315,7 @@ const StudentsList = ({
 				<button onClick={() => setActiveTab('enrolled_scholars')} className={`p-8 rounded-[2.5rem] border shadow-sm flex flex-col gap-2 transition-all ${activeTab === 'enrolled_scholars' ? 'bg-[#008080] border-[#008080] text-white scale-105 shadow-xl shadow-[#008080]/20' : 'bg-white border-slate-100 hover:shadow-xl hover:shadow-[#008080]/5 hover:-translate-y-1'}`}>
 					<span className={`text-[10px] font-black uppercase tracking-widest transition-colors ${activeTab === 'enrolled_scholars' ? 'text-white/80' : 'text-slate-600 group-hover:text-[#008080]'}`}>Enrolled Scholars</span>
 					<div className={`flex items-end gap-3 font-black tracking-tighter ${activeTab === 'enrolled_scholars' ? 'text-white' : 'text-slate-900'}`}>
-						<span className="text-4xl leading-none">{students.length}</span>
+						<span className="text-4xl leading-none">{totalRecords}</span>
 						<span className={`text-[10px] mb-1 uppercase tracking-widest ${activeTab === 'enrolled_scholars' ? 'text-white/80' : 'text-slate-600'}`}>Total Population</span>
 					</div>
 				</button>
@@ -342,11 +324,7 @@ const StudentsList = ({
 					<span className={`text-[10px] font-black uppercase tracking-widest ${activeTab === 'active_plus' ? 'text-white/80' : 'text-[#008080]'}`}>Active Plus</span>
 					<div className={`flex items-end gap-3 font-black tracking-tighter ${activeTab === 'active_plus' ? 'text-white' : 'text-slate-900'}`}>
 						<span className="text-4xl leading-none">
-                            {students.filter(s => {
-              const isActive = s.status === 'active' || s.isActive === 1;
-              const isCompleted = role === 'mentor_head' ? s.mentorship_completed === 1 : s.course_completed === 1;
-              return isActive && !isCompleted;
-            }).length}
+                            {totalRecords}
                         </span>
 						<div className={`flex items-center gap-1.5 mb-1 px-2 py-0.5 rounded-full ${activeTab === 'active_plus' ? 'bg-white/20' : 'bg-[#008080]/10'}`}>
 							<div className={`w-1.5 h-1.5 rounded-full animate-pulse ${activeTab === 'active_plus' ? 'bg-white' : 'bg-[#008080]'}`}></div>
@@ -361,7 +339,7 @@ const StudentsList = ({
                     </span>
 					<div className={`flex items-end gap-3 font-black tracking-tighter ${activeTab === 'completed' ? 'text-white' : 'text-slate-900'}`}>
 						<span className="text-4xl leading-none">
-                            {students.filter(s => role === 'mentor_head' ? s.mentorship_completed === 1 : s.course_completed === 1).length}
+                            {totalRecords}
                         </span>
 						<span className={`text-[10px] mb-1 uppercase tracking-widest ${activeTab === 'completed' ? 'text-white/80' : 'text-slate-600'}`}>Total Achievers</span>
 					</div>
@@ -386,7 +364,7 @@ const StudentsList = ({
 						<tbody className="divide-y divide-slate-50">
 							{filteredStudents.length > 0 ? filteredStudents.map((student, index) => <React.Fragment key={student.id}>
 									<tr className="hover:bg-[#008080]/10/20 transition-all group">
-										<td className="px-8 py-6 font-black text-slate-400 text-[12px]">{index + 1}</td>
+										<td className="px-8 py-6 font-black text-slate-400 text-[12px]">{(page - 1) * limit + index + 1}</td>
 										<td className="px-8 py-6">
 											<div className="flex items-center gap-4">
 												<div className="w-12 h-12 bg-gradient-to-br from-slate-100 to-slate-200 rounded-2xl flex items-center justify-center text-slate-600 font-black shadow-inner group-hover:from-[#008080] group-hover:to-[#008080] group-hover:text-white transition-all transform group-hover:scale-110">
@@ -524,7 +502,7 @@ const StudentsList = ({
 														</button>
 													</div>
 													<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-														{student.faculty_name.split(',').map((f, i) => <div key={i} className="flex items-center gap-3 bg-slate-50 p-4 rounded-2xl border border-slate-100 shadow-sm hover:bg-white hover:border-[#008080]/30 transition-all group">
+														{student.faculty_name.split(',').map((f, i) => <div key={i} className="flex items-center gap-3 bg-slate-50 p-4 rounded-2xl border border-slate-100 shadow-sm hover:bg-white hover:border-[#008080/30 transition-all group">
 																<div className="w-8 h-8 bg-[#008080]/10 text-[#008080] rounded-xl flex items-center justify-center font-black text-xs uppercase shrink-0 group-hover:bg-[#008080] group-hover:text-white transition-all">
 																	{f.trim().charAt(0)}
 																</div>
@@ -535,7 +513,7 @@ const StudentsList = ({
 											</td>
 										</tr>}
 								</React.Fragment>) : <tr>
-									<td colSpan="4" className="px-8 py-20 text-center">
+									<td colSpan="7" className="px-8 py-20 text-center">
 										<p className="text-slate-600 font-black text-[10px] uppercase tracking-[0.3em]">No students found</p>
 									</td>
 								</tr>}
@@ -648,6 +626,18 @@ const StudentsList = ({
 						</div>
 					)}
 				</div>
+                
+                {/* Pagination */}
+                {!loading && filteredStudents.length > 0 && (
+                  <div className="mt-4 p-4 md:p-6 bg-white rounded-3xl border border-slate-100 shadow-sm">
+                    <Pagination
+                      currentPage={page}
+                      totalPages={Math.ceil(totalRecords / limit) || 1}
+                      totalRecords={totalRecords}
+                      onPageChange={setPage}
+                    />
+                  </div>
+                )}
 			</div>
 
 			{/* Assign Mentor Modal */}

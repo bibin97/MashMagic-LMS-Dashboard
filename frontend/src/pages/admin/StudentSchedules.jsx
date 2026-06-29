@@ -6,6 +6,7 @@ import {
   ChevronDown, BookOpen, UserCheck, SearchX, ShieldAlert,
   FileText, Activity
 } from 'lucide-react';
+import Pagination from '../../components/common/Pagination';
 
 const StudentSchedules = () => {
   const [schedules, setSchedules] = useState([]);
@@ -19,15 +20,25 @@ const StudentSchedules = () => {
   const [expandedCardIdx, setExpandedCardIdx] = useState(null);
   const [isExporting, setIsExporting] = useState(false);
 
+  // Pagination state
+  const [page, setPage] = useState(1);
+  const limit = 50;
+  const [totalRecords, setTotalRecords] = useState(0);
+
   useEffect(() => {
     fetchSchedules();
-  }, []);
+  }, [page]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [deferredSearchTerm, activeTab, filterDate]);
 
   const fetchSchedules = async () => {
     try {
       setLoading(true);
-      const res = await api.get('/admin/student-schedules');
+      const res = await api.get(`/admin/student-schedules?page=${page}&limit=${limit}`);
       setSchedules(res.data.data || []);
+      setTotalRecords(res.data.total || 0);
     } catch (e) {
       toast.error("Failed to load schedules");
     } finally {
@@ -221,6 +232,14 @@ const StudentSchedules = () => {
             </tbody>
           </table>
         </div>
+        <div className="p-4 md:p-6 border-t border-slate-100">
+          <Pagination 
+            currentPage={page} 
+            totalPages={Math.ceil(totalRecords / limit) || 1} 
+            totalRecords={totalRecords} 
+            onPageChange={setPage} 
+          />
+        </div>
       </div>
 
       {/* MOBILE CARD LAYOUT (Hidden on desktop) */}
@@ -369,6 +388,18 @@ const StudentSchedules = () => {
             </div>
           )})
         )}
+      </div>
+      
+      {/* MOBILE PAGINATION */}
+      <div className="md:hidden mt-4 px-2">
+        <div className="bg-white rounded-[2rem] p-4 border border-slate-100 shadow-sm">
+          <Pagination 
+            currentPage={page} 
+            totalPages={Math.ceil(totalRecords / limit) || 1} 
+            totalRecords={totalRecords} 
+            onPageChange={setPage} 
+          />
+        </div>
       </div>
 
     </div>

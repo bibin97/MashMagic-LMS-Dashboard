@@ -563,8 +563,25 @@ const getAcademicActions = async (req, res) => {
 
 const getDailyFacultyChecks = async (req, res) => {
     try {
-        const [rows] = await db.query('SELECT * FROM faculty_sessions WHERE date = CURDATE()');
-        res.status(200).json({ success: true, data: rows });
+        const { page, limit } = req.query;
+        let query = 'SELECT * FROM faculty_sessions WHERE date = CURDATE()';
+        
+        if (page) {
+            const pageNum = parseInt(page) || 1;
+            const limitNum = parseInt(limit) || 50;
+            const offset = (pageNum - 1) * limitNum;
+            
+            const countQuery = 'SELECT COUNT(*) as total FROM faculty_sessions WHERE date = CURDATE()';
+            const [countResult] = await db.query(countQuery);
+            const total = countResult[0].total;
+            
+            query += ' LIMIT ? OFFSET ?';
+            const [rows] = await db.query(query, [limitNum, offset]);
+            res.status(200).json({ success: true, total, data: rows });
+        } else {
+            const [rows] = await db.query(query);
+            res.status(200).json({ success: true, data: rows });
+        }
     } catch (e) { res.status(500).json({ success: false, message: e.message }); }
 };
 
@@ -585,8 +602,74 @@ const uncheckFacultySession = async (req, res) => {
 const getFacultyDirectory = async (req, res) => {
     try {
         await performAutoSync();
-        const [rows] = await db.query('SELECT * FROM faculties WHERE status = "active" ORDER BY name ASC');
-        res.status(200).json({ success: true, data: rows });
+        const { page, limit, search, syllabi, sections, subjects, sortBy } = req.query;
+        let query = 'SELECT * FROM faculties WHERE status = "active"';
+        let countQuery = 'SELECT COUNT(*) as total FROM faculties WHERE status = "active"';
+        let params = [];
+        
+        if (search) {
+            const searchParam = `%${search}%`;
+            const searchCondition = ' AND (name LIKE ? OR email LIKE ? OR subjects LIKE ?)';
+            query += searchCondition;
+            countQuery += searchCondition;
+            params.push(searchParam, searchParam, searchParam);
+        }
+
+        if (syllabi) {
+            const syllabiArr = syllabi.split(',');
+            if (syllabiArr.length > 0) {
+                const syllabiConditions = syllabiArr.map(() => 'syllabus LIKE ?').join(' OR ');
+                query += ` AND (${syllabiConditions})`;
+                countQuery += ` AND (${syllabiConditions})`;
+                syllabiArr.forEach(syl => params.push(`%${syl}%`));
+            }
+        }
+
+        if (sections) {
+            const sectionsArr = sections.split(',');
+            if (sectionsArr.length > 0) {
+                const sectionsConditions = sectionsArr.map(() => 'section LIKE ?').join(' OR ');
+                query += ` AND (${sectionsConditions})`;
+                countQuery += ` AND (${sectionsConditions})`;
+                sectionsArr.forEach(sec => params.push(`%${sec}%`));
+            }
+        }
+
+        if (subjects) {
+            const subjectsArr = subjects.split(',');
+            if (subjectsArr.length > 0) {
+                const subjectsConditions = subjectsArr.map(() => 'subjects LIKE ?').join(' OR ');
+                query += ` AND (${subjectsConditions})`;
+                countQuery += ` AND (${subjectsConditions})`;
+                subjectsArr.forEach(sub => params.push(`%${sub}%`));
+            }
+        }
+
+        if (sortBy === 'name') {
+            query += ' ORDER BY name ASC';
+        } else if (sortBy === 'oldest') {
+            query += ' ORDER BY created_at ASC';
+        } else {
+            query += ' ORDER BY created_at DESC';
+        }
+
+        if (page) {
+            const pageNum = parseInt(page) || 1;
+            const limitNum = parseInt(limit) || 50;
+            const offset = (pageNum - 1) * limitNum;
+
+            const [countResult] = await db.query(countQuery, params);
+            const total = countResult[0].total;
+
+            query += ' LIMIT ? OFFSET ?';
+            params.push(limitNum, offset);
+
+            const [rows] = await db.query(query, params);
+            res.status(200).json({ success: true, total, data: rows });
+        } else {
+            const [rows] = await db.query(query, params);
+            res.status(200).json({ success: true, data: rows });
+        }
     } catch (e) { res.status(500).json({ success: false, message: e.message }); }
 };
 
@@ -613,8 +696,25 @@ const deleteAcademicDocument = async (req, res) => {
 
 const getLiveClassEvaluations = async (req, res) => {
     try {
-        const [rows] = await db.query('SELECT e.*, uf.name as faculty_name FROM live_class_feedbacks e JOIN faculties uf ON e.faculty_id = uf.id ORDER BY e.created_at DESC');
-        res.status(200).json({ success: true, data: rows });
+        const { page, limit } = req.query;
+        let query = 'SELECT e.*, uf.name as faculty_name FROM live_class_feedbacks e JOIN faculties uf ON e.faculty_id = uf.id ORDER BY e.created_at DESC';
+        
+        if (page) {
+            const pageNum = parseInt(page) || 1;
+            const limitNum = parseInt(limit) || 50;
+            const offset = (pageNum - 1) * limitNum;
+            
+            const countQuery = 'SELECT COUNT(*) as total FROM live_class_feedbacks e JOIN faculties uf ON e.faculty_id = uf.id';
+            const [countResult] = await db.query(countQuery);
+            const total = countResult[0].total;
+            
+            query += ' LIMIT ? OFFSET ?';
+            const [rows] = await db.query(query, [limitNum, offset]);
+            res.status(200).json({ success: true, total, data: rows });
+        } else {
+            const [rows] = await db.query(query);
+            res.status(200).json({ success: true, data: rows });
+        }
     } catch (e) { res.status(500).json({ success: false, message: e.message }); }
 };
 
@@ -634,8 +734,25 @@ const submitLiveClassEvaluation = async (req, res) => {
 
 const getPendingFacultyLogs = async (req, res) => {
     try {
-        const [rows] = await db.query('SELECT f.*, u.name as faculty_name FROM faculty_interaction_logs f JOIN users u ON f.faculty_id = u.id WHERE u.role = "faculty" AND verification_status = "Pending" ORDER BY f.created_at DESC');
-        res.status(200).json({ success: true, data: rows });
+        const { page, limit } = req.query;
+        let query = 'SELECT f.*, u.name as faculty_name FROM faculty_interaction_logs f JOIN users u ON f.faculty_id = u.id WHERE u.role = "faculty" AND verification_status = "Pending" ORDER BY f.created_at DESC';
+        
+        if (page) {
+            const pageNum = parseInt(page) || 1;
+            const limitNum = parseInt(limit) || 50;
+            const offset = (pageNum - 1) * limitNum;
+            
+            const countQuery = 'SELECT COUNT(*) as total FROM faculty_interaction_logs f JOIN users u ON f.faculty_id = u.id WHERE u.role = "faculty" AND verification_status = "Pending"';
+            const [countResult] = await db.query(countQuery);
+            const total = countResult[0].total;
+            
+            query += ' LIMIT ? OFFSET ?';
+            const [rows] = await db.query(query, [limitNum, offset]);
+            res.status(200).json({ success: true, total, data: rows });
+        } else {
+            const [rows] = await db.query(query);
+            res.status(200).json({ success: true, data: rows });
+        }
     } catch (e) { res.status(500).json({ success: false, message: e.message }); }
 };
 
@@ -718,13 +835,29 @@ const getFacultyEditHistory = async (req, res) => {
 
 const getAllFacultyEditHistory = async (req, res) => {
     try {
-        const [logs] = await db.query(
-            `SELECT l.*, f.name as faculty_name 
+        const { page, limit } = req.query;
+        let query = `SELECT l.*, f.name as faculty_name 
              FROM faculty_edit_logs l
              LEFT JOIN faculties f ON l.faculty_id = f.id
-             ORDER BY l.edited_at DESC`
-        );
-        res.status(200).json({ success: true, data: logs });
+             ORDER BY l.edited_at DESC`;
+        
+        let countQuery = `SELECT COUNT(*) as total FROM faculty_edit_logs`;
+
+        if (page) {
+            const pageNum = parseInt(page) || 1;
+            const limitNum = parseInt(limit) || 50;
+            const offset = (pageNum - 1) * limitNum;
+
+            const [countResult] = await db.query(countQuery);
+            const total = countResult[0].total;
+
+            query += ' LIMIT ? OFFSET ?';
+            const [logs] = await db.query(query, [limitNum, offset]);
+            res.status(200).json({ success: true, total, data: logs });
+        } else {
+            const [logs] = await db.query(query);
+            res.status(200).json({ success: true, data: logs });
+        }
     } catch (e) {
         console.error("Error fetching all faculty edit history:", e);
         res.status(500).json({ success: false, message: "Server error" });
@@ -977,7 +1110,7 @@ const { calculateStudentHours } = require('../utils/studentHoursHelper');
 
 const getStudents = async (req, res) => {
     try {
-        const { mentor_id, faculty_id } = req.query;
+        const { mentor_id, faculty_id, search, sortBy, course, page, limit, activeTab } = req.query;
         let sql = `
             SELECT s.*, m.name as mentor_name, 
             COALESCE(
@@ -989,26 +1122,132 @@ const getStudents = async (req, res) => {
             LEFT JOIN mentors m ON s.mentor_id = m.id 
             WHERE (s.status != 'rejected' OR s.status IS NULL) AND s.status = 'active'
         `;
+        let countSql = `
+            SELECT COUNT(DISTINCT s.id) as total
+            FROM students s 
+            LEFT JOIN mentors m ON s.mentor_id = m.id 
+            WHERE (s.status != 'rejected' OR s.status IS NULL) AND s.status = 'active'
+        `;
         let params = [];
-        if (mentor_id) { sql += ' AND s.mentor_id = ?'; params.push(mentor_id); }
+
+        if (mentor_id) { 
+            sql += ' AND s.mentor_id = ?'; 
+            countSql += ' AND s.mentor_id = ?'; 
+            params.push(mentor_id); 
+        }
         if (faculty_id) { 
-            sql += ' AND (s.faculty_id = ? OR EXISTS (SELECT 1 FROM faculty_schedules fs WHERE (fs.is_deleted IS NULL OR fs.is_deleted = 0) AND fs.student_id = s.id AND fs.faculty_id = ?))'; 
+            const facClause = ' AND (s.faculty_id = ? OR EXISTS (SELECT 1 FROM faculty_schedules fs WHERE (fs.is_deleted IS NULL OR fs.is_deleted = 0) AND fs.student_id = s.id AND fs.faculty_id = ?))';
+            sql += facClause;
+            countSql += facClause;
             params.push(faculty_id, faculty_id); 
         }
-        sql += ' ORDER BY s.name ASC';
-        const [rows] = await db.query(sql, params);
-        
-        const augmentedRows = await calculateStudentHours(rows, db);
-        
-        res.status(200).json({ success: true, data: augmentedRows });
+        if (course && course !== 'all') {
+            sql += ' AND s.course = ?';
+            countSql += ' AND s.course = ?';
+            params.push(course);
+        }
+        if (search) {
+            const searchClause = ' AND (s.name LIKE ? OR s.registration_number LIKE ?)';
+            sql += searchClause;
+            countSql += searchClause;
+            const searchParam = `%${search}%`;
+            params.push(searchParam, searchParam);
+        }
+
+        if (sortBy === 'join_oldest') {
+            sql += ' ORDER BY s.id ASC';
+        } else if (sortBy === 'name_asc') {
+            sql += ' ORDER BY s.name ASC';
+        } else if (sortBy === 'name_desc') {
+            sql += ' ORDER BY s.name DESC';
+        } else {
+            sql += ' ORDER BY s.id DESC'; // join_newest
+        }
+
+        const pageNum = parseInt(page) || 1;
+        const limitNum = parseInt(limit) || 50;
+        const offset = (pageNum - 1) * limitNum;
+
+        if (activeTab === 'active_plus' || activeTab === 'completed') {
+            // Need in-memory filtering because hours are calculated in Node
+            const [rows] = await db.query(sql, params);
+            let augmentedRows = await calculateStudentHours(rows, db);
+            
+            // Mock data injection to match frontend hack
+            const mockStudentHours = require('../../frontend/src/utils/mockStudentHours').mockStudentHours;
+            augmentedRows = augmentedRows.map(student => {
+                if (student.has_explicit_subjects) return student;
+                const mockKey = Object.keys(mockStudentHours).find(key => student.name.toLowerCase().includes(key.toLowerCase()));
+                if (mockKey) {
+                    const mockObj = mockStudentHours[mockKey];
+                    return {
+                        ...student,
+                        ...mockObj,
+                        consumed_hours: (parseFloat(student.consumed_hours) || 0) + (mockObj.consumed_hours || 0),
+                        total_lifetime_consumed_hours: (parseFloat(student.total_lifetime_consumed_hours) || 0) + (mockObj.total_lifetime_consumed_hours || 0)
+                    };
+                }
+                return student;
+            });
+
+            if (activeTab === 'active_plus') {
+                augmentedRows = augmentedRows.filter(s => (s.total_lifetime_consumed_hours || 0) >= 8);
+            } else if (activeTab === 'completed') {
+                augmentedRows = augmentedRows.filter(s => (s.total_lifetime_consumed_hours || 0) >= (s.total_hours || 0) && (s.total_hours || 0) > 0);
+            }
+
+            const total = augmentedRows.length;
+            const paginatedRows = augmentedRows.slice(offset, offset + limitNum);
+            res.status(200).json({ success: true, total, data: paginatedRows });
+        } else {
+            // SQL Pagination
+            const [countResult] = await db.query(countSql, params);
+            const total = countResult[0].total;
+
+            sql += ' LIMIT ? OFFSET ?';
+            params.push(limitNum, offset);
+
+            const [rows] = await db.query(sql, params);
+            const augmentedRows = await calculateStudentHours(rows, db);
+            res.status(200).json({ success: true, total, data: augmentedRows });
+        }
     } catch (e) { res.status(500).json({ success: false, message: e.message }); }
 };
 
 const getMentors = async (req, res) => {
     try {
         await performAutoSync();
-        const [rows] = await db.query('SELECT m.*, (SELECT COUNT(*) FROM students WHERE mentor_id = m.id AND status != "rejected") as studentCount FROM mentors m WHERE m.status = "active" ORDER BY m.name ASC');
-        res.status(200).json({ success: true, data: rows });
+        const { page, limit, search } = req.query;
+        let query = 'SELECT m.*, (SELECT COUNT(*) FROM students WHERE mentor_id = m.id AND status != "rejected") as studentCount FROM mentors m WHERE m.status = "active"';
+        let countQuery = 'SELECT COUNT(*) as total FROM mentors m WHERE m.status = "active"';
+        let params = [];
+
+        if (search) {
+            query += ' AND (m.name LIKE ? OR m.email LIKE ? OR m.phone_number LIKE ?)';
+            countQuery += ' AND (m.name LIKE ? OR m.email LIKE ? OR m.phone_number LIKE ?)';
+            const searchParam = `%${search}%`;
+            params.push(searchParam, searchParam, searchParam);
+        }
+
+        query += ' ORDER BY m.name ASC';
+
+        if (page) {
+            const pageNum = parseInt(page) || 1;
+            const limitNum = parseInt(limit) || 50;
+            const offset = (pageNum - 1) * limitNum;
+
+            const [countResult] = await db.query(countQuery, params);
+            const total = countResult[0].total;
+
+            query += ' LIMIT ? OFFSET ?';
+            params.push(limitNum, offset);
+
+            const [rows] = await db.query(query, params);
+            res.status(200).json({ success: true, total, data: rows });
+        } else {
+            const [rows] = await db.query(query, params);
+            res.status(200).json({ success: true, data: rows });
+        }
     } catch (e) { res.status(500).json({ success: false, message: e.message }); }
 };
 
@@ -1171,14 +1410,48 @@ const createAHFacultyInteraction = async (req, res) => {
 
 const getAHParentMeetings = async (req, res) => {
     try {
-        const [rows] = await db.query(`
+        const { page, limit, status } = req.query;
+        let query = `
             SELECT m.*, s.name as student_name, u.name as academic_operation_executive_name
             FROM ah_parent_meetings m
             JOIN students s ON m.student_id = s.id
             JOIN users u ON m.academic_head_id = u.id
-            ORDER BY m.meeting_date DESC, m.meeting_time DESC
-        `);
-        res.json({ success: true, data: rows });
+            WHERE 1=1
+        `;
+        let countQuery = `
+            SELECT COUNT(*) as total
+            FROM ah_parent_meetings m
+            JOIN students s ON m.student_id = s.id
+            JOIN users u ON m.academic_head_id = u.id
+            WHERE 1=1
+        `;
+        let params = [];
+
+        if (status) {
+            query += ' AND m.status = ?';
+            countQuery += ' AND m.status = ?';
+            params.push(status);
+        }
+
+        query += ' ORDER BY m.meeting_date DESC, m.meeting_time DESC';
+
+        if (page) {
+            const pageNum = parseInt(page) || 1;
+            const limitNum = parseInt(limit) || 50;
+            const offset = (pageNum - 1) * limitNum;
+
+            const [countResult] = await db.query(countQuery, params);
+            const total = countResult[0].total;
+
+            query += ' LIMIT ? OFFSET ?';
+            params.push(limitNum, offset);
+
+            const [rows] = await db.query(query, params);
+            res.json({ success: true, total, data: rows });
+        } else {
+            const [rows] = await db.query(query, params);
+            res.json({ success: true, data: rows });
+        }
     } catch (error) { res.status(500).json({ success: false, message: error.message }); }
 };
 
@@ -1241,13 +1514,54 @@ const getDemoSchedules = async (req, res) => {
 
         await ensureAoeDemoScheduleColumns();
 
-        const [rows] = await db.query(`
+        const { page, limit, search, type } = req.query;
+        let query = `
             SELECT d.*, COALESCE(d.faculty_name, f.name) as faculty_name 
             FROM aoe_demo_schedules d
             LEFT JOIN faculties f ON d.faculty_id = f.id
-            ORDER BY d.id DESC
-        `);
-        res.status(200).json({ success: true, data: rows });
+            WHERE 1=1
+        `;
+        let countQuery = `
+            SELECT COUNT(*) as total 
+            FROM aoe_demo_schedules d
+            LEFT JOIN faculties f ON d.faculty_id = f.id
+            WHERE 1=1
+        `;
+        let params = [];
+
+        if (type && type !== 'all') {
+            query += ' AND d.type = ?';
+            countQuery += ' AND d.type = ?';
+            params.push(type);
+        }
+
+        if (search) {
+            const searchParam = `%${search}%`;
+            const searchCondition = ' AND (d.student_name LIKE ? OR COALESCE(d.faculty_name, f.name) LIKE ? OR d.demo_id LIKE ?)';
+            query += searchCondition;
+            countQuery += searchCondition;
+            params.push(searchParam, searchParam, searchParam);
+        }
+
+        query += ' ORDER BY d.id DESC';
+
+        if (page) {
+            const pageNum = parseInt(page) || 1;
+            const limitNum = parseInt(limit) || 50;
+            const offset = (pageNum - 1) * limitNum;
+
+            const [countResult] = await db.query(countQuery, params);
+            const total = countResult[0].total;
+
+            query += ' LIMIT ? OFFSET ?';
+            params.push(limitNum, offset);
+
+            const [rows] = await db.query(query, params);
+            res.status(200).json({ success: true, total, data: rows });
+        } else {
+            const [rows] = await db.query(query, params);
+            res.status(200).json({ success: true, data: rows });
+        }
     } catch (error) {
         console.error("GET_DEMOS_ERROR:", error);
         res.status(500).json({ success: false, message: error.message });

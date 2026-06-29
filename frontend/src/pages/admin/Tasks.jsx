@@ -14,7 +14,6 @@ const Tasks = () => {
  const { user } = useAuth();
  const isSuperAdmin = user?.role === 'super_admin';
  const [tasks, setTasks] = useState([]);
- const [filteredTasks, setFilteredTasks] = useState([]);
  const [loading, setLoading] = useState(true);
  const [expandedRowId, setExpandedRowId] = useState(null);
  const [isModalOpen, setIsModalOpen] = useState(false);
@@ -28,17 +27,32 @@ const Tasks = () => {
  priority: 'Medium'
  });
 
+ const [searchTerm, setSearchTerm] = useState('');
+ 
+ // Pagination State
+ const [page, setPage] = useState(1);
+ const limit = 50;
+ const [totalRecords, setTotalRecords] = useState(0);
+
  useEffect(() => {
- fetchTasks();
  fetchAssignees();
  }, []);
+
+ useEffect(() => {
+ fetchTasks();
+ }, [page, searchTerm, filterPriority]);
+
+ // Reset to page 1 when search or filter changes
+ useEffect(() => {
+ setPage(1);
+ }, [searchTerm, filterPriority]);
 
  const fetchTasks = async () => {
  try {
  setLoading(true);
- const response = await api.get('/tasks');
+ const response = await api.get(`/tasks?page=${page}&limit=${limit}&search=${encodeURIComponent(searchTerm)}&category=${encodeURIComponent(filterPriority || 'All')}`);
  setTasks(response.data.data);
- setFilteredTasks(response.data.data);
+ setTotalRecords(response.data.total || 0);
  setLoading(false);
  } catch (error) {
  toast.error("Failed to load tasks");
@@ -47,21 +61,11 @@ const Tasks = () => {
  };
 
  const handleSearch = (query) => {
- const filtered = tasks.filter(t =>
- t.title?.toLowerCase().includes(query.toLowerCase()) ||
- t.description?.toLowerCase().includes(query.toLowerCase()) ||
- t.mentor_name?.toLowerCase().includes(query.toLowerCase())
- );
- setFilteredTasks(filtered);
+ setSearchTerm(query);
  };
 
  const handleFilterChange = (priority) => {
  setFilterPriority(priority);
- if (!priority) {
- setFilteredTasks(tasks);
- } else {
- setFilteredTasks(tasks.filter(t => t.priority === priority));
- }
  };
 
  const priorityOptions = [
@@ -71,8 +75,14 @@ const Tasks = () => {
  { value: 'Low', label: 'Low Priority' }
  ];
 
- const handleExport = () => {
- if (filteredTasks.length === 0) {
+ const handleExport = async () => {
+ try {
+ const toastId = toast.loading('Fetching data for export...');
+ const response = await api.get(`/tasks?search=${encodeURIComponent(searchTerm)}&category=${encodeURIComponent(filterPriority || 'All')}&export=true`);
+ const exportData = response.data.data;
+ toast.dismiss(toastId);
+
+ if (!exportData || exportData.length === 0) {
  toast.error("No data to export");
  return;
  }
@@ -80,9 +90,9 @@ const Tasks = () => {
  const headers = ['Objective', 'Description', 'Mentor', 'Deadline', 'Priority', 'Status'];
  const csvContent = [
  headers.join(','),
- ...filteredTasks.map(t => [
- `"${t.title}"`,
- `"${t.description}"`,
+ ...exportData.map(t => [
+ `"${t.title || ''}"`,
+ `"${t.description || ''}"`,
  `"${t.mentor_name || 'Unassigned'}"`,
  t.deadline,
  t.priority,
@@ -100,6 +110,9 @@ const Tasks = () => {
  link.click();
  document.body.removeChild(link);
  toast.success("Tasks exported as CSV");
+ } catch (e) {
+ toast.error('Failed to export tasks');
+ }
  };
 
  const fetchAssignees = async () => {
@@ -351,25 +364,31 @@ const Tasks = () => {
  </div>
 
  <DataTable
- columns={columns}
- data={filteredTasks}
- loading={loading}
- onSearch={handleSearch}
- onFilter={
- <FilterDropdown
- value={filterPriority}
- onChange={handleFilterChange}
- options={priorityOptions}
- placeholder="Priority"
- />
- }
- onExport={handleExport}
- onDelete={isSuperAdmin ? handleDelete : undefined}
- searchPlaceholder="Filter tasks by objective or mentor..."
- expandedRowId={expandedRowId}
- onToggleExpand={(id) => setExpandedRowId(expandedRowId === id ? null : id)}
- renderMobileCard={renderTaskMobileCard}
- />
+  columns={columns}
+  data={tasks}
+  loading={loading}
+  onSearch={handleSearch}
+  onFilter={
+    <FilterDropdown
+      value={filterPriority}
+      onChange={handleFilterChange}
+      options={priorityOptions}
+      placeholder="Priority"
+    />
+  }
+  onExport={handleExport}
+  onDelete={isSuperAdmin ? handleDelete : undefined}
+  searchPlaceholder="Search tasks by title, description or mentor..."
+  filterValue={filterPriority}
+  onFilterChange={handleFilterChange}
+  expandedRowId={expandedRowId}
+  onToggleExpand={(id) => setExpandedRowId(expandedRowId === id ? null : id)}
+  renderMobileCard={renderTaskMobileCard}
+  page={page}
+  totalPages={Math.ceil(totalRecords / limit) || 1}
+  totalRecords={totalRecords}
+  onPageChange={setPage}
+  />
 
  <Modal
  isOpen={isModalOpen}

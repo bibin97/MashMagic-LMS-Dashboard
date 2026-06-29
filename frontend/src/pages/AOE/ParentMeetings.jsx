@@ -3,6 +3,8 @@ import api from '../../services/api';
 import { Users, Calendar, Clock, Video, FileText, PlusCircle, CheckCircle2, BookOpen, ListTodo, Presentation } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useAuth } from '../../context/AuthContext';
+import Pagination from '../../components/common/Pagination';
+import MobileCard from '../../components/common/MobileCard';
 const ParentMeetings = ({
   isEmbedded
 }) => {
@@ -24,10 +26,24 @@ const ParentMeetings = ({
     id: null,
     notes: ''
   });
+  const [page, setPage] = useState(1);
+  const [limit] = useState(50);
+  const [totalRecords, setTotalRecords] = useState(0);
+  const [pendingCount, setPendingCount] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [expandedMeetingId, setExpandedMeetingId] = useState(null);
+
   useEffect(() => {
     fetchStudents();
-    fetchMeetings();
   }, []);
+
+  useEffect(() => {
+    setPage(1);
+  }, [activeTab]);
+
+  useEffect(() => {
+    fetchMeetings();
+  }, [page, activeTab]);
   const fetchStudents = async () => {
     try {
       const res = await api.get('/aoe/students-all');
@@ -38,10 +54,24 @@ const ParentMeetings = ({
   };
   const fetchMeetings = async () => {
     try {
-      const res = await api.get('/aoe/parent-meetings');
+      setLoading(true);
+      if (activeTab === 'schedule') {
+        const res = await api.get('/aoe/parent-meetings?status=Scheduled&page=1&limit=1');
+        setPendingCount(res.data.total || 0);
+        setLoading(false);
+        return;
+      }
+      const status = activeTab === 'report' ? 'Scheduled' : 'Completed';
+      const res = await api.get(`/aoe/parent-meetings?status=${status}&page=${page}&limit=${limit}`);
+      if (activeTab === 'report') {
+        setPendingCount(res.data.total || 0);
+      }
       setMeetings(res.data.data || []);
+      setTotalRecords(res.data.total || 0);
     } catch (err) {
       toast.error('Failed to fetch meetings');
+    } finally {
+      setLoading(false);
     }
   };
   const handleScheduleSubmit = async e => {
@@ -83,8 +113,8 @@ const ParentMeetings = ({
       toast.error('Failed to submit report');
     }
   };
-  const scheduledMeetings = meetings.filter(m => m.status === 'Scheduled');
-  const completedMeetings = meetings.filter(m => m.status === 'Completed');
+  const scheduledMeetings = activeTab === 'report' ? meetings : [];
+  const completedMeetings = activeTab === 'view' ? meetings : [];
   return <div className={isEmbedded ? "" : "min-h-screen bg-slate-50/50 p-4 md:p-8"}>
       <div className="max-w-7xl mx-auto space-y-6">
         
@@ -107,7 +137,7 @@ const ParentMeetings = ({
               <PlusCircle size={16} /> Schedule Meeting
             </button>
             <button onClick={() => setActiveTab('report')} className={`pb-4 px-4 font-black uppercase text-xs tracking-widest transition-all flex items-center gap-2 ${activeTab === 'report' ? 'text-amber-500 border-b-2 border-amber-500' : 'text-slate-400 hover:text-slate-600'}`}>
-              <ListTodo size={16} /> Report / Active ({scheduledMeetings.length})
+              <ListTodo size={16} /> Report / Active ({pendingCount})
             </button>
             <button onClick={() => setActiveTab('view')} className={`pb-4 px-4 font-black uppercase text-xs tracking-widest transition-all flex items-center gap-2 ${activeTab === 'view' ? 'text-emerald-500 border-b-2 border-emerald-500' : 'text-slate-400 hover:text-slate-600'}`}>
               <CheckCircle2 size={16} /> Completed View
@@ -208,10 +238,22 @@ const ParentMeetings = ({
                     </div>
                   </div>)}
               </div>}
+            
+            {/* Pagination Component */}
+            {(!loading && scheduledMeetings.length > 0) && (
+              <div className="p-4 md:p-6 bg-white rounded-3xl border border-slate-100 shadow-sm mt-4">
+                <Pagination 
+                  currentPage={page} 
+                  totalPages={Math.ceil(totalRecords / limit) || 1} 
+                  totalRecords={totalRecords} 
+                  onPageChange={setPage} 
+                />
+              </div>
+            )}
           </div>}
 
         {activeTab === 'view' && <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
-            <div className="overflow-x-auto">
+            <div className="hidden md:block overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="bg-slate-50 border-b border-slate-100">
@@ -255,6 +297,73 @@ const ParentMeetings = ({
                 </tbody>
               </table>
             </div>
+            
+            <div className="md:hidden flex flex-col gap-4 p-4 bg-slate-50/50">
+                {completedMeetings.length > 0 ? completedMeetings.map((m) => {
+                    let summary = '';
+                    try {
+                        summary = typeof m.report_data === 'string' ? JSON.parse(m.report_data).summary : m.report_data?.summary || '';
+                    } catch (e) {
+                        summary = m.report_data;
+                    }
+                    
+                    return (
+                        <MobileCard
+                            key={m.id}
+                            isExpanded={expandedMeetingId === m.id}
+                            onToggle={() => setExpandedMeetingId(expandedMeetingId === m.id ? null : m.id)}
+                            avatar={
+                                <div className="w-10 h-10 bg-gradient-to-br from-slate-100 to-slate-200 rounded-xl flex items-center justify-center text-slate-600 font-black shadow-inner">
+                                    <Presentation size={18} />
+                                </div>
+                            }
+                            title={
+                                <span className="flex items-center gap-1 text-slate-900 font-bold">
+                                    {m.student_name}
+                                </span>
+                            }
+                            subtitle={
+                                <span className="flex items-center gap-1 text-[10px] text-slate-500 font-medium">
+                                    <Calendar size={10} /> {new Date(m.meeting_date).toLocaleDateString('en-GB')} at {m.meeting_time}
+                                </span>
+                            }
+                            content={
+                                <div className="flex flex-col gap-3 mt-3">
+                                    {m.notes && (
+                                        <div className="pt-2 border-t border-slate-100">
+                                            <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1">Agenda</span>
+                                            <p className="text-xs text-slate-700 font-medium">{m.notes}</p>
+                                        </div>
+                                    )}
+                                    <div className="pt-2 border-t border-slate-100">
+                                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1">Report / Summary</span>
+                                        <p className="text-xs text-slate-700 font-medium p-2 bg-emerald-50/50 rounded-lg">{summary || '-'}</p>
+                                    </div>
+                                    <div className="pt-2 border-t border-slate-100 flex justify-between items-center">
+                                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest block">Handled By</span>
+                                        <span className="text-xs text-slate-700 font-bold">{m.academic_operation_executive_name}</span>
+                                    </div>
+                                </div>
+                            }
+                        />
+                    );
+                }) : (
+                    <div className="px-8 py-12 text-center bg-white rounded-2xl border border-slate-100">
+                        <p className="text-slate-600 font-black text-[10px] uppercase tracking-[0.3em]">No completed meetings found</p>
+                    </div>
+                )}
+            </div>
+            {/* Pagination Component */}
+            {(!loading && completedMeetings.length > 0) && (
+              <div className="p-4 md:p-6 border-t border-slate-100 bg-slate-50/50">
+                <Pagination 
+                  currentPage={page} 
+                  totalPages={Math.ceil(totalRecords / limit) || 1} 
+                  totalRecords={totalRecords} 
+                  onPageChange={setPage} 
+                />
+              </div>
+            )}
           </div>}
 
       </div>

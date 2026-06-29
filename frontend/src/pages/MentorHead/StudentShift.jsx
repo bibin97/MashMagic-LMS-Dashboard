@@ -2,6 +2,7 @@ import React, { useState, useEffect, useDeferredValue, useRef } from 'react';
 import axios from 'axios';
 import { RefreshCw, Search, ArrowRight, User, CheckCircle2, AlertTriangle, X, Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import Pagination from '../../components/common/Pagination';
 
 const StudentShift = () => {
   const [students, setStudents] = useState([]);
@@ -10,6 +11,11 @@ const StudentShift = () => {
   
   const [searchTerm, setSearchTerm] = useState('');
   const deferredSearchTerm = useDeferredValue(searchTerm);
+  
+  // Pagination State
+  const [page, setPage] = useState(1);
+  const limit = 50;
+  const [totalRecords, setTotalRecords] = useState(0);
   
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [selectedMentor, setSelectedMentor] = useState('');
@@ -21,18 +27,24 @@ const StudentShift = () => {
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [page, deferredSearchTerm]);
+
+  // Reset to page 1 when search changes
+  useEffect(() => {
+    setPage(1);
+  }, [deferredSearchTerm]);
 
   const fetchData = async () => {
     try {
       const token = sessionStorage.getItem('token');
       const [studentsRes, mentorsRes] = await Promise.all([
-        axios.get('/api/mentor-head/all-students', { headers: { Authorization: `Bearer ${token}` } }),
+        axios.get(`/api/mentor-head/all-students?page=${page}&limit=${limit}&search=${encodeURIComponent(deferredSearchTerm)}`, { headers: { Authorization: `Bearer ${token}` } }),
         axios.get('/api/mentor-head/mentors-all', { headers: { Authorization: `Bearer ${token}` } })
       ]);
 
       if (studentsRes.data.success) {
-        setStudents((studentsRes.data.data || []).sort((a, b) => (a.name || '').localeCompare(b.name || '')));
+        setStudents(studentsRes.data.data || []);
+        setTotalRecords(studentsRes.data.total || 0);
       }
       if (mentorsRes.data.success) {
         setMentors(mentorsRes.data.data);
@@ -108,12 +120,7 @@ const StudentShift = () => {
     setShowConfirmModal(true);
   };
 
-  const filteredStudents = students.filter(s => {
-    const nameStr = s.name || '';
-    const courseStr = s.course || '';
-    return nameStr.toLowerCase().includes(deferredSearchTerm.toLowerCase()) ||
-           courseStr.toLowerCase().includes(deferredSearchTerm.toLowerCase());
-  });
+  const filteredStudents = students;
 
   const getMentorName = (id) => mentors.find(m => m.id === id)?.name || 'None';
   const getMentorObject = (id) => mentors.find(m => m.id === parseInt(id));
@@ -207,6 +214,15 @@ const StudentShift = () => {
                 <p className="text-[11px] md:text-xs font-bold uppercase tracking-widest">No students found</p>
               </div>
             )}
+          </div>
+          
+          <div className="mt-4 pt-2 border-t border-slate-100">
+             <Pagination 
+               currentPage={page} 
+               totalPages={Math.ceil(totalRecords / limit) || 1} 
+               totalRecords={totalRecords} 
+               onPageChange={setPage} 
+             />
           </div>
         </div>
 

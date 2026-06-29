@@ -1,10 +1,11 @@
 import React, {  useState, useEffect , useDeferredValue } from 'react';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
+import Pagination from '../../components/common/Pagination';
 import { 
   CalendarDays, ListTodo, Plus, Target, Presentation, 
   Video, RefreshCcw, Save, XCircle, Search, Clock, DollarSign, User, BookOpen,
-  CheckCircle, CheckCircle2, Pencil, Trash2, Star, MessageSquare, Link as LinkIcon
+  CheckCircle, CheckCircle2, Pencil, Trash2, Star, MessageSquare, Link as LinkIcon, AlertCircle, SearchX, Calendar, ArrowUpRight
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -31,10 +32,18 @@ const AOEDemoSchedule = () => {
   const [showSubjectSuggestions, setShowSubjectSuggestions] = useState(false);
   const [demoList, setDemoList] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
-	const deferredSearchTerm = useDeferredValue(searchTerm);
+  const deferredSearchTerm = useDeferredValue(searchTerm);
   const [nextDemoId, setNextDemoId] = useState('DE01');
   const [nextPreDemoId, setNextPreDemoId] = useState('DE01');
   const navigate = useNavigate();
+  const [filterType, setFilterType] = useState('demo');
+  const [page, setPage] = useState(1);
+  const limit = 50;
+  const [totalRecords, setTotalRecords] = useState(0);
+
+  // Helper date/time formatters
+  const formatDate = (dateStr) => new Date(dateStr).toLocaleDateString('en-GB');
+  const formatTime = (timeStr) => formatTime12h(timeStr);
 
   // Current time state for Live button logic
   const [currentTimeMinutes, setCurrentTimeMinutes] = useState(() => {
@@ -66,6 +75,7 @@ const AOEDemoSchedule = () => {
   // Modal State
   const [showModal, setShowModal] = useState(false);
   const [selectedDemo, setSelectedDemo] = useState(null);
+  const [modalMode, setModalMode] = useState('evaluate');
   const [evalData, setEvalData] = useState({
     prep_score: 0,
     comm_score: 0,
@@ -74,6 +84,7 @@ const AOEDemoSchedule = () => {
     parent_score: 0,
     remarks: ''
   });
+  const [updateFormData, setUpdateFormData] = useState({});
 
   // Edit Modal State
   const [showEditModal, setShowEditModal] = useState(false);
@@ -107,8 +118,6 @@ const AOEDemoSchedule = () => {
     return () => clearInterval(interval);
   }, []);
 
-
-
   const fetchStudents = async () => {
     try {
       const response = await api.get('/aoe/students');
@@ -131,12 +140,23 @@ const AOEDemoSchedule = () => {
     }
   };
 
+  useEffect(() => {
+    fetchDemos();
+  }, [page, filterType, deferredSearchTerm]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [filterType, deferredSearchTerm]);
+
   const fetchDemos = async () => {
     setLoading(true);
     try {
-      const response = await api.get('/aoe/demo-schedules');
+      const response = await api.get('/aoe/demo-schedules', {
+        params: { page, limit, type: filterType, search: deferredSearchTerm }
+      });
       if (response.data.success) {
-        setDemoList(response.data.data);
+        setDemoList(response.data.data || []);
+        setTotalRecords(response.data.total || 0);
       }
     } catch (error) {
       toast.error('Failed to fetch demo schedules');
@@ -157,7 +177,6 @@ const AOEDemoSchedule = () => {
       console.error('Failed to fetch next demo IDs', error);
     }
   };
-
 
   const handlePreDemoSubmit = async (e) => {
     e.preventDefault();
@@ -324,11 +343,7 @@ const AOEDemoSchedule = () => {
     }
   };
 
-  const filteredDemos = demoList.filter(d => 
-    (activeTab === 'pre-demo' ? d.type === 'pre-demo' : (!d.type || d.type === 'demo')) &&
-    (d.student_name?.toLowerCase().includes(deferredSearchTerm.toLowerCase()) || 
-     d.faculty_name?.toLowerCase().includes(deferredSearchTerm.toLowerCase()))
-  );
+  const filteredDemos = demoList;
 
   return (
     <div className="space-y-8 pb-20 max-w-[1600px] mx-auto min-h-screen">
@@ -344,7 +359,7 @@ const AOEDemoSchedule = () => {
       {/* Tabs Menu */}
       <div className="flex flex-wrap gap-4 p-2 bg-slate-50/80 backdrop-blur-md rounded-[2rem] border border-slate-200 shadow-inner">
         <button
-          onClick={() => setActiveTab('demo')}
+          onClick={() => { setActiveTab('demo'); setFilterType('demo'); }}
           className={`flex-1 min-w-[200px] py-4 rounded-[1.5rem] text-[10px] font-black uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3 ${
             activeTab === 'demo'
               ? 'bg-white text-[#008080] shadow-md border-b-2 border-b-[#008080]'
@@ -354,7 +369,7 @@ const AOEDemoSchedule = () => {
           <ListTodo size={16} /> Demo Schedule
         </button>
         <button
-          onClick={() => setActiveTab('pre-demo')}
+          onClick={() => { setActiveTab('pre-demo'); setFilterType('pre-demo'); }}
           className={`flex-1 min-w-[200px] py-4 rounded-[1.5rem] text-[10px] font-black uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3 ${
             activeTab === 'pre-demo'
               ? 'bg-white text-emerald-600 shadow-md border-b-2 border-b-emerald-600'
@@ -843,125 +858,128 @@ const AOEDemoSchedule = () => {
           {loading ? (
             <div className="flex justify-center p-20"><div className="w-10 h-10 border-4 border-[#008080] border-t-transparent rounded-full animate-spin"></div></div>
           ) : filteredDemos.length === 0 ? (
-            <div className="text-center p-20 text-slate-400 font-bold uppercase tracking-widest text-[10px]">No demo schedules found.</div>
+            <div className="py-20 text-center bg-white rounded-[2rem] border border-slate-100 shadow-sm">
+              <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                <SearchX size={32} className="text-slate-300" />
+              </div>
+              <h3 className="text-xl font-black text-slate-900 tracking-tight">No Demos Found</h3>
+              <p className="text-slate-500 font-medium text-sm mt-2">Adjust your search or filter criteria</p>
+            </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="space-y-6">
               {filteredDemos.map(demo => (
-                <div key={demo.id} className={`p-6 rounded-[2rem] border shadow-sm transition-all hover:shadow-lg ${demo.status === 'completed' ? 'bg-emerald-50/30 border-emerald-100' : 'bg-white border-slate-100'}`}>
-                  <div className="flex justify-between items-start mb-4">
-                    <div>
-                      <span className="text-[9px] font-black px-3 py-1 bg-slate-100 text-slate-600 rounded-full uppercase tracking-widest">
-                        Demo #{demo.demo_id || demo.id}
-                      </span>
-                      <h3 className="text-lg font-black text-slate-900 mt-2">{demo.student_name}</h3>
-                      <p className="text-[10px] font-black text-[#008080] uppercase tracking-widest">{demo.student_type} Student</p>
+                <div key={demo.id} className="bg-white rounded-[2rem] border border-slate-100 shadow-sm p-6 md:p-8 hover:shadow-xl transition-all duration-300 relative overflow-hidden group">
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-slate-50 rounded-full -mr-16 -mt-16 transition-transform duration-500 group-hover:scale-150"></div>
+                  
+                  {/* Status Indicator */}
+                  <div className={`absolute left-0 top-0 bottom-0 w-1.5 ${
+                    demo.status === 'scheduled' ? 'bg-emerald-500' :
+                    demo.status === 'completed' ? 'bg-[#008080]' :
+                    demo.status === 'cancelled' ? 'bg-rose-500' : 'bg-amber-500'
+                  }`}></div>
+
+                  <div className="relative z-10 flex flex-col lg:flex-row gap-8 justify-between">
+                    <div className="flex-1 space-y-4">
+                      <div className="flex items-center gap-4">
+                        <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${
+                          demo.type === 'demo' ? 'bg-indigo-50 text-indigo-600' : 'bg-emerald-50 text-emerald-600'
+                        }`}>
+                          {demo.type === 'pre-demo' ? 'Pre-Demo' : 'Demo'}
+                        </span>
+                        <span className="text-sm font-bold text-slate-400">ID: {demo.demo_id}</span>
+                      </div>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Student</p>
+                          <p className="text-lg font-black text-slate-900">{demo.student_name}</p>
+                          <p className="text-sm font-medium text-slate-500 mt-1">{demo.student_type} • {demo.syllabus}</p>
+                        </div>
+                        <div>
+                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Faculty / Subject</p>
+                          <p className="text-lg font-black text-slate-900">{demo.faculty_name || 'Unassigned'}</p>
+                          <p className="text-sm font-medium text-slate-500 mt-1">{demo.subject} • Sec {demo.section}</p>
+                        </div>
+                      </div>
                     </div>
-                    {demo.status === 'completed' ? (
-                      <div className="flex gap-4">
-                        <div className="text-center mt-2">
-                          <span className="block text-[20px] font-black text-emerald-600">{demo.total_score}/50</span>
-                          <span className="text-[8px] font-black text-emerald-500 uppercase tracking-widest">Score</span>
+
+                    <div className="flex flex-col gap-4 min-w-[200px]">
+                      <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100">
+                        <div className="flex items-center gap-3 mb-2">
+                          <Calendar size={16} className="text-[#008080]" />
+                          <span className="font-bold text-slate-700">{formatDate(demo.date)}</span>
                         </div>
-                        <div className="flex flex-col gap-2 mt-1 border-l pl-4 border-slate-100">
+                        <div className="flex items-center gap-3">
+                          <Clock size={16} className="text-[#008080]" />
+                          <span className="font-bold text-slate-700">{formatTime(demo.start_time)} - {formatTime(demo.end_time)}</span>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center gap-3 justify-between">
+                        <span className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider border ${
+                          demo.status === 'scheduled' ? 'bg-emerald-50 border-emerald-200 text-emerald-700' :
+                          demo.status === 'completed' ? 'bg-slate-50 border-slate-200 text-slate-700' :
+                          demo.status === 'cancelled' ? 'bg-rose-50 border-rose-200 text-rose-700' : 'bg-amber-50 border-amber-200 text-amber-700'
+                        }`}>
+                          {demo.status}
+                        </span>
+                        
+                        <div className="flex gap-2">
+                          {demo.meeting_link && (
+                            <a 
+                              href={demo.meeting_link} 
+                              target="_blank" 
+                              rel="noreferrer"
+                              className="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center hover:bg-indigo-100 transition-colors"
+                              title="Join Meeting"
+                            >
+                              <Video size={18} />
+                            </a>
+                          )}
                           <button 
-                            onClick={() => handleToggleSuccess(demo.id)}
-                            className={`transition-colors ${demo.is_successful ? 'text-emerald-500 hover:text-emerald-600' : 'text-slate-300 hover:text-emerald-400'}`}
-                            title={demo.is_successful ? "Mark as unsuccessful" : "Mark as successful"}
+                            onClick={() => openEvaluationModal(demo)}
+                            className="w-10 h-10 bg-slate-100 text-slate-600 rounded-xl flex items-center justify-center hover:bg-[#008080] hover:text-white transition-colors shadow-sm"
+                            title="Update Status/Score"
                           >
-                            <CheckCircle2 size={16} />
-                          </button>
-                          <button 
-                            onClick={() => handleEditClick(demo)}
-                            className="text-emerald-400 hover:text-indigo-600 transition-colors"
-                            title="Edit Demo"
-                          >
-                            <Pencil size={16} />
-                          </button>
-                          <button 
-                            onClick={() => handleDeleteClick(demo.id)}
-                            className="text-emerald-400 hover:text-rose-600 transition-colors"
-                            title="Delete Demo"
-                          >
-                            <Trash2 size={16} />
+                            <ArrowUpRight size={18} />
                           </button>
                         </div>
                       </div>
-                    ) : (
-                      <div className="flex gap-4">
-                        <div className="flex flex-col items-center mt-2">
-                          <span className="text-[9px] font-black px-3 py-1 bg-amber-100 text-amber-600 rounded-full uppercase tracking-widest">Pending</span>
-                        </div>
-                        <div className="flex flex-col gap-2 mt-1 border-l pl-4 border-slate-100">
-                          <button 
-                            onClick={() => handleToggleSuccess(demo.id)}
-                            className={`transition-colors ${demo.is_successful ? 'text-emerald-500 hover:text-emerald-600' : 'text-slate-300 hover:text-emerald-400'}`}
-                            title={demo.is_successful ? "Mark as unsuccessful" : "Mark as successful"}
-                          >
-                            <CheckCircle2 size={16} />
-                          </button>
-                          <button 
-                            onClick={() => handleEditClick(demo)}
-                            className="text-slate-400 hover:text-indigo-600 transition-colors"
-                            title="Edit Demo"
-                          >
-                            <Pencil size={16} />
-                          </button>
-                          <button 
-                            onClick={() => handleDeleteClick(demo.id)}
-                            className="text-slate-400 hover:text-rose-600 transition-colors"
-                            title="Delete Demo"
-                          >
-                            <Trash2 size={16} />
-                          </button>
-                        </div>
-                      </div>
-                    )}
+                    </div>
                   </div>
                   
-                  <div className="space-y-2 mb-6 text-xs font-bold text-slate-600">
-                    {demo.date && <p className="flex items-center gap-2"><CalendarDays size={14} className="text-slate-400"/> {new Date(demo.date).toLocaleDateString('en-GB')}</p>}
-                    <p className="flex items-center gap-2"><BookOpen size={14} className="text-slate-400"/> {demo.subject}</p>
-                    {demo.faculty_name && <p className="flex items-center gap-2"><Presentation size={14} className="text-slate-400"/> {demo.faculty_name}</p>}
-                    {demo.start_time && demo.end_time && <p className="flex items-center gap-2"><Clock size={14} className="text-slate-400"/> {formatTime12h(demo.start_time)} - {formatTime12h(demo.end_time)}</p>}
-                    {demo.meeting_link && (
-                      <p className="flex items-center gap-2">
-                        <Video size={14} className="text-slate-400"/> 
-                        <a href={demo.meeting_link} target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:underline truncate max-w-[200px]">
-                          Join Meeting
-                        </a>
-                      </p>
-                    )}
-                  </div>
-
-                  <div className="flex items-center gap-3 pt-4 border-t border-slate-100">
-                    {(() => {
-                      let isLive = false;
-                      if (demo.start_time && demo.end_time) {
-                        const [startH, startM] = demo.start_time.split(':').map(Number);
-                        const [endH, endM] = demo.end_time.split(':').map(Number);
-                        const startMins = startH * 60 + startM;
-                        const endMins = endH * 60 + endM;
-                        isLive = currentTimeMinutes >= startMins && currentTimeMinutes <= endMins;
-                      }
-
-                      return (
-                        <button className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 ${
-                          isLive 
-                            ? 'bg-rose-500 text-white animate-pulse shadow-[0_0_15px_rgba(244,63,94,0.5)]' 
-                            : 'bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white'
-                        }`}>
-                          <Video size={14} className={isLive ? "text-white" : ""} /> Live
-                        </button>
-                      );
-                    })()}
-                    
-                    <button 
-                      onClick={() => openEvaluationModal(demo)}
-                      className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${demo.status === 'completed' ? 'bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white' : 'bg-slate-50 text-slate-400 hover:bg-slate-800 hover:text-white'}`}
-                    >
-                      {demo.status === 'completed' ? 'Update Eval' : 'Evaluate'}
-                    </button>
-                  </div>
+                  {/* Scores Preview for Completed */}
+                  {demo.status === 'completed' && demo.total_score > 0 && (
+                    <div className="mt-6 pt-6 border-t border-slate-100 flex items-center gap-6 overflow-x-auto relative z-10">
+                      <div>
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Score</p>
+                        <p className="text-2xl font-black text-[#008080]">{demo.total_score}<span className="text-sm text-slate-400">/50</span></p>
+                      </div>
+                      <div className="w-px h-10 bg-slate-200"></div>
+                      <div className="flex gap-8 min-w-max">
+                        <div>
+                          <p className="text-[9px] font-bold text-slate-400 uppercase">Prep</p>
+                          <p className="font-bold text-slate-700">{demo.prep_score}/10</p>
+                        </div>
+                        <div>
+                          <p className="text-[9px] font-bold text-slate-400 uppercase">Comm</p>
+                          <p className="font-bold text-slate-700">{demo.comm_score}/10</p>
+                        </div>
+                        <div>
+                          <p className="text-[9px] font-bold text-slate-400 uppercase">Concept</p>
+                          <p className="font-bold text-slate-700">{demo.concept_score}/10</p>
+                        </div>
+                        <div>
+                          <p className="text-[9px] font-bold text-slate-400 uppercase">Engage</p>
+                          <p className="font-bold text-slate-700">{demo.engage_score}/10</p>
+                        </div>
+                        <div>
+                          <p className="text-[9px] font-bold text-slate-400 uppercase">Parent</p>
+                          <p className="font-bold text-slate-700">{demo.parent_score}/10</p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>

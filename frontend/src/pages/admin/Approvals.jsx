@@ -3,17 +3,27 @@ import { Activity, CheckCircle, XCircle, Loader2, Shield, User, Calendar, ArrowU
 import api from '../../services/api';
 import toast from 'react-hot-toast';
 import { premiumConfirm } from '../../utils/premiumConfirm';
+import Pagination from '../../components/common/Pagination';
 const Approvals = () => {
   const [pendingUsers, setPendingUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalRecords, setTotalRecords] = useState(0);
+
   useEffect(() => {
-    fetchAllData();
+    fetchAllData(1);
   }, []);
-  const fetchAllData = async () => {
+  const fetchAllData = async (page = 1) => {
     setLoading(true);
     try {
-      const pendingRes = await api.get('/admin/pending-users');
-      if (pendingRes.data.success) setPendingUsers(pendingRes.data.data);
+      const pendingRes = await api.get(`/admin/pending-users?page=${page}&limit=50`);
+      if (pendingRes.data.success) {
+        setPendingUsers(pendingRes.data.data);
+        setTotalPages(pendingRes.data.totalPages || 1);
+        setTotalRecords(pendingRes.data.total || 0);
+        setCurrentPage(pendingRes.data.currentPage || 1);
+      }
     } catch (error) {
       console.error('Error fetching data:', error);
       toast.error("Failed to load dashboard data");
@@ -100,7 +110,7 @@ const Approvals = () => {
           <div className="bg-[#008080] px-8 py-4 rounded-[28px] border border-slate-800 shadow-2xl flex items-center gap-4">
             <div className="flex flex-col">
               <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none mb-1">Pending</span>
-              <span className="text-2xl font-black text-white leading-none">{pendingUsers.length}</span>
+              <span className="text-2xl font-black text-white leading-none">{totalRecords}</span>
             </div>
             <Activity className="text-amber-500" size={20} />
           </div>
@@ -160,6 +170,15 @@ const Approvals = () => {
                     </div>
                   </div>
                 ))}
+                {totalPages > 1 && (
+                  <Pagination 
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    totalRecords={totalRecords}
+                    onPageChange={(page) => fetchAllData(page)}
+                    entityName="Pending Users"
+                  />
+                )}
               </div>
             ) : <div className="flex flex-col items-center justify-center py-20 text-slate-400">
                 <CheckCircle size={32} className="mb-4 opacity-20" />

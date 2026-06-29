@@ -2,26 +2,48 @@ import React, { useState, useEffect, useMemo } from 'react';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
 import { Users, UserMinus, Search, AlertTriangle, X, Loader2, UserX } from 'lucide-react';
-import StudentListFilterDropdown, { sortStudentsByOption } from '../../components/StudentListFilterDropdown';
+import StudentListFilterDropdown from '../../components/StudentListFilterDropdown';
+import Pagination from '../../components/common/Pagination';
 
 const RemoveMentors = () => {
   const [students, setStudents] = useState([]);
+  const [stats, setStats] = useState({
+    totalEnrollment: 0,
+    removedCount: 0,
+    courseCompletedCount: 0,
+    activeCount: 0
+  });
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState('');
   const [filterMode, setFilterMode] = useState('all'); // 'all', 'active', 'completed', 'removed'
   const [actionLoading, setActionLoading] = useState(null);
   
+  // Pagination State
+  const [page, setPage] = useState(1);
+  const limit = 50;
+  const [totalRecords, setTotalRecords] = useState(0);
+  
   const [studentToRemove, setStudentToRemove] = useState(null);
 
   useEffect(() => {
     fetchStudents();
-  }, []);
+  }, [page, filterMode, sortBy, searchTerm]);
+
+  // Reset page to 1 when filters or search change
+  useEffect(() => {
+    setPage(1);
+  }, [filterMode, sortBy, searchTerm]);
 
   const fetchStudents = async () => {
     try {
-      const res = await api.get('/mentor-head/students');
+      setLoading(true);
+      const res = await api.get(`/mentor-head/students?page=${page}&limit=${limit}&filterMode=${filterMode}&sortBy=${sortBy}&search=${encodeURIComponent(searchTerm)}&stats=true`);
       setStudents(res.data.data || []);
+      setTotalRecords(res.data.total || 0);
+      if (res.data.stats) {
+        setStats(res.data.stats);
+      }
     } catch (error) {
       toast.error('Failed to load students');
     } finally {
@@ -61,32 +83,9 @@ const RemoveMentors = () => {
     }
   };
 
-  const filteredStudents = useMemo(() => {
-    let filtered = students;
-    
-    if (filterMode === 'removed') {
-      filtered = filtered.filter(s => !s.mentor_id && s.previous_mentor_name);
-    } else if (filterMode === 'completed') {
-      filtered = filtered.filter(s => s.course_status === 'completed');
-    } else if (filterMode === 'active') {
-      filtered = filtered.filter(s => s.course_status !== 'completed' && s.connected_today);
-    }
+  const filteredStudents = students;
 
-    if (searchTerm) {
-      filtered = filtered.filter(s => 
-        (s.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (s.mentor_name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (s.previous_mentor_name || '').toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-
-    return sortStudentsByOption(filtered, sortBy);
-  }, [students, searchTerm, sortBy, filterMode]);
-
-  const removedCount = students.filter(s => !s.mentor_id && s.previous_mentor_name).length;
-  const courseCompletedCount = students.filter(s => s.course_status === 'completed').length;
-  const activeCount = students.filter(s => s.course_status !== 'completed' && s.connected_today).length;
-  const totalEnrollment = students.length;
+  const { removedCount, courseCompletedCount, activeCount, totalEnrollment } = stats;
 
   return (
     <div className="space-y-6 md:space-y-12 pb-20 max-w-7xl mx-auto animate-in fade-in duration-500">
@@ -314,6 +313,16 @@ const RemoveMentors = () => {
                   </p>
                 </div>
               )}
+            </div>
+            
+            {/* Pagination */}
+            <div className="p-4 md:p-6 border-t border-slate-100 bg-white">
+               <Pagination 
+                 currentPage={page} 
+                 totalPages={Math.ceil(totalRecords / limit) || 1} 
+                 totalRecords={totalRecords} 
+                 onPageChange={setPage} 
+               />
             </div>
           </>
         )}

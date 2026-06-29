@@ -38,6 +38,11 @@ const Faculties = () => {
   const [selectedSubjects, setSelectedSubjects] = useState([]);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  
+  // Pagination State
+  const [page, setPage] = useState(1);
+  const limit = 50;
+  const [totalRecords, setTotalRecords] = useState(0);
 
   const toggleSyllabus = (syl) => {
     setSelectedSyllabi(prev => 
@@ -59,14 +64,20 @@ const Faculties = () => {
 
   useEffect(() => {
     fetchFaculties();
-  }, []);
+  }, [page, searchTerm]);
+
+  // Reset to page 1 when search or filters change
+  useEffect(() => {
+    setPage(1);
+  }, [searchTerm, selectedSyllabi, selectedSections, selectedSubjects]);
 
   const fetchFaculties = async () => {
     try {
       setLoading(true);
-      const response = await api.get('/admin/faculties');
+      const response = await api.get(`/admin/faculties?page=${page}&limit=${limit}&search=${encodeURIComponent(searchTerm)}`);
       const realFaculties = response.data.data;
       setFaculties(realFaculties);
+      setTotalRecords(response.data.total || 0);
       setLoading(false);
     } catch (error) {
       toast.error("Failed to fetch faculties");
@@ -485,11 +496,15 @@ const Faculties = () => {
 
   <DataTable
     columns={columns}
-    data={sortedFaculties}
+    data={filteredFaculties}
     loading={loading}
     onSearch={(query) => setSearchTerm(query)}
     onExport={handleExport}
     onView={handleView}
+    page={page}
+    totalPages={Math.ceil(totalRecords / limit) || 1}
+    totalRecords={totalRecords}
+    onPageChange={setPage}
     onFilter={
       <button 
         onClick={() => setIsFilterOpen(!isFilterOpen)}

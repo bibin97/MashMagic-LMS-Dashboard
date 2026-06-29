@@ -6,11 +6,16 @@ import toast from 'react-hot-toast';
 import { premiumConfirm } from '../../utils/premiumConfirm';
 import ExportButton from '../../components/common/ExportButton';
 import MobileCard from '../../components/common/MobileCard';
+import Pagination from '../../components/common/Pagination';
+
 const FacultyDirectory = ({
   role = 'academic_operation_executive'
 }) => {
   const [faculties, setFaculties] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [limit] = useState(50);
+  const [totalRecords, setTotalRecords] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
   const deferredSearchTerm = useDeferredValue(searchTerm);
   const [sortBy, setSortBy] = useState('newest');
@@ -64,18 +69,24 @@ const FacultyDirectory = ({
   }];
   const SUBJECT_OPTIONS = ["Mathematics", "Science", "Social Science", "English", "Malayalam", "Hindi", "Physics", "Chemistry", "Biology", "Accountancy", "Business Studies", "Economics", "Computer Science", "Arabic", "French", "IT", "EVS"];
   useEffect(() => {
+    setPage(1);
+  }, [deferredSearchTerm, selectedSyllabi, selectedSections, selectedSubjects, sortBy, activeTab]);
+
+  useEffect(() => {
     if (activeTab === 'directory') {
       fetchFaculties();
     } else {
       fetchEditHistory();
     }
-  }, [sortBy, activeTab]);
+  }, [page, sortBy, activeTab, deferredSearchTerm, selectedSyllabi, selectedSections, selectedSubjects]);
+
   const fetchEditHistory = async () => {
     try {
       setLoading(true);
-      const res = await api.get('/aoe/faculty-history');
+      const res = await api.get(`/aoe/faculty-history?page=${page}&limit=${limit}`);
       if (res.data.success) {
         setEditHistory(res.data.data);
+        setTotalRecords(res.data.total || 0);
       }
     } catch (e) {
       toast.error("Failed to fetch history");
@@ -83,12 +94,20 @@ const FacultyDirectory = ({
       setLoading(false);
     }
   };
+
   const fetchFaculties = async () => {
     try {
       setLoading(true);
-      const res = await api.get(`/aoe/faculties?sortBy=${sortBy}`);
+      const params = new URLSearchParams({ page, limit, sortBy });
+      if (deferredSearchTerm) params.append('search', deferredSearchTerm);
+      if (selectedSyllabi.length > 0) params.append('syllabi', selectedSyllabi.join(','));
+      if (selectedSections.length > 0) params.append('sections', selectedSections.join(','));
+      if (selectedSubjects.length > 0) params.append('subjects', selectedSubjects.join(','));
+      
+      const res = await api.get(`/aoe/faculties?${params.toString()}`);
       if (res.data.success) {
         setFaculties(res.data.data);
+        setTotalRecords(res.data.total || 0);
       }
     } catch (error) {
       toast.error("Failed to fetch faculty directory");
@@ -96,6 +115,7 @@ const FacultyDirectory = ({
       setLoading(false);
     }
   };
+
   const handleEditFaculty = faculty => {
     navigate(`${navBasePath}/edit-faculty/${faculty.id}`);
   };
@@ -120,28 +140,8 @@ const FacultyDirectory = ({
       }
     }
   };
-  const filteredFaculties = faculties.filter(f => {
-    const matchesSearch = deferredSearchTerm === '' || f.name.toLowerCase().includes(deferredSearchTerm.toLowerCase()) || f.email?.toLowerCase().includes(deferredSearchTerm.toLowerCase()) || f.subject?.toLowerCase().includes(deferredSearchTerm.toLowerCase());
-    let matchesSyllabus = true;
-    if (selectedSyllabi.length > 0) {
-      const fSyllabus = f.syllabus ? typeof f.syllabus === 'string' ? f.syllabus.split(',') : Array.isArray(f.syllabus) ? f.syllabus : [f.syllabus] : [];
-      const normalizedSyllabi = fSyllabus.map(s => s.trim().toUpperCase());
-      matchesSyllabus = selectedSyllabi.some(syl => normalizedSyllabi.includes(syl.toUpperCase()));
-    }
-    let matchesSection = true;
-    if (selectedSections.length > 0) {
-      const fSection = f.section ? typeof f.section === 'string' ? f.section.split(',') : Array.isArray(f.section) ? f.section : [f.section] : [];
-      const normalizedSections = fSection.map(s => s.trim().toUpperCase());
-      matchesSection = selectedSections.some(sec => normalizedSections.includes(sec.toUpperCase()));
-    }
-    let matchesSubject = true;
-    if (selectedSubjects.length > 0) {
-      const fSubject = f.subject ? typeof f.subject === 'string' ? f.subject.split(',') : Array.isArray(f.subject) ? f.subject : [f.subject] : [];
-      const normalizedSubjects = fSubject.map(s => s.trim().toUpperCase());
-      matchesSubject = selectedSubjects.some(sub => normalizedSubjects.includes(sub.toUpperCase()));
-    }
-    return matchesSearch && matchesSyllabus && matchesSection && matchesSubject;
-  });
+  const filteredFaculties = faculties; // Backend now handles all filtering
+
   return <div className="p-4 md:p-8 min-h-screen bg-[#f8fafc]">
       <div className="max-w-7xl mx-auto space-y-8">
         
@@ -508,6 +508,18 @@ const FacultyDirectory = ({
                 </table>
 </div>}
             </div>}
+            
+            {/* Pagination Component */}
+            {(!loading && ((activeTab === 'directory' && filteredFaculties.length > 0) || (activeTab === 'history' && editHistory.length > 0))) && (
+              <div className="p-4 md:p-6 border-t border-slate-100 bg-slate-50/50">
+                <Pagination 
+                  currentPage={page} 
+                  totalPages={Math.ceil(totalRecords / limit) || 1} 
+                  totalRecords={totalRecords} 
+                  onPageChange={setPage} 
+                />
+              </div>
+            )}
         </div>
       </div>
       {/* Faculty Detail Modal */}

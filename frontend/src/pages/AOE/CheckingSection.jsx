@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
-import { CheckCircle, Eye, ShieldAlert, MessageSquare, Plus, Check, Target, RotateCcw } from 'lucide-react';
+import Pagination from '../../components/common/Pagination';
+import MobileCard from '../../components/common/MobileCard';
+import { CheckCircle, Eye, ShieldAlert, MessageSquare, Plus, Check, Target, RotateCcw, User, Calendar, BookOpen, Clock, AlertTriangle } from 'lucide-react';
 const CheckingSection = () => {
   const [activeTab, setActiveTab] = useState('live_class');
   const [faculties, setFaculties] = useState([]);
@@ -9,6 +11,12 @@ const CheckingSection = () => {
   const [pendingLogs, setPendingLogs] = useState([]);
   const [sessions, setSessions] = useState([]);
   const [loading, setLoading] = useState(true);
+  
+  // Pagination State
+  const [page, setPage] = useState(1);
+  const [limit] = useState(50);
+  const [totalItems, setTotalItems] = useState(0);
+  const [expandedId, setExpandedId] = useState(null);
   const [isEvalModalOpen, setIsEvalModalOpen] = useState(false);
   const [evalForm, setEvalForm] = useState({
     faculty_id: '',
@@ -34,22 +42,33 @@ const CheckingSection = () => {
     verification_remarks: ''
   });
   useEffect(() => {
+    setPage(1);
+  }, [activeTab]);
+
+  useEffect(() => {
     fetchData();
     fetchFaculties();
-  }, [activeTab]);
+  }, [activeTab, page]);
   const fetchData = async () => {
     setLoading(true);
     try {
       if (activeTab === 'live_class') {
-        const res = await api.get('/aoe/live-class-evaluations');
-        if (res.data.success) setEvaluations(res.data.data);
+        const res = await api.get(`/aoe/live-class-evaluations?page=${page}&limit=${limit}`);
+        if (res.data.success) {
+            setEvaluations(res.data.data);
+            setTotalItems(res.data.total || 0);
+        }
       } else if (activeTab === 'session_audit') {
-        const res = await api.get('/aoe/faculty-checks');
-        if (res.data.success) setSessions(res.data.data);
+        const res = await api.get(`/aoe/faculty-checks?page=${page}&limit=${limit}`);
+        if (res.data.success) {
+            setSessions(res.data.data);
+            setTotalItems(res.data.total || 0);
+        }
       } else {
-        const res = await api.get('/aoe/faculty-logs-pending');
+        const res = await api.get(`/aoe/faculty-logs-pending?page=${page}&limit=${limit}`);
         if (res.data.success) {
           setPendingLogs(res.data.data);
+          setTotalItems(res.data.total || 0);
         }
       }
     } catch (error) {
@@ -156,7 +175,7 @@ const CheckingSection = () => {
  {/* Session Audit Content */}
  {activeTab === 'session_audit' && <div className="bg-white rounded-[3rem] border border-slate-100 shadow-sm overflow-hidden">
  <div className="w-full overflow-x-auto">
-<table className="w-full text-left border-collapse min-w-max">
+<table className="hidden md:table w-full text-left border-collapse min-w-max">
  <thead>
  <tr className="bg-slate-50/50 border-b border-slate-100">
  <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Faculty Member</th>
@@ -219,6 +238,36 @@ const CheckingSection = () => {
  {sessions.length === 0 && <tr><td colSpan="6" className="px-8 py-20 text-center text-slate-600 font-bold uppercase tracking-widest text-[10px]">No sessions found for audit.</td></tr>}
  </tbody>
  </table>
+ <div className="md:hidden flex flex-col gap-4 p-4">
+   {sessions.map((session, index) => {
+     const isChecked = session.check_count > 0;
+     return (
+       <MobileCard
+         key={`${session.session_id}-${session.student_id}`}
+         title={session.faculty_name || 'Unknown'}
+         subtitle={`${new Date(session.date).toLocaleDateString()} | ${session.chapter}`}
+         status={isChecked ? 'Verified' : 'Pending'}
+         statusColor={isChecked ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-700'}
+         action={
+           <div className="flex gap-2">
+             <button onClick={() => handleAddCheck(session.session_id)} className={`p-3 rounded-xl border transition-all ${isChecked ? 'bg-emerald-600 border-emerald-600 text-white' : 'bg-white border-slate-200 text-slate-600 hover:text-[#008080]'}`}>
+               <Check size={18} />
+             </button>
+             {isChecked && <button onClick={() => handleRemoveCheck(session.session_id)} className="p-3 rounded-xl bg-white border border-rose-100 text-rose-500">
+               <RotateCcw size={18} />
+             </button>}
+           </div>
+         }
+         data={[
+           { label: 'Topics', value: session.topics_covered || 'N/A' },
+           { label: 'Student', value: session.student_name || 'N/A' },
+           { label: 'Audited', value: `${session.total_verified_for_student}/30` }
+         ]}
+       />
+     );
+   })}
+   {sessions.length === 0 && <p className="text-center text-slate-500 py-10">No sessions found</p>}
+ </div>
 </div>
  </div>}
 
@@ -274,7 +323,7 @@ const CheckingSection = () => {
  {/* Faculty Logs Review Content */}
  {activeTab === 'faculty_logs' && <div className="bg-white rounded-[3rem] border border-slate-100 shadow-sm overflow-hidden">
  <div className="w-full overflow-x-auto">
-<table className="w-full text-left border-collapse min-w-max">
+<table className="hidden md:table w-full text-left border-collapse min-w-max">
  <thead>
  <tr className="bg-slate-50/50 border-b border-slate-100">
  <th className="px-8 py-6 text-[10px] font-black text-slate-600 uppercase tracking-widest">Date / Session</th>
@@ -323,8 +372,45 @@ const CheckingSection = () => {
  {pendingLogs.length === 0 && <tr><td colSpan="5" className="px-8 py-20 text-center text-slate-600 font-bold">No daily logs found.</td></tr>}
  </tbody>
  </table>
+ <div className="md:hidden flex flex-col gap-4 p-4">
+   {pendingLogs.map((log) => (
+     <MobileCard
+       key={log.id}
+       title={log.faculty_name || 'N/A'}
+       subtitle={`${new Date(log.date).toLocaleDateString()} | Sess: ${log.session_number}`}
+       status={log.verification_status}
+       statusColor={log.verification_status === 'Verified' ? 'bg-emerald-100 text-emerald-700' : log.verification_status === 'Pending' ? 'bg-amber-100 text-amber-700' : 'bg-rose-100 text-rose-700'}
+       action={
+         <button onClick={() => {
+           setVerifyForm({
+             id: log.id,
+             verification_status: log.verification_status === 'Pending' ? 'Verified' : log.verification_status,
+             verification_remarks: log.verification_remarks || ''
+           });
+           setIsVerifyModalOpen(true);
+         }} className="p-3 rounded-xl border border-slate-200 text-slate-600 bg-white">
+           <CheckCircle size={18} />
+         </button>
+       }
+       data={[
+         { label: 'Student', value: log.student_name || 'N/A' },
+         { label: 'Chapter', value: log.chapter || 'N/A' },
+         { label: 'Remarks', value: log.verification_remarks || 'None' }
+       ]}
+     />
+   ))}
+   {pendingLogs.length === 0 && <p className="text-center text-slate-500 py-10">No daily logs found</p>}
+ </div>
 </div>
  </div>}
+ {totalItems > 0 && (
+   <Pagination
+     currentPage={page}
+     totalItems={totalItems}
+     itemsPerPage={limit}
+     onPageChange={setPage}
+   />
+ )}
  </>}
 
  {/* Live Class Eval Modal */}

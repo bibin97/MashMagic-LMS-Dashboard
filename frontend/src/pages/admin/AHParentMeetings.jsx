@@ -2,26 +2,41 @@ import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
 import { Users, Calendar, Clock, Video, Presentation, CheckCircle2, ListTodo } from 'lucide-react';
 import toast from 'react-hot-toast';
+import Pagination from '../../components/common/Pagination';
+
 const AHParentMeetings = () => {
   const [activeTab, setActiveTab] = useState('active'); // 'active' or 'completed'
   const [meetings, setMeetings] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  // Pagination State
+  const [page, setPage] = useState(1);
+  const limit = 50;
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalRecords, setTotalRecords] = useState(0);
+
   useEffect(() => {
     fetchMeetings();
-  }, []);
+  }, [activeTab, page]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [activeTab]);
+
   const fetchMeetings = async () => {
     setLoading(true);
     try {
-      const res = await api.get('/admin/ah-parent-meetings');
+      const statusFilter = activeTab === 'active' ? 'Scheduled' : 'Completed';
+      const res = await api.get(`/admin/ah-parent-meetings?status=${statusFilter}&page=${page}&limit=${limit}`);
       setMeetings(res.data.data || []);
+      setTotalPages(res.data.totalPages || 1);
+      setTotalRecords(res.data.total || 0);
     } catch (err) {
       toast.error('Failed to fetch parent meetings');
     } finally {
       setLoading(false);
     }
   };
-  const activeMeetings = meetings.filter(m => m.status === 'Scheduled');
-  const completedMeetings = meetings.filter(m => m.status === 'Completed');
   return <div className="min-h-screen bg-slate-50/50 p-4 md:p-8">
       <div className="max-w-7xl mx-auto space-y-6">
         
@@ -41,10 +56,10 @@ const AHParentMeetings = () => {
         {/* Tabs */}
         <div className="flex gap-4 border-b border-slate-200">
           <button onClick={() => setActiveTab('active')} className={`pb-4 px-2 font-black uppercase text-xs tracking-widest transition-all flex items-center gap-2 ${activeTab === 'active' ? 'text-indigo-600 border-b-2 border-indigo-600' : 'text-slate-400 hover:text-slate-600'}`}>
-            <ListTodo size={16} /> Active Meetings ({activeMeetings.length})
+            <ListTodo size={16} /> Active Meetings
           </button>
           <button onClick={() => setActiveTab('completed')} className={`pb-4 px-2 font-black uppercase text-xs tracking-widest transition-all flex items-center gap-2 ${activeTab === 'completed' ? 'text-emerald-500 border-b-2 border-emerald-500' : 'text-slate-400 hover:text-slate-600'}`}>
-            <CheckCircle2 size={16} /> Completed Meetings ({completedMeetings.length})
+            <CheckCircle2 size={16} /> Completed Meetings
           </button>
         </div>
 
@@ -53,11 +68,11 @@ const AHParentMeetings = () => {
             Loading meetings...
           </div> : <>
             {activeTab === 'active' && <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {activeMeetings.length === 0 ? <div className="col-span-full bg-white rounded-3xl p-12 border border-slate-100 shadow-sm text-center">
+                {meetings.length === 0 ? <div className="col-span-full bg-white rounded-3xl p-12 border border-slate-100 shadow-sm text-center">
                     <CheckCircle2 size={32} className="mx-auto mb-4 text-slate-300" />
                     <h3 className="text-lg font-black text-slate-700">No Active Meetings</h3>
                     <p className="text-sm font-medium text-slate-500 mt-1">There are no upcoming meetings scheduled right now.</p>
-                  </div> : activeMeetings.map(m => <div key={m.id} className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm flex flex-col h-full">
+                  </div> : meetings.map(m => <div key={m.id} className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm flex flex-col h-full">
                       <div className="flex items-start justify-between mb-4">
                         <div>
                           <h3 className="font-black text-slate-900 text-lg">{m.student_name}</h3>
@@ -96,7 +111,7 @@ const AHParentMeetings = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {completedMeetings.length > 0 ? completedMeetings.map((m, index) => {
+                      {meetings.length > 0 ? meetings.map((m, index) => {
                   let summary = '';
                   try {
                     summary = typeof m.report_data === 'string' ? JSON.parse(m.report_data).summary : m.report_data?.summary || '';
@@ -129,6 +144,16 @@ const AHParentMeetings = () => {
                   </table>
                 </div>
               </div>}
+
+            {totalPages > 1 && (
+              <Pagination 
+                currentPage={page}
+                totalPages={totalPages}
+                totalRecords={totalRecords}
+                onPageChange={setPage}
+                entityName="Meetings"
+              />
+            )}
           </>}
       </div>
     </div>;

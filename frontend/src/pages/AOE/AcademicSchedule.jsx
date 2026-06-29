@@ -15,7 +15,7 @@ const DatePicker = MultiDatePicker.default ? MultiDatePicker.default : MultiDate
 
 const checkIsLive = (session) => {
   if (!session.start_time || !session.end_time || !session.date) return false;
-  if (session.status === 'Completed') return false;
+  if (session.status !== 'Scheduled') return false;
   
   const now = new Date();
   const sessionDate = new Date(session.date);
@@ -60,6 +60,7 @@ const AcademicSchedule = () => {
   };
   const [selectedSession, setSelectedSession] = useState(null);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  const [isCompleteModalOpen, setIsCompleteModalOpen] = useState(false);
   const [expandedMobileCards, setExpandedMobileCards] = useState({});
 
   useEffect(() => {
@@ -330,7 +331,7 @@ const AcademicSchedule = () => {
 
               {activeTab !== 'calendar' && (
               <div className="flex items-center justify-end md:justify-start gap-2 md:gap-3 pt-4 md:pt-0 border-t md:border-t-0 md:border-l border-slate-100 md:pl-6 w-full md:w-auto mt-2 md:mt-0">
-                {session.meeting_link && session.status !== 'Completed' && session.date && session.date.split('T')[0] === localTodayStr && (
+                {session.meeting_link && session.status === 'Scheduled' && session.date && session.date.split('T')[0] === localTodayStr && (
                   <button 
                     onClick={() => handleJoinSession(session)}
                     title="Watch Session"
@@ -352,7 +353,7 @@ const AcademicSchedule = () => {
                   <BookOpen size={16} />
                 </button>
 
-                {session.status !== 'Completed' && (
+                {session.status === 'Scheduled' && (
                     <button 
                       onClick={() => { setSelectedSession(session); setMinutesTaken(''); setIsCompleteModalOpen(true); }}
                       title="Class Completed"
@@ -402,7 +403,7 @@ const AcademicSchedule = () => {
               }
               primaryActions={
                 [
-                  ...(session.meeting_link && session.status !== 'Completed' && session.date && session.date.split('T')[0] === localTodayStr ? [{
+                  ...(session.meeting_link && session.status === 'Scheduled' && session.date && session.date.split('T')[0] === localTodayStr ? [{
                     icon: <Video size={14} />,
                     label: 'LIVE',
                     onClick: () => handleJoinSession(session),
@@ -414,7 +415,7 @@ const AcademicSchedule = () => {
                     onClick: () => { setSelectedSession(session); setIsDetailsModalOpen(true); },
                     variant: 'outline'
                   },
-                  ...(session.status !== 'Completed' ? [{
+                  ...(session.status === 'Scheduled' ? [{
                     icon: <CheckSquare size={14} />,
                     label: 'Complete',
                     onClick: () => { setSelectedSession(session); setMinutesTaken(''); setIsCompleteModalOpen(true); },

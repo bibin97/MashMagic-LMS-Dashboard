@@ -314,13 +314,23 @@ const blockUser = async (req, res) => {
 // @access  Private (super_admin, admin)
 const getPendingUsers = async (req, res) => {
     try {
-        // 1. Fetch non-student users
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 50;
+        const offset = (page - 1) * limit;
+
+        // 1. Check user table cols
         const [tableInfo] = await db.query('SHOW COLUMNS FROM users');
         const hasCreatedAt = tableInfo.some(c => c.Field === 'createdAt');
         const hasCreatedAtSnake = tableInfo.some(c => c.Field === 'created_at');
         const userTimeCol = hasCreatedAt ? 'u.createdAt' : (hasCreatedAtSnake ? 'u.created_at' : 'u.id');
 
-        const [users] = await db.query(`
+        // 2. Check student table cols
+        const [studentCols] = await db.query('SHOW COLUMNS FROM students');
+        const sHasCreated = studentCols.some(c => c.Field === 'createdAt');
+        const sHasCreatedSnake = studentCols.some(c => c.Field === 'created_at');
+        const sTimeCol = sHasCreated ? 's.createdAt' : (sHasCreatedSnake ? 's.created_at' : 's.id');
+        
+        const combinedQuery = `
             SELECT u.id, u.name, u.email, u.phone_number, u.role, u.place, u.status, ${userTimeCol} as created_at,
                    rb.name as registered_by_name
             FROM users u
@@ -328,32 +338,35 @@ const getPendingUsers = async (req, res) => {
             WHERE u.status = "pending"
             AND u.role != 'student'
             AND (u.is_deleted IS NULL OR u.is_deleted = 0)
-        `);
+            UNION ALL
+            SELECT s.id, s.name, s.email, s.contact as phone_number, 'student' as role, s.country as place, s.status, ${sTimeCol} as created_at,
+                   NULL as registered_by_name
+            FROM students s
+            WHERE s.status = "pending"
+        `;
 
-        // 2. Fetch student users
-        const [studentCols] = await db.query('SHOW COLUMNS FROM students');
-        const sHasCreated = studentCols.some(c => c.Field === 'createdAt');
-        const sHasCreatedSnake = studentCols.some(c => c.Field === 'created_at');
-        const sTimeCol = sHasCreated ? 's.createdAt' : (sHasCreatedSnake ? 's.created_at' : 's.id');
-        
-        let students = [];
-        try {
-            [students] = await db.query(`
-                SELECT s.id, s.name, s.email, s.contact as phone_number, 'student' as role, s.country as place, s.status, ${sTimeCol} as created_at,
-                       NULL as registered_by_name
-                FROM students s
-                WHERE s.status = "pending"
-            `);
-        } catch (err) {
-            console.error("Error fetching pending students:", err);
-        }
+        const [countResult] = await db.query(`SELECT COUNT(*) as total FROM (${combinedQuery}) as combined`);
+        const total = countResult[0].total;
+        const totalPages = Math.ceil(total / limit);
 
-        const uniqueRows = [...users, ...students].map(r => ({
+        const [paginatedData] = await db.query(`
+            ${combinedQuery}
+            ORDER BY created_at DESC
+            LIMIT ? OFFSET ?
+        `, [limit, offset]);
+
+        const formattedData = paginatedData.map(r => ({
             ...r,
             created_at: r.created_at || new Date()
         }));
 
-        res.status(200).json({ success: true, count: uniqueRows.length, data: uniqueRows });
+        res.status(200).json({ 
+            success: true, 
+            data: formattedData, 
+            total, 
+            totalPages, 
+            currentPage: page 
+        });
     } catch (error) {
         console.error("GET_PENDING_USERS_ERROR:", error);
         res.status(500).json({ success: false, message: "Server Error", error: error.message });
@@ -454,7 +467,7 @@ async function cleanupStudentDependencies(studentId) {
 // @route   GET /api/admin/student-logs
 const getAllStudentLogs = async (req, res) => {
     try {
-        const { student_id, mentor_id, startDate, endDate } = req.query;
+        const { student_id, mentor_id, startDate, endDate, page, limit } = req.query;
         let whereClause = 'WHERE 1=1';
         if (student_id) whereClause += ' AND student_id = ?';
         if (mentor_id) whereClause += ' AND mentor_id = ?';
@@ -477,7 +490,7 @@ const getAllStudentLogs = async (req, res) => {
             ...buildParams()
         ];
 
-        const [rows] = await db.query(`
+        const query = `
             SELECT 
                 CONVERT('Interaction Hub' USING utf8mb4) COLLATE utf8mb4_unicode_ci as source,
                 r.id, r.mentor_id, r.student_id, r.created_at,
@@ -630,10 +643,32 @@ const getAllStudentLogs = async (req, res) => {
             LEFT JOIN mentors m ON (ml.mentor_id = m.id OR (u.id IS NOT NULL AND (m.phone_number = u.email OR m.email = u.email OR m.name = u.name)))
             JOIN students s ON ml.student_id = s.id
             ${whereClause.replace(/student_id/g, 'ml.student_id').replace(/mentor_id/g, 'ml.mentor_id').replace(/created_at/g, 'ml.created_at')}
+        `;
+        
+        let finalQuery = query + '\nORDER BY created_at DESC';
+        let queryParams = [...params];
 
-            ORDER BY created_at DESC
-        `, params);
-        res.status(200).json({ success: true, data: rows });
+        let total = 0;
+        if (page) {
+            const pageNum = parseInt(page) || 1;
+            const limitNum = parseInt(limit) || 50;
+            const offset = (pageNum - 1) * limitNum;
+            
+            const countQuery = `SELECT COUNT(*) as total FROM (${query}) as count_query`;
+            const [countRes] = await db.query(countQuery, params);
+            total = countRes[0].total;
+            
+            finalQuery += ' LIMIT ? OFFSET ?';
+            queryParams.push(limitNum, offset);
+        }
+
+        const [rows] = await db.query(finalQuery, queryParams);
+        
+        if (page) {
+            res.status(200).json({ success: true, total, data: rows });
+        } else {
+            res.status(200).json({ success: true, count: rows.length, data: rows });
+        }
     } catch (error) {
         console.error("GET_ALL_STUDENT_LOGS_ERROR:", error);
         res.status(500).json({ success: false, message: error.message });
@@ -754,7 +789,15 @@ const getAllFacultyLogs = async (req, res) => {
         let unified_faculty_logs = [...r1, ...r2, ...r3, ...r4];
         unified_faculty_logs.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
-        res.status(200).json({ success: true, data: unified_faculty_logs });
+        if (req.query.page) {
+            const pageNum = parseInt(req.query.page) || 1;
+            const limitNum = parseInt(req.query.limit) || 50;
+            const offset = (pageNum - 1) * limitNum;
+            const paginated = unified_faculty_logs.slice(offset, offset + limitNum);
+            res.status(200).json({ success: true, total: unified_faculty_logs.length, data: paginated });
+        } else {
+            res.status(200).json({ success: true, count: unified_faculty_logs.length, data: unified_faculty_logs });
+        }
     } catch (error) {
         console.error("GET_ALL_FACULTY_LOGS_ERROR:", error);
         res.status(500).json({ success: false, message: error.message });
@@ -838,18 +881,50 @@ const getStudentPortalLogins = async (req, res) => {
 const getAdminNotifications = async (req, res) => {
     try {
         const { role } = req.user;
+        const { page, limit, search, type, date } = req.query;
         // Exclude soft-deleted notifications - they stay in DB but hidden from UI
-        let query = 'SELECT * FROM admin_notifications WHERE (is_deleted IS NULL OR is_deleted = 0)';
+        let whereClause = 'WHERE (is_deleted IS NULL OR is_deleted = 0)';
         let params = [];
 
         if (role === 'mentor_head') {
-            query += " AND (action_type IN ('mentorship_report', 'fraud_alert', 'mentor_registration') OR (action_type = 'staff_update' AND message LIKE '%Mentor%'))";
+            whereClause += " AND (action_type IN ('mentorship_report', 'fraud_alert', 'mentor_registration') OR (action_type = 'staff_update' AND message LIKE '%Mentor%'))";
+        }
+        
+        if (search) {
+            whereClause += " AND message LIKE ?";
+            params.push(`%${search}%`);
+        }
+        if (type && type !== 'all') {
+            whereClause += " AND action_type = ?";
+            params.push(type);
+        }
+        if (date) {
+            whereClause += " AND DATE(created_at) = ?";
+            params.push(date);
         }
 
-        query += ' ORDER BY created_at DESC LIMIT 100';
+        let query = `SELECT * FROM admin_notifications ${whereClause} ORDER BY created_at DESC`;
         
-        const [rows] = await db.query(query, params);
-        res.status(200).json({ success: true, data: rows });
+        if (page) {
+            const pageNum = parseInt(page) || 1;
+            const limitNum = parseInt(limit) || 50;
+            const offset = (pageNum - 1) * limitNum;
+            
+            const countQuery = `SELECT COUNT(*) as total FROM admin_notifications ${whereClause}`;
+            const [countResult] = await db.query(countQuery, params);
+            const total = countResult[0].total;
+            
+            query += ' LIMIT ? OFFSET ?';
+            params.push(limitNum, offset);
+            
+            const [rows] = await db.query(query, params);
+            res.status(200).json({ success: true, total, data: rows });
+        } else {
+            // Default limit if no pagination requested
+            query += ' LIMIT 1000';
+            const [rows] = await db.query(query, params);
+            res.status(200).json({ success: true, data: rows });
+        }
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
@@ -1146,7 +1221,11 @@ const updateUserForAdmin = async (req, res) => {
 // @route   GET /api/admin/students
 const getAllStudentsForAdmin = async (req, res) => {
     try {
-        const { startDate, endDate, category, search, sortBy, mentor_id } = req.query;
+        const { startDate, endDate, category, search, sortBy, mentor_id, activeTab } = req.query;
+        const page = parseInt(req.query.page) || 1;
+        const limit = req.query.export === 'true' ? 5000 : (parseInt(req.query.limit) || 50);
+        const offset = (page - 1) * limit;
+
         let sql = `
             SELECT 
                 id, roll_number, registration_number, name, email, contact as phone_number, grade, course, hour, 
@@ -1189,6 +1268,12 @@ const getAllStudentsForAdmin = async (req, res) => {
             params.push(req.query.faculty_id, req.query.faculty_id);
         }
 
+        if (activeTab === 'mentorship_completed') {
+            sql += ' AND mentorship_completed = 1';
+        } else if (activeTab === 'completed') {
+            sql += ' AND course_completed = 1';
+        }
+
         if (startDate) {
             sql += ' AND created_at >= ?';
             params.push(startDate);
@@ -1211,19 +1296,67 @@ const getAllStudentsForAdmin = async (req, res) => {
             params.push(`%${search}%`, `%${search}%`);
         }
 
+        let countSql = `SELECT COUNT(*) as total FROM students WHERE (is_deleted IS NULL OR is_deleted = 0)`;
+        let countParams = [];
+
+        if (mentor_id) {
+            countSql += ' AND mentor_id = ?';
+            countParams.push(mentor_id);
+        }
+
+        if (req.query.faculty_id) {
+            countSql += ' AND (faculty_id = ? OR EXISTS (SELECT 1 FROM faculty_schedules fs WHERE (fs.is_deleted IS NULL OR fs.is_deleted = 0) AND fs.student_id = students.id AND fs.faculty_id = ?))';
+            countParams.push(req.query.faculty_id, req.query.faculty_id);
+        }
+
+        if (activeTab === 'mentorship_completed') {
+            countSql += ' AND mentorship_completed = 1';
+        } else if (activeTab === 'completed') {
+            countSql += ' AND course_completed = 1';
+        }
+
+        if (startDate) {
+            countSql += ' AND created_at >= ?';
+            countParams.push(startDate);
+        }
+        if (endDate) {
+            countSql += ' AND created_at <= ?';
+            countParams.push(endDate + ' 23:59:59');
+        }
+
+        if (category === 'Active Records') {
+            countSql += ' AND status = "active"';
+        } else if (category === 'Archived Records') {
+            countSql += ' AND status IN ("inactive", "rejected", "completed")';
+        } else {
+            countSql += ' AND status != "rejected"';
+        }
+
+        if (search) {
+            countSql += ' AND (name LIKE ? OR registration_number LIKE ?)';
+            countParams.push(`%${search}%`, `%${search}%`);
+        }
+
+        const [countResult] = await db.query(countSql, countParams);
+        const total = countResult[0].total;
+
         if (sortBy === 'oldest') {
             sql += ' ORDER BY created_at ASC';
         } else {
             sql += ' ORDER BY created_at DESC';
         }
 
+        sql += ' LIMIT ? OFFSET ?';
+        params.push(limit, offset);
+
         const [rows] = await db.query(sql, params);
         
         const { calculateStudentHours } = require('../utils/studentHoursHelper');
         const augmentedRows = await calculateStudentHours(rows, db);
 
-        res.status(200).json({ success: true, count: augmentedRows.length, data: augmentedRows });
+        res.status(200).json({ success: true, count: augmentedRows.length, total, data: augmentedRows });
     } catch (error) {
+        console.error("Error in getAllStudentsForAdmin:", error);
         res.status(500).json({ success: false, message: error.message });
     }
 };
@@ -1400,9 +1533,14 @@ const deleteSubAdmin = async (req, res) => {
 // @route   GET /api/admin/mentors
 const getAllMentorsForAdmin = async (req, res) => {
     try {
-        const { startDate, endDate, category } = req.query;
+        const { startDate, endDate, category, search } = req.query;
+        const page = parseInt(req.query.page) || 1;
+        const limit = req.query.export === 'true' ? 5000 : (parseInt(req.query.limit) || 50);
+        const offset = (page - 1) * limit;
+
         let whereClauses = [];
         let params = [];
+        let countParams = [];
 
         if (startDate) {
             whereClauses.push("u.createdAt >= ?");
@@ -1417,6 +1555,9 @@ const getAllMentorsForAdmin = async (req, res) => {
             whereClauses.push("u.status = 'active'");
         } else if (category === 'Archived Records') {
             whereClauses.push("u.status != 'active'");
+        }        if (search) {
+            whereClauses.push("(u.name LIKE ? OR u.email LIKE ? OR u.phone_number LIKE ?)");
+            params.push(`%${search}%`, `%${search}%`, `%${search}%`);
         }
 
         const whereSQL = whereClauses.length > 0 ? `WHERE ${whereClauses.join(' AND ')}` : '';
@@ -1434,8 +1575,15 @@ const getAllMentorsForAdmin = async (req, res) => {
                 (SELECT COUNT(*) FROM timetable WHERE (is_deleted IS NULL OR is_deleted = 0) AND mentor_id = u.id) as totalSessions
             FROM mentors u
             ${whereSQL}
-            ORDER BY u.name ASC
         `;
+        
+        const countQuery = `SELECT COUNT(*) as total FROM mentors u ${whereSQL}`;
+        const [countResult] = await db.query(countQuery, params);
+        const total = countResult[0].total;
+
+        query += ' ORDER BY u.name ASC LIMIT ? OFFSET ?';
+        params.push(limit, offset);
+        
         const [rows] = await db.query(query, params);
         
         // Find maximum completed sessions among all mentors to calculate relative percentage
@@ -1445,7 +1593,7 @@ const getAllMentorsForAdmin = async (req, res) => {
             ...row,
             completionRate: maxCompleted > 0 ? Math.round((row.completedSessions / maxCompleted) * 100) : 0
         }));
-        res.status(200).json({ success: true, count: mappedData.length, data: mappedData });
+        res.status(200).json({ success: true, count: mappedData.length, total, data: mappedData });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
@@ -1455,7 +1603,12 @@ const getAllMentorsForAdmin = async (req, res) => {
 // @route   GET /api/admin/staff
 const getStaffMembers = async (req, res) => {
     try {
-        const query = `
+        const page = parseInt(req.query.page) || 1;
+        const limit = req.query.export === 'true' ? 5000 : (parseInt(req.query.limit) || 50);
+        const offset = (page - 1) * limit;
+        const search = req.query.search || '';
+
+        let baseQuery = `
             SELECT id, name, email, phone_number as phone, role, status, createdAt as created_at 
             FROM users
             WHERE role IN ('super_admin', 'sub_admin', 'mentor_head', 'academic_head', 'ssc', 'academic_operation_executive')
@@ -1463,10 +1616,28 @@ const getStaffMembers = async (req, res) => {
             SELECT id, name, email, phone_number as phone, 'mentor' as role, status, createdAt as created_at FROM mentors
             UNION ALL
             SELECT id, name, email, phone_number as phone, 'faculty' as role, status, createdAt as created_at FROM faculties
-            ORDER BY role ASC, name ASC
         `;
-        const [rows] = await db.query(query);
-        res.status(200).json({ success: true, count: rows.length, data: rows });
+
+        let query = `
+            SELECT * FROM (${baseQuery}) as combined_staff
+            WHERE 1=1
+        `;
+        let params = [];
+        
+        if (search) {
+            query += ' AND (name LIKE ? OR email LIKE ? OR phone LIKE ?)';
+            params.push(`%${search}%`, `%${search}%`, `%${search}%`);
+        }
+
+        const countQuery = `SELECT COUNT(*) as total FROM (${baseQuery}) as combined_staff WHERE 1=1 ${search ? 'AND (name LIKE ? OR email LIKE ? OR phone LIKE ?)' : ''}`;
+        const [countResult] = await db.query(countQuery, search ? [`%${search}%`, `%${search}%`, `%${search}%`] : []);
+        const total = countResult[0].total;
+
+        query += ' ORDER BY role ASC, name ASC LIMIT ? OFFSET ?';
+        params.push(limit, offset);
+
+        const [rows] = await db.query(query, params);
+        res.status(200).json({ success: true, count: rows.length, total, data: rows });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
@@ -1477,7 +1648,12 @@ const getStaffMembers = async (req, res) => {
 // @route   GET /api/admin/faculties
 const getAllFacultiesForAdmin = async (req, res) => {
     try {
-        const query = `
+        const page = parseInt(req.query.page) || 1;
+        const limit = req.query.export === 'true' ? 5000 : (parseInt(req.query.limit) || 50);
+        const offset = (page - 1) * limit;
+        const search = req.query.search || '';
+
+        let query = `
             SELECT 
                 u.id, u.name, u.email, u.phone_number as phone, u.status, u.subject, u.syllabus, u.section,
                 (SELECT COUNT(DISTINCT s.id) 
@@ -1491,10 +1667,23 @@ const getAllFacultiesForAdmin = async (req, res) => {
                    AND s.status = 'active') as mentorsUnder
             FROM faculties u
             WHERE 1=1
-            ORDER BY u.name ASC
         `;
-        const [rows] = await db.query(query);
-        res.status(200).json({ success: true, count: rows.length, data: rows });
+        let params = [];
+        
+        if (search) {
+            query += ' AND (u.name LIKE ? OR u.email LIKE ? OR u.phone_number LIKE ?)';
+            params.push(`%${search}%`, `%${search}%`, `%${search}%`);
+        }
+        
+        const countQuery = `SELECT COUNT(*) as total FROM faculties u WHERE 1=1 ${search ? 'AND (u.name LIKE ? OR u.email LIKE ? OR u.phone_number LIKE ?)' : ''}`;
+        const [countResult] = await db.query(countQuery, search ? [`%${search}%`, `%${search}%`, `%${search}%`] : []);
+        const total = countResult[0].total;
+
+        query += ' ORDER BY u.name ASC LIMIT ? OFFSET ?';
+        params.push(limit, offset);
+
+        const [rows] = await db.query(query, params);
+        res.status(200).json({ success: true, count: rows.length, total, data: rows });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
@@ -1547,40 +1736,77 @@ const getFacultyDetailsForAdmin = async (req, res) => {
 // --- AH Interactions & Meetings (View Only) ---
 const getAHParentInteractions = async (req, res) => {
     try {
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 50;
+        const offset = (page - 1) * limit;
+
+        const [countResult] = await db.query('SELECT COUNT(*) as total FROM ah_parent_interactions');
+        const total = countResult[0].total;
+
         const [rows] = await db.query(`
             SELECT p.*, s.name as student_name, u.name as academic_head_name
             FROM ah_parent_interactions p
             JOIN students s ON p.student_id = s.id
             JOIN users u ON p.academic_head_id = u.id
             ORDER BY p.date DESC, p.created_at DESC
-        `);
-        res.json({ success: true, data: rows });
+            LIMIT ? OFFSET ?
+        `, [limit, offset]);
+        res.json({ success: true, data: rows, total, totalPages: Math.ceil(total / limit), currentPage: page });
     } catch (error) { res.status(500).json({ success: false, message: error.message }); }
 };
 
 const getAHFacultyInteractions = async (req, res) => {
     try {
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 50;
+        const offset = (page - 1) * limit;
+
+        const [countResult] = await db.query('SELECT COUNT(*) as total FROM ah_faculty_interactions');
+        const total = countResult[0].total;
+
         const [rows] = await db.query(`
             SELECT f.*, u2.name as faculty_name, u.name as academic_head_name
             FROM ah_faculty_interactions f
             JOIN users u2 ON f.faculty_id = u2.id
             JOIN users u ON f.academic_head_id = u.id
             ORDER BY f.date DESC, f.created_at DESC
-        `);
-        res.json({ success: true, data: rows });
+            LIMIT ? OFFSET ?
+        `, [limit, offset]);
+        res.json({ success: true, data: rows, total, totalPages: Math.ceil(total / limit), currentPage: page });
     } catch (error) { res.status(500).json({ success: false, message: error.message }); }
 };
 
 const getAHParentMeetings = async (req, res) => {
     try {
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 50;
+        const offset = (page - 1) * limit;
+        const status = req.query.status || '';
+
+        let whereClause = '';
+        let params = [];
+        let countParams = [];
+
+        if (status) {
+            whereClause = 'WHERE m.status = ?';
+            params.push(status);
+            countParams.push(status);
+        }
+
+        const [countResult] = await db.query(`SELECT COUNT(*) as total FROM ah_parent_meetings m ${whereClause}`, countParams);
+        const total = countResult[0].total;
+
+        params.push(limit, offset);
         const [rows] = await db.query(`
             SELECT m.*, s.name as student_name, u.name as academic_head_name
             FROM ah_parent_meetings m
             JOIN students s ON m.student_id = s.id
             JOIN users u ON m.academic_head_id = u.id
+            ${whereClause}
             ORDER BY m.meeting_date DESC, m.meeting_time DESC
-        `);
-        res.json({ success: true, data: rows });
+            LIMIT ? OFFSET ?
+        `, params);
+        res.json({ success: true, data: rows, total, totalPages: Math.ceil(total / limit), currentPage: page });
     } catch (error) { res.status(500).json({ success: false, message: error.message }); }
 };
 
@@ -2112,6 +2338,10 @@ module.exports = {
     getFacultyTimetable: async (req, res) => {
         try {
             const { faculty_id, subject, day_of_week } = req.query;
+            const page = parseInt(req.query.page) || 1;
+            const limit = parseInt(req.query.limit) || 50;
+            const offset = (page - 1) * limit;
+
             let sql = `
                 SELECT t.*, f.name as faculty_name 
                 FROM faculty_timetable t
@@ -2123,10 +2353,17 @@ module.exports = {
             if (subject) { sql += ' AND t.subject = ?'; params.push(subject); }
             if (day_of_week) { sql += ' AND t.day_of_week = ?'; params.push(day_of_week); }
             
+            const countSql = `SELECT COUNT(*) as total FROM (${sql}) as c`;
+            const [countRes] = await db.query(countSql, params);
+            const total = countRes[0].total;
+
             sql += ' ORDER BY f.name ASC, FIELD(t.day_of_week, "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"), t.start_time ASC';
             
+            sql += ' LIMIT ? OFFSET ?';
+            params.push(limit, offset);
+
             const [rows] = await db.query(sql, params);
-            res.status(200).json({ success: true, data: rows });
+            res.status(200).json({ success: true, total, data: rows });
         } catch (e) { res.status(500).json({ success: false, message: e.message }); }
     },
     addFacultyTimetableSlot: async (req, res) => {
@@ -2205,15 +2442,31 @@ module.exports = {
     },
     getStudentSchedules: async (req, res) => {
         try {
+            const page = parseInt(req.query.page) || 1;
+            const limit = parseInt(req.query.limit) || 50;
+            const offset = (page - 1) * limit;
+
             const sql = `
                 SELECT fs.*, s.name as student_name, f.name as faculty_name 
                 FROM faculty_schedules fs
                 JOIN students s ON fs.student_id = s.id
                 JOIN faculties f ON fs.faculty_id = f.id
                 ORDER BY FIELD(fs.day_of_week, "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"), fs.start_time ASC
+                LIMIT ? OFFSET ?
             `;
-            const [rows] = await db.query(sql);
-            res.status(200).json({ success: true, data: rows });
+            
+            const countSql = `
+                SELECT COUNT(*) as total 
+                FROM faculty_schedules fs
+                JOIN students s ON fs.student_id = s.id
+                JOIN faculties f ON fs.faculty_id = f.id
+            `;
+            
+            const [countRes] = await db.query(countSql);
+            const total = countRes[0].total;
+
+            const [rows] = await db.query(sql, [limit, offset]);
+            res.status(200).json({ success: true, total, data: rows });
         } catch (e) { res.status(500).json({ success: false, message: e.message }); }
     },
     getEvidence: async (req, res) => {

@@ -13,25 +13,30 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { premiumConfirm } from '../../utils/premiumConfirm';
+import Pagination from '../../components/common/Pagination';
 
 const MentorHeadNotifications = () => {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const limit = 50;
+  const [totalRecords, setTotalRecords] = useState(0);
 
   useEffect(() => {
     fetchNotifications();
-  }, []);
+  }, [page]);
 
   const fetchNotifications = async () => {
+    setLoading(true);
     try {
       const token = sessionStorage.getItem('token');
       const res = await axios.get('/api/admin/notifications', {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
+        params: { page, limit }
       });
       if (res.data.success) {
-        // Filter for mentor-related notifications if needed, 
-        // but for now showing all admin alerts relevant to operations
-        setNotifications(res.data.data);
+        setNotifications(res.data.data || []);
+        setTotalRecords(res.data.total || 0);
       }
     } catch (error) {
       console.error('Error fetching notifications:', error);
@@ -197,6 +202,17 @@ const MentorHeadNotifications = () => {
           </div>
         )}
       </div>
+
+      {notifications.length > 0 && (
+        <div className="bg-white p-4 md:p-6 rounded-[2rem] border border-slate-100 mt-6 shadow-sm">
+          <Pagination 
+            currentPage={page} 
+            totalPages={Math.ceil(totalRecords / limit) || 1} 
+            totalRecords={totalRecords} 
+            onPageChange={setPage} 
+          />
+        </div>
+      )}
     </div>
   );
 };

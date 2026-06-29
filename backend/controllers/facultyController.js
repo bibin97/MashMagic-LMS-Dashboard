@@ -303,14 +303,47 @@ const submitReport = async (req, res) => {
 
 const getReports = async (req, res) => {
     try {
-        const [rows] = await db.query(`
+        const { page, limit, search } = req.query;
+        let query = `
             SELECT r.*, s.name as student_name
             FROM student_reports r
             JOIN students s ON r.student_id = s.id
             WHERE r.faculty_id = ?
-            ORDER BY r.created_at DESC
-        `, [req.user.id]);
-        res.status(200).json({ success: true, data: rows });
+        `;
+        let params = [req.user.id];
+
+        if (search) {
+            query += ` AND (s.name LIKE ? OR r.type LIKE ?)`;
+            params.push(`%${search}%`, `%${search}%`);
+        }
+
+        query += ` ORDER BY r.created_at DESC`;
+
+        if (page) {
+            const pageNum = parseInt(page) || 1;
+            const limitNum = parseInt(limit) || 50;
+            const offset = (pageNum - 1) * limitNum;
+            
+            let countQuery = 'SELECT COUNT(*) as total FROM student_reports r JOIN students s ON r.student_id = s.id WHERE r.faculty_id = ?';
+            let countParams = [req.user.id];
+            
+            if (search) {
+                countQuery += ` AND (s.name LIKE ? OR r.type LIKE ?)`;
+                countParams.push(`%${search}%`, `%${search}%`);
+            }
+            
+            const [countResult] = await db.query(countQuery, countParams);
+            const total = countResult[0].total;
+
+            query += ' LIMIT ? OFFSET ?';
+            params.push(limitNum, offset);
+
+            const [rows] = await db.query(query, params);
+            res.status(200).json({ success: true, total, data: rows });
+        } else {
+            const [rows] = await db.query(query, params);
+            res.status(200).json({ success: true, data: rows });
+        }
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
@@ -392,8 +425,39 @@ const deleteDocument = async (req, res) => {
 // @desc    Notifications
 const getNotifications = async (req, res) => {
     try {
-        const [rows] = await db.query('SELECT * FROM notifications WHERE user_id = ? ORDER BY created_at DESC', [req.user.id]);
-        res.status(200).json({ success: true, data: rows });
+        const { page, limit, status } = req.query;
+        let query = 'SELECT * FROM notifications WHERE user_id = ?';
+        let params = [req.user.id];
+
+        if (status === 'unread') {
+            query += ' AND is_read = 0';
+        } else if (status === 'read') {
+            query += ' AND is_read = 1';
+        }
+        
+        query += ' ORDER BY created_at DESC';
+
+        if (page) {
+            const pageNum = parseInt(page) || 1;
+            const limitNum = parseInt(limit) || 50;
+            const offset = (pageNum - 1) * limitNum;
+            
+            let countQuery = 'SELECT COUNT(*) as total FROM notifications WHERE user_id = ?';
+            if (status === 'unread') countQuery += ' AND is_read = 0';
+            else if (status === 'read') countQuery += ' AND is_read = 1';
+            
+            const [countResult] = await db.query(countQuery, [req.user.id]);
+            const total = countResult[0].total;
+
+            query += ' LIMIT ? OFFSET ?';
+            params.push(limitNum, offset);
+
+            const [rows] = await db.query(query, params);
+            res.status(200).json({ success: true, total, data: rows });
+        } else {
+            const [rows] = await db.query(query, params);
+            res.status(200).json({ success: true, data: rows });
+        }
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }

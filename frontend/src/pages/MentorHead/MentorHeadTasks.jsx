@@ -5,6 +5,8 @@ import toast from 'react-hot-toast';
 import { premiumConfirm } from '../../utils/premiumConfirm';
 import Modal from '../../components/Modal';
 import { useAuth } from '../../context/AuthContext';
+import Pagination from '../../components/common/Pagination';
+
 const MentorHeadTasks = () => {
   const {
     user
@@ -16,6 +18,12 @@ const MentorHeadTasks = () => {
   const [filterMentor, setFilterMentor] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
+  
+  // Pagination State
+  const [page, setPage] = useState(1);
+  const limit = 50;
+  const [totalRecords, setTotalRecords] = useState(0);
+
   const [uploadingId, setUploadingId] = useState(null);
   const [formData, setFormData] = useState({
     title: '',
@@ -26,13 +34,22 @@ const MentorHeadTasks = () => {
   });
   useEffect(() => {
     fetchTasks();
+  }, [page, statusFilter, searchQuery]);
+
+  useEffect(() => {
     fetchMentors();
   }, []);
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setPage(1);
+  }, [statusFilter, searchQuery]);
   const fetchTasks = async () => {
     try {
       setLoading(true);
-      const res = await api.get('/tasks');
+      const res = await api.get(`/tasks?page=${page}&limit=${limit}&category=${encodeURIComponent(statusFilter)}&search=${encodeURIComponent(searchQuery)}`);
       setTasks(res.data.data);
+      setTotalRecords(res.data.total || 0);
     } catch (error) {
       toast.error("Failed to load tasks");
     } finally {
@@ -136,12 +153,10 @@ const MentorHeadTasks = () => {
     };
   };
 
-  // Consolidated filtering logic
+  // Consolidated filtering logic (now mostly handled server-side, but mentor filter can remain client-side for now if not sent to backend)
   const filteredTasks = tasks.filter(task => {
     const matchesMentor = !filterMentor || task.mentor_name === filterMentor;
-    const matchesStatus = statusFilter === 'All' || statusFilter === 'Pending' && task.status !== 'Completed' || statusFilter === 'Completed' && task.status === 'Completed';
-    const matchesSearch = !searchQuery || task.title?.toLowerCase().includes(searchQuery.toLowerCase()) || task.description?.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesMentor && matchesStatus && matchesSearch;
+    return matchesMentor;
   });
 
   // Get unique mentor names for filter dropdown
@@ -355,14 +370,14 @@ const MentorHeadTasks = () => {
    })}
  </div>
 
- <div className="p-4 md:p-6 bg-slate-50/50 border-t border-slate-100 flex flex-col md:flex-row justify-between items-center gap-4 mt-auto">
- <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest hidden md:block">Total Tasks: {filteredTasks.length}</span>
- <div className="flex items-center justify-between w-full md:w-auto gap-2">
- <button className="flex-1 md:flex-none min-h-[48px] md:min-h-0 px-4 py-2 bg-white border border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-600 active:bg-slate-50">← Prev</button>
- <button className="flex-1 md:flex-none min-h-[48px] md:min-h-0 px-4 py-2 bg-[#008080] text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-[#008080]/30 ">Page 1</button>
- <button className="flex-1 md:flex-none min-h-[48px] md:min-h-0 px-4 py-2 bg-white border border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-900 shadow-sm active:bg-slate-50">Next →</button>
- </div>
- </div>
+  <div className="mt-4">
+    <Pagination 
+      currentPage={page} 
+      totalPages={Math.ceil(totalRecords / limit) || 1} 
+      totalRecords={totalRecords} 
+      onPageChange={setPage} 
+    />
+  </div>
  </div>}
 
  <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Create New Task" size="md">

@@ -5,7 +5,10 @@ const db = require('../config/db');
 // @access  Private (super_admin)
 const getTasks = async (req, res) => {
     try {
-        const { startDate, endDate, category } = req.query;
+        const { startDate, endDate, category, search } = req.query;
+        const page = parseInt(req.query.page) || 1;
+        const limit = req.query.export === 'true' ? 5000 : (parseInt(req.query.limit) || 50);
+        const offset = (page - 1) * limit;
         let sql = `
             SELECT t.*, u.name as mentor_name, u.email as mentor_email, 
                    creator.name as assigner_name, creator.role as assigner_role
@@ -27,10 +30,16 @@ const getTasks = async (req, res) => {
         }
 
         // Filter by category
-        if (category === 'Active Records') {
-            sql += " AND t.status NOT IN ('Completed', 'Success', 'Rejected')";
-        } else if (category === 'Archived Records') {
-            sql += " AND t.status IN ('Completed', 'Success', 'Rejected')";
+        // Filter by category (status)
+        if (category && category !== 'All' && category !== 'All Tasks') {
+            if (category === 'Active Records') {
+                sql += " AND t.status NOT IN ('Completed', 'Success', 'Rejected')";
+            } else if (category === 'Archived Records') {
+                sql += " AND t.status IN ('Completed', 'Success', 'Rejected')";
+            } else {
+                sql += ' AND t.status = ?';
+                params.push(category);
+            }
         }
 
         // Role-based filtering
@@ -48,10 +57,67 @@ const getTasks = async (req, res) => {
             return res.status(200).json({ success: true, count: 0, data: [] });
         }
 
-        sql += ' ORDER BY t.created_at DESC';
+        // Search filtering
+        if (search) {
+            sql += ' AND (t.title LIKE ? OR t.description LIKE ? OR u.name LIKE ?)';
+            params.push(`%${search}%`, `%${search}%`, `%${search}%`);
+        }
+
+        let countSql = sql.replace('SELECT t.*, u.name as mentor_name, u.email as mentor_email, \n                   creator.name as assigner_name, creator.role as assigner_role', 'SELECT COUNT(*) as total');
+        // Let's just write a clean count query
+        countSql = `
+            SELECT COUNT(*) as total
+            FROM tasks t 
+            LEFT JOIN users u ON t.assigned_to = u.id 
+            LEFT JOIN users creator ON t.assigned_by = creator.id
+            WHERE 1=1
+        `;
+        let countParams = [];
+
+        if (startDate) {
+            countSql += ' AND t.created_at >= ?';
+            countParams.push(startDate);
+        }
+        if (endDate) {
+            countSql += ' AND t.created_at <= ?';
+            countParams.push(endDate + ' 23:59:59');
+        }
+
+        if (category && category !== 'All' && category !== 'All Tasks') {
+            if (category === 'Active Records') {
+                countSql += " AND t.status NOT IN ('Completed', 'Success', 'Rejected')";
+            } else if (category === 'Archived Records') {
+                countSql += " AND t.status IN ('Completed', 'Success', 'Rejected')";
+            } else {
+                countSql += ' AND t.status = ?';
+                countParams.push(category);
+            }
+        }
+
+        if (req.user.role === 'academic_head' || req.user.role === 'academic_operation_executive') {
+            countSql += ' AND t.assigned_by = ?';
+            countParams.push(req.user.id);
+        } else if (req.user.role === 'mentor' || req.user.role === 'faculty') {
+            countSql += ' AND t.assigned_to = ?';
+            countParams.push(req.user.id);
+        } else if (req.user.role === 'mentor_head') {
+            countSql += ' AND (t.assigned_by = ? OR t.assigned_to = ? OR u.role = "mentor")';
+            countParams.push(req.user.id, req.user.id);
+        }
+
+        if (search) {
+            countSql += ' AND (t.title LIKE ? OR t.description LIKE ? OR u.name LIKE ?)';
+            countParams.push(`%${search}%`, `%${search}%`, `%${search}%`);
+        }
+
+        const [countResult] = await db.query(countSql, countParams);
+        const total = countResult[0].total;
+
+        sql += ' ORDER BY t.created_at DESC LIMIT ? OFFSET ?';
+        params.push(limit, offset);
 
         const [rows] = await db.query(sql, params);
-        res.status(200).json({ success: true, count: rows.length, data: rows });
+        res.status(200).json({ success: true, count: rows.length, total, data: rows });
     } catch (error) {
         console.error("GET_TASKS_ERROR:", error);
         res.status(500).json({ success: false, message: "Server Error", error: error.message });

@@ -3,6 +3,7 @@ import { Search, Filter, ChevronLeft, ChevronRight, Eye, CheckCircle, Ban, Trash
 import StudentListFilterDropdown from './StudentListFilterDropdown';
 import DatePicker, { DateObject } from "react-multi-date-picker";
 import * as XLSX from 'xlsx';
+import Pagination from './common/Pagination';
 
 const DataTable = ({
  columns,
@@ -29,6 +30,11 @@ const DataTable = ({
  onToggleExpand,
  extraActions = [],
  renderMobileCard,
+ // Pagination props
+ page,
+ totalPages,
+ totalRecords,
+ onPageChange
 }) => {
   const [internalExpandedId, setInternalExpandedId] = useState(null);
   const [showExportModal, setShowExportModal] = useState(false);
@@ -465,6 +471,14 @@ const DataTable = ({
  )}
  </div>
 
+ {page && totalPages ? (
+   <Pagination 
+     currentPage={page} 
+     totalPages={totalPages} 
+     totalRecords={totalRecords} 
+     onPageChange={onPageChange} 
+   />
+ ) : (
  <div className="flex items-center justify-between px-8 py-6 bg-slate-50/20 border-t border-slate-100/50">
  <div className="flex items-center gap-2">
  <div className="w-2 h-2 rounded-full bg-[#008080] animate-pulse"></div>
@@ -480,6 +494,7 @@ const DataTable = ({
  </button>
  </div>
  </div>
+ )}
  </div>
  );
 };

@@ -1045,8 +1045,28 @@ exports.getMentorMonitoringDetails = async (req, res) => {
 // @route   GET /api/mentor-head/all-students
 exports.getAllStudents = async (req, res) => {
     try {
-        const [students] = await db.query('SELECT id, name, course, grade, mentor_id, onboarding_status FROM students');
-        res.status(200).json({ success: true, data: students });
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 50;
+        const offset = (page - 1) * limit;
+        const search = req.query.search || '';
+
+        let query = 'SELECT id, name, course, grade, mentor_id, onboarding_status FROM students WHERE 1=1';
+        let params = [];
+        
+        if (search) {
+            query += ' AND (name LIKE ? OR course LIKE ?)';
+            params.push(`%${search}%`, `%${search}%`);
+        }
+
+        const countQuery = `SELECT COUNT(*) as total FROM students WHERE 1=1 ${search ? 'AND (name LIKE ? OR course LIKE ?)' : ''}`;
+        const [countResult] = await db.query(countQuery, search ? [`%${search}%`, `%${search}%`] : []);
+        const total = countResult[0].total;
+
+        query += ' ORDER BY name ASC LIMIT ? OFFSET ?';
+        params.push(limit, offset);
+
+        const [students] = await db.query(query, params);
+        res.status(200).json({ success: true, total, data: students });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
@@ -1195,7 +1215,12 @@ exports.removeMentor = async (req, res) => {
 // @route   GET /api/mentor-head/daily-student-checks
 exports.getDailyStudentChecks = async (req, res) => {
     try {
-        const query = `
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 50;
+        const offset = (page - 1) * limit;
+        const sortBy = req.query.sortBy || 'least_checked'; // least_checked, most_checked, name
+
+        let query = `
             SELECT 
                 s.id as student_id,
                 s.name as student_name,
@@ -1206,9 +1231,25 @@ exports.getDailyStudentChecks = async (req, res) => {
                 (SELECT COUNT(*) FROM student_verification WHERE student_id = s.id) AS total_check_count
             FROM students s
             LEFT JOIN mentors u ON s.mentor_id = u.id
+            WHERE s.status != 'rejected'
         `;
-        const [students] = await db.query(query);
-        res.status(200).json({ success: true, data: students });
+
+        const countQuery = `SELECT COUNT(*) as total FROM students WHERE status != 'rejected'`;
+        const [countResult] = await db.query(countQuery);
+        const total = countResult[0].total;
+
+        if (sortBy === 'least_checked') {
+            query += ' ORDER BY total_check_count ASC, s.name ASC';
+        } else if (sortBy === 'most_checked') {
+            query += ' ORDER BY total_check_count DESC, s.name ASC';
+        } else if (sortBy === 'name') {
+            query += ' ORDER BY s.name ASC';
+        }
+
+        query += ' LIMIT ? OFFSET ?';
+        
+        const [students] = await db.query(query, [limit, offset]);
+        res.status(200).json({ success: true, total, data: students });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
@@ -1589,9 +1630,18 @@ exports.getStudents = async (req, res) => {
             params.push(enrollment_type);
         }
 
+        const filterMode = req.query.filterMode;
+        if (filterMode === 'removed') {
+            query += ' AND s.mentor_id IS NULL AND s.previous_mentor_name IS NOT NULL';
+        } else if (filterMode === 'completed') {
+            query += ' AND s.course_status = "completed"';
+        } else if (filterMode === 'active') {
+            query += ' AND s.course_status != "completed" AND s.connected_today = 1';
+        }
+
         if (search) {
-            query += ' AND (s.name LIKE ? OR s.registration_number LIKE ? OR s.grade LIKE ?)';
-            params.push(`%${search}%`, `%${search}%`, `%${search}%`);
+            query += ' AND (s.name LIKE ? OR s.registration_number LIKE ? OR s.grade LIKE ? OR s.mentor_name LIKE ? OR s.previous_mentor_name LIKE ?)';
+            params.push(`%${search}%`, `%${search}%`, `%${search}%`, `%${search}%`, `%${search}%`);
         }
 
         // Standardized Sorting logic
@@ -1607,8 +1657,45 @@ exports.getStudents = async (req, res) => {
             query += ' ORDER BY s.created_at DESC';
         }
 
+        let total = 0;
+        if (req.query.page) {
+            const page = parseInt(req.query.page) || 1;
+            const limit = parseInt(req.query.limit) || 50;
+            const offset = (page - 1) * limit;
+
+            // We need a subquery for counting since the main query has dynamic conditions
+            // For simplicity, we can do a quick count wrapping the main query
+            const countQuery = `SELECT COUNT(*) as total FROM (${query}) as count_query`;
+            const [countRows] = await db.query(countQuery, params);
+            total = countRows[0].total;
+
+            query += ' LIMIT ? OFFSET ?';
+            params.push(limit, offset);
+        }
+
         const [rows] = await db.query(query, params);
-        res.status(200).json({ success: true, data: rows });
+        
+        let responseData = { success: true, data: rows };
+        
+        if (req.query.page) {
+            responseData.total = total;
+        } else {
+            responseData.count = rows.length;
+        }
+
+        if (req.query.stats === 'true') {
+            const [statsRows] = await db.query(`
+                SELECT 
+                    COUNT(*) as totalEnrollment,
+                    SUM(CASE WHEN mentor_id IS NULL AND previous_mentor_name IS NOT NULL THEN 1 ELSE 0 END) as removedCount,
+                    SUM(CASE WHEN course_status = 'completed' THEN 1 ELSE 0 END) as courseCompletedCount,
+                    SUM(CASE WHEN course_status != 'completed' AND connected_today = 1 THEN 1 ELSE 0 END) as activeCount
+                FROM students WHERE status != 'rejected'
+            `);
+            responseData.stats = statsRows[0];
+        }
+
+        res.status(200).json(responseData);
     } catch (error) { 
         console.error("GET_STUDENTS_MENTOR_ERROR:", error);
         res.status(500).json({ success: false, message: error.message }); 

@@ -14,7 +14,7 @@ const DatePicker = MultiDatePicker.default ? MultiDatePicker.default : MultiDate
 
 const checkIsLive = (session, now = new Date()) => {
   if (!session.start_time || !session.end_time || !session.date) return false;
-  if (session.status === 'Completed') return false;
+  if (session.status !== 'Scheduled') return false;
   
   const sessionDate = new Date(session.date);
   
@@ -46,10 +46,12 @@ const AcademicSchedule = () => {
   const [joinedSessions, setJoinedSessions] = useState(() => {
     try { return JSON.parse(localStorage.getItem('joinedSessions')) || {}; } catch { return {}; }
   });
-  // Removed timer that causes whole component re-render every 10 seconds
-  
+  const [currentTime, setCurrentTime] = useState(new Date());
+
   useEffect(() => {
     fetchSchedule();
+    const interval = setInterval(() => setCurrentTime(new Date()), 30000);
+    return () => clearInterval(interval);
   }, []);
   
   const handleJoinSession = (session) => {
@@ -60,6 +62,7 @@ const AcademicSchedule = () => {
   };
   const [selectedSession, setSelectedSession] = useState(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isCompleteModalOpen, setIsCompleteModalOpen] = useState(false);
   const [newScheduleData, setNewScheduleData] = useState([{ day_of_week: 'Monday', start_time: '', end_time: '', subject: '', faculty_id: '' }]);
   const [minutesTaken, setMinutesTaken] = useState('');
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
@@ -319,7 +322,7 @@ const AcademicSchedule = () => {
 
               {activeTab !== 'upcoming' && (
               <div className="flex items-center justify-end md:justify-start gap-2 md:gap-3 pt-4 md:pt-0 border-t md:border-t-0 md:border-l border-slate-100 md:pl-6 w-full md:w-auto mt-2 md:mt-0">
-                {session.meeting_link && session.status !== 'Completed' && session.date && session.date.split('T')[0] === localTodayStr && (
+                {session.meeting_link && session.status === 'Scheduled' && session.date && session.date.split('T')[0] === localTodayStr && (
                   <button 
                     onClick={() => handleJoinSession(session)}
                     title="Watch Session"
@@ -341,7 +344,7 @@ const AcademicSchedule = () => {
                   <BookOpen size={16} />
                 </button>
 
-                {session.status !== 'Completed' && (
+                {session.status === 'Scheduled' && (
                     <button 
                       onClick={() => { setSelectedSession(session); setMinutesTaken(''); setIsCompleteModalOpen(true); }}
                       title="Class Completed"

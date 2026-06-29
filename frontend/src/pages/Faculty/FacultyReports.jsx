@@ -1,4 +1,4 @@
-import React, {  useState, useEffect , useDeferredValue } from 'react';
+import React, { useState, useEffect, useDeferredValue } from 'react';
 import axios from '../../services/api';
 import {
  ClipboardList,
@@ -12,6 +12,7 @@ import {
  SearchX
 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import Pagination from '../../components/common/Pagination';
 
 const FacultyReports = () => {
  const [reports, setReports] = useState([]);
@@ -19,15 +20,27 @@ const FacultyReports = () => {
  const [searchTerm, setSearchTerm] = useState('');
 	const deferredSearchTerm = useDeferredValue(searchTerm);
 
+ const [page, setPage] = useState(1);
+ const limit = 50;
+ const [totalRecords, setTotalRecords] = useState(0);
+
  useEffect(() => {
  fetchReports();
- }, []);
+ }, [page, deferredSearchTerm]);
+
+ useEffect(() => {
+ setPage(1);
+ }, [deferredSearchTerm]);
 
  const fetchReports = async () => {
+ setLoading(true);
  try {
- const res = await axios.get('/faculty/reports');
+ const res = await axios.get('/faculty/reports', {
+     params: { page, limit, search: deferredSearchTerm }
+ });
  if (res.data.success) {
- setReports(res.data.data);
+ setReports(res.data.data || []);
+ setTotalRecords(res.data.total || 0);
  }
  } catch (error) {
  toast.error("Failed to load reports");
@@ -36,10 +49,7 @@ const FacultyReports = () => {
  }
  };
 
- const filteredReports = reports.filter(r =>
- r.student_name.toLowerCase().includes(deferredSearchTerm.toLowerCase()) ||
- r.type.toLowerCase().includes(deferredSearchTerm.toLowerCase())
- );
+ const filteredReports = reports;
 
  return (
  <div className="space-y-12 pb-20">
@@ -129,6 +139,17 @@ const FacultyReports = () => {
  </div>
  )}
  </div>
+
+ {reports.length > 0 && (
+ <div className="bg-white p-4 md:p-6 rounded-[2.5rem] border border-slate-100 mt-6 shadow-sm">
+ <Pagination 
+ currentPage={page} 
+ totalPages={Math.ceil(totalRecords / limit) || 1} 
+ totalRecords={totalRecords} 
+ onPageChange={setPage} 
+ />
+ </div>
+ )}
  </div >
  );
 };

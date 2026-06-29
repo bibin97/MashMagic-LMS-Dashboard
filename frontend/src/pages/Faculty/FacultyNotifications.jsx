@@ -13,20 +13,34 @@ import {
  SearchX
 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import Pagination from '../../components/common/Pagination';
 
 const FacultyNotifications = () => {
  const [notifications, setNotifications] = useState([]);
  const [loading, setLoading] = useState(true);
  const [filter, setFilter] = useState('all');
+ const [page, setPage] = useState(1);
+ const limit = 50;
+ const [totalRecords, setTotalRecords] = useState(0);
 
  useEffect(() => {
  fetchNotifications();
- }, []);
+ }, [page, filter]);
+
+ useEffect(() => {
+ setPage(1);
+ }, [filter]);
 
  const fetchNotifications = async () => {
+ setLoading(true);
  try {
- const res = await axios.get('/faculty/notifications');
- if (res.data.success) setNotifications(res.data.data);
+ const res = await axios.get('/faculty/notifications', {
+     params: { page, limit, status: filter }
+ });
+ if (res.data.success) {
+     setNotifications(res.data.data || []);
+     setTotalRecords(res.data.total || 0);
+ }
  } catch (error) {
  toast.error("Failed to sync notifications");
  } finally {
@@ -46,11 +60,7 @@ const FacultyNotifications = () => {
  }
  };
 
- const filteredNotifs = notifications.filter(n => {
- if (filter === 'unread') return n.is_read === 0;
- if (filter === 'read') return n.is_read === 1;
- return true;
- });
+ const filteredNotifs = notifications;
 
  const getIcon = (type) => {
  switch (type) {
@@ -151,6 +161,17 @@ const FacultyNotifications = () => {
  </div>
  )}
  </div>
+
+ {notifications.length > 0 && (
+ <div className="bg-white p-4 md:p-6 rounded-[2rem] border border-slate-100 shadow-sm mt-6">
+ <Pagination 
+ currentPage={page} 
+ totalPages={Math.ceil(totalRecords / limit) || 1} 
+ totalRecords={totalRecords} 
+ onPageChange={setPage} 
+ />
+ </div>
+ )}
  </div>
  );
 };
