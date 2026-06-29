@@ -49,6 +49,7 @@ const StudentsList = ({
 
   // Quick Assessment State
   const [isAssessmentModalOpen, setIsAssessmentModalOpen] = useState(false);
+  const [isSubmittingAssessment, setIsSubmittingAssessment] = useState(false);
   const [assessmentStudent, setAssessmentStudent] = useState(null);
   const [assessmentScores, setAssessmentScores] = useState({
     q1: 0,
@@ -182,6 +183,18 @@ const StudentsList = ({
     });
     setIsAssessmentModalOpen(true);
   };
+  
+  // Prevent body scrolling when assessment modal is open
+  useEffect(() => {
+    if (isAssessmentModalOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isAssessmentModalOpen]);
   const handleEditHoursSubmit = async e => {
     e.preventDefault();
     if (!editHoursModal.student) return;
@@ -230,12 +243,14 @@ const StudentsList = ({
   };
   const handleSubmitAssessment = async () => {
     const totalScore = calculateAssessmentScore();
-    if (totalScore === 0) {
-      toast.error('Please complete the assessment before submitting');
+    if (Object.values(assessmentScores).includes(0)) {
+      toast.error('Please complete all questions before submitting');
       return;
     }
     const level = getAssessmentLevel(totalScore);
+    
     try {
+      setIsSubmittingAssessment(true);
       await api.put(`/mentor-head/students/${assessmentStudent.id}/assessment-level`, {
         level,
         score: totalScore
@@ -245,6 +260,8 @@ const StudentsList = ({
       fetchStudents();
     } catch (error) {
       toast.error('Failed to submit assessment');
+    } finally {
+      setIsSubmittingAssessment(false);
     }
   };
   // Backend now handles search, filter, and sorting
@@ -982,9 +999,18 @@ const StudentsList = ({
 									<p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Total Score</p>
 									<p className="text-2xl font-black text-slate-900">{calculateAssessmentScore()}</p>
 								</div>
-								<button onClick={handleSubmitAssessment} disabled={Object.values(assessmentScores).includes(0)} className={`flex-1 md:flex-none min-h-[48px] px-6 sm:px-8 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 shadow-xl ${!Object.values(assessmentScores).includes(0) ? 'bg-[#008080] text-white shadow-[#008080]/30 hover:bg-[#006060] hover:-translate-y-0.5' : 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-none'}`}>
-									<Save size={16} className="shrink-0" /> 
-									<span className="truncate">{Object.values(assessmentScores).includes(0) ? 'Complete All' : 'Submit Score'}</span>
+								<button onClick={handleSubmitAssessment} disabled={Object.values(assessmentScores).includes(0) || isSubmittingAssessment} className={`flex-1 md:flex-none min-h-[48px] px-6 sm:px-8 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 shadow-xl ${!Object.values(assessmentScores).includes(0) && !isSubmittingAssessment ? 'bg-[#008080] text-white shadow-[#008080]/30 hover:bg-[#006060] hover:-translate-y-0.5' : 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-none'}`}>
+									{isSubmittingAssessment ? (
+										<div className="flex items-center gap-2">
+											<div className="w-4 h-4 border-2 border-slate-400 border-t-transparent rounded-full animate-spin"></div>
+											<span>Submitting...</span>
+										</div>
+									) : (
+										<>
+											<Save size={16} className="shrink-0" /> 
+											<span className="truncate">{Object.values(assessmentScores).includes(0) ? 'Complete All' : 'Submit Score'}</span>
+										</>
+									)}
 								</button>
 							</div>
 
