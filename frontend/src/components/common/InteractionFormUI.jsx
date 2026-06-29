@@ -41,10 +41,10 @@ const InteractionFormUI = ({ sessionType, formData, setFormData, isReadOnly = fa
   };
 
   const renderButtonOptions = (field, options, activeColor, inactiveColor, defaultLabel = '') => (
-    <div className="flex gap-2 w-full">
+    <div className="flex flex-wrap gap-2 w-full">
       {options.map(opt => {
         const isActive = formData[field] === opt;
-        const baseClass = "flex-1 py-3 rounded-2xl text-[9px] font-black uppercase transition-all shadow-sm";
+        const baseClass = "flex-1 min-w-[30%] sm:min-w-0 min-h-[48px] py-3 px-2 rounded-2xl text-[9px] font-black uppercase transition-all shadow-sm flex items-center justify-center text-center leading-tight break-words";
         const colorClass = isActive 
           ? activeColor 
           : isReadOnly 
@@ -59,7 +59,7 @@ const InteractionFormUI = ({ sessionType, formData, setFormData, isReadOnly = fa
             disabled={isReadOnly}
             className={`${baseClass} ${colorClass}`}
           >
-            {opt.split(' ')[1] || opt}
+            {opt}
           </button>
         );
       })}

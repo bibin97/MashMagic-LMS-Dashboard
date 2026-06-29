@@ -231,8 +231,8 @@ const CommonInteractionLogs = ({
       
       // Reset page when selecting a new student
       setPage(1);
-    } catch {
-      toast.error("Failed to fetch profile details");
+    } catch (e) {
+      console.warn("Failed to fetch full profile details. Using summary data.", e);
     }
   };
   const getResolvedDates = (filter, customRange) => {
