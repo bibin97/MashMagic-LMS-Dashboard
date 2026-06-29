@@ -118,14 +118,14 @@ const CourseCompletedTracker = () => {
   <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600" size={18} />
   <input type="text" placeholder="Search student or course..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="w-full min-h-[48px] bg-white border border-slate-200 rounded-2xl pl-12 pr-4 py-3 text-sm font-bold text-slate-700 focus:outline-none focus:border-[#008080] focus:ring-4 focus:ring-[#008080]/10 transition-all placeholder:text-slate-600 placeholder:font-medium" />
   </div>
-  <div className="flex gap-2 overflow-x-auto pb-2 md:pb-0 scrollbar-hide">
-    <button onClick={() => setFilter('all')} className={`min-w-[120px] md:min-w-0 flex-1 px-6 py-3 min-h-[48px] rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${filter === 'all' ? 'bg-[#008080] text-white shadow-lg shadow-[#008080]/30 -translate-y-0.5' : 'bg-white text-slate-500 border border-slate-200 hover:bg-slate-50'}`}>
+  <div className="grid grid-cols-2 md:flex gap-3 md:gap-2 pb-2 md:pb-0">
+    <button onClick={() => setFilter('all')} className={`col-span-1 md:flex-1 px-2 md:px-6 py-3 min-h-[48px] rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center text-center leading-tight break-words ${filter === 'all' ? 'bg-[#008080] text-white shadow-lg shadow-[#008080]/30 -translate-y-0.5' : 'bg-white text-slate-500 border border-slate-200 hover:bg-slate-50'}`}>
       Mark Completions
     </button>
-    <button onClick={() => setFilter('completed')} className={`min-w-[120px] md:min-w-0 flex-1 px-6 py-3 min-h-[48px] rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${filter === 'completed' ? 'bg-[#008080] text-white shadow-lg shadow-[#008080]/30 -translate-y-0.5' : 'bg-white text-slate-500 border border-slate-200 hover:bg-slate-50'}`}>
+    <button onClick={() => setFilter('completed')} className={`col-span-1 md:flex-1 px-2 md:px-6 py-3 min-h-[48px] rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center text-center leading-tight break-words ${filter === 'completed' ? 'bg-[#008080] text-white shadow-lg shadow-[#008080]/30 -translate-y-0.5' : 'bg-white text-slate-500 border border-slate-200 hover:bg-slate-50'}`}>
       Completed
     </button>
-    <button onClick={() => setFilter('pending')} className={`min-w-[120px] md:min-w-0 flex-1 px-6 py-3 min-h-[48px] rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${filter === 'pending' ? 'bg-[#008080] text-white shadow-lg shadow-[#008080]/30 -translate-y-0.5' : 'bg-white text-slate-500 border border-slate-200 hover:bg-slate-50'}`}>
+    <button onClick={() => setFilter('pending')} className={`col-span-2 md:col-span-1 md:flex-1 px-2 md:px-6 py-3 min-h-[48px] rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center text-center leading-tight break-words ${filter === 'pending' ? 'bg-[#008080] text-white shadow-lg shadow-[#008080]/30 -translate-y-0.5' : 'bg-white text-slate-500 border border-slate-200 hover:bg-slate-50'}`}>
       In Progress
     </button>
   </div>
