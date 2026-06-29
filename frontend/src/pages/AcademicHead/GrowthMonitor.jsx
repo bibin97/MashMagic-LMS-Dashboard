@@ -119,40 +119,77 @@ const GrowthMonitor = ({ initialData, onRefresh }) => {
             const latestGrowth = hasReport ? student.latest_report.overall_growth_percentage : 0;
             const status = hasReport ? student.latest_report.performance_status : (student.performance_status || 'Pending');
 
-            const actions = [];
-            
-            if (isAcademicHead) {
-              actions.push({ 
-                icon: isGenerating && generatingId === student.id ? <Loader2 size={12} className="animate-spin" /> : <FileText size={12} />, 
-                label: 'Generate Report', 
-                onClick: () => handleGenerateReport(student) 
-              });
-            }
-            if (hasReport) {
-              actions.push({ icon: <TrendingUp size={12} />, label: 'View Report', onClick: () => handleViewReport(student) });
-            }
-
             return (
-              <MobileCard
-                key={student.id}
-                isExpanded={false}
-                onToggle={() => {}}
-                avatar={
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-white font-black shadow-inner ${hasReport ? 'bg-gradient-to-br from-violet-400 to-violet-500' : 'bg-slate-200 text-slate-400'}`}>
-                    <span className="text-[10px]">{hasReport ? `${latestGrowth}%` : 'N/A'}</span>
+              <div key={student.id} className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden flex flex-col">
+                <div className="p-4 sm:p-5 border-b border-slate-50 flex justify-between items-start">
+                  <div>
+                    <h3 className="text-sm font-black text-slate-900 uppercase tracking-tight">{student.name}</h3>
+                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">
+                      {student.grade || 'N/A'} • {student.batch || 'No Batch'}
+                    </p>
                   </div>
-                }
-                title={student.name}
-                subtitle={`${student.grade || 'N/A'} • ${student.batch || 'No Batch'}`}
-                badges={[
-                  <div key="status">{renderStatusBadge(status)}</div>
-                ]}
-                metrics={[
-                  { icon: <TrendingUp size={12}/>, value: hasReport ? `${latestGrowth}% Growth` : 'No Data' },
-                  { icon: <CheckCircle2 size={12}/>, value: `${student.attendance_percentage || 0}% Att.` }
-                ]}
-                moreActions={actions}
-              />
+                  {hasReport && renderStatusBadge(status)}
+                </div>
+                
+                <div className="p-4 sm:p-5 flex-1">
+                  {hasReport ? (
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100">
+                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Growth</p>
+                        <p className="text-lg font-black text-violet-600">{latestGrowth}%</p>
+                      </div>
+                      <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100">
+                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Attendance</p>
+                        <p className="text-lg font-black text-slate-700">{student.latest_report.attendance_percentage}%</p>
+                      </div>
+                      <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100">
+                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Exam Avg</p>
+                        <p className="text-lg font-black text-blue-600">{student.latest_report.assessment_performance}%</p>
+                      </div>
+                      <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100">
+                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Subj Progress</p>
+                        <p className="text-lg font-black text-slate-700">{student.latest_report.overall_subject_progress}%</p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center justify-center py-6 text-center bg-slate-50 rounded-2xl border border-slate-100 border-dashed">
+                      <div className="w-10 h-10 bg-white text-slate-300 rounded-full flex items-center justify-center mb-3 shadow-sm border border-slate-100">
+                        <AlertTriangle size={20} />
+                      </div>
+                      <h4 className="text-xs font-black text-slate-600 uppercase tracking-widest">Growth Report Not Generated</h4>
+                      <p className="text-[10px] font-medium text-slate-400 mt-1 max-w-[200px]">Generate a report to unlock comprehensive analytics for this student.</p>
+                    </div>
+                  )}
+                </div>
+
+                <div className="p-4 sm:p-5 bg-slate-50 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3">
+                  {hasReport ? (
+                    <>
+                      <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest w-full text-center sm:text-left sm:w-auto">
+                        Updated: {new Date(student.latest_report.generated_at).toLocaleDateString()}
+                      </p>
+                      <div className="flex w-full sm:w-auto gap-2">
+                        {isAcademicHead && (
+                          <button onClick={() => handleGenerateReport(student)} disabled={isGenerating} className="flex-1 sm:flex-none h-10 px-3 bg-white border border-slate-200 text-slate-600 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-50 transition-colors flex items-center justify-center gap-1 disabled:opacity-50">
+                            {isGenerating && generatingId === student.id ? <Loader2 size={12} className="animate-spin" /> : <TrendingUp size={12} />}
+                            <span className="inline">Refresh</span>
+                          </button>
+                        )}
+                        <button onClick={() => handleViewReport(student)} className="flex-[2] sm:flex-none h-10 px-4 bg-violet-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-violet-700 transition-colors flex items-center justify-center gap-2 shadow-sm">
+                          <FileText size={12} /> View Report
+                        </button>
+                      </div>
+                    </>
+                  ) : (
+                    isAcademicHead && (
+                      <button onClick={() => handleGenerateReport(student)} disabled={isGenerating} className="w-full h-11 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-800 transition-colors flex items-center justify-center gap-2 disabled:opacity-70 shadow-sm">
+                        {isGenerating && generatingId === student.id ? <Loader2 size={14} className="animate-spin" /> : <FileText size={14} />}
+                        Generate Report
+                      </button>
+                    )
+                  )}
+                </div>
+              </div>
             );
           })
         )}
