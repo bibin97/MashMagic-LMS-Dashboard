@@ -1014,93 +1014,41 @@ const CommonInteractionLogs = ({
                           &ldquo;{log.mentor_notes || log.notes || log.remarks || 'No notes provided.'}&rdquo;
                         </p>
                       </div> : <div className="mt-4 md:mt-6 pt-4 md:pt-6 border-t border-slate-100 space-y-6 md:space-y-8 animate-in slide-in-from-top-4 duration-500">
-                        {/* Narrative Section */}
-                        <div className="relative">
-                          <div className="absolute -left-4 top-0 bottom-0 w-1 bg-[#008080] rounded-full opacity-10"></div>
-                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
-                            <ScrollText size={12} /> Detailed Notes
-                          </p>
-                          <div className="text-xs md:text-sm font-bold text-slate-700 leading-relaxed p-4 md:p-8 bg-slate-50 rounded-2xl md:rounded-[2rem] border border-slate-100 relative shadow-inner break-words overflow-hidden">
-                            <div className="absolute top-4 left-4 opacity-5">
-                              <svg width="40" height="40" viewBox="0 0 24 24" fill="currentColor"><path d="M14.017 21L14.017 18C14.017 16.8954 14.9124 16 16.017 16H19.017C20.1216 16 21.017 16.8954 21.017 18V21C21.017 22.1046 20.1216 23 19.017 23H16.017C14.9124 23 14.017 22.1046 14.017 21ZM14.017 21V18C14.017 16.8954 14.9124 16 16.017 16H19.017C20.1216 16 21.017 16.8954 21.017 18V21C21.017 22.1046 20.1216 23 19.017 23H16.017C14.9124 23 14.017 22.1046 14.017 21ZM3 18C3 16.8954 3.89543 16 5 16H8C9.10457 16 10 16.8954 10 18V21C10 22.1046 9.10457 23 8 23H5C3.89543 23 3 22.1046 3 21V18ZM3 18V16C3 13.7909 4.79086 12 7 12H10V14H7C5.89543 14 5 14.8954 5 16V18H3Z" /></svg>
-                            </div>
-                            {(() => {
-                              let parsedReportData = null;
-                              if (log.report_data) {
-                                try {
-                                  parsedReportData = typeof log.report_data === 'string' ? JSON.parse(log.report_data) : log.report_data;
-                                } catch (e) {
-                                  // Ignore JSON parse errors for report data
-                                }
-                              }
-                              
-                              if (parsedReportData) {
-                                // Map legacy fields to new UI fields for backwards compatibility
-                                if (parsedReportData.notes && !parsedReportData.quick_notes) parsedReportData.quick_notes = parsedReportData.notes;
-                                if (parsedReportData.notes && !parsedReportData.quick_guidance) parsedReportData.quick_guidance = parsedReportData.notes;
-                                if (parsedReportData.notes && !parsedReportData.mentor_guidance) parsedReportData.mentor_guidance = parsedReportData.notes;
-                                if (parsedReportData.main_problem && !parsedReportData.root_cause) parsedReportData.root_cause = parsedReportData.main_problem;
-                              }
-                              
-                              const sessionTypeUpper = (log.session_type || '').toUpperCase();
-
-                              if (parsedReportData) {
-                                if (sessionTypeUpper === 'DEEP' && (parsedReportData.root_cause || parsedReportData.mentor_guidance || parsedReportData.action_plan)) {
-                                  return (
-                                    <div className="space-y-6">
-                                      {parsedReportData.root_cause && <div><p className="text-[10px] font-black uppercase tracking-widest text-rose-500 mb-1">Root Cause</p><p className="whitespace-pre-wrap">{parsedReportData.root_cause}</p></div>}
-                                      {parsedReportData.mentor_guidance && <div><p className="text-[10px] font-black uppercase tracking-widest text-rose-500 mb-1">Mentor Guidance</p><p className="whitespace-pre-wrap">{parsedReportData.mentor_guidance}</p></div>}
-                                      {parsedReportData.action_plan && <div><p className="text-[10px] font-black uppercase tracking-widest text-rose-500 mb-1">Action Plan</p><p className="whitespace-pre-wrap">{parsedReportData.action_plan}</p></div>}
-                                    </div>
-                                  );
-                                } else if (sessionTypeUpper === 'MEDIUM' && (parsedReportData.quick_guidance || parsedReportData.next_task || parsedReportData.action_detail || parsedReportData.action_specific)) {
-                                  return (
-                                    <div className="space-y-6">
-                                      {parsedReportData.quick_guidance && <div><p className="text-[10px] font-black uppercase tracking-widest text-purple-500 mb-1">Guidance Given</p><p className="whitespace-pre-wrap">{parsedReportData.quick_guidance}</p></div>}
-                                      {parsedReportData.next_task && <div><p className="text-[10px] font-black uppercase tracking-widest text-purple-500 mb-1">Next Task Assigned</p><p className="whitespace-pre-wrap">{parsedReportData.next_task}</p></div>}
-                                      {parsedReportData.action_detail && <div><p className="text-[10px] font-black uppercase tracking-widest text-purple-500 mb-1">Action Detail</p><p className="whitespace-pre-wrap">{parsedReportData.action_detail}</p></div>}
-                                      {parsedReportData.action_specific && <div><p className="text-[10px] font-black uppercase tracking-widest text-purple-500 mb-1">Specific Action</p><p className="whitespace-pre-wrap">{parsedReportData.action_specific}</p></div>}
-                                    </div>
-                                  );
-                                } else if (sessionTypeUpper === 'QUICK' && (parsedReportData.study_status || parsedReportData.quick_notes)) {
-                                  return (
-                                    <div className="space-y-6">
-                                      {parsedReportData.study_status && <div><p className="text-[10px] font-black uppercase tracking-widest text-[#008080] mb-1">Study Status</p><p className="whitespace-pre-wrap">{parsedReportData.study_status}</p></div>}
-                                      {parsedReportData.quick_notes && <div><p className="text-[10px] font-black uppercase tracking-widest text-[#008080] mb-1">Notes</p><p className="whitespace-pre-wrap">{parsedReportData.quick_notes}</p></div>}
-                                    </div>
-                                  );
-                                }
-                              }
-                              const defaultNotes = log.mentor_notes || log.notes || log.remarks;
-                              return defaultNotes && !['QUICK', 'MEDIUM', 'DEEP'].includes(defaultNotes) ? defaultNotes : 'No notes provided for this session.';
-                            })()}
-                          </div>
-                        </div>
+                        {/* Narrative Section Removed: Details merged into Questionnaire */}
 
                         {/* Questionnaire Section */}
                         {(() => {
                           let parsedReportData = null;
                           if (log.report_data) {
                             try {
-                              parsedReportData = typeof log.report_data === 'string' ? JSON.parse(log.report_data) : log.report_data;
+                              parsedReportData = typeof log.report_data === 'string' ? JSON.parse(log.report_data) : { ...log.report_data };
                             } catch (e) {
                               console.error("Failed to parse report_data:", e);
                             }
                           }
                           
-                          if (parsedReportData) {
-                            // Map legacy fields to new UI fields for backwards compatibility
-                            if (parsedReportData.notes && !parsedReportData.quick_notes) parsedReportData.quick_notes = parsedReportData.notes;
-                            if (parsedReportData.notes && !parsedReportData.quick_guidance) parsedReportData.quick_guidance = parsedReportData.notes;
-                            if (parsedReportData.notes && !parsedReportData.mentor_guidance) parsedReportData.mentor_guidance = parsedReportData.notes;
-                            if (parsedReportData.main_problem && !parsedReportData.root_cause) parsedReportData.root_cause = parsedReportData.main_problem;
+                          if (!parsedReportData) parsedReportData = {};
+                          
+                          const sessionTypeUpper = (log.session_type || 'QUICK').toUpperCase();
+                          const defaultNotes = log.mentor_notes || log.notes || log.remarks;
+
+                          // Map legacy fields to new UI fields for backwards compatibility
+                          if (parsedReportData.notes && !parsedReportData.quick_notes) parsedReportData.quick_notes = parsedReportData.notes;
+                          if (parsedReportData.notes && !parsedReportData.quick_guidance) parsedReportData.quick_guidance = parsedReportData.notes;
+                          if (parsedReportData.notes && !parsedReportData.mentor_guidance) parsedReportData.mentor_guidance = parsedReportData.notes;
+                          if (parsedReportData.main_problem && !parsedReportData.root_cause) parsedReportData.root_cause = parsedReportData.main_problem;
+
+                          // Fallback unmapped core notes into proper form fields
+                          if (defaultNotes && !['QUICK', 'MEDIUM', 'DEEP'].includes(defaultNotes)) {
+                            if (sessionTypeUpper === 'QUICK' && !parsedReportData.quick_notes) parsedReportData.quick_notes = defaultNotes;
+                            if (sessionTypeUpper === 'MEDIUM' && !parsedReportData.interaction_details) parsedReportData.interaction_details = defaultNotes;
+                            if (sessionTypeUpper === 'DEEP' && !parsedReportData.action_plan) parsedReportData.action_plan = defaultNotes;
                           }
                           
-                          if (!parsedReportData) return null;
                           return (
-                            <div className="space-y-4 mt-8">
+                            <div className="space-y-4">
                               <InteractionFormUI
-                                sessionType={(log.session_type || 'QUICK').toUpperCase()}
+                                sessionType={sessionTypeUpper}
                                 formData={parsedReportData}
                                 setFormData={() => { }}
                                 isReadOnly={true}
