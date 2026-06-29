@@ -70,7 +70,7 @@ const MyTasks = () => {
  <ListTodo size={28} className="md:w-[36px] md:h-[36px]" strokeWidth={2.5} />
  </div>
  <div>
- <h1 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tighter uppercase leading-none mb-3 break-words px-2">My Tasks</h1>
+ <h1 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tighter uppercase leading-none mb-3 break-words px-2 md:px-0">My Tasks</h1>
  <p className="text-slate-600 text-[11px] font-black uppercase tracking-[0.3em] flex flex-wrap justify-center md:justify-start items-center gap-2 md:gap-3 mt-1">
  <div className="w-2 h-2 rounded-full bg-[#008080] animate-pulse shrink-0"></div>
  Assigned Tasks & Action Items
@@ -142,7 +142,6 @@ const MyTasks = () => {
  >
  Mark Done
  </button>
- </button>
  </div>
  ) : (
  <div className="text-left sm:text-right flex flex-col gap-2 items-start sm:items-end w-full">
@@ -170,7 +169,7 @@ const MyTasks = () => {
  );
  })}
  {tasks.length === 0 && (
- <div className="py-10 md:py-20 px-4 bg-white rounded-[2rem] md:rounded-[2.5rem] border border-dashed border-slate-200 flex flex-col items-center justify-center shadow-sm w-full mx-auto">
+ <div className="py-10 md:py-20 px-4 md:px-0 bg-white rounded-[2rem] md:rounded-[2.5rem] border border-dashed border-slate-200 flex flex-col items-center justify-center shadow-sm w-full mx-auto">
  <CheckCircle size={40} className="text-emerald-100 mb-4" />
  <p className="text-slate-600 font-bold text-center break-words text-sm md:text-base">No active tasks found.</p>
  </div>
