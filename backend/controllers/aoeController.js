@@ -648,9 +648,9 @@ const getFacultyDirectory = async (req, res) => {
         if (sortBy === 'name') {
             query += ' ORDER BY name ASC';
         } else if (sortBy === 'oldest') {
-            query += ' ORDER BY created_at ASC';
+            query += ' ORDER BY id ASC';
         } else {
-            query += ' ORDER BY created_at DESC';
+            query += ' ORDER BY id DESC';
         }
 
         if (page) {
