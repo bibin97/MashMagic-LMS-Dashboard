@@ -35,7 +35,7 @@ const StudentListFilterDropdown = ({ value, onChange, options = STUDENT_SORT_OPT
  <ChevronDown size={16} className={`text-slate-400 transition-transform ${open ? 'rotate-180' : ''}`} />
  </button>
  {open && (
- <div className="absolute right-0 sm:right-auto top-full mt-1.5 z-50 min-w-[220px] max-w-[90vw] max-h-[60vh] sm:max-w-none overflow-y-auto py-1.5 bg-white border border-slate-200 rounded-xl shadow-lg shadow-slate-200/50">
+ <div className="absolute left-0 sm:right-0 sm:left-auto top-full mt-1.5 z-50 min-w-[220px] max-w-[90vw] max-h-[60vh] sm:max-w-none overflow-y-auto py-1.5 bg-white border border-slate-200 rounded-xl shadow-lg shadow-slate-200/50">
  {options.map((opt) => (
  <button
  key={opt.value || 'default'}
