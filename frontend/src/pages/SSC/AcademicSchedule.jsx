@@ -307,7 +307,7 @@ const AcademicSchedule = () => {
               </button>
 
               <button
-                onClick={() => { setActiveTab('completed'); setFilterDate([]); }}
+                onClick={() => { setActiveTab('completed'); }}
                 className={`flex-1 md:flex-none flex items-center justify-center gap-2 md:gap-3 px-2 md:px-6 min-h-[44px] md:min-h-0 py-2 md:py-3 rounded-xl text-[9px] md:text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${
                   activeTab === 'completed' ? 'bg-white text-slate-900 shadow-md' : 'text-slate-400 hover:text-slate-600'
                 }`}

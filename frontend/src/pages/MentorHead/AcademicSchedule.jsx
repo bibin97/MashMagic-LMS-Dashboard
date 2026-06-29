@@ -211,7 +211,7 @@ return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String
               </button>
 
               <button
-                onClick={() => { setActiveTab('completed'); setFilterDate([]); }}
+                onClick={() => { setActiveTab('completed'); }}
                 className={`flex items-center gap-2 md:gap-3 px-4 md:px-6 py-2.5 md:py-3 rounded-xl text-[9px] md:text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${
                   activeTab === 'completed' ? 'bg-white text-slate-900 shadow-md' : 'text-slate-400 hover:text-slate-600'
                 }`}
