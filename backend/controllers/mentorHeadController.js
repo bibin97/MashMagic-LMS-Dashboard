@@ -1632,6 +1632,13 @@ exports.getStudents = async (req, res) => {
             params.push(enrollment_type);
         }
 
+        const mentorship_status = req.query.mentorship_status;
+        if (mentorship_status === 'completed') {
+            whereConditions += ' AND s.mentorship_completed = 1';
+        } else if (mentorship_status === 'pending') {
+            whereConditions += ' AND (s.mentorship_completed IS NULL OR s.mentorship_completed = 0)';
+        }
+
         const filterMode = req.query.filterMode;
         if (filterMode === 'removed') {
             whereConditions += ' AND s.mentor_id IS NULL AND s.previous_mentor_name IS NOT NULL';
@@ -1687,6 +1694,8 @@ exports.getStudents = async (req, res) => {
         
         if (req.query.page) {
             responseData.total = total;
+            responseData.totalPages = Math.ceil(total / (parseInt(req.query.limit) || 50));
+            responseData.currentPage = parseInt(req.query.page) || 1;
         } else {
             responseData.count = rows.length;
         }
@@ -1697,7 +1706,9 @@ exports.getStudents = async (req, res) => {
                     COUNT(*) as totalEnrollment,
                     SUM(CASE WHEN mentor_id IS NULL AND previous_mentor_name IS NOT NULL THEN 1 ELSE 0 END) as removedCount,
                     SUM(CASE WHEN course_status = 'completed' THEN 1 ELSE 0 END) as courseCompletedCount,
-                    SUM(CASE WHEN course_status != 'completed' AND status = 'active' THEN 1 ELSE 0 END) as activeCount
+                    SUM(CASE WHEN course_status != 'completed' AND status = 'active' THEN 1 ELSE 0 END) as activeCount,
+                    SUM(CASE WHEN mentorship_completed = 1 THEN 1 ELSE 0 END) as mentorshipCompletedCount,
+                    SUM(CASE WHEN mentorship_completed IS NULL OR mentorship_completed = 0 THEN 1 ELSE 0 END) as mentorshipPendingCount
                 FROM students WHERE status != 'rejected'
             `);
             responseData.stats = statsRows[0];
