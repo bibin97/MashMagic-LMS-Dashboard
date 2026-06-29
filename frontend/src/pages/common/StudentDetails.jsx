@@ -67,8 +67,9 @@ const StudentDetails = () => {
         setStudent(studentRes.data.data);
       }
 
-      // Only fetch fees if admin
-      if (isAdmin) {
+      // Only fetch fees if admin (not mentor_head, they don't have /admin/fees access)
+      const canFetchAdminFees = isAdmin && user?.role !== 'mentor_head' && user?.role !== 'academic_head';
+      if (canFetchAdminFees) {
         try {
           const feesRes = await api.get(`/admin/fees/student`);
           if (feesRes.data.success) {
