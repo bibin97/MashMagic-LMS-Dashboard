@@ -213,7 +213,7 @@ const getParentMeetings = async (req, res) => {
 const getExamScores = async (req, res) => {
     try {
         const [rows] = await db.query(`
-            SELECT e.*, s.name as student_name 
+            SELECT e.*, s.name as student_name, s.grade 
             FROM student_exams e
             JOIN students s ON e.student_id = s.id
             ORDER BY e.created_at DESC
@@ -221,6 +221,68 @@ const getExamScores = async (req, res) => {
         res.status(200).json({ success: true, data: rows });
     } catch (error) {
         console.error("Error fetching exam scores:", error);
+        res.status(500).json({ success: false, message: "Server error" });
+    }
+};
+
+const addExamScore = async (req, res) => {
+    try {
+        const { student_id, subject, exam_name, score, total_marks } = req.body;
+        const added_by = req.user ? req.user.name : 'Academic Head';
+        
+        if (!student_id || !subject || !exam_name || score === undefined || !total_marks) {
+            return res.status(400).json({ success: false, message: "Missing required fields" });
+        }
+        
+        // Prevent duplicate (student_id, subject, exam_name)
+        const [existing] = await db.query(
+            'SELECT id FROM student_exams WHERE student_id = ? AND subject = ? AND exam_name = ?',
+            [student_id, subject, exam_name]
+        );
+        if (existing.length > 0) {
+            return res.status(400).json({ success: false, message: "Exam score for this subject and exam name already exists for this student." });
+        }
+        
+        await db.query(
+            'INSERT INTO student_exams (student_id, mentor_id, milestone_session, score, status, subject, exam_name, total_marks, added_by) VALUES (?, 0, 0, ?, "Completed", ?, ?, ?, ?)',
+            [student_id, score, subject, exam_name, total_marks, added_by]
+        );
+        
+        res.status(201).json({ success: true, message: "Exam score added successfully" });
+    } catch (error) {
+        console.error("Error adding exam score:", error);
+        res.status(500).json({ success: false, message: "Server error" });
+    }
+};
+
+const editExamScore = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { score, total_marks } = req.body;
+        
+        if (score === undefined || !total_marks) {
+            return res.status(400).json({ success: false, message: "Missing required fields" });
+        }
+        
+        await db.query(
+            'UPDATE student_exams SET score = ?, total_marks = ? WHERE id = ?',
+            [score, total_marks, id]
+        );
+        
+        res.status(200).json({ success: true, message: "Exam score updated successfully" });
+    } catch (error) {
+        console.error("Error updating exam score:", error);
+        res.status(500).json({ success: false, message: "Server error" });
+    }
+};
+
+const deleteExamScore = async (req, res) => {
+    try {
+        const { id } = req.params;
+        await db.query('DELETE FROM student_exams WHERE id = ?', [id]);
+        res.status(200).json({ success: true, message: "Exam score deleted successfully" });
+    } catch (error) {
+        console.error("Error deleting exam score:", error);
         res.status(500).json({ success: false, message: "Server error" });
     }
 };
@@ -548,6 +610,9 @@ module.exports = {
     addFacultyQualityCheck,
     getParentMeetings,
     getExamScores,
+    addExamScore,
+    editExamScore,
+    deleteExamScore,
     getStudentGrowth,
     getFacultyReplacements,
     addFacultyReplacement,

@@ -6,6 +6,7 @@ import {
 import toast from 'react-hot-toast';
 import api from '../../services/api';
 import ParentMeetings from '../AOE/ParentMeetings';
+import ExamScores from './ExamScores';
 
 const formatTime12Hour = (timeStr) => {
   if (!timeStr) return '';
@@ -435,33 +436,8 @@ const OperationsHub = ({ section }) => {
   );
 
   const renderExamScores = () => (
-    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100 overflow-x-auto">
-        <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight mb-6">Institution-wide Exam Scores</h2>
-        <div className="w-full overflow-x-auto">
-<table className="w-full min-w-full md:w-[800px] text-left">
-          <thead>
-            <tr className="border-b border-slate-200">
-              <th className="pb-3 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Student</th>
-              <th className="pb-3 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Subject</th>
-              <th className="pb-3 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Exam Name</th>
-              <th className="pb-3 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Score</th>
-            </tr>
-          </thead>
-          <tbody>
-            {activeData.length === 0 && !loading && <tr><td colSpan="4" className="py-4 text-xs font-bold text-slate-400">No exam scores available.</td></tr>}
-            {activeData.map((item, i) => (
-              <tr key={item.id || i} className="border-b border-slate-50 hover:bg-slate-50 transition-colors">
-                <td className="py-4 text-xs font-black text-slate-900 uppercase">{item.student_name}</td>
-                <td className="py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">{item.subject || 'General'}</td>
-                <td className="py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">{item.exam_name || 'Unit Test'}</td>
-                <td className="py-4 text-xs font-black text-[#008080]">{item.score}/100</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-</div>
-      </div>
+    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <ExamScores initialData={activeData} onRefresh={() => fetchData('exam_scores')} />
     </div>
   );
 

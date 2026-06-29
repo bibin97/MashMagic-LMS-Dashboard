@@ -42,6 +42,9 @@ router.get('/parent-meetings', academicHeadController.getParentMeetings);
 
 // Exam Scores
 router.get('/exam-scores', academicHeadController.getExamScores);
+router.post('/exam-scores', academicHeadController.addExamScore);
+router.put('/exam-scores/:id', academicHeadController.editExamScore);
+router.delete('/exam-scores/:id', academicHeadController.deleteExamScore);
 
 // Daily Updates
 router.get('/daily-updates', getDailyUpdates);
