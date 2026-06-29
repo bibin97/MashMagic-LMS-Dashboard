@@ -1610,39 +1610,44 @@ exports.getStudents = async (req, res) => {
         `;
         let params = [];
         
+        let whereConditions = '';
+        
         if (mentor_id) {
-            query += ' AND s.mentor_id = ?';
+            whereConditions += ' AND s.mentor_id = ?';
             params.push(mentor_id);
         }
 
         if (faculty_id) {
-            query += ' AND (s.faculty_id = ? OR EXISTS (SELECT 1 FROM faculty_schedules fs WHERE (fs.is_deleted IS NULL OR fs.is_deleted = 0) AND fs.student_id = s.id AND fs.faculty_id = ?))';
+            whereConditions += ' AND (s.faculty_id = ? OR EXISTS (SELECT 1 FROM faculty_schedules fs WHERE (fs.is_deleted IS NULL OR fs.is_deleted = 0) AND fs.student_id = s.id AND fs.faculty_id = ?))';
             params.push(faculty_id, faculty_id);
         }
 
         if (course && course !== 'all') {
-            query += ' AND s.course = ?';
+            whereConditions += ' AND s.course = ?';
             params.push(course);
         }
 
         if (enrollment_type && enrollment_type !== 'all') {
-            query += ' AND s.enrollment_type = ?';
+            whereConditions += ' AND s.enrollment_type = ?';
             params.push(enrollment_type);
         }
 
         const filterMode = req.query.filterMode;
         if (filterMode === 'removed') {
-            query += ' AND s.mentor_id IS NULL AND s.previous_mentor_name IS NOT NULL';
+            whereConditions += ' AND s.mentor_id IS NULL AND s.previous_mentor_name IS NOT NULL';
         } else if (filterMode === 'completed') {
-            query += ' AND s.course_status = "completed"';
+            whereConditions += ' AND s.course_status = "completed"';
         } else if (filterMode === 'active') {
-            query += ' AND s.course_status != "completed" AND s.connected_today = 1';
+            whereConditions += ' AND s.course_status != "completed" AND s.status = "active"';
         }
 
         if (search) {
-            query += ' AND (s.name LIKE ? OR s.registration_number LIKE ? OR s.grade LIKE ? OR s.mentor_name LIKE ? OR s.previous_mentor_name LIKE ?)';
+            whereConditions += ' AND (s.name LIKE ? OR s.registration_number LIKE ? OR s.grade LIKE ? OR m.name LIKE ? OR s.previous_mentor_name LIKE ?)';
             params.push(`%${search}%`, `%${search}%`, `%${search}%`, `%${search}%`, `%${search}%`);
         }
+
+        // Apply conditions to main query
+        query += whereConditions;
 
         // Standardized Sorting logic
         if (sortBy === 'join_oldest' || sortBy === 'oldest') {
@@ -1663,9 +1668,12 @@ exports.getStudents = async (req, res) => {
             const limit = parseInt(req.query.limit) || 50;
             const offset = (page - 1) * limit;
 
-            // We need a subquery for counting since the main query has dynamic conditions
-            // For simplicity, we can do a quick count wrapping the main query
-            const countQuery = `SELECT COUNT(*) as total FROM (${query}) as count_query`;
+            const countQuery = `
+                SELECT COUNT(s.id) as total 
+                FROM students s 
+                LEFT JOIN mentors m ON s.mentor_id = m.id 
+                WHERE s.status != 'rejected' ${whereConditions}
+            `;
             const [countRows] = await db.query(countQuery, params);
             total = countRows[0].total;
 
@@ -1689,7 +1697,7 @@ exports.getStudents = async (req, res) => {
                     COUNT(*) as totalEnrollment,
                     SUM(CASE WHEN mentor_id IS NULL AND previous_mentor_name IS NOT NULL THEN 1 ELSE 0 END) as removedCount,
                     SUM(CASE WHEN course_status = 'completed' THEN 1 ELSE 0 END) as courseCompletedCount,
-                    SUM(CASE WHEN course_status != 'completed' AND connected_today = 1 THEN 1 ELSE 0 END) as activeCount
+                    SUM(CASE WHEN course_status != 'completed' AND status = 'active' THEN 1 ELSE 0 END) as activeCount
                 FROM students WHERE status != 'rejected'
             `);
             responseData.stats = statsRows[0];
