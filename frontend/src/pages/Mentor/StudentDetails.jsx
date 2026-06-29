@@ -419,13 +419,13 @@ const StudentDetails = () => {
           <div className="md:hidden flex flex-col gap-3 p-4">
             {student.attendance?.map(att => (
               <div key={att.id} className="bg-slate-50 p-4 rounded-2xl border border-slate-100 flex flex-col gap-2">
-                <div className="flex justify-between items-start">
+                <div className="flex justify-between items-start gap-4">
                   <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{new Date(att.date).toLocaleDateString('en-GB')}</span>
-                  <span className={`px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-widest border ${att.status === 'Present' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-rose-50 text-rose-600 border-rose-100'}`}>
+                  <span className={`px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-widest border shrink-0 ${att.status === 'Present' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-rose-50 text-rose-600 border-rose-100'}`}>
                     {att.status}
                   </span>
                 </div>
-                <p className="text-sm font-bold text-slate-900">{att.topic}</p>
+                <p className="text-sm font-bold text-slate-900 break-words">{att.topic}</p>
               </div>
             ))}
             {(!student.attendance || student.attendance.length === 0) && (
