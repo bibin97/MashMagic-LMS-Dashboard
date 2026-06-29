@@ -1239,7 +1239,7 @@ const toggleStudentConnection = async (req, res) => {
         const mentorId = req.user.id;
         const { studentId } = req.params;
         const { connected_today } = req.body;
-        const date = new Date().toISOString().split('T')[0];
+        const date = new Date().toLocaleString('en-CA', { timeZone: 'Asia/Kolkata' }).split(',')[0];
 
         if (connected_today) {
             // Check if log already exists

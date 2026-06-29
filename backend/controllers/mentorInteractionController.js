@@ -1,5 +1,9 @@
 const db = require('../config/db');
 
+const getISTDate = () => {
+    return new Date().toLocaleString('en-CA', { timeZone: 'Asia/Kolkata' }).split(',')[0];
+};
+
 const returnMergedAssignments = async (savedAssignments, targetDate, mentor_id, isPaused, res) => {
     if (savedAssignments && savedAssignments.length > 0) {
         const studentIds = savedAssignments.map(a => a.id);
@@ -68,7 +72,7 @@ const getDailyAssignments = async (req, res) => {
         
         // ONE-TIME SELF-HEALING: Fix corrupted Niranjana (ID: 187) record using precise JSON parsing
         try {
-            const todayStr = new Date().toISOString().split('T')[0];
+            const todayStr = getISTDate();
             const [allAssignments] = await db.query('SELECT id, date, assignments FROM daily_assignments WHERE mentor_id = ?', [mentor_id]);
             
             for (let record of allAssignments) {
@@ -116,7 +120,7 @@ const getDailyAssignments = async (req, res) => {
             console.error("Self-healing error:", e);
         }
 
-        const today = new Date().toISOString().split('T')[0];
+        const today = getISTDate();
 
         const [currentStudents] = await db.query(
             `SELECT id, onboarding_status FROM students 
@@ -390,7 +394,7 @@ const submitSessionReport = async (req, res) => {
         }
 
         // 5. Save Report - with exact duplicate check based on session details
-        const today = new Date().toISOString().split('T')[0];
+        const today = getISTDate();
         const interactionDate = req.body.interaction_date || today;
 
         if (session_type !== 'CANCELLED') {
@@ -597,7 +601,7 @@ const updateSessionReport = async (req, res) => {
             });
         }
 
-        const today = new Date().toISOString().split('T')[0];
+        const today = getISTDate();
         
         const [existing] = await db.query(
             'SELECT id, report_data FROM mentor_session_reports WHERE mentor_id = ? AND student_id = ? AND DATE(created_at) = ? ORDER BY id DESC LIMIT 1',
@@ -646,7 +650,7 @@ const deleteSessionReport = async (req, res) => {
     try {
         const mentor_id = req.user.id;
         const { id: student_id } = req.params;
-        const today = new Date().toISOString().split('T')[0];
+        const today = getISTDate();
 
         await db.query(
             'DELETE FROM mentor_session_reports WHERE mentor_id = ? AND student_id = ? AND DATE(created_at) = ?',
@@ -685,7 +689,7 @@ const getTodaySessionReport = async (req, res) => {
         const mentor_id = req.user.id;
         const { id: student_id } = req.params;
         const dateParam = req.query.date;
-        const targetDate = dateParam || new Date().toISOString().split('T')[0];
+        const targetDate = dateParam || getISTDate();
 
         const [existing] = await db.query(
             'SELECT id, report_data, session_type, created_at FROM mentor_session_reports WHERE mentor_id = ? AND student_id = ? AND DATE(created_at) = ? ORDER BY id DESC LIMIT 1',
@@ -713,7 +717,7 @@ const getYesterdayPending = async (req, res) => {
         
         // Support custom date: if date param given, "yesterday" means date-1 
         const dateParam = req.query.date;
-        const today = new Date().toISOString().split('T')[0];
+        const today = getISTDate();
         const referenceDate = dateParam || today;
         
         // Fetch the most recent past assignments (could be yesterday, or Friday if today is Monday)
