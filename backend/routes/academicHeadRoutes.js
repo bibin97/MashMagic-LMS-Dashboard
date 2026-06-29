@@ -52,6 +52,7 @@ router.put('/daily-updates/:id', academicHeadController.editDailyUpdate);
 
 // Student Growth
 router.get('/student-growth', academicHeadController.getStudentGrowth);
+router.post('/student-growth/generate/:id', academicHeadController.generateStudentGrowthReport);
 
 // All Students
 router.get('/students-all', academicHeadController.getAllStudents);

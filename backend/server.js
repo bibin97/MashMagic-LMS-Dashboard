@@ -842,6 +842,14 @@ const startServer = async () => {
                     FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE
                 );`,
 
+                `CREATE TABLE IF NOT EXISTS student_growth_reports (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    student_id INT NOT NULL,
+                    report_data JSON,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE
+                );`,
+
                 // MentorHead Assessment tracking
                 'ALTER TABLE students ADD COLUMN assessment_score INT NULL;',
                 'ALTER TABLE students ADD COLUMN assessment_history JSON NULL;',

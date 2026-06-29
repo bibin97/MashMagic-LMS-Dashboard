@@ -7,6 +7,7 @@ import toast from 'react-hot-toast';
 import api from '../../services/api';
 import ParentMeetings from '../AOE/ParentMeetings';
 import ExamScores from './ExamScores';
+import GrowthMonitor from './GrowthMonitor';
 
 const formatTime12Hour = (timeStr) => {
   if (!timeStr) return '';
@@ -442,17 +443,8 @@ const OperationsHub = ({ section }) => {
   );
 
   const renderStudentGrowth = () => (
-    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="bg-white p-5 md:p-10 rounded-[3rem] shadow-sm border border-slate-100 text-center flex flex-col items-center justify-center min-h-[400px]">
-        <div className="w-24 h-24 bg-violet-50 text-violet-500 rounded-full flex items-center justify-center mb-6">
-          <TrendingUp size={40} />
-        </div>
-        <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tighter">Student Growth Analytics</h2>
-        <p className="text-slate-500 font-medium max-w-md mt-2">Currently tracking {activeData.length} active students.</p>
-        <button onClick={() => fetchData('student_growth')} className="mt-8 px-4 md:px-8 py-3 bg-slate-900 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:-translate-y-1 transition-all">
-          Generate Latest Report
-        </button>
-      </div>
+    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <GrowthMonitor initialData={activeData} onRefresh={() => fetchData('student_growth')} />
     </div>
   );
 

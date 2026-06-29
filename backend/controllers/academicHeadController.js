@@ -289,18 +289,157 @@ const deleteExamScore = async (req, res) => {
 
 const getStudentGrowth = async (req, res) => {
     try {
-        // Fetch students with active status and their assigned mentors/faculties
         const [rows] = await db.query(`
-            SELECT s.id, s.name, s.batch, m.name as mentor_name, f.name as faculty_name,
-                   (SELECT AVG(score) FROM student_exams WHERE student_id = s.id) as avg_score
+            SELECT s.id, s.name, s.grade, s.batch, s.attendance_percentage, s.performance_status, 
+                   m.name as mentor_name, f.name as faculty_name,
+                   (SELECT AVG(score) FROM student_exams WHERE student_id = s.id) as avg_score,
+                   (SELECT report_data FROM student_growth_reports WHERE student_id = s.id ORDER BY created_at DESC LIMIT 1) as latest_report
             FROM students s
             LEFT JOIN mentors m ON s.mentor_id = m.id
             LEFT JOIN users f ON s.faculty_id = f.id
             WHERE s.status = 'active'
         `);
-        res.status(200).json({ success: true, data: rows });
+        
+        // Parse the JSON report_data
+        const formattedRows = rows.map(row => {
+           if (row.latest_report) {
+               try {
+                   row.latest_report = typeof row.latest_report === 'string' ? JSON.parse(row.latest_report) : row.latest_report;
+               } catch(e) {}
+           } 
+           return row;
+        });
+
+        res.status(200).json({ success: true, data: formattedRows });
     } catch (error) {
         console.error("Error fetching student growth:", error);
+        res.status(500).json({ success: false, message: "Server error" });
+    }
+};
+
+const generateStudentGrowthReport = async (req, res) => {
+    try {
+        const { id } = req.params; // student ID
+        
+        // 1. Fetch student info
+        const [studentRows] = await db.query(`
+            SELECT s.*, m.name as mentor_name 
+            FROM students s 
+            LEFT JOIN mentors m ON s.mentor_id = m.id 
+            WHERE s.id = ?`, [id]
+        );
+        if (studentRows.length === 0) return res.status(404).json({ success: false, message: "Student not found" });
+        const student = studentRows[0];
+
+        // 2. Fetch Exams
+        const [exams] = await db.query('SELECT subject, exam_name, score, total_marks FROM student_exams WHERE student_id = ?', [id]);
+        
+        // 3. Fetch Subjects
+        const [subjects] = await db.query('SELECT subject_name, allocated_hours, historical_consumed_hours FROM student_subjects WHERE student_id = ?', [id]);
+
+        // 4. Fetch Parent Meetings
+        const [meetings] = await db.query('SELECT notes, status FROM ah_parent_meetings WHERE student_id = ? ORDER BY date DESC LIMIT 3', [id]);
+        
+        // Calculate Subject Progress
+        let totalAllocated = 0;
+        let totalCompleted = 0;
+        const subjectProgress = subjects.map(sub => {
+            const alloc = parseFloat(sub.allocated_hours || 0);
+            const comp = parseFloat(sub.historical_consumed_hours || 0);
+            totalAllocated += alloc;
+            totalCompleted += comp;
+            return {
+                subject: sub.subject_name,
+                progress_percentage: alloc > 0 ? Math.round((comp / alloc) * 100) : 0
+            };
+        });
+        const overallSubjectProgress = totalAllocated > 0 ? Math.round((totalCompleted / totalAllocated) * 100) : 0;
+
+        // Calculate Assessment Performance
+        let totalMarksObtained = 0;
+        let maxPossibleMarks = 0;
+        const subjectScores = {};
+        
+        exams.forEach(ex => {
+            const s = parseFloat(ex.score || 0);
+            const t = parseFloat(ex.total_marks || 100);
+            totalMarksObtained += s;
+            maxPossibleMarks += t;
+            
+            const sub = ex.subject || 'General';
+            if (!subjectScores[sub]) subjectScores[sub] = { marks: 0, total: 0 };
+            subjectScores[sub].marks += s;
+            subjectScores[sub].total += t;
+        });
+        
+        const overallAssessmentScore = maxPossibleMarks > 0 ? Math.round((totalMarksObtained / maxPossibleMarks) * 100) : 0;
+        
+        // Determine Strengths and Areas for Improvement
+        let strengths = [];
+        let areasForImprovement = [];
+        
+        Object.entries(subjectScores).forEach(([sub, data]) => {
+           const pct = (data.marks / data.total) * 100;
+           if (pct >= 75) strengths.push(sub);
+           if (pct < 50) areasForImprovement.push(sub);
+        });
+        
+        // Fallbacks based on subject progress if exams are empty
+        if (strengths.length === 0 && subjectProgress.length > 0) {
+            const bestSub = [...subjectProgress].sort((a,b) => b.progress_percentage - a.progress_percentage)[0];
+            if (bestSub.progress_percentage >= 50) strengths.push(bestSub.subject);
+        }
+        if (areasForImprovement.length === 0 && subjectProgress.length > 0) {
+            const worstSub = [...subjectProgress].sort((a,b) => a.progress_percentage - b.progress_percentage)[0];
+            if (worstSub.progress_percentage < 30) areasForImprovement.push(worstSub.subject);
+        }
+        
+        if (strengths.length === 0) strengths.push('Consistent participation');
+        if (areasForImprovement.length === 0) areasForImprovement.push('Time management in exams');
+
+        // Overall Growth calculation (weighted average)
+        // Attendance 30%, Subject Progress 30%, Assessments 40%
+        const attendancePct = parseFloat(student.attendance_percentage || 0);
+        const overallGrowth = Math.round((attendancePct * 0.3) + (overallSubjectProgress * 0.3) + (overallAssessmentScore * 0.4));
+        
+        let perfStatus = 'Needs Improvement';
+        if (overallGrowth >= 85) perfStatus = 'Excellent';
+        else if (overallGrowth >= 70) perfStatus = 'Good';
+        else if (overallGrowth >= 50) perfStatus = 'Average';
+        
+        // Growth Trend
+        const growthTrend = overallGrowth >= 70 ? 'Positive upward trajectory with strong engagement.' : 'Requires closer monitoring and targeted intervention.';
+
+        const reportData = {
+            student_name: student.name,
+            grade: student.grade || student.batch,
+            mentor: student.mentor_name || 'Unassigned',
+            attendance_percentage: attendancePct,
+            subject_progress: subjectProgress,
+            overall_subject_progress: overallSubjectProgress,
+            assessment_performance: overallAssessmentScore,
+            overall_growth_percentage: overallGrowth,
+            performance_status: perfStatus,
+            strengths,
+            areas_for_improvement: areasForImprovement,
+            mentor_remarks: student.performance_status_reason || 'Student is making steady progress.',
+            parent_meeting_summary: meetings.length > 0 ? meetings[0].notes : 'No recent meetings.',
+            growth_trend: growthTrend,
+            generated_at: new Date().toISOString()
+        };
+
+        // Save report
+        await db.query(
+            'INSERT INTO student_growth_reports (student_id, report_data) VALUES (?, ?)',
+            [id, JSON.stringify(reportData)]
+        );
+        
+        // Update student performance status
+        await db.query('UPDATE students SET performance_status = ? WHERE id = ?', [perfStatus, id]);
+
+        res.status(200).json({ success: true, data: reportData });
+    } catch (error) {
+        console.error("Error generating student growth report:", error);
         res.status(500).json({ success: false, message: "Server error" });
     }
 };
@@ -614,6 +753,7 @@ module.exports = {
     editExamScore,
     deleteExamScore,
     getStudentGrowth,
+    generateStudentGrowthReport,
     getFacultyReplacements,
     addFacultyReplacement,
     getEscalations,
