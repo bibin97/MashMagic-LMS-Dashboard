@@ -115,7 +115,7 @@ const MobileCard = ({
                   key={idx}
                   onClick={(e) => {
                     e.stopPropagation();
-                    action.onClick();
+                    if (action.onClick) action.onClick(e);
                   }}
                   className={`flex-1 py-3 px-2 min-h-[44px] rounded-xl text-[10px] sm:text-[11px] font-black uppercase tracking-widest flex items-center justify-center gap-1.5 transition-all ${action.className || 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'}`}
                 >
@@ -145,7 +145,7 @@ const MobileCard = ({
                           onClick={(e) => {
                             e.stopPropagation();
                             setIsMenuOpen(false);
-                            action.onClick();
+                            if (action.onClick) action.onClick(e);
                           }}
                           className={`w-full min-h-[44px] p-3 text-[11px] font-bold flex items-center gap-3 transition-colors ${action.danger ? 'text-rose-600 hover:bg-rose-50' : 'text-slate-700 hover:bg-slate-50'} ${idx > 0 ? 'border-t border-slate-100' : ''}`}
                         >
