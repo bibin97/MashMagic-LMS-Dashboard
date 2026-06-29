@@ -64,15 +64,15 @@ const MyTasks = () => {
 
  return (
  <div className="flex flex-col gap-10 pb-10">
- <header className="bg-white/70 backdrop-blur-xl p-6 md:p-12 rounded-[40px] border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.04)] flex flex-col md:flex-row justify-between items-center gap-10">
- <div className="flex items-center gap-8">
- <div className="w-20 h-20 bg-[#008080] rounded-[28px] shadow-2xl shadow-[#008080]/30 flex items-center justify-center text-white group hover:rotate-12 transition-transform duration-700">
- <ListTodo size={36} strokeWidth={2.5} />
+ <header className="bg-white/70 backdrop-blur-xl p-6 md:p-12 rounded-[40px] border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.04)] flex flex-col md:flex-row justify-between items-center gap-6 md:gap-10">
+ <div className="flex flex-col md:flex-row items-center md:items-start text-center md:text-left gap-6 md:gap-8 w-full">
+ <div className="w-16 h-16 md:w-20 md:h-20 bg-[#008080] rounded-[24px] md:rounded-[28px] shadow-2xl shadow-[#008080]/30 flex items-center justify-center text-white shrink-0 group hover:rotate-12 transition-transform duration-700">
+ <ListTodo size={28} className="md:w-[36px] md:h-[36px]" strokeWidth={2.5} />
  </div>
  <div>
- <h1 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tighter uppercase leading-none mb-3">My Tasks</h1>
- <p className="text-slate-600 text-[11px] font-black uppercase tracking-[0.3em] flex items-center gap-3 mt-1">
- <div className="w-2 h-2 rounded-full bg-[#008080] animate-pulse"></div>
+ <h1 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tighter uppercase leading-none mb-3 break-words px-2">My Tasks</h1>
+ <p className="text-slate-600 text-[11px] font-black uppercase tracking-[0.3em] flex flex-wrap justify-center md:justify-start items-center gap-2 md:gap-3 mt-1">
+ <div className="w-2 h-2 rounded-full bg-[#008080] animate-pulse shrink-0"></div>
  Assigned Tasks & Action Items
  </p>
  </div>
@@ -94,11 +94,11 @@ const MyTasks = () => {
  </div>
  <div className="flex flex-col gap-1.5 w-full">
  <div className="flex flex-wrap items-center gap-3">
- <h3 className="text-base font-black text-slate-900 leading-tight">{task.title}</h3>
- <span className={`px-3 py-1 text-[8px] font-black uppercase tracking-widest rounded-lg bg-white border ${style.border} ${style.text} shadow-sm`}>
+ <h3 className="text-base font-black text-slate-900 leading-tight break-words">{task.title}</h3>
+ <span className={`px-3 py-1 text-[8px] font-black uppercase tracking-widest rounded-lg bg-white border ${style.border} ${style.text} shadow-sm shrink-0`}>
  {task.status === 'Completed' ? 'Completed' : (new Date(task.deadline) < new Date() ? 'Overdue' : 'Pending')}
  </span>
- <span className="text-[8px] font-black text-slate-600 uppercase tracking-widest bg-slate-100 px-2.5 py-1 rounded-md">
+ <span className="text-[8px] font-black text-slate-600 uppercase tracking-widest bg-slate-100 px-2.5 py-1 rounded-md shrink-0">
  {task.priority || 'Standard'}
  </span>
  </div>
@@ -107,8 +107,8 @@ const MyTasks = () => {
  </div>
 
  {/* Right Side: Details & Action */}
- <div className="flex items-center gap-6 w-full md:w-auto pt-4 md:pt-0 border-t md:border-t-0 border-slate-200/50 justify-between md:justify-end shrink-0">
- <div className="flex items-center gap-6">
+ <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 w-full md:w-auto pt-4 md:pt-0 border-t md:border-t-0 border-slate-200/50 justify-between md:justify-end shrink-0">
+ <div className="flex items-center justify-between sm:justify-start gap-4 sm:gap-6 w-full sm:w-auto">
  <div className="flex flex-col">
  <p className="text-[8px] font-black text-slate-600 uppercase tracking-widest mb-0.5">Assigned By</p>
  <p className="text-[10px] font-bold text-slate-700 uppercase truncate max-w-[100px]">
@@ -121,7 +121,7 @@ const MyTasks = () => {
  </div>
  </div>
 
- <div className="w-[180px] flex flex-col items-end gap-3">
+ <div className="w-full sm:w-[180px] flex flex-col sm:items-end gap-3 mt-2 sm:mt-0">
  {task.status !== 'Completed' ? (
  <div className="flex flex-col gap-2 w-full">
  <input
@@ -142,9 +142,10 @@ const MyTasks = () => {
  >
  Mark Done
  </button>
+ </button>
  </div>
  ) : (
- <div className="text-right flex flex-col gap-2 items-end w-full">
+ <div className="text-left sm:text-right flex flex-col gap-2 items-start sm:items-end w-full">
  <div className="text-[9px] font-black text-[#008080] uppercase tracking-widest">
  Finished At: <br />
  <span className="text-slate-500 font-bold">
@@ -169,9 +170,9 @@ const MyTasks = () => {
  );
  })}
  {tasks.length === 0 && (
- <div className="py-20 bg-white rounded-[2.5rem] border border-dashed border-slate-200 flex flex-col items-center justify-center shadow-sm">
+ <div className="py-10 md:py-20 px-4 bg-white rounded-[2rem] md:rounded-[2.5rem] border border-dashed border-slate-200 flex flex-col items-center justify-center shadow-sm w-full mx-auto">
  <CheckCircle size={40} className="text-emerald-100 mb-4" />
- <p className="text-slate-600 font-bold">No active tasks found.</p>
+ <p className="text-slate-600 font-bold text-center break-words text-sm md:text-base">No active tasks found.</p>
  </div>
  )}
  </div>
