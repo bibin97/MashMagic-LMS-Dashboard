@@ -72,6 +72,7 @@ const CommonInteractionLogs = ({
   const [activeTab, setActiveTab] = useState('student'); // 'student' or 'faculty'
   const [entities, setEntities] = useState([]);
   const [selectedStudent, setSelectedStudent] = useState(null);
+  const [studentDetails, setStudentDetails] = useState(null);
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');

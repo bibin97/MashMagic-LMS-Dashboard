@@ -343,9 +343,9 @@ exports.getFacultyInteractionLogs = async (req, res) => {
                 0 as is_flagged, NULL as flag_reason,
                 f.name as faculty_name, fil.faculty_id
             FROM faculty_interaction_logs fil
-            LEFT JOIN users f ON fil.faculty_id = f.id AND f.role = 'faculty'
+            LEFT JOIN faculties f ON fil.faculty_id = f.id
             LEFT JOIN students s ON fil.student_id = s.id
-            LEFT JOIN users m ON fil.mentor_id = m.id AND m.role = 'mentor'
+            LEFT JOIN mentors m ON fil.mentor_id = m.id
             ${baseWhere('fil')}
         `;
 
