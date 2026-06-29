@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useDeferredValue } from 'react';
-import { Users, Search, Filter, Edit2, Trash2, X, Save, Pencil, GraduationCap, BookOpen, Clock, Activity, Calendar, Eye, ClipboardList, XCircle, UserMinus } from 'lucide-react';
+import { Users, Search, Filter, Edit2, Trash2, X, Save, Pencil, GraduationCap, BookOpen, Clock, Activity, Calendar, Eye, ClipboardList, XCircle, UserMinus, Check } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
@@ -195,6 +195,17 @@ const StudentsList = ({
       document.body.style.overflow = 'unset';
     };
   }, [isAssessmentModalOpen, isAssignModalOpen]);
+
+  // Handle Escape key to close Assign Modal
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && isAssignModalOpen) {
+        setIsAssignModalOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isAssignModalOpen]);
   const handleEditHoursSubmit = async e => {
     e.preventDefault();
     if (!editHoursModal.student) return;
@@ -706,9 +717,13 @@ const StudentsList = ({
 														setSelectedMentorId(m.id);
 														setIsAssignDropdownOpen(false);
 														setAssignSearchTerm('');
-													}} className={`min-h-[48px] sm:min-h-[40px] px-4 py-3 text-xs sm:text-sm font-bold uppercase tracking-widest cursor-pointer rounded-xl transition-colors flex items-center justify-between gap-3 ${selectedMentorId === m.id ? 'bg-[#008080]/10 text-[#008080]' : 'text-slate-700 hover:bg-slate-50'}`}>
+													}} className={`min-h-[48px] sm:min-h-[40px] px-4 py-3 text-xs sm:text-sm font-bold uppercase tracking-widest cursor-pointer rounded-xl transition-all flex items-center justify-between gap-3 border ${selectedMentorId === m.id ? 'bg-emerald-50 text-emerald-700 border-emerald-200 shadow-sm' : 'border-transparent text-slate-700 hover:bg-slate-50'}`}>
 														<span className="truncate">{m.name}</span>
-														{selectedMentorId === m.id && <span className="w-2 h-2 rounded-full bg-[#008080] shrink-0"></span>}
+														{selectedMentorId === m.id && (
+															<div className="w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0 shadow-sm">
+																<Check size={12} strokeWidth={3} />
+															</div>
+														)}
 													</div>
 												))}
 												{mentors.filter(m => m.name.toLowerCase().includes(deferredAssignSearchTerm.toLowerCase())).length === 0 && (
