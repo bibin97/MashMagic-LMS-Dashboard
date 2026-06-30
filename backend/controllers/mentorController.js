@@ -1,5 +1,6 @@
 const db = require('../config/db');
 const path = require('path');
+const { getUnifiedAcademicScheduleQuery } = require('../utils/scheduleHelper');
 const { logFacultyChanges } = require('../utils/facultyChangeLogger');
 
 // Helper: write to audit_logs table
@@ -1514,38 +1515,12 @@ const getDailyHours = async (req, res) => {
 const getAcademicSchedule = async (req, res) => {
     try {
         const mentorId = req.user.id;
-        let query = `
-            SELECT fs.*, 
-                   COALESCE(NULLIF(TRIM(f_user.name), ''), NULLIF(TRIM(u.name), ''), NULLIF(TRIM(t.faculty_name), ''), 'Unassigned') as faculty_name, 
-                   COALESCE(NULLIF(TRIM(GROUP_CONCAT(DISTINCT s.name SEPARATOR ', ')), ''), 'No Student Assigned') as student_name, 
-                   MAX(s.id) as student_id, 
-                   MAX(s.meeting_link) as meeting_link, 
-                   MAX(t.session_number) as session_number
-            FROM faculty_sessions fs
-            LEFT JOIN users f_user ON fs.faculty_id = f_user.id AND f_user.role = 'faculty'
-            LEFT JOIN faculties u ON fs.faculty_id = u.id
-            LEFT JOIN session_attendance sa ON fs.id = sa.session_id AND (sa.is_deleted IS NULL OR sa.is_deleted = 0)
-            LEFT JOIN timetable t ON fs.timetable_id = t.id AND (t.is_deleted IS NULL OR t.is_deleted = 0)
-            LEFT JOIN students s ON (sa.student_id = s.id OR t.student_id = s.id)
-            WHERE (fs.is_deleted IS NULL OR fs.is_deleted = 0)
-              AND s.id IS NOT NULL
-              AND (
-                fs.timetable_id IS NULL
-                OR EXISTS (
-                    SELECT 1 FROM timetable tt 
-                    WHERE tt.id = fs.timetable_id 
-                    AND (tt.is_deleted IS NULL OR tt.is_deleted = 0)
-                )
-              )
-        `;
-        const params = [];
-
-        if (req.user.role !== 'ssc') {
-            query += ' AND s.mentor_id = ?';
-            params.push(mentorId);
-        }
-
-        query += ' GROUP BY fs.id ORDER BY fs.date DESC, fs.start_time ASC';
+        const isSsc = req.user.role === 'ssc' || req.user.role === 'academic_head' || req.user.role === 'super_admin';
+        
+        const roleFilter = isSsc ? '' : 'AND s.mentor_id = ?';
+        const query = getUnifiedAcademicScheduleQuery(roleFilter);
+        
+        const params = isSsc ? [] : [mentorId, mentorId]; // two params because of UNION ALL
 
         const [rows] = await db.query(query, params);
         res.status(200).json({ success: true, data: rows });

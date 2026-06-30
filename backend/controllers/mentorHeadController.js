@@ -1,4 +1,5 @@
 const db = require('../config/db');
+const { getUnifiedAcademicScheduleQuery } = require('../utils/scheduleHelper');
 const bcrypt = require('bcrypt');
 const User = require('../models/userModel');
 const { logFacultyChanges } = require('../utils/facultyChangeLogger');
@@ -2168,14 +2169,7 @@ exports.deleteInteractionLog = async (req, res) => {
 // @route   GET /api/mentor-head/academic-schedule
 exports.getAcademicSchedule = async (req, res) => {
     try {
-        const query = `
-            SELECT fs.*, u.name as faculty_name, s.name as student_name, s.id as student_id, s.meeting_link
-            FROM faculty_sessions fs
-            LEFT JOIN users u ON fs.faculty_id = u.id AND u.role = 'faculty'
-            LEFT JOIN session_attendance sa ON fs.id = sa.session_id
-            LEFT JOIN students s ON sa.student_id = s.id
-            ORDER BY fs.date DESC, fs.start_time ASC
-        `;
+        const query = getUnifiedAcademicScheduleQuery();
         const [rows] = await db.query(query);
         res.status(200).json({ success: true, data: rows });
     } catch (error) {

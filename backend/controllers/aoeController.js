@@ -1,4 +1,5 @@
 const db = require('../config/db');
+const { getUnifiedAcademicScheduleQuery } = require('../utils/scheduleHelper');
 const bcrypt = require('bcrypt');
 const { logFacultyChanges } = require('../utils/facultyChangeLogger');
 const User = require('../models/userModel');
@@ -1335,52 +1336,7 @@ const saveExamPlan = async (req, res) => {
 
 const getAcademicSchedule = async (req, res) => {
     try {
-        const query = `
-            SELECT id, faculty_id, student_id, date, start_time, end_time,
-                   topic, status, faculty_name, student_name, meeting_link, minutes_taken
-            FROM (
-                SELECT 
-                    t.id as id,
-                    t.faculty_id,
-                    t.student_id,
-                    t.date,
-                    t.start_time,
-                    t.end_time,
-                    COALESCE(t.chapter, t.session_type, 'General Session') as topic,
-                    t.status,
-                    COALESCE(t.faculty_name, f.name, 'TBD') as faculty_name,
-                    s.name as student_name,
-                    s.meeting_link,
-                    fs.minutes_taken
-                FROM timetable t
-                LEFT JOIN users f ON t.faculty_id = f.id
-                JOIN students s ON t.student_id = s.id
-                LEFT JOIN faculty_sessions fs ON t.id = fs.timetable_id
-                WHERE (t.is_deleted IS NULL OR t.is_deleted = 0)
-
-                UNION ALL
-
-                SELECT 
-                    fs.id as id,
-                    fs.faculty_id,
-                    sa.student_id,
-                    fs.date,
-                    fs.start_time,
-                    fs.end_time,
-                    fs.topic,
-                    fs.status,
-                    u.name as faculty_name,
-                    s.name as student_name,
-                    s.meeting_link,
-                    fs.minutes_taken
-                FROM faculty_sessions fs
-                LEFT JOIN users u ON fs.faculty_id = u.id AND u.role = 'faculty'
-                LEFT JOIN session_attendance sa ON fs.id = sa.session_id
-                LEFT JOIN students s ON sa.student_id = s.id
-                WHERE fs.timetable_id IS NULL
-            ) combined_schedules
-            ORDER BY date DESC, start_time ASC
-        `;
+        const query = getUnifiedAcademicScheduleQuery();
         const [rows] = await db.query(query);
         res.status(200).json({ success: true, data: rows });
     } catch (error) {
