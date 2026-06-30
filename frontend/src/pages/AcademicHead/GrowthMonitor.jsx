@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { TrendingUp, FileText, Search, Download, CheckCircle2, XCircle, AlertTriangle, Printer, Loader2 } from 'lucide-react';
+import { TrendingUp, FileText, Search, Download, CheckCircle2, XCircle, AlertTriangle, Printer, Loader2, ChevronDown, ChevronUp } from 'lucide-react';
 import toast from 'react-hot-toast';
 import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
@@ -17,6 +17,7 @@ const GrowthMonitor = ({ initialData, onRefresh }) => {
   const [selectedReport, setSelectedReport] = useState(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatingId, setGeneratingId] = useState(null);
+  const [expandedSection, setExpandedSection] = useState(null);
 
   useEffect(() => {
     setStudents(initialData || []);
@@ -209,44 +210,141 @@ const GrowthMonitor = ({ initialData, onRefresh }) => {
             </div>
 
             {/* Modal Body - Scrollable */}
-            <div className="p-6 overflow-y-auto print-friendly-content space-y-6 flex-1">
+            <div className="p-4 sm:p-6 overflow-y-auto print-friendly-content space-y-4 flex-1">
               
-              {/* Header Section */}
-              <div className="text-center mb-6 pb-6 border-b border-slate-100">
-                <div className="w-16 h-16 bg-gradient-to-br from-violet-400 to-violet-500 rounded-full flex items-center justify-center text-white text-xl font-black mx-auto shadow-inner mb-3">
+              {/* Header Section (Always Visible) */}
+              <div className="text-center mb-2 pb-4 border-b border-slate-100">
+                <div className="w-14 h-14 bg-gradient-to-br from-violet-400 to-violet-500 rounded-full flex items-center justify-center text-white text-lg font-black mx-auto shadow-inner mb-2">
                   {selectedReport.overall_growth_percentage}%
                 </div>
-                <h2 className="text-2xl font-black text-slate-900 uppercase break-words">{selectedReport.student_name}</h2>
-                <p className="text-sm font-bold text-slate-500 mt-1 uppercase tracking-widest break-words">{selectedReport.grade} • Mentor: {selectedReport.mentor}</p>
-                <div className="mt-4 flex justify-center">{renderStatusBadge(selectedReport.performance_status)}</div>
+                <h2 className="text-xl font-black text-slate-900 uppercase break-words">{selectedReport.student_name}</h2>
+                <p className="text-xs font-bold text-slate-500 mt-1 uppercase tracking-widest break-words">{selectedReport.grade} • Mentor: {selectedReport.mentor}</p>
+                <div className="mt-3 flex justify-center">{renderStatusBadge(selectedReport.performance_status)}</div>
               </div>
 
-              {/* Stats Grid */}
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 text-center">
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Attendance</p>
-                  <p className="text-xl font-black text-slate-700">{selectedReport.attendance_percentage}%</p>
+              {/* Stats Grid (Always Visible) */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100 text-center">
+                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Attendance</p>
+                  <p className="text-lg font-black text-slate-700">{selectedReport.attendance_percentage}%</p>
                 </div>
-                <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 text-center">
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Assessment Avg</p>
-                  <p className="text-xl font-black text-blue-600">{selectedReport.assessment_performance}%</p>
+                <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100 text-center">
+                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Assessment Avg</p>
+                  <p className="text-lg font-black text-blue-600">{selectedReport.assessment_performance}%</p>
                 </div>
-                <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 text-center col-span-2">
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Overall Subject Completion</p>
-                  <div className="flex items-center gap-3">
+                <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100 text-center col-span-2 flex flex-col justify-center items-center">
+                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2 w-full text-left pl-1">Overall Subject Completion</p>
+                  <div className="flex items-center gap-3 w-full">
                     <div className="flex-1 h-2 bg-slate-200 rounded-full overflow-hidden">
                       <div className="h-full bg-violet-500 rounded-full" style={{ width: `${Math.min(100, selectedReport.overall_subject_progress)}%` }}></div>
                     </div>
-                    <span className="text-sm font-black text-slate-700">{selectedReport.overall_subject_progress}%</span>
+                    <span className="text-sm font-black text-slate-700 w-8 text-right">{selectedReport.overall_subject_progress}%</span>
                   </div>
                 </div>
               </div>
 
-              {/* Subject Progress */}
+              {/* Accordion Sections for Detailed Info */}
+              <div className="space-y-3 mt-2">
+                
+                {/* Strengths Accordion */}
+                <div className="border border-slate-200 rounded-2xl overflow-hidden bg-white shadow-sm">
+                  <button 
+                    onClick={() => setExpandedSection(expandedSection === 'strengths' ? null : 'strengths')}
+                    className="w-full flex items-center justify-between p-4 bg-emerald-50/30 hover:bg-emerald-50/60 transition-colors"
+                  >
+                    <h4 className="text-[11px] font-black text-emerald-600 uppercase tracking-widest flex items-center gap-1">
+                      <CheckCircle2 size={14}/> Strengths
+                    </h4>
+                    {expandedSection === 'strengths' ? <ChevronUp size={16} className="text-emerald-500"/> : <ChevronDown size={16} className="text-emerald-500"/>}
+                  </button>
+                  {expandedSection === 'strengths' && (
+                    <div className="p-4 pt-0 bg-emerald-50/30 border-t border-emerald-50">
+                      <ul className="list-disc list-inside text-xs font-bold text-slate-700 space-y-1.5 break-words mt-3">
+                        {selectedReport.strengths && selectedReport.strengths.length > 0 ? 
+                          selectedReport.strengths.map((s, i) => <li key={i}>{s}</li>) : 
+                          <li>Consistent effort</li>}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+
+                {/* Areas for Improvement Accordion */}
+                <div className="border border-slate-200 rounded-2xl overflow-hidden bg-white shadow-sm">
+                  <button 
+                    onClick={() => setExpandedSection(expandedSection === 'improvements' ? null : 'improvements')}
+                    className="w-full flex items-center justify-between p-4 bg-rose-50/30 hover:bg-rose-50/60 transition-colors"
+                  >
+                    <h4 className="text-[11px] font-black text-rose-600 uppercase tracking-widest flex items-center gap-1">
+                      <AlertTriangle size={14}/> Areas for Improvement
+                    </h4>
+                    {expandedSection === 'improvements' ? <ChevronUp size={16} className="text-rose-500"/> : <ChevronDown size={16} className="text-rose-500"/>}
+                  </button>
+                  {expandedSection === 'improvements' && (
+                    <div className="p-4 pt-0 bg-rose-50/30 border-t border-rose-50">
+                      <ul className="list-disc list-inside text-xs font-bold text-slate-700 space-y-1.5 break-words mt-3">
+                        {selectedReport.areas_for_improvement && selectedReport.areas_for_improvement.length > 0 ? 
+                          selectedReport.areas_for_improvement.map((s, i) => <li key={i}>{s}</li>) : 
+                          <li>Needs more focus</li>}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+
+                {/* Mentor Remarks Accordion */}
+                <div className="border border-slate-200 rounded-2xl overflow-hidden bg-white shadow-sm">
+                  <button 
+                    onClick={() => setExpandedSection(expandedSection === 'mentor' ? null : 'mentor')}
+                    className="w-full flex items-center justify-between p-4 bg-slate-50 hover:bg-slate-100 transition-colors"
+                  >
+                    <h4 className="text-[11px] font-black text-slate-600 uppercase tracking-widest">Mentor Remarks</h4>
+                    {expandedSection === 'mentor' ? <ChevronUp size={16} className="text-slate-500"/> : <ChevronDown size={16} className="text-slate-500"/>}
+                  </button>
+                  {expandedSection === 'mentor' && (
+                    <div className="p-4 pt-0 bg-slate-50 border-t border-slate-100">
+                      <p className="text-xs font-medium text-slate-700 break-words mt-3">{selectedReport.mentor_remarks}</p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Parent Meeting Summary Accordion */}
+                <div className="border border-slate-200 rounded-2xl overflow-hidden bg-white shadow-sm">
+                  <button 
+                    onClick={() => setExpandedSection(expandedSection === 'parents' ? null : 'parents')}
+                    className="w-full flex items-center justify-between p-4 bg-slate-50 hover:bg-slate-100 transition-colors"
+                  >
+                    <h4 className="text-[11px] font-black text-slate-600 uppercase tracking-widest">Parent Meeting Summary</h4>
+                    {expandedSection === 'parents' ? <ChevronUp size={16} className="text-slate-500"/> : <ChevronDown size={16} className="text-slate-500"/>}
+                  </button>
+                  {expandedSection === 'parents' && (
+                    <div className="p-4 pt-0 bg-slate-50 border-t border-slate-100">
+                      <p className="text-xs font-medium text-slate-700 break-words mt-3">{selectedReport.parent_meeting_summary}</p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Growth Trend Accordion */}
+                <div className="border border-slate-200 rounded-2xl overflow-hidden bg-white shadow-sm">
+                  <button 
+                    onClick={() => setExpandedSection(expandedSection === 'trend' ? null : 'trend')}
+                    className="w-full flex items-center justify-between p-4 bg-gradient-to-r from-violet-500 to-indigo-500 hover:from-violet-600 hover:to-indigo-600 transition-colors text-white"
+                  >
+                    <h4 className="text-[11px] font-black text-violet-100 uppercase tracking-widest">Overall Growth Trend</h4>
+                    {expandedSection === 'trend' ? <ChevronUp size={16} className="text-white"/> : <ChevronDown size={16} className="text-white"/>}
+                  </button>
+                  {expandedSection === 'trend' && (
+                    <div className="p-4 bg-indigo-600/10 border-t border-indigo-100">
+                      <p className="text-sm font-bold text-slate-800 break-words">{selectedReport.growth_trend}</p>
+                    </div>
+                  )}
+                </div>
+
+              </div>
+
+              {/* Subject Progress (Only shown if data exists, outside accordion as it's typically complex) */}
               {selectedReport.subject_progress && selectedReport.subject_progress.length > 0 && (
-                <div>
-                  <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Subject-wise Progress</h4>
-                  <div className="space-y-3">
+                <div className="mt-6">
+                  <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 pl-1">Detailed Subject Progress</h4>
+                  <div className="space-y-2">
                     {selectedReport.subject_progress.map((sub, i) => (
                       <div key={i} className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-4 bg-white p-3 rounded-xl border border-slate-100 shadow-sm">
                         <span className="text-xs font-bold text-slate-700 truncate">{sub.subject}</span>
@@ -262,46 +360,8 @@ const GrowthMonitor = ({ initialData, onRefresh }) => {
                 </div>
               )}
 
-              {/* Strengths & Areas for Improvement */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="bg-emerald-50/50 p-4 rounded-2xl border border-emerald-100">
-                   <h4 className="text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-2 flex items-center gap-1"><CheckCircle2 size={12}/> Strengths</h4>
-                   <ul className="list-disc list-inside text-xs font-bold text-slate-700 space-y-1 break-words">
-                     {selectedReport.strengths && selectedReport.strengths.length > 0 ? 
-                       selectedReport.strengths.map((s, i) => <li key={i}>{s}</li>) : 
-                       <li>Consistent effort</li>}
-                   </ul>
-                </div>
-                <div className="bg-rose-50/50 p-4 rounded-2xl border border-rose-100">
-                   <h4 className="text-[10px] font-black text-rose-600 uppercase tracking-widest mb-2 flex items-center gap-1"><AlertTriangle size={12}/> Areas for Improvement</h4>
-                   <ul className="list-disc list-inside text-xs font-bold text-slate-700 space-y-1 break-words">
-                     {selectedReport.areas_for_improvement && selectedReport.areas_for_improvement.length > 0 ? 
-                       selectedReport.areas_for_improvement.map((s, i) => <li key={i}>{s}</li>) : 
-                       <li>Needs more focus</li>}
-                   </ul>
-                </div>
-              </div>
-
-              {/* Mentors & Parents */}
-              <div className="space-y-4">
-                <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                  <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Mentor Remarks</h4>
-                  <p className="text-xs font-medium text-slate-700 break-words">{selectedReport.mentor_remarks}</p>
-                </div>
-                <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                  <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Parent Meeting Summary</h4>
-                  <p className="text-xs font-medium text-slate-700 break-words">{selectedReport.parent_meeting_summary}</p>
-                </div>
-              </div>
-
-              {/* Growth Trend */}
-              <div className="bg-gradient-to-r from-violet-500 to-indigo-500 p-4 rounded-2xl text-white">
-                <h4 className="text-[10px] font-black text-violet-200 uppercase tracking-widest mb-1">Overall Growth Trend</h4>
-                <p className="text-sm font-bold break-words">{selectedReport.growth_trend}</p>
-              </div>
-
               {/* Footer */}
-              <div className="text-center pt-4 border-t border-slate-100">
+              <div className="text-center pt-4 border-t border-slate-100 mt-6">
                 <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">
                   Report Generated: {new Date(selectedReport.generated_at).toLocaleString()}
                 </p>
