@@ -193,8 +193,8 @@ const GrowthMonitor = ({ initialData, onRefresh }) => {
 
       {/* View Report Modal (Responsive) */}
       {showReportModal && selectedReport && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200 overflow-y-auto">
-          <div className="bg-white rounded-[2rem] w-full max-w-2xl shadow-2xl animate-in zoom-in-95 duration-200 my-auto print-friendly-modal max-h-[90vh] flex flex-col">
+        <div className="fixed inset-0 z-[100] flex items-start justify-center pt-20 px-4 pb-4 md:items-center md:pt-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200 overflow-hidden">
+          <div className="bg-white rounded-[2rem] w-full max-w-2xl shadow-2xl animate-in zoom-in-95 duration-200 print-friendly-modal max-h-[85vh] md:max-h-[90vh] flex flex-col relative">
             
             {/* Modal Header */}
             <div className="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50/50 sticky top-0 z-10 printable-hidden rounded-t-[2rem]">
