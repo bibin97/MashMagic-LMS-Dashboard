@@ -98,13 +98,8 @@ const GrowthMonitor = ({ initialData, onRefresh }) => {
         </div>
       </div>
 
-      {/* Desktop (hidden based on prompt requirements, only focusing on mobile layout 240-767) */}
-      <div className="hidden md:block bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100 overflow-x-auto printable-hidden">
-         <p className="text-sm font-bold text-slate-400">Please view this on a mobile device for the full Student Growth Analytics experience.</p>
-      </div>
-
-      {/* Mobile Cards */}
-      <div className="md:hidden flex flex-col gap-4 printable-hidden">
+      {/* Cards View (Responsive for Mobile and Desktop) */}
+      <div className="flex flex-col md:grid md:grid-cols-2 lg:grid-cols-3 gap-4 printable-hidden">
         {filteredStudents.length === 0 ? (
           <div className="bg-white rounded-[20px] p-8 text-center border border-slate-100 shadow-sm">
             <div className="w-16 h-16 bg-violet-50 text-violet-300 rounded-full flex items-center justify-center mx-auto mb-4">

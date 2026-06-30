@@ -323,9 +323,9 @@ const generateStudentGrowthReport = async (req, res) => {
         
         // 1. Fetch student info
         const [studentRows] = await db.query(`
-            SELECT s.*, m.name as mentor_name 
+            SELECT s.*, u.name as mentor_name 
             FROM students s 
-            LEFT JOIN mentors m ON s.mentor_id = m.id 
+            LEFT JOIN users u ON s.mentor_id = u.id AND u.role = 'mentor'
             WHERE s.id = ?`, [id]
         );
         if (studentRows.length === 0) return res.status(404).json({ success: false, message: "Student not found" });
@@ -440,7 +440,7 @@ const generateStudentGrowthReport = async (req, res) => {
         res.status(200).json({ success: true, data: reportData });
     } catch (error) {
         console.error("Error generating student growth report:", error);
-        res.status(500).json({ success: false, message: "Server error" });
+        res.status(500).json({ success: false, message: error.message || "Server error" });
     }
 };
 
