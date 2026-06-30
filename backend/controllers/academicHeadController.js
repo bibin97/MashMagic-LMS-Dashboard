@@ -402,7 +402,7 @@ const generateStudentGrowthReport = async (req, res) => {
         const attendancePct = parseFloat(student.attendance_percentage || 0);
         const overallGrowth = Math.round((attendancePct * 0.3) + (overallSubjectProgress * 0.3) + (overallAssessmentScore * 0.4));
         
-        let perfStatus = 'Needs Improvement';
+        let perfStatus = 'Critical';
         if (overallGrowth >= 85) perfStatus = 'Excellent';
         else if (overallGrowth >= 70) perfStatus = 'Good';
         else if (overallGrowth >= 50) perfStatus = 'Average';
