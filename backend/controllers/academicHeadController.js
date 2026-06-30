@@ -338,7 +338,7 @@ const generateStudentGrowthReport = async (req, res) => {
         const [subjects] = await db.query('SELECT subject_name, allocated_hours, historical_consumed_hours FROM student_subjects WHERE student_id = ?', [id]);
 
         // 4. Fetch Parent Meetings
-        const [meetings] = await db.query('SELECT notes, status FROM ah_parent_meetings WHERE student_id = ? ORDER BY date DESC LIMIT 3', [id]);
+        const [meetings] = await db.query('SELECT notes, status FROM ah_parent_meetings WHERE student_id = ? ORDER BY meeting_date DESC LIMIT 3', [id]);
         
         // Calculate Subject Progress
         let totalAllocated = 0;
