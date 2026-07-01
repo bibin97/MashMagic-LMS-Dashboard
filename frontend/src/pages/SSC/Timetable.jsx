@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import api from '../../services/api';
-import { Users, Clock, CalendarDays, Calendar, Search, Plus, Filter, Target, Trash2, Edit2, CheckCircle, XCircle, AlertCircle, RefreshCcw, Save, CalendarClock, ChevronDown, Info } from 'lucide-react';
+import { Users, Clock, CalendarDays, Calendar, Search, Plus, Filter, Target, Trash2, Edit2, CheckCircle, XCircle, AlertCircle, RefreshCcw, Save, CalendarClock, ChevronDown, Info, Video, Link } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 import { premiumConfirm } from '../../utils/premiumConfirm';
@@ -79,8 +79,7 @@ const Timetable = () => {
     end_date: ''
   });
 
-  // Form State
-  const [formData, setFormData] = useState({
+  const formDataInitial = {
     student_id: '',
     date: new Date().toISOString().split('T')[0],
     start_time: '10:00',
@@ -92,9 +91,33 @@ const Timetable = () => {
     notes: '',
     subject: '',
     faculty_id: null,
-    faculty_name: ''
-  });
+    faculty_name: '',
+    meet_link: ''
+  };
+  // Form State
+  const [formData, setFormData] = useState(formDataInitial);
   const navigate = useNavigate();
+
+  // LIVE session check
+  const checkIsLive = (session) => {
+    if (!session.start_time || !session.end_time || !session.date) return false;
+    if (session.status !== 'Scheduled') return false;
+    const now = new Date();
+    const sessionDate = new Date(session.date);
+    if (now.getFullYear() !== sessionDate.getFullYear() ||
+        now.getMonth() !== sessionDate.getMonth() ||
+        now.getDate() !== sessionDate.getDate()) return false;
+    const nowMins = now.getHours() * 60 + now.getMinutes();
+    const [sh, sm] = session.start_time.split(':').map(Number);
+    const [eh, em] = session.end_time.split(':').map(Number);
+    return nowMins >= sh * 60 + sm && nowMins <= eh * 60 + em;
+  };
+
+  const [currentTime, setCurrentTime] = useState(new Date());
+  useEffect(() => {
+    const t = setInterval(() => setCurrentTime(new Date()), 30000);
+    return () => clearInterval(t);
+  }, []);
 
   const getNextAvailableDates = () => {
     if (!studentSchedule || studentSchedule.length === 0) return [];
@@ -239,7 +262,8 @@ const Timetable = () => {
       status_reason: '',
       notes: '',
       faculty_id: null,
-      faculty_name: ''
+      faculty_name: '',
+      meet_link: ''
     });
     setEditingSession(null);
     setRescheduleMode(false);
@@ -294,7 +318,7 @@ const Timetable = () => {
     setEditingSession(session);
     setFormData({
       student_id: session.student_id,
-      date: formatDate(session.date) || '', // Pass as string instead of array
+      date: formatDate(session.date) || '',
       start_time: (session.start_time || '10:00').substring(0, 5),
       end_time: (session.end_time || '11:00').substring(0, 5),
       chapter: session.chapter || '',
@@ -305,7 +329,8 @@ const Timetable = () => {
       notes: session.notes || '',
       faculty_id: String(session.faculty_id || ''),
       faculty_name: session.faculty_name || '',
-      session_mode: session.session_mode || 'Online'
+      session_mode: session.session_mode || 'Online',
+      meet_link: session.meet_link || ''
     });
     setShowModal(true);
   };
@@ -543,6 +568,13 @@ const Timetable = () => {
 
   const formatDate = (date) => {
     if (!date) return '';
+    // Timezone-safe: avoid new Date(string) which interprets as UTC and can shift date by 1 day in IST
+    const str = String(date);
+    // If already YYYY-MM-DD format, return directly
+    if (/^\d{4}-\d{2}-\d{2}$/.test(str)) return str;
+    // If ISO string like "2026-06-30T00:00:00.000Z", extract the date part directly
+    if (str.includes('T')) return str.substring(0, 10);
+    // Fallback to Date parsing
     const d = new Date(date);
     if (isNaN(d.getTime())) return '';
     const year = d.getFullYear();
@@ -788,12 +820,18 @@ const Timetable = () => {
                   <div className={`w-16 h-16 rounded-[1.5rem] flex items-center justify-center transition-all duration-700 -rotate-3 group-hover:rotate-0 ${session.session_type === 'Exam' ? 'bg-amber-100 text-amber-600 group-hover:bg-amber-500 group-hover:text-white' : 'bg-slate-50 text-slate-600 group-hover:bg-[#008080] group-hover:text-white'}`}>
                     {session.session_type === 'Exam' ? <Target size={24} /> : <Users size={24} />}
                   </div>
-                  <div>
+                <div>
                     <h3 className="text-base font-black text-slate-900 tracking-tight uppercase">{session.student_name}</h3>
                     <p className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] mt-1">
                       {session.session_number === 0 ? 'SN N/A' : `SN #${session.session_number}`} • {session.session_type} 
                       {session.faculty_name && ` • Faculty: ${session.faculty_name}`}
                     </p>
+                    {/* LIVE Badge */}
+                    {checkIsLive(session) && (
+                      <span className="inline-flex items-center gap-1.5 mt-1.5 px-2.5 py-1 bg-red-500 text-white rounded-full text-[9px] font-black uppercase tracking-widest shadow-lg shadow-red-500/40 animate-pulse">
+                        <span className="w-1.5 h-1.5 rounded-full bg-white"></span> LIVE
+                      </span>
+                    )}
                   </div>
                 </div>
 
@@ -819,6 +857,23 @@ const Timetable = () => {
                       {session.chapter || 'Pending topic assignment'}
                     </p>
                   </div>
+                  {/* Meet Link Join Button */}
+                  {session.meet_link && (
+                    <a
+                      href={session.meet_link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      title="Join Meet"
+                      className={`flex items-center gap-2 px-4 py-2 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-sm whitespace-nowrap ${
+                        checkIsLive(session)
+                          ? 'bg-red-500 text-white hover:bg-red-600 shadow-red-500/30 animate-pulse'
+                          : 'bg-slate-50 text-[#008080] border border-[#008080]/30 hover:bg-[#008080] hover:text-white'
+                      }`}
+                    >
+                      <Video size={13} />
+                      {checkIsLive(session) ? 'Join Live' : 'Meet Link'}
+                    </a>
+                  )}
                 </div>
 
                 <div className="flex items-center gap-6 pl-8 md:border-l border-slate-100">
@@ -1213,6 +1268,20 @@ const Timetable = () => {
                         onChange={(e) => setFormData({ ...formData, chapter: e.target.value })}
                         placeholder="Enter topic name"
                         className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
+                      />
+                    </div>
+
+                    {/* Meet Link Field */}
+                    <div className="md:col-span-2 space-y-2">
+                      <label className="text-[10px] font-black text-[#008080] uppercase tracking-widest ml-1 flex items-center gap-2">
+                        <Link size={12} /> Meet Link (Google Meet / Zoom)
+                      </label>
+                      <input
+                        type="url"
+                        value={formData.meet_link || ''}
+                        onChange={(e) => setFormData({ ...formData, meet_link: e.target.value })}
+                        placeholder="https://meet.google.com/xxx-yyyy-zzz"
+                        className="w-full p-4 bg-[#008080]/5 border border-[#008080]/20 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none placeholder:text-slate-400"
                       />
                     </div>
 
