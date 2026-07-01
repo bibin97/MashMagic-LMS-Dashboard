@@ -33,7 +33,7 @@ const checkIsLive = (session) => {
   const startMins = startH * 60 + startM;
   const endMins = endH * 60 + endM;
   
-  return currentMins >= startMins && currentMins <= endMins;
+  return currentMins >= (startMins - 30) && currentMins <= endMins;
 };
 
 const AcademicSchedule = () => {
@@ -315,6 +315,7 @@ return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String
                   <Clock size={14} className="text-[#008080]" />
                   <span className="text-[10px] md:text-[11px] font-black text-slate-700 uppercase tracking-widest whitespace-nowrap">
                     {session.start_time ? new Date(`2000-01-01T${session.start_time}`).toLocaleString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }) : 'TBD'}
+                    {session.end_time ? ' - ' + new Date(`2000-01-01T${session.end_time}`).toLocaleString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }) : ''}
                   </span>
                 </div>
 

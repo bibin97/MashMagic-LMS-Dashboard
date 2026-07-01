@@ -1344,7 +1344,7 @@ const StudentsList = ({
 								<XCircle size={20} />
 							</button>
 						</div>
-						<form onSubmit={handleEditHoursSubmit} className="p-6 space-y-4">
+						<form onSubmit={handleEditHoursSubmit} className="p-6 space-y-4 max-h-[75vh] overflow-y-auto">
 							<div className="space-y-2">
 								<label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Total Allocated Hours</label>
 								<input type="number" step="0.01" value={editHoursModal.total_hours} onChange={e => setEditHoursModal({

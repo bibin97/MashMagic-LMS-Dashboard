@@ -193,15 +193,15 @@ exports.createSession = async (req, res) => {
         const diffMins = Math.round(diffMs / 60000);
         const duration = `${Math.floor(diffMins / 60)}h ${diffMins % 60}m`;
 
-        // Check for duplicates using complete business key
+        // Check for duplicates using complete business key (date and student)
         const [existing] = await connection.query(
-            'SELECT id FROM timetable WHERE student_id = ? AND date = ? AND start_time = ? AND (is_deleted IS NULL OR is_deleted = 0)',
-            [student_id, date, formattedStartTime]
+            'SELECT id, start_time FROM timetable WHERE student_id = ? AND date = ? AND (is_deleted IS NULL OR is_deleted = 0)',
+            [student_id, date]
         );
         if (existing.length > 0) {
             await connection.rollback();
             await db.query("INSERT INTO audit_logs (action, details, user_id, user_role) VALUES (?, ?, ?, ?)", ['DUPLICATE_TIMETABLE_PREVENTED', `Duplicate attempt for student ${student_id} on ${date}`, req.user.id, req.user.role]);
-            return res.status(409).json({ success: false, message: "Duplicate timetable entry already exists for this slot." });
+            return res.status(409).json({ success: false, message: `A session is already scheduled for this student on ${date} at ${existing[0].start_time.substring(0,5)} (Session #${existing[0].id}). Please edit the existing session instead of creating a new one.` });
         }
 
         const [result] = await connection.query(`

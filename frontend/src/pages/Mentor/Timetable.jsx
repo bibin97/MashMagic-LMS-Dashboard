@@ -99,7 +99,7 @@ const Timetable = () => {
     const nowMins = now.getHours() * 60 + now.getMinutes();
     const [sh, sm] = session.start_time.split(':').map(Number);
     const [eh, em] = session.end_time.split(':').map(Number);
-    return nowMins >= sh * 60 + sm && nowMins <= eh * 60 + em;
+    return nowMins >= (sh * 60 + sm - 30) && nowMins <= (eh * 60 + em);
   };
 
   const [currentTime, setCurrentTime] = useState(new Date());

@@ -25,7 +25,7 @@ const checkIsLive = (session, now = new Date()) => {
   const startMins = startH * 60 + startM;
   const endMins = endH * 60 + endM;
   
-  return currentMins >= startMins && currentMins <= endMins;
+  return currentMins >= (startMins - 30) && currentMins <= endMins;
 };
 
 const LiveClassMonitoring = ({ role }) => {
