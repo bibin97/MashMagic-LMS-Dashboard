@@ -94,6 +94,7 @@ const AcademicSchedule = () => {
     let filtered = schedule.filter(session => {
       const matchesSearch =
         (session.topic || '').toLowerCase().includes(deferredSearchTerm.toLowerCase()) ||
+        (session.subject || '').toLowerCase().includes(deferredSearchTerm.toLowerCase()) ||
         (session.faculty_name || '').toLowerCase().includes(deferredSearchTerm.toLowerCase()) ||
         (session.student_name || '').toLowerCase().includes(deferredSearchTerm.toLowerCase());
       return matchesSearch;
@@ -399,9 +400,12 @@ const AcademicSchedule = () => {
                   <Users size={20} />
                 </div>
                 <div className="overflow-hidden">
-                  <h3 className="text-xs md:text-sm font-black text-slate-900 tracking-tight uppercase truncate">{session.student_name}</h3>
-                  <p className="text-[9px] md:text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] mt-1 truncate">
-                    Faculty: {session.faculty_name}
+                  <h3 className="text-base font-black text-slate-900 tracking-tight uppercase">{session.student_name}</h3>
+                  <p className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] mt-1">
+                    {session.session_number === 0 ? 'SN N/A' : `SN #${session.session_number}`} • {session.session_type} 
+                    {session.faculty_name && session.faculty_name !== 'TBD'
+                      ? ` • Faculty: ${session.faculty_name}`
+                      : <span className="text-amber-500"> • Faculty: Pending</span>}
                   </p>
                 </div>
               </div>
@@ -422,8 +426,13 @@ const AcademicSchedule = () => {
                 </div>
 
                 <div className="flex flex-col gap-1 w-full md:w-auto md:min-w-[150px]">
-                  <span className="text-[8px] font-black text-slate-400 uppercase tracking-[0.2em] pl-1">Topic</span>
-                  <p className="text-[10px] md:text-xs font-black text-slate-900 truncate">{session.topic || 'General Session'}</p>
+                  <span className="text-[8px] font-black text-slate-400 uppercase tracking-[0.2em] pl-1">Subject &amp; Topic</span>
+                  <p className="text-[10px] md:text-xs font-black text-slate-900 truncate">
+                    {session.subject && (
+                      <span className="text-[#008080] mr-2 font-black">[{session.subject}]</span>
+                    )}
+                    {session.topic || 'General Session'}
+                  </p>
                 </div>
 
                 {session.status !== 'Scheduled' && (
@@ -435,17 +444,17 @@ const AcademicSchedule = () => {
 
               {activeTab !== 'calendar' && (
                 <div className="flex items-center justify-end md:justify-start gap-2 md:gap-3 pt-4 md:pt-0 border-t md:border-t-0 md:border-l border-slate-100 md:pl-6 w-full md:w-auto mt-2 md:mt-0">
-                  {session.meeting_link && session.status === 'Scheduled' && session.date && session.date.split('T')[0] === localTodayStr && (
+                  {session.meeting_link && session.status === 'Scheduled' && (
                     <button 
                       onClick={() => handleJoinSession(session)}
-                      title="Watch Session"
+                      title="Join Session"
                       className={`px-4 h-11 rounded-[1rem] flex items-center justify-center gap-2 font-black uppercase text-[10px] tracking-widest transition-all ${
                         checkIsLive(session)
                         ? `bg-red-500 text-white hover:bg-red-600 hover:scale-[1.05] ${!joinedSessions[session.id] ? 'shadow-[0_0_15px_rgba(239,68,68,0.6)] animate-pulse' : 'shadow-sm'}`
-                        : 'bg-red-50 text-red-500 border border-red-100 hover:bg-red-500 hover:text-white shadow-sm'
+                        : 'bg-[#008080]/10 text-[#008080] border border-[#008080]/20 hover:bg-[#008080] hover:text-white shadow-sm'
                       }`}
                     >
-                      <Video size={14} /> LIVE
+                      <Video size={14} /> {checkIsLive(session) ? 'LIVE' : 'Meet'}
                     </button>
                   )}
                   
@@ -528,7 +537,12 @@ const AcademicSchedule = () => {
                   <p className="text-sm font-black text-slate-800">{new Date(selectedSession.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</p>
                 </div>
                 <div className="col-span-2 p-6 bg-slate-50 rounded-[2rem] border border-slate-100">
-                  <p className="text-[8px] font-black text-[#008080] uppercase tracking-widest mb-2">Subject Expertise</p>
+                  <p className="text-[8px] font-black text-[#008080] uppercase tracking-widest mb-2">Subject &amp; Topic</p>
+                  {selectedSession.subject && (
+                    <span className="inline-block px-3 py-1 bg-[#008080]/10 text-[#008080] rounded-lg text-[10px] font-black uppercase tracking-widest mb-2">
+                      {selectedSession.subject}
+                    </span>
+                  )}
                   <p className="text-base font-black text-slate-900">{selectedSession.topic}</p>
                 </div>
               </div>

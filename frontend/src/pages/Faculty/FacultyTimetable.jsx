@@ -1,15 +1,29 @@
 import React, { useState, useEffect, useDeferredValue } from 'react';
 import api from '../../services/api';
-import { Calendar as CalendarIcon, Search, Clock, User, BookOpen } from 'lucide-react';
+import { Calendar as CalendarIcon, Search, Clock, User, BookOpen, Video } from 'lucide-react';
 import toast from 'react-hot-toast';
+
+const formatTime12h = (timeStr) => {
+  if (!timeStr) return 'N/A';
+  const [h, m] = timeStr.split(':').map(Number);
+  const period = h >= 12 ? 'PM' : 'AM';
+  const hour = h % 12 || 12;
+  return `${hour}:${String(m).padStart(2, '0')} ${period}`;
+};
+
 const FacultyTimetable = () => {
   const [timetable, setTimetable] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [currentTime, setCurrentTime] = useState(new Date());
   const deferredSearchTerm = useDeferredValue(searchTerm);
+
   useEffect(() => {
     fetchTimetable();
+    const t = setInterval(() => setCurrentTime(new Date()), 30000);
+    return () => clearInterval(t);
   }, []);
+
   const fetchTimetable = async () => {
     try {
       setLoading(true);
@@ -23,8 +37,24 @@ const FacultyTimetable = () => {
       setLoading(false);
     }
   };
+
+  const checkIsLive = (item) => {
+    if (!item.start_time || !item.end_time || !item.date) return false;
+    if (item.status !== 'Scheduled') return false;
+    const now = currentTime;
+    const sessionDate = new Date(item.date);
+    if (now.getFullYear() !== sessionDate.getFullYear() ||
+        now.getMonth() !== sessionDate.getMonth() ||
+        now.getDate() !== sessionDate.getDate()) return false;
+    const nowMins = now.getHours() * 60 + now.getMinutes();
+    const [sh, sm] = item.start_time.split(':').map(Number);
+    const [eh, em] = item.end_time.split(':').map(Number);
+    return nowMins >= sh * 60 + sm && nowMins <= eh * 60 + em;
+  };
+
   const filteredTimetable = timetable
   .filter(item => item.student_name?.toLowerCase().includes(deferredSearchTerm.toLowerCase()) || item.student_subject?.toLowerCase().includes(deferredSearchTerm.toLowerCase())); 
+
   return <div className="p-4 md:p-8 space-y-8 max-w-[1600px] mx-auto min-h-screen">
     <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
       <div className="space-y-1">
@@ -62,6 +92,7 @@ const FacultyTimetable = () => {
               <th className="px-4 md:px-8 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] whitespace-nowrap">Student Details</th>
               <th className="px-4 md:px-8 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] whitespace-nowrap">Subject</th>
               <th className="px-4 md:px-8 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] whitespace-nowrap">Status</th>
+              <th className="px-4 md:px-8 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] whitespace-nowrap">Meet</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-50">
@@ -74,8 +105,13 @@ const FacultyTimetable = () => {
                   </span>
                   <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest whitespace-nowrap flex items-center gap-2">
                     <Clock size={12} className="text-slate-400" />
-                    {item.start_time} - {item.end_time || 'N/A'}
+                    {formatTime12h(item.start_time)} - {formatTime12h(item.end_time)}
                   </span>
+                  {checkIsLive(item) && (
+                    <span className="inline-flex items-center gap-1.5 mt-1 px-2.5 py-0.5 bg-red-500 text-white rounded-full text-[9px] font-black uppercase tracking-widest animate-pulse w-fit">
+                      <span className="w-1.5 h-1.5 rounded-full bg-white"></span> LIVE NOW
+                    </span>
+                  )}
                 </div>
               </td>
               <td className="px-4 md:px-8 py-6 align-top">
@@ -98,6 +134,25 @@ const FacultyTimetable = () => {
                   <div className={`w-1.5 h-1.5 rounded-full ${item.status === 'Completed' ? 'bg-emerald-500' : item.status === 'Scheduled' ? 'bg-blue-500' : 'bg-slate-400'}`} />
                   {item.status}
                 </span>
+              </td>
+              <td className="px-4 md:px-8 py-6 align-top">
+                {item.meet_link ? (
+                  <a
+                    href={item.meet_link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
+                      checkIsLive(item)
+                        ? 'bg-red-500 text-white hover:bg-red-600 animate-pulse shadow-lg shadow-red-500/30'
+                        : 'bg-[#008080]/10 text-[#008080] hover:bg-[#008080] hover:text-white'
+                    }`}
+                  >
+                    <Video size={12} />
+                    {checkIsLive(item) ? 'Join Live' : 'Join'}
+                  </a>
+                ) : (
+                  <span className="text-[10px] text-slate-300 font-bold">—</span>
+                )}
               </td>
             </tr>)}
           </tbody>

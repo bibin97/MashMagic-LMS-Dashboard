@@ -6,8 +6,9 @@
 const getUnifiedAcademicScheduleQuery = (roleFilter = '', additionalJoins = '') => {
     return `
         SELECT id, timetable_id, faculty_id, student_id, date, start_time, end_time, duration,
-               topic, status, faculty_name, student_name, meeting_link, minutes_taken, 
-               minutes_locked, session_number, mentor_id
+               topic, subject, session_type, status, faculty_name, student_name, meeting_link, minutes_taken, 
+               minutes_locked, session_number, mentor_id,
+               reminder_1, reminder_1_remark, reminder_2, reminder_2_remark, reminder_3, reminder_3_remark
         FROM (
             -- SOURCE 1: Timetable (Source of Truth)
             SELECT 
@@ -19,17 +20,26 @@ const getUnifiedAcademicScheduleQuery = (roleFilter = '', additionalJoins = '') 
                 t.start_time,
                 t.end_time,
                 t.duration,
-                COALESCE(t.chapter, t.session_type, t.subject, 'General Session') as topic,
+                COALESCE(t.chapter, 'General Session') as topic,
+                t.subject,
+                t.session_type,
                 COALESCE(fs.status, t.status) as status,
-                COALESCE(t.faculty_name, f.name, 'TBD') as faculty_name,
+                COALESCE(NULLIF(t.faculty_name, ''), f.name, f2.name, 'TBD') as faculty_name,
                 s.name as student_name,
-                s.meeting_link,
+                COALESCE(NULLIF(t.meet_link, ''), NULLIF(s.meeting_link, '')) as meeting_link,
                 fs.minutes_taken,
                 fs.minutes_locked,
                 t.session_number,
-                s.mentor_id
+                s.mentor_id,
+                COALESCE(fs.reminder_1, 0) as reminder_1,
+                fs.reminder_1_remark,
+                COALESCE(fs.reminder_2, 0) as reminder_2,
+                fs.reminder_2_remark,
+                COALESCE(fs.reminder_3, 0) as reminder_3,
+                fs.reminder_3_remark
             FROM timetable t
             LEFT JOIN users f ON t.faculty_id = f.id
+            LEFT JOIN faculties f2 ON t.faculty_id = f2.id
             JOIN students s ON t.student_id = s.id
             LEFT JOIN faculty_sessions fs ON t.id = fs.timetable_id
             ${additionalJoins}
@@ -49,6 +59,8 @@ const getUnifiedAcademicScheduleQuery = (roleFilter = '', additionalJoins = '') 
                 fs.end_time,
                 fs.duration,
                 fs.topic,
+                NULL as subject,
+                NULL as session_type,
                 fs.status,
                 u.name as faculty_name,
                 s.name as student_name,
@@ -56,7 +68,13 @@ const getUnifiedAcademicScheduleQuery = (roleFilter = '', additionalJoins = '') 
                 fs.minutes_taken,
                 fs.minutes_locked,
                 NULL as session_number,
-                s.mentor_id
+                s.mentor_id,
+                COALESCE(fs.reminder_1, 0) as reminder_1,
+                fs.reminder_1_remark,
+                COALESCE(fs.reminder_2, 0) as reminder_2,
+                fs.reminder_2_remark,
+                COALESCE(fs.reminder_3, 0) as reminder_3,
+                fs.reminder_3_remark
             FROM faculty_sessions fs
             LEFT JOIN users u ON fs.faculty_id = u.id AND u.role = 'faculty'
             LEFT JOIN session_attendance sa ON fs.id = sa.session_id

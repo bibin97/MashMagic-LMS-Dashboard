@@ -884,7 +884,8 @@ const startServer = async () => {
                 'ALTER TABLE faculty_sessions MODIFY COLUMN status VARCHAR(50) DEFAULT \'Scheduled\';',
                 'ALTER TABLE timetable MODIFY COLUMN status VARCHAR(50) DEFAULT \'Scheduled\';',
                 'ALTER TABLE faculty_sessions ADD COLUMN cancel_note TEXT NULL;',
-                'ALTER TABLE timetable ADD COLUMN cancel_note TEXT NULL;'
+                'ALTER TABLE timetable ADD COLUMN cancel_note TEXT NULL;',
+                'ALTER TABLE timetable ADD COLUMN meet_link TEXT NULL;'
             ];
             for (const migration of migrations) {
                 try {

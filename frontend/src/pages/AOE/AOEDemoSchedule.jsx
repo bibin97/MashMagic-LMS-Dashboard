@@ -942,17 +942,34 @@ const AOEDemoSchedule = () => {
                         </span>
                         
                         <div className="flex gap-2">
-                          {demo.meeting_link && (
-                            <a 
-                              href={demo.meeting_link} 
-                              target="_blank" 
-                              rel="noreferrer"
-                              className="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center hover:bg-indigo-100 transition-colors"
-                              title="Join Meeting"
-                            >
-                              <Video size={18} />
-                            </a>
-                          )}
+                          {demo.meeting_link && (() => {
+                            const now = new Date();
+                            const nowMins = now.getHours() * 60 + now.getMinutes();
+                            const demoDate = demo.date ? new Date(demo.date) : null;
+                            const isToday = demoDate &&
+                              now.getFullYear() === demoDate.getFullYear() &&
+                              now.getMonth() === demoDate.getMonth() &&
+                              now.getDate() === demoDate.getDate();
+                            const [sh = 0, sm = 0] = (demo.start_time || '').split(':').map(Number);
+                            const [eh = 0, em = 0] = (demo.end_time || '').split(':').map(Number);
+                            const isLive = isToday && nowMins >= sh * 60 + sm && nowMins <= eh * 60 + em;
+                            return (
+                              <a 
+                                href={demo.meeting_link} 
+                                target="_blank" 
+                                rel="noreferrer"
+                                className={`flex items-center gap-1.5 px-3 h-10 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${
+                                  isLive
+                                    ? 'bg-red-500 text-white hover:bg-red-600 animate-pulse shadow-lg shadow-red-500/30'
+                                    : 'bg-[#008080]/10 text-[#008080] hover:bg-[#008080] hover:text-white'
+                                }`}
+                                title="Join Meeting"
+                              >
+                                <Video size={14} />
+                                {isLive ? 'Live' : 'Meet'}
+                              </a>
+                            );
+                          })()}
                           <button 
                             onClick={() => setViewDemo(demo)}
                             className="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center hover:bg-blue-100 transition-colors shadow-sm"

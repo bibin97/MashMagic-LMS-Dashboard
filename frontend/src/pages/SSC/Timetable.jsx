@@ -824,7 +824,9 @@ const Timetable = () => {
                     <h3 className="text-base font-black text-slate-900 tracking-tight uppercase">{session.student_name}</h3>
                     <p className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] mt-1">
                       {session.session_number === 0 ? 'SN N/A' : `SN #${session.session_number}`} • {session.session_type} 
-                      {session.faculty_name && ` • Faculty: ${session.faculty_name}`}
+                      {session.faculty_name && session.faculty_name !== 'TBD'
+                        ? ` • Faculty: ${session.faculty_name}`
+                        : <span className="text-amber-500"> • Faculty: Pending</span>}
                     </p>
                     {/* LIVE Badge */}
                     {checkIsLive(session) && (

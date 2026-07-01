@@ -166,7 +166,7 @@ exports.createSession = async (req, res) => {
     const connection = await db.getConnection();
     try {
         await connection.beginTransaction();
-        const { student_id, date, start_time, end_time, chapter, subject, session_type, status, notes, faculty_id, faculty_name } = req.body;
+        const { student_id, date, start_time, end_time, chapter, subject, session_type, status, notes, faculty_id, faculty_name, meet_link } = req.body;
         
         if (!faculty_id) {
             return res.status(400).json({ success: false, message: "Please Add Faculty. Faculty is required to create a session." });
@@ -205,9 +205,9 @@ exports.createSession = async (req, res) => {
         }
 
         const [result] = await connection.query(`
-            INSERT INTO timetable (mentor_id, student_id, session_number, date, start_time, end_time, duration, chapter, subject, session_type, status, notes, faculty_id, faculty_name)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        `, [mentor_id, student_id, nextSessionNumber, date, formattedStartTime, formattedEndTime, duration, chapter, subject || null, session_type, status, notes, faculty_id || null, finalFacultyName]);
+            INSERT INTO timetable (mentor_id, student_id, session_number, date, start_time, end_time, duration, chapter, subject, session_type, status, notes, faculty_id, faculty_name, meet_link)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `, [mentor_id, student_id, nextSessionNumber, date, formattedStartTime, formattedEndTime, duration, chapter, subject || null, session_type, status, notes, faculty_id || null, finalFacultyName, meet_link || null]);
 
         // Post-Insert Save Verification
         const saveVerifier = require('../utils/saveVerifier');
@@ -263,7 +263,7 @@ exports.updateSession = async (req, res) => {
     try {
         await connection.beginTransaction();
         const sessionId = parseInt(req.params.id, 10);
-        const { date, start_time, end_time, chapter, subject, session_type, status, status_reason, notes, faculty_id, faculty_name } = req.body;
+        const { date, start_time, end_time, chapter, subject, session_type, status, status_reason, notes, faculty_id, faculty_name, meet_link } = req.body;
 
         if (!faculty_id) {
             await connection.rollback();
@@ -312,9 +312,9 @@ exports.updateSession = async (req, res) => {
 
         const [updateResult] = await connection.query(`
             UPDATE timetable 
-            SET date = ?, start_time = ?, end_time = ?, duration = ?, chapter = ?, subject = ?, session_type = ?, status = ?, cancel_note = ?, notes = ?, faculty_id = ?, faculty_name = ?
+            SET date = ?, start_time = ?, end_time = ?, duration = ?, chapter = ?, subject = ?, session_type = ?, status = ?, cancel_note = ?, notes = ?, faculty_id = ?, faculty_name = ?, meet_link = ?
             WHERE id = ?
-        `, [date, formattedStartTime, formattedEndTime, duration, chapter, subject || null, session_type, status, status_reason || null, notes, faculty_id || null, finalFacultyName, sessionId]);
+        `, [date, formattedStartTime, formattedEndTime, duration, chapter, subject || null, session_type, status, status_reason || null, notes, faculty_id || null, finalFacultyName, meet_link || null, sessionId]);
 
         if (updateResult.affectedRows === 0) {
             throw new Error("CRITICAL FAILURE: No records updated. Session may not exist.");
