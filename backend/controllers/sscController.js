@@ -89,12 +89,22 @@ exports.getDailyUpdates = async (req, res) => {
 
 const convertTo24Hour = (timeStr) => {
     if (!timeStr) return null;
-    const [time, modifier] = timeStr.split(' ');
-    if (!modifier) return timeStr;
-    let [hours, minutes] = time.split(':');
-    if (hours === '12') { hours = '00'; }
-    if (modifier.toLowerCase() === 'pm') { hours = parseInt(hours, 10) + 12; }
-    return `${hours}:${minutes}:00`;
+    const parts = timeStr.trim().split(' ');
+    const time = parts[0];
+    const modifier = parts[1];
+    
+    let [hours, minutes, seconds] = time.split(':');
+    
+    if (!modifier) {
+        // Already in 24h format — ensure HH:MM:00 with seconds
+        return `${String(hours).padStart(2, '0')}:${String(minutes || '00').padStart(2, '0')}:${String(seconds || '00').padStart(2, '0')}`;
+    }
+    
+    // 12h AM/PM format
+    let h = parseInt(hours, 10);
+    if (modifier.toLowerCase() === 'am' && h === 12) { h = 0; }
+    if (modifier.toLowerCase() === 'pm' && h !== 12) { h += 12; }
+    return `${String(h).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:00`;
 };
 
 exports.getFacultiesAll = async (req, res) => {
@@ -284,13 +294,20 @@ exports.updateSession = async (req, res) => {
 
         // Duplicate Check
         const [existing] = await connection.query(
-            'SELECT id FROM timetable WHERE student_id = ? AND date = ? AND start_time = ? AND id != ? AND (is_deleted IS NULL OR is_deleted = 0)',
+            'SELECT id, date, start_time FROM timetable WHERE student_id = ? AND date = ? AND start_time = ? AND id != ? AND (is_deleted IS NULL OR is_deleted = 0)',
             [oldSession.student_id, date, formattedStartTime, sessionId]
         );
         if (existing.length > 0) {
+            console.log("DUPLICATE TIMETABLE FOUND:", {
+                existingId: existing[0].id,
+                currentId: sessionId,
+                studentId: oldSession.student_id,
+                date: date,
+                start_time: formattedStartTime
+            });
             await connection.rollback();
-            await db.query("INSERT INTO audit_logs (action, details, user_id, user_role) VALUES (?, ?, ?, ?)", ['DUPLICATE_TIMETABLE_PREVENTED', `Duplicate attempt during update for session ${sessionId}`, req.user?.id, req.user?.role]);
-            return res.status(409).json({ success: false, message: "Duplicate timetable entry already exists for this slot." });
+            await db.query("INSERT INTO audit_logs (action, details, user_id, user_role) VALUES (?, ?, ?, ?)", ['DUPLICATE_TIMETABLE_PREVENTED', `Duplicate attempt during update for session ${sessionId}, conflicts with session ${existing[0].id}`, req.user?.id, req.user?.role]);
+            return res.status(409).json({ success: false, message: `A session is already scheduled for this student on ${date} at ${formattedStartTime.substring(0,5)} (Session #${existing[0].id}). Please choose a different time slot.` });
         }
 
         const [updateResult] = await connection.query(`
