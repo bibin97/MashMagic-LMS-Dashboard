@@ -115,7 +115,7 @@ const MentorsList = () => {
 
  const filteredMentors = mentors;
 
- if (loading) return <div className="p-20 text-center font-black text-slate-600 animate-pulse">SYNCING MENTOR DIRECTORY...</div>;
+ if (loading && mentors.length === 0) return <div className="p-20 text-center font-black text-slate-600 animate-pulse">SYNCING MENTOR DIRECTORY...</div>;
 
  return (
     <>

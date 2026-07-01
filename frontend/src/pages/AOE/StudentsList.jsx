@@ -355,7 +355,7 @@ const StudentsList = ({
   };
   // Backend now handles search, filter, and sorting
   const filteredStudents = students;
-  if (loading) return <div className="p-20 text-center font-black text-slate-600 animate-pulse">SYNCING STUDENT RECORDS...</div>;
+  if (loading && students.length === 0) return <div className="p-20 text-center font-black text-slate-600 animate-pulse">SYNCING STUDENT RECORDS...</div>;
   return <div className="space-y-8 animate-in fade-in duration-700">
 			{/* Header */}
 			<div className="bg-white p-6 md:p-10 rounded-[3rem] border border-slate-100 shadow-sm space-y-8">

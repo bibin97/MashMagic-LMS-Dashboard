@@ -70,7 +70,7 @@ const FacultyDirectory = () => {
     }
   };
   const filteredFaculties = faculties;
-  if (loading) return <div className="p-20 text-center font-black text-slate-600 animate-pulse">SYNCING FACULTY DATA...</div>;
+  if (loading && faculties.length === 0) return <div className="p-20 text-center font-black text-slate-600 animate-pulse">SYNCING FACULTY DATA...</div>;
   return <div className="space-y-8 animate-in fade-in duration-700">
  {/* Header */}
  <div className="bg-white p-5 md:p-10 rounded-[4rem] border border-slate-100 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
