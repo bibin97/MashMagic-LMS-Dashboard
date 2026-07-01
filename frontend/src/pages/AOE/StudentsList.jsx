@@ -1324,7 +1324,7 @@ const StudentsList = ({
 					</div>
 				</div>}
 			{/* Edit Hours Modal */}
-			{editHoursModal.show && <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-in fade-in duration-200">
+			{editHoursModal.show && <div className="fixed inset-0 z-50 flex items-start justify-center pt-24 px-4 pb-4 bg-slate-900/50 backdrop-blur-sm animate-in fade-in duration-200">
 					<div className="bg-white rounded-[2rem] w-full max-w-sm overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200">
 						<div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
 							<div>
