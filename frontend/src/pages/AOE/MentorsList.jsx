@@ -12,6 +12,7 @@ import Pagination from '../../components/common/Pagination';
 const MentorsList = () => {
  const [mentors, setMentors] = useState([]);
  const [loading, setLoading] = useState(true);
+ const [initialLoad, setInitialLoad] = useState(true);
  const [page, setPage] = useState(1);
  const [limit] = useState(50);
  const [totalRecords, setTotalRecords] = useState(0);
@@ -52,6 +53,7 @@ const MentorsList = () => {
    toast.error("Failed to load mentor directory");
   } finally {
    setLoading(false);
+   setInitialLoad(false);
   }
  };
 
@@ -115,7 +117,7 @@ const MentorsList = () => {
 
  const filteredMentors = mentors;
 
- if (loading && mentors.length === 0) return <div className="p-20 text-center font-black text-slate-600 animate-pulse">SYNCING MENTOR DIRECTORY...</div>;
+ if (loading && initialLoad) return <div className="p-20 text-center font-black text-slate-600 animate-pulse">SYNCING MENTOR DIRECTORY...</div>;
 
  return (
     <>
