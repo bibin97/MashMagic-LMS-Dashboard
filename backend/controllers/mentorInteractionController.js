@@ -256,7 +256,7 @@ const generateAssignments = async (mentor_id, today) => {
     let selectedForToday = [];
     let carryOverStudents = [];
 
-    if (prevAssignments.length > 0) {
+        if (prevAssignments.length > 0) {
         // Find students who were NOT completed yesterday/last session
         const uncompleted = prevAssignments.filter(a => a.status !== 'COMPLETED' && a.status !== 'CANCELLED');
             const activeStudentMap = new Map(students.map(s => [s.id, s]));
@@ -267,7 +267,6 @@ const generateAssignments = async (mentor_id, today) => {
                 }
             }
         }
-    }
 
     // Determine where the next rotation should start using current_rotation_index
     const shiftAmount = students.length >= 25 ? 10 : 15;
