@@ -162,7 +162,7 @@ const StudentsList = ({
 
   useEffect(() => {
     setPage(1);
-  }, [searchTerm, sortBy, filterCourse, filterMentor, filterFaculty, activeTab]);
+  }, [deferredSearchTerm, sortBy, filterCourse, filterMentor, filterFaculty, activeTab]);
 
   useEffect(() => {
     fetchStudents();
@@ -937,7 +937,7 @@ const StudentsList = ({
 				</div>
                 
                 {/* Pagination */}
-                {!loading && filteredStudents.length > 0 && (
+                {filteredStudents.length > 0 && (
                   <div className="mt-4 p-4 md:p-6 bg-white rounded-3xl border border-slate-100 shadow-sm">
                     <Pagination
                       currentPage={page}

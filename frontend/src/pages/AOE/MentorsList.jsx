@@ -392,7 +392,7 @@ const MentorsList = () => {
         </div>
 
         {/* Pagination Component */}
-        {(!loading && filteredMentors.length > 0) && (
+        {(filteredMentors.length > 0) && (
           <div className="p-4 md:p-6 border-t border-slate-100 bg-slate-50/50 rounded-b-[3rem]">
             <Pagination 
               currentPage={page} 
