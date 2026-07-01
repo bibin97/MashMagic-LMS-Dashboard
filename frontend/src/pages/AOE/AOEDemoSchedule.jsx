@@ -5,7 +5,7 @@ import Pagination from '../../components/common/Pagination';
 import { 
   CalendarDays, ListTodo, Plus, Target, Presentation, 
   Video, RefreshCcw, Save, XCircle, Search, Clock, DollarSign, User, BookOpen,
-  CheckCircle, CheckCircle2, Pencil, Trash2, Star, MessageSquare, Link as LinkIcon, AlertCircle, SearchX, Calendar, ArrowUpRight
+  CheckCircle, CheckCircle2, Pencil, Trash2, Star, MessageSquare, Link as LinkIcon, AlertCircle, SearchX, Calendar, ArrowUpRight, Eye
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -40,6 +40,8 @@ const AOEDemoSchedule = () => {
   const [page, setPage] = useState(1);
   const limit = 50;
   const [totalRecords, setTotalRecords] = useState(0);
+  const [viewDemo, setViewDemo] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Helper date/time formatters
   const formatDate = (dateStr) => new Date(dateStr).toLocaleDateString('en-GB');
@@ -271,6 +273,21 @@ const AOEDemoSchedule = () => {
       fetchNextIds();
     } catch (error) {
       toast.error(error.response?.data?.message || (formData.id ? 'Failed to update schedule' : 'Failed to create schedule'));
+    }
+  };
+
+  const handleDeleteDemo = async (demoId) => {
+    if (!window.confirm('Are you sure you want to delete this scheduled demo?')) return;
+    setIsDeleting(true);
+    try {
+      await api.delete(`/aoe/demo-schedules/${demoId}`);
+      toast.success('Demo schedule deleted successfully');
+      fetchDemos();
+    } catch (err) {
+      console.error(err);
+      toast.error('Failed to delete demo schedule');
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -937,6 +954,28 @@ const AOEDemoSchedule = () => {
                             </a>
                           )}
                           <button 
+                            onClick={() => setViewDemo(demo)}
+                            className="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center hover:bg-blue-100 transition-colors shadow-sm"
+                            title="View Details"
+                          >
+                            <Eye size={18} />
+                          </button>
+                          <button 
+                            onClick={() => handleEditClick(demo)}
+                            className="w-10 h-10 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center hover:bg-amber-100 transition-colors shadow-sm"
+                            title="Edit Demo"
+                          >
+                            <Pencil size={18} />
+                          </button>
+                          <button 
+                            onClick={() => handleDeleteDemo(demo.id)}
+                            disabled={isDeleting}
+                            className="w-10 h-10 bg-rose-50 text-rose-600 rounded-xl flex items-center justify-center hover:bg-rose-100 transition-colors shadow-sm disabled:opacity-50"
+                            title="Delete Demo"
+                          >
+                            <Trash2 size={18} />
+                          </button>
+                          <button 
                             onClick={() => openEvaluationModal(demo)}
                             className="w-10 h-10 bg-slate-100 text-slate-600 rounded-xl flex items-center justify-center hover:bg-[#008080] hover:text-white transition-colors shadow-sm"
                             title="Update Status/Score"
@@ -1242,6 +1281,102 @@ const AOEDemoSchedule = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* View Demo Modal */}
+      {viewDemo && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[9999] flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white rounded-[2rem] w-full max-w-2xl shadow-2xl my-auto animate-in zoom-in-95 duration-200">
+            <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50 rounded-t-[2rem]">
+              <h3 className="font-black text-slate-900 uppercase tracking-tight flex items-center gap-2">
+                <Eye className="text-blue-500" size={18} /> View Demo Schedule
+              </h3>
+              <button onClick={() => setViewDemo(null)} className="text-slate-400 hover:text-slate-600 bg-white p-2 rounded-xl shadow-sm border border-slate-100 transition-colors">
+                <XCircle size={16}/>
+              </button>
+            </div>
+            <div className="p-6 space-y-6">
+              
+              <div className="flex flex-col md:flex-row gap-6 justify-between items-start">
+                <div>
+                  <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${
+                    viewDemo.type === 'demo' ? 'bg-indigo-50 text-indigo-600' : 'bg-emerald-50 text-emerald-600'
+                  }`}>
+                    {viewDemo.type === 'pre-demo' ? 'Pre-Demo' : 'Demo'}
+                  </span>
+                  <div className="mt-4">
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Student</p>
+                    <p className="text-xl font-black text-slate-900">{viewDemo.student_name}</p>
+                    <p className="text-sm font-medium text-slate-500 mt-1">{viewDemo.student_type} • {viewDemo.syllabus}</p>
+                  </div>
+                </div>
+                
+                <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100 min-w-[220px]">
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 border-b border-slate-200 pb-2">Status</p>
+                  <span className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider border inline-block ${
+                    viewDemo.status === 'scheduled' ? 'bg-emerald-50 border-emerald-200 text-emerald-700' :
+                    viewDemo.status === 'completed' ? 'bg-slate-50 border-slate-200 text-slate-700' :
+                    viewDemo.status === 'cancelled' ? 'bg-rose-50 border-rose-200 text-rose-700' : 'bg-amber-50 border-amber-200 text-amber-700'
+                  }`}>
+                    {viewDemo.status}
+                  </span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-slate-50 p-6 rounded-3xl border border-slate-100">
+                <div>
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-1.5"><User size={12}/> Faculty Info</p>
+                  <p className="text-lg font-black text-slate-900">{viewDemo.faculty_name || 'Unassigned'}</p>
+                  <p className="text-sm font-medium text-slate-500 mt-1">ID: {viewDemo.faculty_id || 'N/A'}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-1.5"><BookOpen size={12}/> Subject Details</p>
+                  <p className="text-lg font-black text-slate-900">{viewDemo.subject}</p>
+                  <p className="text-sm font-medium text-slate-500 mt-1">Section: {viewDemo.section}</p>
+                </div>
+              </div>
+
+              <div className="flex flex-col md:flex-row gap-4">
+                <div className="flex-1 bg-white border border-slate-100 rounded-2xl p-5 shadow-sm">
+                  <div className="flex items-center gap-3 mb-2">
+                    <Calendar size={16} className="text-[#008080]" />
+                    <span className="font-bold text-slate-700 text-sm">Date</span>
+                  </div>
+                  <p className="text-lg font-black text-slate-900 mt-1">{formatDate(viewDemo.date)}</p>
+                </div>
+                <div className="flex-1 bg-white border border-slate-100 rounded-2xl p-5 shadow-sm">
+                  <div className="flex items-center gap-3 mb-2">
+                    <Clock size={16} className="text-[#008080]" />
+                    <span className="font-bold text-slate-700 text-sm">Time</span>
+                  </div>
+                  <p className="text-lg font-black text-slate-900 mt-1">{formatTime(viewDemo.start_time)} - {formatTime(viewDemo.end_time)}</p>
+                </div>
+              </div>
+
+              {viewDemo.meeting_link && (
+                <div className="bg-indigo-50/50 border border-indigo-100 p-5 rounded-2xl">
+                  <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-2 flex items-center gap-1.5"><LinkIcon size={12}/> Meeting Link</p>
+                  <a href={viewDemo.meeting_link} target="_blank" rel="noreferrer" className="text-indigo-600 font-bold text-sm hover:underline flex items-center gap-2">
+                    {viewDemo.meeting_link} <ArrowUpRight size={14}/>
+                  </a>
+                </div>
+              )}
+
+              {viewDemo.status === 'completed' && (
+                <div className="bg-slate-50 border border-slate-100 p-5 rounded-2xl">
+                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Evaluation Scores</p>
+                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                     <div><p className="text-xs text-slate-500">Prep</p><p className="font-bold text-slate-900">{viewDemo.prep_score || 0}/10</p></div>
+                     <div><p className="text-xs text-slate-500">Comm</p><p className="font-bold text-slate-900">{viewDemo.comm_score || 0}/10</p></div>
+                     <div><p className="text-xs text-slate-500">Concept</p><p className="font-bold text-slate-900">{viewDemo.concept_score || 0}/10</p></div>
+                     <div><p className="text-xs text-slate-500">Engage</p><p className="font-bold text-slate-900">{viewDemo.engage_score || 0}/10</p></div>
+                   </div>
+                </div>
+              )}
+
+            </div>
           </div>
         </div>
       )}
