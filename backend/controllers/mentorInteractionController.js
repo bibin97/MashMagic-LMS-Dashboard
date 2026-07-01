@@ -219,8 +219,26 @@ const generateAssignments = async (mentor_id, today) => {
         [mentorRows] = await db.query('SELECT interaction_paused, current_rotation_index FROM mentors WHERE id = ?', [mentor_id]);
     }
     const mentor = mentorRows[0];
+
+    // Query the most recent past assignment record for this mentor
+    const [lastRecord] = await db.query(
+        'SELECT assignments, date FROM daily_assignments WHERE mentor_id = ? AND date < ? ORDER BY date DESC LIMIT 1',
+        [mentor_id, today]
+    );
+
+    let prevAssignments = [];
+    if (lastRecord.length > 0) {
+        let raw = lastRecord[0].assignments;
+        if (typeof raw === 'string') {
+            try { prevAssignments = JSON.parse(raw); } catch(e) {}
+        } else {
+            prevAssignments = raw || [];
+        }
+    }
+
     if (mentor && mentor.interaction_paused) {
-        return []; // Return empty if paused
+        // If paused, the rotation STOPS. The current incomplete students remain exactly as they are.
+        return prevAssignments.filter(a => a.status === 'PENDING');
     }
 
     const [students] = await db.query(
@@ -238,20 +256,9 @@ const generateAssignments = async (mentor_id, today) => {
     let selectedForToday = [];
     let carryOverStudents = [];
 
-    // Query the most recent past assignment record for this mentor
-    const [lastRecord] = await db.query(
-        'SELECT assignments, date FROM daily_assignments WHERE mentor_id = ? AND date < ? ORDER BY date DESC LIMIT 1',
-        [mentor_id, today]
-    );
-
-    if (lastRecord.length > 0) {
-        let prevAssignments = lastRecord[0].assignments;
-        if (typeof prevAssignments === 'string') {
-            try { prevAssignments = JSON.parse(prevAssignments); } catch(e) { prevAssignments = []; }
-        }
-        if (Array.isArray(prevAssignments) && prevAssignments.length > 0) {
-            // Find students who were NOT completed yesterday/last session
-            const uncompleted = prevAssignments.filter(a => a.status !== 'COMPLETED' && a.status !== 'CANCELLED');
+    if (prevAssignments.length > 0) {
+        // Find students who were NOT completed yesterday/last session
+        const uncompleted = prevAssignments.filter(a => a.status !== 'COMPLETED' && a.status !== 'CANCELLED');
             const activeStudentMap = new Map(students.map(s => [s.id, s]));
             
             for (const a of uncompleted) {
@@ -720,27 +727,38 @@ const getYesterdayPending = async (req, res) => {
         const today = getISTDate();
         const referenceDate = dateParam || today;
         
-        // Fetch the most recent past assignments (could be yesterday, or Friday if today is Monday)
-        const [yesterdayRecord] = await db.query(
-            'SELECT assignments FROM daily_assignments WHERE mentor_id = ? AND date < ? ORDER BY date DESC LIMIT 1',
+        // Fetch ALL past assignments to aggregate all uncompleted students
+        const [pastRecords] = await db.query(
+            'SELECT assignments FROM daily_assignments WHERE mentor_id = ? AND date < ? ORDER BY date DESC',
             [mentor_id, referenceDate]
         );
 
-        if (yesterdayRecord.length === 0) {
-            return res.status(200).json({ success: true, data: [] });
-        }
+        let allPending = new Map();
 
-        let assignments = yesterdayRecord[0].assignments;
-        if (typeof assignments === 'string') {
-            try {
-                assignments = JSON.parse(assignments);
-            } catch (e) {
-                console.error("JSON_PARSE_ERROR in getYesterdayPending:", e);
-                assignments = [];
+        for (const record of pastRecords) {
+            let assignments = record.assignments;
+            if (typeof assignments === 'string') {
+                try { assignments = JSON.parse(assignments); } catch(e) { assignments = []; }
             }
+            
+            (assignments || []).forEach(a => {
+                // If a student is pending and not already added (we want the most recent state if any duplicates)
+                if (a.status === 'PENDING' && !allPending.has(a.id)) {
+                    allPending.set(a.id, a);
+                } else if (a.status === 'COMPLETED' || a.status === 'CANCELLED') {
+                    // If they were completed in a newer past record, we mark them as handled so older pending records don't revive them
+                    if (!allPending.has(a.id)) {
+                        allPending.set(a.id, { ...a, handled: true });
+                    }
+                }
+            });
         }
 
-        // Filter: only students who were NOT completed and NOT cancelled yesterday
+        // Filter out handled ones
+        let aggregatedAssignments = Array.from(allPending.values()).filter(a => !a.handled);
+
+        // Filter: only students who were NOT completed and NOT cancelled in past
+
         // Also exclude students who are already completed today (to prevent duplicates)
         const [todayCompletedRows] = await db.query(
             'SELECT student_id FROM mentor_session_reports WHERE mentor_id = ? AND DATE(created_at) = ?',
@@ -748,8 +766,8 @@ const getYesterdayPending = async (req, res) => {
         );
         const completedTodayIds = new Set(todayCompletedRows.map(r => r.student_id));
 
-        const pendingStudents = (assignments || []).filter(a => 
-            a.status === 'PENDING' && !completedTodayIds.has(a.id)
+        const pendingStudents = aggregatedAssignments.filter(a => 
+            !completedTodayIds.has(a.id)
         );
 
         res.status(200).json({ success: true, data: pendingStudents });
