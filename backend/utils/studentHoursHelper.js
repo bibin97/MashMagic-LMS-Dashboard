@@ -76,8 +76,9 @@ const calculateStudentHours = async (students, db) => {
 
     // Populate historical base
     baseSubjects.forEach(bs => {
-        if (!consumedMap[bs.student_id].subjects[bs.subject_name]) {
-            consumedMap[bs.student_id].subjects[bs.subject_name] = {
+        const subjName = bs.subject_name.trim().toUpperCase();
+        if (!consumedMap[bs.student_id].subjects[subjName]) {
+            consumedMap[bs.student_id].subjects[subjName] = {
                 allocated: parseFloat(bs.allocated_hours) || 0,
                 consumedMins: (parseFloat(bs.historical_consumed_hours) || 0) * 60
             };
@@ -97,8 +98,8 @@ const calculateStudentHours = async (students, db) => {
             }
             reg.forEach(rs => {
                 let subjName = rs.subject || 'Unknown';
-                if (Array.isArray(subjName)) subjName.forEach(sub => allowed.add(sub));
-                else allowed.add(subjName);
+                if (Array.isArray(subjName)) subjName.forEach(sub => allowed.add(sub.trim().toUpperCase()));
+                else allowed.add(subjName.trim().toUpperCase());
             });
         } catch(e) {}
         
@@ -108,14 +109,14 @@ const calculateStudentHours = async (students, db) => {
     // 2. From faculty schedules
     facultyMappings.forEach(fm => {
         if (fm.subject && allowedSubjectsMap[fm.student_id]) {
-            allowedSubjectsMap[fm.student_id].add(fm.subject);
+            allowedSubjectsMap[fm.student_id].add(fm.subject.trim().toUpperCase());
         }
     });
 
     // 3. From already saved student_subjects (excluding dummy)
     baseSubjects.forEach(bs => {
         if (bs.subject_name !== '__EDITED__' && allowedSubjectsMap[bs.student_id]) {
-            allowedSubjectsMap[bs.student_id].add(bs.subject_name);
+            allowedSubjectsMap[bs.student_id].add(bs.subject_name.trim().toUpperCase());
         }
     });
 
@@ -166,7 +167,7 @@ const calculateStudentHours = async (students, db) => {
         if (consumedMap[session.student_id]) {
             consumedMap[session.student_id].totalMins += mins;
             
-            let subj = mapSubject(session.student_id, session.subject || 'Unknown');
+            let subj = mapSubject(session.student_id, session.subject || 'Unknown').trim().toUpperCase();
             if (!consumedMap[session.student_id].subjects[subj]) {
                 consumedMap[session.student_id].subjects[subj] = { allocated: 0, consumedMins: 0 };
             }
@@ -206,6 +207,7 @@ const calculateStudentHours = async (students, db) => {
         registeredSubjects.forEach(rs => {
             let subjName = rs.subject || 'Unknown';
             if (Array.isArray(subjName)) subjName = subjName.join(', ');
+            subjName = subjName.trim().toUpperCase();
             
             if (!studentData.subjects[subjName]) {
                 studentData.subjects[subjName] = { allocated: 0, consumedMins: 0 };
