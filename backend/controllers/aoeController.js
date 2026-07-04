@@ -1217,33 +1217,18 @@ const getStudents = async (req, res) => {
             }
         }
 
-        if (resolvedFilter === 'active_plus') {
-            // Need in-memory filtering because hours are calculated in Node
-            const [rows] = await db.query(sql, params);
-            let augmentedRows = await calculateStudentHours(rows, db);
+        // SQL Pagination
+        const [countResult] = await db.query(countSql, params);
+        const total = countResult[0].total;
 
-            // active_plus: students with >= 8 lifetime consumed hours
-            augmentedRows = augmentedRows.filter(s => (s.total_lifetime_consumed_hours || 0) >= 8);
+        sql += ' LIMIT ? OFFSET ?';
+        params.push(limitNum, offset);
 
-            const total = augmentedRows.length;
-            const paginatedRows = augmentedRows.slice(offset, offset + limitNum);
-            responseData.total = total;
-            responseData.data = paginatedRows;
-            return res.status(200).json(responseData);
-        } else {
-            // SQL Pagination
-            const [countResult] = await db.query(countSql, params);
-            const total = countResult[0].total;
-
-            sql += ' LIMIT ? OFFSET ?';
-            params.push(limitNum, offset);
-
-            const [rows] = await db.query(sql, params);
-            const augmentedRows = await calculateStudentHours(rows, db);
-            responseData.total = total;
-            responseData.data = augmentedRows;
-            return res.status(200).json(responseData);
-        }
+        const [rows] = await db.query(sql, params);
+        const augmentedRows = await calculateStudentHours(rows, db);
+        responseData.total = total;
+        responseData.data = augmentedRows;
+        return res.status(200).json(responseData);
     } catch (e) { res.status(500).json({ success: false, message: e.message }); }
 };
 
