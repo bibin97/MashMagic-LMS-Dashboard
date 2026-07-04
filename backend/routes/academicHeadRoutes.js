@@ -54,8 +54,10 @@ router.put('/daily-updates/:id', academicHeadController.editDailyUpdate);
 router.get('/student-growth', academicHeadController.getStudentGrowth);
 router.post('/student-growth/generate/:id', academicHeadController.generateStudentGrowthReport);
 
+const aoeController = require('../controllers/aoeController');
+
 // All Students
-router.get('/students-all', academicHeadController.getAllStudents);
+router.get('/students-all', aoeController.getStudents);
 
 // Faculty Replacements
 router.get('/faculty-replacements', academicHeadController.getFacultyReplacements);
