@@ -239,7 +239,6 @@ const forceSync = async (req, res) => {
 
 const getAvailableFaculties = async (req, res) => {
     try {
-        await performAutoSync();
         let { subject, dayConfigs } = req.query;
         
         let configs = [];
@@ -310,7 +309,6 @@ const getAvailableFaculties = async (req, res) => {
 
 const getDropdownData = async (req, res) => {
     try {
-        await performAutoSync();
         const [ms] = await db.query('SELECT id, name FROM mentors');
         const [mhs] = await db.query('SELECT id, name FROM users WHERE role = "mentor_head"');
         const [fs] = await db.query('SELECT id, name, subject FROM faculties');
@@ -602,7 +600,6 @@ const uncheckFacultySession = async (req, res) => {
 
 const getFacultyDirectory = async (req, res) => {
     try {
-        await performAutoSync();
         const { page, limit, search, syllabi, sections, subjects, sortBy } = req.query;
         let query = 'SELECT * FROM faculties WHERE status = "active"';
         let countQuery = 'SELECT COUNT(*) as total FROM faculties WHERE status = "active"';
@@ -1233,7 +1230,6 @@ const getStudents = async (req, res) => {
 
 const getMentors = async (req, res) => {
     try {
-        await performAutoSync();
         const { page, limit, search } = req.query;
         let query = 'SELECT m.*, (SELECT COUNT(*) FROM students WHERE mentor_id = m.id AND status != "rejected") as studentCount FROM mentors m WHERE m.status = "active"';
         let countQuery = 'SELECT COUNT(*) as total FROM mentors m WHERE m.status = "active"';
