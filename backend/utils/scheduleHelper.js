@@ -8,7 +8,8 @@ const getUnifiedAcademicScheduleQuery = (roleFilter = '', additionalJoins = '') 
         SELECT id, timetable_id, faculty_id, student_id, date, start_time, end_time, duration,
                topic, subject, session_type, status, faculty_name, student_name, meeting_link, minutes_taken, 
                minutes_locked, session_number, mentor_id,
-               reminder_1, reminder_1_remark, reminder_2, reminder_2_remark, reminder_3, reminder_3_remark
+               reminder_1, reminder_1_remark, reminder_2, reminder_2_remark, reminder_3, reminder_3_remark,
+               hour_rate
         FROM (
             -- SOURCE 1: Timetable (Source of Truth)
             SELECT 
@@ -36,7 +37,8 @@ const getUnifiedAcademicScheduleQuery = (roleFilter = '', additionalJoins = '') 
                 COALESCE(fs.reminder_2, 0) as reminder_2,
                 fs.reminder_2_remark,
                 COALESCE(fs.reminder_3, 0) as reminder_3,
-                fs.reminder_3_remark
+                fs.reminder_3_remark,
+                (SELECT hourly_rate FROM faculty_schedules fsch WHERE fsch.student_id = t.student_id AND fsch.faculty_id = t.faculty_id AND (fsch.is_deleted IS NULL OR fsch.is_deleted = 0) LIMIT 1) as hour_rate
             FROM timetable t
             LEFT JOIN users f ON t.faculty_id = f.id
             LEFT JOIN faculties f2 ON t.faculty_id = f2.id
@@ -74,7 +76,8 @@ const getUnifiedAcademicScheduleQuery = (roleFilter = '', additionalJoins = '') 
                 COALESCE(fs.reminder_2, 0) as reminder_2,
                 fs.reminder_2_remark,
                 COALESCE(fs.reminder_3, 0) as reminder_3,
-                fs.reminder_3_remark
+                fs.reminder_3_remark,
+                (SELECT hourly_rate FROM faculty_schedules fsch WHERE fsch.student_id = sa.student_id AND fsch.faculty_id = fs.faculty_id AND (fsch.is_deleted IS NULL OR fsch.is_deleted = 0) LIMIT 1) as hour_rate
             FROM faculty_sessions fs
             LEFT JOIN users u ON fs.faculty_id = u.id AND u.role = 'faculty'
             LEFT JOIN session_attendance sa ON fs.id = sa.session_id

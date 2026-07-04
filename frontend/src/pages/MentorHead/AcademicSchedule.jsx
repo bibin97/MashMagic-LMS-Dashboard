@@ -270,6 +270,7 @@ return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String
               columns={[
                 { header: "Student Name", accessor: "student_name" },
                 { header: "Faculty Name", accessor: "faculty_name" },
+                { header: "Faculty Hour Rate", accessor: row => row.hour_rate ? `₹${row.hour_rate}` : '₹0' },
                 { header: "Subject", accessor: "subject" },
                 { header: "Topic / Chapter", accessor: row => row.topic || row.chapter || 'General Session' },
                 { header: "Date", accessor: row => row.date ? new Date(row.date).toLocaleDateString('en-GB') : 'TBD' },
