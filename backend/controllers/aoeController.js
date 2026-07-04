@@ -27,6 +27,7 @@ const ensureAoeDemoScheduleColumns = async () => {
 // @desc    Get dashboard metrics and today's schedule
 const getDashboardStats = async (req, res) => {
     try {
+        performAutoSync().catch(console.error); // Run in background without blocking
         const today = new Date().toISOString().split('T')[0];
         const safeQuery = async (query, params, label) => {
             try {
@@ -147,7 +148,15 @@ const getAllFacultyActivity = async (req, res) => {
     } catch (error) { res.status(500).json({ success: false, message: "Server Error", error: error.message }); }
 };
 
-const performAutoSync = async () => {
+let isAutoSyncing = false;
+let lastAutoSyncTime = 0;
+const AUTO_SYNC_COOLDOWN = 10 * 60 * 1000; // 10 minutes
+
+const performAutoSync = async (force = false) => {
+    if (isAutoSyncing) return;
+    if (!force && (Date.now() - lastAutoSyncTime < AUTO_SYNC_COOLDOWN)) return;
+    
+    isAutoSyncing = true;
     try {
         const [ms] = await db.query('SELECT * FROM users WHERE role = "mentor"');
         for (const m of ms) {
@@ -224,7 +233,12 @@ const performAutoSync = async () => {
                 console.error(`Error syncing student ${s.id}:`, err.message);
             }
         }
-    } catch (e) { console.error("AUTO_SYNC_ERR:", e.message); }
+    } catch (e) { 
+        console.error("AUTO_SYNC_ERR:", e.message); 
+    } finally {
+        lastAutoSyncTime = Date.now();
+        isAutoSyncing = false;
+    }
 };
 
 const forceSync = async (req, res) => {
@@ -239,6 +253,7 @@ const forceSync = async (req, res) => {
 
 const getAvailableFaculties = async (req, res) => {
     try {
+        performAutoSync().catch(console.error); // Run in background without blocking
         let { subject, dayConfigs } = req.query;
         
         let configs = [];
@@ -1230,6 +1245,7 @@ const getStudents = async (req, res) => {
 
 const getMentors = async (req, res) => {
     try {
+        performAutoSync().catch(console.error); // Run in background without blocking
         const { page, limit, search } = req.query;
         let query = 'SELECT m.*, (SELECT COUNT(*) FROM students WHERE mentor_id = m.id AND status != "rejected") as studentCount FROM mentors m WHERE m.status = "active"';
         let countQuery = 'SELECT COUNT(*) as total FROM mentors m WHERE m.status = "active"';
@@ -1450,6 +1466,7 @@ const reportAHParentMeeting = async (req, res) => {
 
 const getDemoSchedules = async (req, res) => {
     try {
+        performAutoSync().catch(console.error); // Run in background without blocking
         await db.query(`
             CREATE TABLE IF NOT EXISTS aoe_demo_schedules (
                 id INT AUTO_INCREMENT PRIMARY KEY,
