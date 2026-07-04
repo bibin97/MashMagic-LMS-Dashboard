@@ -95,6 +95,24 @@ const ExportButton = ({ data, fetchData, filename = "export", dateField = "creat
     }
 
     const ws = XLSX.utils.json_to_sheet(exportData);
+    
+    // Auto-fit column widths
+    if (exportData.length > 0) {
+      const colWidths = Object.keys(exportData[0]).map(key => {
+        let maxLen = key.length;
+        exportData.forEach(row => {
+          const val = row[key];
+          if (val !== null && val !== undefined) {
+            const valLen = val.toString().length;
+            if (valLen > maxLen) maxLen = valLen;
+          }
+        });
+        // Max width of 50 to avoid overly wide columns
+        return { wch: Math.min(maxLen + 2, 50) };
+      });
+      ws['!cols'] = colWidths;
+    }
+
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
     XLSX.writeFile(wb, `${filename}_${new Date().toISOString().split('T')[0]}.xlsx`);
