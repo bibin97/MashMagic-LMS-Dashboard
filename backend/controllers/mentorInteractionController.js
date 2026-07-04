@@ -75,11 +75,25 @@ const getDailyAssignments = async (req, res) => {
         const isToday = targetDate === today;
 
         // Get mentor pause status
-        let [mentorRows] = await db.query('SELECT interaction_paused FROM users WHERE id = ?', [mentor_id]);
-        if (mentorRows.length === 0) {
-            [mentorRows] = await db.query('SELECT interaction_paused FROM mentors WHERE id = ?', [mentor_id]);
+        let isPaused = false;
+        try {
+            let [mentorRows] = await db.query('SELECT interaction_paused FROM users WHERE id = ?', [mentor_id]);
+            if (mentorRows.length === 0) {
+                [mentorRows] = await db.query('SELECT interaction_paused FROM mentors WHERE id = ?', [mentor_id]);
+            }
+            isPaused = mentorRows[0]?.interaction_paused || false;
+        } catch (dbErr) {
+            // Fallback to local file if column doesn't exist
+            const fs = require('fs');
+            const path = require('path');
+            const pauseFile = path.join(__dirname, '..', 'data', 'mentor_pause_states.json');
+            if (fs.existsSync(pauseFile)) {
+                try {
+                    const states = JSON.parse(fs.readFileSync(pauseFile, 'utf8'));
+                    isPaused = states[mentor_id] || false;
+                } catch(e) {}
+            }
         }
-        const isPaused = mentorRows[0]?.interaction_paused || false;
 
         // ── Try new table first ──────────────────────────────────────
         const [newRecords] = await db.query(
@@ -708,14 +722,36 @@ module.exports = {
     togglePause: async (req, res) => { 
         try { 
             const mentor_id = req.user.id; 
-            let [mentorRows] = await db.query('SELECT interaction_paused FROM users WHERE id = ?', [mentor_id]); 
-            if (mentorRows.length === 0) {
-                [mentorRows] = await db.query('SELECT interaction_paused FROM mentors WHERE id = ?', [mentor_id]);
+            let newStatus = false;
+            
+            try {
+                let [mentorRows] = await db.query('SELECT interaction_paused FROM users WHERE id = ?', [mentor_id]); 
+                if (mentorRows.length === 0) {
+                    [mentorRows] = await db.query('SELECT interaction_paused FROM mentors WHERE id = ?', [mentor_id]);
+                }
+                const mentor = mentorRows[0];
+                newStatus = mentor ? !mentor.interaction_paused : true; 
+                
+                await db.query('UPDATE users SET interaction_paused = ? WHERE id = ?', [newStatus, mentor_id]); 
+                await db.query('UPDATE mentors SET interaction_paused = ? WHERE id = ?', [newStatus, mentor_id]); 
+            } catch (dbErr) {
+                // Fallback to local file if column doesn't exist
+                const fs = require('fs');
+                const path = require('path');
+                const dataDir = path.join(__dirname, '..', 'data');
+                if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
+                
+                const pauseFile = path.join(dataDir, 'mentor_pause_states.json');
+                let states = {};
+                if (fs.existsSync(pauseFile)) {
+                    try { states = JSON.parse(fs.readFileSync(pauseFile, 'utf8')); } catch(e) {}
+                }
+                
+                newStatus = !(states[mentor_id] || false);
+                states[mentor_id] = newStatus;
+                fs.writeFileSync(pauseFile, JSON.stringify(states));
             }
-            const mentor = mentorRows[0];
-            const newStatus = mentor ? !mentor.interaction_paused : false; 
-            await db.query('UPDATE users SET interaction_paused = ? WHERE id = ?', [newStatus, mentor_id]); 
-            await db.query('UPDATE mentors SET interaction_paused = ? WHERE id = ?', [newStatus, mentor_id]); 
+
             res.status(200).json({ success: true, is_paused: newStatus, message: 'Pause status updated' }); 
         } catch(err) { 
             console.error(err); 
