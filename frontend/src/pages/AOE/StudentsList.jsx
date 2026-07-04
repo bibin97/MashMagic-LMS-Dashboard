@@ -124,7 +124,8 @@ const StudentsList = ({
         let updatedSubjects = [...(student.subject_hours || [])];
         updatedSubjects.splice(idxToDelete, 1);
         
-        const res = await api.put(`${apiPath}/students/${student.id}/subject-hours`, {
+        const endpointPath = role === 'academic_head' ? '/academic-head' : apiPath;
+        const res = await api.put(`${endpointPath}/students/${student.id}/subject-hours`, {
             subject_hours: updatedSubjects
         });
 
@@ -150,8 +151,8 @@ const StudentsList = ({
     });
   };
 
-  // Base API path based on role
-  const apiPath = role === 'mentor_head' ? '/mentor-head' : role === 'academic_head' ? '/academic-head' : '/aoe';
+  // Base API path based on role - Academic Head shares the AOE directory endpoints
+  const apiPath = role === 'mentor_head' ? '/mentor-head' : '/aoe';
   // Navigation base path (frontend routes)
   const navBasePath = role === 'mentor_head' ? '/mentor-head' : role === 'academic_head' ? '/academic-head' : '/aoe';
   const navigate = useNavigate();
