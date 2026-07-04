@@ -84,6 +84,72 @@ const calculateStudentHours = async (students, db) => {
         }
     });
 
+    // Pre-calculate allowed subjects for mapping
+    const allowedSubjectsMap = {};
+    students.forEach(s => {
+        let allowed = new Set();
+        
+        // 1. From student details (subjects_json)
+        try {
+            let reg = [];
+            if (s.subjects_json) {
+                reg = typeof s.subjects_json === 'string' ? JSON.parse(s.subjects_json) : s.subjects_json;
+            }
+            reg.forEach(rs => {
+                let subjName = rs.subject || 'Unknown';
+                if (Array.isArray(subjName)) subjName.forEach(sub => allowed.add(sub));
+                else allowed.add(subjName);
+            });
+        } catch(e) {}
+        
+        allowedSubjectsMap[s.id] = allowed;
+    });
+
+    // 2. From faculty schedules
+    facultyMappings.forEach(fm => {
+        if (fm.subject && allowedSubjectsMap[fm.student_id]) {
+            allowedSubjectsMap[fm.student_id].add(fm.subject);
+        }
+    });
+
+    // 3. From already saved student_subjects (excluding dummy)
+    baseSubjects.forEach(bs => {
+        if (bs.subject_name !== '__EDITED__' && allowedSubjectsMap[bs.student_id]) {
+            allowedSubjectsMap[bs.student_id].add(bs.subject_name);
+        }
+    });
+
+    // Helper to map a raw session subject to an allowed subject
+    const normalizeSubj = (s) => (s || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+    const mapSubject = (student_id, rawSubject) => {
+        if (!rawSubject) return 'Unknown';
+        const allowed = Array.from(allowedSubjectsMap[student_id] || []);
+        if (allowed.includes(rawSubject)) return rawSubject;
+        
+        const normRaw = normalizeSubj(rawSubject);
+        
+        // Exact normalized match
+        let match = allowed.find(a => normalizeSubj(a) === normRaw);
+        if (match) return match;
+        
+        // Common synonym matches
+        if (normRaw === 'maths') match = allowed.find(a => normalizeSubj(a) === 'mathematics');
+        if (normRaw === 'mathematics') match = allowed.find(a => normalizeSubj(a) === 'maths');
+        if (match) return match;
+        
+        // Partial match
+        match = allowed.find(a => normalizeSubj(a).includes(normRaw) || normRaw.includes(normalizeSubj(a)));
+        if (match) return match;
+        
+        // If the user explicitly deleted a subject, it might not be in allowed anymore.
+        // But we MUST map it to something if they had sessions.
+        // If it's not in allowed, we return the raw subject, BUT later we will filter it out if needed.
+        // Actually, user requested: "student detailsil ulla subject and faculty asignil koduthittulla subjects ahnu hours ennaduthu varandathu"
+        // So if it doesn't match, we map it to "Other" or just return rawSubject but filter it out later?
+        // Let's return rawSubject, and in the final compilation, we filter out subjects not in allowedSubjects.
+        return rawSubject;
+    };
+
     const processSession = (session) => {
         let mins = 0;
         if (session.minutes_taken !== null && session.minutes_taken !== undefined && session.minutes_taken !== '') {
@@ -100,7 +166,7 @@ const calculateStudentHours = async (students, db) => {
         if (consumedMap[session.student_id]) {
             consumedMap[session.student_id].totalMins += mins;
             
-            const subj = session.subject || 'Unknown';
+            let subj = mapSubject(session.student_id, session.subject || 'Unknown');
             if (!consumedMap[session.student_id].subjects[subj]) {
                 consumedMap[session.student_id].subjects[subj] = { allocated: 0, consumedMins: 0 };
             }
@@ -150,6 +216,12 @@ const calculateStudentHours = async (students, db) => {
         let historicalTotalMins = 0;
         const subject_hours = [];
         for (const [subjName, data] of Object.entries(studentData.subjects)) {
+            // ONLY include if it is in the allowed subjects list
+            const allowed = allowedSubjectsMap[s.id] || new Set();
+            if (!allowed.has(subjName)) {
+                continue; // Skip this subject as it's not a valid subject from student details/faculty
+            }
+
             const subjConsumedHours = data.consumedMins / 60;
             let facNames = '';
             const mapping = facultyMappings.find(fm => fm.student_id === s.id && (fm.subject === subjName || (fm.subject || '').toLowerCase() === (subjName || '').toLowerCase()));

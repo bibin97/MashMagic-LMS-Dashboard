@@ -845,6 +845,20 @@ const CommonInteractionLogs = ({
             <span className="px-2.5 py-1 bg-[#008080]/10 text-[#008080] rounded-lg text-[8px] font-black uppercase tracking-widest border border-[#008080]/20">Active Audit</span>
             <span className="text-slate-300">/</span>
             <span className="text-[9px] md:text-[10px] font-black text-slate-500 uppercase tracking-widest truncate">{selectedStudent.registration_number || selectedStudent.id}</span>
+            
+            {(studentDetails?.assessment_level || selectedStudent.assessment_level) && (
+              <>
+                <span className="text-slate-300">/</span>
+                <span className={`px-2.5 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest border ${
+                  (studentDetails?.assessment_level || selectedStudent.assessment_level) === 'Excellent' ? 'bg-emerald-100 text-emerald-700 border-emerald-200' :
+                  (studentDetails?.assessment_level || selectedStudent.assessment_level) === 'Good' ? 'bg-blue-100 text-blue-700 border-blue-200' :
+                  (studentDetails?.assessment_level || selectedStudent.assessment_level) === 'Average' ? 'bg-amber-100 text-amber-700 border-amber-200' :
+                  'bg-rose-100 text-rose-700 border-rose-200'
+                }`}>
+                  Level: {studentDetails?.assessment_level || selectedStudent.assessment_level}
+                </span>
+              </>
+            )}
           </div>
           <h1 className="text-xl md:text-3xl lg:text-5xl font-black text-slate-900 tracking-tighter uppercase leading-tight md:leading-none">
             <span className="truncate block md:inline">{selectedStudent.name || 'Unknown Entity'}</span>
