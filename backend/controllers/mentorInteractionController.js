@@ -4,11 +4,24 @@ const getISTDate = () => {
     return new Date().toLocaleString('en-CA', { timeZone: 'Asia/Kolkata' }).split(',')[0];
 };
 
+let hasMentorshipCol = null;
+const checkMentorshipCol = async () => {
+    if (hasMentorshipCol !== null) return hasMentorshipCol;
+    try {
+        const [cols] = await db.query("SHOW COLUMNS FROM students LIKE 'mentorship_completed'");
+        hasMentorshipCol = cols.length > 0;
+    } catch(e) {
+        hasMentorshipCol = false;
+    }
+    return hasMentorshipCol;
+};
+
 const returnMergedAssignments = async (savedAssignments, targetDate, mentor_id, isPaused, res) => {
     if (savedAssignments && savedAssignments.length > 0) {
+        const hasMC = await checkMentorshipCol();
         const studentIds = savedAssignments.map(a => a.id);
         const [latestStudents] = await db.query(
-        `SELECT id, name, priority_category, enrollment_type, badge, onboarding_status, last_session_type, mentorship_completed 
+        `SELECT id, name, priority_category, enrollment_type, badge, onboarding_status, last_session_type ${hasMC ? ', mentorship_completed' : ''} 
              FROM students 
              WHERE id IN (?)`,
             [studentIds]
@@ -16,7 +29,7 @@ const returnMergedAssignments = async (savedAssignments, targetDate, mentor_id, 
         const studentMap = new Map(latestStudents.map(s => [s.id, s]));
         savedAssignments = savedAssignments.filter(assignment => {
             const latest = studentMap.get(assignment.id);
-            return latest && latest.mentorship_completed !== 1;
+            return latest && (hasMC ? latest.mentorship_completed !== 1 : true);
         }).map(assignment => {
             const latest = studentMap.get(assignment.id);
             if (latest) {
@@ -96,22 +109,47 @@ const getDailyAssignments = async (req, res) => {
         }
 
         // ── Try new table first ──────────────────────────────────────
-        const [newRecords] = await db.query(
-            `SELECT r.student_id as id, r.session_type as sessionType, r.status, r.is_carry_over,
-                    s.name, s.priority_category, s.enrollment_type, s.badge, s.onboarding_status,
-                    s.last_session_type, s.mentorship_completed,
-                    ROUND(((COALESCE(s.consumed_hours,0)) / NULLIF(s.paid_hours,0)) * 100) as hours_percent,
-                    s.consumed_hours, s.paid_hours,
-                    CASE 
-                        WHEN ROUND(((COALESCE(s.consumed_hours,0)) / NULLIF(s.paid_hours,0)) * 100) >= 90 THEN 'Critical'
-                        WHEN ROUND(((COALESCE(s.consumed_hours,0)) / NULLIF(s.paid_hours,0)) * 100) >= 70 THEN 'Warning'
-                        ELSE 'Safe'
-                    END as payment_alert_level
-             FROM mentor_daily_interaction_records r
-             JOIN students s ON r.student_id = s.id
-             WHERE r.mentor_id = ? AND r.record_date = ? AND s.mentorship_completed = 0`,
-            [mentor_id, targetDate]
-        );
+        let newRecords = [];
+        try {
+            [newRecords] = await db.query(
+                `SELECT r.student_id as id, r.session_type as sessionType, r.status, r.is_carry_over,
+                        s.name, s.priority_category, s.enrollment_type, s.badge, s.onboarding_status,
+                        s.last_session_type, s.mentorship_completed,
+                        ROUND(((COALESCE(s.consumed_hours,0)) / NULLIF(s.paid_hours,0)) * 100) as hours_percent,
+                        s.consumed_hours, s.paid_hours,
+                        CASE 
+                            WHEN ROUND(((COALESCE(s.consumed_hours,0)) / NULLIF(s.paid_hours,0)) * 100) >= 90 THEN 'Critical'
+                            WHEN ROUND(((COALESCE(s.consumed_hours,0)) / NULLIF(s.paid_hours,0)) * 100) >= 70 THEN 'Warning'
+                            ELSE 'Safe'
+                        END as payment_alert_level
+                 FROM mentor_daily_interaction_records r
+                 JOIN students s ON r.student_id = s.id
+                 WHERE r.mentor_id = ? AND r.record_date = ? AND s.mentorship_completed = 0`,
+                [mentor_id, targetDate]
+            );
+        } catch (colErr) {
+            // Fallback if mentorship_completed or mentor_daily_interaction_records doesn't exist
+            try {
+                [newRecords] = await db.query(
+                    `SELECT r.student_id as id, r.session_type as sessionType, r.status, r.is_carry_over,
+                            s.name, s.priority_category, s.enrollment_type, s.badge, s.onboarding_status,
+                            s.last_session_type,
+                            ROUND(((COALESCE(s.consumed_hours,0)) / NULLIF(s.paid_hours,0)) * 100) as hours_percent,
+                            s.consumed_hours, s.paid_hours,
+                            CASE 
+                                WHEN ROUND(((COALESCE(s.consumed_hours,0)) / NULLIF(s.paid_hours,0)) * 100) >= 90 THEN 'Critical'
+                                WHEN ROUND(((COALESCE(s.consumed_hours,0)) / NULLIF(s.paid_hours,0)) * 100) >= 70 THEN 'Warning'
+                                ELSE 'Safe'
+                            END as payment_alert_level
+                     FROM mentor_daily_interaction_records r
+                     JOIN students s ON r.student_id = s.id
+                     WHERE r.mentor_id = ? AND r.record_date = ?`,
+                    [mentor_id, targetDate]
+                );
+            } catch (tableErr) {
+                newRecords = [];
+            }
+        }
 
         if (newRecords.length > 0) {
             // Merge with session reports to ensure accurate status
@@ -209,6 +247,7 @@ const getDailyAssignments = async (req, res) => {
             return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
         })());
 
+        const hasMC = await checkMentorshipCol();
         // Now fetch the newly created records
         const [freshRecords] = await db.query(
             `SELECT r.student_id as id, r.session_type as sessionType, r.status, r.is_carry_over,
@@ -221,7 +260,7 @@ const getDailyAssignments = async (req, res) => {
                     END as payment_alert_level
              FROM mentor_daily_interaction_records r
              JOIN students s ON r.student_id = s.id
-             WHERE r.mentor_id = ? AND r.record_date = ? AND s.mentorship_completed = 0`,
+             WHERE r.mentor_id = ? AND r.record_date = ? ${hasMC ? 'AND s.mentorship_completed = 0' : ''}`,
             [mentor_id, today]
         );
 
