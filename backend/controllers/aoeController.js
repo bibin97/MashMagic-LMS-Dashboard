@@ -1143,8 +1143,7 @@ const getStudents = async (req, res) => {
         if (resolvedFilter === 'completed') {
             filterClause = ' AND s.course_completed = 1';
         } else if (resolvedFilter === 'active_plus') {
-            // active_plus requires status to be active. (In-memory filter handles the hours threshold)
-            filterClause = " AND s.status = 'active'";
+            filterClause = " AND s.status = 'active' AND (s.course_completed IS NULL OR s.course_completed = 0)";
         } else if (resolvedFilter === 'enrolled_scholars') {
             // no extra filter, shows all students not rejected
         }
