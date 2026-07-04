@@ -74,18 +74,7 @@ const calculateStudentHours = async (students, db) => {
         facultyMappings = rows;
     } catch(e) {}
 
-    // Populate historical base
-    baseSubjects.forEach(bs => {
-        const subjName = bs.subject_name.trim().toUpperCase();
-        if (!consumedMap[bs.student_id].subjects[subjName]) {
-            consumedMap[bs.student_id].subjects[subjName] = {
-                allocated: parseFloat(bs.allocated_hours) || 0,
-                consumedMins: (parseFloat(bs.historical_consumed_hours) || 0) * 60
-            };
-        }
-    });
-
-    // Pre-calculate allowed subjects for mapping
+    // Pre-calculate allowed subjects for mapping (MUST be before processing any subjects)
     const allowedSubjectsMap = {};
     students.forEach(s => {
         let allowed = new Set();
@@ -113,13 +102,6 @@ const calculateStudentHours = async (students, db) => {
         }
     });
 
-    // 3. From already saved student_subjects (excluding dummy)
-    baseSubjects.forEach(bs => {
-        if (bs.subject_name !== '__EDITED__' && allowedSubjectsMap[bs.student_id]) {
-            allowedSubjectsMap[bs.student_id].add(bs.subject_name.trim().toUpperCase());
-        }
-    });
-
     // Helper to map a raw session subject to an allowed subject
     const normalizeSubj = (s) => (s || '').toLowerCase().replace(/[^a-z0-9]/g, '');
     const mapSubject = (student_id, rawSubject) => {
@@ -142,14 +124,27 @@ const calculateStudentHours = async (students, db) => {
         match = allowed.find(a => normalizeSubj(a).includes(normRaw) || normRaw.includes(normalizeSubj(a)));
         if (match) return match;
         
-        // If the user explicitly deleted a subject, it might not be in allowed anymore.
-        // But we MUST map it to something if they had sessions.
-        // If it's not in allowed, we return the raw subject, BUT later we will filter it out if needed.
-        // Actually, user requested: "student detailsil ulla subject and faculty asignil koduthittulla subjects ahnu hours ennaduthu varandathu"
-        // So if it doesn't match, we map it to "Other" or just return rawSubject but filter it out later?
-        // Let's return rawSubject, and in the final compilation, we filter out subjects not in allowedSubjects.
         return rawSubject;
     };
+
+    // Populate historical base
+    baseSubjects.forEach(bs => {
+        // Map the historical subject to an allowed subject if possible
+        const subjName = mapSubject(bs.student_id, bs.subject_name).trim().toUpperCase();
+        
+        if (!consumedMap[bs.student_id].subjects[subjName]) {
+            consumedMap[bs.student_id].subjects[subjName] = {
+                allocated: parseFloat(bs.allocated_hours) || 0,
+                consumedMins: (parseFloat(bs.historical_consumed_hours) || 0) * 60
+            };
+        } else {
+            // If it maps to an existing subject, merge the allocated and historical hours
+            consumedMap[bs.student_id].subjects[subjName].allocated += parseFloat(bs.allocated_hours) || 0;
+            consumedMap[bs.student_id].subjects[subjName].consumedMins += (parseFloat(bs.historical_consumed_hours) || 0) * 60;
+        }
+    });
+
+    // The old mapSubject was removed from here
 
     const processSession = (session) => {
         let mins = 0;
