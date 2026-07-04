@@ -132,6 +132,14 @@ const calculateStudentHours = async (students, db) => {
         // Map the historical subject to an allowed subject if possible
         const subjName = mapSubject(bs.student_id, bs.subject_name).trim().toUpperCase();
         
+        // Add it to allowedSubjectsMap so it isn't filtered out (handles manually added subjects)
+        if (subjName && subjName !== '__EDITED__' && subjName !== '__GLOBAL_OFFSET__') {
+            if (!allowedSubjectsMap[bs.student_id]) {
+                allowedSubjectsMap[bs.student_id] = new Set();
+            }
+            allowedSubjectsMap[bs.student_id].add(subjName);
+        }
+        
         if (!consumedMap[bs.student_id].subjects[subjName]) {
             consumedMap[bs.student_id].subjects[subjName] = {
                 allocated: parseFloat(bs.allocated_hours) || 0,
