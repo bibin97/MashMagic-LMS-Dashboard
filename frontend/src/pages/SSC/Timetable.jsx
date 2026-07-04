@@ -433,6 +433,7 @@ const Timetable = () => {
     } else {
       if (bulkSessions.length === 0) {
         toast.error("Add at least one session to the list");
+        setIsSubmitting(false);
         return;
       }
 
