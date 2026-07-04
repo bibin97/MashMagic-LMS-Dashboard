@@ -151,7 +151,7 @@ const StudentsList = ({
   };
 
   // Base API path based on role
-  const apiPath = role === 'mentor_head' ? '/mentor-head' : '/aoe';
+  const apiPath = role === 'mentor_head' ? '/mentor-head' : role === 'academic_head' ? '/academic-head' : '/aoe';
   // Navigation base path (frontend routes)
   const navBasePath = role === 'mentor_head' ? '/mentor-head' : role === 'academic_head' ? '/academic-head' : '/aoe';
   const navigate = useNavigate();
