@@ -885,7 +885,21 @@ const startServer = async () => {
                 'ALTER TABLE timetable MODIFY COLUMN status VARCHAR(50) DEFAULT \'Scheduled\';',
                 'ALTER TABLE faculty_sessions ADD COLUMN cancel_note TEXT NULL;',
                 'ALTER TABLE timetable ADD COLUMN cancel_note TEXT NULL;',
-                'ALTER TABLE timetable ADD COLUMN meet_link TEXT NULL;'
+                'ALTER TABLE timetable ADD COLUMN meet_link TEXT NULL;',
+
+                `CREATE TABLE IF NOT EXISTS mentor_daily_interaction_records (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    mentor_id INT NOT NULL,
+                    student_id INT NOT NULL,
+                    record_date DATE NOT NULL,
+                    status ENUM('PENDING','COMPLETED','CANCELLED') DEFAULT 'PENDING',
+                    session_type VARCHAR(20) DEFAULT 'QUICK',
+                    is_carry_over TINYINT(1) DEFAULT 0,
+                    report_id INT DEFAULT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                    UNIQUE KEY uq_mentor_student_date (mentor_id, student_id, record_date)
+                );`
             ];
             for (const migration of migrations) {
                 try {
@@ -949,6 +963,14 @@ const startServer = async () => {
         cron.schedule('0 0 * * *', () => {
             runIntegrityCheck();
         });
+
+        // Midnight Interaction Rollover - carries over pending students to next day
+        const { runMidnightRollover } = require('./cron/midnightInteractionRollover');
+        cron.schedule('1 0 * * *', async () => {
+            console.log('[CRON] Running midnight interaction rollover...');
+            await runMidnightRollover();
+        }, { timezone: 'Asia/Kolkata' });
+
 
         app.listen(PORT, () => {
             console.log(`🚀 Server running on http://localhost:${PORT}`);

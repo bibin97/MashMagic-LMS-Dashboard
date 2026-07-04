@@ -69,80 +69,54 @@ const returnMergedAssignments = async (savedAssignments, targetDate, mentor_id, 
 const getDailyAssignments = async (req, res) => {
     try {
         const mentor_id = req.user.id;
-        
-        // ONE-TIME SELF-HEALING: Fix corrupted Niranjana (ID: 187) record using precise JSON parsing
-        try {
-            const todayStr = getISTDate();
-            const [allAssignments] = await db.query('SELECT id, date, assignments FROM daily_assignments WHERE mentor_id = ?', [mentor_id]);
-            
-            for (let record of allAssignments) {
-                let assignments = record.assignments;
-                if (typeof assignments === 'string') {
-                    try { assignments = JSON.parse(assignments); } catch(e) { continue; }
-                }
-                
-                let updated = false;
-                // Convert DB date safely handling timezones
-                let recordDateStr = '';
-                if (record.date instanceof Date) {
-                    const offset = record.date.getTimezoneOffset();
-                    recordDateStr = new Date(record.date.getTime() - (offset*60*1000)).toISOString().split('T')[0];
-                } else {
-                    recordDateStr = String(record.date).split('T')[0];
-                }
-                
-                const updatedAssignments = assignments.map(a => {
-                    if (a.id == 187) {
-                        if (recordDateStr === todayStr && a.status === 'COMPLETED') {
-                            // Revert her TODAY assignment back to PENDING
-                            updated = true;
-                            return { ...a, status: 'PENDING' };
-                        } else if (recordDateStr < todayStr && a.status === 'PENDING') {
-                            // Clear her YESTERDAY pending status
-                            updated = true;
-                            return { ...a, status: 'COMPLETED' };
-                        }
-                    }
-                    return a;
-                });
-
-                if (updated) {
-                    await db.query('UPDATE daily_assignments SET assignments = ? WHERE id = ?', [JSON.stringify(updatedAssignments), record.id]);
-                }
-            }
-
-            // Fix Niranjana's created_at dates in the logs so she correctly appears under yesterday's date in the timeline
-            await db.query(`UPDATE mentor_session_reports SET created_at = '2026-06-18 12:00:00' WHERE student_id = 187 AND DATE(created_at) = ?`, [todayStr]);
-            await db.query(`UPDATE student_interaction_logs SET date = '2026-06-18' WHERE student_id = 187 AND date = ?`, [todayStr]);
-            await db.query(`UPDATE student_interaction_logs SET created_at = '2026-06-18 12:00:00' WHERE student_id = 187 AND DATE(created_at) = ?`, [todayStr]);
-
-        } catch(e) {
-            console.error("Self-healing error:", e);
-        }
-
         const today = getISTDate();
-
-        const [currentStudents] = await db.query(
-            `SELECT id, onboarding_status FROM students 
-             WHERE mentor_id = ? 
-             AND (LOWER(enrollment_type) LIKE '%mentorship%' OR LOWER(enrollment_type) = 'both')
-             AND status != 'inactive' AND course_completed = 0 AND mentorship_completed = 0`,
-            [mentor_id]
-        );
-
-        // Support past date viewing (for date picker)
         const dateParam = req.query.date;
         const targetDate = dateParam || today;
         const isToday = targetDate === today;
 
+        // Get mentor pause status
         let [mentorRows] = await db.query('SELECT interaction_paused FROM users WHERE id = ?', [mentor_id]);
         if (mentorRows.length === 0) {
             [mentorRows] = await db.query('SELECT interaction_paused FROM mentors WHERE id = ?', [mentor_id]);
         }
-        const mentor = mentorRows[0];
-        const isPaused = mentor ? mentor.interaction_paused : false;
+        const isPaused = mentorRows[0]?.interaction_paused || false;
 
-        // Check if assignments already exist for targetDate
+        // ── Try new table first ──────────────────────────────────────
+        const [newRecords] = await db.query(
+            `SELECT r.student_id as id, r.session_type as sessionType, r.status, r.is_carry_over,
+                    s.name, s.priority_category, s.enrollment_type, s.badge, s.onboarding_status,
+                    s.last_session_type, s.mentorship_completed,
+                    ROUND(((COALESCE(s.consumed_hours,0)) / NULLIF(s.paid_hours,0)) * 100) as hours_percent,
+                    s.consumed_hours, s.paid_hours,
+                    CASE 
+                        WHEN ROUND(((COALESCE(s.consumed_hours,0)) / NULLIF(s.paid_hours,0)) * 100) >= 90 THEN 'Critical'
+                        WHEN ROUND(((COALESCE(s.consumed_hours,0)) / NULLIF(s.paid_hours,0)) * 100) >= 70 THEN 'Warning'
+                        ELSE 'Safe'
+                    END as payment_alert_level
+             FROM mentor_daily_interaction_records r
+             JOIN students s ON r.student_id = s.id
+             WHERE r.mentor_id = ? AND r.record_date = ? AND s.mentorship_completed = 0`,
+            [mentor_id, targetDate]
+        );
+
+        if (newRecords.length > 0) {
+            // Merge with session reports to ensure accurate status
+            const [completedReports] = await db.query(
+                'SELECT DISTINCT student_id, session_type FROM mentor_session_reports WHERE mentor_id = ? AND DATE(created_at) = ?',
+                [mentor_id, targetDate]
+            );
+            const completedMap = new Map(completedReports.map(r => [r.student_id, r.session_type]));
+
+            const merged = newRecords.map(r => ({
+                ...r,
+                status: completedMap.has(r.id) ? 'COMPLETED' : r.status,
+                sessionType: completedMap.has(r.id) ? (completedMap.get(r.id) || r.sessionType) : r.sessionType
+            }));
+
+            return res.status(200).json({ success: true, data: merged, is_paused: isPaused });
+        }
+
+        // ── Fallback: old daily_assignments table ────────────────────
         const [existing] = await db.query(
             'SELECT assignments FROM daily_assignments WHERE mentor_id = ? AND date = ?',
             [mentor_id, targetDate]
@@ -151,41 +125,46 @@ const getDailyAssignments = async (req, res) => {
         if (existing.length > 0) {
             let savedAssignments = existing[0].assignments;
             if (typeof savedAssignments === 'string') {
-                try {
-                    savedAssignments = JSON.parse(savedAssignments);
-                } catch (e) {
-                    console.error("JSON_PARSE_ERROR in getDailyAssignments:", e);
-                    savedAssignments = [];
-                }
+                try { savedAssignments = JSON.parse(savedAssignments); } catch(e) { savedAssignments = []; }
             }
-            
-            if (isToday) {
-                // Check if any pending onboarding student is missing from savedAssignments
-                const savedIds = new Set((savedAssignments || []).map(a => a.id));
-                const hasMissingOnboarding = currentStudents.some(s => s.onboarding_status === 'pending' && !savedIds.has(s.id));
-                
-                // Check if any student in savedAssignments is NO LONGER valid
-                const currentIds = new Set(currentStudents.map(s => s.id));
-                const hasInvalidStudents = (savedAssignments || []).some(a => !currentIds.has(a.id));
 
-                // If total students changed significantly, missing onboarding students, or invalid students exist, regenerate
-                if (hasMissingOnboarding || hasInvalidStudents || (Array.isArray(savedAssignments) && savedAssignments.length < 15 && currentStudents.length > savedAssignments.length)) {
-                    // Drop out of the block to regenerate below
-                } else {
-                    return await returnMergedAssignments(savedAssignments, targetDate, mentor_id, isPaused, res);
-                }
-            } else {
-                // Past dates should never regenerate
-                return await returnMergedAssignments(savedAssignments, targetDate, mentor_id, isPaused, res);
+            // Sync completed status from session reports
+            const [completedReports] = await db.query(
+                'SELECT DISTINCT student_id, session_type FROM mentor_session_reports WHERE mentor_id = ? AND DATE(created_at) = ?',
+                [mentor_id, targetDate]
+            );
+            const completedMap = new Map(completedReports.map(r => [r.student_id, r.session_type]));
+
+            const merged = (savedAssignments || [])
+                .filter(a => a.id) // remove corrupted entries
+                .map(a => ({
+                    ...a,
+                    status: completedMap.has(a.id) ? 'COMPLETED' : a.status,
+                    sessionType: completedMap.has(a.id) ? (completedMap.get(a.id) || a.sessionType) : a.sessionType
+                }));
+
+            // Migrate these to new table for future use
+            if (merged.length > 0) {
+                const values = merged.map(a => [mentor_id, a.id, targetDate, a.status || 'PENDING', a.sessionType || 'QUICK', a.is_carry_over ? 1 : 0]);
+                await db.query(
+                    `INSERT IGNORE INTO mentor_daily_interaction_records (mentor_id, student_id, record_date, status, session_type, is_carry_over) VALUES ?`,
+                    [values]
+                ).catch(e => console.error('[MIGRATE] Error migrating to new table:', e.message));
             }
+
+            return res.status(200).json({ success: true, data: merged, is_paused: isPaused });
         }
 
-
-        // Past date: if no record exists, reconstruct from all mentor's students + completed logs
+        // ── Past date with no record: reconstruct from all students ──
         if (!isToday) {
-            // Get all students that were assigned to this mentor at that time
             const [allMentorshipStudents] = await db.query(
-                `SELECT id, name, priority_category, enrollment_type, badge, onboarding_status, last_session_type
+                `SELECT id, name, priority_category, enrollment_type, badge, onboarding_status, last_session_type,
+                        consumed_hours, paid_hours,
+                        CASE 
+                            WHEN ROUND(((COALESCE(consumed_hours,0)) / NULLIF(paid_hours,0)) * 100) >= 90 THEN 'Critical'
+                            WHEN ROUND(((COALESCE(consumed_hours,0)) / NULLIF(paid_hours,0)) * 100) >= 70 THEN 'Warning'
+                            ELSE 'Safe'
+                        END as payment_alert_level
                  FROM students
                  WHERE mentor_id = ?
                  AND (LOWER(enrollment_type) LIKE '%mentorship%' OR LOWER(enrollment_type) = 'both')
@@ -193,10 +172,8 @@ const getDailyAssignments = async (req, res) => {
                 [mentor_id]
             );
 
-            // Get students who were completed on this date
             const [completedOnDate] = await db.query(
-                `SELECT DISTINCT student_id, session_type FROM mentor_session_reports
-                 WHERE mentor_id = ? AND DATE(created_at) = ?`,
+                `SELECT DISTINCT student_id, session_type FROM mentor_session_reports WHERE mentor_id = ? AND DATE(created_at) = ?`,
                 [mentor_id, targetDate]
             );
             const completedMap = new Map(completedOnDate.map(r => [r.student_id, r.session_type]));
@@ -210,146 +187,35 @@ const getDailyAssignments = async (req, res) => {
             return res.status(200).json({ success: true, data: pastAssignments, is_paused: isPaused });
         }
 
-        // Generate new assignments (only for today)
-        const assignments = await generateAssignments(mentor_id, today);
-        
-        // Save to DB
-        await db.query(
-            'INSERT INTO daily_assignments (mentor_id, date, assignments) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE assignments = ?',
-            [mentor_id, today, JSON.stringify(assignments), JSON.stringify(assignments)]
+        // ── Generate fresh assignments for today ─────────────────────
+        const { processRolloverForMentor } = require('../cron/midnightInteractionRollover');
+        await processRolloverForMentor(mentor_id, today, (() => {
+            const d = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
+            d.setDate(d.getDate() - 1);
+            return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+        })());
+
+        // Now fetch the newly created records
+        const [freshRecords] = await db.query(
+            `SELECT r.student_id as id, r.session_type as sessionType, r.status, r.is_carry_over,
+                    s.name, s.priority_category, s.enrollment_type, s.badge, s.onboarding_status,
+                    s.last_session_type, s.consumed_hours, s.paid_hours,
+                    CASE 
+                        WHEN ROUND(((COALESCE(s.consumed_hours,0)) / NULLIF(s.paid_hours,0)) * 100) >= 90 THEN 'Critical'
+                        WHEN ROUND(((COALESCE(s.consumed_hours,0)) / NULLIF(s.paid_hours,0)) * 100) >= 70 THEN 'Warning'
+                        ELSE 'Safe'
+                    END as payment_alert_level
+             FROM mentor_daily_interaction_records r
+             JOIN students s ON r.student_id = s.id
+             WHERE r.mentor_id = ? AND r.record_date = ? AND s.mentorship_completed = 0`,
+            [mentor_id, today]
         );
 
-        res.status(200).json({ success: true, data: assignments, is_paused: isPaused });
+        res.status(200).json({ success: true, data: freshRecords, is_paused: isPaused });
     } catch (error) {
         console.error('Get Daily Assignments Error:', error);
         res.status(500).json({ success: false, message: 'Server Error' });
     }
-};
-
-const generateAssignments = async (mentor_id, today) => {
-    // Check if mentor is paused
-    let [mentorRows] = await db.query('SELECT interaction_paused, current_rotation_index FROM users WHERE id = ?', [mentor_id]);
-    if (mentorRows.length === 0) {
-        [mentorRows] = await db.query('SELECT interaction_paused, current_rotation_index FROM mentors WHERE id = ?', [mentor_id]);
-    }
-    const mentor = mentorRows[0];
-
-    // Query the most recent past assignment record for this mentor
-    const [lastRecord] = await db.query(
-        'SELECT assignments, date FROM daily_assignments WHERE mentor_id = ? AND date < ? ORDER BY date DESC LIMIT 1',
-        [mentor_id, today]
-    );
-
-    let prevAssignments = [];
-    if (lastRecord.length > 0) {
-        let raw = lastRecord[0].assignments;
-        if (typeof raw === 'string') {
-            try { prevAssignments = JSON.parse(raw); } catch(e) {}
-        } else {
-            prevAssignments = raw || [];
-        }
-    }
-
-    if (mentor && mentor.interaction_paused) {
-        // If paused, the rotation STOPS. The current incomplete students remain exactly as they are.
-        return prevAssignments.filter(a => a.status === 'PENDING');
-    }
-
-    const [students] = await db.query(
-        `SELECT id, name, priority_category, enrollment_type, badge, onboarding_status, last_session_type 
-         FROM students 
-         WHERE mentor_id = ? 
-         AND (LOWER(enrollment_type) LIKE '%mentorship%' OR LOWER(enrollment_type) = 'both')
-         AND status != 'inactive' AND course_completed = 0 AND mentorship_completed = 0
-         ORDER BY id ASC`,
-        [mentor_id]
-    );
-
-    if (students.length === 0) return [];
-
-    let selectedForToday = [];
-    let carryOverStudents = [];
-
-        if (prevAssignments.length > 0) {
-        // Find students who were NOT completed yesterday/last session
-        const uncompleted = prevAssignments.filter(a => a.status !== 'COMPLETED' && a.status !== 'CANCELLED');
-            const activeStudentMap = new Map(students.map(s => [s.id, s]));
-            
-            for (const a of uncompleted) {
-                if (activeStudentMap.has(a.id)) {
-                    carryOverStudents.push(activeStudentMap.get(a.id));
-                }
-            }
-        }
-
-    // Determine where the next rotation should start using current_rotation_index
-    const shiftAmount = students.length >= 25 ? 10 : 15;
-    let nextStartIndex = mentor ? mentor.current_rotation_index : 0;
-    
-    // Ensure index is within bounds
-    if (nextStartIndex >= students.length) {
-        nextStartIndex = 0;
-    }
-
-    const deep = [];
-    const medium = [];
-    const quick = [];
-    const carryOverSet = new Set();
-
-    // 1. Mandatory First Day Students -> DEEP
-    const onboardingStudents = students.filter(s => s.onboarding_status === 'pending');
-    for (const s of onboardingStudents) {
-        deep.push({ ...s, sessionType: 'DEEP', status: 'PENDING' });
-        carryOverSet.add(s.id);
-    }
-
-    // 2. We no longer add carry-over students to carryOverSet
-    // The user strictly wants the "Student Interaction" tab to show exactly 15 students 
-    // according to pure rotation, even if it means a student appears in both Today's rotation and Yesterday Pending.
-    
-    let currIdx = nextStartIndex;
-    let attempts = 0;
-    
-    // If total assigned students <= 15, we want all of them in today's rotation
-    if (students.length <= 15) {
-        carryOverSet.clear();
-        for (const s of onboardingStudents) carryOverSet.add(s.id);
-    }
-    
-    // The total daily limit is 15. We strictly pick 15 students for today's rotation.
-    let selectedCount = onboardingStudents.length;
-    
-    // We select up to 15 students sequentially
-    while (selectedCount < 15 && attempts < students.length) {
-        const candidate = students[currIdx];
-        if (!carryOverSet.has(candidate.id)) {
-            // Determine session type strictly based on last_session_type (from Next Attention Level), fallback to QUICK if never interacted
-            const assignedType = candidate.last_session_type || 'QUICK';
-
-            if (assignedType === 'DEEP') {
-                deep.push({ ...candidate, sessionType: 'DEEP', status: 'PENDING' });
-            } else if (assignedType === 'MEDIUM') {
-                medium.push({ ...candidate, sessionType: 'MEDIUM', status: 'PENDING' });
-            } else {
-                quick.push({ ...candidate, sessionType: 'QUICK', status: 'PENDING' });
-            }
-            
-            carryOverSet.add(candidate.id);
-            selectedCount++;
-        }
-        currIdx = (currIdx + 1) % students.length;
-        attempts++;
-    }
-
-    // Advance the rotation index for the next day
-    // Only update rotation index if there are more than 15 students. 
-    // If <= 15, we want to just start at 0 (or keep it as is, since it selects all anyway).
-    const newRotationIndex = students.length > 15 ? currIdx : 0;
-    
-    await db.query('UPDATE users SET current_rotation_index = ? WHERE id = ?', [newRotationIndex, mentor_id]);
-    await db.query('UPDATE mentors SET current_rotation_index = ? WHERE id = ?', [newRotationIndex, mentor_id]);
-
-    return [...deep, ...medium, ...quick];
 };
 
 const submitSessionReport = async (req, res) => {
@@ -480,9 +346,17 @@ const submitSessionReport = async (req, res) => {
                 // If table doesn't exist, we safely ignore this check as per prompt ("if this table participates")
             }
         }
-        // 6. Update assignment list status across ALL historical records up to interactionDate
-        // If a student's interaction is completed, it should clear them from all past pending lists
-        // BUT it should NOT clear them from future dates (like Today) if they were assigned again
+        // 6. Update assignment list status in new table (mentor_daily_interaction_records)
+        // Update ALL past records for this student up to interactionDate
+        const newStatus = session_type === 'CANCELLED' ? 'CANCELLED' : 'COMPLETED';
+        await connection.query(
+            `UPDATE mentor_daily_interaction_records 
+             SET status = ? 
+             WHERE mentor_id = ? AND student_id = ? AND record_date <= ? AND status = 'PENDING'`,
+            [newStatus, mentor_id, student_id, interactionDate]
+        );
+
+        // Also update daily_assignments (legacy table) for backward compatibility
         const [allAssignments] = await connection.query(
             'SELECT id, date, assignments FROM daily_assignments WHERE mentor_id = ? AND date <= ?',
             [mentor_id, interactionDate]
@@ -514,6 +388,7 @@ const submitSessionReport = async (req, res) => {
                 );
             }
         }
+
         if (session_type === 'CANCELLED') {
             await connection.commit();
             return res.status(200).json({ success: true, message: 'Session cancelled and logged' });
@@ -731,11 +606,12 @@ const getTodaySessionReport = async (req, res) => {
     }
 };
 
+
 const getYesterdayPending = async (req, res) => {
     try {
         const mentor_id = req.user.id;
         
-        // Support custom date: if date param given, "yesterday" means date-1 
+
         const dateParam = req.query.date;
         const today = getISTDate();
         const referenceDate = dateParam || today;
@@ -745,55 +621,72 @@ const getYesterdayPending = async (req, res) => {
         refDateObj.setDate(refDateObj.getDate() - 1);
         const yesterdayDate = `${refDateObj.getFullYear()}-${String(refDateObj.getMonth()+1).padStart(2,'0')}-${String(refDateObj.getDate()).padStart(2,'0')}`;
 
-        // Check if there is a daily_assignments record for yesterday
-        const [yesterdayRecord] = await db.query(
-            'SELECT assignments FROM daily_assignments WHERE mentor_id = ? AND date = ?',
-            [mentor_id, yesterdayDate]
-        );
-
-        // Get students completed on yesterday's date from session reports
+        // Get students completed on yesterday's date (source of truth)
         const [completedYesterday] = await db.query(
             'SELECT DISTINCT student_id FROM mentor_session_reports WHERE mentor_id = ? AND DATE(created_at) = ?',
             [mentor_id, yesterdayDate]
         );
         const completedYesterdayIds = new Set(completedYesterday.map(r => r.student_id));
 
-        let pendingStudents = [];
-
-        if (yesterdayRecord.length > 0) {
-            // Use existing record - find those still PENDING (not completed via session reports)
-            let assignments = yesterdayRecord[0].assignments;
-            if (typeof assignments === 'string') {
-                try { assignments = JSON.parse(assignments); } catch(e) { assignments = []; }
-            }
-            pendingStudents = (assignments || []).filter(a => !completedYesterdayIds.has(a.id));
-        } else {
-            // No record for yesterday - fall back to ALL mentorship students assigned to this mentor
-            // who did NOT have a completed session on yesterday's date
-            const [allMentorshipStudents] = await db.query(
-                `SELECT id, name, priority_category, enrollment_type, badge, onboarding_status, last_session_type
-                 FROM students
-                 WHERE mentor_id = ?
-                 AND (LOWER(enrollment_type) LIKE '%mentorship%' OR LOWER(enrollment_type) = 'both')
-                 AND status != 'inactive' AND course_completed = 0 AND mentorship_completed = 0`,
-                [mentor_id]
-            );
-            pendingStudents = allMentorshipStudents
-                .filter(s => !completedYesterdayIds.has(s.id))
-                .map(s => ({
-                    ...s,
-                    sessionType: s.last_session_type || 'QUICK',
-                    status: 'PENDING'
-                }));
-        }
-
-        // Also exclude students already completed on referenceDate (today) from today's session
+        // Get students completed via "Yesterday Pending" on today (completed today but with interaction_date = yesterday)
         const [completedTodayRows] = await db.query(
             'SELECT student_id FROM mentor_session_reports WHERE mentor_id = ? AND DATE(created_at) = ?',
             [mentor_id, referenceDate]
         );
         const completedTodayIds = new Set(completedTodayRows.map(r => r.student_id));
-        pendingStudents = pendingStudents.filter(a => !completedTodayIds.has(a.id));
+
+        let pendingStudents = [];
+
+        // ── Try new table first ──────────────────────────────────────
+        const [newTableRecords] = await db.query(
+            `SELECT r.student_id as id, r.session_type as sessionType, r.status, r.is_carry_over,
+                    s.name, s.priority_category, s.enrollment_type, s.badge, s.onboarding_status
+             FROM mentor_daily_interaction_records r
+             JOIN students s ON r.student_id = s.id
+             WHERE r.mentor_id = ? AND r.record_date = ? AND r.status = 'PENDING' AND s.mentorship_completed = 0`,
+            [mentor_id, yesterdayDate]
+        );
+
+        if (newTableRecords.length > 0) {
+            pendingStudents = newTableRecords.filter(a => 
+                !completedYesterdayIds.has(a.id) && !completedTodayIds.has(a.id)
+            );
+            return res.status(200).json({ success: true, data: pendingStudents });
+        }
+
+        // ── Fallback: old daily_assignments table ────────────────────
+        const [yesterdayRecord] = await db.query(
+            'SELECT assignments FROM daily_assignments WHERE mentor_id = ? AND date = ?',
+            [mentor_id, yesterdayDate]
+        );
+
+        if (yesterdayRecord.length > 0) {
+            let assignments = yesterdayRecord[0].assignments;
+            if (typeof assignments === 'string') {
+                try { assignments = JSON.parse(assignments); } catch(e) { assignments = []; }
+            }
+            pendingStudents = (assignments || []).filter(a => 
+                !completedYesterdayIds.has(a.id) && !completedTodayIds.has(a.id)
+            );
+            return res.status(200).json({ success: true, data: pendingStudents });
+        }
+
+        // ── Last resort: all mentorship students minus completed ─────
+        const [allMentorshipStudents] = await db.query(
+            `SELECT id, name, priority_category, enrollment_type, badge, onboarding_status, last_session_type
+             FROM students
+             WHERE mentor_id = ?
+             AND (LOWER(enrollment_type) LIKE '%mentorship%' OR LOWER(enrollment_type) = 'both')
+             AND status != 'inactive' AND course_completed = 0 AND mentorship_completed = 0`,
+            [mentor_id]
+        );
+        pendingStudents = allMentorshipStudents
+            .filter(s => !completedYesterdayIds.has(s.id) && !completedTodayIds.has(s.id))
+            .map(s => ({
+                ...s,
+                sessionType: s.last_session_type || 'QUICK',
+                status: 'PENDING'
+            }));
 
         res.status(200).json({ success: true, data: pendingStudents });
     } catch (error) {
