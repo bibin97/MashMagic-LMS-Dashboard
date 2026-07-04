@@ -744,7 +744,15 @@ const updateStudentSubjectHours = async (req, res) => {
             if (normRaw === 'mathematics') match = allowed.find(a => normalizeSubj(a) === 'maths');
             if (match) return match;
             
-            match = allowed.find(a => normalizeSubj(a).includes(normRaw) || normRaw.includes(normalizeSubj(a)));
+            match = allowed.find(a => {
+                const normA = normalizeSubj(a);
+                if (normA.includes(normRaw) || normRaw.includes(normA)) {
+                    if (normRaw === 'science' && normA.endsWith('science') && normA !== 'science') return false;
+                    if (normA === 'science' && normRaw.endsWith('science') && normRaw !== 'science') return false;
+                    return true;
+                }
+                return false;
+            });
             if (match) return match;
             
             return rawSubject.trim().toUpperCase();
