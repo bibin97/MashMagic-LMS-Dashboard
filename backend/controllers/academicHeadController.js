@@ -635,6 +635,59 @@ const updateStudentHours = async (req, res) => {
             await db.query(`UPDATE students SET ${updateQueries.join(', ')} WHERE id = ?`, queryParams);
         }
 
+        if (total_lifetime_consumed_hours !== undefined) {
+            // Re-calculate the sum of all dynamic sessions and other subject offsets (excluding the global offset itself)
+            const [sessions] = await db.query(`
+                SELECT fs.minutes_taken, t.duration as t_duration, fs.duration as fs_duration
+                FROM faculty_sessions fs
+                LEFT JOIN timetable t ON fs.timetable_id = t.id
+                LEFT JOIN session_attendance sa ON fs.id = sa.session_id
+                WHERE fs.status = 'Completed' AND (t.student_id = ? OR sa.student_id = ?)
+            `, [id, id]);
+
+            let dynamicMins = 0;
+            sessions.forEach(s => {
+                let mins = 0;
+                if (s.minutes_taken) {
+                    mins = parseInt(s.minutes_taken, 10);
+                } else {
+                    const dur = s.t_duration || s.fs_duration || '';
+                    const hMatch = dur.match(/(\d+)h/);
+                    const mMatch = dur.match(/(\d+)m/);
+                    if (hMatch) mins += parseInt(hMatch[1]) * 60;
+                    if (mMatch) mins += parseInt(mMatch[1]);
+                }
+                dynamicMins += mins;
+            });
+
+            // Get historical offsets for all specific subjects (not global offset)
+            const [baseSubjects] = await db.query(`
+                SELECT historical_consumed_hours 
+                FROM student_subjects 
+                WHERE student_id = ? AND subject_name NOT IN ('__EDITED__', '__GLOBAL_OFFSET__')
+            `, [id]);
+
+            let subjectOffsetMins = 0;
+            baseSubjects.forEach(bs => {
+                subjectOffsetMins += (parseFloat(bs.historical_consumed_hours) || 0) * 60;
+            });
+
+            const currentTotalMins = dynamicMins + subjectOffsetMins;
+            const targetMins = parseFloat(total_lifetime_consumed_hours) * 60;
+            const globalOffsetHours = (targetMins - currentTotalMins) / 60;
+
+            // Delete old global offset
+            await db.query(`DELETE FROM student_subjects WHERE student_id = ? AND subject_name = '__GLOBAL_OFFSET__'`, [id]);
+
+            // Insert new global offset if it's not effectively 0
+            if (Math.abs(globalOffsetHours) > 0.01) {
+                await db.query(`
+                    INSERT INTO student_subjects (student_id, subject_name, allocated_hours, historical_consumed_hours)
+                    VALUES (?, '__GLOBAL_OFFSET__', 0, ?)
+                `, [id, globalOffsetHours]);
+            }
+        }
+
         res.status(200).json({ success: true, message: 'Student hours updated successfully' });
     } catch (error) {
         console.error("Error updating student hours:", error);
@@ -678,9 +731,28 @@ const updateStudentSubjectHours = async (req, res) => {
             AND (t.student_id = ? OR sa.student_id = ?)
         `, [id, id]);
 
+        const allowed = subject_hours.map(sh => (sh.subject_name || sh.subject).trim().toUpperCase());
+        const normalizeSubj = (s) => (s || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+        const mapSubject = (rawSubject) => {
+            if (!rawSubject) return 'Unknown';
+            const normRaw = normalizeSubj(rawSubject);
+            
+            let match = allowed.find(a => normalizeSubj(a) === normRaw);
+            if (match) return match;
+            
+            if (normRaw === 'maths') match = allowed.find(a => normalizeSubj(a) === 'mathematics');
+            if (normRaw === 'mathematics') match = allowed.find(a => normalizeSubj(a) === 'maths');
+            if (match) return match;
+            
+            match = allowed.find(a => normalizeSubj(a).includes(normRaw) || normRaw.includes(normalizeSubj(a)));
+            if (match) return match;
+            
+            return rawSubject.trim().toUpperCase();
+        };
+
         const liveMins = {};
         sessions.forEach(s => {
-            const subj = s.subject || 'Unknown';
+            const subj = mapSubject(s.subject || 'Unknown');
             let mins = 0;
             if (s.minutes_taken) {
                 mins = parseInt(s.minutes_taken, 10);
@@ -695,13 +767,13 @@ const updateStudentSubjectHours = async (req, res) => {
             liveMins[subj] += mins;
         });
 
-        // Delete all existing subject hours for this student
-        await conn.query('DELETE FROM student_subjects WHERE student_id = ?', [id]);
+        // Delete all existing subject hours for this student (preserve global offset)
+        await conn.query("DELETE FROM student_subjects WHERE student_id = ? AND subject_name != '__GLOBAL_OFFSET__'", [id]);
 
         // Insert new ones (or a dummy to mark as edited)
         if (subject_hours.length > 0) {
             const values = subject_hours.map(sh => {
-                const subj = sh.subject_name || sh.subject;
+                const subj = (sh.subject_name || sh.subject).trim().toUpperCase();
                 const targetHours = parseFloat(sh.historical_consumed_hours ?? sh.consumed_hours ?? 0);
                 const currentLiveHours = (liveMins[subj] || 0) / 60;
                 
