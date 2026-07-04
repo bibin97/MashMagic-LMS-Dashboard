@@ -1116,7 +1116,7 @@ const getStudents = async (req, res) => {
         // Support both old activeTab and new filterMode param
         const resolvedFilter = filterMode || activeTab || 'enrolled_scholars';
 
-        let baseWhere = `WHERE (s.status != 'rejected' OR s.status IS NULL) AND s.status = 'active'`;
+        let baseWhere = `WHERE (s.status != 'rejected' OR s.status IS NULL)`;
         let params = [];
 
         if (mentor_id) {
@@ -1143,9 +1143,10 @@ const getStudents = async (req, res) => {
         if (resolvedFilter === 'completed') {
             filterClause = ' AND s.course_completed = 1';
         } else if (resolvedFilter === 'active_plus') {
-            // for AOE/academic_head active_plus uses hours threshold (in-memory), don't add DB filter
+            // active_plus requires status to be active. (In-memory filter handles the hours threshold)
+            filterClause = " AND s.status = 'active'";
         } else if (resolvedFilter === 'enrolled_scholars') {
-            // no extra filter
+            // no extra filter, shows all students not rejected
         }
 
         let sql = `
