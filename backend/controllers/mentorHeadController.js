@@ -1753,9 +1753,9 @@ exports.getStudents = async (req, res) => {
             }
         } else if (filterMode === 'active' || filterMode === 'active_plus') {
             if (req.user && req.user.role === 'mentor_head') {
-                whereConditions += ' AND (s.mentorship_completed IS NULL OR s.mentorship_completed = 0) AND s.status = "active"';
+                whereConditions += ' AND (s.mentorship_completed IS NULL OR s.mentorship_completed = 0)';
             } else {
-                whereConditions += ' AND (s.course_completed IS NULL OR s.course_completed = 0) AND s.status = "active"';
+                whereConditions += ' AND (s.course_completed IS NULL OR s.course_completed = 0)';
             }
         }
 
@@ -1827,9 +1827,9 @@ exports.getStudents = async (req, res) => {
                         COUNT(*) as totalEnrollment,
                         SUM(CASE WHEN mentor_id IS NULL ${hasPrevMentorCols ? 'AND previous_mentor_name IS NOT NULL' : ''} THEN 1 ELSE 0 END) as removedCount,
                         SUM(CASE WHEN course_completed = 1 THEN 1 ELSE 0 END) as courseCompletedCount,
-                        SUM(CASE WHEN (course_completed IS NULL OR course_completed = 0) AND status = 'active' THEN 1 ELSE 0 END) as activeCourseCount,
+                        SUM(CASE WHEN (course_completed IS NULL OR course_completed = 0) THEN 1 ELSE 0 END) as activeCourseCount,
                         ${hasMentorshipCompleted ? `
-                        SUM(CASE WHEN (mentorship_completed IS NULL OR mentorship_completed = 0) AND status = 'active' THEN 1 ELSE 0 END) as activeMentorshipCount,
+                        SUM(CASE WHEN (mentorship_completed IS NULL OR mentorship_completed = 0) THEN 1 ELSE 0 END) as activeMentorshipCount,
                         SUM(CASE WHEN mentorship_completed = 1 THEN 1 ELSE 0 END) as mentorshipCompletedCount,
                         SUM(CASE WHEN mentorship_completed IS NULL OR mentorship_completed = 0 THEN 1 ELSE 0 END) as mentorshipPendingCount
                         ` : `

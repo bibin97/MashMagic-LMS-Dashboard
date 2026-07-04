@@ -1143,7 +1143,7 @@ const getStudents = async (req, res) => {
         if (resolvedFilter === 'completed') {
             filterClause = ' AND s.course_completed = 1';
         } else if (resolvedFilter === 'active_plus') {
-            filterClause = " AND s.status = 'active' AND (s.course_completed IS NULL OR s.course_completed = 0)";
+            filterClause = " AND (s.course_completed IS NULL OR s.course_completed = 0)";
         } else if (resolvedFilter === 'enrolled_scholars') {
             // no extra filter, shows all students not rejected
         }
@@ -1192,10 +1192,10 @@ const getStudents = async (req, res) => {
                     SELECT 
                         COUNT(*) as totalEnrollment,
                         SUM(CASE WHEN course_completed = 1 THEN 1 ELSE 0 END) as courseCompletedCount,
-                        SUM(CASE WHEN (course_completed IS NULL OR course_completed = 0) AND status = 'active' THEN 1 ELSE 0 END) as activeCourseCount,
+                        SUM(CASE WHEN (course_completed IS NULL OR course_completed = 0) THEN 1 ELSE 0 END) as activeCourseCount,
                         ${hasMentorshipCompleted ? `
                         SUM(CASE WHEN mentorship_completed = 1 THEN 1 ELSE 0 END) as mentorshipCompletedCount,
-                        SUM(CASE WHEN (mentorship_completed IS NULL OR mentorship_completed = 0) AND status = 'active' THEN 1 ELSE 0 END) as activeMentorshipCount
+                        SUM(CASE WHEN (mentorship_completed IS NULL OR mentorship_completed = 0) THEN 1 ELSE 0 END) as activeMentorshipCount
                         ` : `
                         0 as mentorshipCompletedCount,
                         0 as activeMentorshipCount
