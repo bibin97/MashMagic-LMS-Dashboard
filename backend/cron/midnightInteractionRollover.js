@@ -74,6 +74,12 @@ const processRolloverForMentor = async (mentor_id, today, yesterday) => {
         [mentor_id, today]
     );
 
+    // Cleanup: Ensure no carry-overs are mistakenly logged for today (from old bug)
+    await db.query(
+        'DELETE FROM mentor_daily_interaction_records WHERE mentor_id = ? AND record_date = ? AND is_carry_over = 1',
+        [mentor_id, today]
+    );
+
     const hasMC = await checkMentorshipCol();
     // Get students assigned to this mentor
     const [students] = await db.query(
