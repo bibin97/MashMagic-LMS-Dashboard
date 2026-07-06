@@ -270,7 +270,21 @@ return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String
               columns={[
                 { header: "Student Name", accessor: "student_name" },
                 { header: "Faculty Name", accessor: "faculty_name" },
-                { header: "Faculty Hour Rate", accessor: row => row.hour_rate ? `₹${row.hour_rate}` : '₹0' },
+                { header: "Faculty Hour Rate", accessor: row => {
+                      if (!row.hour_rate) return '₹0';
+                      let rate = row.hour_rate;
+                      try {
+                          const parsed = JSON.parse(row.hour_rate);
+                          if (typeof parsed === 'object' && parsed !== null) {
+                              rate = parsed[row.subject] || Object.values(parsed)[0] || '0';
+                          }
+                      } catch(e) {
+                          if (typeof rate === 'string' && rate.includes(',')) {
+                              rate = rate.split(',')[0];
+                          }
+                      }
+                      return `₹${rate}`;
+                  } },
                 { header: "Subject", accessor: "subject" },
                 { header: "Topic / Chapter", accessor: row => row.topic || row.chapter || 'General Session' },
                 { header: "Date", accessor: row => row.date ? new Date(row.date).toLocaleDateString('en-GB') : 'TBD' },
