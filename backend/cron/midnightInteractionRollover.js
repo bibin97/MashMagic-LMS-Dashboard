@@ -171,24 +171,17 @@ const processRolloverForMentor = async (mentor_id, today, yesterday) => {
         }
     }
 
-    const toInsert = []; // { student_id, session_type, is_carry_over }
+    const toInsert = []; // { student_id, session_type, is_carry_over: 0 }
+    const alreadyAddedIds = new Set();
 
-    // First: add carry-over students (yesterday's pending)
+    // Do NOT insert carry-overs into today's date. They stay pending on yesterday's date.
+    // However, we MUST exclude them from today's fresh rotation selection so they don't appear twice.
     for (const studentId of carryOverIds) {
-        const student = students.find(s => s.id === studentId);
-        if (student) {
-            toInsert.push({
-                student_id: studentId,
-                session_type: carryOverMap.get(studentId) || student.last_session_type || 'QUICK',
-                is_carry_over: 1
-            });
-        }
+        alreadyAddedIds.add(studentId);
     }
 
-    // Then: add fresh rotation students (if not paused)
+    // Generate fresh rotation students (if not paused)
     if (!isPaused) {
-        const alreadyAddedIds = new Set(toInsert.map(r => r.student_id));
-
         // Onboarding students first
         const onboardingStudents = students.filter(s => s.onboarding_status === 'pending' && !alreadyAddedIds.has(s.id));
         for (const s of onboardingStudents) {
@@ -202,7 +195,7 @@ const processRolloverForMentor = async (mentor_id, today, yesterday) => {
 
         let attempts = 0;
         const targetCount = 15;
-        let freshCount = toInsert.filter(r => !r.is_carry_over).length;
+        let freshCount = toInsert.length;
 
         while (freshCount < targetCount && attempts < students.length) {
             const candidate = students[nextIdx];
@@ -222,7 +215,7 @@ const processRolloverForMentor = async (mentor_id, today, yesterday) => {
         await db.query('UPDATE mentors SET current_rotation_index = ? WHERE id = ?', [newIdx, mentor_id]).catch(() => {});
     }
 
-    // Insert records into new table
+    // Insert records into new table (only fresh rotation students for today)
     if (toInsert.length > 0) {
         const values = toInsert.map(r => [mentor_id, r.student_id, today, 'PENDING', r.session_type, r.is_carry_over]);
         await db.query(
@@ -231,7 +224,7 @@ const processRolloverForMentor = async (mentor_id, today, yesterday) => {
              VALUES ?`,
             [values]
         );
-        console.log(`[ROLLOVER] Mentor ${mentor_id}: Inserted ${toInsert.length} records for ${today} (${toInsert.filter(r=>r.is_carry_over).length} carry-overs)`);
+        console.log(`[ROLLOVER] Mentor ${mentor_id}: Inserted ${toInsert.length} fresh rotation records for ${today}`);
     }
 
     // Also save to daily_assignments for backward compatibility
