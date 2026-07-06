@@ -180,12 +180,6 @@ const processRolloverForMentor = async (mentor_id, today, yesterday) => {
     const toInsert = []; // { student_id, session_type, is_carry_over: 0 }
     const alreadyAddedIds = new Set();
 
-    // Do NOT insert carry-overs into today's date. They stay pending on yesterday's date.
-    // However, we MUST exclude them from today's fresh rotation selection so they don't appear twice.
-    for (const studentId of carryOverIds) {
-        alreadyAddedIds.add(studentId);
-    }
-
     // Generate fresh rotation students (if not paused)
     if (!isPaused) {
         // Onboarding students first
