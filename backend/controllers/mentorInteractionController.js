@@ -108,6 +108,20 @@ const getDailyAssignments = async (req, res) => {
             }
         }
 
+        // ── Generate fresh assignments for today if needed ───────────
+        if (isToday) {
+            try {
+                const { processRolloverForMentor } = require('../cron/midnightInteractionRollover');
+                await processRolloverForMentor(mentor_id, today, (() => {
+                    const d = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
+                    d.setDate(d.getDate() - 1);
+                    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+                })());
+            } catch (rolloverErr) {
+                console.error('Rollover error (non-fatal):', rolloverErr);
+            }
+        }
+
         // ── Try new table first ──────────────────────────────────────
         let newRecords = [];
         try {
@@ -239,36 +253,8 @@ const getDailyAssignments = async (req, res) => {
             return res.status(200).json({ success: true, data: pastAssignments, is_paused: isPaused });
         }
 
-        // ── Generate fresh assignments for today ─────────────────────
-        try {
-            const { processRolloverForMentor } = require('../cron/midnightInteractionRollover');
-            await processRolloverForMentor(mentor_id, today, (() => {
-                const d = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
-                d.setDate(d.getDate() - 1);
-                return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-            })());
-        } catch (rolloverErr) {
-            console.error('Rollover error (non-fatal):', rolloverErr);
-        }
-
-        const hasMC = await checkMentorshipCol();
-        // Now fetch the newly created records
-        const [freshRecords] = await db.query(
-            `SELECT r.student_id as id, r.session_type as sessionType, r.status, r.is_carry_over,
-                    s.name, s.priority_category, s.enrollment_type, s.badge, s.onboarding_status,
-                    s.last_session_type, s.consumed_hours, s.paid_hours,
-                    CASE 
-                        WHEN ROUND(((COALESCE(s.consumed_hours,0)) / NULLIF(s.paid_hours,0)) * 100) >= 90 THEN 'Critical'
-                        WHEN ROUND(((COALESCE(s.consumed_hours,0)) / NULLIF(s.paid_hours,0)) * 100) >= 70 THEN 'Warning'
-                        ELSE 'Safe'
-                    END as payment_alert_level
-             FROM mentor_daily_interaction_records r
-             JOIN students s ON r.student_id = s.id
-             WHERE r.mentor_id = ? AND r.record_date = ? ${hasMC ? 'AND (s.mentorship_completed = 0 OR s.mentorship_completed IS NULL)' : ''}`,
-            [mentor_id, today]
-        );
-
-        res.status(200).json({ success: true, data: freshRecords, is_paused: isPaused });
+        // If no records found in new or old tables, return empty array
+        return res.status(200).json({ success: true, data: [], is_paused: isPaused });
     } catch (error) {
         console.error('Get Daily Assignments Error:', error);
         res.status(500).json({ success: false, message: 'Server Error' });
