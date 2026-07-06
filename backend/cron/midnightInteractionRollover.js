@@ -19,6 +19,18 @@ const getISTDate = () => {
     return new Date().toLocaleString('en-CA', { timeZone: 'Asia/Kolkata' }).split(',')[0];
 };
 
+let hasMentorshipCol = null;
+const checkMentorshipCol = async () => {
+    if (hasMentorshipCol !== null) return hasMentorshipCol;
+    try {
+        const [cols] = await db.query("SHOW COLUMNS FROM students LIKE 'mentorship_completed'");
+        hasMentorshipCol = cols.length > 0;
+    } catch(e) {
+        hasMentorshipCol = false;
+    }
+    return hasMentorshipCol;
+};
+
 const getYesterdayIST = () => {
     const d = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
     d.setDate(d.getDate() - 1);
@@ -32,12 +44,13 @@ const runMidnightRollover = async () => {
 
         console.log(`[ROLLOVER] Running for today=${today}, yesterday=${yesterday}`);
 
+        const hasMC = await checkMentorshipCol();
         // Get all active mentors
         const [mentors] = await db.query(
             `SELECT DISTINCT mentor_id FROM students 
              WHERE mentor_id IS NOT NULL 
              AND (LOWER(enrollment_type) LIKE '%mentorship%' OR LOWER(enrollment_type) = 'both')
-             AND status != 'inactive' AND course_completed = 0 AND mentorship_completed = 0`
+             AND status != 'inactive' AND course_completed = 0 ${hasMC ? 'AND mentorship_completed = 0' : ''}`
         );
 
         for (const { mentor_id } of mentors) {
@@ -65,13 +78,14 @@ const processRolloverForMentor = async (mentor_id, today, yesterday) => {
         return;
     }
 
+    const hasMC = await checkMentorshipCol();
     // Get students assigned to this mentor
     const [students] = await db.query(
         `SELECT id, name, last_session_type, priority_category, enrollment_type, badge, onboarding_status
          FROM students
          WHERE mentor_id = ?
          AND (LOWER(enrollment_type) LIKE '%mentorship%' OR LOWER(enrollment_type) = 'both')
-         AND status != 'inactive' AND course_completed = 0 AND mentorship_completed = 0
+         AND status != 'inactive' AND course_completed = 0 ${hasMC ? 'AND mentorship_completed = 0' : ''}
          ORDER BY id ASC`,
         [mentor_id]
     );
@@ -124,13 +138,35 @@ const processRolloverForMentor = async (mentor_id, today, yesterday) => {
         }
     }
 
-    // Get mentor's current rotation index
-    let [mentorRows] = await db.query('SELECT current_rotation_index, interaction_paused FROM users WHERE id = ?', [mentor_id]);
-    if (mentorRows.length === 0) {
-        [mentorRows] = await db.query('SELECT current_rotation_index, interaction_paused FROM mentors WHERE id = ?', [mentor_id]);
+    // Get mentor's current rotation index and pause state safely
+    let mentor = {};
+    let isPaused = false;
+    try {
+        let [mentorRows] = await db.query('SELECT current_rotation_index, interaction_paused FROM users WHERE id = ?', [mentor_id]);
+        if (mentorRows.length === 0) {
+            [mentorRows] = await db.query('SELECT current_rotation_index, interaction_paused FROM mentors WHERE id = ?', [mentor_id]);
+        }
+        mentor = mentorRows[0] || {};
+        isPaused = mentor.interaction_paused || false;
+    } catch (colErr) {
+        // Fallback if interaction_paused is missing
+        try {
+            let [mRows] = await db.query('SELECT current_rotation_index FROM users WHERE id = ?', [mentor_id]);
+            if (mRows.length === 0) [mRows] = await db.query('SELECT current_rotation_index FROM mentors WHERE id = ?', [mentor_id]);
+            mentor = mRows[0] || {};
+        } catch (e) {}
+        
+        // Read pause state from local file as fallback
+        const fs = require('fs');
+        const path = require('path');
+        const pauseFile = path.join(__dirname, '..', 'data', 'mentor_pause_states.json');
+        if (fs.existsSync(pauseFile)) {
+            try {
+                const states = JSON.parse(fs.readFileSync(pauseFile, 'utf8'));
+                isPaused = states[mentor_id] || false;
+            } catch(e) {}
+        }
     }
-    const mentor = mentorRows[0] || {};
-    const isPaused = mentor.interaction_paused || false;
 
     const toInsert = []; // { student_id, session_type, is_carry_over }
 

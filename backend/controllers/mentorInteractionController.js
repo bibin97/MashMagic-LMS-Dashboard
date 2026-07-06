@@ -240,12 +240,16 @@ const getDailyAssignments = async (req, res) => {
         }
 
         // ── Generate fresh assignments for today ─────────────────────
-        const { processRolloverForMentor } = require('../cron/midnightInteractionRollover');
-        await processRolloverForMentor(mentor_id, today, (() => {
-            const d = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
-            d.setDate(d.getDate() - 1);
-            return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-        })());
+        try {
+            const { processRolloverForMentor } = require('../cron/midnightInteractionRollover');
+            await processRolloverForMentor(mentor_id, today, (() => {
+                const d = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
+                d.setDate(d.getDate() - 1);
+                return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+            })());
+        } catch (rolloverErr) {
+            console.error('Rollover error (non-fatal):', rolloverErr);
+        }
 
         const hasMC = await checkMentorshipCol();
         // Now fetch the newly created records
