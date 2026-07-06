@@ -47,6 +47,8 @@ const {
     getAHParentMeetings,
     scheduleAHParentMeeting,
     reportAHParentMeeting,
+    updateAHParentMeeting,
+    deleteAHParentMeeting,
     getDemoSchedules,
     createDemoSchedule,
     editDemoSchedule,
