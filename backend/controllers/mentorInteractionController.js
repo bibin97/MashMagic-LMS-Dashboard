@@ -774,5 +774,30 @@ module.exports = {
             console.error(err); 
             res.status(500).json({ success: false, message: 'Server Error' }); 
         } 
+    },
+    forceRollover: async (req, res) => {
+        try {
+            const { processRolloverForMentor } = require('../cron/midnightInteractionRollover');
+            const mentor_id = req.user.id;
+            const today = (() => {
+                const d = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
+                return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+            })();
+            const yesterday = (() => {
+                const d = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
+                d.setDate(d.getDate() - 1);
+                return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+            })();
+            
+            // Delete require cache so we load the LATEST file with our fixes
+            delete require.cache[require.resolve('../cron/midnightInteractionRollover')];
+            const freshRollover = require('../cron/midnightInteractionRollover');
+            
+            await freshRollover.processRolloverForMentor(mentor_id, today, yesterday);
+            res.status(200).json({ success: true, message: 'Forced rollover complete' });
+        } catch(err) {
+            console.error(err);
+            res.status(500).json({ success: false, message: err.message });
+        }
     }
 };

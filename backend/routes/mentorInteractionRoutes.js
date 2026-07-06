@@ -23,6 +23,7 @@ router.post('/submit-report', protect, handleUpload, controller.submitSessionRep
 router.get('/high-risk-students', protect, controller.getHighRiskStudents);
 router.get('/weekly-coverage', protect, controller.getWeeklyCoverage);
 router.post('/toggle-pause', protect, controller.togglePause);
+router.post('/force-rollover', protect, controller.forceRollover);
 router.get('/report/:id/today', protect, controller.getTodaySessionReport);
 router.put('/report/:id', protect, handleUpload, controller.updateSessionReport);
 router.delete('/report/:id', protect, controller.deleteSessionReport);
