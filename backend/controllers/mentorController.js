@@ -99,7 +99,7 @@ const getMentorDashboard = async (req, res) => {
         const hideTuitionOnly = ['mentor', 'mentor_head'].includes(req.user.role);
         const enrollmentCondition = hideTuitionOnly ? "AND (LOWER(enrollment_type) LIKE '%mentorship%' OR LOWER(enrollment_type) = 'both')" : "";
 
-        const studentCount = await safeQuery(`SELECT COUNT(*) as count FROM students WHERE mentor_id = ? AND status NOT IN ('rejected', 'inactive') AND course_completed = 0 AND mentorship_completed = 0 ${enrollmentCondition}`, [mentorId], 'studentCount');
+        const studentCount = await safeQuery(`SELECT COUNT(*) as count FROM students WHERE mentor_id = ? AND status NOT IN ('rejected', 'inactive') AND (course_completed = 0 OR course_completed IS NULL) AND (mentorship_completed = 0 OR mentorship_completed IS NULL) ${enrollmentCondition}`, [mentorId], 'studentCount');
         const sessionCount = await safeQuery('SELECT COUNT(*) as count FROM timetable WHERE (is_deleted IS NULL OR is_deleted = 0) AND mentor_id = ?', [mentorId], 'sessionCount');
         const pendingTasks = await safeQuery('SELECT COUNT(*) as count FROM tasks WHERE assigned_to = ? AND status != "Completed"', [mentorId], 'pendingTasks');
         const completedTasks = await safeQuery('SELECT COUNT(*) as count FROM tasks WHERE assigned_to = ? AND status = "Completed"', [mentorId], 'completedTasks');
@@ -198,8 +198,11 @@ const getMentorStudents = async (req, res) => {
         
         const { search, page, limit, viewMode, sortBy } = req.query;
 
-        let whereConditions = `s.status NOT IN ('rejected', 'inactive') AND s.course_completed = 0 AND s.mentorship_completed = 0
-            AND (LOWER(s.enrollment_type) LIKE '%mentorship%' OR LOWER(s.enrollment_type) = 'both')`;
+        const hideTuitionOnly = ['mentor', 'mentor_head'].includes(req.user.role);
+        const enrollmentCondition = hideTuitionOnly ? "AND (LOWER(s.enrollment_type) LIKE '%mentorship%' OR LOWER(s.enrollment_type) = 'both')" : "";
+
+        let whereConditions = `s.status NOT IN ('rejected', 'inactive') AND (s.course_completed = 0 OR s.course_completed IS NULL) AND (s.mentorship_completed = 0 OR s.mentorship_completed IS NULL)
+                               ${enrollmentCondition}`;
             
         let params = [];
 

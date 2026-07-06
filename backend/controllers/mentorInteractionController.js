@@ -124,7 +124,7 @@ const getDailyAssignments = async (req, res) => {
                         END as payment_alert_level
                  FROM mentor_daily_interaction_records r
                  JOIN students s ON r.student_id = s.id
-                 WHERE r.mentor_id = ? AND r.record_date = ? AND s.mentorship_completed = 0`,
+                 WHERE r.mentor_id = ? AND r.record_date = ? AND (s.mentorship_completed = 0 OR s.mentorship_completed IS NULL)`,
                 [mentor_id, targetDate]
             );
         } catch (colErr) {
@@ -264,7 +264,7 @@ const getDailyAssignments = async (req, res) => {
                     END as payment_alert_level
              FROM mentor_daily_interaction_records r
              JOIN students s ON r.student_id = s.id
-             WHERE r.mentor_id = ? AND r.record_date = ? ${hasMC ? 'AND s.mentorship_completed = 0' : ''}`,
+             WHERE r.mentor_id = ? AND r.record_date = ? ${hasMC ? 'AND (s.mentorship_completed = 0 OR s.mentorship_completed IS NULL)' : ''}`,
             [mentor_id, today]
         );
 
@@ -700,7 +700,7 @@ const getYesterdayPending = async (req, res) => {
                     s.name, s.priority_category, s.enrollment_type, s.badge, s.onboarding_status
              FROM mentor_daily_interaction_records r
              JOIN students s ON r.student_id = s.id
-             WHERE r.mentor_id = ? AND r.record_date = ? AND r.status = 'PENDING' AND s.mentorship_completed = 0`,
+             WHERE r.mentor_id = ? AND r.record_date = ? AND r.status = 'PENDING' AND (s.mentorship_completed = 0 OR s.mentorship_completed IS NULL)`,
             [mentor_id, yesterdayDate]
         );
 
@@ -734,7 +734,7 @@ const getYesterdayPending = async (req, res) => {
              FROM students
              WHERE mentor_id = ?
              AND (LOWER(enrollment_type) LIKE '%mentorship%' OR LOWER(enrollment_type) = 'both')
-             AND status != 'inactive' AND course_completed = 0 AND mentorship_completed = 0`,
+             AND status != 'inactive' AND (course_completed = 0 OR course_completed IS NULL) AND (mentorship_completed = 0 OR mentorship_completed IS NULL)`,
             [mentor_id]
         );
         pendingStudents = allMentorshipStudents
