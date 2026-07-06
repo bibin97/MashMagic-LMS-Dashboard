@@ -129,13 +129,9 @@ const getDailyAssignments = async (req, res) => {
                 `SELECT r.student_id as id, r.session_type as sessionType, r.status, r.is_carry_over,
                         s.name, s.priority_category, s.enrollment_type, s.badge, s.onboarding_status,
                         s.last_session_type, s.mentorship_completed,
-                        ROUND(((COALESCE(s.consumed_hours,0)) / NULLIF(s.paid_hours,0)) * 100) as hours_percent,
-                        s.consumed_hours, s.paid_hours,
-                        CASE 
-                            WHEN ROUND(((COALESCE(s.consumed_hours,0)) / NULLIF(s.paid_hours,0)) * 100) >= 90 THEN 'Critical'
-                            WHEN ROUND(((COALESCE(s.consumed_hours,0)) / NULLIF(s.paid_hours,0)) * 100) >= 70 THEN 'Warning'
-                            ELSE 'Safe'
-                        END as payment_alert_level
+                        100 as hours_percent,
+                        0 as consumed_hours, 0 as paid_hours,
+                        'Safe' as payment_alert_level
                  FROM mentor_daily_interaction_records r
                  JOIN students s ON r.student_id = s.id
                  WHERE r.mentor_id = ? AND r.record_date = ? AND (s.mentorship_completed = 0 OR s.mentorship_completed IS NULL)`,
@@ -148,13 +144,9 @@ const getDailyAssignments = async (req, res) => {
                     `SELECT r.student_id as id, r.session_type as sessionType, r.status, r.is_carry_over,
                             s.name, s.priority_category, s.enrollment_type, s.badge, s.onboarding_status,
                             s.last_session_type,
-                            ROUND(((COALESCE(s.consumed_hours,0)) / NULLIF(s.paid_hours,0)) * 100) as hours_percent,
-                            s.consumed_hours, s.paid_hours,
-                            CASE 
-                                WHEN ROUND(((COALESCE(s.consumed_hours,0)) / NULLIF(s.paid_hours,0)) * 100) >= 90 THEN 'Critical'
-                                WHEN ROUND(((COALESCE(s.consumed_hours,0)) / NULLIF(s.paid_hours,0)) * 100) >= 70 THEN 'Warning'
-                                ELSE 'Safe'
-                            END as payment_alert_level
+                            100 as hours_percent,
+                            0 as consumed_hours, 0 as paid_hours,
+                            'Safe' as payment_alert_level
                      FROM mentor_daily_interaction_records r
                      JOIN students s ON r.student_id = s.id
                      WHERE r.mentor_id = ? AND r.record_date = ?`,
@@ -225,12 +217,8 @@ const getDailyAssignments = async (req, res) => {
         if (!isToday) {
             const [allMentorshipStudents] = await db.query(
                 `SELECT id, name, priority_category, enrollment_type, badge, onboarding_status, last_session_type,
-                        consumed_hours, paid_hours,
-                        CASE 
-                            WHEN ROUND(((COALESCE(consumed_hours,0)) / NULLIF(paid_hours,0)) * 100) >= 90 THEN 'Critical'
-                            WHEN ROUND(((COALESCE(consumed_hours,0)) / NULLIF(paid_hours,0)) * 100) >= 70 THEN 'Warning'
-                            ELSE 'Safe'
-                        END as payment_alert_level
+                        0 as consumed_hours, 0 as paid_hours,
+                        'Safe' as payment_alert_level
                  FROM students
                  WHERE mentor_id = ?
                  AND (LOWER(enrollment_type) LIKE '%mentorship%' OR LOWER(enrollment_type) = 'both')
