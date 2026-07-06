@@ -165,11 +165,25 @@ const getDailyAssignments = async (req, res) => {
             );
             const completedMap = new Map(completedReports.map(r => [r.student_id, r.session_type]));
 
-            const merged = newRecords.map(r => ({
+            let merged = newRecords.map(r => ({
                 ...r,
                 status: completedMap.has(r.id) ? 'COMPLETED' : r.status,
                 sessionType: completedMap.has(r.id) ? (completedMap.get(r.id) || r.sessionType) : r.sessionType
             }));
+
+            // Strict enforcement: Maximum 15 interactions per day
+            if (merged.length > 15) {
+                const excessIds = merged.slice(15).map(r => r.id);
+                merged = merged.slice(0, 15);
+                
+                // Delete excess from DB to self-heal
+                if (excessIds.length > 0) {
+                    await db.query(
+                        'DELETE FROM mentor_daily_interaction_records WHERE mentor_id = ? AND record_date = ? AND student_id IN (?)',
+                        [mentor_id, targetDate, excessIds]
+                    ).catch(e => console.error('[CLEANUP] Failed to delete excess records:', e.message));
+                }
+            }
 
             return res.status(200).json({ success: true, data: merged, is_paused: isPaused });
         }
