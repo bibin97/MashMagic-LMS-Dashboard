@@ -68,15 +68,11 @@ const runMidnightRollover = async () => {
 };
 
 const processRolloverForMentor = async (mentor_id, today, yesterday) => {
-    // Check if today's records already exist (prevent double-run)
+    // Check if today's records already exist
     const [todayExists] = await db.query(
         'SELECT COUNT(*) as cnt FROM mentor_daily_interaction_records WHERE mentor_id = ? AND record_date = ?',
         [mentor_id, today]
     );
-    if (todayExists[0].cnt > 0) {
-        console.log(`[ROLLOVER] Mentor ${mentor_id} already has records for ${today}. Skipping.`);
-        return;
-    }
 
     const hasMC = await checkMentorshipCol();
     // Get students assigned to this mentor
@@ -165,6 +161,13 @@ const processRolloverForMentor = async (mentor_id, today, yesterday) => {
                 const states = JSON.parse(fs.readFileSync(pauseFile, 'utf8'));
                 isPaused = states[mentor_id] || false;
             } catch(e) {}
+        }
+    }
+
+    // Prevent double-run, but allow refill if less than 15 students and not paused
+    if (todayExists[0].cnt > 0) {
+        if (isPaused || todayExists[0].cnt >= 15 || todayExists[0].cnt >= students.length) {
+            return;
         }
     }
 
