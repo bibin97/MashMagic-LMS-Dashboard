@@ -33,6 +33,11 @@ const ParentMeetings = ({
   const [loading, setLoading] = useState(false);
   const [expandedMeetingId, setExpandedMeetingId] = useState(null);
 
+  // Modals state
+  const [editModalData, setEditModalData] = useState(null);
+  const [cancelModalData, setCancelModalData] = useState(null);
+  const [deleteModalData, setDeleteModalData] = useState(null);
+
   useEffect(() => {
     fetchStudents();
   }, []);
@@ -61,7 +66,7 @@ const ParentMeetings = ({
         setLoading(false);
         return;
       }
-      const status = activeTab === 'report' ? 'Scheduled' : 'Completed';
+      const status = activeTab === 'report' ? 'Scheduled' : 'Completed,Cancelled';
       const res = await api.get(`/aoe/parent-meetings?status=${status}&page=${page}&limit=${limit}`);
       if (activeTab === 'report') {
         setPendingCount(res.data.total || 0);
@@ -113,6 +118,48 @@ const ParentMeetings = ({
       toast.error('Failed to submit report');
     }
   };
+
+  const handleEditSubmit = async (e) => {
+    e.preventDefault();
+    if (!editModalData.reason && editModalData.is_postponed) {
+        return toast.error('Please provide a reason for postponing');
+    }
+    try {
+        await api.put(`/aoe/parent-meetings/${editModalData.id}`, editModalData);
+        toast.success('Meeting updated successfully');
+        setEditModalData(null);
+        fetchMeetings();
+    } catch (err) {
+        toast.error('Failed to update meeting');
+    }
+  };
+
+  const handleCancelSubmit = async (e) => {
+    e.preventDefault();
+    if (!cancelModalData.reason) {
+        return toast.error('Please provide a reason for cancelling');
+    }
+    try {
+        await api.put(`/aoe/parent-meetings/${cancelModalData.id}`, { status: 'Cancelled', reason: cancelModalData.reason });
+        toast.success('Meeting cancelled successfully');
+        setCancelModalData(null);
+        fetchMeetings();
+    } catch (err) {
+        toast.error('Failed to cancel meeting');
+    }
+  };
+
+  const handleDeleteSubmit = async () => {
+    try {
+        await api.delete(`/aoe/parent-meetings/${deleteModalData.id}`);
+        toast.success('Meeting deleted successfully');
+        setDeleteModalData(null);
+        fetchMeetings();
+    } catch (err) {
+        toast.error('Failed to delete meeting');
+    }
+  };
+
   const scheduledMeetings = activeTab === 'report' ? meetings : [];
   const completedMeetings = activeTab === 'view' ? meetings : [];
   return <div className={isEmbedded ? "" : "min-h-screen bg-slate-50/50 p-4 md:p-8"}>
@@ -226,6 +273,31 @@ const ParentMeetings = ({
                         <Video size={14} /> Join Meeting
                       </a>}
                     
+                    {(() => {
+                        let isPostponed = false;
+                        let actionReason = '';
+                        try {
+                            const rd = typeof m.report_data === 'string' ? JSON.parse(m.report_data) : (m.report_data || {});
+                            isPostponed = rd.is_postponed;
+                            actionReason = rd.action_reason;
+                        } catch(e) {}
+                        return (
+                            <>
+                                {isPostponed && (
+                                    <div className="mb-4 bg-orange-50 border border-orange-100 rounded-xl p-3">
+                                        <span className="text-[10px] font-black text-orange-500 uppercase tracking-widest block mb-1">Postponed</span>
+                                        {actionReason && <p className="text-xs font-medium text-orange-700">{actionReason}</p>}
+                                    </div>
+                                )}
+                                <div className="flex items-center gap-2 mb-4">
+                                    <button onClick={() => setEditModalData(m)} className="flex-1 h-8 rounded-lg bg-slate-100 text-slate-600 font-bold uppercase text-[10px] tracking-wider hover:bg-slate-200 transition-all">Edit/Postpone</button>
+                                    <button onClick={() => setCancelModalData(m)} className="flex-1 h-8 rounded-lg bg-red-50 text-red-600 font-bold uppercase text-[10px] tracking-wider hover:bg-red-100 transition-all">Cancel</button>
+                                    <button onClick={() => setDeleteModalData(m)} className="flex-1 h-8 rounded-lg bg-slate-800 text-white font-bold uppercase text-[10px] tracking-wider hover:bg-slate-900 transition-all">Delete</button>
+                                </div>
+                            </>
+                        );
+                    })()}
+                    
                     <div className="pt-4 border-t border-slate-100 mt-auto">
                       <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Submit Report</h4>
                       <textarea value={reportData.id === m.id ? reportData.notes : ''} onChange={e => setReportData({
@@ -272,9 +344,17 @@ const ParentMeetings = ({
                 } catch (e) {
                   summary = m.report_data;
                 }
+                const isCancelled = m.status === 'Cancelled';
+                let reason = '';
+                try {
+                    const rd = typeof m.report_data === 'string' ? JSON.parse(m.report_data) : (m.report_data || {});
+                    reason = rd.action_reason || '';
+                } catch(e) {}
+                
                 return <tr key={m.id} className="border-b border-slate-50 hover:bg-slate-50/50"><td className="p-6 text-sm font-black text-slate-400 border-b border-slate-50">{index + 1}</td>
                       <td className="p-4 text-sm font-bold text-slate-900 whitespace-nowrap">
                         {new Date(m.meeting_date).toLocaleDateString('en-GB')} <span className="text-slate-400 text-xs ml-1">{m.meeting_time}</span>
+                        {isCancelled && <span className="ml-2 px-2 py-0.5 bg-red-50 text-red-600 text-[9px] font-black uppercase rounded tracking-widest">Cancelled</span>}
                       </td>
                       <td className="p-4 text-sm font-bold text-slate-700">
                         {m.student_name}
@@ -282,8 +362,8 @@ const ParentMeetings = ({
                       <td className="p-4 text-sm font-medium text-slate-500 max-w-xs">
                         {m.notes || '-'}
                       </td>
-                      <td className="p-4 text-sm font-medium text-slate-700 max-w-md bg-emerald-50/30">
-                        {summary}
+                      <td className={`p-4 text-sm font-medium max-w-md ${isCancelled ? 'bg-red-50/30 text-red-700' : 'bg-emerald-50/30 text-slate-700'}`}>
+                        {isCancelled ? `Reason: ${reason || '-'}` : (summary || '-')}
                       </td>
                       <td className="p-4 text-sm font-medium text-slate-500 whitespace-nowrap">
                         {m.academic_operation_executive_name}
@@ -346,9 +426,24 @@ const ParentMeetings = ({
                                         </div>
                                         <div className="flex flex-col text-right">
                                             <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Status</span>
-                                            <span className="text-[10px] font-black text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded uppercase tracking-wider">Completed</span>
+                                            <span className={`text-[10px] font-black px-2 py-0.5 rounded uppercase tracking-wider ${m.status === 'Cancelled' ? 'bg-red-50 text-red-600' : 'bg-emerald-50 text-emerald-600'}`}>
+                                                {m.status === 'Cancelled' ? 'Cancelled' : 'Completed'}
+                                            </span>
                                         </div>
                                     </div>
+                                    {m.status === 'Cancelled' && (
+                                        <div className="mt-2 p-2 bg-red-50/50 rounded-xl border border-red-100">
+                                            <span className="text-[9px] font-black text-red-400 uppercase tracking-widest block mb-1">Reason for Cancellation</span>
+                                            <p className="text-xs text-red-700 font-medium break-words">
+                                                {(() => {
+                                                    try {
+                                                        const rd = typeof m.report_data === 'string' ? JSON.parse(m.report_data) : (m.report_data || {});
+                                                        return rd.action_reason || '-';
+                                                    } catch(e) { return '-'; }
+                                                })()}
+                                            </p>
+                                        </div>
+                                    )}
                                     {m.meeting_link && (
                                         <div className="pt-2 border-t border-slate-100">
                                             <a href={m.meeting_link} target="_blank" rel="noreferrer" className="w-full flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-widest bg-blue-50 text-blue-600 p-2 rounded-xl border border-blue-100 hover:bg-blue-100 transition-colors">
@@ -380,6 +475,96 @@ const ParentMeetings = ({
           </div>}
 
       </div>
+
+      {/* Edit / Postpone Modal */}
+      {editModalData && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm overflow-y-auto">
+              <div className="bg-white rounded-3xl w-full max-w-lg shadow-xl overflow-hidden my-auto">
+                  <div className="p-6 border-b border-slate-100 flex items-center justify-between">
+                      <h3 className="text-lg font-black text-slate-900">Edit / Postpone Meeting</h3>
+                      <button onClick={() => setEditModalData(null)} className="text-slate-400 hover:text-slate-600 transition-colors">
+                          <CheckCircle2 size={24} className="rotate-45" />
+                      </button>
+                  </div>
+                  <form onSubmit={handleEditSubmit} className="p-6 space-y-4">
+                      <div className="grid grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Meeting Date</label>
+                              <input type="date" value={editModalData.meeting_date ? new Date(editModalData.meeting_date).toISOString().split('T')[0] : ''} onChange={e => setEditModalData({...editModalData, meeting_date: e.target.value})} className="w-full h-10 px-3 rounded-xl border border-slate-200 bg-slate-50 text-sm font-medium focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" required />
+                          </div>
+                          <div className="space-y-2">
+                              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Meeting Time</label>
+                              <input type="time" value={editModalData.meeting_time || ''} onChange={e => setEditModalData({...editModalData, meeting_time: e.target.value})} className="w-full h-10 px-3 rounded-xl border border-slate-200 bg-slate-50 text-sm font-medium focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" required />
+                          </div>
+                      </div>
+                      <div className="space-y-2">
+                          <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Meeting Link</label>
+                          <input type="text" value={editModalData.meeting_link || ''} onChange={e => setEditModalData({...editModalData, meeting_link: e.target.value})} className="w-full h-10 px-3 rounded-xl border border-slate-200 bg-slate-50 text-sm font-medium focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" />
+                      </div>
+                      <div className="space-y-2">
+                          <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Agenda / Notes</label>
+                          <textarea value={editModalData.notes || ''} onChange={e => setEditModalData({...editModalData, notes: e.target.value})} className="w-full p-3 rounded-xl border border-slate-200 bg-slate-50 text-sm font-medium focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 min-h-[80px]" />
+                      </div>
+                      <div className="flex items-center gap-2 mt-4 p-4 bg-orange-50 rounded-xl border border-orange-100">
+                          <input type="checkbox" id="is_postponed" checked={editModalData.is_postponed || false} onChange={e => setEditModalData({...editModalData, is_postponed: e.target.checked})} className="w-4 h-4 text-orange-600 rounded focus:ring-orange-500" />
+                          <label htmlFor="is_postponed" className="text-xs font-bold text-orange-700">Mark as Postponed</label>
+                      </div>
+                      {editModalData.is_postponed && (
+                          <div className="space-y-2">
+                              <label className="text-[10px] font-black text-orange-400 uppercase tracking-widest">Reason for Postponing <span className="text-red-500">*</span></label>
+                              <textarea value={editModalData.reason || ''} onChange={e => setEditModalData({...editModalData, reason: e.target.value})} placeholder="Why is this meeting being postponed?" className="w-full p-3 rounded-xl border border-orange-200 bg-white text-sm font-medium focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 min-h-[80px]" required />
+                          </div>
+                      )}
+                      <div className="flex items-center justify-end gap-3 pt-4">
+                          <button type="button" onClick={() => setEditModalData(null)} className="px-6 py-2 rounded-xl text-xs font-bold text-slate-500 hover:bg-slate-100 transition-all uppercase tracking-widest">Close</button>
+                          <button type="submit" className="px-6 py-2 rounded-xl bg-indigo-600 text-white text-xs font-bold hover:bg-indigo-700 transition-all uppercase tracking-widest">Save Changes</button>
+                      </div>
+                  </form>
+              </div>
+          </div>
+      )}
+
+      {/* Cancel Modal */}
+      {cancelModalData && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+              <div className="bg-white rounded-3xl w-full max-w-sm shadow-xl overflow-hidden">
+                  <div className="p-6 border-b border-red-50 bg-red-50/30 flex items-center gap-3 text-red-600">
+                      <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm">
+                          <CheckCircle2 size={20} className="rotate-45" />
+                      </div>
+                      <h3 className="text-base font-black">Cancel Meeting</h3>
+                  </div>
+                  <form onSubmit={handleCancelSubmit} className="p-6 space-y-4">
+                      <p className="text-sm font-medium text-slate-600">Are you sure you want to cancel the meeting with <span className="font-bold text-slate-900">{cancelModalData.student_name}</span>?</p>
+                      <div className="space-y-2">
+                          <label className="text-[10px] font-black text-red-400 uppercase tracking-widest">Reason for Cancellation <span className="text-red-500">*</span></label>
+                          <textarea value={cancelModalData.reason || ''} onChange={e => setCancelModalData({...cancelModalData, reason: e.target.value})} placeholder="Please provide a valid reason..." className="w-full p-3 rounded-xl border border-red-200 bg-red-50/30 text-sm font-medium focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 min-h-[100px]" required />
+                      </div>
+                      <div className="flex items-center gap-3 pt-2">
+                          <button type="button" onClick={() => setCancelModalData(null)} className="flex-1 py-3 rounded-xl text-xs font-bold text-slate-500 bg-slate-100 hover:bg-slate-200 transition-all uppercase tracking-widest">Go Back</button>
+                          <button type="submit" className="flex-1 py-3 rounded-xl bg-red-500 text-white text-xs font-bold hover:bg-red-600 transition-all uppercase tracking-widest">Confirm Cancel</button>
+                      </div>
+                  </form>
+              </div>
+          </div>
+      )}
+
+      {/* Delete Modal */}
+      {deleteModalData && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+              <div className="bg-white rounded-3xl w-full max-w-sm shadow-xl overflow-hidden p-6 text-center">
+                  <div className="w-16 h-16 bg-red-50 text-red-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                      <CheckCircle2 size={32} className="rotate-45" />
+                  </div>
+                  <h3 className="text-lg font-black text-slate-900 mb-2">Delete Meeting?</h3>
+                  <p className="text-sm font-medium text-slate-500 mb-6">This action cannot be undone. The meeting record will be permanently removed.</p>
+                  <div className="flex items-center gap-3">
+                      <button onClick={() => setDeleteModalData(null)} className="flex-1 py-3 rounded-xl text-xs font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 transition-all uppercase tracking-widest">Cancel</button>
+                      <button onClick={handleDeleteSubmit} className="flex-1 py-3 rounded-xl bg-slate-900 text-white text-xs font-bold hover:bg-slate-800 transition-all uppercase tracking-widest">Delete</button>
+                  </div>
+              </div>
+          </div>
+      )}
     </div>;
 };
 export default ParentMeetings;

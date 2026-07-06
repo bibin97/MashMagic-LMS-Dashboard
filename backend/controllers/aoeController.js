@@ -1412,9 +1412,16 @@ const getAHParentMeetings = async (req, res) => {
         let params = [];
 
         if (status) {
-            query += ' AND m.status = ?';
-            countQuery += ' AND m.status = ?';
-            params.push(status);
+            if (status.includes(',')) {
+                const statuses = status.split(',');
+                query += ' AND m.status IN (?)';
+                countQuery += ' AND m.status IN (?)';
+                params.push(statuses);
+            } else {
+                query += ' AND m.status = ?';
+                countQuery += ' AND m.status = ?';
+                params.push(status);
+            }
         }
 
         query += ' ORDER BY m.meeting_date DESC, m.meeting_time DESC';
@@ -1461,6 +1468,48 @@ const reportAHParentMeeting = async (req, res) => {
             WHERE id = ?
         `, [JSON.stringify(report_data || {}), status || 'Completed', id]);
         res.json({ success: true, message: 'Meeting reported successfully' });
+    } catch (error) { res.status(500).json({ success: false, message: error.message }); }
+};
+
+const updateAHParentMeeting = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { meeting_date, meeting_time, meeting_link, notes, status, reason, is_postponed } = req.body;
+        
+        // Fetch current to merge report_data
+        const [current] = await db.query('SELECT report_data FROM ah_parent_meetings WHERE id = ?', [id]);
+        if (current.length === 0) return res.status(404).json({ success: false, message: 'Not found' });
+        
+        let reportData = {};
+        try { reportData = typeof current[0].report_data === 'string' ? JSON.parse(current[0].report_data) : (current[0].report_data || {}); } catch(e){}
+        
+        if (reason) {
+            reportData.action_reason = reason;
+        }
+        if (is_postponed !== undefined) {
+            reportData.is_postponed = is_postponed;
+        }
+
+        await db.query(`
+            UPDATE ah_parent_meetings 
+            SET meeting_date = COALESCE(?, meeting_date),
+                meeting_time = COALESCE(?, meeting_time),
+                meeting_link = COALESCE(?, meeting_link),
+                notes = COALESCE(?, notes),
+                status = COALESCE(?, status),
+                report_data = ?
+            WHERE id = ?
+        `, [meeting_date, meeting_time, meeting_link, notes, status, JSON.stringify(reportData), id]);
+        
+        res.json({ success: true, message: 'Meeting updated successfully' });
+    } catch (error) { res.status(500).json({ success: false, message: error.message }); }
+};
+
+const deleteAHParentMeeting = async (req, res) => {
+    try {
+        const { id } = req.params;
+        await db.query('DELETE FROM ah_parent_meetings WHERE id = ?', [id]);
+        res.json({ success: true, message: 'Meeting deleted successfully' });
     } catch (error) { res.status(500).json({ success: false, message: error.message }); }
 };
 
@@ -2038,6 +2087,8 @@ module.exports = {
     getAHParentMeetings,
     scheduleAHParentMeeting,
     reportAHParentMeeting,
+    updateAHParentMeeting,
+    deleteAHParentMeeting,
     getDemoSchedules,
     getNextDemoId,
     createDemoSchedule,

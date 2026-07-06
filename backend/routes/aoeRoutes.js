@@ -143,6 +143,8 @@ router.post('/faculty-interactions', createAHFacultyInteraction);
 router.get('/parent-meetings', getAHParentMeetings);
 router.post('/parent-meetings', scheduleAHParentMeeting);
 router.put('/parent-meetings/:id/report', reportAHParentMeeting);
+router.put('/parent-meetings/:id', updateAHParentMeeting);
+router.delete('/parent-meetings/:id', deleteAHParentMeeting);
 
 // Demo Schedules
 router.get('/demo-schedules', getDemoSchedules);
