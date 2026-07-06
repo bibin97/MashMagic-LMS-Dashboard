@@ -38,7 +38,10 @@ const getUnifiedAcademicScheduleQuery = (roleFilter = '', additionalJoins = '') 
                 fs.reminder_2_remark,
                 COALESCE(fs.reminder_3, 0) as reminder_3,
                 fs.reminder_3_remark,
-                (SELECT hourly_rate FROM faculty_schedules fsch WHERE fsch.student_id = t.student_id AND fsch.faculty_id = t.faculty_id AND (fsch.is_deleted IS NULL OR fsch.is_deleted = 0) LIMIT 1) as hour_rate
+                COALESCE(
+                    (SELECT hourly_rate FROM faculty_schedules fsch WHERE fsch.student_id = t.student_id AND fsch.faculty_id = t.faculty_id AND (fsch.is_deleted IS NULL OR fsch.is_deleted = 0) LIMIT 1),
+                    COALESCE(f.hourly_rate, f2.hourly_rate)
+                ) as hour_rate
             FROM timetable t
             LEFT JOIN users f ON t.faculty_id = f.id
             LEFT JOIN faculties f2 ON t.faculty_id = f2.id
@@ -77,7 +80,10 @@ const getUnifiedAcademicScheduleQuery = (roleFilter = '', additionalJoins = '') 
                 fs.reminder_2_remark,
                 COALESCE(fs.reminder_3, 0) as reminder_3,
                 fs.reminder_3_remark,
-                (SELECT hourly_rate FROM faculty_schedules fsch WHERE fsch.student_id = sa.student_id AND fsch.faculty_id = fs.faculty_id AND (fsch.is_deleted IS NULL OR fsch.is_deleted = 0) LIMIT 1) as hour_rate
+                COALESCE(
+                    (SELECT hourly_rate FROM faculty_schedules fsch WHERE fsch.student_id = sa.student_id AND fsch.faculty_id = fs.faculty_id AND (fsch.is_deleted IS NULL OR fsch.is_deleted = 0) LIMIT 1),
+                    u.hourly_rate
+                ) as hour_rate
             FROM faculty_sessions fs
             LEFT JOIN users u ON fs.faculty_id = u.id AND u.role = 'faculty'
             LEFT JOIN session_attendance sa ON fs.id = sa.session_id
