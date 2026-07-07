@@ -105,7 +105,7 @@ const Navbar = ({ onMenuClick }) => {
     if (user?.role === 'mentor') {
       navigate(`/mentor/students/${student.id}`);
     } else if (user?.role === 'academic_head' || user?.role === 'super_admin') {
-      navigate(`/academic-head/students/edit/${student.id}`);
+      navigate(`/academic-head/students/${student.id}`);
     } else {
       navigate(`/mentor/students/${student.id}`);
     }
