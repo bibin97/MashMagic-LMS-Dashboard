@@ -1490,6 +1490,11 @@ const updateAHParentMeeting = async (req, res) => {
             reportData.is_postponed = is_postponed;
         }
 
+        let formattedDate = meeting_date !== undefined ? meeting_date : null;
+        if (typeof formattedDate === 'string' && formattedDate.includes('T')) {
+            formattedDate = formattedDate.split('T')[0];
+        }
+
         await db.query(`
             UPDATE ah_parent_meetings 
             SET meeting_date = COALESCE(?, meeting_date),
@@ -1500,7 +1505,7 @@ const updateAHParentMeeting = async (req, res) => {
                 report_data = ?
             WHERE id = ?
         `, [
-            meeting_date !== undefined ? meeting_date : null, 
+            formattedDate, 
             meeting_time !== undefined ? meeting_time : null, 
             meeting_link !== undefined ? meeting_link : null, 
             notes !== undefined ? notes : null, 
@@ -1510,7 +1515,10 @@ const updateAHParentMeeting = async (req, res) => {
         ]);
         
         res.json({ success: true, message: 'Meeting updated successfully' });
-    } catch (error) { res.status(500).json({ success: false, message: error.message }); }
+    } catch (error) { 
+        require('fs').appendFileSync('error.log', 'ParentMeeting Update Error: ' + error.message + '\\n' + error.stack + '\\n');
+        res.status(500).json({ success: false, message: error.message }); 
+    }
 };
 
 const deleteAHParentMeeting = async (req, res) => {
