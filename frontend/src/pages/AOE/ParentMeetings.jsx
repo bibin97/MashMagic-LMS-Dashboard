@@ -5,6 +5,13 @@ import toast from 'react-hot-toast';
 import { useAuth } from '../../context/AuthContext';
 import Pagination from '../../components/common/Pagination';
 import MobileCard from '../../components/common/MobileCard';
+
+const formatDate = (dateStr) => {
+    if (!dateStr) return '';
+    const d = new Date(dateStr);
+    return `${String(d.getDate()).padStart(2, '0')}-${String(d.getMonth() + 1).padStart(2, '0')}-${d.getFullYear()}`;
+};
+
 const ParentMeetings = ({
   isEmbedded
 }) => {
@@ -259,7 +266,7 @@ const ParentMeetings = ({
                       <div className="w-full">
                         <h3 className="font-black text-slate-900 text-base sm:text-lg truncate">{m.student_name}</h3>
                         <div className="flex items-center gap-1.5 sm:gap-2 mt-1.5 text-[10px] sm:text-xs font-bold text-indigo-600 bg-indigo-50 px-2 py-1 rounded-md w-fit flex-wrap">
-                          <Calendar size={12} className="shrink-0" /> <span>{new Date(m.meeting_date).toLocaleDateString('en-GB')}</span> <span>at {m.meeting_time}</span>
+                          <Calendar size={12} className="shrink-0" /> <span>{formatDate(m.meeting_date)}</span> <span>at {m.meeting_time}</span>
                         </div>
                       </div>
                     </div>
@@ -353,7 +360,7 @@ const ParentMeetings = ({
                 
                 return <tr key={m.id} className="border-b border-slate-50 hover:bg-slate-50/50"><td className="p-6 text-sm font-black text-slate-400 border-b border-slate-50">{index + 1}</td>
                       <td className="p-4 text-sm font-bold text-slate-900 whitespace-nowrap">
-                        {new Date(m.meeting_date).toLocaleDateString('en-GB')} <span className="text-slate-400 text-xs ml-1">{m.meeting_time}</span>
+                        {formatDate(m.meeting_date)} <span className="text-slate-400 text-xs ml-1">{m.meeting_time}</span>
                         {isCancelled && <span className="ml-2 px-2 py-0.5 bg-red-50 text-red-600 text-[9px] font-black uppercase rounded tracking-widest">Cancelled</span>}
                       </td>
                       <td className="p-4 text-sm font-bold text-slate-700">
@@ -404,7 +411,7 @@ const ParentMeetings = ({
                             }
                             subtitle={
                                 <span className="flex items-center gap-1 text-[10px] text-slate-500 font-medium">
-                                    <Calendar size={10} /> {new Date(m.meeting_date).toLocaleDateString('en-GB')} at {m.meeting_time}
+                                    <Calendar size={10} /> {formatDate(m.meeting_date)} at {m.meeting_time}
                                 </span>
                             }
                             expandedContent={
