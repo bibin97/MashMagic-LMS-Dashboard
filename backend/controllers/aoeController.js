@@ -1499,7 +1499,15 @@ const updateAHParentMeeting = async (req, res) => {
                 status = COALESCE(?, status),
                 report_data = ?
             WHERE id = ?
-        `, [meeting_date, meeting_time, meeting_link, notes, status, JSON.stringify(reportData), id]);
+        `, [
+            meeting_date !== undefined ? meeting_date : null, 
+            meeting_time !== undefined ? meeting_time : null, 
+            meeting_link !== undefined ? meeting_link : null, 
+            notes !== undefined ? notes : null, 
+            status !== undefined ? status : null, 
+            JSON.stringify(reportData), 
+            id
+        ]);
         
         res.json({ success: true, message: 'Meeting updated successfully' });
     } catch (error) { res.status(500).json({ success: false, message: error.message }); }
