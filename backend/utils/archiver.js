@@ -47,9 +47,22 @@ async function archiveAcademicSchedule(conn, studentId, actionType = 'UPDATE', u
     await captureAndArchive(conn, 'faculty_sessions', 'academic_schedule_archive', studentId, actionType, user);
 }
 
+async function systemWideHardDelete(conn, tableName, whereClause, params) {
+    try {
+        // 1. Move to deleted_ table
+        await conn.query(`INSERT IGNORE INTO deleted_${tableName} SELECT * FROM ${tableName} WHERE ${whereClause}`, params);
+        // 2. Hard delete from original table
+        await conn.query(`DELETE FROM ${tableName} WHERE ${whereClause}`, params);
+    } catch (e) {
+        console.error(`[HARD DELETE ERROR] Failed to hard delete from ${tableName}:`, e.message);
+        throw e; // Propagate error
+    }
+}
+
 module.exports = {
     archiveStudent,
     archiveTimetable,
     archiveFacultySchedule,
-    archiveAcademicSchedule
+    archiveAcademicSchedule,
+    systemWideHardDelete
 };

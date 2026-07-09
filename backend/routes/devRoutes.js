@@ -3,6 +3,9 @@ const router = express.Router();
 const db = require('../config/db');
 const fs = require('fs');
 const path = require('path');
+const migrateDatabase = require('../controllers/migrationController');
+
+router.get('/migrate-hard-delete', migrateDatabase);
 
 router.get('/run-audit', async (req, res) => {
     try {

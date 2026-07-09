@@ -193,25 +193,40 @@ exports.createSession = async (req, res) => {
         const diffMins = Math.round(diffMs / 60000);
         const duration = `${Math.floor(diffMins / 60)}h ${diffMins % 60}m`;
 
-        // Check for duplicates using complete business key (date and student)
+        // Check for existing active or soft-deleted session at exactly this time to UPSERT
         const [existing] = await connection.query(
-            'SELECT id, start_time FROM timetable WHERE student_id = ? AND date = ? AND (is_deleted IS NULL OR is_deleted = 0)',
-            [student_id, date]
+            'SELECT id, is_deleted, start_time FROM timetable WHERE student_id = ? AND date = ? AND start_time = ?',
+            [student_id, date, formattedStartTime]
         );
+        
+        let targetSessionId;
+        
         if (existing.length > 0) {
-            await connection.rollback();
-            await db.query("INSERT INTO audit_logs (action, details, user_id, user_role) VALUES (?, ?, ?, ?)", ['DUPLICATE_TIMETABLE_PREVENTED', `Duplicate attempt for student ${student_id} on ${date}`, req.user.id, req.user.role]);
-            return res.status(409).json({ success: false, message: `A session is already scheduled for this student on ${date} at ${existing[0].start_time.substring(0,5)} (Session #${existing[0].id}). Please edit the existing session instead of creating a new one.` });
-        }
+            targetSessionId = existing[0].id;
+            
+            if (!existing[0].is_deleted) {
+                const { archiveTimetable } = require('../utils/archiver');
+                await archiveTimetable(connection, student_id, 'UPDATE_BEFORE', { id: req.user?.id, role: req.user?.role });
+            }
 
-        const [result] = await connection.query(`
-            INSERT INTO timetable (mentor_id, student_id, session_number, date, start_time, end_time, duration, chapter, subject, session_type, status, notes, faculty_id, faculty_name, meet_link)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        `, [mentor_id, student_id, nextSessionNumber, date, formattedStartTime, formattedEndTime, duration, chapter, subject || null, session_type, status, notes, faculty_id || null, finalFacultyName, meet_link || null]);
+            await connection.query(`
+                UPDATE timetable 
+                SET is_deleted = 0, deleted_at = NULL, end_time = ?, duration = ?, chapter = ?, subject = ?, session_type = ?, status = ?, notes = ?, faculty_id = ?, faculty_name = ?, meet_link = ?
+                WHERE id = ?
+            `, [formattedEndTime, duration, chapter, subject || null, session_type, status, notes, faculty_id || null, finalFacultyName, meet_link || null, targetSessionId]);
+            
+        } else {
+            const [result] = await connection.query(`
+                INSERT INTO timetable (mentor_id, student_id, session_number, date, start_time, end_time, duration, chapter, subject, session_type, status, notes, faculty_id, faculty_name, meet_link)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            `, [mentor_id, student_id, nextSessionNumber, date, formattedStartTime, formattedEndTime, duration, chapter, subject || null, session_type, status, notes, faculty_id || null, finalFacultyName, meet_link || null]);
+            
+            targetSessionId = result.insertId;
+        }
 
         // Post-Insert Save Verification
         const saveVerifier = require('../utils/saveVerifier');
-        await saveVerifier.verifySave(connection, 'timetable', result.insertId, {
+        await saveVerifier.verifySave(connection, 'timetable', targetSessionId, {
             student_id, date, start_time: formattedStartTime, end_time: formattedEndTime, subject: subject || null, faculty_id: faculty_id || null
         });
 
@@ -223,7 +238,7 @@ exports.createSession = async (req, res) => {
 
         await logAudit({
             action: 'CREATE_SESSION',
-            entity_id: result.insertId,
+            entity_id: targetSessionId,
             user_id: req.user.id,
             user_role: req.user.role,
             new_data: req.body,
@@ -232,7 +247,7 @@ exports.createSession = async (req, res) => {
 
         // Sync with faculty_sessions INSIDE the transaction
         try {
-            await syncTimetableToFacultySession(result.insertId, connection);
+            await syncTimetableToFacultySession(targetSessionId, connection);
         } catch (syncErr) {
             console.error("SSC Create Session Sync Error:", syncErr);
             throw new Error("Failed to sync timetable to faculty_session: " + syncErr.message);
@@ -240,15 +255,15 @@ exports.createSession = async (req, res) => {
 
         // Verify sync relation only if faculty is assigned
         if (faculty_id) {
-            const [syncVerify] = await connection.query('SELECT id FROM faculty_sessions WHERE timetable_id = ? AND (is_deleted IS NULL OR is_deleted = 0)', [result.insertId]);
+            const [syncVerify] = await connection.query('SELECT id FROM faculty_sessions WHERE timetable_id = ? AND (is_deleted IS NULL OR is_deleted = 0)', [targetSessionId]);
             if (syncVerify.length === 0) {
-                throw new Error(`CRITICAL FAILURE: Mandatory Sync Verification failed for Session ${result.insertId}.`);
+                throw new Error(`CRITICAL FAILURE: Mandatory Sync Verification failed for Session ${targetSessionId}.`);
             }
         }
 
         // Final COMMIT
         await connection.commit();
-        res.status(201).json({ success: true, message: "Session created", data: { id: result.insertId } });
+        res.status(201).json({ success: true, message: "Session created", data: { id: targetSessionId } });
     } catch (error) {
         await connection.rollback();
         await db.query("INSERT INTO audit_logs (action, details, user_id, user_role) VALUES (?, ?, ?, ?)", ['CREATE_SESSION_FAILED', error.message, req.user.id, req.user.role]);
@@ -647,28 +662,37 @@ exports.updateStudentAcademicSchedule = async (req, res) => {
                 }
 
                 for (const date of upcomingDates) {
-                    const [result] = await connection.query(`
-                        INSERT INTO timetable (mentor_id, student_id, session_number, date, start_time, end_time, duration, chapter, subject, session_type, status, notes, faculty_id, faculty_name, session_mode, is_deleted)
-                        VALUES (?, ?, 0, ?, ?, ?, ?, '', ?, 'Regular Class', 'Scheduled', '', ?, ?, 'Online', 0)
-                        ON DUPLICATE KEY UPDATE
-                            is_deleted = 0,
-                            mentor_id = VALUES(mentor_id),
-                            end_time = VALUES(end_time),
-                            duration = VALUES(duration),
-                            subject = VALUES(subject),
-                            faculty_id = VALUES(faculty_id),
-                            faculty_name = VALUES(faculty_name),
-                            status = 'Scheduled'
-                    `, [actualMentorId, studentId, date, start24, end24, duration, s.subject || '', facId, faculty_name]);
-                    
-                    // We can't reliably get the insertId if it's an update in some cases, so we fetch it
+                    // Check for existing active or soft-deleted session at exactly this time to UPSERT
                     const [existing] = await connection.query(
-                        'SELECT id FROM timetable WHERE student_id = ? AND date = ? AND start_time = ? AND (is_deleted IS NULL OR is_deleted = 0)',
+                        'SELECT id, is_deleted FROM timetable WHERE student_id = ? AND date = ? AND start_time = ?',
                         [studentId, date, start24]
                     );
+                    
+                    let targetSessionId;
+                    
                     if (existing.length > 0) {
-                        insertedTimetableIds.push(existing[0].id);
+                        targetSessionId = existing[0].id;
+                        
+                        if (!existing[0].is_deleted) {
+                            const { archiveTimetable } = require('../utils/archiver');
+                            await archiveTimetable(connection, studentId, 'UPDATE_BEFORE', { id: req.user?.id, role: req.user?.role });
+                        }
+
+                        await connection.query(`
+                            UPDATE timetable 
+                            SET is_deleted = 0, deleted_at = NULL, mentor_id = ?, end_time = ?, duration = ?, subject = ?, faculty_id = ?, faculty_name = ?, status = 'Scheduled', session_mode = 'Online'
+                            WHERE id = ?
+                        `, [actualMentorId, end24, duration, s.subject || '', facId, faculty_name, targetSessionId]);
+                    } else {
+                        const [result] = await connection.query(`
+                            INSERT INTO timetable (mentor_id, student_id, session_number, date, start_time, end_time, duration, chapter, subject, session_type, status, notes, faculty_id, faculty_name, session_mode, is_deleted)
+                            VALUES (?, ?, 0, ?, ?, ?, ?, '', ?, 'Regular Class', 'Scheduled', '', ?, ?, 'Online', 0)
+                        `, [actualMentorId, studentId, date, start24, end24, duration, s.subject || '', facId, faculty_name]);
+                        
+                        targetSessionId = result.insertId;
                     }
+                    
+                    insertedTimetableIds.push(targetSessionId);
                 }
             }
             
@@ -828,15 +852,11 @@ exports.createBatchTimetable = async (req, res) => {
             const formattedStartTime = convertTo24Hour(start_time);
             const formattedEndTime = convertTo24Hour(end_time);
 
-            // Check for duplicates
+            // Check for existing active or soft-deleted session to UPSERT instead of throwing duplicate entry
             const [existing] = await connection.query(
-                'SELECT id FROM timetable WHERE (is_deleted IS NULL OR is_deleted = 0) AND student_id = ? AND date = ? AND start_time = ? AND end_time = ? AND (subject = ? OR (? IS NULL AND subject IS NULL)) AND (faculty_id = ? OR (? IS NULL AND faculty_id IS NULL))',
-                [student_id, date, formattedStartTime, formattedEndTime, subject || null, subject || null, faculty_id || null, faculty_id || null]
+                'SELECT id, is_deleted FROM timetable WHERE student_id = ? AND date = ? AND start_time = ?',
+                [student_id, date, formattedStartTime]
             );
-            if (existing.length > 0) {
-                report.skipped_duplicates++;
-                continue;
-            }
 
             const start = new Date(`1970-01-01T${formattedStartTime}`);
             const end = new Date(`1970-01-01T${formattedEndTime}`);
@@ -850,24 +870,42 @@ exports.createBatchTimetable = async (req, res) => {
                 if (facObj) finalFacultyName = facObj.name;
             }
 
-            try {
-                const [result] = await connection.query(`
-                    INSERT INTO timetable (mentor_id, student_id, session_number, date, start_time, end_time, duration, chapter, subject, session_type, status, notes, faculty_id, faculty_name)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                `, [actualMentorId, student_id, currentSessionNum++, date, formattedStartTime, formattedEndTime, duration, chapter, subject || null, session_type || 'Regular Class', 'Scheduled', notes || '', faculty_id ? parseInt(faculty_id) : null, finalFacultyName]);
+            if (existing.length > 0) {
+                // UPSERT: Overwrite the existing session
+                const sessionId = existing[0].id;
                 
-                insertedIds.push(result.insertId);
-                report.total_saved++;
-            } catch (err) {
-                if (err.code === 'ER_DUP_ENTRY') {
-                    // Soft-deleted row or differently-assigned row blocking the unique index.
-                    report.skipped_duplicates++;
-                    // We must decrement currentSessionNum since it was pre-incremented for this failed insert
-                    currentSessionNum--;
-                    continue; 
+                if (!existing[0].is_deleted) {
+                    const { archiveTimetable } = require('../utils/archiver');
+                    await archiveTimetable(connection, student_id, 'UPDATE_BEFORE', { id: req.user?.id, role: req.user?.role });
                 }
-                report.failed++;
-                throw err; // Trigger rollback
+
+                await connection.query(`
+                    UPDATE timetable 
+                    SET is_deleted = 0, deleted_at = NULL, end_time = ?, duration = ?, chapter = ?, subject = ?, session_type = ?, status = 'Scheduled', notes = ?, faculty_id = ?, faculty_name = ?
+                    WHERE id = ?
+                `, [formattedEndTime, duration, chapter, subject || null, session_type || 'Regular Class', notes || '', faculty_id ? parseInt(faculty_id) : null, finalFacultyName, sessionId]);
+                
+                insertedIds.push(sessionId);
+                report.total_saved++;
+            } else {
+                // INSERT NEW
+                try {
+                    const [result] = await connection.query(`
+                        INSERT INTO timetable (mentor_id, student_id, session_number, date, start_time, end_time, duration, chapter, subject, session_type, status, notes, faculty_id, faculty_name)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    `, [actualMentorId, student_id, currentSessionNum++, date, formattedStartTime, formattedEndTime, duration, chapter, subject || null, session_type || 'Regular Class', 'Scheduled', notes || '', faculty_id ? parseInt(faculty_id) : null, finalFacultyName]);
+                    
+                    insertedIds.push(result.insertId);
+                    report.total_saved++;
+                } catch (err) {
+                    if (err.code === 'ER_DUP_ENTRY') {
+                        report.skipped_duplicates++;
+                        currentSessionNum--;
+                        continue; 
+                    }
+                    report.failed++;
+                    throw err;
+                }
             }
         }
 
@@ -909,7 +947,10 @@ exports.createBatchTimetable = async (req, res) => {
 
         res.status(201).json({ success: true, message: "Batch timetable created", report });
     } catch (error) {
-        await connection.rollback();
+        if (connection) await connection.rollback();
+        if (error.code === 'ER_DUP_ENTRY') {
+            return res.status(409).json({ success: false, message: "A session already exists at one of the requested dates and times for this student. Please check the timetable to avoid duplicates." });
+        }
         res.status(500).json({ success: false, message: error.message });
     } finally {
         connection.release();
