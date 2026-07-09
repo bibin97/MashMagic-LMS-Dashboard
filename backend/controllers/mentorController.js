@@ -1398,6 +1398,9 @@ const createBatchTimetable = async (req, res) => {
     } catch (error) {
         await connection.rollback();
         console.error("Batch Timetable Error:", error);
+        if (error.code === 'ER_DUP_ENTRY') {
+            return res.status(409).json({ success: false, message: "A session already exists at this exact date and time (it may be postponed or deleted). Please choose a different time slot." });
+        }
         res.status(500).json({ success: false, message: error.message });
     } finally {
         connection.release();

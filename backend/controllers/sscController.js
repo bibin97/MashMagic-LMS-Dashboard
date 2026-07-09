@@ -252,6 +252,9 @@ exports.createSession = async (req, res) => {
     } catch (error) {
         await connection.rollback();
         await db.query("INSERT INTO audit_logs (action, details, user_id, user_role) VALUES (?, ?, ?, ?)", ['CREATE_SESSION_FAILED', error.message, req.user.id, req.user.role]);
+        if (error.code === 'ER_DUP_ENTRY') {
+            return res.status(409).json({ success: false, message: "A session already exists at this exact date and time (possibly soft-deleted or postponed), which conflicts with the database unique constraint." });
+        }
         res.status(500).json({ success: false, message: error.message });
     } finally {
         connection.release();
@@ -354,6 +357,9 @@ exports.updateSession = async (req, res) => {
     } catch (error) {
         await connection.rollback();
         await db.query("INSERT INTO audit_logs (action, details, user_id, user_role) VALUES (?, ?, ?, ?)", ['UPDATE_SESSION_FAILED', error.message, req.user?.id, req.user?.role]);
+        if (error.code === 'ER_DUP_ENTRY') {
+            return res.status(409).json({ success: false, message: "A session already exists at this exact date and time (possibly soft-deleted or postponed), which conflicts with the database unique constraint." });
+        }
         res.status(500).json({ success: false, message: error.message });
     } finally {
         connection.release();
@@ -853,6 +859,13 @@ exports.createBatchTimetable = async (req, res) => {
                 insertedIds.push(result.insertId);
                 report.total_saved++;
             } catch (err) {
+                if (err.code === 'ER_DUP_ENTRY') {
+                    // Soft-deleted row or differently-assigned row blocking the unique index.
+                    report.skipped_duplicates++;
+                    // We must decrement currentSessionNum since it was pre-incremented for this failed insert
+                    currentSessionNum--;
+                    continue; 
+                }
                 report.failed++;
                 throw err; // Trigger rollback
             }

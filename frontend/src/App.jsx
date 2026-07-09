@@ -287,6 +287,8 @@ function App() {
             <Route path="ssc/students/:id" element={<StudentDetails />} />
             <Route path="ssc/timetable" element={<SSCTimetable />} />
             <Route path="ssc/academic-schedule" element={<SSCAcademicSchedule />} />
+            <Route path="profile" element={<AdminProfile />} />
+            <Route path="account-settings" element={<AccountSettings />} />
           </Route>
 
           {/* SSC System */}
