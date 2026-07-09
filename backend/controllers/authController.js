@@ -398,11 +398,15 @@ const updateProfile = async (req, res) => {
             [name, email, phone_number, place, userId]
         );
 
-        // Also update in students table if linked
-        await db.query(
-            'UPDATE students SET name = ?, email = ?, phone_number = ?, place = ? WHERE user_id = ?',
-            [name, email, phone_number, place, userId]
-        );
+        try {
+            // Also update in students table if linked
+            await db.query(
+                'UPDATE students SET name = ?, email = ?, phone_number = ?, place = ? WHERE user_id = ?',
+                [name, email, phone_number, place, userId]
+            );
+        } catch (studentErr) {
+            console.log("Could not update students table (possibly no user_id column):", studentErr.message);
+        }
 
         res.status(200).json({ 
             success: true, 
@@ -410,8 +414,8 @@ const updateProfile = async (req, res) => {
             user: { name, email, phone_number, place }
         });
     } catch (error) {
-        console.error("Update Profile Error:", error);
-        res.status(500).json({ success: false, message: "Internal Server Error" });
+        console.error("Update Profile Error:", error.message || error);
+        res.status(500).json({ success: false, message: error.message || "Internal Server Error" });
     }
 };
 
