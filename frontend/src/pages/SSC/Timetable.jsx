@@ -573,9 +573,8 @@ const Timetable = () => {
     const str = String(date);
     // If already YYYY-MM-DD format, return directly
     if (/^\d{4}-\d{2}-\d{2}$/.test(str)) return str;
-    // If ISO string like "2026-06-30T00:00:00.000Z", extract the date part directly
-    if (str.includes('T')) return str.substring(0, 10);
-    // Fallback to Date parsing
+    
+    // Fallback to Date parsing which correctly applies local timezone
     const d = new Date(date);
     if (isNaN(d.getTime())) return '';
     const year = d.getFullYear();
