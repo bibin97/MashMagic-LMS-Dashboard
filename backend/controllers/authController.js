@@ -392,6 +392,13 @@ const updateProfile = async (req, res) => {
             return res.status(400).json({ success: false, message: "Name is required" });
         }
 
+        if (email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                return res.status(400).json({ success: false, message: "Please enter a valid email address (e.g. user@example.com)" });
+            }
+        }
+
         // Update in users table
         await db.query(
             'UPDATE users SET name = ?, email = ?, phone_number = ?, place = ? WHERE id = ?',
