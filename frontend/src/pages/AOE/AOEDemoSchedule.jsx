@@ -38,7 +38,7 @@ const AOEDemoSchedule = () => {
   const navigate = useNavigate();
   const [filterType, setFilterType] = useState('demo');
   const [page, setPage] = useState(1);
-  const limit = 10;
+  const limit = 50;
   const [totalRecords, setTotalRecords] = useState(0);
   const [viewDemo, setViewDemo] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
