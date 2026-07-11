@@ -38,7 +38,7 @@ const AOEDemoSchedule = () => {
   const navigate = useNavigate();
   const [filterType, setFilterType] = useState('demo');
   const [page, setPage] = useState(1);
-  const limit = 50;
+  const limit = 20;
   const [totalRecords, setTotalRecords] = useState(0);
   const [viewDemo, setViewDemo] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -883,7 +883,7 @@ const AOEDemoSchedule = () => {
               <p className="text-slate-500 font-medium text-sm mt-2">Adjust your search or filter criteria</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {filteredDemos.map(demo => (
                 <div key={demo.id} className="bg-white rounded-[2rem] border border-slate-100 shadow-sm p-6 md:p-8 hover:shadow-xl transition-all duration-300 relative overflow-hidden group">
                   <div className="absolute top-0 right-0 w-32 h-32 bg-slate-50 rounded-full -mr-16 -mt-16 transition-transform duration-500 group-hover:scale-150"></div>
