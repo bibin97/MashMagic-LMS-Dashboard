@@ -38,7 +38,7 @@ const AOEDemoSchedule = () => {
   const navigate = useNavigate();
   const [filterType, setFilterType] = useState('demo');
   const [page, setPage] = useState(1);
-  const limit = 50;
+  const limit = 10;
   const [totalRecords, setTotalRecords] = useState(0);
   const [viewDemo, setViewDemo] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -1038,6 +1038,18 @@ const AOEDemoSchedule = () => {
                   )}
                 </div>
               ))}
+            </div>
+          )}
+          
+          {totalRecords > 0 && (
+            <div className="mt-8 bg-white border border-slate-100 rounded-3xl overflow-hidden shadow-sm">
+              <Pagination 
+                currentPage={page} 
+                totalPages={Math.ceil(totalRecords / limit)} 
+                totalRecords={totalRecords} 
+                onPageChange={setPage} 
+                entityName="Demos" 
+              />
             </div>
           )}
         </div>
