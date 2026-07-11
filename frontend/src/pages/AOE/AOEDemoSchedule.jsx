@@ -883,7 +883,7 @@ const AOEDemoSchedule = () => {
               <p className="text-slate-500 font-medium text-sm mt-2">Adjust your search or filter criteria</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="space-y-6">
               {filteredDemos.map(demo => (
                 <div key={demo.id} className="bg-white rounded-[2rem] border border-slate-100 shadow-sm p-6 md:p-8 hover:shadow-xl transition-all duration-300 relative overflow-hidden group">
                   <div className="absolute top-0 right-0 w-32 h-32 bg-slate-50 rounded-full -mr-16 -mt-16 transition-transform duration-500 group-hover:scale-150"></div>
@@ -895,7 +895,7 @@ const AOEDemoSchedule = () => {
                     demo.status === 'cancelled' ? 'bg-rose-500' : 'bg-amber-500'
                   }`}></div>
 
-                  <div className="relative z-10 flex flex-col gap-6 justify-between h-full">
+                  <div className="relative z-10 flex flex-col lg:flex-row gap-8 justify-between">
                     <div className="flex-1 space-y-4">
                       <div className="flex items-center gap-4">
                         <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${
@@ -920,7 +920,7 @@ const AOEDemoSchedule = () => {
                       </div>
                     </div>
                     
-                    <div className="flex flex-col gap-3 justify-end border-t border-slate-100 pt-4 mt-auto">
+                    <div className="flex flex-col gap-3 justify-center min-w-[200px] border-l border-slate-100 pl-6">
                       <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100">
                         <div className="flex items-center gap-3 mb-2">
                           <Calendar size={16} className="text-[#008080]" />
