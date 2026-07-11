@@ -488,7 +488,7 @@ const AcademicSchedule = () => {
                     <BookOpen size={16} />
                   </button>
 
-                  {session.status === 'Scheduled' && (
+                  {session.status === 'Scheduled' ? (
                   <button
                     onClick={(e) => { 
                       e.stopPropagation(); 
@@ -502,6 +502,21 @@ const AcademicSchedule = () => {
                     title="Audit / Close Session"
                   >
                     <CheckSquare size={16} />
+                  </button>
+                ) : (
+                  <button
+                    onClick={(e) => { 
+                      e.stopPropagation(); 
+                      setSelectedSession(session);
+                      setMinutesTaken(session.minutes_taken || ''); 
+                      setCompletionStatus(session.status); 
+                      setCancelNote(session.cancel_note || ''); 
+                      setIsCompleteModalOpen(true); 
+                    }}
+                    className="p-3 bg-slate-50 text-slate-400 rounded-xl hover:bg-[#008080] hover:text-white transition-all group-hover:scale-110 shadow-sm"
+                    title="Edit Completion Details"
+                  >
+                    <Edit2 size={16} />
                   </button>
                 )}
 
