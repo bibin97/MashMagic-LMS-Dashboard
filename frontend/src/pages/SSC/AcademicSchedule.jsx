@@ -487,13 +487,6 @@ const AcademicSchedule = () => {
                   >
                     <BookOpen size={16} />
                   </button>
-                  <button 
-                    onClick={() => window.location.href = `/ssc/timetable?student_id=${session.student_id}&date=${session.date}`}
-                    title="Edit Session in Timetable"
-                    className="w-11 h-11 bg-slate-50 text-slate-700 border border-slate-200 rounded-[1rem] flex items-center justify-center hover:border-blue-500 hover:text-blue-500 transition-all shadow-sm"
-                  >
-                    <Edit2 size={16} />
-                  </button>
 
                   {session.status === 'Scheduled' && (
                   <button
@@ -632,7 +625,18 @@ const AcademicSchedule = () => {
                           <Lock size={12} /> Duration Locked
                         </span>
                       </div>
-                      <p className="text-[9px] font-bold text-slate-400 uppercase mt-2">Only Academic Head can edit duration now</p>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setCompletionStatus(selectedSession.status);
+                          setMinutesTaken(selectedSession.minutes_taken || '');
+                          setCancelNote(selectedSession.cancel_note || '');
+                          setIsCompleteModalOpen(true);
+                        }}
+                        className="mt-4 px-4 py-2 bg-[#008080] hover:bg-teal-700 text-white rounded-xl text-[9px] font-black uppercase tracking-widest transition-all flex items-center gap-2"
+                      >
+                        <Edit2 size={12} /> Edit Details
+                      </button>
                     </div>
                   </div>
                 ) : (
