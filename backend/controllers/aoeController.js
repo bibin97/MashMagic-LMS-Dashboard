@@ -1703,7 +1703,23 @@ const createDemoSchedule = async (req, res) => {
             INSERT INTO aoe_demo_schedules 
                 (aoe_id, demo_id, type, date, student_name, student_type, syllabus, section, subject, faculty_id, faculty_name, start_time, end_time, hour_rate, meeting_link)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        `, [aoe_id, auto_demo_id, demoType, date || null, student_name || null, student_type || 'new', syllabus || null, section || null, subject || null, resolvedFacultyId, normalizedFacultyName || null, start_time || null, end_time || null, hour_rate || 0, meeting_link || null]);
+        `, [
+            aoe_id, 
+            auto_demo_id, 
+            demoType, 
+            date || new Date().toISOString().split('T')[0], 
+            student_name || 'Pre-Demo', 
+            student_type || 'new', 
+            syllabus || 'N/A', 
+            section || 'N/A', 
+            subject || 'N/A', 
+            resolvedFacultyId, 
+            normalizedFacultyName || 'Unknown Faculty', 
+            start_time || '00:00', 
+            end_time || '00:00', 
+            hour_rate || 0, 
+            meeting_link || ''
+        ]);
 
         res.status(201).json({ success: true, message: 'Demo schedule created successfully', demo_id: auto_demo_id, id: result.insertId });
     } catch (error) {
