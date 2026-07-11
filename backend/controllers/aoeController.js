@@ -1593,7 +1593,7 @@ const getDemoSchedules = async (req, res) => {
             params.push(searchParam, searchParam, searchParam);
         }
 
-        query += ' ORDER BY d.id ASC';
+        query += ' ORDER BY d.id DESC';
 
         if (page) {
             const pageNum = parseInt(page) || 1;
