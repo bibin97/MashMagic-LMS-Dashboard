@@ -1,7 +1,7 @@
 import React, {  useState, useEffect , useDeferredValue } from 'react';
 import api from '../../services/api';
 import {
-  CalendarClock, Clock, BookOpen, Users,
+  CalendarClock, Clock, BookOpen, Users, Edit2,
   Search, Filter, ChevronRight, Activity, Radio, Video,
   Calendar, AlertCircle, Bell, CheckSquare, MessageSquareText, Lock, 
   ShieldCheck, Timer, XCircle, Download
@@ -439,7 +439,13 @@ const AcademicSchedule = () => {
 
                 {session.status !== 'Scheduled' && (
                   <div className="px-3 py-1 bg-emerald-50 text-emerald-600 rounded-lg text-[9px] font-black uppercase flex items-center gap-1">
-                    <Timer size={12} /> {session.minutes_taken}m ({session.status})
+                    {session.status === 'Completed' ? (
+                      <>
+                        <Timer size={12} /> {session.minutes_taken || 0}m (Completed)
+                      </>
+                    ) : (
+                      <>{session.status}</>
+                    )}
                   </div>
                 )}
               </div>
@@ -460,7 +466,7 @@ const AcademicSchedule = () => {
                     </button>
                   )}
                   
-                  {session.status === 'Scheduled' && !session.reminder_1 && (
+                  {session.status === 'Scheduled' && (!session.reminder_1 ? (
                     <button 
                       onClick={() => saveQuickReminder1(session)}
                       title="Send Reminder 1"
@@ -468,7 +474,7 @@ const AcademicSchedule = () => {
                     >
                       <Bell size={14} /> R1
                     </button>
-                  ) || (session.reminder_1 && (
+                  ) : (
                     <div title="Reminder 1 Sent" className="px-4 h-11 rounded-[1rem] flex items-center justify-center gap-2 font-black uppercase text-[10px] tracking-widest transition-all bg-emerald-50 text-emerald-600 border border-emerald-100 shadow-sm cursor-help" onClick={() => toast(`Reminder 1: ${session.reminder_1_remark}`, { icon: 'ℹ️' })}>
                       <CheckSquare size={14} /> R1
                     </div>
@@ -480,6 +486,13 @@ const AcademicSchedule = () => {
                     className="w-11 h-11 bg-slate-50 text-slate-700 border border-slate-200 rounded-[1rem] flex items-center justify-center hover:border-[#008080] hover:text-[#008080] transition-all shadow-sm"
                   >
                     <BookOpen size={16} />
+                  </button>
+                  <button 
+                    onClick={() => window.location.href = `/ssc/timetable?student_id=${session.student_id}&date=${session.date}`}
+                    title="Edit Session in Timetable"
+                    className="w-11 h-11 bg-slate-50 text-slate-700 border border-slate-200 rounded-[1rem] flex items-center justify-center hover:border-blue-500 hover:text-blue-500 transition-all shadow-sm"
+                  >
+                    <Edit2 size={16} />
                   </button>
 
                   {session.status === 'Scheduled' && (

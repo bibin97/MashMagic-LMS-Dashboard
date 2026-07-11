@@ -71,12 +71,15 @@ const Timetable = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Filters
-  const [filters, setFilters] = useState({
-    student_id: '',
-    mentor_id: '',
-    status: '',
-    start_date: '',
-    end_date: ''
+  const [filters, setFilters] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    return {
+      student_id: params.get('student_id') || '',
+      mentor_id: '',
+      status: '',
+      start_date: params.get('date') || '',
+      end_date: params.get('date') || ''
+    };
   });
 
   const formDataInitial = {
