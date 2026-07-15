@@ -854,6 +854,11 @@ const updateStudentSubjectHours = async (req, res) => {
 
 const getEnrollmentNotes = async (req, res) => {
     try {
+        // Ensure column exists
+        try {
+            await db.query('ALTER TABLE students ADD COLUMN enrollment_note TEXT DEFAULT NULL');
+        } catch (e) {}
+
         let queryParams = [];
         let whereClause = "WHERE s.status = 'active'";
         
