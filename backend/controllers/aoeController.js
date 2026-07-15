@@ -1344,13 +1344,21 @@ const getAcademicSchedule = async (req, res) => {
 // --- AH Interactions & Meetings ---
 const getAHParentInteractions = async (req, res) => {
     try {
+        let queryParams = [];
+        let whereClause = '';
+        if (req.user && req.user.role === 'academic_head') {
+            whereClause = 'WHERE p.academic_head_id = ?';
+            queryParams.push(req.user.id);
+        }
+
         const [rows] = await db.query(`
             SELECT p.*, s.name as student_name, u.name as academic_operation_executive_name
             FROM ah_parent_interactions p
             JOIN students s ON p.student_id = s.id
             JOIN users u ON p.academic_head_id = u.id
+            ${whereClause}
             ORDER BY p.date DESC, p.created_at DESC
-        `);
+        `, queryParams);
         res.json({ success: true, data: rows });
     } catch (error) { res.status(500).json({ success: false, message: error.message }); }
 };
@@ -1369,13 +1377,21 @@ const createAHParentInteraction = async (req, res) => {
 
 const getAHFacultyInteractions = async (req, res) => {
     try {
+        let queryParams = [];
+        let whereClause = '';
+        if (req.user && req.user.role === 'academic_head') {
+            whereClause = 'WHERE f.academic_head_id = ?';
+            queryParams.push(req.user.id);
+        }
+
         const [rows] = await db.query(`
             SELECT f.*, u2.name as faculty_name, u.name as academic_operation_executive_name
             FROM ah_faculty_interactions f
             JOIN users u2 ON f.faculty_id = u2.id
             JOIN users u ON f.academic_head_id = u.id
+            ${whereClause}
             ORDER BY f.date DESC, f.created_at DESC
-        `);
+        `, queryParams);
         res.json({ success: true, data: rows });
     } catch (error) { res.status(500).json({ success: false, message: error.message }); }
 };
@@ -1410,6 +1426,12 @@ const getAHParentMeetings = async (req, res) => {
             WHERE 1=1
         `;
         let params = [];
+
+        if (req.user && req.user.role === 'academic_head') {
+            query += ' AND m.academic_head_id = ?';
+            countQuery += ' AND m.academic_head_id = ?';
+            params.push(req.user.id);
+        }
 
         if (status) {
             if (status.includes(',')) {

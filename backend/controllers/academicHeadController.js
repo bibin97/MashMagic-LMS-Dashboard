@@ -113,12 +113,20 @@ const updateStudentRotation = async (req, res) => {
 
 const getFacultyQualityChecks = async (req, res) => {
     try {
+        let queryParams = [];
+        let whereClause = '';
+        if (req.user && req.user.role === 'academic_head') {
+            whereClause = 'WHERE q.academic_head_id = ?';
+            queryParams.push(req.user.id);
+        }
+
         const [evaluations] = await db.query(`
             SELECT q.*, f.name as faculty_name 
             FROM ah_faculty_quality q
             JOIN users f ON q.faculty_id = f.id
+            ${whereClause}
             ORDER BY q.date DESC
-        `);
+        `, queryParams);
 
         const [liveSessions] = await db.query(`
             SELECT t.id, t.student_id, t.faculty_id, t.start_time, t.end_time, COALESCE(t.chapter, t.session_type, 'General Session') as topic, t.status, s.meeting_link,
@@ -196,13 +204,21 @@ const addFacultyQualityCheck = async (req, res) => {
 const getParentMeetings = async (req, res) => {
     try {
         // We reuse the existing ah_parent_meetings table to keep it synchronized across heads
+        let queryParams = [];
+        let whereClause = '';
+        if (req.user && req.user.role === 'academic_head') {
+            whereClause = 'WHERE p.academic_head_id = ?';
+            queryParams.push(req.user.id);
+        }
+
         const [rows] = await db.query(`
             SELECT p.*, s.name as student_name, u.name as academic_head_name
             FROM ah_parent_meetings p
             JOIN students s ON p.student_id = s.id
             JOIN users u ON p.academic_head_id = u.id
+            ${whereClause}
             ORDER BY p.meeting_date DESC, p.meeting_time DESC
-        `);
+        `, queryParams);
         res.status(200).json({ success: true, data: rows });
     } catch (error) {
         console.error("Error fetching parent meetings:", error);
@@ -446,12 +462,20 @@ const generateStudentGrowthReport = async (req, res) => {
 
 const getFacultyReplacements = async (req, res) => {
     try {
+        let queryParams = [];
+        let whereClause = '';
+        if (req.user && req.user.role === 'academic_head') {
+            whereClause = 'WHERE r.academic_head_id = ?';
+            queryParams.push(req.user.id);
+        }
+
         const [rows] = await db.query(`
             SELECT r.*, f.name as faculty_name 
             FROM ah_faculty_replacements r
             JOIN users f ON r.faculty_id = f.id
+            ${whereClause}
             ORDER BY r.date DESC
-        `);
+        `, queryParams);
         res.status(200).json({ success: true, data: rows });
     } catch (error) {
         console.error("Error fetching replacements:", error);
@@ -478,12 +502,20 @@ const addFacultyReplacement = async (req, res) => {
 
 const getEscalations = async (req, res) => {
     try {
+        let queryParams = [];
+        let whereClause = '';
+        if (req.user && req.user.role === 'academic_head') {
+            whereClause = 'WHERE e.academic_head_id = ?';
+            queryParams.push(req.user.id);
+        }
+
         const [rows] = await db.query(`
             SELECT e.*, s.name as student_name 
             FROM ah_escalations e
             LEFT JOIN students s ON e.student_id = s.id
+            ${whereClause}
             ORDER BY e.created_at DESC
-        `);
+        `, queryParams);
         res.status(200).json({ success: true, data: rows });
     } catch (error) {
         console.error("Error fetching escalations:", error);
