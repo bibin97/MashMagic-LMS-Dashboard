@@ -12,6 +12,7 @@ const AcademicHeadLayout = () => {
   const navItems = [
    { path: '/academic-head/academic-quality', icon: <Target size={18} />, label: 'Live Class Updates' },
    { path: '/academic-head/students', icon: <GraduationCap size={18} />, label: 'Students' },
+   { path: '/academic-head/enrollment-notes', icon: <FileText size={18} />, label: 'Enrollment Note' },
    { path: '/academic-head/faculties', icon: <Briefcase size={18} />, label: 'Faculties' },
    { path: '/academic-head/mentors', icon: <Users size={18} />, label: 'Mentors' },
    { path: '/academic-head/parent-meetings', icon: <Presentation size={18} />, label: 'Parents Meeting' },

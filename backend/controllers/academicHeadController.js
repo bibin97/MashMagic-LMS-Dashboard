@@ -852,6 +852,46 @@ const updateStudentSubjectHours = async (req, res) => {
     }
 };
 
+const getEnrollmentNotes = async (req, res) => {
+    try {
+        let queryParams = [];
+        let whereClause = "WHERE s.status = 'active'";
+        
+        const [rows] = await db.query(`
+            SELECT s.id, s.name, s.grade, s.course, s.enrollment_type, s.enrollment_note, 
+                   f.name as faculty_name, m.name as mentor_name
+            FROM students s
+            LEFT JOIN users f ON s.faculty_id = f.id
+            LEFT JOIN mentors m ON s.mentor_id = m.id
+            ${whereClause}
+            ORDER BY s.id DESC
+        `, queryParams);
+        
+        res.status(200).json({ success: true, data: rows });
+    } catch (error) {
+        console.error("Error fetching enrollment notes:", error);
+        res.status(500).json({ success: false, message: "Server error" });
+    }
+};
+
+const updateEnrollmentNote = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { enrollment_note } = req.body;
+        
+        try {
+            await db.query('ALTER TABLE students ADD COLUMN enrollment_note TEXT DEFAULT NULL');
+        } catch (e) {}
+
+        await db.query('UPDATE students SET enrollment_note = ? WHERE id = ?', [enrollment_note, id]);
+        
+        res.status(200).json({ success: true, message: "Enrollment note updated successfully" });
+    } catch (error) {
+        console.error("Error updating enrollment note:", error);
+        res.status(500).json({ success: false, message: "Server error" });
+    }
+};
+
 module.exports = {
     getDailyStudentRotation,
     updateStudentRotation,
@@ -873,5 +913,7 @@ module.exports = {
     getAllStudents,
     getCourseCompletions,
     markCourseCompleted,
+    getEnrollmentNotes,
+    updateEnrollmentNote,
     editDailyUpdate
 };

@@ -67,6 +67,10 @@ router.post('/faculty-replacements', academicHeadController.addFacultyReplacemen
 router.get('/escalations', academicHeadController.getEscalations);
 router.post('/escalations', academicHeadController.addEscalation);
 
+// Enrollment Notes
+router.get('/enrollment-notes', academicHeadController.getEnrollmentNotes);
+router.put('/enrollment-notes/:id', academicHeadController.updateEnrollmentNote);
+
 // Course Completions
 router.get('/course-completions', academicHeadController.getCourseCompletions);
 router.post('/course-completions/:id', upload.single('completion_file'), academicHeadController.markCourseCompleted);

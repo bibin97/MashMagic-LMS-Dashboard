@@ -249,6 +249,7 @@ function App() {
             <Route index element={<Navigate to="/academic-head/academic-quality" replace />} />
             <Route path="dashboard" element={<Navigate to="/academic-head/academic-quality" replace />} />
             <Route path="academic-quality" element={<OperationsHub section="academic_quality" />} />
+            <Route path="enrollment-notes" element={<EnrollmentNotes />} />
             <Route path="students" element={<StudentsListAcademic role="academic_head" />} />
             <Route path="students/:id" element={<StudentDetails />} />
             <Route path="edit-student/:id" element={<EditStudent />} />
