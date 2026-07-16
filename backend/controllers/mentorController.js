@@ -201,7 +201,7 @@ const getMentorStudents = async (req, res) => {
         const hideTuitionOnly = ['mentor', 'mentor_head'].includes(req.user.role);
         const enrollmentCondition = hideTuitionOnly ? "AND (LOWER(s.enrollment_type) LIKE '%mentorship%' OR LOWER(s.enrollment_type) = 'both')" : "";
 
-        let whereConditions = `s.status NOT IN ('rejected', 'inactive') AND (s.course_completed = 0 OR s.course_completed IS NULL) AND (s.mentorship_completed = 0 OR s.mentorship_completed IS NULL)
+        let whereConditions = `s.status NOT IN ('rejected', 'inactive') AND (s.mentorship_completed = 0 OR s.mentorship_completed IS NULL)
                                ${enrollmentCondition}`;
             
         let params = [];
@@ -1182,7 +1182,7 @@ const getStudentLogs = async (req, res) => {
                         'mentor_action_needed', logs.mentor_action_needed,
                         'connected_today', logs.connected_today
                     ) as report_data
-                FROM student_interaction_logs logs
+                FROM mentor_quick_logs logs
                 LEFT JOIN users u ON logs.mentor_id = u.id AND u.role = 'mentor'
                 LEFT JOIN mentors m ON (logs.mentor_id = m.id OR (u.id IS NOT NULL AND (m.phone_number = u.email OR m.email = u.email OR m.name = u.name)))
                 JOIN students s ON logs.student_id = s.id
