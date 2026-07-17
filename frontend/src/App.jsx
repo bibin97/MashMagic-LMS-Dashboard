@@ -215,6 +215,7 @@ function App() {
             <Route index element={<Navigate to="/aoe/dashboard" replace />} />
             <Route path="dashboard" element={<AOEDashboard />} />
             <Route path="actions" element={<AcademicActions />} />
+            <Route path="enrollment-notes" element={<EnrollmentNotes />} />
             <Route path="faculties" element={<FacultyDirectory />} />
             <Route path="students" element={<StudentsListAcademic role="academic_operation_executive" />} />
             <Route path="students/:id" element={<StudentDetails />} />

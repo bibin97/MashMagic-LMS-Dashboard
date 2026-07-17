@@ -24,6 +24,7 @@ const AOELayout = () => {
  const navItems = [
  { path: '/aoe/dashboard', icon: <LayoutDashboard size={18} />, label: 'Dashboard' },
  { path: '/aoe/actions', icon: <Activity size={18} />, label: 'Faculty Performance Index' },
+ { path: '/aoe/enrollment-notes', icon: <ScrollText size={18} />, label: 'Enrollment Notes' },
  { path: '/aoe/registrations', icon: <UserPlus size={18} />, label: 'Registrations' },
  { path: '/aoe/students', icon: <GraduationCap size={18} />, label: 'Students' },
  { path: '/aoe/mentors', icon: <Users size={18} />, label: 'Mentors' },

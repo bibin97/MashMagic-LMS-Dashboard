@@ -3,8 +3,10 @@ import axios from 'axios';
 import { toast } from 'react-hot-toast';
 import { Search, Edit3, X, Check, FileText } from 'lucide-react';
 import DataTable from '../../components/DataTable';
+import { useAuth } from '../../context/AuthContext';
 
 const EnrollmentNotes = () => {
+    const { user } = useAuth();
     const [students, setStudents] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');
@@ -17,7 +19,8 @@ const EnrollmentNotes = () => {
         try {
             setLoading(true);
             const token = sessionStorage.getItem('token');
-            const res = await axios.get('/api/academic-head/enrollment-notes', {
+            const basePath = user?.role === 'academic_operation_executive' ? '/api/aoe' : '/api/academic-head';
+            const res = await axios.get(`${basePath}/enrollment-notes`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             if (res.data.success) {
@@ -38,7 +41,8 @@ const EnrollmentNotes = () => {
     const handleSaveNote = async (studentId) => {
         try {
             const token = sessionStorage.getItem('token');
-            const res = await axios.put(`/api/academic-head/enrollment-notes/${studentId}`, {
+            const basePath = user?.role === 'academic_operation_executive' ? '/api/aoe' : '/api/academic-head';
+            const res = await axios.put(`${basePath}/enrollment-notes/${studentId}`, {
                 enrollment_note: editNote
             }, {
                 headers: { Authorization: `Bearer ${token}` }

@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const academicHeadController = require('../controllers/academicHeadController');
 const { getFacultyChangeHistory } = require('../controllers/facultyHistoryController');
 const {
     getDropdownData,
@@ -161,6 +162,9 @@ router.post('/demo-schedules/fix-ids', require('../controllers/aoeController').f
 // Faculty Performance Index
 router.get('/faculty-performance', getFacultyPerformance);
 router.post('/faculty-performance', saveFacultyPerformance);
+
+router.get('/enrollment-notes', academicHeadController.getEnrollmentNotes);
+router.put('/enrollment-notes/:id', academicHeadController.updateEnrollmentNote);
 
 module.exports = router;
 
