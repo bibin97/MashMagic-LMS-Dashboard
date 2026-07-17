@@ -2436,10 +2436,12 @@ exports.getMentorDailyRotation = async (req, res) => {
     try {
         const { mentorId } = req.params;
         const [students] = await db.query(`
-            SELECT id, name, grade, course, registration_number, phone_number 
-            FROM students 
-            WHERE mentor_id = ? AND status != 'rejected' AND status != 'inactive' AND (mentorship_completed = 0 OR mentorship_completed IS NULL)
-        `, [mentorId]);
+              SELECT s.id, s.name, s.grade, s.course, s.registration_number, s.phone_number 
+              FROM mentor_daily_interaction_records r
+              JOIN students s ON r.student_id = s.id
+              WHERE r.mentor_id = ? AND r.record_date = CURDATE() 
+              AND s.status != 'rejected' AND s.status != 'inactive' AND (s.mentorship_completed = 0 OR s.mentorship_completed IS NULL)
+          `, [mentorId]);
         
         const [reports] = await db.query(`SELECT student_id, session_type, report_data, created_at FROM mentor_session_reports WHERE mentor_id = ? AND DATE(created_at) = CURDATE()`, [mentorId]);
         const [quickLogs] = await db.query(`SELECT student_id, mentor_notes, created_at FROM student_interaction_logs WHERE mentor_id = ? AND DATE(created_at) = CURDATE()`, [mentorId]);
