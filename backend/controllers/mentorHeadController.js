@@ -2442,14 +2442,14 @@ exports.getMentorDailyRotation = async (req, res) => {
         `, [mentorId]);
         
         const [todayInteractions] = await db.query(`
-            SELECT student_id, type, notes, created_at FROM (
-                SELECT student_id, 'Interaction Hub' as type, COALESCE(JSON_UNQUOTE(JSON_EXTRACT(report_data, '$.notes')), JSON_UNQUOTE(JSON_EXTRACT(report_data, '$.quick_notes')), session_type) as notes, created_at 
+            SELECT student_id, type, notes, created_at, report_data, session_type FROM (
+                SELECT student_id, 'Interaction Hub' as type, NULL as notes, created_at, report_data, session_type 
                 FROM mentor_session_reports WHERE mentor_id = ? AND DATE(created_at) = CURDATE()
                 UNION ALL
-                SELECT student_id, 'Quick Log' as type, mentor_notes as notes, created_at 
+                SELECT student_id, 'Quick Log' as type, mentor_notes as notes, created_at, NULL as report_data, NULL as session_type 
                 FROM student_interaction_logs WHERE mentor_id = ? AND DATE(created_at) = CURDATE()
                 UNION ALL
-                SELECT student_id, 'Mentorship' as type, action_details as notes, created_at 
+                SELECT student_id, 'Mentorship' as type, action_details as notes, created_at, NULL as report_data, NULL as session_type 
                 FROM mentorship_logs WHERE mentor_id = ? AND DATE(created_at) = CURDATE()
             ) as today_logs
             ORDER BY created_at DESC
@@ -2458,7 +2458,16 @@ exports.getMentorDailyRotation = async (req, res) => {
         const contactedStudentMap = new Map();
         todayInteractions.forEach(r => {
             if (!contactedStudentMap.has(r.student_id)) {
-                contactedStudentMap.set(r.student_id, r);
+                let parsedNotes = r.notes;
+                if (r.type === 'Interaction Hub') {
+                    try {
+                        const data = r.report_data ? (typeof r.report_data === 'string' ? JSON.parse(r.report_data) : r.report_data) : {};
+                        parsedNotes = data.notes || data.quick_notes || r.session_type || 'Interaction Logged';
+                    } catch (e) {
+                        parsedNotes = r.session_type || 'Interaction Logged';
+                    }
+                }
+                contactedStudentMap.set(r.student_id, { ...r, notes: parsedNotes });
             }
         });
         
