@@ -2441,33 +2441,29 @@ exports.getMentorDailyRotation = async (req, res) => {
             WHERE mentor_id = ? AND status != 'rejected' AND status != 'inactive' AND (mentorship_completed = 0 OR mentorship_completed IS NULL)
         `, [mentorId]);
         
-        const [todayInteractions] = await db.query(`
-            SELECT student_id, type, notes, created_at, report_data, session_type FROM (
-                SELECT student_id, 'Interaction Hub' as type, NULL as notes, created_at, CAST(report_data AS CHAR) as report_data, session_type 
-                FROM mentor_session_reports WHERE mentor_id = ? AND DATE(created_at) = CURDATE()
-                UNION ALL
-                SELECT student_id, 'Quick Log' as type, mentor_notes as notes, created_at, NULL as report_data, NULL as session_type 
-                FROM student_interaction_logs WHERE mentor_id = ? AND DATE(created_at) = CURDATE()
-                UNION ALL
-                SELECT student_id, 'Mentorship' as type, action_details as notes, created_at, NULL as report_data, NULL as session_type 
-                FROM mentorship_logs WHERE mentor_id = ? AND DATE(created_at) = CURDATE()
-            ) as today_logs
-            ORDER BY created_at DESC
-        `, [mentorId, mentorId, mentorId]);
-        
+        const [reports] = await db.query(`SELECT student_id, session_type, report_data, created_at FROM mentor_session_reports WHERE mentor_id = ? AND DATE(created_at) = CURDATE()`, [mentorId]);
+        const [quickLogs] = await db.query(`SELECT student_id, mentor_notes, created_at FROM student_interaction_logs WHERE mentor_id = ? AND DATE(created_at) = CURDATE()`, [mentorId]);
+        const [mentorships] = await db.query(`SELECT student_id, action_details, created_at FROM mentorship_logs WHERE mentor_id = ? AND DATE(created_at) = CURDATE()`, [mentorId]);
+
+        const allInteractions = [];
+        reports.forEach(r => {
+            let parsedNotes = r.session_type || 'Interaction Logged';
+            try {
+                const data = r.report_data ? (typeof r.report_data === 'string' ? JSON.parse(r.report_data) : r.report_data) : {};
+                parsedNotes = data.notes || data.quick_notes || parsedNotes;
+            } catch (e) {}
+            allInteractions.push({ student_id: r.student_id, type: 'Interaction Hub', notes: parsedNotes, created_at: r.created_at });
+        });
+        quickLogs.forEach(r => allInteractions.push({ student_id: r.student_id, type: 'Quick Log', notes: r.mentor_notes, created_at: r.created_at }));
+        mentorships.forEach(r => allInteractions.push({ student_id: r.student_id, type: 'Mentorship', notes: r.action_details, created_at: r.created_at }));
+
+        // Sort by created_at desc
+        allInteractions.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
         const contactedStudentMap = new Map();
-        todayInteractions.forEach(r => {
+        allInteractions.forEach(r => {
             if (!contactedStudentMap.has(r.student_id)) {
-                let parsedNotes = r.notes;
-                if (r.type === 'Interaction Hub') {
-                    try {
-                        const data = r.report_data ? (typeof r.report_data === 'string' ? JSON.parse(r.report_data) : r.report_data) : {};
-                        parsedNotes = data.notes || data.quick_notes || r.session_type || 'Interaction Logged';
-                    } catch (e) {
-                        parsedNotes = r.session_type || 'Interaction Logged';
-                    }
-                }
-                contactedStudentMap.set(r.student_id, { ...r, notes: parsedNotes });
+                contactedStudentMap.set(r.student_id, r);
             }
         });
         
