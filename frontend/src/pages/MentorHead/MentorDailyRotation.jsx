@@ -69,23 +69,23 @@ const MentorDailyRotation = () => {
 
     const columns = [
         {
-            key: 'name', label: 'STUDENT', render: (val, row) => (
+            accessor: 'name', label: 'STUDENT', render: (row) => (
                 <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold">
-                        {typeof val === 'string' ? val.charAt(0).toUpperCase() : 'S'}
+                        {row.name ? row.name.charAt(0).toUpperCase() : 'S'}
                     </div>
                     <div>
-                        <div className="font-semibold text-slate-800">{val || 'Unknown'}</div>
+                        <div className="font-semibold text-slate-800">{row.name || 'Unknown'}</div>
                         <div className="text-xs text-slate-500">{row.registration_number || 'N/A'}</div>
                     </div>
                 </div>
             )
         },
-        { key: 'course', label: 'COURSE' },
+        { accessor: 'course', label: 'COURSE' },
         {
-            key: 'phone_number', label: 'CONTACT', render: (val) => (
+            accessor: 'phone_number', label: 'CONTACT', render: (row) => (
                 <div className="flex items-center gap-1 text-slate-600">
-                    <Phone size={14} /> {val || 'N/A'}
+                    <Phone size={14} /> {row.phone_number || 'N/A'}
                 </div>
             )
         }
