@@ -31,7 +31,7 @@ async function runIntegrityCheck() {
 
         // Metrics queries
         const queries = {
-            active_students: 'SELECT COUNT(*) as count FROM students WHERE is_active = 1',
+            active_students: "SELECT COUNT(*) as count FROM students WHERE status = 'active'",
             faculty_members: "SELECT COUNT(*) as count FROM users WHERE role = 'faculty'",
             active_timetable: 'SELECT COUNT(*) as count FROM timetable WHERE (is_deleted IS NULL OR is_deleted = 0)',
             faculty_schedules: 'SELECT COUNT(*) as count FROM faculty_schedules WHERE (is_deleted IS NULL OR is_deleted = 0)',
