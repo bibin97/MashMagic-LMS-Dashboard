@@ -1182,7 +1182,7 @@ const getStudentLogs = async (req, res) => {
                         'mentor_action_needed', logs.mentor_action_needed,
                         'connected_today', logs.connected_today
                     ) as report_data
-                FROM mentor_quick_logs logs
+                FROM student_interaction_logs logs
                 LEFT JOIN users u ON logs.mentor_id = u.id AND u.role = 'mentor'
                 LEFT JOIN mentors m ON (logs.mentor_id = m.id OR (u.id IS NOT NULL AND (m.phone_number = u.email OR m.email = u.email OR m.name = u.name)))
                 JOIN students s ON logs.student_id = s.id

@@ -2445,7 +2445,7 @@ exports.getMentorDailyRotation = async (req, res) => {
             SELECT DISTINCT student_id FROM (
                 SELECT student_id FROM mentor_session_reports WHERE mentor_id = ? AND DATE(created_at) = CURDATE()
                 UNION
-                SELECT student_id FROM mentor_quick_logs WHERE mentor_id = ? AND DATE(created_at) = CURDATE()
+                SELECT student_id FROM student_interaction_logs WHERE mentor_id = ? AND DATE(created_at) = CURDATE()
                 UNION
                 SELECT student_id FROM mentorship_logs WHERE mentor_id = ? AND DATE(created_at) = CURDATE()
             ) as today_logs
