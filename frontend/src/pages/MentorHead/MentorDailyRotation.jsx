@@ -72,10 +72,10 @@ const MentorDailyRotation = () => {
             key: 'name', label: 'STUDENT', render: (val, row) => (
                 <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold">
-                        {val?.charAt(0) || 'S'}
+                        {typeof val === 'string' ? val.charAt(0).toUpperCase() : 'S'}
                     </div>
                     <div>
-                        <div className="font-semibold text-slate-800">{val}</div>
+                        <div className="font-semibold text-slate-800">{val || 'Unknown'}</div>
                         <div className="text-xs text-slate-500">{row.registration_number || 'N/A'}</div>
                     </div>
                 </div>
