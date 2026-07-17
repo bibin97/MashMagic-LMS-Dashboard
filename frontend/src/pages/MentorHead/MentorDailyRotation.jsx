@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from 'react-hot-toast';
-import { Users, CheckCircle, XCircle, Search, RefreshCw, GraduationCap, Phone } from 'lucide-react';
+import { Users, CheckCircle, XCircle, Search, RefreshCw, GraduationCap, Phone, MessageSquare, ArrowRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import DataTable from '../../components/DataTable';
 
 const MentorDailyRotation = () => {
@@ -12,6 +13,7 @@ const MentorDailyRotation = () => {
     const [pending, setPending] = useState([]);
     const [loading, setLoading] = useState(false);
     const [activeTab, setActiveTab] = useState('pending'); // 'completed' or 'pending'
+    const navigate = useNavigate();
 
     // Fetch mentors
     useEffect(() => {
@@ -88,7 +90,34 @@ const MentorDailyRotation = () => {
                     <Phone size={14} /> {row.phone_number || 'N/A'}
                 </div>
             )
+        },
+        {
+            accessor: 'action', label: 'ACTION', render: (row) => (
+                <button
+                    onClick={() => navigate(`/mentor-head/students/${row.id}`)}
+                    className="flex items-center justify-center gap-2 px-4 py-2 bg-[#008080] text-white rounded-lg font-bold text-xs uppercase tracking-wide hover:bg-[#006666] transition-colors"
+                >
+                    <MessageSquare size={14} /> Chat
+                </button>
+            )
         }
+    ];
+
+    const completedColumns = [
+        ...columns.slice(0, 3), // STUDENT, COURSE, CONTACT
+        {
+            accessor: 'interaction_type', label: 'INTERACTION', render: (row) => (
+                <div className="flex flex-col">
+                    <span className="text-[10px] font-black uppercase tracking-wider text-[#008080] bg-[#008080]/10 px-2 py-0.5 rounded-full w-max mb-1">
+                        {row.interaction_type || 'Unknown'}
+                    </span>
+                    <span className="text-sm text-slate-600 line-clamp-2" title={row.interaction_notes}>
+                        {row.interaction_notes || 'No notes provided'}
+                    </span>
+                </div>
+            )
+        },
+        columns[3] // ACTION
     ];
 
     return (
@@ -165,7 +194,7 @@ const MentorDailyRotation = () => {
                         )}
                         {activeTab === 'completed' && (
                             <DataTable
-                                columns={columns}
+                                columns={completedColumns}
                                 data={completed}
                                 loading={loading}
                                 emptyMessage="No students contacted today yet."

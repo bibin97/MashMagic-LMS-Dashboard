@@ -2442,22 +2442,33 @@ exports.getMentorDailyRotation = async (req, res) => {
         `, [mentorId]);
         
         const [todayInteractions] = await db.query(`
-            SELECT DISTINCT student_id FROM (
-                SELECT student_id FROM mentor_session_reports WHERE mentor_id = ? AND DATE(created_at) = CURDATE()
-                UNION
-                SELECT student_id FROM student_interaction_logs WHERE mentor_id = ? AND DATE(created_at) = CURDATE()
-                UNION
-                SELECT student_id FROM mentorship_logs WHERE mentor_id = ? AND DATE(created_at) = CURDATE()
+            SELECT student_id, type, notes, created_at FROM (
+                SELECT student_id, 'Interaction Hub' as type, COALESCE(JSON_UNQUOTE(JSON_EXTRACT(report_data, '$.notes')), JSON_UNQUOTE(JSON_EXTRACT(report_data, '$.quick_notes')), session_type) as notes, created_at 
+                FROM mentor_session_reports WHERE mentor_id = ? AND DATE(created_at) = CURDATE()
+                UNION ALL
+                SELECT student_id, 'Quick Log' as type, mentor_notes as notes, created_at 
+                FROM student_interaction_logs WHERE mentor_id = ? AND DATE(created_at) = CURDATE()
+                UNION ALL
+                SELECT student_id, 'Mentorship' as type, action_details as notes, created_at 
+                FROM mentorship_logs WHERE mentor_id = ? AND DATE(created_at) = CURDATE()
             ) as today_logs
+            ORDER BY created_at DESC
         `, [mentorId, mentorId, mentorId]);
         
-        const contactedStudentIds = new Set(todayInteractions.map(r => r.student_id));
+        const contactedStudentMap = new Map();
+        todayInteractions.forEach(r => {
+            if (!contactedStudentMap.has(r.student_id)) {
+                contactedStudentMap.set(r.student_id, r);
+            }
+        });
+        
         const completed = [];
         const pending = [];
         
         students.forEach(student => {
-            if (contactedStudentIds.has(student.id)) {
-                completed.push(student);
+            if (contactedStudentMap.has(student.id)) {
+                const interaction = contactedStudentMap.get(student.id);
+                completed.push({ ...student, interaction_type: interaction.type, interaction_notes: interaction.notes });
             } else {
                 pending.push(student);
             }
