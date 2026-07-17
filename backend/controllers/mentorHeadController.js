@@ -2443,7 +2443,7 @@ exports.getMentorDailyRotation = async (req, res) => {
         
         const [todayInteractions] = await db.query(`
             SELECT student_id, type, notes, created_at, report_data, session_type FROM (
-                SELECT student_id, 'Interaction Hub' as type, NULL as notes, created_at, report_data, session_type 
+                SELECT student_id, 'Interaction Hub' as type, NULL as notes, created_at, CAST(report_data AS CHAR) as report_data, session_type 
                 FROM mentor_session_reports WHERE mentor_id = ? AND DATE(created_at) = CURDATE()
                 UNION ALL
                 SELECT student_id, 'Quick Log' as type, mentor_notes as notes, created_at, NULL as report_data, NULL as session_type 
