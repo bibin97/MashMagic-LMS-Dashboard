@@ -39,7 +39,8 @@ const {
     updateStudentAssessmentLevel,
     updateInteractionLog,
     getInteractionHistory,
-    removeMentor
+    removeMentor,
+    getMentorDailyRotation
 } = require('../controllers/mentorHeadController');
 const { getDailyUpdates } = require('../controllers/sscController');
 const { requireAuth } = require('../middleware/authMiddleware');
@@ -54,6 +55,7 @@ router.get('/academic-schedule', getAcademicSchedule);
 router.post('/register-mentor', registerMentor);
 router.get('/dashboard', getDashboardStats);
 router.get('/activities', getAllActivities);
+router.get('/mentor-daily-rotation/:mentorId', getMentorDailyRotation);
 router.get('/mentor/:mentorId/students', getMentorStudents);
 router.get('/mentor/:mentorId/details', getMentorDetails);
 router.get('/dropdowns', getDropdownData);

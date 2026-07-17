@@ -2428,3 +2428,44 @@ exports.getInteractionHistory = async (req, res) => {
         res.status(500).json({ success: false, message: 'Server Error', error: error.message });
     }
 };
+
+
+// @desc    Get mentor daily rotation (completed vs pending interactions today)
+// @route   GET /api/mentor-head/mentor-daily-rotation/:mentorId
+exports.getMentorDailyRotation = async (req, res) => {
+    try {
+        const { mentorId } = req.params;
+        const [students] = await db.query(
+            SELECT id, name, grade, course, registration_number, phone_number 
+            FROM students 
+            WHERE mentor_id = ? AND status != 'rejected' AND status != 'inactive' AND (mentorship_completed = 0 OR mentorship_completed IS NULL)
+        , [mentorId]);
+        
+        const [todayInteractions] = await db.query(
+            SELECT DISTINCT student_id FROM (
+                SELECT student_id FROM mentor_session_reports WHERE mentor_id = ? AND DATE(created_at) = CURDATE()
+                UNION
+                SELECT student_id FROM mentor_quick_logs WHERE mentor_id = ? AND DATE(created_at) = CURDATE()
+                UNION
+                SELECT student_id FROM mentorship_logs WHERE mentor_id = ? AND DATE(created_at) = CURDATE()
+            ) as today_logs
+        , [mentorId, mentorId, mentorId]);
+        
+        const contactedStudentIds = new Set(todayInteractions.map(r => r.student_id));
+        const completed = [];
+        const pending = [];
+        
+        students.forEach(student => {
+            if (contactedStudentIds.has(student.id)) {
+                completed.push(student);
+            } else {
+                pending.push(student);
+            }
+        });
+        
+        res.status(200).json({ success: true, data: { completed, pending } });
+    } catch (error) {
+        console.error('Error fetching daily rotation:', error);
+        res.status(500).json({ success: false, message: 'Server Error', error: error.message });
+    }
+};

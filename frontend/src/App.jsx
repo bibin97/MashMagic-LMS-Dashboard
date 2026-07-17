@@ -80,6 +80,7 @@ import StudentCheckTracker from './pages/MentorHead/StudentCheckTracker';
 import AHDailyUpdates from './pages/AcademicHead/AHDailyUpdates';
 import StudentShift from './pages/MentorHead/StudentShift';
 import MentorHeadInteractions from './pages/MentorHead/MentorHeadInteractions';
+import MentorDailyRotation from './pages/MentorHead/MentorDailyRotation';
 import MentorHeadTasks from './pages/MentorHead/MentorHeadTasks';
 import FacultyDirectoryMentorHead from './pages/MentorHead/FacultyDirectory';
 import MentorHeadNotifications from './pages/MentorHead/MentorHeadNotifications';
@@ -199,6 +200,7 @@ function App() {
             <Route path="faculties" element={<FacultyDirectoryMentorHead />} />
             <Route path="course-completed" element={<CourseCompletedTracker />} />
             <Route path="tasks" element={<MentorHeadTasks />} />
+            <Route path="rotation" element={<MentorDailyRotation />} />
             <Route path="interactions" element={<MentorHeadInteractions />} />
             <Route path="interactions/edit/:id" element={<EditInteractionLog />} />
             <Route path="notifications" element={<MentorHeadNotifications />} />

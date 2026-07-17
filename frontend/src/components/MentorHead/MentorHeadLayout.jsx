@@ -34,6 +34,7 @@ const MentorHeadLayout = () => {
  { path: '/mentor-head/tasks', icon: <ListTodo size={18} />, label: 'Tasks' },
  { path: '/mentor-head/course-completed', icon: <CheckCircle2 size={18} />, label: 'Mentorship Completed' },
  { path: '/mentor-head/interactions', icon: <Activity size={18} />, label: 'Logs' },
+ { path: '/mentor-head/rotation', icon: <ScrollText size={18} />, label: 'Daily Rotation' },
  { path: '/mentor-head/notifications', icon: <Bell size={18} />, label: 'Notifications' },
  ];
 
