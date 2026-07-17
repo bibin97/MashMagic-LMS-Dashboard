@@ -2435,13 +2435,13 @@ exports.getInteractionHistory = async (req, res) => {
 exports.getMentorDailyRotation = async (req, res) => {
     try {
         const { mentorId } = req.params;
-        const [students] = await db.query(
+        const [students] = await db.query(`
             SELECT id, name, grade, course, registration_number, phone_number 
             FROM students 
             WHERE mentor_id = ? AND status != 'rejected' AND status != 'inactive' AND (mentorship_completed = 0 OR mentorship_completed IS NULL)
-        , [mentorId]);
+        `, [mentorId]);
         
-        const [todayInteractions] = await db.query(
+        const [todayInteractions] = await db.query(`
             SELECT DISTINCT student_id FROM (
                 SELECT student_id FROM mentor_session_reports WHERE mentor_id = ? AND DATE(created_at) = CURDATE()
                 UNION
@@ -2449,7 +2449,7 @@ exports.getMentorDailyRotation = async (req, res) => {
                 UNION
                 SELECT student_id FROM mentorship_logs WHERE mentor_id = ? AND DATE(created_at) = CURDATE()
             ) as today_logs
-        , [mentorId, mentorId, mentorId]);
+        `, [mentorId, mentorId, mentorId]);
         
         const contactedStudentIds = new Set(todayInteractions.map(r => r.student_id));
         const completed = [];
