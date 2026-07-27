@@ -393,6 +393,7 @@ const StudentsList = ({
 					<div className="relative">
 						<select value={filterMentor} onChange={e => setFilterMentor(e.target.value)} className="h-14 pl-6 pr-12 rounded-2xl bg-slate-50 border border-slate-100 text-[10px] font-black uppercase tracking-widest outline-none focus:ring-4 ring-[#008080]/10 focus:border-[#008080] transition-all appearance-none cursor-pointer min-w-[160px] shadow-sm hover:bg-white">
 							<option value="all">All Mentors</option>
+							<option value="unassigned" className="bg-amber-50 text-amber-700">Unassigned / New</option>
 							{mentors.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
 						</select>
 						<Users size={14} className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
@@ -441,6 +442,7 @@ const StudentsList = ({
 						<div className="relative">
 							<select value={filterMentor} onChange={e => setFilterMentor(e.target.value)} className="w-full min-h-[48px] pl-3 pr-8 py-3 rounded-2xl bg-slate-50 border border-slate-100 text-[10px] font-black uppercase tracking-widest outline-none focus:ring-4 ring-[#008080]/10 focus:border-[#008080] transition-all appearance-none cursor-pointer shadow-sm truncate">
 								<option value="all">All Mentors</option>
+								<option value="unassigned">Unassigned / New</option>
 								{mentors.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
 							</select>
 							<Users size={12} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />

@@ -767,19 +767,18 @@ const Registrations = () => {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
-                {studentForm.enrollmentType !== 'Tuition' && (
-                  <div className="flex flex-col gap-2">
-                    <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Assigned Mentor</label>
-                    <Select
-                      options={mentors.map(m => ({ value: m.id, label: m.name }))}
-                      styles={customSelectStyles}
-                      value={mentors.find(m => m.id === studentForm.mentorId) ? { value: studentForm.mentorId, label: mentors.find(m => m.id === studentForm.mentorId).name } : null}
-                      onChange={(option) => handleSelectChange('mentorId', option)}
-                      placeholder="Select Mentor (Optional)"
-                      isClearable
-                    />
-                  </div>
-                )}
+                <div className="flex flex-col gap-2">
+                  <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Admission Type</label>
+                  <Select
+                    options={[
+                      { value: 'new', label: 'New Admission' },
+                      { value: 'rejoining', label: 'Rejoining' }
+                    ]}
+                    styles={customSelectStyles}
+                    value={{ value: studentForm.admissionType, label: studentForm.admissionType === 'new' ? 'New Admission' : 'Rejoining' }}
+                    onChange={(option) => handleSelectChange('admissionType', option)}
+                  />
+                </div>
                 
                 <div className="flex flex-col gap-2">
                   <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Student ID #</label>

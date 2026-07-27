@@ -1132,8 +1132,12 @@ const getStudents = async (req, res) => {
         let params = [];
 
         if (mentor_id) {
-            baseWhere += ' AND s.mentor_id = ?';
-            params.push(mentor_id);
+            if (mentor_id === 'unassigned') {
+                baseWhere += ' AND (s.mentor_id IS NULL OR s.mentor_id = "") AND (LOWER(s.enrollment_type) LIKE "%mentorship%" OR LOWER(s.enrollment_type) = "both")';
+            } else {
+                baseWhere += ' AND s.mentor_id = ?';
+                params.push(mentor_id);
+            }
         }
         if (faculty_id) {
             const facClause = ' AND (s.faculty_id = ? OR EXISTS (SELECT 1 FROM faculty_schedules fs WHERE (fs.is_deleted IS NULL OR fs.is_deleted = 0) AND fs.student_id = s.id AND fs.faculty_id = ?))';
