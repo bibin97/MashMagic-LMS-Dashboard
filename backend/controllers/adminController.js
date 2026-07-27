@@ -564,7 +564,7 @@ const getAllStudentLogs = async (req, res) => {
 
             SELECT 
                 CONVERT('Quick Log' USING utf8mb4) COLLATE utf8mb4_unicode_ci as source,
-                logs.id, logs.mentor_id, logs.student_id, logs.created_at,
+                logs.id, logs.mentor_id, logs.student_id, logs.date as created_at,
                 CONVERT(COALESCE(m.name, u.name) USING utf8mb4) COLLATE utf8mb4_unicode_ci as mentor_name, 
                 CONVERT(s.name USING utf8mb4) COLLATE utf8mb4_unicode_ci as student_name,
                 CONVERT('Q-Log' USING utf8mb4) COLLATE utf8mb4_unicode_ci as session_number,
@@ -598,7 +598,7 @@ const getAllStudentLogs = async (req, res) => {
             LEFT JOIN users u ON logs.mentor_id = u.id AND u.role = 'mentor'
             LEFT JOIN mentors m ON (logs.mentor_id = m.id OR (u.id IS NOT NULL AND (m.phone_number = u.email OR m.email = u.email OR m.name = u.name)))
             JOIN students s ON logs.student_id = s.id
-            ${whereClause.replace(/student_id/g, 'logs.student_id').replace(/mentor_id/g, 'logs.mentor_id').replace(/created_at/g, 'logs.created_at')}
+            ${whereClause.replace(/student_id/g, 'logs.student_id').replace(/mentor_id/g, 'logs.mentor_id').replace(/created_at >= \?/g, 'logs.date >= ?').replace(/created_at <= \?/g, 'logs.date <= ?').replace(/created_at/g, 'logs.created_at')}
 
             UNION ALL
 

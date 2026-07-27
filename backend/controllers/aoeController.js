@@ -503,11 +503,11 @@ const getStudentInteractionLogs = async (req, res) => {
 
         const query = `
             SELECT * FROM (
-                SELECT sil.id, sil.created_at, CONVERT('Quick' USING utf8mb4) COLLATE utf8mb4_unicode_ci as source, CONVERT(sil.mentor_notes USING utf8mb4) COLLATE utf8mb4_unicode_ci as notes, m.name as mentor_name, s.name as student_name 
+                SELECT sil.id, sil.date as created_at, CONVERT('Quick' USING utf8mb4) COLLATE utf8mb4_unicode_ci as source, CONVERT(sil.mentor_notes USING utf8mb4) COLLATE utf8mb4_unicode_ci as notes, m.name as mentor_name, s.name as student_name 
                 FROM student_interaction_logs sil 
                 JOIN mentors m ON sil.mentor_id = m.id 
                 JOIN students s ON sil.student_id = s.id 
-                ${baseWhere('sil')}
+                ${baseWhere('sil', 'date')}
                 UNION ALL
                 SELECT msl.id, msl.created_at, CONVERT('Session' USING utf8mb4) COLLATE utf8mb4_unicode_ci as source, CONVERT(msl.main_issue USING utf8mb4) COLLATE utf8mb4_unicode_ci as notes, m.name as mentor_name, s.name as student_name 
                 FROM mentor_session_logs msl 

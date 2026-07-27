@@ -152,7 +152,7 @@ exports.getStudentInteractionLogs = async (req, res) => {
         const query = `
             SELECT * FROM (
                 SELECT 
-                    sil.id, sil.created_at, sil.mentor_id, sil.student_id,
+                    sil.id, sil.date as created_at, sil.mentor_id, sil.student_id,
                     COALESCE(m.name, u.name) as mentor_name, s.name as student_name,
                     CONVERT('Quick Log' USING utf8mb4) COLLATE utf8mb4_unicode_ci as source,
                     'QUICK' as session_type,
@@ -183,7 +183,7 @@ exports.getStudentInteractionLogs = async (req, res) => {
                 LEFT JOIN users u ON sil.mentor_id = u.id AND u.role = 'mentor'
                 LEFT JOIN mentors m ON (sil.mentor_id = m.id OR (u.id IS NOT NULL AND (m.phone_number = u.email OR m.email = u.email OR m.name = u.name)))
                 LEFT JOIN students s ON sil.student_id = s.id
-                ${baseWhere('sil')}
+                ${baseWhere('sil', 'student_id', 'mentor_id', 'date')}
  
                 UNION ALL
  
