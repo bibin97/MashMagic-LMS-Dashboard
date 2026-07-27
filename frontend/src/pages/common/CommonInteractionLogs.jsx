@@ -737,6 +737,19 @@ const CommonInteractionLogs = ({
                 </td>
               </tr> : filteredEntities.length > 0 ? filteredEntities.map((entity, index) => <tr key={entity.id} className="group hover:bg-slate-50/50 transition-colors cursor-pointer" onClick={() => {
                 setSelectedStudent(entity);
+                if (listDateFilter === 'custom_multiple') {
+                  setDateFilter('custom');
+                  if (listCustomDates && listCustomDates.length > 0) {
+                    const sortedDates = [...listCustomDates].sort();
+                    setCustomRange({
+                      start: sortedDates[0],
+                      end: sortedDates[sortedDates.length - 1]
+                    });
+                  }
+                } else {
+                  setDateFilter(listDateFilter);
+                  setCustomRange(listCustomRange);
+                }
                 setViewMode('detail');
               }}>
                 <td className="px-4 md:px-10 py-4 md:py-6 text-xs font-black text-slate-400 text-center">{index + 1}</td>
@@ -798,6 +811,19 @@ const CommonInteractionLogs = ({
             filteredEntities.map((entity, index) => (
               <div key={entity.id} className="bg-white rounded-2xl border border-slate-100 p-4 shadow-sm hover:shadow-md transition-shadow active:scale-[0.98] cursor-pointer" onClick={() => {
                 setSelectedStudent(entity);
+                if (listDateFilter === 'custom_multiple') {
+                  setDateFilter('custom');
+                  if (listCustomDates && listCustomDates.length > 0) {
+                    const sortedDates = [...listCustomDates].sort();
+                    setCustomRange({
+                      start: sortedDates[0],
+                      end: sortedDates[sortedDates.length - 1]
+                    });
+                  }
+                } else {
+                  setDateFilter(listDateFilter);
+                  setCustomRange(listCustomRange);
+                }
                 setViewMode('detail');
               }}>
                 <div className="flex items-center gap-3 justify-between">
