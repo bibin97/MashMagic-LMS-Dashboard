@@ -692,7 +692,7 @@ const getYesterdayPending = async (req, res) => {
                     s.name, s.priority_category, s.enrollment_type, s.badge, s.onboarding_status
              FROM mentor_daily_interaction_records r
              JOIN students s ON r.student_id = s.id
-             WHERE r.mentor_id = ? AND r.record_date <= ? AND r.status = 'PENDING' AND (s.mentorship_completed = 0 OR s.mentorship_completed IS NULL)
+             WHERE r.mentor_id = ? AND r.record_date = ? AND r.status = 'PENDING' AND (s.mentorship_completed = 0 OR s.mentorship_completed IS NULL)
              GROUP BY r.student_id, s.name, s.priority_category, s.enrollment_type, s.badge, s.onboarding_status`,
             [mentor_id, yesterdayDate]
         );
