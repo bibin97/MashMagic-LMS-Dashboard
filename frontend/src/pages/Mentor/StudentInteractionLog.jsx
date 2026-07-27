@@ -187,20 +187,25 @@ const StudentInteractionLog = () => {
           return;
         }
       } else if (sessionType === 'DEEP') {
-        if (!formData.action_plan || !formData.main_problem || !formData.root_cause || !formData.mentor_guidance) {
-          toast.error("Please fill all mandatory fields (Problem, Root Cause, Guidance, and Action Plan)");
+        if (!formData.action_plan || !formData.main_problem || !formData.root_cause || !formData.mentor_guidance || !formData.parent_informed || !formData.interaction_details || !formData.next_session_type) {
+          toast.error("Please fill all mandatory fields (Problem, Root Cause, Guidance, Action Plan, Parent Informed, Interaction Details, Next Session Type)");
           setLoading(false);
           return;
         }
       } else if (sessionType === 'MEDIUM') {
-        if (!formData.next_task) {
-          toast.error("Next Task is mandatory for Medium sessions");
+        if (!formData.quick_guidance || !formData.next_task || !formData.upgrade_to_deep || !formData.interaction_details || !formData.next_session_type) {
+          toast.error("Please fill all mandatory fields for Medium sessions (Guidance, Next Task, Upgrade to Deep, Interaction Details, Next Session Type)");
           setLoading(false);
           return;
         }
       } else if (sessionType === 'QUICK') {
-        if (!formData.study_status) {
-          toast.error("Today's Study Status is mandatory");
+        if (!formData.availability || !formData.study_status || !formData.attendance || !formData.immediate_concern || !formData.interaction_details || !formData.next_session_type) {
+          toast.error("Please fill all mandatory fields for Quick sessions");
+          setLoading(false);
+          return;
+        }
+        if (formData.immediate_concern === 'Yes' && !formData.immediate_concern_category) {
+          toast.error("Please select the immediate concern category");
           setLoading(false);
           return;
         }
