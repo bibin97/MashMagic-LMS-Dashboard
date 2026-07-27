@@ -766,20 +766,7 @@ const Registrations = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
-                <div className="flex flex-col gap-2">
-                  <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Admission Type</label>
-                  <Select
-                    options={[
-                      { value: 'new', label: 'New Admission' },
-                      { value: 'rejoining', label: 'Rejoining' }
-                    ]}
-                    styles={customSelectStyles}
-                    value={{ value: studentForm.admissionType, label: studentForm.admissionType === 'new' ? 'New Admission' : 'Rejoining' }}
-                    onChange={(option) => handleSelectChange('admissionType', option)}
-                  />
-                </div>
-                
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6 mt-6">
                 <div className="flex flex-col gap-2">
                   <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Student ID #</label>
                   <input type="text" name="registrationNumber" value={studentForm.registrationNumber} onChange={handleStudentChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-bold" placeholder="E.g. ST-2024-001" autoComplete="off" />
