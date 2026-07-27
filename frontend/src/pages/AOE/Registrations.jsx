@@ -100,7 +100,7 @@ const Registrations = () => {
     schoolName: '', preferredLanguage: '', country: '',
     totalFees: '', totalPaid: '', nextInstallmentDate: '', 
     admissionType: 'new', registrationNumber: '', meetingLink: '',
-    enrollmentType: '', rejoiningFee: ''
+    enrollmentType: '', rejoiningFee: '', enrollmentNote: ''
   });
 
   const [selectedSubjects, setSelectedSubjects] = useState([
@@ -789,6 +789,11 @@ const Registrations = () => {
               <div className="flex flex-col gap-2 mt-6">
                 <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Meeting Link</label>
                 <input type="text" name="meetingLink" value={studentForm.meetingLink} onChange={handleStudentChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-bold" placeholder="Google Meet Link" />
+              </div>
+
+              <div className="flex flex-col gap-2 mt-6">
+                <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Enrollment Note</label>
+                <textarea name="enrollmentNote" value={studentForm.enrollmentNote} onChange={handleStudentChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-bold min-h-[80px]" placeholder="Special notes, requirements, etc." />
               </div>
 
               

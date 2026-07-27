@@ -339,7 +339,7 @@ const registerStudent = async (req, res) => {
             admissionDate, schoolName, preferredLanguage, country,
             totalFees, totalPaid, totalHours, nextInstallmentDate,
             admissionType, registrationNumber, meetingLink, enrollmentType,
-            selectedSubjects, rejoiningFee, syllabus
+            selectedSubjects, rejoiningFee, syllabus, enrollmentNote
         } = req.body;
 
         // Ensure student email does not conflict with staff emails
@@ -368,15 +368,15 @@ const registerStudent = async (req, res) => {
                 admission_date, school_name, preferred_language, country, 
                 total_fees, total_paid, total_hours, next_installment_date, 
                 admission_type, registration_number, meeting_link, enrollment_type, badge, 
-                subjects_json, status, isApproved, priority_category, rejoining_fee, syllabus
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "active", 1, "High", ?, ?)
+                subjects_json, status, isApproved, priority_category, rejoining_fee, syllabus, enrollment_note
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "active", 1, "High", ?, ?, ?)
         `, [
             name, finalEmail || null, hash, ur.insertId, contact || null, grade, course, mentorId || null,
             admissionDate || null, schoolName || null, preferredLanguage || null, country || null,
             totalFees || 0, totalPaid || 0, totalHours || 0, nextInstallmentDate || null,
             admissionType || 'new', registrationNumber || null, meetingLink || null, enrollmentType || null, badge,
             selectedSubjects ? JSON.stringify(selectedSubjects) : null,
-            rejoiningFee || 0, syllabus || null
+            rejoiningFee || 0, syllabus || null, enrollmentNote || null
         ]);
 
         const studentId = studentResult.insertId;
@@ -430,6 +430,7 @@ const registerStudent = async (req, res) => {
             enrollment_type: enrollmentType || null, badge,
             subjects_json: selectedSubjects ? JSON.stringify(selectedSubjects) : null,
             rejoining_fee: rejoiningFee || 0, syllabus: syllabus || null,
+            enrollment_note: enrollmentNote || null,
             user_id: ur.insertId
         };
 

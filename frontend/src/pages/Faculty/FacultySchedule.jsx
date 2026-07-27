@@ -20,6 +20,30 @@ const FacultySchedule = () => {
     remarks: ''
   });
 
+  const isClassFinished = (dateString, endTimeString) => {
+    if (!endTimeString) return true;
+    try {
+      const timeRegex = /(\d{1,2}):(\d{2})\s*(AM|PM)/i;
+      const match = endTimeString.match(timeRegex);
+      if (!match) return true;
+
+      let [_, hours, minutes, modifier] = match;
+      hours = parseInt(hours, 10);
+      if (hours === 12) {
+        hours = modifier.toUpperCase() === 'AM' ? 0 : 12;
+      } else if (modifier.toUpperCase() === 'PM') {
+        hours += 12;
+      }
+
+      const sessionEnd = new Date(dateString);
+      sessionEnd.setHours(hours, parseInt(minutes, 10), 0, 0);
+
+      return new Date() >= sessionEnd;
+    } catch (e) {
+      return true;
+    }
+  };
+
   useEffect(() => {
     fetchSchedule();
   }, []);
@@ -178,7 +202,7 @@ const FacultySchedule = () => {
                     onClick={() => handleReportClick(session)}
                     className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-indigo-600 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-600/20"
                   >
-                    <FileEdit size={16} /> Report
+                    <FileEdit size={16} /> Daily Report
                   </button>
                 )}
 
@@ -228,7 +252,7 @@ const FacultySchedule = () => {
                     }] : []),
                     ...((activeTab === 'today' || activeTab === 'completed') && session.status !== 'Completed' ? [{
                       icon: <FileEdit size={14} />,
-                      label: 'Report',
+                      label: 'Daily Report',
                       onClick: () => handleReportClick(session),
                       variant: 'primary'
                     }] : [])
@@ -316,20 +340,28 @@ const FacultySchedule = () => {
                 </div>
               </div>
 
-              <div className="pt-6 border-t border-slate-100 flex justify-end gap-3">
-                <button 
-                  type="button" 
-                  onClick={() => setShowModal(false)}
-                  className="px-6 py-3 rounded-xl text-xs font-black text-slate-500 uppercase tracking-widest hover:bg-slate-50 transition-colors"
-                >
-                  Cancel
-                </button>
-                <button 
-                  type="submit"
-                  className="px-4 md:px-8 py-3 bg-indigo-600 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-600/20"
-                >
-                  Submit Report
-                </button>
+              <div className="pt-6 border-t border-slate-100 flex flex-col gap-3">
+                {!isClassFinished(selectedSession.date, selectedSession.end_time) && (
+                  <div className="text-amber-600 bg-amber-50 p-3 rounded-xl text-xs font-bold flex items-center gap-2">
+                    <Clock size={14} className="shrink-0" /> You can only submit this report after the class finishes at {selectedSession.end_time}.
+                  </div>
+                )}
+                <div className="flex justify-end gap-3">
+                  <button 
+                    type="button" 
+                    onClick={() => setShowModal(false)}
+                    className="px-6 py-3 rounded-xl text-xs font-black text-slate-500 uppercase tracking-widest hover:bg-slate-50 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button 
+                    type="submit"
+                    disabled={!isClassFinished(selectedSession.date, selectedSession.end_time)}
+                    className={`px-4 md:px-8 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-colors shadow-lg ${isClassFinished(selectedSession.date, selectedSession.end_time) ? 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-indigo-600/20' : 'bg-slate-200 text-slate-400 shadow-none cursor-not-allowed'}`}
+                  >
+                    Submit Report
+                  </button>
+                </div>
               </div>
             </form>
           </div>
