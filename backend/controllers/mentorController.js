@@ -1033,6 +1033,14 @@ const createStudentLog = async (req, res) => {
             screenshot_url
         ]);
 
+        // Mark as completed in daily interaction records up to the interaction date
+        await db.query(
+            `UPDATE mentor_daily_interaction_records 
+             SET status = 'COMPLETED' 
+             WHERE mentor_id = ? AND student_id = ? AND record_date <= ? AND status = 'PENDING'`,
+            [mentorId, student_id, date]
+        );
+
         // Notify Admin/Academic Head
         await db.query('INSERT INTO admin_notifications (message) VALUES (?)', [`Mentor (${req.user.name}) submitted a new Student Interaction Log for ${student_id}`]);
 

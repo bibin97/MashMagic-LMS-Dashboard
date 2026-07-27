@@ -668,15 +668,19 @@ const getYesterdayPending = async (req, res) => {
 
         // Get students completed on yesterday's date (source of truth)
         const [completedYesterday] = await db.query(
-            'SELECT DISTINCT student_id FROM mentor_session_reports WHERE mentor_id = ? AND DATE(created_at) = ?',
-            [mentor_id, yesterdayDate]
+            `SELECT DISTINCT student_id FROM mentor_session_reports WHERE mentor_id = ? AND DATE(created_at) = ?
+             UNION
+             SELECT DISTINCT student_id FROM student_interaction_logs WHERE mentor_id = ? AND DATE(date) = ?`,
+            [mentor_id, yesterdayDate, mentor_id, yesterdayDate]
         );
         const completedYesterdayIds = new Set(completedYesterday.map(r => r.student_id));
 
         // Get students completed via "Yesterday Pending" on today (completed today but with interaction_date = yesterday)
         const [completedTodayRows] = await db.query(
-            'SELECT student_id FROM mentor_session_reports WHERE mentor_id = ? AND DATE(created_at) = ?',
-            [mentor_id, referenceDate]
+            `SELECT DISTINCT student_id FROM mentor_session_reports WHERE mentor_id = ? AND DATE(created_at) = ?
+             UNION
+             SELECT DISTINCT student_id FROM student_interaction_logs WHERE mentor_id = ? AND DATE(date) = ?`,
+            [mentor_id, referenceDate, mentor_id, referenceDate]
         );
         const completedTodayIds = new Set(completedTodayRows.map(r => r.student_id));
 
@@ -684,11 +688,12 @@ const getYesterdayPending = async (req, res) => {
 
         // ── Try new table first ──────────────────────────────────────
         const [newTableRecords] = await db.query(
-            `SELECT r.student_id as id, r.session_type as sessionType, r.status, r.is_carry_over,
+            `SELECT r.student_id as id, MAX(r.session_type) as sessionType, 'PENDING' as status, MAX(r.is_carry_over) as is_carry_over,
                     s.name, s.priority_category, s.enrollment_type, s.badge, s.onboarding_status
              FROM mentor_daily_interaction_records r
              JOIN students s ON r.student_id = s.id
-             WHERE r.mentor_id = ? AND r.record_date = ? AND r.status = 'PENDING' AND (s.mentorship_completed = 0 OR s.mentorship_completed IS NULL)`,
+             WHERE r.mentor_id = ? AND r.record_date <= ? AND r.status = 'PENDING' AND (s.mentorship_completed = 0 OR s.mentorship_completed IS NULL)
+             GROUP BY r.student_id, s.name, s.priority_category, s.enrollment_type, s.badge, s.onboarding_status`,
             [mentor_id, yesterdayDate]
         );
 
