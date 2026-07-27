@@ -727,7 +727,7 @@ const getYesterdayPending = async (req, res) => {
              FROM students
              WHERE mentor_id = ?
              AND (LOWER(enrollment_type) LIKE '%mentorship%' OR LOWER(enrollment_type) = 'both')
-             AND status != 'inactive' AND (course_completed = 0 OR course_completed IS NULL) AND (mentorship_completed = 0 OR mentorship_completed IS NULL)`,
+             AND status != 'inactive' AND (mentorship_completed = 0 OR mentorship_completed IS NULL)`,
             [mentor_id]
         );
         pendingStudents = allMentorshipStudents
