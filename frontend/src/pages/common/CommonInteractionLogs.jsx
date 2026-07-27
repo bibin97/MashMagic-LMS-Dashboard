@@ -737,18 +737,29 @@ const CommonInteractionLogs = ({
                 </td>
               </tr> : filteredEntities.length > 0 ? filteredEntities.map((entity, index) => <tr key={entity.id} className="group hover:bg-slate-50/50 transition-colors cursor-pointer" onClick={() => {
                 setSelectedStudent(entity);
-                if (listDateFilter === 'custom_multiple') {
-                  setDateFilter('custom');
-                  if (listCustomDates && listCustomDates.length > 0) {
-                    const sortedDates = [...listCustomDates].sort();
-                    setCustomRange({
-                      start: sortedDates[0],
-                      end: sortedDates[sortedDates.length - 1]
-                    });
+                if (role === 'mentor_head' && activeTab === 'student') {
+                  const pickedDate = mentorDateFilters[selectedMentorTab];
+                  if (pickedDate) {
+                    setDateFilter('custom');
+                    setCustomRange({ start: pickedDate, end: pickedDate });
+                  } else {
+                    setDateFilter('all');
+                    setCustomRange({ start: '', end: '' });
                   }
                 } else {
-                  setDateFilter(listDateFilter);
-                  setCustomRange(listCustomRange);
+                  if (listDateFilter === 'custom_multiple') {
+                    setDateFilter('custom');
+                    if (listCustomDates && listCustomDates.length > 0) {
+                      const sortedDates = [...listCustomDates].sort();
+                      setCustomRange({
+                        start: sortedDates[0],
+                        end: sortedDates[sortedDates.length - 1]
+                      });
+                    }
+                  } else {
+                    setDateFilter(listDateFilter);
+                    setCustomRange(listCustomRange);
+                  }
                 }
                 setViewMode('detail');
               }}>
@@ -811,18 +822,29 @@ const CommonInteractionLogs = ({
             filteredEntities.map((entity, index) => (
               <div key={entity.id} className="bg-white rounded-2xl border border-slate-100 p-4 shadow-sm hover:shadow-md transition-shadow active:scale-[0.98] cursor-pointer" onClick={() => {
                 setSelectedStudent(entity);
-                if (listDateFilter === 'custom_multiple') {
-                  setDateFilter('custom');
-                  if (listCustomDates && listCustomDates.length > 0) {
-                    const sortedDates = [...listCustomDates].sort();
-                    setCustomRange({
-                      start: sortedDates[0],
-                      end: sortedDates[sortedDates.length - 1]
-                    });
+                if (role === 'mentor_head' && activeTab === 'student') {
+                  const pickedDate = mentorDateFilters[selectedMentorTab];
+                  if (pickedDate) {
+                    setDateFilter('custom');
+                    setCustomRange({ start: pickedDate, end: pickedDate });
+                  } else {
+                    setDateFilter('all');
+                    setCustomRange({ start: '', end: '' });
                   }
                 } else {
-                  setDateFilter(listDateFilter);
-                  setCustomRange(listCustomRange);
+                  if (listDateFilter === 'custom_multiple') {
+                    setDateFilter('custom');
+                    if (listCustomDates && listCustomDates.length > 0) {
+                      const sortedDates = [...listCustomDates].sort();
+                      setCustomRange({
+                        start: sortedDates[0],
+                        end: sortedDates[sortedDates.length - 1]
+                      });
+                    }
+                  } else {
+                    setDateFilter(listDateFilter);
+                    setCustomRange(listCustomRange);
+                  }
                 }
                 setViewMode('detail');
               }}>
