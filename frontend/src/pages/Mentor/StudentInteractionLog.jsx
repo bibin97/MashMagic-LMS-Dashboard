@@ -187,8 +187,8 @@ const StudentInteractionLog = () => {
           return;
         }
       } else if (sessionType === 'DEEP') {
-        if (!formData.action_plan || !formData.main_problem || !formData.root_cause || !formData.mentor_guidance || !formData.parent_informed || !formData.interaction_details || !formData.next_session_type) {
-          toast.error("Please fill all mandatory fields (Problem, Root Cause, Guidance, Action Plan, Parent Informed, Interaction Details, Next Session Type)");
+        if (!formData.action_plan || !formData.main_problem || !formData.root_cause || !formData.mentor_guidance || !formData.interaction_details || !formData.next_session_type) {
+          toast.error("Please fill all mandatory fields (Problem, Root Cause, Guidance, Action Plan, Interaction Details, Next Session Type)");
           setLoading(false);
           return;
         }
