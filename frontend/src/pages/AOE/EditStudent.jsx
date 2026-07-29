@@ -122,6 +122,12 @@ const EditStudent = () => {
             const student = studentRes.data.data;
             
             if (student) {
+                // Map legacy enrollment types to current plan IDs
+                let currentEnrollmentType = student.enrollment_type || '';
+                if (currentEnrollmentType === 'Mentorship Only') currentEnrollmentType = 'Mentorship';
+                if (currentEnrollmentType === 'Tuition Only') currentEnrollmentType = 'Tuition';
+                if (currentEnrollmentType === 'Mentorship & Tuition') currentEnrollmentType = 'Mentorship and Tuition';
+
                 setFormData({
                     name: student.name || '',
                     email: student.email || '',
@@ -137,7 +143,7 @@ const EditStudent = () => {
                     admission_type: student.admission_type || 'new',
                     next_installment_date: student.next_installment_date ? student.next_installment_date.split('T')[0] : '',
                     admission_date: student.admission_date ? student.admission_date.split('T')[0] : '',
-                    enrollment_type: student.enrollment_type || '',
+                    enrollment_type: currentEnrollmentType,
                     school_name: student.school_name || '',
                     preferred_language: student.preferred_language || '',
                     country: student.country || '',
@@ -211,6 +217,23 @@ const EditStudent = () => {
         if (field === 'facultyId') {
             const faculty = faculties.find(f => f.id.toString() === value.toString());
             newSubjects[index].facultyName = faculty ? faculty.name : '';
+            if (faculty) {
+                let category = null;
+                if (student.grade) {
+                    const g = parseInt(student.grade.replace(/\D/g, ''));
+                    if (g >= 1 && g <= 4) category = 'lp';
+                    else if (g >= 5 && g <= 7) category = 'up';
+                    else if (g >= 8 && g <= 10) category = 'hs';
+                    else if (g >= 11 && g <= 12) category = 'hss';
+                }
+                if (category && faculty[`${category}_hour_rate`] != null && faculty[`${category}_hour_rate`] !== '') {
+                    newSubjects[index].hourlyRate = faculty[`${category}_hour_rate`];
+                } else if (faculty.hourly_rate != null) {
+                    newSubjects[index].hourlyRate = faculty.hourly_rate;
+                } else {
+                    newSubjects[index].hourlyRate = 0;
+                }
+            }
         }
         
         setSelectedSubjects(newSubjects);

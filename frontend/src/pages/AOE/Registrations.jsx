@@ -121,7 +121,8 @@ const Registrations = () => {
   const [facultyForm, setFacultyForm] = useState({
     name: '', email: '', phone_number: '', place: '', password: '', confirmPassword: '', availability: [''],
     primary_subject: '', secondary_subjects: [], section: '', qualification: '', experience: '', 
-    teaching_mode: 'Both', joining_date: new Date().toISOString().split('T')[0], syllabus: [], languages_proficiency: []
+    teaching_mode: 'Both', joining_date: new Date().toISOString().split('T')[0], syllabus: [], languages_proficiency: [],
+    lp_hour_rate: '', up_hour_rate: '', hs_hour_rate: '', hss_hour_rate: ''
   });
 
   const [sscForm, setSscForm] = useState({
@@ -273,8 +274,22 @@ const Registrations = () => {
       const listToSearch = (newSubjects[index].availableFaculties && newSubjects[index].availableFaculties.length > 0) ? newSubjects[index].availableFaculties : faculties;
       const faculty = listToSearch.find(f => f.id.toString() === value);
       newSubjects[index].facultyName = faculty ? faculty.name : '';
-      if (faculty && faculty.hourly_rate) {
-        newSubjects[index].hourlyRate = faculty.hourly_rate;
+      if (faculty) {
+        let category = null;
+        if (studentForm.grade) {
+          const g = parseInt(studentForm.grade.replace(/\D/g, ''));
+          if (g >= 1 && g <= 4) category = 'lp';
+          else if (g >= 5 && g <= 7) category = 'up';
+          else if (g >= 8 && g <= 10) category = 'hs';
+          else if (g >= 11 && g <= 12) category = 'hss';
+        }
+        if (category && faculty[`${category}_hour_rate`] != null && faculty[`${category}_hour_rate`] !== '') {
+          newSubjects[index].hourlyRate = faculty[`${category}_hour_rate`];
+        } else if (faculty.hourly_rate != null) {
+          newSubjects[index].hourlyRate = faculty.hourly_rate;
+        } else {
+          newSubjects[index].hourlyRate = 0;
+        }
       }
     }
     setSelectedSubjects(newSubjects);

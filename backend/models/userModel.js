@@ -100,8 +100,8 @@ const User = {
         if (role === 'faculty') {
             try {
                 await db.query(
-                    'INSERT INTO faculties (id, name, email, phone_number, status, subject) VALUES (?, ?, ?, ?, ?, ?)',
-                    [newId, name, email || null, phone_number || null, status, subjectValue]
+                    'INSERT INTO faculties (id, name, email, phone_number, status, subject, lp_hour_rate, up_hour_rate, hs_hour_rate, hss_hour_rate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                    [newId, name, email || null, phone_number || null, status, subjectValue, userData.lp_hour_rate || 0, userData.up_hour_rate || 0, userData.hs_hour_rate || 0, userData.hss_hour_rate || 0]
                 );
             } catch (err) { console.error("Faculty Insert Sync Error:", err); }
         } else if (role === 'mentor') {

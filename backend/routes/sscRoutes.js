@@ -261,6 +261,17 @@ router.put('/timetable/:id', updateSession);
 router.delete('/timetable/:id', deleteSession);
 router.get('/students/:id/schedule', getStudentAcademicSchedule);
 router.post('/students/:id/schedule', updateStudentAcademicSchedule);
+
+// TEMP ROUTE TO DROP INDEX
+router.get('/drop-index', async (req, res) => {
+    const db = require('../config/db');
+    try {
+        await db.query('ALTER TABLE timetable DROP INDEX idx_unique_timetable_session');
+        res.json({ success: true, message: "Index dropped!" });
+    } catch (e) {
+        res.status(500).json({ success: false, error: e.message });
+    }
+});
 router.post('/timetable/batch', createBatchTimetable);
 
 module.exports = router;

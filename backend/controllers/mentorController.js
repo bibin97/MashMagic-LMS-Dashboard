@@ -194,7 +194,7 @@ const getMentorDashboard = async (req, res) => {
 const getMentorStudents = async (req, res) => {
     try {
         const mentorId = req.user.id;
-        const isPrivileged = ['super_admin', 'admin', 'mentor_head', 'academic_head', 'academic_operation_executive', 'ssc'].includes(req.user.role);
+        const isPrivileged = ['super_admin', 'admin', 'academic_head', 'academic_operation_executive', 'ssc'].includes(req.user.role);
         
         const { search, page, limit, viewMode, sortBy } = req.query;
 
