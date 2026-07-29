@@ -317,9 +317,9 @@ const EditStudent = () => {
                                 <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Enrollment Plan</label>
                                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                                     {[
-                                        { id: 'Mentorship Only', label: 'Mentorship only', icon: '🥇' },
-                                        { id: 'Tuition Only', label: 'Tuition only', icon: '🥈' },
-                                        { id: 'Mentorship & Tuition', label: 'Mentorship & Tuition', icon: '💎' }
+                                        { id: 'Mentorship', label: 'Mentorship only', icon: '🥇' },
+                                        { id: 'Tuition', label: 'Tuition only', icon: '🥈' },
+                                        { id: 'Mentorship and Tuition', label: 'Mentorship & Tuition', icon: '💎' }
                                     ].map((plan) => (
                                         <button
                                         key={plan.id}
@@ -497,7 +497,7 @@ const EditStudent = () => {
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
-                            {(formData.enrollment_type !== 'Tuition Only') && (
+                            {(formData.enrollment_type !== 'Tuition') && (
                                 <div className="flex flex-col gap-2">
                                     <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Assigned Mentor</label>
                                     <select name="mentor_id" value={formData.mentor_id || ''} onChange={handleInputChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-bold appearance-none">
@@ -708,7 +708,7 @@ const EditStudent = () => {
                                     <div className="flex flex-col gap-2 relative">
                                         <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest ml-1">Assigned Faculty</label>
                                         <select 
-                                            value={row.facultyId} 
+                                            value={row.facultyId || row.faculty_id || ''} 
                                             onChange={(e) => handleSubjectChange(idx, 'facultyId', e.target.value)} 
                                             className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-[10px] font-black text-slate-800 focus:ring-2 focus:ring-[#008080] outline-none min-h-[52px]"
                                         >
