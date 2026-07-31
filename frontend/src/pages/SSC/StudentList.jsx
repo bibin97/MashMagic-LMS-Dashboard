@@ -64,7 +64,7 @@ const StudentRow = ({ student, navigate }) => {
         </div>
 
         {/* Support Team Area */}
-        <div className="flex flex-col md:flex-row items-center gap-8 px-4 md:px-8 py-4 bg-slate-50/50 rounded-[1.5rem] border border-slate-100/50 w-full lg:w-auto min-w-full md:w-[400px]">
+        <div className="flex flex-col md:flex-row items-center gap-8 px-4 md:px-8 py-4 bg-slate-50/50 rounded-[1.5rem] border border-slate-100/50 w-full lg:w-auto md:min-w-[400px]">
           <div className="flex-1 min-w-0">
             <p className="text-[8px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Academic Mentor</p>
             <div className="flex items-center gap-2">
