@@ -7,6 +7,15 @@ const migrateDatabase = require('../controllers/migrationController');
 
 router.get('/migrate-hard-delete', migrateDatabase);
 
+router.get('/reset-ah', async (req, res) => {
+    try {
+        await db.query('DELETE FROM users WHERE role = "academic_head"');
+        res.json({ success: true, message: "Academic Head records cleared successfully from the database. You can now register a new one." });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
 router.get('/run-audit', async (req, res) => {
     try {
         console.log("Starting DB Audit via API...");
