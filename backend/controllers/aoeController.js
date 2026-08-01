@@ -1160,10 +1160,7 @@ const getStudents = async (req, res) => {
             params.push(searchParam, searchParam);
         }
 
-        // Hide unassigned mentorship students from other panels (they should only be visible to Mentor Head)
-        if (req.user && (req.user.role === 'academic_operation_executive' || req.user.role === 'aoe' || req.user.role === 'academic_head' || req.user.role === 'ssc')) {
-            baseWhere += ' AND NOT ((s.mentor_id IS NULL OR s.mentor_id = "") AND (LOWER(s.enrollment_type) LIKE "%mentorship%" OR LOWER(s.enrollment_type) = "both"))';
-        }
+
 
         // filterMode-based DB-level filtering
         let filterClause = '';
