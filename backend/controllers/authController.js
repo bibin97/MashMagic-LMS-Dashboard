@@ -26,7 +26,7 @@ const register = async (req, res) => {
         const restrictedRoles = ['super_admin', 'mentor_head', 'academic_head', 'academic_operation_executive', 'ssc'];
         
         if (restrictedRoles.includes(targetRole)) {
-            const [existingRole] = await db.query('SELECT id FROM users WHERE role = ?', [targetRole]);
+            const [existingRole] = await db.query('SELECT id FROM users WHERE role = ? AND (is_deleted IS NULL OR is_deleted = 0)', [targetRole]);
             
             if (existingRole.length > 0) {
                 return res.status(403).json({
