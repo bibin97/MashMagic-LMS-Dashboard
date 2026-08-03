@@ -50,7 +50,7 @@ const runMidnightRollover = async () => {
              `SELECT DISTINCT mentor_id FROM students 
               WHERE mentor_id IS NOT NULL 
               AND (LOWER(enrollment_type) LIKE '%mentorship%' OR LOWER(enrollment_type) = 'both')
-              AND status != 'inactive' AND (course_completed = 0 OR course_completed IS NULL) ${hasMC ? 'AND (mentorship_completed = 0 OR mentorship_completed IS NULL)' : ''}`
+              AND status != 'inactive' ${hasMC ? 'AND (mentorship_completed = 0 OR mentorship_completed IS NULL)' : ''}`
         );
 
         for (const { mentor_id } of mentors) {
@@ -87,7 +87,7 @@ const processRolloverForMentor = async (mentor_id, today, yesterday) => {
          FROM students
          WHERE mentor_id = ?
          AND (LOWER(enrollment_type) LIKE '%mentorship%' OR LOWER(enrollment_type) = 'both')
-         AND status != 'inactive' AND (course_completed = 0 OR course_completed IS NULL) ${hasMC ? 'AND (mentorship_completed = 0 OR mentorship_completed IS NULL)' : ''}
+         AND status != 'inactive' ${hasMC ? 'AND (mentorship_completed = 0 OR mentorship_completed IS NULL)' : ''}
          ORDER BY id ASC`,
         [mentor_id]
     );
