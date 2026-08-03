@@ -53,6 +53,7 @@ import StudentDetails from './pages/common/StudentDetails';
 import MyTasks from './pages/Mentor/MyTasks';
 import Timetable from './pages/Mentor/Timetable';
 import StudentInteractionLog from './pages/Mentor/StudentInteractionLog';
+import DailyRotation from './pages/Mentor/DailyRotation';
 import Exams from './pages/Mentor/Exams';
 import AcademicSchedule from './pages/Mentor/AcademicSchedule';
 import StudentsData from './pages/Mentor/StudentsData';
@@ -345,6 +346,7 @@ function App() {
             <Route path="students" element={<MyStudents />} />
             <Route path="students/:id" element={<StudentDetails />} />
             <Route path="tasks" element={<MyTasks />} />
+            <Route path="daily-rotation" element={<DailyRotation />} />
             <Route path="interaction-logs" element={<StudentInteractionLog />} />
             <Route path="logs-history" element={<MentorInteractions />} />
             <Route path="logs-history/edit/:id" element={<EditInteractionLog />} />

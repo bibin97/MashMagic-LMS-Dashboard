@@ -746,8 +746,123 @@ const getYesterdayPending = async (req, res) => {
 };
 
 
+const getDailyRotation = async (req, res) => {
+    try {
+        const mentor_id = req.user.id;
+        const targetDate = req.query.date || getISTDate();
+        
+        const hasMC = await checkMentorshipCol();
+        const [students] = await db.query(
+            `SELECT id, name, priority_category, enrollment_type, badge, onboarding_status, last_session_type
+             FROM students 
+             WHERE mentor_id = ?
+             AND (LOWER(enrollment_type) LIKE '%mentorship%' OR LOWER(enrollment_type) = 'both')
+             AND status != 'inactive' AND (course_completed = 0 OR course_completed IS NULL) ${hasMC ? 'AND (mentorship_completed = 0 OR mentorship_completed IS NULL)' : ''}
+             ORDER BY id ASC`,
+            [mentor_id]
+        );
+
+        let targetStudents = [];
+        const [existingRecords] = await db.query(
+            `SELECT student_id, session_type, status 
+             FROM mentor_daily_interaction_records 
+             WHERE mentor_id = ? AND record_date = ? AND is_carry_over = 0`,
+            [mentor_id, targetDate]
+        );
+
+        if (existingRecords.length > 0) {
+            const existingMap = new Map(existingRecords.map(r => [r.student_id, r]));
+            targetStudents = students.filter(s => existingMap.has(s.id)).map(s => {
+                const rec = existingMap.get(s.id);
+                return {
+                    ...s,
+                    sessionType: rec.session_type || s.last_session_type || 'QUICK',
+                    recordStatus: rec.status
+                };
+            });
+        } else {
+            const todayStr = getISTDate();
+            const todayDate = new Date(todayStr + 'T00:00:00');
+            const targetDateObj = new Date(targetDate + 'T00:00:00');
+            
+            let diffDays = Math.floor((targetDateObj - todayDate) / (1000 * 60 * 60 * 24));
+            
+            let [mentorRows] = await db.query('SELECT current_rotation_index, interaction_paused FROM users WHERE id = ?', [mentor_id]);
+            if (mentorRows.length === 0) [mentorRows] = await db.query('SELECT current_rotation_index, interaction_paused FROM mentors WHERE id = ?', [mentor_id]);
+            
+            const mentor = mentorRows[0] || {};
+            if (mentor.interaction_paused) {
+                return res.status(200).json({ success: true, pending: [], completed: [] });
+            }
+            
+            let currentIndex = mentor.current_rotation_index || 0;
+            if (students.length > 0) {
+                if (diffDays > 0) {
+                   while(currentIndex < 0) currentIndex += students.length;
+                   currentIndex = (currentIndex + (diffDays * 15)) % students.length;
+                }
+                
+                let nextIdx = currentIndex;
+                const toPick = 15;
+                let picked = 0;
+                let attempts = 0;
+                
+                const onboarding = students.filter(s => s.onboarding_status === 'pending');
+                const alreadyPickedIds = new Set();
+                
+                for(let s of onboarding) {
+                    if (picked >= toPick) break;
+                    targetStudents.push({ ...s, sessionType: 'DEEP', recordStatus: 'PENDING' });
+                    alreadyPickedIds.add(s.id);
+                    picked++;
+                }
+                
+                while (picked < toPick && attempts < students.length) {
+                   const candidate = students[nextIdx];
+                   if (!alreadyPickedIds.has(candidate.id)) {
+                       targetStudents.push({ ...candidate, sessionType: candidate.last_session_type || 'QUICK', recordStatus: 'PENDING' });
+                       alreadyPickedIds.add(candidate.id);
+                       picked++;
+                   }
+                   nextIdx = (nextIdx + 1) % students.length;
+                   attempts++;
+                }
+            }
+        }
+        
+        const [completedReports] = await db.query(
+            `SELECT DISTINCT student_id, session_type 
+             FROM mentor_session_reports 
+             WHERE mentor_id = ? AND DATE(created_at) = ?`,
+            [mentor_id, targetDate]
+        );
+        const completedMap = new Map(completedReports.map(r => [r.student_id, r.session_type]));
+
+        const pending = [];
+        const completed = [];
+
+        for (const s of targetStudents) {
+            if (completedMap.has(s.id)) {
+                s.sessionType = completedMap.get(s.id) || s.sessionType;
+                completed.push(s);
+            } else if (s.recordStatus === 'COMPLETED' || s.recordStatus === 'CANCELLED') {
+                 completed.push(s);
+            } else {
+                 pending.push(s);
+            }
+        }
+
+        res.status(200).json({ success: true, pending, completed });
+
+    } catch (error) {
+        console.error("getDailyRotation Error:", error);
+        res.status(500).json({ success: false, message: 'Server Error' });
+    }
+};
+
 module.exports = {
     getDailyAssignments,
+    getDailyRotation,
     submitSessionReport,
     getHighRiskStudents,
     getWeeklyCoverage,

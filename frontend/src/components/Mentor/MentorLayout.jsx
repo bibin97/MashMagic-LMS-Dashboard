@@ -52,6 +52,7 @@ const MentorLayout = () => {
     { path: '/mentor/students-data', icon: <ClipboardList size={18} />, label: 'Students Data' },
     { path: '/mentor/tasks', icon: <ListTodo size={18} />, label: 'Tasks', badge: pendingTasksCount },
     { path: '/mentor/interaction-logs', icon: <MessageSquare size={18} />, label: 'Student Interactions' },
+    { path: '/mentor/daily-rotation', icon: <MessageSquare size={18} />, label: 'Daily Rotation' },
     { path: '/mentor/logs-history', icon: <ScrollText size={18} />, label: 'Logs History' },
   ];
 
