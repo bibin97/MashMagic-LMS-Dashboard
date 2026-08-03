@@ -14,7 +14,7 @@ const getISTDate = () => {
 
 const DailyRotation = () => {
   const { user } = useAuth();
-  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [selectedDate, setSelectedDate] = useState(getISTDate());
   const [activeTab, setActiveTab] = useState('pending');
   const [pendingStudents, setPendingStudents] = useState([]);
   const [completedStudents, setCompletedStudents] = useState([]);
@@ -29,9 +29,7 @@ const DailyRotation = () => {
   const fetchRotation = async () => {
     try {
       setLoading(true);
-      const dateStr = selectedDate instanceof Date 
-        ? selectedDate.toLocaleDateString('en-CA') 
-        : selectedDate?.format?.('YYYY-MM-DD') || getISTDate();
+      const dateStr = selectedDate;
 
       const res = await api.get(`/mentor-interactions/daily-rotation?date=${dateStr}`);
 
@@ -64,9 +62,7 @@ const DailyRotation = () => {
     
     setSubmitting(true);
     try {
-      const dateStr = selectedDate instanceof Date 
-        ? selectedDate.toLocaleDateString('en-CA') 
-        : selectedDate?.format?.('YYYY-MM-DD') || getISTDate();
+      const dateStr = selectedDate;
 
       const payload = {
         student_id: selectedStudent.id,
@@ -117,7 +113,9 @@ const DailyRotation = () => {
             <Calendar size={16} className="text-slate-400 ml-2" />
             <DatePicker
               value={selectedDate}
-              onChange={setSelectedDate}
+              onChange={(dateObj) => {
+                if (dateObj) setSelectedDate(dateObj.format('YYYY-MM-DD'));
+              }}
               format="YYYY-MM-DD"
               className="rmdp-mobile"
               inputClass="bg-transparent border-none text-sm font-bold text-slate-700 outline-none w-32 text-center cursor-pointer uppercase tracking-widest"
