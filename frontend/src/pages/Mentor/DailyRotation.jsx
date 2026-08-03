@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import toast from 'react-hot-toast';
 import { useAuth } from '../../context/AuthContext';
 import { Calendar, User, Clock, CheckCircle2, ArrowRight } from 'lucide-react';
 import MultiDatePicker from 'react-multi-date-picker';
 import Modal from '../../components/Modal';
+import api from '../../services/api';
 
 const DatePicker = MultiDatePicker.default ? MultiDatePicker.default : MultiDatePicker;
 
@@ -33,9 +33,7 @@ const DailyRotation = () => {
         ? selectedDate.toLocaleDateString('en-CA') 
         : selectedDate?.format?.('YYYY-MM-DD') || getISTDate();
 
-      const res = await axios.get(`http://localhost:5000/api/mentor-interactions/daily-rotation?date=${dateStr}`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-      });
+      const res = await api.get(`/mentor-interactions/daily-rotation?date=${dateStr}`);
 
       if (res.data.success) {
         setPendingStudents(res.data.pending || []);
@@ -90,9 +88,8 @@ const DailyRotation = () => {
         }
       });
 
-      await axios.post('http://localhost:5000/api/mentor-interactions/submit-report', formDataObj, {
+      await api.post('/mentor-interactions/submit-report', formDataObj, {
         headers: { 
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
           'Content-Type': 'multipart/form-data'
         }
       });
