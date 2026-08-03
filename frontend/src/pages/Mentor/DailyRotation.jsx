@@ -117,7 +117,6 @@ const DailyRotation = () => {
                 if (dateObj) setSelectedDate(dateObj.format('YYYY-MM-DD'));
               }}
               format="YYYY-MM-DD"
-              className="rmdp-mobile"
               inputClass="bg-transparent border-none text-sm font-bold text-slate-700 outline-none w-32 text-center cursor-pointer uppercase tracking-widest"
             />
           </div>
