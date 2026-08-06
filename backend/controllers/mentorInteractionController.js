@@ -785,8 +785,6 @@ const getDailyRotation = async (req, res) => {
             const todayDate = new Date(todayStr + 'T00:00:00');
             const targetDateObj = new Date(targetDate + 'T00:00:00');
             
-            let diffDays = Math.floor((targetDateObj - todayDate) / (1000 * 60 * 60 * 24));
-            
             let [mentorRows] = await db.query('SELECT current_rotation_index, interaction_paused FROM users WHERE id = ?', [mentor_id]);
             if (mentorRows.length === 0) [mentorRows] = await db.query('SELECT current_rotation_index, interaction_paused FROM mentors WHERE id = ?', [mentor_id]);
             
@@ -797,9 +795,36 @@ const getDailyRotation = async (req, res) => {
             
             let currentIndex = mentor.current_rotation_index || 0;
             if (students.length > 0) {
-                if (diffDays > 0) {
-                   while(currentIndex < 0) currentIndex += students.length;
-                   currentIndex = (currentIndex + (diffDays * 15)) % students.length;
+                // Check if cron has already run for today
+                const [todayRecords] = await db.query(
+                    `SELECT 1 FROM mentor_daily_interaction_records WHERE mentor_id = ? AND record_date = ? LIMIT 1`,
+                    [mentor_id, todayStr]
+                );
+                const cronRanToday = todayRecords.length > 0;
+                
+                let nextCronDateObj = new Date(todayDate);
+                if (cronRanToday) {
+                    nextCronDateObj.setDate(nextCronDateObj.getDate() + 1);
+                }
+                
+                let daysToSimulate = Math.floor((targetDateObj - nextCronDateObj) / (1000 * 60 * 60 * 24));
+                
+                if (daysToSimulate < 0) {
+                    // Rough backward estimate
+                    currentIndex = (currentIndex + (daysToSimulate * 15)) % students.length;
+                    while(currentIndex < 0) currentIndex += students.length;
+                } else if (daysToSimulate > 0) {
+                    // Precise forward simulation day-by-day
+                    const onboardingIds = new Set(students.filter(s => s.onboarding_status === 'pending').map(s => s.id));
+                    for (let d = 0; d < daysToSimulate; d++) {
+                        let picked = Math.min(onboardingIds.size, 15);
+                        let attempts = 0;
+                        while (picked < 15 && attempts < students.length) {
+                            if (!onboardingIds.has(students[currentIndex].id)) picked++;
+                            currentIndex = (currentIndex + 1) % students.length;
+                            attempts++;
+                        }
+                    }
                 }
                 
                 let nextIdx = currentIndex;
