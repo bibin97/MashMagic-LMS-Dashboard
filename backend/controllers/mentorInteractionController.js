@@ -29,7 +29,7 @@ const returnMergedAssignments = async (savedAssignments, targetDate, mentor_id, 
         const studentMap = new Map(latestStudents.map(s => [s.id, s]));
         savedAssignments = savedAssignments.filter(assignment => {
             const latest = studentMap.get(assignment.id);
-            return latest && (hasMC ? latest.mentorship_completed !== 1 : true);
+            return latest && (hasMC ? (latest.mentorship_completed !== 1 && latest.mentorship_paused !== 1) : true);
         }).map(assignment => {
             const latest = studentMap.get(assignment.id);
             if (latest) {
@@ -134,7 +134,7 @@ const getDailyAssignments = async (req, res) => {
                         'Safe' as payment_alert_level
                  FROM mentor_daily_interaction_records r
                  JOIN students s ON r.student_id = s.id
-                 WHERE r.mentor_id = ? AND r.record_date = ? AND (s.mentorship_completed = 0 OR s.mentorship_completed IS NULL)`,
+                 WHERE r.mentor_id = ? AND r.record_date = ? AND (s.mentorship_completed = 0 OR s.mentorship_completed IS NULL) AND (s.mentorship_paused = 0 OR s.mentorship_paused IS NULL)`,
                 [mentor_id, targetDate]
             );
         } catch (colErr) {
@@ -692,7 +692,7 @@ const getYesterdayPending = async (req, res) => {
                     s.name, s.priority_category, s.enrollment_type, s.badge, s.onboarding_status
              FROM mentor_daily_interaction_records r
              JOIN students s ON r.student_id = s.id
-             WHERE r.mentor_id = ? AND r.record_date = ? AND r.status = 'PENDING' AND (s.mentorship_completed = 0 OR s.mentorship_completed IS NULL)
+             WHERE r.mentor_id = ? AND r.record_date = ? AND r.status = 'PENDING' AND (s.mentorship_completed = 0 OR s.mentorship_completed IS NULL) AND (s.mentorship_paused = 0 OR s.mentorship_paused IS NULL)
              GROUP BY r.student_id, s.name, s.priority_category, s.enrollment_type, s.badge, s.onboarding_status`,
             [mentor_id, yesterdayDate]
         );
@@ -727,7 +727,7 @@ const getYesterdayPending = async (req, res) => {
              FROM students
              WHERE mentor_id = ?
              AND (LOWER(enrollment_type) LIKE '%mentorship%' OR LOWER(enrollment_type) = 'both')
-             AND status != 'inactive' AND (mentorship_completed = 0 OR mentorship_completed IS NULL)`,
+             AND status != 'inactive' AND (mentorship_completed = 0 OR mentorship_completed IS NULL) AND (mentorship_paused = 0 OR mentorship_paused IS NULL)`,
             [mentor_id]
         );
         pendingStudents = allMentorshipStudents
@@ -757,7 +757,7 @@ const getDailyRotation = async (req, res) => {
              FROM students
              WHERE mentor_id = ?
              AND (LOWER(enrollment_type) LIKE '%mentorship%' OR LOWER(enrollment_type) = 'both')
-             AND status != 'inactive' ${hasMC ? 'AND (mentorship_completed = 0 OR mentorship_completed IS NULL)' : ''}
+             AND status != 'inactive' ${hasMC ? 'AND (mentorship_completed = 0 OR mentorship_completed IS NULL) AND (mentorship_paused = 0 OR mentorship_paused IS NULL)' : ''}
              ORDER BY id ASC`,
             [mentor_id]
         );

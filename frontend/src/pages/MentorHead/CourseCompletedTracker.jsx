@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useDeferredValue } from 'react';
 import axios from 'axios';
-import { GraduationCap, CheckCircle2, RotateCcw, Search, ShieldAlert } from 'lucide-react';
+import { GraduationCap, CheckCircle2, RotateCcw, Search, ShieldAlert, Pause, Play } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Pagination from '../../components/common/Pagination';
 
@@ -79,6 +79,32 @@ const CourseCompletedTracker = () => {
     }
   };
 
+  const togglePauseStatus = async (studentId, currentPausedStatus) => {
+    try {
+      const token = sessionStorage.getItem('token');
+      const newStatus = !currentPausedStatus;
+      await axios.put(`/api/mentor-head/students/${studentId}/mentorship-pause`, {
+        isPaused: newStatus
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      setStudents(prev => prev.map(s => {
+        if (s.id === studentId) {
+          return {
+            ...s,
+            mentorship_paused: newStatus ? 1 : 0
+          };
+        }
+        return s;
+      }));
+      toast.success(newStatus ? 'Mentorship Paused' : 'Mentorship Resumed');
+    } catch (error) {
+      toast.error("Failed to update pause status");
+    }
+  };
+
   if (loading && students.length === 0) return <div className="p-4 md:p-8 text-center text-slate-600 font-bold">Loading records...</div>;
   return <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
   {/* Page Title & Stats */}
@@ -148,6 +174,7 @@ const CourseCompletedTracker = () => {
  <tbody>
  {students.length > 0 ? students.map((student, index) => {
               const isCompleted = student.mentorship_completed === 1;
+              const isPaused = student.mentorship_paused === 1;
               return <tr key={student.id} className="border-b border-slate-50 transition-colors group hover:bg-slate-50/50">
  <td className="p-4">
  <p className="text-sm font-bold text-slate-900">{student.name}</p>
@@ -165,12 +192,24 @@ const CourseCompletedTracker = () => {
  {isCompleted ? <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-50 text-emerald-700 text-[10px] font-black uppercase tracking-widest border border-emerald-100">
  <CheckCircle2 size={12} />
  Completed
+ </span> : isPaused ? <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-50 text-amber-700 text-[10px] font-black uppercase tracking-widest border border-amber-200">
+ <Pause size={12} />
+ Paused
  </span> : <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 text-slate-500 text-[10px] font-black uppercase tracking-widest border border-slate-200">
  <RotateCcw size={12} />
  Ongoing
  </span>}
  </td>
- {filter === 'all' && <td className="p-4 text-right">
+ {filter === 'all' && <td className="p-4 text-right flex items-center justify-end gap-2">
+ <button onClick={() => togglePauseStatus(student.id, isPaused)} disabled={isCompleted} className={`inline-flex items-center gap-2 px-4 py-2 min-h-[48px] rounded-xl text-[10px] font-black transition-all shadow-sm uppercase tracking-widest ${isCompleted ? 'opacity-50 cursor-not-allowed bg-slate-100 text-slate-400' : isPaused ? 'bg-amber-100 border border-amber-300 text-amber-700 hover:bg-amber-200' : 'bg-white border border-amber-200 text-amber-600 hover:bg-amber-50'}`}>
+ {isPaused ? <>
+ <Play size={14} />
+ Start Mentorship
+ </> : <>
+ <Pause size={14} />
+ Pause Mentorship
+ </>}
+ </button>
  <button onClick={() => toggleStatus(student.id, isCompleted)} className={`inline-flex items-center gap-2 px-4 py-2 min-h-[48px] rounded-xl text-[10px] font-black transition-all shadow-sm hover:scale-105 active:scale-95 uppercase tracking-widest ${isCompleted ? 'bg-white border border-rose-200 text-rose-500 hover:bg-rose-50' : 'bg-emerald-50 border border-emerald-200 text-emerald-600 hover:bg-emerald-100 hover:border-emerald-300'}`}>
  {isCompleted ? <>
  <RotateCcw size={14} />
@@ -196,6 +235,7 @@ const CourseCompletedTracker = () => {
  <div className="md:hidden space-y-4">
   {students.length > 0 ? students.map(student => {
     const isCompleted = student.mentorship_completed === 1;
+    const isPaused = student.mentorship_paused === 1;
     return (
       <div key={student.id} className="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm space-y-4">
         <div>
@@ -230,22 +270,37 @@ const CourseCompletedTracker = () => {
             <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</span>
             {isCompleted ? <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-50 text-emerald-700 text-[10px] font-black uppercase tracking-widest border border-emerald-100">
               <CheckCircle2 size={12} /> Completed
+            </span> : isPaused ? <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-50 text-amber-700 text-[10px] font-black uppercase tracking-widest border border-amber-200">
+              <Pause size={12} /> Paused
             </span> : <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 text-slate-500 text-[10px] font-black uppercase tracking-widest border border-slate-200">
               <RotateCcw size={12} /> Ongoing
             </span>}
           </div>
           
           {filter === 'all' && (
-            <button 
-              onClick={() => toggleStatus(student.id, isCompleted)} 
-              className={`w-full min-h-[48px] flex items-center justify-center gap-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${isCompleted ? 'bg-white border border-rose-200 text-rose-500 hover:bg-rose-50' : 'bg-emerald-50 border border-emerald-200 text-emerald-600'}`}
-            >
-              {isCompleted ? <>
-                <RotateCcw size={14} /> Undo Completion
-              </> : <>
-                <CheckCircle2 size={14} /> Mark Completed
-              </>}
-            </button>
+            <div className="flex gap-2">
+              <button 
+                onClick={() => togglePauseStatus(student.id, isPaused)} 
+                disabled={isCompleted}
+                className={`w-full min-h-[48px] flex items-center justify-center gap-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${isCompleted ? 'opacity-50 cursor-not-allowed bg-slate-100 text-slate-400' : isPaused ? 'bg-amber-100 border border-amber-300 text-amber-700' : 'bg-white border border-amber-200 text-amber-600'}`}
+              >
+                {isPaused ? <>
+                  <Play size={14} /> Start
+                </> : <>
+                  <Pause size={14} /> Pause
+                </>}
+              </button>
+              <button 
+                onClick={() => toggleStatus(student.id, isCompleted)} 
+                className={`w-full min-h-[48px] flex items-center justify-center gap-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${isCompleted ? 'bg-white border border-rose-200 text-rose-500 hover:bg-rose-50' : 'bg-emerald-50 border border-emerald-200 text-emerald-600'}`}
+              >
+                {isCompleted ? <>
+                  <RotateCcw size={14} /> Undo Completion
+                </> : <>
+                  <CheckCircle2 size={14} /> Mark Completed
+                </>}
+              </button>
+            </div>
           )}
         </div>
       </div>

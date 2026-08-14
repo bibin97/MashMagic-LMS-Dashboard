@@ -1912,6 +1912,26 @@ exports.toggleMentorshipCompleted = async (req, res) => {
     }
 };
 
+// @desc    Toggle Mentorship Paused status for a student
+// @route   PUT /api/mentor-head/students/:studentId/mentorship-pause
+exports.toggleMentorshipPaused = async (req, res) => {
+    try {
+        const { studentId } = req.params;
+        const { isPaused } = req.body;
+
+        await db.query('UPDATE students SET mentorship_paused = ? WHERE id = ?', [isPaused ? 1 : 0, studentId]);
+
+        const [[student]] = await db.query('SELECT name FROM students WHERE id = ?', [studentId]);
+        const statusMsg = isPaused ? 'Mentorship Paused' : 'Mentorship Resumed';
+        await db.query('INSERT INTO admin_notifications (message) VALUES (?)', [`Mentor Head (${req.user.name}) ${statusMsg} for student: ${student.name}`]);
+
+        res.status(200).json({ success: true, message: `Student ${statusMsg}` });
+    } catch (error) {
+        console.error('Error in toggleMentorshipPaused:', error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
 // @desc    Get dashboard stats (mentors with completed counts)
 // @route   GET /api/mentor-head/dashboard
 exports.getDashboardStats = async (req, res) => {

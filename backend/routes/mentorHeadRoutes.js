@@ -40,7 +40,8 @@ const {
     updateInteractionLog,
     getInteractionHistory,
     removeMentor,
-    getMentorDailyRotation
+    getMentorDailyRotation,
+    toggleMentorshipPaused
 } = require('../controllers/mentorHeadController');
 const { getDailyUpdates } = require('../controllers/sscController');
 const { requireAuth } = require('../middleware/authMiddleware');
@@ -82,6 +83,7 @@ router.get('/students/:id', getStudentById);
 router.put('/students/:id', editStudent);
 router.delete('/students/:id', deleteStudent);
 router.put('/students/:studentId/mentorship-complete', toggleMentorshipCompleted);
+router.put('/students/:studentId/mentorship-pause', toggleMentorshipPaused);
 
 // Intelligence Hub Routes
 router.get('/student-logs', getStudentInteractionLogs);
