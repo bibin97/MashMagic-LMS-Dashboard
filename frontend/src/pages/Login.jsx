@@ -250,16 +250,16 @@ const Login = () => {
 
                 {/* Credential ID */}
                 <div className="space-y-2">
-                  <label className="text-slate-300 text-[11px] font-black uppercase tracking-[0.2em] pl-1 drop-shadow">Email Address</label>
+                  <label className="text-slate-300 text-[11px] font-black uppercase tracking-[0.2em] pl-1 drop-shadow">Email / Phone Number</label>
                   <div className="relative group">
                     <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-[#0d9488] transition-colors pointer-events-none">
                       <User size={18} />
                     </div>
                     <input 
-                      type="email"
+                      type="text"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      placeholder="name@example.com"
+                      placeholder="Email or Phone Number"
                       className="w-full bg-white text-slate-900 rounded-2xl pl-12 pr-6 py-3 text-sm font-black outline-none border-b-4 border-slate-200 focus:border-[#0d9488] transition-all shadow-[0_10px_20px_-10px_rgba(0,0,0,0.1)] placeholder:text-slate-300 cursor-text"
                     />
                   </div>
