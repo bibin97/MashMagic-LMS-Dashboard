@@ -235,15 +235,17 @@ const login = async (req, res) => {
         const user = await User.findByIdentifier(normalizedIdentifier);
 
         if (!user) {
-            console.log(`[LOGIN FAILED] Identifier NOT FOUND: ${normalizedIdentifier}`);
+            console.log(`[LOGIN FAILED] Identifier NOT FOUND in any table: "${normalizedIdentifier}"`);
             return res.status(401).json({ success: false, message: "Invalid credentials" });
         }
+
+        console.log(`[LOGIN DEBUG] User found: id=${user.id}, role=${user.role}, status=${user.status}, isApproved=${user.isApproved}, isActive=${user.isActive}, email="${user.email}", phone="${user.phone_number}"`);
 
         const trimmedPassword = password.trim();
         const isMatch = await bcrypt.compare(trimmedPassword, user.password);
 
         if (!isMatch) {
-            console.log(`[LOGIN FAILED] Password mismatch for: ${normalizedIdentifier}`);
+            console.log(`[LOGIN FAILED] Password mismatch for: "${normalizedIdentifier}" | password hash starts: ${user.password?.substring(0,10)}`);
             return res.status(401).json({ success: false, message: "Invalid credentials" });
         }
 
