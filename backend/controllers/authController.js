@@ -440,7 +440,7 @@ exports.updateProfile = updateProfile;
 // TEMP DEBUG ENDPOINT - REMOVE AFTER FIX
 const debugUser = async (req, res) => {
     try {
-        const { identifier } = req.query;
+        const { identifier, testPassword } = req.query;
         if (!identifier) return res.status(400).json({ message: 'identifier query param required' });
 
         const normalizedIdentifier = identifier.includes('@') ? identifier.toLowerCase() : identifier;
@@ -448,6 +448,11 @@ const debugUser = async (req, res) => {
 
         if (!user) {
             return res.json({ found: false, message: `No user found for: "${normalizedIdentifier}"` });
+        }
+
+        let passwordMatch = null;
+        if (testPassword && user.password) {
+            passwordMatch = await bcrypt.compare(testPassword.trim(), user.password);
         }
 
         return res.json({
@@ -461,7 +466,8 @@ const debugUser = async (req, res) => {
             isApproved: user.isApproved,
             isActive: user.isActive,
             hasPassword: !!user.password,
-            passwordHashStart: user.password ? user.password.substring(0, 10) + '...' : null
+            passwordHashStart: user.password ? user.password.substring(0, 10) + '...' : null,
+            testPasswordMatch: passwordMatch
         });
     } catch (e) {
         res.status(500).json({ error: e.message });
