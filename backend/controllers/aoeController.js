@@ -479,7 +479,7 @@ const registerFaculty = async (req, res) => {
         }
         rest.faculty_id_card = nextId;
 
-        await User.create({ name, email, phone_number, password: hash, role: 'faculty', status: 'pending', ...rest });
+        await User.create({ name, email, phone_number, password: hash, role: 'faculty', status: 'active', isApproved: 1, isActive: 1, ...rest });
         res.status(201).json({ success: true, message: "Faculty registered", data: { faculty_id_card: nextId } });
     } catch (e) { res.status(500).json({ success: false, message: e.message }); }
 };
