@@ -436,3 +436,35 @@ exports.checkSuperAdminExists = checkSuperAdminExists;
 exports.updateProfilePic = updateProfilePic;
 exports.changePassword = changePassword;
 exports.updateProfile = updateProfile;
+
+// TEMP DEBUG ENDPOINT - REMOVE AFTER FIX
+const debugUser = async (req, res) => {
+    try {
+        const { identifier } = req.query;
+        if (!identifier) return res.status(400).json({ message: 'identifier query param required' });
+
+        const normalizedIdentifier = identifier.includes('@') ? identifier.toLowerCase() : identifier;
+        const user = await User.findByIdentifier(normalizedIdentifier);
+
+        if (!user) {
+            return res.json({ found: false, message: `No user found for: "${normalizedIdentifier}"` });
+        }
+
+        return res.json({
+            found: true,
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            phone_number: user.phone_number,
+            role: user.role,
+            status: user.status,
+            isApproved: user.isApproved,
+            isActive: user.isActive,
+            hasPassword: !!user.password,
+            passwordHashStart: user.password ? user.password.substring(0, 10) + '...' : null
+        });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+};
+exports.debugUser = debugUser;

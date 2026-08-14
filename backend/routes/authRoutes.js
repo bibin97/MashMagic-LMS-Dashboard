@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { register, login, mentorSignup, facultySignup, checkSuperAdminExists, updateProfilePic, changePassword, updateProfile } = require('../controllers/authController');
+const { register, login, mentorSignup, facultySignup, checkSuperAdminExists, updateProfilePic, changePassword, updateProfile, debugUser } = require('../controllers/authController');
 const { requireAuth } = require('../middleware/authMiddleware');
 
 router.post('/register', register);
@@ -11,6 +11,7 @@ router.get('/check-super-admin', checkSuperAdminExists);
 router.put('/update-profile-pic', requireAuth, updateProfilePic);
 router.put('/change-password', requireAuth, changePassword);
 router.put('/update-profile', requireAuth, updateProfile);
+router.get('/debug-user', debugUser); // TEMP DEBUG - REMOVE AFTER FIX
 
 module.exports = router;
 
