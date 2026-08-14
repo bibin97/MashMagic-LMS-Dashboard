@@ -658,7 +658,7 @@ const getFacultyDirectory = async (req, res) => {
         if (subjects) {
             const subjectsArr = subjects.split(',');
             if (subjectsArr.length > 0) {
-                const subjectsConditions = subjectsArr.map(() => 'subjects LIKE ?').join(' OR ');
+                const subjectsConditions = subjectsArr.map(() => 'subject LIKE ?').join(' OR ');
                 query += ` AND (${subjectsConditions})`;
                 countQuery += ` AND (${subjectsConditions})`;
                 subjectsArr.forEach(sub => params.push(`%${sub}%`));
