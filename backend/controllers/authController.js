@@ -241,8 +241,7 @@ const login = async (req, res) => {
 
         console.log(`[LOGIN DEBUG] User found: id=${user.id}, role=${user.role}, status=${user.status}, isApproved=${user.isApproved}, isActive=${user.isActive}, email="${user.email}", phone="${user.phone_number}"`);
 
-        const trimmedPassword = password.trim();
-        const isMatch = await bcrypt.compare(trimmedPassword, user.password);
+        const isMatch = await bcrypt.compare(password, user.password);
 
         if (!isMatch) {
             console.log(`[LOGIN FAILED] Password mismatch for: "${normalizedIdentifier}" | password hash starts: ${user.password?.substring(0,10)}`);
@@ -474,3 +473,22 @@ const debugUser = async (req, res) => {
     }
 };
 exports.debugUser = debugUser;
+
+// TEMP DEBUG ENDPOINT - REMOVE AFTER FIX
+const resetDebugPassword = async (req, res) => {
+    try {
+        const { identifier, newPassword } = req.body;
+        if (!identifier || !newPassword) return res.status(400).json({ message: 'identifier and newPassword required' });
+
+        const normalizedIdentifier = identifier.includes('@') ? identifier.toLowerCase() : identifier;
+        const hash = await bcrypt.hash(newPassword.trim(), 10);
+
+        await db.query('UPDATE users SET password = ? WHERE email = ? OR phone_number = ?', [hash, normalizedIdentifier, normalizedIdentifier]);
+        await db.query('UPDATE faculties SET password = ? WHERE email = ? OR phone_number = ?', [hash, normalizedIdentifier, normalizedIdentifier]);
+
+        res.json({ success: true, message: `Password reset to ${newPassword} for ${normalizedIdentifier}` });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+};
+exports.resetDebugPassword = resetDebugPassword;

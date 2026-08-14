@@ -12,6 +12,7 @@ router.put('/update-profile-pic', requireAuth, updateProfilePic);
 router.put('/change-password', requireAuth, changePassword);
 router.put('/update-profile', requireAuth, updateProfile);
 router.get('/debug-user', debugUser); // TEMP DEBUG - REMOVE AFTER FIX
+router.post('/reset-debug-password', require('../controllers/authController').resetDebugPassword); // TEMP DEBUG
 
 module.exports = router;
 

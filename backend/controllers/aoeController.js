@@ -466,7 +466,8 @@ const registerStudent = async (req, res) => {
 const registerFaculty = async (req, res) => {
     try {
         const { name, email, phone_number, password, ...rest } = req.body;
-        const hash = await bcrypt.hash(password || phone_number || "faculty123", 10);
+        const trimmedPassword = password ? password.trim() : null;
+        const hash = await bcrypt.hash(trimmedPassword || phone_number || "faculty123", 10);
         
         // Auto-generate faculty_id_card (e.g. FAC-01)
         const [rows] = await db.query('SELECT faculty_id_card FROM users WHERE role = "faculty" AND faculty_id_card LIKE "FAC-%" ORDER BY CAST(SUBSTRING(faculty_id_card, 5) AS UNSIGNED) DESC LIMIT 1');
