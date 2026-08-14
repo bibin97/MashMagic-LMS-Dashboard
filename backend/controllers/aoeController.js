@@ -629,7 +629,7 @@ const getFacultyDirectory = async (req, res) => {
         
         if (search) {
             const searchParam = `%${search}%`;
-            const searchCondition = ' AND (name LIKE ? OR email LIKE ? OR subjects LIKE ?)';
+            const searchCondition = ' AND (name LIKE ? OR email LIKE ? OR subject LIKE ?)';
             query += searchCondition;
             countQuery += searchCondition;
             params.push(searchParam, searchParam, searchParam);
