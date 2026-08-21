@@ -35,7 +35,8 @@ exports.getDashboardStats = async (req, res) => {
 // @route   GET /api/ssc/students
 exports.getStudentsTrack = async (req, res) => {
     try {
-        const [rows] = await db.query(`
+        const { date } = req.query;
+        let query = `
             SELECT s.*, 
             m.name as mentor_name,
             COALESCE(
@@ -54,8 +55,15 @@ exports.getStudentsTrack = async (req, res) => {
             FROM students s
             LEFT JOIN mentors m ON s.mentor_id = m.id
             WHERE s.status != 'rejected'
-            ORDER BY s.name ASC
-        `);
+        `;
+        let params = [];
+        if (date) {
+            query += ' AND DATE(s.created_at) = ?';
+            params.push(date);
+        }
+        query += ' ORDER BY s.name ASC';
+
+        const [rows] = await db.query(query, params);
         const { calculateStudentHours } = require('../utils/studentHoursHelper');
         const augmentedRows = await calculateStudentHours(rows, db);
         res.status(200).json({ success: true, data: augmentedRows });

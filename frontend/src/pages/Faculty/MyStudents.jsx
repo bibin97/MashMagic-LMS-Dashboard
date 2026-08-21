@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useDeferredValue } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from '../../services/api';
-import { Search, User, ChevronRight, MoreHorizontal, GraduationCap, MapPin, Hash } from 'lucide-react';
+import { Search, User, ChevronRight, MoreHorizontal, GraduationCap, MapPin, Hash, X } from 'lucide-react';
 import toast from 'react-hot-toast';
 import StudentListFilterDropdown, { sortStudentsByOption } from '../../components/StudentListFilterDropdown';
 import ExportButton from '../../components/common/ExportButton';
@@ -11,15 +11,19 @@ const FacultyStudents = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const deferredSearchTerm = useDeferredValue(searchTerm);
+  const [filterDate, setFilterDate] = useState('');
   const [sortBy, setSortBy] = useState('');
   const [expandedMobileCards, setExpandedMobileCards] = useState({});
   const navigate = useNavigate();
+  
   useEffect(() => {
     fetchStudents();
-  }, []);
+  }, [filterDate]);
+  
   const fetchStudents = async () => {
     try {
-      const res = await axios.get('/faculty/students');
+      setLoading(true);
+      const res = await axios.get(`/faculty/students${filterDate ? `?date=${filterDate}` : ''}`);
       if (res.data.success) {
         setStudents((res.data.data || []).sort((a, b) => (a.name || '').localeCompare(b.name || '')));
       }
@@ -68,6 +72,10 @@ const FacultyStudents = () => {
  <input type="text" placeholder="Search students by name or roll number..." className="w-full pl-14 pr-6 py-4 bg-white border border-slate-200 rounded-[1.5rem] text-sm font-medium focus:outline-none focus:ring-4 focus:ring-[#008080]/5 focus:border-[#008080] transition-all shadow-sm" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
  </div>
  <div className="flex gap-4">
+ <div className="relative">
+  <input type="date" value={filterDate} onChange={e => setFilterDate(e.target.value)} className="h-[52px] px-6 bg-white border border-slate-200 rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest outline-none focus:ring-4 focus:ring-[#008080]/5 focus:border-[#008080] transition-all cursor-pointer text-slate-600 pr-10" title="Filter by Registration Date" />
+  {filterDate && <X size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 cursor-pointer hover:text-red-500" onClick={() => setFilterDate('')} />}
+ </div>
  <StudentListFilterDropdown value={sortBy} onChange={setSortBy} />
  <ExportButton 
     data={filteredStudents}

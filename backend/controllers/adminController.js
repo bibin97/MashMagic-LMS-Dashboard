@@ -1215,7 +1215,7 @@ const updateUserForAdmin = async (req, res) => {
 // @route   GET /api/admin/students
 const getAllStudentsForAdmin = async (req, res) => {
     try {
-        const { startDate, endDate, category, search, sortBy, mentor_id, activeTab } = req.query;
+        const { startDate, endDate, category, search, sortBy, mentor_id, activeTab, date } = req.query;
         const page = parseInt(req.query.page) || 1;
         const limit = req.query.export === 'true' ? 5000 : (parseInt(req.query.limit) || 50);
         const offset = (page - 1) * limit;
@@ -1251,6 +1251,11 @@ const getAllStudentsForAdmin = async (req, res) => {
             FROM students WHERE (is_deleted IS NULL OR is_deleted = 0)
         `;
         let params = [];
+
+        if (date) {
+            sql += ' AND DATE(created_at) = ?';
+            params.push(date);
+        }
 
         if (mentor_id) {
             sql += ' AND mentor_id = ?';

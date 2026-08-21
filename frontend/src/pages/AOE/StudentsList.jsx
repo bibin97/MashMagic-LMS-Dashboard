@@ -18,6 +18,7 @@ const StudentsList = ({
   const [initialLoad, setInitialLoad] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const deferredSearchTerm = useDeferredValue(searchTerm);
+  const [filterDate, setFilterDate] = useState('');
   const [filterCourse, setFilterCourse] = useState('all');
   const [stats, setStats] = useState({
     totalEnrollment: 0,
@@ -163,11 +164,11 @@ const StudentsList = ({
 
   useEffect(() => {
     setPage(1);
-  }, [deferredSearchTerm, sortBy, filterCourse, filterMentor, filterFaculty, activeTab]);
+  }, [deferredSearchTerm, sortBy, filterCourse, filterMentor, filterFaculty, activeTab, filterDate]);
 
   useEffect(() => {
     fetchStudents();
-  }, [role, page, deferredSearchTerm, sortBy, filterCourse, filterMentor, filterFaculty, activeTab]);
+  }, [role, page, deferredSearchTerm, sortBy, filterCourse, filterMentor, filterFaculty, activeTab, filterDate]);
   const fetchDropdownData = async () => {
     try {
       const res = await api.get(`${apiPath}/dropdowns`);
@@ -187,6 +188,7 @@ const StudentsList = ({
       if (filterCourse !== 'all') params.append('course', filterCourse);
       if (filterMentor !== 'all') params.append('mentor_id', filterMentor);
       if (filterFaculty !== 'all') params.append('faculty_id', filterFaculty);
+      if (filterDate) params.append('date', filterDate);
       
       const res = await api.get(`${apiPath}/students-all?${params.toString()}`);
 
@@ -391,6 +393,11 @@ const StudentsList = ({
 					</select>
 
 					<div className="relative">
+						<input type="date" value={filterDate} onChange={e => setFilterDate(e.target.value)} className="h-14 px-6 rounded-2xl bg-slate-50 border border-slate-100 text-[10px] font-black uppercase tracking-widest outline-none focus:ring-4 ring-[#008080]/10 focus:border-[#008080] transition-all cursor-pointer min-w-[160px] shadow-sm hover:bg-white" title="Filter by Registration Date" />
+						{filterDate && <X size={14} className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 cursor-pointer hover:text-red-500" onClick={() => setFilterDate('')} />}
+					</div>
+
+					<div className="relative">
 						<select value={filterMentor} onChange={e => setFilterMentor(e.target.value)} className="h-14 pl-6 pr-12 rounded-2xl bg-slate-50 border border-slate-100 text-[10px] font-black uppercase tracking-widest outline-none focus:ring-4 ring-[#008080]/10 focus:border-[#008080] transition-all appearance-none cursor-pointer min-w-[160px] shadow-sm hover:bg-white">
 							<option value="all">All Mentors</option>
 							<option value="unassigned" className="bg-amber-50 text-amber-700">Unassigned / New</option>
@@ -464,7 +471,15 @@ const StudentsList = ({
 						</div>
 					</div>
 
-					{/* Row 3: Export full width */}
+					{/* Row 3: Registration Date | Export full width */}
+					<div className="grid grid-cols-2 gap-3">
+						<div className="relative">
+							<input type="date" value={filterDate} onChange={e => setFilterDate(e.target.value)} className="w-full min-h-[48px] px-3 py-3 rounded-2xl bg-slate-50 border border-slate-100 text-[10px] font-black uppercase tracking-widest outline-none focus:ring-4 ring-[#008080]/10 focus:border-[#008080] transition-all appearance-none cursor-pointer shadow-sm truncate" />
+							{filterDate && <X size={12} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 cursor-pointer hover:text-red-500" onClick={() => setFilterDate('')} />}
+						</div>
+					</div>
+
+					{/* Row 4: Export full width */}
 					<div className="w-full">
                         <ExportButton 
                             data={filteredStudents}

@@ -1,7 +1,7 @@
 import React, {  useState, useEffect, useMemo , useDeferredValue } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
-import { User, Users, ChevronRight, Search, XCircle } from 'lucide-react';
+import { User, Users, ChevronRight, Search, CheckCircle2, Calendar, Clock, Plus, Trash2, MessageSquare, X } from 'lucide-react';
 import toast from 'react-hot-toast';
 import StudentListFilterDropdown, { sortStudentsByOption } from '../../components/StudentListFilterDropdown';
 import ExportButton from '../../components/common/ExportButton';
@@ -280,16 +280,17 @@ const SSCStudentList = () => {
   const [sortBy, setSortBy] = useState('');
   const [viewMode, setViewMode] = useState('active'); // 'active' or 'new'
   const [activeTab, setActiveTab] = useState('enrolled_scholars');
+  const [filterDate, setFilterDate] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
     fetchStudents();
-  }, []);
+  }, [filterDate]);
 
   const fetchStudents = async () => {
     try {
       setLoading(true);
-      const res = await api.get('/ssc/students');
+      const res = await api.get(`/ssc/students${filterDate ? `?date=${filterDate}` : ''}`);
       let realStudents = res.data.data || [];
       // Inject mock hours for specific students requested by user
       realStudents = realStudents.map(student => {
@@ -401,6 +402,10 @@ const SSCStudentList = () => {
           />
         </div>
         <div className="flex flex-wrap items-center gap-2">
+          <div className="relative">
+            <input type="date" value={filterDate} onChange={e => setFilterDate(e.target.value)} className="w-full md:w-auto p-4 pr-10 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold uppercase tracking-widest outline-none focus:bg-white focus:ring-4 focus:ring-indigo-500/10 transition-all cursor-pointer text-slate-600 h-14" title="Filter by Registration Date" />
+            {filterDate && <X size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 cursor-pointer hover:text-red-500" onClick={() => setFilterDate('')} />}
+          </div>
           <StudentListFilterDropdown value={sortBy} onChange={setSortBy} />
           <ExportButton 
             data={filteredStudents}

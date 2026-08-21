@@ -1678,7 +1678,7 @@ exports.getFacultyById = async (req, res) => {
 
 exports.getStudents = async (req, res) => {
     try {
-        const { mentor_id, faculty_id, search, sortBy, course, enrollment_type } = req.query;
+        const { mentor_id, faculty_id, search, sortBy, course, enrollment_type, date } = req.query;
         let query = `
             SELECT s.*, m.name as mentor_name, 
             COALESCE(
@@ -1694,6 +1694,11 @@ exports.getStudents = async (req, res) => {
         
         let whereConditions = '';
         
+        if (date) {
+            whereConditions += ' AND DATE(s.created_at) = ?';
+            params.push(date);
+        }
+
         if (mentor_id) {
             whereConditions += ' AND s.mentor_id = ?';
             params.push(mentor_id);

@@ -89,6 +89,7 @@ const getDashboard = async (req, res) => {
 const getStudents = async (req, res) => {
     try {
         const facultyId = req.user.id;
+        const { date } = req.query;
 
         const [facultyRows] = await db.query('SELECT subject, secondary_subjects FROM users WHERE id = ?', [facultyId]);
         const facultySubjects = [];
@@ -104,12 +105,20 @@ const getStudents = async (req, res) => {
             }
         }
 
-        let [students] = await db.query(`
+        let sql = `
             SELECT DISTINCT s.id, s.name, s.roll_number, s.department, s.attendance_percentage, s.performance_status, s.status, s.created_at, s.badge, s.enrollment_type, s.total_fees, s.total_hours, s.total_paid
             FROM students s
-            WHERE s.faculty_id = ? 
-               OR EXISTS (SELECT 1 FROM faculty_schedules fs WHERE (fs.is_deleted IS NULL OR fs.is_deleted = 0) AND fs.student_id = s.id AND fs.faculty_id = ?)
-        `, [facultyId, facultyId]);
+            WHERE (s.faculty_id = ? 
+               OR EXISTS (SELECT 1 FROM faculty_schedules fs WHERE (fs.is_deleted IS NULL OR fs.is_deleted = 0) AND fs.student_id = s.id AND fs.faculty_id = ?))
+        `;
+        let params = [facultyId, facultyId];
+
+        if (date) {
+            sql += ' AND DATE(s.created_at) = ?';
+            params.push(date);
+        }
+
+        let [students] = await db.query(sql, params);
 
         students = await calculateStudentHours(students, db);
 

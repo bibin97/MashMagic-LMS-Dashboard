@@ -1,7 +1,7 @@
 import React, {  useState, useEffect, useMemo , useDeferredValue } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
-import { User, Users, ChevronRight, Search, CheckCircle2, Calendar, Clock, Plus, Trash2, XCircle, Activity, MessageSquare } from 'lucide-react';
+import { User, Users, ChevronRight, Search, CheckCircle2, Calendar, Clock, Plus, Trash2, XCircle, Activity, MessageSquare, X } from 'lucide-react';
 import toast from 'react-hot-toast';
 import StudentListFilterDropdown, { sortStudentsByOption } from '../../components/StudentListFilterDropdown';
 import { mockStudentHours } from '../../utils/mockStudentHours';
@@ -238,20 +238,22 @@ const MyStudents = () => {
  const [page, setPage] = useState(1);
  const limit = 50;
  const [totalRecords, setTotalRecords] = useState(0);
+ const [filterDate, setFilterDate] = useState('');
 
  useEffect(() => {
  fetchStudents();
- }, [page, deferredSearchTerm, sortBy, viewMode]);
+ }, [page, deferredSearchTerm, sortBy, viewMode, filterDate]);
 
  // Reset page on filter changes
  useEffect(() => {
  setPage(1);
- }, [deferredSearchTerm, sortBy, viewMode]);
+ }, [deferredSearchTerm, sortBy, viewMode, filterDate]);
 
  const fetchStudents = async () => {
  try {
  setLoading(true);
  const params = new URLSearchParams({ page, limit, search: deferredSearchTerm, sortBy, viewMode });
+ if (filterDate) params.append('date', filterDate);
  const res = await api.get(`/mentor/students?${params.toString()}`);
  let realStudents = res.data.data || [];
  // Inject mock hours for specific students requested by user
@@ -405,7 +407,11 @@ const MyStudents = () => {
  onChange={(e) => setSearchTerm(e.target.value)}
  />
  </div>
- <div className="flex flex-wrap items-center gap-2">
+ <div className="flex flex-wrap items-center gap-2 w-full md:w-auto mt-4 md:mt-0">
+ <div className="relative">
+  <input type="date" value={filterDate} onChange={e => setFilterDate(e.target.value)} className="w-full md:w-auto p-4 pr-10 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold uppercase tracking-widest outline-none focus:bg-white focus:ring-4 focus:ring-[#008080] transition-all cursor-pointer text-slate-600 h-14" title="Filter by Registration Date" />
+  {filterDate && <X size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 cursor-pointer hover:text-red-500" onClick={() => setFilterDate('')} />}
+ </div>
  <StudentListFilterDropdown value={sortBy} onChange={setSortBy} />
  </div>
  </div>

@@ -196,7 +196,7 @@ const getMentorStudents = async (req, res) => {
         const mentorId = req.user.id;
         const isPrivileged = ['super_admin', 'admin', 'academic_head', 'academic_operation_executive', 'ssc'].includes(req.user.role);
         
-        const { search, page, limit, viewMode, sortBy } = req.query;
+        const { search, page, limit, viewMode, sortBy, date } = req.query;
 
         const hideTuitionOnly = ['mentor', 'mentor_head'].includes(req.user.role);
         const enrollmentCondition = hideTuitionOnly ? "AND (LOWER(s.enrollment_type) LIKE '%mentorship%' OR LOWER(s.enrollment_type) = 'both')" : "";
@@ -209,6 +209,11 @@ const getMentorStudents = async (req, res) => {
         if (!isPrivileged) {
             whereConditions += ' AND s.mentor_id = ?';
             params.push(mentorId);
+        }
+
+        if (date) {
+            whereConditions += ' AND DATE(s.created_at) = ?';
+            params.push(date);
         }
 
         if (search) {

@@ -71,22 +71,24 @@ const Students = () => {
   useEffect(() => {
     fetchStudents();
     fetchMentors();
-  }, [searchTerm, sortBy, activeTab, page]);
+  }, [searchTerm, sortBy, activeTab, page, filterDate]);
 
   // Reset to page 1 when filters change
   useEffect(() => {
     setPage(1);
-  }, [searchTerm, sortBy, activeTab]);
+  }, [searchTerm, sortBy, activeTab, filterDate]);
   const fetchMentors = async () => {
     try {
       const res = await api.get('/admin/mentors');
       if (res.data.success) setMentorsList(res.data.data || []);
     } catch (e) {}
   };
+  const [filterDate, setFilterDate] = useState('');
+  
   const fetchStudents = async () => {
     try {
       setLoading(true);
-      const response = await api.get(`/admin/students?search=${searchTerm}&sortBy=${sortBy}&activeTab=${activeTab}&page=${page}&limit=${limit}`);
+      const response = await api.get(`/admin/students?search=${searchTerm}&sortBy=${sortBy}&activeTab=${activeTab}&page=${page}&limit=${limit}${filterDate ? `&date=${filterDate}` : ''}`);
       let realStudents = response.data.data;
       setTotalRecords(response.data.total || 0);
 
@@ -465,6 +467,14 @@ const Students = () => {
         </div>
         
         <div className="flex flex-col sm:flex-row items-center gap-5">
+          <div className="flex items-center gap-4 bg-slate-50/50 px-4 md:px-8 py-5 rounded-[24px] border border-slate-100/50 shadow-inner group">
+            <span className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] leading-none whitespace-nowrap">Filter Date</span>
+            <div className="w-px h-10 bg-slate-200"></div>
+            <div className="relative">
+              <input type="date" value={filterDate} onChange={e => setFilterDate(e.target.value)} className="bg-transparent border-none text-xs font-black uppercase tracking-[0.1em] text-slate-800 outline-none focus:ring-0 cursor-pointer pr-6" title="Filter by Registration Date" />
+              {filterDate && <X size={12} className="absolute right-0 top-1/2 -translate-y-1/2 text-slate-400 cursor-pointer hover:text-red-500" onClick={() => setFilterDate('')} />}
+            </div>
+          </div>
           <div className="flex items-center gap-4 bg-slate-50/50 px-4 md:px-8 py-5 rounded-[24px] border border-slate-100/50 shadow-inner group">
             <span className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] leading-none whitespace-nowrap">Sort By</span>
             <div className="w-px h-10 bg-slate-200"></div>

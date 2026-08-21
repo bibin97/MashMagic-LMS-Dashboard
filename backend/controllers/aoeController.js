@@ -1135,7 +1135,7 @@ const { calculateStudentHours } = require('../utils/studentHoursHelper');
 
 const getStudents = async (req, res) => {
     try {
-        const { mentor_id, faculty_id, search, sortBy, course, page, limit, activeTab, filterMode, stats } = req.query;
+        const { mentor_id, faculty_id, search, sortBy, course, page, limit, activeTab, filterMode, stats, date } = req.query;
 
         // Support both old activeTab and new filterMode param
         const resolvedFilter = filterMode || activeTab || 'enrolled_scholars';
@@ -1164,6 +1164,10 @@ const getStudents = async (req, res) => {
             baseWhere += ' AND (s.name LIKE ? OR s.registration_number LIKE ?)';
             const searchParam = `%${search}%`;
             params.push(searchParam, searchParam);
+        }
+        if (date) {
+            baseWhere += ' AND DATE(s.created_at) = ?';
+            params.push(date);
         }
 
 
