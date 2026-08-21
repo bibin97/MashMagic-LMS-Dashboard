@@ -549,6 +549,11 @@ const EditStudent = () => {
                             <input type="text" name="meeting_link" value={formData.meeting_link} onChange={handleInputChange} className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-bold" placeholder="Google Meet Link" />
                         </div>
 
+                        <div className="flex flex-col gap-2 mt-6">
+                            <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Enrollment Note</label>
+                            <textarea name="enrollment_note" value={formData.enrollment_note || ''} onChange={handleInputChange} rows="3" className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-bold" placeholder="Any notes regarding enrollment..."></textarea>
+                        </div>
+
                         {/* Multiple Subjects & Faculties */}
                         <div className="mt-8 rounded-2xl border border-[#008080]/30 bg-[#008080]/5 p-5 space-y-4">
                             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">

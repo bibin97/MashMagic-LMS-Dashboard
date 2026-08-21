@@ -8,6 +8,7 @@ import {
   CheckCircle, CheckCircle2, Pencil, Trash2, Star, MessageSquare, Link as LinkIcon, AlertCircle, SearchX, Calendar, ArrowUpRight, Eye
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import TimePicker12h from '../../components/common/TimePicker12h';
 
 const formatTime12h = (time24) => {
   if (!time24) return '';
@@ -784,11 +785,11 @@ const AOEDemoSchedule = () => {
                 <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 flex items-center gap-2">
                   <Clock size={12}/> Start Time {activeTab !== 'schedule_pre_demo' && '*'}
                 </label>
-                <input
-                  type="time" required={activeTab !== 'schedule_pre_demo'}
+                <TimePicker12h
+                  required={activeTab !== 'schedule_pre_demo'}
                   value={formData.start_time}
-                  onChange={(e) => setFormData({ ...formData, start_time: e.target.value })}
-                  className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
+                  onChange={(val) => setFormData({ ...formData, start_time: val })}
+                  className="!py-4"
                 />
               </div>
 
@@ -796,11 +797,11 @@ const AOEDemoSchedule = () => {
                 <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 flex items-center gap-2">
                   <Clock size={12}/> End Time {activeTab !== 'schedule_pre_demo' && '*'}
                 </label>
-                <input
-                  type="time" required={activeTab !== 'schedule_pre_demo'}
+                <TimePicker12h
+                  required={activeTab !== 'schedule_pre_demo'}
                   value={formData.end_time}
-                  onChange={(e) => setFormData({ ...formData, end_time: e.target.value })}
-                  className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none"
+                  onChange={(val) => setFormData({ ...formData, end_time: val })}
+                  className="!py-4"
                 />
               </div>
 
@@ -1270,12 +1271,12 @@ const AOEDemoSchedule = () => {
 
                 <div className="space-y-2">
                   <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 flex items-center gap-2"><Clock size={12}/> Start Time {formData.type !== 'pre-demo' && '*'}</label>
-                  <input type="time" required={formData.type !== 'pre-demo'} value={formData.start_time} onChange={(e) => setFormData({ ...formData, start_time: e.target.value })} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none" />
+                  <TimePicker12h required={formData.type !== 'pre-demo'} value={formData.start_time} onChange={(val) => setFormData({ ...formData, start_time: val })} className="!py-4" />
                 </div>
 
                 <div className="space-y-2">
                   <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1 flex items-center gap-2"><Clock size={12}/> End Time {formData.type !== 'pre-demo' && '*'}</label>
-                  <input type="time" required={formData.type !== 'pre-demo'} value={formData.end_time} onChange={(e) => setFormData({ ...formData, end_time: e.target.value })} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold focus:bg-white focus:ring-4 ring-[#008080]/10 transition-all outline-none" />
+                  <TimePicker12h required={formData.type !== 'pre-demo'} value={formData.end_time} onChange={(val) => setFormData({ ...formData, end_time: val })} className="!py-4" />
                 </div>
 
                 <div className="space-y-2">

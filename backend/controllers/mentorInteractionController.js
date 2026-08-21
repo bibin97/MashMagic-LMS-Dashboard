@@ -346,13 +346,24 @@ const submitSessionReport = async (req, res) => {
                 return res.status(409).json({ success: false, message: "A report for this specific interaction already exists." });
             }
 
-            const created_at_val = `${interactionDate} 12:00:00`;
             let insertedId = null;
             try {
-                const [result] = await connection.query(
-                    'INSERT INTO mentor_session_reports (student_id, mentor_id, session_type, report_data, is_flagged, flag_reason, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)',
-                    [student_id, mentor_id, session_type, JSON.stringify(report_data), isFlagged, flagReason, created_at_val]
-                );
+                const isToday = interactionDate === today;
+                let query = '';
+                let queryParams = [];
+                
+                if (isToday) {
+                    // For today, let the DB use its default CURRENT_TIMESTAMP
+                    query = 'INSERT INTO mentor_session_reports (student_id, mentor_id, session_type, report_data, is_flagged, flag_reason) VALUES (?, ?, ?, ?, ?, ?)';
+                    queryParams = [student_id, mentor_id, session_type, JSON.stringify(report_data), isFlagged, flagReason];
+                } else {
+                    // For past days, use 12:00:00 PM local time
+                    const created_at_val = `${interactionDate} 12:00:00`;
+                    query = 'INSERT INTO mentor_session_reports (student_id, mentor_id, session_type, report_data, is_flagged, flag_reason, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)';
+                    queryParams = [student_id, mentor_id, session_type, JSON.stringify(report_data), isFlagged, flagReason, created_at_val];
+                }
+
+                const [result] = await connection.query(query, queryParams);
                 insertedId = result.insertId;
             } catch (dbErr) {
                 // Remove fallback to guarantee schema consistency, throwing triggers rollback
@@ -364,32 +375,8 @@ const submitSessionReport = async (req, res) => {
             if (verifyRows.length === 0) {
                 throw new Error("CRITICAL FAILURE: Interaction report verification failed after insert.");
             }
-            
-            // Check student_interaction_logs if table exists
-            try {
-                // Drop the foreign key constraint that blocks mentors who are not in the users table
-                try {
-                    await connection.query('ALTER TABLE student_interaction_logs DROP FOREIGN KEY student_interaction_logs_ibfk_1');
-                } catch (fkErr) {
-                    // Ignore error if it's already dropped or doesn't exist
-                }
+            // Removed legacy student_interaction_logs insert to prevent duplicate logs and ALTER TABLE locking/lag
 
-                // If the table exists and is part of workflow, insert into it too.
-                const [silResult] = await connection.query(`
-                    INSERT INTO student_interaction_logs (student_id, mentor_id, mentor_notes, connected_today, date)
-                    VALUES (?, ?, ?, 1, ?)
-                `, [student_id, mentor_id, report_data.action_plan || report_data.notes || '', interactionDate]);
-                
-                const [silVerify] = await connection.query('SELECT id FROM student_interaction_logs WHERE id = ?', [silResult.insertId]);
-                if (silVerify.length === 0) {
-                    throw new Error("CRITICAL FAILURE: student_interaction_logs verification failed.");
-                }
-            } catch (silErr) {
-                if (silErr.code !== 'ER_NO_SUCH_TABLE') {
-                    throw new Error(`CRITICAL FAILURE: student_interaction_logs insert failed: ${silErr.message}`);
-                }
-                // If table doesn't exist, we safely ignore this check as per prompt ("if this table participates")
-            }
         }
         // 6. Update assignment list status in new table (mentor_daily_interaction_records)
         // Update ALL past records for this student up to interactionDate

@@ -1247,13 +1247,14 @@ const getStudents = async (req, res) => {
         }
 
         // SQL Pagination
-        const [countResult] = await db.query(countSql, params);
+        const countParams = [...params];
+        const [countResult] = await db.query(countSql, countParams);
         const total = countResult[0].total;
 
         sql += ' LIMIT ? OFFSET ?';
-        params.push(limitNum, offset);
+        const queryParams = [...params, limitNum, offset];
 
-        const [rows] = await db.query(sql, params);
+        const [rows] = await db.query(sql, queryParams);
         const augmentedRows = await calculateStudentHours(rows, db);
         responseData.total = total;
         responseData.data = augmentedRows;
