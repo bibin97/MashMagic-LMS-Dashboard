@@ -333,8 +333,9 @@ const getDropdownData = async (req, res) => {
         const [mhs] = await db.query('SELECT id, name FROM users WHERE role = "mentor_head"');
         // Use users table (role=faculty) so that faculty IDs match req.user.id used in faculty panel
         const [fs] = await db.query(`
-            SELECT u.id, u.name, u.subject, u.lp_hour_rate, u.up_hour_rate, u.hs_hour_rate, u.hss_hour_rate, u.hourly_rate
+            SELECT u.id, u.name, u.subject, f.lp_hour_rate, f.up_hour_rate, f.hs_hour_rate, f.hss_hour_rate, u.hourly_rate
             FROM users u
+            LEFT JOIN faculties f ON u.id = f.id
             WHERE u.role = 'faculty' AND u.status = 'active' AND (u.is_deleted IS NULL OR u.is_deleted = 0)
         `);
         res.status(200).json({ success: true, data: { mentors: ms, mentorHeads: mhs, faculties: fs } });
