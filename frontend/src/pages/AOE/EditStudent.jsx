@@ -168,8 +168,19 @@ const EditStudent = () => {
                                     startTime: s.startTime || '',
                                     endTime: s.endTime || ''
                                 }));
+                                const facultyIdStr = s.facultyId || s.faculty_id || '';
+                                let mappedFacultyId = facultyIdStr.toString();
+                                
+                                // Legacy fallback: if no facultyId, try to find by facultyName or faculties string
+                                if (!mappedFacultyId && (s.facultyName || s.faculties)) {
+                                    const fname = (s.facultyName || s.faculties).toLowerCase().trim();
+                                    const foundFac = dropdownRes.data.data.faculties.find(f => f.name && f.name.toLowerCase().trim() === fname);
+                                    if (foundFac) mappedFacultyId = foundFac.id.toString();
+                                }
+
                                 return {
                                     ...s,
+                                    facultyId: mappedFacultyId,
                                     dayConfigs: configs,
                                     isDayDropdownOpen: false,
                                     isSubjectDropdownOpen: false
