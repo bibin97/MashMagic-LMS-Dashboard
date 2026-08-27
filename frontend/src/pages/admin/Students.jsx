@@ -87,12 +87,31 @@ const Students = () => {
     } catch (e) {}
   };
   
+  const [stats, setStats] = useState({
+    totalEnrollment: 0,
+    mentorshipCompletedCount: 0,
+    courseCompletedCount: 0
+  });
+
   const fetchStudents = async () => {
     try {
       setLoading(true);
       const response = await api.get(`/admin/students?search=${searchTerm}&sortBy=${sortBy}&activeTab=${activeTab}&page=${page}&limit=${limit}${filterDate ? `&date=${filterDate}` : ''}`);
       let realStudents = response.data.data;
       setTotalRecords(response.data.total || 0);
+      if (response.data.stats) {
+        setStats({
+          totalEnrollment: response.data.stats.totalEnrollment || 0,
+          mentorshipCompletedCount: response.data.stats.mentorshipCompletedCount || 0,
+          courseCompletedCount: response.data.stats.courseCompletedCount || 0
+        });
+      } else {
+        setStats({
+          totalEnrollment: response.data.total || 0,
+          mentorshipCompletedCount: 0,
+          courseCompletedCount: 0
+        });
+      }
 
       // Inject mock hours for specific students requested by user
       realStudents = realStudents.map(student => {
@@ -500,7 +519,7 @@ const Students = () => {
         <button onClick={() => setActiveTab('enrolled_scholars')} className={`p-4 md:p-8 rounded-[35px] border shadow-sm flex flex-col gap-2 transition-all text-left ${activeTab === 'enrolled_scholars' ? 'bg-[#008080] border-[#008080] text-white scale-105 shadow-xl shadow-[#008080]/20' : 'bg-white/70 backdrop-blur-md border-white/60 hover:bg-white hover:shadow-md'}`}>
           <span className={`text-[10px] font-black uppercase tracking-widest transition-colors ${activeTab === 'enrolled_scholars' ? 'text-white/80' : 'text-slate-600 group-hover:text-[#008080]'}`}>Total Enrollment</span>
           <div className={`flex items-end gap-3 font-black tracking-tighter ${activeTab === 'enrolled_scholars' ? 'text-white' : 'text-slate-900'}`}>
-            <span className="text-2xl md:text-4xl leading-none">{students.length}</span>
+            <span className="text-2xl md:text-4xl leading-none">{stats.totalEnrollment}</span>
             <span className={`text-[10px] mb-1 uppercase tracking-widest ${activeTab === 'enrolled_scholars' ? 'text-white/80' : 'text-slate-600'}`}>Active Members</span>
           </div>
         </button>
@@ -508,7 +527,7 @@ const Students = () => {
         <button onClick={() => setActiveTab('mentorship_completed')} className={`p-4 md:p-8 rounded-[35px] border shadow-sm flex flex-col gap-2 transition-all text-left ${activeTab === 'mentorship_completed' ? 'bg-emerald-600 border-emerald-600 text-white scale-105 shadow-xl shadow-emerald-500/20' : 'bg-white/70 backdrop-blur-md border-white/60 hover:bg-white hover:shadow-md'}`}>
           <span className={`text-[10px] font-black uppercase tracking-widest transition-colors ${activeTab === 'mentorship_completed' ? 'text-white/80' : 'text-emerald-600 group-hover:text-emerald-700'}`}>Mentorship Completed</span>
           <div className={`flex items-end gap-3 font-black tracking-tighter ${activeTab === 'mentorship_completed' ? 'text-white' : 'text-slate-900'}`}>
-            <span className="text-2xl md:text-4xl leading-none">{students.filter(s => s.mentorship_completed == 1).length}</span>
+            <span className="text-2xl md:text-4xl leading-none">{stats.mentorshipCompletedCount}</span>
             <span className={`text-[10px] mb-1 uppercase tracking-widest ${activeTab === 'mentorship_completed' ? 'text-white/80' : 'text-slate-600'}`}>Total</span>
           </div>
         </button>
@@ -516,7 +535,7 @@ const Students = () => {
         <button onClick={() => setActiveTab('completed')} className={`p-4 md:p-8 rounded-[35px] border shadow-sm flex flex-col gap-2 transition-all text-left ${activeTab === 'completed' ? 'bg-teal-600 border-teal-600 text-white scale-105 shadow-xl shadow-teal-500/20' : 'bg-white/70 backdrop-blur-md border-white/60 hover:bg-white hover:shadow-md'}`}>
           <span className={`text-[10px] font-black uppercase tracking-widest transition-colors ${activeTab === 'completed' ? 'text-white/80' : 'text-teal-600 group-hover:text-teal-700'}`}>Course Completed</span>
           <div className={`flex items-end gap-3 font-black tracking-tighter ${activeTab === 'completed' ? 'text-white' : 'text-slate-900'}`}>
-            <span className="text-2xl md:text-4xl leading-none">{students.filter(s => s.course_completed == 1).length}</span>
+            <span className="text-2xl md:text-4xl leading-none">{stats.courseCompletedCount}</span>
             <span className={`text-[10px] mb-1 uppercase tracking-widest ${activeTab === 'completed' ? 'text-white/80' : 'text-slate-600'}`}>Total</span>
           </div>
         </button>

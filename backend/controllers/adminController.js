@@ -1353,7 +1353,40 @@ const getAllStudentsForAdmin = async (req, res) => {
         const { calculateStudentHours } = require('../utils/studentHoursHelper');
         const augmentedRows = await calculateStudentHours(rows, db);
 
-        res.status(200).json({ success: true, count: augmentedRows.length, total, data: augmentedRows });
+        let responseData = { success: true, count: augmentedRows.length, total, data: augmentedRows };
+
+        try {
+            const [mcCols] = await db.query("SHOW COLUMNS FROM students LIKE 'mentorship_completed'");
+            const hasMentorshipCompleted = mcCols.length > 0;
+
+            const statsQueryStr = `
+                SELECT 
+                    COUNT(*) as totalEnrollment,
+                    SUM(CASE WHEN course_completed = 1 THEN 1 ELSE 0 END) as courseCompletedCount,
+                    SUM(CASE WHEN (course_completed IS NULL OR course_completed = 0) THEN 1 ELSE 0 END) as activeCourseCount,
+                    ${hasMentorshipCompleted ? `
+                    SUM(CASE WHEN mentorship_completed = 1 THEN 1 ELSE 0 END) as mentorshipCompletedCount,
+                    SUM(CASE WHEN (mentorship_completed IS NULL OR mentorship_completed = 0) THEN 1 ELSE 0 END) as activeMentorshipCount
+                    ` : `
+                    0 as mentorshipCompletedCount,
+                    0 as activeMentorshipCount
+                    `}
+                FROM students WHERE (is_deleted IS NULL OR is_deleted = 0) AND status != 'rejected'
+            `;
+            const [statsRows] = await db.query(statsQueryStr);
+            responseData.stats = statsRows[0];
+        } catch (statsErr) {
+            console.error("ADMIN_STATS_QUERY_ERROR:", statsErr.message);
+            responseData.stats = {
+                totalEnrollment: 0,
+                courseCompletedCount: 0,
+                activeCourseCount: 0,
+                mentorshipCompletedCount: 0,
+                activeMentorshipCount: 0
+            };
+        }
+
+        res.status(200).json(responseData);
     } catch (error) {
         console.error("Error in getAllStudentsForAdmin:", error);
         res.status(500).json({ success: false, message: error.message });
