@@ -5,7 +5,7 @@ import Modal from '../../components/Modal';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
 import { premiumConfirm } from '../../utils/premiumConfirm';
-import { Eye, Edit2, Ban, Trash2, Filter, Download, Search, UserPlus, CheckCircle, Clock, Lock, Unlock } from 'lucide-react';
+import { Eye, Edit2, Ban, Trash2, Filter, Download, Search, UserPlus, CheckCircle, Clock, Lock, Unlock, X } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { sortStudentsByOption } from '../../components/StudentListFilterDropdown';
 import { mockStudentHours } from '../../utils/mockStudentHours';
@@ -68,6 +68,8 @@ const Students = () => {
   const [dailyHours, setDailyHours] = useState([]);
   const [mentorSearch, setMentorSearch] = useState('');
   const [showMentorDropdown, setShowMentorDropdown] = useState(false);
+  const [filterDate, setFilterDate] = useState('');
+  
   useEffect(() => {
     fetchStudents();
     fetchMentors();
@@ -77,13 +79,13 @@ const Students = () => {
   useEffect(() => {
     setPage(1);
   }, [searchTerm, sortBy, activeTab, filterDate]);
+
   const fetchMentors = async () => {
     try {
       const res = await api.get('/admin/mentors');
       if (res.data.success) setMentorsList(res.data.data || []);
     } catch (e) {}
   };
-  const [filterDate, setFilterDate] = useState('');
   
   const fetchStudents = async () => {
     try {

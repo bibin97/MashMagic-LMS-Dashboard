@@ -206,6 +206,59 @@ const StudentsList = ({
       setInitialLoad(false);
     }
   };
+
+  const fetchExportData = async (exportType, dateRange) => {
+    try {
+      const toastId = toast.loading('Fetching full data for export...');
+      const params = new URLSearchParams({ sortBy, filterMode: activeTab, export: 'true' });
+      if (deferredSearchTerm) params.append('search', deferredSearchTerm);
+      if (filterCourse !== 'all') params.append('course', filterCourse);
+      if (filterMentor !== 'all') params.append('mentor_id', filterMentor);
+      if (filterFaculty !== 'all') params.append('faculty_id', filterFaculty);
+      
+      if (exportType === 'today') {
+          const today = new Date().toISOString().split('T')[0];
+          params.append('date', today);
+      } else if (exportType === 'range' && dateRange && dateRange.length > 0) {
+          const start = dateRange[0].format("YYYY-MM-DD");
+          if (dateRange.length > 1) {
+              const end = dateRange[1].format("YYYY-MM-DD");
+              // Assuming API supports startDate and endDate, if not it will fallback
+              params.append('startDate', start);
+              params.append('endDate', end);
+          } else {
+              params.append('date', start);
+          }
+      } else if (filterDate) {
+          params.append('date', filterDate);
+      }
+
+      const res = await api.get(`${apiPath}/students-all?${params.toString()}`);
+      toast.dismiss(toastId);
+      
+      let allStudents = res.data.data || [];
+      // Inject mock hours
+      allStudents = allStudents.map(student => {
+        const mockKey = Object.keys(mockStudentHours).find(key => student.name && student.name.toLowerCase().includes(key.toLowerCase()));
+        if (mockKey) {
+          const mockObj = mockStudentHours[mockKey];
+          return {
+            ...student,
+            ...mockObj,
+            consumed_hours: (parseFloat(student.consumed_hours) || 0) + (mockObj.consumed_hours || 0),
+            total_lifetime_consumed_hours: (parseFloat(student.total_lifetime_consumed_hours) || 0) + (mockObj.total_lifetime_consumed_hours || 0)
+          };
+        }
+        return student;
+      });
+      
+      return allStudents;
+    } catch (error) {
+      toast.dismiss();
+      toast.error("Failed to fetch export data");
+      return null;
+    }
+  };
   const handleEdit = student => {
     navigate(`${navBasePath}/edit-student/${student.id}`);
   };
@@ -418,20 +471,29 @@ const StudentsList = ({
 						<StudentListFilterDropdown value={sortBy} onChange={setSortBy} />
                         <ExportButton 
                             data={filteredStudents}
+                            fetchData={fetchExportData}
                             filename="aoe_students"
                             dateField="created_at"
                             columns={[
                                 { header: 'Reg #', accessor: 'registration_number' },
                                 { header: 'Name', accessor: 'name' },
                                 { header: 'Email', accessor: 'email' },
-                                { header: 'Phone', accessor: 'phone_number' },
-                                { header: 'Course', accessor: 'course' },
+                                { header: 'Phone', accessor: 'contact' },
                                 { header: 'Grade', accessor: 'grade' },
+                                { header: 'Syllabus', accessor: 'syllabus' },
+                                { header: 'Course', accessor: 'course' },
                                 { header: 'Mentor', accessor: 'mentor_name' },
-                                { header: 'Faculty', accessor: 'faculty_names' },
+                                { header: 'Faculty', accessor: 'faculty_name' },
                                 { header: 'Total Hours', accessor: 'total_hours' },
                                 { header: 'Consumed Hours', accessor: 'total_lifetime_consumed_hours' },
-                                { header: 'Status', accessor: 'status' }
+                                { header: 'Status', accessor: 'status' },
+                                { header: 'Admission Date', accessor: (row) => row.admission_date ? new Date(row.admission_date).toLocaleDateString() : '' },
+                                { header: 'School Name', accessor: 'school_name' },
+                                { header: 'Preferred Language', accessor: 'preferred_language' },
+                                { header: 'Country', accessor: 'country' },
+                                { header: 'Admission Type', accessor: 'admission_type' },
+                                { header: 'Enrollment Type', accessor: 'enrollment_type' },
+                                { header: 'Created At', accessor: (row) => row.created_at ? new Date(row.created_at).toLocaleDateString() : '' }
                             ]}
                         />
 					</div>
@@ -483,6 +545,7 @@ const StudentsList = ({
 					<div className="w-full">
                         <ExportButton 
                             data={filteredStudents}
+                            fetchData={fetchExportData}
                             filename="aoe_students"
                             dateField="created_at"
                             fullWidth
@@ -490,14 +553,22 @@ const StudentsList = ({
                                 { header: 'Reg #', accessor: 'registration_number' },
                                 { header: 'Name', accessor: 'name' },
                                 { header: 'Email', accessor: 'email' },
-                                { header: 'Phone', accessor: 'phone_number' },
-                                { header: 'Course', accessor: 'course' },
+                                { header: 'Phone', accessor: 'contact' },
                                 { header: 'Grade', accessor: 'grade' },
+                                { header: 'Syllabus', accessor: 'syllabus' },
+                                { header: 'Course', accessor: 'course' },
                                 { header: 'Mentor', accessor: 'mentor_name' },
-                                { header: 'Faculty', accessor: 'faculty_names' },
+                                { header: 'Faculty', accessor: 'faculty_name' },
                                 { header: 'Total Hours', accessor: 'total_hours' },
                                 { header: 'Consumed Hours', accessor: 'total_lifetime_consumed_hours' },
-                                { header: 'Status', accessor: 'status' }
+                                { header: 'Status', accessor: 'status' },
+                                { header: 'Admission Date', accessor: (row) => row.admission_date ? new Date(row.admission_date).toLocaleDateString() : '' },
+                                { header: 'School Name', accessor: 'school_name' },
+                                { header: 'Preferred Language', accessor: 'preferred_language' },
+                                { header: 'Country', accessor: 'country' },
+                                { header: 'Admission Type', accessor: 'admission_type' },
+                                { header: 'Enrollment Type', accessor: 'enrollment_type' },
+                                { header: 'Created At', accessor: (row) => row.created_at ? new Date(row.created_at).toLocaleDateString() : '' }
                             ]}
                         />
 					</div>

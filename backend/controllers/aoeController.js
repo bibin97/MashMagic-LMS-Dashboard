@@ -1256,8 +1256,11 @@ const getStudents = async (req, res) => {
         const [countResult] = await db.query(countSql, countParams);
         const total = countResult[0].total;
 
-        sql += ' LIMIT ? OFFSET ?';
-        const queryParams = [...params, limitNum, offset];
+        let queryParams = [...params];
+        if (req.query.export !== 'true') {
+            sql += ' LIMIT ? OFFSET ?';
+            queryParams.push(limitNum, offset);
+        }
 
         const [rows] = await db.query(sql, queryParams);
         const augmentedRows = await calculateStudentHours(rows, db);
