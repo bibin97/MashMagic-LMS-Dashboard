@@ -344,7 +344,7 @@ const Registrations = () => {
     setStudentForm(prev => ({
       ...prev,
       name: student.name || '',
-      email: '', // Deliberately clear email for rejoining so it can be re-entered
+      email: student.email || '',
       password: '',
       confirmPassword: '',
       contact: student.phone_number || student.contact || '',
@@ -356,27 +356,32 @@ const Registrations = () => {
       preferredLanguage: student.preferred_language || '',
       country: student.country || '',
       registrationNumber: student.registration_number || '',
-      admissionType: 'rejoining' // Ensure this stays
+      admissionType: 'rejoining',
+      // Explicitly reset fields that should not be fetched
+      admissionDate: new Date().toISOString().split('T')[0],
+      totalFees: '',
+      totalPaid: '',
+      nextInstallmentDate: '',
+      meetingLink: '',
+      enrollmentNote: '',
+      rejoiningFee: ''
     }));
 
-    if (student.subjects_json) {
-      try {
-        const parsedSubjects = typeof student.subjects_json === 'string' ? JSON.parse(student.subjects_json) : student.subjects_json;
-        if (Array.isArray(parsedSubjects) && parsedSubjects.length > 0) {
-          const subjectsWithState = parsedSubjects.map(sub => ({
-            ...sub,
-            availableFaculties: [],
-            isDayDropdownOpen: false, 
-            isSubjectDropdownOpen: false,
-            isFacultyDropdownOpen: false,
-            facultySearchQuery: ''
-          }));
-          setSelectedSubjects(subjectsWithState);
-        }
-      } catch (e) {
-        console.error("Error parsing student subjects:", e);
+    // Do NOT fetch previous subjects. Reset to a fresh empty row.
+    setSelectedSubjects([
+      { 
+        subject: '', 
+        dayConfigs: [], 
+        facultyId: '', 
+        facultyName: '', 
+        hourlyRate: '', 
+        availableFaculties: [], 
+        isDayDropdownOpen: false, 
+        isSubjectDropdownOpen: false,
+        isFacultyDropdownOpen: false,
+        facultySearchQuery: ''
       }
-    }
+    ]);
 
     setIsStudentDropdownOpen(false);
     setStudentSearchQuery('');
@@ -632,11 +637,47 @@ const Registrations = () => {
 
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-2 relative" ref={studentDropdownRef}>
                   <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Student Name</label>
                   <div className="relative group">
-                    <User size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#008080] transition-colors" />
-                    <input type="text" name="name" required value={studentForm.name} onChange={handleStudentChange} autoComplete="off" className="w-full p-3 pl-12 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-bold" placeholder="Full Name" />
+                    <User size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#008080] transition-colors z-10" />
+                    {studentForm.admissionType === 'rejoining' ? (
+                      <>
+                        <input 
+                          type="text" 
+                          name="name" 
+                          required 
+                          value={studentForm.name} 
+                          onChange={(e) => {
+                            handleStudentChange(e);
+                            setStudentSearchQuery(e.target.value);
+                            setIsStudentDropdownOpen(true);
+                          }}
+                          onFocus={() => setIsStudentDropdownOpen(true)}
+                          autoComplete="off" 
+                          className="w-full p-3 pl-12 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-bold relative z-0" 
+                          placeholder="Search Rejoining Student Name" 
+                        />
+                        {isStudentDropdownOpen && studentSearchQuery.length > 0 && (
+                          <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-2xl border border-slate-100 max-h-60 overflow-y-auto z-50">
+                            {allStudents
+                              .filter(s => s.name?.toLowerCase().includes(studentSearchQuery.toLowerCase()))
+                              .map(s => (
+                                <div 
+                                  key={s.id} 
+                                  onClick={() => handleExistingStudentSelect(s)}
+                                  className="p-3 hover:bg-slate-50 cursor-pointer border-b border-slate-100 last:border-0"
+                                >
+                                  <div className="font-bold text-sm text-slate-800">{s.name}</div>
+                                  <div className="text-xs text-slate-500">{s.grade} | {s.phone_number || s.contact}</div>
+                                </div>
+                              ))}
+                          </div>
+                        )}
+                      </>
+                    ) : (
+                      <input type="text" name="name" required value={studentForm.name} onChange={handleStudentChange} autoComplete="off" className="w-full p-3 pl-12 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-[#008080] font-bold relative z-0" placeholder="Full Name" />
+                    )}
                   </div>
                 </div>
                 <div className="flex flex-col gap-2">
