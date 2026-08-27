@@ -122,17 +122,36 @@ const getStudents = async (req, res) => {
 
         students = await calculateStudentHours(students, db);
 
-        // Filter subject_hours to only include the subjects this faculty teaches
-        if (facultySubjects.length > 0) {
-            students = students.map(student => {
-                if (student.subject_hours && Array.isArray(student.subject_hours)) {
-                    student.subject_hours = student.subject_hours.filter(sh => 
-                        sh.subject && facultySubjects.includes(sh.subject.toLowerCase().trim())
-                    );
-                }
-                return student;
-            });
-        }
+        // Filter subject_hours to only include subjects this faculty is mapped to
+        const [facultyInfoRows] = await db.query('SELECT name FROM users WHERE id = ?', [facultyId]);
+        const facultyName = facultyInfoRows.length > 0 ? facultyInfoRows[0].name.toLowerCase().trim() : '';
+
+        students = students.map(student => {
+            // Determine subjects assigned to this faculty via subjects_json
+            const studentExplicitSubjects = [];
+            if (student.subjects_json) {
+                try {
+                    let sJson = typeof student.subjects_json === 'string' ? JSON.parse(student.subjects_json) : student.subjects_json;
+                    if (Array.isArray(sJson)) {
+                        sJson.forEach(sub => {
+                            if (sub.faculties && sub.faculties.toLowerCase().trim() === facultyName && sub.subject) {
+                                studentExplicitSubjects.push(sub.subject.toLowerCase().trim());
+                            }
+                        });
+                    }
+                } catch(e) {}
+            }
+
+            if (student.subject_hours && Array.isArray(student.subject_hours)) {
+                // Keep if in explicitly assigned subjects OR in faculty's global profile subjects
+                student.subject_hours = student.subject_hours.filter(sh => {
+                    if (!sh.subject) return false;
+                    const normSubj = sh.subject.toLowerCase().trim();
+                    return studentExplicitSubjects.includes(normSubj) || facultySubjects.includes(normSubj);
+                });
+            }
+            return student;
+        });
 
         res.status(200).json({ success: true, count: students.length, data: students });
     } catch (error) {
