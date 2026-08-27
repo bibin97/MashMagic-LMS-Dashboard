@@ -6,7 +6,11 @@ exports.getTimetable = async (req, res) => {
             SELECT t.*, s.name as student_name, s.grade, s.subject as student_subject
             FROM timetable t
             JOIN students s ON t.student_id = s.id
-            WHERE t.faculty_id = ? OR s.faculty_id = ?
+            WHERE (t.is_deleted IS NULL OR t.is_deleted = 0)
+              AND (
+                s.faculty_id = ? OR 
+                EXISTS (SELECT 1 FROM faculty_schedules fs WHERE fs.student_id = s.id AND fs.faculty_id = ? AND (fs.is_deleted IS NULL OR fs.is_deleted = 0))
+              )
             ORDER BY t.date DESC, t.start_time DESC
         `, [req.user.id, req.user.id]);
         res.status(200).json({ success: true, data: rows });
@@ -17,29 +21,22 @@ exports.getTimetable = async (req, res) => {
 
 exports.getAcademicSchedule = async (req, res) => {
     try {
-        const [today] = await db.query(`
-            SELECT t.*, s.name as student_name, s.grade, s.subject as student_subject, s.meeting_link as student_meeting_link
+        const baseQuery = `
+            SELECT t.*, s.name as student_name, s.grade, s.subject as student_subject, s.meeting_link as student_meeting_link,
+                   tr.topic, tr.remarks, tr.homework_given
             FROM timetable t
             JOIN students s ON t.student_id = s.id
-            WHERE (t.faculty_id = ? OR s.faculty_id = ?) AND t.date = CURDATE()
-            ORDER BY t.start_time ASC
-        `, [req.user.id, req.user.id]);
+            LEFT JOIN timetable_reports tr ON tr.timetable_id = t.id
+            WHERE (t.is_deleted IS NULL OR t.is_deleted = 0)
+              AND (
+                s.faculty_id = ? OR 
+                EXISTS (SELECT 1 FROM faculty_schedules fs WHERE fs.student_id = s.id AND fs.faculty_id = ? AND (fs.is_deleted IS NULL OR fs.is_deleted = 0))
+              )
+        `;
 
-        const [upcoming] = await db.query(`
-            SELECT t.*, s.name as student_name, s.grade, s.subject as student_subject
-            FROM timetable t
-            JOIN students s ON t.student_id = s.id
-            WHERE (t.faculty_id = ? OR s.faculty_id = ?) AND t.date > CURDATE()
-            ORDER BY t.date ASC, t.start_time ASC
-        `, [req.user.id, req.user.id]);
-
-        const [completed] = await db.query(`
-            SELECT t.*, s.name as student_name, s.grade, s.subject as student_subject
-            FROM timetable t
-            JOIN students s ON t.student_id = s.id
-            WHERE (t.faculty_id = ? OR s.faculty_id = ?) AND t.status = 'Completed'
-            ORDER BY t.date DESC, t.start_time DESC
-        `, [req.user.id, req.user.id]);
+        const [today] = await db.query(baseQuery + ` AND t.date = CURDATE() ORDER BY t.start_time ASC`, [req.user.id, req.user.id]);
+        const [upcoming] = await db.query(baseQuery + ` AND t.date > CURDATE() ORDER BY t.date ASC, t.start_time ASC`, [req.user.id, req.user.id]);
+        const [completed] = await db.query(baseQuery + ` AND t.status = 'Completed' ORDER BY t.date DESC, t.start_time DESC`, [req.user.id, req.user.id]);
 
         res.status(200).json({ success: true, data: { today, upcoming, completed } });
     } catch (error) {

@@ -117,7 +117,10 @@ const FacultySchedule = () => {
             { header: "Date", accessor: row => row.date ? new Date(row.date).toLocaleDateString('en-GB') : 'TBD' },
             { header: "Start Time", accessor: row => row.start_time ? new Date(`2000-01-01T${row.start_time}`).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }) : 'TBD' },
             { header: "End Time", accessor: row => row.end_time ? new Date(`2000-01-01T${row.end_time}`).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }) : 'TBD' },
-            { header: "Status", accessor: "status" }
+            { header: "Status", accessor: "status" },
+            { header: "Topic Taught", accessor: row => row.topic || 'N/A' },
+            { header: "Remarks", accessor: row => row.remarks || 'N/A' },
+            { header: "Homework Given", accessor: row => row.homework_given ? 'Yes' : 'No' }
           ]}
         />
       </div>

@@ -9,7 +9,7 @@ const getUnifiedAcademicScheduleQuery = (roleFilter = '', additionalJoins = '') 
                topic, subject, session_type, status, faculty_name, student_name, meeting_link, minutes_taken, 
                minutes_locked, session_number, mentor_id,
                reminder_1, reminder_1_remark, reminder_2, reminder_2_remark, reminder_3, reminder_3_remark,
-               hour_rate
+               hour_rate, topic_taught, remarks, homework_given
         FROM (
             -- SOURCE 1: Timetable (Source of Truth)
             SELECT 
@@ -41,12 +41,16 @@ const getUnifiedAcademicScheduleQuery = (roleFilter = '', additionalJoins = '') 
                 COALESCE(
                     (SELECT hourly_rate FROM faculty_schedules fsch WHERE fsch.student_id = t.student_id AND fsch.faculty_id = t.faculty_id AND (fsch.is_deleted IS NULL OR fsch.is_deleted = 0) LIMIT 1),
                     COALESCE(f.hourly_rate, f2.hourly_rate)
-                ) as hour_rate
+                ) as hour_rate,
+                tr.topic as topic_taught,
+                tr.remarks,
+                tr.homework_given
             FROM timetable t
             LEFT JOIN users f ON t.faculty_id = f.id
             LEFT JOIN faculties f2 ON t.faculty_id = f2.id
             JOIN students s ON t.student_id = s.id
             LEFT JOIN faculty_sessions fs ON t.id = fs.timetable_id
+            LEFT JOIN timetable_reports tr ON t.id = tr.timetable_id
             ${additionalJoins}
             WHERE (t.is_deleted IS NULL OR t.is_deleted = 0)
             ${roleFilter}
@@ -83,7 +87,10 @@ const getUnifiedAcademicScheduleQuery = (roleFilter = '', additionalJoins = '') 
                 COALESCE(
                     (SELECT hourly_rate FROM faculty_schedules fsch WHERE fsch.student_id = sa.student_id AND fsch.faculty_id = fs.faculty_id AND (fsch.is_deleted IS NULL OR fsch.is_deleted = 0) LIMIT 1),
                     u.hourly_rate
-                ) as hour_rate
+                ) as hour_rate,
+                NULL as topic_taught,
+                NULL as remarks,
+                NULL as homework_given
             FROM faculty_sessions fs
             LEFT JOIN users u ON fs.faculty_id = u.id AND u.role = 'faculty'
             LEFT JOIN session_attendance sa ON fs.id = sa.session_id

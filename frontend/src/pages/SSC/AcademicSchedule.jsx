@@ -377,6 +377,9 @@ const AcademicSchedule = () => {
                   { header: "End Time", accessor: row => row.end_time ? new Date(`2000-01-01T${row.end_time}`).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }) : 'TBD' },
                   { header: "Status", accessor: "status" },
                   { header: "Minutes Taken", accessor: "minutes_taken" },
+                  { header: "Topic Taught", accessor: row => row.topic_taught || 'N/A' },
+                  { header: "Remarks", accessor: row => row.remarks || 'N/A' },
+                  { header: "Homework Given", accessor: row => row.homework_given ? 'Yes' : 'No' },
                   { header: "Cancel Note", accessor: "cancel_note" }
                 ]}
               />
@@ -739,3 +742,4 @@ const AcademicSchedule = () => {
 };
 
 export default AcademicSchedule;
+
