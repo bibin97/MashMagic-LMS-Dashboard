@@ -161,7 +161,10 @@ const FacultyProfile = () => {
           hs_hour_rate: u.hs_hour_rate || '',
           hss_hour_rate: u.hss_hour_rate || '',
           teaching_mode: u.teaching_mode || 'Both',
-          joining_date: u.joining_date ? new Date(u.joining_date).toISOString().split('T')[0] : '',
+          joining_date: (() => {
+            try { return u.joining_date ? new Date(u.joining_date).toISOString().split('T')[0] : ''; }
+            catch(e) { return ''; }
+          })(),
           remarks: u.remarks || '',
           primary_subject: Array.isArray(parsedPrimary) ? parsedPrimary : [],
           secondary_subjects: Array.isArray(parsedSecondary) ? parsedSecondary : []

@@ -91,10 +91,12 @@ const getStudents = async (req, res) => {
         const facultyId = req.user.id;
         const { date } = req.query;
 
-        const [facultyRows] = await db.query('SELECT subject, secondary_subjects FROM users WHERE id = ?', [facultyId]);
+        const [facultyInfoRows] = await db.query('SELECT name, subject, secondary_subjects FROM users WHERE id = ?', [facultyId]);
+        const facultyName = facultyInfoRows.length > 0 ? facultyInfoRows[0].name.toLowerCase().trim() : '';
+        const facultyNameExact = facultyInfoRows.length > 0 ? facultyInfoRows[0].name : '';
         const facultySubjects = [];
-        if (facultyRows.length > 0) {
-            const f = facultyRows[0];
+        if (facultyInfoRows.length > 0) {
+            const f = facultyInfoRows[0];
             if (f.subject) facultySubjects.push(f.subject.toLowerCase().trim());
             if (f.secondary_subjects) {
                 try {
@@ -106,12 +108,13 @@ const getStudents = async (req, res) => {
         }
 
         let sql = `
-            SELECT DISTINCT s.id, s.name, s.roll_number, s.department, s.attendance_percentage, s.performance_status, s.status, s.created_at, s.badge, s.enrollment_type, s.total_fees, s.total_hours, s.total_paid
+            SELECT DISTINCT s.id, s.name, s.roll_number, s.department, s.attendance_percentage, s.performance_status, s.status, s.created_at, s.badge, s.enrollment_type, s.total_fees, s.total_hours, s.total_paid, s.subjects_json
             FROM students s
             WHERE (s.faculty_id = ? 
-               OR EXISTS (SELECT 1 FROM faculty_schedules fs WHERE (fs.is_deleted IS NULL OR fs.is_deleted = 0) AND fs.student_id = s.id AND fs.faculty_id = ?))
+               OR EXISTS (SELECT 1 FROM faculty_schedules fs WHERE (fs.is_deleted IS NULL OR fs.is_deleted = 0) AND fs.student_id = s.id AND fs.faculty_id = ?)
+               OR s.subjects_json LIKE ?)
         `;
-        let params = [facultyId, facultyId];
+        let params = [facultyId, facultyId, `%${facultyNameExact}%`];
 
         if (date) {
             sql += ' AND DATE(s.created_at) = ?';
@@ -121,10 +124,6 @@ const getStudents = async (req, res) => {
         let [students] = await db.query(sql, params);
 
         students = await calculateStudentHours(students, db);
-
-        // Filter subject_hours to only include subjects this faculty is mapped to
-        const [facultyInfoRows] = await db.query('SELECT name FROM users WHERE id = ?', [facultyId]);
-        const facultyName = facultyInfoRows.length > 0 ? facultyInfoRows[0].name.toLowerCase().trim() : '';
 
         students = students.map(student => {
             // Determine subjects assigned to this faculty via subjects_json
@@ -503,16 +502,27 @@ const markRead = async (req, res) => {
 // @desc    Profile Settings
 const getProfile = async (req, res) => {
     try {
-        const [user] = await db.query(`
-            SELECT u.*, f.lp_hour_rate, f.up_hour_rate, f.hs_hour_rate, f.hss_hour_rate, u.subject as primary_subject, u.secondary_subjects
-            FROM users u
-            LEFT JOIN faculties f ON u.id = f.user_id OR u.email = f.email OR (u.phone_number = f.phone_number AND u.phone_number IS NOT NULL)
-            WHERE u.id = ?
-        `, [req.user.id]);
-        if (user.length === 0) return res.status(404).json({ success: false, message: "User not found" });
+        let userRows = [];
+        try {
+            [userRows] = await db.query(`
+                SELECT u.*, f.lp_hour_rate, f.up_hour_rate, f.hs_hour_rate, f.hss_hour_rate, u.subject as primary_subject, u.secondary_subjects
+                FROM users u
+                LEFT JOIN faculties f ON u.id = f.user_id OR u.email = f.email OR (u.phone_number = f.phone_number AND u.phone_number IS NOT NULL)
+                WHERE u.id = ?
+            `, [req.user.id]);
+        } catch (joinErr) {
+            console.error("Faculty join failed, falling back to basic user fetch:", joinErr);
+            [userRows] = await db.query(`
+                SELECT *
+                FROM users 
+                WHERE id = ?
+            `, [req.user.id]);
+        }
         
-        delete user[0].password;
-        res.status(200).json({ success: true, data: user[0] });
+        if (userRows.length === 0) return res.status(404).json({ success: false, message: "User not found" });
+        
+        delete userRows[0].password;
+        res.status(200).json({ success: true, data: userRows[0] });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
