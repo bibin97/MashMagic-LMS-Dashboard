@@ -1689,16 +1689,19 @@ const getAllFacultiesForAdmin = async (req, res) => {
         let query = `
             SELECT 
                 u.id, u.name, u.email, u.phone_number as phone, u.status, u.subject, u.syllabus, u.section,
-                (SELECT COUNT(DISTINCT s.id) 
-                 FROM students s 
-                 WHERE (s.faculty_id = u.id OR EXISTS (SELECT 1 FROM faculty_schedules fs WHERE (fs.is_deleted IS NULL OR fs.is_deleted = 0) AND fs.student_id = s.id AND fs.faculty_id = u.id)) 
-                   AND s.status = 'active') as studentsUnder,
-                (SELECT COUNT(DISTINCT s.mentor_id) 
-                 FROM students s 
-                 WHERE (s.faculty_id = u.id OR EXISTS (SELECT 1 FROM faculty_schedules fs WHERE (fs.is_deleted IS NULL OR fs.is_deleted = 0) AND fs.student_id = s.id AND fs.faculty_id = u.id)) 
-                   AND s.mentor_id IS NOT NULL 
-                   AND s.status = 'active') as mentorsUnder
+                COUNT(DISTINCT ls.id) as studentsUnder,
+                COUNT(DISTINCT ls.mentor_id) as mentorsUnder
             FROM faculties u
+            LEFT JOIN (
+                SELECT faculty_id, id, mentor_id 
+                FROM students 
+                WHERE status = 'active' AND faculty_id IS NOT NULL
+                UNION
+                SELECT fs.faculty_id, s.id, s.mentor_id 
+                FROM faculty_schedules fs
+                JOIN students s ON s.id = fs.student_id
+                WHERE (fs.is_deleted IS NULL OR fs.is_deleted = 0) AND s.status = 'active'
+            ) as ls ON ls.faculty_id = u.id
             WHERE 1=1
         `;
         let params = [];
@@ -1712,6 +1715,7 @@ const getAllFacultiesForAdmin = async (req, res) => {
         const [countResult] = await db.query(countQuery, search ? [`%${search}%`, `%${search}%`, `%${search}%`] : []);
         const total = countResult[0].total;
 
+        query += ' GROUP BY u.id';
         query += ' ORDER BY u.name ASC LIMIT ? OFFSET ?';
         params.push(limit, offset);
 
