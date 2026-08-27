@@ -798,36 +798,65 @@ const editFaculty = async (req, res) => {
             primary_subject, secondary_subjects, syllabus, languages_proficiency, section
         } = req.body;
 
-        const subjectsList = [primary_subject, ...(secondary_subjects || [])].filter(Boolean);
-        const subjectValue = subjectsList.length > 0 ? subjectsList.join(',') : null;
-        const syllabusValue = Array.isArray(syllabus) ? syllabus.join(',') : (syllabus || null);
+        let primaryArr = [];
+        if (Array.isArray(primary_subject)) primaryArr = primary_subject;
+        else if (primary_subject) primaryArr = [primary_subject];
+        const subjectValue = primaryArr.length > 0 ? primaryArr.join(', ') : null;
+        
+        let secondaryArr = [];
+        if (Array.isArray(secondary_subjects)) secondaryArr = secondary_subjects;
+        else if (secondary_subjects) secondaryArr = [secondary_subjects];
+        const secondarySubjectValue = secondaryArr.length > 0 ? JSON.stringify(secondaryArr) : null;
+
+        const syllabusValue = Array.isArray(syllabus) ? JSON.stringify(syllabus) : (syllabus || null);
         const languagesValue = languages_proficiency ? JSON.stringify(languages_proficiency) : null;
 
-        let updateQuery = `
+        let updateFacQuery = `
             UPDATE faculties SET 
                 name = ?, email = ?, phone_number = ?, place = ?,
                 faculty_id_card = ?, qualification = ?, experience = ?,
                 availability = ?, hourly_rate = ?, teaching_mode = ?, joining_date = ?,
                 remarks = ?, subject = ?, syllabus = ?, languages_proficiency = ?, section = ?
         `;
-        let params = [
+        let paramsFac = [
             name, email || null, phone_number || null, place || null,
             faculty_id_card || null, qualification || null, experience || null,
             availability || null, hourly_rate || null, teaching_mode || null, joining_date || null,
             remarks || null, subjectValue, syllabusValue, languagesValue, section || null
         ];
 
+        let updateUsrQuery = `
+            UPDATE users SET 
+                name = ?, email = ?, phone_number = ?, place = ?,
+                faculty_id_card = ?, qualification = ?, experience = ?,
+                availability = ?, hourly_rate = ?, teaching_mode = ?, joining_date = ?,
+                remarks = ?, subject = ?, secondary_subjects = ?, syllabus = ?, languages_proficiency = ?, section = ?
+        `;
+        let paramsUsr = [
+            name, email || null, phone_number || null, place || null,
+            faculty_id_card || null, qualification || null, experience || null,
+            availability || null, hourly_rate || null, teaching_mode || null, joining_date || null,
+            remarks || null, subjectValue, secondarySubjectValue, syllabusValue, languagesValue, section || null
+        ];
+
         if (password && password.trim() !== '') {
             const salt = await bcrypt.genSalt(10);
             const hashedPassword = await bcrypt.hash(password, salt);
-            updateQuery += `, password = ?`;
-            params.push(hashedPassword);
+            updateFacQuery += `, password = ?`;
+            paramsFac.push(hashedPassword);
+            updateUsrQuery += `, password = ?`;
+            paramsUsr.push(hashedPassword);
         }
 
-        updateQuery += ` WHERE id = ?`;
-        params.push(req.params.id);
+        updateFacQuery += ` WHERE id = ?`;
+        paramsFac.push(req.params.id);
+        
+        // Match user by email or phone since faculties id might not perfectly match user id in all cases (though user_id usually does, let's use user_id or email)
+        updateUsrQuery += ` WHERE id = (SELECT user_id FROM faculties WHERE id = ?) OR email = ?`;
+        paramsUsr.push(req.params.id, email);
 
-        await db.query(updateQuery, params);
+        await db.query(updateFacQuery, paramsFac);
+        try { await db.query(updateUsrQuery, paramsUsr); } catch(e) { console.error("Could not sync users table", e); }
         
         // Log the edit
         try {
