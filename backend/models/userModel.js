@@ -45,9 +45,22 @@ const User = {
         // Determine target table
         let targetTable = 'users';
 
-        const subjectsList = [userData.primary_subject, ...(userData.secondary_subjects || [])].filter(Boolean);
-        const subjectValue = subjectsList.length > 0 ? subjectsList.join(',') : ((userData.subjects && Array.isArray(userData.subjects)) ? userData.subjects.join(',') : (userData.subject || null));
-        const syllabusValue = Array.isArray(userData.syllabus) ? userData.syllabus.join(',') : (userData.syllabus || null);
+        // Flatten primary subjects if it's an array, otherwise make it an array
+        let primaryArr = [];
+        if (Array.isArray(userData.primary_subject)) primaryArr = userData.primary_subject;
+        else if (userData.primary_subject) primaryArr = [userData.primary_subject];
+        else if (userData.subjects && Array.isArray(userData.subjects)) primaryArr = userData.subjects;
+        else if (userData.subject) primaryArr = [userData.subject];
+        
+        const subjectValue = primaryArr.length > 0 ? primaryArr.join(', ') : null;
+        
+        let secondaryArr = [];
+        if (Array.isArray(userData.secondary_subjects)) secondaryArr = userData.secondary_subjects;
+        else if (userData.secondary_subjects) secondaryArr = [userData.secondary_subjects];
+        
+        const secondarySubjectValue = secondaryArr.length > 0 ? JSON.stringify(secondaryArr) : null;
+
+        const syllabusValue = Array.isArray(userData.syllabus) ? JSON.stringify(userData.syllabus) : (userData.syllabus || null);
         const hourlyRateValue = Array.isArray(userData.hourly_rates) ? userData.hourly_rates.join(',') : (userData.hourly_rate || 0);
 
         let columns = `name, phone_number, place, email, password, role, status, isApproved, isActive`;
@@ -63,13 +76,13 @@ const User = {
         }
 
         // For all roles, we append the extra columns since they are in the users table
-        columns += `, grade, subject, course, hour, mentor_name, faculty_name, next_installment_date, 
+        columns += `, grade, subject, secondary_subjects, course, hour, mentor_name, faculty_name, next_installment_date, 
             time_table, enrollment_type, badge, meeting_link, 
             faculty_id_card, section, syllabus, languages_proficiency, qualification, 
             experience, availability, hourly_rate, teaching_mode, joining_date, remarks`;
-        values += `, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?`;
+        values += `, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?`;
         paramsArray.push(
-            userData.grade || null, subjectValue, userData.course || null, userData.hour || null, userData.mentor_name || null, userData.faculty_name || null, userData.next_installment_date || null, userData.time_table || null,
+            userData.grade || null, subjectValue, secondarySubjectValue, userData.course || null, userData.hour || null, userData.mentor_name || null, userData.faculty_name || null, userData.next_installment_date || null, userData.time_table || null,
             enrollment_type, badge, userData.meeting_link || null,
             userData.faculty_id_card || null, userData.section || null, syllabusValue, 
             userData.languages_proficiency ? JSON.stringify(userData.languages_proficiency) : null,

@@ -503,7 +503,12 @@ const markRead = async (req, res) => {
 // @desc    Profile Settings
 const getProfile = async (req, res) => {
     try {
-        const [user] = await db.query('SELECT * FROM users WHERE id = ?', [req.user.id]);
+        const [user] = await db.query(`
+            SELECT u.*, f.lp_hour_rate, f.up_hour_rate, f.hs_hour_rate, f.hss_hour_rate, u.subject as primary_subject, u.secondary_subjects
+            FROM users u
+            LEFT JOIN faculties f ON u.id = f.user_id OR u.email = f.email OR (u.phone_number = f.phone_number AND u.phone_number IS NOT NULL)
+            WHERE u.id = ?
+        `, [req.user.id]);
         if (user.length === 0) return res.status(404).json({ success: false, message: "User not found" });
         
         delete user[0].password;
@@ -516,11 +521,28 @@ const getProfile = async (req, res) => {
 // @desc    Update Profile
 const updateProfile = async (req, res) => {
     try {
+        const reconstructArray = (prefix) => {
+            const arr = [];
+            Object.keys(req.body).forEach(k => {
+                if (k.startsWith(`${prefix}[`)) {
+                    const match = k.match(/\[(\d+)\]/);
+                    if (match) arr[parseInt(match[1], 10)] = req.body[k];
+                }
+            });
+            // Fallback to the raw field if it's already an array or string
+            return arr.length > 0 ? arr : (req.body[prefix] || null);
+        };
+
+        const syllabusArr = reconstructArray('syllabus');
+        const languagesProficiencyArr = reconstructArray('languages_proficiency');
+        const primarySubjectArr = reconstructArray('primary_subject');
+        const secondarySubjectsArr = reconstructArray('secondary_subjects');
+
         const { 
             phone_number, password, 
-            faculty_id_card, section, syllabus, languages_proficiency,
+            faculty_id_card, section,
             qualification, experience, availability, hourly_rate,
-            teaching_mode, joining_date, remarks, primary_subject, secondary_subjects
+            teaching_mode, joining_date, remarks
         } = req.body;
         
         const updates = [];
@@ -529,8 +551,8 @@ const updateProfile = async (req, res) => {
         if (phone_number) { updates.push('phone_number = ?'); params.push(phone_number); }
         if (faculty_id_card) { updates.push('faculty_id_card = ?'); params.push(faculty_id_card); }
         if (section) { updates.push('section = ?'); params.push(section); }
-        if (syllabus) { updates.push('syllabus = ?'); params.push(JSON.stringify(syllabus)); }
-        if (languages_proficiency) { updates.push('languages_proficiency = ?'); params.push(JSON.stringify(languages_proficiency)); }
+        if (syllabusArr) { updates.push('syllabus = ?'); params.push(JSON.stringify(Array.isArray(syllabusArr) ? syllabusArr : [syllabusArr])); }
+        if (languagesProficiencyArr) { updates.push('languages_proficiency = ?'); params.push(JSON.stringify(Array.isArray(languagesProficiencyArr) ? languagesProficiencyArr : [languagesProficiencyArr])); }
         if (qualification) { updates.push('qualification = ?'); params.push(qualification); }
         if (experience) { updates.push('experience = ?'); params.push(experience); }
         if (availability) { updates.push('availability = ?'); params.push(availability); }
@@ -538,8 +560,15 @@ const updateProfile = async (req, res) => {
         if (teaching_mode) { updates.push('teaching_mode = ?'); params.push(teaching_mode); }
         if (joining_date) { updates.push('joining_date = ?'); params.push(joining_date); }
         if (remarks) { updates.push('remarks = ?'); params.push(remarks); }
-        if (primary_subject) { updates.push('subject = ?'); params.push(primary_subject); }
-        if (secondary_subjects) { updates.push('secondary_subjects = ?'); params.push(JSON.stringify(secondary_subjects)); }
+        
+        if (primarySubjectArr) { 
+            updates.push('subject = ?'); 
+            params.push(Array.isArray(primarySubjectArr) ? primarySubjectArr.join(', ') : primarySubjectArr); 
+        }
+        if (secondarySubjectsArr) { 
+            updates.push('secondary_subjects = ?'); 
+            params.push(JSON.stringify(Array.isArray(secondarySubjectsArr) ? secondarySubjectsArr : [secondarySubjectsArr])); 
+        }
 
         if (password) {
             const bcrypt = require('bcrypt');

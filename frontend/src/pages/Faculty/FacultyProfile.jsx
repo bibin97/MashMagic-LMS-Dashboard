@@ -132,7 +132,7 @@ const FacultyProfile = () => {
         try { parsedSyllabus = typeof u.syllabus === 'string' ? JSON.parse(u.syllabus) : (u.syllabus || []); } catch(e){}
         try { parsedLangs = typeof u.languages_proficiency === 'string' ? JSON.parse(u.languages_proficiency) : (u.languages_proficiency || []); } catch(e){}
         try { parsedSecondary = typeof u.secondary_subjects === 'string' ? JSON.parse(u.secondary_subjects) : (u.secondary_subjects || []); } catch(e){}
-        try { parsedPrimary = typeof (u.subject || u.primary_subject) === 'string' && (u.subject || u.primary_subject).startsWith('[') ? JSON.parse(u.subject || u.primary_subject) : ((u.subject || u.primary_subject) ? (u.subject || u.primary_subject).split(', ') : []); } catch(e){ parsedPrimary = (u.subject || u.primary_subject) ? [(u.subject || u.primary_subject)] : []; }
+        try { parsedPrimary = typeof (u.subject || u.primary_subject) === 'string' && (u.subject || u.primary_subject).startsWith('[') ? JSON.parse(u.subject || u.primary_subject) : ((u.subject || u.primary_subject) ? (u.subject || u.primary_subject).split(',').map(s=>s.trim()) : []); } catch(e){ parsedPrimary = (u.subject || u.primary_subject) ? [(u.subject || u.primary_subject)] : []; }
 
         let parsedAvailability = [''];
         if (u.availability) {
@@ -156,6 +156,10 @@ const FacultyProfile = () => {
           experience: u.experience || '',
           availability: Array.isArray(parsedAvailability) && parsedAvailability.length > 0 ? parsedAvailability : [''],
           hourly_rate: u.hourly_rate || '',
+          lp_hour_rate: u.lp_hour_rate || '',
+          up_hour_rate: u.up_hour_rate || '',
+          hs_hour_rate: u.hs_hour_rate || '',
+          hss_hour_rate: u.hss_hour_rate || '',
           teaching_mode: u.teaching_mode || 'Both',
           joining_date: u.joining_date ? new Date(u.joining_date).toISOString().split('T')[0] : '',
           remarks: u.remarks || '',
@@ -449,10 +453,24 @@ const FacultyProfile = () => {
                 </select>
               </div>
               <div className="flex flex-col gap-2">
-                <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Hourly Rate (₹)</label>
-                <div className="relative group">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-sm">₹</span>
-                  <input type="text" name="hourly_rate" value={formData.hourly_rate || 'Not Set'} disabled className="w-full p-3 pl-10 bg-slate-100 border border-slate-200 rounded-xl text-sm font-bold text-slate-500 outline-none cursor-not-allowed" />
+                <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Hourly Rates (₹)</label>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="relative group">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[10px] font-black text-slate-400">LP</span>
+                    <input type="text" value={formData.lp_hour_rate || '0'} disabled className="w-full p-3 pl-9 bg-slate-100 border border-slate-200 rounded-xl text-xs font-bold text-slate-500 outline-none cursor-not-allowed" />
+                  </div>
+                  <div className="relative group">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[10px] font-black text-slate-400">UP</span>
+                    <input type="text" value={formData.up_hour_rate || '0'} disabled className="w-full p-3 pl-9 bg-slate-100 border border-slate-200 rounded-xl text-xs font-bold text-slate-500 outline-none cursor-not-allowed" />
+                  </div>
+                  <div className="relative group">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[10px] font-black text-slate-400">HS</span>
+                    <input type="text" value={formData.hs_hour_rate || '0'} disabled className="w-full p-3 pl-9 bg-slate-100 border border-slate-200 rounded-xl text-xs font-bold text-slate-500 outline-none cursor-not-allowed" />
+                  </div>
+                  <div className="relative group">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[10px] font-black text-slate-400">HSS</span>
+                    <input type="text" value={formData.hss_hour_rate || '0'} disabled className="w-full p-3 pl-10 bg-slate-100 border border-slate-200 rounded-xl text-xs font-bold text-slate-500 outline-none cursor-not-allowed" />
+                  </div>
                 </div>
               </div>
 
