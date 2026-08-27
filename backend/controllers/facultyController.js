@@ -502,27 +502,37 @@ const markRead = async (req, res) => {
 // @desc    Profile Settings
 const getProfile = async (req, res) => {
     try {
-        let userRows = [];
-        try {
-            [userRows] = await db.query(`
-                SELECT u.*, f.lp_hour_rate, f.up_hour_rate, f.hs_hour_rate, f.hss_hour_rate, u.subject as primary_subject, u.secondary_subjects
-                FROM users u
-                LEFT JOIN faculties f ON u.id = f.user_id OR u.email = f.email OR (u.phone_number = f.phone_number AND u.phone_number IS NOT NULL)
-                WHERE u.id = ?
-            `, [req.user.id]);
-        } catch (joinErr) {
-            console.error("Faculty join failed, falling back to basic user fetch:", joinErr);
-            [userRows] = await db.query(`
-                SELECT *
-                FROM users 
-                WHERE id = ?
-            `, [req.user.id]);
-        }
+        let [userRows] = await db.query('SELECT * FROM users WHERE id = ?', [req.user.id]);
         
         if (userRows.length === 0) return res.status(404).json({ success: false, message: "User not found" });
         
-        delete userRows[0].password;
-        res.status(200).json({ success: true, data: userRows[0] });
+        let user = userRows[0];
+        delete user.password;
+        
+        try {
+            const [facRows] = await db.query(`
+                SELECT * FROM faculties 
+                WHERE user_id = ? OR email = ? OR (phone_number = ? AND phone_number IS NOT NULL)
+                LIMIT 1
+            `, [user.id, user.email, user.phone_number]);
+            
+            if (facRows.length > 0) {
+                const f = facRows[0];
+                // Merge faculty data into user data without overwriting core user fields like id, name, email, role, status
+                const coreFields = ['id', 'name', 'email', 'phone_number', 'role', 'status', 'password', 'createdAt'];
+                for (let key in f) {
+                    if (!coreFields.includes(key) && f[key] !== null && f[key] !== undefined) {
+                        user[key] = f[key];
+                    }
+                }
+                user.primary_subject = user.subject || f.subject;
+            }
+        } catch (facErr) {
+            console.error("Failed to fetch faculties data:", facErr);
+            require('fs').writeFileSync('backend_error_fac.log', String(facErr) + '\n' + facErr.stack);
+        }
+        
+        res.status(200).json({ success: true, data: user });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
@@ -597,6 +607,37 @@ const updateProfile = async (req, res) => {
 
         params.push(req.user.id);
         await db.query(`UPDATE users SET ${updates.join(', ')} WHERE id = ?`, params);
+
+        // SYNC to faculties table so AOE can see changes
+        const facUpdates = [];
+        const facParams = [];
+        if (phone_number) { facUpdates.push('phone_number = ?'); facParams.push(phone_number); }
+        if (faculty_id_card) { facUpdates.push('faculty_id_card = ?'); facParams.push(faculty_id_card); }
+        if (section) { facUpdates.push('section = ?'); facParams.push(section); }
+        if (syllabusArr) { facUpdates.push('syllabus = ?'); facParams.push(JSON.stringify(Array.isArray(syllabusArr) ? syllabusArr : [syllabusArr])); }
+        if (languagesProficiencyArr) { facUpdates.push('languages_proficiency = ?'); facParams.push(JSON.stringify(Array.isArray(languagesProficiencyArr) ? languagesProficiencyArr : [languagesProficiencyArr])); }
+        if (qualification) { facUpdates.push('qualification = ?'); facParams.push(qualification); }
+        if (experience) { facUpdates.push('experience = ?'); facParams.push(experience); }
+        if (availability) { facUpdates.push('availability = ?'); facParams.push(availability); }
+        if (hourly_rate) { facUpdates.push('hourly_rate = ?'); facParams.push(hourly_rate); }
+        if (teaching_mode) { facUpdates.push('teaching_mode = ?'); facParams.push(teaching_mode); }
+        if (joining_date) { facUpdates.push('joining_date = ?'); facParams.push(joining_date); }
+        if (remarks) { facUpdates.push('remarks = ?'); facParams.push(remarks); }
+        if (primarySubjectArr) { 
+            facUpdates.push('subject = ?'); 
+            facParams.push(Array.isArray(primarySubjectArr) ? primarySubjectArr.join(', ') : primarySubjectArr); 
+        }
+        
+        if (facUpdates.length > 0) {
+            try {
+                facParams.push(req.user.id);
+                // Also fallback to phone_number or email if user_id doesn't match directly in legacy rows
+                const userEmail = req.user.email;
+                await db.query(`UPDATE faculties SET ${facUpdates.join(', ')} WHERE user_id = ? OR email = ?`, [...facParams, userEmail]);
+            } catch (facUpdateErr) {
+                console.error("Failed to sync profile update to faculties table:", facUpdateErr);
+            }
+        }
 
         const [updatedUser] = await db.query('SELECT * FROM users WHERE id = ?', [req.user.id]);
         if (updatedUser.length > 0) {
