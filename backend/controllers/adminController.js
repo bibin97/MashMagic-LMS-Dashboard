@@ -1542,11 +1542,11 @@ const getAllMentorsForAdmin = async (req, res) => {
         let countParams = [];
 
         if (startDate) {
-            whereClauses.push("u.createdAt >= ?");
+            whereClauses.push("u.created_at >= ?");
             params.push(startDate);
         }
         if (endDate) {
-            whereClauses.push("u.createdAt <= ?");
+            whereClauses.push("u.created_at <= ?");
             params.push(endDate + ' 23:59:59');
         }
 
@@ -1554,7 +1554,8 @@ const getAllMentorsForAdmin = async (req, res) => {
             whereClauses.push("u.status = 'active'");
         } else if (category === 'Archived Records') {
             whereClauses.push("u.status != 'active'");
-        }        if (search) {
+        }
+        if (search) {
             whereClauses.push("(u.name LIKE ? OR u.email LIKE ? OR u.phone_number LIKE ?)");
             params.push(`%${search}%`, `%${search}%`, `%${search}%`);
         }
@@ -1563,7 +1564,7 @@ const getAllMentorsForAdmin = async (req, res) => {
 
         const query = `
             SELECT 
-                u.id, u.name, u.email, u.phone_number as phone, u.status, u.createdAt as created_at,
+                u.id, u.name, u.email, u.phone_number as phone, u.status, u.created_at,
                 (SELECT COUNT(*) FROM students s WHERE s.mentor_id = u.id AND s.status = 'active') as studentsCount,
                 (SELECT COUNT(*) FROM tasks t WHERE t.assigned_to = u.id) as tasksAssigned,
                 (SELECT COUNT(*) FROM tasks t WHERE t.assigned_to = u.id AND t.status = 'Completed') as completedTasks,
@@ -1612,9 +1613,9 @@ const getStaffMembers = async (req, res) => {
             FROM users
             WHERE role IN ('super_admin', 'sub_admin', 'mentor_head', 'academic_head', 'ssc', 'academic_operation_executive')
             UNION ALL
-            SELECT id, name, email, phone_number as phone, 'mentor' as role, status, createdAt as created_at FROM mentors
+            SELECT id, name, email, phone_number as phone, 'mentor' as role, status, created_at FROM mentors
             UNION ALL
-            SELECT id, name, email, phone_number as phone, 'faculty' as role, status, createdAt as created_at FROM faculties
+            SELECT id, name, email, phone_number as phone, 'faculty' as role, status, created_at FROM faculties
         `;
 
         let query = `
