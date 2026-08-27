@@ -1562,7 +1562,7 @@ const getAllMentorsForAdmin = async (req, res) => {
 
         const whereSQL = whereClauses.length > 0 ? `WHERE ${whereClauses.join(' AND ')}` : '';
 
-        const query = `
+        let query = `
             SELECT 
                 u.id, u.name, u.email, u.phone_number as phone, u.status, u.created_at,
                 (SELECT COUNT(*) FROM students s WHERE s.mentor_id = u.id AND s.status = 'active') as studentsCount,
