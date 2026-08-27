@@ -137,9 +137,17 @@ const Students = () => {
           'Course': s.course || '',
           'Mentor': s.mentor || 'Not Assigned',
           'Faculty': s.faculty || 'Not Assigned',
+          'Total Hours': s.total_hours || 0,
+          'Consumed Hours': s.total_lifetime_consumed_hours || s.consumed_hours || 0,
           'Status': s.status || '',
           'Onboarding Status': s.onboarding_status || '',
           'Assessment Level': s.assessment_level || '',
+          'Admission Date': s.admission_date ? new Date(s.admission_date).toLocaleDateString() : '',
+          'School Name': s.school_name || '',
+          'Preferred Language': s.preferred_language || '',
+          'Country': s.country || '',
+          'Admission Type': s.admission_type || '',
+          'Enrollment Type': s.enrollment_type || '',
           'Created At': s.created_at ? new Date(s.created_at).toLocaleDateString() : ''
         }));
 
