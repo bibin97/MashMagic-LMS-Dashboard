@@ -1,7 +1,7 @@
 import React, {  useState, useEffect , useDeferredValue } from 'react';
 import { 
   Target, Presentation, GraduationCap, TrendingUp, UserMinus, AlertTriangle, 
-  Search, ShieldCheck, Activity, Users, BookOpen, Clock, AlertCircle, FileText, CheckCircle2, XCircle, Star, X
+  Search, ShieldCheck, Activity, Users, BookOpen, Clock, AlertCircle, FileText, CheckCircle2, XCircle, Star, X, Download
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import api from '../../services/api';
@@ -185,7 +185,63 @@ const OperationsHub = ({ section }) => {
   };
 
   // Render Functions
+  const exportLiveClassUpdates = async () => {
+    const evaluations = activeData.evaluations || [];
+    if (evaluations.length === 0) {
+      toast.error('No evaluations available to export');
+      return;
+    }
 
+    try {
+      const XLSX = await import('xlsx');
+      
+      const exportData = evaluations.map(item => {
+        let ratings = {};
+        let cleanRemarks = item.remarks || '';
+        
+        const ratingsMatch = cleanRemarks.match(/\[Ratings:\s*(.*?)\]/);
+        if (ratingsMatch) {
+          const ratingsString = ratingsMatch[1];
+          ratingsString.split(',').forEach(part => {
+            const [key, val] = part.split(':').map(s => s.trim());
+            if (key && val) {
+               ratings[key] = val;
+            }
+          });
+          cleanRemarks = cleanRemarks.replace(/\[Ratings:\s*(.*?)\]\s*Remarks:\s*/, '').trim();
+        }
+
+        return {
+          'Date': item.date ? new Date(item.date).toLocaleDateString('en-GB') : 'N/A',
+          'Faculty Name': item.faculty_name || 'N/A',
+          'Topic/Subject': item.class_topic || 'N/A',
+          'Lighting': ratings['Lighting'] || 'N/A',
+          'Audio Quality': ratings['Audio Quality'] || 'N/A',
+          'Video Quality': ratings['Video Quality'] || 'N/A',
+          'Internet Stability': ratings['Internet Stability'] || 'N/A',
+          'Screen Sharing': ratings['Screen Sharing'] || 'N/A',
+          'Writing Board Visibility': ratings['Writing Board Visibility'] || 'N/A',
+          'Virtual Background': ratings['Virtual Background'] || 'N/A',
+          'Device Positioning': ratings['Device Positioning'] || 'N/A',
+          'Overall Score': item.score + '/100',
+          'Remarks': cleanRemarks
+        };
+      });
+
+      const ws = XLSX.utils.json_to_sheet(exportData);
+      ws['!cols'] = [
+        { wch: 15 }, { wch: 25 }, { wch: 25 }, { wch: 12 }, { wch: 15 },
+        { wch: 15 }, { wch: 20 }, { wch: 18 }, { wch: 25 }, { wch: 20 },
+        { wch: 20 }, { wch: 15 }, { wch: 40 }
+      ];
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Evaluations");
+      XLSX.writeFile(wb, `Live_Class_Evaluations_${new Date().toISOString().split('T')[0]}.xlsx`);
+    } catch (error) {
+      console.error("Export error:", error);
+      toast.error("Failed to export Excel file");
+    }
+  };
 
   const renderLiveClassUpdates = () => {
     const evaluations = activeData.evaluations || [];
@@ -210,9 +266,14 @@ const OperationsHub = ({ section }) => {
           <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight">Live Class Observations</h2>
           <p className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mt-1">Join active sessions to monitor faculty quality</p>
         </div>
-        <button onClick={() => handleAction("Join Random Class")} className="px-6 py-3 bg-[#008080] text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-[#008080]/20 hover:-translate-y-1 transition-all">
-          Join Random Live Class
-        </button>
+        <div className="flex flex-wrap items-center gap-3">
+          <button onClick={exportLiveClassUpdates} className="px-6 py-3 bg-indigo-50 text-indigo-600 border border-indigo-100 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-sm hover:bg-indigo-100 hover:shadow-md hover:-translate-y-1 transition-all flex items-center gap-2">
+            <Download size={14} /> Export to Excel
+          </button>
+          <button onClick={() => handleAction("Join Random Class")} className="px-6 py-3 bg-[#008080] text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-[#008080]/20 hover:-translate-y-1 transition-all">
+            Join Random Live Class
+          </button>
+        </div>
       </div>
 
       <div className="space-y-4">
