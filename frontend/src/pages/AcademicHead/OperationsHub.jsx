@@ -247,7 +247,14 @@ const OperationsHub = ({ section }) => {
               { header: 'Virtual Background', accessor: item => extractRating(item.remarks, 'Virtual Background') },
               { header: 'Device Positioning', accessor: item => extractRating(item.remarks, 'Device Positioning') },
               { header: 'Overall Score', accessor: item => item.score + '/100' },
-              { header: 'Remarks', accessor: item => cleanRemarksStr(item.remarks) }
+              { header: 'Remarks', accessor: item => cleanRemarksStr(item.remarks) },
+              { header: 'Proof Link', accessor: item => {
+                  if (!item.proof_url) return 'N/A';
+                  if (item.proof_url.startsWith('http')) return item.proof_url;
+                  const baseUrl = import.meta.env.VITE_API_URL || window.location.origin;
+                  return `${baseUrl}/${item.proof_url}`.replace(/([^:]\/)\/+/g, "$1");
+                }
+              }
             ]}
           />
           <button onClick={() => handleAction("Join Random Class")} className="px-6 py-3 bg-[#008080] text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-[#008080]/20 hover:-translate-y-1 transition-all">
