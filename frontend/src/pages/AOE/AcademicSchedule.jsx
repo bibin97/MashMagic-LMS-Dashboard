@@ -56,7 +56,9 @@ const AcademicSchedule = () => {
     const newJoined = { ...joinedSessions, [session.id]: true };
     setJoinedSessions(newJoined);
     localStorage.setItem('joinedSessions', JSON.stringify(newJoined));
-    window.open(session.meeting_link, '_blank');
+    let url = session.meeting_link;
+    if (url && !url.startsWith('http://') && !url.startsWith('https://')) url = 'https://' + url;
+    window.open(url, '_blank');
   };
   const [selectedSession, setSelectedSession] = useState(null);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);

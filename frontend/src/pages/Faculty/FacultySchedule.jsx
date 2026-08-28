@@ -250,7 +250,11 @@ const FacultySchedule = () => {
                     ...(activeTab === 'today' && session.student_meeting_link ? [{
                       icon: <Video size={14} />,
                       label: 'Live',
-                      onClick: () => window.open(session.student_meeting_link, '_blank'),
+                      onClick: () => {
+                        let url = session.student_meeting_link;
+                        if (url && !url.startsWith('http://') && !url.startsWith('https://')) url = 'https://' + url;
+                        window.open(url, '_blank');
+                      },
                       variant: 'danger'
                     }] : []),
                     ...((activeTab === 'today' || activeTab === 'completed') && session.status !== 'Completed' ? [{
