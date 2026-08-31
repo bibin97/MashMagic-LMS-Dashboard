@@ -1013,7 +1013,7 @@ const Registrations = () => {
                               row.facultyId 
                                 ? { 
                                     value: row.facultyId, 
-                                    label: faculties.find(f => f.id.toString() === row.facultyId)?.name || 'Unknown' 
+                                    label: row.facultyName || 'Unknown Faculty' 
                                   } 
                                 : null
                             }
