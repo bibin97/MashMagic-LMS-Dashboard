@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../../services/api';
-import { ArrowLeft, User, Phone, BookOpen, Clock, Calendar, CheckSquare, MessageSquare, History, Contact, BadgeCheck } from 'lucide-react';
+import { ArrowLeft, User, Phone, BookOpen, Clock, Calendar, CheckSquare, MessageSquare, History, Contact, BadgeCheck, Download } from 'lucide-react';
 import toast from 'react-hot-toast';
 import StatusBadge from '../../components/Mentor/StatusBadge';
 import { useAuth } from '../../context/AuthContext';
@@ -146,6 +146,85 @@ const StudentDetails = () => {
       toast.error("Permission denied to update status");
     }
   };
+  const exportFullData = async () => {
+    try {
+      const XLSX = await import('xlsx');
+      const wb = XLSX.utils.book_new();
+
+      // 1. Profile Data
+      const profileData = [
+        { Field: "Student Name", Value: student.name },
+        { Field: "Registration Number", Value: student.registration_number || 'N/A' },
+        { Field: "Grade", Value: student.grade || 'N/A' },
+        { Field: "Course", Value: student.course || 'N/A' },
+        { Field: "Syllabus", Value: student.syllabus || 'N/A' },
+        { Field: "Contact", Value: student.phone_number || student.contact || 'N/A' },
+        { Field: "School Name", Value: student.school_name || 'N/A' },
+        { Field: "Country", Value: student.country || 'N/A' },
+        { Field: "Admission Date", Value: student.admission_date ? new Date(student.admission_date).toLocaleDateString('en-GB') : 'N/A' },
+        { Field: "Mentor", Value: student.mentor_name || 'N/A' },
+        { Field: "Assigned Faculty", Value: student.faculty_name || 'N/A' },
+        { Field: "Status", Value: student.status || 'N/A' },
+        { Field: "Total Paid", Value: `₹${fees ? fees.total_paid_amount : (student.total_paid || 0)}` },
+        { Field: "Balance", Value: `₹${fees ? Math.max(0, fees.total_fee - fees.total_paid_amount) : Math.max(0, (student.total_fees || 0) - (student.total_paid || 0))}` }
+      ];
+      const wsProfile = XLSX.utils.json_to_sheet(profileData);
+      wsProfile['!cols'] = [{ wch: 25 }, { wch: 40 }];
+      XLSX.utils.book_append_sheet(wb, wsProfile, "Profile Info");
+
+      // 2. Class / Timetable Details
+      if (student.timetable && student.timetable.length > 0) {
+        const classData = student.timetable.map(t => ({
+          'Session No': t.session_number,
+          'Date': new Date(t.date).toLocaleDateString('en-GB'),
+          'Time': `${t.start_time} - ${t.end_time}`,
+          'Chapter / Topic': t.chapter_topic || t.chapter || 'N/A',
+          'Faculty': t.faculty_name || 'N/A',
+          'Status': t.status
+        }));
+        const wsClasses = XLSX.utils.json_to_sheet(classData);
+        wsClasses['!cols'] = [{ wch: 15 }, { wch: 15 }, { wch: 20 }, { wch: 40 }, { wch: 25 }, { wch: 15 }];
+        XLSX.utils.book_append_sheet(wb, wsClasses, "Class Details");
+      }
+
+      // 3. Mentorship Logs
+      if (student.logs && student.logs.length > 0) {
+        const logData = student.logs.map(l => ({
+          'Date': new Date(l.date).toLocaleDateString('en-GB'),
+          'Interaction Type': l.interaction_type,
+          'Duration (mins)': l.duration_minutes,
+          'Clarity (%)': l.self_clarity,
+          'Confidence (1-5)': l.confidence,
+          'Status': l.status,
+          'Summary': l.details || l.mentor_notes || 'N/A'
+        }));
+        const wsLogs = XLSX.utils.json_to_sheet(logData);
+        wsLogs['!cols'] = [{ wch: 15 }, { wch: 20 }, { wch: 15 }, { wch: 15 }, { wch: 15 }, { wch: 15 }, { wch: 60 }];
+        XLSX.utils.book_append_sheet(wb, wsLogs, "Mentorship Logs");
+      }
+
+      // 4. Faculty Logs
+      if (student.facultyLogs && student.facultyLogs.length > 0) {
+        const facLogData = student.facultyLogs.map(fl => ({
+          'Date': new Date(fl.date).toLocaleDateString('en-GB'),
+          'Chapter': fl.chapter,
+          'Topics Covered': fl.topics_covered,
+          'Student Performance': fl.student_performance,
+          'Status': fl.status
+        }));
+        const wsFacLogs = XLSX.utils.json_to_sheet(facLogData);
+        wsFacLogs['!cols'] = [{ wch: 15 }, { wch: 25 }, { wch: 40 }, { wch: 25 }, { wch: 15 }];
+        XLSX.utils.book_append_sheet(wb, wsFacLogs, "Faculty Logs");
+      }
+
+      XLSX.writeFile(wb, `${student.name.replace(/\s+/g, '_')}_Full_Data.xlsx`);
+      toast.success("Student full data exported!");
+    } catch (err) {
+      console.error(err);
+      toast.error("Export failed!");
+    }
+  };
+
   if (loading) return <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
             <div className="w-12 h-12 border-4 border-[#008080] border-t-transparent rounded-full animate-spin"></div>
             <p className="text-slate-600 font-black text-[10px] uppercase tracking-widest animate-pulse">Loading Student Profile...</p>
@@ -171,23 +250,28 @@ const StudentDetails = () => {
                 </div>
 
                 <div className="flex-1 text-center md:text-left relative z-10">
-                    <div className="flex flex-col md:flex-row items-center gap-4 mb-4 justify-center md:justify-start">
-                        <h1 className="text-2xl md:text-4xl font-black text-slate-900 tracking-tighter uppercase leading-none">
-                            {student.name}
-                        </h1>
-                        <div className="flex flex-wrap gap-2">
-                            {student.onboarding_status === 'pending' && <span className="px-3 py-1 bg-rose-50 text-rose-600 rounded-xl text-[9px] font-black uppercase tracking-widest border border-rose-100 shadow-sm">
-                                    {isSSC ? 'Onboarding Pending' : 'New Student'}
-                                </span>}
-                            {student.status === 'active' ? <span className="px-3 py-1 bg-emerald-50 text-emerald-600 rounded-xl text-[9px] font-black uppercase tracking-widest border border-emerald-100 shadow-sm flex items-center gap-1">
-                                    <BadgeCheck size={10} /> Active
-                                </span> : <span className="px-3 py-1 bg-slate-100 text-slate-500 rounded-xl text-[9px] font-black uppercase tracking-widest border border-slate-200 shadow-sm">
-                                    {student.status}
-                                </span>}
-                            {student.is_shifted && <span className="px-3 py-1 bg-amber-50 text-amber-600 rounded-xl text-[9px] font-black uppercase tracking-widest border border-amber-100 shadow-sm flex items-center gap-1">
-                                    <History size={10} /> Shifted: {student.shifted_from}
-                                </span>}
+                    <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-4">
+                        <div className="flex flex-col md:flex-row items-center gap-4 justify-center md:justify-start">
+                            <h1 className="text-2xl md:text-4xl font-black text-slate-900 tracking-tighter uppercase leading-none">
+                                {student.name}
+                            </h1>
+                            <div className="flex flex-wrap gap-2">
+                                {student.onboarding_status === 'pending' && <span className="px-3 py-1 bg-rose-50 text-rose-600 rounded-xl text-[9px] font-black uppercase tracking-widest border border-rose-100 shadow-sm">
+                                        {isSSC ? 'Onboarding Pending' : 'New Student'}
+                                    </span>}
+                                {student.status === 'active' ? <span className="px-3 py-1 bg-emerald-50 text-emerald-600 rounded-xl text-[9px] font-black uppercase tracking-widest border border-emerald-100 shadow-sm flex items-center gap-1">
+                                        <BadgeCheck size={10} /> Active
+                                    </span> : <span className="px-3 py-1 bg-slate-100 text-slate-500 rounded-xl text-[9px] font-black uppercase tracking-widest border border-slate-200 shadow-sm">
+                                        {student.status}
+                                    </span>}
+                                {student.is_shifted && <span className="px-3 py-1 bg-amber-50 text-amber-600 rounded-xl text-[9px] font-black uppercase tracking-widest border border-amber-100 shadow-sm flex items-center gap-1">
+                                        <History size={10} /> Shifted: {student.shifted_from}
+                                    </span>}
+                            </div>
                         </div>
+                        <button onClick={exportFullData} className="px-4 py-2 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-slate-900/20 hover:bg-slate-800 transition-all flex items-center gap-2">
+                            <Download size={14} /> Export Data
+                        </button>
                     </div>
 
                     <div className="flex flex-wrap justify-center md:justify-start gap-3 mb-8">
