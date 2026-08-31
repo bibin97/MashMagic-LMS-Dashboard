@@ -11,6 +11,7 @@ import { sortStudentsByOption } from '../../components/StudentListFilterDropdown
 import { mockStudentHours } from '../../utils/mockStudentHours';
 import MobileStudentCard from '../../components/common/MobileStudentCard';
 import Pagination from '../../components/common/Pagination';
+import ExportSingleStudentData from '../../components/common/ExportSingleStudentData';
 
 const Students = () => {
   const navigate = useNavigate();
@@ -512,6 +513,7 @@ const Students = () => {
               <option value="oldest">Oldest First</option>
             </select>
           </div>
+          <ExportSingleStudentData customClass="h-full px-6 bg-slate-900 text-white rounded-[24px] text-[10px] font-black uppercase tracking-widest shadow-xl transition-all flex items-center justify-center gap-2 hover:bg-slate-800" />
         </div>
       </div>
 
