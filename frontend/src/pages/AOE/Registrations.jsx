@@ -230,7 +230,7 @@ const Registrations = () => {
         setFaculties(res.data.data.faculties || []);
       }
       
-      const stdRes = await api.get('/aoe/students-all', {
+      const stdRes = await api.get('/aoe/students-all?export=true', {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (stdRes.data.success) {
