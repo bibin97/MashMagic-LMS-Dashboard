@@ -3,8 +3,10 @@ import { Download, X } from 'lucide-react';
 import Select from 'react-select';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
+import { useAuth } from '../../context/AuthContext';
 
 const ExportSingleStudentData = ({ buttonLabel = 'Export Full Data', customClass = '' }) => {
+  const { user } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [studentsList, setStudentsList] = useState([]);
   const [selectedStudent, setSelectedStudent] = useState(null);
@@ -17,31 +19,30 @@ const ExportSingleStudentData = ({ buttonLabel = 'Export Full Data', customClass
     }
   }, [isOpen]);
 
+  const getApiPath = () => {
+    if (user?.role === 'admin' || user?.role === 'super_admin') return '/admin';
+    if (user?.role === 'mentor_head') return '/mentor';
+    return '/aoe';
+  };
+
   const fetchStudentsList = async () => {
     try {
       setLoading(true);
-      const res = await api.get('/admin/students?export=true');
+      const apiPath = getApiPath();
+      const endpoint = (apiPath === '/admin') ? '/admin/students?export=true' : `${apiPath}/students-all?export=true`;
+      
+      const res = await api.get(endpoint);
       if (res.data.success) {
         setStudentsList(res.data.data.map(s => ({
           value: s.id,
           label: `${s.name} ${s.registration_number ? `(${s.registration_number})` : ''} - ${s.phone_number || s.contact || ''}`
         })));
       } else {
-        const fallback = await api.get('/aoe/dropdown-data');
-        if (fallback.data.success && fallback.data.data.students) {
-           setStudentsList(fallback.data.data.students.map(s => ({ value: s.id, label: s.name })));
-        }
+        toast.error("Failed to load students");
       }
     } catch (err) {
       console.error("Failed to fetch students list", err);
-      try {
-        const fallback = await api.get('/aoe/dropdown-data');
-        if (fallback.data.success && fallback.data.data.students) {
-           setStudentsList(fallback.data.data.students.map(s => ({ value: s.id, label: s.name })));
-        }
-      } catch (err2) {
-        toast.error("Failed to load students for export");
-      }
+      toast.error("Failed to load students for export");
     } finally {
       setLoading(false);
     }
@@ -58,12 +59,14 @@ const ExportSingleStudentData = ({ buttonLabel = 'Export Full Data', customClass
     
     try {
       let student = null;
+      const apiPath = getApiPath();
       try {
-        const res = await api.get(`/admin/students/${selectedStudent.value}`);
+        const res = await api.get(`${apiPath}/students/${selectedStudent.value}`);
         student = res.data.data;
       } catch (e) {
-        const res = await api.get(`/aoe/students/${selectedStudent.value}`);
-        student = res.data.data;
+        // Fallback for edge cases
+        const fallbackRes = await api.get(`/aoe/students/${selectedStudent.value}`);
+        student = fallbackRes.data.data;
       }
 
       let fees = null;

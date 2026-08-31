@@ -470,7 +470,34 @@ const StudentsList = ({
 
 					<div className="lg:ml-auto flex items-center gap-3">
 						<StudentListFilterDropdown value={sortBy} onChange={setSortBy} />
-                        <ExportSingleStudentData />
+                        <ExportButton 
+                            data={filteredStudents}
+                            fetchData={fetchExportData}
+                            filename="aoe_students"
+                            dateField="created_at"
+                            columns={[
+                                { header: 'Reg #', accessor: 'registration_number' },
+                                { header: 'Name', accessor: 'name' },
+                                { header: 'Email', accessor: 'email' },
+                                { header: 'Phone', accessor: 'contact' },
+                                { header: 'Grade', accessor: 'grade' },
+                                { header: 'Syllabus', accessor: 'syllabus' },
+                                { header: 'Course', accessor: 'course' },
+                                { header: 'Mentor', accessor: 'mentor_name' },
+                                { header: 'Faculty', accessor: 'faculty_name' },
+                                { header: 'Total Hours', accessor: 'total_hours' },
+                                { header: 'Consumed Hours', accessor: 'total_lifetime_consumed_hours' },
+                                { header: 'Status', accessor: 'status' },
+                                { header: 'Admission Date', accessor: (row) => row.admission_date ? new Date(row.admission_date).toLocaleDateString() : '' },
+                                { header: 'School Name', accessor: 'school_name' },
+                                { header: 'Preferred Language', accessor: 'preferred_language' },
+                                { header: 'Country', accessor: 'country' },
+                                { header: 'Admission Type', accessor: 'admission_type' },
+                                { header: 'Enrollment Type', accessor: 'enrollment_type' },
+                                { header: 'Created At', accessor: (row) => row.created_at ? new Date(row.created_at).toLocaleDateString() : '' }
+                            ]}
+                        />
+                        <ExportSingleStudentData buttonLabel="Student Data" customClass="h-14 px-6 bg-[#008080] hover:bg-[#006666] text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-[#008080]/20 transition-all flex items-center justify-center gap-2 w-full lg:w-auto hover:-translate-y-1 group" />
 					</div>
 				</div>
 
@@ -517,8 +544,36 @@ const StudentsList = ({
 					</div>
 
 					{/* Row 4: Export full width */}
-					<div className="w-full">
-                        <ExportSingleStudentData />
+					<div className="w-full flex flex-col gap-3">
+                        <ExportButton 
+                            data={filteredStudents}
+                            fetchData={fetchExportData}
+                            filename="aoe_students"
+                            dateField="created_at"
+                            fullWidth
+                            columns={[
+                                { header: 'Reg #', accessor: 'registration_number' },
+                                { header: 'Name', accessor: 'name' },
+                                { header: 'Email', accessor: 'email' },
+                                { header: 'Phone', accessor: 'contact' },
+                                { header: 'Grade', accessor: 'grade' },
+                                { header: 'Syllabus', accessor: 'syllabus' },
+                                { header: 'Course', accessor: 'course' },
+                                { header: 'Mentor', accessor: 'mentor_name' },
+                                { header: 'Faculty', accessor: 'faculty_name' },
+                                { header: 'Total Hours', accessor: 'total_hours' },
+                                { header: 'Consumed Hours', accessor: 'total_lifetime_consumed_hours' },
+                                { header: 'Status', accessor: 'status' },
+                                { header: 'Admission Date', accessor: (row) => row.admission_date ? new Date(row.admission_date).toLocaleDateString() : '' },
+                                { header: 'School Name', accessor: 'school_name' },
+                                { header: 'Preferred Language', accessor: 'preferred_language' },
+                                { header: 'Country', accessor: 'country' },
+                                { header: 'Admission Type', accessor: 'admission_type' },
+                                { header: 'Enrollment Type', accessor: 'enrollment_type' },
+                                { header: 'Created At', accessor: (row) => row.created_at ? new Date(row.created_at).toLocaleDateString() : '' }
+                            ]}
+                        />
+                        <ExportSingleStudentData buttonLabel="Student Data" customClass="h-14 px-6 bg-[#008080] hover:bg-[#006666] text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-[#008080]/20 transition-all flex items-center justify-center gap-2 w-full hover:-translate-y-1 group" />
 					</div>
 				</div>
 			</div>
