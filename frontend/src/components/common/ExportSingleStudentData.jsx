@@ -21,7 +21,7 @@ const ExportSingleStudentData = ({ buttonLabel = 'Export Full Data', customClass
 
   const getApiPath = () => {
     if (user?.role === 'admin' || user?.role === 'super_admin') return '/admin';
-    if (user?.role === 'mentor_head') return '/mentor';
+    if (user?.role === 'mentor_head') return '/mentor-head';
     return '/aoe';
   };
 
