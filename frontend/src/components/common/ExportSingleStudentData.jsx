@@ -92,16 +92,28 @@ const ExportSingleStudentData = ({ buttonLabel = 'Export Full Data', customClass
       const profileData = [
         { Field: "Student Name", Value: student.name },
         { Field: "Registration Number", Value: student.registration_number || 'N/A' },
-        { Field: "Grade", Value: student.grade || 'N/A' },
-        { Field: "Course", Value: student.course || 'N/A' },
-        { Field: "Syllabus", Value: student.syllabus || 'N/A' },
+        { Field: "Email", Value: student.email || 'N/A' },
         { Field: "Contact", Value: student.phone_number || student.contact || 'N/A' },
+        { Field: "Grade", Value: student.grade || 'N/A' },
+        { Field: "Syllabus", Value: student.syllabus || 'N/A' },
+        { Field: "Course", Value: student.course || 'N/A' },
         { Field: "School Name", Value: student.school_name || 'N/A' },
+        { Field: "Preferred Language", Value: student.preferred_language || 'N/A' },
         { Field: "Country", Value: student.country || 'N/A' },
         { Field: "Admission Date", Value: student.admission_date ? new Date(student.admission_date).toLocaleDateString('en-GB') : 'N/A' },
+        { Field: "Admission Type", Value: student.admission_type || 'N/A' },
+        { Field: "Enrollment Type", Value: student.enrollment_type || 'N/A' },
+        { Field: "Meeting Link", Value: student.meeting_link || 'N/A' },
+        { Field: "Enrollment Note", Value: student.enrollment_note || 'N/A' },
+        { Field: "Badge", Value: student.badge || 'N/A' },
         { Field: "Mentor", Value: student.mentor_name || student.mentor || 'N/A' },
         { Field: "Assigned Faculty", Value: student.faculty_name || student.faculty || 'N/A' },
         { Field: "Status", Value: student.status || 'N/A' },
+        { Field: "Allocated Hours", Value: student.total_hours || 0 },
+        { Field: "Consumed Hours", Value: student.total_lifetime_consumed_hours || 0 },
+        { Field: "Remaining Hours", Value: student.remaining_hours || 0 },
+        { Field: "Total Fees", Value: `₹${student.total_fees || 0}` },
+        { Field: "Rejoining Fee", Value: `₹${student.rejoining_fee || 0}` },
         { Field: "Total Paid", Value: `₹${fees ? fees.total_paid_amount : (student.total_paid || 0)}` },
         { Field: "Balance", Value: `₹${fees ? Math.max(0, fees.total_fee - fees.total_paid_amount) : Math.max(0, (student.total_fees || 0) - (student.total_paid || 0))}` }
       ];
@@ -121,6 +133,42 @@ const ExportSingleStudentData = ({ buttonLabel = 'Export Full Data', customClass
         const wsClasses = XLSX.utils.json_to_sheet(classData);
         wsClasses['!cols'] = [{ wch: 15 }, { wch: 15 }, { wch: 20 }, { wch: 40 }, { wch: 25 }, { wch: 15 }];
         XLSX.utils.book_append_sheet(wb, wsClasses, "Class Details");
+      }
+
+      if (student.subjects_json) {
+        try {
+          const subjects = typeof student.subjects_json === 'string' ? JSON.parse(student.subjects_json) : student.subjects_json;
+          if (Array.isArray(subjects) && subjects.length > 0) {
+            const subjectData = [];
+            subjects.forEach(sub => {
+              const subjectName = Array.isArray(sub.subject) ? sub.subject.join(', ') : sub.subject;
+              const days = sub.days ? sub.days.join(', ') : (sub.day || '');
+              
+              if (sub.dayConfigs && sub.dayConfigs.length > 0) {
+                sub.dayConfigs.forEach(dc => {
+                  subjectData.push({
+                    'Subject': subjectName,
+                    'Faculty': sub.facultyName || 'N/A',
+                    'Hourly Rate': sub.hourlyRate || '0',
+                    'Day': dc.day || '',
+                    'Time': `${dc.startTime || ''} - ${dc.endTime || ''}`
+                  });
+                });
+              } else {
+                subjectData.push({
+                  'Subject': subjectName,
+                  'Faculty': sub.facultyName || 'N/A',
+                  'Hourly Rate': sub.hourlyRate || '0',
+                  'Day': days,
+                  'Time': `${sub.startTime || ''} - ${sub.endTime || ''}`
+                });
+              }
+            });
+            const wsSubjects = XLSX.utils.json_to_sheet(subjectData);
+            wsSubjects['!cols'] = [{ wch: 25 }, { wch: 25 }, { wch: 15 }, { wch: 20 }, { wch: 20 }];
+            XLSX.utils.book_append_sheet(wb, wsSubjects, "Enrolled Subjects");
+          }
+        } catch(e) {}
       }
 
       XLSX.writeFile(wb, `${student.name.replace(/\s+/g, '_')}_Full_Data.xlsx`);

@@ -2,6 +2,7 @@ const db = require('../config/db');
 const { getUnifiedAcademicScheduleQuery } = require('../utils/scheduleHelper');
 const bcrypt = require('bcrypt');
 const { logFacultyChanges } = require('../utils/facultyChangeLogger');
+const { calculateStudentHours } = require('../utils/studentHoursHelper');
 const User = require('../models/userModel');
 
 const ensureAoeDemoScheduleColumns = async () => {
@@ -1198,10 +1199,14 @@ const getStudentById = async (req, res) => {
             return res.status(404).json({ success: false, message: "Student not found" });
         }
 
-        const student = rows[0];
+        let student = rows[0];
+
+        // Calculate hours
+        const studentWithHours = await calculateStudentHours([student], db);
+        student = studentWithHours[0];
 
         // Fetch timetable
-        const [timetable] = await db.query('SELECT * FROM timetable WHERE (is_deleted IS NULL OR is_deleted = 0) AND student_id = ? ORDER BY date ASC, start_time ASC', [student.id]);
+        const [timetable] = await db.query('SELECT t.*, f.name as faculty_name FROM timetable t LEFT JOIN faculties f ON t.faculty_id = f.id WHERE (t.is_deleted IS NULL OR t.is_deleted = 0) AND t.student_id = ? ORDER BY t.date ASC, t.start_time ASC', [student.id]);
         student.timetable = timetable;
 
         res.status(200).json({ success: true, data: student });
@@ -1210,8 +1215,6 @@ const getStudentById = async (req, res) => {
         res.status(500).json({ success: false, message: e.message });
     }
 };
-
-const { calculateStudentHours } = require('../utils/studentHoursHelper');
 
 const getStudents = async (req, res) => {
     try {
