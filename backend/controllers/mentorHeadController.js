@@ -134,7 +134,7 @@ exports.getStudentInteractionLogs = async (req, res) => {
         const baseWhere = (tableAlias, studentCol = 'student_id', mentorCol = 'mentor_id', dateCol = 'created_at') => {
             let clause = 'WHERE 1=1';
             if (student_id) clause += ` AND ${tableAlias}.${studentCol} = ?`;
-            if (mentor_id) clause += ` AND ${tableAlias}.${mentorCol} = ?`;
+            if (mentor_id) clause += ` AND m.id = ?`;
             if (startDate) clause += ` AND ${tableAlias}.${dateCol} >= ?`;
             if (endDate) clause += ` AND ${tableAlias}.${dateCol} <= ?`;
             return clause;
