@@ -70,15 +70,17 @@ const ExportSingleStudentData = ({ buttonLabel = 'Export Full Data', customClass
       }
 
       let fees = null;
-      try {
-        const feesRes = await api.get(`/admin/fees/student`);
-        if (feesRes.data.success) {
-          fees = feesRes.data.data.find(f => f.entity_id === parseInt(selectedStudent.value));
-        }
-      } catch (e) {}
+      if (apiPath === '/admin') {
+        try {
+          const feesRes = await api.get(`/admin/fees/student`);
+          if (feesRes.data.success) {
+            fees = feesRes.data.data.find(f => f.entity_id === parseInt(selectedStudent.value));
+          }
+        } catch (e) {}
+      }
 
       try {
-        const facRes = await api.get(`/admin/students/${selectedStudent.value}/faculty-history`);
+        const facRes = await api.get(`${apiPath}/students/${selectedStudent.value}/faculty-history`);
         if (facRes.data.success) {
            student.facultyLogs = facRes.data.data;
         }
