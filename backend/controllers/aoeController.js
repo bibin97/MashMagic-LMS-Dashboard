@@ -1170,11 +1170,29 @@ const editStudent = async (req, res) => {
 const deleteStudent = async (req, res) => {
     try {
         const { id } = req.params;
-        const [result] = await db.query('UPDATE students SET status = "rejected" WHERE id = ?', [id]);
-        if (result.affectedRows === 0) {
+        const [student] = await db.query('SELECT user_id FROM students WHERE id = ?', [id]);
+        if (student.length === 0) {
             return res.status(404).json({ success: false, message: "Student not found" });
         }
-        res.status(200).json({ success: true, message: "Student record hidden from dashboard" });
+        
+        // Delete related records to prevent foreign key constraint errors
+        await db.query('DELETE FROM timetable WHERE student_id = ?', [id]).catch(e => console.log('timetable delete err', e.message));
+        await db.query('DELETE FROM student_interaction_logs WHERE student_id = ?', [id]).catch(e => console.log('sil delete err', e.message));
+        await db.query('DELETE FROM mentor_session_logs WHERE student_id = ?', [id]).catch(e => console.log('msl delete err', e.message));
+        await db.query('DELETE FROM mentorship_logs WHERE student_id = ?', [id]).catch(e => console.log('ml delete err', e.message));
+        await db.query('DELETE FROM student_reports WHERE student_id = ?', [id]).catch(e => console.log('sr delete err', e.message));
+        await db.query('DELETE FROM faculty_interaction_logs WHERE student_id = ?', [id]).catch(e => console.log('fil delete err', e.message));
+        await db.query('DELETE FROM student_exams WHERE student_id = ?', [id]).catch(e => console.log('exams delete err', e.message));
+        await db.query('DELETE FROM student_subjects WHERE student_id = ?', [id]).catch(e => console.log('subjects delete err', e.message));
+        await db.query('DELETE FROM fee_installments WHERE student_id = ?', [id]).catch(e => console.log('fee delete err', e.message));
+        
+        // Delete the main records
+        await db.query('DELETE FROM students WHERE id = ?', [id]);
+        if (student[0].user_id) {
+            await db.query('DELETE FROM users WHERE id = ?', [student[0].user_id]);
+        }
+        
+        res.status(200).json({ success: true, message: "Student record deleted from dashboard" });
     } catch (e) { 
         console.error("DELETE_STUDENT_ERROR:", e);
         res.status(500).json({ success: false, message: e.message }); 
