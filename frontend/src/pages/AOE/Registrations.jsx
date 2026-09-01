@@ -99,9 +99,9 @@ const Registrations = () => {
     grade: '', syllabus: '', mentorId: '', course: '', 
     admissionDate: new Date().toISOString().split('T')[0],
     schoolName: '', preferredLanguage: '', country: '',
-    totalFees: '', totalPaid: '', nextInstallmentDate: '', 
+    totalFees: '', totalPaid: '', totalHours: '', nextInstallmentDate: '', 
     admissionType: 'new', registrationNumber: '', meetingLink: '',
-    enrollmentType: '', rejoiningFee: '', enrollmentNote: ''
+    enrollmentType: '', rejoiningFee: '', enrollmentNote: '', existingStudentId: ''
   });
 
   const [selectedSubjects, setSelectedSubjects] = useState([
@@ -357,6 +357,7 @@ const Registrations = () => {
       country: student.country || '',
       registrationNumber: student.registration_number || '',
       admissionType: 'rejoining',
+      existingStudentId: student.id,
       // Explicitly reset fields that should not be fetched
       admissionDate: new Date().toISOString().split('T')[0],
       totalFees: '',
@@ -444,7 +445,7 @@ const Registrations = () => {
           schoolName: '', preferredLanguage: '', country: '',
           totalFees: '', totalPaid: '', totalHours: '', nextInstallmentDate: '', 
           admissionType: 'new', registrationNumber: '', meetingLink: '',
-          enrollmentType: '', rejoiningFee: ''
+          enrollmentType: '', rejoiningFee: '', existingStudentId: ''
         });
         setSelectedSubjects([{ subject: '', dayConfigs: [], facultyId: '', facultyName: '', hourlyRate: '', availableFaculties: [] }]);
       }

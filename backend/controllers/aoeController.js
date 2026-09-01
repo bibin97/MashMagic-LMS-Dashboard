@@ -350,7 +350,7 @@ const registerStudent = async (req, res) => {
             admissionDate, schoolName, preferredLanguage, country,
             totalFees, totalPaid, totalHours, nextInstallmentDate,
             admissionType, registrationNumber, meetingLink, enrollmentType,
-            selectedSubjects, rejoiningFee, syllabus, enrollmentNote
+            selectedSubjects, rejoiningFee, syllabus, enrollmentNote, existingStudentId
         } = req.body;
 
         // Ensure student email does not conflict with staff emails
@@ -363,7 +363,7 @@ const registerStudent = async (req, res) => {
             }
         }
 
-        const hash = await bcrypt.hash(password || "student123", 10);
+        const hash = password ? await bcrypt.hash(password, 10) : undefined;
         
         let badge = 'Stable';
         if (enrollmentType === 'Mentorship') badge = 'Gold';
@@ -371,26 +371,76 @@ const registerStudent = async (req, res) => {
         if (enrollmentType === 'Mentorship and Tuition') badge = 'Diamond';
 
         await conn.beginTransaction();
-        const [ur] = await conn.query('INSERT INTO users (name, email, phone_number, password, role, status, isApproved, isActive) VALUES (?, ?, ?, ?, "student", "active", 1, 1)', [name, finalEmail || null, contact || null, hash]);
         
-        const [studentResult] = await conn.query(`
-            INSERT INTO students (
-                name, email, password, user_id, contact, grade, course, mentor_id, 
-                admission_date, school_name, preferred_language, country, 
-                total_fees, total_paid, total_hours, next_installment_date, 
-                admission_type, registration_number, meeting_link, enrollment_type, badge, 
-                subjects_json, status, isApproved, priority_category, rejoining_fee, syllabus, enrollment_note
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "active", 1, "High", ?, ?, ?)
-        `, [
-            name, finalEmail || null, hash, ur.insertId, contact || null, grade, course, mentorId || null,
-            admissionDate || null, schoolName || null, preferredLanguage || null, country || null,
-            totalFees || 0, totalPaid || 0, totalHours || 0, nextInstallmentDate || null,
-            admissionType || 'new', registrationNumber || null, meetingLink || null, enrollmentType || null, badge,
-            selectedSubjects ? JSON.stringify(selectedSubjects) : null,
-            rejoiningFee || 0, syllabus || null, enrollmentNote || null
-        ]);
+        let studentId;
+        let userId;
 
-        const studentId = studentResult.insertId;
+        if (admissionType === 'rejoining' && existingStudentId) {
+            // Rejoining existing student
+            studentId = existingStudentId;
+            
+            // Fetch existing to add fees
+            const [existingRows] = await conn.query('SELECT total_fees, total_paid, user_id FROM students WHERE id = ?', [studentId]);
+            if (existingRows.length > 0) {
+                userId = existingRows[0].user_id;
+                
+                // For rejoining, keep the old total_fees and just set the rejoining_fee 
+                // (or add it if needed, but per request, show both separately)
+                // If the user entered totalFees in the form, let's assume it's the NEW additional fee.
+                const newTotalFees = Number(existingRows[0].total_fees || 0) + Number(totalFees || 0);
+                // Also update the users table if needed (e.g. name, email)
+                if (hash) {
+                    await conn.query('UPDATE users SET name = ?, email = ?, phone_number = ?, password = ? WHERE id = ?', 
+                        [name, finalEmail || null, contact || null, hash, userId]);
+                } else {
+                    await conn.query('UPDATE users SET name = ?, email = ?, phone_number = ? WHERE id = ?', 
+                        [name, finalEmail || null, contact || null, userId]);
+                }
+
+                await conn.query(`
+                    UPDATE students SET
+                        name = ?, email = ?, contact = ?, grade = ?, course = ?, mentor_id = ?,
+                        school_name = ?, preferred_language = ?, country = ?,
+                        total_fees = ?, total_hours = total_hours + ?, next_installment_date = ?,
+                        admission_type = ?, registration_number = ?, meeting_link = ?, enrollment_type = ?, badge = ?,
+                        subjects_json = ?, status = "active", priority_category = "High", rejoining_fee = ?, syllabus = ?, enrollment_note = ?
+                    WHERE id = ?
+                `, [
+                    name, finalEmail || null, contact || null, grade, course, mentorId || null,
+                    schoolName || null, preferredLanguage || null, country || null,
+                    newTotalFees, totalHours || 0, nextInstallmentDate || null,
+                    admissionType, registrationNumber || null, meetingLink || null, enrollmentType || null, badge,
+                    selectedSubjects ? JSON.stringify(selectedSubjects) : null,
+                    rejoiningFee || 0, syllabus || null, enrollmentNote || null,
+                    studentId
+                ]);
+            } else {
+                throw new Error("Existing student not found.");
+            }
+        } else {
+            // New student or existing without ID
+            const insertHash = hash || await bcrypt.hash("student123", 10);
+            const [ur] = await conn.query('INSERT INTO users (name, email, phone_number, password, role, status, isApproved, isActive) VALUES (?, ?, ?, ?, "student", "active", 1, 1)', [name, finalEmail || null, contact || null, insertHash]);
+            userId = ur.insertId;
+
+            const [studentResult] = await conn.query(`
+                INSERT INTO students (
+                    name, email, password, user_id, contact, grade, course, mentor_id, 
+                    admission_date, school_name, preferred_language, country, 
+                    total_fees, total_paid, total_hours, next_installment_date, 
+                    admission_type, registration_number, meeting_link, enrollment_type, badge, 
+                    subjects_json, status, isApproved, priority_category, rejoining_fee, syllabus, enrollment_note
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "active", 1, "High", ?, ?, ?)
+            `, [
+                name, finalEmail || null, insertHash, userId, contact || null, grade, course, mentorId || null,
+                admissionDate || null, schoolName || null, preferredLanguage || null, country || null,
+                totalFees || 0, totalPaid || 0, totalHours || 0, nextInstallmentDate || null,
+                admissionType || 'new', registrationNumber || null, meetingLink || null, enrollmentType || null, badge,
+                selectedSubjects ? JSON.stringify(selectedSubjects) : null,
+                rejoiningFee || 0, syllabus || null, enrollmentNote || null
+            ]);
+            studentId = studentResult.insertId;
+        }
 
         if (selectedSubjects && Array.isArray(selectedSubjects) && selectedSubjects.length > 0) {
             for (const sub of selectedSubjects) {
@@ -442,7 +492,7 @@ const registerStudent = async (req, res) => {
             subjects_json: selectedSubjects ? JSON.stringify(selectedSubjects) : null,
             rejoining_fee: rejoiningFee || 0, syllabus: syllabus || null,
             enrollment_note: enrollmentNote || null,
-            user_id: ur.insertId
+            user_id: userId
         };
 
         await verifyStudentSave(conn, studentId, payloadToVerify);
