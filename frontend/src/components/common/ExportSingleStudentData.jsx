@@ -123,8 +123,9 @@ const ExportSingleStudentData = ({ buttonLabel = 'Export Full Data', customClass
       wsProfile['!cols'] = [{ wch: 25 }, { wch: 40 }];
       XLSX.utils.book_append_sheet(wb, wsProfile, "Profile Info");
 
+      let classData = [];
       if (student.timetable && student.timetable.length > 0) {
-        const classData = student.timetable.map(t => ({
+        classData = student.timetable.map(t => ({
           'Session No': t.session_number,
           'Date': new Date(t.date).toLocaleDateString('en-GB'),
           'Time': `${t.start_time} - ${t.end_time}`,
@@ -132,16 +133,26 @@ const ExportSingleStudentData = ({ buttonLabel = 'Export Full Data', customClass
           'Faculty': t.faculty_name || 'N/A',
           'Status': t.status
         }));
-        const wsClasses = XLSX.utils.json_to_sheet(classData);
-        wsClasses['!cols'] = [{ wch: 15 }, { wch: 15 }, { wch: 20 }, { wch: 40 }, { wch: 25 }, { wch: 15 }];
-        XLSX.utils.book_append_sheet(wb, wsClasses, "Class Details");
+      } else {
+        classData = [{
+          'Session No': 'No classes scheduled yet',
+          'Date': '',
+          'Time': '',
+          'Chapter / Topic': '',
+          'Faculty': '',
+          'Status': ''
+        }];
       }
+      
+      const wsClasses = XLSX.utils.json_to_sheet(classData);
+      wsClasses['!cols'] = [{ wch: 15 }, { wch: 15 }, { wch: 20 }, { wch: 40 }, { wch: 25 }, { wch: 15 }];
+      XLSX.utils.book_append_sheet(wb, wsClasses, "Class Details");
 
+      let subjectData = [];
       if (student.subjects_json) {
         try {
           const subjects = typeof student.subjects_json === 'string' ? JSON.parse(student.subjects_json) : student.subjects_json;
           if (Array.isArray(subjects) && subjects.length > 0) {
-            const subjectData = [];
             subjects.forEach(sub => {
               const subjectName = Array.isArray(sub.subject) ? sub.subject.join(', ') : sub.subject;
               const days = sub.days ? sub.days.join(', ') : (sub.day || '');
@@ -166,12 +177,23 @@ const ExportSingleStudentData = ({ buttonLabel = 'Export Full Data', customClass
                 });
               }
             });
-            const wsSubjects = XLSX.utils.json_to_sheet(subjectData);
-            wsSubjects['!cols'] = [{ wch: 25 }, { wch: 25 }, { wch: 15 }, { wch: 20 }, { wch: 20 }];
-            XLSX.utils.book_append_sheet(wb, wsSubjects, "Enrolled Subjects");
           }
         } catch(e) {}
       }
+
+      if (subjectData.length === 0) {
+        subjectData = [{
+          'Subject': 'No subjects enrolled',
+          'Faculty': '',
+          'Hourly Rate': '',
+          'Day': '',
+          'Time': ''
+        }];
+      }
+
+      const wsSubjects = XLSX.utils.json_to_sheet(subjectData);
+      wsSubjects['!cols'] = [{ wch: 25 }, { wch: 25 }, { wch: 15 }, { wch: 20 }, { wch: 20 }];
+      XLSX.utils.book_append_sheet(wb, wsSubjects, "Enrolled Subjects");
 
       XLSX.writeFile(wb, `${student.name.replace(/\s+/g, '_')}_Full_Data.xlsx`);
       toast.success("Student data exported!");
