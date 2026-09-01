@@ -1170,9 +1170,9 @@ const editStudent = async (req, res) => {
 const deleteStudent = async (req, res) => {
     try {
         const { id } = req.params;
-        const [student] = await db.query('SELECT user_id FROM students WHERE id = ?', [id]);
+        const [student] = await db.query('SELECT user_id, name FROM students WHERE id = ?', [id]);
         if (student.length === 0) {
-            return res.status(404).json({ success: false, message: "Student not found" });
+            return res.status(404).json({ success: false, message: `Student ID ${id} not found` });
         }
         
         // Delete related records to prevent foreign key constraint errors
@@ -1187,15 +1187,19 @@ const deleteStudent = async (req, res) => {
         await db.query('DELETE FROM fee_installments WHERE student_id = ?', [id]).catch(e => console.log('fee delete err', e.message));
         
         // Delete the main records
-        await db.query('DELETE FROM students WHERE id = ?', [id]);
+        const [delRes] = await db.query('DELETE FROM students WHERE id = ?', [id]);
+        if (delRes.affectedRows === 0) {
+             return res.status(500).json({ success: false, message: `DELETE executed but 0 rows affected for ID ${id}` });
+        }
+
         if (student[0].user_id) {
             await db.query('DELETE FROM users WHERE id = ?', [student[0].user_id]);
         }
         
-        res.status(200).json({ success: true, message: "Student record deleted from dashboard" });
+        res.status(200).json({ success: true, message: `Permanently deleted ${student[0].name} (ID: ${id})` });
     } catch (e) { 
         console.error("DELETE_STUDENT_ERROR:", e);
-        res.status(500).json({ success: false, message: e.message }); 
+        res.status(500).json({ success: false, message: "Server error: " + e.message }); 
     }
 };
 

@@ -274,7 +274,7 @@ const StudentsList = ({
       try {
         const res = await api.delete(`${apiPath}/students/${id}`);
         if (res.data.success) {
-          toast.success("Student record deleted");
+          toast.success(res.data.message || "Student record deleted");
           fetchStudents();
         }
       } catch (error) {
