@@ -190,6 +190,7 @@ const StudentsList = ({
       if (filterMentor !== 'all') params.append('mentor_id', filterMentor);
       if (filterFaculty !== 'all') params.append('faculty_id', filterFaculty);
       if (filterDate) params.append('date', filterDate);
+      params.append('_t', new Date().getTime());
       
       const res = await api.get(`${apiPath}/students-all?${params.toString()}`);
 
