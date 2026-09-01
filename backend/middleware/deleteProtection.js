@@ -2,7 +2,7 @@ const deleteProtection = (req, res, next) => {
     if (req.method === 'DELETE') {
         // Paths that indicate a deletion of a core entity
         const protectedPaths = [
-            '/students', 
+            // '/students', // commented out to allow student deletion
             '/faculties', 
             '/mentors', 
             '/users',
